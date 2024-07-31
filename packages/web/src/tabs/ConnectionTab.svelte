@@ -32,6 +32,7 @@
   import { onMount } from 'svelte';
   import { disconnectServerConnection, openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';
+  import { useConfig } from '../utility/metadataLoaders';
 
   export let connection;
   export let tabid;
@@ -57,6 +58,7 @@
 
   $: engine = $values.engine;
   $: driver = $extensions.drivers.find(x => x.engine == engine);
+  $: config = useConfig();
 
   const testIdRef = createRef(0);
 
@@ -91,7 +93,7 @@
       'socketPath',
       'serviceName',
     ];
-    const visibleProps = allProps.filter(x => driver?.showConnectionField(x, $values));
+    const visibleProps = allProps.filter(x => driver?.showConnectionField(x, $values, { config: $config }));
     const omitProps = _.difference(allProps, visibleProps);
     if (!$values.defaultDatabase) omitProps.push('singleDatabase');
 

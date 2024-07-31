@@ -5,8 +5,10 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
+const { platform } = require('os');
 
 let requireOracledb;
+let platformInfo;
 
 let oracledbValue;
 function getOracledb() {
@@ -15,7 +17,6 @@ function getOracledb() {
   }
   return oracledbValue;
 }
-
 
 /*
 pg.types.setTypeParser(1082, 'text', val => val); // date
@@ -327,23 +328,26 @@ const driver = {
   },
 
   getAuthTypes() {
-    return [
-      {
-        title: 'Thin mode (default) - direct connection to Oracle database',
-        name: 'thin',
-      },
-      {
-        title: 'Thick mode - connection via Oracle instant client',
-        name: 'thick',
-      },
-    ];
+    if (platformInfo?.isElectron || process.env.ORACLE_INSTANT_CLIENT) {
+      return [
+        {
+          title: 'Thin mode (default) - direct connection to Oracle database',
+          name: 'thin',
+        },
+        {
+          title: 'Thick mode - connection via Oracle instant client',
+          name: 'thick',
+        },
+      ];
+    }
   },
 };
 
-driver.initialize = (dbgateEnv) => {
+driver.initialize = dbgateEnv => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['oracledb']) {
     requireOracledb = dbgateEnv.nativeModules['oracledb'];
   }
+  platformInfo = dbgateEnv.platformInfo;
 };
 
 module.exports = driver;

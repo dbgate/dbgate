@@ -12,7 +12,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import { extensions, getCurrentConfig, openedConnections, openedSingleDatabaseConnections } from '../stores';
   import getElectron from '../utility/getElectron';
-  import { useAuthTypes } from '../utility/metadataLoaders';
+  import { useAuthTypes, useConfig } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
@@ -27,13 +27,16 @@
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
+  $: config = useConfig();
 
-  $: showUser = driver?.showConnectionField('user', $values) && $values.passwordMode != 'askUser';
+  $: showConnectionFieldArgs = { config: $config };
+
+  $: showUser = driver?.showConnectionField('user', $values, showConnectionFieldArgs) && $values.passwordMode != 'askUser';
   $: showPassword =
-    driver?.showConnectionField('password', $values) &&
+    driver?.showConnectionField('password', $values, showConnectionFieldArgs) &&
     $values.passwordMode != 'askPassword' &&
     $values.passwordMode != 'askUser';
-  $: showPasswordMode = driver?.showConnectionField('password', $values);
+  $: showPasswordMode = driver?.showConnectionField('password', $values, showConnectionFieldArgs);
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
 
@@ -53,11 +56,11 @@
   ]}
 />
 
-{#if driver?.showConnectionField('databaseFile', $values)}
+{#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
   <FormElectronFileSelector label="Database file" name="databaseFile" disabled={isConnected || !electron} />
 {/if}
 
-{#if driver?.showConnectionField('useDatabaseUrl', $values)}
+{#if driver?.showConnectionField('useDatabaseUrl', $values, showConnectionFieldArgs)}
   <div class="radio">
     <FormRadioGroupField
       disabled={isConnected}
@@ -70,7 +73,7 @@
   </div>
 {/if}
 
-{#if driver?.showConnectionField('databaseUrl', $values)}
+{#if driver?.showConnectionField('databaseUrl', $values, showConnectionFieldArgs)}
   <FormTextField
     label="Database URL"
     name="databaseUrl"
@@ -79,7 +82,7 @@
   />
 {/if}
 
-{#if $authTypes && driver?.showConnectionField('authType', $values)}
+{#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs)}
   <FormSelectField
     label={driver?.authTypeLabel ?? 'Authentication'}
     name="authType"
@@ -93,15 +96,11 @@
   />
 {/if}
 
-{#if driver?.showConnectionField('clientLibraryPath', $values)}
-  <FormTextField
-    label="Client library path"
-    name="clientLibraryPath"
-    disabled={isConnected}
-  />
+{#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}
+  <FormTextField label="Client library path" name="clientLibraryPath" disabled={isConnected} />
 {/if}
 
-{#if driver?.showConnectionField('server', $values)}
+{#if driver?.showConnectionField('server', $values, showConnectionFieldArgs)}
   <div class="row">
     <div class="col-9 mr-1">
       <FormTextField
@@ -111,7 +110,7 @@
         templateProps={{ noMargin: true }}
       />
     </div>
-    {#if driver?.showConnectionField('port', $values)}
+    {#if driver?.showConnectionField('port', $values, showConnectionFieldArgs)}
       <div class="col-3 mr-1">
         <FormTextField
           label="Port"
@@ -131,11 +130,11 @@
   {/if}
 {/if}
 
-{#if driver?.showConnectionField('serviceName', $values)}
+{#if driver?.showConnectionField('serviceName', $values, showConnectionFieldArgs)}
   <FormTextField label="Service name" name="serviceName" disabled={isConnected} />
 {/if}
 
-{#if driver?.showConnectionField('socketPath', $values)}
+{#if driver?.showConnectionField('socketPath', $values, showConnectionFieldArgs)}
   <FormTextField
     label="Socket path"
     name="socketPath"
@@ -191,27 +190,27 @@
   />
 {/if}
 
-{#if driver?.showConnectionField('treeKeySeparator', $values)}
+{#if driver?.showConnectionField('treeKeySeparator', $values, showConnectionFieldArgs)}
   <FormTextField label="Key separator" name="treeKeySeparator" disabled={isConnected} placeholder=":" />
 {/if}
 
-{#if driver?.showConnectionField('windowsDomain', $values)}
+{#if driver?.showConnectionField('windowsDomain', $values, showConnectionFieldArgs)}
   <FormTextField label="Domain (specify to use NTLM authentication)" name="windowsDomain" disabled={isConnected} />
 {/if}
 
-{#if driver?.showConnectionField('isReadOnly', $values)}
+{#if driver?.showConnectionField('isReadOnly', $values, showConnectionFieldArgs)}
   <FormCheckboxField label="Is read only" name="isReadOnly" disabled={isConnected} />
 {/if}
 
-{#if driver?.showConnectionField('trustServerCertificate', $values)}
+{#if driver?.showConnectionField('trustServerCertificate', $values, showConnectionFieldArgs)}
   <FormCheckboxField label="Trust server certificate" name="trustServerCertificate" disabled={isConnected} />
 {/if}
 
-{#if driver?.showConnectionField('defaultDatabase', $values)}
+{#if driver?.showConnectionField('defaultDatabase', $values, showConnectionFieldArgs)}
   <FormTextField label="Default database" name="defaultDatabase" disabled={isConnected} />
 {/if}
 
-{#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values)}
+{#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values, showConnectionFieldArgs)}
   <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" disabled={isConnected} />
 {/if}
 

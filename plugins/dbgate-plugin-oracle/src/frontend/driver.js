@@ -98,11 +98,10 @@ const oracleDriver = {
 
   databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
-  
-  showConnectionField: (field, values) => {
+  showConnectionField: (field, values, { config }) => {
     if (field == 'useDatabaseUrl') return true;
     if (field == 'authType') return true;
-    if (field == 'clientLibraryPath') return values.authType == 'thick';
+    if (field == 'clientLibraryPath') return config?.isElectron && values.authType == 'thick';
 
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'user', 'password'].includes(field);

@@ -90,7 +90,13 @@ export interface EngineDriver {
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
-  showConnectionField?: (field: string, values: any) => boolean;
+  showConnectionField?: (
+    field: string,
+    values: any,
+    {
+      config: {},
+    }
+  ) => boolean;
   showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
