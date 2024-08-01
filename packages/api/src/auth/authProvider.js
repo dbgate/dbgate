@@ -113,7 +113,7 @@ class ADProvider extends AuthProviderBase {
       url: process.env.AD_URL,
       baseDN: process.env.AD_BASEDN,
       username: process.env.AD_USERNAME,
-      password: process.env.AD_PASSOWRD,
+      password: process.env.AD_PASSWORD,
     };
     const ad = new AD(adConfig);
     try {
