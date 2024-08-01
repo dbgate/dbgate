@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.3.3
+- FIXED: The application Window is not visible when openning after changing monitor configuration. #856
+- FIXED: Multi column filter is broken for Postgresql #855
+- ADDED: Do not display internal timescaledb objects in postgres databases #839
+- FIXED: When in splitview mode and Clicking "Refresh" button on the right side, will refresh the left side, and not the right side #810
+- FIXED: Cannot filter by uuid field in psql #538
+
 ### 5.3.1
 - FIXED: Column sorting on query tab not working #819
 - FIXED: Postgres Connection stays in "Loading database structure" until reloading the page #826
