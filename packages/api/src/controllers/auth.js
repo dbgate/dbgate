@@ -21,7 +21,13 @@ function unauthorizedResponse(req, res, text) {
 }
 
 function authMiddleware(req, res, next) {
-  const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/auth/login', '/stream'];
+  const SKIP_AUTH_PATHS = [
+    '/config/get',
+    '/auth/oauth-token',
+    '/auth/login',
+    '/stream',
+    'storage/get-connections-for-login-page',
+  ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
 

@@ -9,14 +9,32 @@
   import { apiCall, enableApi } from './utility/api';
   import { useConfig } from './utility/metadataLoaders';
   import ErrorInfo from './elements/ErrorInfo.svelte';
+  import FormSelectField from './forms/FormSelectField.svelte';
+  import { writable } from 'svelte/store';
+  import FormProviderCore from './forms/FormProviderCore.svelte';
 
   export let isAdminPage;
 
   const config = useConfig();
 
+  let availableConnections = null;
+
+  const values = writable({});
+
+  async function loadAvailableServers() {
+    availableConnections = await apiCall('storage/get-connections-for-login-page');
+    if (availableConnections?.length > 0) {
+      values.set({ databaseServer: availableConnections[0].id });
+    }
+  }
+
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
+
+    if (!isAdminPage) {
+      loadAvailableServers();
+    }
   });
 </script>
 
@@ -28,7 +46,16 @@
     </div>
     <div class="box">
       <div class="heading">Log In</div>
-      <FormProvider>
+      <FormProviderCore {values}>
+        {#if !isAdminPage && availableConnections}
+          <FormSelectField
+            label="Database server"
+            name="databaseServer"
+            isNative
+            options={availableConnections.map(conn => ({ value: conn.id, label: conn.label }))}
+          />
+        {/if}
+
         {#if !isAdminPage}
           <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
         {/if}
@@ -67,7 +94,7 @@
             }}
           />
         </div>
-      </FormProvider>
+      </FormProviderCore>
     </div>
   </div>
 </div>
