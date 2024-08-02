@@ -20,7 +20,7 @@
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
   import SettingsListener from './utility/SettingsListener.svelte';
-  import { handleAuthOnStartup, handleOauthCallback } from './clientAuth';
+  import { handleAuthOnStartup } from './clientAuth';
 
   export let isAdminPage = false;
 

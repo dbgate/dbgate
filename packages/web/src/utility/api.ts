@@ -12,6 +12,7 @@ import uuidv1 from 'uuid/v1';
 import { openWebLink } from './exportFileTools';
 
 export const strmid = uuidv1();
+const privateApiState = Math.random().toString().substr(2);
 
 let eventSource;
 let apiLogging = false;
@@ -65,7 +66,13 @@ function processApiResponse(route, args, resp) {
 
   if (resp?.missingCredentials) {
     if (resp.detail.redirectToDbLogin) {
-      openWebLink(`connections/dblogin?conid=${resp.detail.conid}`);
+      const state = `dbg-dblogin:${privateApiState}@${resp.detail.conid}`;
+      localStorage.setItem('dbloginState', state);
+      openWebLink(
+        `connections/dblogin?conid=${resp.detail.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+          location.origin + location.pathname
+        }`
+      );
     } else if (!isDatabaseLoginVisible()) {
       showModal(DatabaseLoginModal, resp.detail);
     }

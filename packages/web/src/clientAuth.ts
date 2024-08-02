@@ -12,6 +12,16 @@ export function isOauthCallback() {
   );
 }
 
+export function isDbLoginCallback() {
+  const params = new URLSearchParams(location.search);
+  const sentCode = params.get('code');
+  const sentState = params.get('state');
+
+  return (
+    sentCode && sentState && sentState.startsWith('dbg-dblogin:') && sentState == localStorage.getItem('dbloginState')
+  );
+}
+
 export function handleOauthCallback() {
   const params = new URLSearchParams(location.search);
   const sentCode = params.get('code');
@@ -20,6 +30,32 @@ export function handleOauthCallback() {
     sessionStorage.removeItem('oauthState');
     apiCall('auth/oauth-token', {
       code: sentCode,
+      redirectUri: location.origin + location.pathname,
+    }).then(authResp => {
+      const { accessToken, error, errorMessage } = authResp;
+
+      if (accessToken) {
+        console.log('Settings access token from OAUTH');
+        localStorage.setItem('accessToken', accessToken);
+        internalRedirectTo('/');
+      } else {
+        console.log('Error when processing OAUTH callback', error || errorMessage);
+        internalRedirectTo(`?page=not-logged&error=${error || errorMessage}`);
+      }
+    });
+
+    return true;
+  }
+
+  console.log('****************** IS DB LOGIN TEST');
+  if (isDbLoginCallback()) {
+    console.log('****************** IS DB LOGIN TRUE');
+    const conid = localStorage.getItem('dbloginState').split('@')[1];
+    localStorage.removeItem('dbloginState');
+
+    apiCall('connections/dblogin-token', {
+      code: sentCode,
+      conid,
       redirectUri: location.origin + location.pathname,
     }).then(authResp => {
       const { accessToken, error, errorMessage } = authResp;

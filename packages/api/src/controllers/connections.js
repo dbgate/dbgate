@@ -386,10 +386,18 @@ module.exports = {
     method: 'get',
   },
   async dblogin(req, res) {
-    const { conid } = req.query;
+    const { conid, state, redirectUri } = req.query;
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const authUrl = await driver.getRedirectAuthUrl(connection);
+    const authUrl = await driver.getRedirectAuthUrl(connection, { redirectUri, state });
     res.redirect(authUrl);
+  },
+
+  dbloginToken_meta: true,
+  async dbloginToken({ code, conid, redirectUri }) {
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const token = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+    console.log('******************************** WE HAVE ACCESS TOKEN', token);
   },
 };

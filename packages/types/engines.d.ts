@@ -149,7 +149,8 @@ export interface EngineDriver {
   summaryCommand(pool, command, row): Promise<void>;
   startProfiler(pool, options): Promise<any>;
   stopProfiler(pool, profiler): Promise<void>;
-  getRedirectAuthUrl(connection): Promise<string>;
+  getRedirectAuthUrl(connection, options): Promise<string>;
+  getAuthTokenFromCode(connection, options): Promise<string>;
 
   analyserClass?: any;
   dumperClass?: any;

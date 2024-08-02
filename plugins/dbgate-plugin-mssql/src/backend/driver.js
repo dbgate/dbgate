@@ -8,7 +8,7 @@ const AsyncLock = require('async-lock');
 const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
-const { getAzureAuthTypes, azureGetRedirectAuthUrl } = require('./azureAuth');
+const { getAzureAuthTypes, azureGetRedirectAuthUrl, azureGetAuthTokenFromCode } = require('./azureAuth');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
 
 let requireMsnodesqlv8;
@@ -125,9 +125,12 @@ const driver = {
     const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
     return rows;
   },
-  getRedirectAuthUrl(connection) {
-    return azureGetRedirectAuthUrl(connection);
-  }
+  getRedirectAuthUrl(connection, options) {
+    return azureGetRedirectAuthUrl(connection, options);
+  },
+  getAuthTokenFromCode(connection, options) {
+    return azureGetAuthTokenFromCode(connection, options);
+  },
 };
 
 driver.initialize = dbgateEnv => {
