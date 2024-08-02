@@ -209,6 +209,10 @@ export function useApiCall(route, args, defaultValue) {
   return result;
 }
 
+export function getVolatileConnections() {
+  return Object.values(volatileConnectionMap);
+}
+
 function enableApiLog() {
   apiLogging = true;
   console.log('API loggin enabled');

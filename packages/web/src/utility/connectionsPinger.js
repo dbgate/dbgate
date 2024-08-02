@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { openedConnections, currentDatabase, openedConnectionsWithTemporary, getCurrentConfig } from '../stores';
-import { apiCall, strmid } from './api';
+import { openedConnections, currentDatabase, openedConnectionsWithTemporary, getCurrentConfig, getOpenedConnections } from '../stores';
+import { apiCall, getVolatileConnections, strmid } from './api';
 import { getConnectionList } from './metadataLoaders';
 import hasPermission from '../utility/hasPermission';
 
@@ -11,9 +11,14 @@ import hasPermission from '../utility/hasPermission';
 // };
 
 const doServerPing = value => {
+  const conidArray = [...value];
+  if (getCurrentConfig().storageDatabase && hasPermission('internal-storage')) {
+    conidArray.push('__storage');
+  }
+  conidArray.push(...getVolatileConnections());
+
   apiCall('server-connections/ping', {
-    conidArray:
-      getCurrentConfig().storageDatabase && hasPermission('internal-storage') ? ['__storage', ...value] : value,
+    conidArray,
     strmid,
   });
 };
@@ -42,4 +47,9 @@ export function subscribeConnectionPingers() {
     if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle);
     currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 20 * 1000);
   });
+}
+
+export function callServerPing() {
+  const connections = getOpenedConnections();
+  doServerPing(connections);
 }
