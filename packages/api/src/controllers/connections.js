@@ -16,6 +16,7 @@ const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 const logger = getLogger('connections');
 
@@ -345,7 +346,7 @@ module.exports = {
 
     const storage = require('./storage');
 
-    const storageConnection = await storage.getConnection({conid});
+    const storageConnection = await storage.getConnection({ conid });
     if (storageConnection) {
       return storageConnection;
     }
@@ -378,5 +379,17 @@ module.exports = {
       defaultDatabase: `${file}.sqlite`,
     });
     return res;
+  },
+
+  dblogin_meta: {
+    raw: true,
+    method: 'get',
+  },
+  async dblogin(req, res) {
+    const { conid } = req.query;
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const authUrl = driver.getRedirectAuthUrl(connection);
+    res.redirect(authUrl);
   },
 };

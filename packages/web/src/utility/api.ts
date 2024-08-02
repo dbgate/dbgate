@@ -9,6 +9,7 @@ import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
+import { openWebLink } from './exportFileTools';
 
 export const strmid = uuidv1();
 
@@ -63,7 +64,9 @@ function processApiResponse(route, args, resp) {
   // }
 
   if (resp?.missingCredentials) {
-    if (!isDatabaseLoginVisible()) {
+    if (resp.detail.redirectToDbLogin) {
+      openWebLink('connections/dblogin');
+    } else if (!isDatabaseLoginVisible()) {
       showModal(DatabaseLoginModal, resp.detail);
     }
     return null;

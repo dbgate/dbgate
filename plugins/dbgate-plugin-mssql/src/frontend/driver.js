@@ -130,7 +130,7 @@ const driver = {
       field
     ) ||
     (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi') ||
-    (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi'),
+    (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi' && values.authType != 'msentra'),
   // (field == 'useDatabaseUrl' && values.authType != 'sql' && values.authType != 'sspi')
   getQuerySplitterOptions: usage =>
     usage == 'editor'
@@ -153,6 +153,13 @@ const driver = {
         sql: 'CREATE FUNCTION myfunc (@arg1 INT) RETURNS TABLE \nAS\nRETURN SELECT * FROM table1',
       },
     ];
+  },
+
+  beforeConnectionSave: connection => {
+    return {
+      ...connection,
+      useRedirectDbLogin: connection.authType == 'msentra' ? 1 : 0,
+    };
   },
 };
 

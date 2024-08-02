@@ -31,7 +31,8 @@
 
   $: showConnectionFieldArgs = { config: $config };
 
-  $: showUser = driver?.showConnectionField('user', $values, showConnectionFieldArgs) && $values.passwordMode != 'askUser';
+  $: showUser =
+    driver?.showConnectionField('user', $values, showConnectionFieldArgs) && $values.passwordMode != 'askUser';
   $: showPassword =
     driver?.showConnectionField('password', $values, showConnectionFieldArgs) &&
     $values.passwordMode != 'askPassword' &&
@@ -83,17 +84,19 @@
 {/if}
 
 {#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs)}
-  <FormSelectField
-    label={driver?.authTypeLabel ?? 'Authentication'}
-    name="authType"
-    isNative
-    disabled={isConnected}
-    defaultValue={driver?.defaultAuthTypeName}
-    options={$authTypes.map(auth => ({
-      value: auth.name,
-      label: auth.title,
-    }))}
-  />
+  {#key $authTypes}
+    <FormSelectField
+      label={driver?.authTypeLabel ?? 'Authentication'}
+      name="authType"
+      isNative
+      disabled={isConnected}
+      defaultValue={driver?.defaultAuthTypeName}
+      options={$authTypes.map(auth => ({
+        value: auth.name,
+        label: auth.title,
+      }))}
+    />
+  {/key}
 {/if}
 
 {#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}

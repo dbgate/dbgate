@@ -89,6 +89,9 @@ module.exports = {
     if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
       throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
     }
+    if (connection.useRedirectDbLogin) {
+      throw new MissingCredentialsError({ conid, redirectToDbLogin: true });
+    }
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
