@@ -223,6 +223,12 @@ export function getVolatileConnections() {
   return Object.values(volatileConnectionMap);
 }
 
+export function installNewVolatileConnectionListener() {
+  apiOn('got-volatile-token', ({ conid, volatileConId }) => {
+    setVolatileConnectionRemapping(conid, volatileConId);
+  });
+}
+
 function enableApiLog() {
   apiLogging = true;
   console.log('API loggin enabled');

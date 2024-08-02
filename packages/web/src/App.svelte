@@ -14,7 +14,7 @@
   // import { shouldWaitForElectronInitialize } from './utility/getElectron';
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
-  import { apiCall } from './utility/api';
+  import { apiCall, installNewVolatileConnectionListener } from './utility/api';
   import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
@@ -48,6 +48,7 @@
         subscribeApiDependendStores();
         subscribeConnectionPingers();
         subscribePermissionCompiler();
+        installNewVolatileConnectionListener();
       }
 
       loadedApi = loadedApiValue;

@@ -243,12 +243,13 @@ module.exports = {
   },
 
   saveVolatile_meta: true,
-  async saveVolatile({ conid, user, password, test }) {
+  async saveVolatile({ conid, user = undefined, password = undefined, accessToken = undefined, test = false }) {
     const old = await this.getCore({ conid });
     const res = {
       ...old,
       _id: crypto.randomUUID(),
       password,
+      accessToken,
       passwordMode: undefined,
       unsaved: true,
     };
@@ -397,7 +398,9 @@ module.exports = {
   async dbloginToken({ code, conid, redirectUri }) {
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const token = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
-    console.log('******************************** WE HAVE ACCESS TOKEN', token);
+    const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+    const volatile = await this.saveVolatile({ conid, accessToken });
+    console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
+    socket.emit('got-volatile-token', { conid, volatileConId: volatile._id });
   },
 };
