@@ -121,7 +121,7 @@ registerCommand({
   toolbarName: 'Add connection folder',
   category: 'New',
   toolbarOrder: 1,
-  name: 'Connection',
+  name: 'Connection folder',
   testEnabled: () => !getCurrentConfig()?.runAsPortal,
   onClick: () => {
     showModal(InputTextModal, {

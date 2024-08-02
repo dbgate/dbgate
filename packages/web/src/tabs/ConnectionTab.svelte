@@ -28,7 +28,7 @@
   import { apiCall } from '../utility/api';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { changeTab } from '../utility/common';
-  import getConnectionLabel from '../utility/getConnectionLabel';
+  import { getConnectionLabel } from 'dbgate-tools';
   import { onMount } from 'svelte';
   import { disconnectServerConnection, openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';

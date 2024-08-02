@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { recentDatabases, currentDatabase, getRecentDatabases } from '../stores';
-import getConnectionLabel from '../utility/getConnectionLabel';
 import registerCommand from './registerCommand';
+import { getConnectionLabel } from 'dbgate-tools';
 
 currentDatabase.subscribe(value => {
   if (!value) return;

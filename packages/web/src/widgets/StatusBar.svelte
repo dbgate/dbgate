@@ -14,7 +14,7 @@
     selectedWidget,
     visibleCommandPalette,
   } from '../stores';
-  import getConnectionLabel from '../utility/getConnectionLabel';
+  import { getConnectionLabel } from 'dbgate-tools';
   import { useConnectionList, useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';

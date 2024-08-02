@@ -776,7 +776,7 @@
     pinnedTables,
   } from '../stores';
   import openNewTab from '../utility/openNewTab';
-  import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
+  import { filterName, generateDbPairingId, getAlterDatabaseScript, getConnectionLabel } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -784,7 +784,6 @@
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';

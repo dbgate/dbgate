@@ -287,7 +287,6 @@
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
@@ -295,6 +294,7 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let multiTabIndex;
   export let shownTab;

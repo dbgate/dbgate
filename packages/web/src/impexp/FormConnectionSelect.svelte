@@ -1,8 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
   import FormSelectField from '../forms/FormSelectField.svelte';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionList } from '../utility/metadataLoaders';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let allowChooseModel = false;
   export let direction;

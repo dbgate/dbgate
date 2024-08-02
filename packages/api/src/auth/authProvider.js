@@ -39,6 +39,10 @@ class AuthProviderBase {
   getAdditionalConfigProps() {
     return {};
   }
+
+  getLoginPageConnections() {
+    return null;
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {

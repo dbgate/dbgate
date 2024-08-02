@@ -4,11 +4,17 @@ module.exports = {
     return null;
   },
 
+  getConnection_meta: true,
   async getConnection({ conid }) {
     return null;
   },
 
   async loadSuperadminPermissions() {
     return [];
-  }
+  },
+
+  getConnectionsForLoginPage_meta: true,
+  async getConnectionsForLoginPage() {
+    return null;
+  },
 };
