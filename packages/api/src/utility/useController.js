@@ -67,7 +67,7 @@ module.exports = function useController(app, electron, route, controller) {
     }
 
     if (raw) {
-      router[method](routeAction, controller[key]);
+      router[method](routeAction, (req, res) => controller[key](req, res));
     } else {
       router[method](routeAction, async (req, res) => {
         // if (controller._init && !controller._init_called) {

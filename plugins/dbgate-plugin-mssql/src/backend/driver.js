@@ -8,7 +8,7 @@ const AsyncLock = require('async-lock');
 const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
-const { getAzureAuthTypes } = require('./azureAuth');
+const { getAzureAuthTypes, azureGetRedirectAuthUrl } = require('./azureAuth');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
 
 let requireMsnodesqlv8;

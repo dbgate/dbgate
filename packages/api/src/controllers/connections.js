@@ -389,7 +389,7 @@ module.exports = {
     const { conid } = req.query;
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const authUrl = driver.getRedirectAuthUrl(connection);
+    const authUrl = await driver.getRedirectAuthUrl(connection);
     res.redirect(authUrl);
   },
 };

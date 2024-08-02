@@ -181,6 +181,11 @@
     }
   });
 
+  export function changeConnectionBeforeSave(connection) {
+    if (driver?.beforeConnectionSave) return driver.beforeConnectionSave(connection);
+    return connection;
+  }
+
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 
   // $: console.log('CONN VALUES', $values);

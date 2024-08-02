@@ -65,7 +65,7 @@ function processApiResponse(route, args, resp) {
 
   if (resp?.missingCredentials) {
     if (resp.detail.redirectToDbLogin) {
-      openWebLink('connections/dblogin');
+      openWebLink(`connections/dblogin?conid=${resp.detail.conid}`);
     } else if (!isDatabaseLoginVisible()) {
       showModal(DatabaseLoginModal, resp.detail);
     }
