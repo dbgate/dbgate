@@ -311,7 +311,9 @@ function createWindow() {
   }
 
   let bounds = initialConfig['winBounds'];
-  bounds = ensureBoundsVisible(bounds);
+  if (bounds) {
+    bounds = ensureBoundsVisible(bounds);
+  }
   useNativeMenu = settingsJson['app.useNativeMenu'];
 
   mainWindow = new BrowserWindow({
