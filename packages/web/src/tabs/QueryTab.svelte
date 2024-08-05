@@ -105,6 +105,7 @@
   let resultCount;
   let errorMessages;
   let domEditor;
+  let domToolStrip;
   let intervalId;
 
   onMount(() => {
@@ -350,7 +351,7 @@
   let isInitialized = false;
 </script>
 
-<ToolStripContainer>
+<ToolStripContainer bind:this={domToolStrip}>
   <VerticalSplitter isSplitter={visibleResultTabs}>
     <svelte:fragment slot="1">
       {#if driver?.databaseEngineTypes?.includes('sql')}
@@ -370,6 +371,7 @@
           }}
           on:focus={() => {
             activator.activate();
+            domToolStrip?.activate();
             invalidateCommands();
             setTimeout(() => {
               isInitialized = true;
@@ -388,6 +390,7 @@
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {
             activator.activate();
+            domToolStrip?.activate();
             invalidateCommands();
           }}
           bind:this={domEditor}

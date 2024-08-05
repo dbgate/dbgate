@@ -74,6 +74,7 @@
   let executeNumber = 0;
 
   let domEditor;
+  let domToolStrip;
 
   // const status = writable({
   //   busy,
@@ -221,7 +222,7 @@
   }
 </script>
 
-<ToolStripContainer>
+<ToolStripContainer bind:this={domToolStrip}>
   <VerticalSplitter>
     <svelte:fragment slot="1">
       <AceEditor
@@ -230,6 +231,7 @@
         on:input={e => setEditorData(e.detail)}
         on:focus={() => {
           activator.activate();
+          domToolStrip?.activate();
           invalidateCommands();
         }}
         bind:this={domEditor}

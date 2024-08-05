@@ -4,9 +4,13 @@
 
   const thisInstance = get_current_component();
 
-  export const activator = createActivator('ToolStripContainer', false);
+  export const activator = createActivator('ToolStripContainer', true);
 
   $: isComponentActive = $isComponentActiveStore('ToolStripContainer', thisInstance);
+
+  export function activate() {
+    activator?.activate();
+  }
 </script>
 
 <div class="wrapper">
