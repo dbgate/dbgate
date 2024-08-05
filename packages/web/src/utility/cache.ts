@@ -95,7 +95,9 @@ export async function subscribeCacheChange(reloadTrigger, cacheKey, reloadHandle
     if (!subscriptionsByReloadTrigger[itemString]) {
       subscriptionsByReloadTrigger[itemString] = [];
     }
+    console.log('+++++++++++++ SUBSCRIBE', itemString);
     subscriptionsByReloadTrigger[itemString].push(reloadHandler);
+    console.log('SUBSCRIBED', subscriptionsByReloadTrigger[itemString]);
   }
 }
 
@@ -108,6 +110,7 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
       );
     }
     if (subscriptionsByReloadTrigger[itemString].length == 0) {
+      console.log('------------- UNSUBSCRIBE', itemString);
       delete subscriptionsByReloadTrigger[itemString];
     }
   }
@@ -118,6 +121,7 @@ export function dispatchCacheChange(reloadTrigger) {
 
   for (const item of getAsArray(reloadTrigger)) {
     const itemString = stableStringify(transformApiArgsInv(item));
+    console.log('@@@@@@@@@@@@@@@@@@@@@@@@@ NOTIFYING ', itemString, subscriptionsByReloadTrigger[itemString]);
     if (subscriptionsByReloadTrigger[itemString]) {
       for (const handler of subscriptionsByReloadTrigger[itemString]) {
         handler();

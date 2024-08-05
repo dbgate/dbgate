@@ -22,7 +22,7 @@
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
-  import { apiCall, getVolatileRemapping } from '../utility/api';
+  import { apiCall, volatileConnectionMapStore } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
   import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
   import { safeJsonParse } from 'dbgate-tools';
@@ -37,7 +37,10 @@
 
   $: connectionsWithStatus =
     $connections && $serverStatus
-      ? $connections.map(conn => ({ ...conn, status: $serverStatus[getVolatileRemapping(conn._id)] }))
+      ? $connections.map(conn => ({
+          ...conn,
+          status: $serverStatus[$volatileConnectionMapStore[conn._id] || conn._id],
+        }))
       : $connections;
 
   $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(

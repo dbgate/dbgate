@@ -21,8 +21,20 @@ let apiLogging = false;
 let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
 
-const volatileConnectionMap = {};
-const volatileConnectionMapInv = {};
+export const volatileConnectionMapStore = writable({});
+export const volatileConnectionMapInvStore = writable({});
+
+let volatileConnectionMapValue = {};
+volatileConnectionMapStore.subscribe(value => {
+  volatileConnectionMapValue = value;
+});
+export const getVolatileConnectionMap = () => volatileConnectionMapValue;
+
+let volatileConnectionMapInvValue = {};
+volatileConnectionMapInvStore.subscribe(value => {
+  volatileConnectionMapInvValue = value;
+});
+export const getVolatileConnectionInvMap = () => volatileConnectionMapInvValue;
 
 export function disableApi() {
   apiDisabled = true;
@@ -33,23 +45,29 @@ export function enableApi() {
 }
 
 export function setVolatileConnectionRemapping(existingConnectionId, volatileConnectionId) {
-  volatileConnectionMap[existingConnectionId] = volatileConnectionId;
-  volatileConnectionMapInv[volatileConnectionId] = existingConnectionId;
+  volatileConnectionMapStore.update(x => ({
+    ...x,
+    [existingConnectionId]: volatileConnectionId,
+  }));
+  volatileConnectionMapInvStore.update(x => ({
+    ...x,
+    [volatileConnectionId]: existingConnectionId,
+  }));
 }
 
 export function getVolatileRemapping(conid) {
-  return volatileConnectionMap[conid] || conid;
+  return volatileConnectionMapValue[conid] || conid;
 }
 
 export function getVolatileRemappingInv(conid) {
-  return volatileConnectionMapInv[conid] || conid;
+  return volatileConnectionMapInvValue[conid] || conid;
 }
 
 export function removeVolatileMapping(conid) {
-  const mapped = volatileConnectionMap[conid];
+  const mapped = volatileConnectionMapValue[conid];
   if (mapped) {
-    delete volatileConnectionMap[conid];
-    delete volatileConnectionMapInv[mapped];
+    volatileConnectionMapStore.update(x => _.omit(x, conid));
+    volatileConnectionMapInvStore.update(x => _.omit(x, mapped));
   }
 }
 
@@ -94,16 +112,16 @@ function processApiResponse(route, args, resp) {
 
 export function transformApiArgs(args) {
   return _.mapValues(args, (v, k) => {
-    if (k == 'conid' && v && volatileConnectionMap[v]) return volatileConnectionMap[v];
-    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMap[x] || x);
+    if (k == 'conid' && v && volatileConnectionMapValue[v]) return volatileConnectionMapValue[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMapValue[x] || x);
     return v;
   });
 }
 
 export function transformApiArgsInv(args) {
   return _.mapValues(args, (v, k) => {
-    if (k == 'conid' && v && volatileConnectionMapInv[v]) return volatileConnectionMapInv[v];
-    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMapInv[x] || x);
+    if (k == 'conid' && v && volatileConnectionMapInvValue[v]) return volatileConnectionMapInvValue[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMapInvValue[x] || x);
     return v;
   });
 }
@@ -221,7 +239,7 @@ export function useApiCall(route, args, defaultValue) {
 }
 
 export function getVolatileConnections() {
-  return Object.values(volatileConnectionMap);
+  return Object.values(volatileConnectionMapValue);
 }
 
 export function installNewVolatileConnectionListener() {
