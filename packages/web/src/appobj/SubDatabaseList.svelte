@@ -10,6 +10,7 @@
   export let passProps;
 
   $: databases = useDatabaseList({ conid: data._id });
+  console.log('USED DATABASE LIST', data._id);
 </script>
 
 <AppObjectList

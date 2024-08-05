@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { openedConnections, currentDatabase, openedConnectionsWithTemporary, getCurrentConfig, getOpenedConnections } from '../stores';
+import { currentDatabase, openedConnectionsWithTemporary, getCurrentConfig, getOpenedConnections } from '../stores';
 import { apiCall, getVolatileConnections, strmid } from './api';
-import { getConnectionList } from './metadataLoaders';
 import hasPermission from '../utility/hasPermission';
 
 // const doServerPing = async value => {

@@ -19,6 +19,7 @@ async function handleRefresh() {
     const databases = await driver.listDatabases(systemConnection);
     setStatusName('ok');
     const databasesString = stableStringify(databases);
+    console.log('************* DATABASES *************', databases);
     if (lastDatabases != databasesString) {
       process.send({ msgtype: 'databases', databases });
       lastDatabases = databasesString;
@@ -59,8 +60,11 @@ async function handleConnect(connection) {
 
   const driver = requireEngineDriver(storedConnection);
   try {
+    console.log('************* CONNECTING *************');
     systemConnection = await connectUtility(driver, storedConnection, 'app');
+    console.log('************* VERSION *************');
     readVersion();
+    console.log('************* REFRESH *************');
     handleRefresh();
     if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
       setInterval(

@@ -252,6 +252,7 @@ module.exports = {
       accessToken,
       passwordMode: undefined,
       unsaved: true,
+      useRedirectDbLogin: false,
     };
     if (old.passwordMode == 'askUser') {
       res.user = user;
@@ -395,12 +396,18 @@ module.exports = {
   },
 
   dbloginToken_meta: true,
-  async dbloginToken({ code, conid, redirectUri }) {
-    const connection = await this.getCore({ conid });
-    const driver = requireEngineDriver(connection);
-    const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
-    const volatile = await this.saveVolatile({ conid, accessToken });
-    // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
-    socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id });
+  async dbloginToken({ code, conid, strmid, redirectUri }) {
+    try {
+      const connection = await this.getCore({ conid });
+      const driver = requireEngineDriver(connection);
+      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
+      socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
+      return { success: true };
+    } catch (err) {
+      logger.error({ err }, 'Error getting DB token');
+      return { error: err.message };
+    }
   },
 };

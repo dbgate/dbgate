@@ -47,26 +47,22 @@ export function handleOauthCallback() {
     return true;
   }
 
-  console.log('****************** IS DB LOGIN TEST');
   if (isDbLoginCallback()) {
-    console.log('****************** IS DB LOGIN TRUE');
-    const conid = localStorage.getItem('dbloginState').split('@')[1];
+    const [_prefix, strmid, conid] = localStorage.getItem('dbloginState').split(':');
     localStorage.removeItem('dbloginState');
 
     apiCall('connections/dblogin-token', {
       code: sentCode,
       conid,
+      strmid,
       redirectUri: location.origin + location.pathname,
     }).then(authResp => {
-      const { accessToken, error, errorMessage } = authResp;
-
-      if (accessToken) {
-        console.log('Settings access token from OAUTH');
-        localStorage.setItem('accessToken', accessToken);
-        internalRedirectTo('/');
+      if (authResp.success) {
+        window.close();
+      } else if (authResp.error) {
+        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp)}`);
       } else {
-        console.log('Error when processing OAUTH callback', error || errorMessage);
-        internalRedirectTo(`?page=not-logged&error=${error || errorMessage}`);
+        internalRedirectTo(`?page=error`);
       }
     });
 

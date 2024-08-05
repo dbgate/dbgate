@@ -6,6 +6,9 @@
 
   const config = useConfig();
 
+  const params = new URLSearchParams(location.search);
+  const error = params.get('error');
+
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
@@ -21,7 +24,11 @@
     <div class="box">
       <div class="heading">Configuration error</div>
       {#if !$config?.isLicenseValid}
-        <ErrorInfo message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.licenseError}`} />
+        <ErrorInfo
+          message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.licenseError}`}
+        />
+      {:else if error}
+        <ErrorInfo message={error} />
       {:else}
         <ErrorInfo message="No error found, try to open app again" />
         <div class="m-2">

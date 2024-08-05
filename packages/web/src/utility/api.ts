@@ -10,9 +10,10 @@ import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLo
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { openWebLink } from './exportFileTools';
+import { callServerPing } from './connectionsPinger';
+import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 
 export const strmid = uuidv1();
-const privateApiState = Math.random().toString().substr(2);
 
 let eventSource;
 let apiLogging = false;
@@ -66,7 +67,7 @@ function processApiResponse(route, args, resp) {
 
   if (resp?.missingCredentials) {
     if (resp.detail.redirectToDbLogin) {
-      const state = `dbg-dblogin:${privateApiState}@${resp.detail.conid}`;
+      const state = `dbg-dblogin:${strmid}:${resp.detail.conid}`;
       localStorage.setItem('dbloginState', state);
       openWebLink(
         `connections/dblogin?conid=${resp.detail.conid}&state=${encodeURIComponent(state)}&redirectUri=${
@@ -224,8 +225,12 @@ export function getVolatileConnections() {
 }
 
 export function installNewVolatileConnectionListener() {
-  apiOn('got-volatile-token', ({ savedConId, volatileConId }) => {
+  apiOn('got-volatile-token', async ({ savedConId, volatileConId }) => {
+    console.log('************************** GOT VOLASTILE TOKEN', savedConId, volatileConId);
     setVolatileConnectionRemapping(savedConId, volatileConId);
+    await callServerPing();
+    dispatchCacheChange({ key: `server-status-changed` });
+    batchDispatchCacheTriggers(x => x.conid == savedConId);
   });
 }
 
