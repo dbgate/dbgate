@@ -17,6 +17,7 @@ const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const { getAuthProvider } = require('../auth/authProvider');
 
 const logger = getLogger('connections');
 
@@ -409,5 +410,15 @@ module.exports = {
       logger.error({ err }, 'Error getting DB token');
       return { error: err.message };
     }
+  },
+
+  dbloginAuth_meta: true,
+  async dbloginAuth({ conid, user, password }) {
+    const saveResp = await this.saveVolatile({ conid, user, password, test: true });
+    if (saveResp.msgtype == 'connected') {
+      const loginResp = await getAuthProvider().login(user, password, { conid: saveResp._id });
+      return loginResp;
+    }
+    return saveResp;
   },
 };

@@ -1,30 +1,36 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { internalRedirectTo } from './clientAuth';
-  import FormButton from './forms/FormButton.svelte';
   import FormPasswordField from './forms/FormPasswordField.svelte';
-  import FormProvider from './forms/FormProvider.svelte';
   import FormSubmit from './forms/FormSubmit.svelte';
   import FormTextField from './forms/FormTextField.svelte';
-  import { apiCall, enableApi } from './utility/api';
+  import { apiCall, enableApi, strmid } from './utility/api';
   import { useConfig } from './utility/metadataLoaders';
   import ErrorInfo from './elements/ErrorInfo.svelte';
   import FormSelectField from './forms/FormSelectField.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from './forms/FormProviderCore.svelte';
+  import { openWebLink } from './utility/exportFileTools';
+  import FontIcon from './icons/FontIcon.svelte';
+  import createRef from './utility/createRef';
 
   export let isAdminPage;
 
   const config = useConfig();
 
   let availableConnections = null;
+  let isTesting = false;
+  const testIdRef = createRef(0);
+  let sqlConnectResult;
 
-  const values = writable({});
+  const values = writable({ databaseServer: null });
+
+  $: selectedConnection = availableConnections?.find(x => x.conid == $values.databaseServer);
 
   async function loadAvailableServers() {
     availableConnections = await apiCall('storage/get-connections-for-login-page');
     if (availableConnections?.length > 0) {
-      values.set({ databaseServer: availableConnections[0].id });
+      values.set({ databaseServer: availableConnections[0].conid });
     }
   }
 
@@ -52,47 +58,114 @@
             label="Database server"
             name="databaseServer"
             isNative
-            options={availableConnections.map(conn => ({ value: conn.id, label: conn.label }))}
+            options={availableConnections.map(conn => ({ value: conn.conid, label: conn.label }))}
           />
         {/if}
 
-        {#if !isAdminPage}
-          <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        {#if selectedConnection}
+          {#if selectedConnection.passwordMode == 'askUser'}
+            <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+          {/if}
+          {#if selectedConnection.passwordMode == 'askUser' || selectedConnection.passwordMode == 'askPassword'}
+            <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+          {/if}
+        {:else}
+          {#if !isAdminPage}
+            <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+          {/if}
+          <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
         {/if}
-        <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
 
         {#if isAdminPage && $config && !$config.isAdminLoginForm}
           <ErrorInfo message="Admin login is not configured. Please set ADMIN_PASSWORD environment variable" />
         {/if}
 
+        {#if isTesting}
+          <div class="ml-5">
+            <FontIcon icon="icon loading" /> Testing connection
+          </div>
+        {/if}
+
+        {#if !isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error'}
+          <div class="error-result ml-5">
+            Connect failed: <FontIcon icon="img error" />
+            {sqlConnectResult.error}
+          </div>
+        {/if}
+
         <div class="submit">
-          <FormSubmit
-            value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
-            on:click={async e => {
-              enableApi();
-              const resp = await apiCall('auth/login', {
-                isAdminPage,
-                ...e.detail,
-              });
-              if (resp.error) {
-                internalRedirectTo(
-                  `?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+          {#if selectedConnection?.useRedirectDbLogin}
+            <FormSubmit
+              value="Open database login page"
+              on:click={async e => {
+                const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}`;
+                localStorage.setItem('dbloginState', state);
+                openWebLink(
+                  `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+                    location.origin + location.pathname
+                  }`
                 );
-                return;
-              }
-              const { accessToken } = resp;
-              if (accessToken) {
-                localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
-                if (isAdminPage) {
-                  internalRedirectTo('?page=admin');
-                } else {
-                  internalRedirectTo('?');
+                // internalRedirectTo(
+                //   `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+                //     location.origin + location.pathname
+                //   }`
+                // );
+              }}
+            />
+          {:else if selectedConnection}
+            <FormSubmit
+              value="Log In"
+              on:click={async e => {
+                if (selectedConnection.passwordMode == 'askUser' || selectedConnection.passwordMode == 'askPassword') {
+                  enableApi();
+                  isTesting = true;
+                  testIdRef.update(x => x + 1);
+                  const testid = testIdRef.get();
+                  const resp = await apiCall('connections/dblogin-auth', {
+                    conid: selectedConnection.conid,
+                    user: $values['login'],
+                    password: $values['password'],
+                  });
+                  if (testIdRef.get() != testid) return;
+                  isTesting = false;
+                  if (resp.accessToken) {
+                    localStorage.setItem('accessToken', resp.accessToken);
+                    internalRedirectTo('?');
+                  } else {
+                    sqlConnectResult = resp;
+                  }
                 }
-                return;
-              }
-              internalRedirectTo(`?page=not-logged`);
-            }}
-          />
+              }}
+            />
+          {:else}
+            <FormSubmit
+              value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
+              on:click={async e => {
+                enableApi();
+                const resp = await apiCall('auth/login', {
+                  isAdminPage,
+                  ...e.detail,
+                });
+                if (resp.error) {
+                  internalRedirectTo(
+                    `?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+                  );
+                  return;
+                }
+                const { accessToken } = resp;
+                if (accessToken) {
+                  localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
+                  if (isAdminPage) {
+                    internalRedirectTo('?page=admin');
+                  } else {
+                    internalRedirectTo('?');
+                  }
+                  return;
+                }
+                internalRedirectTo(`?page=not-logged`);
+              }}
+            />
+          {/if}
         </div>
       </FormProviderCore>
     </div>

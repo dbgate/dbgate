@@ -27,6 +27,8 @@ function authMiddleware(req, res, next) {
     '/auth/login',
     '/stream',
     'storage/get-connections-for-login-page',
+    '/connections/dblogin',
+    '/connections/dblogin-auth',
   ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());

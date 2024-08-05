@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const logger = getLogger('authProvider');
 
 class AuthProviderBase {
-  async login(login, password) {
+  async login(login, password, options = undefined) {
     return {};
   }
 
