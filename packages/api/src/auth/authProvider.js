@@ -43,6 +43,10 @@ class AuthProviderBase {
   getLoginPageConnections() {
     return null;
   }
+
+  getSingleConnection(req) {
+    return null;
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {

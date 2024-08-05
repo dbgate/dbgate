@@ -34,6 +34,8 @@ module.exports = {
     const isLoginForm = authProvider.isLoginForm();
     const additionalConfigProps = authProvider.getAdditionalConfigProps();
 
+    const singleConnection = await authProvider.getSingleConnection(req);
+
     return {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
