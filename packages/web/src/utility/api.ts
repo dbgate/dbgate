@@ -244,7 +244,6 @@ export function getVolatileConnections() {
 
 export function installNewVolatileConnectionListener() {
   apiOn('got-volatile-token', async ({ savedConId, volatileConId }) => {
-    console.log('************************** GOT VOLASTILE TOKEN', savedConId, volatileConId);
     setVolatileConnectionRemapping(savedConId, volatileConId);
     await callServerPing();
     dispatchCacheChange({ key: `server-status-changed` });

@@ -11,10 +11,6 @@
   export let passProps;
 
   $: databases = useDatabaseList({ conid: data._id });
-  $: console.log('USED DATABASE LIST', data._id);
-
-  // $: databases = useDatabaseList({ conid: $volatileConnectionMapStore[data._id] || data._id });
-  // $: console.log('USED DATABASE LIST', $volatileConnectionMapStore[data._id] || data._id);
 </script>
 
 <AppObjectList
