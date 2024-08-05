@@ -10,8 +10,13 @@ async function azureGetAuthTokenFromCode(connection, code) {
   return null;
 }
 
+function getAzureAuthOptions(connection) {
+  return null;
+}
+
 module.exports = {
   getAzureAuthTypes,
   azureGetRedirectAuthUrl,
   azureGetAuthTokenFromCode,
+  getAzureAuthOptions,
 };

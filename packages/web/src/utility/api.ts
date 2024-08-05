@@ -224,8 +224,8 @@ export function getVolatileConnections() {
 }
 
 export function installNewVolatileConnectionListener() {
-  apiOn('got-volatile-token', ({ conid, volatileConId }) => {
-    setVolatileConnectionRemapping(conid, volatileConId);
+  apiOn('got-volatile-token', ({ savedConId, volatileConId }) => {
+    setVolatileConnectionRemapping(savedConId, volatileConId);
   });
 }
 

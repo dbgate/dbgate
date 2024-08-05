@@ -400,7 +400,7 @@ module.exports = {
     const driver = requireEngineDriver(connection);
     const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
     const volatile = await this.saveVolatile({ conid, accessToken });
-    console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
-    socket.emit('got-volatile-token', { conid, volatileConId: volatile._id });
+    // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
+    socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id });
   },
 };
