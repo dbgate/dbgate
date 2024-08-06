@@ -8,12 +8,13 @@ import LoginPage from './LoginPage.svelte';
 import NotLoggedPage from './NotLoggedPage.svelte';
 import ErrorPage from './ErrorPage.svelte';
 
-const isOauthCallback = handleOauthCallback();
-
 const params = new URLSearchParams(location.search);
 const page = params.get('page');
 
+const isOauthCallback = handleOauthCallback();
+
 localStorageGarbageCollector();
+
 
 function createApp() {
   if (isOauthCallback) {

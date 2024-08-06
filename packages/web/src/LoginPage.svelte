@@ -106,7 +106,7 @@
                 //   }`
                 // );
                 internalRedirectTo(
-                  `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+                  `/connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
                     location.origin + location.pathname
                   }`
                 );
@@ -130,7 +130,7 @@
                   isTesting = false;
                   if (resp.accessToken) {
                     localStorage.setItem('accessToken', resp.accessToken);
-                    internalRedirectTo('?');
+                    internalRedirectTo('/');
                   } else {
                     sqlConnectResult = resp;
                   }
@@ -140,7 +140,7 @@
                     conid: selectedConnection.conid,
                   });
                   localStorage.setItem('accessToken', resp.accessToken);
-                  internalRedirectTo('?');
+                  internalRedirectTo('/');
                 }
               }}
             />
@@ -155,7 +155,7 @@
                 });
                 if (resp.error) {
                   internalRedirectTo(
-                    `?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+                    `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
                   );
                   return;
                 }
@@ -163,13 +163,13 @@
                 if (accessToken) {
                   localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
                   if (isAdminPage) {
-                    internalRedirectTo('?page=admin');
+                    internalRedirectTo('/?page=admin');
                   } else {
-                    internalRedirectTo('?');
+                    internalRedirectTo('/');
                   }
                   return;
                 }
-                internalRedirectTo(`?page=not-logged`);
+                internalRedirectTo(`/?page=not-logged`);
               }}
             />
           {/if}

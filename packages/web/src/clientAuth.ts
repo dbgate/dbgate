@@ -50,10 +50,10 @@ export function handleOauthCallback() {
       if (accessToken) {
         console.log('Settings access token from OAUTH');
         localStorage.setItem('accessToken', accessToken);
-        internalRedirectTo('?');
+        internalRedirectTo('/');
       } else {
         console.log('Error when processing OAUTH callback', error || errorMessage);
-        internalRedirectTo(`?page=not-logged&error=${error || errorMessage}`);
+        internalRedirectTo(`/?page=not-logged&error=${error || errorMessage}`);
       }
     });
 
@@ -73,9 +73,9 @@ export function handleOauthCallback() {
       if (authResp.success) {
         window.close();
       } else if (authResp.error) {
-        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp.error)}`);
+        internalRedirectTo(`/?page=error&error=${encodeURIComponent(authResp.error)}`);
       } else {
-        internalRedirectTo(`?page=error`);
+        internalRedirectTo(`/?page=error`);
       }
     });
 
@@ -93,11 +93,11 @@ export function handleOauthCallback() {
     }).then(authResp => {
       if (authResp.accessToken) {
         localStorage.setItem('accessToken', authResp.accessToken);
-        internalRedirectTo('?');
+        internalRedirectTo('/');
       } else if (authResp.error) {
-        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp.error)}`);
+        internalRedirectTo(`/?page=error&error=${encodeURIComponent(authResp.error)}`);
       } else {
-        internalRedirectTo(`?page=error`);
+        internalRedirectTo(`/?page=error`);
       }
     });
 
@@ -109,7 +109,7 @@ export function handleOauthCallback() {
 
 export async function handleAuthOnStartup(config, isAdminPage = false) {
   if (!config.isLicenseValid) {
-    internalRedirectTo(`?page=error`);
+    internalRedirectTo(`/?page=error`);
     return;
   }
 
@@ -135,7 +135,7 @@ export async function handleAuthOnStartup(config, isAdminPage = false) {
 }
 
 export async function redirectToAdminLogin() {
-  internalRedirectTo('?page=admin-login');
+  internalRedirectTo('/?page=admin-login');
   return;
 }
 
@@ -152,7 +152,7 @@ export async function redirectToLogin(config = null, force = false) {
         return;
       }
     }
-    internalRedirectTo('?page=login');
+    internalRedirectTo('/?page=login');
     return;
   }
 
@@ -184,14 +184,14 @@ export async function doLogout() {
     if (config.oauthLogout) {
       window.location.href = config.oauthLogout;
     } else {
-      internalRedirectTo('?page=not-logged');
+      internalRedirectTo('/?page=not-logged');
     }
   } else if (config.isLoginForm) {
     localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
-    internalRedirectTo(`?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
+    internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
   } else if (config.isAdminLoginForm && isAdminPage()) {
     localStorage.removeItem('adminAccessToken');
-    internalRedirectTo('?page=admin-login&is-admin=true');
+    internalRedirectTo('/?page=admin-login&is-admin=true');
   } else {
     window.location.href = 'config/logout';
   }

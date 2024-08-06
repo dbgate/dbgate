@@ -27,7 +27,7 @@ class AuthProviderBase {
   }
 
   isUserLoggedIn(req) {
-    return !!req.user || !!req.auth;
+    return !!req?.user || !!req?.auth;
   }
 
   getCurrentPermissions(req) {

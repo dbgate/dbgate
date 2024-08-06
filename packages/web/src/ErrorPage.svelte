@@ -3,6 +3,7 @@
   import { useConfig } from './utility/metadataLoaders';
   import ErrorInfo from './elements/ErrorInfo.svelte';
   import Link from './elements/Link.svelte';
+  import { internalRedirectTo } from './clientAuth';
 
   const config = useConfig();
 
@@ -23,7 +24,7 @@
     </div>
     <div class="box">
       <div class="heading">Configuration error</div>
-      {#if !$config?.isLicenseValid}
+      {#if $config?.isLicenseValid == false}
         <ErrorInfo
           message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.licenseError}`}
         />
@@ -32,7 +33,7 @@
       {:else}
         <ErrorInfo message="No error found, try to open app again" />
         <div class="m-2">
-          <Link href="?">Back to app</Link>
+          <Link onClick={() => internalRedirectTo('/')}>Back to app</Link>
         </div>
       {/if}
     </div>

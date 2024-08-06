@@ -16,7 +16,7 @@ import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 export const strmid = uuidv1();
 
 let eventSource;
-let apiLogging = false;
+let apiLogging = true;
 // let cacheCleanerRegistered;
 let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
