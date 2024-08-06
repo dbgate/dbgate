@@ -172,10 +172,12 @@ const driver = {
       });
 
       query.on('error', error => {
-        console.log('ERROR', error);
-        const { message, lineNumber, procName } = error;
+        const { message, offset, procName } = error;
+        // get line number from string s of character at offset
+        const lineNumber = (sql.substring(0, offset).match(/\n/g) || []).length;
         options.info({
           message,
+          offset,
           line: lineNumber,
           procedure: procName,
           time: new Date(),
@@ -194,8 +196,11 @@ const driver = {
       client.execute(sql, (err, res) => {
         if (err) {
           console.log('Error query', err, sql);
+          const lineNumber = (sql.substring(0, err.offset).match(/\n/g) || []).length;
           options.info({
             message: err.message,
+            line: lineNumber,
+            offset: err.offset,
             time: new Date(),
             severity: 'error',
           });

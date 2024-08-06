@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.3.4
+- FIXED: On blank system does not start (window does not appear) #862
+- FIXED: Missing Execute, Export bar #861
+
 ### 5.3.3
 - FIXED: The application Window is not visible when openning after changing monitor configuration. #856
 - FIXED: Multi column filter is broken for Postgresql #855
