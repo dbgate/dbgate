@@ -34,12 +34,16 @@ module.exports = {
     const isLoginForm = authProvider.isLoginForm();
     const additionalConfigProps = authProvider.getAdditionalConfigProps();
 
-    const singleConnection = await authProvider.getSingleConnection(req);
+    const singleConid = authProvider.getSingleConnectionId(req);
+
+    const singleConnection = singleConid
+      ? await connections.getCore({ conid: singleConid })
+      : connections.singleConnection;
 
     return {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
-      singleConnection: connections.singleConnection,
+      singleConnection: singleConnection,
       // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,
       allowShellScripting: platformInfo.allowShellScripting,

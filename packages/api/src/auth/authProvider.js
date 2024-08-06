@@ -44,7 +44,7 @@ class AuthProviderBase {
     return null;
   }
 
-  getSingleConnection(req) {
+  getSingleConnectionId(req) {
     return null;
   }
 }

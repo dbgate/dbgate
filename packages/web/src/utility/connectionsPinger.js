@@ -10,11 +10,16 @@ import hasPermission from '../utility/hasPermission';
 // };
 
 const doServerPing = value => {
+  const config = getCurrentConfig();
+
   const conidArray = [...value];
-  if (getCurrentConfig().storageDatabase && hasPermission('internal-storage')) {
+  if (config.storageDatabase && hasPermission('internal-storage')) {
     conidArray.push('__storage');
   }
   conidArray.push(...getVolatileConnections());
+  if (config.singleConnection) {
+    conidArray.push(config.singleConnection._id);
+  }
 
   apiCall('server-connections/ping', {
     conidArray,

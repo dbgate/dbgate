@@ -414,11 +414,17 @@ module.exports = {
 
   dbloginAuth_meta: true,
   async dbloginAuth({ conid, user, password }) {
-    const saveResp = await this.saveVolatile({ conid, user, password, test: true });
-    if (saveResp.msgtype == 'connected') {
-      const loginResp = await getAuthProvider().login(user, password, { conid: saveResp._id });
-      return loginResp;
+    if (user || password) {
+      const saveResp = await this.saveVolatile({ conid, user, password, test: true });
+      if (saveResp.msgtype == 'connected') {
+        const loginResp = await getAuthProvider().login(user, password, { conid: saveResp._id });
+        return loginResp;
+      }
+      return saveResp;
     }
-    return saveResp;
+
+    // user and password is stored in connection, volatile connection is not needed
+    const loginResp = await getAuthProvider().login(null, null, { conid });
+    return loginResp;
   },
 };

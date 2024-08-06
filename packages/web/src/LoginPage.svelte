@@ -134,6 +134,13 @@
                   } else {
                     sqlConnectResult = resp;
                   }
+                } else {
+                  enableApi();
+                  const resp = await apiCall('connections/dblogin-auth', {
+                    conid: selectedConnection.conid,
+                  });
+                  localStorage.setItem('accessToken', resp.accessToken);
+                  internalRedirectTo('?');
                 }
               }}
             />
