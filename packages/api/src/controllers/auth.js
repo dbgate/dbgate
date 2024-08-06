@@ -23,12 +23,14 @@ function unauthorizedResponse(req, res, text) {
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = [
     '/config/get',
+    '/config/get-settings',
     '/auth/oauth-token',
     '/auth/login',
     '/stream',
     'storage/get-connections-for-login-page',
     '/connections/dblogin',
     '/connections/dblogin-auth',
+    '/connections/dblogin-auth-token',
   ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());

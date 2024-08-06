@@ -33,6 +33,7 @@ module.exports = {
     const permissions = authProvider.getCurrentPermissions(req);
     const isLoginForm = authProvider.isLoginForm();
     const additionalConfigProps = authProvider.getAdditionalConfigProps();
+    const isUserLoggedIn = authProvider.isUserLoggedIn(req);
 
     const singleConid = authProvider.getSingleConnectionId(req);
 
@@ -44,6 +45,7 @@ module.exports = {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
       singleConnection: singleConnection,
+      isUserLoggedIn,
       // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,
       allowShellScripting: platformInfo.allowShellScripting,

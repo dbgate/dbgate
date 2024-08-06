@@ -412,6 +412,22 @@ module.exports = {
     }
   },
 
+  dbloginAuthToken_meta: true,
+  async dbloginAuthToken({ code, conid, redirectUri }) {
+    try {
+      const connection = await this.getCore({ conid });
+      const driver = requireEngineDriver(connection);
+      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      const authProvider = getAuthProvider();
+      const resp = await authProvider.login(null, null, { conid: volatile._id });
+      return resp;
+    } catch (err) {
+      logger.error({ err }, 'Error getting DB token');
+      return { error: err.message };
+    }
+  },
+
   dbloginAuth_meta: true,
   async dbloginAuth({ conid, user, password }) {
     if (user || password) {

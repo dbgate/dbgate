@@ -22,6 +22,19 @@ export function isDbLoginCallback() {
   );
 }
 
+export function isDbLoginAuthCallback() {
+  const params = new URLSearchParams(location.search);
+  const sentCode = params.get('code');
+  const sentState = params.get('state');
+
+  return (
+    sentCode &&
+    sentState &&
+    sentState.startsWith('dbg-dblogin:') &&
+    sentState == sessionStorage.getItem('dbloginAuthState')
+  );
+}
+
 export function handleOauthCallback() {
   const params = new URLSearchParams(location.search);
   const sentCode = params.get('code');
@@ -37,7 +50,7 @@ export function handleOauthCallback() {
       if (accessToken) {
         console.log('Settings access token from OAUTH');
         localStorage.setItem('accessToken', accessToken);
-        internalRedirectTo('/');
+        internalRedirectTo('?');
       } else {
         console.log('Error when processing OAUTH callback', error || errorMessage);
         internalRedirectTo(`?page=not-logged&error=${error || errorMessage}`);
@@ -60,7 +73,29 @@ export function handleOauthCallback() {
       if (authResp.success) {
         window.close();
       } else if (authResp.error) {
-        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp)}`);
+        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp.error)}`);
+      } else {
+        internalRedirectTo(`?page=error`);
+      }
+    });
+
+    return true;
+  }
+
+  if (isDbLoginAuthCallback()) {
+    const [_prefix, strmid, conid] = sessionStorage.getItem('dbloginAuthState').split(':');
+    sessionStorage.removeItem('dbloginAuthState');
+
+    apiCall('connections/dblogin-auth-token', {
+      code: sentCode,
+      conid,
+      redirectUri: location.origin + location.pathname,
+    }).then(authResp => {
+      if (authResp.accessToken) {
+        localStorage.setItem('accessToken', authResp.accessToken);
+        internalRedirectTo('?');
+      } else if (authResp.error) {
+        internalRedirectTo(`?page=error&error=${encodeURIComponent(authResp.error)}`);
       } else {
         internalRedirectTo(`?page=error`);
       }

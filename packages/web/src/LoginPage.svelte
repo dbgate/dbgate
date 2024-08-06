@@ -99,17 +99,17 @@
               value="Open database login page"
               on:click={async e => {
                 const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}`;
-                localStorage.setItem('dbloginState', state);
-                openWebLink(
-                  `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
-                    location.origin + location.pathname
-                  }`
-                );
-                // internalRedirectTo(
+                sessionStorage.setItem('dbloginAuthState', state);
+                // openWebLink(
                 //   `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
                 //     location.origin + location.pathname
                 //   }`
                 // );
+                internalRedirectTo(
+                  `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+                    location.origin + location.pathname
+                  }`
+                );
               }}
             />
           {:else if selectedConnection}

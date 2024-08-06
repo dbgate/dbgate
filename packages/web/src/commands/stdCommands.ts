@@ -551,7 +551,7 @@ registerCommand({
   id: 'app.logout',
   category: 'App',
   name: 'Logout',
-  testEnabled: () => getCurrentConfig()?.login != null,
+  testEnabled: () => getCurrentConfig()?.isUserLoggedIn,
   onClick: doLogout,
 });
 
@@ -559,7 +559,7 @@ registerCommand({
   id: 'app.disconnect',
   category: 'App',
   name: 'Disconnect',
-  testEnabled: () => getCurrentConfig()?.singleConnection != null,
+  testEnabled: () => getCurrentConfig()?.singleConnection != null && !getCurrentConfig()?.isUserLoggedIn,
   onClick: () => disconnectServerConnection(getCurrentConfig()?.singleConnection?._id),
 });
 
@@ -872,7 +872,6 @@ registerCommand({
   name: 'Upload error to gist',
   onClick: () => showModal(UploadErrorModal),
 });
-
 
 const electron = getElectron();
 if (electron) {

@@ -26,6 +26,10 @@ class AuthProviderBase {
     return login;
   }
 
+  isUserLoggedIn(req) {
+    return !!req.user || !!req.auth;
+  }
+
   getCurrentPermissions(req) {
     const login = this.getCurrentLogin(req);
     const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
