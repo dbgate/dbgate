@@ -73,3 +73,44 @@ export function testPermission(tested: string, permissions: CompiledPermissions)
 
   return allow;
 }
+
+export function testSubPermission(
+  tested: string,
+  permissions: string[],
+  allowSamePermission = true
+): true | false | null {
+  let result = null;
+  for (const permWithSign of permissions) {
+    const perm = permWithSign.startsWith('~') ? permWithSign.substring(1) : permWithSign;
+    const deny = permWithSign.startsWith('~');
+
+    if (perm.endsWith('*')) {
+      const prefix = perm.substring(0, perm.length - 1);
+      if (tested.startsWith(prefix)) {
+        result = !deny;
+      }
+    } else {
+      if (allowSamePermission && tested == perm) {
+        result = !deny;
+      }
+    }
+  }
+  return result;
+}
+
+export function getPredefinedPermissions(predefinedRoleName: string) {
+  switch (predefinedRoleName) {
+    case 'superadmin':
+      return ['*', '~widgets/*', 'widgets/admin', 'widgets/database', '~all-connections'];
+    case 'logged-user':
+      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections'];
+    case 'anonymous-user':
+      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections'];
+    default:
+      return null;
+  }
+}
+
+export function sortPermissionsFromTheSameLevel(permissions: string[]) {
+  return [...permissions.filter(x => x.startsWith('~')), ...permissions.filter(x => !x.startsWith('~'))];
+}

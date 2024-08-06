@@ -5,7 +5,7 @@ import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { currentDatabase, extensions, getCurrentDatabase } from '../stores';
 import { getUploadListener } from './uploadFiles';
-import getConnectionLabel, { getDatabaseFileLabel } from './getConnectionLabel';
+import {getConnectionLabel, getDatabaseFileLabel } from 'dbgate-tools';
 import { apiCall } from './api';
 import openNewTab from './openNewTab';
 import { openJsonDocument } from '../tabs/JsonTab.svelte';

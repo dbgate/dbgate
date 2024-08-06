@@ -33,7 +33,7 @@ class Analyser extends DatabaseAnalyser {
       collections: [
         ...collections.map((x, index) => ({
           pureName: x.name,
-          tableRowCount: stats[index].count,
+          tableRowCount: stats[index]?.count,
         })),
         ...views.map((x, index) => ({
           pureName: x.name,

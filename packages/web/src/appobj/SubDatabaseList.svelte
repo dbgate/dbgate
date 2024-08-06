@@ -4,6 +4,7 @@
   import { useDatabaseList } from '../utility/metadataLoaders';
   import AppObjectList from './AppObjectList.svelte';
   import * as databaseAppObject from './DatabaseAppObject.svelte';
+  import { volatileConnectionMapStore } from '../utility/api';
 
   export let filter;
   export let data;

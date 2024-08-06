@@ -21,3 +21,4 @@ export * from './perspectiveTools';
 export * from './DataDuplicator';
 export * from './FreeTableGridDisplay';
 export * from './FreeTableModel';
+export * from './CustomGridDisplay';

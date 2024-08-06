@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import { filterName } from 'dbgate-tools';
+  import { filterName, getConnectionLabel } from 'dbgate-tools';
 
   interface FileTypeHandler {
     icon: string;
@@ -100,7 +100,6 @@
   import { currentDatabase } from '../stores';
   import { apiCall } from '../utility/api';
 
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import hasPermission from '../utility/hasPermission';
   import openNewTab from '../utility/openNewTab';
 

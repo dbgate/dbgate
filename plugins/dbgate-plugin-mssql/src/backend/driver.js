@@ -8,8 +8,11 @@ const AsyncLock = require('async-lock');
 const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
+const { getAzureAuthTypes, azureGetRedirectAuthUrl, azureGetAuthTokenFromCode } = require('./azureAuth');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
+
 let requireMsnodesqlv8;
+let platformInfo;
 
 const versionQuery = `
 SELECT 
@@ -52,7 +55,14 @@ const driver = {
   analyserClass: MsSqlAnalyser,
 
   getAuthTypes() {
-    return requireMsnodesqlv8 ? windowsAuthTypes : null;
+    const res = [];
+    if (requireMsnodesqlv8) res.push(...windowsAuthTypes);
+    const azureAuthTypes = getAzureAuthTypes(platformInfo);
+    if (azureAuthTypes) res.push(...azureAuthTypes);
+    if (res.length > 0) {
+      return _.uniqBy(res, 'name');
+    }
+    return null;
   },
 
   async connect(conn) {
@@ -115,12 +125,19 @@ const driver = {
     const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
     return rows;
   },
+  getRedirectAuthUrl(connection, options) {
+    return azureGetRedirectAuthUrl(connection, options);
+  },
+  getAuthTokenFromCode(connection, options) {
+    return azureGetAuthTokenFromCode(connection, options);
+  },
 };
 
 driver.initialize = dbgateEnv => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.msnodesqlv8) {
     requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
   }
+  platformInfo = dbgateEnv.platformInfo;
   nativeDriver.initialize(dbgateEnv);
 };
 

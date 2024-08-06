@@ -31,6 +31,9 @@ module.exports = {
       electronSender.send(message, data == null ? null : data);
     }
     for (const strmid in sseResponses) {
+      if (data?.strmid && data?.strmid != strmid) {
+        continue;
+      }
       let skipThisStream = false;
       if (sseResponses[strmid].filter) {
         for (const key in sseResponses[strmid].filter) {
@@ -47,7 +50,7 @@ module.exports = {
       }
 
       sseResponses[strmid].response?.write(
-        `event: ${message}\ndata: ${stableStringify(data == null ? null : data)}\n\n`
+        `event: ${message}\ndata: ${stableStringify(data == null ? null : _.omit(data, ['strmid']))}\n\n`
       );
     }
   },

@@ -7,6 +7,7 @@ import { getSettings, useConfig, useSettings } from './utility/metadataLoaders';
 import _ from 'lodash';
 import { safeJsonParse } from 'dbgate-tools';
 import { apiCall } from './utility/api';
+import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
 
 export interface TabDefinition {
   title: string;
@@ -72,7 +73,10 @@ function subscribeCssVariable(store, transform, cssVariable) {
   store.subscribe(value => document.documentElement.style.setProperty(cssVariable, transform(value)));
 }
 
-export const selectedWidget = writableWithStorage('database', 'selectedWidget');
+export const selectedWidget = writableWithStorage(
+  isAdminPage() ? 'admin' : 'database',
+  isAdminPage() ? 'selectedAdminWidget' : 'selectedWidget'
+);
 export const lockedDatabaseMode = writableWithStorage<boolean>(false, 'lockedDatabaseMode');
 export const visibleWidgetSideBar = writableWithStorage(true, 'visibleWidgetSideBar');
 export const visibleSelectedWidget = derived(
@@ -86,7 +90,7 @@ export const temporaryOpenedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
-export const openedTabs = writableWithForage<TabDefinition[]>([], 'openedTabs', x => [...(x || [])]);
+export const openedTabs = writableWithForage<TabDefinition[]>([], getOpenedTabsStorageName(), x => [...(x || [])]);
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);

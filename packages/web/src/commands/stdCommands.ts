@@ -104,7 +104,7 @@ registerCommand({
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection',
-  testEnabled: () => !getCurrentConfig()?.runAsPortal,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     openNewTab({
       title: 'New Connection',
@@ -121,7 +121,7 @@ registerCommand({
   toolbarName: 'Add connection folder',
   category: 'New',
   toolbarOrder: 1,
-  name: 'Connection',
+  name: 'Connection folder',
   testEnabled: () => !getCurrentConfig()?.runAsPortal,
   onClick: () => {
     showModal(InputTextModal, {
@@ -551,7 +551,7 @@ registerCommand({
   id: 'app.logout',
   category: 'App',
   name: 'Logout',
-  testEnabled: () => getCurrentConfig()?.login != null,
+  testEnabled: () => getCurrentConfig()?.isUserLoggedIn,
   onClick: doLogout,
 });
 
@@ -559,7 +559,7 @@ registerCommand({
   id: 'app.disconnect',
   category: 'App',
   name: 'Disconnect',
-  testEnabled: () => getCurrentConfig()?.singleConnection != null,
+  testEnabled: () => getCurrentConfig()?.singleConnection != null && !getCurrentConfig()?.isUserLoggedIn,
   onClick: () => disconnectServerConnection(getCurrentConfig()?.singleConnection?._id),
 });
 
@@ -872,7 +872,6 @@ registerCommand({
   name: 'Upload error to gist',
   onClick: () => showModal(UploadErrorModal),
 });
-
 
 const electron = getElectron();
 if (electron) {

@@ -98,7 +98,6 @@
   import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall, removeVolatileMapping } from '../utility/api';
@@ -106,6 +105,7 @@
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';
   import { tick } from 'svelte';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let data;
   export let passProps;

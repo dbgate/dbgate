@@ -4,7 +4,7 @@
   import runCommand from '../commands/runCommand';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { openedTabs } from '../stores';
+  import { commandsCustomized, openedTabs } from '../stores';
 
   import { getConfig, getConnectionList, useFavorites } from './metadataLoaders';
   import openNewTab from './openNewTab';
@@ -49,7 +49,11 @@
       }
     }
 
-    if (!$openedTabs.find(x => x.closedTime == null) && !(await getConnectionList()).find(x => !x.unsaved)) {
+    if (
+      !$openedTabs.find(x => x.closedTime == null) &&
+      !(await getConnectionList()).find(x => !x.unsaved) &&
+      $commandsCustomized['new.connection']?.enabled
+    ) {
       openNewTab({
         title: 'New Connection',
         icon: 'img connection',

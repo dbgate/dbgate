@@ -8,6 +8,7 @@
 
   export let name;
   export let disabled = false;
+  export let defaultFileName = '';
 
   const { values, setFieldValue } = getFormContext();
 
@@ -25,6 +26,6 @@
 </script>
 
 <div class="flex">
-  <TextField {...$$restProps} value={$values[name]} on:click={handleBrowse} readOnly {disabled} />
+  <TextField {...$$restProps} value={$values[name] || defaultFileName} on:click={handleBrowse} readOnly {disabled} />
   <InlineButton on:click={handleBrowse} {disabled}>Browse</InlineButton>
 </div>

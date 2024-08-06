@@ -365,11 +365,13 @@ function createWindow() {
         console.log('Error saving config-root:', err.message);
       }
     });
+
+    // mainWindow.webContents.toggleDevTools();
+
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
-    // mainWindow.webContents.toggleDevTools();
 
     mainWindow.on('maximize', () => {
       mainWindow.webContents.send('setIsMaximized', true);

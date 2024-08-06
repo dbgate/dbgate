@@ -36,8 +36,5 @@
     "lodash": "^4.17.21",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "oracledb": "^6.5.1"
   }
 }

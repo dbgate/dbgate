@@ -9,12 +9,12 @@
   import { currentDropDownMenu } from '../stores';
   import { apiCall } from '../utility/api';
   import { importSqlDump } from '../utility/exportFileTools';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
   import { setUploadListener } from '../utility/uploadFiles';
   import ChangeDownloadUrlModal from './ChangeDownloadUrlModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let connection;
 

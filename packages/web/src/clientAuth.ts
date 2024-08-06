@@ -1,5 +1,6 @@
 import { apiCall, enableApi } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
+import { isAdminPage } from './utility/pageDefs';
 
 export function isOauthCallback() {
   const params = new URLSearchParams(location.search);
@@ -8,6 +9,29 @@ export function isOauthCallback() {
 
   return (
     sentCode && sentState && sentState.startsWith('dbg-oauth:') && sentState == sessionStorage.getItem('oauthState')
+  );
+}
+
+export function isDbLoginCallback() {
+  const params = new URLSearchParams(location.search);
+  const sentCode = params.get('code');
+  const sentState = params.get('state');
+
+  return (
+    sentCode && sentState && sentState.startsWith('dbg-dblogin:') && sentState == localStorage.getItem('dbloginState')
+  );
+}
+
+export function isDbLoginAuthCallback() {
+  const params = new URLSearchParams(location.search);
+  const sentCode = params.get('code');
+  const sentState = params.get('state');
+
+  return (
+    sentCode &&
+    sentState &&
+    sentState.startsWith('dbg-dblogin:') &&
+    sentState == sessionStorage.getItem('dbloginAuthState')
   );
 }
 
@@ -36,10 +60,68 @@ export function handleOauthCallback() {
     return true;
   }
 
+  if (isDbLoginCallback()) {
+    const [_prefix, strmid, conid] = localStorage.getItem('dbloginState').split(':');
+    localStorage.removeItem('dbloginState');
+
+    apiCall('connections/dblogin-token', {
+      code: sentCode,
+      conid,
+      strmid,
+      redirectUri: location.origin + location.pathname,
+    }).then(authResp => {
+      if (authResp.success) {
+        window.close();
+      } else if (authResp.error) {
+        internalRedirectTo(`/?page=error&error=${encodeURIComponent(authResp.error)}`);
+      } else {
+        internalRedirectTo(`/?page=error`);
+      }
+    });
+
+    return true;
+  }
+
+  if (isDbLoginAuthCallback()) {
+    const [_prefix, strmid, conid] = sessionStorage.getItem('dbloginAuthState').split(':');
+    sessionStorage.removeItem('dbloginAuthState');
+
+    apiCall('connections/dblogin-auth-token', {
+      code: sentCode,
+      conid,
+      redirectUri: location.origin + location.pathname,
+    }).then(authResp => {
+      if (authResp.accessToken) {
+        localStorage.setItem('accessToken', authResp.accessToken);
+        internalRedirectTo('/');
+      } else if (authResp.error) {
+        internalRedirectTo(`/?page=error&error=${encodeURIComponent(authResp.error)}`);
+      } else {
+        internalRedirectTo(`/?page=error`);
+      }
+    });
+
+    return true;
+  }
+
   return false;
 }
 
-export async function handleAuthOnStartup(config) {
+export async function handleAuthOnStartup(config, isAdminPage = false) {
+  if (!config.isLicenseValid) {
+    internalRedirectTo(`/?page=error`);
+    return;
+  }
+
+  if (config.isAdminLoginForm && isAdminPage) {
+    if (localStorage.getItem('adminAccessToken')) {
+      return;
+    }
+
+    redirectToAdminLogin();
+    return;
+  }
+
   if (config.oauth) {
     console.log('OAUTH callback URL:', location.origin + location.pathname);
   }
@@ -52,6 +134,11 @@ export async function handleAuthOnStartup(config) {
   }
 }
 
+export async function redirectToAdminLogin() {
+  internalRedirectTo('/?page=admin-login');
+  return;
+}
+
 export async function redirectToLogin(config = null, force = false) {
   if (!config) {
     enableApi();
@@ -61,7 +148,7 @@ export async function redirectToLogin(config = null, force = false) {
   if (config.isLoginForm) {
     if (!force) {
       const params = new URLSearchParams(location.search);
-      if (params.get('page') == 'login' || params.get('page') == 'not-logged') {
+      if (params.get('page') == 'login' || params.get('page') == 'admin-login' || params.get('page') == 'not-logged') {
         return;
       }
     }
@@ -93,15 +180,18 @@ export async function doLogout() {
   enableApi();
   const config = await getConfig();
   if (config.oauth) {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
     if (config.oauthLogout) {
       window.location.href = config.oauthLogout;
     } else {
       internalRedirectTo('/?page=not-logged');
     }
   } else if (config.isLoginForm) {
-    localStorage.removeItem('accessToken');
-    internalRedirectTo('/?page=not-logged');
+    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+    internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
+  } else if (config.isAdminLoginForm && isAdminPage()) {
+    localStorage.removeItem('adminAccessToken');
+    internalRedirectTo('/?page=admin-login&is-admin=true');
   } else {
     window.location.href = 'config/logout';
   }

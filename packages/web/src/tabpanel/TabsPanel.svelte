@@ -158,6 +158,7 @@
 
   function getTabDbName(tab, connectionList) {
     if (tab.tabComponent == 'ConnectionTab') return 'Connections';
+    if (tab.tabComponent?.startsWith('Admin')) return 'Administration';
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
       const connection = connectionList?.find(x => x._id == tab.props.conid);
@@ -174,6 +175,7 @@
       if (key.startsWith('archive://')) return 'icon archive';
       if (key.startsWith('server://')) return 'icon server';
       if (key.startsWith('connections.')) return 'icon connection';
+      if (key.startsWith('admin.')) return 'icon admin';
     }
     return 'icon file';
   }
@@ -285,7 +287,6 @@
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
@@ -293,6 +294,7 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let multiTabIndex;
   export let shownTab;

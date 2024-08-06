@@ -20,6 +20,7 @@ export interface ChangeSetItem {
   document?: any;
   condition?: { [column: string]: string };
   fields?: { [column: string]: string };
+  insertIfNotExistsFields?: { [column: string]: string };
 }
 
 export interface ChangeSetItemFields {
@@ -229,13 +230,23 @@ export function batchUpdateChangeSet(
   return changeSet;
 }
 
-function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
-  return _.keys(item.fields)
-    .filter(targetColumn => allowNulls || item.fields[targetColumn] != null)
+function extractFields(item: ChangeSetItem, allowNulls = true, allowedDocumentColumns: string[] = []): UpdateField[] {
+  const allFields = {
+    ...item.fields,
+  };
+
+  for (const docField in item.document || {}) {
+    if (allowedDocumentColumns.includes(docField)) {
+      allFields[docField] = item.document[docField];
+    }
+  }
+
+  return _.keys(allFields)
+    .filter(targetColumn => allowNulls || allFields[targetColumn] != null)
     .map(targetColumn => ({
       targetColumn,
       exprType: 'value',
-      value: item.fields[targetColumn],
+      value: allFields[targetColumn],
     }));
 }
 
@@ -243,17 +254,19 @@ function changeSetInsertToSql(
   item: ChangeSetItem,
   dbinfo: DatabaseInfo = null
 ): [AllowIdentityInsert, Insert, AllowIdentityInsert] {
-  const fields = extractFields(item, false);
+  const table = dbinfo?.tables?.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
+  const fields = extractFields(
+    item,
+    false,
+    table?.columns?.map(x => x.columnName)
+  );
   if (fields.length == 0) return null;
   let autoInc = false;
-  if (dbinfo) {
-    const table = dbinfo.tables.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
-    if (table) {
-      const autoIncCol = table.columns.find(x => x.autoIncrement);
-      // console.log('autoIncCol', autoIncCol);
-      if (autoIncCol && fields.find(x => x.targetColumn == autoIncCol.columnName)) {
-        autoInc = true;
-      }
+  if (table) {
+    const autoIncCol = table.columns.find(x => x.autoIncrement);
+    // console.log('autoIncCol', autoIncCol);
+    if (autoIncCol && fields.find(x => x.targetColumn == autoIncCol.columnName)) {
+      autoInc = true;
     }
   }
   const targetTable = {
@@ -272,6 +285,9 @@ function changeSetInsertToSql(
       targetTable,
       commandType: 'insert',
       fields,
+      insertWhereNotExistsCondition: item.insertIfNotExistsFields
+        ? compileSimpleChangeSetCondition(item.insertIfNotExistsFields)
+        : null,
     },
     autoInc
       ? {
@@ -320,7 +336,39 @@ export function extractChangeSetCondition(item: ChangeSetItem, alias?: string): 
   };
 }
 
-function changeSetUpdateToSql(item: ChangeSetItem): Update {
+function compileSimpleChangeSetCondition(fields: { [column: string]: string }): Condition {
+  function getColumnCondition(columnName: string): Condition {
+    const value = fields[columnName];
+    const expr: Expression = {
+      exprType: 'column',
+      columnName,
+    };
+    if (value == null) {
+      return {
+        conditionType: 'isNull',
+        expr,
+      };
+    } else {
+      return {
+        conditionType: 'binary',
+        operator: '=',
+        left: expr,
+        right: {
+          exprType: 'value',
+          value,
+        },
+      };
+    }
+  }
+  return {
+    conditionType: 'and',
+    conditions: _.keys(fields).map(columnName => getColumnCondition(columnName)),
+  };
+}
+
+function changeSetUpdateToSql(item: ChangeSetItem, dbinfo: DatabaseInfo = null): Update {
+  const table = dbinfo?.tables?.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
+
   return {
     from: {
       name: {
@@ -329,7 +377,11 @@ function changeSetUpdateToSql(item: ChangeSetItem): Update {
       },
     },
     commandType: 'update',
-    fields: extractFields(item),
+    fields: extractFields(
+      item,
+      true,
+      table?.columns?.map(x => x.columnName)
+    ),
     where: extractChangeSetCondition(item),
   };
 }
@@ -351,7 +403,7 @@ export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Comm
   return _.compact(
     _.flatten([
       ...(changeSet.inserts.map(item => changeSetInsertToSql(item, dbinfo)) as any),
-      ...changeSet.updates.map(changeSetUpdateToSql),
+      ...changeSet.updates.map(item => changeSetUpdateToSql(item, dbinfo)),
       ...changeSet.deletes.map(changeSetDeleteToSql),
     ])
   );
@@ -446,7 +498,12 @@ export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectIn
   };
 }
 
-export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[], name?: NamedObjectInfo): ChangeSet {
+export function changeSetInsertDocuments(
+  changeSet: ChangeSet,
+  documents: any[],
+  name?: NamedObjectInfo,
+  insertIfNotExistsFieldNames?: string[]
+): ChangeSet {
   const insertedRows = getChangeSetInsertedRows(changeSet, name);
   return {
     ...changeSet,
@@ -456,6 +513,7 @@ export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[],
         ...name,
         insertedRowIndex: insertedRows.length + index,
         fields: doc,
+        insertIfNotExistsFields: insertIfNotExistsFieldNames ? _.pick(doc, insertIfNotExistsFieldNames) : null,
       })),
     ],
   };

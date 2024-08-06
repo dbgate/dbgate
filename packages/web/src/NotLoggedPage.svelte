@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
-  import { doLogout, redirectToLogin } from './clientAuth';
+  import { doLogout, redirectToAdminLogin, redirectToLogin } from './clientAuth';
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -10,9 +10,14 @@
 
   const params = new URLSearchParams(location.search);
   const error = params.get('error');
+  const isAdmin = params.get('is-admin') == 'true';
 
   function handleLogin() {
-    redirectToLogin(undefined, true);
+    if (isAdmin) {
+      redirectToAdminLogin();
+    } else {
+      redirectToLogin(undefined, true);
+    }
   }
 </script>
 

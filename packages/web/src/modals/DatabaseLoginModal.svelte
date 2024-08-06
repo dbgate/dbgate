@@ -25,6 +25,7 @@
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { callServerPing } from '../utility/connectionsPinger';
 
   export let conid;
   export let passwordMode;
@@ -83,6 +84,7 @@
     isTesting = false;
     if (resp.msgtype == 'connected') {
       setVolatileConnectionRemapping(conid, resp._id);
+      await callServerPing();
       dispatchCacheChange({ key: `server-status-changed` });
       batchDispatchCacheTriggers(x => x.conid == conid);
       closeCurrentModal();

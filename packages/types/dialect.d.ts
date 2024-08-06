@@ -34,6 +34,7 @@ export interface SqlDialect {
   dropCheck?: boolean;
 
   dropReferencesWhenDropTable?: boolean;
+  requireFromDual?: boolean;
 
   predefinedDataTypes: string[];
 

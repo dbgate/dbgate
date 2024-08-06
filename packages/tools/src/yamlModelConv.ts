@@ -11,6 +11,8 @@ export interface ColumnInfoYaml {
   length?: number;
   autoIncrement?: boolean;
   references?: string;
+  refDeleteAction?: string;
+  refUpdateAction?: string;
   primaryKey?: boolean;
   default?: string;
 }
@@ -104,6 +106,8 @@ function convertForeignKeyFromYaml(
     constraintType: 'foreignKey',
     pureName: table.name,
     refTableName: col.references,
+    deleteAction: col.refDeleteAction,
+    updateAction: col.refUpdateAction,
     columns: [
       {
         columnName: col.name,
@@ -134,11 +138,15 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
   return res;
 }
 
-export function databaseInfoFromYamlModel(files: DatabaseModelFile[]): DatabaseInfo {
+export function databaseInfoFromYamlModel(filesOrDbInfo: DatabaseModelFile[] | DatabaseInfo): DatabaseInfo {
+  if (!Array.isArray(filesOrDbInfo)) {
+    return filesOrDbInfo;
+  }
+
   const model = DatabaseAnalyser.createEmptyStructure();
   const tablesYaml = [];
 
-  for (const file of files) {
+  for (const file of filesOrDbInfo) {
     if (file.name.endsWith('.table.yaml') || file.name.endsWith('.sql')) {
       if (file.name.endsWith('.table.yaml')) {
         tablesYaml.push(file.json);

@@ -412,6 +412,7 @@
   export let isLoading = false;
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
+  export let onPublishedCellsChanged = undefined;
   export let onReferenceClick = undefined;
   export let onChangeSelectedColumns = undefined;
   // export let onSelectedCellsPublishedChanged = undefined;
@@ -422,12 +423,13 @@
   export let schemaName = undefined;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
+  export let hideGridLeftColumn;
 
   export let isLoadedAll;
   export let loadedTime;
   export let changeSetStore;
   export let isDynamicStructure = false;
-  export let selectedCellsPublished = () => [];
+  // export let selectedCellsPublished = () => [];
   export let collapsedLeftColumnStore;
   export let multipleGridsOnTab = false;
   export let tabControlHiddenTab = false;
@@ -1077,16 +1079,29 @@
   }
 
   const lastPublishledSelectedCellsRef = createRef('');
+  const changeSetValueRef = createRef(null);
   $: {
     const stringified = stableStringify(selectedCells);
-    if (lastPublishledSelectedCellsRef.get() != stringified) {
-      lastPublishledSelectedCellsRef.set(stringified);
-      const cellsValue = () => getCellsPublished(selectedCells);
-      selectedCellsPublished = cellsValue;
-      $selectedCellsCallback = cellsValue;
+    if (
+      (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore?.value) &&
+      realColumnUniqueNames?.length > 0
+    ) {
+      tick().then(() => {
+        const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
+        if (rowIndexes.every(x => grider.getRowData(x))) {
+          lastPublishledSelectedCellsRef.set(stringified);
+          changeSetValueRef.set($changeSetStore?.value);
+          $selectedCellsCallback = () => getCellsPublished(selectedCells);
 
-      if (onChangeSelectedColumns) onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
-      // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
+          if (onChangeSelectedColumns) {
+            onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
+          }
+
+          if (onPublishedCellsChanged) {
+            onPublishedCellsChanged(getCellsPublished(selectedCells));
+          }
+        }
+      });
     }
   }
 
@@ -1120,6 +1135,8 @@
           column,
           value: rowData && rowData[column],
           engine: display?.driver,
+          condition: display?.getChangeSetCondition(rowData),
+          insertedRowIndex: grider?.getInsertedRowIndex(row),
         };
       })
       .filter(x => x.column);
@@ -1816,10 +1833,12 @@
             data-col="header"
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
           >
-            <CollapseButton
-              collapsed={$collapsedLeftColumnStore}
-              on:click={() => collapsedLeftColumnStore.update(x => !x)}
-            />
+            {#if !hideGridLeftColumn}
+              <CollapseButton
+                collapsed={$collapsedLeftColumnStore}
+                on:click={() => collapsedLeftColumnStore.update(x => !x)}
+              />
+            {/if}
           </td>
           {#each visibleRealColumns as col (col.uniqueName)}
             <td

@@ -18,6 +18,7 @@ const sessions = require('./controllers/sessions');
 const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
+const storage = require('./controllers/storage');
 const archive = require('./controllers/archive');
 const apps = require('./controllers/apps');
 const auth = require('./controllers/auth');
@@ -31,9 +32,9 @@ const onFinished = require('on-finished');
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
-const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
+const { getAuthProvider } = require('./auth/authProvider');
 
 const logger = getLogger('main');
 
@@ -44,11 +45,23 @@ function start() {
 
   const server = http.createServer(app);
 
-  const logins = getLogins();
-  if (logins && process.env.BASIC_AUTH) {
+  if (process.env.BASIC_AUTH) {
+    async function authorizer(username, password, cb) {
+      try {
+        const resp = await getAuthProvider().login(username, password);
+        if (resp.accessToken) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      } catch (err) {
+        cb(err, false);
+      }
+    }
     app.use(
       basicAuth({
-        users: _.fromPairs(logins.filter(x => x.password).map(x => [x.login, x.password])),
+        authorizer,
+        authorizeAsync: true,
         challenge: true,
         realm: 'DbGate Web App',
       })
@@ -72,9 +85,7 @@ function start() {
     });
   }
 
-  if (auth.shouldAuthorizeApi()) {
-    app.use(auth.authMiddleware);
-  }
+  app.use(auth.authMiddleware);
 
   app.get(getExpressPath('/stream'), async function (req, res) {
     const strmid = req.query.strmid;
@@ -162,6 +173,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/runners', runners);
   useController(app, electron, '/jsldata', jsldata);
   useController(app, electron, '/config', config);
+  useController(app, electron, '/storage', storage);
   useController(app, electron, '/archive', archive);
   useController(app, electron, '/uploads', uploads);
   useController(app, electron, '/plugins', plugins);

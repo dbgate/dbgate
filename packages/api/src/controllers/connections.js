@@ -16,6 +16,8 @@ const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const requireEngineDriver = require('../utility/requireEngineDriver');
+const { getAuthProvider } = require('../auth/authProvider');
 
 const logger = getLogger('connections');
 
@@ -199,6 +201,12 @@ module.exports = {
 
   list_meta: true,
   async list(_params, req) {
+    const storage = require('./storage');
+
+    const storageConnections = await storage.connections(req);
+    if (storageConnections) {
+      return storageConnections;
+    }
     if (portalConnections) {
       if (platformInfo.allowShellConnection) return portalConnections;
       return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, req));
@@ -236,14 +244,16 @@ module.exports = {
   },
 
   saveVolatile_meta: true,
-  async saveVolatile({ conid, user, password, test }) {
+  async saveVolatile({ conid, user = undefined, password = undefined, accessToken = undefined, test = false }) {
     const old = await this.getCore({ conid });
     const res = {
       ...old,
       _id: crypto.randomUUID(),
       password,
+      accessToken,
       passwordMode: undefined,
       unsaved: true,
+      useRedirectDbLogin: false,
     };
     if (old.passwordMode == 'askUser') {
       res.user = user;
@@ -336,6 +346,14 @@ module.exports = {
     if (volatile) {
       return volatile;
     }
+
+    const storage = require('./storage');
+
+    const storageConnection = await storage.getConnection({ conid });
+    if (storageConnection) {
+      return storageConnection;
+    }
+
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;
@@ -364,5 +382,65 @@ module.exports = {
       defaultDatabase: `${file}.sqlite`,
     });
     return res;
+  },
+
+  dblogin_meta: {
+    raw: true,
+    method: 'get',
+  },
+  async dblogin(req, res) {
+    const { conid, state, redirectUri } = req.query;
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const authUrl = await driver.getRedirectAuthUrl(connection, { redirectUri, state });
+    res.redirect(authUrl);
+  },
+
+  dbloginToken_meta: true,
+  async dbloginToken({ code, conid, strmid, redirectUri }) {
+    try {
+      const connection = await this.getCore({ conid });
+      const driver = requireEngineDriver(connection);
+      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
+      socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
+      return { success: true };
+    } catch (err) {
+      logger.error({ err }, 'Error getting DB token');
+      return { error: err.message };
+    }
+  },
+
+  dbloginAuthToken_meta: true,
+  async dbloginAuthToken({ code, conid, redirectUri }) {
+    try {
+      const connection = await this.getCore({ conid });
+      const driver = requireEngineDriver(connection);
+      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      const authProvider = getAuthProvider();
+      const resp = await authProvider.login(null, null, { conid: volatile._id });
+      return resp;
+    } catch (err) {
+      logger.error({ err }, 'Error getting DB token');
+      return { error: err.message };
+    }
+  },
+
+  dbloginAuth_meta: true,
+  async dbloginAuth({ conid, user, password }) {
+    if (user || password) {
+      const saveResp = await this.saveVolatile({ conid, user, password, test: true });
+      if (saveResp.msgtype == 'connected') {
+        const loginResp = await getAuthProvider().login(user, password, { conid: saveResp._id });
+        return loginResp;
+      }
+      return saveResp;
+    }
+
+    // user and password is stored in connection, volatile connection is not needed
+    const loginResp = await getAuthProvider().login(null, null, { conid });
+    return loginResp;
   },
 };

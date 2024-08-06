@@ -11,6 +11,7 @@ const loadedPlugins = {};
 const dbgateEnv = {
   dbgateApi: null,
   nativeModules,
+  platformInfo,
 };
 function requirePlugin(packageName, requiredPlugin = null) {
   if (!packageName) throw new Error('Missing packageName in plugin');

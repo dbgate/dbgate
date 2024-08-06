@@ -60,7 +60,7 @@
 </script>
 
 <script>
-  import { filterName } from 'dbgate-tools';
+  import { filterName, getConnectionLabel } from 'dbgate-tools';
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
@@ -75,7 +75,6 @@
     visibleCommandPalette,
   } from '../stores';
   import clickOutside from '../utility/clickOutside';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import { isElectronAvailable } from '../utility/getElectron';
   import keycodes from '../utility/keycodes';
   import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';

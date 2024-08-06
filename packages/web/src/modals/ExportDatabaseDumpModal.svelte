@@ -15,7 +15,7 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import InputTextModal from './InputTextModal.svelte';
   import { apiCall } from '../utility/api';
-  import getConnectionLabel from '../utility/getConnectionLabel';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let connection;
 

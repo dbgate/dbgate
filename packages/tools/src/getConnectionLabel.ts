@@ -31,7 +31,7 @@ function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {
   return '';
 }
 
-export default function getConnectionLabel(connection, { allowExplicitDatabase = true, showUnsaved = false } = {}) {
+export function getConnectionLabel(connection, { allowExplicitDatabase = true, showUnsaved = false } = {}) {
   const res = getConnectionLabelCore(connection, { allowExplicitDatabase });
 
   if (res && showUnsaved && connection?.unsaved) {

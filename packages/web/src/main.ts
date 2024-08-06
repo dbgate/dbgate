@@ -6,13 +6,15 @@ import localStorageGarbageCollector from './utility/localStorageGarbageCollector
 import { handleOauthCallback } from './clientAuth';
 import LoginPage from './LoginPage.svelte';
 import NotLoggedPage from './NotLoggedPage.svelte';
-
-const isOauthCallback = handleOauthCallback();
+import ErrorPage from './ErrorPage.svelte';
 
 const params = new URLSearchParams(location.search);
 const page = params.get('page');
 
+const isOauthCallback = handleOauthCallback();
+
 localStorageGarbageCollector();
+
 
 function createApp() {
   if (isOauthCallback) {
@@ -23,12 +25,33 @@ function createApp() {
     case 'login':
       return new LoginPage({
         target: document.body,
+        props: {
+          isAdminPage: false,
+        },
+      });
+    case 'error':
+      return new ErrorPage({
+        target: document.body,
         props: {},
+      });
+    case 'admin-login':
+      return new LoginPage({
+        target: document.body,
+        props: {
+          isAdminPage: true,
+        },
       });
     case 'not-logged':
       return new NotLoggedPage({
         target: document.body,
         props: {},
+      });
+    case 'admin':
+      return new App({
+        target: document.body,
+        props: {
+          isAdminPage: true,
+        },
       });
   }
 

@@ -1,4 +1,5 @@
 import getElectron from './getElectron';
+import { isAdminPage } from './pageDefs';
 
 let apiUrl = null;
 try {
@@ -16,9 +17,12 @@ export function resolveApiHeaders() {
   const electron = getElectron();
 
   const res = {};
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
   if (accessToken) {
     res['Authorization'] = `Bearer ${accessToken}`;
+  }
+  if (isAdminPage()) {
+    res['x-is-admin-page'] = 'true';
   }
   return res;
 }

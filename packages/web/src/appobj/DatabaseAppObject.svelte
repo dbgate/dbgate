@@ -340,7 +340,6 @@
 </script>
 
 <script lang="ts">
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import uuidv1 from 'uuid/v1';
 
   import _, { find } from 'lodash';
@@ -365,7 +364,7 @@
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';

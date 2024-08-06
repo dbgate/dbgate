@@ -5,7 +5,7 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import { fullNameFromString, fullNameToLabel, fullNameToString } from 'dbgate-tools';
+  import { fullNameFromString, fullNameToLabel, fullNameToString, getConnectionLabel } from 'dbgate-tools';
   import SelectField from '../forms/SelectField.svelte';
   import _ from 'lodash';
   import {
@@ -18,7 +18,6 @@
   import { onMount, tick } from 'svelte';
   import { createPerspectiveNodeConfig, PerspectiveTreeNode } from 'dbgate-datalib';
   import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveCustomJoinConfig } from 'dbgate-datalib';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import uuidv1 from 'uuid/v1';
   import TextField from '../forms/TextField.svelte';
 

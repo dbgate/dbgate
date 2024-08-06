@@ -38,6 +38,7 @@ export interface Insert {
   commandType: 'insert';
   fields: UpdateField[];
   targetTable: NamedObjectInfo;
+  insertWhereNotExistsCondition?: Condition;
 }
 
 export interface AllowIdentityInsert {
@@ -105,6 +106,12 @@ export interface InCondition {
   values: any[];
 }
 
+export interface NotInCondition {
+  conditionType: 'notIn';
+  expr: Expression;
+  values: any[];
+}
+
 export interface RawTemplateCondition {
   conditionType: 'rawTemplate';
   templateSql: string;
@@ -126,6 +133,7 @@ export type Condition =
   | NotExistsCondition
   | BetweenCondition
   | InCondition
+  | NotInCondition
   | RawTemplateCondition
   | AnyColumnPassEvalOnlyCondition;
 

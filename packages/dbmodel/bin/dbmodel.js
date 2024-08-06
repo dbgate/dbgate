@@ -26,6 +26,8 @@ async function runAndExit(promise) {
   }
 }
 
+program.version(dbgateApi.currentVersion.version);
+
 program
   .option('-s, --server <server>', 'server host')
   .option('-u, --user <user>', 'user name')
@@ -36,7 +38,8 @@ program
     '--load-data-condition <condition>',
     'regex, which table data will be loaded and stored in model (in load command)'
   )
-  .requiredOption('-e, --engine <engine>', 'engine name, eg. mysql@dbgate-plugin-mysql');
+  .option('-e, --engine <engine>', 'engine name, eg. mysql@dbgate-plugin-mysql')
+  .option('--commonjs', 'Creates CommonJS module');
 
 program
   .command('deploy <modelFolder>')
@@ -111,6 +114,32 @@ program
         modelFolder,
         outputFile,
         engine,
+      })
+    );
+  });
+
+program
+  .command('json-to-model <jsonFile> <modelFolder>')
+  .description('Converts JSON file to model')
+  .action((jsonFile, modelFolder) => {
+    runAndExit(
+      dbgateApi.jsonToDbModel({
+        modelFile: jsonFile,
+        outputDir: modelFolder,
+      })
+    );
+  });
+
+program
+  .command('model-to-json <modelFolder> <jsonFile>')
+  .description('Converts model to JSON file')
+  .action((modelFolder, jsonFile) => {
+    const { commonjs } = program.opts();
+    runAndExit(
+      dbgateApi.dbModelToJson({
+        modelFolder,
+        outputFile: jsonFile,
+        commonjs,
       })
     );
   });

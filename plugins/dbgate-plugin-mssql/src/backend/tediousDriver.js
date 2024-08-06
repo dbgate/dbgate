@@ -2,6 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const tedious = require('tedious');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
+const { getAzureAuthOptions } = require('./azureAuth');
 
 function extractTediousColumns(columns, addDriverNativeColumn = false) {
   const res = columns.map(col => {
@@ -22,10 +23,11 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
   return res;
 }
 
-async function tediousConnect({ server, port, user, password, database, ssl, trustServerCertificate, windowsDomain }) {
+async function tediousConnect(storedConnection) {
+  const { server, port, user, password, database, ssl, trustServerCertificate, windowsDomain, authType } = storedConnection;
   return new Promise((resolve, reject) => {
     const connectionOptions = {
-      encrypt: !!ssl,
+      encrypt: !!ssl || authType == 'msentra',
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
@@ -40,18 +42,21 @@ async function tediousConnect({ server, port, user, password, database, ssl, tru
       connectionOptions.database = database;
     }
 
+    const authentication =
+      authType == 'msentra'
+        ? getAzureAuthOptions(storedConnection)
+        : {
+            type: windowsDomain ? 'ntlm' : 'default',
+            options: {
+              userName: user,
+              password: password,
+              ...(windowsDomain ? { domain: windowsDomain } : {}),
+            },
+          };
+
     const connection = new tedious.Connection({
       server,
-
-      authentication: {
-        type: windowsDomain ? 'ntlm' : 'default',
-        options: {
-          userName: user,
-          password: password,
-          ...(windowsDomain ? { domain: windowsDomain } : {}),
-        },
-      },
-
+      authentication,
       options: connectionOptions,
     });
     connection.on('connect', function (err) {

@@ -30,6 +30,8 @@ import * as ProfilerTab from './ProfilerTab.svelte';
 import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
 import * as ImportExportTab from './ImportExportTab.svelte';
 
+import protabs from './index-pro';
+
 export default {
   TableDataTab,
   CollectionDataTab,
@@ -62,4 +64,5 @@ export default {
   ProfilerTab,
   DataDuplicatorTab,
   ImportExportTab,
+  ...protabs,
 };

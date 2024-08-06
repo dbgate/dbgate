@@ -35,6 +35,7 @@ const dialect = {
   dropCheck: true,
 
   dropReferencesWhenDropTable: true,
+  requireFromDual: true,
 
   predefinedDataTypes: [
     'VARCHAR2',
@@ -81,10 +82,15 @@ const dialect = {
   },
 };
 
-const oracleDriverBase = {
-  ...driverBase,
-  dumperClass: Dumper,
+/** @type {import('dbgate-types').EngineDriver} */
+const oracleDriver = {
+  engine: 'oracle@dbgate-plugin-oracle',
+  title: 'OracleDB',
+  defaultPort: 1521,
+  authTypeLabel: 'Driver mode',
+  defaultAuthTypeName: 'thin',
   dialect,
+  dumperClass: Dumper,
   // showConnectionField: (field, values) =>
   //   ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   getQuerySplitterOptions: () => oracleSplitterOptions,
@@ -92,8 +98,11 @@ const oracleDriverBase = {
 
   databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
-  showConnectionField: (field, values) => {
+  showConnectionField: (field, values, { config }) => {
     if (field == 'useDatabaseUrl') return true;
+    if (field == 'authType') return true;
+    if (field == 'clientLibraryPath') return config?.isElectron && values.authType == 'thick';
+
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'user', 'password'].includes(field);
     }
@@ -125,18 +134,6 @@ $$ LANGUAGE plpgsql;`,
       },
     ];
   },
-};
-
-/** @type {import('dbgate-types').EngineDriver} */
-const oracleDriver = {
-  ...oracleDriverBase,
-  engine: 'oracle@dbgate-plugin-oracle',
-  title: 'OracleDB',
-  defaultPort: 1521,
-  dialect: {
-    ...dialect,
-    materializedViews: true,
-  },
 
   dialectByVersion(version) {
     if (version) {
@@ -155,4 +152,4 @@ const oracleDriver = {
   showConnectionTab: field => field == 'sshTunnel',
 };
 
-module.exports = [oracleDriver];
+module.exports = oracleDriver;

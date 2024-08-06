@@ -8,6 +8,7 @@
     visibleWidgetSideBar,
     visibleHamburgerMenuWidget,
     lockedDatabaseMode,
+    getCurrentConfig,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -16,6 +17,11 @@
   let domMainMenu;
 
   const widgets = [
+    getCurrentConfig().storageDatabase && {
+      icon: 'icon admin',
+      name: 'admin',
+      title: 'Administration',
+    },
     {
       icon: 'icon database',
       name: 'database',
@@ -98,7 +104,7 @@
       <FontIcon icon="icon menu" />
     </div>
   {/if}
-  {#each widgets.filter(x => hasPermission(`widgets/${x.name}`)) as item}
+  {#each widgets.filter(x => x && hasPermission(`widgets/${x.name}`)) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
@@ -119,6 +125,7 @@
   >
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div>
+  
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
     <FontIcon icon="icon settings" />
   </div>

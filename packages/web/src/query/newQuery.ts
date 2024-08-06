@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { getCurrentDatabase } from '../stores';
-import getConnectionLabel from '../utility/getConnectionLabel';
+import { getConnectionLabel } from 'dbgate-tools';
 import openNewTab from '../utility/openNewTab';
 
 export default function newQuery({

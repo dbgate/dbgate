@@ -90,7 +90,13 @@ export interface EngineDriver {
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
-  showConnectionField?: (field: string, values: any) => boolean;
+  showConnectionField?: (
+    field: string,
+    values: any,
+    {
+      config: {},
+    }
+  ) => boolean;
   showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
@@ -143,6 +149,8 @@ export interface EngineDriver {
   summaryCommand(pool, command, row): Promise<void>;
   startProfiler(pool, options): Promise<any>;
   stopProfiler(pool, profiler): Promise<void>;
+  getRedirectAuthUrl(connection, options): Promise<string>;
+  getAuthTokenFromCode(connection, options): Promise<string>;
 
   analyserClass?: any;
   dumperClass?: any;

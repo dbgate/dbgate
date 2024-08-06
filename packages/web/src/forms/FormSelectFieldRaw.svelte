@@ -10,6 +10,7 @@
   export let options;
   export let isClearable = false;
   export let selectFieldComponent = SelectField;
+  export let defaultSelectValue;
 
   const { values, setFieldValue } = getFormContext();
 </script>
@@ -17,7 +18,7 @@
 <svelte:component
   this={selectFieldComponent}
   {...$$restProps}
-  value={$values && $values[name]}
+  value={($values && $values[name]) || defaultSelectValue}
   options={_.compact(options)}
   on:change={e => {
     setFieldValue(name, e.detail);
