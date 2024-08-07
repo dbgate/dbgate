@@ -23,6 +23,7 @@ function unauthorizedResponse(req, res, text) {
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = [
     '/config/get',
+    '/config/logout',
     '/config/get-settings',
     '/auth/oauth-token',
     '/auth/login',
