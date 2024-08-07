@@ -1,7 +1,7 @@
 const { getTokenSecret, getTokenLifetime } = require('./authCommon');
 const _ = require('lodash');
 const axios = require('axios');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, getPredefinedPermissions } = require('dbgate-tools');
 
 const AD = require('activedirectory2').promiseWrapper;
 const jwt = require('jsonwebtoken');
@@ -12,7 +12,15 @@ class AuthProviderBase {
   amoid = 'none';
 
   async login(login, password, options = undefined) {
-    return {};
+    return {
+      accessToken: jwt.sign(
+        {
+          amoid: this.amoid,
+        },
+        getTokenSecret(),
+        { expiresIn: getTokenLifetime() }
+      ),
+    };
   }
 
   shouldAuthorizeApi() {
@@ -57,6 +65,7 @@ class AuthProviderBase {
   toJson() {
     return {
       amoid: this.amoid,
+      workflowType: 'anonymous',
     };
   }
 }
@@ -127,12 +136,19 @@ class OAuthProvider extends AuthProviderBase {
       oauthLogout: process.env.OAUTH_LOGOUT,
     };
   }
+
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'redirect',
+    };
+  }
 }
 
 class ADProvider extends AuthProviderBase {
   amoid = 'ad';
 
-  async login(login, password) {
+  async login(login, password, options = undefined) {
     const adConfig = {
       url: process.env.AD_URL,
       baseDN: process.env.AD_BASEDN,
@@ -152,7 +168,14 @@ class ADProvider extends AuthProviderBase {
         return { error: `Username ${login} not allowed to log in` };
       }
       return {
-        accessToken: jwt.sign({ login }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+        accessToken: jwt.sign(
+          {
+            amoid: this.amoid,
+            login,
+          },
+          getTokenSecret(),
+          { expiresIn: getTokenLifetime() }
+        ),
       };
     } catch (e) {
       return { error: 'Login failed' };
@@ -166,15 +189,29 @@ class ADProvider extends AuthProviderBase {
   isLoginForm() {
     return !process.env.BASIC_AUTH;
   }
+
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+    };
+  }
 }
 
 class LoginsProvider extends AuthProviderBase {
   amoid = 'logins';
 
-  async login(login, password) {
+  async login(login, password, options = undefined) {
     if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
-        accessToken: jwt.sign({ login }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+        accessToken: jwt.sign(
+          {
+            amoid: this.amoid,
+            login,
+          },
+          getTokenSecret(),
+          { expiresIn: getTokenLifetime() }
+        ),
       };
     }
     return { error: 'Invalid credentials' };
@@ -187,6 +224,13 @@ class LoginsProvider extends AuthProviderBase {
   isLoginForm() {
     return !process.env.BASIC_AUTH;
   }
+
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+    };
+  }
 }
 
 class DenyAllProvider extends AuthProviderBase {
@@ -196,8 +240,15 @@ class DenyAllProvider extends AuthProviderBase {
     return true;
   }
 
-  async login(login, password) {
+  async login(login, password, options = undefined) {
     return { error: 'Login not allowed' };
+  }
+
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+    };
   }
 }
 

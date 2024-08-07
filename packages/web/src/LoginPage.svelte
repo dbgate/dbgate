@@ -30,6 +30,9 @@
 
   $: selectedConnection = availableConnections?.find(x => x.conid == $values.databaseServer);
 
+  $: selectedProvider = availableProviders?.find(x => x.amoid == $values.amoid);
+  $: workflowType = selectedProvider?.workflowType ?? 'credentials';
+
   async function loadAvailableServers(amoid) {
     if (amoid) {
       availableConnections = await apiCall('storage/get-connections-for-login-page', { amoid });
@@ -80,7 +83,7 @@
           />
         {/if}
 
-        {#if !isAdminPage && availableConnections}
+        {#if !isAdminPage && availableConnections && workflowType == 'database'}
           <FormSelectField
             label="Database server"
             name="databaseServer"
@@ -97,10 +100,12 @@
             <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
           {/if}
         {:else}
-          {#if !isAdminPage}
+          {#if !isAdminPage && workflowType == 'credentials'}
             <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
           {/if}
-          <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+          {#if workflowType == 'credentials'}
+            <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+          {/if}
         {/if}
 
         {#if isAdminPage && $config && !$config.isAdminLoginForm}
@@ -173,31 +178,38 @@
             />
           {:else}
             <FormSubmit
-              value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
+              value={isAdminPage
+                ? 'Log In as Administrator'
+                : workflowType == 'redirect'
+                  ? 'Redirect to login page'
+                  : 'Log In'}
               on:click={async e => {
                 enableApi();
-                const resp = await apiCall('auth/login', {
-                  amoid: $values.amoid,
-                  isAdminPage,
-                  ...e.detail,
-                });
-                if (resp.error) {
-                  internalRedirectTo(
-                    `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
-                  );
-                  return;
-                }
-                const { accessToken } = resp;
-                if (accessToken) {
-                  localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
-                  if (isAdminPage) {
-                    internalRedirectTo('/?page=admin');
-                  } else {
-                    internalRedirectTo('/');
+
+                if (isAdminPage || workflowType == 'credentials' || workflowType == 'anonymous') {
+                  const resp = await apiCall('auth/login', {
+                    amoid: $values.amoid,
+                    isAdminPage,
+                    ...e.detail,
+                  });
+                  if (resp.error) {
+                    internalRedirectTo(
+                      `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+                    );
+                    return;
                   }
-                  return;
+                  const { accessToken } = resp;
+                  if (accessToken) {
+                    localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
+                    if (isAdminPage) {
+                      internalRedirectTo('/?page=admin');
+                    } else {
+                      internalRedirectTo('/');
+                    }
+                    return;
+                  }
+                  internalRedirectTo(`/?page=not-logged`);
                 }
-                internalRedirectTo(`/?page=not-logged`);
               }}
             />
           {/if}
