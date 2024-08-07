@@ -1,6 +1,6 @@
 const { compilePermissions, testPermission } = require('dbgate-tools');
 const _ = require('lodash');
-const { getAuthProvider } = require('../auth/authProvider');
+const { getAuthProviderFromReq } = require('../auth/authProvider');
 
 const cachedPermissions = {};
 
@@ -10,7 +10,7 @@ function hasPermission(tested, req) {
     return true;
   }
 
-  const permissions = getAuthProvider().getCurrentPermissions(req);
+  const permissions = getAuthProviderFromReq(req).getCurrentPermissions(req);
 
   if (!cachedPermissions[permissions]) {
     cachedPermissions[permissions] = compilePermissions(permissions);

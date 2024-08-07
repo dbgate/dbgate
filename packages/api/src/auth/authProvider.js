@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken');
 const logger = getLogger('authProvider');
 
 class AuthProviderBase {
+  amoid = 'none';
+
   async login(login, password, options = undefined) {
     return {};
   }
@@ -51,9 +53,17 @@ class AuthProviderBase {
   getSingleConnectionId(req) {
     return null;
   }
+
+  toJson() {
+    return {
+      amoid: this.amoid,
+    };
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {
+  amoid = 'oauth';
+
   shouldAuthorizeApi() {
     return true;
   }
@@ -120,6 +130,8 @@ class OAuthProvider extends AuthProviderBase {
 }
 
 class ADProvider extends AuthProviderBase {
+  amoid = 'ad';
+
   async login(login, password) {
     const adConfig = {
       url: process.env.AD_URL,
@@ -157,6 +169,8 @@ class ADProvider extends AuthProviderBase {
 }
 
 class LoginsProvider extends AuthProviderBase {
+  amoid = 'logins';
+
   async login(login, password) {
     if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
@@ -176,6 +190,8 @@ class LoginsProvider extends AuthProviderBase {
 }
 
 class DenyAllProvider extends AuthProviderBase {
+  amoid = 'deny';
+
   shouldAuthorizeApi() {
     return true;
   }
@@ -233,19 +249,37 @@ function createEnvAuthProvider() {
   }
 }
 
-let authProvider = createEnvAuthProvider();
+let defaultAuthProvider = createEnvAuthProvider();
+let authProviders = [defaultAuthProvider];
 
-function getAuthProvider() {
-  return authProvider;
+function getAuthProviders() {
+  return authProviders;
 }
 
-function setAuthProvider(value) {
-  authProvider = value;
+function getAuthProviderById(amoid) {
+  return authProviders.find(x => x.amoid == amoid);
+}
+
+function getDefaultAuthProvider() {
+  return defaultAuthProvider;
+}
+
+function getAuthProviderFromReq(req) {
+  const authProviderId = req?.auth?.amoid || req?.user?.amoid;
+  return getAuthProviderById(authProviderId) ?? getDefaultAuthProvider();
+}
+
+function setAuthProviders(value, defaultProvider = null) {
+  authProviders = value;
+  defaultAuthProvider = defaultProvider || value[0];
 }
 
 module.exports = {
   AuthProviderBase,
   detectEnvAuthProvider,
-  getAuthProvider,
-  setAuthProvider,
+  getAuthProviders,
+  getDefaultAuthProvider,
+  setAuthProviders,
+  getAuthProviderById,
+  getAuthProviderFromReq,
 };

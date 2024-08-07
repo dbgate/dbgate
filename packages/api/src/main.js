@@ -34,7 +34,7 @@ const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
-const { getAuthProvider } = require('./auth/authProvider');
+const { getDefaultAuthProvider } = require('./auth/authProvider');
 
 const logger = getLogger('main');
 
@@ -48,7 +48,7 @@ function start() {
   if (process.env.BASIC_AUTH) {
     async function authorizer(username, password, cb) {
       try {
-        const resp = await getAuthProvider().login(username, password);
+        const resp = await getDefaultAuthProvider().login(username, password);
         if (resp.accessToken) {
           cb(null, true);
         } else {

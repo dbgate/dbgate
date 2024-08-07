@@ -19,19 +19,33 @@
   const config = useConfig();
 
   let availableConnections = null;
+  let availableProviders = [];
   let isTesting = false;
   const testIdRef = createRef(0);
   let sqlConnectResult;
 
-  const values = writable({ databaseServer: null });
+  let serversLoadedForAmoId = null;
+
+  const values = writable({ amoid: null, databaseServer: null });
 
   $: selectedConnection = availableConnections?.find(x => x.conid == $values.databaseServer);
 
-  async function loadAvailableServers() {
-    availableConnections = await apiCall('storage/get-connections-for-login-page');
-    if (availableConnections?.length > 0) {
-      values.set({ databaseServer: availableConnections[0].conid });
+  async function loadAvailableServers(amoid) {
+    if (amoid) {
+      availableConnections = await apiCall('storage/get-connections-for-login-page', { amoid });
+      if (availableConnections?.length > 0) {
+        values.update(x => ({ ...x, databaseServer: availableConnections[0].conid }));
+      }
+      serversLoadedForAmoId = amoid;
+    } else {
+      availableConnections = null;
     }
+  }
+
+  async function loadAvailableAuthProviders() {
+    const resp = await apiCall('auth/get-providers');
+    availableProviders = resp.providers;
+    values.update(x => ({ ...x, amoid: resp.default }));
   }
 
   onMount(() => {
@@ -39,9 +53,13 @@
     if (removed) removed.remove();
 
     if (!isAdminPage) {
-      loadAvailableServers();
+      loadAvailableAuthProviders();
     }
   });
+
+  $: if ($values.amoid != serversLoadedForAmoId) {
+    loadAvailableServers($values.amoid);
+  }
 </script>
 
 <div class="root theme-light theme-type-light">
@@ -53,6 +71,15 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProviderCore {values}>
+        {#if !isAdminPage}
+          <FormSelectField
+            label="Authentization method"
+            name="amoid"
+            isNative
+            options={availableProviders.map(mtd => ({ value: mtd.amoid, label: mtd.name }))}
+          />
+        {/if}
+
         {#if !isAdminPage && availableConnections}
           <FormSelectField
             label="Database server"
@@ -150,6 +177,7 @@
               on:click={async e => {
                 enableApi();
                 const resp = await apiCall('auth/login', {
+                  amoid: $values.amoid,
                   isAdminPage,
                   ...e.detail,
                 });

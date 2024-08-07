@@ -5,7 +5,7 @@ const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
-const { getAuthProvider } = require('../auth/authProvider');
+const { getAuthProviderFromReq, getAuthProviders, getDefaultAuthProvider, getAuthProviderById } = require('../auth/authProvider');
 const storage = require('./storage');
 
 const logger = getLogger('auth');
@@ -28,6 +28,7 @@ function authMiddleware(req, res, next) {
     '/auth/login',
     '/stream',
     'storage/get-connections-for-login-page',
+    'auth/get-providers',
     '/connections/dblogin',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
@@ -37,7 +38,7 @@ function authMiddleware(req, res, next) {
 
   const isAdminPage = req.headers['x-is-admin-page'] == 'true';
 
-  if (!isAdminPage && !getAuthProvider().shouldAuthorizeApi()) {
+  if (!isAdminPage && !getAuthProviderFromReq(req).shouldAuthorizeApi()) {
     return next();
   }
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
@@ -68,11 +69,11 @@ function authMiddleware(req, res, next) {
 module.exports = {
   oauthToken_meta: true,
   async oauthToken(params) {
-    return getAuthProvider().oauthToken(params);
+    return getDefaultAuthProvider().oauthToken(params);
   },
   login_meta: true,
   async login(params) {
-    const { login, password, isAdminPage } = params;
+    const { amoid, login, password, isAdminPage } = params;
 
     if (isAdminPage) {
       if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD == password) {
@@ -94,7 +95,15 @@ module.exports = {
       return { error: 'Login failed' };
     }
 
-    return getAuthProvider().login(login, password);
+    return getAuthProviderById(amoid).login(login, password);
+  },
+
+  getProviders_meta: true,
+  getProviders() {
+    return {
+      providers: getAuthProviders().map(x => x.toJson()),
+      default: getDefaultAuthProvider()?.amoid,
+    };
   },
 
   authMiddleware,
