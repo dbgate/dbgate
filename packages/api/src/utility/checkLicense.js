@@ -1,5 +1,8 @@
 function checkLicense() {
-  return null;
+  return {
+    status: 'ok',
+    type: 'community',
+  };
 }
 
 module.exports = {

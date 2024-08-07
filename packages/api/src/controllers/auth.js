@@ -5,7 +5,12 @@ const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
-const { getAuthProviderFromReq, getAuthProviders, getDefaultAuthProvider, getAuthProviderById } = require('../auth/authProvider');
+const {
+  getAuthProviderFromReq,
+  getAuthProviders,
+  getDefaultAuthProvider,
+  getAuthProviderById,
+} = require('../auth/authProvider');
 const storage = require('./storage');
 
 const logger = getLogger('auth');
@@ -27,6 +32,7 @@ function authMiddleware(req, res, next) {
     '/config/get-settings',
     '/auth/oauth-token',
     '/auth/login',
+    '/auth/redirect',
     '/stream',
     'storage/get-connections-for-login-page',
     'auth/get-providers',
@@ -37,11 +43,13 @@ function authMiddleware(req, res, next) {
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
 
-  const isAdminPage = req.headers['x-is-admin-page'] == 'true';
+  // const isAdminPage = req.headers['x-is-admin-page'] == 'true';
 
-  if (!isAdminPage && !getAuthProviderFromReq(req).shouldAuthorizeApi()) {
+  if (process.env.BASIC_AUTH) {
+    // API is not authorized for basic auth
     return next();
   }
+
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
 
   const authHeader = req.headers.authorization;
@@ -70,7 +78,8 @@ function authMiddleware(req, res, next) {
 module.exports = {
   oauthToken_meta: true,
   async oauthToken(params) {
-    return getDefaultAuthProvider().oauthToken(params);
+    const { amoid } = params;
+    return getAuthProviderById(amoid).oauthToken(params);
   },
   login_meta: true,
   async login(params) {
@@ -105,6 +114,12 @@ module.exports = {
       providers: getAuthProviders().map(x => x.toJson()),
       default: getDefaultAuthProvider()?.amoid,
     };
+  },
+
+  redirect_meta: true,
+  async redirect(params) {
+    const { amoid } = params;
+    return getAuthProviderById(amoid).redirect(params);
   },
 
   authMiddleware,

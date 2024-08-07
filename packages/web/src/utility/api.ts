@@ -12,6 +12,7 @@ import uuidv1 from 'uuid/v1';
 import { openWebLink } from './exportFileTools';
 import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
+import { isAdminPage } from './pageDefs';
 
 export const strmid = uuidv1();
 
@@ -249,6 +250,19 @@ export function installNewVolatileConnectionListener() {
     dispatchCacheChange({ key: `server-status-changed` });
     batchDispatchCacheTriggers(x => x.conid == savedConId);
   });
+}
+
+export function getAuthCategory(config) {
+  if (config.isBasicAuth) {
+    return 'basic';
+  }
+  if (isAdminPage() && config.isAdminLoginForm) {
+    return 'admin';
+  }
+  if (getElectron()) {
+    return 'electron';
+  }
+  return 'token';
 }
 
 function enableApiLog() {

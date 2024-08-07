@@ -31,8 +31,6 @@ module.exports = {
     const authProvider = getAuthProviderFromReq(req);
     const login = authProvider.getCurrentLogin(req);
     const permissions = authProvider.getCurrentPermissions(req);
-    const isLoginForm = authProvider.isLoginForm();
-    const additionalConfigProps = authProvider.getAdditionalConfigProps();
     const isUserLoggedIn = authProvider.isUserLoggedIn(req);
 
     const singleConid = authProvider.getSingleConnectionId(req);
@@ -52,12 +50,17 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
       isLicenseValid: platformInfo.isLicenseValid,
-      licenseError: platformInfo.licenseError,
+      checkedLicense: platformInfo.checkedLicense,
       permissions,
       login,
-      ...additionalConfigProps,
-      isLoginForm,
-      isAdminLoginForm: !!(process.env.STORAGE_DATABASE && process.env.ADMIN_PASSWORD && !process.env.BASIC_AUTH),
+      // ...additionalConfigProps,
+      isBasicAuth: !!process.env.BASIC_AUTH,
+      isAdminLoginForm: !!(
+        process.env.STORAGE_DATABASE &&
+        process.env.ADMIN_PASSWORD &&
+        !process.env.BASIC_AUTH &&
+        platformInfo.checkedLicense?.type == 'premium'
+      ),
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),

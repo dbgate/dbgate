@@ -23,10 +23,6 @@ class AuthProviderBase {
     };
   }
 
-  shouldAuthorizeApi() {
-    return false;
-  }
-
   oauthToken(params) {
     return {};
   }
@@ -46,14 +42,6 @@ class AuthProviderBase {
     return permissions || process.env.PERMISSIONS;
   }
 
-  isLoginForm() {
-    return false;
-  }
-
-  getAdditionalConfigProps() {
-    return {};
-  }
-
   getLoginPageConnections() {
     return null;
   }
@@ -68,14 +56,16 @@ class AuthProviderBase {
       workflowType: 'anonymous',
     };
   }
+
+  redirect({ state }) {
+    return {
+      status: 'error',
+    };
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {
   amoid = 'oauth';
-
-  shouldAuthorizeApi() {
-    return true;
-  }
 
   async oauthToken(params) {
     const { redirectUri, code } = params;
@@ -143,6 +133,18 @@ class OAuthProvider extends AuthProviderBase {
       workflowType: 'redirect',
     };
   }
+
+  redirect({ state, redirectUri }) {
+    const scopeParam = process.env.OAUTH_SCOPE ? `&scope=${process.env.OAUTH_SCOPE}` : '';
+    return {
+      status: 'ok',
+      uri: `${process.env.OAUTH_AUTH}?client_id=${
+        process.env.OAUTH_CLIENT_ID
+      }&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(
+        state
+      )}${scopeParam}`,
+    };
+  }
 }
 
 class ADProvider extends AuthProviderBase {
@@ -182,14 +184,6 @@ class ADProvider extends AuthProviderBase {
     }
   }
 
-  shouldAuthorizeApi() {
-    return !process.env.BASIC_AUTH;
-  }
-
-  isLoginForm() {
-    return !process.env.BASIC_AUTH;
-  }
-
   toJson() {
     return {
       ...super.toJson(),
@@ -217,14 +211,6 @@ class LoginsProvider extends AuthProviderBase {
     return { error: 'Invalid credentials' };
   }
 
-  shouldAuthorizeApi() {
-    return !process.env.BASIC_AUTH;
-  }
-
-  isLoginForm() {
-    return !process.env.BASIC_AUTH;
-  }
-
   toJson() {
     return {
       ...super.toJson(),
@@ -235,10 +221,6 @@ class LoginsProvider extends AuthProviderBase {
 
 class DenyAllProvider extends AuthProviderBase {
   amoid = 'deny';
-
-  shouldAuthorizeApi() {
-    return true;
-  }
 
   async login(login, password, options = undefined) {
     return { error: 'Login not allowed' };

@@ -209,6 +209,22 @@
                     return;
                   }
                   internalRedirectTo(`/?page=not-logged`);
+                } else if (workflowType == 'redirect') {
+                  const state = `dbg-oauth:${strmid}:${$values.amoid}`;
+
+                  sessionStorage.setItem('oauthState', state);
+                  console.log('Redirecting to OAUTH provider');
+
+                  const resp = await apiCall('auth/redirect', {
+                    amoid: $values.amoid,
+                    state,
+                    redirectUri: location.origin + location.pathname,
+                  });
+
+                  const { uri } = resp;
+                  if (uri) {
+                    location.replace(uri);
+                  }
                 }
               }}
             />
