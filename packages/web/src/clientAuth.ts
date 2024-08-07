@@ -1,3 +1,4 @@
+import { ca } from 'date-fns/locale';
 import { apiCall, enableApi, getAuthCategory } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';
@@ -86,13 +87,14 @@ export function handleOauthCallback() {
   }
 
   if (isDbLoginAuthCallback()) {
-    const [_prefix, strmid, conid] = sessionStorage.getItem('dbloginAuthState').split(':');
+    const [_prefix, strmid, conid, amoid] = sessionStorage.getItem('dbloginAuthState').split(':');
     sessionStorage.removeItem('dbloginAuthState');
 
     apiCall('connections/dblogin-auth-token', {
       code: sentCode,
       conid,
       redirectUri: location.origin + location.pathname,
+      amoid,
     }).then(authResp => {
       if (authResp.accessToken) {
         localStorage.setItem('accessToken', authResp.accessToken);
@@ -182,20 +184,36 @@ export function internalRedirectTo(path) {
 export async function doLogout() {
   enableApi();
   const config = await getConfig();
-  if (config.oauth) {
-    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
-    if (config.oauthLogout) {
-      window.location.href = config.oauthLogout;
+  const category = getAuthCategory(config);
+
+  if (category == 'admin') {
+    localStorage.removeItem('adminAccessToken');
+    internalRedirectTo('/?page=admin-login&is-admin=true');
+  } else if (category == 'token') {
+    localStorage.removeItem('accessToken');
+    if (config.logoutUrl) {
+      window.location.href = config.logoutUrl;
     } else {
       internalRedirectTo('/?page=not-logged');
     }
-  } else if (config.isLoginForm) {
-    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
-    internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
-  } else if (config.isAdminLoginForm && isAdminPage()) {
-    localStorage.removeItem('adminAccessToken');
-    internalRedirectTo('/?page=admin-login&is-admin=true');
-  } else {
+  } else if (category == 'basic') {
     window.location.href = 'config/logout';
   }
+
+  // if (config.oauth) {
+  //   localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+  //   if (config.oauthLogout) {
+  //     window.location.href = config.oauthLogout;
+  //   } else {
+  //     internalRedirectTo('/?page=not-logged');
+  //   }
+  // } else if (config.isLoginForm) {
+  //   localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+  //   internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
+  // } else if (config.isAdminLoginForm && isAdminPage()) {
+  //   localStorage.removeItem('adminAccessToken');
+  //   internalRedirectTo('/?page=admin-login&is-admin=true');
+  // } else {
+  //   window.location.href = 'config/logout';
+  // }
 }

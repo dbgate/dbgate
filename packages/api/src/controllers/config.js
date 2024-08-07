@@ -51,6 +51,7 @@ module.exports = {
       isElectron: platformInfo.isElectron,
       isLicenseValid: platformInfo.isLicenseValid,
       checkedLicense: platformInfo.checkedLicense,
+      logoutUrl: await authProvider.getLogoutUrl(),
       permissions,
       login,
       // ...additionalConfigProps,

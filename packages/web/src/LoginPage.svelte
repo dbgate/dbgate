@@ -130,7 +130,7 @@
             <FormSubmit
               value="Open database login page"
               on:click={async e => {
-                const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}`;
+                const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}:${$values.amoid}`;
                 sessionStorage.setItem('dbloginAuthState', state);
                 // openWebLink(
                 //   `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
@@ -154,6 +154,7 @@
                   testIdRef.update(x => x + 1);
                   const testid = testIdRef.get();
                   const resp = await apiCall('connections/dblogin-auth', {
+                    amoid: $values.amoid,
                     conid: selectedConnection.conid,
                     user: $values['login'],
                     password: $values['password'],
@@ -169,6 +170,7 @@
                 } else {
                   enableApi();
                   const resp = await apiCall('connections/dblogin-auth', {
+                    amoid: $values.amoid,
                     conid: selectedConnection.conid,
                   });
                   localStorage.setItem('accessToken', resp.accessToken);

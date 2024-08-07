@@ -62,6 +62,10 @@ class AuthProviderBase {
       status: 'error',
     };
   }
+
+  async getLogoutUrl() {
+    return null;
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {
@@ -118,13 +122,8 @@ class OAuthProvider extends AuthProviderBase {
     return { error: 'Token not found' };
   }
 
-  getAdditionalConfigProps() {
-    return {
-      oauth: process.env.OAUTH_AUTH,
-      oauthClient: process.env.OAUTH_CLIENT_ID,
-      oauthScope: process.env.OAUTH_SCOPE,
-      oauthLogout: process.env.OAUTH_LOGOUT,
-    };
+  async getLogoutUrl() {
+    return process.env.OAUTH_LOGOUT;
   }
 
   toJson() {
