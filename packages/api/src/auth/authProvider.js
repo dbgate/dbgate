@@ -1,7 +1,7 @@
 const { getTokenSecret, getTokenLifetime } = require('./authCommon');
 const _ = require('lodash');
 const axios = require('axios');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, getPredefinedPermissions } = require('dbgate-tools');
 
 const AD = require('activedirectory2').promiseWrapper;
 const jwt = require('jsonwebtoken');
@@ -9,12 +9,18 @@ const jwt = require('jsonwebtoken');
 const logger = getLogger('authProvider');
 
 class AuthProviderBase {
-  async login(login, password, options = undefined) {
-    return {};
-  }
+  amoid = 'none';
 
-  shouldAuthorizeApi() {
-    return false;
+  async login(login, password, options = undefined) {
+    return {
+      accessToken: jwt.sign(
+        {
+          amoid: this.amoid,
+        },
+        getTokenSecret(),
+        { expiresIn: getTokenLifetime() }
+      ),
+    };
   }
 
   oauthToken(params) {
@@ -36,14 +42,6 @@ class AuthProviderBase {
     return permissions || process.env.PERMISSIONS;
   }
 
-  isLoginForm() {
-    return false;
-  }
-
-  getAdditionalConfigProps() {
-    return {};
-  }
-
   getLoginPageConnections() {
     return null;
   }
@@ -51,12 +49,28 @@ class AuthProviderBase {
   getSingleConnectionId(req) {
     return null;
   }
+
+  toJson() {
+    return {
+      amoid: this.amoid,
+      workflowType: 'anonymous',
+      name: 'Anonymous',
+    };
+  }
+
+  async redirect({ state }) {
+    return {
+      status: 'error',
+    };
+  }
+
+  async getLogoutUrl() {
+    return null;
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {
-  shouldAuthorizeApi() {
-    return true;
-  }
+  amoid = 'oauth';
 
   async oauthToken(params) {
     const { redirectUri, code } = params;
@@ -109,18 +123,35 @@ class OAuthProvider extends AuthProviderBase {
     return { error: 'Token not found' };
   }
 
-  getAdditionalConfigProps() {
+  async getLogoutUrl() {
+    return process.env.OAUTH_LOGOUT;
+  }
+
+  toJson() {
     return {
-      oauth: process.env.OAUTH_AUTH,
-      oauthClient: process.env.OAUTH_CLIENT_ID,
-      oauthScope: process.env.OAUTH_SCOPE,
-      oauthLogout: process.env.OAUTH_LOGOUT,
+      ...super.toJson(),
+      workflowType: 'redirect',
+      name: 'OAuth 2.0',
+    };
+  }
+
+  redirect({ state, redirectUri }) {
+    const scopeParam = process.env.OAUTH_SCOPE ? `&scope=${process.env.OAUTH_SCOPE}` : '';
+    return {
+      status: 'ok',
+      uri: `${process.env.OAUTH_AUTH}?client_id=${
+        process.env.OAUTH_CLIENT_ID
+      }&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(
+        state
+      )}${scopeParam}`,
     };
   }
 }
 
 class ADProvider extends AuthProviderBase {
-  async login(login, password) {
+  amoid = 'ad';
+
+  async login(login, password, options = undefined) {
     const adConfig = {
       url: process.env.AD_URL,
       baseDN: process.env.AD_BASEDN,
@@ -140,48 +171,70 @@ class ADProvider extends AuthProviderBase {
         return { error: `Username ${login} not allowed to log in` };
       }
       return {
-        accessToken: jwt.sign({ login }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+        accessToken: jwt.sign(
+          {
+            amoid: this.amoid,
+            login,
+          },
+          getTokenSecret(),
+          { expiresIn: getTokenLifetime() }
+        ),
       };
     } catch (e) {
       return { error: 'Login failed' };
     }
   }
 
-  shouldAuthorizeApi() {
-    return !process.env.BASIC_AUTH;
-  }
-
-  isLoginForm() {
-    return !process.env.BASIC_AUTH;
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+      name: 'Active Directory',
+    };
   }
 }
 
 class LoginsProvider extends AuthProviderBase {
-  async login(login, password) {
+  amoid = 'logins';
+
+  async login(login, password, options = undefined) {
     if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
-        accessToken: jwt.sign({ login }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+        accessToken: jwt.sign(
+          {
+            amoid: this.amoid,
+            login,
+          },
+          getTokenSecret(),
+          { expiresIn: getTokenLifetime() }
+        ),
       };
     }
     return { error: 'Invalid credentials' };
   }
 
-  shouldAuthorizeApi() {
-    return !process.env.BASIC_AUTH;
-  }
-
-  isLoginForm() {
-    return !process.env.BASIC_AUTH;
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+      name: 'Login & Password',
+    };
   }
 }
 
 class DenyAllProvider extends AuthProviderBase {
-  shouldAuthorizeApi() {
-    return true;
+  amoid = 'deny';
+
+  async login(login, password, options = undefined) {
+    return { error: 'Login not allowed' };
   }
 
-  async login(login, password) {
-    return { error: 'Login not allowed' };
+  toJson() {
+    return {
+      ...super.toJson(),
+      workflowType: 'credentials',
+      name: 'Deny all',
+    };
   }
 }
 
@@ -233,19 +286,37 @@ function createEnvAuthProvider() {
   }
 }
 
-let authProvider = createEnvAuthProvider();
+let defaultAuthProvider = createEnvAuthProvider();
+let authProviders = [defaultAuthProvider];
 
-function getAuthProvider() {
-  return authProvider;
+function getAuthProviders() {
+  return authProviders;
 }
 
-function setAuthProvider(value) {
-  authProvider = value;
+function getAuthProviderById(amoid) {
+  return authProviders.find(x => x.amoid == amoid);
+}
+
+function getDefaultAuthProvider() {
+  return defaultAuthProvider;
+}
+
+function getAuthProviderFromReq(req) {
+  const authProviderId = req?.auth?.amoid || req?.user?.amoid;
+  return getAuthProviderById(authProviderId) ?? getDefaultAuthProvider();
+}
+
+function setAuthProviders(value, defaultProvider = null) {
+  authProviders = value;
+  defaultAuthProvider = defaultProvider || value[0];
 }
 
 module.exports = {
   AuthProviderBase,
   detectEnvAuthProvider,
-  getAuthProvider,
-  setAuthProvider,
+  getAuthProviders,
+  getDefaultAuthProvider,
+  setAuthProviders,
+  getAuthProviderById,
+  getAuthProviderFromReq,
 };

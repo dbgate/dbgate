@@ -13,8 +13,7 @@ const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
 const isNpmDist = !!global['IS_NPM_DIST'];
 const isForkedApi = processArgs.isForkedApi;
-const licenseError = checkLicense();
-const isLicenseValid = licenseError == null;
+const checkedLicense = checkLicense();
 
 // function moduleAvailable(name) {
 //   try {
@@ -33,8 +32,8 @@ const platformInfo = {
   isElectronBundle: isElectron() && !isDevMode,
   isForkedApi,
   isElectron: isElectron(),
-  isLicenseValid,
-  licenseError,
+  checkedLicense,
+  isLicenseValid: checkedLicense?.status == 'ok',
   isDevMode,
   isNpmDist,
   isSnap: process.env.ELECTRON_SNAP == 'true',

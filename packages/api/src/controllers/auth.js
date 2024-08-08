@@ -5,7 +5,12 @@ const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
-const { getAuthProvider } = require('../auth/authProvider');
+const {
+  getAuthProviderFromReq,
+  getAuthProviders,
+  getDefaultAuthProvider,
+  getAuthProviderById,
+} = require('../auth/authProvider');
 const storage = require('./storage');
 
 const logger = getLogger('auth');
@@ -23,11 +28,14 @@ function unauthorizedResponse(req, res, text) {
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = [
     '/config/get',
+    '/config/logout',
     '/config/get-settings',
     '/auth/oauth-token',
     '/auth/login',
+    '/auth/redirect',
     '/stream',
     'storage/get-connections-for-login-page',
+    'auth/get-providers',
     '/connections/dblogin',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
@@ -35,11 +43,13 @@ function authMiddleware(req, res, next) {
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
 
-  const isAdminPage = req.headers['x-is-admin-page'] == 'true';
+  // const isAdminPage = req.headers['x-is-admin-page'] == 'true';
 
-  if (!isAdminPage && !getAuthProvider().shouldAuthorizeApi()) {
+  if (process.env.BASIC_AUTH) {
+    // API is not authorized for basic auth
     return next();
   }
+
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
 
   const authHeader = req.headers.authorization;
@@ -68,11 +78,12 @@ function authMiddleware(req, res, next) {
 module.exports = {
   oauthToken_meta: true,
   async oauthToken(params) {
-    return getAuthProvider().oauthToken(params);
+    const { amoid } = params;
+    return getAuthProviderById(amoid).oauthToken(params);
   },
   login_meta: true,
   async login(params) {
-    const { login, password, isAdminPage } = params;
+    const { amoid, login, password, isAdminPage } = params;
 
     if (isAdminPage) {
       if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD == password) {
@@ -94,7 +105,21 @@ module.exports = {
       return { error: 'Login failed' };
     }
 
-    return getAuthProvider().login(login, password);
+    return getAuthProviderById(amoid).login(login, password);
+  },
+
+  getProviders_meta: true,
+  getProviders() {
+    return {
+      providers: getAuthProviders().map(x => x.toJson()),
+      default: getDefaultAuthProvider()?.amoid,
+    };
+  },
+
+  redirect_meta: true,
+  async redirect(params) {
+    const { amoid } = params;
+    return getAuthProviderById(amoid).redirect(params);
   },
 
   authMiddleware,

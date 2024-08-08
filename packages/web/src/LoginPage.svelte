@@ -19,18 +19,48 @@
   const config = useConfig();
 
   let availableConnections = null;
+  let availableProviders = [];
   let isTesting = false;
   const testIdRef = createRef(0);
   let sqlConnectResult;
 
-  const values = writable({ databaseServer: null });
+  let serversLoadedForAmoId = null;
+
+  const values = writable({ amoid: null, databaseServer: null });
 
   $: selectedConnection = availableConnections?.find(x => x.conid == $values.databaseServer);
 
-  async function loadAvailableServers() {
-    availableConnections = await apiCall('storage/get-connections-for-login-page');
-    if (availableConnections?.length > 0) {
-      values.set({ databaseServer: availableConnections[0].conid });
+  $: selectedProvider = availableProviders?.find(x => x.amoid == $values.amoid);
+  $: workflowType = selectedProvider?.workflowType ?? 'credentials';
+
+  async function loadAvailableServers(amoid) {
+    if (amoid) {
+      availableConnections = await apiCall('storage/get-connections-for-login-page', { amoid });
+      if (availableConnections?.length > 0) {
+        values.update(x => ({ ...x, databaseServer: availableConnections[0].conid }));
+      }
+      serversLoadedForAmoId = amoid;
+    } else {
+      availableConnections = null;
+    }
+  }
+
+  async function processSingleProvider(provider) {
+    if (provider.workflowType == 'redirect') {
+      await processRedirectLogin(provider.amoid);
+    }
+    if (provider.workflowType == 'anonymous') {
+      processCredentialsLogin(provider.amoid, {});
+    }
+  }
+
+  async function loadAvailableAuthProviders() {
+    const resp = await apiCall('auth/get-providers');
+    availableProviders = resp.providers;
+    values.update(x => ({ ...x, amoid: resp.default }));
+
+    if (availableProviders.length == 1) {
+      processSingleProvider(availableProviders[0]);
     }
   }
 
@@ -39,9 +69,56 @@
     if (removed) removed.remove();
 
     if (!isAdminPage) {
-      loadAvailableServers();
+      loadAvailableAuthProviders();
     }
   });
+
+  $: if ($values.amoid != serversLoadedForAmoId) {
+    loadAvailableServers($values.amoid);
+  }
+
+  async function processRedirectLogin(amoid) {
+    const state = `dbg-oauth:${strmid}:${amoid}`;
+
+    sessionStorage.setItem('oauthState', state);
+    console.log('Redirecting to OAUTH provider');
+
+    const resp = await apiCall('auth/redirect', {
+      amoid: amoid,
+      state,
+      redirectUri: location.origin + location.pathname,
+    });
+
+    const { uri } = resp;
+    if (uri) {
+      location.replace(uri);
+    }
+  }
+
+  async function processCredentialsLogin(amoid, detail) {
+    const resp = await apiCall('auth/login', {
+      amoid,
+      isAdminPage,
+      ...detail,
+    });
+    if (resp.error) {
+      internalRedirectTo(
+        `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+      );
+      return;
+    }
+    const { accessToken } = resp;
+    if (accessToken) {
+      localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
+      if (isAdminPage) {
+        internalRedirectTo('/?page=admin');
+      } else {
+        internalRedirectTo('/');
+      }
+      return;
+    }
+    internalRedirectTo(`/?page=not-logged`);
+  }
 </script>
 
 <div class="root theme-light theme-type-light">
@@ -53,7 +130,16 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProviderCore {values}>
-        {#if !isAdminPage && availableConnections}
+        {#if !isAdminPage && availableProviders?.length >= 2}
+          <FormSelectField
+            label="Authentization method"
+            name="amoid"
+            isNative
+            options={availableProviders.map(mtd => ({ value: mtd.amoid, label: mtd.name }))}
+          />
+        {/if}
+
+        {#if !isAdminPage && availableConnections && workflowType == 'database'}
           <FormSelectField
             label="Database server"
             name="databaseServer"
@@ -70,10 +156,12 @@
             <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
           {/if}
         {:else}
-          {#if !isAdminPage}
+          {#if !isAdminPage && workflowType == 'credentials'}
             <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
           {/if}
-          <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+          {#if workflowType == 'credentials'}
+            <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+          {/if}
         {/if}
 
         {#if isAdminPage && $config && !$config.isAdminLoginForm}
@@ -98,7 +186,7 @@
             <FormSubmit
               value="Open database login page"
               on:click={async e => {
-                const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}`;
+                const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}:${$values.amoid}`;
                 sessionStorage.setItem('dbloginAuthState', state);
                 // openWebLink(
                 //   `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
@@ -122,6 +210,7 @@
                   testIdRef.update(x => x + 1);
                   const testid = testIdRef.get();
                   const resp = await apiCall('connections/dblogin-auth', {
+                    amoid: $values.amoid,
                     conid: selectedConnection.conid,
                     user: $values['login'],
                     password: $values['password'],
@@ -137,6 +226,7 @@
                 } else {
                   enableApi();
                   const resp = await apiCall('connections/dblogin-auth', {
+                    amoid: $values.amoid,
                     conid: selectedConnection.conid,
                   });
                   localStorage.setItem('accessToken', resp.accessToken);
@@ -146,30 +236,19 @@
             />
           {:else}
             <FormSubmit
-              value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
+              value={isAdminPage
+                ? 'Log In as Administrator'
+                : workflowType == 'redirect'
+                  ? 'Redirect to login page'
+                  : 'Log In'}
               on:click={async e => {
                 enableApi();
-                const resp = await apiCall('auth/login', {
-                  isAdminPage,
-                  ...e.detail,
-                });
-                if (resp.error) {
-                  internalRedirectTo(
-                    `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
-                  );
-                  return;
+
+                if (isAdminPage || workflowType == 'credentials' || workflowType == 'anonymous') {
+                  await processCredentialsLogin($values.amoid, e.detail);
+                } else if (workflowType == 'redirect') {
+                  await processRedirectLogin($values.amoid);
                 }
-                const { accessToken } = resp;
-                if (accessToken) {
-                  localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
-                  if (isAdminPage) {
-                    internalRedirectTo('/?page=admin');
-                  } else {
-                    internalRedirectTo('/');
-                  }
-                  return;
-                }
-                internalRedirectTo(`/?page=not-logged`);
               }}
             />
           {/if}

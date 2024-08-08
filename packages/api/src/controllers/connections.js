@@ -17,7 +17,7 @@ const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { getAuthProvider } = require('../auth/authProvider');
+const { getAuthProviderById } = require('../auth/authProvider');
 
 const logger = getLogger('connections');
 
@@ -413,13 +413,13 @@ module.exports = {
   },
 
   dbloginAuthToken_meta: true,
-  async dbloginAuthToken({ code, conid, redirectUri }) {
+  async dbloginAuthToken({ amoid, code, conid, redirectUri }) {
     try {
       const connection = await this.getCore({ conid });
       const driver = requireEngineDriver(connection);
       const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
       const volatile = await this.saveVolatile({ conid, accessToken });
-      const authProvider = getAuthProvider();
+      const authProvider = getAuthProviderById(amoid);
       const resp = await authProvider.login(null, null, { conid: volatile._id });
       return resp;
     } catch (err) {
@@ -429,18 +429,30 @@ module.exports = {
   },
 
   dbloginAuth_meta: true,
-  async dbloginAuth({ conid, user, password }) {
+  async dbloginAuth({ amoid, conid, user, password }) {
     if (user || password) {
       const saveResp = await this.saveVolatile({ conid, user, password, test: true });
       if (saveResp.msgtype == 'connected') {
-        const loginResp = await getAuthProvider().login(user, password, { conid: saveResp._id });
+        const loginResp = await getAuthProviderById(amoid).login(user, password, { conid: saveResp._id });
         return loginResp;
       }
       return saveResp;
     }
 
     // user and password is stored in connection, volatile connection is not needed
-    const loginResp = await getAuthProvider().login(null, null, { conid });
+    const loginResp = await getAuthProviderById(amoid).login(null, null, { conid });
     return loginResp;
+  },
+
+  volatileDbloginFromAuth_meta: true,
+  async volatileDbloginFromAuth({ conid }, req) {
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const accessToken = await driver.getAccessTokenFromAuth(connection, req);
+    if (accessToken) {
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      return volatile;
+    }
+    return null;
   },
 };

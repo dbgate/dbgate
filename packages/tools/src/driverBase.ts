@@ -146,4 +146,5 @@ export const driverBase = {
   },
   showConnectionField: (field, values) => false,
   showConnectionTab: field => true,
+  getAccessTokenFromAuth: async (connection, req) => null,
 };

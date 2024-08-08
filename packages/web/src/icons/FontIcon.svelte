@@ -89,6 +89,8 @@
     'icon arrow-right-bold': 'mdi mdi-arrow-right-bold',
     'icon triple-left': 'mdi mdi-chevron-triple-left',
     'icon triple-right': 'mdi mdi-chevron-triple-right',
+    'icon triple-up': 'mdi mdi-chevron-triple-up',
+    'icon triple-down': 'mdi mdi-chevron-triple-down',
     'icon format-code': 'mdi mdi-code-tags-check',
     'icon show-wizard': 'mdi mdi-comment-edit',
     'icon disconnected': 'mdi mdi-lan-disconnect',

@@ -24,10 +24,12 @@
     </div>
     <div class="box">
       <div class="heading">Configuration error</div>
-      {#if $config?.isLicenseValid == false}
+      {#if $config?.checkedLicense?.status == 'error'}
         <ErrorInfo
-          message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.licenseError}`}
+          message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.checkedLicense?.error}`}
         />
+      {:else if $config?.configurationError}
+        <ErrorInfo message={$config?.configurationError} />
       {:else if error}
         <ErrorInfo message={error} />
       {:else}

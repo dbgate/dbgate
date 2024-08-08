@@ -11,10 +11,12 @@
   export function activate() {
     activator?.activate();
   }
+
+  export let scrollContent;
 </script>
 
 <div class="wrapper">
-  <div class="content">
+  <div class="content" class:scrollContent>
     <slot />
   </div>
 
@@ -43,5 +45,9 @@
     display: flex;
     flex-wrap: wrap;
     background: var(--theme-bg-1);
+  }
+
+  .scrollContent {
+    overflow-y: auto;
   }
 </style>

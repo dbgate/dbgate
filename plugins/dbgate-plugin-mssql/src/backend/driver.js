@@ -8,11 +8,11 @@ const AsyncLock = require('async-lock');
 const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
-const { getAzureAuthTypes, azureGetRedirectAuthUrl, azureGetAuthTokenFromCode } = require('./azureAuth');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
 
 let requireMsnodesqlv8;
 let platformInfo;
+let azureAuth;
 
 const versionQuery = `
 SELECT 
@@ -57,8 +57,20 @@ const driver = {
   getAuthTypes() {
     const res = [];
     if (requireMsnodesqlv8) res.push(...windowsAuthTypes);
-    const azureAuthTypes = getAzureAuthTypes(platformInfo);
-    if (azureAuthTypes) res.push(...azureAuthTypes);
+
+    if (azureAuth.isAzureAuthSupported()) {
+      res.push(
+        {
+          title: 'NodeJs portable driver (tedious) - recomended',
+          name: 'tedious',
+        },
+        {
+          title: 'Microsoft Entra ID (with MFA support)',
+          name: 'msentra',
+          disabledFields: ['user', 'password'],
+        }
+      );
+    }
     if (res.length > 0) {
       return _.uniqBy(res, 'name');
     }
@@ -126,10 +138,14 @@ const driver = {
     return rows;
   },
   getRedirectAuthUrl(connection, options) {
-    return azureGetRedirectAuthUrl(connection, options);
+    if (connection.authType != 'msentra') return null;
+    return azureAuth.azureGetRedirectAuthUrl(options);
   },
   getAuthTokenFromCode(connection, options) {
-    return azureGetAuthTokenFromCode(connection, options);
+    return azureAuth.azureGetAuthTokenFromCode(options);
+  },
+  getAccessTokenFromAuth: (connection, req) => {
+    return req?.user?.msentraToken;
   },
 };
 
@@ -138,6 +154,7 @@ driver.initialize = dbgateEnv => {
     requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
   }
   platformInfo = dbgateEnv.platformInfo;
+  azureAuth = dbgateEnv.azureAuth;
   nativeDriver.initialize(dbgateEnv);
 };
 

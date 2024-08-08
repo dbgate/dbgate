@@ -11,7 +11,7 @@ const AsyncLock = require('async-lock');
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
-const { getAuthProvider } = require('../auth/authProvider');
+const { getAuthProviderFromReq } = require('../auth/authProvider');
 
 const lock = new AsyncLock();
 
@@ -28,11 +28,9 @@ module.exports = {
 
   get_meta: true,
   async get(_params, req) {
-    const authProvider = getAuthProvider();
+    const authProvider = getAuthProviderFromReq(req);
     const login = authProvider.getCurrentLogin(req);
     const permissions = authProvider.getCurrentPermissions(req);
-    const isLoginForm = authProvider.isLoginForm();
-    const additionalConfigProps = authProvider.getAdditionalConfigProps();
     const isUserLoggedIn = authProvider.isUserLoggedIn(req);
 
     const singleConid = authProvider.getSingleConnectionId(req);
@@ -40,6 +38,12 @@ module.exports = {
     const singleConnection = singleConid
       ? await connections.getCore({ conid: singleConid })
       : connections.singleConnection;
+
+    let configurationError = null;
+    if (process.env.STORAGE_DATABASE && process.env.BASIC_AUTH) {
+      configurationError =
+        'Basic authentization is not allowed, when using storage. Cannot use both STORAGE_DATABASE and BASIC_AUTH';
+    }
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -52,12 +56,19 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
       isLicenseValid: platformInfo.isLicenseValid,
-      licenseError: platformInfo.licenseError,
+      checkedLicense: platformInfo.checkedLicense,
+      configurationError,
+      logoutUrl: await authProvider.getLogoutUrl(),
       permissions,
       login,
-      ...additionalConfigProps,
-      isLoginForm,
-      isAdminLoginForm: !!(process.env.STORAGE_DATABASE && process.env.ADMIN_PASSWORD && !process.env.BASIC_AUTH),
+      // ...additionalConfigProps,
+      isBasicAuth: !!process.env.BASIC_AUTH,
+      isAdminLoginForm: !!(
+        process.env.STORAGE_DATABASE &&
+        process.env.ADMIN_PASSWORD &&
+        !process.env.BASIC_AUTH &&
+        platformInfo.checkedLicense?.type == 'premium'
+      ),
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),
