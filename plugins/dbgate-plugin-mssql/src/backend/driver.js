@@ -144,6 +144,9 @@ const driver = {
   getAuthTokenFromCode(connection, options) {
     return azureAuth.azureGetAuthTokenFromCode(options);
   },
+  getAccessTokenFromAuth: (connection, req) => {
+    return req?.user?.msentraToken;
+  },
 };
 
 driver.initialize = dbgateEnv => {

@@ -79,13 +79,22 @@ function wantEventSource() {
   }
 }
 
-function processApiResponse(route, args, resp) {
+async function processApiResponse(route, args, resp) {
   // if (apiLogging) {
   //   console.log('<<< API RESPONSE', route, args, resp);
   // }
 
   if (resp?.missingCredentials) {
     if (resp.detail.redirectToDbLogin) {
+      const volatile = await apiCall('connections/volatile-dblogin-from-auth', { conid: resp.detail.conid });
+      if (volatile) {
+        setVolatileConnectionRemapping(resp.detail.conid, volatile._id);
+        await callServerPing();
+        dispatchCacheChange({ key: `server-status-changed` });
+        batchDispatchCacheTriggers(x => x.conid == resp.detail.conid);
+        return null;
+      }
+
       const state = `dbg-dblogin:${strmid}:${resp.detail.conid}`;
       localStorage.setItem('dbloginState', state);
       openWebLink(
@@ -145,7 +154,7 @@ export async function apiCall(route: string, args: {} = undefined) {
   const electron = getElectron();
   if (electron) {
     const resp = await electron.invoke(route.replace('/', '-'), args);
-    return processApiResponse(route, args, resp);
+    return await processApiResponse(route, args, resp);
   } else {
     const resp = await fetch(`${resolveApi()}/${route}`, {
       method: 'POST',
@@ -174,7 +183,7 @@ export async function apiCall(route: string, args: {} = undefined) {
     }
 
     const json = await resp.json();
-    return processApiResponse(route, args, json);
+    return await processApiResponse(route, args, json);
   }
 }
 

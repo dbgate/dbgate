@@ -443,4 +443,16 @@ module.exports = {
     const loginResp = await getAuthProviderById(amoid).login(null, null, { conid });
     return loginResp;
   },
+
+  volatileDbloginFromAuth_meta: true,
+  async volatileDbloginFromAuth({ conid }, req) {
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const accessToken = await driver.getAccessTokenFromAuth(connection, req);
+    if (accessToken) {
+      const volatile = await this.saveVolatile({ conid, accessToken });
+      return volatile;
+    }
+    return null;
+  },
 };
