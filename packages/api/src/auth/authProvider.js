@@ -58,7 +58,7 @@ class AuthProviderBase {
     };
   }
 
-  redirect({ state }) {
+  async redirect({ state }) {
     return {
       status: 'error',
     };
