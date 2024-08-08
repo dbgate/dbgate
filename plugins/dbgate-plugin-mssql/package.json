@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "async-lock": "^1.2.6",
-    "@azure/msal-node": "^2.12.0",
     "dbgate-plugin-tools": "^1.0.7",
     "dbgate-query-splitter": "^4.10.1",
     "dbgate-tools": "^5.0.0-alpha.1",

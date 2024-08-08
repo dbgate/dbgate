@@ -2,7 +2,6 @@ const _ = require('lodash');
 const stream = require('stream');
 const tedious = require('tedious');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
-const { getAzureAuthOptions } = require('./azureAuth');
 
 function extractTediousColumns(columns, addDriverNativeColumn = false) {
   const res = columns.map(col => {
@@ -24,7 +23,8 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
 }
 
 async function tediousConnect(storedConnection) {
-  const { server, port, user, password, database, ssl, trustServerCertificate, windowsDomain, authType } = storedConnection;
+  const { server, port, user, password, database, ssl, trustServerCertificate, windowsDomain, authType, accessToken } =
+    storedConnection;
   return new Promise((resolve, reject) => {
     const connectionOptions = {
       encrypt: !!ssl || authType == 'msentra',
@@ -44,7 +44,12 @@ async function tediousConnect(storedConnection) {
 
     const authentication =
       authType == 'msentra'
-        ? getAzureAuthOptions(storedConnection)
+        ? {
+            type: 'azure-active-directory-access-token',
+            options: {
+              token: accessToken,
+            },
+          }
         : {
             type: windowsDomain ? 'ntlm' : 'default',
             options: {
