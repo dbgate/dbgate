@@ -45,10 +45,23 @@
     }
   }
 
+  async function processSingleProvider(provider) {
+    if (provider.workflowType == 'redirect') {
+      await processRedirectLogin(provider.amoid);
+    }
+    if (provider.workflowType == 'anonymous') {
+      processCredentialsLogin(provider.amoid, {});
+    }
+  }
+
   async function loadAvailableAuthProviders() {
     const resp = await apiCall('auth/get-providers');
     availableProviders = resp.providers;
     values.update(x => ({ ...x, amoid: resp.default }));
+
+    if (availableProviders.length == 1) {
+      processSingleProvider(availableProviders[0]);
+    }
   }
 
   onMount(() => {
@@ -63,6 +76,49 @@
   $: if ($values.amoid != serversLoadedForAmoId) {
     loadAvailableServers($values.amoid);
   }
+
+  async function processRedirectLogin(amoid) {
+    const state = `dbg-oauth:${strmid}:${amoid}`;
+
+    sessionStorage.setItem('oauthState', state);
+    console.log('Redirecting to OAUTH provider');
+
+    const resp = await apiCall('auth/redirect', {
+      amoid: amoid,
+      state,
+      redirectUri: location.origin + location.pathname,
+    });
+
+    const { uri } = resp;
+    if (uri) {
+      location.replace(uri);
+    }
+  }
+
+  async function processCredentialsLogin(amoid, detail) {
+    const resp = await apiCall('auth/login', {
+      amoid,
+      isAdminPage,
+      ...detail,
+    });
+    if (resp.error) {
+      internalRedirectTo(
+        `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+      );
+      return;
+    }
+    const { accessToken } = resp;
+    if (accessToken) {
+      localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
+      if (isAdminPage) {
+        internalRedirectTo('/?page=admin');
+      } else {
+        internalRedirectTo('/');
+      }
+      return;
+    }
+    internalRedirectTo(`/?page=not-logged`);
+  }
 </script>
 
 <div class="root theme-light theme-type-light">
@@ -74,7 +130,7 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProviderCore {values}>
-        {#if !isAdminPage}
+        {#if !isAdminPage && availableProviders?.length >= 2}
           <FormSelectField
             label="Authentization method"
             name="amoid"
@@ -189,44 +245,9 @@
                 enableApi();
 
                 if (isAdminPage || workflowType == 'credentials' || workflowType == 'anonymous') {
-                  const resp = await apiCall('auth/login', {
-                    amoid: $values.amoid,
-                    isAdminPage,
-                    ...e.detail,
-                  });
-                  if (resp.error) {
-                    internalRedirectTo(
-                      `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
-                    );
-                    return;
-                  }
-                  const { accessToken } = resp;
-                  if (accessToken) {
-                    localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
-                    if (isAdminPage) {
-                      internalRedirectTo('/?page=admin');
-                    } else {
-                      internalRedirectTo('/');
-                    }
-                    return;
-                  }
-                  internalRedirectTo(`/?page=not-logged`);
+                  await processCredentialsLogin($values.amoid, e.detail);
                 } else if (workflowType == 'redirect') {
-                  const state = `dbg-oauth:${strmid}:${$values.amoid}`;
-
-                  sessionStorage.setItem('oauthState', state);
-                  console.log('Redirecting to OAUTH provider');
-
-                  const resp = await apiCall('auth/redirect', {
-                    amoid: $values.amoid,
-                    state,
-                    redirectUri: location.origin + location.pathname,
-                  });
-
-                  const { uri } = resp;
-                  if (uri) {
-                    location.replace(uri);
-                  }
+                  await processRedirectLogin($values.amoid);
                 }
               }}
             />

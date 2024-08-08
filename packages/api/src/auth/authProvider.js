@@ -54,6 +54,7 @@ class AuthProviderBase {
     return {
       amoid: this.amoid,
       workflowType: 'anonymous',
+      name: 'Anonymous',
     };
   }
 
@@ -130,6 +131,7 @@ class OAuthProvider extends AuthProviderBase {
     return {
       ...super.toJson(),
       workflowType: 'redirect',
+      name: 'OAuth 2.0',
     };
   }
 
@@ -187,6 +189,7 @@ class ADProvider extends AuthProviderBase {
     return {
       ...super.toJson(),
       workflowType: 'credentials',
+      name: 'Active Directory',
     };
   }
 }
@@ -214,6 +217,7 @@ class LoginsProvider extends AuthProviderBase {
     return {
       ...super.toJson(),
       workflowType: 'credentials',
+      name: 'Login & Password',
     };
   }
 }
@@ -229,6 +233,7 @@ class DenyAllProvider extends AuthProviderBase {
     return {
       ...super.toJson(),
       workflowType: 'credentials',
+      name: 'Deny all',
     };
   }
 }
