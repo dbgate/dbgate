@@ -28,6 +28,8 @@
         <ErrorInfo
           message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.checkedLicense?.error}`}
         />
+      {:else if $config?.configurationError}
+        <ErrorInfo message={$config?.configurationError} />
       {:else if error}
         <ErrorInfo message={error} />
       {:else}

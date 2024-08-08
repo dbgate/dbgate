@@ -39,6 +39,12 @@ module.exports = {
       ? await connections.getCore({ conid: singleConid })
       : connections.singleConnection;
 
+    let configurationError = null;
+    if (process.env.STORAGE_DATABASE && process.env.BASIC_AUTH) {
+      configurationError =
+        'Basic authentization is not allowed, when using storage. Cannot use both STORAGE_DATABASE and BASIC_AUTH';
+    }
+
     return {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
@@ -51,6 +57,7 @@ module.exports = {
       isElectron: platformInfo.isElectron,
       isLicenseValid: platformInfo.isLicenseValid,
       checkedLicense: platformInfo.checkedLicense,
+      configurationError,
       logoutUrl: await authProvider.getLogoutUrl(),
       permissions,
       login,

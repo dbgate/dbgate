@@ -45,7 +45,7 @@ function start() {
 
   const server = http.createServer(app);
 
-  if (process.env.BASIC_AUTH) {
+  if (process.env.BASIC_AUTH && !process.env.STORAGE_DATABASE) {
     async function authorizer(username, password, cb) {
       try {
         const resp = await getDefaultAuthProvider().login(username, password);
