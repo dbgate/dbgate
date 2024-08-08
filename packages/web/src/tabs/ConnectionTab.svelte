@@ -33,6 +33,7 @@
   import { disconnectServerConnection, openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';
   import { useConfig } from '../utility/metadataLoaders';
+  import ConnectionAdvancedDriverFields from '../settings/ConnectionAdvancedDriverFields.svelte';
 
   export let connection;
   export let tabid;
@@ -209,6 +210,10 @@
         driver?.showConnectionTab('ssl', $values) && {
           label: 'SSL',
           component: ConnectionSslFields,
+        },
+        {
+          label: 'Advanced',
+          component: ConnectionAdvancedDriverFields,
         },
       ]}
     />

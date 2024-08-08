@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   export let value;
-  export let focused;
+  export let focused = false;
 
   let domEditor;
 

@@ -16,7 +16,18 @@ let afterConnectCallbacks = [];
 async function handleRefresh() {
   const driver = requireEngineDriver(storedConnection);
   try {
-    const databases = await driver.listDatabases(systemConnection);
+    let databases = await driver.listDatabases(systemConnection);
+    if (storedConnection?.allowedDatabases?.trim()) {
+      const allowedDatabaseList = storedConnection.allowedDatabases
+        .split('\n')
+        .map(x => x.trim().toLowerCase())
+        .filter(x => x);
+      databases = databases.filter(x => allowedDatabaseList.includes(x.name.toLocaleLowerCase()));
+    }
+    if (storedConnection?.allowedDatabasesRegex?.trim()) {
+      const regex = new RegExp(storedConnection.allowedDatabasesRegex, 'i');
+      databases = databases.filter(x => regex.test(x.name));
+    }
     setStatusName('ok');
     const databasesString = stableStringify(databases);
     if (lastDatabases != databasesString) {
