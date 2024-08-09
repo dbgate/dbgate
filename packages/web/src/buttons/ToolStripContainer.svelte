@@ -12,7 +12,7 @@
     activator?.activate();
   }
 
-  export let scrollContent;
+  export let scrollContent = false;
 </script>
 
 <div class="wrapper">

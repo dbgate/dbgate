@@ -17,7 +17,7 @@ import { isAdminPage } from './pageDefs';
 export const strmid = uuidv1();
 
 let eventSource;
-let apiLogging = true;
+let apiLogging = false;
 // let cacheCleanerRegistered;
 let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
