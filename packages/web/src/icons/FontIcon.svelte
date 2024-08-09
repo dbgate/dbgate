@@ -1,3 +1,30 @@
+<script context="module">
+  export function getNumberIcon(number) {
+    switch (number) {
+      case 1:
+        return 'mdi mdi-numeric-1-circle';
+      case 2:
+        return 'mdi mdi-numeric-2-circle';
+      case 3:
+        return 'mdi mdi-numeric-3-circle';
+      case 4:
+        return 'mdi mdi-numeric-4-circle';
+      case 5:
+        return 'mdi mdi-numeric-5-circle';
+      case 6:
+        return 'mdi mdi-numeric-6-circle';
+      case 7:
+        return 'mdi mdi-numeric-7-circle';
+      case 8:
+        return 'mdi mdi-numeric-8-circle';
+      case 9:
+        return 'mdi mdi-numeric-9-circle';
+    }
+    if (number > 9) return 'mdi mdi-numeric-9-plus-circle';
+    return null;
+  }
+</script>
+
 <script>
   export let icon;
   export let title = null;

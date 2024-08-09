@@ -29,6 +29,7 @@
     CollectionGridDisplay,
     changeSetContainsChanges,
     runMacroOnChangeSet,
+    changeSetChangedCount,
   } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
@@ -54,6 +55,7 @@
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import useEditorData from '../query/useEditorData';
   import { markTabSaved, markTabUnsaved } from '../utility/common';
+  import { getNumberIcon } from '../icons/FontIcon.svelte';
 
   export let tabid;
   export let conid;
@@ -197,7 +199,10 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
     <ToolStripCommandButton command="dataForm.refresh" hideDisabled />
-    <ToolStripCommandButton command="collectionTable.save" />
+    <ToolStripCommandButton
+      command="collectionTable.save"
+      iconAfter={getNumberIcon(changeSetChangedCount($changeSetStore?.value))}
+    />
     <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />

@@ -66,6 +66,7 @@
   import TableDataGrid from '../datagrid/TableDataGrid.svelte';
   import useGridConfig from '../utility/useGridConfig';
   import {
+    changeSetChangedCount,
     changeSetContainsChanges,
     changeSetToSql,
     createChangeSet,
@@ -103,6 +104,7 @@
   import useEditorData from '../query/useEditorData';
   import { markTabSaved, markTabUnsaved } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import { getNumberIcon } from '../icons/FontIcon.svelte';
 
   export let tabid;
   export let conid;
@@ -277,7 +279,10 @@
     <ToolStripCommandButton command="dataForm.goToNext" hideDisabled />
     <ToolStripCommandButton command="dataForm.goToLast" hideDisabled />
 
-    <ToolStripCommandButton command="tableData.save" />
+    <ToolStripCommandButton
+      command="tableData.save"
+      iconAfter={getNumberIcon(changeSetChangedCount($changeSetStore?.value))}
+    />
     <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
