@@ -72,6 +72,8 @@ function getPortalCollections() {
       displayName: process.env[`LABEL_${id}`],
       isReadOnly: process.env[`READONLY_${id}`],
       databases: process.env[`DBCONFIG_${id}`] ? safeJsonParse(process.env[`DBCONFIG_${id}`]) : null,
+      allowedDatabases: process.env[`ALLOWED_DATABASES_${id}`]?.replace(/\|/g, '\n'),
+      allowedDatabasesRegex: process.env[`ALLOWED_DATABASES_REGEX_${id}`],
       parent: process.env[`PARENT_${id}`] || undefined,
 
       // SSH tunnel

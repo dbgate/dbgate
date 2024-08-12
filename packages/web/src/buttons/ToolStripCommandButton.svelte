@@ -17,6 +17,7 @@
   export let component = ToolStripButton;
   export let hideDisabled = false;
   export let buttonLabel = null;
+  export let iconAfter = null;
 
   $: cmd = Object.values($commandsCustomized).find((x: any) => x.id == command) as any;
 </script>
@@ -28,6 +29,7 @@
     icon={cmd.icon}
     on:click={cmd.onClick}
     disabled={!cmd.enabled}
+    {iconAfter}
     {...$$restProps}
   >
     {buttonLabel || cmd.toolbarName || cmd.name}

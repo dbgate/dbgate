@@ -121,6 +121,15 @@ body {
   border-radius: 4px;
 }
 
+.largeFormMarker textarea {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid var(--theme-border);
+}
+
 body *::-webkit-scrollbar {
   height: 0.8em;
   width: 0.8em;
@@ -167,6 +176,10 @@ textarea {
   background-color: var(--theme-bg-0);
   color: var(--theme-font-1);
   border: 1px solid var(--theme-border);
+}
+
+textarea[disabled] {
+  background-color: var(--theme-bg-1);
 }
 
 .ace_gutter-cell.ace-gutter-sql-run {

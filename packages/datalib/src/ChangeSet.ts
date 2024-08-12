@@ -530,3 +530,7 @@ export function changeSetContainsChanges(changeSet: ChangeSet) {
     changeSet.dataUpdateCommands?.length > 0
   );
 }
+
+export function changeSetChangedCount(changeSet: ChangeSet) {
+  return changeSet.deletes.length + changeSet.updates.length + changeSet.inserts.length;
+}
