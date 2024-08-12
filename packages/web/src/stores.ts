@@ -20,6 +20,7 @@ export interface TabDefinition {
   tabComponent: string;
   tabOrder?: number;
   multiTabIndex?: number;
+  unsaved?: boolean;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {

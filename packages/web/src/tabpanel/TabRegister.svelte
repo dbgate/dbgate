@@ -50,6 +50,7 @@
     tabComponent={mountedTabs[tabid]}
     {...openedTabsByTabId[tabid]?.props}
     {tabid}
+    unsaved={openedTabsByTabId[tabid]?.unsaved}
     tabVisible={tabid == shownTab?.tabid}
   />
 {/each}
