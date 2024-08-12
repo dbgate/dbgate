@@ -65,7 +65,7 @@ magick  \
     -pointsize 800 -font './Mcbungus-Regular.ttf' \
     -gravity center \
     -draw 'text 0,100 "G"' \
-    icon.png
+    icon-original.png
 
 
 # magick \
