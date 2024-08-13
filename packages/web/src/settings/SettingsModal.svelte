@@ -31,6 +31,8 @@
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
+  import { isProApp } from '../utility/proTools';
+  import FormTextAreaField from '../forms/FormTextAreaField.svelte';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -70,6 +72,7 @@ ORDER BY
         isInline
         tabs={[
           { label: 'General', slot: 1 },
+          isProApp() && { label: 'License', slot: 7 },
           { label: 'Connection', slot: 2 },
           { label: 'Themes', slot: 3 },
           { label: 'Default Actions', slot: 4 },
@@ -317,11 +320,12 @@ ORDER BY
         <svelte:fragment slot="6">
           <div class="heading">Other</div>
 
-          <FormTextField
-            name="other.gistCreateToken"
-            label="API token for creating error gists"
-            defaultValue=""
-          />
+          <FormTextField name="other.gistCreateToken" label="API token for creating error gists" defaultValue="" />
+        </svelte:fragment>
+
+        <svelte:fragment slot="7">
+          <div class="heading">License</div>
+          <FormTextAreaField name="other.licenseKey" label="License key" rows={5} />
         </svelte:fragment>
       </TabControl>
     </FormValues>

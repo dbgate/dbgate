@@ -12,6 +12,8 @@ const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
+const isElectron = require('is-electron');
+const { checkLicenseApp, checkLicenseWeb } = require('../utility/checkLicense');
 
 const lock = new AsyncLock();
 
@@ -45,6 +47,9 @@ module.exports = {
         'Basic authentization is not allowed, when using storage. Cannot use both STORAGE_DATABASE and BASIC_AUTH';
     }
 
+    const checkedLicense = isElectron() ? checkLicenseApp() : checkLicenseWeb();
+    const isLicenseValid = checkedLicense?.status == 'ok';
+
     return {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
@@ -55,8 +60,8 @@ module.exports = {
       allowShellScripting: platformInfo.allowShellScripting,
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
-      isLicenseValid: platformInfo.isLicenseValid,
-      checkedLicense: platformInfo.checkedLicense,
+      isLicenseValid,
+      checkedLicense,
       configurationError,
       logoutUrl: await authProvider.getLogoutUrl(),
       permissions,
@@ -122,6 +127,24 @@ module.exports = {
       return this.fillMissingSettings(JSON.parse(settingsText));
     } catch (err) {
       return this.fillMissingSettings({});
+    }
+  },
+
+  async loadLicenseKey() {
+    try {
+      const licenseKey = await fs.readFile(path.join(datadir(), 'license.key'), { encoding: 'utf-8' });
+      return licenseKey;
+    } catch (err) {
+      return null;
+    }
+  },
+
+  saveLicenseKey_meta: true,
+  async saveLicenseKey({ licenseKey }) {
+    try {
+      await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
+    } catch (err) {
+      return null;
     }
   },
 

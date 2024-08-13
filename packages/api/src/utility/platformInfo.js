@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const processArgs = require('./processArgs');
 const isElectron = require('is-electron');
-const { checkLicense } = require('./checkLicense');
+const { checkLicenseWeb, checkLicenseApp } = require('./checkLicense');
 
 const platform = process.env.OS_OVERRIDE ? process.env.OS_OVERRIDE : process.platform;
 const isWindows = platform === 'win32';
@@ -13,7 +13,6 @@ const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
 const isNpmDist = !!global['IS_NPM_DIST'];
 const isForkedApi = processArgs.isForkedApi;
-const checkedLicense = checkLicense();
 
 // function moduleAvailable(name) {
 //   try {
@@ -32,8 +31,6 @@ const platformInfo = {
   isElectronBundle: isElectron() && !isDevMode,
   isForkedApi,
   isElectron: isElectron(),
-  checkedLicense,
-  isLicenseValid: checkedLicense?.status == 'ok',
   isDevMode,
   isNpmDist,
   isSnap: process.env.ELECTRON_SNAP == 'true',

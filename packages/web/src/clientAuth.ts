@@ -2,6 +2,7 @@ import { ca } from 'date-fns/locale';
 import { apiCall, enableApi, getAuthCategory } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';
+import getElectron from './utility/getElectron';
 
 export function isOauthCallback() {
   const params = new URLSearchParams(location.search);
@@ -117,9 +118,17 @@ export function handleOauthCallback() {
 }
 
 export async function handleAuthOnStartup(config, isAdminPage = false) {
-  if (!config.isLicenseValid || config.configurationError) {
+  if (config.configurationError) {
     internalRedirectTo(`/?page=error`);
     return;
+  }
+
+  if (!config.isLicenseValid) {
+    if (config.storageDatabase || getElectron()) {
+      internalRedirectTo(`/?page=license`);
+    } else {
+      internalRedirectTo(`/?page=error`);
+    }
   }
 
   if (getAuthCategory(config) == 'admin') {
