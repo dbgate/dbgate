@@ -3,7 +3,7 @@ const fs = require('fs');
 const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../utility/directories');
 const nativeModules = require('../nativeModules');
 const platformInfo = require('../utility/platformInfo');
-const azureAuth = require('../utility/azureAuth');
+const authProxy = require('../utility/authProxy');
 const { getLogger } = require('dbgate-tools');
 const logger = getLogger('requirePlugin');
 
@@ -13,7 +13,7 @@ const dbgateEnv = {
   dbgateApi: null,
   nativeModules,
   platformInfo,
-  azureAuth,
+  authProxy,
 };
 function requirePlugin(packageName, requiredPlugin = null) {
   if (!packageName) throw new Error('Missing packageName in plugin');

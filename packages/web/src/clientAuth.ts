@@ -39,6 +39,7 @@ export function isDbLoginAuthCallback() {
 export function handleOauthCallback() {
   const params = new URLSearchParams(location.search);
   const sentCode = params.get('code');
+  const sid = params.get('sid');
 
   if (isOauthCallback()) {
     const [_prefix, strmid, amoid] = sessionStorage.getItem('oauthState').split(':');
@@ -72,6 +73,7 @@ export function handleOauthCallback() {
       code: sentCode,
       conid,
       strmid,
+      sid,
       redirectUri: location.origin + location.pathname,
     }).then(authResp => {
       if (authResp.success) {
@@ -95,6 +97,7 @@ export function handleOauthCallback() {
       conid,
       redirectUri: location.origin + location.pathname,
       amoid,
+      sid,
     }).then(authResp => {
       if (authResp.accessToken) {
         localStorage.setItem('accessToken', authResp.accessToken);

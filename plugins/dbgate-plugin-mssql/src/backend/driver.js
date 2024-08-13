@@ -12,7 +12,7 @@ const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = native
 
 let requireMsnodesqlv8;
 let platformInfo;
-let azureAuth;
+let authProxy;
 
 const versionQuery = `
 SELECT 
@@ -58,7 +58,7 @@ const driver = {
     const res = [];
     if (requireMsnodesqlv8) res.push(...windowsAuthTypes);
 
-    if (azureAuth.isAzureAuthSupported()) {
+    if (authProxy.isAuthProxySupported()) {
       res.push(
         {
           title: 'NodeJs portable driver (tedious) - recomended',
@@ -139,10 +139,13 @@ const driver = {
   },
   getRedirectAuthUrl(connection, options) {
     if (connection.authType != 'msentra') return null;
-    return azureAuth.azureGetRedirectAuthUrl(options);
+    return authProxy.authProxyGetRedirectUrl({
+      ...options,
+      type: 'msentra',
+    });
   },
   getAuthTokenFromCode(connection, options) {
-    return azureAuth.azureGetAuthTokenFromCode(options);
+    return authProxy.authProxyGetTokenFromCode(options);
   },
   getAccessTokenFromAuth: (connection, req) => {
     return req?.user?.msentraToken;

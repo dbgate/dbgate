@@ -399,11 +399,11 @@ module.exports = {
   },
 
   dbloginToken_meta: true,
-  async dbloginToken({ code, conid, strmid, redirectUri }) {
+  async dbloginToken({ code, conid, strmid, redirectUri, sid }) {
     try {
       const connection = await this.getCore({ conid });
       const driver = requireEngineDriver(connection);
-      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const accessToken = await driver.getAuthTokenFromCode(connection, { sid, code, redirectUri });
       const volatile = await this.saveVolatile({ conid, accessToken });
       // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
       socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
@@ -415,11 +415,11 @@ module.exports = {
   },
 
   dbloginAuthToken_meta: true,
-  async dbloginAuthToken({ amoid, code, conid, redirectUri }) {
+  async dbloginAuthToken({ amoid, code, conid, redirectUri, sid }) {
     try {
       const connection = await this.getCore({ conid });
       const driver = requireEngineDriver(connection);
-      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri });
+      const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri, sid });
       const volatile = await this.saveVolatile({ conid, accessToken });
       const authProvider = getAuthProviderById(amoid);
       const resp = await authProvider.login(null, null, { conid: volatile._id });
