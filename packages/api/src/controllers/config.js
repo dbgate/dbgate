@@ -143,6 +143,7 @@ module.exports = {
   async saveLicenseKey({ licenseKey }) {
     try {
       await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
+      socket.emitChanged(`config-changed`);
     } catch (err) {
       return null;
     }
