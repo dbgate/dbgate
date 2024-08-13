@@ -141,6 +141,7 @@ const driver = {
     if (connection.authType != 'msentra') return null;
     return authProxy.authProxyGetRedirectUrl({
       ...options,
+      client: platformInfo.isElectron ? 'app' : 'web',
       type: 'msentra',
     });
   },
@@ -157,7 +158,7 @@ driver.initialize = dbgateEnv => {
     requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
   }
   platformInfo = dbgateEnv.platformInfo;
-  azureAuth = dbgateEnv.azureAuth;
+  authProxy = dbgateEnv.authProxy;
   nativeDriver.initialize(dbgateEnv);
 };
 

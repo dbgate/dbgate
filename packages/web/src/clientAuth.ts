@@ -49,6 +49,7 @@ export function handleOauthCallback() {
       code: sentCode,
       amoid,
       redirectUri: location.origin + location.pathname,
+      sid,
     }).then(authResp => {
       const { accessToken, error, errorMessage } = authResp;
 
@@ -164,18 +165,18 @@ export async function redirectToLogin(config = null, force = false) {
     return;
   }
 
-  if (config.oauth) {
-    const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
-    const scopeParam = config.oauthScope ? `&scope=${config.oauthScope}` : '';
-    sessionStorage.setItem('oauthState', state);
-    console.log('Redirecting to OAUTH provider');
-    location.replace(
-      `${config.oauth}?client_id=${config.oauthClient}&response_type=code&redirect_uri=${encodeURIComponent(
-        location.origin + location.pathname
-      )}&state=${encodeURIComponent(state)}${scopeParam}`
-    );
-    return;
-  }
+  // if (config.oauth) {
+  //   const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
+  //   const scopeParam = config.oauthScope ? `&scope=${config.oauthScope}` : '';
+  //   sessionStorage.setItem('oauthState', state);
+  //   console.log('Redirecting to OAUTH provider');
+  //   location.replace(
+  //     `${config.oauth}?client_id=${config.oauthClient}&response_type=code&redirect_uri=${encodeURIComponent(
+  //       location.origin + location.pathname
+  //     )}&state=${encodeURIComponent(state)}${scopeParam}`
+  //   );
+  //   return;
+  // }
 }
 
 export function internalRedirectTo(path) {
