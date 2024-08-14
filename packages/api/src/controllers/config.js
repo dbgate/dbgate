@@ -72,7 +72,7 @@ module.exports = {
         process.env.STORAGE_DATABASE &&
         process.env.ADMIN_PASSWORD &&
         !process.env.BASIC_AUTH &&
-        platformInfo.checkedLicense?.type == 'premium'
+        checkedLicense?.type == 'premium'
       ),
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
