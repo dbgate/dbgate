@@ -3,7 +3,6 @@ const os = require('os');
 const path = require('path');
 const processArgs = require('./processArgs');
 const isElectron = require('is-electron');
-const { checkLicenseWeb, checkLicenseApp } = require('./checkLicense');
 
 const platform = process.env.OS_OVERRIDE ? process.env.OS_OVERRIDE : process.platform;
 const isWindows = platform === 'win32';

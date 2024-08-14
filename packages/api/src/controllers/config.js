@@ -13,7 +13,7 @@ const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const isElectron = require('is-electron');
-const { checkLicenseApp, checkLicenseWeb } = require('../utility/checkLicense');
+const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 
 const lock = new AsyncLock();
 
@@ -47,7 +47,7 @@ module.exports = {
         'Basic authentization is not allowed, when using storage. Cannot use both STORAGE_DATABASE and BASIC_AUTH';
     }
 
-    const checkedLicense = isElectron() ? checkLicenseApp() : checkLicenseWeb();
+    const checkedLicense = await checkLicense();
     const isLicenseValid = checkedLicense?.status == 'ok';
 
     return {
@@ -124,7 +124,10 @@ module.exports = {
   async loadSettings() {
     try {
       const settingsText = await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' });
-      return this.fillMissingSettings(JSON.parse(settingsText));
+      return {
+        ...this.fillMissingSettings(JSON.parse(settingsText)),
+        'other.licenseKey': await this.loadLicenseKey(),
+      };
     } catch (err) {
       return this.fillMissingSettings({});
     }
@@ -158,10 +161,16 @@ module.exports = {
       try {
         const updated = {
           ...currentValue,
-          ...values,
+          ..._.omit(values, ['other.licenseKey']),
         };
         await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
         // this.settingsValue = updated;
+
+        if (currentValue['other.licenseKey'] != values['other.licenseKey']) {
+          await this.saveLicenseKey({ licenseKey: values['other.licenseKey'] });
+          socket.emitChanged(`config-changed`);
+        }
+
         socket.emitChanged(`settings-changed`);
         return updated;
       } catch (err) {
@@ -175,5 +184,11 @@ module.exports = {
   async changelog() {
     const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
     return resp.data;
+  },
+
+  checkLicense_meta: true,
+  async checkLicense({ licenseKey }) {
+    const resp = await checkLicenseKey(licenseKey);
+    return resp;
   },
 };

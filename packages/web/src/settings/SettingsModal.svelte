@@ -33,9 +33,13 @@
   import ThemeSkeleton from './ThemeSkeleton.svelte';
   import { isProApp } from '../utility/proTools';
   import FormTextAreaField from '../forms/FormTextAreaField.svelte';
+  import { apiCall } from '../utility/api';
+  import { useSettings } from '../utility/metadataLoaders';
+  import { derived } from 'svelte/store';
 
   const electron = getElectron();
   let restartWarning = false;
+  let licenseKeyCheckResult = null;
 
   export let selectedTab = 0;
 
@@ -60,6 +64,23 @@ ORDER BY
     $selectedWidget = 'plugins';
     $visibleWidgetSideBar = true;
   }
+
+  const settings = useSettings();
+  const settingsValues = derived(settings, $settings => {
+    if (!$settings) {
+      return {};
+    }
+    return $settings;
+  });
+
+  $: licenseKey = $settingsValues['other.licenseKey'];
+  let checkedLicenseKey = false;
+  $: if (licenseKey && !checkedLicenseKey) {
+    checkedLicenseKey = true;
+    apiCall('config/check-license', { licenseKey }).then(result => {
+      licenseKeyCheckResult = result;
+    });
+  }
 </script>
 
 <SettingsFormProvider>
@@ -72,7 +93,7 @@ ORDER BY
         isInline
         tabs={[
           { label: 'General', slot: 1 },
-          isProApp() && { label: 'License', slot: 7 },
+          isProApp() && electron && { label: 'License', slot: 7 },
           { label: 'Connection', slot: 2 },
           { label: 'Themes', slot: 3 },
           { label: 'Default Actions', slot: 4 },
@@ -325,7 +346,29 @@ ORDER BY
 
         <svelte:fragment slot="7">
           <div class="heading">License</div>
-          <FormTextAreaField name="other.licenseKey" label="License key" rows={5} />
+          <FormTextAreaField
+            name="other.licenseKey"
+            label="License key"
+            rows={7}
+            onChange={async value => {
+              licenseKeyCheckResult = await apiCall('config/check-license', { licenseKey: value });
+            }}
+          />
+          {#if licenseKeyCheckResult}
+            <div class="m-3 ml-5">
+              {#if licenseKeyCheckResult.status == 'ok'}
+                <div>
+                  <FontIcon icon="img ok" /> License key is valid
+                </div>
+                <div>
+                  License valid to: {licenseKeyCheckResult.validTo}
+                </div>
+                <div>License key expiration: {licenseKeyCheckResult.expiration}</div>
+              {:else if licenseKeyCheckResult.status == 'error'}
+                <FontIcon icon="img error" /> License key is invalid
+              {/if}
+            </div>
+          {/if}
         </svelte:fragment>
       </TabControl>
     </FormValues>
