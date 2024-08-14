@@ -18,6 +18,7 @@ const { connectionHasPermission, testConnectionPermission } = require('../utilit
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { getAuthProviderById } = require('../auth/authProvider');
+const { startTokenChecking } = require('../utility/authProxy');
 
 const logger = getLogger('connections');
 
@@ -394,23 +395,27 @@ module.exports = {
     const { conid, state, redirectUri } = req.query;
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const authUrl = await driver.getRedirectAuthUrl(connection, {
+    const authResp = await driver.getRedirectAuthUrl(connection, {
       redirectUri,
       state,
       client: 'web',
     });
-    res.redirect(authUrl);
+    res.redirect(authResp.url);
   },
 
   dbloginApp_meta: true,
   async dbloginApp({ conid, state }) {
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const url = await driver.getRedirectAuthUrl(connection, {
+    const resp = await driver.getRedirectAuthUrl(connection, {
       state,
       client: 'app',
     });
-    return { url };
+    startTokenChecking(resp.sid, async token => {
+      const volatile = await this.saveVolatile({ conid, accessToken: token });
+      socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id });
+    });
+    return resp;
   },
 
   dbloginToken_meta: true,
