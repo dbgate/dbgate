@@ -97,11 +97,19 @@ async function processApiResponse(route, args, resp) {
 
       const state = `dbg-dblogin:${strmid}:${resp.detail.conid}`;
       localStorage.setItem('dbloginState', state);
-      openWebLink(
-        `connections/dblogin?conid=${resp.detail.conid}&state=${encodeURIComponent(state)}&redirectUri=${
-          location.origin + location.pathname
-        }`
-      );
+      if (getElectron()) {
+        const dbloginApp = await apiCall('connections/dblogin-app', {
+          conid: resp.detail.conid,
+          state,
+        });
+        openWebLink(dbloginApp.url);
+      } else {
+        openWebLink(
+          `connections/dblogin-web?conid=${resp.detail.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+            location.origin + location.pathname
+          }`
+        );
+      }
     } else if (!isDatabaseLoginVisible()) {
       showModal(DatabaseLoginModal, resp.detail);
     }

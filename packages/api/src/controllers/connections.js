@@ -386,16 +386,31 @@ module.exports = {
     return res;
   },
 
-  dblogin_meta: {
+  dbloginWeb_meta: {
     raw: true,
     method: 'get',
   },
-  async dblogin(req, res) {
+  async dbloginWeb(req, res) {
     const { conid, state, redirectUri } = req.query;
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
-    const authUrl = await driver.getRedirectAuthUrl(connection, { redirectUri, state });
+    const authUrl = await driver.getRedirectAuthUrl(connection, {
+      redirectUri,
+      state,
+      client: 'web',
+    });
     res.redirect(authUrl);
+  },
+
+  dbloginApp_meta: true,
+  async dbloginApp({ conid, state }) {
+    const connection = await this.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+    const url = await driver.getRedirectAuthUrl(connection, {
+      state,
+      client: 'app',
+    });
+    return { url };
   },
 
   dbloginToken_meta: true,

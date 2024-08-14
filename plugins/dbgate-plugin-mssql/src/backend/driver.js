@@ -141,7 +141,6 @@ const driver = {
     if (connection.authType != 'msentra') return null;
     return authProxy.authProxyGetRedirectUrl({
       ...options,
-      client: platformInfo.isElectron ? 'app' : 'web',
       type: 'msentra',
     });
   },

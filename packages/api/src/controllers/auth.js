@@ -37,7 +37,8 @@ function authMiddleware(req, res, next) {
     '/stream',
     'storage/get-connections-for-login-page',
     'auth/get-providers',
-    '/connections/dblogin',
+    '/connections/dblogin-web',
+    '/connections/dblogin-app',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
   ];
