@@ -12,8 +12,8 @@ const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
-const isElectron = require('is-electron');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
+const { storageWriteConfig } = require('./storageDb');
 
 const lock = new AsyncLock();
 
@@ -126,7 +126,7 @@ module.exports = {
       const settingsText = await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' });
       return {
         ...this.fillMissingSettings(JSON.parse(settingsText)),
-        'other.licenseKey': await this.loadLicenseKey(),
+        'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
       };
     } catch (err) {
       return this.fillMissingSettings({});
@@ -145,7 +145,11 @@ module.exports = {
   saveLicenseKey_meta: true,
   async saveLicenseKey({ licenseKey }) {
     try {
-      await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
+      if (process.env.STORAGE_DATABASE) {
+        await storageWriteConfig('license', { licenseKey });
+      } else {
+        await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
+      }
       socket.emitChanged(`config-changed`);
     } catch (err) {
       return null;

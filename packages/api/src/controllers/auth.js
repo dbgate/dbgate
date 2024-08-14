@@ -30,6 +30,7 @@ function authMiddleware(req, res, next) {
     '/config/get',
     '/config/logout',
     '/config/get-settings',
+    '/config/save-license-key',
     '/auth/oauth-token',
     '/auth/login',
     '/auth/redirect',
