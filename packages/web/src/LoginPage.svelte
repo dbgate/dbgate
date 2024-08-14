@@ -194,7 +194,7 @@
                 //   }`
                 // );
                 internalRedirectTo(
-                  `/connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
+                  `/connections/dblogin-web?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
                     location.origin + location.pathname
                   }`
                 );
