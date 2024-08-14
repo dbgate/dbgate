@@ -7,6 +7,7 @@ import { handleOauthCallback } from './clientAuth';
 import LoginPage from './LoginPage.svelte';
 import NotLoggedPage from './NotLoggedPage.svelte';
 import ErrorPage from './ErrorPage.svelte';
+import EnterLicensePage from './EnterLicensePage.svelte';
 
 const params = new URLSearchParams(location.search);
 const page = params.get('page');
@@ -14,7 +15,6 @@ const page = params.get('page');
 const isOauthCallback = handleOauthCallback();
 
 localStorageGarbageCollector();
-
 
 function createApp() {
   if (isOauthCallback) {
@@ -31,6 +31,11 @@ function createApp() {
       });
     case 'error':
       return new ErrorPage({
+        target: document.body,
+        props: {},
+      });
+    case 'license':
+      return new EnterLicensePage({
         target: document.body,
         props: {},
       });

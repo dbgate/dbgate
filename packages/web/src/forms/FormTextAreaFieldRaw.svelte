@@ -5,6 +5,7 @@
   export let name;
   export let defaultValue = undefined;
   export let saveOnInput = false;
+  export let onChange = null;
 
   const { values, setFieldValue } = getFormContext();
 </script>
@@ -16,6 +17,9 @@
   on:input={e => {
     if (saveOnInput) {
       setFieldValue(name, e.target['value']);
+    }
+    if (onChange) {
+      onChange(e.target['value']);
     }
   }}
 />

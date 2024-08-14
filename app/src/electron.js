@@ -16,7 +16,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
-const { settings } = require('cluster');
+const { isProApp, checkLicense } = require('./proTools');
 let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
@@ -299,9 +299,11 @@ function ensureBoundsVisible(bounds) {
 }
 
 function createWindow() {
+  const datadir = path.join(os.homedir(), '.dbgate');
+
   let settingsJson = {};
+  let licenseKey = null;
   try {
-    const datadir = path.join(os.homedir(), '.dbgate');
     settingsJson = fillMissingSettings(
       JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
     );
@@ -309,12 +311,22 @@ function createWindow() {
     console.log('Error loading settings.json:', err.message);
     settingsJson = fillMissingSettings({});
   }
+  if (isProApp()) {
+    try {
+      licenseKey = fs.readFileSync(path.join(datadir, 'license.key'), { encoding: 'utf-8' });
+    } catch (err) {
+      console.log('Error loading license.key:', err.message);
+      licenseKey = null;
+    }
+  }
+
+  const licenseOk = !isProApp() || checkLicense(licenseKey) == 'premium';
 
   let bounds = initialConfig['winBounds'];
   if (bounds) {
     bounds = ensureBoundsVisible(bounds);
   }
-  useNativeMenu = settingsJson['app.useNativeMenu'];
+  useNativeMenu = settingsJson['app.useNativeMenu'] || !licenseOk;
 
   mainWindow = new BrowserWindow({
     width: 1200,
