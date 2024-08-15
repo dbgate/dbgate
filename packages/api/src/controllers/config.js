@@ -13,7 +13,7 @@ const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
-const { storageWriteConfig } = require('./storageDb');
+const storage = require('./storage');
 
 const lock = new AsyncLock();
 
@@ -146,7 +146,8 @@ module.exports = {
   async saveLicenseKey({ licenseKey }) {
     try {
       if (process.env.STORAGE_DATABASE) {
-        await storageWriteConfig('license', { licenseKey });
+        await storage.writeConfig({ group: 'license', config: { licenseKey } });
+        // await storageWriteConfig('license', { licenseKey });
       } else {
         await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
       }

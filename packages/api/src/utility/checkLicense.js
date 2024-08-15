@@ -1,11 +1,4 @@
-function checkLicenseWeb() {
-  return {
-    status: 'ok',
-    type: 'community',
-  };
-}
-
-function checkLicenseApp() {
+function checkLicense() {
   return {
     status: 'ok',
     type: 'community',
@@ -13,6 +6,5 @@ function checkLicenseApp() {
 }
 
 module.exports = {
-  checkLicenseWeb,
-  checkLicenseApp,
+  checkLicense,
 };
