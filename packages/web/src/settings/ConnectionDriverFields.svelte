@@ -99,6 +99,14 @@
   {/key}
 {/if}
 
+{#if driver?.showConnectionField('endpoint', $values, showConnectionFieldArgs)}
+  <FormTextField label="Endpoint" name="endpoint" disabled={isConnected} />
+{/if}
+
+{#if driver?.showConnectionField('endpointKey', $values, showConnectionFieldArgs)}
+  <FormTextField label="Key" name="endpointKey" disabled={isConnected} />
+{/if}
+
 {#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}
   <FormTextField label="Client library path" name="clientLibraryPath" disabled={isConnected} />
 {/if}

@@ -39,6 +39,7 @@ import { isMac } from '../utility/common';
 import { doLogout, internalRedirectTo } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
 import UploadErrorModal from '../modals/UploadErrorModal.svelte';
+import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -277,7 +278,7 @@ registerCommand({
   icon: 'icon table',
   name: 'Collection',
   toolbar: true,
-  toolbarName: 'New collection',
+  toolbarName: 'New collection/container',
   testEnabled: () => {
     const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
     return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('document');
@@ -291,11 +292,25 @@ registerCommand({
 
     showModal(InputTextModal, {
       value: '',
-      label: 'New collection name',
-      header: 'Create collection',
+      label: 'New collection/container name',
+      header: 'Create collection/container',
       onConfirm: async newCollection => {
-        await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
-        apiCall('database-connections/sync-model', dbid);
+        // await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
+        const resp = await apiCall('database-connections/run-operation', {
+          ...dbid,
+          operation: {
+            type: 'createCollection',
+            collection: newCollection,
+          },
+        });
+
+        const { errorMessage } = resp || {};
+        if (errorMessage) {
+          showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
+        } else {
+          showSnackbarSuccess('Saved to database');
+          apiCall('database-connections/sync-model', dbid);
+        }
       },
     });
   },

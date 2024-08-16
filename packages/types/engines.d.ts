@@ -142,6 +142,7 @@ export interface EngineDriver {
   dropDatabase(pool: any, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
   script(pool: any, sql: string, options?: RunScriptOptions): Promise;
+  operation(pool: any, operation: {}, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers
   callMethod(pool, method, args);

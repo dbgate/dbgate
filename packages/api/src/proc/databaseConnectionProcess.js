@@ -170,6 +170,18 @@ async function handleRunScript({ msgid, sql, useTransaction }, skipReadonlyCheck
   }
 }
 
+async function handleRunOperation({ msgid, operation, useTransaction }, skipReadonlyCheck = false) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
+    await driver.operation(systemConnection, operation, { useTransaction });
+    process.send({ msgtype: 'response', msgid });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -311,6 +323,7 @@ const messageHandlers = {
   connect: handleConnect,
   queryData: handleQueryData,
   runScript: handleRunScript,
+  runOperation: handleRunOperation,
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,

@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import {copyTextToClipboard} from "../utility/clipboard";
+  import { copyTextToClipboard } from '../utility/clipboard';
 
   export const extractKey = props => props.name;
 
@@ -93,10 +93,18 @@
     const handleNewCollection = () => {
       showModal(InputTextModal, {
         value: '',
-        label: 'New collection name',
-        header: 'Create collection',
+        label: 'New collection/container name',
+        header: 'Create collection/container',
         onConfirm: async newCollection => {
-          saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
+          runOperationOnDatabase(
+            { conid: connection._id, database: name },
+            {
+              type: 'createCollection',
+              collection: newCollection,
+            }
+          );
+
+          // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
         },
       });
     };
@@ -173,7 +181,7 @@
 
     const handleCopyName = async () => {
       copyTextToClipboard(name);
-    }
+    };
 
     const handleDisconnect = () => {
       disconnectDatabaseConnection(connection._id, name);
@@ -286,7 +294,7 @@
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
-      driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
+      driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection/container' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
       driver?.databaseEngineTypes?.includes('sql') && {
         onClick: handleNewPerspective,
@@ -370,7 +378,7 @@
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { filterAppsForDatabase } from '../utility/appTools';
   import newQuery from '../query/newQuery';
   import { exportSqlDump } from '../utility/exportFileTools';

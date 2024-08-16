@@ -522,8 +522,8 @@
       copyTextToClipboard(data.pureName);
     } else if (menu.isRenameCollection) {
       showModal(InputTextModal, {
-        label: 'New collection name',
-        header: 'Rename collection',
+        label: 'New collection/container name',
+        header: 'Rename collection/container',
         value: data.pureName,
         onConfirm: async newName => {
           const dbid = _.pick(data, ['conid', 'database']);

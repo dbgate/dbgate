@@ -81,6 +81,9 @@ export const driverBase = {
       runCommandOnDriver(pool, this, dmp => dmp.commitTransaction());
     }
   },
+  async operation(pool, operation, options: RunScriptOptions) {
+    throw new Error('Operation not defined in target driver');
+  },
   getNewObjectTemplates() {
     if (this.databaseEngineTypes.includes('sql')) {
       return [{ label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' }];

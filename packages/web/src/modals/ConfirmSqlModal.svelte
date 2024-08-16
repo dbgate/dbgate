@@ -14,6 +14,22 @@
       if (syncModel) apiCall('database-connections/sync-model', { conid, database });
     }
   }
+
+  export async function runOperationOnDatabase({ conid, database }, operation, syncModel = true) {
+    const resp = await apiCall('database-connections/run-operation', {
+      conid,
+      database,
+      operation,
+    });
+
+    const { errorMessage } = resp || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
+    } else {
+      showSnackbarSuccess('Saved to database');
+      if (syncModel) apiCall('database-connections/sync-model', { conid, database });
+    }
+  }
 </script>
 
 <script>

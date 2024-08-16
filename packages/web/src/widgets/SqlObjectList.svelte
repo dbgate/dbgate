@@ -120,7 +120,7 @@
     {/if}
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
-      <InlineButton on:click={() => runCommand('new.collection')}>New collection</InlineButton>
+      <InlineButton on:click={() => runCommand('new.collection')}>New collection/container</InlineButton>
     {/if}
   </WidgetsInnerContainer>
 {:else}

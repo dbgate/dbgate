@@ -182,6 +182,15 @@ module.exports = {
     return res;
   },
 
+  runOperation_meta: true,
+  async runOperation({ conid, database, operation, useTransaction }, req) {
+    testConnectionPermission(conid, req);
+    logger.info({ conid, database, operation }, 'Processing operation');
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'runOperation', operation, useTransaction });
+    return res;
+  },
+
   collectionData_meta: true,
   async collectionData({ conid, database, options }, req) {
     testConnectionPermission(conid, req);

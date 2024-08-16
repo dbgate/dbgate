@@ -100,6 +100,16 @@ const driver = {
     const res = func(db, ObjectId.createFromHexString);
     if (isPromise(res)) await res;
   },
+  async operation(pool, operation, options) {
+    const { type } = operation;
+    switch (type) {
+      case 'createCollection':
+        await this.script(pool, `db.createCollection('${operation.collection}')`);
+      default:
+        throw new Error(`Operation type ${type} not supported`);
+    }
+    // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
+  },
   async stream(pool, sql, options) {
     let func;
     try {
