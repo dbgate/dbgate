@@ -89,6 +89,19 @@
       );
     }
 
+    if (structuredFilterType.supportStringInclusion) {
+      res.push(
+        { divider: true },
+
+        { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+        { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+        { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+        { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+        { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+        { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' }
+      );
+    }
+
     if (structuredFilterType.supportBooleanValues) {
       res.push(
         { onClick: () => setFilter('TRUE'), text: 'Is True' },
@@ -103,8 +116,46 @@
       );
     }
 
+    if (structuredFilterType.supportDatetimeSymbols) {
+      res.push(
+        { divider: true },
+
+        { onClick: () => setFilter('TOMORROW'), text: 'Tomorrow' },
+        { onClick: () => setFilter('TODAY'), text: 'Today' },
+        { onClick: () => setFilter('YESTERDAY'), text: 'Yesterday' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT WEEK'), text: 'Next Week' },
+        { onClick: () => setFilter('THIS WEEK'), text: 'This Week' },
+        { onClick: () => setFilter('LAST WEEK'), text: 'Last Week' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT MONTH'), text: 'Next Month' },
+        { onClick: () => setFilter('THIS MONTH'), text: 'This Month' },
+        { onClick: () => setFilter('LAST MONTH'), text: 'Last Month' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT YEAR'), text: 'Next Year' },
+        { onClick: () => setFilter('THIS YEAR'), text: 'This Year' },
+        { onClick: () => setFilter('LAST YEAR'), text: 'Last Year' }
+      );
+    }
+
+    if (structuredFilterType.supportDatetimeComparison) {
+      res.push(
+        { divider: true },
+        { onClick: () => openFilterWindow('<='), text: 'Before...' },
+        { onClick: () => openFilterWindow('>='), text: 'After...' },
+        { onClick: () => openFilterWindow('>=;<='), text: 'Between...' }
+      );
+    }
+
     if (structuredFilterType.supportSqlCondition) {
       res.push(
+        { divider: true },
         { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
         { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' }
       );
