@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import {copyTextToClipboard} from "../utility/clipboard";
+  import { copyTextToClipboard } from '../utility/clipboard';
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
@@ -85,7 +85,7 @@
       {
         label: 'Copy table name',
         isCopyTableName: true,
-        requiresWriteAccess: false
+        requiresWriteAccess: false,
       },
       {
         label: 'Create table backup',
@@ -515,7 +515,10 @@
         message: `Really drop collection ${data.pureName}?`,
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
-          saveScriptToDatabase(dbid, `db.dropCollection('${data.pureName}')`);
+          runOperationOnDatabase(dbid, {
+            type: 'dropCollection',
+            collection: data.pureName,
+          });
         },
       });
     } else if (menu.isCopyTableName) {
@@ -786,7 +789,7 @@
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
