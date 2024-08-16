@@ -20,6 +20,7 @@
 
   export let isReadOnly = false;
   export let filterType;
+  export let structuredFilterType;
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
@@ -60,6 +61,55 @@
   };
 
   function createMenu() {
+    const res = [
+      { onClick: () => setFilter(''), text: 'Clear Filter' },
+      { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+    ];
+
+    if (structuredFilterType.supportEquals) {
+      res.push(
+        { onClick: () => openFilterWindow('='), text: 'Equals...' },
+        { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' }
+      );
+    }
+
+    if (structuredFilterType.supportNullTesting) {
+      res.push(
+        { onClick: () => setFilter('NULL'), text: 'Is Null' },
+        { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' }
+      );
+    }
+
+    if (structuredFilterType.supportNumberLikeComparison) {
+      res.push(
+        { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+        { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+        { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+        { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' }
+      );
+    }
+
+    if (structuredFilterType.supportBooleanValues) {
+      res.push(
+        { onClick: () => setFilter('TRUE'), text: 'Is True' },
+        { onClick: () => setFilter('FALSE'), text: 'Is False' }
+      );
+    }
+
+    if (structuredFilterType.supportBooleanValues && structuredFilterType.supportNullTesting) {
+      res.push(
+        { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
+        { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' }
+      );
+    }
+
+    if (structuredFilterType.supportSqlCondition) {
+      res.push(
+        { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+        { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' }
+      );
+    }
+
     switch (filterType) {
       case 'number':
         return [
