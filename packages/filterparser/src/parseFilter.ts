@@ -1,11 +1,10 @@
 import P from 'parsimmon';
-import moment from 'moment';
-import { FilterType } from './types';
 import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
 import { mongoParser } from './mongoParser';
 import { datetimeParser } from './datetimeParser';
 import { hexStringToArray } from 'dbgate-tools';
+import { StructuredFilterType } from 'dbgate-types';
 
 const binaryCondition = operator => value => ({
   conditionType: 'binary',
@@ -78,7 +77,7 @@ const sqlTemplate = templateSql => {
   };
 };
 
-const createParser = (filterType: FilterType) => {
+const createParser = (structuredFilterType: StructuredFilterType) => {
   const langDef = {
     string1: () =>
       token(P.regexp(/"((?:\\.|.)*?)"/, 1))
@@ -156,32 +155,52 @@ const createParser = (filterType: FilterType) => {
   };
 
   const allowedValues = []; // 'string1', 'string2', 'number', 'noQuotedString'];
-  if (filterType == 'string' || filterType == 'eval') {
+  if (structuredFilterType.allowStringToken) {
     allowedValues.push('string1', 'string2', 'noQuotedString');
   }
-  if (filterType == 'number') {
+  if (structuredFilterType.allowNumberToken) {
     allowedValues.push('string1Num', 'string2Num', 'number');
   }
 
-  const allowedElements = ['null', 'notNull', 'eq', 'ne', 'ne2', 'sql'];
-  if (filterType == 'number' || filterType == 'datetime' || filterType == 'eval') {
+  const allowedElements = [];
+
+  if (structuredFilterType.supportNullTesting) {
+    allowedElements.push('null', 'notNull');
+  }
+
+  if (structuredFilterType.supportEquals) {
+    allowedElements.push('eq', 'ne', 'ne2');
+  }
+
+  if (structuredFilterType.supportSqlCondition) {
+    allowedElements.push('sql');
+  }
+
+  if (structuredFilterType.supportNumberLikeComparison || structuredFilterType.supportDatetimeComparison) {
     allowedElements.push('le', 'ge', 'lt', 'gt');
   }
-  if (filterType == 'string') {
-    allowedElements.push('empty', 'notEmpty', 'hexTestEq');
+
+  if (structuredFilterType.supportEmpty) {
+    allowedElements.push('empty', 'notEmpty');
   }
-  if (filterType == 'eval' || filterType == 'string') {
+
+  if (structuredFilterType.allowHexString) {
+    allowedElements.push('hexTestEq');
+  }
+
+  if (structuredFilterType.supportStringInclusion) {
     allowedElements.push('startsWith', 'endsWith', 'contains', 'startsWithNot', 'endsWithNot', 'containsNot');
   }
-  if (filterType == 'logical') {
-    allowedElements.push('true', 'false', 'trueNum', 'falseNum');
-  }
-  if (filterType == 'eval') {
-    allowedElements.push('true', 'false');
+  if (structuredFilterType.supportBooleanValues) {
+    if (structuredFilterType.allowNumberToken || structuredFilterType.allowStringToken) {
+      allowedElements.push('true', 'false');
+    } else {
+      allowedElements.push('true', 'false', 'trueNum', 'falseNum');
+    }
   }
 
   // must be last
-  if (filterType == 'string' || filterType == 'eval') {
+  if (structuredFilterType.allowStringToken) {
     allowedElements.push('valueTestStr');
   } else {
     allowedElements.push('valueTestEq');
@@ -190,18 +209,25 @@ const createParser = (filterType: FilterType) => {
   return P.createLanguage(langDef);
 };
 
-const parsers = {
-  number: createParser('number'),
-  string: createParser('string'),
-  logical: createParser('logical'),
-  eval: createParser('eval'),
-  mongo: mongoParser,
-  datetime: datetimeParser,
-};
+const cachedFilters: { [key: string]: P.Language } = {};
 
-export function parseFilter(value: string, filterType: FilterType): Condition {
-  // console.log('PARSING', value, 'WITH', filterType);
-  const ast = parsers[filterType].list.tryParse(value);
+function getParser(structuredFilterType: StructuredFilterType) {
+  if (structuredFilterType.compilerType == 'mongoCondition') {
+    return mongoParser;
+  }
+  if (structuredFilterType.compilerType == 'datetime') {
+    return datetimeParser;
+  }
+  const key = JSON.stringify(structuredFilterType);
+  if (!cachedFilters[key]) {
+    cachedFilters[key] = createParser(structuredFilterType);
+  }
+  return cachedFilters[key];
+}
+
+export function parseFilter(value: string, structuredFilterType: StructuredFilterType): Condition {
+  const parser = getParser(structuredFilterType);
+  const ast = parser.list.tryParse(value);
   // console.log('AST', ast);
   return ast;
 }

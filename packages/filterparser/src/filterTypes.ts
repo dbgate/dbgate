@@ -6,6 +6,8 @@ export const NumberFilterType: StructuredFilterType = {
   supportNumberLikeComparison: true,
   supportNullTesting: true,
   supportSqlCondition: true,
+
+  allowNumberToken: true,
 };
 
 export const StringFilterType: StructuredFilterType = {
@@ -16,6 +18,9 @@ export const StringFilterType: StructuredFilterType = {
   supportNumberLikeComparison: true,
   supportNullTesting: true,
   supportSqlCondition: true,
+
+  allowStringToken: true,
+  allowHexString: true,
 };
 
 export const LogicalFilterType: StructuredFilterType = {
@@ -50,4 +55,6 @@ export const EvalFilterType: StructuredFilterType = {
   supportEmpty: true,
   supportNumberLikeComparison: true,
   supportNullTesting: true,
+
+  allowStringToken: true,
 };

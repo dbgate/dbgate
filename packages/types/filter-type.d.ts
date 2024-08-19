@@ -1,4 +1,4 @@
-export type FilterParserCompilerType = 'sqlTree' | 'mongoCondition';
+export type FilterParserCompilerType = 'sqlTree' | 'mongoCondition' | 'datetime';
 
 export interface StructuredFilterType {
   compilerType: FilterParserCompilerType;
@@ -15,5 +15,7 @@ export interface StructuredFilterType {
   supportSqlCondition?: boolean;
   supportArrayTesting?: boolean;
 
-  // allowedOperators: Array<{ value: string; label: string }>;
+  allowStringToken?: boolean;
+  allowNumberToken?: boolean;
+  allowHexString?: boolean;
 }
