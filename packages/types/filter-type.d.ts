@@ -1,8 +1,6 @@
 export type FilterParserCompilerType = 'sqlTree' | 'mongoCondition' | 'datetime';
 
 export interface FilterBehaviour {
-  compilerType: FilterParserCompilerType;
-
   supportEquals?: boolean;
   supportStringInclusion?: boolean;
   supportEmpty?: boolean;

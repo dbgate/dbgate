@@ -2,8 +2,6 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
-import { mongoParser } from './mongoParser';
-import { datetimeParser } from './datetimeParser';
 import { hexStringToArray } from 'dbgate-tools';
 import { FilterBehaviour, TransformType } from 'dbgate-types';
 
@@ -533,12 +531,6 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
 const cachedFilters: { [key: string]: P.Language } = {};
 
 function getParser(filterBehaviour: FilterBehaviour) {
-  if (filterBehaviour.compilerType == 'mongoCondition') {
-    return mongoParser;
-  }
-  if (filterBehaviour.compilerType == 'datetime') {
-    return datetimeParser;
-  }
   const key = JSON.stringify(filterBehaviour);
   if (!cachedFilters[key]) {
     cachedFilters[key] = createParser(filterBehaviour);
