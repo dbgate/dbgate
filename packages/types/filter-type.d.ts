@@ -13,6 +13,7 @@ export interface StructuredFilterType {
   supportExistsTesting?: boolean;
   supportBooleanValues?: boolean;
   supportSqlCondition?: boolean;
+  supportArrayTesting?: boolean;
 
   // allowedOperators: Array<{ value: string; label: string }>;
 }

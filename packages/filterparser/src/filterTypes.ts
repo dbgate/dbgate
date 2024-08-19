@@ -40,6 +40,7 @@ export const MongoFilterType: StructuredFilterType = {
   supportNumberLikeComparison: true,
   supportStringInclusion: true,
   supportBooleanValues: true,
+  supportExistsTesting: true,
 };
 
 export const EvalFilterType: StructuredFilterType = {
