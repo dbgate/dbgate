@@ -227,7 +227,9 @@ function getParser(filterBehaviour: FilterBehaviour) {
 
 export function parseFilter(value: string, filterBehaviour: FilterBehaviour): Condition {
   const parser = getParser(filterBehaviour);
+  console.log('value', value);
+  console.log('filterBehaviour', filterBehaviour);
   const ast = parser.list.tryParse(value);
-  // console.log('AST', ast);
+  console.log('AST', ast);
   return ast;
 }

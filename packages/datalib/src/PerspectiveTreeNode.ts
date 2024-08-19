@@ -9,7 +9,15 @@ import type {
   TableInfo,
   ViewInfo,
 } from 'dbgate-types';
-import { detectSqlFilterBehaviour, equalFullName, isCollectionInfo, isTableInfo, isViewInfo, stringFilterBehaviour } from 'dbgate-tools';
+import {
+  detectSqlFilterBehaviour,
+  equalFullName,
+  isCollectionInfo,
+  isTableInfo,
+  isViewInfo,
+  mongoFilterBehaviour,
+  stringFilterBehaviour,
+} from 'dbgate-tools';
 import {
   ChangePerspectiveConfigFunc,
   createPerspectiveNodeConfig,
@@ -346,7 +354,7 @@ export abstract class PerspectiveTreeNode {
     const base = this.getBaseTableFromThis() as TableInfo | ViewInfo;
     if (!base) return null;
     try {
-      const condition = parseFilter(this.nodeConfig?.multiColumnFilter, 'string');
+      const condition = parseFilter(this.nodeConfig?.multiColumnFilter, stringFilterBehaviour);
       if (condition) {
         const orCondition: CompoudCondition = {
           conditionType: 'or',
@@ -380,7 +388,7 @@ export abstract class PerspectiveTreeNode {
     const pattern = this.dataProvider?.dataPatterns?.[this.designerId];
     if (!pattern) return null;
 
-    const condition = parseFilter(this.nodeConfig?.multiColumnFilter, 'mongo');
+    const condition = parseFilter(this.nodeConfig?.multiColumnFilter, mongoFilterBehaviour);
     if (!condition) return null;
     const res = pattern.columns.map(col => {
       return _cloneDeepWith(condition, expr => {
@@ -951,7 +959,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
 
   get filterBehaviour(): FilterBehaviour {
     if (this.tableColumn) return detectSqlFilterBehaviour(this.tableColumn.dataType);
-    return 'mongo';
+    return mongoFilterBehaviour;
   }
 
   get preloadedLevelData() {
@@ -1093,7 +1101,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   parseFilterCondition(source = null): {} {
     const filter = this.getFilter();
     if (!filter) return null;
-    const condition = parseFilter(filter, 'mongo');
+    const condition = parseFilter(filter, mongoFilterBehaviour);
     if (!condition) return null;
     return _cloneDeepWith(condition, expr => {
       if (expr.__placeholder__) {

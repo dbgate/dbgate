@@ -73,7 +73,7 @@ export interface ServerSummary {
 }
 
 export interface FilterBehaviourProvider {
-  getFilterBehaviour(dataType: string, standardFilterBehaviours: { string: FilterBehaviour }): FilterBehaviour;
+  getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
 }
 
 export interface EngineDriver extends FilterBehaviourProvider {
