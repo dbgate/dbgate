@@ -21,3 +21,5 @@ export * from './preloadedRowsTools';
 export * from './ScriptWriter';
 export * from './getLogger';
 export * from './getConnectionLabel';
+export * from './detectSqlFilterBehaviour';
+export * from './filterBehaviours';

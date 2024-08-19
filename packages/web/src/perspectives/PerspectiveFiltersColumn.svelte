@@ -57,7 +57,7 @@
     </InlineButton>
   </div>
   <DataFilterControl
-    filterType={filterInfo.filterType}
+    filterBehaviour={filterInfo.filterBehaviour}
     {filter}
     setFilter={onSetFilter}
     {conid}

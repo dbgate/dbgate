@@ -10,12 +10,13 @@ import type {
   CollectionInfo,
   SqlDialect,
   ViewInfo,
+  FilterBehaviour,
 } from 'dbgate-types';
-import { parseFilter, getFilterType } from 'dbgate-filterparser';
+import { parseFilter } from 'dbgate-filterparser';
 import { filterName } from 'dbgate-tools';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect, Condition, CompoudCondition } from 'dbgate-sqltree';
-import { isTypeLogical } from 'dbgate-tools';
+import { isTypeLogical, standardFilterBehaviours, detectSqlFilterBehaviour, stringFilterBehaviour } from 'dbgate-tools';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -33,7 +34,7 @@ export interface DisplayColumn {
   isChecked?: boolean;
   hintColumnNames?: string[];
   dataType?: string;
-  filterType?: boolean;
+  filterBehaviour?: FilterBehaviour;
   isStructured?: boolean;
 }
 
@@ -92,7 +93,7 @@ export abstract class GridDisplay {
   isLoadedCorrectly = true;
   supportsReload = false;
   isDynamicStructure = false;
-  filterTypeOverride = null;
+  filterBehaviourOverride = null;
 
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
@@ -192,7 +193,11 @@ export abstract class GridDisplay {
       const column = displayedColumnInfo[uniqueName];
       if (!column) continue;
       try {
-        const condition = parseFilter(filter, getFilterType(column.dataType));
+        const condition = parseFilter(
+          filter,
+          this.driver?.getFilterBehaviour(column.dataType, standardFilterBehaviours) ??
+            detectSqlFilterBehaviour(column.dataType)
+        );
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, (expr: Expression) => {
@@ -220,7 +225,7 @@ export abstract class GridDisplay {
       };
       for (const column of this.baseTableOrView.columns) {
         try {
-          const condition = parseFilter(this.config.multiColumnFilter, getFilterType(column.dataType));
+          const condition = parseFilter(this.config.multiColumnFilter, detectSqlFilterBehaviour(column.dataType));
           if (condition) {
             orCondition.conditions.push(
               _.cloneDeepWith(condition, (expr: Expression) => {
@@ -748,10 +753,12 @@ export abstract class GridDisplay {
     for (const name in filters) {
       const column = this.isDynamicStructure ? null : this.columns.find(x => x.columnName == name);
       if (!this.isDynamicStructure && !column) continue;
-      const filterType =
-        this.filterTypeOverride ?? (this.isDynamicStructure ? 'mongo' : getFilterType(column.dataType));
+      const filterBehaviour =
+        this.filterBehaviourOverride ??
+        this.driver?.getFilterBehaviour(column.dataType, standardFilterBehaviours) ??
+        detectSqlFilterBehaviour(column.dataType);
       try {
-        const condition = parseFilter(filters[name], filterType);
+        const condition = parseFilter(filters[name], filterBehaviour);
         const replaced = _.cloneDeepWith(condition, (expr: Expression) => {
           if (expr.exprType == 'placeholder')
             return {
@@ -766,7 +773,7 @@ export abstract class GridDisplay {
     }
 
     if (this.config.multiColumnFilter) {
-      const placeholderCondition = parseFilter(this.config.multiColumnFilter, 'string');
+      const placeholderCondition = parseFilter(this.config.multiColumnFilter, stringFilterBehaviour);
       if (placeholderCondition) {
         conditions.push({
           conditionType: 'anyColumnPass',

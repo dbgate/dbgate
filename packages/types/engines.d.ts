@@ -3,6 +3,7 @@ import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
 import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, FunctionInfo, TriggerInfo } from './dbinfo';
+import { FilterBehaviour } from './filter-type';
 
 export interface StreamOptions {
   recordset: (columns) => void;
@@ -71,7 +72,11 @@ export interface ServerSummary {
   databases: ServerSummaryDatabase[];
 }
 
-export interface EngineDriver {
+export interface FilterBehaviourProvider {
+  getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
+}
+
+export interface EngineDriver extends FilterBehaviourProvider {
   engine: string;
   title: string;
   defaultPort?: number;

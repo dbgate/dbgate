@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getFilterType } from 'dbgate-filterparser';
+  import { detectSqlFilterBehaviour, standardFilterBehaviours, mongoFilterBehaviour } from 'dbgate-tools';
 
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
@@ -17,22 +17,20 @@
   export let schemaName;
   export let pureName;
 
-  export let useEvalFilters;
   export let isDynamicStructure;
   export let isFormView;
 
-  $: column = isFormView
-    ? display.formColumns?.find(x => x.uniqueName == uniqueName)
-    : display?.findColumn(uniqueName);
+  $: column = isFormView ? display.formColumns?.find(x => x.uniqueName == uniqueName) : display?.findColumn(uniqueName);
 
-  function computeFilterType(column, isDynamicStructure, useEvalFilters) {
-    if (useEvalFilters) return 'eval';
-    if (isDynamicStructure) return 'mongo';
-
-    if (column) {
-      return column.filterType || getFilterType(column.dataType);
+  function computeFilterBehavoir(column, display, isDynamicStructure) {
+    if (display?.filterBehaviourOverride) {
+      return display?.filterBehaviourOverride;
     }
-    return 'string';
+    const fromDriver = display?.driver?.getFilterBehaviour(column.dataType, standardFilterBehaviours);
+    if (fromDriver) return fromDriver;
+    if (isDynamicStructure) return mongoFilterBehaviour;
+
+    return detectSqlFilterBehaviour(column.dataType);
   }
 </script>
 
@@ -51,7 +49,7 @@
       </InlineButton>
     </div>
     <DataFilterControl
-      filterType={computeFilterType(column, isDynamicStructure, useEvalFilters)}
+      filterBehaviour={computeFilterBehavoir(column, display, isDynamicStructure)}
       filter={filters[uniqueName]}
       setFilter={value => display.setFilter(uniqueName, value)}
       {driver}

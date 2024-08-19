@@ -19,7 +19,7 @@
   import ValueLookupModal from '../modals/ValueLookupModal.svelte';
 
   export let isReadOnly = false;
-  export let filterType;
+  export let filterBehaviour;
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
@@ -50,7 +50,7 @@
   $: if (onGetReference && domInput) onGetReference(domInput);
 
   function openFilterWindow(condition1) {
-    showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
+    showModal(SetFilterModal, { condition1, filterBehaviour, onFilter: setFilter });
   }
 
   const filterMultipleValues = () => {
@@ -60,167 +60,121 @@
   };
 
   function createMenu() {
-    switch (filterType) {
-      case 'number':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-          { onClick: () => openFilterWindow('='), text: 'Equals...' },
-          { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
-          { onClick: () => setFilter('NULL'), text: 'Is Null' },
-          { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' },
-          { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
-          { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
-          { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
-          { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+    const res = [
+      { onClick: () => setFilter(''), text: 'Clear Filter' },
+      { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+    ];
 
-          { divider: true },
-
-          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
-          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
-        ];
-      case 'logical':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-          { onClick: () => setFilter('NULL'), text: 'Is Null' },
-          { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' },
-          { onClick: () => setFilter('TRUE'), text: 'Is True' },
-          { onClick: () => setFilter('FALSE'), text: 'Is False' },
-          { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
-          { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
-          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
-        ];
-      case 'datetime':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-          { onClick: () => setFilter('NULL'), text: 'Is Null' },
-          { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('<='), text: 'Before...' },
-          { onClick: () => openFilterWindow('>='), text: 'After...' },
-          { onClick: () => openFilterWindow('>=;<='), text: 'Between...' },
-
-          { divider: true },
-
-          { onClick: () => setFilter('TOMORROW'), text: 'Tomorrow' },
-          { onClick: () => setFilter('TODAY'), text: 'Today' },
-          { onClick: () => setFilter('YESTERDAY'), text: 'Yesterday' },
-
-          { divider: true },
-
-          { onClick: () => setFilter('NEXT WEEK'), text: 'Next Week' },
-          { onClick: () => setFilter('THIS WEEK'), text: 'This Week' },
-          { onClick: () => setFilter('LAST WEEK'), text: 'Last Week' },
-
-          { divider: true },
-
-          { onClick: () => setFilter('NEXT MONTH'), text: 'Next Month' },
-          { onClick: () => setFilter('THIS MONTH'), text: 'This Month' },
-          { onClick: () => setFilter('LAST MONTH'), text: 'Last Month' },
-
-          { divider: true },
-
-          { onClick: () => setFilter('NEXT YEAR'), text: 'Next Year' },
-          { onClick: () => setFilter('THIS YEAR'), text: 'This Year' },
-          { onClick: () => setFilter('LAST YEAR'), text: 'Last Year' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
-          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
-        ];
-      case 'string':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-
-          { onClick: () => openFilterWindow('='), text: 'Equals...' },
-          { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
-          { onClick: () => setFilter('NULL'), text: 'Is Null' },
-          { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' },
-          { onClick: () => setFilter('EMPTY, NULL'), text: 'Is Empty Or Null' },
-          { onClick: () => setFilter('NOT EMPTY NOT NULL'), text: 'Has Not Empty Value' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('+'), text: 'Contains...' },
-          { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
-          { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
-          { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
-          { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
-          { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
-          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
-        ];
-      case 'mongo':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-          { onClick: () => openFilterWindow('='), text: 'Equals...' },
-          { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
-          { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
-          { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' },
-          { onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' },
-          { onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' },
-          { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
-          { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
-          { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
-          { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
-          { divider: true },
-          { onClick: () => openFilterWindow('+'), text: 'Contains...' },
-          { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
-          { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
-          { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
-          { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
-          { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
-          { divider: true },
-          { onClick: () => setFilter('TRUE'), text: 'Is True' },
-          { onClick: () => setFilter('FALSE'), text: 'Is False' },
-        ];
-      case 'eval':
-        return [
-          { onClick: () => setFilter(''), text: 'Clear Filter' },
-          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
-
-          { onClick: () => openFilterWindow('='), text: 'Equals...' },
-          { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
-          { onClick: () => setFilter('NULL'), text: 'Is Null' },
-          { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
-          { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
-          { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
-          { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
-
-          { divider: true },
-
-          { onClick: () => openFilterWindow('+'), text: 'Contains...' },
-          { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
-          { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
-          { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
-          { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
-          { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
-        ];
+    if (filterBehaviour.supportEquals) {
+      res.push(
+        { onClick: () => openFilterWindow('='), text: 'Equals...' },
+        { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' }
+      );
     }
 
-    // return [
-    //   { text: 'Clear filter', onClick: () => (value = '') },
-    //   { text: 'Is Null', onClick: () => (value = 'NULL') },
-    //   { text: 'Is Not Null', onClick: () => (value = 'NOT NULL') },
-    // ];
+    if (filterBehaviour.supportExistsTesting) {
+      res.push(
+        { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
+        { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' }
+      );
+    }
+
+    if (filterBehaviour.supportArrayTesting) {
+      res.push(
+        { onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' },
+        { onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' }
+      );
+    }
+
+    if (filterBehaviour.supportNullTesting) {
+      res.push(
+        { onClick: () => setFilter('NULL'), text: 'Is Null' },
+        { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' }
+      );
+    }
+
+    if (filterBehaviour.supportNumberLikeComparison) {
+      res.push(
+        { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+        { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+        { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+        { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' }
+      );
+    }
+
+    if (filterBehaviour.supportStringInclusion) {
+      res.push(
+        { divider: true },
+
+        { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+        { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+        { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+        { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+        { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+        { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' }
+      );
+    }
+
+    if (filterBehaviour.supportBooleanValues) {
+      res.push(
+        { onClick: () => setFilter('TRUE'), text: 'Is True' },
+        { onClick: () => setFilter('FALSE'), text: 'Is False' }
+      );
+    }
+
+    if (filterBehaviour.supportBooleanValues && filterBehaviour.supportNullTesting) {
+      res.push(
+        { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
+        { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' }
+      );
+    }
+
+    if (filterBehaviour.supportDatetimeSymbols) {
+      res.push(
+        { divider: true },
+
+        { onClick: () => setFilter('TOMORROW'), text: 'Tomorrow' },
+        { onClick: () => setFilter('TODAY'), text: 'Today' },
+        { onClick: () => setFilter('YESTERDAY'), text: 'Yesterday' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT WEEK'), text: 'Next Week' },
+        { onClick: () => setFilter('THIS WEEK'), text: 'This Week' },
+        { onClick: () => setFilter('LAST WEEK'), text: 'Last Week' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT MONTH'), text: 'Next Month' },
+        { onClick: () => setFilter('THIS MONTH'), text: 'This Month' },
+        { onClick: () => setFilter('LAST MONTH'), text: 'Last Month' },
+
+        { divider: true },
+
+        { onClick: () => setFilter('NEXT YEAR'), text: 'Next Year' },
+        { onClick: () => setFilter('THIS YEAR'), text: 'This Year' },
+        { onClick: () => setFilter('LAST YEAR'), text: 'Last Year' }
+      );
+    }
+
+    if (filterBehaviour.supportDatetimeComparison) {
+      res.push(
+        { divider: true },
+        { onClick: () => openFilterWindow('<='), text: 'Before...' },
+        { onClick: () => openFilterWindow('>='), text: 'After...' },
+        { onClick: () => openFilterWindow('>=;<='), text: 'Between...' }
+      );
+    }
+
+    if (filterBehaviour.supportSqlCondition) {
+      res.push(
+        { divider: true },
+        { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+        { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' }
+      );
+    }
+
+    return res;
   }
 
   const handleKeyDown = ev => {
@@ -291,7 +245,7 @@
       isOk = false;
       isError = false;
       if (value) {
-        parseFilter(value, filterType);
+        parseFilter(value, filterBehaviour);
         isOk = true;
       }
     } catch (err) {

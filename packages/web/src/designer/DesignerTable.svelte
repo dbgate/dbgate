@@ -1,6 +1,6 @@
 <script lang="ts">
   import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
-  import { filterName } from 'dbgate-tools';
+  import { filterName, stringFilterBehaviour } from 'dbgate-tools';
 
   import { tick } from 'svelte';
   import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
@@ -303,7 +303,7 @@
   </div>
   {#if settings?.getMutliColumnFilter && settings?.setMutliColumnFilter}
     <DataFilterControl
-      filterType="string"
+      filterBehaviour={stringFilterBehaviour}
       filter={settings?.getMutliColumnFilter(designerId)}
       setFilter={value => settings?.setMutliColumnFilter(designerId, value)}
       placeholder="Data filter"

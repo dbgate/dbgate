@@ -7,6 +7,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import keycodes from '../utility/keycodes';
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
+  import { stringFilterBehaviour } from 'dbgate-tools';
   // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
   export let managerSize;
@@ -20,7 +21,6 @@
   export let pureName;
 
   export let isDynamicStructure;
-  export let useEvalFilters;
   export let isFormView;
 
   export let hasMultiColumnFilter;
@@ -77,7 +77,7 @@
     </div>
 
     <DataFilterControl
-      filterType="string"
+      filterBehaviour={stringFilterBehaviour}
       filter={multiColumnFilter}
       setFilter={value => display.setMutliColumnFilter(value)}
       {driver}
@@ -93,7 +93,6 @@
   {#each allFilterNames as uniqueName}
     <FormViewFilterColumn
       {isDynamicStructure}
-      {useEvalFilters}
       {isFormView}
       {uniqueName}
       {display}

@@ -3,6 +3,7 @@ import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
 import { EngineDriver, QueryResult, RunScriptOptions } from 'dbgate-types';
+import { detectSqlFilterBehaviour } from './detectSqlFilterBehaviour';
 
 const dialect = {
   limitSelect: true,
@@ -150,4 +151,7 @@ export const driverBase = {
   showConnectionField: (field, values) => false,
   showConnectionTab: field => true,
   getAccessTokenFromAuth: async (connection, req) => null,
+  getFilterBehaviour(dataType: string, standardFilterBehaviours) {
+    return detectSqlFilterBehaviour(dataType);
+  },
 };

@@ -87,7 +87,6 @@
     formViewComponent={JslFormView}
     setLoadedRows={handleSetLoadedRows}
     isDynamicStructure={!!infoUsed?.__isDynamicStructure}
-    useEvalFilters
     showMacros={!!dispatchChangeSet}
     expandMacros={!!dispatchChangeSet}
     onRunMacro={handleRunMacro}

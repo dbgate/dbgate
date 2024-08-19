@@ -93,6 +93,10 @@ const driver = {
     }
     return res;
   },
+
+  getFilterBehaviour(dataType, standardFilterBehaviours) {
+    return standardFilterBehaviours.mongoFilterBehaviour;
+  },
 };
 
 module.exports = driver;

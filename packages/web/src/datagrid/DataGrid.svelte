@@ -78,7 +78,6 @@
   export let display;
   export let changeSetState;
   export let dispatchChangeSet;
-  export let useEvalFilters = false;
 
   export let isDetailView = false;
   export let showReferences = false;
@@ -184,7 +183,6 @@
           {...$$props}
           {managerSize}
           {isDynamicStructure}
-          {useEvalFilters}
           {isFormView}
           {hasMultiColumnFilter}
           driver={display?.driver}

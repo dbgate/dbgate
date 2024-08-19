@@ -10,7 +10,7 @@ import {
   referenceIsConnecting,
   mergeSelectsFromDesigner,
   findQuerySource,
-  findDesignerFilterType,
+  findDesignerFilterBehaviour,
 } from './designerTools';
 import { parseFilter } from 'dbgate-filterparser';
 
@@ -83,7 +83,7 @@ export class DesignerQueryDumper {
       }
 
       try {
-        const condition = parseFilter(column[filterField], findDesignerFilterType(column, this.designer));
+        const condition = parseFilter(column[filterField], findDesignerFilterBehaviour(column, this.designer));
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, expr => {

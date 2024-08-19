@@ -26,7 +26,7 @@
     for (const uniqueName in filters || {}) {
       if (!filters[uniqueName]) continue;
       try {
-        const ast = parseFilter(filters[uniqueName], 'mongo');
+        const ast = parseFilter(filters[uniqueName], mongoFilterBehaviour);
         // console.log('AST', ast);
         const cond = _.cloneDeepWith(ast, expr => {
           if (expr.__placeholder__) {
@@ -123,6 +123,7 @@
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
+  import { mongoFilterBehaviour } from 'dbgate-tools';
 
   export let conid;
   export let display;

@@ -13,7 +13,7 @@
 
   export let condition1;
   export let onFilter;
-  export let filterType;
+  export let filterBehaviour;
 
   const hasOperand = condition => {
     return condition != 'NULL' && condition != 'NOT NULL' && condition != 'EXISTS' && condition != 'NOT EXISTS';
@@ -24,7 +24,9 @@
     if (!value) return null;
     if (condition == 'sql') return `{${value}}`;
     if (condition == 'sqlRight') return `{$$ ${value}}`;
-    if (filterType == 'string') return `${condition}"${value}"`;
+    if (filterBehaviour.allowStringToken) {
+      return `${condition}"${value}"`;
+    }
     return `${condition}${value}`;
   };
 
@@ -48,7 +50,7 @@
       <div class="row">Show rows where</div>
       <div class="row">
         <div class="col-6 mr-1">
-          <SetFilterModal_Select {filterType} name="condition1" />
+          <SetFilterModal_Select {filterBehaviour} name="condition1" />
         </div>
         <div class="col-6 mr-1">
           <FormValues let:values>
@@ -66,7 +68,7 @@
 
       <div class="row">
         <div class="col-6 mr-1">
-          <SetFilterModal_Select {filterType} name="condition2" />
+          <SetFilterModal_Select {filterBehaviour} name="condition2" />
         </div>
         <div class="col-6 mr-1">
           <FormValues let:values>
