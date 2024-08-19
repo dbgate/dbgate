@@ -2,13 +2,14 @@ import type {
   CollectionInfo,
   ColumnInfo,
   DatabaseInfo,
+  FilterBehaviour,
   ForeignKeyInfo,
   NamedObjectInfo,
   RangeDefinition,
   TableInfo,
   ViewInfo,
 } from 'dbgate-types';
-import { equalFullName, isCollectionInfo, isTableInfo, isViewInfo } from 'dbgate-tools';
+import { detectSqlFilterBehaviour, equalFullName, isCollectionInfo, isTableInfo, isViewInfo, stringFilterBehaviour } from 'dbgate-tools';
 import {
   ChangePerspectiveConfigFunc,
   createPerspectiveNodeConfig,
@@ -33,8 +34,7 @@ import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _findIndex from 'lodash/findIndex';
 import { PerspectiveDataLoadProps, PerspectiveDataProvider } from './PerspectiveDataProvider';
 import stableStringify from 'json-stable-stringify';
-import { getFilterType, parseFilter } from 'dbgate-filterparser';
-import { FilterType } from 'dbgate-filterparser/lib/types';
+import { parseFilter } from 'dbgate-filterparser';
 import { CompoudCondition, Condition, Expression, Select } from 'dbgate-sqltree';
 // import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 import uuidv1 from 'uuid/v1';
@@ -197,8 +197,8 @@ export abstract class PerspectiveTreeNode {
   get columnTitle() {
     return this.title;
   }
-  get filterType(): FilterType {
-    return 'string';
+  get filterBehaviour(): FilterBehaviour {
+    return stringFilterBehaviour;
   }
   get columnName() {
     return null;
@@ -714,8 +714,8 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return true;
   }
 
-  get filterType(): FilterType {
-    return getFilterType(this.column.dataType);
+  get filterBehaviour(): FilterBehaviour {
+    return detectSqlFilterBehaviour(this.column.dataType);
   }
 
   get isCircular() {
@@ -767,7 +767,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   get filterInfo(): PerspectiveFilterColumnInfo {
     return {
       columnName: this.columnName,
-      filterType: this.filterType,
+      filterBehaviour: this.filterBehaviour,
       pureName: this.column.pureName,
       schemaName: this.column.schemaName,
       foreignKey: this.foreignKey,
@@ -777,7 +777,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   parseFilterCondition(source = null): Condition {
     const filter = this.getFilter();
     if (!filter) return null;
-    const condition = parseFilter(filter, this.filterType);
+    const condition = parseFilter(filter, this.filterBehaviour);
     if (!condition) return null;
     return _cloneDeepWith(condition, (expr: Expression) => {
       if (expr.exprType == 'placeholder') {
@@ -949,8 +949,8 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return !this.isChildColumn;
   }
 
-  get filterType(): FilterType {
-    if (this.tableColumn) return getFilterType(this.tableColumn.dataType);
+  get filterBehaviour(): FilterBehaviour {
+    if (this.tableColumn) return detectSqlFilterBehaviour(this.tableColumn.dataType);
     return 'mongo';
   }
 
@@ -1083,7 +1083,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
 
     return {
       columnName: this.columnName,
-      filterType: this.filterType,
+      filterBehaviour: this.filterBehaviour,
       pureName: this.table.pureName,
       schemaName: this.table.schemaName,
       foreignKey: this.foreignKey,

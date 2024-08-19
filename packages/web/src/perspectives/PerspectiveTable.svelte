@@ -557,7 +557,7 @@
                 filter={column.dataNode.getFilter()}
                 setFilter={value => column.dataNode.setFilter(value)}
                 columnName={column.dataNode.uniqueName}
-                filterType={column.dataNode.filterType}
+                filterBehaviour={column.dataNode.filterBehaviour}
               />
             </th>
           {/each}

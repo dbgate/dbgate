@@ -1,4 +1,4 @@
-import type { DatabaseInfo, ForeignKeyInfo, NamedObjectInfo, TableInfo } from 'dbgate-types';
+import type { DatabaseInfo, FilterBehaviour, ForeignKeyInfo, NamedObjectInfo, TableInfo } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
 
 // export interface PerspectiveConfigColumns {
@@ -31,7 +31,7 @@ export interface PerspectiveCustomJoinConfig {
 
 export interface PerspectiveFilterColumnInfo {
   columnName: string;
-  filterType: string;
+  filterBehaviour: FilterBehaviour;
   pureName: string;
   schemaName: string;
   foreignKey: ForeignKeyInfo;
