@@ -19,7 +19,7 @@
     onClick: () => getCurrentEditor().exportGrid(),
   });
 
-  function buildGridMongoCondition(props) {
+  function buildConditionForGrid(props) {
     const filters = props?.display?.config?.filters;
     const filterBehaviour =
       props?.display?.driver?.getFilterBehaviour(null, standardFilterBehaviours) ?? mongoFilterBehaviour;
@@ -83,7 +83,7 @@
         pureName: props.pureName,
         limit,
         skip: offset,
-        condition: buildGridMongoCondition(props),
+        condition: buildConditionForGrid(props),
         sort: buildMongoSort(props),
       },
     });
@@ -108,7 +108,7 @@
       options: {
         pureName: props.pureName,
         countDocuments: true,
-        condition: buildGridMongoCondition(props),
+        condition: buildConditionForGrid(props),
       },
     });
 
@@ -173,14 +173,14 @@
 
   function getExportQuery() {
     return `db.collection('${pureName}')
-      .find(${JSON.stringify(buildGridMongoCondition($$props) || {})})
+      .find(${JSON.stringify(buildConditionForGrid($$props) || {})})
       .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
   }
 
   function getExportQueryJson() {
     return {
       collection: pureName,
-      condition: buildGridMongoCondition($$props) || {},
+      condition: buildConditionForGrid($$props) || {},
       sort: buildMongoSort($$props) || {},
     };
   }

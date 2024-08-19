@@ -158,6 +158,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
+  getCollectionExportQueryScript(collection: string, condition: any, sort: any): string;
+  getCollectionExportQueryJson(collection: string, condition: any, sort: any): string;
 
   analyserClass?: any;
   dumperClass?: any;
