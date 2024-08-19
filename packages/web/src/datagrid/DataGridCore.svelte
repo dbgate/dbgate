@@ -349,7 +349,7 @@
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
-  import {  getFilterValueExpression } from 'dbgate-filterparser';
+  import { getFilterValueExpression } from 'dbgate-filterparser';
   import stableStringify from 'json-stable-stringify';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import { tick } from 'svelte';
