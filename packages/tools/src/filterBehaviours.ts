@@ -31,7 +31,7 @@ export const logicalFilterBehaviour: FilterBehaviour = {
 };
 
 export const datetimeFilterBehaviour: FilterBehaviour = {
-  compilerType: 'datetime',
+  compilerType: 'sqlTree',
   supportNullTesting: true,
   supportSqlCondition: true,
   supportDatetimeSymbols: true,
