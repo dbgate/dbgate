@@ -3,7 +3,7 @@ import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
 import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, FunctionInfo, TriggerInfo } from './dbinfo';
-import { StructuredFilterType } from './filter-type';
+import { FilterBehaviour } from './filter-type';
 
 export interface StreamOptions {
   recordset: (columns) => void;
@@ -154,7 +154,7 @@ export interface EngineDriver {
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
-  getFilterType(dataType: string): StructuredFilterType;
+  getFilterType(dataType: string): FilterBehaviour;
 
   analyserClass?: any;
   dumperClass?: any;

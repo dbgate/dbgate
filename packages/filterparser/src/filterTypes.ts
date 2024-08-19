@@ -1,6 +1,6 @@
-import { StructuredFilterType } from 'dbgate-types';
+import { FilterBehaviour } from 'dbgate-types';
 
-export const NumberFilterType: StructuredFilterType = {
+export const NumberFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportNumberLikeComparison: true,
@@ -10,7 +10,7 @@ export const NumberFilterType: StructuredFilterType = {
   allowNumberToken: true,
 };
 
-export const StringFilterType: StructuredFilterType = {
+export const StringFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,
@@ -23,14 +23,14 @@ export const StringFilterType: StructuredFilterType = {
   allowHexString: true,
 };
 
-export const LogicalFilterType: StructuredFilterType = {
+export const LogicalFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportBooleanValues: true,
   supportNullTesting: true,
   supportSqlCondition: true,
 };
 
-export const DatetimeFilterType: StructuredFilterType = {
+export const DatetimeFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportNullTesting: true,
   supportSqlCondition: true,
@@ -38,7 +38,7 @@ export const DatetimeFilterType: StructuredFilterType = {
   supportDatetimeComparison: true,
 };
 
-export const MongoFilterType: StructuredFilterType = {
+export const MongoFilterBehaviour: FilterBehaviour = {
   compilerType: 'mongoCondition',
   supportEquals: true,
   supportArrayTesting: true,
@@ -48,7 +48,7 @@ export const MongoFilterType: StructuredFilterType = {
   supportExistsTesting: true,
 };
 
-export const EvalFilterType: StructuredFilterType = {
+export const EvalFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,

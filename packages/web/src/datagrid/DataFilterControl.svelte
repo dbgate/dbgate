@@ -20,7 +20,7 @@
 
   export let isReadOnly = false;
   export let filterType;
-  export let structuredFilterType;
+  export let filterBehaviour;
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
@@ -66,35 +66,35 @@
       { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
     ];
 
-    if (structuredFilterType.supportEquals) {
+    if (filterBehaviour.supportEquals) {
       res.push(
         { onClick: () => openFilterWindow('='), text: 'Equals...' },
         { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' }
       );
     }
 
-    if (structuredFilterType.supportExistsTesting) {
+    if (filterBehaviour.supportExistsTesting) {
       res.push(
         { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
         { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' }
       );
     }
 
-    if (structuredFilterType.supportArrayTesting) {
+    if (filterBehaviour.supportArrayTesting) {
       res.push(
         { onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' },
         { onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' }
       );
     }
 
-    if (structuredFilterType.supportNullTesting) {
+    if (filterBehaviour.supportNullTesting) {
       res.push(
         { onClick: () => setFilter('NULL'), text: 'Is Null' },
         { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' }
       );
     }
 
-    if (structuredFilterType.supportNumberLikeComparison) {
+    if (filterBehaviour.supportNumberLikeComparison) {
       res.push(
         { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
         { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
@@ -103,7 +103,7 @@
       );
     }
 
-    if (structuredFilterType.supportStringInclusion) {
+    if (filterBehaviour.supportStringInclusion) {
       res.push(
         { divider: true },
 
@@ -116,21 +116,21 @@
       );
     }
 
-    if (structuredFilterType.supportBooleanValues) {
+    if (filterBehaviour.supportBooleanValues) {
       res.push(
         { onClick: () => setFilter('TRUE'), text: 'Is True' },
         { onClick: () => setFilter('FALSE'), text: 'Is False' }
       );
     }
 
-    if (structuredFilterType.supportBooleanValues && structuredFilterType.supportNullTesting) {
+    if (filterBehaviour.supportBooleanValues && filterBehaviour.supportNullTesting) {
       res.push(
         { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
         { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' }
       );
     }
 
-    if (structuredFilterType.supportDatetimeSymbols) {
+    if (filterBehaviour.supportDatetimeSymbols) {
       res.push(
         { divider: true },
 
@@ -158,7 +158,7 @@
       );
     }
 
-    if (structuredFilterType.supportDatetimeComparison) {
+    if (filterBehaviour.supportDatetimeComparison) {
       res.push(
         { divider: true },
         { onClick: () => openFilterWindow('<='), text: 'Before...' },
@@ -167,7 +167,7 @@
       );
     }
 
-    if (structuredFilterType.supportSqlCondition) {
+    if (filterBehaviour.supportSqlCondition) {
       res.push(
         { divider: true },
         { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },

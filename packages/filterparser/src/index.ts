@@ -1,3 +1,3 @@
 export * from './parseFilter';
-export * from './detectSqlFilterType';
+export * from './detectSqlFilterBehaviour';
 export * from './filterTool';

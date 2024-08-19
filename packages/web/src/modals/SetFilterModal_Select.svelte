@@ -3,15 +3,15 @@
 
   export let name;
   export let filterType;
-  export let structuredFilterType;
+  export let filterBehaviour;
 
   function getOptions() {
     const res = [];
-    if (structuredFilterType.supportEquals) {
+    if (filterBehaviour.supportEquals) {
       res.push({ value: '=', label: 'equals' }, { value: '<>', label: 'does not equal' });
     }
 
-    if (structuredFilterType.supportStringInclusion) {
+    if (filterBehaviour.supportStringInclusion) {
       res.push(
         { value: '+', label: 'contains' },
         { value: '~', label: 'does not contain' },
@@ -22,7 +22,7 @@
       );
     }
 
-    if (structuredFilterType.supportNumberLikeComparison) {
+    if (filterBehaviour.supportNumberLikeComparison) {
       res.push(
         { value: '<', label: 'is smaller' },
         { value: '>', label: 'is greater' },
@@ -31,7 +31,7 @@
       );
     }
 
-    if (structuredFilterType.supportDatetimeComparison) {
+    if (filterBehaviour.supportDatetimeComparison) {
       res.push(
         { value: '<', label: 'is before' },
         { value: '>', label: 'is after' },
@@ -40,15 +40,15 @@
       );
     }
 
-    if (structuredFilterType.supportNullTesting) {
+    if (filterBehaviour.supportNullTesting) {
       res.push({ value: 'NULL', label: 'is NULL' }, { value: 'NOT NULL', label: 'is not NULL' });
     }
 
-    if (structuredFilterType.supportExistsTesting) {
+    if (filterBehaviour.supportExistsTesting) {
       res.push({ value: 'EXISTS', label: 'field exists' }, { value: 'NOT EXISTS', label: 'field does not exist' });
     }
 
-    if (structuredFilterType.supportSqlCondition) {
+    if (filterBehaviour.supportSqlCondition) {
       res.push(
         { value: 'sql', label: 'SQL condition' },
         { value: 'sqlRight', label: 'SQL condition - right side only' }
