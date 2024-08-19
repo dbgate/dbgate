@@ -39,13 +39,15 @@ export const datetimeFilterBehaviour: FilterBehaviour = {
 };
 
 export const mongoFilterBehaviour: FilterBehaviour = {
-  compilerType: 'mongoCondition',
+  compilerType: 'sqlTree',
   supportEquals: true,
   supportArrayTesting: true,
   supportNumberLikeComparison: true,
   supportStringInclusion: true,
   supportBooleanValues: true,
   supportExistsTesting: true,
+
+  allowStringToken: true,
 };
 
 export const evalFilterBehaviour: FilterBehaviour = {

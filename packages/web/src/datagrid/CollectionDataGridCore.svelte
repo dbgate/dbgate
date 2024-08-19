@@ -33,11 +33,18 @@
         const ast = parseFilter(filters[uniqueName], filterBehaviour);
         // console.log('AST', ast);
         const cond = _.cloneDeepWith(ast, expr => {
-          if (expr.__placeholder__) {
+          if (expr.exprType == 'placeholder') {
             return {
-              [uniqueName]: expr.__placeholder__,
+              exprType: 'column',
+              columnName: uniqueName,
             };
           }
+
+          // if (expr.__placeholder__) {
+          //   return {
+          //     [uniqueName]: expr.__placeholder__,
+          //   };
+          // }
         });
         conditions.push(cond);
       } catch (err) {
@@ -47,7 +54,8 @@
 
     return conditions.length > 0
       ? {
-          $and: conditions,
+          conditionType: 'and',
+          conditions,
         }
       : undefined;
   }
