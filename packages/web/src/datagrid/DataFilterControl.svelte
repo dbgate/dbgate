@@ -19,7 +19,6 @@
   import ValueLookupModal from '../modals/ValueLookupModal.svelte';
 
   export let isReadOnly = false;
-  export let filterType;
   export let filterBehaviour;
   export let filter;
   export let setFilter;
@@ -51,7 +50,7 @@
   $: if (onGetReference && domInput) onGetReference(domInput);
 
   function openFilterWindow(condition1) {
-    showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
+    showModal(SetFilterModal, { condition1, filterBehaviour, onFilter: setFilter });
   }
 
   const filterMultipleValues = () => {
@@ -246,7 +245,7 @@
       isOk = false;
       isError = false;
       if (value) {
-        parseFilter(value, filterType);
+        parseFilter(value, filterBehaviour);
         isOk = true;
       }
     } catch (err) {

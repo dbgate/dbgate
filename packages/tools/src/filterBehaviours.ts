@@ -1,6 +1,6 @@
 import { FilterBehaviour } from 'dbgate-types';
 
-export const NumberFilterBehaviour: FilterBehaviour = {
+export const numberFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportNumberLikeComparison: true,
@@ -10,7 +10,7 @@ export const NumberFilterBehaviour: FilterBehaviour = {
   allowNumberToken: true,
 };
 
-export const StringFilterBehaviour: FilterBehaviour = {
+export const stringFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,
@@ -23,14 +23,14 @@ export const StringFilterBehaviour: FilterBehaviour = {
   allowHexString: true,
 };
 
-export const LogicalFilterBehaviour: FilterBehaviour = {
+export const logicalFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportBooleanValues: true,
   supportNullTesting: true,
   supportSqlCondition: true,
 };
 
-export const DatetimeFilterBehaviour: FilterBehaviour = {
+export const datetimeFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportNullTesting: true,
   supportSqlCondition: true,
@@ -38,7 +38,7 @@ export const DatetimeFilterBehaviour: FilterBehaviour = {
   supportDatetimeComparison: true,
 };
 
-export const MongoFilterBehaviour: FilterBehaviour = {
+export const mongoFilterBehaviour: FilterBehaviour = {
   compilerType: 'mongoCondition',
   supportEquals: true,
   supportArrayTesting: true,
@@ -48,7 +48,7 @@ export const MongoFilterBehaviour: FilterBehaviour = {
   supportExistsTesting: true,
 };
 
-export const EvalFilterBehaviour: FilterBehaviour = {
+export const evalFilterBehaviour: FilterBehaviour = {
   compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,
@@ -57,4 +57,13 @@ export const EvalFilterBehaviour: FilterBehaviour = {
   supportNullTesting: true,
 
   allowStringToken: true,
+};
+
+export const standardFilterBehaviours = {
+  numberFilterBehaviour,
+  stringFilterBehaviour,
+  logicalFilterBehaviour,
+  datetimeFilterBehaviour,
+  mongoFilterBehaviour,
+  evalFilterBehaviour,
 };

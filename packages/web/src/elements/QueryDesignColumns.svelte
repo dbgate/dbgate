@@ -8,7 +8,7 @@
 
 <script>
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
-  import { findDesignerFilterType } from '../designer/designerTools';
+  import { findDesignerFilterBehaviour } from '../designer/designerTools';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import TextField from '../forms/TextField.svelte';
@@ -238,7 +238,7 @@
     </svelte:fragment>
     <svelte:fragment slot="5" let:row let:filterField>
       <DataFilterControl
-        filterType={findDesignerFilterType(row, value)}
+        filterBehaviour={findDesignerFilterBehaviour(row, value)}
         filter={row[filterField]}
         setFilter={filter => {
           changeColumn({ ...row, [filterField]: filter });

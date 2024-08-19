@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc, DisplayColumn } from './GridDisplay';
 import type { EngineDriver, ViewInfo, ColumnInfo, CollectionInfo } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
+import { mongoFilterBehaviour, standardFilterBehaviours } from 'dbgate-tools';
 
 function getObjectKeys(obj) {
   if (_.isArray(obj)) {
@@ -52,7 +53,7 @@ function getColumnsForObject(basePath, obj, res: any[], display) {
   }
 }
 
-function getDisplayColumn(basePath, columnName, display) {
+function getDisplayColumn(basePath, columnName, display: CollectionGridDisplay) {
   const uniquePath = [...basePath, columnName];
   const uniqueName = uniquePath.join('.');
   return {
@@ -62,7 +63,7 @@ function getDisplayColumn(basePath, columnName, display) {
     uniquePath,
     isStructured: true,
     parentHeaderText: createHeaderText(basePath),
-    filterType: 'mongo',
+    filterBehaviour: display?.driver?.getFilterBehaviour(null, standardFilterBehaviours) ?? mongoFilterBehaviour,
     pureName: display.collection?.pureName,
     schemaName: display.collection?.schemaName,
   };
@@ -95,7 +96,7 @@ export class CollectionGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc,
     loadedRows,
-    changeSet, 
+    changeSet,
     readOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver);

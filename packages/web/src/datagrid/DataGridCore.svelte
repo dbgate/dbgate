@@ -343,13 +343,13 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { driverBase, parseCellValue } from 'dbgate-tools';
+  import { driverBase, parseCellValue, detectSqlFilterBehaviour } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
-  import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
+  import {  getFilterValueExpression } from 'dbgate-filterparser';
   import stableStringify from 'json-stable-stringify';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import { tick } from 'svelte';
@@ -435,7 +435,6 @@
   export let tabControlHiddenTab = false;
   export let onCustomGridRefresh = null;
   export let onOpenQuery = null;
-  export let useEvalFilters = false;
   export let jslid;
   // export let generalAllowSave = false;
 
@@ -1901,7 +1900,9 @@
                   {jslid}
                   {formatterFunction}
                   driver={display?.driver}
-                  filterType={useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)}
+                  filterBehaviour={display?.filterBehaviourOverride ??
+                    col.filterBehaviour ??
+                    detectSqlFilterBehaviour(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
                   showResizeSplitter

@@ -2,7 +2,6 @@
   import FormSelectFieldRaw from '../forms/FormSelectFieldRaw.svelte';
 
   export let name;
-  export let filterType;
   export let filterBehaviour;
 
   function getOptions() {

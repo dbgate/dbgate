@@ -20,7 +20,6 @@
   export let pureName;
 
   export let isDynamicStructure;
-  export let useEvalFilters;
   export let isFormView;
 
   export let hasMultiColumnFilter;
@@ -93,7 +92,6 @@
   {#each allFilterNames as uniqueName}
     <FormViewFilterColumn
       {isDynamicStructure}
-      {useEvalFilters}
       {isFormView}
       {uniqueName}
       {display}

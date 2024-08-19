@@ -5,7 +5,7 @@ import type { EngineDriver } from 'dbgate-types';
 import type { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { DesignerComponentCreator } from './DesignerComponentCreator';
 import { DesignerQueryDumper } from './DesignerQueryDumper';
-import { getFilterType } from 'dbgate-filterparser';
+import { detectSqlFilterBehaviour } from 'dbgate-tools';
 
 export function referenceIsConnecting(
   reference: DesignerReferenceInfo,
@@ -133,13 +133,13 @@ export function isConnectedByReference(
   return array1 == array2;
 }
 
-export function findDesignerFilterType({ designerId, columnName }, designer) {
+export function findDesignerFilterBehaviour({ designerId, columnName }, designer) {
   const table = (designer.tables || []).find(x => x.designerId == designerId);
   if (table) {
     const column = (table.columns || []).find(x => x.columnName == columnName);
     if (column) {
       const { dataType } = column;
-      return getFilterType(dataType);
+      return detectSqlFilterBehaviour(dataType);
     }
   }
   return 'string';

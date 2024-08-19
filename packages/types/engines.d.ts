@@ -72,7 +72,11 @@ export interface ServerSummary {
   databases: ServerSummaryDatabase[];
 }
 
-export interface EngineDriver {
+export interface FilterBehaviourProvider {
+  getFilterBehaviour(dataType: string, standardFilterBehaviours: { string: FilterBehaviour }): FilterBehaviour;
+}
+
+export interface EngineDriver extends FilterBehaviourProvider {
   engine: string;
   title: string;
   defaultPort?: number;
@@ -154,7 +158,6 @@ export interface EngineDriver {
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
-  getFilterType(dataType: string): FilterBehaviour;
 
   analyserClass?: any;
   dumperClass?: any;

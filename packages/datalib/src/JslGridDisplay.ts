@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { GridConfig, GridCache } from './GridConfig';
 import { analyseCollectionDisplayColumns } from './CollectionGridDisplay';
+import { evalFilterBehaviour } from 'dbgate-tools';
 
 export class JslGridDisplay extends GridDisplay {
   constructor(
@@ -22,7 +23,7 @@ export class JslGridDisplay extends GridDisplay {
     this.sortable = true;
     this.supportsReload = supportsReload;
     this.isDynamicStructure = isDynamicStructure;
-    this.filterTypeOverride = 'eval';
+    this.filterBehaviourOverride = evalFilterBehaviour;
     this.editable = editable;
     this.editableStructure = editable ? structure : null;
 
