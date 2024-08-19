@@ -18,4 +18,6 @@ export interface FilterBehaviour {
   allowStringToken?: boolean;
   allowNumberToken?: boolean;
   allowHexString?: boolean;
+  allowNumberDualTesting?: boolean;
+  allowObjectIdTesting?: boolean;
 }

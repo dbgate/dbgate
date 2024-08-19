@@ -270,10 +270,11 @@ const driver = {
     return res.databases;
   },
   async readCollection(pool, options) {
-    const mongoCondition = convertToMongoCondition(options.condition);
-    console.log('******************* mongoCondition *****************')
-    console.log(JSON.stringify(mongoCondition, undefined, 2));
     try {
+      const mongoCondition = convertToMongoCondition(options.condition);
+      // console.log('******************* mongoCondition *****************');
+      // console.log(JSON.stringify(mongoCondition, undefined, 2));
+
       const collection = pool.__getDatabase().collection(options.pureName);
       if (options.countDocuments) {
         const count = await collection.countDocuments(convertObjectId(mongoCondition) || {});

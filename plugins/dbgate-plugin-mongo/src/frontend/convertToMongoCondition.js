@@ -89,6 +89,38 @@ function convertToMongoCondition(filter) {
           $options: 'i',
         },
       };
+
+    case 'specificPredicate':
+      switch (filter.predicate) {
+        case 'exists':
+          return {
+            [convertLeftOperandToMongoColumn(filter.expr)]: {
+              $exists: true,
+            },
+          };
+        case 'notExists':
+          return {
+            [convertLeftOperandToMongoColumn(filter.expr)]: {
+              $exists: false,
+            },
+          };
+        case 'emptyArray':
+          return {
+            [convertLeftOperandToMongoColumn(filter.expr)]: {
+              $exists: true,
+              $eq: [],
+            },
+          };
+        case 'notEmptyArray':
+          return {
+            [convertLeftOperandToMongoColumn(filter.expr)]: {
+              $exists: true,
+              $type: 'array',
+              $ne: [],
+            },
+          };
+      }
+
     default:
       throw new Error(`Unknown condition type ${filter.conditionType}`);
   }

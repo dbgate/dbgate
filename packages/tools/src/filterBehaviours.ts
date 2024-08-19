@@ -48,6 +48,8 @@ export const mongoFilterBehaviour: FilterBehaviour = {
   supportExistsTesting: true,
 
   allowStringToken: true,
+  allowNumberDualTesting: true,
+  allowObjectIdTesting: true,
 };
 
 export const evalFilterBehaviour: FilterBehaviour = {

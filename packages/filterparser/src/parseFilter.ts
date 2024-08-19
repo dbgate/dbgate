@@ -67,6 +67,57 @@ const negateCondition = condition => {
   };
 };
 
+const numberTestCondition = () => value => {
+  return {
+    conditionType: 'or',
+    conditions: [
+      {
+        conditionType: 'like',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value: `.*${value}.*`,
+        },
+      },
+      {
+        conditionType: 'binary',
+        operator: '=',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value,
+        },
+      },
+    ],
+  };
+};
+
+const idRegex = /[('"]([0-9a-f]{24})['")]/;
+
+const objectIdTestCondition = () => value => ({
+  conditionType: 'binary',
+  operator: '=',
+  left: {
+    exprType: 'placeholder',
+  },
+  right: {
+    exprType: 'value',
+    value: { $oid: value.match(idRegex)[1] },
+  },
+});
+
+const specificPredicateCondition = predicate => () => ({
+  conditionType: 'specificPredicate',
+  predicate,
+  expr: {
+    exprType: 'placeholder',
+  },
+});
+
 const sqlTemplate = templateSql => {
   return {
     conditionType: 'rawTemplate',
@@ -104,6 +155,8 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
         .map(Number)
         .desc('number'),
 
+    objectid: () => token(P.regexp(/ObjectId\(['"]?[0-9a-f]{24}['"]?\)/)).desc('ObjectId'),
+
     hexstring: () =>
       token(P.regexp(/0x(([0-9a-fA-F][0-9a-fA-F])+)/, 1))
         .map(x => ({
@@ -123,13 +176,22 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     valueTestEq: r => r.value.map(binaryCondition('=')),
     hexTestEq: r => r.hexstring.map(binaryCondition('=')),
     valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
+    valueTestNum: r => r.number.map(numberTestCondition()),
+    valueTestObjectId: r => r.objectid.map(objectIdTestCondition()),
+
+    notExists: r => r.not.then(r.exists).map(specificPredicateCondition('notExists')),
+    notEmptyArray: r => r.not.then(r.empty).then(r.array).map(specificPredicateCondition('notEmptyArray')),
+    emptyArray: r => r.empty.then(r.array).map(specificPredicateCondition('emptyArray')),
+    exists: () => word('EXISTS').map(specificPredicateCondition('exists')),
 
     comma: () => word(','),
     not: () => word('NOT'),
+    empty: () => word('EMPTY'),
+    array: () => word('ARRAY'),
     notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
     null: () => word('NULL').map(unaryCondition('isNull')),
-    empty: () => word('EMPTY').map(unaryCondition('isEmpty')),
-    notEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
+    isEmpty: r => r.empty.map(unaryCondition('isEmpty')),
+    isNotEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
     true: () => P.regexp(/true/i).map(binaryFixedValueCondition('1')),
     false: () => P.regexp(/false/i).map(binaryFixedValueCondition('0')),
     trueNum: () => word('1').map(binaryFixedValueCondition('1')),
@@ -155,6 +217,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   };
 
   const allowedValues = []; // 'string1', 'string2', 'number', 'noQuotedString'];
+
   if (filterBehaviour.allowStringToken) {
     allowedValues.push('string1', 'string2', 'noQuotedString');
   }
@@ -163,6 +226,14 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   }
 
   const allowedElements = [];
+
+  if (filterBehaviour.supportExistsTesting) {
+    allowedElements.push('exists', 'notExists');
+  }
+
+  if (filterBehaviour.supportArrayTesting) {
+    allowedElements.push('emptyArray', 'notEmptyArray');
+  }
 
   if (filterBehaviour.supportNullTesting) {
     allowedElements.push('null', 'notNull');
@@ -181,7 +252,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   }
 
   if (filterBehaviour.supportEmpty) {
-    allowedElements.push('empty', 'notEmpty');
+    allowedElements.push('isEmpty', 'isNotEmpty');
   }
 
   if (filterBehaviour.allowHexString) {
@@ -197,6 +268,14 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     } else {
       allowedElements.push('true', 'false', 'trueNum', 'falseNum');
     }
+  }
+
+  if (filterBehaviour.allowNumberDualTesting) {
+    allowedElements.push('valueTestNum');
+  }
+
+  if (filterBehaviour.allowObjectIdTesting) {
+    allowedElements.push('valueTestObjectId');
   }
 
   // must be last

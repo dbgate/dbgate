@@ -79,6 +79,11 @@ export interface TestCondition extends UnaryCondition {
   conditionType: 'isNull' | 'isNotNull' | 'isEmpty' | 'isNotEmpty';
 }
 
+export interface SpecificPredicateCondition extends UnaryCondition {
+  conditionType: 'specificPredicate';
+  predicate: string;
+}
+
 export interface CompoudCondition {
   conditionType: 'and' | 'or';
   conditions: Condition[];
@@ -135,7 +140,8 @@ export type Condition =
   | InCondition
   | NotInCondition
   | RawTemplateCondition
-  | AnyColumnPassEvalOnlyCondition;
+  | AnyColumnPassEvalOnlyCondition
+  | SpecificPredicateCondition;
 
 export interface Source {
   name?: NamedObjectInfo;
