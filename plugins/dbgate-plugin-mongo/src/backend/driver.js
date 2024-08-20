@@ -7,7 +7,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
-const { convertToMongoCondition } = require('../frontend/convertToMongoCondition');
+const { convertToMongoCondition, convertToMongoAggregate } = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
   return _.cloneDeepWith(row, (x) => {
@@ -280,7 +280,7 @@ const driver = {
         const count = await collection.countDocuments(convertObjectId(mongoCondition) || {});
         return { count };
       } else if (options.aggregate) {
-        let cursor = await collection.aggregate(convertObjectId(options.aggregate));
+        let cursor = await collection.aggregate(convertObjectId(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
         return { rows: rows.map(transformMongoData) };
       } else {

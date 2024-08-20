@@ -105,7 +105,6 @@ export class PerspectiveCache {
         'databaseConfig',
         'orderBy',
         'sqlCondition',
-        'mongoCondition',
       ])
     );
     let res = this.tables[tableKey];

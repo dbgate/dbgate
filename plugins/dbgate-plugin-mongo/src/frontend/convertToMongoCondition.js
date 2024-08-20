@@ -1,3 +1,5 @@
+const _zipObject = require('lodash/zipObject');
+
 function convertLeftOperandToMongoColumn(left) {
   if (left.exprType == 'placeholder') return '__placeholder__';
   if (left.exprType == 'column') return left.columnName;
@@ -121,11 +123,55 @@ function convertToMongoCondition(filter) {
           };
       }
 
+    case 'in':
+      return {
+        [convertLeftOperandToMongoColumn(filter.expr)]: {
+          $in: filter.values,
+        },
+      };
+
     default:
       throw new Error(`Unknown condition type ${filter.conditionType}`);
   }
 }
 
+function convertToMongoAggregateFunction(aggregate) {
+  switch (aggregate.aggregateFunction) {
+    case 'count':
+      return { $sum: 1 };
+    case 'sum':
+      return { $sum: `$${aggregate.columnArgument}` };
+    case 'avg':
+      return { $avg: `$${aggregate.columnArgument}` };
+    case 'min':
+      return { $min: `$${aggregate.columnArgument}` };
+    case 'max':
+      return { $max: `$${aggregate.columnArgument}` };
+    default:
+      throw new Error(`Unknown aggregate function ${aggregate.aggregateFunction}`);
+  }
+}
+
+function convertToMongoAggregate(collectionAggregate) {
+  return [
+    { $match: convertToMongoCondition(collectionAggregate.condition) },
+    {
+      $group: {
+        _id: _zipObject(
+          collectionAggregate.groupByColumns,
+          collectionAggregate.groupByColumns.map((col) => '$' + col)
+        ),
+        ..._zipObject(
+          collectionAggregate.aggregateColumns.map((col) => col.alias),
+          collectionAggregate.aggregateColumns.map((col) => convertToMongoAggregateFunction(col))
+        ),
+        count: { $sum: 1 },
+      },
+    },
+  ];
+}
+
 module.exports = {
   convertToMongoCondition,
+  convertToMongoAggregate,
 };

@@ -5,6 +5,7 @@ import _zipObject from 'lodash/zipObject';
 import _mapValues from 'lodash/mapValues';
 import _isArray from 'lodash/isArray';
 import { safeJsonParse } from 'dbgate-tools';
+import { CollectionAggregateDefinition } from 'dbgate-types';
 
 function normalizeLoadedRow(row) {
   return _mapValues(row, v => safeJsonParse(v) || v);
@@ -57,24 +58,6 @@ export class PerspectiveDataLoader {
           conditions,
         }
       : null;
-  }
-
-  buildMongoCondition(props: PerspectiveDataLoadProps): {} {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, mongoCondition } = props;
-
-    const conditions = [];
-
-    if (mongoCondition) {
-      conditions.push(mongoCondition);
-    }
-
-    if (bindingColumns?.length == 1) {
-      conditions.push({
-        [bindingColumns[0]]: { $in: bindingValues.map(x => x[0]) },
-      });
-    }
-
-    return conditions.length == 1 ? conditions[0] : conditions.length > 0 ? { $and: conditions } : null;
   }
 
   async loadGroupingSqlDb(props: PerspectiveDataLoadProps) {
@@ -135,18 +118,28 @@ export class PerspectiveDataLoader {
   async loadGroupingDocDb(props: PerspectiveDataLoadProps) {
     const { schemaName, pureName, bindingColumns } = props;
 
-    const aggregate = [
-      { $match: this.buildMongoCondition(props) },
-      {
-        $group: {
-          _id: _zipObject(
-            bindingColumns,
-            bindingColumns.map(col => '$' + col)
-          ),
-          count: { $sum: 1 },
+    const aggregate: CollectionAggregateDefinition = {
+      condition: this.buildSqlCondition(props),
+      groupByColumns: bindingColumns,
+      aggregateColumns: [
+        {
+          alias: 'acount',
+          aggregateFunction: 'count',
         },
-      },
-    ];
+      ],
+    };
+    // const aggregate = [
+    //   { $match: this.buildMongoCondition(props) },
+    //   {
+    //     $group: {
+    //       _id: _zipObject(
+    //         bindingColumns,
+    //         bindingColumns.map(col => '$' + col)
+    //       ),
+    //       count: { $sum: 1 },
+    //     },
+    //   },
+    // ];
 
     if (dbg?.enabled) {
       dbg(`LOAD COUNTS, table=${props.pureName}, columns=${bindingColumns?.join(',')}`);
@@ -244,7 +237,7 @@ export class PerspectiveDataLoader {
     const { pureName } = props;
     const res: any = {
       pureName,
-      condition: this.buildMongoCondition(props),
+      condition: this.buildSqlCondition(props),
       skip: props.range?.offset,
       limit: props.range?.limit,
     };
