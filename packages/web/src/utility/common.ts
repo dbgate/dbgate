@@ -40,6 +40,7 @@ export function setSelectedTab(tabid) {
 
 export function getObjectTypeFieldLabel(objectTypeField) {
   if (objectTypeField == 'matviews') return 'Materialized Views';
+  if (objectTypeField == 'collections') return 'Collections/Containers';
   return _.startCase(objectTypeField);
 }
 

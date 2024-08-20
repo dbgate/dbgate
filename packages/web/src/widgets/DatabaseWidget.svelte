@@ -47,7 +47,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title={driver?.databaseEngineTypes?.includes('document') ? 'Collections' : 'Tables, views, functions'}
+    title={driver?.databaseEngineTypes?.includes('document') ? 'Collections/containers' : 'Tables, views, functions'}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(
