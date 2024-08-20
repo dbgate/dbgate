@@ -66,7 +66,7 @@
     if (sort?.length > 0) {
       return sort.map(col => ({
         columnName: col.uniqueName,
-        order: col.order,
+        direction: col.order,
       }));
     }
 
