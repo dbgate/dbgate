@@ -60,14 +60,14 @@
       : undefined;
   }
 
-  function buildMongoSort(props) {
+  function buildSortForGrid(props) {
     const sort = props?.display?.config?.sort;
 
     if (sort?.length > 0) {
-      return _.zipObject(
-        sort.map(col => col.uniqueName),
-        sort.map(col => (col.order == 'DESC' ? -1 : 1))
-      );
+      return sort.map(col => ({
+        columnName: col.uniqueName,
+        order: col.order,
+      }));
     }
 
     return null;
@@ -84,7 +84,7 @@
         limit,
         skip: offset,
         condition: buildConditionForGrid(props),
-        sort: buildMongoSort(props),
+        sort: buildSortForGrid(props),
       },
     });
 
@@ -175,7 +175,7 @@
     return display?.driver?.getCollectionExportQueryScript?.(
       pureName,
       buildConditionForGrid($$props),
-      buildMongoSort($$props)
+      buildSortForGrid($$props)
     );
     // return `db.collection('${pureName}')
     //   .find(${JSON.stringify(buildConditionForGrid($$props) || {})})
@@ -186,7 +186,7 @@
     return display?.driver?.getCollectionExportQueryJson?.(
       pureName,
       buildConditionForGrid($$props),
-      buildMongoSort($$props)
+      buildSortForGrid($$props)
     );
     // return {
     //   collection: pureName,

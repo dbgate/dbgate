@@ -7,7 +7,11 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
-const { convertToMongoCondition, convertToMongoAggregate } = require('../frontend/convertToMongoCondition');
+const {
+  convertToMongoCondition,
+  convertToMongoAggregate,
+  convertToMongoSort,
+} = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
   return _.cloneDeepWith(row, (x) => {
@@ -286,7 +290,7 @@ const driver = {
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
         let cursor = await collection.find(convertObjectId(mongoCondition) || {});
-        if (options.sort) cursor = cursor.sort(options.sort);
+        if (options.sort) cursor = cursor.sort(convertToMongoSort(options.sort));
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();

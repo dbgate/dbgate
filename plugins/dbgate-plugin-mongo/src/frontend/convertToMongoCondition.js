@@ -171,7 +171,16 @@ function convertToMongoAggregate(collectionAggregate) {
   ];
 }
 
+function convertToMongoSort(sort) {
+  if (!sort) return null;
+  return _zipObject(
+    sort.map((col) => col.columnName),
+    sort.map((col) => (col.order == 'DESC' ? -1 : 1))
+  );
+}
+
 module.exports = {
   convertToMongoCondition,
   convertToMongoAggregate,
+  convertToMongoSort,
 };

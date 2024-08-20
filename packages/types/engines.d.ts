@@ -43,6 +43,7 @@ export interface ReadCollectionOptions {
   limit?: number;
   condition?: any;
   aggregate?: CollectionAggregateDefinition;
+  sort?: CollectionSortDefinition;
 }
 
 export interface NewObjectTemplate {
@@ -84,6 +85,13 @@ export interface CollectionAggregateDefinition {
     columnArgument?: string;
   }[];
 }
+
+export interface CollectionSortDefinitionItem {
+  columnName: string;
+  direction: 'ASC' | 'DESC';
+}
+
+export type CollectionSortDefinition = CollectionSortDefinitionItem[];
 
 export interface FilterBehaviourProvider {
   getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
@@ -171,8 +179,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
-  getCollectionExportQueryScript(collection: string, condition: any, sort: any): string;
-  getCollectionExportQueryJson(collection: string, condition: any, sort: any): {};
+  getCollectionExportQueryScript(collection: string, condition: any, sort?: CollectionSortDefinition): string;
+  getCollectionExportQueryJson(collection: string, condition: any, sort?: CollectionSortDefinition): {};
 
   analyserClass?: any;
   dumperClass?: any;

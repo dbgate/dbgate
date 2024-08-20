@@ -238,15 +238,16 @@ export class PerspectiveDataLoader {
     const res: any = {
       pureName,
       condition: this.buildSqlCondition(props),
+      sort: useSort ? props.orderBy : undefined,
       skip: props.range?.offset,
       limit: props.range?.limit,
     };
-    if (useSort && props.orderBy?.length > 0) {
-      res.sort = _zipObject(
-        props.orderBy.map(col => col.columnName),
-        props.orderBy.map(col => (col.order == 'DESC' ? -1 : 1))
-      );
-    }
+    // if (useSort && props.orderBy?.length > 0) {
+    //   res.sort = _zipObject(
+    //     props.orderBy.map(col => col.columnName),
+    //     props.orderBy.map(col => (col.order == 'DESC' ? -1 : 1))
+    //   );
+    // }
 
     return res;
   }
