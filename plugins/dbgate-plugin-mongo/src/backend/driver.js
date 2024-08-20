@@ -7,6 +7,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
+const { convertToMongoCondition, convertToMongoAggregate } = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
   return _.cloneDeepWith(row, (x) => {
@@ -270,17 +271,21 @@ const driver = {
   },
   async readCollection(pool, options) {
     try {
+      const mongoCondition = convertToMongoCondition(options.condition);
+      // console.log('******************* mongoCondition *****************');
+      // console.log(JSON.stringify(mongoCondition, undefined, 2));
+
       const collection = pool.__getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(convertObjectId(options.condition) || {});
+        const count = await collection.countDocuments(convertObjectId(mongoCondition) || {});
         return { count };
       } else if (options.aggregate) {
-        let cursor = await collection.aggregate(convertObjectId(options.aggregate));
+        let cursor = await collection.aggregate(convertObjectId(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
         return { rows: rows.map(transformMongoData) };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
-        let cursor = await collection.find(convertObjectId(options.condition) || {});
+        let cursor = await collection.find(convertObjectId(mongoCondition) || {});
         if (options.sort) cursor = cursor.sort(options.sort);
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);

@@ -349,8 +349,23 @@ export abstract class PerspectiveTreeNode {
     );
   }
 
+  getMutliColumnCondition(source): Condition {
+    if (!this.nodeConfig?.multiColumnFilter) return null;
+
+    const base = this.getBaseTableFromThis() as TableInfo | ViewInfo | CollectionInfo;
+    if (!base) return null;
+
+    const isDocDb = isCollectionInfo(base);
+    if (isDocDb) {
+      return this.getMutliColumnNoSqlCondition();
+    } else {
+      return this.getMutliColumnSqlCondition(source);
+    }
+  }
+
   getMutliColumnSqlCondition(source): Condition {
     if (!this.nodeConfig?.multiColumnFilter) return null;
+
     const base = this.getBaseTableFromThis() as TableInfo | ViewInfo;
     if (!base) return null;
     try {
@@ -383,32 +398,40 @@ export abstract class PerspectiveTreeNode {
     return null;
   }
 
-  getMutliColumnMongoCondition(): {} {
+  getMutliColumnNoSqlCondition(): Condition {
     if (!this.nodeConfig?.multiColumnFilter) return null;
     const pattern = this.dataProvider?.dataPatterns?.[this.designerId];
     if (!pattern) return null;
 
     const condition = parseFilter(this.nodeConfig?.multiColumnFilter, mongoFilterBehaviour);
     if (!condition) return null;
-    const res = pattern.columns.map(col => {
-      return _cloneDeepWith(condition, expr => {
-        if (expr.__placeholder__) {
-          return {
-            [col.name]: expr.__placeholder__,
-          };
-        }
-      });
-    });
-    return {
-      $or: res,
+
+    const orCondition: CompoudCondition = {
+      conditionType: 'or',
+      conditions: [],
     };
+    for (const column of pattern.columns || []) {
+      orCondition.conditions.push(
+        _cloneDeepWith(condition, (expr: Expression) => {
+          if (expr.exprType == 'placeholder') {
+            return {
+              exprType: 'column',
+              columnName: column.name,
+            };
+          }
+        })
+      );
+    }
+    if (orCondition.conditions.length > 0) {
+      return orCondition;
+    }
   }
 
   getChildrenSqlCondition(source = null): Condition {
     const conditions = _compact([
       ...this.childNodes.map(x => x.parseFilterCondition(source)),
       ...this.buildParentFilterConditions(),
-      this.getMutliColumnSqlCondition(source),
+      this.getMutliColumnCondition(source),
     ]);
     if (conditions.length == 0) {
       return null;
@@ -420,20 +443,6 @@ export abstract class PerspectiveTreeNode {
       conditionType: 'and',
       conditions,
     };
-  }
-
-  getChildrenMongoCondition(source = null): {} {
-    const conditions = _compact([
-      ...this.childNodes.map(x => x.parseFilterCondition(source)),
-      this.getMutliColumnMongoCondition(),
-    ]);
-    if (conditions.length == 0) {
-      return null;
-    }
-    if (conditions.length == 1) {
-      return conditions[0];
-    }
-    return { $and: conditions };
   }
 
   getOrderBy(table: TableInfo | ViewInfo | CollectionInfo): PerspectiveDataLoadProps['orderBy'] {
@@ -1158,17 +1167,16 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
-    const isMongo = isCollectionInfo(this.table);
+    const isDocDb = isCollectionInfo(this.table);
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
-      allColumns: isMongo,
+      allColumns: isDocDb,
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
-      sqlCondition: isMongo ? null : this.getChildrenSqlCondition(),
-      mongoCondition: isMongo ? this.getChildrenMongoCondition() : null,
-      engineType: isMongo ? 'docdb' : 'sqldb',
+      sqlCondition: this.getChildrenSqlCondition(),
+      engineType: isDocDb ? 'docdb' : 'sqldb',
     };
   }
 
@@ -1372,7 +1380,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
     // console.log('PARENT ROWS', parentRows);
 
     // console.log('this.getDataLoadColumns()', this.getDataLoadColumns());
-    const isMongo = isCollectionInfo(this.table);
+    const isDocDb = isCollectionInfo(this.table);
 
     // const bindingValues = [];
 
@@ -1432,12 +1440,12 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
       bindingColumns: this.getParentMatchColumns(),
       bindingValues: _uniqBy(bindingValues, x => JSON.stringify(x)),
       dataColumns: this.getDataLoadColumns(),
-      allColumns: isMongo,
+      allColumns: isDocDb,
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
-      sqlCondition: isMongo ? null : this.getChildrenSqlCondition(),
-      mongoCondition: isMongo ? this.getChildrenMongoCondition() : null,
-      engineType: isMongo ? 'docdb' : 'sqldb',
+      sqlCondition: this.getChildrenSqlCondition(),
+      // mongoCondition: isMongo ? this.getChildrenMongoCondition() : null,
+      engineType: isDocDb ? 'docdb' : 'sqldb',
     };
   }
 

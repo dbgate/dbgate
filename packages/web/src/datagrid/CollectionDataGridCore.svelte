@@ -19,7 +19,7 @@
     onClick: () => getCurrentEditor().exportGrid(),
   });
 
-  function buildGridMongoCondition(props) {
+  function buildConditionForGrid(props) {
     const filters = props?.display?.config?.filters;
     const filterBehaviour =
       props?.display?.driver?.getFilterBehaviour(null, standardFilterBehaviours) ?? mongoFilterBehaviour;
@@ -33,11 +33,18 @@
         const ast = parseFilter(filters[uniqueName], filterBehaviour);
         // console.log('AST', ast);
         const cond = _.cloneDeepWith(ast, expr => {
-          if (expr.__placeholder__) {
+          if (expr.exprType == 'placeholder') {
             return {
-              [uniqueName]: expr.__placeholder__,
+              exprType: 'column',
+              columnName: uniqueName,
             };
           }
+
+          // if (expr.__placeholder__) {
+          //   return {
+          //     [uniqueName]: expr.__placeholder__,
+          //   };
+          // }
         });
         conditions.push(cond);
       } catch (err) {
@@ -47,7 +54,8 @@
 
     return conditions.length > 0
       ? {
-          $and: conditions,
+          conditionType: 'and',
+          conditions,
         }
       : undefined;
   }
@@ -75,7 +83,7 @@
         pureName: props.pureName,
         limit,
         skip: offset,
-        condition: buildGridMongoCondition(props),
+        condition: buildConditionForGrid(props),
         sort: buildMongoSort(props),
       },
     });
@@ -100,7 +108,7 @@
       options: {
         pureName: props.pureName,
         countDocuments: true,
-        condition: buildGridMongoCondition(props),
+        condition: buildConditionForGrid(props),
       },
     });
 
@@ -164,17 +172,27 @@
   // $: if (onChangeGrider) onChangeGrider(grider);
 
   function getExportQuery() {
-    return `db.collection('${pureName}')
-      .find(${JSON.stringify(buildGridMongoCondition($$props) || {})})
-      .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
+    return display?.driver?.getCollectionExportQueryScript?.(
+      pureName,
+      buildConditionForGrid($$props),
+      buildMongoSort($$props)
+    );
+    // return `db.collection('${pureName}')
+    //   .find(${JSON.stringify(buildConditionForGrid($$props) || {})})
+    //   .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
   }
 
   function getExportQueryJson() {
-    return {
-      collection: pureName,
-      condition: buildGridMongoCondition($$props) || {},
-      sort: buildMongoSort($$props) || {},
-    };
+    return display?.driver?.getCollectionExportQueryJson?.(
+      pureName,
+      buildConditionForGrid($$props),
+      buildMongoSort($$props)
+    );
+    // return {
+    //   collection: pureName,
+    //   condition: buildConditionForGrid($$props) || {},
+    //   sort: buildMongoSort($$props) || {},
+    // };
   }
 
   export async function exportGrid() {

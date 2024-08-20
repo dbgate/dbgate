@@ -25,7 +25,6 @@ export interface PerspectiveDataLoadProps {
   range?: RangeDefinition;
   topCount?: number;
   sqlCondition?: Condition;
-  mongoCondition?: any;
   engineType: PerspectiveDatabaseEngineType;
 }
 

@@ -1,7 +1,6 @@
 import { FilterBehaviour } from 'dbgate-types';
 
 export const numberFilterBehaviour: FilterBehaviour = {
-  compilerType: 'sqlTree',
   supportEquals: true,
   supportNumberLikeComparison: true,
   supportNullTesting: true,
@@ -11,7 +10,6 @@ export const numberFilterBehaviour: FilterBehaviour = {
 };
 
 export const stringFilterBehaviour: FilterBehaviour = {
-  compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,
   supportEmpty: true,
@@ -24,14 +22,12 @@ export const stringFilterBehaviour: FilterBehaviour = {
 };
 
 export const logicalFilterBehaviour: FilterBehaviour = {
-  compilerType: 'sqlTree',
   supportBooleanValues: true,
   supportNullTesting: true,
   supportSqlCondition: true,
 };
 
 export const datetimeFilterBehaviour: FilterBehaviour = {
-  compilerType: 'datetime',
   supportNullTesting: true,
   supportSqlCondition: true,
   supportDatetimeSymbols: true,
@@ -39,17 +35,19 @@ export const datetimeFilterBehaviour: FilterBehaviour = {
 };
 
 export const mongoFilterBehaviour: FilterBehaviour = {
-  compilerType: 'mongoCondition',
   supportEquals: true,
   supportArrayTesting: true,
   supportNumberLikeComparison: true,
   supportStringInclusion: true,
   supportBooleanValues: true,
   supportExistsTesting: true,
+
+  allowStringToken: true,
+  allowNumberDualTesting: true,
+  allowObjectIdTesting: true,
 };
 
 export const evalFilterBehaviour: FilterBehaviour = {
-  compilerType: 'sqlTree',
   supportEquals: true,
   supportStringInclusion: true,
   supportEmpty: true,

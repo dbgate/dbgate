@@ -1,4 +1,5 @@
 const { driverBase } = global.DBGATE_TOOLS;
+const { convertToMongoCondition } = require('./convertToMongoCondition');
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
@@ -96,6 +97,19 @@ const driver = {
 
   getFilterBehaviour(dataType, standardFilterBehaviours) {
     return standardFilterBehaviours.mongoFilterBehaviour;
+  },
+
+  getCollectionExportQueryScript(collection, condition, sort) {
+    return `db.collection('${collection}')
+      .find(${JSON.stringify(convertToMongoCondition(condition || {}))})
+      .sort(${JSON.stringify(sort || {})})`;
+  },
+  getCollectionExportQueryJson(collection, condition, sort) {
+    return {
+      collection,
+      condition: convertToMongoCondition(condition || {}),
+      sort: sort || {},
+    };
   },
 };
 

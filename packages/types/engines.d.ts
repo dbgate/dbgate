@@ -41,6 +41,8 @@ export interface ReadCollectionOptions {
   countDocuments?: boolean;
   skip?: number;
   limit?: number;
+  condition?: any;
+  aggregate?: CollectionAggregateDefinition;
 }
 
 export interface NewObjectTemplate {
@@ -70,6 +72,17 @@ export interface ServerSummaryDatabase {}
 export interface ServerSummary {
   columns: SummaryColumn[];
   databases: ServerSummaryDatabase[];
+}
+
+export type CollectionAggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max';
+export interface CollectionAggregateDefinition {
+  condition: any; // SQL tree condition
+  groupByColumns: string[];
+  aggregateColumns: {
+    alias: string;
+    aggregateFunction: CollectionAggregateFunction;
+    columnArgument?: string;
+  }[];
 }
 
 export interface FilterBehaviourProvider {
@@ -158,6 +171,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
+  getCollectionExportQueryScript(collection: string, condition: any, sort: any): string;
+  getCollectionExportQueryJson(collection: string, condition: any, sort: any): {};
 
   analyserClass?: any;
   dumperClass?: any;

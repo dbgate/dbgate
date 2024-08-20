@@ -31,7 +31,7 @@
   dependencies:
     tslib "^2.6.2"
 
-"@azure/core-auth@^1.3.0", "@azure/core-auth@^1.4.0", "@azure/core-auth@^1.5.0", "@azure/core-auth@^1.7.1":
+"@azure/core-auth@^1.3.0", "@azure/core-auth@^1.4.0", "@azure/core-auth@^1.5.0":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.7.2.tgz#558b7cb7dd12b00beec07ae5df5907d74df1ebd9"
   integrity sha512-Igm/S3fDYmnMq1uKS38Ae1/m37B3zigdlZw+kocwEhh5GjyKjPrXKO2J6rzpC1wAxrNil/jX9BJRqBshyjnF3g==
@@ -93,21 +93,7 @@
     https-proxy-agent "^7.0.0"
     tslib "^2.6.2"
 
-"@azure/core-rest-pipeline@^1.15.1":
-  version "1.16.3"
-  resolved "https://registry.yarnpkg.com/@azure/core-rest-pipeline/-/core-rest-pipeline-1.16.3.tgz#bde3bc3ebad7f885ddd9de6af5e5a8fc254b287e"
-  integrity sha512-VxLk4AHLyqcHsfKe4MZ6IQ+D+ShuByy+RfStKfSjxJoL3WBWq17VNmrz8aT8etKzqc2nAeIyLxScjpzsS4fz8w==
-  dependencies:
-    "@azure/abort-controller" "^2.0.0"
-    "@azure/core-auth" "^1.4.0"
-    "@azure/core-tracing" "^1.0.1"
-    "@azure/core-util" "^1.9.0"
-    "@azure/logger" "^1.0.0"
-    http-proxy-agent "^7.0.0"
-    https-proxy-agent "^7.0.0"
-    tslib "^2.6.2"
-
-"@azure/core-tracing@^1.0.0", "@azure/core-tracing@^1.0.1", "@azure/core-tracing@^1.1.1":
+"@azure/core-tracing@^1.0.0", "@azure/core-tracing@^1.0.1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@azure/core-tracing/-/core-tracing-1.1.2.tgz#065dab4e093fb61899988a1cdbc827d9ad90b4ee"
   integrity sha512-dawW9ifvWAWmUm9/h+/UQ2jrdvjCJ7VJEuCJ6XVNudzcOwm53BFZH4Q845vjfgoUAM8ZxokvVNxNxAITc502YA==
@@ -120,30 +106,6 @@
   integrity sha512-AfalUQ1ZppaKuxPPMsFEUdX6GZPB3d9paR9d/TTL7Ow2De8cJaC7ibi7kWVlFAVPCYo31OcnGymc0R89DX8Oaw==
   dependencies:
     "@azure/abort-controller" "^2.0.0"
-    tslib "^2.6.2"
-
-"@azure/core-util@^1.8.1":
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/@azure/core-util/-/core-util-1.9.2.tgz#1dc37dc5b0dae34c578be62cf98905ba7c0cafe7"
-  integrity sha512-l1Qrqhi4x1aekkV+OlcqsJa4AnAkj5p0JV8omgwjaV9OAbP41lvrMvs+CptfetKkeEaGRGSzby7sjPZEX7+kkQ==
-  dependencies:
-    "@azure/abort-controller" "^2.0.0"
-    tslib "^2.6.2"
-
-"@azure/cosmos@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@azure/cosmos/-/cosmos-4.1.0.tgz#97014d8110d94c4b47911350a018ad2d726493b0"
-  integrity sha512-+m085WKIGkf6wyw4vT85FFXl9j3U35u+LFFVwmLqfPbolnQAtoX24cowXz+vseW4BWKyx6Lamb+Zz+jl69zn6g==
-  dependencies:
-    "@azure/abort-controller" "^2.0.0"
-    "@azure/core-auth" "^1.7.1"
-    "@azure/core-rest-pipeline" "^1.15.1"
-    "@azure/core-tracing" "^1.1.1"
-    "@azure/core-util" "^1.8.1"
-    fast-json-stable-stringify "^2.1.0"
-    jsbi "^4.3.0"
-    priorityqueuejs "^2.0.0"
-    semaphore "^1.1.0"
     tslib "^2.6.2"
 
 "@azure/identity@^3.4.1":
@@ -3245,26 +3207,6 @@ dbgate-query-splitter@^4.10.1:
   resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.10.1.tgz#dc40d792de06f779a743cad054d5e786006b03a9"
   integrity sha512-KqrB7NLP1jXbx8rN7gSmYUVorm6ICeqOV+oR+jHaBLXqqhWepHsKr6JJlFEeb/LhoVjnTDY/cy5zhW1dMIQF6A==
 
-dbgate-sqltree@^5.3.4:
-  version "5.3.4"
-  resolved "https://registry.yarnpkg.com/dbgate-sqltree/-/dbgate-sqltree-5.3.4.tgz#d91bbb1a3264dc8d88898fbb5427ee15aacc14a3"
-  integrity sha512-pvfjuI51plcmwErxxDCl8ZLXb9VfDnT+NukEMExiytYrTg3dDF2j9xwsYR9MZ/UaOQjwEO4LZ2FBLg/B776CuA==
-  dependencies:
-    lodash "^4.17.21"
-
-dbgate-tools@^5.0.0:
-  version "5.3.4"
-  resolved "https://registry.yarnpkg.com/dbgate-tools/-/dbgate-tools-5.3.4.tgz#168662ccd92e404a31fe3d5e29f732a91a0ea9b6"
-  integrity sha512-EsZafhQIGx8AlUT5PIMXoS0LTCxtANuQnxFUMwL20DfW/CCJtwWALHwwi2Am+1/YbDeM9Uh3FhWPTiZh5fhLYA==
-  dependencies:
-    dbgate-query-splitter "^4.10.1"
-    dbgate-sqltree "^5.3.4"
-    debug "^4.3.4"
-    json-stable-stringify "^1.0.1"
-    lodash "^4.17.21"
-    pinomin "^1.0.4"
-    uuid "^3.4.0"
-
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -4141,7 +4083,7 @@ fast-glob@^3.0.3:
     merge2 "^1.3.0"
     micromatch "^4.0.4"
 
-fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.0.0, fast-json-stable-stringify@^2.1.0:
+fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
   integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
@@ -6702,11 +6644,6 @@ js-yaml@^4.1.0:
   dependencies:
     argparse "^2.0.1"
 
-jsbi@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/jsbi/-/jsbi-4.3.0.tgz#b54ee074fb6fcbc00619559305c8f7e912b04741"
-  integrity sha512-SnZNcinB4RIcnEyZqFPdGPVgrg2AcnykiBy0sHVJQKHYeaLUvi3Exj+iaPpLnFVkDPZIV4U0yvgC9/R4uEAZ9g==
-
 jsbn@1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-1.1.0.tgz#b01307cb29b618a1ed26ec79e911f803c4da0040"
@@ -8521,11 +8458,6 @@ printj@~1.1.0:
   resolved "https://registry.yarnpkg.com/printj/-/printj-1.1.2.tgz#d90deb2975a8b9f600fb3a1c94e3f4c53c78a222"
   integrity sha512-zA2SmoLaxZyArQTOPj5LXecR+RagfPSU5Kw1qP+jkWeNlrq+eJZyY2oS68SU1Z/7/myXM4lo9716laOFAVStCQ==
 
-priorityqueuejs@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/priorityqueuejs/-/priorityqueuejs-2.0.0.tgz#96064040edd847ee9dd3013d8e16297399a6bd4f"
-  integrity sha512-19BMarhgpq3x4ccvVi8k2QpJZcymo/iFUcrhPd4V96kYGovOdTsWwy7fxChYi4QY+m2EnGBWSX9Buakz+tWNQQ==
-
 process-nextick-args@~1.0.6:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
@@ -9234,11 +9166,6 @@ secure-json-parse@^2.4.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.7.0.tgz#5a5f9cd6ae47df23dba3151edd06855d47e09862"
   integrity sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==
-
-semaphore@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/semaphore/-/semaphore-1.1.0.tgz#aaad8b86b20fe8e9b32b16dc2ee682a8cd26a8aa"
-  integrity sha512-O4OZEaNtkMd/K0i6js9SL+gqy0ZCBMgUvlSqHKi4IBdjhe7wB8pwztUk1BbZ1fmrvpwFrPbHzqd2w5pTcJH6LA==
 
 semiver@^1.0.0:
   version "1.1.0"
