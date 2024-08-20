@@ -1,4 +1,4 @@
-const { SqlDumper, arrayToHexString } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 class Dumper extends SqlDumper {
   renameColumn(column, newcol) {

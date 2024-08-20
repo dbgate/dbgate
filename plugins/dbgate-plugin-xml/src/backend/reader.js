@@ -1,7 +1,7 @@
 const fs = require('fs');
 const stream = require('stream');
 const NodeXmlStream = require('node-xml-stream-parser');
-const { getLogger } = global.DBGATE_TOOLS;
+const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('xmlReader');
 

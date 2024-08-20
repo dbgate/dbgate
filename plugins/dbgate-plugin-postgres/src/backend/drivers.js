@@ -5,7 +5,7 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
-const { getLogger } = global.DBGATE_TOOLS;
+const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('postreDriver');
 

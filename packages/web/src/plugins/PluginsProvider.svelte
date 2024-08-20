@@ -1,6 +1,9 @@
 <script lang="ts" context="module">
   async function loadPlugins(pluginsDict, installedPlugins) {
-    window['DBGATE_TOOLS'] = dbgateTools;
+    window['DBGATE_PACKAGES'] = {
+      'dbgate-tools': dbgateTools,
+      'dbgate-sqltree': sqlTree,
+    };
 
     const newPlugins = {};
     for (const installed of installedPlugins || []) {
@@ -55,6 +58,7 @@
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
   import * as dbgateTools from 'dbgate-tools';
+  import * as sqlTree from 'dbgate-sqltree';
   import { apiCall } from '../utility/api';
 
   let pluginsDict = {};

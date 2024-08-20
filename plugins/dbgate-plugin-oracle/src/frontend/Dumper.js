@@ -1,4 +1,4 @@
-const { SqlDumper, arrayToHexString, testEqualTypes } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString, testEqualTypes } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 class Dumper extends SqlDumper {
   createDatabase(name) {

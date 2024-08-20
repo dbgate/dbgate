@@ -1,5 +1,5 @@
 const ObjectId = require('mongodb').ObjectId;
-const { getLogger } = global.DBGATE_TOOLS;
+const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('mongoBulkInsert');
 

@@ -1,4 +1,4 @@
-const { driverBase } = global.DBGATE_TOOLS;
+const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const MsSqlDumper = require('./MsSqlDumper');
 const { mssqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 

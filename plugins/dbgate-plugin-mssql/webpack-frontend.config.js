@@ -17,7 +17,7 @@ var config = {
 
   plugins: [
     new webpack.DefinePlugin({
-      'global.DBGATE_TOOLS': 'window.DBGATE_TOOLS',
+      'global.DBGATE_PACKAGES': 'window.DBGATE_PACKAGES',
     }),
   ],
 

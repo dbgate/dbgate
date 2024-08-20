@@ -1,4 +1,4 @@
-const { SqlDumper, testEqualColumns, arrayToHexString } = global.DBGATE_TOOLS;
+const { SqlDumper, testEqualColumns, arrayToHexString } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 class MsSqlDumper extends SqlDumper {
   constructor(driver, options) {

@@ -1,4 +1,4 @@
-const { SqlDumper, arrayToHexString } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString } = global.DBGATE_PACKAGES['dbgate-tools'];
 const _isArray = require('lodash/isArray');
 
 class Dumper extends SqlDumper {

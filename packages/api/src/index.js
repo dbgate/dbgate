@@ -97,10 +97,12 @@ if (processArgs.listenApi) {
 }
 
 const shell = require('./shell/index');
-const dbgateTools = require('dbgate-tools');
 const currentVersion = require('./currentVersion');
 
-global['DBGATE_TOOLS'] = dbgateTools;
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
 
 if (processArgs.startProcess) {
   const proc = require('./proc');

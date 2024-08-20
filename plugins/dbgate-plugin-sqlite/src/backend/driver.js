@@ -4,7 +4,7 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
-const { getLogger } = global.DBGATE_TOOLS;
+const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('sqliteDriver');
 

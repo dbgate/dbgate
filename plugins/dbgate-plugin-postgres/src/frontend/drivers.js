@@ -1,4 +1,4 @@
-const { driverBase } = global.DBGATE_TOOLS;
+const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
 const { postgreSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
