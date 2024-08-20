@@ -94,7 +94,19 @@ export interface TableInfo extends DatabaseObjectInfo {
   __isDynamicStructure?: boolean;
 }
 
-export interface CollectionInfo extends DatabaseObjectInfo {}
+export interface CollectionInfo extends DatabaseObjectInfo {
+  // all known columns with definition (only used in Cassandra)
+  knownColumns?: ColumnInfo[];
+
+  // unique combination of columns (should be contatenation of partitionKey and clusterKey)
+  uniqueKey?: ColumnReference[];
+
+  // partition key columns
+  partitionKey?: ColumnReference[]
+
+  // unique key inside partition
+  clusterKey?: ColumnReference[];  
+}
 
 export interface ViewInfo extends SqlObjectInfo {
   columns: ColumnInfo[];

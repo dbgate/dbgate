@@ -34,9 +34,11 @@ class Analyser extends DatabaseAnalyser {
         ...collections.map((x, index) => ({
           pureName: x.name,
           tableRowCount: stats[index]?.count,
+          uniqueKey: [{ columnName: '_id' }],
         })),
         ...views.map((x, index) => ({
           pureName: x.name,
+          uniqueKey: [{ columnName: '_id' }],
         })),
       ],
     });
