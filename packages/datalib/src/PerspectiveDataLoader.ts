@@ -238,7 +238,13 @@ export class PerspectiveDataLoader {
     const res: any = {
       pureName,
       condition: this.buildSqlCondition(props),
-      sort: useSort ? props.orderBy : undefined,
+      sort:
+        useSort && props.orderBy?.length > 0
+          ? props.orderBy.map(x => ({
+              ...x,
+              direction: x.order,
+            }))
+          : undefined,
       skip: props.range?.offset,
       limit: props.range?.limit,
     };
