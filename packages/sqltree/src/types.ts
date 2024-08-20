@@ -57,6 +57,11 @@ export interface UnaryCondition {
   expr: Expression;
 }
 
+export interface ExpressionCondition extends UnaryCondition {
+  // not in standard SQL
+  conditionType: 'expression';
+}
+
 export interface BinaryCondition {
   conditionType: 'binary';
   operator: '=' | '!=' | '<>' | '<' | '>' | '>=' | '<=';
@@ -141,7 +146,8 @@ export type Condition =
   | NotInCondition
   | RawTemplateCondition
   | AnyColumnPassEvalOnlyCondition
-  | SpecificPredicateCondition;
+  | SpecificPredicateCondition
+  | ExpressionCondition;
 
 export interface Source {
   name?: NamedObjectInfo;
