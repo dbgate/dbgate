@@ -172,17 +172,27 @@
   // $: if (onChangeGrider) onChangeGrider(grider);
 
   function getExportQuery() {
-    return `db.collection('${pureName}')
-      .find(${JSON.stringify(buildConditionForGrid($$props) || {})})
-      .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
+    return display?.driver?.getCollectionExportQueryScript?.(
+      pureName,
+      buildConditionForGrid($$props),
+      buildMongoSort($$props)
+    );
+    // return `db.collection('${pureName}')
+    //   .find(${JSON.stringify(buildConditionForGrid($$props) || {})})
+    //   .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
   }
 
   function getExportQueryJson() {
-    return {
-      collection: pureName,
-      condition: buildConditionForGrid($$props) || {},
-      sort: buildMongoSort($$props) || {},
-    };
+    return display?.driver?.getCollectionExportQueryJson?.(
+      pureName,
+      buildConditionForGrid($$props),
+      buildMongoSort($$props)
+    );
+    // return {
+    //   collection: pureName,
+    //   condition: buildConditionForGrid($$props) || {},
+    //   sort: buildMongoSort($$props) || {},
+    // };
   }
 
   export async function exportGrid() {

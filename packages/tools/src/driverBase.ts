@@ -154,4 +154,11 @@ export const driverBase = {
   getFilterBehaviour(dataType: string, standardFilterBehaviours) {
     return detectSqlFilterBehaviour(dataType);
   },
+
+  getCollectionExportQueryScript(collection: string, condition: any, sort: any) {
+    return null;
+  },
+  getCollectionExportQueryJson(collection: string, condition: any, sort: any) {
+    return null;
+  },
 };

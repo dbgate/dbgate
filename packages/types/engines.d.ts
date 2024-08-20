@@ -159,7 +159,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
   getCollectionExportQueryScript(collection: string, condition: any, sort: any): string;
-  getCollectionExportQueryJson(collection: string, condition: any, sort: any): string;
+  getCollectionExportQueryJson(collection: string, condition: any, sort: any): {};
 
   analyserClass?: any;
   dumperClass?: any;
