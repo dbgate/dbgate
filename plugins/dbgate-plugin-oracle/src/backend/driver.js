@@ -3,7 +3,7 @@ const stream = require('stream');
 
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const { createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
 const { platform } = require('os');
 

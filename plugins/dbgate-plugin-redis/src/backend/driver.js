@@ -5,7 +5,7 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Redis = require('ioredis');
 const RedisDump = require('node-redis-dump2');
-const { filterName } = require('dbgate-tools');
+const { filterName } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 function splitCommandLine(str) {
   let results = [];

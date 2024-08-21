@@ -3,9 +3,8 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
-const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 const { MySqlDumper } = require('antares-mysql-dumper');
-const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('mysqlDriver');
 

@@ -1,4 +1,4 @@
-const { createBulkInsertStreamBase } = require('dbgate-tools');
+const { createBulkInsertStreamBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 function runBulkInsertBatch(pool, tableName, writable, rows) {
   return new Promise((resolve, reject) => {

@@ -2,8 +2,7 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const { DatabaseAnalyser } = require('dbgate-tools');
-const { isTypeString, isTypeNumeric } = require('dbgate-tools');
+const { DatabaseAnalyser, isTypeString, isTypeNumeric } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 function normalizeTypeName(dataType) {
   if (dataType == 'character varying') return 'varchar';

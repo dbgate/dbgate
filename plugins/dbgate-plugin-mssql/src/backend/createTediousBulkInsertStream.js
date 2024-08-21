@@ -1,4 +1,4 @@
-const { createBulkInsertStreamBase } = require('dbgate-tools');
+const { createBulkInsertStreamBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const tedious = require('tedious');
 const getConcreteType = require('./getConcreteType');
 const _ = require('lodash');

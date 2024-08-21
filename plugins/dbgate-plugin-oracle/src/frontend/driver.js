@@ -84,6 +84,7 @@ const dialect = {
 
 /** @type {import('dbgate-types').EngineDriver} */
 const oracleDriver = {
+  ...driverBase,
   engine: 'oracle@dbgate-plugin-oracle',
   title: 'OracleDB',
   defaultPort: 1521,
