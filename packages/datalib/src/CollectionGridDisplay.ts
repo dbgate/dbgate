@@ -66,6 +66,10 @@ function getDisplayColumn(basePath, columnName, display: CollectionGridDisplay) 
     filterBehaviour: display?.driver?.getFilterBehaviour(null, standardFilterBehaviours) ?? mongoFilterBehaviour,
     pureName: display.collection?.pureName,
     schemaName: display.collection?.schemaName,
+
+    isPartitionKey: !!display?.collection?.partitionKey?.find(x => x.columnName == uniqueName),
+    isClusterKey: !!display?.collection?.clusterKey?.find(x => x.columnName == uniqueName),
+    isUniqueKey: !!display?.collection?.uniqueKey?.find(x => x.columnName == uniqueName),
   };
 }
 
@@ -105,10 +109,10 @@ export class CollectionGridDisplay extends GridDisplay {
     this.columns = analyseCollectionDisplayColumns([...(loadedRows || []), ...changedDocs, ...insertedDocs], this);
     this.filterable = true;
     this.sortable = true;
-    this.editable = !readOnly;
+    this.editable = !readOnly && collection.uniqueKey?.length > 0;
     this.supportsReload = true;
     this.isDynamicStructure = true;
-    this.changeSetKeyFields = ['_id'];
+    this.changeSetKeyFields = collection.uniqueKey?.map(x => x.columnName);
     this.baseCollection = collection;
   }
 }

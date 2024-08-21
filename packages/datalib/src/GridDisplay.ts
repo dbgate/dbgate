@@ -28,6 +28,12 @@ export interface DisplayColumn {
   notNull?: boolean;
   autoIncrement?: boolean;
   isPrimaryKey?: boolean;
+
+  // NoSQL specific
+  isPartitionKey?: boolean;
+  isClusterKey?: boolean;
+  isUniqueKey?: boolean;
+
   foreignKey?: ForeignKeyInfo;
   isForeignKeyUnique?: boolean;
   isExpandable?: boolean;
