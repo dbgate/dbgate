@@ -115,8 +115,12 @@ export interface EngineDriver extends FilterBehaviourProvider {
   profilerChartAggregateFunction?: string;
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
+
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;
+  collectionNameLabel?: string;
+  newCollectionFormParams?: any[];
+
   supportedCreateDatabase?: boolean;
   showConnectionField?: (
     field: string,

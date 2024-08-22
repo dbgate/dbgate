@@ -1,7 +1,7 @@
 <script lang="ts">
   import FormArgument from './FormArgument.svelte';
 
-  export let namePrefix;
+  export let namePrefix = '';
   export let args: any[];
 </script>
 

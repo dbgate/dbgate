@@ -110,8 +110,10 @@ const driver = {
     switch (type) {
       case 'createCollection':
         await this.script(pool, `db.createCollection('${operation.collection.name}')`);
-      case 'dropOperation':
+        break;
+      case 'dropCollection':
         await this.script(pool, `db.dropCollection('${operation.collection}')`);
+        break;
       default:
         throw new Error(`Operation type ${type} not supported`);
     }

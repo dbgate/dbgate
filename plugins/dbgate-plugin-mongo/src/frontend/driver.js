@@ -67,6 +67,15 @@ const driver = {
     },
   ],
 
+  newCollectionFormParams: [
+    {
+      type: 'text',
+      label: 'Collection name',
+      name: 'name',
+      focused: true,
+    },
+  ],
+
   getCollectionUpdateScript(changeSet, collectionInfo) {
     let res = '';
     for (const insert of changeSet.inserts) {
