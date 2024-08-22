@@ -38,9 +38,9 @@ export function setSelectedTab(tabid) {
   openedTabs.update(tabs => setSelectedTabFunc(tabs, tabid));
 }
 
-export function getObjectTypeFieldLabel(objectTypeField) {
+export function getObjectTypeFieldLabel(objectTypeField, driver?) {
   if (objectTypeField == 'matviews') return 'Materialized Views';
-  if (objectTypeField == 'collections') return 'Collections/Containers';
+  if (objectTypeField == 'collections') return _.startCase(driver?.collectionPluralLabel) ?? 'Collections/Containers';
   return _.startCase(objectTypeField);
 }
 

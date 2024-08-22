@@ -139,7 +139,7 @@
   export function save() {
     const json = $changeSetStore?.value;
     const driver = findEngineDriver($connection, $extensions);
-    const script = driver.getCollectionUpdateScript ? driver.getCollectionUpdateScript(json) : null;
+    const script = driver.getCollectionUpdateScript ? driver.getCollectionUpdateScript(json, $collectionInfo) : null;
     if (script) {
       if (getBoolSettingsValue('skipConfirm.collectionDataSave', false)) {
         handleConfirmChange(json);

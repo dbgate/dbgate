@@ -109,7 +109,7 @@ const driver = {
     const { type } = operation;
     switch (type) {
       case 'createCollection':
-        await this.script(pool, `db.createCollection('${operation.collection}')`);
+        await this.script(pool, `db.createCollection('${operation.collection.name}')`);
       case 'dropOperation':
         await this.script(pool, `db.dropCollection('${operation.collection}')`);
       default:

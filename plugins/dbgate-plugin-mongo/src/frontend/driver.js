@@ -44,6 +44,8 @@ const driver = {
     { label: 'Max duration', field: 'maxDuration' },
   ],
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
+  collectionSingularLabel: 'collection',
+  collectionPluralLabel: 'collections',
 
   getQuerySplitterOptions: () => mongoSplitterOptions,
 
@@ -65,7 +67,7 @@ const driver = {
     },
   ],
 
-  getCollectionUpdateScript(changeSet) {
+  getCollectionUpdateScript(changeSet, collectionInfo) {
     let res = '';
     for (const insert of changeSet.inserts) {
       res += `db.${insert.pureName}.insertOne(${jsonStringifyWithObjectId({

@@ -40,6 +40,7 @@ import { doLogout, internalRedirectTo } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
 import UploadErrorModal from '../modals/UploadErrorModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -287,20 +288,19 @@ registerCommand({
     const $currentDatabase = get(currentDatabase);
     const connection = _.get($currentDatabase, 'connection') || {};
     const database = _.get($currentDatabase, 'name');
+    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
 
     const dbid = { conid: connection._id, database };
 
-    showModal(InputTextModal, {
-      value: '',
-      label: 'New collection/container name',
-      header: 'Create collection/container',
-      onConfirm: async newCollection => {
+    showModal(NewCollectionModal, {
+      driver,
+      onConfirm: async values => {
         // await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
         const resp = await apiCall('database-connections/run-operation', {
           ...dbid,
           operation: {
             type: 'createCollection',
-            collection: newCollection,
+            collection: values,
           },
         });
 

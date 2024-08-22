@@ -91,16 +91,14 @@
     };
 
     const handleNewCollection = () => {
-      showModal(InputTextModal, {
-        value: '',
-        label: 'New collection/container name',
-        header: 'Create collection/container',
-        onConfirm: async newCollection => {
+      showModal(NewCollectionModal, {
+        driver,
+        onConfirm: async values => {
           runOperationOnDatabase(
             { conid: connection._id, database: name },
             {
               type: 'createCollection',
-              collection: newCollection,
+              collection: values,
             }
           );
 
@@ -294,7 +292,10 @@
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
-      driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection/container' },
+      driver?.databaseEngineTypes?.includes('document') && {
+        onClick: handleNewCollection,
+        text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+      },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
       driver?.databaseEngineTypes?.includes('sql') && {
         onClick: handleNewPerspective,
@@ -386,6 +387,7 @@
   import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
+  import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 
   export let data;
   export let passProps;

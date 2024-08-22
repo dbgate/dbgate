@@ -2,7 +2,7 @@ import stream from 'stream';
 import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
-import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, FunctionInfo, TriggerInfo } from './dbinfo';
+import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, FunctionInfo, TriggerInfo, CollectionInfo } from './dbinfo';
 import { FilterBehaviour } from './filter-type';
 
 export interface StreamOptions {
@@ -115,6 +115,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   profilerChartAggregateFunction?: string;
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
+  collectionSingularLabel?: string;
+  collectionPluralLabel?: string;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (
     field: string,
@@ -163,7 +165,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
   updateCollection(pool: any, changeSet: any): Promise<any>;
-  getCollectionUpdateScript(changeSet: any): string;
+  getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
   createDatabase(pool: any, name: string): Promise;
   dropDatabase(pool: any, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;

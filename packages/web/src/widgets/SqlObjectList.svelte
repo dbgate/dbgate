@@ -120,7 +120,9 @@
     {/if}
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
-      <InlineButton on:click={() => runCommand('new.collection')}>New collection/container</InlineButton>
+      <InlineButton on:click={() => runCommand('new.collection')}
+        >New {driver?.collectionSingularLabel ?? 'collection/container'}</InlineButton
+      >
     {/if}
   </WidgetsInnerContainer>
 {:else}
@@ -139,7 +141,7 @@
       <AppObjectList
         list={objectList.map(x => ({ ...x, conid, database }))}
         module={databaseObjectAppObject}
-        groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField)}
+        groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
         subItemsComponent={SubColumnParamList}
         isExpandable={data =>
           data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
