@@ -26,7 +26,7 @@
     if (display?.filterBehaviourOverride) {
       return display?.filterBehaviourOverride;
     }
-    const fromDriver = display?.driver?.getFilterBehaviour(column.dataType, standardFilterBehaviours);
+    const fromDriver = display?.driver?.getFilterBehaviour(column?.dataType, standardFilterBehaviours);
     if (fromDriver) return fromDriver;
     if (isDynamicStructure) return mongoFilterBehaviour;
 
@@ -34,10 +34,14 @@
   }
 </script>
 
-{#if column}
+{#if column || isDynamicStructure}
   <div class="m-1">
     <div class="space-between">
-      <ColumnLabel {...column} />
+      {#if column}
+        <ColumnLabel {...column} />
+      {:else}
+        {uniqueName}
+      {/if}
       <InlineButton
         square
         narrow
@@ -57,8 +61,8 @@
       {database}
       {schemaName}
       {pureName}
-      columnName={column.uniquePath.length == 1 ? column.uniquePath[0] : null}
-      foreignKey={column.foreignKey}
+      columnName={column ? (column.uniquePath.length == 1 ? column.uniquePath[0] : null) : uniqueName}
+      foreignKey={column?.foreignKey}
     />
   </div>
 {/if}
