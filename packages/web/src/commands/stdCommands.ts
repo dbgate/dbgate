@@ -294,24 +294,7 @@ registerCommand({
 
     showModal(NewCollectionModal, {
       driver,
-      onConfirm: async values => {
-        // await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
-        const resp = await apiCall('database-connections/run-operation', {
-          ...dbid,
-          operation: {
-            type: 'createCollection',
-            collection: values,
-          },
-        });
-
-        const { errorMessage } = resp || {};
-        if (errorMessage) {
-          showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
-        } else {
-          showSnackbarSuccess('Saved to database');
-          apiCall('database-connections/sync-model', dbid);
-        }
-      },
+      dbid,
     });
   },
 });

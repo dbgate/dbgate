@@ -93,17 +93,7 @@
     const handleNewCollection = () => {
       showModal(NewCollectionModal, {
         driver,
-        onConfirm: async values => {
-          runOperationOnDatabase(
-            { conid: connection._id, database: name },
-            {
-              type: 'createCollection',
-              collection: values,
-            }
-          );
-
-          // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
-        },
+        dbid: { conid: connection._id, database: name },
       });
     };
 

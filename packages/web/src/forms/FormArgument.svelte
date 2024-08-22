@@ -4,6 +4,7 @@
   import FormCheckboxField from './FormCheckboxField.svelte';
   import FormSelectField from './FormSelectField.svelte';
   import FormTextField from './FormTextField.svelte';
+  import FormStringList from './FormStringList.svelte';
 
   export let arg;
   export let namePrefix;
@@ -12,9 +13,29 @@
 </script>
 
 {#if arg.type == 'text'}
-  <FormTextField label={arg.label} {name} defaultValue={arg.default} focused={arg.focused} />
+  <FormTextField
+    label={arg.label}
+    {name}
+    defaultValue={arg.default}
+    focused={arg.focused}
+    placeholder={arg.placeholder}
+  />
+{:else if arg.type == 'stringlist'}
+  <FormStringList
+    label={arg.label}
+    addButtonLabel={arg.addButtonLabel}
+    {name}
+    placeholder={arg.placeholder}
+  />
 {:else if arg.type == 'number'}
-  <FormTextField label={arg.label} type="number" {name} defaultValue={arg.default} focused={arg.focused} />
+  <FormTextField
+    label={arg.label}
+    type="number"
+    {name}
+    defaultValue={arg.default}
+    focused={arg.focused}
+    placeholder={arg.placeholder}
+  />
 {:else if arg.type == 'checkbox'}
   <FormCheckboxField label={arg.label} {name} defaultValue={arg.default} />
 {:else if arg.type == 'select'}
