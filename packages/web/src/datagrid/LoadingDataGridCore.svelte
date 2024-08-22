@@ -92,7 +92,7 @@
   // $: grider = griderFactory(griderProps);
 
   function handleLoadNextData() {
-    if (!isLoadedAll && !errorMessage && !grider.disableLoadNextPage) {
+    if (!isLoadedAll && !errorMessage && (!grider.disableLoadNextPage || loadedRows.length == 0)) {
       if (dataPageAvailable($$props)) {
         // If not, callbacks to load missing metadata are dispatched
         loadNextData();
