@@ -105,10 +105,10 @@ export class CollectionGridDisplay extends GridDisplay {
     this.columns = analyseCollectionDisplayColumns([...(loadedRows || []), ...changedDocs, ...insertedDocs], this);
     this.filterable = true;
     this.sortable = true;
-    this.editable = !readOnly;
+    this.editable = !readOnly && collection?.uniqueKey?.length > 0;
     this.supportsReload = true;
     this.isDynamicStructure = true;
-    this.changeSetKeyFields = ['_id'];
+    this.changeSetKeyFields = collection?.uniqueKey?.map(x => x.columnName);
     this.baseCollection = collection;
   }
 }
