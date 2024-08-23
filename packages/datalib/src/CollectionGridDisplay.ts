@@ -66,6 +66,10 @@ function getDisplayColumn(basePath, columnName, display: CollectionGridDisplay) 
     filterBehaviour: display?.driver?.getFilterBehaviour(null, standardFilterBehaviours) ?? mongoFilterBehaviour,
     pureName: display.collection?.pureName,
     schemaName: display.collection?.schemaName,
+
+    isPartitionKey: !!display?.collection?.partitionKey?.find(x => x.columnName == uniqueName),
+    isClusterKey: !!display?.collection?.clusterKey?.find(x => x.columnName == uniqueName),
+    isUniqueKey: !!display?.collection?.uniqueKey?.find(x => x.columnName == uniqueName),
   };
 }
 

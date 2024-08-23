@@ -35,10 +35,14 @@ class Analyser extends DatabaseAnalyser {
           pureName: x.name,
           tableRowCount: stats[index]?.count,
           uniqueKey: [{ columnName: '_id' }],
+          partitionKey: [{ columnName: '_id' }],
+          clusterKey: [{ columnName: '_id' }],
         })),
         ...views.map((x, index) => ({
           pureName: x.name,
           uniqueKey: [{ columnName: '_id' }],
+          partitionKey: [{ columnName: '_id' }],
+          clusterKey: [{ columnName: '_id' }],
         })),
       ],
     });
