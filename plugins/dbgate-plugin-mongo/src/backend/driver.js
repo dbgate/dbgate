@@ -3,9 +3,8 @@ const stream = require('stream');
 const isPromise = require('is-promise');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const MongoClient = require('mongodb').MongoClient;
-const ObjectId = require('mongodb').ObjectId;
-const AbstractCursor = require('mongodb').AbstractCursor;
+const { MongoClient, ObjectId, AbstractCursor } = require('mongodb');
+const { EJSON } = require('bson');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -14,9 +13,7 @@ const {
 } = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
-  return _.cloneDeepWith(row, (x) => {
-    if (x && x.constructor == ObjectId) return { $oid: x.toString() };
-  });
+  return EJSON.serialize(row);
 }
 
 async function readCursor(cursor, options) {
@@ -27,11 +24,7 @@ async function readCursor(cursor, options) {
 }
 
 function convertObjectId(condition) {
-  return _.cloneDeepWith(condition, (x) => {
-    if (x && x.$oid) {
-      return ObjectId.createFromHexString(x.$oid);
-    }
-  });
+  return EJSON.deserialize(condition);
 }
 
 function findArrayResult(resValue) {
