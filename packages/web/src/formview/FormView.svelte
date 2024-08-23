@@ -273,7 +273,10 @@
   export function copyToClipboard() {
     const column = getCellColumn(currentCell);
     if (!column) return;
-    const text = currentCell[1] % 2 == 1 ? extractRowCopiedValue(rowData, column.uniqueName) : column.columnName;
+    const text =
+      currentCell[1] % 2 == 1
+        ? extractRowCopiedValue(rowData, column.uniqueName, display?.driver?.dataEditorTypesBehaviour)
+        : column.columnName;
     copyTextToClipboard(text);
   }
 
@@ -631,11 +634,12 @@
             {#if rowData && $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
               <InplaceEditor
                 width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                driver={display?.driver}
                 inplaceEditorState={$inplaceEditorState}
                 {dispatchInsplaceEditor}
                 cellValue={rowData[col.uniqueName]}
-                options="{col.options}"
-                canSelectMultipleOptions="{col.canSelectMultipleOptions}"
+                options={col.options}
+                canSelectMultipleOptions={col.canSelectMultipleOptions}
                 onSetValue={value => {
                   grider.setCellValue(0, col.uniqueName, value);
                 }}
@@ -644,6 +648,7 @@
               <DataGridCell
                 maxWidth={(wrapperWidth * 2) / 3}
                 minWidth={200}
+                editorTypes={display?.driver?.dataEditorTypesBehaviour}
                 {rowIndex}
                 {col}
                 {rowData}
@@ -654,11 +659,14 @@
                 bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
                 onSetFormView={handleSetFormView}
                 showSlot={!rowData ||
-                ($inplaceEditorState.cell &&
-                  rowIndex == $inplaceEditorState.cell[0] &&
-                  chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
+                  ($inplaceEditorState.cell &&
+                    rowIndex == $inplaceEditorState.cell[0] &&
+                    chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
                 isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
                 onDictionaryLookup={() => handleLookup(col)}
+                onSetValue={value => {
+                  grider.setCellValue(0, col.uniqueName, value);
+                }}
               />
             {/if}
           </tr>

@@ -9,6 +9,7 @@
   export let cellValue;
   export let options;
   export let canSelectMultipleOptions;
+  export let driver;
 </script>
 
 <td class="editor">
@@ -21,6 +22,7 @@
         {onSetValue}
         {options}
         {canSelectMultipleOptions}
+        {driver}
       />
     {:else}
       <InplaceInput
@@ -29,6 +31,7 @@
         {dispatchInsplaceEditor}
         {cellValue}
         {onSetValue}
+        {driver}
       />
     {/if}
   </div>

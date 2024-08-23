@@ -1,6 +1,8 @@
 import _isString from 'lodash/isString';
 import _isArray from 'lodash/isArray';
+import _isNumber from 'lodash/isNumber';
 import _isPlainObject from 'lodash/isPlainObject';
+import { DataEditorTypesBehaviour } from 'dbgate-types';
 
 export function arrayToHexString(byteArray) {
   return byteArray.reduce((output, elem) => output + ('0' + elem.toString(16)).slice(-2), '').toUpperCase();
@@ -15,34 +17,101 @@ export function hexStringToArray(inputString) {
   return res;
 }
 
-export function parseCellValue(value) {
+export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
-  if (value == '(NULL)') return null;
-
-  const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
-  if (mHex) {
-    return {
-      type: 'Buffer',
-      data: hexStringToArray(value.substring(2)),
-    };
+  if (editorTypes?.parseSqlNull) {
+    if (value == '(NULL)') return null;
   }
 
-  const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
-  if (mOid) {
-    return { $oid: mOid[1] };
+  if (editorTypes?.parseHexAsBuffer) {
+    const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
+    if (mHex) {
+      return {
+        type: 'Buffer',
+        data: hexStringToArray(value.substring(2)),
+      };
+    }
+  }
+
+  if (editorTypes?.parseObjectIdAsDollar) {
+    const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
+    if (mOid) {
+      return { $oid: mOid[1] };
+    }
+  }
+
+  if (editorTypes?.parseJsonNull) {
+    if (value == 'null') return null;
+  }
+
+  if (editorTypes?.parseJsonBoolean) {
+    if (value == 'true') return true;
+    if (value == 'false') return false;
+  }
+
+  if (editorTypes?.parseNumber) {
+    if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(value)) {
+      return parseFloat(value);
+    }
+  }
+
+  if (editorTypes?.parseJsonArray || editorTypes?.parseJsonObject) {
+    const jsonValue = safeJsonParse(value);
+    if (_isPlainObject(jsonValue) && editorTypes?.parseJsonObject) return jsonValue;
+    if (_isArray(jsonValue) && editorTypes?.parseJsonArray) return jsonValue;
   }
 
   return value;
 }
 
-export function stringifyCellValue(value) {
-  if (value === null) return '(NULL)';
-  if (value === undefined) return '(NoField)';
-  if (value?.type == 'Buffer' && _isArray(value.data)) return '0x' + arrayToHexString(value.data);
-  if (value?.$oid) return `ObjectId("${value?.$oid}")`;
-  if (_isPlainObject(value) || _isArray(value)) return JSON.stringify(value);
+function parseObjectIdAsDollar(value) {
+  if (value?.$oid) return value;
+  if (_isString(value)) {
+    if (value.match(/^[0-9a-f]{24}$/)) return { $oid: value };
+    const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
+    if (mOid) {
+      return { $oid: mOid[1] };
+    }
+  }
   return value;
+}
+
+export function stringifyCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
+  if (editorTypes?.parseSqlNull) {
+    if (value === null) return '(NULL)';
+  }
+  if (value === undefined) return '(NoField)';
+  if (editorTypes?.parseJsonNull) {
+    if (value === null) return 'null';
+  }
+  if (editorTypes?.parseJsonBoolean) {
+    if (value === true) return 'true';
+    if (value === false) return 'false';
+  }
+  if (editorTypes?.parseHexAsBuffer) {
+    if (value?.type == 'Buffer' && _isArray(value.data)) return '0x' + arrayToHexString(value.data);
+  }
+  if (editorTypes?.parseObjectIdAsDollar) {
+    if (value?.$oid) return `ObjectId("${value?.$oid}")`;
+  }
+  if (editorTypes?.parseJsonArray) {
+    if (_isArray(value)) return JSON.stringify(value);
+  }
+  if (editorTypes?.parseJsonObject) {
+    if (_isPlainObject(value)) return JSON.stringify(value);
+  }
+  if (editorTypes?.parseNumber) {
+    if (_isNumber(value)) return value.toString();
+  }
+
+  if (_isString(value)) return value;
+
+  // fallback
+  if (_isNumber(value)) return value.toString();
+  if (value === null || value === undefined) return '';
+
+  return '';
 }
 
 export function safeJsonParse(json, defaultValue?, logError = false) {
@@ -126,4 +195,41 @@ export function parseSqlDefaultValue(value: string) {
     return parseFloat(value);
   }
   return undefined;
+}
+
+export function detectTypeIcon(value) {
+  if (value === null) return 'icon type-null';
+  if (value?.$oid) return 'icon type-objectid';
+  if (_isString(value)) return 'icon type-string';
+  if (_isNumber(value)) return 'icon type-number';
+  if (_isPlainObject(value)) return 'icon type-object';
+  if (_isArray(value)) return 'icon type-array';
+  if (value === true || value === false) return 'icon type-boolean';
+  return 'icon type-unknown';
+}
+
+export function getConvertValueMenu(value, onSetValue, editorTypes?: DataEditorTypesBehaviour) {
+  return [
+    editorTypes?.supportStringType && {
+      text: 'String',
+      onClick: () => onSetValue(stringifyCellValue(value, editorTypes)),
+    },
+    editorTypes?.supportNumberType && { text: 'Number', onClick: () => onSetValue(parseFloat(value)) },
+    editorTypes?.supportNullType && { text: 'Null', onClick: () => onSetValue(null) },
+    editorTypes?.supportBooleanType && {
+      text: 'Boolean',
+      onClick: () => onSetValue(value?.toString()?.toLowerCase() == 'true' || value == '1'),
+    },
+    editorTypes?.supportObjectIdType && { text: 'ObjectId', onClick: () => onSetValue(parseObjectIdAsDollar(value)) },
+    editorTypes?.supportJsonType && {
+      text: 'JSON',
+      onClick: () => {
+        const jsonValue = safeJsonParse(value);
+        if (jsonValue != null) {
+          console.log('**** ON SET VALUE', jsonValue);
+          onSetValue(jsonValue);
+        }
+      },
+    },
+  ];
 }

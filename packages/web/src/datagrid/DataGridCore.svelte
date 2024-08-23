@@ -1557,7 +1557,7 @@
           }
           let colIndex = startCol;
           for (const cell of rowData) {
-            setCellValue([rowIndex, colIndex], parseCellValue(cell));
+            setCellValue([rowIndex, colIndex], parseCellValue(cell, display?.driver?.dataEditorTypesBehaviour));
             colIndex += 1;
           }
           rowIndex += 1;

@@ -186,6 +186,16 @@
     'icon num-9-outline': 'mdi mdi-numeric-9-circle-outline',
     'icon num-9-plus-outline': 'mdi mdi-numeric-9-plus-circle-outline',
 
+    'icon type-string': 'mdi mdi-code-string',
+    'icon type-object': 'mdi mdi-code-braces-box',
+    'icon type-array': 'mdi mdi-code-array',
+    'icon type-number': 'mdi mdi-pound-box',
+    'icon type-boolean': 'mdi mdi-code-equal',
+    'icon type-date': 'mdi mdi-alpha-d-box',
+    'icon type-objectid': 'mdi mdi-alpha-i-box',
+    'icon type-null': 'mdi mdi-code-equal',
+    'icon type-unknown': 'mdi mdi-help-box',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',

@@ -62,6 +62,7 @@
         options="{col.options}"
         canSelectMultipleOptions="{col.canSelectMultipleOptions}"
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
+        {driver}
       />
     {:else}
       <DataGridCell
@@ -70,6 +71,7 @@
         {col}
         {conid}
         {database}
+        editorTypes={driver?.dataEditorTypesBehaviour}
         allowHintField={hintFieldsAllowed?.includes(col.uniqueName)}
         isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
         isCurrentCell={col.colIndex == currentCellColumn}

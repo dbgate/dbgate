@@ -122,6 +122,24 @@ const driver = {
       sort: convertToMongoSort(sort) || {},
     };
   },
+
+  dataEditorTypesBehaviour: {
+    parseJsonNull: true,
+    parseJsonBoolean: true,
+    parseNumber: true,
+    parseJsonArray: true,
+    parseJsonObject: true,
+    parseObjectIdAsDollar: true,
+
+    explicitDataType: true,
+    supportNumberType: true,
+    supportStringType: true,
+    supportBooleanType: true,
+    supportDateType: true,
+    supportJsonType: true,
+    supportObjectIdType: true,
+    supportNullType: true,
+  },
 };
 
 module.exports = driver;

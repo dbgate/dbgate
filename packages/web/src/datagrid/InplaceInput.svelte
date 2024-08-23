@@ -14,6 +14,7 @@
   export let onSetValue;
   export let width;
   export let cellValue;
+  export let driver;
 
   let domEditor;
   let showEditorButton = true;
@@ -21,6 +22,8 @@
   const widthCopy = width;
 
   const isChangedRef = createRef(!!inplaceEditorState.text);
+
+  $: editorTypes = driver?.dataEditorTypesBehaviour;
 
   function handleKeyDown(event) {
     showEditorButton = false;
@@ -32,7 +35,7 @@
         break;
       case keycodes.enter:
         if (isChangedRef.get()) {
-          onSetValue(parseCellValue(domEditor.value));
+          onSetValue(parseCellValue(domEditor.value, editorTypes));
           isChangedRef.set(false);
         }
         domEditor.blur();
@@ -41,7 +44,7 @@
         break;
       case keycodes.tab:
         if (isChangedRef.get()) {
-          onSetValue(parseCellValue(domEditor.value));
+          onSetValue(parseCellValue(domEditor.value, editorTypes));
           isChangedRef.set(false);
         }
         domEditor.blur();
@@ -51,7 +54,7 @@
       case keycodes.s:
         if (isCtrlOrCommandKey(event)) {
           if (isChangedRef.get()) {
-            onSetValue(parseCellValue(domEditor.value));
+            onSetValue(parseCellValue(domEditor.value, editorTypes));
             isChangedRef.set(false);
           }
           event.preventDefault();
@@ -63,7 +66,7 @@
 
   function handleBlur() {
     if (isChangedRef.get()) {
-      onSetValue(parseCellValue(domEditor.value));
+      onSetValue(parseCellValue(domEditor.value, editorTypes));
       // grider.setCellValue(rowIndex, uniqueName, editor.value);
       isChangedRef.set(false);
     }
@@ -71,7 +74,7 @@
   }
 
   onMount(() => {
-    domEditor.value = inplaceEditorState.text || stringifyCellValue(cellValue);
+    domEditor.value = inplaceEditorState.text || stringifyCellValue(cellValue, editorTypes);
     domEditor.focus();
     if (inplaceEditorState.selectAll) {
       domEditor.select();
@@ -102,7 +105,7 @@
       dispatchInsplaceEditor({ type: 'close' });
 
       showModal(EditCellDataModal, {
-        value: stringifyCellValue(cellValue),
+        value: stringifyCellValue(cellValue, editorTypes),
         onSave: onSetValue,
       });
     }}

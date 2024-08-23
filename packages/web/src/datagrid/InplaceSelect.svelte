@@ -11,6 +11,7 @@
   export let cellValue;
   export let options;
   export let canSelectMultipleOptions;
+  export let driver;
 
   let value;
   let valueInit;
@@ -18,7 +19,7 @@
   let isOptionsHidden = false;
 
   onMount(() => {
-    value = inplaceEditorState.text || stringifyCellValue(cellValue);
+    value = inplaceEditorState.text || stringifyCellValue(cellValue, driver?.dataEditorTypesBehaviour);
     valueInit = value;
 
     const optionsSelected = value.split(',');
