@@ -559,7 +559,7 @@
         for (const column of display.columns) {
           if (column.uniquePath.length > 1) continue;
           if (column.autoIncrement) continue;
-          if (column.columnName == '_id' && isDynamicStructure) continue;
+          if (column.isClusterKey) continue;
 
           grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
         }
@@ -959,7 +959,9 @@
 
   export async function mergeSelectionIntoMirror({ fullRows, mergeMode = 'merge' }) {
     const file = display.baseTableOrSimilar?.pureName;
-    const mergeKey = display.baseCollection ? ['_id'] : display.baseTable?.primaryKey.columns.map(x => x.columnName);
+    const mergeKey = display.baseCollection
+      ? display.baseCollection?.uniqueKey?.map(x => x.columnName)
+      : display.baseTable?.primaryKey.columns.map(x => x.columnName);
 
     const cells = cellsToRegularCells(selectedCells);
     const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
