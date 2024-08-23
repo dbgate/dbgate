@@ -75,7 +75,7 @@ export async function getClipboardText() {
 export function extractRowCopiedValue(row, col, editorTypes?: DataEditorTypesBehaviour) {
   let value = row[col];
   if (value === undefined) value = _.get(row, col);
-  return stringifyCellValue(value, editorTypes);
+  return stringifyCellValue(value, 'exportIntent', editorTypes).value;
 }
 
 const clipboardHeadersFormatter = delimiter => columns => {

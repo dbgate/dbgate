@@ -19,22 +19,22 @@
   let isOptionsHidden = false;
 
   onMount(() => {
-    value = inplaceEditorState.text || stringifyCellValue(cellValue, driver?.dataEditorTypesBehaviour);
+    value =
+      inplaceEditorState.text || stringifyCellValue(cellValue, 'inlineEditorIntent', driver?.dataEditorTypesBehaviour).value;
     valueInit = value;
 
     const optionsSelected = value.split(',');
-    optionsData = options
-      .map(function(option) {
-        return {
-          value: option,
-          isSelected: optionsSelected.includes(option)
-        };
-      });
+    optionsData = options.map(function (option) {
+      return {
+        value: option,
+        isSelected: optionsSelected.includes(option),
+      };
+    });
   });
 
   function handleCheckboxChanged(e, option) {
     if (!canSelectMultipleOptions) {
-      optionsData.forEach(option => option.isSelected = false);
+      optionsData.forEach(option => (option.isSelected = false));
       option.isSelected = true;
     } else {
       option.isSelected = e.target.checked;
@@ -45,8 +45,7 @@
       .map(option => option.value)
       .join(',');
 
-    if(!canSelectMultipleOptions)
-      handleConfirm();
+    if (!canSelectMultipleOptions) handleConfirm();
   }
 
   function handleConfirm() {
@@ -70,13 +69,8 @@
   }
 </script>
 
-<div
-  use:clickOutside
-  on:clickOutside={handleClickOutside}
-  on:keydown={handleKeyDown}
-  class="inplaceselect"
->
-  <div on:click={() => isOptionsHidden = !isOptionsHidden} class="value">
+<div use:clickOutside on:clickOutside={handleClickOutside} on:keydown={handleKeyDown} class="inplaceselect">
+  <div on:click={() => (isOptionsHidden = !isOptionsHidden)} class="value">
     {value}
   </div>
 
@@ -89,11 +83,12 @@
   <div class="options" class:hidden={isOptionsHidden}>
     {#each optionsData ?? [] as option}
       <label>
-        <input type="checkbox"
+        <input
+          type="checkbox"
           on:change={e => handleCheckboxChanged(e, option)}
           bind:checked={option.isSelected}
           class:hidden={!canSelectMultipleOptions}
-        >
+        />
         {option.value}
       </label>
     {/each}
@@ -113,7 +108,7 @@
     background-color: var(--theme-bg-alt);
     max-height: 150px;
     overflow: auto;
-    box-shadow: 0 1px 10px 1px var(--theme-bg-inv-3);;
+    box-shadow: 0 1px 10px 1px var(--theme-bg-inv-3);
   }
 
   .value {

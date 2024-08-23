@@ -37,7 +37,7 @@
   function createColumnsTable(cells) {
     if (cells.length == 0) return '';
     return `<table>${cells
-      .map(cell => `<tr><td>${cell.column}</td><td>${stringifyCellValue(cell.value)}</td></tr>`)
+      .map(cell => `<tr><td>${cell.column}</td><td>${stringifyCellValue(cell.value, 'exportIntent').value}</td></tr>`)
       .join('\n')}</table>`;
   }
 

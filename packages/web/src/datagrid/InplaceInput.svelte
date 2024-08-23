@@ -74,7 +74,7 @@
   }
 
   onMount(() => {
-    domEditor.value = inplaceEditorState.text || stringifyCellValue(cellValue, editorTypes);
+    domEditor.value = inplaceEditorState.text || stringifyCellValue(cellValue, 'inlineEditorIntent', editorTypes).value;
     domEditor.focus();
     if (inplaceEditorState.selectAll) {
       domEditor.select();
@@ -105,7 +105,7 @@
       dispatchInsplaceEditor({ type: 'close' });
 
       showModal(EditCellDataModal, {
-        value: stringifyCellValue(cellValue, editorTypes),
+        value: stringifyCellValue(cellValue, 'multilineEditorIntent', editorTypes).value,
         onSave: onSetValue,
       });
     }}

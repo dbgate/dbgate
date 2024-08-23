@@ -72,7 +72,7 @@
   class:isFocusedColumn
   {style}
 >
-  <CellValue {rowData} {value} {jsonParsedValue} />
+  <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
 
   {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
     <span class="hint"

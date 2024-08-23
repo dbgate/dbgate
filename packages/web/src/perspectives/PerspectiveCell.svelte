@@ -15,7 +15,7 @@
     if (force && value?.type == 'Buffer' && _.isArray(value.data)) {
       return String.fromCharCode.apply(String, value.data);
     }
-    return stringifyCellValue(value);
+    return stringifyCellValue(value, 'gridCellIntent').value;
   }
 </script>
 
