@@ -245,8 +245,23 @@ const driver = {
     const db = await getScriptableDb(pool);
     exprValue = func(db, ObjectId.createFromHexString);
 
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    exprValue
+      .forEach((row) => pass.write(transformMongoData(row)))
+      .then(() => {
+        pass.end();
+        // pass.end(() => {
+        //   pass.emit('end');
+        // })
+      });
+
+    return pass;
     // return directly stream without header row
-    return exprValue.stream();
+    // return exprValue.stream();
 
     // pass.write(structure || { __isDynamicStructure: true });
     // exprValue.on('data', (row) => pass.write(row));

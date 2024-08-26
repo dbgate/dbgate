@@ -1,5 +1,6 @@
 const ObjectId = require('mongodb').ObjectId;
 const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { EJSON } = require('bson');
 
 const logger = getLogger('mongoBulkInsert');
 
@@ -26,7 +27,7 @@ function createBulkInsertStream(driver, stream, pool, name, options) {
         ...row,
       };
     }
-    writable.buffer.push(row);
+    writable.buffer.push(EJSON.deserialize(row));
   };
 
   writable.checkStructure = async () => {
