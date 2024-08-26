@@ -92,8 +92,7 @@
       "icon": "icon.ico",
       "publish": [
         "github"
-      ],
-      "rfc3161TimeStampServer": "http://sha256timestamp.ws.symantec.com/sha256/timestamp"
+      ]
     },
     "files": [
       "packages",
