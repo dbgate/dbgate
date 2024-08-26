@@ -104,15 +104,21 @@ export abstract class GridDisplay {
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
     if (uniquePath.length == 1) {
-      this.includeInColumnSet('hiddenColumns', uniqueName, !isVisible);
+      this.includeInColumnSet([
+        { field: 'hiddenColumns', uniqueName, isIncluded: !isVisible },
+        isVisible == false && this.isDynamicStructure && { field: 'addedColumns', uniqueName, isIncluded: false },
+      ]);
     } else {
-      this.includeInColumnSet('addedColumns', uniqueName, isVisible);
+      this.includeInColumnSet([{ field: 'addedColumns', uniqueName, isIncluded: isVisible }]);
       if (!this.isDynamicStructure) this.reload();
     }
   }
 
   addDynamicColumn(name: string) {
-    this.includeInColumnSet('addedColumns', name, true);
+    this.includeInColumnSet([
+      { field: 'addedColumns', uniqueName: name, isIncluded: true },
+      { field: 'hiddenColumns', uniqueName: name, isIncluded: false },
+    ]);
   }
 
   focusColumns(uniqueNames: string[]) {
@@ -150,19 +156,30 @@ export abstract class GridDisplay {
     this.setCache(reloadDataCacheFunc);
   }
 
-  includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
-    // console.log('includeInColumnSet', field, uniqueName, isIncluded);
-    if (isIncluded) {
-      this.setConfig(cfg => ({
-        ...cfg,
-        [field]: [...(cfg[field] || []), uniqueName],
-      }));
-    } else {
-      this.setConfig(cfg => ({
-        ...cfg,
-        [field]: (cfg[field] || []).filter(x => x != uniqueName),
-      }));
-    }
+  includeInColumnSet(
+    modifications: ({ field: keyof GridConfigColumns; uniqueName: string; isIncluded: boolean } | null)[]
+  ) {
+    this.setConfig(cfg => {
+      let res = cfg;
+      for (const modification of modifications) {
+        if (!modification) {
+          continue;
+        }
+        const { field, uniqueName, isIncluded } = modification;
+        if (isIncluded) {
+          res = {
+            ...res,
+            [field]: [...(cfg[field] || []), uniqueName],
+          };
+        } else {
+          res = {
+            ...res,
+            [field]: (cfg[field] || []).filter(x => x != uniqueName),
+          };
+        }
+      }
+      return res;
+    });
   }
 
   showAllColumns() {
@@ -355,7 +372,9 @@ export abstract class GridDisplay {
   }
 
   toggleExpandedColumn(uniqueName: string, value?: boolean) {
-    this.includeInColumnSet('expandedColumns', uniqueName, value == null ? !this.isExpandedColumn(uniqueName) : value);
+    this.includeInColumnSet([
+      { field: 'expandedColumns', uniqueName, isIncluded: value == null ? !this.isExpandedColumn(uniqueName) : value },
+    ]);
   }
 
   getFilter(uniqueName: string) {
