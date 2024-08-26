@@ -93,7 +93,7 @@
       "publish": [
         "github"
       ],
-      "rfc3161TimeStampServer": "http://sha256timestamp.ws.symantec.com/sha256/timestamp"
+      "rfc3161TimeStampServer": "http://rfc3161timestamp.globalsign.com/advanced"
     },
     "files": [
       "packages",
