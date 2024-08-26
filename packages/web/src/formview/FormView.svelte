@@ -48,8 +48,17 @@
     category: 'Data form',
     name: 'Set NULL',
     keyText: 'CtrlOrCommand+0',
-    testEnabled: () => getCurrentDataForm() != null,
+    testEnabled: () => getCurrentDataForm() != null && !getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataForm().setFixedValue(null),
+  });
+
+  registerCommand({
+    id: 'dataForm.removeField',
+    category: 'Data form',
+    name: 'Remove field',
+    keyText: 'CtrlOrCommand+0',
+    testEnabled: () => getCurrentDataForm() != null && getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
+    onClick: () => getCurrentDataForm().setFixedValue(undefined),
   });
 
   registerCommand({
@@ -157,7 +166,7 @@
 <script lang="ts">
   import { getFilterValueExpression } from 'dbgate-filterparser';
 
-  import { filterName } from 'dbgate-tools';
+  import { filterName, shouldOpenMultilineDialog, stringifyCellValue } from 'dbgate-tools';
 
   import _ from 'lodash';
 
@@ -175,7 +184,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
-  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
@@ -201,6 +210,7 @@
   export let rowCountNotAvailable;
   // export let formDisplay;
   export let onNavigate;
+  export let dataEditorTypesBehaviourOverride = null;
 
   let wrapperHeight = 1;
   let wrapperWidth = 1;
@@ -273,7 +283,10 @@
   export function copyToClipboard() {
     const column = getCellColumn(currentCell);
     if (!column) return;
-    const text = currentCell[1] % 2 == 1 ? extractRowCopiedValue(rowData, column.uniqueName) : column.columnName;
+    const text =
+      currentCell[1] % 2 == 1
+        ? extractRowCopiedValue(rowData, column.uniqueName, display?.driver?.dataEditorTypesBehaviour)
+        : column.columnName;
     copyTextToClipboard(text);
   }
 
@@ -317,6 +330,10 @@
   }
 
   export const activator = createActivator('FormView', false);
+
+  export function getEditorTypes() {
+    return display?.driver?.dataEditorTypesBehaviour;
+  }
 
   const handleTableMouseDown = event => {
     if (event.target.closest('.buttonLike')) return;
@@ -408,10 +425,11 @@
     { divider: true },
     { placeTag: 'save' },
     { command: 'dataForm.revertRowChanges' },
-    { command: 'dataForm.setNull' },
+    { command: 'dataForm.setNull', hideDisabled: true },
+    { command: 'dataForm.removeField', hideDisabled: true },
     { divider: true },
-    { command: 'dataForm.undo' },
-    { command: 'dataForm.redo' },
+    { command: 'dataForm.undo', hideDisabled: true },
+    { command: 'dataForm.redo', hideDisabled: true },
     { divider: true },
     { command: 'dataForm.goToFirst' },
     { command: 'dataForm.goToPrevious' },
@@ -488,6 +506,7 @@
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
         value: cellData,
+        dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
         onSave: value => grider.setCellValue(0, column.uniqueName, value),
       });
       return true;
@@ -631,11 +650,13 @@
             {#if rowData && $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
               <InplaceEditor
                 width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                driver={display?.driver}
                 inplaceEditorState={$inplaceEditorState}
                 {dispatchInsplaceEditor}
+                {dataEditorTypesBehaviourOverride}
                 cellValue={rowData[col.uniqueName]}
-                options="{col.options}"
-                canSelectMultipleOptions="{col.canSelectMultipleOptions}"
+                options={col.options}
+                canSelectMultipleOptions={col.canSelectMultipleOptions}
                 onSetValue={value => {
                   grider.setCellValue(0, col.uniqueName, value);
                 }}
@@ -644,6 +665,7 @@
               <DataGridCell
                 maxWidth={(wrapperWidth * 2) / 3}
                 minWidth={200}
+                editorTypes={display?.driver?.dataEditorTypesBehaviour}
                 {rowIndex}
                 {col}
                 {rowData}
@@ -654,11 +676,14 @@
                 bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
                 onSetFormView={handleSetFormView}
                 showSlot={!rowData ||
-                ($inplaceEditorState.cell &&
-                  rowIndex == $inplaceEditorState.cell[0] &&
-                  chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
+                  ($inplaceEditorState.cell &&
+                    rowIndex == $inplaceEditorState.cell[0] &&
+                    chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
                 isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
                 onDictionaryLookup={() => handleLookup(col)}
+                onSetValue={value => {
+                  grider.setCellValue(0, col.uniqueName, value);
+                }}
               />
             {/if}
           </tr>

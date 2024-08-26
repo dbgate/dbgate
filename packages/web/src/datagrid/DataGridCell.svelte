@@ -1,13 +1,11 @@
 <script lang="ts">
-  import _ from 'lodash';
+  import _, { isPlainObject } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
-  import { isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
+  import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
-  import openNewTab from '../utility/openNewTab';
   import CellValue from './CellValue.svelte';
-  import { showModal } from '../modals/modalTools';
-  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
+  import ShowFormDropDownButton from '../formview/ShowFormDropDownButton.svelte';
 
   export let rowIndex;
   export let col;
@@ -33,6 +31,7 @@
   export let isCurrentCell = false;
   export let onDictionaryLookup = null;
   export let onSetValue;
+  export let editorTypes = null;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 
@@ -51,7 +50,9 @@
   $: style = computeStyle(maxWidth, col);
 
   $: isJson = _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid;
-  $: jsonParsedValue = isJsonLikeLongString(value) ? safeJsonParse(value) : null;
+
+  // don't parse JSON for explicit data types
+  $: jsonParsedValue = !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;
 </script>
 
 <td
@@ -68,7 +69,7 @@
   class:isFocusedColumn
   {style}
 >
-  <CellValue {rowData} {value} {jsonParsedValue} />
+  <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
 
   {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
     <span class="hint"
@@ -76,23 +77,38 @@
     >
   {/if}
 
-  {#if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
+  {#if editorTypes?.explicitDataType}
+    {#if value !== undefined}
+      <ShowFormDropDownButton
+        icon={detectTypeIcon(value)}
+        menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
+      />
+    {/if}
+    {#if _.isPlainObject(value)}
+      <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+    {/if}
+    {#if _.isArray(value)}
+      <ShowFormButton
+        secondary
+        icon="icon open-in-new"
+        on:click={() => {
+          if (_.every(value, x => _.isPlainObject(x))) {
+            openJsonLinesData(value);
+          } else {
+            openJsonDocument(value, undefined, true);
+          }
+        }}
+      />
+    {/if}
+  {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
     <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
-  {/if}
-
-  {#if col.foreignKey && isCurrentCell && onDictionaryLookup}
+  {:else if col.foreignKey && isCurrentCell && onDictionaryLookup}
     <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
-  {/if}
-
-  {#if isJson}
+  {:else if isJson}
     <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
-  {/if}
-
-  {#if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
+  {:else if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
     <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
-  {/if}
-
-  {#if _.isArray(jsonParsedValue || value)}
+  {:else if _.isArray(jsonParsedValue || value)}
     <ShowFormButton
       icon="icon open-in-new"
       on:click={() => {

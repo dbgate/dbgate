@@ -30,6 +30,7 @@
   import { changeSetContainsChanges, createChangeSet } from 'dbgate-datalib';
   import localforage from 'localforage';
   import { onMount, tick } from 'svelte';
+  import _ from 'lodash';
 
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
@@ -129,7 +130,13 @@
       await apiCall('archive/modify-file', {
         folder: archiveFolder,
         file: archiveFile,
-        changeSet: $changeSetStore.value,
+        changeSet: {
+          ...$changeSetStore.value,
+          updates: $changeSetStore.value.updates.map(update => ({
+            ...update,
+            fields: _.mapValues(update.fields, (v, k) => (v === undefined ? { $$undefined$$: true } : v)),
+          })),
+        },
       });
       await afterSaveChangeSet();
     }
@@ -172,6 +179,10 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataGrid.refresh" />
     <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />
+    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.addNewColumn" hideDisabled />
     <ToolStripCommandButton command="archiveFile.save" />
     <ToolStripCommandButton command="archiveFile.saveAs" />
   </svelte:fragment>

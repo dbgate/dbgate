@@ -27,6 +27,8 @@
   export let database;
   export let driver;
 
+  export let dataEditorTypesBehaviourOverride = null;
+
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
 
@@ -59,10 +61,12 @@
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         cellValue={rowData[col.uniqueName]}
-        options="{col.options}"
-        canSelectMultipleOptions="{col.canSelectMultipleOptions}"
+        options={col.options}
+        canSelectMultipleOptions={col.canSelectMultipleOptions}
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
-      />
+        {driver}
+        {dataEditorTypesBehaviourOverride}
+        />
     {:else}
       <DataGridCell
         {rowIndex}
@@ -70,6 +74,7 @@
         {col}
         {conid}
         {database}
+        editorTypes={dataEditorTypesBehaviourOverride ?? driver?.dataEditorTypesBehaviour}
         allowHintField={hintFieldsAllowed?.includes(col.uniqueName)}
         isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
         isCurrentCell={col.colIndex == currentCellColumn}

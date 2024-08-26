@@ -182,6 +182,13 @@
           header: 'Add new column',
           onConfirm: name => {
             display.addDynamicColumn(name);
+            tick().then(() => {
+              selectedColumns = [name];
+              currentColumnUniqueName = name;
+              if (!isJsonView) {
+                display.focusColumns(selectedColumns);
+              }
+            });
           },
         });
       }}>Add</InlineButton

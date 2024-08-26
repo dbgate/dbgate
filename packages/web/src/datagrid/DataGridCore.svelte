@@ -67,6 +67,16 @@
   });
 
   registerCommand({
+    id: 'dataGrid.addNewColumn',
+    category: 'Data grid',
+    name: 'Add new column',
+    toolbarName: 'New column',
+    icon: 'icon add-column',
+    testEnabled: () => getCurrentDataGrid()?.addNewColumnEnabled(),
+    onClick: () => getCurrentDataGrid().addNewColumn(),
+  });
+
+  registerCommand({
     id: 'dataGrid.cloneRows',
     category: 'Data grid',
     name: 'Clone rows',
@@ -81,8 +91,19 @@
     category: 'Data grid',
     name: 'Set NULL',
     keyText: 'CtrlOrCommand+0',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () =>
+      getCurrentDataGrid()?.getGrider()?.editable && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(null),
+  });
+
+  registerCommand({
+    id: 'dataGrid.removeField',
+    category: 'Data grid',
+    name: 'Remove field',
+    keyText: 'CtrlOrCommand+0',
+    testEnabled: () =>
+      getCurrentDataGrid()?.getGrider()?.editable && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+    onClick: () => getCurrentDataGrid().setFixedValue(undefined),
   });
 
   registerCommand({
@@ -343,7 +364,13 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { driverBase, parseCellValue, detectSqlFilterBehaviour } from 'dbgate-tools';
+  import {
+    driverBase,
+    parseCellValue,
+    detectSqlFilterBehaviour,
+    stringifyCellValue,
+    shouldOpenMultilineDialog,
+  } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -397,11 +424,12 @@
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
   import { createGeoJsonFromSelection, selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -439,6 +467,8 @@
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
+
+  export let dataEditorTypesBehaviourOverride = null;
 
   const wheelRowCount = 5;
   const tabVisible: any = getContext('tabVisible');
@@ -533,6 +563,24 @@
       if (_.isNumber(index)) grider.deleteRow(index);
     }
     grider.endUpdate();
+  }
+
+  export function addNewColumnEnabled() {
+    return getGrider()?.editable && isDynamicStructure;
+  }
+
+  export function addNewColumn() {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'Column name',
+      header: 'Add new column',
+      onConfirm: name => {
+        display.addDynamicColumn(name);
+        tick().then(() => {
+          display.focusColumns([name]);
+        });
+      },
+    });
   }
 
   export async function insertNewRow() {
@@ -811,9 +859,14 @@
     const cellData = rowData[realColumnUniqueNames[currentCell[1]]];
 
     showModal(EditCellDataModal, {
-      value: cellData?.toString() || '',
+      value: cellData,
+      dataEditorTypesBehaviour: getEditorTypes(),
       onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
     });
+  }
+
+  export function getEditorTypes() {
+    return dataEditorTypesBehaviourOverride ?? display?.driver?.dataEditorTypesBehaviour;
   }
 
   export function addJsonDocumentEnabled() {
@@ -1246,6 +1299,7 @@
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
+        dataEditorTypesBehaviour: getEditorTypes(),
         value: cellData,
         onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
       });
@@ -1557,7 +1611,7 @@
           }
           let colIndex = startCol;
           for (const cell of rowData) {
-            setCellValue([rowIndex, colIndex], parseCellValue(cell));
+            setCellValue([rowIndex, colIndex], parseCellValue(cell, getEditorTypes()));
             colIndex += 1;
           }
           rowIndex += 1;
@@ -1695,13 +1749,15 @@
     { command: 'dataGrid.deleteSelectedRows' },
     { command: 'dataGrid.insertNewRow' },
     { command: 'dataGrid.cloneRows' },
-    { command: 'dataGrid.setNull' },
+    { command: 'dataGrid.setNull', hideDisabled: true },
+    { command: 'dataGrid.removeField', hideDisabled: true },
     { placeTag: 'edit' },
     { divider: true },
     { command: 'dataGrid.findColumn' },
     { command: 'dataGrid.hideColumn' },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
+    { command: 'dataGrid.addNewColumn', hideDisabled: true },
     { command: 'dataGrid.undo', hideDisabled: true },
     { command: 'dataGrid.redo', hideDisabled: true },
     { divider: true },
@@ -1941,6 +1997,7 @@
             {dispatchInsplaceEditor}
             {frameSelection}
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+            {dataEditorTypesBehaviourOverride}
           />
         {/each}
       </tbody>

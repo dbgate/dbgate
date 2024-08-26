@@ -2,6 +2,8 @@ const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const { convertToMongoCondition, convertToMongoSort } = require('./convertToMongoCondition');
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
+const _pickBy = require('lodash/pickBy');
+const _fromPairs = require('lodash/fromPairs');
 
 function jsonStringifyWithObjectId(obj) {
   return JSON.stringify(obj, undefined, 2).replace(
@@ -96,7 +98,12 @@ const driver = {
         res += `db.${update.pureName}.updateOne(${jsonStringifyWithObjectId(
           update.condition
         )}, ${jsonStringifyWithObjectId({
-          $set: update.fields,
+          $set: _pickBy(update.fields, (v, k) => v !== undefined),
+          $unset: _fromPairs(
+            Object.keys(update.fields)
+              .filter((k) => update.fields[k] === undefined)
+              .map((k) => [k, ''])
+          ),
         })});\n`;
       }
     }
@@ -121,6 +128,27 @@ const driver = {
       condition: convertToMongoCondition(condition) || {},
       sort: convertToMongoSort(sort) || {},
     };
+  },
+
+  dataEditorTypesBehaviour: {
+    parseJsonNull: true,
+    parseJsonBoolean: true,
+    parseNumber: true,
+    parseJsonArray: true,
+    parseJsonObject: true,
+    parseObjectIdAsDollar: true,
+    parseDateAsDollar: true,
+
+    explicitDataType: true,
+    supportNumberType: true,
+    supportStringType: true,
+    supportBooleanType: true,
+    supportDateType: true,
+    supportJsonType: true,
+    supportObjectIdType: true,
+    supportNullType: true,
+
+    supportFieldRemoval: true,
   },
 };
 

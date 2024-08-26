@@ -1,16 +1,26 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
+  import { currentDropDownMenu } from '../stores';
 
   export let icon = 'icon form';
-  export let secondary = false;
+  export let menu;
+
+  let domButton;
+
+  function handleClick() {
+    const rect = domButton.getBoundingClientRect();
+    const left = rect.left;
+    const top = rect.bottom;
+    currentDropDownMenu.set({ left, top, items: menu });
+  }
 </script>
 
 <div
-  on:click|stopPropagation|preventDefault
+  on:click|stopPropagation|preventDefault={handleClick}
+  bind:this={domButton}
   on:mousedown|stopPropagation|preventDefault
   on:mouseup|stopPropagation|preventDefault
   class="showFormButtonMarker"
-  class:secondary
 >
   <FontIcon {icon} />
 </div>
@@ -23,10 +33,6 @@
     color: var(--theme-font-3);
     background-color: var(--theme-bg-1);
     border: 1px solid var(--theme-bg-1);
-  }
-
-  .secondary {
-    margin-right: 20px;
   }
 
   div:hover {

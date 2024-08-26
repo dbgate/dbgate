@@ -1,18 +1,3 @@
-<script lang="ts" context="module">
-  export function shouldOpenMultilineDialog(value) {
-    if (_.isString(value)) {
-      if (value.includes('\n')) {
-        return true;
-      }
-      const parsed = safeJsonParse(value);
-      if (parsed && (_.isPlainObject(parsed) || _.isArray(parsed))) {
-        return true;
-      }
-    }
-    return false;
-  }
-</script>
-
 <script lang="ts">
   import { onMount } from 'svelte';
 
@@ -25,17 +10,20 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import SelectField from '../forms/SelectField.svelte';
-  import { safeJsonParse } from 'dbgate-tools';
+  import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
   import { showSnackbarError } from '../utility/snackbar';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
+  import da from 'date-fns/locale/da';
 
   export let onSave;
   export let value;
 
+  export let dataEditorTypesBehaviour;
+
   let editor;
   let syntaxMode = 'text';
 
-  let textValue = value?.toString() || '';
+  let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
 
   onMount(() => {
     editor.getEditor().focus();
@@ -52,7 +40,7 @@
 
   function handleKeyDown(ev) {
     if (ev.keyCode == keycodes.enter && ev.ctrlKey) {
-      onSave(textValue);
+      onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
       closeCurrentModal();
     }
   }
@@ -81,7 +69,7 @@
           value="OK"
           title="Ctrl+Enter"
           on:click={() => {
-            onSave(textValue);
+            onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
             closeCurrentModal();
           }}
         />

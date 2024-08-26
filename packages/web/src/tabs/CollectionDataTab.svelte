@@ -121,7 +121,13 @@
     const resp = await apiCall('database-connections/update-collection', {
       conid,
       database,
-      changeSet,
+      changeSet: {
+        ...changeSet,
+        updates: changeSet.updates.map(update => ({
+          ...update,
+          fields: _.mapValues(update.fields, (v, k) => (v === undefined ? { $$undefined$$: true } : v)),
+        })),
+      },
     });
     const { errorMessage } = resp || {};
     if (errorMessage) {
@@ -206,6 +212,7 @@
     <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.addNewColumn" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
     <ToolStripExportButton {quickExportHandlerRef} command="collectionDataGrid.export" />

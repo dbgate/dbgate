@@ -161,4 +161,9 @@ export const driverBase = {
   getCollectionExportQueryJson(collection: string, condition: any, sort: any) {
     return null;
   },
+
+  dataEditorTypesBehaviour: {
+    parseSqlNull: true,
+    parseHexAsBuffer: true,
+  },
 };

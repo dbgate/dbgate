@@ -3,9 +3,8 @@ const stream = require('stream');
 const isPromise = require('is-promise');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const MongoClient = require('mongodb').MongoClient;
-const ObjectId = require('mongodb').ObjectId;
-const AbstractCursor = require('mongodb').AbstractCursor;
+const { MongoClient, ObjectId, AbstractCursor } = require('mongodb');
+const { EJSON } = require('bson');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -14,9 +13,7 @@ const {
 } = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
-  return _.cloneDeepWith(row, (x) => {
-    if (x && x.constructor == ObjectId) return { $oid: x.toString() };
-  });
+  return EJSON.serialize(row);
 }
 
 async function readCursor(cursor, options) {
@@ -27,11 +24,7 @@ async function readCursor(cursor, options) {
 }
 
 function convertObjectId(condition) {
-  return _.cloneDeepWith(condition, (x) => {
-    if (x && x.$oid) {
-      return ObjectId.createFromHexString(x.$oid);
-    }
-  });
+  return EJSON.deserialize(condition);
 }
 
 function findArrayResult(resValue) {
@@ -252,8 +245,23 @@ const driver = {
     const db = await getScriptableDb(pool);
     exprValue = func(db, ObjectId.createFromHexString);
 
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    exprValue
+      .forEach((row) => pass.write(transformMongoData(row)))
+      .then(() => {
+        pass.end();
+        // pass.end(() => {
+        //   pass.emit('end');
+        // })
+      });
+
+    return pass;
     // return directly stream without header row
-    return exprValue.stream();
+    // return exprValue.stream();
 
     // pass.write(structure || { __isDynamicStructure: true });
     // exprValue.on('data', (row) => pass.write(row));
@@ -337,7 +345,14 @@ const driver = {
           }
         } else {
           const resdoc = await collection.updateOne(convertObjectId(update.condition), {
-            $set: convertObjectId(update.fields),
+            $set: convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$)),
+            $unset: _.fromPairs(
+              Object.keys(update.fields)
+                .filter((k) => update.fields[k]?.$$undefined$$)
+                .map((k) => [k, ''])
+            ),
+
+            // $set: convertObjectId(update.fields),
           });
           res.updated.push(resdoc._id);
         }

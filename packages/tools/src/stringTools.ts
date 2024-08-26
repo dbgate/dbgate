@@ -1,6 +1,25 @@
 import _isString from 'lodash/isString';
 import _isArray from 'lodash/isArray';
+import _isNumber from 'lodash/isNumber';
 import _isPlainObject from 'lodash/isPlainObject';
+import _pad from 'lodash/pad';
+import { DataEditorTypesBehaviour } from 'dbgate-types';
+
+export type EditorDataType =
+  | 'null'
+  | 'objectid'
+  | 'string'
+  | 'number'
+  | 'object'
+  | 'date'
+  | 'array'
+  | 'boolean'
+  | 'unknown';
+
+const dateTimeStorageRegex =
+  /^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
+
+const dateTimeParseRegex = /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
 export function arrayToHexString(byteArray) {
   return byteArray.reduce((output, elem) => output + ('0' + elem.toString(16)).slice(-2), '').toUpperCase();
@@ -15,34 +34,265 @@ export function hexStringToArray(inputString) {
   return res;
 }
 
-export function parseCellValue(value) {
+export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
-  if (value == '(NULL)') return null;
-
-  const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
-  if (mHex) {
-    return {
-      type: 'Buffer',
-      data: hexStringToArray(value.substring(2)),
-    };
+  if (editorTypes?.parseSqlNull) {
+    if (value == '(NULL)') return null;
   }
 
-  const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
-  if (mOid) {
-    return { $oid: mOid[1] };
+  if (editorTypes?.parseHexAsBuffer) {
+    const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
+    if (mHex) {
+      return {
+        type: 'Buffer',
+        data: hexStringToArray(value.substring(2)),
+      };
+    }
+  }
+
+  if (editorTypes?.parseObjectIdAsDollar) {
+    const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
+    if (mOid) {
+      return { $oid: mOid[1] };
+    }
+  }
+
+  if (editorTypes?.parseDateAsDollar) {
+    const m = value.match(dateTimeParseRegex);
+    if (m) {
+      return {
+        $date: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`,
+      };
+    }
+  }
+
+  if (editorTypes?.parseJsonNull) {
+    if (value == 'null') return null;
+  }
+
+  if (editorTypes?.parseJsonBoolean) {
+    if (value == 'true') return true;
+    if (value == 'false') return false;
+  }
+
+  if (editorTypes?.parseNumber) {
+    if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(value)) {
+      return parseFloat(value);
+    }
+  }
+
+  if (editorTypes?.parseJsonArray || editorTypes?.parseJsonObject) {
+    const jsonValue = safeJsonParse(value);
+    if (_isPlainObject(jsonValue) && editorTypes?.parseJsonObject) return jsonValue;
+    if (_isArray(jsonValue) && editorTypes?.parseJsonArray) return jsonValue;
   }
 
   return value;
 }
 
-export function stringifyCellValue(value) {
-  if (value === null) return '(NULL)';
-  if (value === undefined) return '(NoField)';
-  if (value?.type == 'Buffer' && _isArray(value.data)) return '0x' + arrayToHexString(value.data);
-  if (value?.$oid) return `ObjectId("${value?.$oid}")`;
-  if (_isPlainObject(value) || _isArray(value)) return JSON.stringify(value);
+function parseFunc_ObjectIdAsDollar(value) {
+  if (value?.$oid) return value;
+  if (_isString(value)) {
+    if (value.match(/^[0-9a-f]{24}$/)) return { $oid: value };
+    const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
+    if (mOid) {
+      return { $oid: mOid[1] };
+    }
+  }
   return value;
+}
+
+function parseFunc_DateAsDollar(value) {
+  if (value?.$date) return value;
+  if (_isString(value)) {
+    const m = value.match(dateTimeParseRegex);
+    if (m) {
+      return { $date: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z` };
+    }
+  }
+  return value;
+}
+
+function makeBulletString(value) {
+  return _pad('', value.length, '•');
+}
+
+function highlightSpecialCharacters(value) {
+  value = value.replace(/\n/g, '↲');
+  value = value.replace(/\r/g, '');
+  value = value.replace(/^(\s+)/, makeBulletString);
+  value = value.replace(/(\s+)$/, makeBulletString);
+  value = value.replace(/(\s\s+)/g, makeBulletString);
+  return value;
+}
+
+function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
+  if (_isPlainObject(value)) {
+    const svalue = JSON.stringify(value, undefined, 2);
+    if (svalue.length < 100) {
+      return { value: svalue, gridStyle: 'nullCellStyle' };
+    } else {
+      return { value: '(JSON)', gridStyle: 'nullCellStyle', gridTitle: svalue };
+    }
+  }
+  if (_isArray(value)) {
+    return {
+      value: `[${value.length} items]`,
+      gridStyle: 'nullCellStyle',
+      gridTitle: value.map(x => JSON.stringify(x)).join('\n'),
+    };
+  }
+  return { value: '(JSON)', gridStyle: 'nullCellStyle' };
+}
+
+export function stringifyCellValue(
+  value,
+  intent: 'gridCellIntent' | 'inlineEditorIntent' | 'multilineEditorIntent' | 'stringConversionIntent' | 'exportIntent',
+  editorTypes?: DataEditorTypesBehaviour,
+  gridFormattingOptions?: { useThousandsSeparator?: boolean },
+  jsonParsedValue?: any
+): {
+  value: string;
+  gridStyle?: 'textCellStyle' | 'valueCellStyle' | 'nullCellStyle'; // only for gridCellIntent
+  gridTitle?: string; // only for gridCellIntent
+} {
+  if (editorTypes?.parseSqlNull) {
+    if (value === null) {
+      switch (intent) {
+        case 'exportIntent':
+          return { value: '' };
+        default:
+          return { value: '(NULL)', gridStyle: 'nullCellStyle' };
+      }
+    }
+  }
+  if (value === undefined) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return { value: '(No Field)', gridStyle: 'nullCellStyle' };
+      default:
+        return { value: '' };
+    }
+  }
+  if (editorTypes?.parseJsonNull) {
+    if (value === null) {
+      return { value: 'null', gridStyle: 'valueCellStyle' };
+    }
+  }
+
+  if (value === true) return { value: 'true', gridStyle: 'valueCellStyle' };
+  if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
+
+  if (editorTypes?.parseHexAsBuffer) {
+    if (value?.type == 'Buffer' && _isArray(value.data)) {
+      return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
+    }
+  }
+  if (editorTypes?.parseObjectIdAsDollar) {
+    if (value?.$oid) {
+      switch (intent) {
+        case 'exportIntent':
+        case 'stringConversionIntent':
+          return { value: value.$oid };
+        default:
+          return { value: `ObjectId("${value.$oid}")`, gridStyle: 'valueCellStyle' };
+      }
+    }
+  }
+
+  if (editorTypes?.parseDateAsDollar) {
+    if (value?.$date) {
+      switch (intent) {
+        case 'exportIntent':
+        case 'stringConversionIntent':
+          return { value: value.$date };
+        default:
+          const m = value.$date.match(dateTimeStorageRegex);
+          if (m) {
+            return { value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`, gridStyle: 'valueCellStyle' };
+          } else {
+            return { value: value.$date.replaCE('T', ' '), gridStyle: 'valueCellStyle' };
+          }
+      }
+    }
+  }
+
+  if (_isArray(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return stringifyJsonToGrid(value);
+      case 'multilineEditorIntent':
+        return { value: JSON.stringify(value, null, 2) };
+      default:
+        return { value: JSON.stringify(value), gridStyle: 'valueCellStyle' };
+    }
+  }
+
+  if (_isPlainObject(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return stringifyJsonToGrid(value);
+      case 'multilineEditorIntent':
+        return { value: JSON.stringify(value, null, 2) };
+      default:
+        return { value: JSON.stringify(value), gridStyle: 'valueCellStyle' };
+    }
+  }
+
+  if (_isNumber(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return {
+          value:
+            gridFormattingOptions?.useThousandsSeparator && (value >= 10000 || value <= -10000)
+              ? value.toLocaleString()
+              : value.toString(),
+          gridStyle: 'valueCellStyle',
+        };
+      default:
+        return { value: value.toString() };
+    }
+  }
+
+  if (_isString(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        if (jsonParsedValue && !editorTypes?.explicitDataType) {
+          return stringifyJsonToGrid(jsonParsedValue);
+        } else {
+          if (!editorTypes?.explicitDataType) {
+            // reformat datetime for implicit date types
+            const m = value.match(dateTimeStorageRegex);
+            if (m) {
+              return {
+                value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`,
+                gridStyle: 'valueCellStyle',
+              };
+            }
+          }
+          return { value: highlightSpecialCharacters(value), gridStyle: 'textCellStyle' };
+        }
+      default:
+        return { value: value };
+    }
+  }
+
+  if (value === null || value === undefined) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return { value: '(n/a)', gridStyle: 'nullCellStyle' };
+      default:
+        return { value: '' };
+    }
+  }
+
+  switch (intent) {
+    case 'gridCellIntent':
+      return { value: '(Unknown)', gridStyle: 'nullCellStyle' };
+    default:
+      return { value: '' };
+  }
 }
 
 export function safeJsonParse(json, defaultValue?, logError = false) {
@@ -57,6 +307,28 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
     }
     return defaultValue;
   }
+}
+
+export function shouldOpenMultilineDialog(value) {
+  if (_isString(value)) {
+    if (value.includes('\n')) {
+      return true;
+    }
+    const parsed = safeJsonParse(value);
+    if (parsed && (_isPlainObject(parsed) || _isArray(parsed))) {
+      return true;
+    }
+  }
+  if (value?.$oid) {
+    return false;
+  }
+  if (value?.$date) {
+    return false;
+  }
+  if (_isPlainObject(value) || _isArray(value)) {
+    return true;
+  }
+  return false;
 }
 
 export function isJsonLikeLongString(value) {
@@ -126,4 +398,68 @@ export function parseSqlDefaultValue(value: string) {
     return parseFloat(value);
   }
   return undefined;
+}
+
+export function detectCellDataType(value): EditorDataType {
+  if (value === null) return 'null';
+  if (value?.$oid) return 'objectid';
+  if (value?.$date) return 'date';
+  if (_isString(value)) return 'string';
+  if (_isNumber(value)) return 'number';
+  if (_isPlainObject(value)) return 'object';
+  if (_isArray(value)) return 'array';
+  if (value === true || value === false) return 'boolean';
+  return 'unknown';
+}
+
+export function detectTypeIcon(value) {
+  switch (detectCellDataType(value)) {
+    case 'null':
+      return 'icon type-null';
+    case 'objectid':
+      return 'icon type-objectid';
+    case 'date':
+      return 'icon type-date';
+    case 'string':
+      return 'icon type-string';
+    case 'number':
+      return 'icon type-number';
+    case 'object':
+      return 'icon type-object';
+    case 'array':
+      return 'icon type-array';
+    case 'boolean':
+      return 'icon type-boolean';
+    default:
+      return 'icon type-unknown';
+  }
+}
+
+export function getConvertValueMenu(value, onSetValue, editorTypes?: DataEditorTypesBehaviour) {
+  return [
+    editorTypes?.supportStringType && {
+      text: 'String',
+      onClick: () => onSetValue(stringifyCellValue(value, 'stringConversionIntent', editorTypes).value),
+    },
+    editorTypes?.supportNumberType && { text: 'Number', onClick: () => onSetValue(parseFloat(value)) },
+    editorTypes?.supportNullType && { text: 'Null', onClick: () => onSetValue(null) },
+    editorTypes?.supportBooleanType && {
+      text: 'Boolean',
+      onClick: () => onSetValue(value?.toString()?.toLowerCase() == 'true' || value == '1'),
+    },
+    editorTypes?.supportObjectIdType && {
+      text: 'ObjectId',
+      onClick: () => onSetValue(parseFunc_ObjectIdAsDollar(value)),
+    },
+    editorTypes?.supportDateType && { text: 'Date', onClick: () => onSetValue(parseFunc_DateAsDollar(value)) },
+    editorTypes?.supportJsonType && {
+      text: 'JSON',
+      onClick: () => {
+        const jsonValue = safeJsonParse(value);
+        if (jsonValue != null) {
+          onSetValue(jsonValue);
+        }
+      },
+    },
+  ];
 }

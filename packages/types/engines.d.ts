@@ -93,6 +93,29 @@ export interface CollectionSortDefinitionItem {
 
 export type CollectionSortDefinition = CollectionSortDefinitionItem[];
 
+export interface DataEditorTypesBehaviour {
+  parseSqlNull?: boolean;
+  parseJsonNull?: boolean;
+  parseJsonBoolean?: boolean;
+  parseNumber?: boolean;
+  parseJsonArray?: boolean;
+  parseJsonObject?: boolean;
+  parseHexAsBuffer?: boolean;
+  parseObjectIdAsDollar?: boolean;
+  parseDateAsDollar?: boolean;
+
+  explicitDataType?: boolean;
+  supportNumberType?: boolean;
+  supportStringType?: boolean;
+  supportBooleanType?: boolean;
+  supportDateType?: boolean;
+  supportNullType?: boolean;
+  supportJsonType?: boolean;
+  supportObjectIdType?: boolean;
+
+  supportFieldRemoval?: boolean;
+}
+
 export interface FilterBehaviourProvider {
   getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
 }
@@ -105,6 +128,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   editorMode?: string;
   readOnlySessions: boolean;
   supportedKeyTypes: SupportedDbKeyType[];
+  dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
   supportsDatabaseDump?: boolean;
   supportsServerSummary?: boolean;

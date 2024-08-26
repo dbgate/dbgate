@@ -61,10 +61,13 @@ class ParseStream extends stream.Transform {
           if (update.document) {
             obj = update.document;
           } else {
-            obj = {
-              ...obj,
-              ...update.fields,
-            };
+            obj = _.omitBy(
+              {
+                ...obj,
+                ...update.fields,
+              },
+              (v, k) => v.$$undefined$$
+            );
           }
         }
 

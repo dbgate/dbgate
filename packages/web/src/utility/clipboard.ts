@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { arrayToHexString, stringifyCellValue } from 'dbgate-tools';
 import yaml from 'js-yaml';
+import { DataEditorTypesBehaviour } from 'dbgate-types';
 
 export function copyTextToClipboard(text) {
   const oldFocus = document.activeElement;
@@ -71,13 +72,13 @@ export async function getClipboardText() {
   return await navigator.clipboard.readText();
 }
 
-export function extractRowCopiedValue(row, col) {
+export function extractRowCopiedValue(row, col, editorTypes?: DataEditorTypesBehaviour) {
   let value = row[col];
   if (value === undefined) value = _.get(row, col);
-  return stringifyCellValue(value);
+  return stringifyCellValue(value, 'exportIntent', editorTypes).value;
 }
 
-const clipboardHeadersFormatter = (delimiter) => (columns) => {
+const clipboardHeadersFormatter = delimiter => columns => {
   return columns.join(delimiter);
 };
 

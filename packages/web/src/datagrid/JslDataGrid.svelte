@@ -99,5 +99,22 @@
     preprocessLoadedRow={changeSetState?.value?.dataUpdateCommands
       ? row => processJsonDataUpdateCommands(row, changeSetState?.value?.dataUpdateCommands)
       : null}
+    dataEditorTypesBehaviourOverride={{
+      parseJsonNull: true,
+      parseJsonBoolean: true,
+      parseNumber: true,
+      parseJsonArray: true,
+      parseJsonObject: true,
+
+      explicitDataType: true,
+
+      supportNumberType: true,
+      supportStringType: true,
+      supportBooleanType: true,
+      supportNullType: true,
+      supportJsonType: true,
+
+      supportFieldRemoval: true,
+    }}
   />
 {/key}
