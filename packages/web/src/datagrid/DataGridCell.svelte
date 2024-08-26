@@ -1,5 +1,5 @@
 <script lang="ts">
-  import _ from 'lodash';
+  import _, { isPlainObject } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
@@ -82,6 +82,22 @@
       <ShowFormDropDownButton
         icon={detectTypeIcon(value)}
         menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
+      />
+    {/if}
+    {#if _.isPlainObject(value)}
+      <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+    {/if}
+    {#if _.isArray(value)}
+      <ShowFormButton
+        secondary
+        icon="icon open-in-new"
+        on:click={() => {
+          if (_.every(value, x => _.isPlainObject(x))) {
+            openJsonLinesData(value);
+          } else {
+            openJsonDocument(value, undefined, true);
+          }
+        }}
       />
     {/if}
   {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}

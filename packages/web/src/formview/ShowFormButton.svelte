@@ -2,6 +2,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   export let icon = 'icon form';
+  export let secondary = false;
 </script>
 
 <div
@@ -9,6 +10,7 @@
   on:mousedown|stopPropagation|preventDefault
   on:mouseup|stopPropagation|preventDefault
   class="showFormButtonMarker"
+  class:secondary
 >
   <FontIcon {icon} />
 </div>
@@ -21,6 +23,10 @@
     color: var(--theme-font-3);
     background-color: var(--theme-bg-1);
     border: 1px solid var(--theme-bg-1);
+  }
+
+  .secondary {
+    margin-right: 20px;
   }
 
   div:hover {
