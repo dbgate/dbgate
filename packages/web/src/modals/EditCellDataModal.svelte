@@ -9,6 +9,15 @@
         return true;
       }
     }
+    if (value?.$oid) {
+      return false;
+    }
+    if (value?.$date) {
+      return false;
+    }
+    if (_.isPlainObject(value) || _.isArray(value)) {
+      return true;
+    }
     return false;
   }
 </script>

@@ -150,7 +150,7 @@ export function stringifyCellValue(
 
   if (value === true) return { value: 'true', gridStyle: 'valueCellStyle' };
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
-  
+
   if (editorTypes?.parseHexAsBuffer) {
     if (value?.type == 'Buffer' && _isArray(value.data)) {
       return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
@@ -167,28 +167,26 @@ export function stringifyCellValue(
       }
     }
   }
-  if (editorTypes?.parseJsonArray) {
-    if (_isArray(value)) {
-      switch (intent) {
-        case 'gridCellIntent':
-          return stringifyJsonToGrid(value);
-        case 'multilineEditorIntent':
-          return { value: JSON.stringify(value) };
-        default:
-          return { value: JSON.stringify(value, null, 2), gridStyle: 'valueCellStyle' };
-      }
+
+  if (_isArray(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return stringifyJsonToGrid(value);
+      case 'multilineEditorIntent':
+        return { value: JSON.stringify(value, null, 2) };
+      default:
+        return { value: JSON.stringify(value), gridStyle: 'valueCellStyle' };
     }
   }
-  if (editorTypes?.parseJsonObject) {
-    if (_isPlainObject(value)) {
-      switch (intent) {
-        case 'gridCellIntent':
-          return stringifyJsonToGrid(value);
-        case 'multilineEditorIntent':
-          return { value: JSON.stringify(value) };
-        default:
-          return { value: JSON.stringify(value, null, 2), gridStyle: 'valueCellStyle' };
-      }
+
+  if (_isPlainObject(value)) {
+    switch (intent) {
+      case 'gridCellIntent':
+        return stringifyJsonToGrid(value);
+      case 'multilineEditorIntent':
+        return { value: JSON.stringify(value, null, 2) };
+      default:
+        return { value: JSON.stringify(value), gridStyle: 'valueCellStyle' };
     }
   }
 

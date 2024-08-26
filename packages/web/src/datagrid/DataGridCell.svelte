@@ -3,10 +3,7 @@
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
-  import openNewTab from '../utility/openNewTab';
   import CellValue from './CellValue.svelte';
-  import { showModal } from '../modals/modalTools';
-  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import ShowFormDropDownButton from '../formview/ShowFormDropDownButton.svelte';
 

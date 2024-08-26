@@ -343,7 +343,7 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { driverBase, parseCellValue, detectSqlFilterBehaviour } from 'dbgate-tools';
+  import { driverBase, parseCellValue, detectSqlFilterBehaviour, stringifyCellValue } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -811,7 +811,7 @@
     const cellData = rowData[realColumnUniqueNames[currentCell[1]]];
 
     showModal(EditCellDataModal, {
-      value: cellData?.toString() || '',
+      value: stringifyCellValue(cellData, 'multilineEditorIntent').value,
       onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
     });
   }
@@ -1246,7 +1246,7 @@
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
-        value: cellData,
+        value: stringifyCellValue(cellData, 'multilineEditorIntent').value,
         onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
       });
       return true;
