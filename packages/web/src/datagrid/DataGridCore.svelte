@@ -67,6 +67,16 @@
   });
 
   registerCommand({
+    id: 'dataGrid.addNewColumn',
+    category: 'Data grid',
+    name: 'Add new column',
+    toolbarName: 'New column',
+    icon: 'icon add-column',
+    testEnabled: () => getCurrentDataGrid()?.addNewColumnEnabled(),
+    onClick: () => getCurrentDataGrid().addNewColumn(),
+  });
+
+  registerCommand({
     id: 'dataGrid.cloneRows',
     category: 'Data grid',
     name: 'Clone rows',
@@ -419,6 +429,7 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -552,6 +563,24 @@
       if (_.isNumber(index)) grider.deleteRow(index);
     }
     grider.endUpdate();
+  }
+
+  export function addNewColumnEnabled() {
+    return getGrider()?.editable && isDynamicStructure;
+  }
+
+  export function addNewColumn() {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'Column name',
+      header: 'Add new column',
+      onConfirm: name => {
+        display.addDynamicColumn(name);
+        tick().then(() => {
+          display.focusColumns([name]);
+        });
+      },
+    });
   }
 
   export async function insertNewRow() {
@@ -1728,6 +1757,7 @@
     { command: 'dataGrid.hideColumn' },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
+    { command: 'dataGrid.addNewColumn', hideDisabled: true },
     { command: 'dataGrid.undo', hideDisabled: true },
     { command: 'dataGrid.redo', hideDisabled: true },
     { divider: true },

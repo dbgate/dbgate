@@ -179,6 +179,10 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataGrid.refresh" />
     <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />
+    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.addNewColumn" hideDisabled />
     <ToolStripCommandButton command="archiveFile.save" />
     <ToolStripCommandButton command="archiveFile.saveAs" />
   </svelte:fragment>
