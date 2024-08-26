@@ -5,8 +5,21 @@ import _isPlainObject from 'lodash/isPlainObject';
 import _pad from 'lodash/pad';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
 
-const dateTimeRegex =
+export type EditorDataType =
+  | 'null'
+  | 'objectid'
+  | 'string'
+  | 'number'
+  | 'object'
+  | 'date'
+  | 'array'
+  | 'boolean'
+  | 'unknown';
+
+const dateTimeStorageRegex =
   /^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
+
+const dateTimeParseRegex = /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
 export function arrayToHexString(byteArray) {
   return byteArray.reduce((output, elem) => output + ('0' + elem.toString(16)).slice(-2), '').toUpperCase();
@@ -45,6 +58,15 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     }
   }
 
+  if (editorTypes?.parseDateAsDollar) {
+    const m = value.match(dateTimeParseRegex);
+    if (m) {
+      return {
+        $date: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`,
+      };
+    }
+  }
+
   if (editorTypes?.parseJsonNull) {
     if (value == 'null') return null;
   }
@@ -69,13 +91,24 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   return value;
 }
 
-function parseObjectIdAsDollar(value) {
+function parseFunc_ObjectIdAsDollar(value) {
   if (value?.$oid) return value;
   if (_isString(value)) {
     if (value.match(/^[0-9a-f]{24}$/)) return { $oid: value };
     const mOid = value.match(/^ObjectId\("([0-9a-f]{24})"\)$/);
     if (mOid) {
       return { $oid: mOid[1] };
+    }
+  }
+  return value;
+}
+
+function parseFunc_DateAsDollar(value) {
+  if (value?.$date) return value;
+  if (_isString(value)) {
+    const m = value.match(dateTimeParseRegex);
+    if (m) {
+      return { $date: `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z` };
     }
   }
   return value;
@@ -168,6 +201,23 @@ export function stringifyCellValue(
     }
   }
 
+  if (editorTypes?.parseDateAsDollar) {
+    if (value?.$date) {
+      switch (intent) {
+        case 'exportIntent':
+        case 'stringConversionIntent':
+          return { value: value.$date };
+        default:
+          const m = value.$date.match(dateTimeStorageRegex);
+          if (m) {
+            return { value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`, gridStyle: 'valueCellStyle' };
+          } else {
+            return { value: value.$date.replaCE('T', ' '), gridStyle: 'valueCellStyle' };
+          }
+      }
+    }
+  }
+
   if (_isArray(value)) {
     switch (intent) {
       case 'gridCellIntent':
@@ -213,7 +263,7 @@ export function stringifyCellValue(
         } else {
           if (!editorTypes?.explicitDataType) {
             // reformat datetime for implicit date types
-            const m = value.match(dateTimeRegex);
+            const m = value.match(dateTimeStorageRegex);
             if (m) {
               return {
                 value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`,
@@ -350,15 +400,39 @@ export function parseSqlDefaultValue(value: string) {
   return undefined;
 }
 
+export function detectCellDataType(value): EditorDataType {
+  if (value === null) return 'null';
+  if (value?.$oid) return 'objectid';
+  if (value?.$date) return 'date';
+  if (_isString(value)) return 'string';
+  if (_isNumber(value)) return 'number';
+  if (_isPlainObject(value)) return 'object';
+  if (_isArray(value)) return 'array';
+  if (value === true || value === false) return 'boolean';
+  return 'unknown';
+}
+
 export function detectTypeIcon(value) {
-  if (value === null) return 'icon type-null';
-  if (value?.$oid) return 'icon type-objectid';
-  if (_isString(value)) return 'icon type-string';
-  if (_isNumber(value)) return 'icon type-number';
-  if (_isPlainObject(value)) return 'icon type-object';
-  if (_isArray(value)) return 'icon type-array';
-  if (value === true || value === false) return 'icon type-boolean';
-  return 'icon type-unknown';
+  switch (detectCellDataType(value)) {
+    case 'null':
+      return 'icon type-null';
+    case 'objectid':
+      return 'icon type-objectid';
+    case 'date':
+      return 'icon type-date';
+    case 'string':
+      return 'icon type-string';
+    case 'number':
+      return 'icon type-number';
+    case 'object':
+      return 'icon type-object';
+    case 'array':
+      return 'icon type-array';
+    case 'boolean':
+      return 'icon type-boolean';
+    default:
+      return 'icon type-unknown';
+  }
 }
 
 export function getConvertValueMenu(value, onSetValue, editorTypes?: DataEditorTypesBehaviour) {
@@ -373,13 +447,16 @@ export function getConvertValueMenu(value, onSetValue, editorTypes?: DataEditorT
       text: 'Boolean',
       onClick: () => onSetValue(value?.toString()?.toLowerCase() == 'true' || value == '1'),
     },
-    editorTypes?.supportObjectIdType && { text: 'ObjectId', onClick: () => onSetValue(parseObjectIdAsDollar(value)) },
+    editorTypes?.supportObjectIdType && {
+      text: 'ObjectId',
+      onClick: () => onSetValue(parseFunc_ObjectIdAsDollar(value)),
+    },
+    editorTypes?.supportDateType && { text: 'Date', onClick: () => onSetValue(parseFunc_DateAsDollar(value)) },
     editorTypes?.supportJsonType && {
       text: 'JSON',
       onClick: () => {
         const jsonValue = safeJsonParse(value);
         if (jsonValue != null) {
-          console.log('**** ON SET VALUE', jsonValue);
           onSetValue(jsonValue);
         }
       },

@@ -102,6 +102,7 @@ export interface DataEditorTypesBehaviour {
   parseJsonObject?: boolean;
   parseHexAsBuffer?: boolean;
   parseObjectIdAsDollar?: boolean;
+  parseDateAsDollar?: boolean;
 
   explicitDataType?: boolean;
   supportNumberType?: boolean;

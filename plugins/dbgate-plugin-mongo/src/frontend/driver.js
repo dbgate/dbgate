@@ -130,6 +130,7 @@ const driver = {
     parseJsonArray: true,
     parseJsonObject: true,
     parseObjectIdAsDollar: true,
+    parseDateAsDollar: true,
 
     explicitDataType: true,
     supportNumberType: true,
