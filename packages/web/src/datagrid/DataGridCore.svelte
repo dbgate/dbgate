@@ -81,8 +81,19 @@
     category: 'Data grid',
     name: 'Set NULL',
     keyText: 'CtrlOrCommand+0',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () =>
+      getCurrentDataGrid()?.getGrider()?.editable && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(null),
+  });
+
+  registerCommand({
+    id: 'dataGrid.removeField',
+    category: 'Data grid',
+    name: 'Remove field',
+    keyText: 'CtrlOrCommand+0',
+    testEnabled: () =>
+      getCurrentDataGrid()?.getGrider()?.editable && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+    onClick: () => getCurrentDataGrid().setFixedValue(undefined),
   });
 
   registerCommand({
@@ -821,6 +832,10 @@
       dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
       onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
     });
+  }
+
+  export function getEditorTypes() {
+    return display?.driver?.dataEditorTypesBehaviour;
   }
 
   export function addJsonDocumentEnabled() {
@@ -1703,7 +1718,8 @@
     { command: 'dataGrid.deleteSelectedRows' },
     { command: 'dataGrid.insertNewRow' },
     { command: 'dataGrid.cloneRows' },
-    { command: 'dataGrid.setNull' },
+    { command: 'dataGrid.setNull', hideDisabled: true },
+    { command: 'dataGrid.removeField', hideDisabled: true },
     { placeTag: 'edit' },
     { divider: true },
     { command: 'dataGrid.findColumn' },

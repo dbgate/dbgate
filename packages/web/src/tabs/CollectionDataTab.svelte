@@ -121,7 +121,13 @@
     const resp = await apiCall('database-connections/update-collection', {
       conid,
       database,
-      changeSet,
+      changeSet: {
+        ...changeSet,
+        updates: changeSet.updates.map(update => ({
+          ...update,
+          fields: _.mapValues(update.fields, (v, k) => (v === undefined ? { $undefined: true } : v)),
+        })),
+      },
     });
     const { errorMessage } = resp || {};
     if (errorMessage) {

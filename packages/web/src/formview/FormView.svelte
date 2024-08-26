@@ -48,8 +48,17 @@
     category: 'Data form',
     name: 'Set NULL',
     keyText: 'CtrlOrCommand+0',
-    testEnabled: () => getCurrentDataForm() != null,
+    testEnabled: () => getCurrentDataForm() != null && !getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataForm().setFixedValue(null),
+  });
+
+  registerCommand({
+    id: 'dataForm.removeField',
+    category: 'Data form',
+    name: 'Remove field',
+    keyText: 'CtrlOrCommand+0',
+    testEnabled: () => getCurrentDataForm() != null && getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
+    onClick: () => getCurrentDataForm().setFixedValue(undefined),
   });
 
   registerCommand({
@@ -321,6 +330,10 @@
 
   export const activator = createActivator('FormView', false);
 
+  export function getEditorTypes() {
+    return display?.driver?.dataEditorTypesBehaviour;
+  }
+
   const handleTableMouseDown = event => {
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('.resizeHandleControl')) return;
@@ -411,10 +424,11 @@
     { divider: true },
     { placeTag: 'save' },
     { command: 'dataForm.revertRowChanges' },
-    { command: 'dataForm.setNull' },
+    { command: 'dataForm.setNull', hideDisabled: true },
+    { command: 'dataForm.removeField', hideDisabled: true },
     { divider: true },
-    { command: 'dataForm.undo' },
-    { command: 'dataForm.redo' },
+    { command: 'dataForm.undo', hideDisabled: true },
+    { command: 'dataForm.redo', hideDisabled: true },
     { divider: true },
     { command: 'dataForm.goToFirst' },
     { command: 'dataForm.goToPrevious' },

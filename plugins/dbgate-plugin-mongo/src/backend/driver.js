@@ -330,7 +330,14 @@ const driver = {
           }
         } else {
           const resdoc = await collection.updateOne(convertObjectId(update.condition), {
-            $set: convertObjectId(update.fields),
+            $set: convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$undefined)),
+            $unset: _.fromPairs(
+              Object.keys(update.fields)
+                .filter((k) => update.fields[k]?.$undefined)
+                .map((k) => [k, ''])
+            ),
+
+            // $set: convertObjectId(update.fields),
           });
           res.updated.push(resdoc._id);
         }

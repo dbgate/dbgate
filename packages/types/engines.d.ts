@@ -112,6 +112,8 @@ export interface DataEditorTypesBehaviour {
   supportNullType?: boolean;
   supportJsonType?: boolean;
   supportObjectIdType?: boolean;
+
+  supportFieldRemoval?: boolean;
 }
 
 export interface FilterBehaviourProvider {
