@@ -157,7 +157,7 @@
 <script lang="ts">
   import { getFilterValueExpression } from 'dbgate-filterparser';
 
-  import { filterName, stringifyCellValue } from 'dbgate-tools';
+  import { filterName, shouldOpenMultilineDialog, stringifyCellValue } from 'dbgate-tools';
 
   import _ from 'lodash';
 
@@ -175,7 +175,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
-  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
@@ -490,7 +490,8 @@
     const cellData = rowData[column.uniqueName];
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
-        value: stringifyCellValue(cellData, 'multilineEditorIntent').value,
+        value: cellData,
+        dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
         onSave: value => grider.setCellValue(0, column.uniqueName, value),
       });
       return true;

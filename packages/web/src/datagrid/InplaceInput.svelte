@@ -105,7 +105,8 @@
       dispatchInsplaceEditor({ type: 'close' });
 
       showModal(EditCellDataModal, {
-        value: stringifyCellValue(cellValue, 'multilineEditorIntent', editorTypes).value,
+        value: cellValue,
+        dataEditorTypesBehaviour: editorTypes,
         onSave: onSetValue,
       });
     }}

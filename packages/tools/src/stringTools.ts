@@ -259,6 +259,28 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
   }
 }
 
+export function shouldOpenMultilineDialog(value) {
+  if (_isString(value)) {
+    if (value.includes('\n')) {
+      return true;
+    }
+    const parsed = safeJsonParse(value);
+    if (parsed && (_isPlainObject(parsed) || _isArray(parsed))) {
+      return true;
+    }
+  }
+  if (value?.$oid) {
+    return false;
+  }
+  if (value?.$date) {
+    return false;
+  }
+  if (_isPlainObject(value) || _isArray(value)) {
+    return true;
+  }
+  return false;
+}
+
 export function isJsonLikeLongString(value) {
   return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/);
 }

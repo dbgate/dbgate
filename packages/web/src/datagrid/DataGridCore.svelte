@@ -343,7 +343,13 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { driverBase, parseCellValue, detectSqlFilterBehaviour, stringifyCellValue } from 'dbgate-tools';
+  import {
+    driverBase,
+    parseCellValue,
+    detectSqlFilterBehaviour,
+    stringifyCellValue,
+    shouldOpenMultilineDialog,
+  } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -397,7 +403,7 @@
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
   import { createGeoJsonFromSelection, selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
@@ -811,7 +817,8 @@
     const cellData = rowData[realColumnUniqueNames[currentCell[1]]];
 
     showModal(EditCellDataModal, {
-      value: stringifyCellValue(cellData, 'multilineEditorIntent').value,
+      value: cellData,
+      dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
       onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
     });
   }
@@ -1246,7 +1253,8 @@
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
-        value: stringifyCellValue(cellData, 'multilineEditorIntent').value,
+        dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
+        value: cellData,
         onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
       });
       return true;
