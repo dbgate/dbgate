@@ -92,8 +92,7 @@
       "icon": "icon.ico",
       "publish": [
         "github"
-      ],
-      "rfc3161TimeStampServer": "http://rfc3161timestamp.globalsign.com/advanced"
+      ]
     },
     "files": [
       "packages",
