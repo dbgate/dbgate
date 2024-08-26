@@ -69,7 +69,7 @@
 
   export let macroPreview;
   export let macroValues;
-  export let onPublishedCellsChanged
+  export let onPublishedCellsChanged;
   export const activator = createActivator('JslDataGridCore', false);
 
   export let setLoadedRows;
@@ -201,7 +201,7 @@
   bind:this={domGrid}
   {...$$props}
   setLoadedRows={handleSetLoadedRows}
-    onPublishedCellsChanged={value => {
+  onPublishedCellsChanged={value => {
     publishedCells = value;
     if (onPublishedCellsChanged) {
       onPublishedCellsChanged(value);

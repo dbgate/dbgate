@@ -330,10 +330,10 @@ const driver = {
           }
         } else {
           const resdoc = await collection.updateOne(convertObjectId(update.condition), {
-            $set: convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$undefined)),
+            $set: convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$)),
             $unset: _.fromPairs(
               Object.keys(update.fields)
-                .filter((k) => update.fields[k]?.$undefined)
+                .filter((k) => update.fields[k]?.$$undefined$$)
                 .map((k) => [k, ''])
             ),
 

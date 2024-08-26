@@ -457,6 +457,8 @@
 
   export const activator = createActivator('DataGridCore', false);
 
+  export let dataEditorTypesBehaviourOverride = null;
+
   const wheelRowCount = 5;
   const tabVisible: any = getContext('tabVisible');
 
@@ -829,13 +831,13 @@
 
     showModal(EditCellDataModal, {
       value: cellData,
-      dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
+      dataEditorTypesBehaviour: getEditorTypes(),
       onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
     });
   }
 
   export function getEditorTypes() {
-    return display?.driver?.dataEditorTypesBehaviour;
+    return dataEditorTypesBehaviourOverride ?? display?.driver?.dataEditorTypesBehaviour;
   }
 
   export function addJsonDocumentEnabled() {
@@ -1268,7 +1270,7 @@
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
-        dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
+        dataEditorTypesBehaviour: getEditorTypes(),
         value: cellData,
         onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
       });
@@ -1580,7 +1582,7 @@
           }
           let colIndex = startCol;
           for (const cell of rowData) {
-            setCellValue([rowIndex, colIndex], parseCellValue(cell, display?.driver?.dataEditorTypesBehaviour));
+            setCellValue([rowIndex, colIndex], parseCellValue(cell, getEditorTypes()));
             colIndex += 1;
           }
           rowIndex += 1;
@@ -1965,6 +1967,7 @@
             {dispatchInsplaceEditor}
             {frameSelection}
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+            {dataEditorTypesBehaviourOverride}
           />
         {/each}
       </tbody>

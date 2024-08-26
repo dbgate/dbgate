@@ -13,6 +13,8 @@
   export let canSelectMultipleOptions;
   export let driver;
 
+  export let dataEditorTypesBehaviourOverride = null;
+
   let value;
   let valueInit;
   let optionsData;
@@ -20,7 +22,12 @@
 
   onMount(() => {
     value =
-      inplaceEditorState.text || stringifyCellValue(cellValue, 'inlineEditorIntent', driver?.dataEditorTypesBehaviour).value;
+      inplaceEditorState.text ||
+      stringifyCellValue(
+        cellValue,
+        'inlineEditorIntent',
+        dataEditorTypesBehaviourOverride ?? driver?.dataEditorTypesBehaviour
+      ).value;
     valueInit = value;
 
     const optionsSelected = value.split(',');

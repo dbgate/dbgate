@@ -210,6 +210,7 @@
   export let rowCountNotAvailable;
   // export let formDisplay;
   export let onNavigate;
+  export let dataEditorTypesBehaviourOverride = null;
 
   let wrapperHeight = 1;
   let wrapperWidth = 1;
@@ -652,6 +653,7 @@
                 driver={display?.driver}
                 inplaceEditorState={$inplaceEditorState}
                 {dispatchInsplaceEditor}
+                {dataEditorTypesBehaviourOverride}
                 cellValue={rowData[col.uniqueName]}
                 options={col.options}
                 canSelectMultipleOptions={col.canSelectMultipleOptions}

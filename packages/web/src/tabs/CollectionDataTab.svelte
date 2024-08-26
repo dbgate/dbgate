@@ -125,7 +125,7 @@
         ...changeSet,
         updates: changeSet.updates.map(update => ({
           ...update,
-          fields: _.mapValues(update.fields, (v, k) => (v === undefined ? { $undefined: true } : v)),
+          fields: _.mapValues(update.fields, (v, k) => (v === undefined ? { $$undefined$$: true } : v)),
         })),
       },
     });

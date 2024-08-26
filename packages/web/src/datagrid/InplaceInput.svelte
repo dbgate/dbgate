@@ -16,6 +16,8 @@
   export let cellValue;
   export let driver;
 
+  export let dataEditorTypesBehaviourOverride = null;
+
   let domEditor;
   let showEditorButton = true;
 
@@ -23,7 +25,7 @@
 
   const isChangedRef = createRef(!!inplaceEditorState.text);
 
-  $: editorTypes = driver?.dataEditorTypesBehaviour;
+  $: editorTypes = dataEditorTypesBehaviourOverride ?? driver?.dataEditorTypesBehaviour;
 
   function handleKeyDown(event) {
     showEditorButton = false;
