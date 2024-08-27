@@ -504,7 +504,7 @@ registerCommand({
   name: 'SQL Generator',
   toolbar: true,
   icon: 'icon sql-generator',
-  testEnabled: () => getCurrentDatabase() != null,
+  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/sql-generator`),
   onClick: () =>
     showModal(SqlGeneratorModal, {
       conid: getCurrentDatabase()?.connection?._id,

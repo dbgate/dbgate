@@ -295,16 +295,20 @@
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
       driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
-      driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
+      driver?.supportsDatabaseDump &&
+        hasPermission(`dbops/sql-dump/export`) && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
       isSqlOrDoc &&
         !connection.isReadOnly &&
         !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: 'Copy database name' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlGenerator, text: 'SQL Generator' },
-      driver?.supportsDatabaseProfiler && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
+      driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      driver?.supportsDatabaseProfiler &&
+        hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
       isSqlOrDoc && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc && { onClick: handleExportModel, text: 'Export DB model - experimental' },
       isSqlOrDoc &&
@@ -379,6 +383,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let data;
   export let passProps;

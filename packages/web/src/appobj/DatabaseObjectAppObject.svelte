@@ -31,370 +31,403 @@
     queries: 'QueryDataTab',
   };
 
-  const menus = {
-    tables: [
-      {
-        label: 'Open data',
-        tab: 'TableDataTab',
-        forceNewTab: true,
-      },
-      {
-        label: 'Open form',
-        tab: 'TableDataTab',
-        forceNewTab: true,
-        initialData: {
-          grid: {
-            isFormView: true,
+  function createMenusCore(objectTypeField): {
+    label?: string;
+    tab?: string;
+    forceNewTab?: boolean;
+    initialData?: any;
+    icon?: string;
+    isQueryDesigner?: boolean;
+    requiresWriteAccess?: boolean;
+    divider?: boolean;
+    isDrop?: boolean;
+    isRename?: boolean;
+    isTruncate?: boolean;
+    isCopyTableName?: boolean;
+    isDuplicateTable?: boolean;
+    isDiagram?: boolean;
+    functionName?: string;
+    isExport?: boolean;
+    isImport?: boolean;
+    isActiveChart?: boolean;
+    scriptTemplate?: string;
+    sqlGeneratorProps?: any;
+    isDropCollection?: boolean;
+    isRenameCollection?: boolean;
+    isDuplicateCollection?: boolean;
+  }[] {
+    switch (objectTypeField) {
+      case 'tables':
+        return [
+          {
+            label: 'Open data',
+            tab: 'TableDataTab',
+            forceNewTab: true,
           },
-        },
-      },
-      {
-        label: 'Open structure',
-        tab: 'TableStructureTab',
-        icon: 'img table-structure',
-      },
-      {
-        label: 'Design query',
-        isQueryDesigner: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Design perspective query',
-        tab: 'PerspectiveTab',
-        forceNewTab: true,
-        icon: 'img perspective',
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'Drop table',
-        isDrop: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Rename table',
-        isRename: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Truncate table',
-        isTruncate: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Copy table name',
-        isCopyTableName: true,
-        requiresWriteAccess: false,
-      },
-      {
-        label: 'Create table backup',
-        isDuplicateTable: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Show diagram',
-        isDiagram: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'Export',
-        functionName: 'tableReader',
-        isExport: true,
-      },
-      {
-        label: 'Import',
-        isImport: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Open active chart',
-        isActiveChart: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'SQL: CREATE TABLE',
-        scriptTemplate: 'CREATE TABLE',
-      },
-      {
-        label: 'SQL: SELECT',
-        scriptTemplate: 'SELECT',
-      },
-      {
-        label: 'SQL Generator: CREATE TABLE',
-        sqlGeneratorProps: {
-          createTables: true,
-          createIndexes: true,
-          createForeignKeys: true,
-        },
-      },
-      {
-        label: 'SQL Generator: DROP TABLE',
-        sqlGeneratorProps: {
-          dropTables: true,
-          dropReferences: true,
-        },
-      },
-      {
-        label: 'SQL Generator: INSERT',
-        sqlGeneratorProps: {
-          insert: true,
-        },
-      },
-    ],
-    views: [
-      {
-        label: 'Open data',
-        tab: 'ViewDataTab',
-        forceNewTab: true,
-      },
-      {
-        label: 'Open structure',
-        tab: 'TableStructureTab',
-        icon: 'img view-structure',
-      },
-      {
-        label: 'Design query',
-        isQueryDesigner: true,
-      },
-      {
-        label: 'Design perspective query',
-        tab: 'PerspectiveTab',
-        forceNewTab: true,
-        icon: 'img perspective',
-      },
-      {
-        label: 'Drop view',
-        isDrop: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'Export',
-        isExport: true,
-        functionName: 'tableReader',
-      },
-      {
-        label: 'Open active chart',
-        isActiveChart: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'SQL: CREATE VIEW',
-        scriptTemplate: 'CREATE OBJECT',
-      },
-      {
-        label: 'SQL: ALTER VIEW',
-        scriptTemplate: 'ALTER OBJECT',
-      },
-      {
-        label: 'SQL: CREATE TABLE',
-        scriptTemplate: 'CREATE TABLE',
-      },
-      {
-        label: 'SQL: SELECT',
-        scriptTemplate: 'SELECT',
-      },
-      {
-        label: 'SQL Generator: CREATE VIEW',
-        sqlGeneratorProps: {
-          createViews: true,
-        },
-      },
-      {
-        label: 'SQL Generator: DROP VIEW',
-        sqlGeneratorProps: {
-          dropViews: true,
-        },
-      },
-    ],
-    matviews: [
-      {
-        label: 'Open data',
-        tab: 'ViewDataTab',
-        forceNewTab: true,
-      },
-      {
-        label: 'Open structure',
-        tab: 'TableStructureTab',
-      },
-      {
-        label: 'Drop view',
-        isDrop: true,
-      },
-      {
-        label: 'Query designer',
-        isQueryDesigner: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'Export',
-        isExport: true,
-        functionName: 'tableReader',
-      },
-      {
-        label: 'Open active chart',
-        isActiveChart: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'SQL: CREATE MATERIALIZED VIEW',
-        scriptTemplate: 'CREATE OBJECT',
-      },
-      {
-        label: 'SQL: ALTER MATERIALIZED VIEW',
-        scriptTemplate: 'ALTER OBJECT',
-      },
-      {
-        label: 'SQL: CREATE TABLE',
-        scriptTemplate: 'CREATE TABLE',
-      },
-      {
-        label: 'SQL: SELECT',
-        scriptTemplate: 'SELECT',
-      },
-      {
-        label: 'SQL Generator: CREATE MATERIALIZED VIEW',
-        sqlGeneratorProps: {
-          createMatviews: true,
-        },
-      },
-      {
-        label: 'SQL Generator: DROP MATERIALIZED VIEW',
-        sqlGeneratorProps: {
-          dropMatviews: true,
-        },
-      },
-    ],
-    queries: [
-      {
-        label: 'Open data',
-        tab: 'QueryDataTab',
-        forceNewTab: true,
-      },
-    ],
-    procedures: [
-      {
-        label: 'Drop procedure',
-        isDrop: true,
-      },
-      {
-        label: 'SQL: CREATE PROCEDURE',
-        scriptTemplate: 'CREATE OBJECT',
-      },
-      {
-        label: 'SQL: ALTER PROCEDURE',
-        scriptTemplate: 'ALTER OBJECT',
-      },
-      {
-        label: 'SQL: EXECUTE',
-        scriptTemplate: 'EXECUTE PROCEDURE',
-      },
-      {
-        label: 'SQL Generator: CREATE PROCEDURE',
-        sqlGeneratorProps: {
-          createProcedures: true,
-        },
-      },
-      {
-        label: 'SQL Generator: DROP PROCEDURE',
-        sqlGeneratorProps: {
-          dropProcedures: true,
-        },
-      },
-    ],
-    functions: [
-      {
-        label: 'Drop function',
-        isDrop: true,
-      },
-      {
-        label: 'SQL: CREATE FUNCTION',
-        scriptTemplate: 'CREATE OBJECT',
-      },
-      {
-        label: 'SQL: ALTER FUNCTION',
-        scriptTemplate: 'ALTER OBJECT',
-      },
-      {
-        label: 'SQL Generator: CREATE FUNCTION',
-        sqlGeneratorProps: {
-          createFunctions: true,
-        },
-      },
-      {
-        label: 'SQL Generator: DROP FUNCTION',
-        sqlGeneratorProps: {
-          dropFunctions: true,
-        },
-      },
-    ],
-    collections: [
-      {
-        label: 'Open data',
-        tab: 'CollectionDataTab',
-        forceNewTab: true,
-      },
-      {
-        label: 'Open JSON',
-        tab: 'CollectionDataTab',
-        forceNewTab: true,
-        initialData: {
-          grid: {
-            isJsonView: true,
+          {
+            label: 'Open form',
+            tab: 'TableDataTab',
+            forceNewTab: true,
+            initialData: {
+              grid: {
+                isFormView: true,
+              },
+            },
           },
-        },
-      },
-      {
-        label: 'Design perspective query',
-        tab: 'PerspectiveTab',
-        forceNewTab: true,
-        icon: 'img perspective',
-      },
-      {
-        label: 'Export',
-        isExport: true,
-        functionName: 'tableReader',
-      },
-      {
-        label: 'Drop collection',
-        isDropCollection: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Rename collection',
-        isRenameCollection: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Create collection backup',
-        isDuplicateCollection: true,
-        requiresWriteAccess: true,
-      },
-      {
-        divider: true,
-      },
-      {
-        label: 'JS: dropCollection()',
-        scriptTemplate: 'dropCollection',
-      },
-      {
-        label: 'JS: find()',
-        scriptTemplate: 'findCollection',
-      },
-    ],
-  };
+          {
+            label: 'Open structure',
+            tab: 'TableStructureTab',
+            icon: 'img table-structure',
+          },
+          {
+            label: 'Design query',
+            isQueryDesigner: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Design perspective query',
+            tab: 'PerspectiveTab',
+            forceNewTab: true,
+            icon: 'img perspective',
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'Drop table',
+            isDrop: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Rename table',
+            isRename: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Truncate table',
+            isTruncate: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Copy table name',
+            isCopyTableName: true,
+            requiresWriteAccess: false,
+          },
+          {
+            label: 'Create table backup',
+            isDuplicateTable: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Show diagram',
+            isDiagram: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'Export',
+            functionName: 'tableReader',
+            isExport: true,
+          },
+          {
+            label: 'Import',
+            isImport: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Open active chart',
+            isActiveChart: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'SQL: CREATE TABLE',
+            scriptTemplate: 'CREATE TABLE',
+          },
+          {
+            label: 'SQL: SELECT',
+            scriptTemplate: 'SELECT',
+          },
+          {
+            label: 'SQL Generator: CREATE TABLE',
+            sqlGeneratorProps: {
+              createTables: true,
+              createIndexes: true,
+              createForeignKeys: true,
+            },
+          },
+          {
+            label: 'SQL Generator: DROP TABLE',
+            sqlGeneratorProps: {
+              dropTables: true,
+              dropReferences: true,
+            },
+          },
+          {
+            label: 'SQL Generator: INSERT',
+            sqlGeneratorProps: {
+              insert: true,
+            },
+          },
+        ];
+      case 'views':
+        return [
+          {
+            label: 'Open data',
+            tab: 'ViewDataTab',
+            forceNewTab: true,
+          },
+          {
+            label: 'Open structure',
+            tab: 'TableStructureTab',
+            icon: 'img view-structure',
+          },
+          {
+            label: 'Design query',
+            isQueryDesigner: true,
+          },
+          {
+            label: 'Design perspective query',
+            tab: 'PerspectiveTab',
+            forceNewTab: true,
+            icon: 'img perspective',
+          },
+          {
+            label: 'Drop view',
+            isDrop: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'Export',
+            isExport: true,
+            functionName: 'tableReader',
+          },
+          {
+            label: 'Open active chart',
+            isActiveChart: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'SQL: CREATE VIEW',
+            scriptTemplate: 'CREATE OBJECT',
+          },
+          {
+            label: 'SQL: ALTER VIEW',
+            scriptTemplate: 'ALTER OBJECT',
+          },
+          {
+            label: 'SQL: CREATE TABLE',
+            scriptTemplate: 'CREATE TABLE',
+          },
+          {
+            label: 'SQL: SELECT',
+            scriptTemplate: 'SELECT',
+          },
+          {
+            label: 'SQL Generator: CREATE VIEW',
+            sqlGeneratorProps: {
+              createViews: true,
+            },
+          },
+          {
+            label: 'SQL Generator: DROP VIEW',
+            sqlGeneratorProps: {
+              dropViews: true,
+            },
+          },
+        ];
+      case 'matviews':
+        return [
+          {
+            label: 'Open data',
+            tab: 'ViewDataTab',
+            forceNewTab: true,
+          },
+          {
+            label: 'Open structure',
+            tab: 'TableStructureTab',
+          },
+          {
+            label: 'Drop view',
+            isDrop: true,
+          },
+          {
+            label: 'Query designer',
+            isQueryDesigner: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'Export',
+            isExport: true,
+            functionName: 'tableReader',
+          },
+          {
+            label: 'Open active chart',
+            isActiveChart: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'SQL: CREATE MATERIALIZED VIEW',
+            scriptTemplate: 'CREATE OBJECT',
+          },
+          {
+            label: 'SQL: ALTER MATERIALIZED VIEW',
+            scriptTemplate: 'ALTER OBJECT',
+          },
+          {
+            label: 'SQL: CREATE TABLE',
+            scriptTemplate: 'CREATE TABLE',
+          },
+          {
+            label: 'SQL: SELECT',
+            scriptTemplate: 'SELECT',
+          },
+          {
+            label: 'SQL Generator: CREATE MATERIALIZED VIEW',
+            sqlGeneratorProps: {
+              createMatviews: true,
+            },
+          },
+          {
+            label: 'SQL Generator: DROP MATERIALIZED VIEW',
+            sqlGeneratorProps: {
+              dropMatviews: true,
+            },
+          },
+        ];
+      case 'queries':
+        return [
+          {
+            label: 'Open data',
+            tab: 'QueryDataTab',
+            forceNewTab: true,
+          },
+        ];
+      case 'procedures':
+        return [
+          {
+            label: 'Drop procedure',
+            isDrop: true,
+          },
+          {
+            label: 'SQL: CREATE PROCEDURE',
+            scriptTemplate: 'CREATE OBJECT',
+          },
+          {
+            label: 'SQL: ALTER PROCEDURE',
+            scriptTemplate: 'ALTER OBJECT',
+          },
+          {
+            label: 'SQL: EXECUTE',
+            scriptTemplate: 'EXECUTE PROCEDURE',
+          },
+          {
+            label: 'SQL Generator: CREATE PROCEDURE',
+            sqlGeneratorProps: {
+              createProcedures: true,
+            },
+          },
+          {
+            label: 'SQL Generator: DROP PROCEDURE',
+            sqlGeneratorProps: {
+              dropProcedures: true,
+            },
+          },
+        ];
+      case 'functions':
+        return [
+          {
+            label: 'Drop function',
+            isDrop: true,
+          },
+          {
+            label: 'SQL: CREATE FUNCTION',
+            scriptTemplate: 'CREATE OBJECT',
+          },
+          {
+            label: 'SQL: ALTER FUNCTION',
+            scriptTemplate: 'ALTER OBJECT',
+          },
+          {
+            label: 'SQL Generator: CREATE FUNCTION',
+            sqlGeneratorProps: {
+              createFunctions: true,
+            },
+          },
+          {
+            label: 'SQL Generator: DROP FUNCTION',
+            sqlGeneratorProps: {
+              dropFunctions: true,
+            },
+          },
+        ];
+      case 'collections':
+        return [
+          {
+            label: 'Open data',
+            tab: 'CollectionDataTab',
+            forceNewTab: true,
+          },
+          {
+            label: 'Open JSON',
+            tab: 'CollectionDataTab',
+            forceNewTab: true,
+            initialData: {
+              grid: {
+                isJsonView: true,
+              },
+            },
+          },
+          {
+            label: 'Design perspective query',
+            tab: 'PerspectiveTab',
+            forceNewTab: true,
+            icon: 'img perspective',
+          },
+          {
+            label: 'Export',
+            isExport: true,
+            functionName: 'tableReader',
+          },
+          {
+            label: 'Drop collection',
+            isDropCollection: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Rename collection',
+            isRenameCollection: true,
+            requiresWriteAccess: true,
+          },
+          {
+            label: 'Create collection backup',
+            isDuplicateCollection: true,
+            requiresWriteAccess: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'JS: dropCollection()',
+            scriptTemplate: 'dropCollection',
+          },
+          {
+            label: 'JS: find()',
+            scriptTemplate: 'findCollection',
+          },
+        ];
+    }
+  }
 
   async function databaseObjectMenuClickHandler(data, menu) {
     const getDriver = async () => {
@@ -605,6 +638,18 @@
     }
   }
 
+  function createMenus(objectTypeField): ReturnType<typeof createMenusCore> {
+    return createMenusCore(objectTypeField).filter(x => {
+      if (x.scriptTemplate) {
+        return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
+      }
+      if (x.sqlGeneratorProps) {
+        return hasPermission(`dbops/sql-generator`);
+      }
+      return true;
+    });
+  }
+
   function getObjectTitle(connection, schemaName, pureName) {
     const driver = findEngineDriver(connection, getExtensions());
 
@@ -656,7 +701,7 @@
     const { schemaName, pureName, conid, database, objectTypeField } = data;
 
     const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
-    const overrideMenu = menus[objectTypeField].find(x => x.label && x.label == configuredAction);
+    const overrideMenu = createMenus(objectTypeField).find(x => x.label && x.label == configuredAction);
     if (overrideMenu) {
       databaseObjectMenuClickHandler(data, overrideMenu);
       return;
@@ -691,7 +736,7 @@
 
   export function createDatabaseObjectMenu(data, connection = null) {
     const { objectTypeField } = data;
-    return menus[objectTypeField]
+    return createMenus(objectTypeField)
       .filter(x => x)
       .map(menu => {
         if (menu.divider) return menu;
@@ -797,6 +842,7 @@
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { format as dateFormat } from 'date-fns';
   import { getDefaultFileFormat } from '../plugins/fileformats';
+  import hasPermission from '../utility/hasPermission';
 
   export let data;
   export let passProps;
