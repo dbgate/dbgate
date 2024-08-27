@@ -272,7 +272,8 @@
         ),
       ],
 
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
+      driver?.databaseEngineTypes?.includes('sql') &&
+        !data.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
     ];
   };
 

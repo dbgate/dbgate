@@ -85,7 +85,7 @@
   $: showTable = $editorValue ? $editorValue.current : tableInfoWithPairingId;
 
   export function canSave() {
-    return objectTypeField == 'tables' && !!$editorValue;
+    return objectTypeField == 'tables' && !!$editorValue && !$connection?.isReadOnly;
   }
 
   export function save() {
@@ -171,7 +171,7 @@
     tableInfo={showTable}
     dbInfo={$dbInfo}
     {driver}
-    setTableInfo={objectTypeField == 'tables'
+    setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly
       ? tableInfoUpdater =>
           setEditorData(tbl =>
             tbl

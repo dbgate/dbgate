@@ -294,7 +294,8 @@
       { divider: true },
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
+      driver?.databaseEngineTypes?.includes('sql') &&
+        !connection.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
       driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
       isSqlOrDoc &&
         !connection.isReadOnly &&
