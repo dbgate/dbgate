@@ -5,7 +5,7 @@
     id: 'sqlDataGrid.openActiveChart',
     category: 'Data grid',
     name: 'Open active chart',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/charts'),
     onClick: () => getCurrentEditor().openActiveChart(),
   });
 
@@ -13,7 +13,7 @@
     id: 'sqlDataGrid.openQuery',
     category: 'Data grid',
     name: 'Open query',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/query'),
     onClick: () => getCurrentEditor().openQuery(),
   });
 
@@ -23,7 +23,7 @@
     name: 'Export',
     icon: 'icon export',
     keyText: 'CtrlOrCommand+E',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/export'),
     onClick: () => getCurrentEditor().exportGrid(),
   });
 
@@ -83,6 +83,7 @@
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let conid;
   export let display;
@@ -209,10 +210,14 @@
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
-    () => ({
-      ...createQuickExportMenu(quickExportHandler, { command: 'sqlDataGrid.export' }),
-      tag: 'export',
-    })
+    () =>
+      createQuickExportMenu(
+        quickExportHandler,
+        {
+          command: 'sqlDataGrid.export',
+        },
+        { tag: 'export' }
+      )
   );
 
   function handleSetLoadedRows(rows) {

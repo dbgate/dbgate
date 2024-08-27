@@ -430,6 +430,7 @@
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;

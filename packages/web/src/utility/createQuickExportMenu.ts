@@ -1,5 +1,6 @@
 import type { QuickExportDefinition } from 'dbgate-types';
 import { currentArchive, getCurrentArchive, getExtensions } from '../stores';
+import hasPermission from './hasPermission';
 
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
@@ -34,10 +35,16 @@ export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition)
 
 export default function createQuickExportMenu(
   handler: (fmt: QuickExportDefinition) => Function,
-  advancedExportMenuItem
+  advancedExportMenuItem,
+  additionalFields = {}
 ) {
+  if (!hasPermission('dbops/export')) {
+    return null;
+  }
+
   return {
     text: 'Export',
     submenu: createQuickExportMenuItems(handler, advancedExportMenuItem),
+    ...advancedExportMenuItem,
   };
 }

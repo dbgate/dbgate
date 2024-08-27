@@ -98,12 +98,12 @@
             isDrop: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/table/rename') && {
             label: 'Rename table',
             isRename: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/table/truncate') && {
             label: 'Truncate table',
             isTruncate: true,
             requiresWriteAccess: true,
@@ -113,29 +113,29 @@
             isCopyTableName: true,
             requiresWriteAccess: false,
           },
-          {
+          hasPermission('dbops/table/backup') && {
             label: 'Create table backup',
             isDuplicateTable: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/model/view') && {
             label: 'Show diagram',
             isDiagram: true,
           },
           {
             divider: true,
           },
-          {
+          hasPermission('dbops/export') && {
             label: 'Export',
             functionName: 'tableReader',
             isExport: true,
           },
-          {
+          hasPermission('dbops/import') && {
             label: 'Import',
             isImport: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/charts') && {
             label: 'Open active chart',
             isActiveChart: true,
           },

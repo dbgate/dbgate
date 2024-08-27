@@ -20,6 +20,7 @@
 
 <script lang="ts">
   import getElectron from '../utility/getElectron';
+  import hasPermission from '../utility/hasPermission';
   import ToolStripCommandButton from './ToolStripCommandButton.svelte';
   import ToolStripDropDownButton from './ToolStripDropDownButton.svelte';
 
@@ -36,8 +37,10 @@
   }
 </script>
 
-{#if quickExportHandlerRef}
-  <ToolStripDropDownButton menu={getExportMenu} {label} icon="icon export" />
-{:else}
-  <ToolStripCommandButton {command} />
+{#if hasPermission('dbops/export')}
+  {#if quickExportHandlerRef}
+    <ToolStripDropDownButton menu={getExportMenu} {label} icon="icon export" />
+  {:else}
+    <ToolStripCommandButton {command} />
+  {/if}
 {/if}

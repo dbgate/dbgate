@@ -280,20 +280,27 @@
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
 
     return [
-      { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
-      driver?.databaseEngineTypes?.includes('document') && {
-        onClick: handleNewCollection,
-        text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
-      },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
+      hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
+      hasPermission(`dbops/model/edit`) &&
+        !connection.isReadOnly &&
+        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
+      !connection.isReadOnly &&
+        hasPermission(`dbops/model/edit`) &&
+        driver?.databaseEngineTypes?.includes('document') && {
+          onClick: handleNewCollection,
+          text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+        },
+      hasPermission(`dbops/query`) &&
+        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
       driver?.databaseEngineTypes?.includes('sql') && {
         onClick: handleNewPerspective,
         text: 'Design perspective query',
       },
       { divider: true },
-      isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
-      isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
+      isSqlOrDoc &&
+        !connection.isReadOnly &&
+        hasPermission(`dbops/import`) && { onClick: handleImport, text: 'Import wizard' },
+      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: 'Export wizard' },
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
@@ -301,7 +308,9 @@
         hasPermission(`dbops/sql-dump/export`) && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
       isSqlOrDoc &&
         !connection.isReadOnly &&
-        !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
+        !connection.singleDatabase &&
+        isSqlOrDoc &&
+        hasPermission(`dbops/dropdb`) && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: 'Copy database name' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
@@ -309,10 +318,14 @@
         hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       driver?.supportsDatabaseProfiler &&
         hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
-      isSqlOrDoc && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
-      isSqlOrDoc && { onClick: handleExportModel, text: 'Export DB model - experimental' },
+      isSqlOrDoc &&
+        isSqlOrDoc &&
+        hasPermission(`dbops/model/view`) && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
+      isSqlOrDoc &&
+        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: 'Export DB model - experimental' },
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
+        hasPermission('dbops/model/compare') &&
         (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {

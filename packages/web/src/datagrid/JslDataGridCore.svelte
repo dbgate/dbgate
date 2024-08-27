@@ -186,10 +186,15 @@
   };
   registerQuickExportHandler(quickExportHandler);
 
-  registerMenu(() => ({
-    ...createQuickExportMenu(quickExportHandler, { command: 'jslTableGrid.export' }),
-    tag: 'export',
-  }));
+  registerMenu(() =>
+    createQuickExportMenu(
+      quickExportHandler,
+      {
+        command: 'jslTableGrid.export',
+      },
+      { tag: 'export' }
+    )
+  );
 
   function handleSetLoadedRows(rows) {
     loadedRows = rows;

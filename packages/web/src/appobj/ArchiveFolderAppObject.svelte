@@ -17,6 +17,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { apiCall } from '../utility/api';
+  import hasPermission from '../utility/hasPermission';
 
   export let data;
 
@@ -140,6 +141,7 @@ await dbgateApi.deployDb(${JSON.stringify(
         ],
 
       data.name != 'default' &&
+        hasPermission('dbops/model/compare') &&
         _.get($currentDatabase, 'connection._id') && {
           onClick: handleCompareWithCurrentDb,
           text: `Compare with ${_.get($currentDatabase, 'name')}`,

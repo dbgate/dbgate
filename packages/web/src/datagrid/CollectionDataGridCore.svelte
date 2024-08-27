@@ -246,10 +246,15 @@
 
   registerQuickExportHandler(quickExportHandler);
 
-  registerMenu({ command: 'collectionDataGrid.openQuery', tag: 'export' }, () => ({
-    ...createQuickExportMenu(quickExportHandler, { command: 'collectionDataGrid.export' }),
-    tag: 'export',
-  }));
+  registerMenu({ command: 'collectionDataGrid.openQuery', tag: 'export' }, () =>
+    createQuickExportMenu(
+      quickExportHandler,
+      {
+        command: 'collectionDataGrid.export',
+      },
+      { tag: 'export' }
+    )
+  );
 
   function handleSetLoadedRows(rows) {
     loadedRows = rows;

@@ -106,6 +106,7 @@
   import AboutModal from '../modals/AboutModal.svelte';
   import { tick } from 'svelte';
   import { getConnectionLabel } from 'dbgate-tools';
+  import hasPermission from '../utility/hasPermission';
 
   export let data;
   export let passProps;
@@ -220,26 +221,27 @@
     };
 
     return [
-      config.runAsPortal == false && [
-        {
-          text: $openedConnections.includes(data._id) ? 'View details' : 'Edit',
-          onClick: handleOpenConnectionTab,
-        },
-        !$openedConnections.includes(data._id) && {
-          text: 'Delete',
-          onClick: handleDelete,
-        },
-        {
-          text: 'Duplicate',
-          onClick: handleDuplicate,
-        },
-      ],
+      config.runAsPortal == false &&
+        !config.storageDatabase && [
+          {
+            text: $openedConnections.includes(data._id) ? 'View details' : 'Edit',
+            onClick: handleOpenConnectionTab,
+          },
+          !$openedConnections.includes(data._id) && {
+            text: 'Delete',
+            onClick: handleDelete,
+          },
+          {
+            text: 'Duplicate',
+            onClick: handleDuplicate,
+          },
+        ],
       !data.singleDatabase && [
         !$openedConnections.includes(data._id) && {
           text: 'Connect',
           onClick: handleConnect,
         },
-        { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
+        hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
             text: 'Refresh',
@@ -249,7 +251,8 @@
           text: 'Disconnect',
           onClick: handleDisconnect,
         },
-        $openedConnections.includes(data._id) &&
+        hasPermission(`dbops/createdb`) &&
+          $openedConnections.includes(data._id) &&
           driver?.supportedCreateDatabase &&
           !data.isReadOnly && {
             text: 'Create database',

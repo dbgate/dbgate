@@ -61,6 +61,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let tabid;
   export let conid;
@@ -171,7 +172,7 @@
     tableInfo={showTable}
     dbInfo={$dbInfo}
     {driver}
-    setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly
+    setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly && hasPermission(`dbops/model/edit`)
       ? tableInfoUpdater =>
           setEditorData(tbl =>
             tbl
