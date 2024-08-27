@@ -22,6 +22,7 @@
 <div class="flex">
   <TextField
     {...$$restProps}
+    {disabled}
     value={$values[name] ?? defaultValue}
     on:input={e => setFieldValue(name, e.target['value'])}
   />

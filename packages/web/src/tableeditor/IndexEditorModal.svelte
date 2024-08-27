@@ -16,6 +16,8 @@
       isUnique,
     };
   }
+
+  $: isReadOnly = !setTableInfo;
 </script>
 
 <ColumnsConstraintEditorModal
@@ -32,6 +34,7 @@
     <SelectField
       value={column.isDescending ? 'desc' : 'asc'}
       isNative
+      disabled={isReadOnly}
       options={[
         { label: 'ASC', value: 'asc' },
         { label: 'DESC', value: 'desc' },
@@ -53,7 +56,8 @@
   <svelte:fragment slot="constraintProps">
     <div class="largeFormMarker">
       <div class="row">
-        <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} /> Is unique index
+        <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} disabled={isReadOnly} /> Is unique
+        index
       </div>
     </div>
   </svelte:fragment>

@@ -19,6 +19,8 @@
   export let driver = null;
 
   export let addDataCommand = false;
+
+  $: isReadOnly = !setTableInfo;
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
@@ -27,33 +29,35 @@
       >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment
     >
 
-    <FormTextField name="columnName" label="Column name" focused />
-    <DataTypeEditor dialect={driver?.dialect} />
+    <FormTextField name="columnName" label="Column name" focused disabled={isReadOnly} />
+    <DataTypeEditor dialect={driver?.dialect} disabled={isReadOnly} />
 
-    <FormCheckboxField name="notNull" label="NOT NULL" />
-    <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
-    <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
+    <FormCheckboxField name="notNull" label="NOT NULL" disabled={isReadOnly} />
+    <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" disabled={isReadOnly} />
+    <FormCheckboxField name="autoIncrement" label="Is Autoincrement" disabled={isReadOnly} />
     <FormTextField
       name="defaultValue"
       label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string"
+      disabled={!setTableInfo}
     />
-    <FormTextField name="computedExpression" label="Computed expression" />
+    <FormTextField name="computedExpression" label="Computed expression" disabled={isReadOnly} />
     {#if driver?.dialect?.columnProperties?.isUnsigned}
-      <FormCheckboxField name="isUnsigned" label="Unsigned" />
+      <FormCheckboxField name="isUnsigned" label="Unsigned" disabled={isReadOnly} />
     {/if}
     {#if driver?.dialect?.columnProperties?.isZerofill}
-      <FormCheckboxField name="isZerofill" label="Zero fill" />
+      <FormCheckboxField name="isZerofill" label="Zero fill" disabled={isReadOnly} />
     {/if}
     {#if driver?.dialect?.columnProperties?.columnComment}
-      <FormTextField name="columnComment" label="Comment" />
+      <FormTextField name="columnComment" label="Comment" disabled={isReadOnly} />
     {/if}
     {#if driver?.dialect?.columnProperties?.isSparse}
-      <FormCheckboxField name="isSparse" label="Sparse" />
+      <FormCheckboxField name="isSparse" label="Sparse" disabled={isReadOnly} />
     {/if}
 
     <svelte:fragment slot="footer">
       <FormSubmit
         value={columnInfo ? 'Save' : 'Save and next'}
+        disabled={isReadOnly}
         on:click={e => {
           closeCurrentModal();
           if (columnInfo) {
@@ -68,6 +72,7 @@
         <FormButton
           type="button"
           value="Save"
+          disabled={isReadOnly}
           on:click={e => {
             closeCurrentModal();
             setTableInfo(tbl => editorAddColumn(tbl, e.detail, addDataCommand));
