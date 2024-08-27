@@ -95,6 +95,7 @@
           grider.editable}
         onDictionaryLookup={() => handleLookup(col)}
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
+        isReadonly={!grider.editable}
       />
     {/if}
   {/each}

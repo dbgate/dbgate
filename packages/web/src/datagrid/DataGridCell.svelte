@@ -32,6 +32,7 @@
   export let onDictionaryLookup = null;
   export let onSetValue;
   export let editorTypes = null;
+  export let isReadonly;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 
@@ -102,7 +103,7 @@
     {/if}
   {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
     <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
-  {:else if col.foreignKey && isCurrentCell && onDictionaryLookup}
+  {:else if col.foreignKey && isCurrentCell && onDictionaryLookup && !isReadonly}
     <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
   {:else if isJson}
     <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />

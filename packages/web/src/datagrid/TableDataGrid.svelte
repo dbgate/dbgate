@@ -158,7 +158,7 @@
       formViewComponent={SqlFormView}
       {display}
       showReferences
-      showMacros
+      showMacros={!$connection?.isReadOnly}
       hasMultiColumnFilter
       onRunMacro={handleRunMacro}
       macroCondition={macro => macro.type == 'transformValue'}
