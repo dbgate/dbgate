@@ -60,7 +60,7 @@
   options={[
     { value: 'userPassword', label: 'Username & password' },
     { value: 'agent', label: 'SSH agent' },
-    electron && { value: 'keyFile', label: 'Key file' },
+    { value: 'keyFile', label: 'Key file' },
   ]}
 />
 
@@ -92,13 +92,23 @@
 {#if $values.sshMode == 'keyFile'}
   <div class="row">
     <div class="col-6 mr-1">
-      <FormElectronFileSelector
-        label="Private key file"
-        name="sshKeyfile"
-        disabled={isConnected || !useSshTunnel}
-        templateProps={{ noMargin: true }}
-        defaultFileName={$platformInfo?.defaultKeyfile}
-      />
+      {#if electron}
+        <FormElectronFileSelector
+          label="Private key file"
+          name="sshKeyfile"
+          disabled={isConnected || !useSshTunnel}
+          templateProps={{ noMargin: true }}
+          defaultFileName={$platformInfo?.defaultKeyfile}
+        />
+      {:else}
+        <FormTextField
+          label="Private key file (path on server)"
+          name="sshKeyfile"
+          disabled={isConnected || !useSshTunnel}
+          templateProps={{ noMargin: true }}
+          placeholder={$platformInfo?.defaultKeyfile}
+        />
+      {/if}
     </div>
     <div class="col-6">
       <FormPasswordField
