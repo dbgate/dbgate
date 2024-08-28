@@ -8,7 +8,7 @@
     icon: 'icon add-column',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable(),
     onClick: () => getCurrentEditor().addColumn(),
   });
 
@@ -30,7 +30,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable(),
     onClick: () => getCurrentEditor().addForeignKey(),
   });
 
@@ -41,7 +41,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable(),
     onClick: () => getCurrentEditor().addIndex(),
   });
 
@@ -52,7 +52,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable(),
     onClick: () => getCurrentEditor().addUnique(),
   });
 </script>
@@ -89,8 +89,10 @@
   export let dbInfo;
   export let driver;
 
-  export function writable() {
-    return !!setTableInfo;
+  $: isWritable = !!setTableInfo;
+
+  export function getIsWritable() {
+    return isWritable;
   }
 
   export function addColumn() {
@@ -106,7 +108,7 @@
   }
 
   export function allowAddPrimaryKey() {
-    return writable() && !tableInfo?.primaryKey;
+    return isWritable && !tableInfo?.primaryKey;
   }
 
   export function addPrimaryKey() {
@@ -158,9 +160,9 @@
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title={`Columns (${columns?.length || 0})`}
     emptyMessage="No columns defined"
-    clickable={writable()}
+    clickable
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
-    onAddNew={writable() ? addColumn : null}
+    onAddNew={isWritable ? addColumn : null}
     columns={[
       {
         fieldName: 'notNull',
@@ -212,7 +214,7 @@
         header: 'Comment',
         sortable: true,
       },
-      writable()
+      isWritable
         ? {
             fieldName: 'actions',
             sortable: true,
@@ -240,9 +242,9 @@
   <ObjectListControl
     collection={_.compact([primaryKey])}
     title="Primary key"
-    emptyMessage={writable() ? 'No primary key defined' : null}
-    onAddNew={writable() && !primaryKey && columns?.length > 0 ? addPrimaryKey : null}
-    clickable={writable()}
+    emptyMessage={isWritable ? 'No primary key defined' : null}
+    onAddNew={isWritable && !primaryKey && columns?.length > 0 ? addPrimaryKey : null}
+    clickable
     on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
@@ -250,7 +252,7 @@
         header: 'Columns',
         slot: 0,
       },
-      writable()
+      isWritable
         ? {
             fieldName: 'actions',
             sortable: true,
@@ -273,10 +275,10 @@
 
   <ObjectListControl
     collection={indexes}
-    onAddNew={writable() && columns?.length > 0 ? addIndex : null}
+    onAddNew={isWritable && columns?.length > 0 ? addIndex : null}
     title={`Indexes (${indexes?.length || 0})`}
-    emptyMessage={writable() ? 'No index defined' : null}
-    clickable={writable()}
+    emptyMessage={isWritable ? 'No index defined' : null}
+    clickable
     on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
@@ -289,7 +291,7 @@
         header: 'Unique',
         slot: 1,
       },
-      writable()
+      isWritable
         ? {
             fieldName: 'actions',
             sortable: true,
@@ -313,10 +315,10 @@
 
   <ObjectListControl
     collection={uniques}
-    onAddNew={writable() && columns?.length > 0 ? addUnique : null}
+    onAddNew={isWritable && columns?.length > 0 ? addUnique : null}
     title={`Unique constraints (${uniques?.length || 0})`}
-    emptyMessage={writable() ? 'No unique defined' : null}
-    clickable={writable()}
+    emptyMessage={isWritable ? 'No unique defined' : null}
+    clickable
     on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
@@ -324,7 +326,7 @@
         header: 'Columns',
         slot: 0,
       },
-      writable()
+      isWritable
         ? {
             fieldName: 'actions',
             sortable: true,
@@ -347,10 +349,10 @@
 
   <ForeignKeyObjectListControl
     collection={foreignKeys}
-    onAddNew={writable() && columns?.length > 0 ? addForeignKey : null}
+    onAddNew={isWritable && columns?.length > 0 ? addForeignKey : null}
     title={`Foreign keys (${foreignKeys?.length || 0})`}
-    emptyMessage={writable() ? 'No foreign key defined' : null}
-    clickable={writable()}
+    emptyMessage={isWritable ? 'No foreign key defined' : null}
+    clickable
     onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
     on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
   />
