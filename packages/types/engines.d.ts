@@ -2,7 +2,16 @@ import stream from 'stream';
 import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
-import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, FunctionInfo, TriggerInfo, CollectionInfo } from './dbinfo';
+import {
+  DatabaseInfo,
+  NamedObjectInfo,
+  TableInfo,
+  ViewInfo,
+  ProcedureInfo,
+  FunctionInfo,
+  TriggerInfo,
+  CollectionInfo,
+} from './dbinfo';
 import { FilterBehaviour } from './filter-type';
 
 export interface StreamOptions {
@@ -211,6 +220,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
   getCollectionExportQueryScript(collection: string, condition: any, sort?: CollectionSortDefinition): string;
   getCollectionExportQueryJson(collection: string, condition: any, sort?: CollectionSortDefinition): {};
+  getScriptTemplates(objectTypeField: keyof DatabaseInfo): { label: string; scriptTemplate: string }[];
+  getScriptTemplateContent(scriptTemplate: string, props: any): Promise<string>;
 
   analyserClass?: any;
   dumperClass?: any;

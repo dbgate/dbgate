@@ -31,7 +31,10 @@
     queries: 'QueryDataTab',
   };
 
-  function createMenusCore(objectTypeField): {
+  function createMenusCore(
+    objectTypeField,
+    driver
+  ): {
     label?: string;
     tab?: string;
     forceNewTab?: boolean;
@@ -400,31 +403,24 @@
             functionName: 'tableReader',
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Drop collection',
+            label: `Drop ${driver?.collectionSingularLabel ?? 'collection/container'}`,
             isDropCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/rename') && {
-            label: 'Rename collection',
+            label: `Rename ${driver?.collectionSingularLabel ?? 'collection/container'}`,
             isRenameCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/backup') && {
-            label: 'Create collection backup',
+            label: `Create ${driver?.collectionSingularLabel ?? 'collection/container'} backup`,
             isDuplicateCollection: true,
             requiresWriteAccess: true,
           },
           {
             divider: true,
           },
-          {
-            label: 'JS: dropCollection()',
-            scriptTemplate: 'dropCollection',
-          },
-          {
-            label: 'JS: find()',
-            scriptTemplate: 'findCollection',
-          },
+          ...(driver?.getScriptTemplates?.('collections') || []),
         ];
     }
   }
@@ -557,9 +553,10 @@
     } else if (menu.isCopyTableName) {
       copyTextToClipboard(data.pureName);
     } else if (menu.isRenameCollection) {
+      const driver = await getDriver();
       showModal(InputTextModal, {
-        label: `New collection/container name`,
-        header: `Rename collection/container`,
+        label: `New ${driver?.collectionSingularLabel ?? 'collection/container'} name`,
+        header: `Rename ${driver?.collectionSingularLabel ?? 'collection/container'}`,
         value: data.pureName,
         onConfirm: async newName => {
           const dbid = _.pick(data, ['conid', 'database']);
@@ -572,9 +569,10 @@
       });
     } else if (menu.isDuplicateCollection) {
       const newName = `_${data.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
+      const driver = await getDriver();
 
       showModal(ConfirmModal, {
-        message: `Really create collection copy named ${newName}?`,
+        message: `Really create ${driver?.collectionSingularLabel ?? 'collection/container'} copy named ${newName}?`,
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
           runOperationOnDatabase(dbid, {
@@ -642,8 +640,8 @@
     }
   }
 
-  function createMenus(objectTypeField): ReturnType<typeof createMenusCore> {
-    return createMenusCore(objectTypeField).filter(x => {
+  function createMenus(objectTypeField, driver): ReturnType<typeof createMenusCore> {
+    return createMenusCore(objectTypeField, driver).filter(x => {
       if (x.scriptTemplate) {
         return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
       }
@@ -703,9 +701,10 @@
 
   export function handleDatabaseObjectClick(data, forceNewTab = false) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
+    const driver = findEngineDriver(data, getExtensions());
 
     const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
-    const overrideMenu = createMenus(objectTypeField).find(x => x.label && x.label == configuredAction);
+    const overrideMenu = createMenus(objectTypeField, driver).find(x => x.label && x.label == configuredAction);
     if (overrideMenu) {
       databaseObjectMenuClickHandler(data, overrideMenu);
       return;
@@ -739,8 +738,10 @@
   }
 
   export function createDatabaseObjectMenu(data, connection = null) {
+    const driver = findEngineDriver(data, getExtensions());
+
     const { objectTypeField } = data;
-    return createMenus(objectTypeField)
+    return createMenus(objectTypeField, driver)
       .filter(x => x)
       .map(menu => {
         if (menu.divider) return menu;

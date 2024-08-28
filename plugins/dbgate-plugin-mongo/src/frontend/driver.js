@@ -150,6 +150,33 @@ const driver = {
 
     supportFieldRemoval: true,
   },
+
+  getScriptTemplates(objectTypeField) {
+    switch (objectTypeField) {
+      case 'collections':
+        return [
+          {
+            label: 'JS: dropCollection()',
+            scriptTemplate: 'dropCollection',
+          },
+          {
+            label: 'JS: find()',
+            scriptTemplate: 'findCollection',
+          },
+        ];
+    }
+
+    return [];
+  },
+
+  async getScriptTemplateContent(scriptTemplate, props) {
+    switch (scriptTemplate) {
+      case 'dropCollection':
+        return `db.${props.pureName}.drop();`;
+      case 'findCollection':
+        return `db.${props.pureName}.find();`;
+    }
+  },
 };
 
 module.exports = driver;

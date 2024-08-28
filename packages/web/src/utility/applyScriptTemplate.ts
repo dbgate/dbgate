@@ -56,12 +56,10 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
     if (procedureInfo) dmp.put('^execute %f', procedureInfo);
     return dmp.s;
   }
-  if (scriptTemplate == 'dropCollection') {
-    return `db.collection('${props.pureName}').drop()`;
-  }
-  if (scriptTemplate == 'findCollection') {
-    return `db.collection('${props.pureName}').find()`;
-  }
 
-  return null;
+  const connection = await getConnectionInfo(props);
+  const driver = findEngineDriver(connection, extensions) || driverBase;
+  const res = await driver.getScriptTemplateContent(scriptTemplate, props);
+
+  return res;
 }

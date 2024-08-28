@@ -161,6 +161,12 @@ export const driverBase = {
   getCollectionExportQueryJson(collection: string, condition: any, sort: any) {
     return null;
   },
+  getScriptTemplates(objectTypeField) {
+    return [];
+  },
+  getScriptTemplateContent(scriptTemplate, props) {
+    return null;
+  },
 
   dataEditorTypesBehaviour: {
     parseSqlNull: true,
