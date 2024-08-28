@@ -107,6 +107,15 @@ const driver = {
       case 'dropCollection':
         await this.script(pool, `db.dropCollection('${operation.collection}')`);
         break;
+      case 'renameCollection':
+        await this.script(pool, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
+        break;
+      case 'cloneCollection':
+        await this.script(
+          pool,
+          `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+        );
+        break;
       default:
         throw new Error(`Operation type ${type} not supported`);
     }

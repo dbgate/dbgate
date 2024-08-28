@@ -93,7 +93,7 @@
           {
             divider: true,
           },
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop table',
             isDrop: true,
             requiresWriteAccess: true,
@@ -394,22 +394,22 @@
             forceNewTab: true,
             icon: 'img perspective',
           },
-          {
+          hasPermission('dbops/export') && {
             label: 'Export',
             isExport: true,
             functionName: 'tableReader',
           },
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop collection',
             isDropCollection: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/table/rename') && {
             label: 'Rename collection',
             isRenameCollection: true,
             requiresWriteAccess: true,
           },
-          {
+          hasPermission('dbops/table/backup') && {
             label: 'Create collection backup',
             isDuplicateCollection: true,
             requiresWriteAccess: true,
@@ -563,11 +563,11 @@
         value: data.pureName,
         onConfirm: async newName => {
           const dbid = _.pick(data, ['conid', 'database']);
-          await apiCall('database-connections/run-script', {
-            ...dbid,
-            sql: `db.renameCollection('${data.pureName}', '${newName}')`,
+          runOperationOnDatabase(dbid, {
+            type: 'renameCollection',
+            collection: data.pureName,
+            newName,
           });
-          apiCall('database-connections/sync-model', dbid);
         },
       });
     } else if (menu.isDuplicateCollection) {
@@ -577,7 +577,11 @@
         message: `Really create collection copy named ${newName}?`,
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
-          saveScriptToDatabase(dbid, `db.collection('${data.pureName}').aggregate([{$out: '${newName}'}]).toArray()`);
+          runOperationOnDatabase(dbid, {
+            type: 'cloneCollection',
+            collection: data.pureName,
+            newName,
+          });
         },
       });
     } else if (menu.isDuplicateTable) {
