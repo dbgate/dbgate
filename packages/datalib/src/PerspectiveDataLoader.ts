@@ -123,7 +123,7 @@ export class PerspectiveDataLoader {
       groupByColumns: bindingColumns,
       aggregateColumns: [
         {
-          alias: 'acount',
+          alias: 'pergrpsize',
           aggregateFunction: 'count',
         },
       ],
@@ -156,8 +156,8 @@ export class PerspectiveDataLoader {
 
     if (response.errorMessage) return response;
     return response.rows.map(row => ({
-      ...row._id,
-      _perspective_group_size_: parseInt(row.count),
+      ...row,
+      _perspective_group_size_: parseInt(row.pergrpsize),
     }));
   }
 

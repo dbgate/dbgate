@@ -463,6 +463,8 @@ export abstract class PerspectiveTreeNode {
       order: 'ASC' as 'ASC',
     }));
     if (pkColumns) return pkColumns;
+    const uqColumns = (table as CollectionInfo)?.uniqueKey;
+    if (uqColumns?.length >= 1) return uqColumns.map(x => ({ columnName: x.columnName, order: 'ASC' }));
     const columns = (table as TableInfo | ViewInfo)?.columns;
     if (columns) return [{ columnName: columns[0].columnName, order: 'ASC' }];
     return [{ columnName: '_id', order: 'ASC' }];

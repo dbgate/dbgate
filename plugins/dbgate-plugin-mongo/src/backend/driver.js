@@ -305,7 +305,12 @@ const driver = {
       } else if (options.aggregate) {
         let cursor = await collection.aggregate(convertObjectId(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
-        return { rows: rows.map(transformMongoData) };
+        return {
+          rows: rows.map(transformMongoData).map((x) => ({
+            ...x._id,
+            ..._.omit(x, ['_id']),
+          })),
+        };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
         let cursor = await collection.find(convertObjectId(mongoCondition) || {});
@@ -313,7 +318,9 @@ const driver = {
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();
-        return { rows: rows.map(transformMongoData) };
+        return {
+          rows: rows.map(transformMongoData),
+        };
       }
     } catch (err) {
       return { errorMessage: err.message };
