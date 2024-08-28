@@ -8,6 +8,8 @@ function quoteDefaultValue(value) {
   if (value == null) return value;
   if (!isNaN(value) && !isNaN(parseFloat(value))) return value;
   if (_.isString(value) && value.startsWith('CURRENT_')) return value;
+  // keep NULL as default value. Is this really necessary?
+  if (_.isString(value) && value?.toUpperCase() == 'NULL') return 'NULL';
   if (_.isString(value)) {
     return `'${value.replace("'", "\\'")}'`;
   }

@@ -142,6 +142,12 @@ function testEqualFullNames(lft: NamedObjectInfo, rgt: NamedObjectInfo, opts: Db
   return testEqualSchemas(lft.schemaName, rgt.schemaName, opts) && testEqualNames(lft.pureName, rgt.pureName, opts);
 }
 
+function testEqualDefaultValues(value1: string | null | undefined, value2: string | null | undefined) {
+  if (value1 == null) return value2 == null || value2 == 'NULL';
+  if (value2 == null) return value1 == null || value1 == 'NULL';
+  return value1 == value2;
+}
+
 export function testEqualColumns(
   a: ColumnInfo,
   b: ColumnInfo,
@@ -175,36 +181,19 @@ export function testEqualColumns(
     return true;
   }
   if (checkDefault) {
-    if (a.defaultValue == null) {
-      if (a.defaultValue != b.defaultValue) {
-        console.debug(
-          `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
-        );
+    if (!testEqualDefaultValues(a.defaultValue, b.defaultValue)) {
+      console.debug(
+        `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
+      );
 
-        // opts.DiffLogger.Trace(
-        //   'Column {0}, {1}: different default values: {2}; {3}',
-        //   a,
-        //   b,
-        //   a.DefaultValue,
-        //   b.DefaultValue
-        // );
-        return false;
-      }
-    } else {
-      if (a.defaultValue != b.defaultValue) {
-        console.debug(
-          `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
-        );
-
-        // opts.DiffLogger.Trace(
-        //   'Column {0}, {1}: different default values: {2}; {3}',
-        //   a,
-        //   b,
-        //   a.DefaultValue,
-        //   b.DefaultValue
-        // );
-        return false;
-      }
+      // opts.DiffLogger.Trace(
+      //   'Column {0}, {1}: different default values: {2}; {3}',
+      //   a,
+      //   b,
+      //   a.DefaultValue,
+      //   b.DefaultValue
+      // );
+      return false;
     }
     if (a.defaultConstraint != b.defaultConstraint) {
       console.debug(
