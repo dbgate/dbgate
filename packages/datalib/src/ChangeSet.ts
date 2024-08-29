@@ -369,6 +369,8 @@ function compileSimpleChangeSetCondition(fields: { [column: string]: string }): 
 function changeSetUpdateToSql(item: ChangeSetItem, dbinfo: DatabaseInfo = null): Update {
   const table = dbinfo?.tables?.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
 
+  const autoIncCol = table?.columns?.find(x => x.autoIncrement);
+
   return {
     from: {
       name: {
@@ -380,7 +382,7 @@ function changeSetUpdateToSql(item: ChangeSetItem, dbinfo: DatabaseInfo = null):
     fields: extractFields(
       item,
       true,
-      table?.columns?.map(x => x.columnName)
+      table?.columns?.map(x => x.columnName).filter(x => x != autoIncCol?.columnName)
     ),
     where: extractChangeSetCondition(item),
   };
