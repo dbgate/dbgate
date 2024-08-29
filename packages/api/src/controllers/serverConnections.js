@@ -59,7 +59,7 @@ module.exports = {
       if (connection.useRedirectDbLogin) {
         throw new MissingCredentialsError({ conid, redirectToDbLogin: true });
       }
-        const subprocess = fork(
+      const subprocess = fork(
         global['API_PACKAGE'] || process.argv[1],
         [
           '--is-forked-api',
@@ -184,22 +184,29 @@ module.exports = {
     return { status: 'ok' };
   },
 
-  createDatabase_meta: true,
-  async createDatabase({ conid, name }, req) {
+  async sendDatabaseOp({ conid, msgtype, name }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     if (opened.connection.isReadOnly) return false;
-    opened.subprocess.send({ msgtype: 'createDatabase', name });
-    return { status: 'ok' };
+    const res = await this.sendRequest(opened, { msgtype, name });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+
+      return {
+        apiErrorMessage: res.errorMessage,
+      };
+    }
+    return res.result || null;
+  },
+
+  createDatabase_meta: true,
+  async createDatabase({ conid, name }, req) {
+    return this.sendDatabaseOp({ conid, msgtype: 'createDatabase', name }, req);
   },
 
   dropDatabase_meta: true,
   async dropDatabase({ conid, name }, req) {
-    testConnectionPermission(conid, req);
-    const opened = await this.ensureOpened(conid);
-    if (opened.connection.isReadOnly) return false;
-    opened.subprocess.send({ msgtype: 'dropDatabase', name });
-    return { status: 'ok' };
+    return this.sendDatabaseOp({ conid, msgtype: 'dropDatabase', name }, req);
   },
 
   sendRequest(conn, message) {
