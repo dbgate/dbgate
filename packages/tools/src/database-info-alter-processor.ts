@@ -116,7 +116,14 @@ export class DatabaseInfoAlterProcessor {
     throw new Error('recreateTable not implemented for DatabaseInfoAlterProcessor');
   }
 
-  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[], insertOnly: string[]) {
+  fillPreloadedRows(
+    table: NamedObjectInfo,
+    oldRows: any[],
+    newRows: any[],
+    key: string[],
+    insertOnly: string[],
+    autoIncrementColumn: string
+  ) {
     const tableInfo = this.db.tables.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
     tableInfo.preloadedRows = newRows;
     tableInfo.preloadedRowsKey = key;

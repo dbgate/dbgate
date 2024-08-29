@@ -94,6 +94,7 @@ interface AlterOperation_FillPreloadedRows {
   newRows: any[];
   key: string[];
   insertOnly: string[];
+  autoIncrementColumn: string;
 }
 
 type AlterOperation =
@@ -233,7 +234,14 @@ export class AlterPlan {
     this.recreates.tables += 1;
   }
 
-  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[], insertOnly: string[]) {
+  fillPreloadedRows(
+    table: NamedObjectInfo,
+    oldRows: any[],
+    newRows: any[],
+    key: string[],
+    insertOnly: string[],
+    autoIncrementColumn: string
+  ) {
     this.operations.push({
       operationType: 'fillPreloadedRows',
       table,
@@ -241,6 +249,7 @@ export class AlterPlan {
       newRows,
       key,
       insertOnly,
+      autoIncrementColumn,
     });
   }
 
@@ -567,7 +576,7 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       processor.dropSqlObject(op.oldObject);
       break;
     case 'fillPreloadedRows':
-      processor.fillPreloadedRows(op.table, op.oldRows, op.newRows, op.key, op.insertOnly);
+      processor.fillPreloadedRows(op.table, op.oldRows, op.newRows, op.key, op.insertOnly, op.autoIncrementColumn);
       break;
     case 'recreateTable':
       {

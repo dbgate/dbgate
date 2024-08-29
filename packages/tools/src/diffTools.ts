@@ -368,7 +368,8 @@ function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableI
       oldTable?.preloadedRows,
       newTable.preloadedRows,
       key,
-      newTable.preloadedRowsInsertOnly
+      newTable.preloadedRowsInsertOnly,
+      newTable.columns.find(x => x.autoIncrement)?.columnName
     );
   }
 }

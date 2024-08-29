@@ -210,7 +210,6 @@ export class SqlDumper implements AlterProcessor {
     } else {
       this.putRaw(SqlDumper.convertKeywordCase(type));
     }
-
   }
 
   columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
@@ -653,7 +652,14 @@ export class SqlDumper implements AlterProcessor {
     this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
   }
 
-  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[], insertOnly: string[]) {
+  fillPreloadedRows(
+    table: NamedObjectInfo,
+    oldRows: any[],
+    newRows: any[],
+    key: string[],
+    insertOnly: string[],
+    autoIncrementColumn: string
+  ) {
     let was = false;
     for (const row of newRows) {
       const old = oldRows?.find(r => key.every(col => r[col] == row[col]));
@@ -676,12 +682,15 @@ export class SqlDumper implements AlterProcessor {
       } else {
         if (was) this.put(';\n');
         was = true;
+        const autoinc = rowKeys.includes(autoIncrementColumn);
+        if (autoinc) this.allowIdentityInsert(table, true);
         this.put(
           '^insert ^into %f (%,i) ^values (%,v)',
           table,
           rowKeys,
           rowKeys.map(x => row[x])
         );
+        if (autoinc) this.allowIdentityInsert(table, false);
       }
     }
     if (was) {
