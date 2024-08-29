@@ -102,6 +102,12 @@ module.exports = {
     return res;
   },
 
+  deleteSettings_meta: true,
+  async deleteSettings() {
+    await fs.unlink(path.join(datadir(), 'settings.json'));
+    return true;
+  },
+
   fillMissingSettings(value) {
     const res = {
       ...value,

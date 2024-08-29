@@ -41,6 +41,8 @@ import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte
 import UploadErrorModal from '../modals/UploadErrorModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import NewCollectionModal from '../modals/NewCollectionModal.svelte';
+import ConfirmModal from '../modals/ConfirmModal.svelte';
+import localforage from 'localforage';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -449,6 +451,28 @@ registerCommand({
   name: 'Open data folder',
   testEnabled: () => getElectron() != null,
   onClick: () => electron.showItemInFolder(getCurrentConfig().connectionsFilePath),
+});
+
+registerCommand({
+  id: 'app.resetSettings',
+  category: 'File',
+  name: 'Reset layout data & settings',
+  testEnabled: () => true,
+  onClick: () => {
+    showModal(ConfirmModal, {
+      message: `Really reset layout data? All opened tabs, settings and layout data will be lost. Connections and saved files will be preserved. After this, restart DbGate for applying changes.`,
+      onConfirm: async () => {
+        await apiCall('config/delete-settings');
+        localStorage.clear();
+        await localforage.clear();
+        if (getElectron()) {
+          getElectron().send('reset-settings');
+        } else {
+          window.location.reload();
+        }
+      },
+    });
+  },
 });
 
 registerCommand({

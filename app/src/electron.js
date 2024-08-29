@@ -22,6 +22,7 @@ let disableAutoUpgrade = false;
 // require('@electron/remote/main').initialize();
 
 const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
+let saveConfigOnExit = true;
 let initialConfig = {};
 let apiLoaded = false;
 let mainModule;
@@ -167,6 +168,21 @@ ipcMain.on('update-commands', async (event, arg) => {
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {
+  if (isMac()) {
+    app.quit();
+  } else {
+    mainWindow.close();
+  }
+});
+ipcMain.on('reset-settings', async (event, arg) => {
+  try {
+    saveConfigOnExit = false;
+    fs.unlinkSync(configRootPath);
+    console.log('Deleted file:', configRootPath);
+  } catch (err) {
+    console.log('Error deleting config-root:', err.message);
+  }
+
   if (isMac()) {
     app.quit();
   } else {
@@ -364,15 +380,17 @@ function createWindow() {
       });
     mainWindow.on('close', () => {
       try {
-        fs.writeFileSync(
-          configRootPath,
-          JSON.stringify({
-            winBounds: mainWindow.getBounds(),
-            winIsMaximized: mainWindow.isMaximized(),
-            disableAutoUpgrade,
-          }),
-          'utf-8'
-        );
+        if (saveConfigOnExit) {
+          fs.writeFileSync(
+            configRootPath,
+            JSON.stringify({
+              winBounds: mainWindow.getBounds(),
+              winIsMaximized: mainWindow.isMaximized(),
+              disableAutoUpgrade,
+            }),
+            'utf-8'
+          );
+        }
       } catch (err) {
         console.log('Error saving config-root:', err.message);
       }
