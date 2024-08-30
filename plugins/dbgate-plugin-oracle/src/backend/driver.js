@@ -86,7 +86,7 @@ const driver = {
     return pool.end();
   },
   async query(client, sql) {
-    if (sql == null) {
+    if (sql == null || sql.trim() == '') {
       return {
         rows: [],
         columns: [],
@@ -97,8 +97,6 @@ const driver = {
     if (mtrim) {
       sql = mtrim[1];
     }
-
-    console.log('************************ RUN ORACLE QUERY', sql);
 
     const res = await client.execute(sql);
     try {
