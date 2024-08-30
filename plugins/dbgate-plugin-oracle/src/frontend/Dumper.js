@@ -2,14 +2,17 @@ const { SqlDumper, arrayToHexString, testEqualTypes } = global.DBGATE_PACKAGES['
 
 class Dumper extends SqlDumper {
   createDatabase(name) {
-    this.putCmd(
+    this.put(
       `CREATE USER c##${name}
     IDENTIFIED BY ${name}
     DEFAULT TABLESPACE users
     TEMPORARY TABLESPACE temp
-    QUOTA 10M ON users;`,
-      name
+    QUOTA 10M ON users`
     );
+  }
+
+  dropDatabase(name) {
+    this.put(`DROP USER ${name}`);
   }
 
   // oracle uses implicit transactions
