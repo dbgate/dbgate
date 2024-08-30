@@ -27,7 +27,7 @@
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "dbgate-datalib": "^5.0.0-alpha.1",
-    "dbgate-query-splitter": "^4.10.1",
+    "dbgate-query-splitter": "^4.10.3",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "dbgate-tools": "^5.0.0-alpha.1",
     "debug": "^4.3.4",

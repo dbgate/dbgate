@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.7",
-    "dbgate-query-splitter": "^4.10.1",
+    "dbgate-query-splitter": "^4.10.3",
     "dbgate-tools": "^5.0.0-alpha.1",
     "lodash": "^4.17.21",
     "webpack": "^5.91.0",
