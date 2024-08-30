@@ -133,10 +133,29 @@ export class SqlDumper implements AlterProcessor {
       i++;
       switch (c) {
         case '^':
+          if (format[i] == '^') {
+            this.putRaw('^');
+            i++;
+            break;
+          }
+
           while (i < length && format[i].match(/[a-z0-9_]/i)) {
             this.putRaw(SqlDumper.convertKeywordCase(format[i]));
             i++;
           }
+          break;
+        case '~':
+          if (format[i] == '~') {
+            this.putRaw('~');
+            i++;
+            break;
+          }
+          let ident = '';
+          while (i < length && format[i].match(/[a-z0-9_]/i)) {
+            ident += format[i];
+            i++;
+          }
+          this.putRaw(this.dialect.quoteIdentifier(ident));
           break;
         case '%':
           c = format[i];

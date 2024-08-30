@@ -86,17 +86,18 @@ const driver = {
     return pool.end();
   },
   async query(client, sql) {
-    if (sql.trim() == 'COMMIT;') {
-      sql = 'COMMIT';
-    }
-
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-    
+
+    const mtrim = sql.match(/(.*);\s*$/);
+    if (mtrim) {
+      sql = mtrim[1];
+    }
+
     const res = await client.execute(sql);
     const columns = extractOracleColumns(res.metaData);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
