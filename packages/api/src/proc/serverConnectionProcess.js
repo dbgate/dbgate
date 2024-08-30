@@ -105,18 +105,24 @@ function handlePing() {
   lastPing = new Date().getTime();
 }
 
-async function handleDatabaseOp(op, { name }) {
-  const driver = requireEngineDriver(storedConnection);
-  systemConnection = await connectUtility(driver, storedConnection, 'app');
-  if (driver[op]) {
-    await driver[op](systemConnection, name);
-  } else {
-    const dmp = driver.createDumper();
-    dmp[op](name);
-    logger.info({ sql: dmp.s }, 'Running script');
-    await driver.query(systemConnection, dmp.s);
+async function handleDatabaseOp(op, { msgid, name }) {
+  try {
+    const driver = requireEngineDriver(storedConnection);
+    systemConnection = await connectUtility(driver, storedConnection, 'app');
+    if (driver[op]) {
+      await driver[op](systemConnection, name);
+    } else {
+      const dmp = driver.createDumper();
+      dmp[op](name);
+      logger.info({ sql: dmp.s }, 'Running script');
+      await driver.query(systemConnection, dmp.s);
+    }
+    await handleRefresh();
+
+    process.send({ msgtype: 'response', msgid, status: 'ok' });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
   }
-  await handleRefresh();
 }
 
 async function handleDriverDataCore(msgid, callMethod) {

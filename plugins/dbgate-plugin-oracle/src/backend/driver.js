@@ -96,18 +96,10 @@ const driver = {
         columns: [],
       };
     }
-    try {
-      //console.log('sql3', sql);
-      const res = await client.execute(sql);
-      //console.log('res', res);
-      const columns = extractOracleColumns(res.metaData);
-      //console.log('columns', columns);
-      return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
-    } catch (err) {
-      console.log('Error query', err, sql);
-    } finally {
-      //console.log('finally', sql);
-    }
+    
+    const res = await client.execute(sql);
+    const columns = extractOracleColumns(res.metaData);
+    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
   stream(client, sql, options) {
     /*
