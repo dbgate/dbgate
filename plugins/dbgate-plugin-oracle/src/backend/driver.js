@@ -93,14 +93,23 @@ const driver = {
       };
     }
 
-    const mtrim = sql.match(/(.*);\s*$/);
+    const mtrim = sql.match(/^(.*);\s*$/s);
     if (mtrim) {
       sql = mtrim[1];
     }
 
+    console.log('************************ RUN ORACLE QUERY', sql);
+
     const res = await client.execute(sql);
-    const columns = extractOracleColumns(res.metaData);
-    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+    try {
+      const columns = extractOracleColumns(res.metaData);
+      return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+    } catch (err) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
   },
   stream(client, sql, options) {
     /*
