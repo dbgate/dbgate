@@ -142,7 +142,30 @@
 {/if}
 
 {#if driver?.showConnectionField('serviceName', $values, showConnectionFieldArgs)}
-  <FormTextField label="Service name" name="serviceName" disabled={isConnected} />
+  <div class="row">
+    <div class="col-9 mr-1">
+      <FormTextField
+        label={$values.serviceNameType == 'sid' ? 'SID' : 'Service name'}
+        name="serviceName"
+        disabled={isConnected}
+        templateProps={{ noMargin: true }}
+      />
+    </div>
+    <div class="col-3">
+      <FormSelectField
+        label="Choose type"
+        isNative
+        name="serviceNameType"
+        defaultValue="serviceName"
+        disabled={isConnected}
+        templateProps={{ noMargin: true }}
+        options={[
+          { value: 'serviceName', label: 'Service name' },
+          { value: 'sid', label: 'SID' },
+        ]}
+      />
+    </div>
+  </div>
 {/if}
 
 {#if driver?.showConnectionField('socketPath', $values, showConnectionFieldArgs)}

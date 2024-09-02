@@ -60,6 +60,7 @@ const driver = {
     databaseUrl,
     useDatabaseUrl,
     serviceName,
+    serviceNameType,
     ssl,
     isReadOnly,
     authType,
@@ -74,7 +75,15 @@ const driver = {
     client = await oracledb.getConnection({
       user,
       password,
-      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}/${serviceName}` : server,
+      connectString: useDatabaseUrl
+        ? databaseUrl
+        : serviceName
+        ? serviceNameType == 'sid'
+          ? `(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${server})(PORT=${
+              port || 1521
+            }))(CONNECT_DATA=(SID=${serviceName})))`
+          : `${server}:${port || 1521}/${serviceName}`
+        : `${server}:${port || 1521}`,
     });
     if (database) {
       await client.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${database}`);
