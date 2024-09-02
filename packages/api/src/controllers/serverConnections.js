@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
