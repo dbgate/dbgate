@@ -36,7 +36,7 @@
     category: 'Data grid',
     name: 'Toggle left panel',
     keyText: 'CtrlOrCommand+L',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor()?.canShowLeftPanel(),
     onClick: () => getCurrentEditor().toggleLeftPanel(),
   });
 
@@ -139,6 +139,10 @@
     }
   }
 
+  export function canShowLeftPanel() {
+    return !hideGridLeftColumn;
+  }
+
   export function toggleLeftPanel() {
     collapsedLeftColumnStore.update(x => !x);
   }
@@ -147,7 +151,7 @@
     { command: 'dataGrid.switchToForm', tag: 'switch', hideDisabled: true },
     { command: 'dataGrid.switchToTable', tag: 'switch', hideDisabled: true },
     { command: 'dataGrid.switchToJson', tag: 'switch', hideDisabled: true },
-    { command: 'dataGrid.toggleLeftPanel', tag: 'switch' }
+    { command: 'dataGrid.toggleLeftPanel', tag: 'switch', hideDisabled: true }
   );
 
   $: if (managerSize) setLocalStorage('dataGridManagerWidth', managerSize);

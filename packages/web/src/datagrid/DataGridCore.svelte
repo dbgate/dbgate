@@ -236,7 +236,7 @@
     category: 'Data grid',
     name: 'Hide column',
     keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
-    testEnabled: () => getCurrentDataGrid() != null,
+    testEnabled: () => getCurrentDataGrid()?.canShowLeftPanel(),
     onClick: () => getCurrentDataGrid().hideColumn(),
   });
 
@@ -452,7 +452,6 @@
   export let schemaName = undefined;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
-  export let hideGridLeftColumn;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -466,6 +465,7 @@
   export let onOpenQuery = null;
   export let jslid;
   // export let generalAllowSave = false;
+  export let hideGridLeftColumn = false;
 
   export const activator = createActivator('DataGridCore', false);
 
@@ -1036,6 +1036,11 @@
       showSnackbarSuccess(`Merged ${mergedRows.length} rows into ${file} in archive ${$currentArchive}`);
     }
   }
+
+  export function canShowLeftPanel() {
+    return !hideGridLeftColumn;
+  }
+
 
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
@@ -1755,7 +1760,7 @@
     { placeTag: 'edit' },
     { divider: true },
     { command: 'dataGrid.findColumn' },
-    { command: 'dataGrid.hideColumn' },
+    { command: 'dataGrid.hideColumn', hideDisabled: true },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.addNewColumn', hideDisabled: true },
