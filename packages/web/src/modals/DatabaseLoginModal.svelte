@@ -26,6 +26,7 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import { callServerPing } from '../utility/connectionsPinger';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let conid;
   export let passwordMode;
@@ -47,13 +48,13 @@
       $values = {
         ...$values,
         user: connection.user,
-        server: connection.server,
+        connectionLabel: getConnectionLabel(connection),
       };
     }
     if (passwordMode == 'askUser') {
       $values = {
         ...$values,
-        server: connection.server,
+        connectionLabel: getConnectionLabel(connection),
       };
     }
 
@@ -98,7 +99,7 @@
   <ModalBase {...$$restProps} simple>
     <svelte:fragment slot="header">Database Log In ({engineTitle})</svelte:fragment>
 
-    <FormTextField label="Server" name="server" disabled />
+    <FormTextField label="Connection" name="connectionLabel" disabled />
     <FormTextField
       label="Username"
       name="user"
