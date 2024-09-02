@@ -5,17 +5,52 @@ import { interpretEscapes, token, word, whitespace } from './common';
 import { hexStringToArray } from 'dbgate-tools';
 import { FilterBehaviour, TransformType } from 'dbgate-types';
 
-const binaryCondition = operator => value => ({
-  conditionType: 'binary',
-  operator,
-  left: {
-    exprType: 'placeholder',
-  },
-  right: {
-    exprType: 'value',
-    value,
-  },
-});
+const binaryCondition =
+  (operator, numberDualTesting = false) =>
+  value => {
+    const numValue = parseFloat(value);
+    if (numberDualTesting && !isNaN(numValue)) {
+      return {
+        conditionType: 'or',
+        conditions: [
+          {
+            conditionType: 'binary',
+            operator,
+            left: {
+              exprType: 'placeholder',
+            },
+            right: {
+              exprType: 'value',
+              value,
+            },
+          },
+          {
+            conditionType: 'binary',
+            operator,
+            left: {
+              exprType: 'placeholder',
+            },
+            right: {
+              exprType: 'value',
+              value: numValue,
+            },
+          },
+        ],
+      };
+    }
+
+    return {
+      conditionType: 'binary',
+      operator,
+      left: {
+        exprType: 'placeholder',
+      },
+      right: {
+        exprType: 'value',
+        value,
+      },
+    };
+  };
 
 const likeCondition = (conditionType, likeString) => value => ({
   conditionType,
@@ -89,48 +124,6 @@ const numberTestCondition = () => value => {
         right: {
           exprType: 'value',
           value,
-        },
-      },
-    ],
-  };
-};
-
-const numberTestIfNumberCondition = () => value => {
-  const numValue = parseFloat(value);
-  if (isNaN(numValue)) {
-    return {
-      conditionType: 'like',
-      left: {
-        exprType: 'placeholder',
-      },
-      right: {
-        exprType: 'value',
-        value: `.*${value}.*`,
-      },
-    };
-  }
-  return {
-    conditionType: 'or',
-    conditions: [
-      {
-        conditionType: 'like',
-        left: {
-          exprType: 'placeholder',
-        },
-        right: {
-          exprType: 'value',
-          value: `.*${value}.*`,
-        },
-      },
-      {
-        conditionType: 'binary',
-        operator: '=',
-        left: {
-          exprType: 'placeholder',
-        },
-        right: {
-          exprType: 'value',
-          value: numValue,
         },
       },
     ],
@@ -455,14 +448,13 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     trueNum: () => word('1').map(binaryFixedValueCondition('1')),
     falseNum: () => word('0').map(binaryFixedValueCondition('0')),
 
-    eq: r => word('=').then(r.value).map(binaryCondition('=')),
-    eqNum: r => word('=').then(r.value).map(numberTestIfNumberCondition()),
-    ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
-    ne2: r => word('<>').then(r.value).map(binaryCondition('<>')),
-    le: r => word('<=').then(r.value).map(binaryCondition('<=')),
-    ge: r => word('>=').then(r.value).map(binaryCondition('>=')),
-    lt: r => word('<').then(r.value).map(binaryCondition('<')),
-    gt: r => word('>').then(r.value).map(binaryCondition('>')),
+    eq: r => word('=').then(r.value).map(binaryCondition('=', filterBehaviour.allowNumberDualTesting)),
+    ne: r => word('!=').then(r.value).map(binaryCondition('<>', filterBehaviour.allowNumberDualTesting)),
+    ne2: r => word('<>').then(r.value).map(binaryCondition('<>', filterBehaviour.allowNumberDualTesting)),
+    le: r => word('<=').then(r.value).map(binaryCondition('<=', filterBehaviour.allowNumberDualTesting)),
+    ge: r => word('>=').then(r.value).map(binaryCondition('>=', filterBehaviour.allowNumberDualTesting)),
+    lt: r => word('<').then(r.value).map(binaryCondition('<', filterBehaviour.allowNumberDualTesting)),
+    gt: r => word('>').then(r.value).map(binaryCondition('>', filterBehaviour.allowNumberDualTesting)),
     startsWith: r => word('^').then(r.value).map(likeCondition('like', '#VALUE#%')),
     endsWith: r => word('$').then(r.value).map(likeCondition('like', '%#VALUE#')),
     contains: r => word('+').then(r.value).map(likeCondition('like', '%#VALUE#%')),
@@ -523,12 +515,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   }
 
   if (filterBehaviour.supportEquals) {
-    if (filterBehaviour.allowNumberDualTesting) {
-      allowedElements.push('eqNum');
-    } else {
-      allowedElements.push('eq');
-    }
-    allowedElements.push('ne', 'ne2');
+    allowedElements.push('eq', 'ne', 'ne2');
   }
 
   if (filterBehaviour.supportSqlCondition) {
