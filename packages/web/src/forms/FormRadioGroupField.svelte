@@ -4,19 +4,26 @@
 
   export let options = [];
   export let name;
+  export let matchValueToOption = null;
 
   const { values, setFieldValue } = getFormContext();
 
-  let group = $values[name] ?? options.find(x => x.default)?.value;
-
-  $: setFieldValue(name, group);
-
   $: optionsWithId = options.map(x => ({ ...x, id: uuidv1() }));
+
+  function handleChange(event) {
+    setFieldValue(name, event.currentTarget.value);
+  }
 </script>
 
 {#each optionsWithId as option}
   <div>
-    <input type="radio" bind:group value={option.value} id={option.id} />
+    <input
+      type="radio"
+      checked={matchValueToOption ? matchValueToOption($values[name], option) : $values[name] == option.value}
+      on:change={handleChange}
+      value={option.value}
+      id={option.id}
+    />
     <label for={option.id}>{option.label}</label>
   </div>
 {/each}

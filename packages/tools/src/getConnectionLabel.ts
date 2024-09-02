@@ -12,6 +12,9 @@ function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {
   if (connection.displayName) {
     return connection.displayName;
   }
+  if (connection.useDatabaseUrl) {
+    return `${connection.databaseUrl}`;
+  }
   if (connection.singleDatabase && connection.server && allowExplicitDatabase && connection.defaultDatabase) {
     return `${connection.defaultDatabase} on ${connection.server}`;
   }
@@ -23,9 +26,6 @@ function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {
   }
   if (connection.singleDatabase && connection.defaultDatabase) {
     return `${connection.defaultDatabase}`;
-  }
-  if (connection.useDatabaseUrl) {
-    return `${connection.databaseUrl}`;
   }
 
   return '';
