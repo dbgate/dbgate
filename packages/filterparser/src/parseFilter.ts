@@ -95,6 +95,48 @@ const numberTestCondition = () => value => {
   };
 };
 
+const numberTestIfNumberCondition = () => value => {
+  const numValue = parseFloat(value);
+  if (isNaN(numValue)) {
+    return {
+      conditionType: 'like',
+      left: {
+        exprType: 'placeholder',
+      },
+      right: {
+        exprType: 'value',
+        value: `.*${value}.*`,
+      },
+    };
+  }
+  return {
+    conditionType: 'or',
+    conditions: [
+      {
+        conditionType: 'like',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value: `.*${value}.*`,
+        },
+      },
+      {
+        conditionType: 'binary',
+        operator: '=',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value: numValue,
+        },
+      },
+    ],
+  };
+};
+
 const idRegex = /[('"]([0-9a-f]{24})['")]/;
 
 const objectIdTestCondition = () => value => ({
@@ -414,6 +456,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     falseNum: () => word('0').map(binaryFixedValueCondition('0')),
 
     eq: r => word('=').then(r.value).map(binaryCondition('=')),
+    eqNum: r => word('=').then(r.value).map(numberTestIfNumberCondition()),
     ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
     ne2: r => word('<>').then(r.value).map(binaryCondition('<>')),
     le: r => word('<=').then(r.value).map(binaryCondition('<=')),
@@ -480,7 +523,12 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   }
 
   if (filterBehaviour.supportEquals) {
-    allowedElements.push('eq', 'ne', 'ne2');
+    if (filterBehaviour.allowNumberDualTesting) {
+      allowedElements.push('eqNum');
+    } else {
+      allowedElements.push('eq');
+    }
+    allowedElements.push('ne', 'ne2');
   }
 
   if (filterBehaviour.supportSqlCondition) {
