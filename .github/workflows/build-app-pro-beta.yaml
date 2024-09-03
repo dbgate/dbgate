@@ -1,0 +1,136 @@
+name: Electron app BETA PREMIUM
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-pre.[0-9]+'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04]
+        # os: [macos-12, windows-2022, ubuntu-22.04]
+        # os: [macOS-10.15]
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+
+      - name: Merge dbgate/dbgate-pro
+        run: |
+          echo "Working directory"
+          pwd
+          cd ..
+          git clone https://github.com/dbgate/dbgate-pro.git
+          mkdir dbgate-merged
+          cd dbgate-pro
+          cd sync
+          yarn
+          node sync.js --nowatch
+          cd ..
+
+      - name: yarn adjustPackageJson
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn adjustPackageJson
+      - name: yarn adjustPackageJsonPremium
+        run: |
+          cd ..
+          cd dbgate-merged
+          node adjustPackageJsonPremium
+      - name: yarn set timeout
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn config set network-timeout 100000
+      - name: yarn install
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn install
+      - name: setCurrentVersion
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn setCurrentVersion
+      - name: printSecrets
+        run: |
+          cd ..
+          cd dbgate-merged
+            yarn printSecrets
+        env:
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+      - name: fillNativeModulesElectron
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn fillNativeModulesElectron
+      - name: fillPackagedPlugins
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn fillPackagedPlugins
+      - name: Publish
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn run build:app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+
+          WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
+          # WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
+          # WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
+
+          CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
+
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+      - name: Copy artifacts
+        run: |
+          mkdir artifacts          
+
+          cp app/dist/*x86*.AppImage artifacts/dbgate-premium-beta.AppImage || true
+          cp app/dist/*win*.exe artifacts/dbgate-premium-beta.exe || true
+          cp app/dist/*-mac_x64.dmg artifacts/dbgate-premium-beta.dmg || true
+
+          mv app/dist/*.exe artifacts/ || true
+          mv app/dist/*.zip artifacts/ || true
+          mv app/dist/*.tar.gz artifacts/ || true
+          mv app/dist/*.AppImage artifacts/ || true
+          mv app/dist/*.deb artifacts/ || true
+          mv app/dist/*.snap artifacts/ || true
+          mv app/dist/*.dmg artifacts/ || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os }}
+          path: ../dbgate-merged/artifacts
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: '../dbgate-merged/artifacts/**'
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
