@@ -74,6 +74,9 @@ let runCommandOnLoad = null;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
+if (isProApp()) {
+  autoUpdater.channel = 'premium';
+}
 // TODO - create settings for this
 // appUpdater.channel = 'beta';
 
