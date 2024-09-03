@@ -29,21 +29,23 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+          
+      - name: dbgate/dbgate-pro
+        uses: actions/checkout@v2
+        with:
+          repository: dbgate/dbgate-pro
+          token: ${{ secrets.GH_TOKEN }}
+          path: ../dbgate-pro
 
       - name: Merge dbgate/dbgate-pro
         run: |
-          echo "Working directory"
-          pwd
           cd ..
-          git clone https://github.com/dbgate/dbgate-pro.git
           mkdir dbgate-merged
           cd dbgate-pro
           cd sync
           yarn
           node sync.js --nowatch
           cd ..
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: yarn adjustPackageJson
         run: |
