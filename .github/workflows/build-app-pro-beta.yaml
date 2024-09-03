@@ -115,29 +115,29 @@ jobs:
         run: |
           mkdir artifacts          
 
-          cp app/dist/*x86*.AppImage artifacts/dbgate-premium-beta.AppImage || true
-          cp app/dist/*win*.exe artifacts/dbgate-premium-beta.exe || true
-          cp app/dist/*-mac_x64.dmg artifacts/dbgate-premium-beta.dmg || true
+          cp ../dbgate-merged/app/dist/*x86*.AppImage artifacts/dbgate-premium-beta.AppImage || true
+          cp ../dbgate-merged/app/dist/*win*.exe artifacts/dbgate-premium-beta.exe || true
+          cp ../dbgate-merged/app/dist/*-mac_x64.dmg artifacts/dbgate-premium-beta.dmg || true
 
-          mv app/dist/*.exe artifacts/ || true
-          mv app/dist/*.zip artifacts/ || true
-          mv app/dist/*.tar.gz artifacts/ || true
-          mv app/dist/*.AppImage artifacts/ || true
-          mv app/dist/*.deb artifacts/ || true
-          mv app/dist/*.snap artifacts/ || true
-          mv app/dist/*.dmg artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.exe artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.zip artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.tar.gz artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.AppImage artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.deb artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.snap artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.os }}
-          path: ../dbgate-merged/artifacts
+          path: artifacts
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: '../dbgate-merged/artifacts/**'
+          files: 'artifacts/**'
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
