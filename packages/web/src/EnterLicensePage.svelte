@@ -10,7 +10,7 @@
   import FormTextAreaField from './forms/FormTextAreaField.svelte';
   import FormSubmit from './forms/FormSubmit.svelte';
   import { apiCall } from './utility/api';
-
+  
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
 
@@ -44,6 +44,11 @@
             }}
           />
         </div>
+
+        <div class='trial-info'>
+          For trial license key, please contact us at <Link href="mailto:sales@dbgate.eu">sales@dbgate.eu</Link>
+        </div>
+
       </div>
     </div>
   </div>
@@ -110,5 +115,9 @@
   .submit :global(input) {
     flex: 1;
     font-size: larger;
+  }
+
+  .trial-info {
+    margin: var(--dim-large-form-margin);
   }
 </style>
