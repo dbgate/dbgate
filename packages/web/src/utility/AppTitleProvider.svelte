@@ -2,8 +2,11 @@
   import { activeTab, currentDatabase } from '../stores';
   import getElectron from './getElectron';
   import _ from 'lodash';
+  import { isProApp } from './proTools';
 
-  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, 'DbGate']).join(' - ');
+  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, isProApp() ? 'DbGate Premium' : 'DbGate']).join(
+    ' - '
+  );
 
   $: {
     const electron = getElectron();

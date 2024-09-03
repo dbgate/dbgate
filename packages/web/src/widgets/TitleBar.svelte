@@ -8,8 +8,11 @@
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import { apiOn } from '../utility/api';
+  import { isProApp } from '../utility/proTools';
 
-  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, 'DbGate']).join(' - ');
+  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, isProApp() ? 'DbGate Premium' : 'DbGate']).join(
+    ' - '
+  );
   const electron = getElectron();
 
   let isMaximized = false;
@@ -36,7 +39,10 @@
         <FontIcon icon="icon window-minimize" />
       </div>
       <div class="button">
-        <FontIcon icon={`icon ${isMaximized ? 'window-restore' : 'window-maximize'}`} on:click={() => electron.send('window-action', 'maximize')} />
+        <FontIcon
+          icon={`icon ${isMaximized ? 'window-restore' : 'window-maximize'}`}
+          on:click={() => electron.send('window-action', 'maximize')}
+        />
       </div>
       <div class="button close-button" on:click={() => electron.send('window-action', 'close')}>
         <FontIcon icon="icon window-close" />

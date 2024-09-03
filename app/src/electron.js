@@ -347,7 +347,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    title: 'DbGate',
+    title: isProApp() ? 'DbGate Premium' : 'DbGate',
     frame: useNativeMenu,
     titleBarStyle: useNativeMenu ? undefined : 'hidden',
     ...bounds,
