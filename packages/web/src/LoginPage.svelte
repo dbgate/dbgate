@@ -103,7 +103,7 @@
     });
     if (resp.error) {
       internalRedirectTo(
-        `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+        `/not-logged.html?error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
       );
       return;
     }
@@ -111,13 +111,13 @@
     if (accessToken) {
       localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
       if (isAdminPage) {
-        internalRedirectTo('/?page=admin');
+        internalRedirectTo('/admin.html');
       } else {
         internalRedirectTo('/');
       }
       return;
     }
-    internalRedirectTo(`/?page=not-logged`);
+    internalRedirectTo(`/not-logged.html`);
   }
 </script>
 

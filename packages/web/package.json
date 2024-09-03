@@ -2,10 +2,11 @@
   "name": "dbgate-web",
   "version": "5.0.0-alpha.1",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "cross-env API_URL=http://localhost:3000 rollup -c -w",
+    "build": "yarn build:index && rollup -c",
+    "dev": "yarn build:index && cross-env API_URL=http://localhost:3000 rollup -c -w",
     "start": "sirv public --port 5001",
     "validate": "svelte-check",
+    "build:index": "node build-index.js",
     "prepublishOnly": "yarn build"
   },
   "files": [

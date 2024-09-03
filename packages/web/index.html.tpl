@@ -22,6 +22,11 @@
     <link rel="stylesheet" href="build/fonts/materialdesignicons.css" />
     <link rel="stylesheet" href="build/diff2html.min.css" />
 
+    <script lang="javascript">
+      window.dbgate_page = '{{page}}';
+    </script>
+
+
     <script defer src="build/bundle.js"></script>
 
     <style>

@@ -175,13 +175,13 @@ export async function apiCall(route: string, args: {} = undefined) {
     });
 
     if (resp.status == 401 && !apiDisabled) {
-      const params = new URLSearchParams(location.search);
+      const page = window['dbgate_page'];
 
       disableApi();
       console.log('Disabling API', route);
-      if (params.get('page') != 'login' && params.get('page') != 'admin-login' && params.get('page') != 'not-logged') {
+      if (page != 'login' && page != 'admin-login' && page != 'not-logged') {
         // unauthorized
-        if (params.get('page') == 'admin') {
+        if (page == 'admin') {
           redirectToAdminLogin();
         } else {
           redirectToLogin();

@@ -1,13 +1,5 @@
-let isAdminPageCache;
-
 export function isAdminPage() {
-  if (isAdminPageCache == null) {
-    const params = new URLSearchParams(location.search);
-    const urlPage = params.get('page');
-
-    isAdminPageCache = urlPage == 'admin';
-  }
-  return isAdminPageCache;
+  return window['dbgate_page'] == 'admin';
 }
 
 export function getOpenedTabsStorageName() {

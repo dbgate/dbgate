@@ -9,9 +9,6 @@ import NotLoggedPage from './NotLoggedPage.svelte';
 import ErrorPage from './ErrorPage.svelte';
 import EnterLicensePage from './EnterLicensePage.svelte';
 
-const params = new URLSearchParams(location.search);
-const page = params.get('page');
-
 const isOauthCallback = handleOauthCallback();
 
 localStorageGarbageCollector();
@@ -21,7 +18,7 @@ function createApp() {
     return null;
   }
 
-  switch (page) {
+  switch (window['dbgate_page']) {
     case 'login':
       return new LoginPage({
         target: document.body,
