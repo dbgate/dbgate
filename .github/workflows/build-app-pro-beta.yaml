@@ -30,15 +30,16 @@ jobs:
         with:
           node-version: 18.x
           
-      - name: dbgate/dbgate-pro
+      - name: Checkout dbgate/dbgate-pro
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
-          path: ../dbgate-pro
+          path: dbgate-pro
 
       - name: Merge dbgate/dbgate-pro
         run: |
+          mv dbgate-pro/* ../dbgate-pro
           cd ..
           mkdir dbgate-merged
           cd dbgate-pro
