@@ -42,13 +42,14 @@ module.exports = {
 
   info_meta: true,
   async info({ packageName }) {
+    // @ts-ignore
+    const isPackaged = await fs.exists(path.join(packagedPluginsDir(), packageName));
+
     try {
       const infoResp = await axios.default.get(`https://registry.npmjs.org/${packageName}`);
       const { latest } = infoResp.data['dist-tags'];
       const manifest = infoResp.data.versions[latest];
       const { readme } = infoResp.data;
-      // @ts-ignore
-      const isPackaged = await fs.exists(path.join(packagedPluginsDir(), packageName));
 
       return {
         readme,
@@ -57,6 +58,7 @@ module.exports = {
       };
     } catch (err) {
       return {
+        isPackaged,
         state: 'error',
         error: err.message,
       };
