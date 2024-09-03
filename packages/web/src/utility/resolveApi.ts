@@ -10,7 +10,7 @@ export default function resolveApi() {
   if (apiUrl) {
     return apiUrl;
   }
-  return (window.location.origin + window.location.pathname).replace(/\/*$/, '');
+  return (window.location.origin + window.location.pathname).replace(/\/[a-zA-Z-]+\.html$/, '').replace(/\/*$/, '');
 }
 
 export function resolveApiHeaders() {

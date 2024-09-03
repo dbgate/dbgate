@@ -33,4 +33,4 @@ packages/api/src/nativeModulesContent.js
 packages/api/src/packagedPluginsContent.js
 .VSCodeCounter
 
-pacgaes/web/public/*.html
+packages/web/public/*.html
