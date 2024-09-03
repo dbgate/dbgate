@@ -29,6 +29,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Amazon Redshift
 * CockroachDB
 * MariaDB
+* CosmosDB (Premium)
 
 <!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 

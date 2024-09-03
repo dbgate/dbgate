@@ -8,6 +8,22 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.4.0
+- ADDED: Support for CosmosDB (Premium only)
+- ADDED: Administration UI (Premium only)
+- ADDED: New application icon
+- ADDED: MongoDB type support in data editing
+- ADDED: MongoDB - posibility to remove field
+- ADDED: Oracle - posibility to connect via SID
+- FIXED: Many improvements in MongoDB filtering
+- FIXED: Switch to form and back to table rows missing #343
+- ADDED: Posibility to deactivate MongoDB Profiler #745
+- ADDED: Ability to use Oracle thick driver - neccessary for connecting older Oracle servers #843
+- FIXED: Connection permissions configuration is broken #860
+- ADDED: ssh key file authentication option missing #876
+- ADDED: Ability to reset layout #878
+- FIXED: Script with escaped backslash causes erro #880
+
 ### 5.3.4
 - FIXED: On blank system does not start (window does not appear) #862
 - FIXED: Missing Execute, Export bar #861
