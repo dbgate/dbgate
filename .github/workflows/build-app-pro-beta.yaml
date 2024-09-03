@@ -39,7 +39,8 @@ jobs:
 
       - name: Merge dbgate/dbgate-pro
         run: |
-          mv dbgate-pro/* ../dbgate-pro
+          mkdir ../dbgate-pro
+          mv dbgate-pro/* ../dbgate-pro/
           cd ..
           mkdir dbgate-merged
           cd dbgate-pro
