@@ -1,0 +1,105 @@
+name: Docker image PREMIUM
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-docker.[0-9]+'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            dbgate/dbgate-premium
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
+
+            type=match,pattern=\d+.\d+.\d+,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+
+      - name: Checkout dbgate/dbgate-pro
+        uses: actions/checkout@v2
+        with:
+          repository: dbgate/dbgate-pro
+          token: ${{ secrets.GH_TOKEN }}
+          path: dbgate-pro
+
+      - name: Merge dbgate/dbgate-pro
+        run: |
+          mkdir ../dbgate-pro
+          mv dbgate-pro/* ../dbgate-pro/
+          cd ..
+          mkdir dbgate-merged
+          cd dbgate-pro
+          cd sync
+          yarn
+          node sync.js --nowatch
+          cd ..
+
+      - name: yarn install
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn install
+
+      - name: setCurrentVersion
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn setCurrentVersion
+          
+      - name: printSecrets
+        run: |
+          cd ..
+          cd dbgate-merged
+            yarn printSecrets
+        env:
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+      - name: Prepare docker image
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn run prepare:docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          context: ../dbgate-merged/docker
+          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64

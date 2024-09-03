@@ -40,7 +40,7 @@
             on:click={async e => {
               const { licenseKey } = e.detail;
               await apiCall('config/save-license-key', { licenseKey });
-              internalRedirectTo('/');
+              internalRedirectTo('/index.html');
             }}
           />
         </div>
