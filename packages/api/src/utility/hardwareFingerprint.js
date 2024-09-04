@@ -12,15 +12,19 @@ async function getPublicIp() {
 }
 
 function getMacAddress() {
-  const interfaces = os.networkInterfaces();
-  for (let iface of Object.values(interfaces)) {
-    for (let config of iface) {
-      if (config.mac && config.mac !== '00:00:00:00:00:00') {
-        return config.mac;
+  try {
+    const interfaces = os.networkInterfaces();
+    for (let iface of Object.values(interfaces)) {
+      for (let config of iface) {
+        if (config.mac && config.mac !== '00:00:00:00:00:00') {
+          return config.mac;
+        }
       }
     }
+    return '00:00:00:00:00:00';
+  } catch (err) {
+    return '00:00:00:00:00:00';
   }
-  return '00:00:00:00:00:00';
 }
 
 async function getHardwareFingerprint() {
