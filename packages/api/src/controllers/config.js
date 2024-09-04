@@ -7,6 +7,7 @@ const { hasPermission } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
+const jwt = require('jsonwebtoken');
 
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
@@ -151,6 +152,22 @@ module.exports = {
 
   saveLicenseKey_meta: true,
   async saveLicenseKey({ licenseKey }) {
+    const decoded = jwt.decode(licenseKey);
+    if (!decoded) {
+      return {
+        status: 'error',
+        errorMessage: 'Invalid license key',
+      };
+    }
+
+    const { exp } = decoded;
+    if (exp * 1000 < Date.now()) {
+      return {
+        status: 'error',
+        errorMessage: 'License key is expired',
+      };
+    }
+
     try {
       if (process.env.STORAGE_DATABASE) {
         await storage.writeConfig({ group: 'license', config: { licenseKey } });
@@ -159,20 +176,32 @@ module.exports = {
         await fs.writeFile(path.join(datadir(), 'license.key'), licenseKey);
       }
       socket.emitChanged(`config-changed`);
+      return { status: 'ok' };
     } catch (err) {
-      return null;
+      return {
+        status: 'error',
+        errorMessage: err.message,
+      };
     }
   },
 
   startTrial_meta: true,
   async startTrial() {
     try {
-      const resp = await axios.default.post(`${getAuthProxyUrl()}/trial-license`, { type: 'premium-trial', days: 30 });
-      return resp.data;
+      const ipResp = await axios.default.get('https://api.ipify.org?format=json');
+
+      const resp = await axios.default.post(`${getAuthProxyUrl()}/trial-license`, {
+        type: 'premium-trial',
+        days: 30,
+        publicIp: ipResp.data.ip,
+      });
+      const { token } = resp.data;
+
+      return await this.saveLicenseKey({ licenseKey: token });
     } catch (err) {
       return {
         status: 'error',
-        message: err.messa,
+        errorMessage: err.message,
       };
     }
   },

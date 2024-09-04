@@ -11,6 +11,7 @@
   import FormSubmit from './forms/FormSubmit.svelte';
   import { apiCall } from './utility/api';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
+  import getElectron from './utility/getElectron';
 
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
@@ -39,8 +40,12 @@
             value="Save license"
             on:click={async e => {
               const { licenseKey } = e.detail;
-              await apiCall('config/save-license-key', { licenseKey });
-              internalRedirectTo('/index.html');
+              const resp = await apiCall('config/save-license-key', { licenseKey });
+              if (resp?.status == 'ok') {
+                internalRedirectTo('/index.html');
+              } else {
+                errorMessage = resp?.errorMessage || 'Error saving license key';
+              }
             }}
           />
         </div>
@@ -51,15 +56,25 @@
             on:click={async e => {
               errorMessage = '';
               const license = await apiCall('config/start-trial');
-              if (license?.token) {
-                await apiCall('config/save-license-key', { licenseKey: license.token });
+              if (license?.status == 'ok') {
                 internalRedirectTo('/index.html');
               } else {
-                errorMessage = license?.message || 'Error starting trial';
+                errorMessage = license?.errorMessage || 'Error starting trial';
               }
             }}
           />
         </div>
+
+        {#if getElectron()}
+          <div class="submit">
+            <FormStyledButton
+              value="Exit"
+              on:click={e => {
+                getElectron().send('quit-app');
+              }}
+            />
+          </div>
+        {/if}
 
         {#if errorMessage}
           <div class="error">{errorMessage}</div>

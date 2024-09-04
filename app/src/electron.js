@@ -16,7 +16,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
-const { isProApp, checkLicense } = require('./proTools');
+const { isProApp } = require('./proTools');
 let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
@@ -339,13 +339,11 @@ function createWindow() {
     }
   }
 
-  const licenseOk = !isProApp() || checkLicense(licenseKey) == 'premium';
-
   let bounds = initialConfig['winBounds'];
   if (bounds) {
     bounds = ensureBoundsVisible(bounds);
   }
-  useNativeMenu = settingsJson['app.useNativeMenu'] || !licenseOk;
+  useNativeMenu = settingsJson['app.useNativeMenu'];
 
   mainWindow = new BrowserWindow({
     width: 1200,
