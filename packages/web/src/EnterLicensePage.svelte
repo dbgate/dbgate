@@ -10,12 +10,12 @@
   import FormTextAreaField from './forms/FormTextAreaField.svelte';
   import FormSubmit from './forms/FormSubmit.svelte';
   import { apiCall } from './utility/api';
-  
+  import FormStyledButton from './buttons/FormStyledButton.svelte';
+
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
 
-  const params = new URLSearchParams(location.search);
-  const error = params.get('error');
+  let errorMessage = '';
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -32,7 +32,7 @@
       </div>
       <div class="box">
         <div class="heading">License</div>
-        <FormTextAreaField label="License key" name="licenseKey" rows={5} />
+        <FormTextAreaField label="Enter your license key" name="licenseKey" rows={5} />
 
         <div class="submit">
           <FormSubmit
@@ -45,10 +45,31 @@
           />
         </div>
 
-        <div class='trial-info'>
-          For trial license key, please contact us at <Link href="mailto:sales@dbgate.eu">sales@dbgate.eu</Link>
+        <div class="submit">
+          <FormStyledButton
+            value="Start 30-day trial"
+            on:click={async e => {
+              errorMessage = '';
+              const license = await apiCall('config/start-trial');
+              if (license?.token) {
+                await apiCall('config/save-license-key', { licenseKey: license.token });
+                internalRedirectTo('/index.html');
+              } else {
+                errorMessage = license?.message || 'Error starting trial';
+              }
+            }}
+          />
         </div>
 
+        {#if errorMessage}
+          <div class="error">{errorMessage}</div>
+        {/if}
+
+        <div class="purchase-info">
+          If you want to purchase Premium license, please contact us at <Link href="mailto:sales@dbgate.eu"
+            >sales@dbgate.eu</Link
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -117,7 +138,12 @@
     font-size: larger;
   }
 
-  .trial-info {
+  .error {
+    margin: var(--dim-large-form-margin);
+    color: red;
+  }
+
+  .purchase-info {
     margin: var(--dim-large-form-margin);
   }
 </style>

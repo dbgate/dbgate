@@ -12,9 +12,14 @@ async function authProxyGetTokenFromCode(options) {
 
 function startTokenChecking(sid, callback) {}
 
+function getAuthProxyUrl() {
+  return 'https://auth.dbgate.eu';
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
   authProxyGetTokenFromCode,
   startTokenChecking,
+  getAuthProxyUrl,
 };

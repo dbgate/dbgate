@@ -14,6 +14,7 @@ const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
+const { getAuthProxyUrl } = require('../utility/authProxy');
 
 const lock = new AsyncLock();
 
@@ -160,6 +161,19 @@ module.exports = {
       socket.emitChanged(`config-changed`);
     } catch (err) {
       return null;
+    }
+  },
+
+  startTrial_meta: true,
+  async startTrial() {
+    try {
+      const resp = await axios.default.post(`${getAuthProxyUrl()}/trial-license`, { type: 'premium-trial', days: 30 });
+      return resp.data;
+    } catch (err) {
+      return {
+        status: 'error',
+        message: err.messa,
+      };
     }
   },
 
