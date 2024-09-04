@@ -4,6 +4,8 @@
       'dbgate-tools': dbgateTools,
       'dbgate-sqltree': sqlTree,
     };
+
+    // neccessary for older plugins
     window['DBGATE_TOOLS'] = dbgateTools;
 
     const newPlugins = {};
