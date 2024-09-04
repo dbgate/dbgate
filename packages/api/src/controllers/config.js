@@ -16,6 +16,7 @@ const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
 const { getAuthProxyUrl } = require('../utility/authProxy');
+const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 
 const lock = new AsyncLock();
 
@@ -188,12 +189,12 @@ module.exports = {
   startTrial_meta: true,
   async startTrial() {
     try {
-      const ipResp = await axios.default.get('https://api.ipify.org?format=json');
+      const fingerprint = await getPublicHardwareFingerprint();
 
       const resp = await axios.default.post(`${getAuthProxyUrl()}/trial-license`, {
         type: 'premium-trial',
         days: 30,
-        publicIp: ipResp.data.ip,
+        fingerprint,
       });
       const { token } = resp.data;
 
