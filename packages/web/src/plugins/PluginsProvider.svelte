@@ -4,6 +4,7 @@
       'dbgate-tools': dbgateTools,
       'dbgate-sqltree': sqlTree,
     };
+    window['DBGATE_TOOLS'] = dbgateTools;
 
     const newPlugins = {};
     for (const installed of installedPlugins || []) {
