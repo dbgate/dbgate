@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
-import type { EngineDriver, ViewInfo, ColumnInfo } from 'dbgate-types';
+import type { EngineDriver, ViewInfo, ColumnInfo, DatabaseInfo } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
 
 export class ViewGridDisplay extends GridDisplay {
@@ -11,9 +11,10 @@ export class ViewGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
+    dbinfo: DatabaseInfo,
     serverVersion
   ) {
-    super(config, setConfig, cache, setCache, driver, serverVersion);
+    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
     this.columns = this.getDisplayColumns(view);
     this.formColumns = this.columns;
     this.filterable = true;

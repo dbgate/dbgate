@@ -3,7 +3,7 @@ select
   routine_name as "pure_name",
   -- routine_schema as "schema_name",
   routine_definition as "definition",
-  standard_hash(routine_definition, 'MD5') as "hash_code",
+  ora_hash(routine_definition) as "hash_code",
   routine_type as "object_type",
   'fixme_data_type' as "data_type",
   'fixme_external_language' as "language"

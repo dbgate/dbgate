@@ -18,7 +18,7 @@
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { extensions } from '../stores';
-  import { useConnectionInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import useGridConfig from '../utility/useGridConfig';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
@@ -32,6 +32,7 @@
   $: connection = useConnectionInfo({ conid });
   $: viewInfo = useViewInfo({ conid, database, schemaName, pureName });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
+  $: dbinfo = useDatabaseInfo({ conid, database });
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
@@ -46,6 +47,7 @@
           config.update,
           $cache,
           cache.update,
+          $dbinfo,
           $serverVersion
         )
       : null;
