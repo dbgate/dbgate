@@ -66,6 +66,7 @@
     <FormRadioGroupField
       disabled={isConnected}
       name="useDatabaseUrl"
+      matchValueToOption={(value, option) => !!option.value == !!value}
       options={[
         { label: 'Fill database connection details', value: '', default: true },
         { label: 'Use database URL', value: '1' },
