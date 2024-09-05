@@ -60,6 +60,10 @@ jobs:
           cd ..
           cd dbgate-merged
           node adjustPackageJsonPremium
+        run: |
+          cd ..
+          cd dbgate-merged
+          node setUpdaterChannel premium-beta
       - name: yarn set timeout
         run: |
           cd ..
@@ -127,6 +131,8 @@ jobs:
           mv ../dbgate-merged/app/dist/*.deb artifacts/ || true
           mv ../dbgate-merged/app/dist/*.snap artifacts/ || true
           mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
+
+          mv ../dbgate-merged/app/dist/*.yml artifacts/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1

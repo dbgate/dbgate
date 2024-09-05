@@ -17,6 +17,7 @@ const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 const { isProApp } = require('./proTools');
+const updaterChannel = require('./updaterChannel');
 let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
@@ -74,8 +75,8 @@ let runCommandOnLoad = null;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
-if (isProApp()) {
-  autoUpdater.channel = 'premium';
+if (updaterChannel) {
+  autoUpdater.channel = updaterChannel;
 }
 // TODO - create settings for this
 // appUpdater.channel = 'beta';
