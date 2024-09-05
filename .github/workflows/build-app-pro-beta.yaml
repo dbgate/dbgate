@@ -55,11 +55,12 @@ jobs:
           cd ..
           cd dbgate-merged
           yarn adjustPackageJson
-      - name: yarn adjustPackageJsonPremium
+      - name: adjustPackageJsonPremium
         run: |
           cd ..
           cd dbgate-merged
           node adjustPackageJsonPremium
+      - name: setUpdaterChannel premium-beta
         run: |
           cd ..
           cd dbgate-merged
