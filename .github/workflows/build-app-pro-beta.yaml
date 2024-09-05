@@ -134,6 +134,7 @@ jobs:
           mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
 
           mv ../dbgate-merged/app/dist/*.yml artifacts/ || true
+          rm artifacts/builder-debug.yml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
