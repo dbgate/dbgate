@@ -255,7 +255,7 @@ const driver = {
       // const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
       const version = await this.getVersionCore(client);
 
-      const m = version.match(/(\d+[a-z])\s+(\w+).*(\d+)\.(\d+)/);
+      const m = version.match(/(\d+[a-z]+)\s+(\w+).*?(\d+)\.(\d+)/);
       //console.log('M', m);
       let versionText = null;
       let versionMajor = null;

@@ -625,7 +625,7 @@ export abstract class GridDisplay {
       columns: [
         ...select.columns,
         {
-          alias: '_rowNumber',
+          alias: '_RowNumber',
           exprType: 'rowNumber',
           orderBy: select.orderBy
             ? select.orderBy.map(x =>
@@ -683,7 +683,7 @@ export abstract class GridDisplay {
     let select = this.createSelect();
     if (!select) return null;
     if (this.dialect.rangeSelect) select.range = { offset: offset, limit: count };
-    else if (this.dialect.rowNumberOverPaging && offset > 0)
+    else if (this.dialect.rowNumberOverPaging && (offset > 0 || !this.dialect.topRecords))
       select = this.getRowNumberOverSelect(select, offset, count);
     else if (this.dialect.limitSelect) select.topRecords = count;
     return select;

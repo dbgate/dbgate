@@ -9,6 +9,7 @@ const dialect = {
   rangeSelect: true,
   limitSelect: false,
   offsetFetchRangeSyntax: true,
+  rowNumberOverPaging: true,
   ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
@@ -151,6 +152,17 @@ $$ LANGUAGE plpgsql;`,
   },
 
   showConnectionTab: field => field == 'sshTunnel',
+
+  dialectByVersion(version) {
+    if (version && version.versionMajor < 12) {
+      return {
+        ...dialect,
+        rangeSelect: false,
+        offsetFetchRangeSyntax: false,
+      };
+    }
+    return dialect;
+  },
 };
 
 module.exports = oracleDriver;

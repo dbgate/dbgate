@@ -3,6 +3,7 @@ export interface SqlDialect {
   limitSelect?: boolean;
   ilike?: boolean;
   rowNumberOverPaging?: boolean;
+  topRecords?: boolean;
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
   quoteIdentifier(s: string): string;

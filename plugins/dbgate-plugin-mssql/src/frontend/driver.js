@@ -8,6 +8,7 @@ const spatialTypes = ['GEOGRAPHY'];
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
+  topRecords: true,
   offsetFetchRangeSyntax: true,
   rowNumberOverPaging: true,
   defaultSchemaName: 'dbo',

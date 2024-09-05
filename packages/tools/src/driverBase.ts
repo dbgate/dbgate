@@ -8,6 +8,7 @@ import { detectSqlFilterBehaviour } from './detectSqlFilterBehaviour';
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
+  topRecords: false,
   offsetFetchRangeSyntax: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
