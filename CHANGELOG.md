@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.4.1
+- FIXED: Broken older plugins #881
+- ADDED: Premium edition - "Start trial" button
+
 ### 5.4.0
 - ADDED: Support for CosmosDB (Premium only)
 - ADDED: Administration UI (Premium only)
