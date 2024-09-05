@@ -322,7 +322,7 @@ export class DatabaseAnalyser {
       this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
       return res;
     } catch (err) {
-      logger.error({ err }, 'Error running analyser query');
+      logger.error({ err, message: err.message, template, sql }, 'Error running analyser query');
       return {
         rows: [],
       };
