@@ -30,6 +30,9 @@ jobs:
       - name: yarn adjustPackageJson
         run: |
           yarn adjustPackageJson
+      - name: setUpdaterChannel beta
+        run: |
+          node setUpdaterChannel beta
       - name: yarn set timeout
         run: |
           yarn config set network-timeout 100000
@@ -99,6 +102,9 @@ jobs:
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.snap artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
+
+          mv app/dist/*.yml artifacts/ || true
+          rm artifacts/builder-debug.yml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1

@@ -110,6 +110,9 @@ jobs:
           mv app/dist/*.dmg artifacts/ || true
           mv app/dist/*.snap artifacts/dbgate-latest.snap || true
 
+          mv app/dist/*.yml artifacts/ || true
+          rm artifacts/builder-debug.yml
+
       # - name: Copy artifacts Linux, MacOs
       #   if: matrix.os != 'windows-2016'
       #   run: |
@@ -134,21 +137,10 @@ jobs:
 
       #     mv app/dist/latest.yml artifacts/latest.yml || true
 
-      - name: Copy latest.yml (windows)
+      - name: Copy PAD file
         if: matrix.os == 'windows-2022'
         run: |
-          mv app/dist/latest.yml artifacts/latest.yml || true
           mv app/dist/dbgate-pad.xml artifacts/ || true
-
-      - name: Copy latest-linux.yml
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          mv app/dist/latest-linux.yml artifacts/latest-linux.yml || true
-
-      - name: Copy latest-mac.yml
-        if: matrix.os == 'macos-12'
-        run: |
-          mv app/dist/latest-mac.yml artifacts/latest-mac.yml || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1

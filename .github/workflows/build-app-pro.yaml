@@ -61,6 +61,11 @@ jobs:
           cd ..
           cd dbgate-merged
           node adjustPackageJsonPremium
+      - name: setUpdaterChannel premium
+        run: |
+          cd ..
+          cd dbgate-merged
+          node setUpdaterChannel premium
       - name: yarn set timeout
         run: |
           cd ..
@@ -131,20 +136,8 @@ jobs:
           mv ../dbgate-merged/app/dist/*.deb artifacts/ || true
           mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
 
-      - name: Copy latest.yml (windows)
-        if: matrix.os == 'windows-2022'
-        run: |
-          mv ../dbgate-merged/app/dist/latest.yml artifacts/latest-premium.yml || true
-
-      - name: Copy latest-linux.yml
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          mv ../dbgate-merged/app/dist/latest-linux.yml artifacts/latest-premium-linux.yml || true
-
-      - name: Copy latest-mac.yml
-        if: matrix.os == 'macos-12'
-        run: |
-          mv ../dbgate-merged/app/dist/latest-mac.yml artifacts/latest-premium-mac.yml || true
+          mv app/dist/*.yml artifacts/ || true
+          rm artifacts/builder-debug.yml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
