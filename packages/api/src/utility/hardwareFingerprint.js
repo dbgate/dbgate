@@ -1,13 +1,17 @@
 const axios = require('axios');
 const os = require('os');
 const crypto = require('crypto');
+const platformInfo = require('./platformInfo');
 
-async function getPublicIp() {
+async function getPublicIpInfo() {
   try {
-    const resp = await axios.default.get('https://api.ipify.org?format=json');
-    return resp.data.ip || 'unknown-ip';
+    const resp = await axios.default.get('https://ipinfo.io/json');
+    if (!resp.data?.ip) {
+      return { ip: 'unknown-ip' };
+    }
+    return resp.data;
   } catch (err) {
-    return 'unknown-ip';
+    return { ip: 'unknown-ip' };
   }
 }
 
@@ -28,7 +32,7 @@ function getMacAddress() {
 }
 
 async function getHardwareFingerprint() {
-  const publicIp = await getPublicIp();
+  const publicIpInfo = await getPublicIpInfo();
   const macAddress = getMacAddress();
   const platform = os.platform();
   const release = os.release();
@@ -36,7 +40,10 @@ async function getHardwareFingerprint() {
   const totalMemory = os.totalmem();
 
   return {
-    publicIp,
+    publicIp: publicIpInfo.ip,
+    country: publicIpInfo.country,
+    region: publicIpInfo.region,
+    city: publicIpInfo.city,
     macAddress,
     platform,
     release,
@@ -61,6 +68,11 @@ async function getPublicHardwareFingerprint() {
     hash,
     payload: {
       platform: fingerprint.platform,
+      city: fingerprint.city,
+      country: fingerprint.country,
+      region: fingerprint.region,
+      isDocker: platformInfo.isDocker,
+      isElectron: platformInfo.isElectron,
     },
   };
 }
