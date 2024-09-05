@@ -78,6 +78,7 @@ autoUpdater.logger = log;
 if (updaterChannel) {
   autoUpdater.channel = updaterChannel;
 }
+autoUpdater.allowPrerelease = updaterChannel && updaterChannel.includes('beta');
 // TODO - create settings for this
 // appUpdater.channel = 'beta';
 
