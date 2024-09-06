@@ -73,7 +73,7 @@ const driver = {
       options.tlsCAFile = ssl.sslCaFile;
       options.tlsCertificateKeyFile = ssl.sslCertFile || ssl.sslKeyFile;
       options.tlsCertificateKeyFilePassword = ssl.password;
-      options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
+      // options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
 
