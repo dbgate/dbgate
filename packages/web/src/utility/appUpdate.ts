@@ -1,3 +1,4 @@
+import invalidateCommands from '../commands/invalidateCommands';
 import { appUpdaterActive, appUpdateStatus } from '../stores';
 import getElectron from './getElectron';
 import { showSnackbar } from './snackbar';
@@ -46,5 +47,6 @@ export function initializeAppUpdates() {
 
   electron.addEventListener('setAppUpdaterActive', (e, error) => {
     appUpdaterActive.set(true);
+    invalidateCommands();
   });
 }
