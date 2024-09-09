@@ -471,7 +471,9 @@ autoUpdater.on('checking-for-update', () => {
 autoUpdater.on('update-available', info => {
   console.log('Update available', info);
   changeAppUpdateStatus(`New version ${info.version} available`);
-  mainWindow.webContents.send('update-available', info.version);
+  if (!autoUpdater.autoDownload) {
+    mainWindow.webContents.send('update-available', info.version);
+  }
 });
 
 autoUpdater.on('update-not-available', info => {
