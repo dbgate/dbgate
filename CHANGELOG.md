@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.4.2
+- FIXED: DbGate now works correctly with Oracle 10g
+- FIXED: Fixed update channel for premium edition
+
 ### 5.4.1
 - FIXED: Broken older plugins #881
 - ADDED: Premium edition - "Start trial" button
