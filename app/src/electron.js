@@ -18,7 +18,6 @@ const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 const { isProApp } = require('./proTools');
 const updaterChannel = require('./updaterChannel');
-let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
 
@@ -52,19 +51,9 @@ const isMac = () => os.platform() == 'darwin';
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
-  disableAutoUpgrade = initialConfig['disableAutoUpgrade'] || false;
 } catch (err) {
   console.log('Error loading config-root:', err.message);
   initialConfig = {};
-}
-
-if (process.argv.includes('--disable-auto-upgrade')) {
-  console.log('Disabling auto-upgrade');
-  disableAutoUpgrade = true;
-}
-if (process.argv.includes('--enable-auto-upgrade')) {
-  console.log('Enabling auto-upgrade');
-  disableAutoUpgrade = false;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -323,7 +312,6 @@ function createWindow() {
   const datadir = path.join(os.homedir(), '.dbgate');
 
   let settingsJson = {};
-  let licenseKey = null;
   try {
     settingsJson = fillMissingSettings(
       JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
@@ -331,14 +319,6 @@ function createWindow() {
   } catch (err) {
     console.log('Error loading settings.json:', err.message);
     settingsJson = fillMissingSettings({});
-  }
-  if (isProApp()) {
-    try {
-      licenseKey = fs.readFileSync(path.join(datadir, 'license.key'), { encoding: 'utf-8' });
-    } catch (err) {
-      console.log('Error loading license.key:', err.message);
-      licenseKey = null;
-    }
   }
 
   let bounds = initialConfig['winBounds'];
@@ -389,7 +369,6 @@ function createWindow() {
             JSON.stringify({
               winBounds: mainWindow.getBounds(),
               winIsMaximized: mainWindow.isMaximized(),
-              disableAutoUpgrade,
             }),
             'utf-8'
           );
@@ -460,11 +439,9 @@ function createWindow() {
 }
 
 function onAppReady() {
-  if (disableAutoUpgrade) {
-    console.log('Auto-upgrade is disabled, run dbgate --enable-auto-upgrade to enable');
-  }
-  if (!process.env.DEVMODE && !disableAutoUpgrade) {
-    autoUpdater.checkForUpdatesAndNotify();
+  if (!process.env.DEVMODE) {
+    autoUpdater.autoDownload = false;
+    autoUpdater.checkForUpdates();
   }
   createWindow();
 }
