@@ -29,6 +29,7 @@ let mainModule;
 // let getLogger;
 // let loadLogsContent;
 let appUpdateStatus = '';
+let settingsJson = {};
 
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
@@ -285,6 +286,7 @@ ipcMain.on('applyUpdate', async (event, url) => {
   autoUpdater.quitAndInstall(false, true);
 });
 ipcMain.on('check-for-updates', async (event, url) => {
+  autoUpdater.autoDownload = false;
   autoUpdater.checkForUpdates();
 });
 
@@ -324,7 +326,6 @@ function ensureBoundsVisible(bounds) {
 function createWindow() {
   const datadir = path.join(os.homedir(), '.dbgate');
 
-  let settingsJson = {};
   try {
     settingsJson = fillMissingSettings(
       JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
@@ -485,8 +486,10 @@ autoUpdater.on('error', error => {
 
 function onAppReady() {
   if (!process.env.DEVMODE) {
-    autoUpdater.autoDownload = false;
-    autoUpdater.checkForUpdates();
+    if (settingsJson['app.autoUpdateMode'] != 'skip') {
+      autoUpdater.autoDownload = settingsJson['app.autoUpdateMode'] == 'download';
+      autoUpdater.checkForUpdates();
+    }
   }
   createWindow();
 }
