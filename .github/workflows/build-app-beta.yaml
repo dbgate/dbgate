@@ -102,6 +102,7 @@ jobs:
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.snap artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
+          mv app/dist/*.blockmap artifacts/ || true
 
           mv app/dist/*.yml artifacts/ || true
           rm artifacts/builder-debug.yml
