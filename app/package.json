@@ -6,7 +6,7 @@
   "description": "Opensource database administration tool",
   "dependencies": {
     "electron-log": "^4.4.1",
-    "electron-updater": "^4.6.1",
+    "electron-updater": "^6.3.4",
     "jsonwebtoken": "^9.0.2",
     "lodash.clonedeepwith": "^4.5.0",
     "patch-package": "^6.4.7"
