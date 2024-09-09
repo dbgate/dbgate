@@ -5,6 +5,14 @@ function checkLicense() {
   };
 }
 
+function checkLicenseKey(key) {
+  return {
+    status: 'ok',
+    type: 'community',
+  };
+}
+
 module.exports = {
   checkLicense,
+  checkLicenseKey,
 };
