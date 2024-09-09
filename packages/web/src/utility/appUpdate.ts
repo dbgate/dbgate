@@ -18,6 +18,7 @@ export function initializeAppUpdates() {
           onClick: () => {
             electron.send('downloadUpdate');
           },
+          autoClose: true,
         },
       ],
     });
@@ -37,6 +38,7 @@ export function initializeAppUpdates() {
           onClick: () => {
             electron.send('applyUpdate');
           },
+          autoClose: true,
         },
       ],
     });

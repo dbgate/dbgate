@@ -18,7 +18,6 @@
   onMount(() => {
     if (autoClose) setTimeout(handleClose, 3000);
   });
-
 </script>
 
 <div class="wrapper">
@@ -37,7 +36,15 @@
     <div class="buttons">
       {#each buttons as button}
         <div class="button">
-          <FormStyledButton value={button.label} on:click={button.onClick} />
+          <FormStyledButton
+            value={button.label}
+            on:click={() => {
+              if (button.autoClose) {
+                handleClose();
+              }
+              button.onClick?.();
+            }}
+          />
         </div>
       {/each}
     </div>
@@ -76,5 +83,4 @@
   .button {
     margin: 5px;
   }
-
 </style>
