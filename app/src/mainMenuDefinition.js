@@ -105,6 +105,8 @@ module.exports = ({ editMenu }) => [
       { command: 'settings.commands', hideDisabled: true },
       { command: 'tabs.changelog', hideDisabled: true },
       { command: 'about.show', hideDisabled: true },
+      { divider: true },
+      { command: 'file.checkForUpdates', hideDisabled: true },
     ],
   },
 ];

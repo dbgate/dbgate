@@ -8,6 +8,7 @@
 
   import {
     activeTabId,
+    appUpdateStatus,
     currentArchive,
     currentDatabase,
     currentThemeDefinition,
@@ -169,6 +170,12 @@
         {item.text}
       </div>
     {/each}
+
+    {#if $appUpdateStatus}
+      <div class="item">
+        {$appUpdateStatus}
+      </div>
+    {/if}
   </div>
 </div>
 

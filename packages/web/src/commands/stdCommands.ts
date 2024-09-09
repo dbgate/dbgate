@@ -3,6 +3,7 @@ import {
   currentTheme,
   emptyConnectionGroupNames,
   extensions,
+  getAppUpdaterActive,
   getExtensions,
   getVisibleToolbar,
   visibleToolbar,
@@ -584,6 +585,17 @@ registerCommand({
   testEnabled: () => getCurrentConfig()?.singleConnection != null && !getCurrentConfig()?.isUserLoggedIn,
   onClick: () => disconnectServerConnection(getCurrentConfig()?.singleConnection?._id),
 });
+
+registerCommand({
+  id: 'file.checkForUpdates',
+  category: 'App',
+  name: 'Check for updates',
+  // testEnabled: () => true,
+  testEnabled: () => getAppUpdaterActive(),
+  onClick: () => getElectron().send('check-for-updates'),
+});
+
+
 
 export function registerFileCommands({
   idPrefix,

@@ -28,6 +28,7 @@ let apiLoaded = false;
 let mainModule;
 // let getLogger;
 // let loadLogsContent;
+let appUpdateStatus = '';
 
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
@@ -201,6 +202,9 @@ ipcMain.on('app-started', async (event, arg) => {
   if (initialConfig['winIsMaximized']) {
     mainWindow.webContents.send('setIsMaximized', true);
   }
+  if (autoUpdater.isUpdaterActive()) {
+    mainWindow.webContents.send('setAppUpdaterActive');
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -274,6 +278,15 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
+ipcMain.handle('downloadUpdate', async (event, url) => {
+  autoUpdater.downloadUpdate();
+});
+ipcMain.on('applyUpdate', async (event, url) => {
+  autoUpdater.quitAndInstall(false, true);
+});
+ipcMain.on('check-for-updates', async (event, url) => {
+  autoUpdater.checkForUpdates();
+});
 
 function fillMissingSettings(value) {
   const res = {
@@ -335,7 +348,7 @@ function createWindow() {
     titleBarStyle: useNativeMenu ? undefined : 'hidden',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
-    partition: 'persist:dbgate',
+    partition: isProApp() ? 'persist:dbgate-premium' : 'persist:dbgate',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -437,6 +450,38 @@ function createWindow() {
     mainModule.setElectronSender(null);
   });
 }
+
+function changeAppUpdateStatus(message) {
+  appUpdateStatus = message;
+  mainWindow.webContents.send('app-update-status', appUpdateStatus);
+}
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for updates');
+  changeAppUpdateStatus('Checking for updates...');
+});
+
+autoUpdater.on('update-available', info => {
+  console.log('Update available', info);
+  changeAppUpdateStatus(`New version ${info.version} available`);
+  mainWindow.webContents.send('update-available', info.version);
+});
+
+autoUpdater.on('update-not-available', info => {
+  console.log('Update not available', info);
+  changeAppUpdateStatus(`No new updates`);
+});
+
+autoUpdater.on('update-downloaded', info => {
+  console.log('Update downloaded from', info);
+  changeAppUpdateStatus(`Downloaded new version ${info.version}`);
+  mainWindow.webContents.send('downloaded-new-version', info.version);
+});
+
+autoUpdater.on('error', error => {
+  changeAppUpdateStatus(`Autoupdate error`);
+  console.error('Update error', error);
+});
 
 function onAppReady() {
   if (!process.env.DEVMODE) {
