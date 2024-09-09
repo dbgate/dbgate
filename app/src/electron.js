@@ -206,6 +206,12 @@ ipcMain.on('app-started', async (event, arg) => {
   if (autoUpdater.isUpdaterActive()) {
     mainWindow.webContents.send('setAppUpdaterActive');
   }
+  if (!process.env.DEVMODE) {
+    if (settingsJson['app.autoUpdateMode'] != 'skip') {
+      autoUpdater.autoDownload = settingsJson['app.autoUpdateMode'] == 'download';
+      autoUpdater.checkForUpdates();
+    }
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -485,12 +491,6 @@ autoUpdater.on('error', error => {
 });
 
 function onAppReady() {
-  if (!process.env.DEVMODE) {
-    if (settingsJson['app.autoUpdateMode'] != 'skip') {
-      autoUpdater.autoDownload = settingsJson['app.autoUpdateMode'] == 'download';
-      autoUpdater.checkForUpdates();
-    }
-  }
   createWindow();
 }
 
