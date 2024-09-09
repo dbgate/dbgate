@@ -132,6 +132,7 @@ jobs:
           mv ../dbgate-merged/app/dist/*.deb artifacts/ || true
           mv ../dbgate-merged/app/dist/*.snap artifacts/ || true
           mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.blockmap artifacts/ || true
 
           mv ../dbgate-merged/app/dist/*.yml artifacts/ || true
           rm artifacts/builder-debug.yml
