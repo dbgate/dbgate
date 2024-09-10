@@ -1,6 +1,21 @@
 const { DatabaseAnalyser } = require('dbgate-tools');
 const sql = require('./sql');
 
+function extractDataType(dataType) {
+  if (!dataType) return {};
+  if (dataType.startsWith('Nullable(')) {
+    dataType = dataType.substring('Nullable('.length, dataType.length - 1);
+    return {
+      dataType,
+      notNull: false,
+    };
+  }
+  return {
+    dataType,
+    notNull: true,
+  };
+}
+
 class Analyser extends DatabaseAnalyser {
   constructor(connection, driver) {
     super(connection, driver);
@@ -23,7 +38,12 @@ class Analyser extends DatabaseAnalyser {
         ...table,
         primaryKeyColumns: undefined,
         sortingKeyColumns: undefined,
-        columns: columns.rows.filter((col) => col.pureName == table.pureName),
+        columns: columns.rows
+          .filter((col) => col.pureName == table.pureName)
+          .map((col) => ({
+            ...col,
+            ...extractDataType(col.dataType),
+          })),
         primaryKey: { columns: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
         sortingKey: { columns: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
         foreignKeys: [],

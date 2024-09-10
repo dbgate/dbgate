@@ -8,6 +8,17 @@ const dialect = {
   rangeSelect: true,
   stringEscapeChar: "'",
   fallbackDataType: 'String',
+
+  createColumn: true,
+  dropColumn: true,
+  changeColumn: true,
+  createIndex: true,
+  dropIndex: true,
+
+  columnProperties: {
+    columnComment: true,
+  },
+
   quoteIdentifier(s) {
     return `"${s}"`;
   },
