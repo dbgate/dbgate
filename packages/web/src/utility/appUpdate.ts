@@ -31,11 +31,11 @@ export function initializeAppUpdates() {
 
   electron.addEventListener('downloaded-new-version', (e, version) => {
     showSnackbar({
-      message: `New version ${version} downloaded`,
+      message: `New version ${version} downloaded. Update will be installed after app restart.`,
       allowClose: true,
       buttons: [
         {
-          label: 'Restart',
+          label: 'Restart DbGate',
           onClick: () => {
             electron.send('applyUpdate');
           },
