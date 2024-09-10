@@ -25,8 +25,8 @@ export function initializeAppUpdates() {
     });
   });
 
-  electron.addEventListener('app-update-status', (e, text) => {
-    appUpdateStatus.set(text);
+  electron.addEventListener('app-update-status', (e, value) => {
+    appUpdateStatus.set(value);
   });
 
   electron.addEventListener('downloaded-new-version', (e, version) => {

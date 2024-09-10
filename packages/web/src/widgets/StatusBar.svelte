@@ -173,7 +173,8 @@
 
     {#if $appUpdateStatus}
       <div class="item">
-        {$appUpdateStatus}
+        <FontIcon icon={$appUpdateStatus.icon} padRight />
+        {$appUpdateStatus.message}
       </div>
     {/if}
   </div>

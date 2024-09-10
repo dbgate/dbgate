@@ -458,19 +458,25 @@ function createWindow() {
   });
 }
 
-function changeAppUpdateStatus(message) {
-  appUpdateStatus = message;
+function changeAppUpdateStatus(status) {
+  appUpdateStatus = status;
   mainWindow.webContents.send('app-update-status', appUpdateStatus);
 }
 
 autoUpdater.on('checking-for-update', () => {
   console.log('Checking for updates');
-  changeAppUpdateStatus('Checking for updates...');
+  changeAppUpdateStatus({
+    icon: 'icon loading',
+    message: 'Checking for updates...',
+  });
 });
 
 autoUpdater.on('update-available', info => {
   console.log('Update available', info);
-  changeAppUpdateStatus(`New version ${info.version} available`);
+  changeAppUpdateStatus({
+    icon: 'icon download',
+    message: `New version ${info.version} available`,
+  });
   if (!autoUpdater.autoDownload) {
     mainWindow.webContents.send('update-available', info.version);
   }
@@ -478,17 +484,26 @@ autoUpdater.on('update-available', info => {
 
 autoUpdater.on('update-not-available', info => {
   console.log('Update not available', info);
-  changeAppUpdateStatus(`No new updates`);
+  changeAppUpdateStatus({
+    icon: 'icon check',
+    message: `No new updates`,
+  });
 });
 
 autoUpdater.on('update-downloaded', info => {
   console.log('Update downloaded from', info);
-  changeAppUpdateStatus(`Downloaded new version ${info.version}`);
+  changeAppUpdateStatus({
+    icon: 'icon download',
+    message: `Downloaded new version ${info.version}`,
+  });
   mainWindow.webContents.send('downloaded-new-version', info.version);
 });
 
 autoUpdater.on('error', error => {
-  changeAppUpdateStatus(`Autoupdate error`);
+  changeAppUpdateStatus({
+    icon: 'icon error',
+    message: `Autoupdate error`,
+  });
   console.error('Update error', error);
 });
 

@@ -140,6 +140,7 @@
     'icon custom-join': 'mdi mdi-arrow-left-right-bold',
     'icon parent-filter': 'mdi mdi-home-alert',
     'icon parent-filter-outline': 'mdi mdi-home-alert-outline',
+    'icon download': 'mdi mdi-download',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

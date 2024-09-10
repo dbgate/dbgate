@@ -123,7 +123,7 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
     ...$commandsSettings[k],
   }))
 );
-export const appUpdateStatus = writable('');
+export const appUpdateStatus = writable(null);
 export const appUpdaterActive = writable(false);
 
 export const draggingTab = writable(null);
