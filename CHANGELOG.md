@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.4.4
+- CHANGED: Improved autoupdate, notification is now in app
+- CHANGED: Default behaviour of autoupdate, new version is downloaded after click of "Download" button
+- ADDED: Ability to configure autoupdate (check only, check+download, don't check)\
+- ADDED: Option to run check for new version manually
+- FIXED: Fixes following issues: #886, #865, #782, #375
+
 ### 5.4.2
 - FIXED: DbGate now works correctly with Oracle 10g
 - FIXED: Fixed update channel for premium edition
