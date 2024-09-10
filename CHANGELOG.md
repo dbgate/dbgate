@@ -13,6 +13,7 @@ Builds:
 - CHANGED: Default behaviour of autoupdate, new version is downloaded after click of "Download" button
 - ADDED: Ability to configure autoupdate (check only, check+download, don't check)\
 - ADDED: Option to run check for new version manually
+- FIXED: Fixed autoupgrade channel for premium edition
 - FIXED: Fixes following issues: #886, #865, #782, #375
 
 ### 5.4.2
