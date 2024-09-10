@@ -531,7 +531,9 @@ export class SqlDumper implements AlterProcessor {
   renameConstraint(constraint: ConstraintInfo, newName: string) {}
 
   createColumn(column: ColumnInfo, constraints: ConstraintInfo[]) {
-    this.put('^alter ^table %f ^add %i ', column, column.columnName);
+    this.put('^alter ^table %f ^add ', column);
+    if (this.dialect.createColumnWithColumnKeyword) this.put('^column ');
+    this.put(' %i ', column.columnName);
     this.columnDefinition(column);
     this.inlineConstraints(constraints);
     this.endCommand();

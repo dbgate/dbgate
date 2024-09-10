@@ -14,6 +14,8 @@ const dialect = {
   changeColumn: true,
   createIndex: true,
   dropIndex: true,
+  anonymousPrimaryKey: true,
+  createColumnWithColumnKeyword: true,
 
   columnProperties: {
     columnComment: true,

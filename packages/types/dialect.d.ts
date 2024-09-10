@@ -34,6 +34,9 @@ export interface SqlDialect {
   createCheck?: boolean;
   dropCheck?: boolean;
 
+  // syntax for create column: ALTER TABLE table ADD COLUMN column
+  createColumnWithColumnKeyword?: boolean;
+
   dropReferencesWhenDropTable?: boolean;
   requireFromDual?: boolean;
 
