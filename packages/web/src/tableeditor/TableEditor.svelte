@@ -144,6 +144,7 @@
 
   $: columns = tableInfo?.columns;
   $: primaryKey = tableInfo?.primaryKey;
+  $: sortingKey = tableInfo?.sortingKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
   $: indexes = tableInfo?.indexes;
@@ -272,6 +273,23 @@
       ></svelte:fragment
     >
   </ObjectListControl>
+
+  {#if sortingKey}
+    <ObjectListControl
+      collection={[sortingKey]}
+      title="Sorting key"
+      columns={[
+        {
+          fieldName: 'columns',
+          header: 'Columns',
+          slot: 0,
+        },
+      ]}
+    >
+      <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
+      <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+    </ObjectListControl>
+  {/if}
 
   <ObjectListControl
     collection={indexes}

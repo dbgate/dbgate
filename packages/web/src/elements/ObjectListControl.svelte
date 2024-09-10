@@ -10,8 +10,8 @@
   export let showIfEmpty = false;
   export let emptyMessage = null;
   export let hideDisplayName = false;
-  export let clickable;
-  export let onAddNew;
+  export let clickable = false;
+  export let onAddNew = null;
 </script>
 
 {#if collection?.length > 0 || showIfEmpty || emptyMessage}
