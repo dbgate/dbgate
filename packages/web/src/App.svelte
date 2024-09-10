@@ -21,6 +21,7 @@
   import AppStartInfo from './widgets/AppStartInfo.svelte';
   import SettingsListener from './utility/SettingsListener.svelte';
   import { handleAuthOnStartup } from './clientAuth';
+  import { initializeAppUpdates } from './utility/appUpdate';
 
   export let isAdminPage = false;
 
@@ -49,6 +50,7 @@
         subscribeConnectionPingers();
         subscribePermissionCompiler();
         installNewVolatileConnectionListener();
+        initializeAppUpdates();
       }
 
       loadedApi = loadedApiValue;

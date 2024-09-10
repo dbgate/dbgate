@@ -123,6 +123,8 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
     ...$commandsSettings[k],
   }))
 );
+export const appUpdateStatus = writable(null);
+export const appUpdaterActive = writable(false);
 
 export const draggingTab = writable(null);
 export const draggingTabTarget = writable(null);
@@ -303,3 +305,9 @@ currentArchive.subscribe(value => {
   currentArchiveValue = value;
 });
 export const getCurrentArchive = () => currentArchiveValue;
+
+let appUpdaterActiveValue = false;
+appUpdaterActive.subscribe(value => {
+  appUpdaterActiveValue = value;
+});
+export const getAppUpdaterActive = () => appUpdaterActiveValue;

@@ -3,6 +3,7 @@ import { openedSnackbars } from '../stores';
 export interface SnackbarButton {
   label: string;
   onClick: Function;
+  autoClose?: boolean;
 }
 
 export interface SnackbarInfo {

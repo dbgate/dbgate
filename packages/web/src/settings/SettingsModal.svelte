@@ -342,6 +342,18 @@ ORDER BY
           <div class="heading">Other</div>
 
           <FormTextField name="other.gistCreateToken" label="API token for creating error gists" defaultValue="" />
+
+          <FormSelectField
+            label="Auto update application"
+            name="app.autoUpdateMode"
+            isNative
+            defaultValue=""
+            options={[
+              { value: 'skip', label: 'Do not check for new versions' },
+              { value: '', label: 'Check for new versions' },
+              { value: 'download', label: 'Check and download new versions' },
+            ]}
+          />
         </svelte:fragment>
 
         <svelte:fragment slot="7">

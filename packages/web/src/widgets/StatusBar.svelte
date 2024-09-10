@@ -8,6 +8,7 @@
 
   import {
     activeTabId,
+    appUpdateStatus,
     currentArchive,
     currentDatabase,
     currentThemeDefinition,
@@ -169,6 +170,13 @@
         {item.text}
       </div>
     {/each}
+
+    {#if $appUpdateStatus}
+      <div class="item">
+        <FontIcon icon={$appUpdateStatus.icon} padRight />
+        {$appUpdateStatus.message}
+      </div>
+    {/if}
   </div>
 </div>
 

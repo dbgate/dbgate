@@ -18,7 +18,6 @@ const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 const { isProApp } = require('./proTools');
 const updaterChannel = require('./updaterChannel');
-let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
 
@@ -29,6 +28,8 @@ let apiLoaded = false;
 let mainModule;
 // let getLogger;
 // let loadLogsContent;
+let appUpdateStatus = '';
+let settingsJson = {};
 
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
@@ -52,19 +53,9 @@ const isMac = () => os.platform() == 'darwin';
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
-  disableAutoUpgrade = initialConfig['disableAutoUpgrade'] || false;
 } catch (err) {
   console.log('Error loading config-root:', err.message);
   initialConfig = {};
-}
-
-if (process.argv.includes('--disable-auto-upgrade')) {
-  console.log('Disabling auto-upgrade');
-  disableAutoUpgrade = true;
-}
-if (process.argv.includes('--enable-auto-upgrade')) {
-  console.log('Enabling auto-upgrade');
-  disableAutoUpgrade = false;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -212,6 +203,15 @@ ipcMain.on('app-started', async (event, arg) => {
   if (initialConfig['winIsMaximized']) {
     mainWindow.webContents.send('setIsMaximized', true);
   }
+  if (autoUpdater.isUpdaterActive()) {
+    mainWindow.webContents.send('setAppUpdaterActive');
+  }
+  if (!process.env.DEVMODE) {
+    if (settingsJson['app.autoUpdateMode'] != 'skip') {
+      autoUpdater.autoDownload = settingsJson['app.autoUpdateMode'] == 'download';
+      autoUpdater.checkForUpdates();
+    }
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -285,6 +285,20 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
+ipcMain.handle('downloadUpdate', async (event, url) => {
+  autoUpdater.downloadUpdate();
+  changeAppUpdateStatus({
+    icon: 'icon loading',
+    message: `Downloading update...`,
+  });
+});
+ipcMain.on('applyUpdate', async (event, url) => {
+  autoUpdater.quitAndInstall(false, true);
+});
+ipcMain.on('check-for-updates', async (event, url) => {
+  autoUpdater.autoDownload = false;
+  autoUpdater.checkForUpdates();
+});
 
 function fillMissingSettings(value) {
   const res = {
@@ -322,8 +336,6 @@ function ensureBoundsVisible(bounds) {
 function createWindow() {
   const datadir = path.join(os.homedir(), '.dbgate');
 
-  let settingsJson = {};
-  let licenseKey = null;
   try {
     settingsJson = fillMissingSettings(
       JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
@@ -331,14 +343,6 @@ function createWindow() {
   } catch (err) {
     console.log('Error loading settings.json:', err.message);
     settingsJson = fillMissingSettings({});
-  }
-  if (isProApp()) {
-    try {
-      licenseKey = fs.readFileSync(path.join(datadir, 'license.key'), { encoding: 'utf-8' });
-    } catch (err) {
-      console.log('Error loading license.key:', err.message);
-      licenseKey = null;
-    }
   }
 
   let bounds = initialConfig['winBounds'];
@@ -355,7 +359,7 @@ function createWindow() {
     titleBarStyle: useNativeMenu ? undefined : 'hidden',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
-    partition: 'persist:dbgate',
+    partition: isProApp() ? 'persist:dbgate-premium' : 'persist:dbgate',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -389,7 +393,6 @@ function createWindow() {
             JSON.stringify({
               winBounds: mainWindow.getBounds(),
               winIsMaximized: mainWindow.isMaximized(),
-              disableAutoUpgrade,
             }),
             'utf-8'
           );
@@ -459,13 +462,61 @@ function createWindow() {
   });
 }
 
+function changeAppUpdateStatus(status) {
+  appUpdateStatus = status;
+  mainWindow.webContents.send('app-update-status', appUpdateStatus);
+}
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for updates');
+  changeAppUpdateStatus({
+    icon: 'icon loading',
+    message: 'Checking for updates...',
+  });
+});
+
+autoUpdater.on('update-available', info => {
+  console.log('Update available', info);
+  if (autoUpdater.autoDownload) {
+    changeAppUpdateStatus({
+      icon: 'icon loading',
+      message: `Downloading update...`,
+    });
+  } else {
+    mainWindow.webContents.send('update-available', info.version);
+    changeAppUpdateStatus({
+      icon: 'icon download',
+      message: `New version ${info.version} available`,
+    });
+  }
+});
+
+autoUpdater.on('update-not-available', info => {
+  console.log('Update not available', info);
+  changeAppUpdateStatus({
+    icon: 'icon check',
+    message: `No new updates`,
+  });
+});
+
+autoUpdater.on('update-downloaded', info => {
+  console.log('Update downloaded from', info);
+  changeAppUpdateStatus({
+    icon: 'icon download',
+    message: `Downloaded new version ${info.version}`,
+  });
+  mainWindow.webContents.send('downloaded-new-version', info.version);
+});
+
+autoUpdater.on('error', error => {
+  changeAppUpdateStatus({
+    icon: 'icon error',
+    message: `Autoupdate error`,
+  });
+  console.error('Update error', error);
+});
+
 function onAppReady() {
-  if (disableAutoUpgrade) {
-    console.log('Auto-upgrade is disabled, run dbgate --enable-auto-upgrade to enable');
-  }
-  if (!process.env.DEVMODE && !disableAutoUpgrade) {
-    autoUpdater.checkForUpdatesAndNotify();
-  }
   createWindow();
 }
 
