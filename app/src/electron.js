@@ -285,7 +285,7 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
-ipcMain.handle('downloadUpdate', async (event, url) => {
+ipcMain.on('downloadUpdate', async (event, url) => {
   autoUpdater.downloadUpdate();
   changeAppUpdateStatus({
     icon: 'icon loading',
