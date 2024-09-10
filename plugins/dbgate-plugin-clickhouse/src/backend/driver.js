@@ -21,27 +21,54 @@ const driver = {
     return client;
   },
   // called for retrieve data (eg. browse in data grid) and for update database
-  async query(client, query) {
-    const resultSet = await client.query({
-      query,
-      format: 'JSONCompactEachRowWithNamesAndTypes',
-    });
+  async query(client, query, options) {
+    if (options?.discardResult) {
+      await client.command({
+        query,
+      });
+      return {
+        rows: [],
+        columns: [],
+      };
+    } else {
+      const resultSet = await client.query({
+        query,
+        format: 'JSONCompactEachRowWithNamesAndTypes',
+      });
 
-    const dataSet = await resultSet.json();
+      const dataSet = await resultSet.json();
 
-    const columns = dataSet[0].map((columnName, i) => ({
-      columnName,
-      dataType: dataSet[1][i],
-    }));
+      const columns = dataSet[0].map((columnName, i) => ({
+        columnName,
+        dataType: dataSet[1][i],
+      }));
 
-    return {
-      rows: dataSet.slice(2).map((row) => _.zipObject(dataSet[0], row)),
-      columns,
-    };
+      return {
+        rows: dataSet.slice(2).map((row) => _.zipObject(dataSet[0], row)),
+        columns,
+      };
+    }
   },
   // called in query console
   async stream(client, query, options) {
     try {
+      if (!query.match(/^\s*SELECT/i)) {
+        const resp = await client.command({
+          query,
+        });
+        // console.log('RESP', resp);
+        // const { rowsAffected } = resp || {};
+        // if (rowsAffected) {
+        //   options.info({
+        //     message: `${rowsAffected} rows affected`,
+        //     time: new Date(),
+        //     severity: 'info',
+        //   });
+        // }
+        options.done();
+        return;
+      }
+
       const resultSet = await client.query({
         query,
         format: 'JSONCompactEachRowWithNamesAndTypes',
