@@ -6,11 +6,10 @@ const { mysqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
-  offsetFetchRangeSyntax: true,
   stringEscapeChar: "'",
-  fallbackDataType: 'nvarchar(max)',
+  fallbackDataType: 'String',
   quoteIdentifier(s) {
-    return `[${s}]`;
+    return `"${s}"`;
   },
 };
 

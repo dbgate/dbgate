@@ -24,8 +24,8 @@ class Analyser extends DatabaseAnalyser {
         primaryKeyColumns: undefined,
         sortingKeyColumns: undefined,
         columns: columns.rows.filter((col) => col.pureName == table.pureName),
-        primaryKey: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })),
-        sortingKey: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })),
+        primaryKey: { columns: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
+        sortingKey: { columns: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
         foreignKeys: [],
       })),
     };
