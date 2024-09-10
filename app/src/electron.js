@@ -287,6 +287,10 @@ ipcMain.handle('openExternal', async (event, url) => {
 });
 ipcMain.handle('downloadUpdate', async (event, url) => {
   autoUpdater.downloadUpdate();
+  changeAppUpdateStatus({
+    icon: 'icon loading',
+    message: `Downloading update...`,
+  });
 });
 ipcMain.on('applyUpdate', async (event, url) => {
   autoUpdater.quitAndInstall(false, true);
@@ -473,12 +477,17 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', info => {
   console.log('Update available', info);
-  changeAppUpdateStatus({
-    icon: 'icon download',
-    message: `New version ${info.version} available`,
-  });
-  if (!autoUpdater.autoDownload) {
+  if (autoUpdater.autoDownload) {
+    changeAppUpdateStatus({
+      icon: 'icon loading',
+      message: `Downloading update...`,
+    });
+  } else {
     mainWindow.webContents.send('update-available', info.version);
+    changeAppUpdateStatus({
+      icon: 'icon download',
+      message: `New version ${info.version} available`,
+    });
   }
 });
 
