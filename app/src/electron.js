@@ -486,7 +486,7 @@ autoUpdater.on('update-available', info => {
     mainWindow.webContents.send('update-available', info.version);
     changeAppUpdateStatus({
       icon: 'icon download',
-      message: `New version ${info.version} available`,
+      message: `Update available`,
     });
   }
 });
@@ -503,7 +503,7 @@ autoUpdater.on('update-downloaded', info => {
   console.log('Update downloaded from', info);
   changeAppUpdateStatus({
     icon: 'icon download',
-    message: `Downloaded new version ${info.version}`,
+    message: `Downloaded ${info.version}`,
   });
   mainWindow.webContents.send('downloaded-new-version', info.version);
 });
