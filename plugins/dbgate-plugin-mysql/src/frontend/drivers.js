@@ -120,6 +120,7 @@ const mysqlDriverBase = {
   authTypeLabel: 'Connection mode',
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
+  supportsTransactions: true,
 
   getNewObjectTemplates() {
     return [

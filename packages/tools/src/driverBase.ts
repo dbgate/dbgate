@@ -66,20 +66,20 @@ export const driverBase = {
     return new this.dumperClass(this, options);
   },
   async script(pool, sql, options: RunScriptOptions) {
-    if (options?.useTransaction) {
+    if (options?.useTransaction && this.supportsTransactions) {
       runCommandOnDriver(pool, this, dmp => dmp.beginTransaction());
     }
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
       try {
         await this.query(pool, sqlItem, { discardResult: true });
       } catch (err) {
-        if (options?.useTransaction) {
+        if (options?.useTransaction && this.supportsTransactions) {
           runCommandOnDriver(pool, this, dmp => dmp.rollbackTransaction());
         }
         throw err;
       }
     }
-    if (options?.useTransaction) {
+    if (options?.useTransaction && this.supportsTransactions) {
       runCommandOnDriver(pool, this, dmp => dmp.commitTransaction());
     }
   },

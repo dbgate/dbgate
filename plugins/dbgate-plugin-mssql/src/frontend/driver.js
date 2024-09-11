@@ -142,6 +142,7 @@ const driver = {
   title: 'Microsoft SQL Server',
   defaultPort: 1433,
   defaultAuthTypeName: 'tedious',
+  supportsTransactions: true,
   // databaseUrlPlaceholder: 'e.g. server=localhost&authentication.type=default&authentication.type.user=myuser&authentication.type.password=pwd&options.database=mydb',
 
   getNewObjectTemplates() {
