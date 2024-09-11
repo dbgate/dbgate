@@ -177,8 +177,4 @@ export const driverBase = {
   createSaveChangeSetScript(changeSet, dbinfo, defaultCreator) {
     return defaultCreator(changeSet, dbinfo);
   },
-
-  getTableFormOptions() {
-    return null;
-  },
 };

@@ -99,39 +99,6 @@ const dialect = {
       };
     }
   },
-};
-
-const mysqlDriverBase = {
-  ...driverBase,
-  showConnectionField: (field, values) =>
-    ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
-    (values.authType == 'socket' && ['socketPath'].includes(field)) ||
-    (values.authType != 'socket' && ['server', 'port'].includes(field)),
-  dumperClass: Dumper,
-  dialect,
-  defaultPort: 3306,
-  getQuerySplitterOptions: usage =>
-    usage == 'editor'
-      ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
-      : mysqlSplitterOptions,
-
-  readOnlySessions: true,
-  supportsDatabaseDump: true,
-  authTypeLabel: 'Connection mode',
-  defaultAuthTypeName: 'hostPort',
-  defaultSocketPath: '/var/run/mysqld/mysqld.sock',
-  supportsTransactions: true,
-
-  getNewObjectTemplates() {
-    return [
-      { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
-      {
-        label: 'New procedure',
-        sql: 'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
-      },
-      { label: 'New function', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
-    ];
-  },
 
   getSupportedEngines() {
     return [];
@@ -158,15 +125,8 @@ const mysqlDriverBase = {
   },
 };
 
-/** @type {import('dbgate-types').EngineDriver} */
-const mysqlDriver = {
-  ...mysqlDriverBase,
-  engine: 'mysql@dbgate-plugin-mysql',
-  title: 'MySQL',
-  __analyserInternals: {
-    quoteDefaultValues: true,
-  },
-
+const mysqlDialect = {
+  ...dialect,
   getSupportedEngines() {
     const mysqlEngines = [
       'InnoDB', // Default and most commonly used engine with ACID transaction support and referential integrity.
@@ -189,14 +149,51 @@ const mysqlDriver = {
   },
 };
 
-/** @type {import('dbgate-types').EngineDriver} */
-const mariaDriver = {
-  ...mysqlDriverBase,
-  engine: 'mariadb@dbgate-plugin-mysql',
-  title: 'MariaDB',
-  __analyserInternals: {
-    quoteDefaultValues: false,
+const mysqlDriverBase = {
+  ...driverBase,
+  showConnectionField: (field, values) =>
+    ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
+    (values.authType == 'socket' && ['socketPath'].includes(field)) ||
+    (values.authType != 'socket' && ['server', 'port'].includes(field)),
+  dumperClass: Dumper,
+  defaultPort: 3306,
+  getQuerySplitterOptions: usage =>
+    usage == 'editor'
+      ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : mysqlSplitterOptions,
+
+  readOnlySessions: true,
+  supportsDatabaseDump: true,
+  authTypeLabel: 'Connection mode',
+  defaultAuthTypeName: 'hostPort',
+  defaultSocketPath: '/var/run/mysqld/mysqld.sock',
+  supportsTransactions: true,
+
+  getNewObjectTemplates() {
+    return [
+      { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
+      {
+        label: 'New procedure',
+        sql: 'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
+      },
+      { label: 'New function', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
+    ];
   },
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
+const mysqlDriver = {
+  ...mysqlDriverBase,
+  dialect: mysqlDialect,
+  engine: 'mysql@dbgate-plugin-mysql',
+  title: 'MySQL',
+  __analyserInternals: {
+    quoteDefaultValues: true,
+  },
+};
+
+const mariaDbDialect = {
+  ...dialect,
   getSupportedEngines() {
     const mariaDBEngines = [
       'InnoDB', // Main transactional engine, similar to MySQL, supports ACID transactions and referential integrity.
@@ -221,6 +218,17 @@ const mariaDriver = {
       'XtraDB', // Enhanced InnoDB engine with optimizations from Percona (commonly used in older MariaDB versions).
     ];
     return mariaDBEngines;
+  },
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
+const mariaDriver = {
+  ...mysqlDriverBase,
+  dialect: mariaDbDialect,
+  engine: 'mariadb@dbgate-plugin-mysql',
+  title: 'MariaDB',
+  __analyserInternals: {
+    quoteDefaultValues: false,
   },
 };
 

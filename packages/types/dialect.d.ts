@@ -44,4 +44,9 @@ export interface SqlDialect {
 
   // create sql-tree expression
   createColumnViewExpression(columnName: string, dataType: string, source: { alias: string }, alias?: string): any;
+
+  getTableFormOptions(intent: 'newTableForm' | 'editTableForm' | 'sqlCreateTable' | 'sqlAlterTable'): {
+    name: string;
+    sqlFormatString: string;
+  }[];
 }

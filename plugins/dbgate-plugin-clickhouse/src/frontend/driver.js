@@ -72,6 +72,26 @@ const dialect = {
   quoteIdentifier(s) {
     return `"${s}"`;
   },
+
+  getTableFormOptions(intent) {
+    const isNewTable = intent == 'newTableForm';
+    return [
+      {
+        type: isNewTable ? 'dropdowntext' : 'text',
+        options: clickhouseEngines,
+        label: 'Engine',
+        name: 'tableEngine',
+        sqlFormatString: '^engine = %s',
+        disabled: !isNewTable,
+      },
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment %v',
+      },
+    ];
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -116,26 +136,6 @@ const driver = {
       }
     }
     return res;
-  },
-
-  getTableFormOptions(intent) {
-    const isNewTable = intent == 'newTableForm';
-    return [
-      {
-        type: isNewTable ? 'dropdowntext' : 'text',
-        options: clickhouseEngines,
-        label: 'Engine',
-        name: 'tableEngine',
-        sqlFormatString: '^engine = %s',
-        disabled: !isNewTable,
-      },
-      {
-        type: 'text',
-        label: 'Comment',
-        name: 'objectComment',
-        sqlFormatString: '^comment %v',
-      },
-    ];
   },
 };
 

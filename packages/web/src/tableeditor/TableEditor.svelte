@@ -156,7 +156,7 @@
     invalidateCommands();
   }
 
-  $: tableFormOptions = driver?.getTableFormOptions(tableInfo?.objectId ? 'editTableForm' : 'newTableForm');
+  $: tableFormOptions = driver?.dialect?.getTableFormOptions?.(tableInfo?.objectId ? 'editTableForm' : 'newTableForm');
 </script>
 
 <div class="wrapper">
