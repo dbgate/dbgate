@@ -155,6 +155,11 @@ export interface EngineDriver extends FilterBehaviourProvider {
   collectionNameLabel?: string;
   newCollectionFormParams?: any[];
 
+  getTableFormOptions(intent: 'newTableForm' | 'editTableForm' | 'sqlCreateTable' | 'sqlAlterTable'): {
+    name: string;
+    sqlFormatString: string;
+  }[];
+
   supportedCreateDatabase?: boolean;
   showConnectionField?: (
     field: string,

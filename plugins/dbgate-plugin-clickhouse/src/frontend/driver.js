@@ -3,6 +3,53 @@ const Dumper = require('./Dumper');
 const { mysqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const _cloneDeepWith = require('lodash/cloneDeepWith');
 
+const clickhouseEngines = [
+  'MergeTree',
+  'ReplacingMergeTree',
+  'SummingMergeTree',
+  'AggregatingMergeTree',
+  'CollapsingMergeTree',
+  'VersionedCollapsingMergeTree',
+  'GraphiteMergeTree',
+  'Distributed',
+  'Log',
+  'TinyLog',
+  'StripeLog',
+  'Memory',
+  'File',
+  'URL',
+  'JDBC',
+  'ODBC',
+  'Buffer',
+  'Null',
+  'Kafka',
+  'HDFS',
+  'S3',
+  'Merge',
+  'Join',
+  'MaterializedView',
+  'Dictionary',
+  'MySQL',
+  'PostgreSQL',
+  'MongoDB',
+  'EmbeddedRocksDB',
+  'View',
+  'MaterializeMySQL',
+  'MaterializePostgreSQL',
+  'ReplicatedMergeTree',
+  'ReplicatedReplacingMergeTree',
+  'ReplicatedSummingMergeTree',
+  'ReplicatedAggregatingMergeTree',
+  'ReplicatedCollapsingMergeTree',
+  'ReplicatedVersionedCollapsingMergeTree',
+  'ReplicatedGraphiteMergeTree',
+  'ExternalDistributed',
+  'Iceberg',
+  'Parquet',
+  'ORC',
+  'DeltaLake',
+];
+
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   limitSelect: true,
@@ -69,6 +116,26 @@ const driver = {
       }
     }
     return res;
+  },
+
+  getTableFormOptions: (intent) => {
+    const isNewTable = intent == 'newTableForm';
+    return [
+      {
+        type: isNewTable ? 'dropdowntext' : text,
+        options: clickhouseEngines,
+        label: 'Engine',
+        name: 'tableEngine',
+        sqlFormatString: '^engine = %s',
+        disabled: !isNewTable,
+      },
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment %v',
+      },
+    ];
   },
 };
 

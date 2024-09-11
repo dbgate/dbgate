@@ -294,10 +294,23 @@ export class SqlDumper implements AlterProcessor {
     });
 
     this.put('&<&n)');
+
+    this.tableOptions(table);
+
     this.endCommand();
     (table.indexes || []).forEach(ix => {
       this.createIndex(ix);
     });
+  }
+
+  tableOptions(table: TableInfo) {
+    const options = this.driver.getTableFormOptions('sqlCreateTable');
+    for (const option of options) {
+      if (table[option.name]) {
+        this.put('&n');
+        this.put(option.sqlFormatString, table[option.name]);
+      }
+    }
   }
 
   createTablePrimaryKeyCore(table: TableInfo) {

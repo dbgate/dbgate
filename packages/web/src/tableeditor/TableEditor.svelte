@@ -81,6 +81,7 @@
   import IndexEditorModal from './IndexEditorModal.svelte';
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
   import UniqueEditorModal from './UniqueEditorModal.svelte';
+  import ObjectFieldsEditor from '../elements/ObjectFieldsEditor.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -154,9 +155,24 @@
     tableInfo;
     invalidateCommands();
   }
+
+  $: tableFormOptions = driver?.getTableFormOptions(tableInfo?.objectId ? 'editTableForm' : 'newTableForm');
 </script>
 
 <div class="wrapper">
+  {#if tableFormOptions}
+    <ObjectFieldsEditor
+      title="Table properties"
+      fieldDefinitions={tableFormOptions}
+      values={tableInfo}
+      onChangeValues={vals => {
+        if (!_.isEmpty(vals)) {
+          setTableInfo(tbl => ({ ...tbl, ...vals }));
+        }
+      }}
+    />
+  {/if}
+
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title={`Columns (${columns?.length || 0})`}
