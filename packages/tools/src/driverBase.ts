@@ -173,4 +173,8 @@ export const driverBase = {
     parseSqlNull: true,
     parseHexAsBuffer: true,
   },
+
+  createSaveChangeSetScript(changeSet, dbinfo, defaultCreator) {
+    return defaultCreator(changeSet, dbinfo);
+  },
 };

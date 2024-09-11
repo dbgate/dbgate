@@ -223,6 +223,11 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getCollectionExportQueryJson(collection: string, condition: any, sort?: CollectionSortDefinition): {};
   getScriptTemplates(objectTypeField: keyof DatabaseInfo): { label: string; scriptTemplate: string }[];
   getScriptTemplateContent(scriptTemplate: string, props: any): Promise<string>;
+  createSaveChangeSetScript(
+    changeSet: any,
+    dbinfo: DatabaseInfo,
+    defaultCreator: (changeSet: any, dbinfo: DatabaseInfo) => any
+  ): any[];
 
   analyserClass?: any;
   dumperClass?: any;

@@ -62,10 +62,13 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
 }
 
 export function dumpSqlUpdate(dmp: SqlDumper, cmd: Update) {
-  dmp.put('^update ');
-  dumpSqlSourceRef(dmp, cmd.from);
-
-  dmp.put('&n^set ');
+  if (cmd.alterTableUpdateSyntax) {
+    dmp.put('^alter ^table %f &n^update ', cmd.from?.name);
+  } else {
+    dmp.put('^update ');
+    dumpSqlSourceRef(dmp, cmd.from);
+    dmp.put('&n^set ');
+  }
   dmp.put('&>');
   dmp.putCollection(', ', cmd.fields, col => {
     dmp.put('%i=', col.targetColumn);
@@ -81,8 +84,14 @@ export function dumpSqlUpdate(dmp: SqlDumper, cmd: Update) {
 }
 
 export function dumpSqlDelete(dmp: SqlDumper, cmd: Delete) {
-  dmp.put('^delete ^from ');
-  dumpSqlSourceRef(dmp, cmd.from);
+  if (cmd.alterTableDeleteSyntax) {
+    dmp.put('^alter ^table ');
+    dumpSqlSourceRef(dmp, cmd.from);
+    dmp.put('^delete ');
+  } else {
+    dmp.put('^delete ^from ');
+    dumpSqlSourceRef(dmp, cmd.from);
+  }
 
   if (cmd.where) {
     dmp.put('&n^where ');

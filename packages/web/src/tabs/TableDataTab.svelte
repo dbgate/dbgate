@@ -71,10 +71,7 @@
     changeSetToSql,
     createChangeSet,
     createGridCache,
-    createGridConfig,
     getDeleteCascades,
-    TableFormViewDisplay,
-    TableGridDisplay,
   } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { reloadDataCacheFunc } from 'dbgate-datalib';
@@ -160,7 +157,11 @@
 
   export function save() {
     const driver = findEngineDriver($connection, $extensions);
-    const script = changeSetToSql($changeSetStore?.value, $dbinfo);
+
+    const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
+      changeSetToSql($changeSetStore?.value, $dbinfo)
+    );
+
     const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
     const sql = scriptToSql(driver, script);
     const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({

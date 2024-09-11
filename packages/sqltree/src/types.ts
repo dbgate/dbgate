@@ -26,12 +26,17 @@ export interface Update {
   fields: UpdateField[];
   from: FromDefinition;
   where?: Condition;
+  // ALTER TABLE xxx UPDATE col1=val1 - syntax for ClickHouse
+  alterTableUpdateSyntax?: boolean;
 }
 
 export interface Delete {
   commandType: 'delete';
   from: FromDefinition;
   where?: Condition;
+
+  // ALTER TABLE xxx DELETE  - syntax for ClickHouse
+  alterTableDeleteSyntax?: boolean;
 }
 
 export interface Insert {
