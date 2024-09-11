@@ -64,7 +64,7 @@ const dialect = {
   dropIndex: true,
   anonymousPrimaryKey: true,
   createColumnWithColumnKeyword: true,
-  specificNotNull: true,
+  specificNullabilityImplementation: true,
 
   columnProperties: {
     columnComment: true,

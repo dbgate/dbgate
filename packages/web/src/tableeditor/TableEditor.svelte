@@ -187,7 +187,7 @@
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={isWritable ? addColumn : null}
     columns={[
-      !driver?.dialect?.specificNotNull && {
+      !driver?.dialect?.specificNullabilityImplementation && {
         fieldName: 'notNull',
         header: 'Nullability',
         sortable: true,

@@ -34,7 +34,7 @@ export interface SqlDialect {
   createCheck?: boolean;
   dropCheck?: boolean;
 
-  specificNotNull?: boolean;
+  specificNullabilityImplementation?: boolean;
 
   // syntax for create column: ALTER TABLE table ADD COLUMN column
   createColumnWithColumnKeyword?: boolean;
