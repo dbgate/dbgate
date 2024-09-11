@@ -74,7 +74,7 @@ const dialect = {
   },
 
   getTableFormOptions(intent) {
-    const isNewTable = intent == 'newTableForm';
+    const isNewTable = intent == 'newTableForm' || intent == 'sqlCreateTable';
     return [
       {
         type: isNewTable ? 'dropdowntext' : 'text',

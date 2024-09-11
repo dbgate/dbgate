@@ -97,6 +97,13 @@ interface AlterOperation_FillPreloadedRows {
   autoIncrementColumn: string;
 }
 
+interface AlterOperation_SetTableOption {
+  operationType: 'setTableOption';
+  table: TableInfo;
+  optionName: string;
+  optionValue: string;
+}
+
 type AlterOperation =
   | AlterOperation_CreateColumn
   | AlterOperation_ChangeColumn
@@ -112,7 +119,8 @@ type AlterOperation =
   | AlterOperation_CreateSqlObject
   | AlterOperation_DropSqlObject
   | AlterOperation_RecreateTable
-  | AlterOperation_FillPreloadedRows;
+  | AlterOperation_FillPreloadedRows
+  | AlterOperation_SetTableOption;
 
 export class AlterPlan {
   recreates = {
@@ -250,6 +258,15 @@ export class AlterPlan {
       key,
       insertOnly,
       autoIncrementColumn,
+    });
+  }
+
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    this.operations.push({
+      operationType: 'setTableOption',
+      table,
+      optionName,
+      optionValue,
     });
   }
 
@@ -574,6 +591,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'dropSqlObject':
       processor.dropSqlObject(op.oldObject);
+      break;
+    case 'setTableOption':
+      processor.setTableOption(op.table, op.optionName, op.optionValue);
       break;
     case 'fillPreloadedRows':
       processor.fillPreloadedRows(op.table, op.oldRows, op.newRows, op.key, op.insertOnly, op.autoIncrementColumn);

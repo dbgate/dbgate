@@ -89,6 +89,7 @@
   export let setTableInfo;
   export let dbInfo;
   export let driver;
+  export let resetCounter;
 
   $: isWritable = !!setTableInfo;
 
@@ -161,19 +162,21 @@
 
 <div class="wrapper">
   {#if tableFormOptions}
-    <ObjectFieldsEditor
-      title="Table properties"
-      fieldDefinitions={tableFormOptions}
-      values={_.pick(
-        tableInfo,
-        tableFormOptions.map(x => x.name)
-      )}
-      onChangeValues={vals => {
-        if (!_.isEmpty(vals)) {
-          setTableInfo(tbl => ({ ...tbl, ...vals }));
-        }
-      }}
-    />
+    {#key resetCounter}
+      <ObjectFieldsEditor
+        title="Table properties"
+        fieldDefinitions={tableFormOptions}
+        values={_.pick(
+          tableInfo,
+          tableFormOptions.map(x => x.name)
+        )}
+        onChangeValues={vals => {
+          if (!_.isEmpty(vals)) {
+            setTableInfo(tbl => ({ ...tbl, ...vals }));
+          }
+        }}
+      />
+    {/key}
   {/if}
 
   <ObjectListControl

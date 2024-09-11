@@ -105,21 +105,19 @@ const dialect = {
   },
 
   getTableFormOptions(intent) {
-    const isNewTable = intent == 'newTableForm';
     return [
       {
-        type: isNewTable ? 'dropdowntext' : 'text',
+        type: 'dropdowntext',
         options: this.getSupportedEngines(),
         label: 'Engine',
         name: 'tableEngine',
         sqlFormatString: '^engine = %s',
-        disabled: !isNewTable,
       },
       {
         type: 'text',
         label: 'Comment',
         name: 'objectComment',
-        sqlFormatString: '^comment %v',
+        sqlFormatString: '^comment = %v',
       },
     ];
   },

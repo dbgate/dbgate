@@ -425,6 +425,20 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   constraintPairs.filter(x => x[0] == null).forEach(x => plan.createConstraint(x[1]));
 
   planTablePreload(plan, oldTable, newTable);
+
+  planChangeTableOptions(plan, oldTable, newTable, opts);
+}
+
+function planChangeTableOptions(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo, opts: DbDiffOptions) {
+  for(const option of plan.dialect?.getTableFormOptions?.('sqlAlterTable') || []) {
+    if (option.disabled) {
+      continue;
+    }
+    const name = option.name;
+    if (oldTable[name] != newTable[name] && (oldTable[name]||newTable[name])) {
+      plan.setTableOption(newTable, name, newTable[name]);
+    }
+  }
 }
 
 export function testEqualTables(

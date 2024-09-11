@@ -304,7 +304,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   tableOptions(table: TableInfo) {
-    const options = this.driver.getTableFormOptions('sqlCreateTable');
+    const options = this.driver?.dialect?.getTableFormOptions?.('sqlCreateTable') || [];
     for (const option of options) {
       if (table[option.name]) {
         this.put('&n');
@@ -684,6 +684,23 @@ export class SqlDumper implements AlterProcessor {
 
   dropSqlObject(obj: SqlObjectInfo) {
     this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
+  }
+
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    const options = this?.dialect?.getTableFormOptions?.('sqlAlterTable');
+    const option = options?.find(x => x.name == optionName && !x.disabled);
+    if (!option) {
+      return;
+    }
+
+    this.setTableOptionCore(table, optionName, optionValue, option.sqlFormatString);
+
+    this.endCommand();
+  }
+
+  setTableOptionCore(table: TableInfo, optionName: string, optionValue: string, formatString: string) {
+    this.put('^alter ^table %f ', table);
+    this.put(formatString, optionValue);
   }
 
   fillPreloadedRows(

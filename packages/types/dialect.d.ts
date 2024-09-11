@@ -48,5 +48,6 @@ export interface SqlDialect {
   getTableFormOptions(intent: 'newTableForm' | 'editTableForm' | 'sqlCreateTable' | 'sqlAlterTable'): {
     name: string;
     sqlFormatString: string;
+    disabled?: boolean;
   }[];
 }

@@ -129,4 +129,9 @@ export class DatabaseInfoAlterProcessor {
     tableInfo.preloadedRowsKey = key;
     tableInfo.preloadedRowsInsertOnly = insertOnly;
   }
+
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    const tableInfo = this.db.tables.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+    tableInfo[optionName] = optionValue;
+  }
 }
