@@ -44,8 +44,12 @@ class Analyser extends DatabaseAnalyser {
             ...col,
             ...extractDataType(col.dataType),
           })),
-        primaryKey: { columns: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
-        sortingKey: { columns: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })) },
+        primaryKey: table.primaryKeyColumns
+          ? { columns: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })) }
+          : null,
+        sortingKey: table.sortingKeyColumns
+          ? { columns: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })) }
+          : null,
         foreignKeys: [],
       })),
     };

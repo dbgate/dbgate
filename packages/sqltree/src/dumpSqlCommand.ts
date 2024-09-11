@@ -87,7 +87,7 @@ export function dumpSqlDelete(dmp: SqlDumper, cmd: Delete) {
   if (cmd.alterTableDeleteSyntax) {
     dmp.put('^alter ^table ');
     dumpSqlSourceRef(dmp, cmd.from);
-    dmp.put('^delete ');
+    dmp.put(' ^delete ');
   } else {
     dmp.put('^delete ^from ');
     dumpSqlSourceRef(dmp, cmd.from);
