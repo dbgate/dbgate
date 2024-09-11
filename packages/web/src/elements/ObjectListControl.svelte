@@ -12,11 +12,21 @@
   export let hideDisplayName = false;
   export let clickable = false;
   export let onAddNew = null;
+
+  let collapsed = false;
 </script>
 
 {#if collection?.length > 0 || showIfEmpty || emptyMessage}
   <div class="wrapper">
     <div class="header">
+      <span
+        class="collapse"
+        on:click={() => {
+          collapsed = !collapsed;
+        }}
+      >
+        <FontIcon icon={collapsed ? 'icon chevron-down' : 'icon chevron-up'} />
+      </span>
       <span class="title mr-1">{title}</span>
       {#if onAddNew}
         <Link onClick={onAddNew}><FontIcon icon="icon add" /> Add new</Link>
@@ -27,7 +37,7 @@
         {emptyMessage}
       </div>
     {/if}
-    {#if collection?.length > 0 || showIfEmpty}
+    {#if !collapsed && (collection?.length > 0 || showIfEmpty)}
       <div class="body">
         <TableControl
           rows={collection || []}
@@ -78,6 +88,7 @@
 <style>
   .wrapper {
     margin-bottom: 20px;
+    user-select: none;
   }
 
   .header {
@@ -92,5 +103,14 @@
 
   .body {
     margin: 20px;
+  }
+
+  .collapse {
+    cursor: pointer;
+  }
+
+  .collapse:hover {
+    color: var(--theme-font-hover);
+    background: var(--theme-bg-3);
   }
 </style>
