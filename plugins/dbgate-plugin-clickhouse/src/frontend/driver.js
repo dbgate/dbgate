@@ -50,6 +50,41 @@ const clickhouseEngines = [
   'DeltaLake',
 ];
 
+const clickhouseDataTypes = [
+  'Int8',
+  'Int16',
+  'Int32',
+  'Int64',
+  'UInt8',
+  'UInt16',
+  'UInt32',
+  'UInt64',
+  'Float32',
+  'Float64',
+  'Decimal',
+  'String',
+  'FixedString',
+  'UUID',
+  'Date',
+  'DateTime',
+  'DateTime64',
+  "DateTime('UTC')",
+  'Date32',
+  'Enum8',
+  'Enum16',
+  'Array',
+  'Tuple',
+  'Nullable',
+  'LowCardinality',
+  'Map',
+  'JSON',
+  'IPv4',
+  'IPv6',
+  'Nested',
+  'AggregateFunction',
+  'SimpleAggregateFunction',
+];
+
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   limitSelect: true,
@@ -93,6 +128,8 @@ const dialect = {
       },
     ];
   },
+
+  predefinedDataTypes: clickhouseDataTypes,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

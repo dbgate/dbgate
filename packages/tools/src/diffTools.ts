@@ -407,7 +407,7 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
           // console.log('PLAN RENAME COLUMN')
           plan.renameColumn(x[0], x[1].columnName);
         } else {
-          // console.log('PLAN CHANGE COLUMN')
+          // console.log('PLAN CHANGE COLUMN', x[0], x[1]);
           plan.changeColumn(x[0], x[1]);
         }
       }
@@ -430,12 +430,12 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
 }
 
 function planChangeTableOptions(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo, opts: DbDiffOptions) {
-  for(const option of plan.dialect?.getTableFormOptions?.('sqlAlterTable') || []) {
+  for (const option of plan.dialect?.getTableFormOptions?.('sqlAlterTable') || []) {
     if (option.disabled) {
       continue;
     }
     const name = option.name;
-    if (oldTable[name] != newTable[name] && (oldTable[name]||newTable[name])) {
+    if (oldTable[name] != newTable[name] && (oldTable[name] || newTable[name])) {
       plan.setTableOption(newTable, name, newTable[name]);
     }
   }
