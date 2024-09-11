@@ -14,7 +14,7 @@ const dialect = {
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',
-  anonymousPrimaryKey: true,
+  anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['dependencies'],
   quoteIdentifier(s) {
