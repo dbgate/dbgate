@@ -100,6 +100,9 @@ const dialect = {
   anonymousPrimaryKey: true,
   createColumnWithColumnKeyword: true,
   specificNullabilityImplementation: true,
+  omitForeignKeys: true,
+  omitUniqueConstraints: true,
+  sortingKeys: true,
 
   columnProperties: {
     columnComment: true,

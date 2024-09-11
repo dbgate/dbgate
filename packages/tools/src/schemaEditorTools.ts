@@ -266,6 +266,10 @@ export function editorDeleteConstraint(table: TableInfo, constraint: ConstraintI
     res.primaryKey = null;
   }
 
+  if (constraint.constraintType == 'sortingKey') {
+    res.sortingKey = null;
+  }
+
   if (constraint.constraintType == 'foreignKey') {
     res.foreignKeys = table.foreignKeys.filter(x => x.pairingId != constraint.pairingId);
   }

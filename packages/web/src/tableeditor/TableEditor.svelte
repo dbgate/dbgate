@@ -82,6 +82,7 @@
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
   import UniqueEditorModal from './UniqueEditorModal.svelte';
   import ObjectFieldsEditor from '../elements/ObjectFieldsEditor.svelte';
+  import PrimaryKeyLikeListControl from './PrimaryKeyLikeListControl.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -262,55 +263,16 @@
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
 
-  <ObjectListControl
-    collection={_.compact([primaryKey])}
-    title="Primary key"
-    emptyMessage={isWritable ? 'No primary key defined' : null}
-    onAddNew={isWritable && !primaryKey && columns?.length > 0 ? addPrimaryKey : null}
-    clickable
-    on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
-    columns={[
-      {
-        fieldName: 'columns',
-        header: 'Columns',
-        slot: 0,
-      },
-      isWritable
-        ? {
-            fieldName: 'actions',
-            sortable: true,
-            slot: 1,
-          }
-        : null,
-    ]}
-  >
-    <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
-    <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-    <svelte:fragment slot="1" let:row
-      ><Link
-        onClick={e => {
-          e.stopPropagation();
-          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-        }}>Remove</Link
-      ></svelte:fragment
-    >
-  </ObjectListControl>
+  <PrimaryKeyLikeListControl {tableInfo} {setTableInfo} {isWritable} />
 
-  {#if sortingKey}
-    <ObjectListControl
-      collection={[sortingKey]}
-      title="Sorting key"
-      columns={[
-        {
-          fieldName: 'columns',
-          header: 'Columns',
-          slot: 0,
-        },
-      ]}
-    >
-      <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
-      <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-    </ObjectListControl>
+  {#if driver?.dialect?.sortingKeys}
+    <PrimaryKeyLikeListControl
+      {tableInfo}
+      {setTableInfo}
+      {isWritable}
+      constraintLabel="sorting key"
+      constraintType="sortingKey"
+    />
   {/if}
 
   <ObjectListControl
@@ -353,50 +315,54 @@
     >
   </ObjectListControl>
 
-  <ObjectListControl
-    collection={uniques}
-    onAddNew={isWritable && columns?.length > 0 ? addUnique : null}
-    title={`Unique constraints (${uniques?.length || 0})`}
-    emptyMessage={isWritable ? 'No unique defined' : null}
-    clickable
-    on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
-    columns={[
-      {
-        fieldName: 'columns',
-        header: 'Columns',
-        slot: 0,
-      },
-      isWritable
-        ? {
-            fieldName: 'actions',
-            sortable: true,
-            slot: 1,
-          }
-        : null,
-    ]}
-  >
-    <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
-    <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-    <svelte:fragment slot="1" let:row
-      ><Link
-        onClick={e => {
-          e.stopPropagation();
-          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-        }}>Remove</Link
-      ></svelte:fragment
+  {#if !driver?.dialect?.omitUniqueConstraints}
+    <ObjectListControl
+      collection={uniques}
+      onAddNew={isWritable && columns?.length > 0 ? addUnique : null}
+      title={`Unique constraints (${uniques?.length || 0})`}
+      emptyMessage={isWritable ? 'No unique defined' : null}
+      clickable
+      on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+      columns={[
+        {
+          fieldName: 'columns',
+          header: 'Columns',
+          slot: 0,
+        },
+        isWritable
+          ? {
+              fieldName: 'actions',
+              sortable: true,
+              slot: 1,
+            }
+          : null,
+      ]}
     >
-  </ObjectListControl>
+      <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
+      <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+      <svelte:fragment slot="1" let:row
+        ><Link
+          onClick={e => {
+            e.stopPropagation();
+            setTableInfo(tbl => editorDeleteConstraint(tbl, row));
+          }}>Remove</Link
+        ></svelte:fragment
+      >
+    </ObjectListControl>
+  {/if}
 
-  <ForeignKeyObjectListControl
-    collection={foreignKeys}
-    onAddNew={isWritable && columns?.length > 0 ? addForeignKey : null}
-    title={`Foreign keys (${foreignKeys?.length || 0})`}
-    emptyMessage={isWritable ? 'No foreign key defined' : null}
-    clickable
-    onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
-    on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
-  />
-  <ForeignKeyObjectListControl collection={dependencies} title="Dependencies" />
+  {#if !driver?.dialect?.omitForeignKeys}
+    <ForeignKeyObjectListControl
+      collection={foreignKeys}
+      onAddNew={isWritable && columns?.length > 0 ? addForeignKey : null}
+      title={`Foreign keys (${foreignKeys?.length || 0})`}
+      emptyMessage={isWritable ? 'No foreign key defined' : null}
+      clickable
+      onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
+      on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
+    />
+    <ForeignKeyObjectListControl collection={dependencies} title="Dependencies" />
+  {/if}
 </div>
 
 <style>

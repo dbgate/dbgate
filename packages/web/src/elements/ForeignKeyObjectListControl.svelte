@@ -8,7 +8,7 @@
 
   export let collection;
   export let title;
-  export let clickable;
+  export let clickable = false;
   export let onRemove = null;
   export let onAddNew = null;
   export let emptyMessage = null;

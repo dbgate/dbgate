@@ -5,12 +5,14 @@
   export let setTableInfo;
   export let tableInfo;
 
+  export let constraintLabel = 'primary key';
+  export let constraintType = 'primaryKey';
 </script>
 
 <ColumnsConstraintEditorModal
   {...$$restProps}
-  constraintLabel="primary key"
-  constraintType="primaryKey"
+  {constraintLabel}
+  {constraintType}
   {constraintInfo}
   {setTableInfo}
   {tableInfo}

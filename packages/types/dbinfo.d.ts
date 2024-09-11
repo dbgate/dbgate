@@ -15,7 +15,7 @@ export interface ColumnReference {
 export interface ConstraintInfo extends NamedObjectInfo {
   pairingId?: string;
   constraintName?: string;
-  constraintType: 'primaryKey' | 'foreignKey' | 'index' | 'check' | 'unique';
+  constraintType: 'primaryKey' | 'foreignKey' | 'sortingKey' | 'index' | 'check' | 'unique';
 }
 
 export interface ColumnsConstraintInfo extends ConstraintInfo {
