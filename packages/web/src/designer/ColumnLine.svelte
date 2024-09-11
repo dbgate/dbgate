@@ -196,7 +196,7 @@
     <div class="space" />
     {#if designer?.style?.showDataType && column?.dataType}
       <div class="ml-2">
-        {column?.dataType.toLowerCase()}
+        {(column?.displayedDataType || column?.dataType).toLowerCase()}
       </div>
     {/if}
     {#if designer?.style?.showNullability}

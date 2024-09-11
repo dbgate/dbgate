@@ -19,6 +19,7 @@
   export let columnName = '';
   export let extInfo = null;
   export let dataType = null;
+  export let displayedDataType = null;
   export let showDataType = false;
   export let foreignKey;
   export let conid = undefined;
@@ -59,7 +60,7 @@
         {/if}
       </span>
     {:else if dataType}
-      <span class="extinfo">{dataType.toLowerCase()}</span>
+      <span class="extinfo">{(displayedDataType || dataType).toLowerCase()}</span>
     {/if}
   {/if}
 </span>

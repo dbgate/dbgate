@@ -49,6 +49,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   notNull?: boolean;
   autoIncrement?: boolean;
   dataType: string;
+  displayedDataType?: string;
   precision?: number;
   scale?: number;
   length?: number;

@@ -4,9 +4,10 @@ const sql = require('./sql');
 function extractDataType(dataType) {
   if (!dataType) return {};
   if (dataType.startsWith('Nullable(')) {
-    dataType = dataType.substring('Nullable('.length, dataType.length - 1);
+    const displayedDataType = dataType.substring('Nullable('.length, dataType.length - 1);
     return {
       dataType,
+      displayedDataType,
       notNull: false,
     };
   }

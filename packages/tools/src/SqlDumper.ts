@@ -246,7 +246,7 @@ export class SqlDumper implements AlterProcessor {
 
     this.putRaw(' ');
     this.specialColumnOptions(column);
-    if (includeNullable) {
+    if (includeNullable && !this.dialect?.specificNotNull) {
       this.put(column.notNull ? '^not ^null' : '^null');
     }
     if (includeDefault && column.defaultValue?.trim()) {
