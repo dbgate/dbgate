@@ -164,7 +164,10 @@
     <ObjectFieldsEditor
       title="Table properties"
       fieldDefinitions={tableFormOptions}
-      values={tableInfo}
+      values={_.pick(
+        tableInfo,
+        tableFormOptions.map(x => x.name)
+      )}
       onChangeValues={vals => {
         if (!_.isEmpty(vals)) {
           setTableInfo(tbl => ({ ...tbl, ...vals }));

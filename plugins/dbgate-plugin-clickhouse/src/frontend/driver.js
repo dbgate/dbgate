@@ -118,11 +118,11 @@ const driver = {
     return res;
   },
 
-  getTableFormOptions: (intent) => {
+  getTableFormOptions(intent) {
     const isNewTable = intent == 'newTableForm';
     return [
       {
-        type: isNewTable ? 'dropdowntext' : text,
+        type: isNewTable ? 'dropdowntext' : 'text',
         options: clickhouseEngines,
         label: 'Engine',
         name: 'tableEngine',
