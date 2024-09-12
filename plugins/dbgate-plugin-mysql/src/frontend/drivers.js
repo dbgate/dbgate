@@ -104,23 +104,23 @@ const dialect = {
     return [];
   },
 
-  // getTableFormOptions(intent) {
-  //   return [
-  //     {
-  //       type: 'dropdowntext',
-  //       options: this.getSupportedEngines(),
-  //       label: 'Engine',
-  //       name: 'tableEngine',
-  //       sqlFormatString: '^engine = %s',
-  //     },
-  //     {
-  //       type: 'text',
-  //       label: 'Comment',
-  //       name: 'objectComment',
-  //       sqlFormatString: '^comment = %v',
-  //     },
-  //   ];
-  // },
+  getTableFormOptions(intent) {
+    return [
+      {
+        type: 'dropdowntext',
+        options: this.getSupportedEngines(),
+        label: 'Engine',
+        name: 'tableEngine',
+        sqlFormatString: '^engine = %s',
+      },
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment = %v',
+      },
+    ];
+  },
 };
 
 const mysqlDialect = {
