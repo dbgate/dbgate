@@ -46,10 +46,10 @@ class Analyser extends DatabaseAnalyser {
             ...extractDataType(col.dataType),
           })),
         primaryKey: table.primaryKeyColumns
-          ? { columns: (table.primaryKeyColumns || '').split(',').map((columnName) => ({ columnName })) }
+          ? { columns: (table.primaryKeyColumns || '').split(',').map((x) => ({ columnName: x.trim() })) }
           : null,
         sortingKey: table.sortingKeyColumns
-          ? { columns: (table.sortingKeyColumns || '').split(',').map((columnName) => ({ columnName })) }
+          ? { columns: (table.sortingKeyColumns || '').split(',').map((x) => ({ columnName: x.trim() })) }
           : null,
         foreignKeys: [],
       })),

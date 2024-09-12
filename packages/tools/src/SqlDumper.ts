@@ -622,10 +622,8 @@ export class SqlDumper implements AlterProcessor {
     if (!oldTable.pairingId || !newTable.pairingId || oldTable.pairingId != newTable.pairingId) {
       throw new Error('Recreate is not possible: oldTable.paringId != newTable.paringId');
     }
-    const tmpTable = `temp_${uuidv1()}`;
 
-    // console.log('oldTable', oldTable);
-    // console.log('newTable', newTable);
+    const tmpTable = `temp_${uuidv1()}`;
 
     const columnPairs = oldTable.columns
       .map(oldcol => ({
@@ -634,33 +632,49 @@ export class SqlDumper implements AlterProcessor {
       }))
       .filter(x => x.newcol);
 
-    this.dropConstraints(oldTable, true);
-    this.renameTable(oldTable, tmpTable);
+    if (this.driver.supportsTransactions) {
+      this.dropConstraints(oldTable, true);
+      this.renameTable(oldTable, tmpTable);
 
-    this.createTable(newTable);
+      this.createTable(newTable);
 
-    const autoinc = newTable.columns.find(x => x.autoIncrement);
-    if (autoinc) {
-      this.allowIdentityInsert(newTable, true);
+      const autoinc = newTable.columns.find(x => x.autoIncrement);
+      if (autoinc) {
+        this.allowIdentityInsert(newTable, true);
+      }
+
+      this.putCmd(
+        '^insert ^into %f (%,i) select %,s ^from %f',
+        newTable,
+        columnPairs.map(x => x.newcol.columnName),
+        columnPairs.map(x => x.oldcol.columnName),
+        { ...oldTable, pureName: tmpTable }
+      );
+
+      if (autoinc) {
+        this.allowIdentityInsert(newTable, false);
+      }
+
+      if (this.dialect.dropForeignKey) {
+        newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
+      }
+
+      this.dropTable({ ...oldTable, pureName: tmpTable });
+    } else {
+      // we have to preserve old table as long as possible
+      this.createTable({ ...newTable, pureName: tmpTable });
+
+      this.putCmd(
+        '^insert ^into %f (%,i) select %,s ^from %f',
+        { ...newTable, pureName: tmpTable },
+        columnPairs.map(x => x.newcol.columnName),
+        columnPairs.map(x => x.oldcol.columnName),
+        oldTable
+      );
+
+      this.dropTable(oldTable);
+      this.renameTable({ ...newTable, pureName: tmpTable }, newTable.pureName);
     }
-
-    this.putCmd(
-      '^insert ^into %f (%,i) select %,s ^from %f',
-      newTable,
-      columnPairs.map(x => x.newcol.columnName),
-      columnPairs.map(x => x.oldcol.columnName),
-      { ...oldTable, pureName: tmpTable }
-    );
-
-    if (autoinc) {
-      this.allowIdentityInsert(newTable, false);
-    }
-
-    if (this.dialect.dropForeignKey) {
-      newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
-    }
-
-    this.dropTable({ ...oldTable, pureName: tmpTable });
   }
 
   createSqlObject(obj: SqlObjectInfo) {

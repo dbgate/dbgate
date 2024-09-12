@@ -284,6 +284,7 @@ export class AlterPlan {
       : [];
     const constraints = _.compact([
       dependencyDefinition?.includes('primaryKey') ? table.primaryKey : null,
+      dependencyDefinition?.includes('sortingKey') ? table.sortingKey : null,
       ...(dependencyDefinition?.includes('foreignKeys') ? table.foreignKeys : []),
       ...(dependencyDefinition?.includes('indexes') ? table.indexes : []),
       ...(dependencyDefinition?.includes('uniques') ? table.uniques : []),
@@ -400,6 +401,7 @@ export class AlterPlan {
 
   _canCreateConstraint(cnt: ConstraintInfo) {
     if (cnt.constraintType == 'primaryKey') return this.dialect.createPrimaryKey;
+    if (cnt.constraintType == 'sortingKey') return this.dialect.createPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.createForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.createIndex;
     if (cnt.constraintType == 'unique') return this.dialect.createUnique;
@@ -409,6 +411,7 @@ export class AlterPlan {
 
   _canDropConstraint(cnt: ConstraintInfo) {
     if (cnt.constraintType == 'primaryKey') return this.dialect.dropPrimaryKey;
+    if (cnt.constraintType == 'sortingKey') return this.dialect.dropPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.dropForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.dropIndex;
     if (cnt.constraintType == 'unique') return this.dialect.dropUnique;
