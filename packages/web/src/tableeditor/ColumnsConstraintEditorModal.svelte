@@ -17,6 +17,7 @@
   export let constraintType;
   export let constraintNameLabel = 'Constraint name';
   export let getExtractConstraintProps;
+  export let hideConstraintName = false;
 
   let constraintName = constraintInfo?.constraintName;
   let columns = constraintInfo?.columns || [];
@@ -44,17 +45,19 @@
     >
 
     <div class="largeFormMarker">
-      <div class="row">
-        <div class="label col-3">{constraintNameLabel}</div>
-        <div class="col-9">
-          <TextField
-            value={constraintName}
-            on:input={e => (constraintName = e.target['value'])}
-            focused
-            disabled={isReadOnly}
-          />
+      {#if !hideConstraintName}
+        <div class="row">
+          <div class="label col-3">{constraintNameLabel}</div>
+          <div class="col-9">
+            <TextField
+              value={constraintName}
+              on:input={e => (constraintName = e.target['value'])}
+              focused
+              disabled={isReadOnly}
+            />
+          </div>
         </div>
-      </div>
+      {/if}
 
       {#if $$slots.constraintProps}
         <slot name="constraintProps" />

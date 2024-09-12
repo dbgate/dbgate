@@ -13,6 +13,7 @@
   export let tableInfo;
   export let setTableInfo;
   export let isWritable;
+  export let driver;
 
   export let constraintLabel = 'primary key';
   export let constraintType = 'primaryKey';
@@ -26,6 +27,7 @@
       tableInfo,
       constraintLabel,
       constraintType,
+      driver,
     });
   }
 </script>
@@ -35,6 +37,7 @@
   title={_.startCase(constraintLabel)}
   emptyMessage={isWritable ? `No ${constraintLabel} defined` : null}
   onAddNew={isWritable && !keyConstraint && columns?.length > 0 ? addKeyConstraint : null}
+  hideDisplayName={driver?.dialect?.anonymousPrimaryKey}
   clickable
   on:clickrow={e =>
     showModal(PrimaryKeyEditorModal, {
@@ -43,6 +46,7 @@
       setTableInfo,
       constraintLabel,
       constraintType,
+      driver,
     })}
   columns={[
     {

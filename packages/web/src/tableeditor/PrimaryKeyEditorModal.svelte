@@ -4,6 +4,7 @@
   export let constraintInfo;
   export let setTableInfo;
   export let tableInfo;
+  export let driver;
 
   export let constraintLabel = 'primary key';
   export let constraintType = 'primaryKey';
@@ -16,4 +17,5 @@
   {constraintInfo}
   {setTableInfo}
   {tableInfo}
+  hideConstraintName={driver?.dialect?.anonymousPrimaryKey}
 />

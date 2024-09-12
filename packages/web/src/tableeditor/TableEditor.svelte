@@ -118,6 +118,7 @@
     showModal(PrimaryKeyEditorModal, {
       setTableInfo,
       tableInfo,
+      driver,
     });
   }
 
@@ -146,8 +147,6 @@
   }
 
   $: columns = tableInfo?.columns;
-  $: primaryKey = tableInfo?.primaryKey;
-  $: sortingKey = tableInfo?.sortingKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
   $: indexes = tableInfo?.indexes;
@@ -263,13 +262,14 @@
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
 
-  <PrimaryKeyLikeListControl {tableInfo} {setTableInfo} {isWritable} />
+  <PrimaryKeyLikeListControl {tableInfo} {setTableInfo} {isWritable} {driver} />
 
   {#if driver?.dialect?.sortingKeys}
     <PrimaryKeyLikeListControl
       {tableInfo}
       {setTableInfo}
       {isWritable}
+      {driver}
       constraintLabel="sorting key"
       constraintType="sortingKey"
     />
