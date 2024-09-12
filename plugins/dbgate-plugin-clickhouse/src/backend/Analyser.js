@@ -85,7 +85,7 @@ class Analyser extends DatabaseAnalyser {
       this.pool,
       `SELECT uuid as id FROM system.tables WHERE database = '${this.pool._database_name}' AND name='${pureName}'`
     );
-    this.singleObjectId = resId.rows[0].id;
+    this.singleObjectId = resId.rows[0]?.id;
   }
 }
 
