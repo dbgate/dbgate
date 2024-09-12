@@ -108,7 +108,7 @@ jobs:
           rm artifacts/builder-debug.yml
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
           path: artifacts
