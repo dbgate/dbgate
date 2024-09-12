@@ -11,7 +11,7 @@ global.console = {
   log: (...messages) => {
     try {
       const parsedMessage = JSON.parse(messages[0]);
-      process.stdout.write(pretty(parsedMessage) + '\n');
+      process.stdout.write(pretty(parsedMessage));
     } catch (error) {
       process.stdout.write(messages.join(' ') + '\n');
     }
