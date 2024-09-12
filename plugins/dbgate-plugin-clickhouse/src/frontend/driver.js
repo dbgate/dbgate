@@ -178,6 +178,13 @@ const driver = {
     }
     return res;
   },
+
+  beforeConnectionSave: (connection) => {
+    return {
+      ...connection,
+      useDatabaseUrl: 1,
+    };
+  },
 };
 
 module.exports = driver;
