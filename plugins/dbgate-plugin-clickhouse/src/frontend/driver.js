@@ -102,6 +102,7 @@ const dialect = {
   specificNullabilityImplementation: true,
   omitForeignKeys: true,
   omitUniqueConstraints: true,
+  omitIndexes: true,
   sortingKeys: true,
 
   columnProperties: {

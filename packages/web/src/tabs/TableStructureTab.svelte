@@ -194,7 +194,7 @@
     <ToolStripCommandButton command="tableStructure.save" />
     <ToolStripCommandButton command="tableStructure.reset" />
     <ToolStripCommandButton command="tableEditor.addColumn" />
-    <ToolStripCommandButton command="tableEditor.addIndex" />
+    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
 
     {#if objectTypeField == 'tables'}
       <ToolStripButton

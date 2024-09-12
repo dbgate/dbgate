@@ -37,6 +37,7 @@ export interface SqlDialect {
   specificNullabilityImplementation?: boolean;
   omitForeignKeys?: boolean;
   omitUniqueConstraints?: boolean;
+  omitIndexes?: boolean;
   sortingKeys?: boolean;
 
   // syntax for create column: ALTER TABLE table ADD COLUMN column

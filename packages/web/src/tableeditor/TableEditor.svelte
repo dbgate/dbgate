@@ -30,7 +30,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.getIsWritable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable() && !getCurrentEditor()?.getDialect()?.omitForeignKeys,
     onClick: () => getCurrentEditor().addForeignKey(),
   });
 
@@ -41,7 +41,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.getIsWritable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable() && !getCurrentEditor()?.getDialect()?.omitIndexes,
     onClick: () => getCurrentEditor().addIndex(),
   });
 
@@ -52,7 +52,7 @@
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.getIsWritable(),
+    testEnabled: () => getCurrentEditor()?.getIsWritable() && !getCurrentEditor()?.getDialect()?.omitUniqueConstraints,
     onClick: () => getCurrentEditor().addUnique(),
   });
 </script>
@@ -96,6 +96,10 @@
 
   export function getIsWritable() {
     return isWritable;
+  }
+
+  export function getDialect() {
+    return driver?.dialect;
   }
 
   export function addColumn() {
@@ -275,45 +279,47 @@
     />
   {/if}
 
-  <ObjectListControl
-    collection={indexes}
-    onAddNew={isWritable && columns?.length > 0 ? addIndex : null}
-    title={`Indexes (${indexes?.length || 0})`}
-    emptyMessage={isWritable ? 'No index defined' : null}
-    clickable
-    on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
-    columns={[
-      {
-        fieldName: 'columns',
-        header: 'Columns',
-        slot: 0,
-      },
-      {
-        fieldName: 'unique',
-        header: 'Unique',
-        slot: 1,
-      },
-      isWritable
-        ? {
-            fieldName: 'actions',
-            sortable: true,
-            slot: 2,
-          }
-        : null,
-    ]}
-  >
-    <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
-    <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-    <svelte:fragment slot="1" let:row>{row?.isUnique ? 'YES' : 'NO'}</svelte:fragment>
-    <svelte:fragment slot="2" let:row
-      ><Link
-        onClick={e => {
-          e.stopPropagation();
-          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-        }}>Remove</Link
-      ></svelte:fragment
+  {#if !driver?.dialect?.omitIndexes}
+    <ObjectListControl
+      collection={indexes}
+      onAddNew={isWritable && columns?.length > 0 ? addIndex : null}
+      title={`Indexes (${indexes?.length || 0})`}
+      emptyMessage={isWritable ? 'No index defined' : null}
+      clickable
+      on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+      columns={[
+        {
+          fieldName: 'columns',
+          header: 'Columns',
+          slot: 0,
+        },
+        {
+          fieldName: 'unique',
+          header: 'Unique',
+          slot: 1,
+        },
+        isWritable
+          ? {
+              fieldName: 'actions',
+              sortable: true,
+              slot: 2,
+            }
+          : null,
+      ]}
     >
-  </ObjectListControl>
+      <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
+      <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+      <svelte:fragment slot="1" let:row>{row?.isUnique ? 'YES' : 'NO'}</svelte:fragment>
+      <svelte:fragment slot="2" let:row
+        ><Link
+          onClick={e => {
+            e.stopPropagation();
+            setTableInfo(tbl => editorDeleteConstraint(tbl, row));
+          }}>Remove</Link
+        ></svelte:fragment
+      >
+    </ObjectListControl>
+  {/if}
 
   {#if !driver?.dialect?.omitUniqueConstraints}
     <ObjectListControl
