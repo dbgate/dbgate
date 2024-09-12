@@ -33,6 +33,8 @@ class Analyser extends DatabaseAnalyser {
     const tables = await this.analyserQuery('tables', ['tables']);
     this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
+    this.feedback({ analysingMessage: 'Loading views' });
+    const views = await this.analyserQuery('views', ['views']);
 
     const res = {
       tables: tables.rows.map((table) => ({
@@ -53,9 +55,28 @@ class Analyser extends DatabaseAnalyser {
           : null,
         foreignKeys: [],
       })),
+      views: views.rows.map((view) => ({
+        ...view,
+        columns: columns.rows
+          .filter((col) => col.pureName == view.pureName)
+          .map((col) => ({
+            ...col,
+            ...extractDataType(col.dataType),
+          })),
+        createSql: `CREATE VIEW "${view.pureName}"\nAS\n${view.viewDefinition}`,
+      })),
     };
     this.feedback({ analysingMessage: null });
     return res;
+  }
+
+  async _getFastSnapshot() {
+    const tableModificationsQueryData = await this.analyserQuery('tableModifications');
+
+    return {
+      tables: tableModificationsQueryData.rows.filter((x) => x.tableEngine != 'View'),
+      views: tableModificationsQueryData.rows.filter((x) => x.tableEngine == 'View'),
+    };
   }
 }
 
