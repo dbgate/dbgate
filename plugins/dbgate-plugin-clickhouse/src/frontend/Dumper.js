@@ -37,6 +37,8 @@ class Dumper extends SqlDumper {
       );
     }
   }
+
+  autoIncrement() {}
 }
 
 module.exports = Dumper;

@@ -78,6 +78,15 @@ class Analyser extends DatabaseAnalyser {
       views: tableModificationsQueryData.rows.filter((x) => x.tableEngine == 'View'),
     };
   }
+
+  async _computeSingleObjectId() {
+    const { pureName } = this.singleObjectFilter;
+    const resId = await this.driver.query(
+      this.pool,
+      `SELECT uuid as id FROM system.tables WHERE database = '${this.pool._database_name}' AND name='${pureName}'`
+    );
+    this.singleObjectId = resId.rows[0].id;
+  }
 }
 
 module.exports = Analyser;

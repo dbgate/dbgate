@@ -3,6 +3,7 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { createClient } = require('@clickhouse/client');
+const createBulkInsertStream = require('./createBulkInsertStream');
 
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
@@ -183,9 +184,8 @@ const driver = {
 
     return pass;
   },
-  // called when importing into table or view
-  async writeTable(connection, name, options) {
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+  async writeTable(pool, name, options) {
+    return createBulkInsertStream(this, stream, pool, name, options);
   },
   // detect server version
   async getVersion(client) {
