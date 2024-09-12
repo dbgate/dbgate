@@ -54,5 +54,6 @@ export interface SqlDialect {
     name: string;
     sqlFormatString: string;
     disabled?: boolean;
+    allowEmptyValue?: boolean;
   }[];
 }

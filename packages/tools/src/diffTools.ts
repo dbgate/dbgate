@@ -435,7 +435,11 @@ function planChangeTableOptions(plan: AlterPlan, oldTable: TableInfo, newTable: 
       continue;
     }
     const name = option.name;
-    if (oldTable[name] != newTable[name] && (oldTable[name] || newTable[name])) {
+    if (
+      oldTable[name] != newTable[name] &&
+      (oldTable[name] || newTable[name]) &&
+      (newTable[name] || option.allowEmptyValue)
+    ) {
       plan.setTableOption(newTable, name, newTable[name]);
     }
   }

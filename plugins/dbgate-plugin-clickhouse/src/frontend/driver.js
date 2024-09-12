@@ -128,6 +128,7 @@ const dialect = {
         label: 'Comment',
         name: 'objectComment',
         sqlFormatString: '^comment %v',
+        allowEmptyValue: true,
       },
     ];
   },
