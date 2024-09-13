@@ -38,6 +38,12 @@ const driver = {
       });
 
       const dataSet = await resultSet.json();
+      if (!dataSet?.[0]) {
+        return {
+          rows: [],
+          columns: [],
+        };
+      }
 
       const columns = dataSet[0].map((columnName, i) => ({
         columnName,
@@ -206,6 +212,10 @@ const driver = {
     });
     const dataset = await resultSet.json();
     return dataset;
+  },
+
+  async close(client) {
+    return client.close();
   },
 };
 

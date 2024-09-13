@@ -2,7 +2,11 @@ const engines = require('../engines');
 const { splitQuery } = require('dbgate-query-splitter');
 const { testWrapper } = require('../tools');
 
-const initSql = ['CREATE TABLE t1 (id int)', 'INSERT INTO t1 (id) VALUES (1)', 'INSERT INTO t1 (id) VALUES (2)'];
+const initSql = [
+  'CREATE TABLE t1 (id int primary key)',
+  'INSERT INTO t1 (id) VALUES (1)',
+  'INSERT INTO t1 (id) VALUES (2)',
+];
 
 expect.extend({
   dataRow(row, expected) {
@@ -64,7 +68,7 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Simple query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
       const res = await driver.query(conn, 'SELECT id FROM t1 ORDER BY id');
       expect(res.columns).toEqual([
@@ -87,7 +91,7 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Simple stream query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
       const results = await executeStream(driver, conn, 'SELECT id FROM t1 ORDER BY id');
       expect(results.length).toEqual(1);
       const res = results[0];
@@ -100,7 +104,7 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'More queries - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
       const results = await executeStream(
         driver,
         conn,
@@ -124,7 +128,7 @@ describe('Query', () => {
       const results = await executeStream(
         driver,
         conn,
-        'CREATE TABLE t1 (id int); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2); SELECT id FROM t1 ORDER BY id; '
+        'CREATE TABLE t1 (id int primary key); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2); SELECT id FROM t1 ORDER BY id; '
       );
       expect(results.length).toEqual(1);
 
@@ -146,14 +150,15 @@ describe('Query', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Save data query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
       await driver.script(
         conn,
-        'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;'
+        'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;',
+        { discardResult: true }
       );
       const res = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
       // console.log(res);

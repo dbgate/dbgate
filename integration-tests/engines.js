@@ -129,6 +129,25 @@ const engines = [
     skipOnCI: true,
     objects: [views, matviews],
   },
+  {
+    label: 'ClickHouse',
+    connection: {
+      engine: 'clickhouse@dbgate-plugin-clickhouse',
+      databaseUrl: 'http://clickhouse:8123',
+      password: 'Pwd2020Db',
+    },
+    local: {
+      databaseUrl: 'http://localhost:15005',
+    },
+    // skipOnCI: true,
+    objects: [views],
+    skipDataModifications: true,
+    skipReferences: true,
+    skipIndexes: true,
+    skipNullability: true,
+    skipUnique: true,
+    skipAutoIncrement:true
+  },
 ];
 
 const filterLocal = [
@@ -137,8 +156,9 @@ const filterLocal = [
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
-  'SQLite',
+  '-SQLite',
   '-CockroachDB',
+  'ClickHouse',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
