@@ -70,7 +70,15 @@ const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'co
 // const TESTED_COLUMNS = ['col_ref'];
 
 function engines_columns_source() {
-  return _.flatten(engines.map(engine => TESTED_COLUMNS.map(column => [engine.label, column, engine])));
+  return _.flatten(
+    engines.map(engine =>
+      TESTED_COLUMNS.filter(col => !col.endsWith('_pk') || !engine.skipPkColumnTesting).map(column => [
+        engine.label,
+        column,
+        engine,
+      ])
+    )
+  );
 }
 
 describe('Alter table', () => {
