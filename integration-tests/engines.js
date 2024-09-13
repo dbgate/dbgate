@@ -154,7 +154,7 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
