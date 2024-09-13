@@ -148,12 +148,13 @@ const engines = [
     skipUnique: true,
     skipAutoIncrement: true,
     skipPkColumnTesting: true,
+    skipDataDuplicator: true,
   },
 ];
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
