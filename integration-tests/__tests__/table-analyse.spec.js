@@ -1,13 +1,13 @@
 const engines = require('../engines');
 const { testWrapper } = require('../tools');
 
-const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50) null)';
+const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50))';
 const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
-const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) null unique)';
+const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) unique)';
 const t3Sql = 'CREATE TABLE t3 (id int not null primary key, valfk int, foreign key (valfk) references t2(id))';
 // const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
-const txMatch = (tname, vcolname, nextcol) =>
+const txMatch = (engine, tname, vcolname, nextcol) =>
   expect.objectContaining({
     pureName: tname,
     columns: [
@@ -40,9 +40,9 @@ const txMatch = (tname, vcolname, nextcol) =>
     }),
   });
 
-const t1Match = txMatch('t1', 'val1');
-const t2Match = txMatch('t2', 'val2');
-const t2NextColMatch = txMatch('t2', 'val2', true);
+const t1Match = engine => txMatch(engine, 't1', 'val1');
+const t2Match = engine => txMatch(engine, 't2', 'val2');
+const t2NextColMatch = engine => txMatch(engine, 't2', 'val2', true);
 
 describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
@@ -53,7 +53,7 @@ describe('Table analyse', () => {
       const structure = await driver.analyseFull(conn);
 
       expect(structure.tables.length).toEqual(1);
-      expect(structure.tables[0]).toEqual(t1Match);
+      expect(structure.tables[0]).toEqual(t1Match(engine));
     })
   );
 
@@ -64,14 +64,14 @@ describe('Table analyse', () => {
 
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(1);
-      expect(structure1.tables[0]).toEqual(t2Match);
+      expect(structure1.tables[0]).toEqual(t2Match(engine));
 
       await driver.query(conn, t1Sql);
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2.tables.length).toEqual(2);
-      expect(structure2.tables.find(x => x.pureName == 't1')).toEqual(t1Match);
-      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(t2Match);
+      expect(structure2.tables.find(x => x.pureName == 't1')).toEqual(t1Match(engine));
+      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(t2Match(engine));
     })
   );
 
@@ -82,14 +82,14 @@ describe('Table analyse', () => {
       await driver.query(conn, t2Sql);
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(2);
-      expect(structure1.tables.find(x => x.pureName == 't1')).toEqual(t1Match);
-      expect(structure1.tables.find(x => x.pureName == 't2')).toEqual(t2Match);
+      expect(structure1.tables.find(x => x.pureName == 't1')).toEqual(t1Match(engine));
+      expect(structure1.tables.find(x => x.pureName == 't2')).toEqual(t2Match(engine));
 
       await driver.query(conn, 'DROP TABLE t2');
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2.tables.length).toEqual(1);
-      expect(structure2.tables[0]).toEqual(t1Match);
+      expect(structure2.tables[0]).toEqual(t1Match(engine));
     })
   );
 
@@ -108,8 +108,8 @@ describe('Table analyse', () => {
       expect(structure2).toBeTruthy(); // if falsy, no modification is detected
 
       expect(structure2.tables.length).toEqual(2);
-      expect(structure2.tables.find(x => x.pureName == 't1')).toEqual(t1Match);
-      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(t2NextColMatch);
+      expect(structure2.tables.find(x => x.pureName == 't1')).toEqual(t1Match(engine));
+      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(t2NextColMatch(engine));
     })
   );
 
