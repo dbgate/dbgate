@@ -177,4 +177,8 @@ export const driverBase = {
   createSaveChangeSetScript(changeSet, dbinfo, defaultCreator) {
     return defaultCreator(changeSet, dbinfo);
   },
+
+  adaptTableInfo(table) {
+    return table;
+  }
 };

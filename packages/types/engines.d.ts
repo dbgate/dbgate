@@ -228,6 +228,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
     dbinfo: DatabaseInfo,
     defaultCreator: (changeSet: any, dbinfo: DatabaseInfo) => any
   ): any[];
+  // adapts table info from different source (import, other database) to be suitable for this database
+  adaptTableInfo(table: TableInfo): TableInfo;
 
   analyserClass?: any;
   dumperClass?: any;

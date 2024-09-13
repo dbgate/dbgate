@@ -6,11 +6,7 @@ const _ = require('lodash');
  * @param {import('dbgate-types').EngineDriver} driver
  */
 function createOracleBulkInsertStream(driver, stream, pool, name, options) {
-  const writable = createBulkInsertStreamBase(driver, stream, pool, name, {
-    ...options,
-    // this is really not used, send method below is used instead
-    commitAfterInsert: true,
-  });
+  const writable = createBulkInsertStreamBase(driver, stream, pool, name, options);
 
   writable.send = async () => {
     await pool.insert({

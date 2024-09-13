@@ -17,7 +17,7 @@ class Dumper extends SqlDumper {
   }
 
   columnType(dataType) {
-    this.putRaw(dataType);
+    this.putRaw(dataType || this.dialect.fallbackDataType);
   }
 
   renameColumn(column, newcol) {

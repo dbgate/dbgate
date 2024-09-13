@@ -189,6 +189,16 @@ const driver = {
       useDatabaseUrl: 1,
     };
   },
+
+  adaptTableInfo(table) {
+    if (!table.primaryKey && !table.sortingKey) {
+      return {
+        ...table,
+        tableEngine: 'Log',
+      };
+    }
+    return table;
+  },
 };
 
 module.exports = driver;
