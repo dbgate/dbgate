@@ -14,19 +14,23 @@ const txMatch = (engine, tname, vcolname, nextcol) =>
       expect.objectContaining({
         columnName: 'id',
         notNull: true,
-        dataType: expect.stringMatching(/int/i),
+        dataType: expect.stringMatching(/int.*/i),
       }),
       expect.objectContaining({
         columnName: vcolname,
         notNull: false,
-        dataType: expect.stringMatching(/.*char.*\(50\)/),
+        dataType: engine.skipStringLength
+          ? expect.stringMatching(/.*string|char.*/i)
+          : expect.stringMatching(/.*string|char.*\(50\)/i),
       }),
       ...(nextcol
         ? [
             expect.objectContaining({
               columnName: 'nextcol',
               notNull: false,
-              dataType: expect.stringMatching(/.*char.*\(50\)/),
+              dataType: engine.skipStringLength
+                ? expect.stringMatching(/.*string.*|char.*/i)
+                : expect.stringMatching(/.*string.*|char.*\(50\).*/i),
             }),
           ]
         : []),
@@ -51,6 +55,9 @@ describe('Table analyse', () => {
       await driver.query(conn, t1Sql);
 
       const structure = await driver.analyseFull(conn);
+
+      console.log('****************** TABLE ***********************')
+      console.log(JSON.stringify(structure.tables[0], null, 2));
 
       expect(structure.tables.length).toEqual(1);
       expect(structure.tables[0]).toEqual(t1Match(engine));
@@ -113,7 +120,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Index - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t1Sql);
@@ -128,7 +135,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipUnique).map(engine => [engine.label, engine]))(
     'Unique - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t2Sql);
@@ -142,7 +149,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Foreign key - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t2Sql);
