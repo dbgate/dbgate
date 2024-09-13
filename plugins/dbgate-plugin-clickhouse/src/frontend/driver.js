@@ -91,7 +91,9 @@ const dialect = {
   rangeSelect: true,
   stringEscapeChar: "'",
   fallbackDataType: 'String',
-
+  dropColumnDependencies: ['primaryKey', 'sortingKey'],
+  changeColumnDependencies: ['primaryKey', 'sortingKey'],
+  renameColumnDependencies: ['primaryKey', 'sortingKey'],
   createColumn: true,
   dropColumn: true,
   changeColumn: true,

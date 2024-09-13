@@ -315,35 +315,40 @@ export class AlterPlan {
         return res;
       }
 
-      if (op.operationType == 'changeColumn') {
-        const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.changeColumnDependencies);
+      for (const [testedOperationType, testedDependencies, testedObject] of [
+        ['changeColumn', this.dialect.changeColumnDependencies, (op as AlterOperation_ChangeColumn).oldObject],
+        ['renameColumn', this.dialect.renameColumnDependencies, (op as AlterOperation_RenameColumn).object],
+      ]) {
+        if (op.operationType == testedOperationType) {
+          const constraints = this._getDependendColumnConstraints(testedObject as ColumnInfo, testedDependencies);
 
-        if (constraints.length > 0 && this.opts.noDropConstraint) {
-          return [];
+          if (constraints.length > 0 && this.opts.noDropConstraint) {
+            return [];
+          }
+
+          const res: AlterOperation[] = [
+            ...constraints.map(oldObject => {
+              const opRes: AlterOperation = {
+                operationType: 'dropConstraint',
+                oldObject,
+              };
+              return opRes;
+            }),
+            op,
+            ..._.reverse([...constraints]).map(newObject => {
+              const opRes: AlterOperation = {
+                operationType: 'createConstraint',
+                newObject,
+              };
+              return opRes;
+            }),
+          ];
+
+          if (constraints.length > 0) {
+            this.recreates.constraints += 1;
+          }
+          return res;
         }
-
-        const res: AlterOperation[] = [
-          ...constraints.map(oldObject => {
-            const opRes: AlterOperation = {
-              operationType: 'dropConstraint',
-              oldObject,
-            };
-            return opRes;
-          }),
-          op,
-          ..._.reverse([...constraints]).map(newObject => {
-            const opRes: AlterOperation = {
-              operationType: 'createConstraint',
-              newObject,
-            };
-            return opRes;
-          }),
-        ];
-
-        if (constraints.length > 0) {
-          this.recreates.constraints += 1;
-        }
-        return res;
       }
 
       if (op.operationType == 'dropTable') {
@@ -392,7 +397,8 @@ export class AlterPlan {
         this._testTableRecreate(op, 'dropColumn', this.dialect.dropColumn, 'oldObject') ||
         this._testTableRecreate(op, 'createConstraint', obj => this._canCreateConstraint(obj), 'newObject') ||
         this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') ||
-        this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') || [op]
+        this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') ||
+        this._testTableRecreate(op, 'renameColumn', true, 'object') || [op]
       );
     });
 
@@ -473,7 +479,7 @@ export class AlterPlan {
         }
       } else {
         // @ts-ignore
-        const oldObject: TableInfo = op.oldObject;
+        const oldObject: TableInfo = op.oldObject || op.object;
         if (oldObject) {
           const recreated = recreates[`${oldObject.schemaName}||${oldObject.pureName}`];
           if (recreated) {
