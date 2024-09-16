@@ -24,6 +24,9 @@
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import useEditorData from '../query/useEditorData';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
 
   let busy = false;
   let executeNumber = 0;
@@ -39,9 +42,23 @@
 
   const refreshArchiveFolderRef = createRef(null);
 
+  const formValues = writable({
+    sourceStorageType: 'database',
+    targetStorageType: getDefaultFileFormat($extensions).storageType,
+    targetArchiveFolder: $currentArchive,
+    sourceArchiveFolder: $currentArchive,
+    ...detectCurrentTarget(),
+    ...initialValues,
+  });
+
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
+    onInitialData: value => {
+      $formValues = value;
+    },
   });
+
+  $: setEditorData($formValues);
 
   function detectCurrentTarget() {
     if (!importToCurrentTarget) return {};
@@ -94,7 +111,8 @@
   };
 
   const handleGenerateScript = async e => {
-    const code = await createImpExpScript($extensions, e.detail, undefined, true);
+    const values = $formValues;
+    const code = await createImpExpScript($extensions, values, undefined, true);
     openNewTab(
       {
         title: 'Shell #',
@@ -107,7 +125,7 @@
 
   const handleExecute = async e => {
     if (busy) return;
-    const values = e.detail;
+    const values = $formValues;
     busy = true;
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
@@ -130,49 +148,41 @@
   };
 </script>
 
-<FormProvider
-  initialValues={{
-    sourceStorageType: 'database',
-    targetStorageType: getDefaultFileFormat($extensions).storageType,
-    targetArchiveFolder: $currentArchive,
-    sourceArchiveFolder: $currentArchive,
-    ...detectCurrentTarget(),
-    ...initialValues,
-  }}
->
-  <HorizontalSplitter initialValue="70%">
-    <div class="content" slot="1">
-      <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
+<ToolStripContainer>
+  <FormProviderCore values={formValues}>
+    <HorizontalSplitter initialValue="70%">
+      <div class="content" slot="1">
+        <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
 
-      {#if busy}
-        <LoadingInfo wrapper message="Processing import/export ..." />
-      {/if}
-    </div>
+        {#if busy}
+          <LoadingInfo wrapper message="Processing import/export ..." />
+        {/if}
+      </div>
 
-    <svelte:fragment slot="2">
-      <WidgetColumnBar>
-        <WidgetColumnBarItem title="Output files" name="output" height="20%">
-          <RunnerOutputFiles {runnerId} {executeNumber} />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Messages" name="messages">
-          <SocketMessageView
-            eventName={runnerId ? `runner-info-${runnerId}` : null}
-            {executeNumber}
-            showNoMessagesAlert
-          />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
-          <PreviewDataGrid reader={$previewReaderStore} />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
-          <FormTextField label="Schedule" name="schedule" />
-          <FormTextField label="Start variable index" name="startVariableIndex" />
-        </WidgetColumnBarItem>
-      </WidgetColumnBar>
-    </svelte:fragment>
-  </HorizontalSplitter>
+      <svelte:fragment slot="2">
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Output files" name="output" height="20%">
+            <RunnerOutputFiles {runnerId} {executeNumber} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Messages" name="messages">
+            <SocketMessageView
+              eventName={runnerId ? `runner-info-${runnerId}` : null}
+              {executeNumber}
+              showNoMessagesAlert
+            />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
+            <PreviewDataGrid reader={$previewReaderStore} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
+            <FormTextField label="Schedule" name="schedule" />
+            <FormTextField label="Start variable index" name="startVariableIndex" />
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
+      </svelte:fragment>
+    </HorizontalSplitter>
 
-  <!-- <svelte:fragment slot="footer">
+    <!-- <svelte:fragment slot="footer">
         <div class="flex m-2">
           {#if busy}
             <LargeButton icon="icon stop" on:click={handleCancel}>Stop</LargeButton>
@@ -184,7 +194,16 @@
           <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
         </div>
       </svelte:fragment> -->
-</FormProvider>
+  </FormProviderCore>
+  <svelte:fragment slot="toolstrip">
+    {#if busy}
+      <ToolStripButton icon="icon stop" on:click={handleCancel}>Stop</ToolStripButton>
+    {:else}
+      <ToolStripButton on:click={handleExecute} icon="icon run">Run</ToolStripButton>
+    {/if}
+    <ToolStripButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</ToolStripButton>
+  </svelte:fragment>
+</ToolStripContainer>
 
 <style>
   .content {
@@ -193,5 +212,6 @@
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
+    background-color: var(--theme-bg-0);
   }
 </style>
