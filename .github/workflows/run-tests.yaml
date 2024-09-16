@@ -4,7 +4,7 @@ on:
     branches:
       - master
       - develop
-      - 'feature\/.+'
+      - 'feature\**'
 
 jobs:
   test-runner:
