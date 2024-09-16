@@ -71,12 +71,13 @@
   import { getExtensions } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportQuickExportFile } from '../utility/exportFileTools';
+  import { exportQuickExportFile,  } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let data;
 
@@ -156,13 +157,19 @@
           {
             text: 'Export',
             onClick: () => {
-              showModal(ImportExportModal, {
-                initialValues: {
-                  sourceStorageType: 'archive',
-                  sourceArchiveFolder: data.folderName,
-                  sourceList: [data.fileName],
-                },
+              openImportExportTab({
+                sourceStorageType: 'archive',
+                sourceArchiveFolder: data.folderName,
+                sourceList: [data.fileName],
               });
+
+              // showModal(ImportExportModal, {
+              //   initialValues: {
+              //     sourceStorageType: 'archive',
+              //     sourceArchiveFolder: data.folderName,
+              //     sourceList: [data.fileName],
+              //   },
+              // });
             },
           }
         ),

@@ -764,22 +764,13 @@
             },
             {
               onClick: () => {
-                openNewTab(
-                  {
-                    tabComponent: 'ImportExportTab',
-                    title: 'Import/Export',
-                    icon: 'img export',
-                  },
-                  {
-                    editor: {
-                      sourceStorageType: 'database',
-                      sourceConnectionId: data.conid,
-                      sourceDatabaseName: data.database,
-                      sourceSchemaName: data.schemaName,
-                      sourceList: [data.pureName],
-                    },
-                  }
-                );
+                openImportExportTab({
+                  sourceStorageType: 'database',
+                  sourceConnectionId: data.conid,
+                  sourceDatabaseName: data.database,
+                  sourceSchemaName: data.schemaName,
+                  sourceList: [data.pureName],
+                });
                 // showModal(ImportExportModal, {
                 //   initialValues: {
                 //     sourceStorageType: 'database',
@@ -848,6 +839,7 @@
   import { format as dateFormat } from 'date-fns';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import hasPermission from '../utility/hasPermission';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let data;
   export let passProps;

@@ -98,25 +98,39 @@
     };
 
     const handleImport = () => {
-      showModal(ImportExportModal, {
-        initialValues: {
-          sourceStorageType: getDefaultFileFormat($extensions).storageType,
-          targetStorageType: 'database',
-          targetConnectionId: connection._id,
-          targetDatabaseName: name,
-        },
+      openImportExportTab({
+        sourceStorageType: getDefaultFileFormat($extensions).storageType,
+        targetStorageType: 'database',
+        targetConnectionId: connection._id,
+        targetDatabaseName: name,
       });
+
+      // showModal(ImportExportModal, {
+      //   initialValues: {
+      //     sourceStorageType: getDefaultFileFormat($extensions).storageType,
+      //     targetStorageType: 'database',
+      //     targetConnectionId: connection._id,
+      //     targetDatabaseName: name,
+      //   },
+      // });
     };
 
     const handleExport = () => {
-      showModal(ImportExportModal, {
-        initialValues: {
-          targetStorageType: getDefaultFileFormat($extensions).storageType,
-          sourceStorageType: 'database',
-          sourceConnectionId: connection._id,
-          sourceDatabaseName: name,
-        },
+      openImportExportTab({
+        targetStorageType: getDefaultFileFormat($extensions).storageType,
+        sourceStorageType: 'database',
+        sourceConnectionId: connection._id,
+        sourceDatabaseName: name,
       });
+
+      // showModal(ImportExportModal, {
+      //   initialValues: {
+      //     targetStorageType: getDefaultFileFormat($extensions).storageType,
+      //     sourceStorageType: 'database',
+      //     sourceConnectionId: connection._id,
+      //     sourceDatabaseName: name,
+      //   },
+      // });
     };
 
     const handleSqlGenerator = () => {
@@ -390,13 +404,13 @@
   import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { filterAppsForDatabase } from '../utility/appTools';
   import newQuery from '../query/newQuery';
-  import { exportSqlDump } from '../utility/exportFileTools';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';
   import hasPermission from '../utility/hasPermission';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let data;
   export let passProps;

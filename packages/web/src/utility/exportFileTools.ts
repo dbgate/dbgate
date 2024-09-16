@@ -42,8 +42,8 @@ export async function exportSqlDump(outputFile, connection, databaseName, pureFi
     onOpenResult:
       pureFileName && !getElectron()
         ? () => {
-          downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
-        }
+            downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
+          }
         : null,
     openResultLabel: 'Download SQL file',
   });
@@ -226,17 +226,18 @@ export async function downloadFromApi(route: string, donloadName: string) {
     method: 'GET',
     headers: resolveApiHeaders(),
   })
-    .then((res) => res.blob())
-    .then((blob) => {
+    .then(res => res.blob())
+    .then(blob => {
       const objUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       document.body.appendChild(a);
       a.download = donloadName;
       a.href = objUrl;
       a.click();
       a.remove();
       setTimeout(() => {
-        URL.revokeObjectURL(objUrl)
-      })
-    })
+        URL.revokeObjectURL(objUrl);
+      });
+    });
 }
+
