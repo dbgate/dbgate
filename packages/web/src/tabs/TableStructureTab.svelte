@@ -72,6 +72,7 @@
   let domEditor;
 
   let savedName;
+  let resetCounter = 0;
 
   export const activator = createActivator('TableStructureTab', true);
 
@@ -157,7 +158,8 @@
 
   export async function reset() {
     await apiCall('database-connections/sync-model', { conid, database });
-    clearEditorData();
+    await clearEditorData();
+    resetCounter++;
   }
 
   // $: {
@@ -172,6 +174,7 @@
     tableInfo={showTable}
     dbInfo={$dbInfo}
     {driver}
+    {resetCounter}
     setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly && hasPermission(`dbops/model/edit`)
       ? tableInfoUpdater =>
           setEditorData(tbl =>
@@ -191,7 +194,7 @@
     <ToolStripCommandButton command="tableStructure.save" />
     <ToolStripCommandButton command="tableStructure.reset" />
     <ToolStripCommandButton command="tableEditor.addColumn" />
-    <ToolStripCommandButton command="tableEditor.addIndex" />
+    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
 
     {#if objectTypeField == 'tables'}
       <ToolStripButton

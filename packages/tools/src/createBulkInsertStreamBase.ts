@@ -37,7 +37,8 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, n
     }
     if (options.createIfNotExists && (!structure || options.dropIfExists)) {
       const dmp = driver.createDumper();
-      dmp.createTable(prepareTableForImport({ ...writable.structure, ...name }));
+      const createdTableInfo = driver.adaptTableInfo(prepareTableForImport({ ...writable.structure, ...name }));
+      dmp.createTable(createdTableInfo);
       logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
       await driver.script(pool, dmp.s);
       structure = await driver.analyseSingleTable(pool, name);

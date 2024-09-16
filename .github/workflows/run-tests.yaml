@@ -77,6 +77,11 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
-          
+
+      clickhouse:
+        image: bitnami/clickhouse:24.8.4
+        env:
+          CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
+
       # cockroachdb:
       #   image: cockroachdb/cockroach

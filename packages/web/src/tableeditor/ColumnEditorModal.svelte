@@ -32,7 +32,9 @@
     <FormTextField name="columnName" label="Column name" focused disabled={isReadOnly} />
     <DataTypeEditor dialect={driver?.dialect} disabled={isReadOnly} />
 
-    <FormCheckboxField name="notNull" label="NOT NULL" disabled={isReadOnly} />
+    {#if !driver?.dialect?.specificNullabilityImplementation}
+      <FormCheckboxField name="notNull" label="NOT NULL" disabled={isReadOnly} />
+    {/if}
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" disabled={isReadOnly} />
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" disabled={isReadOnly} />
     <FormTextField

@@ -66,10 +66,10 @@ class Analyser extends DatabaseAnalyser {
     super(pool, driver, version);
   }
 
-  createQuery(resFileName, typeFields) {
+  createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
     res = res.replace('#DATABASE#', this.pool._database_name);
-    return super.createQuery(res, typeFields);
+    return super.createQuery(res, typeFields, replacements);
   }
 
   getRequestedViewNames(allViewNames) {

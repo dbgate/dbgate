@@ -97,6 +97,13 @@ interface AlterOperation_FillPreloadedRows {
   autoIncrementColumn: string;
 }
 
+interface AlterOperation_SetTableOption {
+  operationType: 'setTableOption';
+  table: TableInfo;
+  optionName: string;
+  optionValue: string;
+}
+
 type AlterOperation =
   | AlterOperation_CreateColumn
   | AlterOperation_ChangeColumn
@@ -112,7 +119,8 @@ type AlterOperation =
   | AlterOperation_CreateSqlObject
   | AlterOperation_DropSqlObject
   | AlterOperation_RecreateTable
-  | AlterOperation_FillPreloadedRows;
+  | AlterOperation_FillPreloadedRows
+  | AlterOperation_SetTableOption;
 
 export class AlterPlan {
   recreates = {
@@ -253,6 +261,15 @@ export class AlterPlan {
     });
   }
 
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    this.operations.push({
+      operationType: 'setTableOption',
+      table,
+      optionName,
+      optionValue,
+    });
+  }
+
   run(processor: AlterProcessor) {
     for (const op of this.operations) {
       runAlterOperation(op, processor);
@@ -267,6 +284,7 @@ export class AlterPlan {
       : [];
     const constraints = _.compact([
       dependencyDefinition?.includes('primaryKey') ? table.primaryKey : null,
+      dependencyDefinition?.includes('sortingKey') ? table.sortingKey : null,
       ...(dependencyDefinition?.includes('foreignKeys') ? table.foreignKeys : []),
       ...(dependencyDefinition?.includes('indexes') ? table.indexes : []),
       ...(dependencyDefinition?.includes('uniques') ? table.uniques : []),
@@ -297,35 +315,40 @@ export class AlterPlan {
         return res;
       }
 
-      if (op.operationType == 'changeColumn') {
-        const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.changeColumnDependencies);
+      for (const [testedOperationType, testedDependencies, testedObject] of [
+        ['changeColumn', this.dialect.changeColumnDependencies, (op as AlterOperation_ChangeColumn).oldObject],
+        ['renameColumn', this.dialect.renameColumnDependencies, (op as AlterOperation_RenameColumn).object],
+      ]) {
+        if (op.operationType == testedOperationType) {
+          const constraints = this._getDependendColumnConstraints(testedObject as ColumnInfo, testedDependencies);
 
-        if (constraints.length > 0 && this.opts.noDropConstraint) {
-          return [];
+          if (constraints.length > 0 && this.opts.noDropConstraint) {
+            return [];
+          }
+
+          const res: AlterOperation[] = [
+            ...constraints.map(oldObject => {
+              const opRes: AlterOperation = {
+                operationType: 'dropConstraint',
+                oldObject,
+              };
+              return opRes;
+            }),
+            op,
+            ..._.reverse([...constraints]).map(newObject => {
+              const opRes: AlterOperation = {
+                operationType: 'createConstraint',
+                newObject,
+              };
+              return opRes;
+            }),
+          ];
+
+          if (constraints.length > 0) {
+            this.recreates.constraints += 1;
+          }
+          return res;
         }
-
-        const res: AlterOperation[] = [
-          ...constraints.map(oldObject => {
-            const opRes: AlterOperation = {
-              operationType: 'dropConstraint',
-              oldObject,
-            };
-            return opRes;
-          }),
-          op,
-          ..._.reverse([...constraints]).map(newObject => {
-            const opRes: AlterOperation = {
-              operationType: 'createConstraint',
-              newObject,
-            };
-            return opRes;
-          }),
-        ];
-
-        if (constraints.length > 0) {
-          this.recreates.constraints += 1;
-        }
-        return res;
       }
 
       if (op.operationType == 'dropTable') {
@@ -374,7 +397,8 @@ export class AlterPlan {
         this._testTableRecreate(op, 'dropColumn', this.dialect.dropColumn, 'oldObject') ||
         this._testTableRecreate(op, 'createConstraint', obj => this._canCreateConstraint(obj), 'newObject') ||
         this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') ||
-        this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') || [op]
+        this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') ||
+        this._testTableRecreate(op, 'renameColumn', true, 'object') || [op]
       );
     });
 
@@ -383,6 +407,7 @@ export class AlterPlan {
 
   _canCreateConstraint(cnt: ConstraintInfo) {
     if (cnt.constraintType == 'primaryKey') return this.dialect.createPrimaryKey;
+    if (cnt.constraintType == 'sortingKey') return this.dialect.createPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.createForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.createIndex;
     if (cnt.constraintType == 'unique') return this.dialect.createUnique;
@@ -392,6 +417,7 @@ export class AlterPlan {
 
   _canDropConstraint(cnt: ConstraintInfo) {
     if (cnt.constraintType == 'primaryKey') return this.dialect.dropPrimaryKey;
+    if (cnt.constraintType == 'sortingKey') return this.dialect.dropPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.dropForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.dropIndex;
     if (cnt.constraintType == 'unique') return this.dialect.dropUnique;
@@ -453,7 +479,7 @@ export class AlterPlan {
         }
       } else {
         // @ts-ignore
-        const oldObject: TableInfo = op.oldObject;
+        const oldObject: TableInfo = op.oldObject || op.object;
         if (oldObject) {
           const recreated = recreates[`${oldObject.schemaName}||${oldObject.pureName}`];
           if (recreated) {
@@ -574,6 +600,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'dropSqlObject':
       processor.dropSqlObject(op.oldObject);
+      break;
+    case 'setTableOption':
+      processor.setTableOption(op.table, op.optionName, op.optionValue);
       break;
     case 'fillPreloadedRows':
       processor.fillPreloadedRows(op.table, op.oldRows, op.newRows, op.key, op.insertOnly, op.autoIncrementColumn);

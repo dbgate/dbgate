@@ -88,9 +88,9 @@
     {/if}
     <ColumnLabel {...column} />
 
-    {#if _.isString(column.dataType) && !order}
+    {#if _.isString(column.displayedDataType || column.dataType) && !order}
       <span class="data-type" title={column.dataType}>
-        {column.dataType.toLowerCase()}
+        {(column.displayedDataType || column.dataType).toLowerCase()}
       </span>
     {/if}
   </div>

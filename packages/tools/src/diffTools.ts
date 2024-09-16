@@ -46,6 +46,14 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
   if (!table.pairingId) {
     return {
       ...table,
+      primaryKey: table.primaryKey && {
+        ...table.primaryKey,
+        pairingId: table.primaryKey.pairingId || uuidv1(),
+      },
+      sortingKey: table.sortingKey && {
+        ...table.sortingKey,
+        pairingId: table.sortingKey.pairingId || uuidv1(),
+      },
       columns: table.columns?.map(col => ({
         ...col,
         pairingId: col.pairingId || uuidv1(),
@@ -335,6 +343,7 @@ export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions
 function getTableConstraints(table: TableInfo) {
   const res = [];
   if (table.primaryKey) res.push(table.primaryKey);
+  if (table.sortingKey) res.push(table.sortingKey);
   if (table.foreignKeys) res.push(...table.foreignKeys);
   if (table.indexes) res.push(...table.indexes);
   if (table.uniques) res.push(...table.uniques);
@@ -345,7 +354,9 @@ function getTableConstraints(table: TableInfo) {
 function createPairs(oldList, newList, additionalCondition = null) {
   const res = [];
   for (const a of oldList) {
-    const b = newList.find(x => x.pairingId == a.pairingId || (additionalCondition && additionalCondition(a, x)));
+    const b = newList.find(
+      x => (a.pairingId && x.pairingId == a.pairingId) || (additionalCondition && additionalCondition(a, x))
+    );
     if (b) {
       res.push([a, b]);
     } else {
@@ -381,9 +392,14 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   const constraintPairs = createPairs(
     getTableConstraints(oldTable),
     getTableConstraints(newTable),
-    (a, b) => a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey'
+    (a, b) =>
+      (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') ||
+      (a.constraintType == 'sortingKey' && b.constraintType == 'sortingKey')
   );
-  // console.log('constraintPairs SOURCE', getTableConstraints(oldTable), getTableConstraints(newTable));
+  // console.log('constraintPairs OLD TABLE', oldTable);
+  // console.log('constraintPairs NEW TABLE', newTable);
+  // console.log('constraintPairs SOURCE OLD', getTableConstraints(oldTable));
+  // console.log('constraintPairs SOURCE NEW', getTableConstraints(newTable));
   // console.log('constraintPairs', constraintPairs);
 
   if (!opts.noDropConstraint) {
@@ -407,7 +423,7 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
           // console.log('PLAN RENAME COLUMN')
           plan.renameColumn(x[0], x[1].columnName);
         } else {
-          // console.log('PLAN CHANGE COLUMN')
+          // console.log('PLAN CHANGE COLUMN', x[0], x[1]);
           plan.changeColumn(x[0], x[1]);
         }
       }
@@ -425,6 +441,28 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   constraintPairs.filter(x => x[0] == null).forEach(x => plan.createConstraint(x[1]));
 
   planTablePreload(plan, oldTable, newTable);
+
+  planChangeTableOptions(plan, oldTable, newTable, opts);
+
+  // console.log('oldTable', oldTable);
+  // console.log('newTable', newTable);
+  // console.log('plan.operations', plan.operations);
+}
+
+function planChangeTableOptions(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo, opts: DbDiffOptions) {
+  for (const option of plan.dialect?.getTableFormOptions?.('sqlAlterTable') || []) {
+    if (option.disabled) {
+      continue;
+    }
+    const name = option.name;
+    if (
+      oldTable[name] != newTable[name] &&
+      (oldTable[name] || newTable[name]) &&
+      (newTable[name] || option.allowEmptyValue)
+    ) {
+      plan.setTableOption(newTable, name, newTable[name]);
+    }
+  }
 }
 
 export function testEqualTables(

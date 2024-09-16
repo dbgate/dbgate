@@ -15,7 +15,7 @@ export interface ColumnReference {
 export interface ConstraintInfo extends NamedObjectInfo {
   pairingId?: string;
   constraintName?: string;
-  constraintType: 'primaryKey' | 'foreignKey' | 'index' | 'check' | 'unique';
+  constraintType: 'primaryKey' | 'foreignKey' | 'sortingKey' | 'index' | 'check' | 'unique';
 }
 
 export interface ColumnsConstraintInfo extends ConstraintInfo {
@@ -49,6 +49,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   notNull?: boolean;
   autoIncrement?: boolean;
   dataType: string;
+  displayedDataType?: string;
   precision?: number;
   scale?: number;
   length?: number;
@@ -61,7 +62,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   isUnsigned?: boolean;
   isZerofill?: boolean;
   options?: [];
-  canSelectMultipleOptions?: boolean,
+  canSelectMultipleOptions?: boolean;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
@@ -82,6 +83,7 @@ export interface SqlObjectInfo extends DatabaseObjectInfo {
 export interface TableInfo extends DatabaseObjectInfo {
   columns: ColumnInfo[];
   primaryKey?: PrimaryKeyInfo;
+  sortingKey?: ColumnsConstraintInfo;
   foreignKeys: ForeignKeyInfo[];
   dependencies?: ForeignKeyInfo[];
   indexes?: IndexInfo[];
@@ -91,6 +93,7 @@ export interface TableInfo extends DatabaseObjectInfo {
   preloadedRowsKey?: string[];
   preloadedRowsInsertOnly?: string[];
   tableRowCount?: number | string;
+  tableEngine?: string;
   __isDynamicStructure?: boolean;
 }
 
@@ -102,10 +105,10 @@ export interface CollectionInfo extends DatabaseObjectInfo {
   uniqueKey?: ColumnReference[];
 
   // partition key columns
-  partitionKey?: ColumnReference[]
+  partitionKey?: ColumnReference[];
 
   // unique key inside partition
-  clusterKey?: ColumnReference[];  
+  clusterKey?: ColumnReference[];
 }
 
 export interface ViewInfo extends SqlObjectInfo {

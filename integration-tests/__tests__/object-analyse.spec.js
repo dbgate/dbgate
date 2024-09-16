@@ -2,7 +2,7 @@ const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const _ = require('lodash');
 
-const initSql = ['CREATE TABLE t1 (id int)', 'CREATE TABLE t2 (id int)'];
+const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
 
 function flatSource() {
   return _.flatten(
@@ -26,9 +26,9 @@ describe('Object analyse', () => {
   test.each(flatSource())(
     'Full analysis - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create1);
+      await driver.query(conn, object.create1, { discardResult: true });
       const structure = await driver.analyseFull(conn);
 
       expect(structure[type].length).toEqual(1);
@@ -39,11 +39,11 @@ describe('Object analyse', () => {
   test.each(flatSource())(
     'Incremental analysis - add - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create2);
+      await driver.query(conn, object.create2, { discardResult: true });
       const structure1 = await driver.analyseFull(conn);
-      await driver.query(conn, object.create1);
+      await driver.query(conn, object.create1, { discardResult: true });
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(2);
@@ -54,12 +54,12 @@ describe('Object analyse', () => {
   test.each(flatSource())(
     'Incremental analysis - drop - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create1);
-      await driver.query(conn, object.create2);
+      await driver.query(conn, object.create1, { discardResult: true });
+      await driver.query(conn, object.create2, { discardResult: true });
       const structure1 = await driver.analyseFull(conn);
-      await driver.query(conn, object.drop2);
+      await driver.query(conn, object.drop2, { discardResult: true });
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(1);
@@ -70,15 +70,15 @@ describe('Object analyse', () => {
   test.each(flatSource())(
     'Create SQL - add - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql);
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create1);
+      await driver.query(conn, object.create1, { discardResult: true });
       const structure1 = await driver.analyseFull(conn);
-      await driver.query(conn, object.drop1);
+      await driver.query(conn, object.drop1, { discardResult: true });
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2[type].length).toEqual(0);
 
-      await driver.query(conn, structure1[type][0].createSql);
+      await driver.query(conn, structure1[type][0].createSql, { discardResult: true });
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
 

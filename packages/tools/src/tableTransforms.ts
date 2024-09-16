@@ -10,6 +10,7 @@ export function prepareTableForImport(table: TableInfo): TableInfo {
   res.uniques = [];
   res.checks = [];
   if (res.primaryKey) res.primaryKey.constraintName = null;
+  res.tableEngine = null;
   return res;
 }
 

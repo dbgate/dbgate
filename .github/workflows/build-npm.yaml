@@ -154,3 +154,8 @@ jobs:
         working-directory: plugins/dbgate-plugin-oracle
         run: |
           npm publish
+
+      - name: Publish dbgate-plugin-clickhouse
+        working-directory: plugins/dbgate-plugin-clickhouse
+        run: |
+          npm publish

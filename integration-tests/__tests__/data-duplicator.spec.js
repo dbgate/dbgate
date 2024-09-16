@@ -5,7 +5,7 @@ const dataDuplicator = require('dbgate-api/src/shell/dataDuplicator');
 const { runCommandOnDriver } = require('dbgate-tools');
 
 describe('Data duplicator', () => {
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataDuplicator).map(engine => [engine.label, engine]))(
     'Insert simple data - %s',
     testWrapper(async (conn, driver, engine) => {
       runCommandOnDriver(conn, driver, dmp =>

@@ -54,3 +54,4 @@ changePackageFile('plugins/dbgate-plugin-postgres', json.version);
 changePackageFile('plugins/dbgate-plugin-sqlite', json.version);
 changePackageFile('plugins/dbgate-plugin-redis', json.version);
 changePackageFile('plugins/dbgate-plugin-oracle', json.version);
+changePackageFile('plugins/dbgate-plugin-clickhouse', json.version);

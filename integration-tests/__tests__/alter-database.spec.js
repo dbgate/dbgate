@@ -7,7 +7,9 @@ const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = requ
 
 function flatSource() {
   return _.flatten(
-    engines.map(engine => (engine.objects || []).map(object => [engine.label, object.type, object, engine]))
+    engines
+      .filter(x => !x.skipReferences)
+      .map(engine => (engine.objects || []).map(object => [engine.label, object.type, object, engine]))
   );
 }
 
@@ -41,7 +43,7 @@ async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
 }
 
 describe('Alter database', () => {
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Drop referenced table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDiff(conn, driver, db => {

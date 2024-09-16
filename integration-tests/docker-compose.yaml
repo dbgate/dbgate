@@ -26,15 +26,23 @@ services:
   #   environment:
   #     - MYSQL_ROOT_PASSWORD=Pwd2020Db
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server
+  clickhouse:
+    image: bitnami/clickhouse:24.8.4
     restart: always
     ports: 
-      - 15002:1433
+      - 15005:8123
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=Pwd2020Db
-      - MSSQL_PID=Express
+      - CLICKHOUSE_ADMIN_PASSWORD=Pwd2020Db
+
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server
+  #   restart: always
+  #   ports: 
+  #     - 15002:1433
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=Pwd2020Db
+  #     - MSSQL_PID=Express
       
   # cockroachdb:
   #   image: cockroachdb/cockroach

@@ -11,6 +11,7 @@ import {
   UniqueInfo,
   SqlObjectInfo,
   NamedObjectInfo,
+  ColumnsConstraintInfo,
 } from '../../types';
 
 export class DatabaseInfoAlterProcessor {
@@ -59,6 +60,9 @@ export class DatabaseInfoAlterProcessor {
       case 'primaryKey':
         table.primaryKey = constraint as PrimaryKeyInfo;
         break;
+      case 'sortingKey':
+        table.sortingKey = constraint as ColumnsConstraintInfo;
+        break;
       case 'foreignKey':
         table.foreignKeys.push(constraint as ForeignKeyInfo);
         break;
@@ -85,6 +89,9 @@ export class DatabaseInfoAlterProcessor {
     switch (constraint.constraintType) {
       case 'primaryKey':
         table.primaryKey = null;
+        break;
+      case 'sortingKey':
+        table.sortingKey = null;
         break;
       case 'foreignKey':
         table.foreignKeys = table.foreignKeys.filter(x => x.constraintName != constraint.constraintName);
@@ -128,5 +135,10 @@ export class DatabaseInfoAlterProcessor {
     tableInfo.preloadedRows = newRows;
     tableInfo.preloadedRowsKey = key;
     tableInfo.preloadedRowsInsertOnly = insertOnly;
+  }
+
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    const tableInfo = this.db.tables.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+    tableInfo[optionName] = optionValue;
   }
 }

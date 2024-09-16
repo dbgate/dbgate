@@ -15,6 +15,7 @@ export interface AlterProcessor {
   recreateTable(oldTable: TableInfo, newTable: TableInfo);
   createSqlObject(obj: SqlObjectInfo);
   dropSqlObject(obj: SqlObjectInfo);
+  setTableOption(table: TableInfo, optionName: string, optionValue: string);
   fillPreloadedRows(
     table: NamedObjectInfo,
     oldRows: any[],

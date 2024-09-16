@@ -27,6 +27,7 @@ export interface TableInfoYaml {
   // schema?: string;
   columns: ColumnInfoYaml[];
   primaryKey?: string[];
+  sortingKey?: string[];
 
   insertKey?: string[];
   insertOnly?: string[];
@@ -91,6 +92,9 @@ export function tableInfoToYaml(table: TableInfo): TableInfoYaml {
   if (tableCopy.primaryKey && !tableCopy.primaryKey['_dumped']) {
     res.primaryKey = tableCopy.primaryKey.columns.map(x => x.columnName);
   }
+  if (tableCopy.sortingKey && !tableCopy.sortingKey['_dumped']) {
+    res.sortingKey = tableCopy.sortingKey.columns.map(x => x.columnName);
+  }
   // const foreignKeys = (tableCopy.foreignKeys || []).filter(x => !x['_dumped']).map(foreignKeyInfoToYaml);
   return res;
 }
@@ -130,6 +134,13 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
       pureName: table.name,
       constraintType: 'primaryKey',
       columns: table.primaryKey.map(columnName => ({ columnName })),
+    };
+  }
+  if (table.sortingKey) {
+    res.sortingKey = {
+      pureName: table.name,
+      constraintType: 'sortingKey',
+      columns: table.sortingKey.map(columnName => ({ columnName })),
     };
   }
   res.preloadedRows = table.data;

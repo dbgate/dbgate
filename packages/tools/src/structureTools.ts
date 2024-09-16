@@ -5,7 +5,7 @@ export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   if (!db.tables) {
     return db;
   }
-  
+
   const allForeignKeys = _flatten(db.tables.map(x => x.foreignKeys || []));
   return {
     ...db,
@@ -31,6 +31,14 @@ export function extendTableInfo(table: TableInfo): TableInfo {
           pureName: table.pureName,
           schemaName: table.schemaName,
           constraintType: 'primaryKey',
+        }
+      : undefined,
+    sortingKey: table.sortingKey
+      ? {
+          ...table.sortingKey,
+          pureName: table.pureName,
+          schemaName: table.schemaName,
+          constraintType: 'sortingKey',
         }
       : undefined,
     foreignKeys: (table.foreignKeys || []).map(cnt => ({

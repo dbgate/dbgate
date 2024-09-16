@@ -148,6 +148,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   profilerChartAggregateFunction?: string;
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
+  supportsTransactions?: boolean;
 
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;
@@ -222,6 +223,13 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getCollectionExportQueryJson(collection: string, condition: any, sort?: CollectionSortDefinition): {};
   getScriptTemplates(objectTypeField: keyof DatabaseInfo): { label: string; scriptTemplate: string }[];
   getScriptTemplateContent(scriptTemplate: string, props: any): Promise<string>;
+  createSaveChangeSetScript(
+    changeSet: any,
+    dbinfo: DatabaseInfo,
+    defaultCreator: (changeSet: any, dbinfo: DatabaseInfo) => any
+  ): any[];
+  // adapts table info from different source (import, other database) to be suitable for this database
+  adaptTableInfo(table: TableInfo): TableInfo;
 
   analyserClass?: any;
   dumperClass?: any;

@@ -167,7 +167,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Foreign keys - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -222,7 +222,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Deploy preloaded data - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(conn, driver, [
@@ -251,7 +251,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Deploy preloaded data - update - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(conn, driver, [

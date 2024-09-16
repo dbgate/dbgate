@@ -2,6 +2,7 @@ import uuidv1 from 'uuid/v1';
 import _omit from 'lodash/omit';
 import type {
   ColumnInfo,
+  ColumnsConstraintInfo,
   ConstraintInfo,
   ForeignKeyInfo,
   IndexInfo,
@@ -195,6 +196,13 @@ export function editorAddConstraint(table: TableInfo, constraint: ConstraintInfo
     } as PrimaryKeyInfo;
   }
 
+  if (constraint.constraintType == 'sortingKey') {
+    res.sortingKey = {
+      pairingId: uuidv1(),
+      ...constraint,
+    } as ColumnsConstraintInfo;
+  }
+
   if (constraint.constraintType == 'foreignKey') {
     res.foreignKeys = [
       ...(res.foreignKeys || []),
@@ -240,6 +248,13 @@ export function editorModifyConstraint(table: TableInfo, constraint: ConstraintI
     };
   }
 
+  if (constraint.constraintType == 'sortingKey') {
+    res.sortingKey = {
+      ...res.sortingKey,
+      ...constraint,
+    };
+  }
+
   if (constraint.constraintType == 'foreignKey') {
     res.foreignKeys = table.foreignKeys.map(fk =>
       fk.pairingId == constraint.pairingId ? { ...fk, ...constraint } : fk
@@ -264,6 +279,10 @@ export function editorDeleteConstraint(table: TableInfo, constraint: ConstraintI
 
   if (constraint.constraintType == 'primaryKey') {
     res.primaryKey = null;
+  }
+
+  if (constraint.constraintType == 'sortingKey') {
+    res.sortingKey = null;
   }
 
   if (constraint.constraintType == 'foreignKey') {

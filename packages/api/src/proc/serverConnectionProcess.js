@@ -115,7 +115,7 @@ async function handleDatabaseOp(op, { msgid, name }) {
       const dmp = driver.createDumper();
       dmp[op](name);
       logger.info({ sql: dmp.s }, 'Running script');
-      await driver.query(systemConnection, dmp.s);
+      await driver.query(systemConnection, dmp.s, { discardResult: true });
     }
     await handleRefresh();
 

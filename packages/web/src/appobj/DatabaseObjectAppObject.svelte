@@ -860,6 +860,18 @@
     return createDatabaseObjectMenu(data, passProps?.connection);
   }
 
+  function getExtInfo(data) {
+    const res = [];
+    if (data.tableRowCount != null) {
+      res.push(`${formatRowCount(data.tableRowCount)} rows`);
+    }
+    if (data.tableEngine) {
+      res.push(data.tableEngine);
+    }
+    if (res.length > 0) return res.join(', ');
+    return null;
+  }
+
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));
 </script>
 
@@ -873,7 +885,7 @@
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
-  extInfo={data.tableRowCount != null ? `${formatRowCount(data.tableRowCount)} rows` : null}
+  extInfo={getExtInfo(data)}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:expand

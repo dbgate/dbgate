@@ -17,6 +17,7 @@ export interface SqlDialect {
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
+  renameColumnDependencies?: string[];
 
   dropIndexContainsTableSpec?: boolean;
 
@@ -34,6 +35,15 @@ export interface SqlDialect {
   createCheck?: boolean;
   dropCheck?: boolean;
 
+  specificNullabilityImplementation?: boolean;
+  omitForeignKeys?: boolean;
+  omitUniqueConstraints?: boolean;
+  omitIndexes?: boolean;
+  sortingKeys?: boolean;
+
+  // syntax for create column: ALTER TABLE table ADD COLUMN column
+  createColumnWithColumnKeyword?: boolean;
+
   dropReferencesWhenDropTable?: boolean;
   requireFromDual?: boolean;
 
@@ -41,4 +51,11 @@ export interface SqlDialect {
 
   // create sql-tree expression
   createColumnViewExpression(columnName: string, dataType: string, source: { alias: string }, alias?: string): any;
+
+  getTableFormOptions(intent: 'newTableForm' | 'editTableForm' | 'sqlCreateTable' | 'sqlAlterTable'): {
+    name: string;
+    sqlFormatString: string;
+    disabled?: boolean;
+    allowEmptyValue?: boolean;
+  }[];
 }

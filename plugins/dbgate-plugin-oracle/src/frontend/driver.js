@@ -14,7 +14,7 @@ const dialect = {
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',
-  anonymousPrimaryKey: true,
+  anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['dependencies'],
   quoteIdentifier(s) {
@@ -97,6 +97,7 @@ const oracleDriver = {
   //   ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   getQuerySplitterOptions: () => oracleSplitterOptions,
   readOnlySessions: true,
+  supportsTransactions: true,
 
   databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 

@@ -246,7 +246,7 @@ export class SqlDumper implements AlterProcessor {
 
     this.putRaw(' ');
     this.specialColumnOptions(column);
-    if (includeNullable) {
+    if (includeNullable && !this.dialect?.specificNullabilityImplementation) {
       this.put(column.notNull ? '^not ^null' : '^null');
     }
     if (includeDefault && column.defaultValue?.trim()) {
@@ -294,10 +294,23 @@ export class SqlDumper implements AlterProcessor {
     });
 
     this.put('&<&n)');
+
+    this.tableOptions(table);
+
     this.endCommand();
     (table.indexes || []).forEach(ix => {
       this.createIndex(ix);
     });
+  }
+
+  tableOptions(table: TableInfo) {
+    const options = this.driver?.dialect?.getTableFormOptions?.('sqlCreateTable') || [];
+    for (const option of options) {
+      if (table[option.name]) {
+        this.put('&n');
+        this.put(option.sqlFormatString, table[option.name]);
+      }
+    }
   }
 
   createTablePrimaryKeyCore(table: TableInfo) {
@@ -531,7 +544,9 @@ export class SqlDumper implements AlterProcessor {
   renameConstraint(constraint: ConstraintInfo, newName: string) {}
 
   createColumn(column: ColumnInfo, constraints: ConstraintInfo[]) {
-    this.put('^alter ^table %f ^add %i ', column, column.columnName);
+    this.put('^alter ^table %f ^add ', column);
+    if (this.dialect.createColumnWithColumnKeyword) this.put('^column ');
+    this.put(' %i ', column.columnName);
     this.columnDefinition(column);
     this.inlineConstraints(constraints);
     this.endCommand();
@@ -607,10 +622,8 @@ export class SqlDumper implements AlterProcessor {
     if (!oldTable.pairingId || !newTable.pairingId || oldTable.pairingId != newTable.pairingId) {
       throw new Error('Recreate is not possible: oldTable.paringId != newTable.paringId');
     }
-    const tmpTable = `temp_${uuidv1()}`;
 
-    // console.log('oldTable', oldTable);
-    // console.log('newTable', newTable);
+    const tmpTable = `temp_${uuidv1()}`;
 
     const columnPairs = oldTable.columns
       .map(oldcol => ({
@@ -619,33 +632,49 @@ export class SqlDumper implements AlterProcessor {
       }))
       .filter(x => x.newcol);
 
-    this.dropConstraints(oldTable, true);
-    this.renameTable(oldTable, tmpTable);
+    if (this.driver.supportsTransactions) {
+      this.dropConstraints(oldTable, true);
+      this.renameTable(oldTable, tmpTable);
 
-    this.createTable(newTable);
+      this.createTable(newTable);
 
-    const autoinc = newTable.columns.find(x => x.autoIncrement);
-    if (autoinc) {
-      this.allowIdentityInsert(newTable, true);
+      const autoinc = newTable.columns.find(x => x.autoIncrement);
+      if (autoinc) {
+        this.allowIdentityInsert(newTable, true);
+      }
+
+      this.putCmd(
+        '^insert ^into %f (%,i) select %,s ^from %f',
+        newTable,
+        columnPairs.map(x => x.newcol.columnName),
+        columnPairs.map(x => x.oldcol.columnName),
+        { ...oldTable, pureName: tmpTable }
+      );
+
+      if (autoinc) {
+        this.allowIdentityInsert(newTable, false);
+      }
+
+      if (this.dialect.dropForeignKey) {
+        newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
+      }
+
+      this.dropTable({ ...oldTable, pureName: tmpTable });
+    } else {
+      // we have to preserve old table as long as possible
+      this.createTable({ ...newTable, pureName: tmpTable });
+
+      this.putCmd(
+        '^insert ^into %f (%,i) select %,s ^from %f',
+        { ...newTable, pureName: tmpTable },
+        columnPairs.map(x => x.newcol.columnName),
+        columnPairs.map(x => x.oldcol.columnName),
+        oldTable
+      );
+
+      this.dropTable(oldTable);
+      this.renameTable({ ...newTable, pureName: tmpTable }, newTable.pureName);
     }
-
-    this.putCmd(
-      '^insert ^into %f (%,i) select %,s ^from %f',
-      newTable,
-      columnPairs.map(x => x.newcol.columnName),
-      columnPairs.map(x => x.oldcol.columnName),
-      { ...oldTable, pureName: tmpTable }
-    );
-
-    if (autoinc) {
-      this.allowIdentityInsert(newTable, false);
-    }
-
-    if (this.dialect.dropForeignKey) {
-      newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
-    }
-
-    this.dropTable({ ...oldTable, pureName: tmpTable });
   }
 
   createSqlObject(obj: SqlObjectInfo) {
@@ -669,6 +698,23 @@ export class SqlDumper implements AlterProcessor {
 
   dropSqlObject(obj: SqlObjectInfo) {
     this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
+  }
+
+  setTableOption(table: TableInfo, optionName: string, optionValue: string) {
+    const options = this?.dialect?.getTableFormOptions?.('sqlAlterTable');
+    const option = options?.find(x => x.name == optionName && !x.disabled);
+    if (!option) {
+      return;
+    }
+
+    this.setTableOptionCore(table, optionName, optionValue, option.sqlFormatString);
+
+    this.endCommand();
+  }
+
+  setTableOptionCore(table: TableInfo, optionName: string, optionValue: string, formatString: string) {
+    this.put('^alter ^table %f ', table);
+    this.put(formatString, optionValue);
   }
 
   fillPreloadedRows(
