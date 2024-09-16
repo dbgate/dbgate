@@ -3,7 +3,8 @@ const { testWrapper } = require('../tools');
 
 const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50))';
 const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
-const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) unique)';
+const t2Sql = engine =>
+  `CREATE TABLE t2 (id int not null primary key, val2 varchar(50) ${engine.skipUnique ? '' : 'unique'})`;
 const t3Sql = 'CREATE TABLE t3 (id int not null primary key, valfk int, foreign key (valfk) references t2(id))';
 // const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
@@ -13,24 +14,24 @@ const txMatch = (engine, tname, vcolname, nextcol) =>
     columns: [
       expect.objectContaining({
         columnName: 'id',
-        notNull: true,
         dataType: expect.stringMatching(/int.*/i),
+        ...(engine.skipNullability ? {} : { notNull: true }),
       }),
       expect.objectContaining({
         columnName: vcolname,
-        notNull: false,
+        ...(engine.skipNullability ? {} : { notNull: false }),
         dataType: engine.skipStringLength
           ? expect.stringMatching(/.*string|char.*/i)
-          : expect.stringMatching(/.*string|char.*\(50\)/i),
+          : expect.stringMatching(/.*char.*\(50\)/i),
       }),
       ...(nextcol
         ? [
             expect.objectContaining({
               columnName: 'nextcol',
-              notNull: false,
+              ...(engine.skipNullability ? {} : { notNull: false }),
               dataType: engine.skipStringLength
                 ? expect.stringMatching(/.*string.*|char.*/i)
-                : expect.stringMatching(/.*string.*|char.*\(50\).*/i),
+                : expect.stringMatching(/.*char.*\(50\).*/i),
             }),
           ]
         : []),
@@ -56,9 +57,6 @@ describe('Table analyse', () => {
 
       const structure = await driver.analyseFull(conn);
 
-      console.log('****************** TABLE ***********************')
-      console.log(JSON.stringify(structure.tables[0], null, 2));
-
       expect(structure.tables.length).toEqual(1);
       expect(structure.tables[0]).toEqual(t1Match(engine));
     })
@@ -67,7 +65,7 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table add - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t2Sql);
+      await driver.query(conn, t2Sql(engine));
 
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(1);
@@ -86,7 +84,7 @@ describe('Table analyse', () => {
     'Table remove - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t1Sql);
-      await driver.query(conn, t2Sql);
+      await driver.query(conn, t2Sql(engine));
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(2);
       expect(structure1.tables.find(x => x.pureName == 't1')).toEqual(t1Match(engine));
@@ -104,12 +102,15 @@ describe('Table analyse', () => {
     'Table change - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t1Sql);
-      await driver.query(conn, t2Sql);
+      await driver.query(conn, t2Sql(engine));
       const structure1 = await driver.analyseFull(conn);
 
       if (engine.dbSnapshotBySeconds) await new Promise(resolve => setTimeout(resolve, 1100));
 
-      await driver.query(conn, 'ALTER TABLE t2 ADD nextcol varchar(50)');
+      await driver.query(
+        conn,
+        `ALTER TABLE t2 ADD ${engine.alterTableAddColumnSyntax ? 'COLUMN' : ''} nextcol varchar(50)`
+      );
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2).toBeTruthy(); // if falsy, no modification is detected
@@ -138,7 +139,7 @@ describe('Table analyse', () => {
   test.each(engines.filter(x => !x.skipUnique).map(engine => [engine.label, engine]))(
     'Unique - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t2Sql);
+      await driver.query(conn, t2Sql(engine));
       const structure = await driver.analyseFull(conn);
 
       const t2 = structure.tables.find(x => x.pureName == 't2');
@@ -152,7 +153,7 @@ describe('Table analyse', () => {
   test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Foreign key - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t2Sql);
+      await driver.query(conn, t2Sql(engine));
       await driver.query(conn, t3Sql);
       // await driver.query(conn, fkSql);
 

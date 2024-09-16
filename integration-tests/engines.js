@@ -150,6 +150,8 @@ const engines = [
     skipPkColumnTesting: true,
     skipDataDuplicator: true,
     skipStringLength: true,
+    alterTableAddColumnSyntax: true,
+    dbSnapshotBySeconds: true,
   },
 ];
 
