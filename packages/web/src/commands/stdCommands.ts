@@ -44,6 +44,7 @@ import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 import ConfirmModal from '../modals/ConfirmModal.svelte';
 import localforage from 'localforage';
+import { openImportExportTab } from '../utility/importExportTools';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -483,10 +484,18 @@ registerCommand({
   toolbar: true,
   icon: 'icon import',
   onClick: () =>
-    showModal(ImportExportModal, {
-      importToCurrentTarget: true,
-      initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
-    }),
+    openImportExportTab(
+      {
+        sourceStorageType: getDefaultFileFormat(get(extensions)).storageType,
+      },
+      {
+        importToCurrentTarget: true,
+      }
+    ),
+  // showModal(ImportExportModal, {
+  //   importToCurrentTarget: true,
+  //   initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
+  // }),
 });
 
 registerCommand({
@@ -594,8 +603,6 @@ registerCommand({
   testEnabled: () => getAppUpdaterActive(),
   onClick: () => getElectron().send('check-for-updates'),
 });
-
-
 
 export function registerFileCommands({
   idPrefix,

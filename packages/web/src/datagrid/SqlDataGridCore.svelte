@@ -84,6 +84,7 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import hasPermission from '../utility/hasPermission';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let conid;
   export let display;
@@ -145,7 +146,8 @@
     initialValues.sourceQueryType = coninfo.isReadOnly ? 'json' : 'native';
     initialValues.sourceList = display.baseTableOrSimilar ? [display.baseTableOrSimilar.pureName] : [];
     initialValues[`columns_${pureName}`] = display.getExportColumnMap();
-    showModal(ImportExportModal, { initialValues });
+    openImportExportTab(initialValues);
+    // showModal(ImportExportModal, { initialValues });
   }
 
   export function openQuery() {

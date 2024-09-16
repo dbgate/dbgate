@@ -59,6 +59,7 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import RowsArrayGrider from './RowsArrayGrider';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let jslid;
   export let display;
@@ -152,7 +153,8 @@
       initialValues.sourceList = ['query-data'];
       initialValues[`columns_query-data`] = display.getExportColumnMap();
     }
-    showModal(ImportExportModal, { initialValues });
+    openImportExportTab(initialValues);
+    // showModal(ImportExportModal, { initialValues });
   }
 
   const quickExportHandler = fmt => async () => {

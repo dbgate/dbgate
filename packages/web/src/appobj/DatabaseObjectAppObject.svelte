@@ -618,15 +618,22 @@
       });
     } else if (menu.isImport) {
       const { conid, database } = data;
-      showModal(ImportExportModal, {
-        initialValues: {
-          sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
-          targetStorageType: 'database',
-          targetConnectionId: conid,
-          targetDatabaseName: database,
-          fixedTargetPureName: data.pureName,
-        },
+      openImportExportTab({
+        sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+        targetStorageType: 'database',
+        targetConnectionId: conid,
+        targetDatabaseName: database,
+        fixedTargetPureName: data.pureName,
       });
+      // showModal(ImportExportModal, {
+      //   initialValues: {
+      //     sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+      //     targetStorageType: 'database',
+      //     targetConnectionId: conid,
+      //     targetDatabaseName: database,
+      //     fixedTargetPureName: data.pureName,
+      //   },
+      // });
     } else {
       openDatabaseObjectDetail(
         menu.tab,

@@ -60,6 +60,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let tabid;
 
@@ -156,7 +157,8 @@
   export function openWizard() {
     const jsonTextMatch = ($editorValue || '').match(configRegex);
     if (jsonTextMatch) {
-      showModal(ImportExportModal, { initialValues: JSON.parse(jsonTextMatch[1]) });
+      openImportExportTab(JSON.parse(jsonTextMatch[1]));
+      // showModal(ImportExportModal, { initialValues: JSON.parse(jsonTextMatch[1]) });
     } else {
       showSnackbarError('No wizard info found');
     }
