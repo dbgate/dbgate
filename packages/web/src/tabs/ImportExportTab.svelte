@@ -42,21 +42,41 @@
 
   const refreshArchiveFolderRef = createRef(null);
 
-  const formValues = writable({
-    sourceStorageType: 'database',
-    targetStorageType: getDefaultFileFormat($extensions).storageType,
-    targetArchiveFolder: $currentArchive,
-    sourceArchiveFolder: $currentArchive,
-    ...detectCurrentTarget(),
-    ...initialValues,
-  });
+  const formValues = writable({});
+
+  let domConfigurator;
+
+  // const formValues = writable({
+  //   sourceStorageType: 'database',
+  //   targetStorageType: getDefaultFileFormat($extensions).storageType,
+  //   targetArchiveFolder: $currentArchive,
+  //   sourceArchiveFolder: $currentArchive,
+  //   ...detectCurrentTarget(),
+  //   ...initialValues,
+  // });
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     onInitialData: value => {
-      $formValues = value;
+      $formValues = {
+        sourceStorageType: 'database',
+        targetStorageType: getDefaultFileFormat($extensions).storageType,
+        targetArchiveFolder: $currentArchive,
+        sourceArchiveFolder: $currentArchive,
+        ...detectCurrentTarget(),
+        ...value,
+      };
+
+      if (uploadedFile) {
+        domConfigurator.addUploadedFile(uploadedFile);
+      }
+      if (openedFile) {
+        domConfigurator.addUploadedFile(openedFile);
+      }
     },
   });
+
+  // $: console.log('formValues', $formValues);
 
   $: setEditorData($formValues);
 
@@ -111,7 +131,7 @@
   };
 
   const handleGenerateScript = async e => {
-    const values = $formValues;
+    const values = $formValues as any;
     const code = await createImpExpScript($extensions, values, undefined, true);
     openNewTab(
       {
@@ -125,7 +145,7 @@
 
   const handleExecute = async e => {
     if (busy) return;
-    const values = $formValues;
+    const values = $formValues as any;
     busy = true;
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
@@ -152,7 +172,7 @@
   <FormProviderCore values={formValues}>
     <HorizontalSplitter initialValue="70%">
       <div class="content" slot="1">
-        <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
+        <ImportExportConfigurator bind:this={domConfigurator} {previewReaderStore} />
 
         {#if busy}
           <LoadingInfo wrapper message="Processing import/export ..." />

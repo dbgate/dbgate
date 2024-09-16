@@ -6,7 +6,7 @@ export function openImportExportTab(editorProps, additionalProps = {}) {
       tabComponent: 'ImportExportTab',
       title: 'Import/Export',
       icon: 'img export',
-      ...additionalProps,
+      props: additionalProps,
     },
     {
       editor: editorProps,

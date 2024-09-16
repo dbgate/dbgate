@@ -68,8 +68,8 @@
 
   import SourceTargetConfig from './SourceTargetConfig.svelte';
 
-  export let uploadedFile = undefined;
-  export let openedFile = undefined;
+  // export let uploadedFile = undefined;
+  // export let openedFile = undefined;
   export let previewReaderStore;
 
   const { values, setFieldValue } = getFormContext();
@@ -98,7 +98,7 @@
     }
   };
 
-  const handleUpload = file => {
+  export function addUploadedFile(file) {
     addFilesToSourceList(
       $extensions,
       [
@@ -116,26 +116,26 @@
   };
 
   onMount(() => {
-    setUploadListener(handleUpload);
-    if (uploadedFile) {
-      handleUpload(uploadedFile);
-    }
-    if (openedFile) {
-      handleUpload(openedFile);
-      // addFilesToSourceList(
-      //   $extensions,
-      //   [
-      //     {
-      //       fileName: openedFile.filePath,
-      //       shortName: openedFile.shortName,
-      //     },
-      //   ],
-      //   $values,
-      //   values,
-      //   !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
-      //   previewSource.set
-      // );
-    }
+    setUploadListener(addUploadedFile);
+    // if (uploadedFile) {
+    //   handleUpload(uploadedFile);
+    // }
+    // if (openedFile) {
+    //   handleUpload(openedFile);
+    //   // addFilesToSourceList(
+    //   //   $extensions,
+    //   //   [
+    //   //     {
+    //   //       fileName: openedFile.filePath,
+    //   //       shortName: openedFile.shortName,
+    //   //     },
+    //   //   ],
+    //   //   $values,
+    //   //   values,
+    //   //   !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
+    //   //   previewSource.set
+    //   // );
+    // }
 
     return () => {
       setUploadListener(null);
