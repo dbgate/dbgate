@@ -62,7 +62,7 @@ describe('Table create', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Table with index - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableCreate(conn, driver, {
@@ -92,7 +92,7 @@ describe('Table create', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Table with foreign key - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableCreate(conn, driver, {
@@ -122,7 +122,7 @@ describe('Table create', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipUnique).map(engine => [engine.label, engine]))(
     'Table with unique - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableCreate(conn, driver, {
