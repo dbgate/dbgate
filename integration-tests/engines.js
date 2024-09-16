@@ -139,7 +139,7 @@ const engines = [
     local: {
       databaseUrl: 'http://localhost:15005',
     },
-    skipOnCI: true,
+    skipOnCI: false,
     objects: [views],
     skipDataModifications: true,
     skipReferences: true,
