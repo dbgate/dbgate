@@ -16,7 +16,14 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, currentDatabase, extensions, visibleWidgetSideBar, selectedWidget } from '../stores';
+  import {
+    currentArchive,
+    currentDatabase,
+    extensions,
+    visibleWidgetSideBar,
+    selectedWidget,
+    activeTabId,
+  } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -104,7 +111,7 @@
     }
   }
 
-  $: effect = useEffect(() => registerRunnerDone(runnerId));
+  $: effectRunner = useEffect(() => registerRunnerDone(runnerId));
 
   function registerRunnerDone(rid) {
     if (rid) {
@@ -117,7 +124,7 @@
     }
   }
 
-  $: $effect;
+  $: $effectRunner;
 
   const handleRunnerDone = () => {
     busy = false;
@@ -172,7 +179,11 @@
   <FormProviderCore values={formValues}>
     <HorizontalSplitter initialValue="70%">
       <div class="content" slot="1">
-        <ImportExportConfigurator bind:this={domConfigurator} {previewReaderStore} />
+        <ImportExportConfigurator
+          bind:this={domConfigurator}
+          {previewReaderStore}
+          isTabActive={tabid == $activeTabId}
+        />
 
         {#if busy}
           <LoadingInfo wrapper message="Processing import/export ..." />

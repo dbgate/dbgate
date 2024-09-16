@@ -67,10 +67,12 @@
   import SourceName from './SourceName.svelte';
 
   import SourceTargetConfig from './SourceTargetConfig.svelte';
+  import useEffect from '../utility/useEffect';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
   export let previewReaderStore;
+  export let isTabActive;
 
   const { values, setFieldValue } = getFormContext();
 
@@ -113,36 +115,20 @@
       previewSource.set
     );
     // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
-  };
+  }
 
-  onMount(() => {
-    setUploadListener(addUploadedFile);
-    // if (uploadedFile) {
-    //   handleUpload(uploadedFile);
-    // }
-    // if (openedFile) {
-    //   handleUpload(openedFile);
-    //   // addFilesToSourceList(
-    //   //   $extensions,
-    //   //   [
-    //   //     {
-    //   //       fileName: openedFile.filePath,
-    //   //       shortName: openedFile.shortName,
-    //   //     },
-    //   //   ],
-    //   //   $values,
-    //   //   values,
-    //   //   !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
-    //   //   previewSource.set
-    //   // );
-    // }
-
-    return () => {
-      setUploadListener(null);
-    };
+  $: effectActiveTab = useEffect(() => {
+    if (isTabActive) {
+      setUploadListener(addUploadedFile);
+      return () => {
+        setUploadListener(null);
+      };
+    } else {
+      return () => {};
+    }
   });
-  //   engine={sourceEngine}
-  //       {setPreviewSource}
+
+  $effectActiveTab;
 </script>
 
 <div class="flex1">
