@@ -62,6 +62,9 @@
   export let openedFile = undefined;
   export let importToCurrentTarget = false;
 
+  export let savedFile;
+  export let savedFilePath;
+
   const refreshArchiveFolderRef = createRef(null);
 
   const formValues = writable({});
@@ -108,6 +111,8 @@
   // $: console.log('formValues', $formValues);
 
   $: setEditorData($formValues);
+
+  $: updateTabTitle($formValues);
 
   function detectCurrentTarget() {
     if (!importToCurrentTarget) return {};
@@ -198,6 +203,30 @@
 
   export function getData() {
     return $editorState.value || '';
+  }
+
+  function getSourceTargetTitle(prefix, values) {
+    switch (values[`${prefix}StorageType`]) {
+      case 'database':
+        return values[`${prefix}DatabaseName`] || 'DB';
+      case 'archive':
+        return values[`${prefix}ArchiveFolder`] || 'Archive';
+      case 'query':
+        return 'Query';
+      default:
+        return values[`${prefix}StorageType`]?.toUpperCase().replace(/@.*$/, '');
+    }
+  }
+
+  function updateTabTitle(values) {
+    if (savedFile || savedFilePath) {
+      return;
+    }
+
+    changeTab(tabid, tab => ({
+      ...tab,
+      title: `${getSourceTargetTitle('source', values)}->${getSourceTargetTitle('target', values)}(${values.sourceList?.length || 0})`,
+    }));
   }
 </script>
 
