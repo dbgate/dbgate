@@ -6,7 +6,7 @@ const copyStream = require('./copyStream');
 const fakeObjectReader = require('./fakeObjectReader');
 const consoleObjectWriter = require('./consoleObjectWriter');
 const jsonLinesWriter = require('./jsonLinesWriter');
-const jsonArrayWriter = require('./jsonArrayWriter');
+const jsonWriter = require('./jsonWriter');
 const jsonLinesReader = require('./jsonLinesReader');
 const sqlDataWriter = require('./sqlDataWriter');
 const jslDataReader = require('./jslDataReader');
@@ -38,8 +38,9 @@ const dbgateApi = {
   tableReader,
   copyStream,
   jsonLinesWriter,
-  jsonArrayWriter,
   jsonLinesReader,
+  jsonReader,
+  jsonWriter,
   sqlDataWriter,
   fakeObjectReader,
   consoleObjectWriter,
@@ -62,7 +63,6 @@ const dbgateApi = {
   dataDuplicator,
   dbModelToJson,
   jsonToDbModel,
-  jsonReader,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);
