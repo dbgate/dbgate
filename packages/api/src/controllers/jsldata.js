@@ -18,11 +18,14 @@ function readFirstLine(file) {
       }
       if (reader.hasNextLine()) {
         reader.nextLine((err, line) => {
-          if (err) reject(err);
-          resolve(line);
+          if (err) {
+            reader.close(() => reject(err)); // Ensure reader is closed on error
+            return;
+          }
+          reader.close(() => resolve(line)); // Ensure reader is closed after reading
         });
       } else {
-        resolve(null);
+        reader.close(() => resolve(null)); // Properly close if no lines are present
       }
     });
   });

@@ -1,22 +1,39 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('ImportExportTab');
+
+  registerFileCommands({
+    idPrefix: 'job',
+    category: 'Job',
+    getCurrentEditor,
+    folder: 'jobs',
+    format: 'json',
+    fileExtension: 'job',
+
+    // undoRedo: true,
+  });
+</script>
+
 <script lang="ts">
   import moment from 'moment';
   import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import LargeButton from '../buttons/LargeButton.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
 
-  import FormProvider from '../forms/FormProvider.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import LargeFormButton from '../forms/LargeFormButton.svelte';
-  import FontIcon from '../icons/FontIcon.svelte';
   import createImpExpScript from '../impexp/createImpExpScript';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
   import PreviewDataGrid from '../impexp/PreviewDataGrid.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, currentDatabase, extensions, visibleWidgetSideBar, selectedWidget } from '../stores';
+  import {
+    currentArchive,
+    currentDatabase,
+    extensions,
+    visibleWidgetSideBar,
+    selectedWidget,
+    activeTabId,
+  } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -24,6 +41,15 @@
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import useEditorData from '../query/useEditorData';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
+  import { changeTab } from '../utility/common';
+  import _ from 'lodash';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   let busy = false;
   let executeNumber = 0;
@@ -32,16 +58,56 @@
   const previewReaderStore = writable(null);
 
   export let tabid;
-  export let initialValues;
   export let uploadedFile = undefined;
   export let openedFile = undefined;
   export let importToCurrentTarget = false;
 
   const refreshArchiveFolderRef = createRef(null);
 
+  const formValues = writable({});
+
+  let domConfigurator;
+
+  export const activator = createActivator('ImportExportTab', true);
+
+  // const formValues = writable({
+  //   sourceStorageType: 'database',
+  //   targetStorageType: getDefaultFileFormat($extensions).storageType,
+  //   targetArchiveFolder: $currentArchive,
+  //   sourceArchiveFolder: $currentArchive,
+  //   ...detectCurrentTarget(),
+  //   ...initialValues,
+  // });
+
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
+    onInitialData: value => {
+      $formValues = {
+        sourceStorageType: 'database',
+        targetStorageType: getDefaultFileFormat($extensions).storageType,
+        targetArchiveFolder: $currentArchive,
+        sourceArchiveFolder: $currentArchive,
+        ...detectCurrentTarget(),
+        ...value,
+      };
+
+      if (uploadedFile) {
+        domConfigurator.addUploadedFile(uploadedFile);
+      }
+      if (openedFile) {
+        domConfigurator.addUploadedFile(openedFile);
+      }
+
+      changeTab(tabid, tab => ({
+        ...tab,
+        props: _.omit(tab.props, ['uploadedFile', 'openedFile', 'importToCurrentTarget']),
+      }));
+    },
   });
+
+  // $: console.log('formValues', $formValues);
+
+  $: setEditorData($formValues);
 
   function detectCurrentTarget() {
     if (!importToCurrentTarget) return {};
@@ -67,7 +133,7 @@
     }
   }
 
-  $: effect = useEffect(() => registerRunnerDone(runnerId));
+  $: effectRunner = useEffect(() => registerRunnerDone(runnerId));
 
   function registerRunnerDone(rid) {
     if (rid) {
@@ -80,7 +146,7 @@
     }
   }
 
-  $: $effect;
+  $: $effectRunner;
 
   const handleRunnerDone = () => {
     busy = false;
@@ -94,7 +160,8 @@
   };
 
   const handleGenerateScript = async e => {
-    const code = await createImpExpScript($extensions, e.detail, undefined, true);
+    const values = $formValues as any;
+    const code = await createImpExpScript($extensions, values, undefined, true);
     openNewTab(
       {
         title: 'Shell #',
@@ -107,7 +174,7 @@
 
   const handleExecute = async e => {
     if (busy) return;
-    const values = e.detail;
+    const values = $formValues as any;
     busy = true;
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
@@ -128,63 +195,60 @@
       runid: runnerId,
     });
   };
+
+  export function getData() {
+    return $editorState.value || '';
+  }
 </script>
 
-<FormProvider
-  initialValues={{
-    sourceStorageType: 'database',
-    targetStorageType: getDefaultFileFormat($extensions).storageType,
-    targetArchiveFolder: $currentArchive,
-    sourceArchiveFolder: $currentArchive,
-    ...detectCurrentTarget(),
-    ...initialValues,
-  }}
->
-  <HorizontalSplitter initialValue="70%">
-    <div class="content" slot="1">
-      <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
+<ToolStripContainer>
+  <FormProviderCore values={formValues}>
+    <HorizontalSplitter initialValue="70%">
+      <div class="content" slot="1">
+        <ImportExportConfigurator
+          bind:this={domConfigurator}
+          {previewReaderStore}
+          isTabActive={tabid == $activeTabId}
+        />
 
-      {#if busy}
-        <LoadingInfo wrapper message="Processing import/export ..." />
-      {/if}
-    </div>
+        {#if busy}
+          <LoadingInfo wrapper message="Processing import/export ..." />
+        {/if}
+      </div>
 
-    <svelte:fragment slot="2">
-      <WidgetColumnBar>
-        <WidgetColumnBarItem title="Output files" name="output" height="20%">
-          <RunnerOutputFiles {runnerId} {executeNumber} />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Messages" name="messages">
-          <SocketMessageView
-            eventName={runnerId ? `runner-info-${runnerId}` : null}
-            {executeNumber}
-            showNoMessagesAlert
-          />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
-          <PreviewDataGrid reader={$previewReaderStore} />
-        </WidgetColumnBarItem>
-        <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
-          <FormTextField label="Schedule" name="schedule" />
-          <FormTextField label="Start variable index" name="startVariableIndex" />
-        </WidgetColumnBarItem>
-      </WidgetColumnBar>
-    </svelte:fragment>
-  </HorizontalSplitter>
-
-  <!-- <svelte:fragment slot="footer">
-        <div class="flex m-2">
-          {#if busy}
-            <LargeButton icon="icon stop" on:click={handleCancel}>Stop</LargeButton>
-          {:else}
-            <LargeFormButton on:click={handleExecute} icon="icon run">Run</LargeFormButton>
-          {/if}
-          <LargeFormButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</LargeFormButton>
-  
-          <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
-        </div>
-      </svelte:fragment> -->
-</FormProvider>
+      <svelte:fragment slot="2">
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Output files" name="output" height="20%">
+            <RunnerOutputFiles {runnerId} {executeNumber} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Messages" name="messages">
+            <SocketMessageView
+              eventName={runnerId ? `runner-info-${runnerId}` : null}
+              {executeNumber}
+              showNoMessagesAlert
+            />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
+            <PreviewDataGrid reader={$previewReaderStore} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
+            <FormTextField label="Schedule" name="schedule" />
+            <FormTextField label="Start variable index" name="startVariableIndex" />
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
+      </svelte:fragment>
+    </HorizontalSplitter>
+  </FormProviderCore>
+  <svelte:fragment slot="toolstrip">
+    {#if busy}
+      <ToolStripButton icon="icon stop" on:click={handleCancel}>Stop</ToolStripButton>
+    {:else}
+      <ToolStripButton on:click={handleExecute} icon="icon run">Run</ToolStripButton>
+    {/if}
+    <ToolStripButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</ToolStripButton>
+    <ToolStripSaveButton idPrefix="job" />
+  </svelte:fragment>
+</ToolStripContainer>
 
 <style>
   .content {
@@ -193,5 +257,6 @@
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
+    background-color: var(--theme-bg-0);
   }
 </style>

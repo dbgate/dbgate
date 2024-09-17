@@ -1,4 +1,10 @@
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 const { prettyFactory } = require('pino-pretty');
+const tmp = require('tmp');
 
 const pretty = prettyFactory({
   colorize: true,
@@ -20,3 +26,5 @@ global.console = {
     process.stdout.write(messages.join(' ') + '\n');
   },
 };
+
+tmp.setGracefulCleanup();

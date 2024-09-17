@@ -5,9 +5,9 @@ import getElectron from './getElectron';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { findFileFormat } from '../plugins/fileformats';
 import { showModal } from '../modals/modalTools';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import openNewTab from './openNewTab';
+import { openImportExportTab } from './importExportTools';
 
 let uploadListener;
 
@@ -79,13 +79,23 @@ export default function uploadFiles(files) {
       uploadListener(fileData);
     } else {
       if (findFileFormat(ext, fileData.storageType)) {
-        showModal(ImportExportModal, {
-          uploadedFile: fileData,
-          importToCurrentTarget: true,
-          initialValues: {
+        openImportExportTab(
+          {
             sourceStorageType: fileData.storageType,
           },
-        });
+          {
+            uploadedFile: fileData,
+            importToCurrentTarget: true,
+          }
+        );
+
+        // showModal(ImportExportModal, {
+        //   uploadedFile: fileData,
+        //   importToCurrentTarget: true,
+        //   initialValues: {
+        //     sourceStorageType: fileData.storageType,
+        //   },
+        // });
       }
     }
 

@@ -6,7 +6,7 @@ const copyStream = require('./copyStream');
 const fakeObjectReader = require('./fakeObjectReader');
 const consoleObjectWriter = require('./consoleObjectWriter');
 const jsonLinesWriter = require('./jsonLinesWriter');
-const jsonArrayWriter = require('./jsonArrayWriter');
+const jsonWriter = require('./jsonWriter');
 const jsonLinesReader = require('./jsonLinesReader');
 const sqlDataWriter = require('./sqlDataWriter');
 const jslDataReader = require('./jslDataReader');
@@ -29,6 +29,7 @@ const modifyJsonLinesReader = require('./modifyJsonLinesReader');
 const dataDuplicator = require('./dataDuplicator');
 const dbModelToJson = require('./dbModelToJson');
 const jsonToDbModel = require('./jsonToDbModel');
+const jsonReader = require('./jsonReader');
 
 const dbgateApi = {
   queryReader,
@@ -37,8 +38,9 @@ const dbgateApi = {
   tableReader,
   copyStream,
   jsonLinesWriter,
-  jsonArrayWriter,
   jsonLinesReader,
+  jsonReader,
+  jsonWriter,
   sqlDataWriter,
   fakeObjectReader,
   consoleObjectWriter,

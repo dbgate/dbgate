@@ -618,15 +618,22 @@
       });
     } else if (menu.isImport) {
       const { conid, database } = data;
-      showModal(ImportExportModal, {
-        initialValues: {
-          sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
-          targetStorageType: 'database',
-          targetConnectionId: conid,
-          targetDatabaseName: database,
-          fixedTargetPureName: data.pureName,
-        },
+      openImportExportTab({
+        sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+        targetStorageType: 'database',
+        targetConnectionId: conid,
+        targetDatabaseName: database,
+        fixedTargetPureName: data.pureName,
       });
+      // showModal(ImportExportModal, {
+      //   initialValues: {
+      //     sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+      //     targetStorageType: 'database',
+      //     targetConnectionId: conid,
+      //     targetDatabaseName: database,
+      //     fixedTargetPureName: data.pureName,
+      //   },
+      // });
     } else {
       openDatabaseObjectDetail(
         menu.tab,
@@ -764,31 +771,22 @@
             },
             {
               onClick: () => {
-                // openNewTab(
-                //   {
-                //     tabComponent: 'ImportExportTab',
-                //     title: 'Import/Export',
-                //     icon: 'img export',
-                //   },
-                //   {
-                //     editor: {
-                //       sourceStorageType: 'database',
-                //       sourceConnectionId: data.conid,
-                //       sourceDatabaseName: data.database,
-                //       sourceSchemaName: data.schemaName,
-                //       sourceList: [data.pureName],
-                //     },
-                //   }
-                // );
-                showModal(ImportExportModal, {
-                  initialValues: {
-                    sourceStorageType: 'database',
-                    sourceConnectionId: data.conid,
-                    sourceDatabaseName: data.database,
-                    sourceSchemaName: data.schemaName,
-                    sourceList: [data.pureName],
-                  },
+                openImportExportTab({
+                  sourceStorageType: 'database',
+                  sourceConnectionId: data.conid,
+                  sourceDatabaseName: data.database,
+                  sourceSchemaName: data.schemaName,
+                  sourceList: [data.pureName],
                 });
+                // showModal(ImportExportModal, {
+                //   initialValues: {
+                //     sourceStorageType: 'database',
+                //     sourceConnectionId: data.conid,
+                //     sourceDatabaseName: data.database,
+                //     sourceSchemaName: data.schemaName,
+                //     sourceList: [data.pureName],
+                //   },
+                // });
               },
             }
           );
@@ -832,7 +830,6 @@
   import { filterName, generateDbPairingId, getAlterDatabaseScript, getConnectionLabel } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';
@@ -848,6 +845,7 @@
   import { format as dateFormat } from 'date-fns';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import hasPermission from '../utility/hasPermission';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let data;
   export let passProps;

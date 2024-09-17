@@ -23,15 +23,6 @@
     onClick: () => getCurrentEditor().copyNodeScript(),
   });
 
-  registerCommand({
-    id: 'shell.openWizard',
-    category: 'Shell',
-    name: 'Open wizard',
-    // testEnabled: () => getCurrentEditor()?.openWizardEnabled(),
-    onClick: () => getCurrentEditor().openWizard(),
-  });
-
-  const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
   const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
   const initRegex = /([^\n]+\/\/\s*@init)/g;
 </script>
@@ -47,8 +38,6 @@
   import { registerFileCommands } from '../commands/stdCommands';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
@@ -60,7 +49,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
-
+  
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
@@ -149,19 +138,6 @@
     copyTextToClipboard(resp);
   }
 
-  // export function openWizardEnabled() {
-  //   return ($editorValue || '').match(configRegex);
-  // }
-
-  export function openWizard() {
-    const jsonTextMatch = ($editorValue || '').match(configRegex);
-    if (jsonTextMatch) {
-      showModal(ImportExportModal, { initialValues: JSON.parse(jsonTextMatch[1]) });
-    } else {
-      showSnackbarError('No wizard info found');
-    }
-  }
-
   function getActiveScript() {
     const selectedText = domEditor.getEditor().getSelectedText();
     const editorText = $editorValue;
@@ -208,7 +184,6 @@
     return [
       { command: 'shell.execute' },
       { command: 'shell.kill' },
-      { command: 'shell.openWizard' },
       { divider: true },
       { command: 'shell.toggleComment' },
       { divider: true },

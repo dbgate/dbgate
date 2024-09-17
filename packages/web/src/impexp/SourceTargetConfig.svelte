@@ -196,6 +196,7 @@
     width: 20vw;
     margin-left: var(--dim-large-form-margin);
     margin-bottom: var(--dim-large-form-margin);
+    border: 1px solid var(--theme-border);
   }
 
   .label {

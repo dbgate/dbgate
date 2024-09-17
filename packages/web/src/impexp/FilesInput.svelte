@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   function extractUrlName(url, values) {
-    const match = url.match(/\/([^/]+)($|\?)/);
+    const match = url.match(/\/([^/\?]+)($|\?)/);
     if (match) {
       const res = match[1];
       if (res.includes('.')) {

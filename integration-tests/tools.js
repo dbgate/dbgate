@@ -1,8 +1,3 @@
-global.DBGATE_PACKAGES = {
-  'dbgate-tools': require('dbgate-tools'),
-  'dbgate-sqltree': require('dbgate-sqltree'),
-};
-
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const crypto = require('crypto');
 

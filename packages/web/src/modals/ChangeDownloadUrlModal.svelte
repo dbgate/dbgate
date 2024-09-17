@@ -8,6 +8,7 @@
   import { closeCurrentModal } from './modalTools';
 
   export let onConfirm;
+  export let url;
 
   const handleSubmit = e => {
     onConfirm(e.detail.url);
@@ -15,7 +16,7 @@
   };
 </script>
 
-<FormProvider>
+<FormProvider initialValues={{ url }}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Download imported file from web</svelte:fragment>
 

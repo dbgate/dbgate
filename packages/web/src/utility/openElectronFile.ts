@@ -1,17 +1,17 @@
 import { showModal } from '../modals/modalTools';
 import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { currentDatabase, extensions, getCurrentDatabase } from '../stores';
 import { getUploadListener } from './uploadFiles';
-import {getConnectionLabel, getDatabaseFileLabel } from 'dbgate-tools';
+import { getConnectionLabel, getDatabaseFileLabel } from 'dbgate-tools';
 import { apiCall } from './api';
 import openNewTab from './openNewTab';
 import { openJsonDocument } from '../tabs/JsonTab.svelte';
 import { SAVED_FILE_HANDLERS } from '../appobj/SavedFileAppObject.svelte';
 import _ from 'lodash';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+import { openImportExportTab } from './importExportTools';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -178,17 +178,30 @@ export function openElectronFileCore(filePath, extensions) {
           shortName: parsed.name,
         });
       } else {
-        showModal(ImportExportModal, {
-          openedFile: {
-            filePath,
-            storageType: format.storageType,
-            shortName: parsed.name,
-          },
-          importToCurrentTarget: true,
-          initialValues: {
+        openImportExportTab(
+          {
             sourceStorageType: format.storageType,
           },
-        });
+          {
+            openedFile: {
+              filePath,
+              storageType: format.storageType,
+              shortName: parsed.name,
+            },
+          }
+        );
+
+        // showModal(ImportExportModal, {
+        //   openedFile: {
+        //     filePath,
+        //     storageType: format.storageType,
+        //     shortName: parsed.name,
+        //   },
+        //   importToCurrentTarget: true,
+        //   initialValues: {
+        //     sourceStorageType: format.storageType,
+        //   },
+        // });
       }
     }
   }

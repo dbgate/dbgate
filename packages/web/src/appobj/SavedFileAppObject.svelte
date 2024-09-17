@@ -65,6 +65,14 @@
     currentConnection: true,
   };
 
+  const jobs: FileTypeHandler = {
+    icon: 'img export',
+    format: 'json',
+    tabComponent: 'ImportExportTab',
+    folder: 'jobs',
+    currentConnection: false,
+  };
+
   const perspectives: FileTypeHandler = {
     icon: 'img perspective',
     format: 'json',
@@ -82,6 +90,7 @@
     sqlite,
     diagrams,
     perspectives,
+    jobs,
   };
 
   export const extractKey = data => data.file;

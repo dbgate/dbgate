@@ -122,8 +122,6 @@
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import { extractShellConnection } from '../impexp/createImpExpScript';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
@@ -136,6 +134,7 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import { mongoFilterBehaviour, standardFilterBehaviours } from 'dbgate-tools';
+  import { openImportExportTab } from '../utility/importExportTools';
 
   export let conid;
   export let display;
@@ -207,7 +206,8 @@
     initialValues.sourceQueryType = coninfo.isReadOnly ? 'json' : 'native';
     initialValues.sourceList = [pureName];
     initialValues[`columns_${pureName}`] = display.getExportColumnMap();
-    showModal(ImportExportModal, { initialValues });
+    openImportExportTab(initialValues);
+    // showModal(ImportExportModal, { initialValues });
   }
 
   export function openQuery() {

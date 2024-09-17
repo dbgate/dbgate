@@ -13,7 +13,33 @@ const jsonFormat = {
   storageType: 'json',
   extension: 'json',
   name: 'JSON',
-  writerFunc: 'jsonArrayWriter',
+  readerFunc: 'jsonReader',
+  writerFunc: 'jsonWriter',
+
+  args: [
+    {
+      type: 'select',
+      name: 'jsonStyle',
+      label: 'JSON style',
+      options: [
+        { name: 'Array', value: '' },
+        { name: 'Object', value: 'object' },
+      ],
+      apiName: 'jsonStyle',
+    },
+    {
+      type: 'text',
+      name: 'keyField',
+      label: 'Key field (only for "Object" style)',
+      apiName: 'keyField',
+    },
+    {
+      type: 'text',
+      name: 'rootField',
+      label: 'Root field',
+      apiName: 'rootField',
+    },
+  ],
 };
 
 const sqlFormat = {
@@ -38,7 +64,7 @@ const jsonQuickExport = {
   label: 'JSON',
   extension: 'json',
   createWriter: fileName => ({
-    functionName: 'jsonArrayWriter',
+    functionName: 'jsonWriter',
     props: {
       fileName,
     },

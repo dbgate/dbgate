@@ -46,7 +46,6 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import Link from '../elements/Link.svelte';
   import TableControl from '../elements/TableControl.svelte';
@@ -67,10 +66,12 @@
   import SourceName from './SourceName.svelte';
 
   import SourceTargetConfig from './SourceTargetConfig.svelte';
+  import useEffect from '../utility/useEffect';
 
-  export let uploadedFile = undefined;
-  export let openedFile = undefined;
+  // export let uploadedFile = undefined;
+  // export let openedFile = undefined;
   export let previewReaderStore;
+  export let isTabActive;
 
   const { values, setFieldValue } = getFormContext();
 
@@ -98,7 +99,7 @@
     }
   };
 
-  const handleUpload = file => {
+  export function addUploadedFile(file) {
     addFilesToSourceList(
       $extensions,
       [
@@ -113,36 +114,20 @@
       previewSource.set
     );
     // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
-  };
+  }
 
-  onMount(() => {
-    setUploadListener(handleUpload);
-    if (uploadedFile) {
-      handleUpload(uploadedFile);
+  $: effectActiveTab = useEffect(() => {
+    if (isTabActive) {
+      setUploadListener(addUploadedFile);
+      return () => {
+        setUploadListener(null);
+      };
+    } else {
+      return () => {};
     }
-    if (openedFile) {
-      handleUpload(openedFile);
-      // addFilesToSourceList(
-      //   $extensions,
-      //   [
-      //     {
-      //       fileName: openedFile.filePath,
-      //       shortName: openedFile.shortName,
-      //     },
-      //   ],
-      //   $values,
-      //   values,
-      //   !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
-      //   previewSource.set
-      // );
-    }
-
-    return () => {
-      setUploadListener(null);
-    };
   });
-  //   engine={sourceEngine}
-  //       {setPreviewSource}
+
+  $effectActiveTab;
 </script>
 
 <div class="flex1">

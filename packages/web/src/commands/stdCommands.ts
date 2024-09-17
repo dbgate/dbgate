@@ -13,7 +13,6 @@ import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
 import AboutModal from '../modals/AboutModal.svelte';
 import SettingsModal from '../settings/SettingsModal.svelte';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery, { newDiagram, newPerspective, newQueryDesign } from '../query/newQuery';
@@ -44,6 +43,7 @@ import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 import ConfirmModal from '../modals/ConfirmModal.svelte';
 import localforage from 'localforage';
+import { openImportExportTab } from '../utility/importExportTools';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -483,10 +483,18 @@ registerCommand({
   toolbar: true,
   icon: 'icon import',
   onClick: () =>
-    showModal(ImportExportModal, {
-      importToCurrentTarget: true,
-      initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
-    }),
+    openImportExportTab(
+      {
+        sourceStorageType: getDefaultFileFormat(get(extensions)).storageType,
+      },
+      {
+        importToCurrentTarget: true,
+      }
+    ),
+  // showModal(ImportExportModal, {
+  //   importToCurrentTarget: true,
+  //   initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
+  // }),
 });
 
 registerCommand({
@@ -594,8 +602,6 @@ registerCommand({
   testEnabled: () => getAppUpdaterActive(),
   onClick: () => getElectron().send('check-for-updates'),
 });
-
-
 
 export function registerFileCommands({
   idPrefix,
