@@ -22,19 +22,19 @@ const jsonFormat = {
       name: 'jsonStyle',
       label: 'JSON style',
       options: [
-        { name: 'Array', value: 'array' },
+        { name: 'Array', value: '' },
         { name: 'Object', value: 'object' },
       ],
       apiName: 'jsonStyle',
     },
     {
-      type: 'textbox',
+      type: 'text',
       name: 'keyField',
-      label: 'Key field',
+      label: 'Key field (only for "Object" style)',
       apiName: 'keyField',
     },
     {
-      type: 'textbox',
+      type: 'text',
       name: 'rootField',
       label: 'Root field',
       apiName: 'rootField',

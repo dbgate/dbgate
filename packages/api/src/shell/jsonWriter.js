@@ -1,17 +1,22 @@
 const { getLogger } = require('dbgate-tools');
 const fs = require('fs');
 const stream = require('stream');
+const _ = require('lodash');
 
 const logger = getLogger('jsonArrayWriter');
 
 class StringifyStream extends stream.Transform {
-  constructor() {
+  constructor({ jsonStyle, keyField, rootField }) {
     super({ objectMode: true });
     this.wasHeader = false;
     this.wasRecord = false;
+    this.jsonStyle = jsonStyle;
+    this.keyField = keyField;
+    this.rootField = rootField;
   }
   _transform(chunk, encoding, done) {
     let skip = false;
+    const keyField = this.keyField || '_key';
 
     if (!this.wasHeader) {
       skip = chunk.__isStreamHeader;
@@ -19,30 +24,71 @@ class StringifyStream extends stream.Transform {
     }
     if (!skip) {
       if (!this.wasRecord) {
-        this.push('[\n');
+        if (this.rootField) {
+          if (this.jsonStyle === 'object') {
+            this.push(`{"${this.rootField}": {\n`);
+          } else {
+            this.push(`{"${this.rootField}": [\n`);
+          }
+        } else {
+          if (this.jsonStyle === 'object') {
+            this.push('{\n');
+          } else {
+            this.push('[\n');
+          }
+        }
       } else {
         this.push(',\n');
       }
       this.wasRecord = true;
 
-      this.push(JSON.stringify(chunk));
+      if (this.jsonStyle === 'object') {
+        const key = chunk[keyField] ?? chunk[Object.keys(chunk)[0]];
+        this.push(`"${key}": ${JSON.stringify(_.omit(chunk, [keyField]))}`);
+      } else {
+        this.push(JSON.stringify(chunk));
+      }
     }
     done();
   }
 
   _flush(done) {
     if (!this.wasRecord) {
-      this.push('[]\n');
+      if (this.rootField) {
+        if (this.jsonStyle === 'object') {
+          this.push(`{"${this.rootField}": {}}\n`);
+        } else {
+          this.push(`{"${this.rootField}": []}\n`);
+        }
+      } else {
+        if (this.jsonStyle === 'object') {
+          this.push('{}\n');
+        } else {
+          this.push('[]\n');
+        }
+      }
     } else {
-      this.push('\n]\n');
+      if (this.rootField) {
+        if (this.jsonStyle === 'object') {
+          this.push('\n}}\n');
+        } else {
+          this.push('\n]}\n');
+        }
+      } else {
+        if (this.jsonStyle === 'object') {
+          this.push('\n}\n');
+        } else {
+          this.push('\n]\n');
+        }
+      }
     }
     done();
   }
 }
 
-async function jsonWriter({ fileName, encoding = 'utf-8' }) {
+async function jsonWriter({ fileName, jsonStyle, keyField, rootField, encoding = 'utf-8' }) {
   logger.info(`Writing file ${fileName}`);
-  const stringify = new StringifyStream();
+  const stringify = new StringifyStream({ jsonStyle, keyField, rootField });
   const fileStream = fs.createWriteStream(fileName, encoding);
   stringify.pipe(fileStream);
   stringify['finisher'] = fileStream;
