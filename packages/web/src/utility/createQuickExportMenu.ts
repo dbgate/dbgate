@@ -5,6 +5,11 @@ import hasPermission from './hasPermission';
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
   return [
+    {
+      text: 'Export advanced...',
+      ...advancedExportMenuItem,
+    },
+    { divider: true },
     ...extensions.quickExports.map(fmt => ({
       text: fmt.label,
       onClick: handler(fmt),
@@ -24,11 +29,6 @@ export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition)
           },
         }),
       }),
-    },
-    { divider: true },
-    {
-      text: 'More...',
-      ...advancedExportMenuItem,
     },
   ];
 }

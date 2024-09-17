@@ -313,8 +313,8 @@
       { divider: true },
       isSqlOrDoc &&
         !connection.isReadOnly &&
-        hasPermission(`dbops/import`) && { onClick: handleImport, text: 'Import wizard' },
-      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: 'Export wizard' },
+        hasPermission(`dbops/import`) && { onClick: handleImport, text: 'Import' },
+      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: 'Export' },
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
