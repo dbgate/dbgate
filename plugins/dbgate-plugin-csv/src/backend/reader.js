@@ -51,6 +51,7 @@ async function reader({ fileName, encoding = 'utf-8', header = true, delimiter, 
     delimiter,
     skip_lines_with_error: true,
     to_line: limitRows ? limitRows + 1 : undefined,
+    ltrim: true,
   });
   const downloadedFile = await dbgateApi.download(fileName);
   const fileStream = fs.createReadStream(downloadedFile, encoding);

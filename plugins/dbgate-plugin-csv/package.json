@@ -32,7 +32,7 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "csv": "^5.3.2",
+    "csv": "^6.3.10",
     "dbgate-plugin-tools": "^1.0.7",
     "lodash": "^4.17.21",
     "webpack": "^5.91.0",

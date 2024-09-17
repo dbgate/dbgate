@@ -27,6 +27,7 @@ test('csv import test', async () => {
 
   const reader = await dbgatePluginCsv.shellApi.reader({
     fileName: csvFileName,
+    delimiter: ';',
   });
 
   const writer = await dbgateApi.jsonLinesWriter({
@@ -39,5 +40,27 @@ test('csv import test', async () => {
     .split('\n')
     .filter(x => x.trim() !== '')
     .map(x => JSON.parse(x));
+  expect(rows[0].columns).toEqual([
+    { columnName: 'Issue Number' },
+    { columnName: 'Title' },
+    { columnName: 'Github URL' },
+    { columnName: 'Labels' },
+    { columnName: 'State' },
+    { columnName: 'Created At' },
+    { columnName: 'Updated At' },
+    { columnName: 'Reporter' },
+    { columnName: 'Assignee' },
+  ]);
   expect(rows.length).toEqual(9);
+  expect(rows[1]).toEqual({
+    'Issue Number': '801',
+    Title: "Does it 'burst' the database on startup or first lUI load ? ",
+    'Github URL': 'https://github.com/dbgate/dbgate/issues/801',
+    Labels: '',
+    State: 'open',
+    'Created At': '05/23/2024',
+    'Updated At': '05/23/2024',
+    Reporter: 'rgarrigue',
+    Assignee: '',
+  });
 });
