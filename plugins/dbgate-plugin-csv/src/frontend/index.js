@@ -17,6 +17,7 @@ const fileFormat = {
       name: 'delimiter',
       label: 'Delimiter',
       options: [
+        { name: 'Auto-detect', value: '' },
         { name: 'Comma (,)', value: ',' },
         { name: 'Semicolon (;)', value: ';' },
         { name: 'Tab', value: '\t' },
