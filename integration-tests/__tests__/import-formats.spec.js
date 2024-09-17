@@ -16,11 +16,27 @@ const CSV_DATA = `Issue Number; Title; Github URL; Labels; State; Created At; Up
 792; "FEAT: Wayland support"; https://github.com/dbgate/dbgate/issues/792; ""; closed; 05/19/2024; 05/21/2024; VosaXalo; 
 `;
 
+async function getReaderRows(reader) {
+  const jsonLinesFileName = tmp.tmpNameSync();
+
+  const writer = await dbgateApi.jsonLinesWriter({
+    fileName: jsonLinesFileName,
+  });
+  await dbgateApi.copyStream(reader, writer);
+
+  const jsonData = fs.readFileSync(jsonLinesFileName, 'utf-8');
+  const rows = jsonData
+    .split('\n')
+    .filter(x => x.trim() !== '')
+    .map(x => JSON.parse(x));
+
+  return rows;
+}
+
 test('csv import test', async () => {
   const dbgatePluginCsv = requirePlugin('dbgate-plugin-csv');
 
   const csvFileName = tmp.tmpNameSync();
-  const jsonlFileName = tmp.tmpNameSync();
 
   fs.writeFileSync(csvFileName, CSV_DATA);
 
@@ -28,16 +44,8 @@ test('csv import test', async () => {
     fileName: csvFileName,
   });
 
-  const writer = await dbgateApi.jsonLinesWriter({
-    fileName: jsonlFileName,
-  });
-  await dbgateApi.copyStream(reader, writer);
+  const rows = await getReaderRows(reader);
 
-  const jsonData = fs.readFileSync(jsonlFileName, 'utf-8');
-  const rows = jsonData
-    .split('\n')
-    .filter(x => x.trim() !== '')
-    .map(x => JSON.parse(x));
   expect(rows[0].columns).toEqual([
     { columnName: 'Issue Number' },
     { columnName: 'Title' },
@@ -65,7 +73,6 @@ test('csv import test', async () => {
 
 test('JSON array import test', async () => {
   const jsonFileName = tmp.tmpNameSync();
-  const jsonLinesFileName = tmp.tmpNameSync();
 
   fs.writeFileSync(
     jsonFileName,
@@ -79,16 +86,8 @@ test('JSON array import test', async () => {
     fileName: jsonFileName,
   });
 
-  const writer = await dbgateApi.jsonLinesWriter({
-    fileName: jsonLinesFileName,
-  });
-  await dbgateApi.copyStream(reader, writer);
+  const rows = await getReaderRows(reader);
 
-  const jsonData = fs.readFileSync(jsonLinesFileName, 'utf-8');
-  const rows = jsonData
-    .split('\n')
-    .filter(x => x.trim() !== '')
-    .map(x => JSON.parse(x));
   expect(rows.length).toEqual(2);
   expect(rows[0]).toEqual({
     id: 1,
