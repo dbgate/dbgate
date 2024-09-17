@@ -2,11 +2,12 @@ const fs = require('fs');
 const stream = require('stream');
 const byline = require('byline');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger('jsonReader');
 const { parser } = require('stream-json');
 const { pick } = require('stream-json/filters/Pick');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const { streamObject } = require('stream-json/streamers/StreamObject');
+
+const logger = getLogger('jsonReader');
 
 class ParseStream extends stream.Transform {
   constructor({ limitRows, jsonStyle, keyField }) {
@@ -42,7 +43,14 @@ class ParseStream extends stream.Transform {
   }
 }
 
-async function jsonReader({ fileName, jsonStyle, keyField = '_key', encoding = 'utf-8', limitRows = undefined }) {
+async function jsonReader({
+  fileName,
+  jsonStyle,
+  keyField = '_key',
+  rootField = null,
+  encoding = 'utf-8',
+  limitRows = undefined,
+}) {
   logger.info(`Reading file ${fileName}`);
 
   const fileStream = fs.createReadStream(
@@ -55,15 +63,17 @@ async function jsonReader({ fileName, jsonStyle, keyField = '_key', encoding = '
 
   const parseStream = new ParseStream({ limitRows, jsonStyle, keyField });
 
-  if (jsonStyle === 'object') {
-    const tramsformer = streamObject();
-    parseJsonStream.pipe(tramsformer);
-    tramsformer.pipe(parseStream);
+  const tramsformer = jsonStyle === 'object' ? streamObject() : streamArray();
+
+  if (rootField) {
+    const filterStream = pick({ filter: rootField });
+    parseJsonStream.pipe(filterStream);
+    filterStream.pipe(tramsformer);
   } else {
-    const tramsformer = streamArray();
     parseJsonStream.pipe(tramsformer);
-    tramsformer.pipe(parseStream);
   }
+
+  tramsformer.pipe(parseStream);
 
   return parseStream;
 }

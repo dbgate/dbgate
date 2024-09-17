@@ -120,3 +120,32 @@ test('JSON object import test', async () => {
     { mykey: 'k2', id: 2, val: 'v2' },
   ]);
 });
+
+test('JSON filtered object import test', async () => {
+  const jsonFileName = tmp.tmpNameSync();
+
+  fs.writeFileSync(
+    jsonFileName,
+    JSON.stringify({
+      filtered: {
+        k1: { id: 1, val: 'v1' },
+        k2: { id: 2, val: 'v2' },
+      },
+    })
+  );
+
+  const reader = await dbgateApi.jsonReader({
+    fileName: jsonFileName,
+    jsonStyle: 'object',
+    keyField: 'mykey',
+    rootField: 'filtered',
+  });
+
+  const rows = await getReaderRows(reader);
+
+  expect(rows.length).toEqual(2);
+  expect(rows).toEqual([
+    { mykey: 'k1', id: 1, val: 'v1' },
+    { mykey: 'k2', id: 2, val: 'v2' },
+  ]);
+});
