@@ -66,7 +66,7 @@ class ParseStream extends stream.Transform {
                 ...obj,
                 ...update.fields,
               },
-              (v, k) => v.$$undefined$$
+              (v, k) => v?.$$undefined$$
             );
           }
         }
