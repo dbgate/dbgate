@@ -50,7 +50,13 @@ export interface SqlDialect {
   predefinedDataTypes: string[];
 
   // create sql-tree expression
-  createColumnViewExpression(columnName: string, dataType: string, source: { alias: string }, alias?: string): any;
+  createColumnViewExpression(
+    columnName: string,
+    dataType: string,
+    source: { alias: string },
+    alias?: string,
+    purpose: 'view' | 'filter' = 'view'
+  ): any;
 
   getTableFormOptions(intent: 'newTableForm' | 'editTableForm' | 'sqlCreateTable' | 'sqlAlterTable'): {
     name: string;

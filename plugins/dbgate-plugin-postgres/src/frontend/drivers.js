@@ -84,7 +84,7 @@ const dialect = {
     'xml',
   ],
 
-  createColumnViewExpression(columnName, dataType, source, alias) {
+  createColumnViewExpression(columnName, dataType, source, alias, purpose) {
     if (dataType && spatialTypes.includes(dataType.toUpperCase())) {
       return {
         exprType: 'call',
@@ -100,7 +100,7 @@ const dialect = {
       };
     }
 
-    if (dataType?.toLowerCase() == 'uuid') {
+    if (dataType?.toLowerCase() == 'uuid' || (purpose == 'filter' && dataType?.toLowerCase()?.startsWith('json'))) {
       return {
         exprType: 'unaryRaw',
         expr: {

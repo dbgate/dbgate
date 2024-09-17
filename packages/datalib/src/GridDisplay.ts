@@ -225,7 +225,7 @@ export abstract class GridDisplay {
           conditions.push(
             _.cloneDeepWith(condition, (expr: Expression) => {
               if (expr.exprType == 'placeholder') {
-                return this.createColumnExpression(column, { alias: column.sourceAlias });
+                return this.createColumnExpression(column, { alias: column.sourceAlias }, undefined, 'filter');
               }
               // return {
               //   exprType: 'column',
@@ -253,7 +253,7 @@ export abstract class GridDisplay {
             orCondition.conditions.push(
               _.cloneDeepWith(condition, (expr: Expression) => {
                 if (expr.exprType == 'placeholder') {
-                  return this.createColumnExpression(column, { alias: 'basetbl' });
+                  return this.createColumnExpression(column, { alias: 'basetbl' }, undefined, 'filter');
                 }
               })
             );
@@ -570,10 +570,10 @@ export abstract class GridDisplay {
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {}
 
-  createColumnExpression(col, source, alias?) {
+  createColumnExpression(col, source, alias?, purpose: 'view' | 'filter' = 'view') {
     let expr = null;
     if (this.dialect.createColumnViewExpression) {
-      expr = this.dialect.createColumnViewExpression(col.columnName, col.dataType, source, alias);
+      expr = this.dialect.createColumnViewExpression(col.columnName, col.dataType, source, alias, purpose);
       if (expr) {
         return expr;
       }
@@ -595,7 +595,7 @@ export abstract class GridDisplay {
         name: _.pick(name, ['schemaName', 'pureName']),
         alias: 'basetbl',
       },
-      columns: columns.map(col => this.createColumnExpression(col, { alias: 'basetbl' })),
+      columns: columns.map(col => this.createColumnExpression(col, { alias: 'basetbl' }, undefined, 'view')),
       orderBy: this.driver?.requiresDefaultSortCriteria
         ? [
             {

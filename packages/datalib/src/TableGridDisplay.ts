@@ -63,7 +63,7 @@ export class TableGridDisplay extends GridDisplay {
         ? this.table.primaryKey.columns.map(x => x.columnName)
         : this.table.columns.map(x => x.columnName);
     }
-    
+
     if (this.config.isFormView) {
       this.addAllExpandedColumnsToSelected = true;
       this.hintBaseColumns = this.formColumns;
@@ -287,7 +287,7 @@ export class TableGridDisplay extends GridDisplay {
     for (const column of columns) {
       if (this.addAllExpandedColumnsToSelected || this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push(
-          this.createColumnExpression(column, { name: column, alias: parentAlias }, column.uniqueName)
+          this.createColumnExpression(column, { name: column, alias: parentAlias }, column.uniqueName, 'view')
         );
         displayedColumnInfo[column.uniqueName] = {
           ...column,
