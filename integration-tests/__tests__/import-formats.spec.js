@@ -27,7 +27,6 @@ test('csv import test', async () => {
 
   const reader = await dbgatePluginCsv.shellApi.reader({
     fileName: csvFileName,
-    delimiter: ';',
   });
 
   const writer = await dbgateApi.jsonLinesWriter({
