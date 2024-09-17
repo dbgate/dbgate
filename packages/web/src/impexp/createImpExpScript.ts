@@ -192,7 +192,7 @@ export function normalizeExportColumnMap(colmap) {
   return null;
 }
 
-export default async function createImpExpScript(extensions, values, addEditorInfo = true, forceScript = false) {
+export default async function createImpExpScript(extensions, values,  forceScript = false) {
   const config = getCurrentConfig();
   const script =
     config.allowShellScripting || forceScript
@@ -232,10 +232,6 @@ export default async function createImpExpScript(extensions, values, addEditorIn
 
     script.copyStream(sourceVar, targetVar, colmapVar);
     script.endLine();
-  }
-  if (addEditorInfo) {
-    script.comment('@ImportExportConfigurator');
-    script.comment(JSON.stringify(values));
   }
   return script.getScript(values.schedule);
 }

@@ -23,15 +23,6 @@
     onClick: () => getCurrentEditor().copyNodeScript(),
   });
 
-  registerCommand({
-    id: 'shell.openWizard',
-    category: 'Shell',
-    name: 'Open wizard',
-    // testEnabled: () => getCurrentEditor()?.openWizardEnabled(),
-    onClick: () => getCurrentEditor().openWizard(),
-  });
-
-  const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
   const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
   const initRegex = /([^\n]+\/\/\s*@init)/g;
 </script>
@@ -58,8 +49,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
-  import { openImportExportTab } from '../utility/importExportTools';
-
+  
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
@@ -148,20 +138,6 @@
     copyTextToClipboard(resp);
   }
 
-  // export function openWizardEnabled() {
-  //   return ($editorValue || '').match(configRegex);
-  // }
-
-  export function openWizard() {
-    const jsonTextMatch = ($editorValue || '').match(configRegex);
-    if (jsonTextMatch) {
-      openImportExportTab(JSON.parse(jsonTextMatch[1]));
-      // showModal(ImportExportModal, { initialValues: JSON.parse(jsonTextMatch[1]) });
-    } else {
-      showSnackbarError('No wizard info found');
-    }
-  }
-
   function getActiveScript() {
     const selectedText = domEditor.getEditor().getSelectedText();
     const editorText = $editorValue;
@@ -208,7 +184,6 @@
     return [
       { command: 'shell.execute' },
       { command: 'shell.kill' },
-      { command: 'shell.openWizard' },
       { divider: true },
       { command: 'shell.toggleComment' },
       { divider: true },
