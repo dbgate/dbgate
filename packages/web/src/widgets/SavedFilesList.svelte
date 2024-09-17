@@ -20,6 +20,7 @@
   const queryFiles = useFiles({ folder: 'query' });
   const sqliteFiles = useFiles({ folder: 'sqlite' });
   const diagramFiles = useFiles({ folder: 'diagrams' });
+  const jobFiles = useFiles({ folder: 'jobs' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
 
   $: files = [
@@ -31,11 +32,12 @@
     ...($sqliteFiles || []),
     ...($diagramFiles || []),
     ...($perspectiveFiles || []),
+    ...($jobFiles || []),
   ];
 
   function handleRefreshFiles() {
     apiCall('files/refresh', {
-      folders: ['sql', 'shell', 'markdown', 'charts', 'query', 'sqlite', 'diagrams', 'perspectives'],
+      folders: ['sql', 'shell', 'markdown', 'charts', 'query', 'sqlite', 'diagrams', 'perspectives', 'jobs'],
     });
   }
 </script>

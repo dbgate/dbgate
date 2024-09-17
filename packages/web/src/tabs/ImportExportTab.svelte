@@ -1,15 +1,25 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('ImportExportTab');
+
+  registerFileCommands({
+    idPrefix: 'job',
+    category: 'Job',
+    getCurrentEditor,
+    folder: 'jobs',
+    format: 'json',
+    fileExtension: 'job',
+
+    // undoRedo: true,
+  });
+</script>
+
 <script lang="ts">
   import moment from 'moment';
   import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import LargeButton from '../buttons/LargeButton.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
 
-  import FormProvider from '../forms/FormProvider.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import LargeFormButton from '../forms/LargeFormButton.svelte';
-  import FontIcon from '../icons/FontIcon.svelte';
   import createImpExpScript from '../impexp/createImpExpScript';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
   import PreviewDataGrid from '../impexp/PreviewDataGrid.svelte';
@@ -36,6 +46,10 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import { changeTab } from '../utility/common';
   import _ from 'lodash';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   let busy = false;
   let executeNumber = 0;
@@ -53,6 +67,8 @@
   const formValues = writable({});
 
   let domConfigurator;
+
+  export const activator = createActivator('ImportExportTab', true);
 
   // const formValues = writable({
   //   sourceStorageType: 'database',
@@ -179,6 +195,10 @@
       runid: runnerId,
     });
   };
+
+  export function getData() {
+    return $editorState.value || '';
+  }
 </script>
 
 <ToolStripContainer>
@@ -218,19 +238,6 @@
         </WidgetColumnBar>
       </svelte:fragment>
     </HorizontalSplitter>
-
-    <!-- <svelte:fragment slot="footer">
-        <div class="flex m-2">
-          {#if busy}
-            <LargeButton icon="icon stop" on:click={handleCancel}>Stop</LargeButton>
-          {:else}
-            <LargeFormButton on:click={handleExecute} icon="icon run">Run</LargeFormButton>
-          {/if}
-          <LargeFormButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</LargeFormButton>
-  
-          <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
-        </div>
-      </svelte:fragment> -->
   </FormProviderCore>
   <svelte:fragment slot="toolstrip">
     {#if busy}
@@ -239,6 +246,7 @@
       <ToolStripButton on:click={handleExecute} icon="icon run">Run</ToolStripButton>
     {/if}
     <ToolStripButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</ToolStripButton>
+    <ToolStripSaveButton idPrefix="job" />
   </svelte:fragment>
 </ToolStripContainer>
 
