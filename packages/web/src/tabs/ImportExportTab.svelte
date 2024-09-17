@@ -34,6 +34,8 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
+  import { changeTab } from '../utility/common';
+  import _ from 'lodash';
 
   let busy = false;
   let executeNumber = 0;
@@ -42,7 +44,6 @@
   const previewReaderStore = writable(null);
 
   export let tabid;
-  export let initialValues;
   export let uploadedFile = undefined;
   export let openedFile = undefined;
   export let importToCurrentTarget = false;
@@ -80,6 +81,11 @@
       if (openedFile) {
         domConfigurator.addUploadedFile(openedFile);
       }
+
+      changeTab(tabid, tab => ({
+        ...tab,
+        props: _.omit(tab.props, ['uploadedFile', 'openedFile', 'importToCurrentTarget']),
+      }));
     },
   });
 
