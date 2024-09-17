@@ -29,6 +29,7 @@ const modifyJsonLinesReader = require('./modifyJsonLinesReader');
 const dataDuplicator = require('./dataDuplicator');
 const dbModelToJson = require('./dbModelToJson');
 const jsonToDbModel = require('./jsonToDbModel');
+const jsonReader = require('./jsonReader');
 
 const dbgateApi = {
   queryReader,
@@ -61,6 +62,7 @@ const dbgateApi = {
   dataDuplicator,
   dbModelToJson,
   jsonToDbModel,
+  jsonReader,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);

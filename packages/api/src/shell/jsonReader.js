@@ -15,7 +15,6 @@ class ParseStream extends stream.Transform {
     this.rowsWritten = 0;
   }
   _transform(chunk, encoding, done) {
-    const obj = JSON.parse(chunk);
     if (!this.wasHeader) {
       this.push({
         __isStreamHeader: true,
@@ -25,7 +24,7 @@ class ParseStream extends stream.Transform {
       this.wasHeader = true;
     }
     if (!this.limitRows || this.rowsWritten < this.limitRows) {
-      this.push(obj.value);
+      this.push(chunk.value);
       this.rowsWritten += 1;
     }
     done();

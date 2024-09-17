@@ -17,7 +17,6 @@ const CSV_DATA = `Issue Number; Title; Github URL; Labels; State; Created At; Up
 `;
 
 test('csv import test', async () => {
-  expect(1).toEqual(1);
   const dbgatePluginCsv = requirePlugin('dbgate-plugin-csv');
 
   const csvFileName = tmp.tmpNameSync();
@@ -61,5 +60,38 @@ test('csv import test', async () => {
     'Updated At': '05/23/2024',
     Reporter: 'rgarrigue',
     Assignee: '',
+  });
+});
+
+test('JSON array import test', async () => {
+  const jsonFileName = tmp.tmpNameSync();
+  const jsonLinesFileName = tmp.tmpNameSync();
+
+  fs.writeFileSync(
+    jsonFileName,
+    JSON.stringify([
+      { id: 1, val: 'v1' },
+      { id: 2, val: 'v2' },
+    ])
+  );
+
+  const reader = await dbgateApi.jsonReader({
+    fileName: jsonFileName,
+  });
+
+  const writer = await dbgateApi.jsonLinesWriter({
+    fileName: jsonLinesFileName,
+  });
+  await dbgateApi.copyStream(reader, writer);
+
+  const jsonData = fs.readFileSync(jsonLinesFileName, 'utf-8');
+  const rows = jsonData
+    .split('\n')
+    .filter(x => x.trim() !== '')
+    .map(x => JSON.parse(x));
+  expect(rows.length).toEqual(2);
+  expect(rows[0]).toEqual({
+    id: 1,
+    val: 'v1',
   });
 });
