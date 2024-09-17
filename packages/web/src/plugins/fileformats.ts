@@ -13,6 +13,7 @@ const jsonFormat = {
   storageType: 'json',
   extension: 'json',
   name: 'JSON',
+  readerFunc: 'jsonReader',
   writerFunc: 'jsonArrayWriter',
 };
 
