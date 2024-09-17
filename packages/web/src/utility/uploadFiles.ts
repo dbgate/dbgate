@@ -5,7 +5,6 @@ import getElectron from './getElectron';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { findFileFormat } from '../plugins/fileformats';
 import { showModal } from '../modals/modalTools';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import openNewTab from './openNewTab';
 import { openImportExportTab } from './importExportTools';

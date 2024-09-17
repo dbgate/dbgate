@@ -830,7 +830,6 @@
   import { filterName, generateDbPairingId, getAlterDatabaseScript, getConnectionLabel } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';

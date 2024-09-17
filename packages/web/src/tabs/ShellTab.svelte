@@ -47,8 +47,6 @@
   import { registerFileCommands } from '../commands/stdCommands';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';

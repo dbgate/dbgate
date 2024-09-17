@@ -374,7 +374,6 @@
   import uuidv1 from 'uuid/v1';
 
   import _, { find } from 'lodash';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';

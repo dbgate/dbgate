@@ -1,7 +1,6 @@
 import { showModal } from '../modals/modalTools';
 import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { currentDatabase, extensions, getCurrentDatabase } from '../stores';
 import { getUploadListener } from './uploadFiles';

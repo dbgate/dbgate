@@ -65,7 +65,6 @@
 <script lang="ts">
   import _ from 'lodash';
   import { filterName } from 'dbgate-tools';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
   import { getExtensions } from '../stores';

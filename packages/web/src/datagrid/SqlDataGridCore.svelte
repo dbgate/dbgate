@@ -65,13 +65,10 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { getContext } from 'svelte';
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
 
   import registerCommand from '../commands/registerCommand';
   import { extractShellConnection } from '../impexp/createImpExpScript';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
