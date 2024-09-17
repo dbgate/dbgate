@@ -6,8 +6,10 @@ const { parser } = require('stream-json');
 const { pick } = require('stream-json/filters/Pick');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const { streamObject } = require('stream-json/streamers/StreamObject');
+const download = require('./download');
 
 const logger = getLogger('jsonReader');
+
 
 class ParseStream extends stream.Transform {
   constructor({ limitRows, jsonStyle, keyField }) {
@@ -15,7 +17,7 @@ class ParseStream extends stream.Transform {
     this.wasHeader = false;
     this.limitRows = limitRows;
     this.jsonStyle = jsonStyle;
-    this.keyField = keyField;
+    this.keyField = keyField || '_key';
     this.rowsWritten = 0;
   }
   _transform(chunk, encoding, done) {
@@ -53,8 +55,9 @@ async function jsonReader({
 }) {
   logger.info(`Reading file ${fileName}`);
 
+  const downloadedFile = await download(fileName);
   const fileStream = fs.createReadStream(
-    fileName,
+    downloadedFile,
     // @ts-ignore
     encoding
   );

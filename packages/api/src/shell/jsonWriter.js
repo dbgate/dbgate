@@ -11,12 +11,11 @@ class StringifyStream extends stream.Transform {
     this.wasHeader = false;
     this.wasRecord = false;
     this.jsonStyle = jsonStyle;
-    this.keyField = keyField;
+    this.keyField = keyField || '_key';
     this.rootField = rootField;
   }
   _transform(chunk, encoding, done) {
     let skip = false;
-    const keyField = this.keyField || '_key';
 
     if (!this.wasHeader) {
       skip = chunk.__isStreamHeader;
@@ -43,8 +42,8 @@ class StringifyStream extends stream.Transform {
       this.wasRecord = true;
 
       if (this.jsonStyle === 'object') {
-        const key = chunk[keyField] ?? chunk[Object.keys(chunk)[0]];
-        this.push(`"${key}": ${JSON.stringify(_.omit(chunk, [keyField]))}`);
+        const key = chunk[this.keyField] ?? chunk[Object.keys(chunk)[0]];
+        this.push(`"${key}": ${JSON.stringify(_.omit(chunk, [this.keyField]))}`);
       } else {
         this.push(JSON.stringify(chunk));
       }
@@ -86,7 +85,7 @@ class StringifyStream extends stream.Transform {
   }
 }
 
-async function jsonWriter({ fileName, jsonStyle, keyField, rootField, encoding = 'utf-8' }) {
+async function jsonWriter({ fileName, jsonStyle, keyField = '_key', rootField, encoding = 'utf-8' }) {
   logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ jsonStyle, keyField, rootField });
   const fileStream = fs.createWriteStream(fileName, encoding);

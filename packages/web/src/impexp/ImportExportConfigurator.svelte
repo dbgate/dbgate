@@ -46,7 +46,6 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import Link from '../elements/Link.svelte';
   import TableControl from '../elements/TableControl.svelte';
