@@ -877,7 +877,7 @@
   {...$$restProps}
   module={$$props.module}
   {data}
-  title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
+  title={data.schemaName && !passProps?.hideSchemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}

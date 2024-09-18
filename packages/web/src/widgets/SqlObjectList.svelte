@@ -35,11 +35,14 @@
   import runCommand from '../commands/runCommand';
   import { apiCall } from '../utility/api';
   import { filterAppsForDatabase } from '../utility/appTools';
+  import SchemaSelector from './SchemaSelector.svelte';
 
   export let conid;
   export let database;
 
   let filter = '';
+  let selectedSchema = null;
+  let appliedSelectedSchema = null;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -99,6 +102,12 @@
       );
     return res;
   }
+
+  $: flatFilteredList = objectList.filter(data => {
+    const matcher = databaseObjectAppObject.createMatcher(data);
+    if (matcher && !matcher(filter)) return false;
+    return true;
+  });
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -130,16 +139,27 @@
     <SearchInput placeholder="Search in tables, objects, # prefix in columns" bind:value={filter} />
     <CloseSearchButton bind:filter />
     <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
-    <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list">
+    <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
       <FontIcon icon="icon refresh" />
     </InlineButton>
   </SearchBoxWrapper>
+  <SchemaSelector
+    dbinfo={$objects}
+    bind:selectedSchema
+    objectList={flatFilteredList}
+    onApplySelectedSchema={x => {
+      appliedSelectedSchema = x;
+    }}
+  />
+
   <WidgetsInnerContainer>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
       <AppObjectList
-        list={objectList.map(x => ({ ...x, conid, database }))}
+        list={objectList
+          .filter(x => (appliedSelectedSchema ? x.schemaName == appliedSelectedSchema : true))
+          .map(x => ({ ...x, conid, database }))}
         module={databaseObjectAppObject}
         groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
         subItemsComponent={SubColumnParamList}
@@ -147,7 +167,11 @@
           data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
         expandIconFunc={chevronExpandIcon}
         {filter}
-        passProps={{ showPinnedInsteadOfUnpin: true, connection: $connection }}
+        passProps={{
+          showPinnedInsteadOfUnpin: true,
+          connection: $connection,
+          hideSchemaName: !!appliedSelectedSchema,
+        }}
       />
     {/if}
   </WidgetsInnerContainer>

@@ -11,6 +11,7 @@
   export let isMulti = false;
   export let notSelected = null;
   export let defaultValue = '';
+  export let selectClass = '';
 
   let listOpen = false;
   let isFocused = false;
@@ -23,6 +24,7 @@
 {#if isNative}
   <select
     value={options.find(x => x.value == value) ? value : defaultValue}
+    class={selectClass}
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);
@@ -46,7 +48,7 @@
       items={options}
       value={isMulti
         ? _.compact(value?.map(item => options.find(x => x.value == item)) ?? [])
-        : options.find(x => x.value == value) ?? null}
+        : (options.find(x => x.value == value) ?? null)}
       on:select={e => {
         if (isMulti) {
           dispatch(

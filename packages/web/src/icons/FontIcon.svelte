@@ -36,6 +36,7 @@
     'icon minus-box': 'mdi mdi-minus-box-outline',
     'icon plus-box': 'mdi mdi-plus-box-outline',
     'icon plus-thick': 'mdi mdi-plus-thick',
+    'icon minus-thick': 'mdi mdi-minus-thick',
     'icon invisible-box': 'mdi mdi-minus-box-outline icon-invisible',
     'icon cloud-upload': 'mdi mdi-cloud-upload',
     'icon import': 'mdi mdi-application-import',
