@@ -119,6 +119,7 @@ export class DatabaseAnalyser {
     const areSchemasDifferent = stableStringify(schemas) != stableStringify(this.structure.schemas);
     if (areSchemasDifferent) {
       structureUpdated = {
+        ...structure,
         ...structureUpdated,
         schemas,
       };
