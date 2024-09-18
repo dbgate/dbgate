@@ -38,7 +38,9 @@
     return res;
   }
 
-  $: schemaList = _.uniq(_.compact(dbinfo?.schemas?.map(x => x.schemaName) ?? []));
+  $: schemaList = _.uniq(
+    _.compact([selectedSchema, ...Object.keys(countBySchema), ...(dbinfo?.schemas?.map(x => x.schemaName) ?? [])])
+  );
   $: countBySchema = computeCountBySchema(objectList ?? []);
 
   function handleAddNewSchema() {
@@ -53,8 +55,9 @@
       isNative
       options={[
         { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
-        ...schemaList.filter(x => countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-        ...schemaList.filter(x => !countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
+        ...schemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
+        // ...schemaList.filter(x => countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
+        // ...schemaList.filter(x => !countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
       ]}
       value={selectedSchema ?? appliedSchema ?? ''}
       on:change={e => {
