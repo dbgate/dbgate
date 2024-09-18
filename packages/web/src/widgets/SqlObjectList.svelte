@@ -150,6 +150,7 @@
     onApplySelectedSchema={x => {
       appliedSelectedSchema = x;
     }}
+    valueStorageKey={`sql-object-list-schema-${conid}-${database}`}
   />
 
   <WidgetsInnerContainer>

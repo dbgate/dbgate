@@ -11,6 +11,8 @@
   export let objectList;
 
   export let onApplySelectedSchema;
+  export let valueStorageKey;
+
   let appliedSchema;
 
   $: {
@@ -46,6 +48,8 @@
   function handleAddNewSchema() {
     // runCommand('add-schema', { conid: dbinfo.conid, database: dbinfo.database });
   }
+
+  $: selectedSchema = localStorage.getItem(valueStorageKey ?? '');
 </script>
 
 {#if schemaList.length > 0}
@@ -62,6 +66,7 @@
       value={selectedSchema ?? appliedSchema ?? ''}
       on:change={e => {
         selectedSchema = e.detail;
+        localStorage.setItem(valueStorageKey, e.detail);
       }}
       selectClass="schema-select"
     />
