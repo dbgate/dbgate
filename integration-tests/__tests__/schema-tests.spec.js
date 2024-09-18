@@ -27,6 +27,9 @@ describe('Schema tests', () => {
       await runCommandOnDriver(conn, driver, dmp => dmp.dropSchema('myschema'));
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2.schemas.find(x => x.schemaName == 'myschema')).toBeFalsy();
+
+      const structure3 = await driver.analyseIncremental(conn, structure2);
+      expect(structure3).toBeNull();
     })
   );
 });
@@ -41,7 +44,7 @@ describe('Base analyser test', () => {
         conn,
         `create table t2 (
           id int not null primary key, 
-          t1_id int null references t1(id)
+          t1_id int
         )`
       );
 
