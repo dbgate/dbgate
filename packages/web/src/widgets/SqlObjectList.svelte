@@ -151,6 +151,8 @@
       appliedSelectedSchema = x;
     }}
     valueStorageKey={`sql-object-list-schema-${conid}-${database}`}
+    {conid}
+    {database}
   />
 
   <WidgetsInnerContainer>

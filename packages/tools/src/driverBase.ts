@@ -84,7 +84,17 @@ export const driverBase = {
     }
   },
   async operation(pool, operation, options: RunScriptOptions) {
-    throw new Error('Operation not defined in target driver');
+    const { type } = operation;
+    switch (type) {
+      case 'createSchema':
+        await runCommandOnDriver(pool, this, dmp => dmp.createSchema(operation.schemaName));
+        break;
+      case 'dropSchema':
+        await runCommandOnDriver(pool, this, dmp => dmp.dropSchema(operation.schemaName));
+        break;
+      default:
+        throw new Error(`Operation type ${type} not supported`);
+    }
   },
   getNewObjectTemplates() {
     if (this.databaseEngineTypes.includes('sql')) {
@@ -180,5 +190,5 @@ export const driverBase = {
 
   adaptTableInfo(table) {
     return table;
-  }
+  },
 };

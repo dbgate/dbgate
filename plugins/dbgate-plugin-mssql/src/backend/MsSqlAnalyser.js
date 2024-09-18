@@ -79,6 +79,12 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.singleObjectId = resId.rows[0].id;
   }
 
+  async readSchemaList() {
+    const schemaRows = await this.analyserQuery('getSchemas');
+    const schemas = schemaRows.rows;
+    return schemas;
+  }
+
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
     const tablesRows = await this.analyserQuery('tables', ['tables']);
@@ -88,8 +94,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'Loading foreign keys' });
     const fkColumnsRows = await this.analyserQuery('foreignKeys', ['tables']);
-    this.feedback({ analysingMessage: 'Loading schemas' });
-    const schemaRows = await this.analyserQuery('getSchemas');
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexesRows = await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading index columns' });
@@ -99,17 +103,10 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading table sizes' });
     const tableSizes = await this.analyserQuery('tableSizes');
 
-    const schemas = schemaRows.rows;
-
     const tableSizesDict = _.mapValues(_.keyBy(tableSizes.rows, 'objectId'), 'tableRowCount');
 
     this.feedback({ analysingMessage: 'Loading SQL code' });
-    const sqlCodeRows = await this.analyserQuery('loadSqlCode', [
-      'views',
-      'procedures',
-      'functions',
-      'triggers',
-    ]);
+    const sqlCodeRows = await this.analyserQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers']);
     const getCreateSql = row =>
       sqlCodeRows.rows
         .filter(x => x.pureName == row.pureName && x.schemaName == row.schemaName)
@@ -182,7 +179,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       views,
       procedures,
       functions,
-      schemas,
       defaultSchema: defaultSchemaRows.rows[0] ? defaultSchemaRows.rows[0].name : undefined,
     };
   }

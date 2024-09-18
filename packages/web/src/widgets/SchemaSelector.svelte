@@ -5,6 +5,10 @@
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
   import { DatabaseInfo } from 'dbgate-types';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { runOperationOnDatabase } from '../modals/ConfirmSqlModal.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let dbinfo: DatabaseInfo;
   export let selectedSchema;
@@ -12,6 +16,9 @@
 
   export let onApplySelectedSchema;
   export let valueStorageKey;
+
+  export let conid;
+  export let database;
 
   let appliedSchema;
 
@@ -45,8 +52,33 @@
   );
   $: countBySchema = computeCountBySchema(objectList ?? []);
 
-  function handleAddNewSchema() {
-    // runCommand('add-schema', { conid: dbinfo.conid, database: dbinfo.database });
+  function handleCreateSchema() {
+    showModal(InputTextModal, {
+      header: 'Create schema',
+      value: 'newschema',
+      label: 'Schema name',
+      onConfirm: async name => {
+        const dbid = { conid, database };
+        await runOperationOnDatabase(dbid, {
+          type: 'createSchema',
+          schemaName: name,
+        });
+        selectedSchema = name;
+      },
+    });
+  }
+  function handleDropSchema() {
+    showModal(ConfirmModal, {
+      message: `Really drop schema ${appliedSchema}?`,
+      onConfirm: async () => {
+        const dbid = { conid, database };
+        runOperationOnDatabase(dbid, {
+          type: 'dropSchema',
+          schemaName: appliedSchema,
+        });
+        selectedSchema = null;
+      },
+    });
   }
 
   $: selectedSchema = localStorage.getItem(valueStorageKey ?? '');
@@ -81,10 +113,10 @@
         <FontIcon icon="icon close" />
       </InlineButton>
     {/if}
-    <InlineButton on:click={handleAddNewSchema} title="Add new schema" square>
+    <InlineButton on:click={handleCreateSchema} title="Add new schema" square>
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
-    <InlineButton on:click={handleAddNewSchema} title="Delete schema" square>
+    <InlineButton on:click={handleDropSchema} title="Delete schema" square disabled={!appliedSchema}>
       <FontIcon icon="icon minus-thick" />
     </InlineButton>
   </div>

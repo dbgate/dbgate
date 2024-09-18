@@ -12,6 +12,7 @@ const matviewColumns = require('./matviewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
+const getSchemas = require('./getSchemas');
 const geometryColumns = require('./geometryColumns');
 const geographyColumns = require('./geographyColumns');
 
@@ -39,4 +40,5 @@ module.exports = {
   uniqueNames,
   geometryColumns,
   geographyColumns,
+  getSchemas,
 };

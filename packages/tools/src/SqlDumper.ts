@@ -214,6 +214,14 @@ export class SqlDumper implements AlterProcessor {
     this.putCmd('^drop ^database %i', name);
   }
 
+  createSchema(name: string) {
+    this.putCmd('^create ^schema %i', name);
+  }
+
+  dropSchema(name: string) {
+    this.putCmd('^drop ^schema %i', name);
+  }
+
   specialColumnOptions(column) {}
 
   selectScopeIdentity(table: TableInfo) {}
