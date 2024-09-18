@@ -81,6 +81,7 @@ const engines = [
         drop2: 'DROP FUNCTION obj2',
       },
     ],
+    supportSchemas: true,
   },
   {
     label: 'SQL Server',
@@ -105,6 +106,7 @@ const engines = [
         drop2: 'DROP PROCEDURE obj2',
       },
     ],
+    supportSchemas: true,
   },
   {
     label: 'SQLite',
@@ -159,11 +161,11 @@ const filterLocal = [
   // filter local testing
   '-MySQL',
   '-MariaDB',
-  '-PostgreSQL',
+  'PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
-  'ClickHouse',
+  '-ClickHouse',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
