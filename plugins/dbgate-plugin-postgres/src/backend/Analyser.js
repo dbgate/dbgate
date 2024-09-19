@@ -57,7 +57,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
-    const dbname = this.pool.__dbgate_database_name__;
+    const dbname = this.pool.database;
     const schemaCondition = isCompositeDbName(dbname)
       ? `= '${splitCompositeDbName(dbname).schema}' `
       : ' IS NOT NULL   ';

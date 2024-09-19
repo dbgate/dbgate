@@ -90,24 +90,26 @@ const drivers = driverBases.map(driverBase => ({
       await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
     }
 
-    // client.__dbgate_database_name__ = database;
-    return client;
+    return {
+      client,
+      database,
+    };
   },
-  async close(pool) {
-    return pool.end();
+  async close(handle) {
+    return handle.client.end();
   },
-  async query(client, sql) {
+  async query(handle, sql) {
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-    const res = await client.query({ text: sql, rowMode: 'array' });
+    const res = await handle.client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
-  stream(client, sql, options) {
+  stream(handle, sql, options) {
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -166,10 +168,10 @@ const drivers = driverBases.map(driverBase => ({
       options.done();
     });
 
-    client.query(query);
+    handle.client.query(query);
   },
-  async getVersion(client) {
-    const { rows } = await this.query(client, 'SELECT version()');
+  async getVersion(handle) {
+    const { rows } = await this.query(handle, 'SELECT version()');
     const { version } = rows[0];
 
     const isCockroach = version.toLowerCase().includes('cockroachdb');
@@ -252,8 +254,8 @@ const drivers = driverBases.map(driverBase => ({
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
-  async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
+  async listDatabases(handle) {
+    const { rows } = await this.query(handle, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
 
@@ -270,12 +272,12 @@ const drivers = driverBases.map(driverBase => ({
     ];
   },
 
-  async listSchemas(pool) {
+  async listSchemas(handle) {
     const schemaRows = await this.query(
-      pool,
+      handle,
       'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
     );
-    const defaultSchemaRows = await this.query(pool, 'SHOW SEARCH_PATH;');
+    const defaultSchemaRows = await this.query(handle, 'SHOW SEARCH_PATH;');
     const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
 
     const schemas = schemaRows.rows.map(x => ({
