@@ -70,7 +70,7 @@ describe('Schema tests', () => {
       await driver.query(schemaConn, `create table myschema.myt1 (id int not null primary key)`);
       const structure1 = await driver.analyseFull(schemaConn);
       expect(structure1.tables.length).toEqual(1);
-      expect(structure1.tables[0].tableName).toEqual('myt1');
+      expect(structure1.tables[0].pureName).toEqual('myt1');
     })
   );
 });

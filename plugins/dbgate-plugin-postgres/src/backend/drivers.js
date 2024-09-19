@@ -4,7 +4,8 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
-const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractDbNameFromComposite } =
+  global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('postreDriver');
 
@@ -76,7 +77,7 @@ const drivers = driverBases.map(driverBase => ({
             port: authType == 'socket' ? null : port,
             user,
             password,
-            database: database || 'postgres',
+            database: extractDbNameFromComposite(database) || 'postgres',
             ssl,
             application_name: 'DbGate',
           };
