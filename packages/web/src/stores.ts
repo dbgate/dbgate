@@ -148,6 +148,7 @@ export const loadingPluginStore = writable({
   loadingPackageName: null,
 });
 export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
+export const appliedCurrentSchema = writable<string>(null);
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
@@ -311,3 +312,9 @@ appUpdaterActive.subscribe(value => {
   appUpdaterActiveValue = value;
 });
 export const getAppUpdaterActive = () => appUpdaterActiveValue;
+
+let appliedCurrentSchemaValue = null;
+appliedCurrentSchema.subscribe(value => {
+  appliedCurrentSchemaValue = value;
+});
+export const getAppliedCurrentSchema = () => appliedCurrentSchemaValue;

@@ -9,33 +9,29 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { runOperationOnDatabase } from '../modals/ConfirmSqlModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import { appliedCurrentSchema } from '../stores';
 
   export let dbinfo: DatabaseInfo;
   export let selectedSchema;
   export let objectList;
 
-  export let onApplySelectedSchema;
   export let valueStorageKey;
 
   export let conid;
   export let database;
 
-  let appliedSchema;
-
   $: {
     if (selectedSchema != null) {
-      appliedSchema = selectedSchema;
+      $appliedCurrentSchema = selectedSchema;
     } else {
       const usedSchemas = Object.keys(countBySchema);
       if (usedSchemas.length == 1) {
-        appliedSchema = usedSchemas[0];
+        $appliedCurrentSchema = usedSchemas[0];
       } else {
-        appliedSchema = null;
+        $appliedCurrentSchema = null;
       }
     }
   }
-
-  $: onApplySelectedSchema(appliedSchema);
 
   function computeCountBySchema(list) {
     const res = {};
@@ -63,18 +59,20 @@
           type: 'createSchema',
           schemaName: name,
         });
-        selectedSchema = name;
+        if (selectedSchema) {
+          selectedSchema = name;
+        }
       },
     });
   }
   function handleDropSchema() {
     showModal(ConfirmModal, {
-      message: `Really drop schema ${appliedSchema}?`,
+      message: `Really drop schema ${$appliedCurrentSchema}?`,
       onConfirm: async () => {
         const dbid = { conid, database };
         runOperationOnDatabase(dbid, {
           type: 'dropSchema',
-          schemaName: appliedSchema,
+          schemaName: $appliedCurrentSchema,
         });
         selectedSchema = null;
       },
@@ -95,7 +93,7 @@
         // ...schemaList.filter(x => countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
         // ...schemaList.filter(x => !countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
       ]}
-      value={selectedSchema ?? appliedSchema ?? ''}
+      value={selectedSchema ?? $appliedCurrentSchema ?? ''}
       on:change={e => {
         selectedSchema = e.detail;
         localStorage.setItem(valueStorageKey, e.detail);
@@ -116,7 +114,7 @@
     <InlineButton on:click={handleCreateSchema} title="Add new schema" square>
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
-    <InlineButton on:click={handleDropSchema} title="Delete schema" square disabled={!appliedSchema}>
+    <InlineButton on:click={handleDropSchema} title="Delete schema" square disabled={!$appliedCurrentSchema}>
       <FontIcon icon="icon minus-thick" />
     </InlineButton>
   </div>

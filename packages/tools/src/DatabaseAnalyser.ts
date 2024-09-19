@@ -132,7 +132,10 @@ export class DatabaseAnalyser {
     this.modifications = structureModifications;
     if (structureUpdated) this.structure = structureUpdated;
     logger.info({ modifications: this.modifications }, 'DB modifications detected:');
-    return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
+    return {
+      ...this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis())),
+      schemas,
+    };
   }
 
   mergeAnalyseResult(newlyAnalysed) {

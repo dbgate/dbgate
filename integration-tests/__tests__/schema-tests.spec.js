@@ -24,11 +24,13 @@ describe('Schema tests', () => {
       await baseStructure(conn, driver);
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.schemas.find(x => x.schemaName == 'myschema')).toBeFalsy();
+      const count = structure1.schemas.length;
       expect(structure1.tables.length).toEqual(2);
       await runCommandOnDriver(conn, driver, dmp => dmp.createSchema('myschema'));
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2.schemas.find(x => x.schemaName == 'myschema')).toBeTruthy();
       expect(structure2.tables.length).toEqual(2);
+      expect(structure2.schemas.length).toEqual(count + 1);
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
       expect(structure3).toBeNull();
@@ -51,6 +53,20 @@ describe('Schema tests', () => {
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
       expect(structure3).toBeNull();
+    })
+  );
+
+  test.each(engines.filter(x => x.supportSchemas).map(engine => [engine.label, engine]))(
+    'Create table - keep schemas - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await baseStructure(conn, driver);
+      const structure1 = await driver.analyseFull(conn);
+      const count = structure1.schemas.length;
+      expect(structure1.tables.length).toEqual(2);
+      await driver.query(conn, `create table t3 (id int not null primary key)`);
+      const structure2 = await driver.analyseIncremental(conn, structure1);
+      expect(structure2.tables.length).toEqual(3);
+      expect(structure2.schemas.length).toEqual(count);
     })
   );
 });

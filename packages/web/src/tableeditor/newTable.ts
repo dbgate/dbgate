@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import openNewTab from '../utility/openNewTab';
 import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
-import { getExtensions } from '../stores';
+import { getAppliedCurrentSchema, getExtensions } from '../stores';
 
 export default function newTable(connection, database) {
   const tooltip = `${getConnectionLabel(connection)}\n${database}`;
@@ -21,7 +21,7 @@ export default function newTable(connection, database) {
       editor: {
         current: {
           pureName: 'new_table',
-          schemaName: driver?.dialect?.defaultSchemaName,
+          schemaName: getAppliedCurrentSchema() ?? driver?.dialect?.defaultSchemaName,
           columns: [
             {
               columnName: 'id',

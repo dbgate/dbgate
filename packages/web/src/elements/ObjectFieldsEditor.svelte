@@ -4,8 +4,6 @@
   import FormArgumentList from '../forms/FormArgumentList.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import createRef from '../utility/createRef';
-  import FormSchemaSelect from '../impexp/FormSchemaSelect.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
 
@@ -39,6 +37,7 @@
     <FormProviderCore values={valuesStore}>
       {#if schemaList?.length > 0}
         <FormSelectField
+          isNative
           name="schemaName"
           label="Schema"
           options={schemaList.map(x => ({ label: x.schemaName, value: x.schemaName }))}

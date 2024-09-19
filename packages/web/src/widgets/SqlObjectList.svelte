@@ -36,13 +36,13 @@
   import { apiCall } from '../utility/api';
   import { filterAppsForDatabase } from '../utility/appTools';
   import SchemaSelector from './SchemaSelector.svelte';
+  import { appliedCurrentSchema } from '../stores';
 
   export let conid;
   export let database;
 
   let filter = '';
   let selectedSchema = null;
-  let appliedSelectedSchema = null;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -147,9 +147,6 @@
     dbinfo={$objects}
     bind:selectedSchema
     objectList={flatFilteredList}
-    onApplySelectedSchema={x => {
-      appliedSelectedSchema = x;
-    }}
     valueStorageKey={`sql-object-list-schema-${conid}-${database}`}
     {conid}
     {database}
@@ -161,7 +158,7 @@
     {:else}
       <AppObjectList
         list={objectList
-          .filter(x => (appliedSelectedSchema ? x.schemaName == appliedSelectedSchema : true))
+          .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
           .map(x => ({ ...x, conid, database }))}
         module={databaseObjectAppObject}
         groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
@@ -173,7 +170,7 @@
         passProps={{
           showPinnedInsteadOfUnpin: true,
           connection: $connection,
-          hideSchemaName: !!appliedSelectedSchema,
+          hideSchemaName: !!$appliedCurrentSchema,
         }}
       />
     {/if}
