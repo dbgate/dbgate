@@ -109,6 +109,7 @@ const engines = [
     ],
     supportSchemas: true,
     defaultSchemaName: 'dbo',
+    skipSeparateSchemas: true,
   },
   {
     label: 'SQLite',

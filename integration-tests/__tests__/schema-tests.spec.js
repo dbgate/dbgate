@@ -55,7 +55,7 @@ describe('Schema tests', () => {
     })
   );
 
-  test.each(engines.filter(x => x.supportSchemas).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => x.supportSchemas && !x.skipSeparateSchemas).map(engine => [engine.label, engine]))(
     'Table inside schema - %s',
     testWrapper(async (conn, driver, engine) => {
       await baseStructure(conn, driver);
