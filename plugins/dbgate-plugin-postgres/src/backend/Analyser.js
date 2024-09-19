@@ -62,7 +62,7 @@ class Analyser extends DatabaseAnalyser {
       ? `= '${splitCompositeDbName(dbname).schema}' `
       : ' IS NOT NULL   ';
 
-    return query.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
+    return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
   }
 
   async _computeSingleObjectId() {
