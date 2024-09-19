@@ -123,6 +123,14 @@
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
+  <SchemaSelector
+    schemaList={$schemaList}
+    objectList={flatFilteredList}
+    connection={$connection}
+    {conid}
+    {database}
+    {driver}
+  />
   <WidgetsInnerContainer>
     <ErrorInfo
       message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
