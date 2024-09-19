@@ -4,5 +4,5 @@ select
   schemaname as "schema_name",
   md5(definition) as "hash_code"
 from
-  pg_catalog.pg_matviews WHERE schemaname NOT LIKE 'pg_%' 
+  pg_catalog.pg_matviews WHERE schemaname NOT LIKE 'pg_%'  AND schemaname =SCHEMA_NAME_CONDITION
 `;

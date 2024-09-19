@@ -26,4 +26,5 @@ and infoTables.table_schema <> 'information_schema'
 and infoTables.table_schema <> 'pg_internal'
 and infoTables.table_schema !~ '^pg_toast'
 and infoTables.table_schema !~ '^_timescaledb_'
+and infoTables.table_schema =SCHEMA_NAME_CONDITION
 `;

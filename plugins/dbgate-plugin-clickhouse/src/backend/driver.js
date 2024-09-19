@@ -5,6 +5,7 @@ const Analyser = require('./Analyser');
 const { createClient } = require('@clickhouse/client');
 const createBulkInsertStream = require('./createBulkInsertStream');
 
+
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
@@ -15,7 +16,7 @@ const driver = {
       url: databaseUrl,
       username: user,
       password: password,
-      database: database,
+      database,
     });
 
     client._database_name = database;

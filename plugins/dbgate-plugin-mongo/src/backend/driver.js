@@ -81,7 +81,6 @@ const driver = {
     await pool.connect();
     // const pool = await MongoClient.connect(mongoUrl);
     pool.__getDatabase = database ? () => pool.db(database) : () => pool.db();
-    pool.__databaseName = database;
     return pool;
   },
   // @ts-ignore

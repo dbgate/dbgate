@@ -6,5 +6,5 @@ select
   routine_type as "object_type"
 from
   information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' and routine_schema !~ '^_timescaledb_' 
-  and routine_type in ('PROCEDURE', 'FUNCTION')
+  and routine_type in ('PROCEDURE', 'FUNCTION') and routine_schema =SCHEMA_NAME_CONDITION
 `;

@@ -13,3 +13,16 @@ export function findDefaultSchema(schemaList: SchemaInfo[], dialect: SqlDialect)
   }
   return schemaList[0]?.schemaName;
 }
+
+export function isCompositeDbName(name: string) {
+  return name?.includes('::');
+}
+
+export function splitCompositeDbName(name: string) {
+  const [database, schema] = name.split('::');
+  return { database, schema };
+}
+
+export function extractDbNameFromComposite(name: string) {
+  return isCompositeDbName(name) ? splitCompositeDbName(name).database : name;
+}

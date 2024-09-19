@@ -14,5 +14,6 @@ where
 		and table_constraints.table_schema !~ '^_timescaledb_' 
 		and table_constraints.constraint_type = 'PRIMARY KEY'
 		and ('tables:' || table_constraints.table_schema || '.' || table_constraints.table_name) =OBJECT_ID_CONDITION
+		and table_constraints.table_schema =SCHEMA_NAME_CONDITION
 order by key_column_usage.ordinal_position
 `;

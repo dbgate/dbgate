@@ -20,5 +20,6 @@ where
 			or
 			('views:' || table_schema || '.' || table_name) =OBJECT_ID_CONDITION
 		)
+		and table_schema =SCHEMA_NAME_CONDITION
 order by ordinal_position
 `;

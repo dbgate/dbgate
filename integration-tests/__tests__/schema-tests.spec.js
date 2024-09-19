@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
 const fp = require('lodash/fp');
-const { testWrapper } = require('../tools');
+const { testWrapper, extractConnection } = require('../tools');
 const engines = require('../engines');
 const { runCommandOnDriver } = require('dbgate-tools');
 
@@ -52,6 +52,25 @@ describe('Schema tests', () => {
       const schemas2 = await driver.listSchemas(conn);
       expect(schemas2.find(x => x.schemaName == 'myschema')).toBeFalsy();
       expect(structure2).toBeNull();
+    })
+  );
+
+  test.each(engines.filter(x => x.supportSchemas).map(engine => [engine.label, engine]))(
+    'Table inside schema - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await baseStructure(conn, driver);
+      await runCommandOnDriver(conn, driver, dmp => dmp.createSchema('myschema'));
+
+      const schemaConnDef = {
+        ...extractConnection(engine),
+        database: `${conn._database_name}::myschema`,
+      };
+
+      const schemaConn = await driver.connect(schemaConnDef);
+      await driver.query(schemaConn, `create table myschema.myt1 (id int not null primary key)`);
+      const structure1 = await driver.analyseFull(schemaConn);
+      expect(structure1.tables.length).toEqual(1);
+      expect(structure1.tables[0].tableName).toEqual('myt1');
     })
   );
 });

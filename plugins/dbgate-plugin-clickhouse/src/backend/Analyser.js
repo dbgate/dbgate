@@ -1,4 +1,4 @@
-const { DatabaseAnalyser } = require('dbgate-tools');
+const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];
 const sql = require('./sql');
 
 function extractDataType(dataType) {

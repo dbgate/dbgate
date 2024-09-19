@@ -2,7 +2,8 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const { DatabaseAnalyser, isTypeString, isTypeNumeric } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { DatabaseAnalyser, isTypeString, isTypeNumeric, isCompositeDbName, splitCompositeDbName } =
+  global.DBGATE_PACKAGES['dbgate-tools'];
 
 function normalizeTypeName(dataType) {
   if (dataType == 'character varying') return 'varchar';
@@ -56,7 +57,12 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
-    return query;
+    const dbname = this.pool._database_name;
+    const schemaCondition = isCompositeDbName(dbname)
+      ? `= '${splitCompositeDbName(dbname).schema}' `
+      : ' IS NOT NULL   ';
+
+    return query.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
   }
 
   async _computeSingleObjectId() {
