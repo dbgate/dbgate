@@ -49,7 +49,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const connection = mysql2.createConnection(options);
-    connection.__database_name__ = database;
+    connection.__dbgate_database_name__ = database;
     if (isReadOnly) {
       await this.query(connection, 'SET SESSION TRANSACTION READ ONLY');
     }

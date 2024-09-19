@@ -85,7 +85,7 @@ const driver = {
         : await tediousConnect(conn);
 
     if (result) {
-      result.__database_name__ = conn.database;
+      result.__dbgate_database_name__ = conn.database;
     }
 
     return result;
