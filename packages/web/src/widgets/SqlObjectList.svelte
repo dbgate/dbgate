@@ -16,7 +16,13 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus, useSchemaList, useUsedApps } from '../utility/metadataLoaders';
+  import {
+    useConnectionInfo,
+    useDatabaseInfo,
+    useDatabaseStatus,
+    useSchemaList,
+    useUsedApps,
+  } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
@@ -80,6 +86,7 @@
 
   const handleRefreshDatabase = () => {
     apiCall('database-connections/refresh', { conid, database });
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
   };
 
   function createAddMenu() {

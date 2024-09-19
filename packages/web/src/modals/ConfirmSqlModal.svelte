@@ -1,4 +1,4 @@
-<script context="module">
+<script context="module" lang="ts">
   export async function saveScriptToDatabase({ conid, database }, sql, syncModel = true) {
     const resp = await apiCall('database-connections/run-script', {
       conid,
@@ -15,7 +15,7 @@
     }
   }
 
-  export async function runOperationOnDatabase({ conid, database }, operation, syncModel = true) {
+  export async function runOperationOnDatabase({ conid, database }, operation, syncModel: string | boolean = true) {
     const resp = await apiCall('database-connections/run-operation', {
       conid,
       database,
@@ -27,7 +27,11 @@
       showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
     } else {
       showSnackbarSuccess('Saved to database');
-      if (syncModel) apiCall('database-connections/sync-model', { conid, database });
+      if (_.isString(syncModel)) {
+        apiCall('database-connections/dispatch-database-changed-event', { event: syncModel, conid, database });
+      } else if (syncModel) {
+        apiCall('database-connections/sync-model', { conid, database });
+      }
     }
   }
 </script>
