@@ -15,7 +15,7 @@ function findFreeNumber(numbers: number[]) {
   // return res;
 }
 
-export default async function openNewTab(newTab, initialData = undefined, options = undefined) {
+export default async function openNewTab(newTab, initialData: any = undefined, options: any = undefined) {
   const oldTabs = getOpenedTabs();
   const activeTab = getActiveTab();
 

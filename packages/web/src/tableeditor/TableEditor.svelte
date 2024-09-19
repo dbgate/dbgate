@@ -91,6 +91,7 @@
   export let dbInfo;
   export let driver;
   export let resetCounter;
+  export let isCreateTable;
 
   $: isWritable = !!setTableInfo;
 
@@ -165,15 +166,14 @@
 </script>
 
 <div class="wrapper">
-  {#if tableFormOptions}
+  {#if tableInfo && (tableFormOptions || isCreateTable)}
     {#key resetCounter}
       <ObjectFieldsEditor
         title="Table properties"
-        fieldDefinitions={tableFormOptions}
-        values={_.pick(
-          tableInfo,
-          tableFormOptions.map(x => x.name)
-        )}
+        fieldDefinitions={tableFormOptions ?? []}
+        pureNameTitle={isCreateTable ? 'Table name' : null}
+        schemaList={isCreateTable && dbInfo?.schemas?.length >= 0 ? dbInfo?.schemas : null}
+        values={_.pick(tableInfo, ['schemaName', 'pureName', ...(tableFormOptions ?? []).map(x => x.name)])}
         onChangeValues={vals => {
           if (!_.isEmpty(vals)) {
             setTableInfo(tbl => ({ ...tbl, ...vals }));

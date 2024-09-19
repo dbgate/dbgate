@@ -4,12 +4,15 @@
   import FormArgumentList from '../forms/FormArgumentList.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import createRef from '../utility/createRef';
+  import FormTextField from '../forms/FormTextField.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
 
   export let title;
   export let fieldDefinitions;
   export let values;
   export let onChangeValues;
+  export let pureNameTitle = null;
+  export let schemaList = null;
 
   let collapsed = false;
 
@@ -32,6 +35,17 @@
   </div>
   {#if !collapsed}
     <FormProviderCore values={valuesStore}>
+      {#if schemaList?.length > 0}
+        <FormSelectField
+          isNative
+          name="schemaName"
+          label="Schema"
+          options={schemaList.map(x => ({ label: x.schemaName, value: x.schemaName }))}
+        />
+      {/if}
+      {#if pureNameTitle}
+        <FormTextField name="pureName" label={pureNameTitle} />
+      {/if}
       <FormArgumentList args={fieldDefinitions} />
     </FormProviderCore>
   {/if}

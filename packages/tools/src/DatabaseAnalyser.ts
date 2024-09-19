@@ -5,6 +5,7 @@ import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
+import stableStringify from 'json-stable-stringify';
 
 const logger = getLogger('dbAnalyser');
 
@@ -70,7 +71,10 @@ export class DatabaseAnalyser {
   async fullAnalysis() {
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
-    return res;
+    return {
+      ...res,
+      schemas: await this.readSchemaList(),
+    };
   }
 
   async singleObjectAnalysis(name, typeField) {
@@ -87,6 +91,10 @@ export class DatabaseAnalyser {
     return obj;
   }
 
+  async readSchemaList() {
+    return undefined;
+  }
+
   async incrementalAnalysis(structure) {
     this.structure = structure;
 
@@ -99,22 +107,35 @@ export class DatabaseAnalyser {
     const structureModifications = modifications.filter(x => x.action != 'setTableRowCounts');
     const setTableRowCounts = modifications.find(x => x.action == 'setTableRowCounts');
 
-    let structureWithRowCounts = null;
+    let structureUpdated = null;
     if (setTableRowCounts) {
       const newStructure = mergeTableRowCounts(structure, setTableRowCounts.rowCounts);
       if (areDifferentRowCounts(structure, newStructure)) {
-        structureWithRowCounts = newStructure;
+        structureUpdated = newStructure;
       }
     }
 
+    const schemas = await this.readSchemaList();
+    const areSchemasDifferent = stableStringify(schemas) != stableStringify(this.structure.schemas);
+    if (areSchemasDifferent) {
+      structureUpdated = {
+        ...structure,
+        ...structureUpdated,
+        schemas,
+      };
+    }
+
     if (structureModifications.length == 0) {
-      return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
+      return structureUpdated ? this.addEngineField(structureUpdated) : null;
     }
 
     this.modifications = structureModifications;
-    if (structureWithRowCounts) this.structure = structureWithRowCounts;
+    if (structureUpdated) this.structure = structureUpdated;
     logger.info({ modifications: this.modifications }, 'DB modifications detected:');
-    return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
+    return {
+      ...this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis())),
+      schemas,
+    };
   }
 
   mergeAnalyseResult(newlyAnalysed) {

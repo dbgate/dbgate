@@ -44,6 +44,7 @@ import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 import ConfirmModal from '../modals/ConfirmModal.svelte';
 import localforage from 'localforage';
 import { openImportExportTab } from '../utility/importExportTools';
+import newTable from '../tableeditor/newTable';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -253,26 +254,7 @@ registerCommand({
     const $currentDatabase = get(currentDatabase);
     const connection = _.get($currentDatabase, 'connection') || {};
     const database = _.get($currentDatabase, 'name');
-
-    openNewTab(
-      {
-        title: 'Table #',
-        icon: 'img table-structure',
-        tabComponent: 'TableStructureTab',
-        props: {
-          conid: connection._id,
-          database,
-        },
-      },
-      {
-        editor: {
-          columns: [],
-        },
-      },
-      {
-        forceNewTab: true,
-      }
-    );
+    newTable(connection, database);
   },
 });
 
