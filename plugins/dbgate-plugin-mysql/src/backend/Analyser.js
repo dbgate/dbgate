@@ -68,7 +68,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.pool._database_name);
+    res = res.replace('#DATABASE#', this.pool.__database_name__);
     return super.createQuery(res, typeFields, replacements);
   }
 

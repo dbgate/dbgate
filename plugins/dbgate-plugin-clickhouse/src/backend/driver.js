@@ -19,7 +19,7 @@ const driver = {
       database,
     });
 
-    client._database_name = database;
+    client.__database_name__ = database;
     return client;
   },
   // called for retrieve data (eg. browse in data grid) and for update database

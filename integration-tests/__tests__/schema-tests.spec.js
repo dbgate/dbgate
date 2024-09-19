@@ -63,7 +63,7 @@ describe('Schema tests', () => {
 
       const schemaConnDef = {
         ...extractConnection(engine),
-        database: `${conn._database_name}::myschema`,
+        database: `${conn.__database_name__}::myschema`,
       };
 
       const schemaConn = await driver.connect(schemaConnDef);

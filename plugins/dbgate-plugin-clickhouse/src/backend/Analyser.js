@@ -24,7 +24,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.pool._database_name);
+    res = res.replace('#DATABASE#', this.pool.__database_name__);
     return super.createQuery(res, typeFields, replacements);
   }
 
@@ -83,7 +83,7 @@ class Analyser extends DatabaseAnalyser {
     const { pureName } = this.singleObjectFilter;
     const resId = await this.driver.query(
       this.pool,
-      `SELECT uuid as id FROM system.tables WHERE database = '${this.pool._database_name}' AND name='${pureName}'`
+      `SELECT uuid as id FROM system.tables WHERE database = '${this.pool.__database_name__}' AND name='${pureName}'`
     );
     this.singleObjectId = resId.rows[0]?.id;
   }
