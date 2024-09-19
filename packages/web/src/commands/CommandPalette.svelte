@@ -46,7 +46,7 @@
         databaseList.push({
           text: `${db.name} on ${getConnectionLabel(connection)}`,
           icon: 'img database',
-          onClick: () => currentDatabase.set({ connection, name: db.name }),
+          onClick: () => switchCurrentDatabase({ connection, name: db.name }),
         });
       }
     }
@@ -80,7 +80,7 @@
   import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
-  import { formatKeyText } from '../utility/common';
+  import { formatKeyText, switchCurrentDatabase } from '../utility/common';
 
   let domInput;
   let filter = '';

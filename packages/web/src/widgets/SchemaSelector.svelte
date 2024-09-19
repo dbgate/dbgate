@@ -8,16 +8,22 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { runOperationOnDatabase } from '../modals/ConfirmSqlModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { appliedCurrentSchema } from '../stores';
+  import { appliedCurrentSchema, currentDatabase } from '../stores';
+  import { switchCurrentDatabase } from '../utility/common';
+  import { extractDbNameFromComposite, extractSchemaNameFromComposite, findDefaultSchema } from 'dbgate-tools';
 
   export let schemaList;
-  export let selectedSchema;
   export let objectList;
-
-  export let valueStorageKey;
 
   export let conid;
   export let database;
+  export let connection;
+
+  export let driver;
+
+  let selectedSchema = null;
+
+  $: valueStorageKey = `selected-schema-${conid}-${database}`;
 
   $: {
     if (selectedSchema != null) {
@@ -86,7 +92,12 @@
     });
   }
 
-  $: selectedSchema = localStorage.getItem(valueStorageKey ?? '');
+  $: if (connection?.useSeparateSchemas) {
+    selectedSchema =
+      extractSchemaNameFromComposite($currentDatabase?.name) ?? findDefaultSchema(schemaList, driver?.dialect);
+  } else {
+    selectedSchema = localStorage.getItem(valueStorageKey ?? '');
+  }
 </script>
 
 {#if realSchemaList.length > 0}
@@ -94,15 +105,22 @@
     <div class="mr-1">Schema:</div>
     <SelectField
       isNative
-      options={[
-        { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
-        ...realSchemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-        // ...schemaList.filter(x => countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-        // ...schemaList.filter(x => !countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-      ]}
+      options={connection?.useSeparateSchemas
+        ? (schemaList?.map(x => ({ label: x.schemaName, value: x.schemaName })) ?? [])
+        : [
+            { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
+            ...realSchemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
+          ]}
       value={selectedSchema ?? $appliedCurrentSchema ?? ''}
       on:change={e => {
-        selectedSchema = e.detail;
+        if (connection?.useSeparateSchemas) {
+          switchCurrentDatabase({
+            connection,
+            name: `${extractDbNameFromComposite(database)}::${e.detail}`,
+          });
+        } else {
+          selectedSchema = e.detail;
+        }
         localStorage.setItem(valueStorageKey, e.detail);
       }}
       selectClass="schema-select"

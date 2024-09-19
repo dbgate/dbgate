@@ -48,7 +48,6 @@
   export let database;
 
   let filter = '';
-  let selectedSchema = null;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -153,11 +152,11 @@
   </SearchBoxWrapper>
   <SchemaSelector
     schemaList={$schemaList}
-    bind:selectedSchema
     objectList={flatFilteredList}
-    valueStorageKey={`sql-object-list-schema-${conid}-${database}`}
+    connection={$connection}
     {conid}
     {database}
+    {driver}
   />
 
   <WidgetsInnerContainer>

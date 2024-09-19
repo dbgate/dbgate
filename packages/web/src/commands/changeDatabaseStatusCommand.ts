@@ -3,6 +3,7 @@ import { currentDatabase, getCurrentDatabase } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import { apiCall } from '../utility/api';
+import { switchCurrentDatabase } from '../utility/common';
 
 registerCommand({
   id: 'database.changeState',
@@ -40,7 +41,7 @@ registerCommand({
         onClick: () => {
           const electron = getElectron();
           if (electron) apiCall('database-connections/disconnect', dbid);
-          currentDatabase.set(null);
+          switchCurrentDatabase(null);
         },
       },
     ];

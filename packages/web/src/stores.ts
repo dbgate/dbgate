@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { safeJsonParse } from 'dbgate-tools';
 import { apiCall } from './utility/api';
 import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
+import { switchCurrentDatabase } from './utility/common';
 
 export interface TabDefinition {
   title: string;
@@ -296,7 +297,7 @@ export function subscribeApiDependendStores() {
     currentConfigValue = value;
     invalidateCommands();
     if (value.singleDbConnection) {
-      currentDatabase.set(value.singleDbConnection);
+      switchCurrentDatabase(value.singleDbConnection);
     }
   });
 }

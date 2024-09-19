@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { recentDatabases, currentDatabase, getRecentDatabases } from '../stores';
 import registerCommand from './registerCommand';
 import { getConnectionLabel } from 'dbgate-tools';
+import { switchCurrentDatabase } from '../utility/common';
 
 currentDatabase.subscribe(value => {
   if (!value) return;
@@ -17,7 +18,7 @@ currentDatabase.subscribe(value => {
 function switchDatabaseCommand(db) {
   return {
     text: `${db.name} on ${getConnectionLabel(db?.connection, { allowExplicitDatabase: false })}`,
-    onClick: () => currentDatabase.set(db),
+    onClick: () => switchCurrentDatabase(db),
   };
 }
 

@@ -35,7 +35,7 @@ import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
-import { isMac } from '../utility/common';
+import { isMac, switchCurrentDatabase } from '../utility/common';
 import { doLogout, internalRedirectTo } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
 import UploadErrorModal from '../modals/UploadErrorModal.svelte';
@@ -347,7 +347,7 @@ registerCommand({
       onConfirm: async file => {
         const resp = await apiCall('connections/new-sqlite-database', { file });
         const connection = resp;
-        currentDatabase.set({ connection, name: `${file}.sqlite` });
+        switchCurrentDatabase({ connection, name: `${file}.sqlite` });
       },
     });
   },

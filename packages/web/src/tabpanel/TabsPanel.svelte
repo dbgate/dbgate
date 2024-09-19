@@ -285,7 +285,7 @@
     draggingTabTarget,
   } from '../stores';
   import tabs from '../tabs';
-  import { setSelectedTab } from '../utility/common';
+  import { setSelectedTab, switchCurrentDatabase } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
@@ -420,11 +420,11 @@
     if (conid) {
       const connection = await getConnectionInfo({ conid, database });
       if (connection) {
-        $currentDatabase = { connection, name: database };
+        switchCurrentDatabase({ connection, name: database });
         return;
       }
     }
-    $currentDatabase = null;
+    switchCurrentDatabase(null);
   };
 
   async function scrollInViewTab(tabid) {

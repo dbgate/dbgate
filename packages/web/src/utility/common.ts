@@ -1,5 +1,7 @@
-import { getOpenedTabs, openedTabs } from '../stores';
+import { findDefaultSchema, findEngineDriver, isCompositeDbName } from 'dbgate-tools';
+import { currentDatabase, getExtensions, getOpenedTabs, openedTabs } from '../stores';
 import _ from 'lodash';
+import { getSchemaList } from './metadataLoaders';
 
 export class LoadingToken {
   isCanceled = false;
@@ -81,4 +83,22 @@ export function isCtrlOrCommandKey(event) {
     return event.metaKey;
   }
   return event.ctrlKey;
+}
+
+export async function switchCurrentDatabase(data) {
+  if (data?.connection?.useSeparateSchemas && !isCompositeDbName(data.name)) {
+    const conid = data.connection._id;
+    const database = data.name;
+    const storageKey = `selected-schema-${conid}-${database}`;
+    const schemaInStorage = localStorage.getItem(storageKey);
+    const schemas = await getSchemaList({ conid, database });
+    const driver = findEngineDriver(data.connection, getExtensions());
+    const defaultSchema = findDefaultSchema(schemas, driver?.dialect, schemaInStorage);
+    currentDatabase.set({
+      ...data,
+      name: `${data.name}::${defaultSchema}`,
+    });
+  } else {
+    currentDatabase.set(data);
+  }
 }
