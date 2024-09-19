@@ -1,8 +1,10 @@
 import _ from 'lodash';
 import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
-import { getDatabaseInfo, getSchemaList } from '../utility/metadataLoaders';
+import { getConnectionInfo, getDatabaseInfo, getSchemaList } from '../utility/metadataLoaders';
 import analyseQuerySources from './analyseQuerySources';
 import { getStringSettingsValue } from '../settings/settingsTools';
+import { findEngineDriver, findDefaultSchema } from 'dbgate-tools';
+import { getExtensions } from '../stores';
 
 const COMMON_KEYWORDS = [
   'select',
@@ -79,6 +81,9 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
       const line = session.getLine(cursor.row).slice(0, cursor.column);
       const dbinfo = await getDatabaseInfo({ conid, database });
       const schemaList = await getSchemaList({ conid, database });
+      const connection = await getConnectionInfo(conid);
+      const driver = findEngineDriver(connection, getExtensions());
+      const defaultSchema = findDefaultSchema(schemaList, driver.dialect);
 
       const convertUpper = getStringSettingsValue('sqlEditor.sqlCommandsCase', 'upperCase') == 'upperCase';
 
@@ -168,11 +173,7 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
           } else {
             list = [
               ...(onlyTables ? [] : list),
-              ...createTableLikeList(
-                schemaList,
-                dbinfo,
-                x => !dbinfo.defaultSchema || dbinfo.defaultSchema == x.schemaName
-              ),
+              ...createTableLikeList(schemaList, dbinfo, x => !defaultSchema || defaultSchema == x.schemaName),
 
               ...(onlyTables
                 ? []

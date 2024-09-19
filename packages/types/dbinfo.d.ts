@@ -126,6 +126,7 @@ export interface TriggerInfo extends SqlObjectInfo {}
 export interface SchemaInfo {
   objectId?: string;
   schemaName: string;
+  isDefault?: boolean;
 }
 
 export interface DatabaseInfoObjects {
@@ -140,5 +141,4 @@ export interface DatabaseInfoObjects {
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
   engine?: string;
-  defaultSchema?: string;
 }

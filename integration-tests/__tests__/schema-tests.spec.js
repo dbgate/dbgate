@@ -32,6 +32,7 @@ describe('Schema tests', () => {
       const schemas2 = await driver.listSchemas(conn);
       expect(schemas2.find(x => x.schemaName == 'myschema')).toBeTruthy();
       expect(schemas2.length).toEqual(count + 1);
+      expect(schemas2.find(x => x.isDefault).schemaName).toEqual(engine.defaultSchemaName);
       expect(structure2).toBeNull();
     })
   );

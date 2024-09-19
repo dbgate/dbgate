@@ -82,6 +82,7 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    defaultSchemaName: 'public',
   },
   {
     label: 'SQL Server',
@@ -107,6 +108,7 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    defaultSchemaName: 'dbo',
   },
   {
     label: 'SQLite',

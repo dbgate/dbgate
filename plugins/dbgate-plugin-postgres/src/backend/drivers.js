@@ -273,10 +273,13 @@ const drivers = driverBases.map(driverBase => ({
       pool,
       'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
     );
+    const defaultSchemaRows = await this.query(pool, 'SHOW SEARCH_PATH;');
+    const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
 
     const schemas = schemaRows.rows.map(x => ({
       schemaName: x.schema_name,
       objectId: x.object_id,
+      isDefault: x.schema_name == searchPath,
     }));
 
     return schemas;

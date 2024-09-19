@@ -152,7 +152,14 @@ const driver = {
   },
   async listSchemas(pool) {
     const { rows } = await this.query(pool, 'select schema_id as objectId, name as schemaName from sys.schemas');
-    return rows;
+
+    const defaultSchemaRows = await this.query(pool, 'SELECT SCHEMA_NAME() as name');
+    const defaultSchema = defaultSchemaRows.rows[0]?.name;
+
+    return rows.map(x => ({
+      ...x,
+      isDefault: x.schemaName == defaultSchema,
+    }));
   },
 };
 
