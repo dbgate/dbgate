@@ -22,7 +22,7 @@
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon close',
-    testEnabled: () => getCurrentEditor()?.canSave(),
+    testEnabled: () => getCurrentEditor()?.canResetChanges(),
     onClick: () => getCurrentEditor().reset(),
   });
 </script>
@@ -90,30 +90,11 @@
     return objectTypeField == 'tables' && !!$editorValue && !$connection?.isReadOnly;
   }
 
-  export function save() {
-    if ($editorValue.base) {
-      doSave(null);
-    } else {
-      showModal(InputTextModal, {
-        header: 'Set table name',
-        value: savedName || 'newTable',
-        label: 'Table name',
-        onConfirm: name => {
-          savedName = name;
-          setEditorData(tbl => ({
-            base: tbl.base,
-            current: {
-              ...tbl.current,
-              pureName: name,
-            },
-          }));
-          doSave(name);
-        },
-      });
-    }
+  export function canResetChanges() {
+    return canSave() && !!$editorValue.base;
   }
 
-  function doSave(createTableName) {
+  export function save() {
     const { sql, recreates } = getAlterTableScript(
       $editorValue.base,
       extendTableInfo(fillConstraintNames($editorValue.current, driver.dialect)),
@@ -127,29 +108,18 @@
       sql,
       recreates,
       onConfirm: () => {
-        handleConfirmSql(sql, createTableName);
+        handleConfirmSql(sql);
       },
       engine: driver.engine,
     });
   }
 
-  async function handleConfirmSql(sql, createTableName) {
+  async function handleConfirmSql(sql) {
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
-      if (createTableName) {
-        changeTab(tabid, tab => ({
-          ...tab,
-          title: createTableName,
-          props: {
-            ...tab.props,
-            pureName: createTableName,
-          },
-        }));
-      }
-
       await apiCall('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
       clearEditorData();
@@ -175,6 +145,7 @@
     dbInfo={$dbInfo}
     {driver}
     {resetCounter}
+    isCreateTable={objectTypeField == 'tables' && !$editorValue?.base}
     setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly && hasPermission(`dbops/model/edit`)
       ? tableInfoUpdater =>
           setEditorData(tbl =>
@@ -191,7 +162,10 @@
       : null}
   />
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="tableStructure.save" />
+    <ToolStripCommandButton
+      command="tableStructure.save"
+      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
+    />
     <ToolStripCommandButton command="tableStructure.reset" />
     <ToolStripCommandButton command="tableEditor.addColumn" />
     <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />

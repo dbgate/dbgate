@@ -56,27 +56,7 @@
     };
 
     const handleNewTable = () => {
-      const tooltip = `${getConnectionLabel(connection)}\n${name}`;
-      openNewTab(
-        {
-          title: 'Table #',
-          tooltip,
-          icon: 'img table-structure',
-          tabComponent: 'TableStructureTab',
-          props: {
-            conid: connection._id,
-            database: name,
-          },
-        },
-        {
-          editor: {
-            columns: [],
-          },
-        },
-        {
-          forceNewTab: true,
-        }
-      );
+      newTable(connection, name);
     };
 
     const handleDropDatabase = () => {
@@ -410,6 +390,7 @@
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
+  import newTable from '../tableeditor/newTable';
 
   export let data;
   export let passProps;
