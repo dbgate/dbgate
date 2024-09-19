@@ -90,7 +90,7 @@ const drivers = driverBases.map(driverBase => ({
       await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
     }
 
-    client.__dbgate_database_name__ = database;
+    // client.__dbgate_database_name__ = database;
     return client;
   },
   async close(pool) {
