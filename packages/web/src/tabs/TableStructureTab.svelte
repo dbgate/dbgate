@@ -39,7 +39,6 @@
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
 
-  
   import { extensions } from '../stores';
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
@@ -56,6 +55,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import hasPermission from '../utility/hasPermission';
+  import { changeTab } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -116,7 +116,16 @@
     } else {
       await apiCall('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
+      const isCreateTable = $editorValue?.base == null;
+      const tableName = _.pick($editorValue.current, ['pureName', 'schemaName']);
       clearEditorData();
+      if (isCreateTable) {
+        changeTab(tabid, tab => ({
+          ...tab,
+          title: tableName.pureName,
+          props: { ...tab.props, ...tableName },
+        }));
+      }
     }
   }
 
