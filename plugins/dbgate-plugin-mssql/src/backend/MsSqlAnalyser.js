@@ -79,12 +79,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.singleObjectId = resId.rows[0].id;
   }
 
-  async readSchemaList() {
-    const schemaRows = await this.analyserQuery('getSchemas');
-    const schemas = schemaRows.rows;
-    return schemas;
-  }
-
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
     const tablesRows = await this.analyserQuery('tables', ['tables']);

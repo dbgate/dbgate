@@ -150,6 +150,10 @@ const driver = {
   getAccessTokenFromAuth: (connection, req) => {
     return req?.user?.msentraToken;
   },
+  async listSchemas(pool) {
+    const { rows } = await this.query(pool, 'select schema_id as objectId, name as schemaName from sys.schemas');
+    return rows;
+  },
 };
 
 driver.initialize = dbgateEnv => {

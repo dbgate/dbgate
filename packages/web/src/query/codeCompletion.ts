@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
-import { getDatabaseInfo } from '../utility/metadataLoaders';
+import { getDatabaseInfo, getSchemaList } from '../utility/metadataLoaders';
 import analyseQuerySources from './analyseQuerySources';
 import { getStringSettingsValue } from '../settings/settingsTools';
 
@@ -24,9 +24,9 @@ const COMMON_KEYWORDS = [
   'go',
 ];
 
-function createTableLikeList(dbinfo, schemaCondition) {
+function createTableLikeList(schemaList, dbinfo, schemaCondition) {
   return [
-    ...(dbinfo.schemas?.map(x => ({
+    ...(schemaList?.map(x => ({
       name: x.schemaName,
       value: x.schemaName,
       caption: x.schemaName,
@@ -78,6 +78,7 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
       const cursor = session.selection.cursor;
       const line = session.getLine(cursor.row).slice(0, cursor.column);
       const dbinfo = await getDatabaseInfo({ conid, database });
+      const schemaList = await getSchemaList({ conid, database });
 
       const convertUpper = getStringSettingsValue('sqlEditor.sqlCommandsCase', 'upperCase') == 'upperCase';
 
@@ -147,9 +148,9 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
               ];
             }
           } else {
-            const schema = (dbinfo.schemas || []).find(x => x.schemaName == colMatch[1]);
+            const schema = (schemaList || []).find(x => x.schemaName == colMatch[1]);
             if (schema) {
-              list = createTableLikeList(dbinfo, x => x.schemaName == schema.schemaName);
+              list = createTableLikeList(schemaList, dbinfo, x => x.schemaName == schema.schemaName);
             }
           }
         } else {
@@ -167,7 +168,11 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
           } else {
             list = [
               ...(onlyTables ? [] : list),
-              ...createTableLikeList(dbinfo, x => !dbinfo.defaultSchema || dbinfo.defaultSchema == x.schemaName),
+              ...createTableLikeList(
+                schemaList,
+                dbinfo,
+                x => !dbinfo.defaultSchema || dbinfo.defaultSchema == x.schemaName
+              ),
 
               ...(onlyTables
                 ? []

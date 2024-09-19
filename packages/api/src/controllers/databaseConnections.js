@@ -199,7 +199,7 @@ module.exports = {
     return res.result || null;
   },
 
-  async loadDataCore(msgtype, { conid, database, ...args }, req) {
+    async loadDataCore(msgtype, { conid, database, ...args }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype, ...args });
@@ -211,6 +211,12 @@ module.exports = {
       };
     }
     return res.result || null;
+  },
+
+  schemaList_meta: true,
+  async schemaList({ conid, database }, req) {
+    testConnectionPermission(conid, req);
+    return this.loadDataCore('schemaList', { conid, database });
   },
 
   loadKeys_meta: true,

@@ -249,6 +249,10 @@
   <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" disabled={isConnected} />
 {/if}
 
+{#if driver?.showConnectionField('useSeparateSchemas', $values, showConnectionFieldArgs)}
+  <FormCheckboxField label={`Use schemas separately (use this if you have many large schemas)`} name="useSeparateSchemas" disabled={isConnected} />
+{/if}
+
 {#if driver}
   <div class="row">
     <div class="col-6 mr-1">

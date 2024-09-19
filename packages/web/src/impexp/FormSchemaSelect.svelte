@@ -1,15 +1,15 @@
 <script lang="ts">
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
-  import { useDatabaseInfo, useDatabaseList } from '../utility/metadataLoaders';
+  import { useSchemaList } from '../utility/metadataLoaders';
 
   export let conidName;
   export let databaseName;
 
   const { values } = getFormContext();
-  $: dbinfo = useDatabaseInfo({ conid: $values[conidName], database: values[databaseName] });
+  $: schemaList = useSchemaList({ conid: $values[conidName], database: values[databaseName] });
 
-  $: schemaOptions = (($dbinfo && $dbinfo.schemas) || []).map(schema => ({
+  $: schemaOptions = ($schemaList || []).map(schema => ({
     value: schema.schemaName,
     label: schema.schemaName,
   }));

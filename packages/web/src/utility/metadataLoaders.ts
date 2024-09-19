@@ -13,6 +13,12 @@ const databaseInfoLoader = ({ conid, database }) => ({
   transform: extendDatabaseInfo,
 });
 
+const schemaListLoader = ({ conid, database }) => ({
+  url: 'database-connections/schema-list',
+  params: { conid, database },
+  reloadTrigger: { key: `schema-list-changed`, conid, database },
+});
+
 // const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
 //   url: 'metadata/table-info',
 //   params: { conid, database, schemaName, pureName },
@@ -449,3 +455,9 @@ export function useAuthTypes(args) {
 // export function useDatabaseKeys(args) {
 //   return useCore(databaseKeysLoader, args);
 // }
+export function getSchemaList(args) {
+  return getCore(schemaListLoader, args);
+}
+export function useSchemaList(args) {
+  return useCore(schemaListLoader, args);
+}

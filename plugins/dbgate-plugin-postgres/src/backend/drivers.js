@@ -4,7 +4,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
-const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];;
+const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('postreDriver');
 
@@ -266,6 +266,20 @@ const drivers = driverBases.map(driverBase => ({
         name: 'socket',
       },
     ];
+  },
+
+  async listSchemas(pool) {
+    const schemaRows = await this.query(
+      pool,
+      'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
+    );
+
+    const schemas = schemaRows.rows.map(x => ({
+      schemaName: x.schema_name,
+      objectId: x.object_id,
+    }));
+
+    return schemas;
   },
 }));
 

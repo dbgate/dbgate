@@ -11,6 +11,7 @@ import {
   FunctionInfo,
   TriggerInfo,
   CollectionInfo,
+  SchemaInfo,
 } from './dbinfo';
 import { FilterBehaviour } from './filter-type';
 
@@ -230,6 +231,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   ): any[];
   // adapts table info from different source (import, other database) to be suitable for this database
   adaptTableInfo(table: TableInfo): TableInfo;
+  async listSchemas(pool): SchemaInfo[];
 
   analyserClass?: any;
   dumperClass?: any;

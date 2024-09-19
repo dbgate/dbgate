@@ -312,17 +312,6 @@ class Analyser extends DatabaseAnalyser {
     return res;
   }
 
-  async readSchemaList() {
-    const schemaRows = await this.analyserQuery('getSchemas');
-
-    const schemas = schemaRows.rows.map(x => ({
-      schemaName: x.schema_name,
-      objectId: `schemas:${x.schema_name}`,
-    }));
-
-    return schemas;
-  }
-
   async _getFastSnapshot() {
     const tableModificationsQueryData = this.driver.dialect.stringAgg
       ? await this.analyserQuery('tableModifications')

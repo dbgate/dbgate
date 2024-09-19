@@ -4,14 +4,13 @@
 
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { DatabaseInfo } from 'dbgate-types';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { runOperationOnDatabase } from '../modals/ConfirmSqlModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { appliedCurrentSchema } from '../stores';
 
-  export let dbinfo: DatabaseInfo;
+  export let schemaList;
   export let selectedSchema;
   export let objectList;
 
@@ -44,7 +43,7 @@
   }
 
   $: schemaList = _.uniq(
-    _.compact([selectedSchema, ...Object.keys(countBySchema), ...(dbinfo?.schemas?.map(x => x.schemaName) ?? [])])
+    _.compact([selectedSchema, ...Object.keys(countBySchema), ...(schemaList?.map(x => x.schemaName) ?? [])])
   );
   $: countBySchema = computeCountBySchema(objectList ?? []);
 

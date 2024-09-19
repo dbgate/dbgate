@@ -16,7 +16,7 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus, useUsedApps } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus, useSchemaList, useUsedApps } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
@@ -46,6 +46,7 @@
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
+  $: schemaList = useSchemaList({ conid, database });
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
@@ -144,7 +145,7 @@
     </InlineButton>
   </SearchBoxWrapper>
   <SchemaSelector
-    dbinfo={$objects}
+    schemaList={$schemaList}
     bind:selectedSchema
     objectList={flatFilteredList}
     valueStorageKey={`sql-object-list-schema-${conid}-${database}`}

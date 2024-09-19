@@ -213,6 +213,10 @@ async function handleDriverDataCore(msgid, callMethod) {
   }
 }
 
+async function handleSchemaList({ msgid }) {
+  return handleDriverDataCore(msgid, driver => driver.listSchemas(systemConnection));
+}
+
 async function handleCollectionData({ msgid, options }) {
   return handleDriverDataCore(msgid, driver => driver.readCollection(systemConnection, options));
 }
@@ -337,6 +341,7 @@ const messageHandlers = {
   loadFieldValues: handleLoadFieldValues,
   sqlSelect: handleSqlSelect,
   exportKeys: handleExportKeys,
+  schemaList: handleSchemaList,
   // runCommand: handleRunCommand,
 };
 
