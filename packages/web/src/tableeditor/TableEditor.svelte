@@ -171,8 +171,8 @@
       <ObjectFieldsEditor
         title="Table properties"
         fieldDefinitions={tableFormOptions ?? []}
-        pureNameTitle="Table name"
-        schemaList={dbInfo?.schemas?.length >= 0 ? dbInfo?.schemas : null}
+        pureNameTitle={isCreateTable ? 'Table name' : null}
+        schemaList={isCreateTable && dbInfo?.schemas?.length >= 0 ? dbInfo?.schemas : null}
         values={_.pick(tableInfo, ['schemaName', 'pureName', ...(tableFormOptions ?? []).map(x => x.name)])}
         onChangeValues={vals => {
           if (!_.isEmpty(vals)) {
