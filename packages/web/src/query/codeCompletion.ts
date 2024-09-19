@@ -81,7 +81,7 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
       const line = session.getLine(cursor.row).slice(0, cursor.column);
       const dbinfo = await getDatabaseInfo({ conid, database });
       const schemaList = await getSchemaList({ conid, database });
-      const connection = await getConnectionInfo(conid);
+      const connection = await getConnectionInfo({ conid });
       const driver = findEngineDriver(connection, getExtensions());
       const defaultSchema = findDefaultSchema(schemaList, driver.dialect);
 
