@@ -57,13 +57,13 @@ describe('Schema tests', () => {
 
   test.each(engines.filter(x => x.supportSchemas && !x.skipSeparateSchemas).map(engine => [engine.label, engine]))(
     'Table inside schema - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await baseStructure(conn, driver);
-      await runCommandOnDriver(conn, driver, dmp => dmp.createSchema('myschema'));
+    testWrapper(async (handle, driver, engine) => {
+      await baseStructure(handle, driver);
+      await runCommandOnDriver(handle, driver, dmp => dmp.createSchema('myschema'));
 
       const schemaConnDef = {
         ...extractConnection(engine),
-        database: `${conn.__dbgate_database_name__}::myschema`,
+        database: `${handle.database}::myschema`,
       };
 
       const schemaConn = await driver.connect(schemaConnDef);
