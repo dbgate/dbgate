@@ -57,10 +57,11 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
-    const dbname = this.pool._database_name;
-    const schemaCondition = isCompositeDbName(dbname)
-      ? `= '${splitCompositeDbName(dbname).schema}' `
-      : ' IS NOT NULL   ';
+    // const dbname = this.pool._database_name;
+    // const schemaCondition = isCompositeDbName(dbname)
+    //   ? `= '${splitCompositeDbName(dbname).schema}' `
+    //   : ' IS NOT NULL   ';
+    const schemaCondition = ' IS NOT NULL   ';
 
     return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
   }
