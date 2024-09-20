@@ -9,6 +9,9 @@ const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
+const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
+
+const logger = getLogger('mssqlDriver');
 
 let requireMsnodesqlv8;
 let platformInfo;
