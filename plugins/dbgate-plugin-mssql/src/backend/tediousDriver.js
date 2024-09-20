@@ -2,6 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const tedious = require('tedious');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
+const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 function extractTediousColumns(columns, addDriverNativeColumn = false) {
   const res = columns.map(col => {
@@ -39,7 +40,7 @@ async function tediousConnect(storedConnection) {
     };
 
     if (database) {
-      connectionOptions.database = database;
+      connectionOptions.database = extractDbNameFromComposite(database);
     }
 
     const authentication =

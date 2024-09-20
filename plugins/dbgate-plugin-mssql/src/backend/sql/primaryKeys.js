@@ -11,4 +11,5 @@ where
     and c.Table_Name = t.Table_Name
     and Constraint_Type = 'PRIMARY KEY'
 	and o.object_id =OBJECT_ID_CONDITION
+    and s.name =SCHEMA_NAME_CONDITION
 `;

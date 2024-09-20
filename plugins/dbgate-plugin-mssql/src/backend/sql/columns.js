@@ -15,6 +15,6 @@ INNER JOIN sys.schemas u ON u.schema_id=o.schema_id
 INNER JOIN INFORMATION_SCHEMA.COLUMNS col ON col.TABLE_NAME = o.name AND col.TABLE_SCHEMA = u.name and col.COLUMN_NAME = c.name
 left join sys.default_constraints d on c.default_object_id = d.object_id
 left join sys.computed_columns m on m.object_id = c.object_id and m.column_id = c.column_id
-where o.type = 'U' and o.object_id =OBJECT_ID_CONDITION
+where o.type = 'U' and o.object_id =OBJECT_ID_CONDITION and u.name =SCHEMA_NAME_CONDITION
 order by c.column_id
 `;

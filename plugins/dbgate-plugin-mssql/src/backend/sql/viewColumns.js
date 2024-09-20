@@ -13,6 +13,6 @@ select
 FROM sys.objects o 
 INNER JOIN sys.schemas u ON u.schema_id=o.schema_id 
 INNER JOIN INFORMATION_SCHEMA.COLUMNS col ON col.TABLE_NAME = o.name AND col.TABLE_SCHEMA = u.name
-WHERE o.type in ('V') and o.object_id =OBJECT_ID_CONDITION    
+WHERE o.type in ('V') and o.object_id =OBJECT_ID_CONDITION and u.name =SCHEMA_NAME_CONDITION
 order by col.ORDINAL_POSITION
 `;

@@ -57,15 +57,9 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
-    const dbname = this.dbhan.database;
-    const schemaCondition = isCompositeDbName(dbname)
-      ? `= '${splitCompositeDbName(dbname).schema}' `
-      : ' IS NOT NULL   ';
-    // const schemaCondition = ' IS NOT NULL   ';
-
-    return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
+    return query;
   }
-
+  
   async _computeSingleObjectId() {
     const { typeField, schemaName, pureName } = this.singleObjectFilter;
     this.singleObjectId = `${typeField}:${schemaName || 'public'}.${pureName}`;

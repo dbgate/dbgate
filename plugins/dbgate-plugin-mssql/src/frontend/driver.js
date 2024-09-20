@@ -127,9 +127,17 @@ const driver = {
     return dialect;
   },
   showConnectionField: (field, values) =>
-    ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(
-      field
-    ) ||
+    [
+      'authType',
+      'server',
+      'port',
+      'user',
+      'password',
+      'defaultDatabase',
+      'singleDatabase',
+      'isReadOnly',
+      'useSeparateSchemas',
+    ].includes(field) ||
     (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi') ||
     (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi' && values.authType != 'msentra'),
   // (field == 'useDatabaseUrl' && values.authType != 'sql' && values.authType != 'sspi')

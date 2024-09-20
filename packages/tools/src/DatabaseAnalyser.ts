@@ -5,6 +5,7 @@ import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
+import { isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
 
 const logger = getLogger('dbAnalyser');
 
@@ -180,8 +181,19 @@ export class DatabaseAnalyser {
   //   return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
   // }
 
+  getDefaultSchemaNameCondition() {
+    return 'is not null';
+  }
+
   createQuery(template, typeFields, replacements = {}) {
-    return this.createQueryCore(this.processQueryReplacements(template, replacements), typeFields);
+    let query = this.createQueryCore(this.processQueryReplacements(template, replacements), typeFields);
+
+    const dbname = this.dbhan.database;
+    const schemaCondition = isCompositeDbName(dbname)
+      ? `= '${splitCompositeDbName(dbname).schema}' `
+      : ` ${this.getDefaultSchemaNameCondition()} `;
+
+    return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
   }
 
   processQueryReplacements(query, replacements) {

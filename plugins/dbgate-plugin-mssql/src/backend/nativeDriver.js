@@ -2,6 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
 let requireMsnodesqlv8;
+const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 // async function nativeQueryCore(pool, sql, options) {
 //   if (sql == null) {
@@ -57,7 +58,7 @@ async function connectWithDriver({ server, port, user, password, database, authT
   connectionString += `;Driver={${driver}}`;
   if (authType == 'sspi') connectionString += ';Trusted_Connection=Yes';
   else connectionString += `;UID=${user};PWD=${password}`;
-  if (database) connectionString += `;Database=${database}`;
+  if (database) connectionString += `;Database=${extractDbNameFromComposite(database)}`;
   return new Promise((resolve, reject) => {
     getMsnodesqlv8().open(connectionString, (err, conn) => {
       if (err) {
