@@ -87,6 +87,7 @@ function processTags(items) {
 function extractMenuItems(menu, options = null) {
   let res = [];
   doExtractMenuItems(menu, res, options);
+  // console.log('BEFORE PROCESS TAGS', res);
   res = processTags(res);
   return res;
 }
@@ -142,7 +143,10 @@ export function getContextMenu(): any {
 
 export function prepareMenuItems(items, options, commandsCustomized) {
   const extracted = extractMenuItems(items, options);
+  // console.log('EXTRACTED', extracted);
   const compacted = _.compact(extracted.map(x => mapItem(x, commandsCustomized)));
+  // console.log('COMPACTED', compacted);
   const filtered = filterMenuItems(compacted);
+  // console.log('FILTERED', filtered);
   return filtered;
 }

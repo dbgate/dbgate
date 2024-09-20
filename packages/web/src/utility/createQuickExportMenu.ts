@@ -45,6 +45,6 @@ export default function createQuickExportMenu(
   return {
     text: 'Export',
     submenu: createQuickExportMenuItems(handler, advancedExportMenuItem),
-    ...advancedExportMenuItem,
+    ...additionalFields,
   };
 }
