@@ -161,14 +161,14 @@ async function tediousStream(dbhan, sql, options) {
     });
   };
 
-  pool.on('infoMessage', handleInfo);
-  pool.on('errorMessage', handleError);
+  dbhan.client.on('infoMessage', handleInfo);
+  dbhan.client.on('errorMessage', handleError);
   const request = new tedious.Request(sql, (err, rowCount) => {
     // if (err) reject(err);
     // else resolve(result);
     options.done();
-    pool.off('infoMessage', handleInfo);
-    pool.off('errorMessage', handleError);
+    dbhan.client.off('infoMessage', handleInfo);
+    dbhan.client.off('errorMessage', handleError);
 
     options.info({
       message: `${rowCount} rows affected`,
