@@ -24,6 +24,7 @@ export function isCompositeDbName(name: string) {
 }
 
 export function splitCompositeDbName(name: string) {
+  if (!isCompositeDbName(name)) return null;
   const [database, schema] = name.split('::');
   return { database, schema };
 }

@@ -55,25 +55,25 @@ describe('Schema tests', () => {
     })
   );
 
-//   test.each(engines.filter(x => x.supportSchemas && !x.skipSeparateSchemas).map(engine => [engine.label, engine]))(
-//     'Table inside schema - %s',
-//     testWrapper(async (handle, driver, engine) => {
-//       await baseStructure(handle, driver);
-//       await runCommandOnDriver(handle, driver, dmp => dmp.createSchema('myschema'));
+  test.each(engines.filter(x => x.supportSchemas && !x.skipSeparateSchemas).map(engine => [engine.label, engine]))(
+    'Table inside schema - %s',
+    testWrapper(async (handle, driver, engine) => {
+      await baseStructure(handle, driver);
+      await runCommandOnDriver(handle, driver, dmp => dmp.createSchema('myschema'));
 
-//       const schemaConnDef = {
-//         ...extractConnection(engine),
-//         database: `${handle.database}::myschema`,
-//       };
+      const schemaConnDef = {
+        ...extractConnection(engine),
+        database: `${handle.database}::myschema`,
+      };
 
-//       const schemaConn = await driver.connect(schemaConnDef);
-//       await driver.query(schemaConn, `create table myschema.myt1 (id int not null primary key)`);
-//       const structure1 = await driver.analyseFull(schemaConn);
-//       expect(structure1.tables.length).toEqual(1);
-//       expect(structure1.tables[0].pureName).toEqual('myt1');
-//     })
-//   );
-// });
+      const schemaConn = await driver.connect(schemaConnDef);
+      await driver.query(schemaConn, `create table myschema.myt1 (id int not null primary key)`);
+      const structure1 = await driver.analyseFull(schemaConn);
+      expect(structure1.tables.length).toEqual(1);
+      expect(structure1.tables[0].pureName).toEqual('myt1');
+    })
+  );
+});
 
 describe('Base analyser test', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
