@@ -79,55 +79,53 @@ const driver = {
 
   async connect(conn) {
     const { authType } = conn;
-    const result =
-      requireMsnodesqlv8 && (authType == 'sspi' || authType == 'sql')
-        ? await nativeConnect(conn)
-        : await tediousConnect(conn);
+    const connectionType = requireMsnodesqlv8 && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
+    const client = connectionType == 'msnodesqlv8' ? await nativeConnect(conn) : await tediousConnect(conn);
 
-    if (result) {
-      result.__dbgate_database_name__ = conn.database;
-    }
-
-    return result;
+    return {
+      client,
+      connectionType,
+      database: conn.database,
+    };
   },
-  async close(pool) {
-    return pool.close();
+  async close(dbhan) {
+    return dbhan.client.close();
   },
-  async queryCore(pool, sql, options) {
-    if (pool._connectionType == 'msnodesqlv8') {
-      return nativeQueryCore(pool, sql, options);
+  async queryCore(dbhan, sql, options) {
+    if (dbhan.connectionType == 'msnodesqlv8') {
+      return nativeQueryCore(dbhan, sql, options);
     } else {
-      return tediousQueryCore(pool, sql, options);
+      return tediousQueryCore(dbhan, sql, options);
     }
   },
-  async query(pool, sql, options) {
+  async query(dbhan, sql, options) {
     return lock.acquire('connection', async () => {
-      return this.queryCore(pool, sql, options);
+      return this.queryCore(dbhan, sql, options);
     });
   },
-  async stream(pool, sql, options) {
-    if (pool._connectionType == 'msnodesqlv8') {
-      return nativeStream(pool, sql, options);
+  async stream(dbhan, sql, options) {
+    if (dbhan.connectionType == 'msnodesqlv8') {
+      return nativeStream(dbhan, sql, options);
     } else {
-      return tediousStream(pool, sql, options);
+      return tediousStream(dbhan, sql, options);
     }
   },
-  async readQuery(pool, sql, structure) {
-    if (pool._connectionType == 'msnodesqlv8') {
-      return nativeReadQuery(pool, sql, structure);
+  async readQuery(dbhan, sql, structure) {
+    if (dbhan.connectionType == 'msnodesqlv8') {
+      return nativeReadQuery(dbhan, sql, structure);
     } else {
-      return tediousReadQuery(pool, sql, structure);
+      return tediousReadQuery(dbhan, sql, structure);
     }
   },
-  async writeTable(pool, name, options) {
-    if (pool._connectionType == 'msnodesqlv8') {
-      return createNativeBulkInsertStream(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    if (dbhan.connectionType == 'msnodesqlv8') {
+      return createNativeBulkInsertStream(this, stream, dbhan, name, options);
     } else {
-      return createTediousBulkInsertStream(this, stream, pool, name, options);
+      return createTediousBulkInsertStream(this, stream, dbhan, name, options);
     }
   },
-  async getVersion(pool) {
-    const res = (await this.query(pool, versionQuery)).rows[0];
+  async getVersion(dbhan) {
+    const res = (await this.query(dbhan, versionQuery)).rows[0];
 
     if (res.productVersion) {
       const splitted = res.productVersion.split('.');
@@ -138,8 +136,8 @@ const driver = {
     }
     return res;
   },
-  async listDatabases(pool) {
-    const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT name FROM sys.databases order by name');
     return rows;
   },
   getRedirectAuthUrl(connection, options) {
@@ -155,10 +153,10 @@ const driver = {
   getAccessTokenFromAuth: (connection, req) => {
     return req?.user?.msentraToken;
   },
-  async listSchemas(pool) {
-    const { rows } = await this.query(pool, 'select schema_id as objectId, name as schemaName from sys.schemas');
+  async listSchemas(dbhan) {
+    const { rows } = await this.query(dbhan, 'select schema_id as objectId, name as schemaName from sys.schemas');
 
-    const defaultSchemaRows = await this.query(pool, 'SELECT SCHEMA_NAME() as name');
+    const defaultSchemaRows = await this.query(dbhan, 'SELECT SCHEMA_NAME() as name');
     const defaultSchema = defaultSchemaRows.rows[0]?.name;
 
     return rows.map(x => ({

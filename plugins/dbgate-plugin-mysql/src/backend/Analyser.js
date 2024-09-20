@@ -62,13 +62,13 @@ function getColumnInfo(
 }
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.pool.__dbgate_database_name__);
+    res = res.replace('#DATABASE#', this.dbhan.database);
     return super.createQuery(res, typeFields, replacements);
   }
 

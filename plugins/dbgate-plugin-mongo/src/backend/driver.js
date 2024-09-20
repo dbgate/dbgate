@@ -34,8 +34,8 @@ function findArrayResult(resValue) {
   return null;
 }
 
-async function getScriptableDb(pool) {
-  const db = pool.__getDatabase();
+async function getScriptableDb(dbhan) {
+  const db = dbhan.getDatabase();
   const collections = await db.listCollections().toArray();
   for (const collection of collections) {
     _.set(db, collection.name, db.collection(collection.name));
@@ -77,41 +77,43 @@ const driver = {
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
 
-    const pool = new MongoClient(mongoUrl, options);
-    await pool.connect();
-    // const pool = await MongoClient.connect(mongoUrl);
-    pool.__getDatabase = database ? () => pool.db(database) : () => pool.db();
-    return pool;
+    const client = new MongoClient(mongoUrl, options);
+    await client.connect();
+    return {
+      client,
+      database,
+      getDatabase: database ? () => client.db(database) : () => client.db(),
+    };
   },
   // @ts-ignore
-  async query(pool, sql) {
+  async query(dbhan, sql) {
     return {
       rows: [],
       columns: [],
     };
   },
-  async script(pool, sql) {
+  async script(dbhan, sql) {
     let func;
     func = eval(`(db,ObjectId) => ${sql}`);
-    const db = await getScriptableDb(pool);
+    const db = await getScriptableDb(dbhan);
     const res = func(db, ObjectId.createFromHexString);
     if (isPromise(res)) await res;
   },
-  async operation(pool, operation, options) {
+  async operation(dbhan, operation, options) {
     const { type } = operation;
     switch (type) {
       case 'createCollection':
-        await this.script(pool, `db.createCollection('${operation.collection.name}')`);
+        await this.script(dbhan, `db.createCollection('${operation.collection.name}')`);
         break;
       case 'dropCollection':
-        await this.script(pool, `db.dropCollection('${operation.collection}')`);
+        await this.script(dbhan, `db.dropCollection('${operation.collection}')`);
         break;
       case 'renameCollection':
-        await this.script(pool, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
+        await this.script(dbhan, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
         break;
       case 'cloneCollection':
         await this.script(
-          pool,
+          dbhan,
           `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
         );
         break;
@@ -120,7 +122,7 @@ const driver = {
     }
     // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
-  async stream(pool, sql, options) {
+  async stream(dbhan, sql, options) {
     let func;
     try {
       func = eval(`(db,ObjectId) => ${sql}`);
@@ -133,7 +135,7 @@ const driver = {
       options.done();
       return;
     }
-    const db = await getScriptableDb(pool);
+    const db = await getScriptableDb(dbhan);
 
     let exprValue;
     try {
@@ -191,8 +193,8 @@ const driver = {
 
     options.done();
   },
-  async startProfiler(pool, options) {
-    const db = await getScriptableDb(pool);
+  async startProfiler(dbhan, options) {
+    const db = await getScriptableDb(dbhan);
     const old = await db.command({ profile: -1 });
     await db.command({ profile: 2 });
     const cursor = await db.collection('system.profile').find({
@@ -229,12 +231,12 @@ const driver = {
       old,
     };
   },
-  async stopProfiler(pool, { cursor, old }) {
+  async stopProfiler(dbhan, { cursor, old }) {
     cursor.close();
-    const db = await getScriptableDb(pool);
+    const db = await getScriptableDb(dbhan);
     await db.command({ profile: old.was, slowms: old.slowms });
   },
-  async readQuery(pool, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     try {
       const json = JSON.parse(sql);
       if (json && json.pureName) {
@@ -250,7 +252,7 @@ const driver = {
     // });
 
     func = eval(`(db,ObjectId) => ${sql}`);
-    const db = await getScriptableDb(pool);
+    const db = await getScriptableDb(dbhan);
     exprValue = func(db, ObjectId.createFromHexString);
 
     const pass = new stream.PassThrough({
@@ -277,27 +279,27 @@ const driver = {
 
     // return pass;
   },
-  async writeTable(pool, name, options) {
-    return createBulkInsertStream(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    return createBulkInsertStream(this, stream, dbhan, name, options);
   },
-  async getVersion(pool) {
-    const status = await pool.__getDatabase().admin().serverInfo();
+  async getVersion(dbhan) {
+    const status = await dbhan.getDatabase().admin().serverInfo();
     return {
       ...status,
       versionText: `MongoDB ${status.version}`,
     };
   },
-  async listDatabases(pool) {
-    const res = await pool.__getDatabase().admin().listDatabases();
+  async listDatabases(dbhan) {
+    const res = await dbhan.getDatabase().admin().listDatabases();
     return res.databases;
   },
-  async readCollection(pool, options) {
+  async readCollection(dbhan, options) {
     try {
       const mongoCondition = convertToMongoCondition(options.condition);
       // console.log('******************* mongoCondition *****************');
       // console.log(JSON.stringify(mongoCondition, undefined, 2));
 
-      const collection = pool.__getDatabase().collection(options.pureName);
+      const collection = dbhan.getDatabase().collection(options.pureName);
       if (options.countDocuments) {
         const count = await collection.countDocuments(convertObjectId(mongoCondition) || {});
         return { count };
@@ -325,7 +327,7 @@ const driver = {
       return { errorMessage: err.message };
     }
   },
-  async updateCollection(pool, changeSet) {
+  async updateCollection(dbhan, changeSet) {
     const res = {
       inserted: [],
       updated: [],
@@ -333,7 +335,7 @@ const driver = {
       replaced: [],
     };
     try {
-      const db = pool.__getDatabase();
+      const db = dbhan.getDatabase();
       for (const insert of changeSet.inserts) {
         const collection = db.collection(insert.pureName);
         const document = {
@@ -383,19 +385,19 @@ const driver = {
     }
   },
 
-  async createDatabase(pool, name) {
-    const db = pool.db(name);
+  async createDatabase(dbhan, name) {
+    const db = dbhan.client.db(name);
     await db.createCollection('collection1');
   },
 
-  async dropDatabase(pool, name) {
-    const db = pool.db(name);
+  async dropDatabase(dbhan, name) {
+    const db = dbhan.client.db(name);
     await db.dropDatabase();
   },
 
-  async loadFieldValues(pool, name, field, search) {
+  async loadFieldValues(dbhan, name, field, search) {
     try {
-      const collection = pool.__getDatabase().collection(name.pureName);
+      const collection = dbhan.getDatabase().collection(name.pureName);
       // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
 
       const pipelineMatch = [];
@@ -441,10 +443,10 @@ const driver = {
     }
   },
 
-  readJsonQuery(pool, select, structure) {
+  readJsonQuery(dbhan, select, structure) {
     const { collection, condition, sort } = select;
 
-    const db = pool.__getDatabase();
+    const db = dbhan.getDatabase();
     const res = db
       .collection(collection)
       .find(condition || {})
@@ -454,23 +456,23 @@ const driver = {
     return res;
   },
 
-  async summaryCommand(pool, command, row) {
+  async summaryCommand(dbhan, command, row) {
     switch (command) {
       case 'profileOff':
-        await pool.db(row.name).command({ profile: 0 });
+        await dbhan.client.db(row.name).command({ profile: 0 });
         return;
       case 'profileFiltered':
-        await pool.db(row.name).command({ profile: 1, slowms: 100 });
+        await dbhan.client.db(row.name).command({ profile: 1, slowms: 100 });
         return;
       case 'profileAll':
-        await pool.db(row.name).command({ profile: 2 });
+        await dbhan.client.db(row.name).command({ profile: 2 });
         return;
     }
   },
 
-  async serverSummary(pool) {
-    const res = await pool.__getDatabase().admin().listDatabases();
-    const profiling = await Promise.all(res.databases.map((x) => pool.db(x.name).command({ profile: -1 })));
+  async serverSummary(dbhan) {
+    const res = await dbhan.getDatabase().admin().listDatabases();
+    const profiling = await Promise.all(res.databases.map((x) => dbhan.client.db(x.name).command({ profile: -1 })));
 
     function formatProfiling(info) {
       switch (info.was) {

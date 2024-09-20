@@ -63,7 +63,6 @@ async function connectWithDriver({ server, port, user, password, database, authT
       if (err) {
         reject(err);
       } else {
-        conn._connectionType = 'msnodesqlv8';
         resolve(conn);
       }
     });
@@ -88,7 +87,7 @@ async function nativeConnect(connection) {
   }
 }
 
-async function nativeQueryCore(pool, sql, options) {
+async function nativeQueryCore(dbhan, sql, options) {
   if (sql == null) {
     return Promise.resolve({
       rows: [],
@@ -98,7 +97,7 @@ async function nativeQueryCore(pool, sql, options) {
   return new Promise((resolve, reject) => {
     let columns = null;
     let currentRow = null;
-    const q = pool.query(sql);
+    const q = dbhan.client.query(sql);
     const rows = [];
 
     q.on('meta', meta => {
@@ -128,7 +127,7 @@ async function nativeQueryCore(pool, sql, options) {
   });
 }
 
-async function nativeReadQuery(pool, sql, structure) {
+async function nativeReadQuery(dbhan, sql, structure) {
   const pass = new stream.PassThrough({
     objectMode: true,
     highWaterMark: 100,
@@ -136,7 +135,7 @@ async function nativeReadQuery(pool, sql, structure) {
 
   let columns = null;
   let currentRow = null;
-  const q = pool.query(sql);
+  const q = dbhan.client.query(sql);
 
   q.on('meta', meta => {
     columns = extractNativeColumns(meta);
@@ -168,7 +167,7 @@ async function nativeReadQuery(pool, sql, structure) {
   return pass;
 }
 
-async function nativeStream(pool, sql, options) {
+async function nativeStream(dbhan, sql, options) {
   const handleInfo = info => {
     const { message, lineNumber, procName } = info;
     options.info({
@@ -192,7 +191,7 @@ async function nativeStream(pool, sql, options) {
 
   let columns = null;
   let currentRow = null;
-  const q = pool.query(sql);
+  const q = dbhan.client.query(sql);
 
   q.on('meta', meta => {
     if (currentRow) options.row(currentRow);

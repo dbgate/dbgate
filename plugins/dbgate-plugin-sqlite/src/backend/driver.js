@@ -64,15 +64,17 @@ const driver = {
   analyserClass: Analyser,
   async connect({ databaseFile, isReadOnly }) {
     const Database = getBetterSqlite();
-    const pool = new Database(databaseFile, { readonly: !!isReadOnly });
-    return pool;
+    const client = new Database(databaseFile, { readonly: !!isReadOnly });
+    return {
+      client,
+    };
   },
-  async close(pool) {
-    return pool.close();
+  async close(dbhan) {
+    return dbhan.client.close();
   },
   // @ts-ignore
-  async query(pool, sql) {
-    const stmt = pool.prepare(sql);
+  async query(dbhan, sql) {
+    const stmt = dbhan.client.prepare(sql);
     // stmt.raw();
     if (stmt.reader) {
       const columns = stmt.columns();
@@ -92,14 +94,14 @@ const driver = {
       };
     }
   },
-  async stream(client, sql, options) {
+  async stream(dbhan, sql, options) {
     const sqlSplitted = splitQuery(sql, sqliteSplitterOptions);
 
     const rowCounter = { count: 0, date: null };
 
-    const inTransaction = client.transaction(() => {
+    const inTransaction = dbhan.client.transaction(() => {
       for (const sqlItem of sqlSplitted) {
-        runStreamItem(client, sqlItem, options, rowCounter);
+        runStreamItem(dbhan.client, sqlItem, options, rowCounter);
       }
 
       if (rowCounter.date) {
@@ -128,10 +130,10 @@ const driver = {
     options.done();
     // return stream;
   },
-  async script(client, sql) {
-    const inTransaction = client.transaction(() => {
+  async script(dbhan, sql) {
+    const inTransaction = dbhan.client.transaction(() => {
       for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
-        const stmt = client.prepare(sqlItem);
+        const stmt = dbhan.client.prepare(sqlItem);
         stmt.run();
       }
     });
@@ -149,13 +151,13 @@ const driver = {
     }
     pass.end();
   },
-  async readQuery(pool, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     const pass = new stream.PassThrough({
       objectMode: true,
       highWaterMark: 100,
     });
 
-    const stmt = pool.prepare(sql);
+    const stmt = dbhan.client.prepare(sql);
     const columns = stmt.columns();
 
     pass.write({
@@ -171,11 +173,11 @@ const driver = {
 
     return pass;
   },
-  async writeTable(pool, name, options) {
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
-  async getVersion(pool) {
-    const { rows } = await this.query(pool, 'select sqlite_version() as version');
+  async getVersion(dbhan) {
+    const { rows } = await this.query(dbhan, 'select sqlite_version() as version');
     const { version } = rows[0];
 
     return {

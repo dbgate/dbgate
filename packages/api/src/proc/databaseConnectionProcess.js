@@ -11,7 +11,7 @@ const { dumpSqlSelect } = require('dbgate-sqltree');
 
 const logger = getLogger('dbconnProcess');
 
-let systemConnection;
+let dbhan;
 let storedConnection;
 let afterConnectCallbacks = [];
 let afterAnalyseCallbacks = [];
@@ -49,7 +49,7 @@ async function handleFullRefresh() {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('loadStructure');
-  analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection, serverVersion));
+  analysedStructure = await checkedAsyncCall(driver.analyseFull(dbhan, serverVersion));
   analysedTime = new Date().getTime();
   process.send({ msgtype: 'structure', structure: analysedStructure });
   process.send({ msgtype: 'structureTime', analysedTime });
@@ -64,7 +64,7 @@ async function handleIncrementalRefresh(forceSend) {
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
   const newStructure = await checkedAsyncCall(
-    driver.analyseIncremental(systemConnection, analysedStructure, serverVersion)
+    driver.analyseIncremental(dbhan, analysedStructure, serverVersion)
   );
   analysedTime = new Date().getTime();
   if (newStructure != null) {
@@ -103,7 +103,7 @@ function setStatusName(name) {
 
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
-  const version = await driver.getVersion(systemConnection);
+  const version = await driver.getVersion(dbhan);
   process.send({ msgtype: 'version', version });
   serverVersion = version;
 }
@@ -114,8 +114,8 @@ async function handleConnect({ connection, structure, globalSettings }) {
 
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
-  systemConnection.feedback = feedback => setStatus({ feedback });
+  dbhan = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
+  dbhan.feedback = feedback => setStatus({ feedback });
   await checkedAsyncCall(readVersion());
   if (structure) {
     analysedStructure = structure;
@@ -138,7 +138,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
 }
 
 function waitConnected() {
-  if (systemConnection) return Promise.resolve();
+  if (dbhan) return Promise.resolve();
   return new Promise((resolve, reject) => {
     afterConnectCallbacks.push([resolve, reject]);
   });
@@ -163,7 +163,7 @@ async function handleRunScript({ msgid, sql, useTransaction }, skipReadonlyCheck
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
-    await driver.script(systemConnection, sql, { useTransaction });
+    await driver.script(dbhan, sql, { useTransaction });
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });
@@ -175,7 +175,7 @@ async function handleRunOperation({ msgid, operation, useTransaction }, skipRead
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
-    await driver.operation(systemConnection, operation, { useTransaction });
+    await driver.operation(dbhan, operation, { useTransaction });
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });
@@ -188,7 +188,7 @@ async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     // console.log(sql);
-    const res = await driver.query(systemConnection, sql);
+    const res = await driver.query(dbhan, sql);
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message || 'Error executing SQL script' });
@@ -214,23 +214,23 @@ async function handleDriverDataCore(msgid, callMethod) {
 }
 
 async function handleSchemaList({ msgid }) {
-  return handleDriverDataCore(msgid, driver => driver.listSchemas(systemConnection));
+  return handleDriverDataCore(msgid, driver => driver.listSchemas(dbhan));
 }
 
 async function handleCollectionData({ msgid, options }) {
-  return handleDriverDataCore(msgid, driver => driver.readCollection(systemConnection, options));
+  return handleDriverDataCore(msgid, driver => driver.readCollection(dbhan, options));
 }
 
 async function handleLoadKeys({ msgid, root, filter }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeys(systemConnection, root, filter));
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter));
 }
 
 async function handleExportKeys({ msgid, options }) {
-  return handleDriverDataCore(msgid, driver => driver.exportKeys(systemConnection, options));
+  return handleDriverDataCore(msgid, driver => driver.exportKeys(dbhan, options));
 }
 
 async function handleLoadKeyInfo({ msgid, key }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(systemConnection, key));
+  return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(dbhan, key));
 }
 
 async function handleCallMethod({ msgid, method, args }) {
@@ -240,17 +240,17 @@ async function handleCallMethod({ msgid, method, args }) {
     }
 
     ensureExecuteCustomScript(driver);
-    return driver.callMethod(systemConnection, method, args);
+    return driver.callMethod(dbhan, method, args);
   });
 }
 
 async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeyTableRange(systemConnection, key, cursor, count));
+  return handleDriverDataCore(msgid, driver => driver.loadKeyTableRange(dbhan, key, cursor, count));
 }
 
 async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search }) {
   return handleDriverDataCore(msgid, driver =>
-    driver.loadFieldValues(systemConnection, { schemaName, pureName }, field, search)
+    driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search)
   );
 }
 
@@ -268,7 +268,7 @@ async function handleUpdateCollection({ msgid, changeSet }) {
   const driver = requireEngineDriver(storedConnection);
   try {
     ensureExecuteCustomScript(driver);
-    const result = await driver.updateCollection(systemConnection, changeSet);
+    const result = await driver.updateCollection(dbhan, changeSet);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });
@@ -281,7 +281,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
 
   try {
     const dmp = driver.createDumper();
-    const generator = new SqlGenerator(analysedStructure, options, objects, dmp, driver, systemConnection);
+    const generator = new SqlGenerator(analysedStructure, options, objects, dmp, driver, dbhan);
 
     await generator.dump();
     process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
@@ -301,7 +301,7 @@ async function handleGenerateDeploySql({ msgid, modelFolder }) {
 
   try {
     const res = await generateDeploySql({
-      systemConnection,
+      systemConnection: dbhan,
       connection: storedConnection,
       analysedStructure,
       modelFolder,

@@ -95,21 +95,21 @@ const drivers = driverBases.map(driverBase => ({
       database,
     };
   },
-  async close(handle) {
-    return handle.client.end();
+  async close(dbhan) {
+    return dbhan.client.end();
   },
-  async query(handle, sql) {
+  async query(dbhan, sql) {
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-    const res = await handle.client.query({ text: sql, rowMode: 'array' });
+    const res = await dbhan.client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
-  stream(handle, sql, options) {
+  stream(dbhan, sql, options) {
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -168,10 +168,10 @@ const drivers = driverBases.map(driverBase => ({
       options.done();
     });
 
-    handle.client.query(query);
+    dbhan.client.query(query);
   },
-  async getVersion(handle) {
-    const { rows } = await this.query(handle, 'SELECT version()');
+  async getVersion(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT version()');
     const { version } = rows[0];
 
     const isCockroach = version.toLowerCase().includes('cockroachdb');
@@ -201,7 +201,7 @@ const drivers = driverBases.map(driverBase => ({
       versionMinor,
     };
   },
-  async readQuery(client, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -246,16 +246,16 @@ const drivers = driverBases.map(driverBase => ({
       pass.end();
     });
 
-    client.query(query);
+    dbhan.client.query(query);
 
     return pass;
   },
-  async writeTable(pool, name, options) {
+  async writeTable(dbhan, name, options) {
     // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
-  async listDatabases(handle) {
-    const { rows } = await this.query(handle, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
 
@@ -272,12 +272,12 @@ const drivers = driverBases.map(driverBase => ({
     ];
   },
 
-  async listSchemas(handle) {
+  async listSchemas(dbhan) {
     const schemaRows = await this.query(
-      handle,
+      dbhan,
       'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
     );
-    const defaultSchemaRows = await this.query(handle, 'SHOW SEARCH_PATH;');
+    const defaultSchemaRows = await this.query(dbhan, 'SHOW SEARCH_PATH;');
     const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
 
     const schemas = schemaRows.rows.map(x => ({

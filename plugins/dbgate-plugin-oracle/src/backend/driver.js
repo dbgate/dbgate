@@ -88,13 +88,15 @@ const driver = {
     if (database) {
       await client.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${database}`);
     }
-    client._schema_name = database;
-    return client;
+    return {
+      client,
+      database,
+    };
   },
-  async close(pool) {
-    return pool.end();
+  async close(dbhan) {
+    return dbhan.client.end();
   },
-  async query(client, sql) {
+  async query(dbhan, sql) {
     if (sql == null || sql.trim() == '') {
       return {
         rows: [],
@@ -107,7 +109,7 @@ const driver = {
       sql = mtrim[1];
     }
 
-    const res = await client.execute(sql);
+    const res = await dbhan.client.execute(sql);
     try {
       const columns = extractOracleColumns(res.metaData);
       return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
@@ -118,7 +120,7 @@ const driver = {
       };
     }
   },
-  stream(client, sql, options) {
+  stream(dbhan, sql, options) {
     /*
     const query = new pg.Query({
       text: sql,
@@ -128,7 +130,7 @@ const driver = {
     // console.log('queryStream', sql);
 
     if (sql.trim().toLowerCase().startsWith('select')) {
-      const query = client.queryStream(sql);
+      const query = dbhan.client.queryStream(sql);
       // const consumeStream = new Promise((resolve, reject) => {
       let rowcount = 0;
       let wasHeader = false;
@@ -202,7 +204,7 @@ const driver = {
       });
       //});
     } else {
-      client.execute(sql, (err, res) => {
+      dbhan.client.execute(sql, (err, res) => {
         if (err) {
           console.log('Error query', err, sql);
           const lineNumber = (sql.substring(0, err.offset).match(/\n/g) || []).length;
@@ -237,23 +239,23 @@ const driver = {
     //console.log('Rows selected: ' + numrows);
     //client.query(query);
   },
-  async getVersionCore(client) {
+  async getVersionCore(dbhan) {
     try {
       const { rows } = await this.query(
-        client,
+        dbhan,
         "SELECT product || ' ' || version_full as \"version\" FROM product_component_version WHERE product LIKE 'Oracle%Database%'"
       );
       return rows[0].version.replace('  ', ' ');
     } catch (e) {
-      const { rows } = await this.query(client, 'SELECT banner as "version" FROM v$version');
+      const { rows } = await this.query(dbhan, 'SELECT banner as "version" FROM v$version');
       return rows[0].version;
     }
   },
-  async getVersion(client) {
+  async getVersion(dbhan) {
     try {
       //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
       // const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
-      const version = await this.getVersionCore(client);
+      const version = await this.getVersionCore(dbhan);
 
       const m = version.match(/(\d+[a-z]+)\s+(\w+).*?(\d+)\.(\d+)/);
       //console.log('M', m);
@@ -281,7 +283,7 @@ const driver = {
       };
     }
   },
-  async readQuery(client, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     /*
     const query = new pg.Query({
       text: sql,
@@ -289,7 +291,7 @@ const driver = {
     });
 */
     // console.log('readQuery', sql, structure);
-    const query = await client.queryStream(sql);
+    const query = await dbhan.client.queryStream(sql);
 
     let wasHeader = false;
     let columns = null;
@@ -333,11 +335,11 @@ const driver = {
 
     return pass;
   },
-  async writeTable(pool, name, options) {
-    return createOracleBulkInsertStream(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    return createOracleBulkInsertStream(this, stream, dbhan, name, options);
   },
-  async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT username as "name" from all_users order by username');
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT username as "name" from all_users order by username');
     return rows;
   },
 

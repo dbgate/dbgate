@@ -83,32 +83,34 @@ const driver = {
   analyserClass: Analyser,
   async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
     let db = 0;
-    let pool;
+    let client;
     if (useDatabaseUrl) {
-      pool = new Redis(databaseUrl);
+      client = new Redis(databaseUrl);
     } else {
       if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
       if (_.isNumber(database)) db = database;
-      pool = new Redis({
+      client = new Redis({
         host: server,
         port,
         username: user,
         password,
         db,
       });
-      pool.__treeKeySeparator = treeKeySeparator || ':';
     }
 
-    return pool;
+    return {
+      client,
+      treeKeySeparator: treeKeySeparator || ':',
+    };
   },
   // @ts-ignore
-  async query(pool, sql) {
+  async query(dbhan, sql) {
     return {
       rows: [],
       columns: [],
     };
   },
-  async stream(pool, sql, options) {
+  async stream(dbhan, sql, options) {
     const parts = splitCommandLine(sql);
     if (parts.length < 1) {
       options.done();
@@ -116,7 +118,7 @@ const driver = {
     }
     const command = parts[0].toLowerCase();
     const args = parts.slice(1);
-    const res = await pool.call(command, ...args);
+    const res = await dbhan.client.call(command, ...args);
 
     options.info({
       message: JSON.stringify(res),
@@ -126,7 +128,7 @@ const driver = {
 
     options.done();
   },
-  async readQuery(pool, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     const pass = new stream.PassThrough({
       objectMode: true,
       highWaterMark: 100,
@@ -139,11 +141,11 @@ const driver = {
 
     return pass;
   },
-  async writeTable(pool, name, options) {
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
-  async info(pool) {
-    const info = await pool.info();
+  async info(dbhan) {
+    const info = await dbhan.client.info();
     return _.fromPairs(
       info
         .split('\n')
@@ -151,30 +153,30 @@ const driver = {
         .map((x) => x.split(':'))
     );
   },
-  async getVersion(pool) {
-    const info = await this.info(pool);
+  async getVersion(dbhan) {
+    const info = await this.info(dbhan);
 
     return {
       version: info.redis_version,
       versionText: `Redis ${info.redis_version}`,
     };
   },
-  async listDatabases(pool) {
-    const info = await this.info(pool);
+  async listDatabases(dbhan) {
+    const info = await this.info(dbhan);
 
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
-  async loadKeys(pool, root = '', filter = null) {
-    const keys = await this.getKeys(pool, root ? `${root}${pool.__treeKeySeparator}*` : '*');
+  async loadKeys(dbhan, root = '', filter = null) {
+    const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.__treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(pool, root, keysFiltered);
-    await this.enrichKeyInfo(pool, res);
+    const res = this.extractKeysFromLevel(dbhan, root, keysFiltered);
+    await this.enrichKeyInfo(dbhan, res);
     return res;
   },
 
-  async exportKeys(pool, options) {
-    const dump = new RedisDump({ client: pool });
+  async exportKeys(dbhan, options) {
+    const dump = new RedisDump({ client: dbhan.client });
     return new Promise((resolve, reject) => {
       dump.export({
         type: 'redis',
@@ -187,24 +189,24 @@ const driver = {
     });
   },
 
-  async getKeys(pool, keyQuery = '*') {
+  async getKeys(dbhan, keyQuery = '*') {
     const res = [];
     let cursor = 0;
     do {
-      const [strCursor, keys] = await pool.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
+      const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
       res.push(...keys);
       cursor = parseInt(strCursor);
     } while (cursor > 0);
     return res;
   },
 
-  extractKeysFromLevel(pool, root, keys) {
-    const prefix = root ? `${root}${pool.__treeKeySeparator}` : '';
-    const rootSplit = _.compact(root.split(pool.__treeKeySeparator));
+  extractKeysFromLevel(dbhan, root, keys) {
+    const prefix = root ? `${root}${dbhan.treeKeySeparator}` : '';
+    const rootSplit = _.compact(root.split(dbhan.treeKeySeparator));
     const res = {};
     for (const key of keys) {
       if (!key.startsWith(prefix)) continue;
-      const keySplit = key.split(pool.__treeKeySeparator);
+      const keySplit = key.split(dbhan.treeKeySeparator);
       if (keySplit.length > rootSplit.length) {
         const text = keySplit[rootSplit.length];
         if (keySplit.length == rootSplit.length + 1) {
@@ -218,9 +220,9 @@ const driver = {
             res[dctKey].count++;
           } else {
             res[dctKey] = {
-              text: text + pool.__treeKeySeparator + '*',
+              text: text + dbhan.treeKeySeparator + '*',
               type: 'dir',
-              root: keySplit.slice(0, rootSplit.length + 1).join(pool.__treeKeySeparator),
+              root: keySplit.slice(0, rootSplit.length + 1).join(dbhan.treeKeySeparator),
               count: 1,
             };
           }
@@ -230,46 +232,46 @@ const driver = {
     return Object.values(res);
   },
 
-  async getKeyCardinality(pool, key, type) {
+  async getKeyCardinality(dbhan, key, type) {
     switch (type) {
       case 'list':
-        return pool.llen(key);
+        return dbhan.client.llen(key);
       case 'set':
-        return pool.scard(key);
+        return dbhan.client.scard(key);
       case 'zset':
-        return pool.zcard(key);
+        return dbhan.client.zcard(key);
       case 'stream':
-        return pool.xlen(key);
+        return dbhan.client.xlen(key);
       case 'hash':
-        return pool.hlen(key);
+        return dbhan.client.hlen(key);
     }
   },
 
-  async enrichOneKeyInfo(pool, item) {
-    item.type = await pool.type(item.key);
-    item.count = await this.getKeyCardinality(pool, item.key, item.type);
+  async enrichOneKeyInfo(dbhan, item) {
+    item.type = await dbhan.client.type(item.key);
+    item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
   },
 
-  async enrichKeyInfo(pool, levelInfo) {
+  async enrichKeyInfo(dbhan, levelInfo) {
     await async.eachLimit(
       levelInfo.filter((x) => x.key),
       10,
-      async (item) => await this.enrichOneKeyInfo(pool, item)
+      async (item) => await this.enrichOneKeyInfo(dbhan, item)
     );
   },
 
-  async loadKeyInfo(pool, key) {
+  async loadKeyInfo(dbhan, key) {
     const res = {};
-    const type = await pool.type(key);
+    const type = await dbhan.client.type(key);
 
     res.key = key;
     res.type = type;
-    res.ttl = await pool.ttl(key);
-    res.count = await this.getKeyCardinality(pool, key, type);
+    res.ttl = await dbhan.client.ttl(key);
+    res.count = await this.getKeyCardinality(dbhan, key, type);
 
     switch (type) {
       case 'string':
-        res.value = await pool.get(key);
+        res.value = await dbhan.client.get(key);
         break;
       // case 'list':
       //   res.tableColumns = [{ name: 'value' }];
@@ -297,16 +299,16 @@ const driver = {
     return res;
   },
 
-  async deleteBranch(pool, keyQuery) {
-    const keys = await this.getKeys(pool, keyQuery);
+  async deleteBranch(dbhan, keyQuery) {
+    const keys = await this.getKeys(dbhan, keyQuery);
     const keysChunked = _.chunk(keys, 10);
-    await async.eachLimit(keysChunked, 10, async (keysChunk) => await pool.del(...keysChunk));
+    await async.eachLimit(keysChunked, 10, async (keysChunk) => await dbhan.client.del(...keysChunk));
   },
 
-  async callMethod(pool, method, args) {
+  async callMethod(dbhan, method, args) {
     switch (method) {
       case 'mdel':
-        return await this.deleteBranch(pool, args[0]);
+        return await this.deleteBranch(dbhan, args[0]);
       case 'xaddjson':
         let json;
         try {
@@ -314,44 +316,44 @@ const driver = {
         } catch (e) {
           throw new Error('Value must be valid JSON. ' + e.message);
         }
-        return await pool.xadd(args[0], args[1] || '*', ..._.flatten(_.toPairs(json)));
+        return await dbhan.client.xadd(args[0], args[1] || '*', ..._.flatten(_.toPairs(json)));
     }
-    return await pool[method](...args);
+    return await dbhan.client[method](...args);
   },
 
-  async loadKeyTableRange(pool, key, cursor, count) {
-    const type = await pool.type(key);
+  async loadKeyTableRange(dbhan, key, cursor, count) {
+    const type = await dbhan.client.type(key);
     switch (type) {
       case 'list': {
-        const res = await pool.lrange(key, cursor, cursor + count);
+        const res = await dbhan.client.lrange(key, cursor, cursor + count);
         return {
           cursor: res.length > count ? cursor + count : 0,
           items: res.map((value) => ({ value })).slice(0, count),
         };
       }
       case 'set': {
-        const res = await pool.sscan(key, cursor, 'COUNT', count);
+        const res = await dbhan.client.sscan(key, cursor, 'COUNT', count);
         return {
           cursor: parseInt(res[0]),
           items: res[1].map((value) => ({ value })),
         };
       }
       case 'zset': {
-        const res = await pool.zscan(key, cursor, 'COUNT', count);
+        const res = await dbhan.client.zscan(key, cursor, 'COUNT', count);
         return {
           cursor: parseInt(res[0]),
           items: _.chunk(res[1], 2).map((item) => ({ value: item[0], score: item[1] })),
         };
       }
       case 'hash': {
-        const res = await pool.hscan(key, cursor, 'COUNT', count);
+        const res = await dbhan.client.hscan(key, cursor, 'COUNT', count);
         return {
           cursor: parseInt(res[0]),
           items: _.chunk(res[1], 2).map((item) => ({ key: item[0], value: item[1] })),
         };
       }
       case 'stream': {
-        const res = await pool.xrange(key, cursor == 0 ? '-' : cursor, '+', 'COUNT', count);
+        const res = await dbhan.client.xrange(key, cursor == 0 ? '-' : cursor, '+', 'COUNT', count);
         let newCursor = 0;
         if (res.length > 0) {
           const id = res[res.length - 1][0];

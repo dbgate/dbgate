@@ -51,13 +51,13 @@ function getColumnInfo(
 }
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
-    const dbname = this.pool.database;
+    const dbname = this.dbhan.database;
     const schemaCondition = isCompositeDbName(dbname)
       ? `= '${splitCompositeDbName(dbname).schema}' `
       : ' IS NOT NULL   ';

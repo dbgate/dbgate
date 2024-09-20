@@ -63,8 +63,8 @@ function getColumnInfo({
 }
 
 class MsSqlAnalyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields) {
@@ -75,7 +75,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   async _computeSingleObjectId() {
     const { schemaName, pureName, typeField } = this.singleObjectFilter;
     const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
-    const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
+    const resId = await this.driver.query(this.dbhan, `SELECT OBJECT_ID('${fullName}') AS id`);
     this.singleObjectId = resId.rows[0].id;
   }
 

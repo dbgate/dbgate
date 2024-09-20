@@ -68,14 +68,13 @@ async function tediousConnect(storedConnection) {
       if (err) {
         reject(err);
       }
-      connection._connectionType = 'tedious';
       resolve(connection);
     });
     connection.connect();
   });
 }
 
-async function tediousQueryCore(pool, sql, options) {
+async function tediousQueryCore(dbhan, sql, options) {
   if (sql == null) {
     return Promise.resolve({
       rows: [],
@@ -103,12 +102,12 @@ async function tediousQueryCore(pool, sql, options) {
         )
       );
     });
-    if (discardResult) pool.execSqlBatch(request);
-    else pool.execSql(request);
+    if (discardResult) dbhan.client.execSqlBatch(request);
+    else dbhan.client.execSql(request);
   });
 }
 
-async function tediousReadQuery(pool, sql, structure) {
+async function tediousReadQuery(dbhan, sql, structure) {
   const pass = new stream.PassThrough({
     objectMode: true,
     highWaterMark: 100,
@@ -133,12 +132,12 @@ async function tediousReadQuery(pool, sql, structure) {
     );
     pass.write(row);
   });
-  pool.execSql(request);
+  dbhan.client.execSql(request);
 
   return pass;
 }
 
-async function tediousStream(pool, sql, options) {
+async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
 
   const handleInfo = info => {
@@ -188,7 +187,7 @@ async function tediousStream(pool, sql, options) {
     );
     options.row(row);
   });
-  pool.execSqlBatch(request);
+  dbhan.client.execSqlBatch(request);
 }
 
 module.exports = {

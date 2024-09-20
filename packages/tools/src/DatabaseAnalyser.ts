@@ -1,4 +1,4 @@
-import { DatabaseInfo, DatabaseModification, EngineDriver, SqlDialect } from 'dbgate-types';
+import { DatabaseHandle, DatabaseInfo, DatabaseModification, EngineDriver, SqlDialect } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
@@ -40,7 +40,7 @@ export class DatabaseAnalyser {
   dialect: SqlDialect;
   logger: Logger;
 
-  constructor(public pool, public driver: EngineDriver, version) {
+  constructor(public dbhan: DatabaseHandle, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
     this.logger = logger;
   }
@@ -242,8 +242,8 @@ export class DatabaseAnalyser {
   }
 
   feedback(obj) {
-    if (this.pool.feedback) {
-      this.pool.feedback(obj);
+    if (this.dbhan.feedback) {
+      this.dbhan.feedback(obj);
     }
     if (obj && obj.analysingMessage) {
       logger.debug(obj.analysingMessage);
@@ -318,7 +318,7 @@ export class DatabaseAnalyser {
       };
     }
     try {
-      const res = await this.driver.query(this.pool, sql);
+      const res = await this.driver.query(this.dbhan, sql);
       this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
       return res;
     } catch (err) {
