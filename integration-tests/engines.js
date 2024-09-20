@@ -118,7 +118,7 @@ const engines = [
       engine: 'sqlite@dbgate-plugin-sqlite',
     },
     objects: [views],
-    skipOnCI: true,
+    skipOnCI: false,
   },
   {
     label: 'CockroachDB',
