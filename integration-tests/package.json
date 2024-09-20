@@ -13,7 +13,7 @@
     "wait:ci": "cross-env DEVMODE=1 CITEST=1 node wait.js",
     "test:local": "cross-env DEVMODE=1 LOCALTEST=1 jest",
     "test:local:path": "cross-env DEVMODE=1 LOCALTEST=1 jest --runTestsByPath __tests__/data-duplicator.spec.js",
-    "test:ci": "cross-env DEVMODE=1 CITEST=1 jest --runInBand --json --outputFile=result.json --testLocationInResults --detectOpenHandles",
+    "test:ci": "cross-env DEVMODE=1 CITEST=1 jest --runInBand --json --outputFile=result.json --testLocationInResults --detectOpenHandles --forceExit",
     "run:local": "docker-compose down && docker-compose up -d && yarn wait:local && yarn test:local"
   },
   "jest": {
