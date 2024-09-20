@@ -4,7 +4,8 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
-const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];;
+const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractDbNameFromComposite } =
+  global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('postreDriver');
 
@@ -76,7 +77,7 @@ const drivers = driverBases.map(driverBase => ({
             port: authType == 'socket' ? null : port,
             user,
             password,
-            database: database || 'postgres',
+            database: extractDbNameFromComposite(database) || 'postgres',
             ssl,
             application_name: 'DbGate',
           };
@@ -89,23 +90,26 @@ const drivers = driverBases.map(driverBase => ({
       await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
     }
 
-    return client;
+    return {
+      client,
+      database,
+    };
   },
-  async close(pool) {
-    return pool.end();
+  async close(dbhan) {
+    return dbhan.client.end();
   },
-  async query(client, sql) {
+  async query(dbhan, sql) {
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-    const res = await client.query({ text: sql, rowMode: 'array' });
+    const res = await dbhan.client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
-  stream(client, sql, options) {
+  stream(dbhan, sql, options) {
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -164,10 +168,10 @@ const drivers = driverBases.map(driverBase => ({
       options.done();
     });
 
-    client.query(query);
+    dbhan.client.query(query);
   },
-  async getVersion(client) {
-    const { rows } = await this.query(client, 'SELECT version()');
+  async getVersion(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT version()');
     const { version } = rows[0];
 
     const isCockroach = version.toLowerCase().includes('cockroachdb');
@@ -197,7 +201,7 @@ const drivers = driverBases.map(driverBase => ({
       versionMinor,
     };
   },
-  async readQuery(client, sql, structure) {
+  async readQuery(dbhan, sql, structure) {
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -242,16 +246,16 @@ const drivers = driverBases.map(driverBase => ({
       pass.end();
     });
 
-    client.query(query);
+    dbhan.client.query(query);
 
     return pass;
   },
-  async writeTable(pool, name, options) {
+  async writeTable(dbhan, name, options) {
     // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
-  async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
 
@@ -266,6 +270,25 @@ const drivers = driverBases.map(driverBase => ({
         name: 'socket',
       },
     ];
+  },
+
+  async listSchemas(dbhan) {
+    const schemaRows = await this.query(
+      dbhan,
+      'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
+    );
+    const defaultSchemaRows = await this.query(dbhan, 'SHOW SEARCH_PATH;');
+    const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
+
+    logger.debug(`Loaded ${schemaRows.rows.length} postgres schemas`);
+
+    const schemas = schemaRows.rows.map(x => ({
+      schemaName: x.schema_name,
+      objectId: x.object_id,
+      isDefault: x.schema_name == searchPath,
+    }));
+
+    return schemas;
   },
 }));
 

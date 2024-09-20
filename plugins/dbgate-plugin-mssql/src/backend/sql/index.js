@@ -8,7 +8,6 @@ const loadSqlCode = require('./loadSqlCode');
 const views = require('./views');
 const programmables = require('./programmables');
 const viewColumns = require('./viewColumns');
-const getSchemas = require('./getSchemas');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
 
@@ -22,7 +21,6 @@ module.exports = {
   views,
   programmables,
   viewColumns,
-  getSchemas,
   indexes,
   indexcols,
   tableSizes,

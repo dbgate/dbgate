@@ -7,4 +7,5 @@ select
     fk.unique_constraint_name as "unique_constraint_name",
     fk.unique_constraint_schema as "unique_constraint_schema" 
 from information_schema.referential_constraints fk
+where fk.constraint_schema =SCHEMA_NAME_CONDITION
 `;

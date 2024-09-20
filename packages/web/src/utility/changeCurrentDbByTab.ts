@@ -3,6 +3,7 @@ import { currentDatabase, getCurrentDatabase, getLockedDatabaseMode, openedTabs 
 import { shouldShowTab } from '../tabpanel/TabsPanel.svelte';
 import { callWhenAppLoaded, getAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
+import { switchCurrentDatabase } from './common';
 
 let lastCurrentTab = null;
 
@@ -20,7 +21,7 @@ openedTabs.subscribe(value => {
     if (conid && database && (conid != lastTab?.props?.conid || database != lastTab?.props?.database)) {
       const doWork = async () => {
         const connection = await getConnectionInfo({ conid });
-        currentDatabase.set({
+        switchCurrentDatabase({
           connection,
           name: database,
         });

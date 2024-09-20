@@ -30,8 +30,8 @@ function getColumnInfo(
 }
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
@@ -47,32 +47,32 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
-    const tables = await this.analyserQuery('tableList', ['tables'], { $owner: this.pool._schema_name });
+    const tables = await this.analyserQuery('tableList', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Loading columns' });
-    const columns = await this.analyserQuery('columns', ['tables', 'views'], { $owner: this.pool._schema_name });
+    const columns = await this.analyserQuery('columns', ['tables', 'views'], { $owner: this.dbhan.database });
 
     this.feedback({ analysingMessage: 'Loading primary keys' });
-    const pkColumns = await this.analyserQuery('primaryKeys', ['tables'], { $owner: this.pool._schema_name });
+    const pkColumns = await this.analyserQuery('primaryKeys', ['tables'], { $owner: this.dbhan.database });
 
     //let fkColumns = null;
 
     this.feedback({ analysingMessage: 'Loading foreign keys' });
-    const fkColumns = await this.analyserQuery('foreignKeys', ['tables'], { $owner: this.pool._schema_name });
+    const fkColumns = await this.analyserQuery('foreignKeys', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Loading views' });
-    const views = await this.analyserQuery('views', ['views'], { $owner: this.pool._schema_name });
+    const views = await this.analyserQuery('views', ['views'], { $owner: this.dbhan.database });
 
     this.feedback({ analysingMessage: 'Loading materialized views' });
     const matviews = this.driver.dialect.materializedViews
-      ? await this.analyserQuery('matviews', ['matviews'], { $owner: this.pool._schema_name })
+      ? await this.analyserQuery('matviews', ['matviews'], { $owner: this.dbhan.database })
       : null;
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
-      $owner: this.pool._schema_name,
+      $owner: this.dbhan.database,
     });
     this.feedback({ analysingMessage: 'Loading indexes' });
-    const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.pool._schema_name });
+    const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Loading unique names' });
-    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.pool._schema_name });
+    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const fkColumnsMapped = fkColumns.rows.map(x => ({

@@ -19,6 +19,7 @@ module.exports = `
         and t.relnamespace = c.oid
         and c.nspname != 'pg_catalog'
         and ('tables:' || c.nspname || '.' ||  t.relname) =OBJECT_ID_CONDITION
+        and c.nspname =SCHEMA_NAME_CONDITION
     order by
         t.relname
 `;

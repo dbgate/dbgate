@@ -12,6 +12,7 @@ FROM pg_catalog.pg_class
 WHERE pg_class.relkind = 'm'
     AND pg_attribute.attnum >= 1
     AND ('matviews:' || pg_namespace.nspname || '.' || pg_class.relname) =OBJECT_ID_CONDITION
+    AND pg_namespace.nspname =SCHEMA_NAME_CONDITION
 
 ORDER BY pg_attribute.attnum
 `;

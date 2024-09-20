@@ -63,8 +63,8 @@ function getColumnInfo({
 }
 
 class MsSqlAnalyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields) {
@@ -75,14 +75,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   async _computeSingleObjectId() {
     const { schemaName, pureName, typeField } = this.singleObjectFilter;
     const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
-    const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
+    const resId = await this.driver.query(this.dbhan, `SELECT OBJECT_ID('${fullName}') AS id`);
     this.singleObjectId = resId.rows[0].id;
-  }
-
-  async readSchemaList() {
-    const schemaRows = await this.analyserQuery('getSchemas');
-    const schemas = schemaRows.rows;
-    return schemas;
   }
 
   async _runAnalysis() {
@@ -98,8 +92,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const indexesRows = await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcolsRows = await this.analyserQuery('indexcols', ['tables']);
-    this.feedback({ analysingMessage: 'Loading default schema' });
-    const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
     this.feedback({ analysingMessage: 'Loading table sizes' });
     const tableSizes = await this.analyserQuery('tableSizes');
 
@@ -179,7 +171,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       views,
       procedures,
       functions,
-      defaultSchema: defaultSchemaRows.rows[0] ? defaultSchemaRows.rows[0].name : undefined,
     };
   }
 

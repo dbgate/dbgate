@@ -5,12 +5,12 @@ const _ = require('lodash');
  *
  * @param {import('dbgate-types').EngineDriver} driver
  */
-function createOracleBulkInsertStream(driver, stream, pool, name, options) {
+function createOracleBulkInsertStream(driver, stream, dbhan, name, options) {
   const fullNameQuoted = name.schemaName
     ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
     : driver.dialect.quoteIdentifier(name.pureName);
 
-  const writable = createBulkInsertStreamBase(driver, stream, pool, name, {
+  const writable = createBulkInsertStreamBase(driver, stream, dbhan, name, {
     ...options,
     // this is really not used, send method below is used instead
     commitAfterInsert: true,
@@ -28,7 +28,7 @@ function createOracleBulkInsertStream(driver, stream, pool, name, options) {
     dmp.putRaw(')');
 
     const rows = writable.buffer.map(row => _.mapKeys(row, (v, k) => `c${writable.columnNames.indexOf(k)}`));
-    await pool.executeMany(dmp.s, rows, { autoCommit: true });
+    await dbhan.client.executeMany(dmp.s, rows, { autoCommit: true });
     writable.buffer = [];
   };
 

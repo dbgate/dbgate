@@ -7,4 +7,5 @@ select
 from
   pg_catalog.pg_matviews WHERE schemaname NOT LIKE 'pg_%' 
   and ('matviews:' || schemaname || '.' ||  matviewname) =OBJECT_ID_CONDITION
+  and schemaname =SCHEMA_NAME_CONDITION
 `;

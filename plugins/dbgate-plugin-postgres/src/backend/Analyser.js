@@ -2,7 +2,8 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const { DatabaseAnalyser, isTypeString, isTypeNumeric } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { DatabaseAnalyser, isTypeString, isTypeNumeric, isCompositeDbName, splitCompositeDbName } =
+  global.DBGATE_PACKAGES['dbgate-tools'];
 
 function normalizeTypeName(dataType) {
   if (dataType == 'character varying') return 'varchar';
@@ -50,8 +51,8 @@ function getColumnInfo(
 }
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
@@ -312,17 +313,6 @@ class Analyser extends DatabaseAnalyser {
     return res;
   }
 
-  async readSchemaList() {
-    const schemaRows = await this.analyserQuery('getSchemas');
-
-    const schemas = schemaRows.rows.map(x => ({
-      schemaName: x.schema_name,
-      objectId: `schemas:${x.schema_name}`,
-    }));
-
-    return schemas;
-  }
-
   async _getFastSnapshot() {
     const tableModificationsQueryData = this.driver.dialect.stringAgg
       ? await this.analyserQuery('tableModifications')
@@ -373,6 +363,10 @@ class Analyser extends DatabaseAnalyser {
           contentHash: x.hash_code,
         })),
     };
+  }
+
+  getDefaultSchemaNameCondition() {
+    return `not in ('pg_catalog', 'pg_toast', 'information_schema')`;
   }
 }
 

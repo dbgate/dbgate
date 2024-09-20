@@ -8,11 +8,9 @@ select
 from information_schema.table_constraints
 inner join information_schema.key_column_usage on table_constraints.table_name = key_column_usage.table_name and table_constraints.constraint_name = key_column_usage.constraint_name
 where 
-		table_constraints.table_schema <> 'information_schema' 
-		and table_constraints.table_schema <> 'pg_catalog' 
-		and table_constraints.table_schema !~ '^pg_toast' 
-		and table_constraints.table_schema !~ '^_timescaledb_' 
+		table_constraints.table_schema !~ '^_timescaledb_' 
 		and table_constraints.constraint_type = 'PRIMARY KEY'
 		and ('tables:' || table_constraints.table_schema || '.' || table_constraints.table_name) =OBJECT_ID_CONDITION
+		and table_constraints.table_schema =SCHEMA_NAME_CONDITION
 order by key_column_usage.ordinal_position
 `;

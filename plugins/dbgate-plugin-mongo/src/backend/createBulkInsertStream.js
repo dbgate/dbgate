@@ -5,9 +5,9 @@ const { EJSON } = require('bson');
 const logger = getLogger('mongoBulkInsert');
 
 
-function createBulkInsertStream(driver, stream, pool, name, options) {
+function createBulkInsertStream(driver, stream, dbhan, name, options) {
   const collectionName = name.pureName;
-  const db = pool.__getDatabase();
+  const db = dbhan.getDatabase();
 
   const writable = new stream.Writable({
     objectMode: true,

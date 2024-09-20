@@ -12,6 +12,7 @@ import { SAVED_FILE_HANDLERS } from '../appobj/SavedFileAppObject.svelte';
 import _ from 'lodash';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import { openImportExportTab } from './importExportTools';
+import { switchCurrentDatabase } from './common';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -38,7 +39,7 @@ export async function openSqliteFile(filePath) {
     singleDatabase: true,
     defaultDatabase,
   });
-  currentDatabase.set({
+  switchCurrentDatabase({
     connection: resp,
     name: getDatabaseFileLabel(filePath),
   });

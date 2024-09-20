@@ -23,3 +23,4 @@ export * from './getLogger';
 export * from './getConnectionLabel';
 export * from './detectSqlFilterBehaviour';
 export * from './filterBehaviours';
+export * from './schemaInfoTools';

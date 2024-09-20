@@ -136,7 +136,9 @@ const postgresDriverBase = {
     }
 
     return (
-      ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
+      ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'useSeparateSchemas'].includes(
+        field
+      ) ||
       (values.authType == 'socket' && ['socketPath'].includes(field)) ||
       (values.authType != 'socket' && ['server', 'port'].includes(field))
     );
@@ -242,7 +244,8 @@ const redshiftDriver = {
   title: 'Amazon Redshift',
   defaultPort: 5439,
   databaseUrlPlaceholder: 'e.g. redshift-cluster-1.xxxx.redshift.amazonaws.com:5439/dev',
-  showConnectionField: (field, values) => ['databaseUrl', 'user', 'password', 'isReadOnly'].includes(field),
+  showConnectionField: (field, values) =>
+    ['databaseUrl', 'user', 'password', 'isReadOnly', 'useSeparateSchemas'].includes(field),
   beforeConnectionSave: connection => {
     const { databaseUrl } = connection;
     if (databaseUrl) {

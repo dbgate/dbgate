@@ -1,11 +1,11 @@
-import { DatabaseInfo, DatabaseModification, EngineDriver, SqlDialect } from 'dbgate-types';
+import { DatabaseHandle, DatabaseInfo, DatabaseModification, EngineDriver, SqlDialect } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
-import stableStringify from 'json-stable-stringify';
+import { isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
 
 const logger = getLogger('dbAnalyser');
 
@@ -41,7 +41,7 @@ export class DatabaseAnalyser {
   dialect: SqlDialect;
   logger: Logger;
 
-  constructor(public pool, public driver: EngineDriver, version) {
+  constructor(public dbhan: DatabaseHandle, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
     this.logger = logger;
   }
@@ -71,10 +71,7 @@ export class DatabaseAnalyser {
   async fullAnalysis() {
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
-    return {
-      ...res,
-      schemas: await this.readSchemaList(),
-    };
+    return res;
   }
 
   async singleObjectAnalysis(name, typeField) {
@@ -91,10 +88,6 @@ export class DatabaseAnalyser {
     return obj;
   }
 
-  async readSchemaList() {
-    return undefined;
-  }
-
   async incrementalAnalysis(structure) {
     this.structure = structure;
 
@@ -107,35 +100,22 @@ export class DatabaseAnalyser {
     const structureModifications = modifications.filter(x => x.action != 'setTableRowCounts');
     const setTableRowCounts = modifications.find(x => x.action == 'setTableRowCounts');
 
-    let structureUpdated = null;
+    let structureWithRowCounts = null;
     if (setTableRowCounts) {
       const newStructure = mergeTableRowCounts(structure, setTableRowCounts.rowCounts);
       if (areDifferentRowCounts(structure, newStructure)) {
-        structureUpdated = newStructure;
+        structureWithRowCounts = newStructure;
       }
     }
 
-    const schemas = await this.readSchemaList();
-    const areSchemasDifferent = stableStringify(schemas) != stableStringify(this.structure.schemas);
-    if (areSchemasDifferent) {
-      structureUpdated = {
-        ...structure,
-        ...structureUpdated,
-        schemas,
-      };
-    }
-
     if (structureModifications.length == 0) {
-      return structureUpdated ? this.addEngineField(structureUpdated) : null;
+      return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
     }
 
     this.modifications = structureModifications;
-    if (structureUpdated) this.structure = structureUpdated;
+    if (structureWithRowCounts) this.structure = structureWithRowCounts;
     logger.info({ modifications: this.modifications }, 'DB modifications detected:');
-    return {
-      ...this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis())),
-      schemas,
-    };
+    return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
 
   mergeAnalyseResult(newlyAnalysed) {
@@ -201,8 +181,19 @@ export class DatabaseAnalyser {
   //   return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
   // }
 
+  getDefaultSchemaNameCondition() {
+    return 'is not null';
+  }
+
   createQuery(template, typeFields, replacements = {}) {
-    return this.createQueryCore(this.processQueryReplacements(template, replacements), typeFields);
+    let query = this.createQueryCore(this.processQueryReplacements(template, replacements), typeFields);
+
+    const dbname = this.dbhan.database;
+    const schemaCondition = isCompositeDbName(dbname)
+      ? `= '${splitCompositeDbName(dbname).schema}' `
+      : ` ${this.getDefaultSchemaNameCondition()} `;
+
+    return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
   }
 
   processQueryReplacements(query, replacements) {
@@ -263,8 +254,8 @@ export class DatabaseAnalyser {
   }
 
   feedback(obj) {
-    if (this.pool.feedback) {
-      this.pool.feedback(obj);
+    if (this.dbhan.feedback) {
+      this.dbhan.feedback(obj);
     }
     if (obj && obj.analysingMessage) {
       logger.debug(obj.analysingMessage);
@@ -339,7 +330,7 @@ export class DatabaseAnalyser {
       };
     }
     try {
-      const res = await this.driver.query(this.pool, sql);
+      const res = await this.driver.query(this.dbhan, sql);
       this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
       return res;
     } catch (err) {
@@ -359,7 +350,6 @@ export class DatabaseAnalyser {
       functions: [],
       procedures: [],
       triggers: [],
-      schemas: [],
     };
   }
 

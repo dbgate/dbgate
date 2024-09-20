@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { safeJsonParse } from 'dbgate-tools';
 import { apiCall } from './utility/api';
 import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
+import { switchCurrentDatabase } from './utility/common';
 
 export interface TabDefinition {
   title: string;
@@ -149,6 +150,7 @@ export const loadingPluginStore = writable({
 });
 export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
+export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
@@ -296,7 +298,7 @@ export function subscribeApiDependendStores() {
     currentConfigValue = value;
     invalidateCommands();
     if (value.singleDbConnection) {
-      currentDatabase.set(value.singleDbConnection);
+      switchCurrentDatabase(value.singleDbConnection);
     }
   });
 }

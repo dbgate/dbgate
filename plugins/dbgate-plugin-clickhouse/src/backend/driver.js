@@ -15,16 +15,18 @@ const driver = {
       url: databaseUrl,
       username: user,
       password: password,
-      database: database,
+      database,
     });
 
-    client._database_name = database;
-    return client;
+    return {
+      client,
+      database,
+    };
   },
   // called for retrieve data (eg. browse in data grid) and for update database
-  async query(client, query, options) {
+  async query(dbhan, query, options) {
     if (options?.discardResult) {
-      await client.command({
+      await dbhan.client.command({
         query,
       });
       return {
@@ -32,7 +34,7 @@ const driver = {
         columns: [],
       };
     } else {
-      const resultSet = await client.query({
+      const resultSet = await dbhan.client.query({
         query,
         format: 'JSONCompactEachRowWithNamesAndTypes',
       });
@@ -57,10 +59,10 @@ const driver = {
     }
   },
   // called in query console
-  async stream(client, query, options) {
+  async stream(dbhan, query, options) {
     try {
       if (!query.match(/^\s*SELECT/i)) {
-        const resp = await client.command({
+        const resp = await dbhan.client.command({
           query,
         });
         // console.log('RESP', resp);
@@ -76,7 +78,7 @@ const driver = {
         return;
       }
 
-      const resultSet = await client.query({
+      const resultSet = await dbhan.client.query({
         query,
         format: 'JSONCompactEachRowWithNamesAndTypes',
       });
@@ -138,13 +140,13 @@ const driver = {
     }
   },
   // called when exporting table or view
-  async readQuery(client, query, structure) {
+  async readQuery(dbhan, query, structure) {
     const pass = new stream.PassThrough({
       objectMode: true,
       highWaterMark: 100,
     });
 
-    const resultSet = await client.query({
+    const resultSet = await dbhan.client.query({
       query,
       format: 'JSONCompactEachRowWithNamesAndTypes',
     });
@@ -190,12 +192,12 @@ const driver = {
 
     return pass;
   },
-  async writeTable(pool, name, options) {
-    return createBulkInsertStream(this, stream, pool, name, options);
+  async writeTable(dbhan, name, options) {
+    return createBulkInsertStream(this, stream, dbhan, name, options);
   },
   // detect server version
-  async getVersion(client) {
-    const resultSet = await client.query({
+  async getVersion(dbhan) {
+    const resultSet = await dbhan.client.query({
       query: 'SELECT version() as version',
       format: 'JSONEachRow',
     });
@@ -203,8 +205,8 @@ const driver = {
     return { version: dataset[0].version };
   },
   // list databases on server
-  async listDatabases(client) {
-    const resultSet = await client.query({
+  async listDatabases(dbhan) {
+    const resultSet = await dbhan.client.query({
       query: `SELECT name
               FROM system.databases
               WHERE name NOT IN ('system', 'information_schema', 'information_schema_ro', 'INFORMATION_SCHEMA')`,
@@ -214,8 +216,8 @@ const driver = {
     return dataset;
   },
 
-  async close(client) {
-    return client.close();
+  async close(dbhan) {
+    return dbhan.client.close();
   },
 };
 

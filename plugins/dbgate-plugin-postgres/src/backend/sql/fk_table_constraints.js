@@ -5,5 +5,5 @@ select
 	base.constraint_name as "constraint_name",
 	base.constraint_schema as "constraint_schema"
 from information_schema.table_constraints base
-where ('tables:' || base.table_schema || '.' || base.table_name) =OBJECT_ID_CONDITION
+where ('tables:' || base.table_schema || '.' || base.table_name) =OBJECT_ID_CONDITION and base.table_schema =SCHEMA_NAME_CONDITION
 `;

@@ -92,6 +92,7 @@
   export let driver;
   export let resetCounter;
   export let isCreateTable;
+  export let schemaList;
 
   $: isWritable = !!setTableInfo;
 
@@ -172,7 +173,7 @@
         title="Table properties"
         fieldDefinitions={tableFormOptions ?? []}
         pureNameTitle={isCreateTable ? 'Table name' : null}
-        schemaList={isCreateTable && dbInfo?.schemas?.length >= 0 ? dbInfo?.schemas : null}
+        schemaList={isCreateTable && schemaList?.length >= 0 ? schemaList : null}
         values={_.pick(tableInfo, ['schemaName', 'pureName', ...(tableFormOptions ?? []).map(x => x.name)])}
         onChangeValues={vals => {
           if (!_.isEmpty(vals)) {

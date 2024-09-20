@@ -82,6 +82,7 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    defaultSchemaName: 'public',
   },
   {
     label: 'SQL Server',
@@ -107,6 +108,8 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    defaultSchemaName: 'dbo',
+    // skipSeparateSchemas: true,
   },
   {
     label: 'SQLite',
@@ -115,6 +118,7 @@ const engines = [
       engine: 'sqlite@dbgate-plugin-sqlite',
     },
     objects: [views],
+    skipOnCI: false,
   },
   {
     label: 'CockroachDB',
@@ -161,9 +165,9 @@ const filterLocal = [
   // filter local testing
   '-MySQL',
   '-MariaDB',
-  'PostgreSQL',
+  '-PostgreSQL',
   '-SQL Server',
-  '-SQLite',
+  'SQLite',
   '-CockroachDB',
   '-ClickHouse',
 ];

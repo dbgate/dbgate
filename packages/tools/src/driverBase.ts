@@ -191,4 +191,8 @@ export const driverBase = {
   adaptTableInfo(table) {
     return table;
   },
+
+  async listSchemas(pool) {
+    return null;
+  },
 };

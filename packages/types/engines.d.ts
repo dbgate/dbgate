@@ -11,6 +11,7 @@ import {
   FunctionInfo,
   TriggerInfo,
   CollectionInfo,
+  SchemaInfo,
 } from './dbinfo';
 import { FilterBehaviour } from './filter-type';
 
@@ -129,6 +130,15 @@ export interface FilterBehaviourProvider {
   getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
 }
 
+export interface DatabaseHandle {
+  client: any;
+  database?: string;
+  feedback?: (message: any) => void;
+  getDatabase?: () => any;
+  connectionType?: string;
+  treeKeySeparator?: string;
+}
+
 export interface EngineDriver extends FilterBehaviourProvider {
   engine: string;
   title: string;
@@ -170,52 +180,52 @@ export interface EngineDriver extends FilterBehaviourProvider {
   defaultSocketPath?: string;
   authTypeLabel?: string;
   importExportArgs?: any[];
-  connect({ server, port, user, password, database }): Promise<any>;
-  close(pool): Promise<any>;
-  query(pool: any, sql: string, options?: QueryOptions): Promise<QueryResult>;
-  stream(pool: any, sql: string, options: StreamOptions);
-  readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
-  readJsonQuery(pool: any, query: any, structure?: TableInfo): Promise<stream.Readable>;
-  writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writable>;
+  connect({ server, port, user, password, database }): Promise<DatabaseHandle>;
+  close(dbhan: DatabaseHandle): Promise<any>;
+  query(dbhan: DatabaseHandle, sql: string, options?: QueryOptions): Promise<QueryResult>;
+  stream(dbhan: DatabaseHandle, sql: string, options: StreamOptions);
+  readQuery(dbhan: DatabaseHandle, sql: string, structure?: TableInfo): Promise<stream.Readable>;
+  readJsonQuery(dbhan: DatabaseHandle, query: any, structure?: TableInfo): Promise<stream.Readable>;
+  writeTable(dbhan: DatabaseHandle, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writable>;
   analyseSingleObject(
-    pool: any,
+    dbhan: DatabaseHandle,
     name: NamedObjectInfo,
     objectTypeField: keyof DatabaseInfo
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
-  analyseSingleTable(pool: any, name: NamedObjectInfo): Promise<TableInfo>;
-  getVersion(pool: any): Promise<{ version: string }>;
-  listDatabases(pool: any): Promise<
+  analyseSingleTable(dbhan: DatabaseHandle, name: NamedObjectInfo): Promise<TableInfo>;
+  getVersion(dbhan: DatabaseHandle): Promise<{ version: string }>;
+  listDatabases(dbhan: DatabaseHandle): Promise<
     {
       name: string;
     }[]
   >;
-  loadKeys(pool, root: string, filter?: string): Promise;
-  exportKeys(pool, options: {}): Promise;
-  loadKeyInfo(pool, key): Promise;
-  loadKeyTableRange(pool, key, cursor, count): Promise;
-  loadFieldValues(pool: any, name: NamedObjectInfo, field: string, search: string): Promise;
-  analyseFull(pool: any, serverVersion): Promise<DatabaseInfo>;
-  analyseIncremental(pool: any, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
+  loadKeys(dbhan: DatabaseHandle, root: string, filter?: string): Promise;
+  exportKeys(dbhan: DatabaseHandle, options: {}): Promise;
+  loadKeyInfo(dbhan: DatabaseHandle, key): Promise;
+  loadKeyTableRange(dbhan: DatabaseHandle, key, cursor, count): Promise;
+  loadFieldValues(dbhan: DatabaseHandle, name: NamedObjectInfo, field: string, search: string): Promise;
+  analyseFull(dbhan: DatabaseHandle, serverVersion): Promise<DatabaseInfo>;
+  analyseIncremental(dbhan: DatabaseHandle, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
-  createBackupDumper(pool: any, options): Promise<SqlBackupDumper>;
+  createBackupDumper(dbhan: DatabaseHandle, options): Promise<SqlBackupDumper>;
   getAuthTypes(): EngineAuthType[];
-  readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
-  updateCollection(pool: any, changeSet: any): Promise<any>;
+  readCollection(dbhan: DatabaseHandle, options: ReadCollectionOptions): Promise<any>;
+  updateCollection(dbhan: DatabaseHandle, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
-  createDatabase(pool: any, name: string): Promise;
-  dropDatabase(pool: any, name: string): Promise;
+  createDatabase(dbhan: DatabaseHandle, name: string): Promise;
+  dropDatabase(dbhan: DatabaseHandle, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
-  script(pool: any, sql: string, options?: RunScriptOptions): Promise;
-  operation(pool: any, operation: {}, options?: RunScriptOptions): Promise;
+  script(dbhan: DatabaseHandle, sql: string, options?: RunScriptOptions): Promise;
+  operation(dbhan: DatabaseHandle, operation: {}, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
-  // direct call of pool method, only some methods could be supported, on only some drivers
-  callMethod(pool, method, args);
-  serverSummary(pool): Promise<ServerSummary>;
-  summaryCommand(pool, command, row): Promise<void>;
-  startProfiler(pool, options): Promise<any>;
-  stopProfiler(pool, profiler): Promise<void>;
+  // direct call of dbhan.client method, only some methods could be supported, on only some drivers
+  callMethod(dbhan: DatabaseHandle, method, args);
+  serverSummary(dbhan: DatabaseHandle): Promise<ServerSummary>;
+  summaryCommand(dbhan: DatabaseHandle, command, row): Promise<void>;
+  startProfiler(dbhan: DatabaseHandle, options): Promise<any>;
+  stopProfiler(dbhan: DatabaseHandle, profiler): Promise<void>;
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
@@ -230,6 +240,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   ): any[];
   // adapts table info from different source (import, other database) to be suitable for this database
   adaptTableInfo(table: TableInfo): TableInfo;
+  listSchemas(dbhan: DatabaseHandle): SchemaInfo[];
 
   analyserClass?: any;
   dumperClass?: any;

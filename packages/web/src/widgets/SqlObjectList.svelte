@@ -16,7 +16,13 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus, useUsedApps } from '../utility/metadataLoaders';
+  import {
+    useConnectionInfo,
+    useDatabaseInfo,
+    useDatabaseStatus,
+    useSchemaList,
+    useUsedApps,
+  } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
@@ -42,10 +48,10 @@
   export let database;
 
   let filter = '';
-  let selectedSchema = null;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
+  $: schemaList = useSchemaList({ conid, database });
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
@@ -79,6 +85,7 @@
 
   const handleRefreshDatabase = () => {
     apiCall('database-connections/refresh', { conid, database });
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
   };
 
   function createAddMenu() {
@@ -116,6 +123,14 @@
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
+  <SchemaSelector
+    schemaList={_.isArray($schemaList) ? $schemaList : null}
+    objectList={flatFilteredList}
+    connection={$connection}
+    {conid}
+    {database}
+    {driver}
+  />
   <WidgetsInnerContainer>
     <ErrorInfo
       message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
@@ -144,12 +159,12 @@
     </InlineButton>
   </SearchBoxWrapper>
   <SchemaSelector
-    dbinfo={$objects}
-    bind:selectedSchema
+    schemaList={_.isArray($schemaList) ? $schemaList : null}
     objectList={flatFilteredList}
-    valueStorageKey={`sql-object-list-schema-${conid}-${database}`}
+    connection={$connection}
     {conid}
     {database}
+    {driver}
   />
 
   <WidgetsInnerContainer>

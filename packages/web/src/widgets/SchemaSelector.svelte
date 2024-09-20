@@ -4,21 +4,26 @@
 
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { DatabaseInfo } from 'dbgate-types';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { runOperationOnDatabase } from '../modals/ConfirmSqlModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { appliedCurrentSchema } from '../stores';
+  import { appliedCurrentSchema, currentDatabase } from '../stores';
+  import { switchCurrentDatabase } from '../utility/common';
+  import { extractDbNameFromComposite, extractSchemaNameFromComposite, findDefaultSchema } from 'dbgate-tools';
 
-  export let dbinfo: DatabaseInfo;
-  export let selectedSchema;
+  export let schemaList;
   export let objectList;
-
-  export let valueStorageKey;
 
   export let conid;
   export let database;
+  export let connection;
+
+  export let driver;
+
+  let selectedSchema = null;
+
+  $: valueStorageKey = `selected-schema-${conid}-${database}`;
 
   $: {
     if (selectedSchema != null) {
@@ -43,8 +48,8 @@
     return res;
   }
 
-  $: schemaList = _.uniq(
-    _.compact([selectedSchema, ...Object.keys(countBySchema), ...(dbinfo?.schemas?.map(x => x.schemaName) ?? [])])
+  $: realSchemaList = _.uniq(
+    _.compact([selectedSchema, ...Object.keys(countBySchema), ...(schemaList?.map(x => x.schemaName) ?? [])])
   );
   $: countBySchema = computeCountBySchema(objectList ?? []);
 
@@ -55,10 +60,14 @@
       label: 'Schema name',
       onConfirm: async name => {
         const dbid = { conid, database };
-        await runOperationOnDatabase(dbid, {
-          type: 'createSchema',
-          schemaName: name,
-        });
+        await runOperationOnDatabase(
+          dbid,
+          {
+            type: 'createSchema',
+            schemaName: name,
+          },
+          'schema-list-changed'
+        );
         if (selectedSchema) {
           selectedSchema = name;
         }
@@ -70,32 +79,48 @@
       message: `Really drop schema ${$appliedCurrentSchema}?`,
       onConfirm: async () => {
         const dbid = { conid, database };
-        runOperationOnDatabase(dbid, {
-          type: 'dropSchema',
-          schemaName: $appliedCurrentSchema,
-        });
+        runOperationOnDatabase(
+          dbid,
+          {
+            type: 'dropSchema',
+            schemaName: $appliedCurrentSchema,
+          },
+          'schema-list-changed'
+        );
         selectedSchema = null;
       },
     });
   }
 
-  $: selectedSchema = localStorage.getItem(valueStorageKey ?? '');
+  $: if (connection?.useSeparateSchemas) {
+    selectedSchema =
+      extractSchemaNameFromComposite($currentDatabase?.name) ?? findDefaultSchema(schemaList, driver?.dialect);
+  } else {
+    selectedSchema = localStorage.getItem(valueStorageKey ?? '');
+  }
 </script>
 
-{#if schemaList.length > 0}
+{#if realSchemaList.length > 0}
   <div class="wrapper">
     <div class="mr-1">Schema:</div>
     <SelectField
       isNative
-      options={[
-        { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
-        ...schemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-        // ...schemaList.filter(x => countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-        // ...schemaList.filter(x => !countBySchema[x]).map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
-      ]}
+      options={connection?.useSeparateSchemas
+        ? (schemaList?.map(x => ({ label: x.schemaName, value: x.schemaName })) ?? [])
+        : [
+            { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
+            ...realSchemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
+          ]}
       value={selectedSchema ?? $appliedCurrentSchema ?? ''}
       on:change={e => {
-        selectedSchema = e.detail;
+        if (connection?.useSeparateSchemas) {
+          switchCurrentDatabase({
+            connection,
+            name: `${extractDbNameFromComposite(database)}::${e.detail}`,
+          });
+        } else {
+          selectedSchema = e.detail;
+        }
         localStorage.setItem(valueStorageKey, e.detail);
       }}
       selectClass="schema-select"

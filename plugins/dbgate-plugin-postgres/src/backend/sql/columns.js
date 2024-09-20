@@ -11,14 +11,12 @@ select
 	column_default as "default_value"
 from information_schema.columns
 where 
-		table_schema <> 'information_schema' 
-		and table_schema <> 'pg_catalog' 
-		and table_schema !~ '^pg_toast' 
-		and table_schema !~ '^_timescaledb_' 
+		table_schema !~ '^_timescaledb_' 
 		and (
 			('tables:' || table_schema || '.' || table_name) =OBJECT_ID_CONDITION
 			or
 			('views:' || table_schema || '.' || table_name) =OBJECT_ID_CONDITION
 		)
+		and table_schema =SCHEMA_NAME_CONDITION
 order by ordinal_position
 `;

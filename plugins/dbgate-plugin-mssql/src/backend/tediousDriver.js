@@ -2,6 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const tedious = require('tedious');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
+const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 function extractTediousColumns(columns, addDriverNativeColumn = false) {
   const res = columns.map(col => {
@@ -39,7 +40,7 @@ async function tediousConnect(storedConnection) {
     };
 
     if (database) {
-      connectionOptions.database = database;
+      connectionOptions.database = extractDbNameFromComposite(database);
     }
 
     const authentication =
@@ -68,14 +69,13 @@ async function tediousConnect(storedConnection) {
       if (err) {
         reject(err);
       }
-      connection._connectionType = 'tedious';
       resolve(connection);
     });
     connection.connect();
   });
 }
 
-async function tediousQueryCore(pool, sql, options) {
+async function tediousQueryCore(dbhan, sql, options) {
   if (sql == null) {
     return Promise.resolve({
       rows: [],
@@ -103,12 +103,12 @@ async function tediousQueryCore(pool, sql, options) {
         )
       );
     });
-    if (discardResult) pool.execSqlBatch(request);
-    else pool.execSql(request);
+    if (discardResult) dbhan.client.execSqlBatch(request);
+    else dbhan.client.execSql(request);
   });
 }
 
-async function tediousReadQuery(pool, sql, structure) {
+async function tediousReadQuery(dbhan, sql, structure) {
   const pass = new stream.PassThrough({
     objectMode: true,
     highWaterMark: 100,
@@ -133,12 +133,12 @@ async function tediousReadQuery(pool, sql, structure) {
     );
     pass.write(row);
   });
-  pool.execSql(request);
+  dbhan.client.execSql(request);
 
   return pass;
 }
 
-async function tediousStream(pool, sql, options) {
+async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
 
   const handleInfo = info => {
@@ -162,14 +162,14 @@ async function tediousStream(pool, sql, options) {
     });
   };
 
-  pool.on('infoMessage', handleInfo);
-  pool.on('errorMessage', handleError);
+  dbhan.client.on('infoMessage', handleInfo);
+  dbhan.client.on('errorMessage', handleError);
   const request = new tedious.Request(sql, (err, rowCount) => {
     // if (err) reject(err);
     // else resolve(result);
     options.done();
-    pool.off('infoMessage', handleInfo);
-    pool.off('errorMessage', handleError);
+    dbhan.client.off('infoMessage', handleInfo);
+    dbhan.client.off('errorMessage', handleError);
 
     options.info({
       message: `${rowCount} rows affected`,
@@ -188,7 +188,7 @@ async function tediousStream(pool, sql, options) {
     );
     options.row(row);
   });
-  pool.execSqlBatch(request);
+  dbhan.client.execSqlBatch(request);
 }
 
 module.exports = {

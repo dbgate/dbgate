@@ -1,12 +1,12 @@
 const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver, version) {
-    super(pool, driver, version);
+  constructor(dbhan, driver, version) {
+    super(dbhan, driver, version);
   }
 
   async _runAnalysis() {
-    const collectionsAndViews = await this.pool.__getDatabase().listCollections().toArray();
+    const collectionsAndViews = await this.dbhan.getDatabase().listCollections().toArray();
     const collections = collectionsAndViews.filter((x) => x.type == 'collection');
     const views = collectionsAndViews.filter((x) => x.type == 'view');
 
@@ -16,8 +16,8 @@ class Analyser extends DatabaseAnalyser {
         collections
           .filter((x) => x.type == 'collection')
           .map((x) =>
-            this.pool
-              .__getDatabase()
+            this.dbhan
+              .getDatabase()
               .collection(x.name)
               .aggregate([{ $collStats: { count: {} } }])
               .toArray()

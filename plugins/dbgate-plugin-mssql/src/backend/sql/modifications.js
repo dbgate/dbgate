@@ -3,4 +3,5 @@ select o.object_id as objectId, o.modify_date as modifyDate, o.type, o.name as p
 from sys.objects o 
 inner join sys.schemas s on o.schema_id = s.schema_id
 where o.type in ('U', 'V', 'P', 'IF', 'FN', 'TF') -- , 'TR' - triggers disabled
+    and s.name =SCHEMA_NAME_CONDITION
 `;

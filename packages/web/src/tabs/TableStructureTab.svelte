@@ -44,7 +44,7 @@
   import TableEditor from '../tableeditor/TableEditor.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
-  import { useConnectionInfo, useDatabaseInfo, useDbCore } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDbCore, useSchemaList } from '../utility/metadataLoaders';
   import { showModal } from '../modals/modalTools';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
@@ -75,6 +75,7 @@
   $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
+  $: schemaList = useSchemaList({ conid, database });
 
   const { editorState, editorValue, setEditorData, clearEditorData } = useEditorData({ tabid });
 
@@ -146,6 +147,7 @@
     bind:this={domEditor}
     tableInfo={showTable}
     dbInfo={$dbInfo}
+    schemaList={$schemaList}
     {driver}
     {resetCounter}
     isCreateTable={objectTypeField == 'tables' && !$editorValue?.base}

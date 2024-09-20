@@ -26,7 +26,7 @@
       apiCall('database-connections/disconnect', { conid, database });
     }
     if (getCurrentDatabase()?.connection?._id == conid && getCurrentDatabase()?.name == database) {
-      currentDatabase.set(null);
+      switchCurrentDatabase(null);
     }
     openedSingleDatabaseConnections.update(list => list.filter(x => x != conid));
     closeMultipleTabs(closeCondition);
@@ -262,6 +262,17 @@
       });
     };
 
+    const handleRefreshSchemas = () => {
+      const conid = connection._id;
+      const database = name;
+      apiCall('database-connections/dispatch-database-changed-event', {
+        event: 'schema-list-changed',
+        conid,
+        database,
+      });
+      loadSchemaList(conid, database);
+    };
+
     async function handleConfirmSql(sql) {
       saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
@@ -290,6 +301,8 @@
         onClick: handleNewPerspective,
         text: 'Design perspective query',
       },
+      connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: 'Refresh schemas' },
+
       { divider: true },
       isSqlOrDoc &&
         !connection.isReadOnly &&
@@ -364,6 +377,7 @@
     getCurrentDatabase,
     getExtensions,
     getOpenedTabs,
+    loadingSchemaLists,
     openedConnections,
     openedSingleDatabaseConnections,
     pinnedDatabases,
@@ -374,7 +388,7 @@
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
-  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import { extractDbNameFromComposite, findEngineDriver, getConnectionLabel } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
@@ -391,6 +405,7 @@
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import newTable from '../tableeditor/newTable';
+  import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
 
   export let data;
   export let passProps;
@@ -408,6 +423,7 @@
 
   $: isPinned = !!$pinnedDatabases.find(x => x?.name == data.name && x?.connection?._id == data.connection?._id);
   $: apps = useUsedApps();
+  $: isLoadingSchemas = $loadingSchemaLists[`${data?.connection?._id}::${data?.name}`];
 </script>
 
 <AppObjectCore
@@ -419,8 +435,8 @@
   colorMark={passProps?.connectionColorFactory &&
     passProps?.connectionColorFactory({ conid: _.get(data.connection, '_id'), database: data.name }, null, null, false)}
   isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
-    _.get($currentDatabase, 'name') == data.name}
-  on:click={() => ($currentDatabase = data)}
+    extractDbNameFromComposite(_.get($currentDatabase, 'name')) == data.name}
+  on:click={() => switchCurrentDatabase(data)}
   on:dragstart
   on:dragenter
   on:dragend
@@ -430,6 +446,7 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  statusIcon={isLoadingSchemas ? 'icon loading' : ''}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}

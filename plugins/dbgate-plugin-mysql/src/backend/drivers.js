@@ -48,17 +48,19 @@ const drivers = driverBases.map(driverBase => ({
       // multipleStatements: true,
     };
 
-    const connection = mysql2.createConnection(options);
-    connection._database_name = database;
+    const client = mysql2.createConnection(options);
     if (isReadOnly) {
-      await this.query(connection, 'SET SESSION TRANSACTION READ ONLY');
+      await this.query(client, 'SET SESSION TRANSACTION READ ONLY');
     }
-    return connection;
+    return {
+      client,
+      database,
+    };
   },
-  async close(pool) {
-    return pool.close();
+  async close(dbhan) {
+    return dbhan.client.close();
   },
-  query(connection, sql) {
+  query(dbhan, sql) {
     if (sql == null) {
       return {
         rows: [],
@@ -67,15 +69,15 @@ const drivers = driverBases.map(driverBase => ({
     }
 
     return new Promise((resolve, reject) => {
-      connection.query(sql, function (error, results, fields) {
+      dbhan.client.query(sql, function (error, results, fields) {
         if (error) reject(error);
         const columns = extractColumns(fields);
         resolve({ rows: results && columns && results.map && results.map(row => zipDataRow(row, columns)), columns });
       });
     });
   },
-  async stream(connection, sql, options) {
-    const query = connection.query(sql);
+  async stream(dbhan, sql, options) {
+    const query = dbhan.client.query(sql);
     let columns = [];
 
     // const handleInfo = (info) => {
@@ -125,8 +127,8 @@ const drivers = driverBases.map(driverBase => ({
 
     query.on('error', handleError).on('fields', handleFields).on('result', handleRow).on('end', handleEnd);
   },
-  async readQuery(connection, sql, structure) {
-    const query = connection.query(sql);
+  async readQuery(dbhan, sql, structure) {
+    const query = dbhan.client.query(sql);
 
     const pass = new stream.PassThrough({
       objectMode: true,
@@ -151,8 +153,8 @@ const drivers = driverBases.map(driverBase => ({
 
     return pass;
   },
-  async getVersion(connection) {
-    const { rows } = await this.query(connection, "show variables like 'version'");
+  async getVersion(dbhan) {
+    const { rows } = await this.query(dbhan, "show variables like 'version'");
     const version = rows[0].Value;
     if (version) {
       const m = version.match(/(.*)-MariaDB-/);
@@ -169,18 +171,18 @@ const drivers = driverBases.map(driverBase => ({
       versionText: `MySQL ${version}`,
     };
   },
-  async listDatabases(connection) {
-    const { rows } = await this.query(connection, 'show databases');
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'show databases');
     return rows.map(x => ({ name: x.Database }));
   },
-  async writeTable(pool, name, options) {
+  async writeTable(dbhan, name, options) {
     // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
-  async createBackupDumper(pool, options) {
+  async createBackupDumper(dbhan, options) {
     const { outputFile, databaseName, schemaName } = options;
     const res = new MySqlDumper({
-      connection: pool,
+      connection: dbhan.client,
       schema: databaseName || schemaName,
       outputFile,
     });

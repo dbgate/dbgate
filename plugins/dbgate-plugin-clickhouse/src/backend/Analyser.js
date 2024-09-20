@@ -1,4 +1,4 @@
-const { DatabaseAnalyser } = require('dbgate-tools');
+const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];
 const sql = require('./sql');
 
 function extractDataType(dataType) {
@@ -24,7 +24,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.pool._database_name);
+    res = res.replace('#DATABASE#', this.dbhan.database);
     return super.createQuery(res, typeFields, replacements);
   }
 
@@ -82,8 +82,8 @@ class Analyser extends DatabaseAnalyser {
   async _computeSingleObjectId() {
     const { pureName } = this.singleObjectFilter;
     const resId = await this.driver.query(
-      this.pool,
-      `SELECT uuid as id FROM system.tables WHERE database = '${this.pool._database_name}' AND name='${pureName}'`
+      this.dbhan,
+      `SELECT uuid as id FROM system.tables WHERE database = '${this.dbhan.database}' AND name='${pureName}'`
     );
     this.singleObjectId = resId.rows[0]?.id;
   }

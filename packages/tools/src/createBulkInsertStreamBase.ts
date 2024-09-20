@@ -5,7 +5,7 @@ import { prepareTableForImport } from './tableTransforms';
 
 const logger = getLogger('bulkStreamBase');
 
-export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, name, options: WriteTableOptions): any {
+export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, name, options: WriteTableOptions): any {
   const fullNameQuoted = name.schemaName
     ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
     : driver.dialect.quoteIdentifier(name.pureName);
@@ -29,22 +29,22 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, n
   };
 
   writable.checkStructure = async () => {
-    let structure = await driver.analyseSingleTable(pool, name);
+    let structure = await driver.analyseSingleTable(dbhan, name);
     // console.log('ANALYSING', name, structure);
     if (structure && options.dropIfExists) {
       logger.info(`Dropping table ${fullNameQuoted}`);
-      await driver.script(pool, `DROP TABLE ${fullNameQuoted}`);
+      await driver.script(dbhan, `DROP TABLE ${fullNameQuoted}`);
     }
     if (options.createIfNotExists && (!structure || options.dropIfExists)) {
       const dmp = driver.createDumper();
       const createdTableInfo = driver.adaptTableInfo(prepareTableForImport({ ...writable.structure, ...name }));
       dmp.createTable(createdTableInfo);
       logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
-      await driver.script(pool, dmp.s);
-      structure = await driver.analyseSingleTable(pool, name);
+      await driver.script(dbhan, dmp.s);
+      structure = await driver.analyseSingleTable(dbhan, name);
     }
     if (options.truncate) {
-      await driver.script(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
+      await driver.script(dbhan, `TRUNCATE TABLE ${fullNameQuoted}`);
     }
 
     writable.columnNames = _intersection(
@@ -74,7 +74,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, n
       dmp.putRaw(';');
       // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
       // console.log(dmp.s);
-      await driver.query(pool, dmp.s, { discardResult: true });
+      await driver.query(dbhan, dmp.s, { discardResult: true });
     } else {
       for (const row of rows) {
         const dmp = driver.createDumper();
@@ -85,13 +85,13 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, n
         dmp.putRaw('(');
         dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
         dmp.putRaw(')');
-        await driver.query(pool, dmp.s, { discardResult: true });
+        await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     }
     if (options.commitAfterInsert) {
       const dmp = driver.createDumper();
       dmp.commitTransaction();
-      await driver.query(pool, dmp.s, { discardResult: true });
+      await driver.query(dbhan, dmp.s, { discardResult: true });
     }
   };
 

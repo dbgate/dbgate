@@ -213,6 +213,17 @@ module.exports = {
     return res.result || null;
   },
 
+  schemaList_meta: true,
+  async schemaList({ conid, database }, req) {
+    testConnectionPermission(conid, req);
+    return this.loadDataCore('schemaList', { conid, database });
+  },
+
+  dispatchDatabaseChangedEvent_meta: true,
+  dispatchDatabaseChangedEvent({ event, conid, database }) {
+    socket.emitChanged(event, { conid, database });
+  },
+
   loadKeys_meta: true,
   async loadKeys({ conid, database, root, filter }, req) {
     testConnectionPermission(conid, req);

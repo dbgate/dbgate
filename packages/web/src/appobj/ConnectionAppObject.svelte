@@ -14,7 +14,7 @@
   export function openConnection(connection) {
     const config = getCurrentConfig();
     if (connection.singleDatabase) {
-      currentDatabase.set({ connection, name: connection.defaultDatabase });
+      switchCurrentDatabase({ connection, name: connection.defaultDatabase });
       apiCall('database-connections/refresh', {
         conid: connection._id,
         database: connection.defaultDatabase,
@@ -60,7 +60,7 @@
       if (electron) {
         apiCall('database-connections/disconnect', { conid, database: currentDb.name });
       }
-      currentDatabase.set(null);
+      switchCurrentDatabase(null);
     }
     closeMultipleTabs(closeCondition);
     // if (data.unsaved) {
@@ -107,6 +107,7 @@
   import { tick } from 'svelte';
   import { getConnectionLabel } from 'dbgate-tools';
   import hasPermission from '../utility/hasPermission';
+  import { switchCurrentDatabase } from '../utility/common';
 
   export let data;
   export let passProps;
@@ -142,7 +143,7 @@
       return;
     }
     if ($openedSingleDatabaseConnections.includes(data._id)) {
-      currentDatabase.set({ connection: data, name: data.defaultDatabase });
+      switchCurrentDatabase({ connection: data, name: data.defaultDatabase });
       return;
     }
     if ($openedConnections.includes(data._id)) {

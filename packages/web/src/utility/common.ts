@@ -1,5 +1,8 @@
-import { getOpenedTabs, openedTabs } from '../stores';
+import { findDefaultSchema, findEngineDriver, isCompositeDbName } from 'dbgate-tools';
+import { currentDatabase, getExtensions, getOpenedTabs, loadingSchemaLists, openedTabs } from '../stores';
 import _ from 'lodash';
+import { getSchemaList } from './metadataLoaders';
+import { showSnackbarError } from './snackbar';
 
 export class LoadingToken {
   isCanceled = false;
@@ -81,4 +84,38 @@ export function isCtrlOrCommandKey(event) {
     return event.metaKey;
   }
   return event.ctrlKey;
+}
+
+export async function loadSchemaList(conid, database) {
+  try {
+    loadingSchemaLists.update(x => ({ ...x, [`${conid}::${database}`]: true }));
+    const schemas = await getSchemaList({ conid, database });
+    if (schemas.errorMessage) {
+      showSnackbarError(`Error loading schemas: ${schemas.errorMessage}`);
+      console.error('Error loading schemas', schemas.errorMessage);
+      return;
+    }
+    return schemas;
+  } finally {
+    loadingSchemaLists.update(x => _.omit(x, [`${conid}::${database}`]));
+  }
+}
+
+export async function switchCurrentDatabase(data) {
+  if (data?.connection?.useSeparateSchemas && !isCompositeDbName(data.name)) {
+    const conid = data.connection._id;
+    const database = data.name;
+    const storageKey = `selected-schema-${conid}-${database}`;
+    const schemaInStorage = localStorage.getItem(storageKey);
+    const schemas = await loadSchemaList(conid, database);
+    if (!schemas) return;
+    const driver = findEngineDriver(data.connection, getExtensions());
+    const defaultSchema = findDefaultSchema(schemas, driver?.dialect, schemaInStorage);
+    currentDatabase.set({
+      ...data,
+      name: `${data.name}::${defaultSchema}`,
+    });
+  } else {
+    currentDatabase.set(data);
+  }
 }
