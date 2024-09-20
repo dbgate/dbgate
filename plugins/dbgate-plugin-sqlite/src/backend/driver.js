@@ -26,8 +26,8 @@ async function waitForDrain(stream) {
   });
 }
 
-function runStreamItem(client, sql, options, rowCounter) {
-  const stmt = client.prepare(sql);
+function runStreamItem(dbhan, sql, options, rowCounter) {
+  const stmt = dbhan.client.prepare(sql);
   if (stmt.reader) {
     const columns = stmt.columns();
     // const rows = stmt.all();
@@ -101,7 +101,7 @@ const driver = {
 
     const inTransaction = dbhan.client.transaction(() => {
       for (const sqlItem of sqlSplitted) {
-        runStreamItem(dbhan.client, sqlItem, options, rowCounter);
+        runStreamItem(dbhan, sqlItem, options, rowCounter);
       }
 
       if (rowCounter.date) {

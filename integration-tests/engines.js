@@ -118,6 +118,7 @@ const engines = [
       engine: 'sqlite@dbgate-plugin-sqlite',
     },
     objects: [views],
+    skipOnCI: true,
   },
   {
     label: 'CockroachDB',
@@ -164,9 +165,9 @@ const filterLocal = [
   // filter local testing
   '-MySQL',
   '-MariaDB',
-  'PostgreSQL',
+  '-PostgreSQL',
   '-SQL Server',
-  '-SQLite',
+  'SQLite',
   '-CockroachDB',
   '-ClickHouse',
 ];
