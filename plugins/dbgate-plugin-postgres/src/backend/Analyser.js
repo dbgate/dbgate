@@ -59,7 +59,7 @@ class Analyser extends DatabaseAnalyser {
     const query = super.createQuery(sql[resFileName], typeFields, replacements);
     return query;
   }
-  
+
   async _computeSingleObjectId() {
     const { typeField, schemaName, pureName } = this.singleObjectFilter;
     this.singleObjectId = `${typeField}:${schemaName || 'public'}.${pureName}`;
@@ -363,6 +363,10 @@ class Analyser extends DatabaseAnalyser {
           contentHash: x.hash_code,
         })),
     };
+  }
+
+  getDefaultSchemaNameCondition() {
+    return `not in ('pg_catalog', 'pg_toast', 'information_schema')`;
   }
 }
 

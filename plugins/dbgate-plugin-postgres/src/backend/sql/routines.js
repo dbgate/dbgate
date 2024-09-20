@@ -8,7 +8,7 @@ select
   $typeAggFunc(data_type $typeAggParam) as "data_type",
   max(external_language) as "language"
 from
-  information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' and routine_schema !~ '^_timescaledb_' 
+  information_schema.routines where routine_schema !~ '^_timescaledb_' 
   and routine_schema =SCHEMA_NAME_CONDITION
   and (
    (routine_type = 'PROCEDURE' and ('procedures:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
