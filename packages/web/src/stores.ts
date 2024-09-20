@@ -150,6 +150,7 @@ export const loadingPluginStore = writable({
 });
 export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
+export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)

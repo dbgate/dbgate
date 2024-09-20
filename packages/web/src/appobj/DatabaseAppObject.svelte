@@ -262,6 +262,17 @@
       });
     };
 
+    const handleRefreshSchemas = () => {
+      const conid = connection._id;
+      const database = name;
+      apiCall('database-connections/dispatch-database-changed-event', {
+        event: 'schema-list-changed',
+        conid,
+        database,
+      });
+      loadSchemaList(conid, database);
+    };
+
     async function handleConfirmSql(sql) {
       saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
@@ -290,6 +301,8 @@
         onClick: handleNewPerspective,
         text: 'Design perspective query',
       },
+      connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: 'Refresh schemas' },
+
       { divider: true },
       isSqlOrDoc &&
         !connection.isReadOnly &&
@@ -364,6 +377,7 @@
     getCurrentDatabase,
     getExtensions,
     getOpenedTabs,
+    loadingSchemaLists,
     openedConnections,
     openedSingleDatabaseConnections,
     pinnedDatabases,
@@ -391,7 +405,7 @@
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import newTable from '../tableeditor/newTable';
-  import { switchCurrentDatabase } from '../utility/common';
+  import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
 
   export let data;
   export let passProps;
@@ -409,6 +423,7 @@
 
   $: isPinned = !!$pinnedDatabases.find(x => x?.name == data.name && x?.connection?._id == data.connection?._id);
   $: apps = useUsedApps();
+  $: isLoadingSchemas = $loadingSchemaLists[`${data?.connection?._id}::${data?.name}`];
 </script>
 
 <AppObjectCore
@@ -431,6 +446,7 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  statusIcon={isLoadingSchemas ? 'icon loading' : ''}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}

@@ -214,6 +214,7 @@ async function handleDriverDataCore(msgid, callMethod) {
 }
 
 async function handleSchemaList({ msgid }) {
+  logger.debug('Loading schema list');
   return handleDriverDataCore(msgid, driver => driver.listSchemas(dbhan));
 }
 

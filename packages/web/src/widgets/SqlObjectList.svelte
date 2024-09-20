@@ -124,7 +124,7 @@
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <SchemaSelector
-    schemaList={$schemaList}
+    schemaList={_.isArray($schemaList) ? $schemaList : null}
     objectList={flatFilteredList}
     connection={$connection}
     {conid}
@@ -159,7 +159,7 @@
     </InlineButton>
   </SearchBoxWrapper>
   <SchemaSelector
-    schemaList={$schemaList}
+    schemaList={_.isArray($schemaList) ? $schemaList : null}
     objectList={flatFilteredList}
     connection={$connection}
     {conid}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import _ from 'lodash';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import { useSchemaList } from '../utility/metadataLoaders';
@@ -9,7 +10,7 @@
   const { values } = getFormContext();
   $: schemaList = useSchemaList({ conid: $values[conidName], database: values[databaseName] });
 
-  $: schemaOptions = ($schemaList || []).map(schema => ({
+  $: schemaOptions = (_.isArray($schemaList) ? $schemaList : []).map(schema => ({
     value: schema.schemaName,
     label: schema.schemaName,
   }));

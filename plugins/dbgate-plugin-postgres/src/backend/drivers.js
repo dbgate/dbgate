@@ -280,6 +280,8 @@ const drivers = driverBases.map(driverBase => ({
     const defaultSchemaRows = await this.query(dbhan, 'SHOW SEARCH_PATH;');
     const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
 
+    logger.debug(`Loaded ${schemaRows.rows.length} postgres schemas`);
+
     const schemas = schemaRows.rows.map(x => ({
       schemaName: x.schema_name,
       objectId: x.object_id,
