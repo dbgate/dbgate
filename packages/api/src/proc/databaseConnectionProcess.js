@@ -63,9 +63,7 @@ async function handleIncrementalRefresh(forceSend) {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
-  const newStructure = await checkedAsyncCall(
-    driver.analyseIncremental(dbhan, analysedStructure, serverVersion)
-  );
+  const newStructure = await checkedAsyncCall(driver.analyseIncremental(dbhan, analysedStructure, serverVersion));
   analysedTime = new Date().getTime();
   if (newStructure != null) {
     analysedStructure = newStructure;
@@ -202,57 +200,64 @@ async function handleSqlSelect({ msgid, select }) {
   return handleQueryData({ msgid, sql: dmp.s }, true);
 }
 
-async function handleDriverDataCore(msgid, callMethod) {
+async function handleDriverDataCore(msgid, callMethod, { logName }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
     const result = await callMethod(driver);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
+    logger.error(err, `Error when handling message ${logName}`);
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });
   }
 }
 
 async function handleSchemaList({ msgid }) {
   logger.debug('Loading schema list');
-  return handleDriverDataCore(msgid, driver => driver.listSchemas(dbhan));
+  return handleDriverDataCore(msgid, driver => driver.listSchemas(dbhan), { logName: 'listSchemas' });
 }
 
 async function handleCollectionData({ msgid, options }) {
-  return handleDriverDataCore(msgid, driver => driver.readCollection(dbhan, options));
+  return handleDriverDataCore(msgid, driver => driver.readCollection(dbhan, options), { logName: 'readCollection' });
 }
 
 async function handleLoadKeys({ msgid, root, filter }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter));
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter), { logName: 'loadKeys' });
 }
 
 async function handleExportKeys({ msgid, options }) {
-  return handleDriverDataCore(msgid, driver => driver.exportKeys(dbhan, options));
+  return handleDriverDataCore(msgid, driver => driver.exportKeys(dbhan, options), { logName: 'exportKeys' });
 }
 
 async function handleLoadKeyInfo({ msgid, key }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(dbhan, key));
+  return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(dbhan, key), { logName: 'loadKeyInfo' });
 }
 
 async function handleCallMethod({ msgid, method, args }) {
-  return handleDriverDataCore(msgid, driver => {
-    if (storedConnection.isReadOnly) {
-      throw new Error('Connection is read only, cannot call custom methods');
-    }
+  return handleDriverDataCore(
+    msgid,
+    driver => {
+      if (storedConnection.isReadOnly) {
+        throw new Error('Connection is read only, cannot call custom methods');
+      }
 
-    ensureExecuteCustomScript(driver);
-    return driver.callMethod(dbhan, method, args);
-  });
+      ensureExecuteCustomScript(driver);
+      return driver.callMethod(dbhan, method, args);
+    },
+    { logName: `callMethod:${method}` }
+  );
 }
 
 async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeyTableRange(dbhan, key, cursor, count));
+  return handleDriverDataCore(msgid, driver => driver.loadKeyTableRange(dbhan, key, cursor, count), {
+    logName: 'loadKeyTableRange',
+  });
 }
 
 async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search }) {
-  return handleDriverDataCore(msgid, driver =>
-    driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search)
-  );
+  return handleDriverDataCore(msgid, driver => driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search), {
+    logName: 'loadFieldValues',
+  });
 }
 
 function ensureExecuteCustomScript(driver) {
