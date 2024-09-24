@@ -60,8 +60,16 @@ const drivers = driverBases.map(driverBase => ({
   async close(dbhan) {
     return dbhan.client.close();
   },
-  query(dbhan, sql) {
+  query(dbhan, sql, options) {
     if (sql == null) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
+
+    if (options?.importSqlDump && sql.trim().startsWith('/*!') && sql.includes('character_set_client')) {
+      // skip this in SQL dumps
       return {
         rows: [],
         columns: [],

@@ -16,7 +16,7 @@ class ImportStream extends stream.Transform {
   }
   async _transform(chunk, encoding, cb) {
     try {
-      await this.driver.script(this.pool, chunk);
+      await this.driver.script(this.pool, chunk, { queryOptions: { importSqlDump: true } });
     } catch (err) {
       this.emit('error', err.message);
     }
@@ -47,7 +47,9 @@ async function importDatabase({ connection = undefined, systemConnection = undef
   const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
   logger.info(`Connected.`);
 
+  logger.info(`Input file: ${inputFile}`);
   const downloadedFile = await download(inputFile);
+  logger.info(`Downloaded file: ${downloadedFile}`);
 
   const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
   const splittedStream = splitQueryStream(fileStream, driver.getQuerySplitterOptions('script'));

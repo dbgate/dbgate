@@ -71,7 +71,7 @@ export const driverBase = {
     }
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
       try {
-        await this.query(pool, sqlItem, { discardResult: true });
+        await this.query(pool, sqlItem, { discardResult: true, ...options?.queryOptions });
       } catch (err) {
         if (options?.useTransaction && this.supportsTransactions) {
           runCommandOnDriver(pool, this, dmp => dmp.rollbackTransaction());

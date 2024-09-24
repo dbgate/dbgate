@@ -25,10 +25,12 @@ export interface StreamOptions {
 
 export interface RunScriptOptions {
   useTransaction: boolean;
+  queryOptions?: QueryOptions;
 }
 
 export interface QueryOptions {
   discardResult?: boolean;
+  importSqlDump?: boolean;
 }
 
 export interface WriteTableOptions {
