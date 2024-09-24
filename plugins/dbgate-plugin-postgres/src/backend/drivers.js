@@ -277,15 +277,15 @@ const drivers = driverBases.map(driverBase => ({
       dbhan,
       'select oid as "object_id", nspname as "schema_name" from pg_catalog.pg_namespace'
     );
-    const defaultSchemaRows = await this.query(dbhan, 'SHOW SEARCH_PATH;');
-    const searchPath = defaultSchemaRows.rows[0]?.search_path?.replace('"$user",', '')?.trim();
+    const defaultSchemaRows = await this.query(dbhan, 'SELECT current_schema');
+    const defaultSchema = defaultSchemaRows.rows[0]?.current_schema?.trim();
 
     logger.debug(`Loaded ${schemaRows.rows.length} postgres schemas`);
 
     const schemas = schemaRows.rows.map(x => ({
       schemaName: x.schema_name,
       objectId: x.object_id,
-      isDefault: x.schema_name == searchPath,
+      isDefault: x.schema_name == defaultSchema,
     }));
 
     return schemas;
