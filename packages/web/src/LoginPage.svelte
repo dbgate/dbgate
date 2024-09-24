@@ -45,6 +45,12 @@
     }
   }
 
+  function extractRedirectUri() {
+    const res = (location.origin + location.pathname).replace(/\/login.html$/, '/');
+    console.log('Using redirect URI:', res);
+    return res;
+  }
+
   async function processSingleProvider(provider) {
     if (provider.workflowType == 'redirect') {
       await processRedirectLogin(provider.amoid);
@@ -86,7 +92,7 @@
     const resp = await apiCall('auth/redirect', {
       amoid: amoid,
       state,
-      redirectUri: location.origin + location.pathname,
+      redirectUri: extractRedirectUri(),
     });
 
     const { uri } = resp;
@@ -194,9 +200,7 @@
                 //   }`
                 // );
                 internalRedirectTo(
-                  `/connections/dblogin-web?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
-                    location.origin + location.pathname
-                  }`
+                  `/connections/dblogin-web?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${extractRedirectUri()}`
                 );
               }}
             />
