@@ -19,6 +19,8 @@
   export let database;
   export let connection;
 
+  export let negativeMarginTop = false;
+
   export let driver;
 
   let selectedSchema = null;
@@ -101,7 +103,7 @@
 </script>
 
 {#if realSchemaList.length > 0}
-  <div class="wrapper">
+  <div class="wrapper" class:negativeMarginTop>
     <div class="mr-1">Schema:</div>
     <SelectField
       isNative
@@ -151,6 +153,9 @@
     border-bottom: 1px solid var(--theme-border);
     margin-bottom: 5px;
     align-items: center;
+  }
+
+  .negativeMarginTop {
     margin-top: -5px;
   }
 
