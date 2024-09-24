@@ -58,13 +58,17 @@
 />
 
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
-  <FormElectronFileSelector label="Database file" name="databaseFile" disabled={isConnected || !electron} />
+  <FormElectronFileSelector
+    label="Database file"
+    name="databaseFile"
+    disabled={isConnected || !electron || disabledFields.includes('databaseFile')}
+  />
 {/if}
 
 {#if driver?.showConnectionField('useDatabaseUrl', $values, showConnectionFieldArgs)}
   <div class="radio">
     <FormRadioGroupField
-      disabled={isConnected}
+      disabled={isConnected || disabledFields.includes('useDatabaseUrl')}
       name="useDatabaseUrl"
       matchValueToOption={(value, option) => !!option.value == !!value}
       options={[
@@ -80,7 +84,7 @@
     label="Database URL"
     name="databaseUrl"
     placeholder={driver?.databaseUrlPlaceholder}
-    disabled={isConnected}
+    disabled={isConnected || disabledFields.includes('databaseUrl')}
   />
 {/if}
 
@@ -101,15 +105,19 @@
 {/if}
 
 {#if driver?.showConnectionField('endpoint', $values, showConnectionFieldArgs)}
-  <FormTextField label="Endpoint" name="endpoint" disabled={isConnected} />
+  <FormTextField label="Endpoint" name="endpoint" disabled={isConnected || disabledFields.includes('endpoint')} />
 {/if}
 
 {#if driver?.showConnectionField('endpointKey', $values, showConnectionFieldArgs)}
-  <FormTextField label="Key" name="endpointKey" disabled={isConnected} />
+  <FormTextField label="Key" name="endpointKey" disabled={isConnected || disabledFields.includes('endpointKey')} />
 {/if}
 
 {#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}
-  <FormTextField label="Client library path" name="clientLibraryPath" disabled={isConnected} />
+  <FormTextField
+    label="Client library path"
+    name="clientLibraryPath"
+    disabled={isConnected || disabledFields.includes('clientLibraryPath')}
+  />
 {/if}
 
 {#if driver?.showConnectionField('server', $values, showConnectionFieldArgs)}
@@ -250,7 +258,11 @@
 {/if}
 
 {#if driver?.showConnectionField('useSeparateSchemas', $values, showConnectionFieldArgs)}
-  <FormCheckboxField label={`Use schemas separately (use this if you have many large schemas)`} name="useSeparateSchemas" disabled={isConnected} />
+  <FormCheckboxField
+    label={`Use schemas separately (use this if you have many large schemas)`}
+    name="useSeparateSchemas"
+    disabled={isConnected}
+  />
 {/if}
 
 {#if driver}

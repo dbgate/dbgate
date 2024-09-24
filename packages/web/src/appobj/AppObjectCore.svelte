@@ -3,6 +3,8 @@
   import contextMenu from '../utility/contextMenu';
   import { createEventDispatcher } from 'svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
+  import { copyTextToClipboard } from '../utility/clipboard';
+  import { showSnackbarSuccess } from '../utility/snackbar';
 
   const dispatch = createEventDispatcher();
 
@@ -16,6 +18,7 @@
   export let statusIcon = undefined;
   export let statusIconBefore = undefined;
   export let statusTitle = undefined;
+  export let statusTitleToCopy = undefined;
   export let extInfo = undefined;
   export let menu = undefined;
   export let expandIcon = undefined;
@@ -114,7 +117,16 @@
   {/if}
   {#if statusIcon}
     <span class="status">
-      <FontIcon icon={statusIcon} title={statusTitle} />
+      <FontIcon
+        icon={statusIcon}
+        title={statusTitle}
+        on:click={() => {
+          if (statusTitleToCopy) {
+            copyTextToClipboard(statusTitleToCopy);
+            showSnackbarSuccess('Copied to clipboard');
+          }
+        }}
+      />
     </span>
   {/if}
   {#if extInfo}

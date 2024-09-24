@@ -323,6 +323,7 @@
     : _.get($currentDatabase, 'connection._id') == data._id}
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
+  statusTitleToCopy={statusTitle || engineStatusTitle}
   statusIconBefore={data.isReadOnly ? 'icon lock' : null}
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
