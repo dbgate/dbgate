@@ -8,10 +8,33 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.0
+- ADDED: Clickhouse support (#532)
+- ADDED: MySQL - specify table engine, show table engine in table list
+- FIXED: Hidden primary key name in PK editor for DB engines with anonymous PK (MySQL)
+- CHANGED: Import/export dialog is now tab instead of modal
+- ADDED: Saving impor/export job
+- ADDED: Autodetect CSV delimited
+- FIXED: Import CSV files with spaces around quotes
+- ADDED: JSON file import
+- ADDED: JSON export can export objects with ID field used as object key
+- ADDED: JSON and JSON lines imports supports importing from web URL
+- FIXED: Editing imported URL in job editor
+- ADDED: Quick export from table data grid (#892)
+- CHANGED: Create table workflow is reworked, you can specify schema and table name in table editor
+- FIXED: After saving new table, table editor is reset to empty state
+- ADDED: (PostgreSQL, SQL Server) - ability to filter objects by schema
+- ADDED: (PostgreSQL, SQL Server) - Use separate schemas option - for databases with lot of schemas, only selected schema is loaded
+- FIXED: Internal refactor of drivers, client objects are not more messed up with auxiliary fields
+- ADDED: Copy connection error to clipboard after clicking on error icon
+- FIXED: (MySQL) Fixed importing SQL dump exported from mysqldump (#702)
+- FIXED: (PostgreSQL) Fixed filtering JSONB fields (#889)
+- FIXED: OIDC authentication not working anymore (#891)
+
 ### 5.4.4
 - CHANGED: Improved autoupdate, notification is now in app
 - CHANGED: Default behaviour of autoupdate, new version is downloaded after click of "Download" button
-- ADDED: Ability to configure autoupdate (check only, check+download, don't check)\
+- ADDED: Ability to configure autoupdate (check only, check+download, don't check)
 - ADDED: Option to run check for new version manually
 - FIXED: Fixed autoupgrade channel for premium edition
 - FIXED: Fixes following issues: #886, #865, #782, #375
