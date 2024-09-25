@@ -49,13 +49,14 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const client = mysql2.createConnection(options);
-    if (isReadOnly) {
-      await this.query(client, 'SET SESSION TRANSACTION READ ONLY');
-    }
-    return {
+    const dbhan = {
       client,
       database,
-    };
+    }
+    if (isReadOnly) {
+      await this.query(dbhan, 'SET SESSION TRANSACTION READ ONLY');
+    }
+    return dbhan;
   },
   async close(dbhan) {
     return dbhan.client.close();
