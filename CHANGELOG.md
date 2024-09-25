@@ -33,6 +33,7 @@ Builds:
 - FIXED: OIDC authentication not working anymore (#891)
 - ADDED: Added tests for import from CSV and JSON
 - FIXED: multiple shortcuts handling #898
+- ADDED: (Premium) MS Entra authentization for Azure SQL databases
 
 ### 5.4.4
 - CHANGED: Improved autoupdate, notification is now in app
