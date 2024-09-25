@@ -64,7 +64,7 @@ export function formatKeyText(keyText: string): string {
     return keyText
       .replace(/CtrlOrCommand\+/g, '⌘ ')
       .replace(/Shift\+/g, '⇧ ')
-      .replace(/Alt\+g/, '⌥ ')
+      .replace(/Alt\+/g, '⌥ ')
       .replace(/Command\+/g, '⌘ ')
       .replace(/Ctrl\+/g, '⌃ ')
       .replace(/Backspace/g, '⌫ ');
