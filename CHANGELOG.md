@@ -13,7 +13,8 @@ Builds:
 - ADDED: MySQL - specify table engine, show table engine in table list
 - FIXED: Hidden primary key name in PK editor for DB engines with anonymous PK (MySQL)
 - CHANGED: Import/export dialog is now tab instead of modal
-- ADDED: Saving impor/export job
+- ADDED: Saving import/export job
+- REMOVED: Ability to reopen export/import wizard from generated script. This was a bit hack, now you could save import/export job instead
 - ADDED: Autodetect CSV delimited
 - FIXED: Import CSV files with spaces around quotes
 - ADDED: JSON file import
@@ -30,6 +31,7 @@ Builds:
 - FIXED: (MySQL) Fixed importing SQL dump exported from mysqldump (#702)
 - FIXED: (PostgreSQL) Fixed filtering JSONB fields (#889)
 - FIXED: OIDC authentication not working anymore (#891)
+- ADDED: Added tests for import from CSV and JSON
 
 ### 5.4.4
 - CHANGED: Improved autoupdate, notification is now in app

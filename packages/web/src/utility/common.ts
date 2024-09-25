@@ -62,21 +62,21 @@ export function isMac() {
 export function formatKeyText(keyText: string): string {
   if (isMac()) {
     return keyText
-      .replace('CtrlOrCommand+', '⌘ ')
-      .replace('Shift+', '⇧ ')
-      .replace('Alt+', '⌥ ')
-      .replace('Command+', '⌘ ')
-      .replace('Ctrl+', '⌃ ')
-      .replace('Backspace', '⌫ ');
+      .replace(/CtrlOrCommand\+/g, '⌘ ')
+      .replace(/Shift\+/g, '⇧ ')
+      .replace(/Alt\+g/, '⌥ ')
+      .replace(/Command\+/g, '⌘ ')
+      .replace(/Ctrl\+/g, '⌃ ')
+      .replace(/Backspace/g, '⌫ ');
   }
-  return keyText.replace('CtrlOrCommand+', 'Ctrl+');
+  return keyText.replace(/CtrlOrCommand\+/g, 'Ctrl+');
 }
 
 export function resolveKeyText(keyText: string): string {
   if (isMac()) {
-    return keyText.replace('CtrlOrCommand+', 'Command+');
+    return keyText.replace(/CtrlOrCommand\+/g, 'Command+');
   }
-  return keyText.replace('CtrlOrCommand+', 'Ctrl+');
+  return keyText.replace(/CtrlOrCommand\+/g, 'Ctrl+');
 }
 
 export function isCtrlOrCommandKey(event) {
