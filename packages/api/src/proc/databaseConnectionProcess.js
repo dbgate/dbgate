@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const { splitQuery } = require('dbgate-query-splitter');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { extractBoolSettingsValue, extractIntSettingsValue, getLogger } = require('dbgate-tools');
+const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, isCompositeDbName } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -102,6 +102,7 @@ function setStatusName(name) {
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
   const version = await driver.getVersion(dbhan);
+  logger.debug(`Got server version: ${version.version}`);
   process.send({ msgtype: 'version', version });
   serverVersion = version;
 }
@@ -113,6 +114,11 @@ async function handleConnect({ connection, structure, globalSettings }) {
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
   dbhan = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
+  logger.debug(
+    `Connected to database, driver: ${storedConnection.engine}, separate schemas: ${
+      storedConnection.useSeparateSchemas ? 'YES' : 'NO'
+    }, 'DB: ${isCompositeDbName(dbhan.database) ? 'composite' : dbhan.database ? 'simple' : 'NO'} }`
+  );
   dbhan.feedback = feedback => setStatus({ feedback });
   await checkedAsyncCall(readVersion());
   if (structure) {

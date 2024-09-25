@@ -15,7 +15,7 @@ Builds:
 - ADDED: Clickhouse support (#532)
 - ADDED: MySQL - specify table engine, show table engine in table list
 - FIXED: Hidden primary key name in PK editor for DB engines with anonymous PK (MySQL)
-- CHANGED: Import/export dialog is now tab instead of modal
+- CHANGED: Import/export dialog is now tacub instead of modal
 - ADDED: Saving import/export job
 - REMOVED: Ability to reopen export/import wizard from generated script. This was a bit hack, now you could save import/export job instead
 - ADDED: Autodetect CSV delimited
