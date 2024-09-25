@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 5.5.0
+### 5.5.1
 - ADDED: Clickhouse support (#532)
 - ADDED: MySQL - specify table engine, show table engine in table list
 - FIXED: Hidden primary key name in PK editor for DB engines with anonymous PK (MySQL)
