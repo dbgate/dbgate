@@ -30,6 +30,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * CockroachDB
 * MariaDB
 * CosmosDB (Premium)
+* ClickHouse
 
 <!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
@@ -69,8 +70,8 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Redis tree view, generate script from keys, run Redis script
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
 * Import, export from/to CSV, Excel, JSON, NDJSON, XML
-* Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
 * Archives - backup your data in NDJSON files on local filesystem (or on DbGate server, when using web application)
+* NDJSON data viewer and editor - browse NDJSON data, edit data and structure directly on NDJSON files. Works also for big NDSON files
 * Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
