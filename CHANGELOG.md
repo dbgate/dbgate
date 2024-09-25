@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.2
+- FIXED: MySQL, PostgreSQL readonly conections #900
+
 ### 5.5.1
 - ADDED: Clickhouse support (#532)
 - ADDED: MySQL - specify table engine, show table engine in table list
