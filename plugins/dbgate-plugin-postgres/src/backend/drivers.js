@@ -86,14 +86,16 @@ const drivers = driverBases.map(driverBase => ({
     const client = new pg.Client(options);
     await client.connect();
 
-    if (isReadOnly) {
-      await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
-    }
-
-    return {
+    const dbhan = {
       client,
       database,
     };
+
+    if (isReadOnly) {
+      await this.query(dbhan, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
+    }
+
+    return dbhan;
   },
   async close(dbhan) {
     return dbhan.client.end();
