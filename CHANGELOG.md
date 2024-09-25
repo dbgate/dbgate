@@ -32,6 +32,7 @@ Builds:
 - FIXED: (PostgreSQL) Fixed filtering JSONB fields (#889)
 - FIXED: OIDC authentication not working anymore (#891)
 - ADDED: Added tests for import from CSV and JSON
+- FIXED: multiple shortcuts handling #898
 
 ### 5.4.4
 - CHANGED: Improved autoupdate, notification is now in app
