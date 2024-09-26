@@ -9,7 +9,7 @@
 
 {#if tableInfo}
   <div class="wrapper">
-    <TextField {...$$restProps} {value} on:input={e => onChange(e.target.value)} />
+    <TextField {value} on:input={e => onChange(e.target.value)} />
     <DropDownButton
       menu={() => {
         return tableInfo.columns.map(opt => ({

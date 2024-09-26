@@ -63,6 +63,7 @@
   import useEffect from '../utility/useEffect';
   import { compositeDbNameIfNeeded } from 'dbgate-tools';
   import createRef from '../utility/createRef';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
@@ -70,6 +71,10 @@
   export let isTabActive;
 
   const { values, setFieldValue } = getFormContext();
+
+  // $: console.log('VALUES', $values);
+  // $: console.log('$sourceDbinfo', $sourceDbinfo);
+  // $: console.log('$targetDbinfo', $targetDbinfo);
 
   $: sourceConnectionInfo = useConnectionInfo({ conid: $values.sourceConnectionId });
   $: targetConnectionInfo = useConnectionInfo({ conid: $values.targetConnectionId });
@@ -231,26 +236,37 @@
         {/if}
       </svelte:fragment>
       <svelte:fragment slot="1" let:row>
-        <TextField
-          value={getTargetName($extensions, row, $values)}
-          on:input={e =>
-            setFieldValue(
-              `targetName_${row}`,
-              // @ts-ignore
-              e.target.value
-            )}
-        />
+        <div class="flex">
+          <TextField
+            value={getTargetName($extensions, row, $values)}
+            on:input={e =>
+              setFieldValue(
+                `targetName_${row}`,
+                // @ts-ignore
+                e.target.value
+              )}
+          />
+          {#if $targetDbinfo}
+            <DropDownButton
+              menu={() => {
+                return $targetDbinfo.tables.map(opt => ({
+                  text: opt.pureName,
+                  onClick: () => setFieldValue(`targetName_${row}`, opt.pureName),
+                }));
+              }}
+            />
+          {/if}
+        </div>
       </svelte:fragment>
       <svelte:fragment slot="2" let:row>
         {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
         <Link
           onClick={() => {
+            const targetNameLower = ($values[`targetName_${row}`] || row)?.toLowerCase();
             showModal(ColumnMapModal, {
               initialValue: $values[`columns_${row}`],
               sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
-              targetTableInfo: $targetDbinfo?.tables?.find(
-                x => x.pureName?.toLowerCase() == (values[`targetName_${row}`] || row)?.toLowerCase()
-              ),
+              targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
               onConfirm: value => setFieldValue(`columns_${row}`, value),
             });
           }}
