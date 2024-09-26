@@ -1,7 +1,13 @@
 const stableStringify = require('json-stable-stringify');
 const { splitQuery } = require('dbgate-query-splitter');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, isCompositeDbName, dbNameLogCategory } = require('dbgate-tools');
+const {
+  extractBoolSettingsValue,
+  extractIntSettingsValue,
+  getLogger,
+  isCompositeDbName,
+  dbNameLogCategory,
+} = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -28,6 +34,25 @@ function getStatusCounter() {
   return statusCounter;
 }
 
+function extractErrorMessage(err, defaultMessage) {
+  if (!err) {
+    return defaultMessage;
+  }
+  if (err.errors) {
+    try {
+      return err.errors.map(x => x.message).join('\n');
+    } catch (e2) {}
+  }
+  if (err.message) {
+    return err.message;
+  }
+  const s = `${err}`;
+  if (s && (!s.endsWith('Error') || s.includes(' '))) {
+    return s;
+  }
+  return defaultMessage;
+}
+
 async function checkedAsyncCall(promise) {
   try {
     const res = await promise;
@@ -35,7 +60,7 @@ async function checkedAsyncCall(promise) {
   } catch (err) {
     setStatus({
       name: 'error',
-      message: err.message,
+      message: extractErrorMessage(err, 'Checked call error'),
     });
     // console.error(err);
     setTimeout(() => process.exit(1), 1000);
@@ -181,7 +206,11 @@ async function handleRunScript({ msgid, sql, useTransaction }, skipReadonlyCheck
     await driver.script(dbhan, sql, { useTransaction });
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
+    });
   }
 }
 
@@ -193,7 +222,11 @@ async function handleRunOperation({ msgid, operation, useTransaction }, skipRead
     await driver.operation(dbhan, operation, { useTransaction });
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error executing DB operation'),
+    });
   }
 }
 
@@ -206,7 +239,11 @@ async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
     const res = await driver.query(dbhan, sql);
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message || 'Error executing SQL script' });
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
+    });
   }
 }
 
@@ -225,7 +262,7 @@ async function handleDriverDataCore(msgid, callMethod, { logName }) {
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
     logger.error(err, `Error when handling message ${logName}`);
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+    process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error executing DB data') });
   }
 }
 
@@ -294,7 +331,7 @@ async function handleUpdateCollection({ msgid, changeSet }) {
     const result = await driver.updateCollection(dbhan, changeSet);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+    process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error updating collection') });
   }
 }
 
@@ -315,7 +352,12 @@ async function handleSqlPreview({ msgid, objects, options }) {
       }, 500);
     }
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, isError: true, errorMessage: err.message });
+    process.send({
+      msgtype: 'response',
+      msgid,
+      isError: true,
+      errorMessage: extractErrorMessage(err, 'Error generating SQL preview'),
+    });
   }
 }
 
@@ -331,7 +373,12 @@ async function handleGenerateDeploySql({ msgid, modelFolder }) {
     });
     process.send({ ...res, msgtype: 'response', msgid });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, isError: true, errorMessage: err.message });
+    process.send({
+      msgtype: 'response',
+      msgid,
+      isError: true,
+      errorMessage: extractErrorMessage(err, 'Error generating deploy SQL'),
+    });
   }
 }
 
@@ -390,7 +437,7 @@ function start() {
       await handleMessage(message);
     } catch (err) {
       logger.error({ err }, 'Error in DB connection');
-      process.send({ msgtype: 'error', error: err.message });
+      process.send({ msgtype: 'error', error: extractErrorMessage(err, 'Error processing message') });
     }
   });
 }
