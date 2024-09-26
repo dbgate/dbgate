@@ -220,7 +220,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
   createDatabase(dbhan: DatabaseHandle, name: string): Promise;
   dropDatabase(dbhan: DatabaseHandle, name: string): Promise;
-  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
+  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
   script(dbhan: DatabaseHandle, sql: string, options?: RunScriptOptions): Promise;
   operation(dbhan: DatabaseHandle, operation: {}, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
