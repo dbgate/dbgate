@@ -14,7 +14,7 @@
   import { findFileFormat, getFileFormatDirections } from '../plugins/fileformats';
   import SqlEditor from '../query/SqlEditor.svelte';
   import { currentArchive, currentDatabase, extensions } from '../stores';
-  import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
   import FilesInput from './FilesInput.svelte';
   import FormConnectionSelect from './FormConnectionSelect.svelte';
   import FormDatabaseSelect from './FormDatabaseSelect.svelte';
@@ -51,8 +51,6 @@
         ];
 
   $: storageType = $values[storageTypeField];
-  $: dbinfo = useDatabaseInfo({ conid: $values[connectionIdField], database: $values[databaseNameField] });
-  $: archiveFiles = useArchiveFiles({ folder: $values[archiveFolderField] });
   $: format = findFileFormat($extensions, storageType);
   $: connectionInfo = useConnectionInfo({ conid: $values[connectionIdField] });
   $: driver = findEngineDriver($connectionInfo, $extensions);

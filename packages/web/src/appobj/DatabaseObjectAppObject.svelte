@@ -622,7 +622,8 @@
         sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
         targetStorageType: 'database',
         targetConnectionId: conid,
-        targetDatabaseName: database,
+        targetDatabaseName: extractDbNameFromComposite(database),
+        targetSchemaName: data.schemaName,
         fixedTargetPureName: data.pureName,
       });
       // showModal(ImportExportModal, {
@@ -774,7 +775,7 @@
                 openImportExportTab({
                   sourceStorageType: 'database',
                   sourceConnectionId: data.conid,
-                  sourceDatabaseName: data.database,
+                  sourceDatabaseName: extractDbNameFromComposite(data.database),
                   sourceSchemaName: data.schemaName,
                   sourceList: [data.pureName],
                 });
@@ -827,7 +828,13 @@
     pinnedTables,
   } from '../stores';
   import openNewTab from '../utility/openNewTab';
-  import { filterName, generateDbPairingId, getAlterDatabaseScript, getConnectionLabel } from 'dbgate-tools';
+  import {
+    extractDbNameFromComposite,
+    filterName,
+    generateDbPairingId,
+    getAlterDatabaseScript,
+    getConnectionLabel,
+  } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import { showModal } from '../modals/modalTools';

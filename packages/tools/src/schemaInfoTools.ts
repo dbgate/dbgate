@@ -46,3 +46,14 @@ export function dbNameLogCategory(database: string): string {
   }
   return '~nodb';
 }
+
+export function compositeDbNameIfNeeded(
+  connnection: { useSeparateSchemas: boolean },
+  database: string,
+  schema: string
+) {
+  if (connnection?.useSeparateSchemas) {
+    return `${database}::${schema}`;
+  }
+  return database;
+}

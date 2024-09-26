@@ -67,6 +67,7 @@
 
   import SourceTargetConfig from './SourceTargetConfig.svelte';
   import useEffect from '../utility/useEffect';
+  import { compositeDbNameIfNeeded } from 'dbgate-tools';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
@@ -75,9 +76,18 @@
 
   const { values, setFieldValue } = getFormContext();
 
-  $: targetDbinfo = useDatabaseInfo({ conid: $values.targetConnectionId, database: $values.targetDatabaseName });
-  $: sourceDbinfo = useDatabaseInfo({ conid: $values.sourceConnectionId, database: $values.sourceDatabaseName });
   $: sourceConnectionInfo = useConnectionInfo({ conid: $values.sourceConnectionId });
+  $: targetConnectionInfo = useConnectionInfo({ conid: $values.targetConnectionId });
+
+  $: sourceDbinfo = useDatabaseInfo({
+    conid: $values.sourceConnectionId,
+    database: compositeDbNameIfNeeded($sourceConnectionInfo, $values.sourceDatabaseName, $values.sourceSchemaName),
+  });
+  $: targetDbinfo = useDatabaseInfo({
+    conid: $values.targetConnectionId,
+    database: compositeDbNameIfNeeded($targetConnectionInfo, $values.targetDatabaseName, $values.targetSchemaName),
+  });
+
   $: sourceEngine = $sourceConnectionInfo?.engine;
   $: sourceList = $values.sourceList;
 
