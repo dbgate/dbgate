@@ -29,12 +29,6 @@
     if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
       newValues['sourceStorageType'] = preferedStorageType;
     }
-    for (const source of newSources) {
-      if (values.fixedTargetPureName) {
-        values[`targetName_${source}`] = values.fixedTargetPureName;
-        values[`actionType_${source}`] = 'appendData';
-      }
-    }
     valuesStore.set({
       ...values,
       ...newValues,
@@ -68,6 +62,7 @@
   import SourceTargetConfig from './SourceTargetConfig.svelte';
   import useEffect from '../utility/useEffect';
   import { compositeDbNameIfNeeded } from 'dbgate-tools';
+  import createRef from '../utility/createRef';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
@@ -137,6 +132,27 @@
       return () => {};
     }
   });
+
+  const lastSourcesRef = createRef(null);
+  function setFixedTargetForNewSources(values, valuesStore) {
+    if (lastSourcesRef.get() && values.fixedTargetPureName) {
+      const newSources = values.sourceList.filter(x => !lastSourcesRef.get()?.includes(x));
+      const newValues = {};
+      for (const source of newSources) {
+        if (values.fixedTargetPureName) {
+          newValues[`targetName_${source}`] = values.fixedTargetPureName;
+          newValues[`actionType_${source}`] = 'appendData';
+        }
+      }
+      valuesStore.set({
+        ...values,
+        ...newValues,
+      });
+    }
+    lastSourcesRef.set(values.sourceList);
+  }
+
+  $: setFixedTargetForNewSources($values, values);
 
   $effectActiveTab;
 </script>
