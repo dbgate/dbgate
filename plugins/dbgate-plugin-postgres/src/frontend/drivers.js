@@ -105,11 +105,11 @@ const dialect = {
         exprType: 'unaryRaw',
         expr: {
           exprType: 'column',
-          alias: alias || columnName,
           source,
           columnName,
         },
         afterSql: '::text',
+        alias: alias || columnName,
       };
     }
   },
@@ -136,9 +136,15 @@ const postgresDriverBase = {
     }
 
     return (
-      ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'useSeparateSchemas'].includes(
-        field
-      ) ||
+      [
+        'authType',
+        'user',
+        'password',
+        'defaultDatabase',
+        'singleDatabase',
+        'isReadOnly',
+        'useSeparateSchemas',
+      ].includes(field) ||
       (values.authType == 'socket' && ['socketPath'].includes(field)) ||
       (values.authType != 'socket' && ['server', 'port'].includes(field))
     );

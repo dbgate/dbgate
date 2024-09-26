@@ -278,7 +278,7 @@ export abstract class GridDisplay {
 
   applySortOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
     if (this.config.sort?.length > 0) {
-      select.orderBy = this.config.sort
+      const orderByColumns = this.config.sort
         .map(col => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
         .map(col => ({ ...col, expr: select.columns.find(x => x.alias == col.uniqueName) }))
         .filter(col => col.dispInfo && col.expr)
@@ -286,6 +286,10 @@ export abstract class GridDisplay {
           ...col.expr,
           direction: col.order,
         }));
+
+      if (orderByColumns.length > 0) {
+        select.orderBy = orderByColumns;
+      }
     }
   }
 
