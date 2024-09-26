@@ -37,5 +37,8 @@
     "pg": "^8.11.5",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "pg-copy-streams": "^6.0.6"
   }
 }
