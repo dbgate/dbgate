@@ -145,8 +145,12 @@
       const newValues = {};
       for (const source of newSources) {
         if (values.fixedTargetPureName) {
-          newValues[`targetName_${source}`] = values.fixedTargetPureName;
-          newValues[`actionType_${source}`] = 'appendData';
+          if (!values[`targetName_${source}`]) {
+            newValues[`targetName_${source}`] = values.fixedTargetPureName;
+          }
+          if (!values[`actionType_${source}`]) {
+            newValues[`actionType_${source}`] = 'appendData';
+          }
         }
       }
       valuesStore.set({
