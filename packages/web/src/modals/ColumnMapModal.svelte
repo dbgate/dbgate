@@ -27,6 +27,13 @@
         skip: false,
       }));
     }
+    if (targetTableInfo && !sourceTableInfo) {
+      return targetTableInfo.columns.map(x => ({
+        src: x.columnName,
+        dst: x.columnName,
+        skip: false,
+      }));
+    }
     return [];
   }
 

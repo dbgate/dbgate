@@ -221,8 +221,10 @@
           onClick={() => {
             showModal(ColumnMapModal, {
               initialValue: $values[`columns_${row}`],
-              sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName == row),
-              targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName == values[`targetName_${row}`] || row),
+              sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
+              targetTableInfo: $targetDbinfo?.tables?.find(
+                x => x.pureName?.toLowerCase() == (values[`targetName_${row}`] || row)?.toLowerCase()
+              ),
               onConfirm: value => setFieldValue(`columns_${row}`, value),
             });
           }}
