@@ -27,8 +27,7 @@ export default function newTable(connection, database) {
               columnName: 'id',
               dataType: 'int',
               notNull: true,
-              isPrimaryKey: true,
-              isAutoIncrement: true,
+              autoIncrement: true,
             },
           ],
           primaryKey: {
