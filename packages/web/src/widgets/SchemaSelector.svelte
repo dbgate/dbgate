@@ -32,7 +32,8 @@
       $appliedCurrentSchema = selectedSchema;
     } else {
       const usedSchemas = Object.keys(countBySchema);
-      if (usedSchemas.length == 1) {
+      const defaultSchema = findDefaultSchema(schemaList, driver?.dialect);
+      if (usedSchemas.length == 1 && usedSchemas[0] == defaultSchema) {
         $appliedCurrentSchema = usedSchemas[0];
       } else {
         $appliedCurrentSchema = null;
@@ -132,6 +133,7 @@
       <InlineButton
         on:click={() => {
           selectedSchema = null;
+          localStorage.removeItem(valueStorageKey);
         }}
         title="Reset to default"
       >
