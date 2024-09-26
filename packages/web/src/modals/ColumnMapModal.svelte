@@ -1,12 +1,13 @@
 <script lang="ts">
+  import DropDownButton from '../buttons/DropDownButton.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import ColumnMapColumnDropdown from '../elements/ColumnMapColumnDropdown.svelte';
   import Link from '../elements/Link.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
-  import TextField from '../forms/TextField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
@@ -73,17 +74,19 @@
         />
       </svelte:fragment>
       <svelte:fragment slot="1" let:row let:index>
-        <TextField
+        <ColumnMapColumnDropdown
           value={row['src']}
-          on:change={e =>
-            (value = (value || []).map((x, i) => (i == index ? { ...x, src: e.target.value, ignore: false } : x)))}
+          onChange={column =>
+            (value = (value || []).map((x, i) => (i == index ? { ...x, src: column, ignore: false } : x)))}
+          tableInfo={sourceTableInfo}
         />
       </svelte:fragment>
       <svelte:fragment slot="2" let:row let:index>
-        <TextField
+        <ColumnMapColumnDropdown
           value={row['dst']}
-          on:change={e =>
+          onChange={e =>
             (value = (value || []).map((x, i) => (i == index ? { ...x, dst: e.target.value, ignore: false } : x)))}
+          tableInfo={targetTableInfo}
         />
       </svelte:fragment>
       <svelte:fragment slot="3" let:index>
