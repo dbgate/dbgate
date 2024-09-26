@@ -76,6 +76,7 @@
   const { values, setFieldValue } = getFormContext();
 
   $: targetDbinfo = useDatabaseInfo({ conid: $values.targetConnectionId, database: $values.targetDatabaseName });
+  $: sourceDbinfo = useDatabaseInfo({ conid: $values.sourceConnectionId, database: $values.sourceDatabaseName });
   $: sourceConnectionInfo = useConnectionInfo({ conid: $values.sourceConnectionId });
   $: sourceEngine = $sourceConnectionInfo?.engine;
   $: sourceList = $values.sourceList;
@@ -219,7 +220,9 @@
         <Link
           onClick={() => {
             showModal(ColumnMapModal, {
-              value: $values[`columns_${row}`],
+              initialValue: $values[`columns_${row}`],
+              sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName == row),
+              targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName == values[`targetName_${row}`] || row),
               onConfirm: value => setFieldValue(`columns_${row}`, value),
             });
           }}

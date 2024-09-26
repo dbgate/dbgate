@@ -12,16 +12,48 @@
 
   export let header = 'Configure columns';
   export let onConfirm;
-  export let value = [];
+
+  export let sourceTableInfo;
+  export let targetTableInfo;
+
+  export let initialValue;
+
+  function getResetValue() {
+    if (sourceTableInfo && !targetTableInfo) {
+      return sourceTableInfo.columns.map(x => ({
+        src: x.columnName,
+        dst: x.columnName,
+        skip: false,
+      }));
+    }
+    return [];
+  }
+
+  const resetValue = getResetValue();
+
+  function equalValues(v1, v2) {
+    if (!v1 || !v2) return false;
+    if (v1.length != v2.length) return false;
+    for (let i = 0; i < v1.length; i++) {
+      if (v1[i].src != v2[i].src || v1[i].dst != v2[i].dst || !!v1[i].skip != !!v2[i].skip) return false;
+    }
+    return true;
+  }
+
+  $: differentFromReset = !equalValues(value, resetValue);
+
+  let value = initialValue?.length > 0 ? initialValue : resetValue;
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
     <div slot="header">{header}</div>
 
-    <div class="m-3">
-      When no columns are defined in this mapping, source row is copied to target without any modifications
-    </div>
+    {#if resetValue.length == 0}
+      <div class="m-3">
+        When no columns are defined in this mapping, source row is copied to target without any modifications
+      </div>
+    {/if}
 
     <TableControl
       columns={[
@@ -68,7 +100,7 @@
         value="OK"
         on:click={() => {
           closeCurrentModal();
-          onConfirm(!value || value.length == 0 ? null : value);
+          onConfirm(!value || value.length == 0 || !differentFromReset ? null : value);
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
@@ -82,8 +114,9 @@
       <FormStyledButton
         type="button"
         value="Reset"
+        disabled={!differentFromReset}
         on:click={() => {
-          value = [];
+          value = resetValue;
         }}
       />
     </svelte:fragment>
