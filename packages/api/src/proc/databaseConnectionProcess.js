@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const { splitQuery } = require('dbgate-query-splitter');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, isCompositeDbName } = require('dbgate-tools');
+const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, isCompositeDbName, dbNameLogCategory } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -46,6 +46,12 @@ async function checkedAsyncCall(promise) {
 let loadingModel = false;
 
 async function handleFullRefresh() {
+  if (storedConnection.useSeparateSchemas && !isCompositeDbName(dbhan?.database)) {
+    resolveAnalysedPromises();
+    // skip loading DB structure
+    return;
+  }
+
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('loadStructure');
@@ -60,6 +66,11 @@ async function handleFullRefresh() {
 }
 
 async function handleIncrementalRefresh(forceSend) {
+  if (storedConnection.useSeparateSchemas && !isCompositeDbName(dbhan?.database)) {
+    resolveAnalysedPromises();
+    // skip loading DB structure
+    return;
+  }
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
@@ -117,7 +128,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
   logger.debug(
     `Connected to database, driver: ${storedConnection.engine}, separate schemas: ${
       storedConnection.useSeparateSchemas ? 'YES' : 'NO'
-    }, 'DB: ${isCompositeDbName(dbhan.database) ? 'composite' : dbhan.database ? 'simple' : 'NO'} }`
+    }, 'DB: ${dbNameLogCategory(dbhan.database)} }`
   );
   dbhan.feedback = feedback => setStatus({ feedback });
   await checkedAsyncCall(readVersion());

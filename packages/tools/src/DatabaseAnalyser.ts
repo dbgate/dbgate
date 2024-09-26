@@ -5,7 +5,7 @@ import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
-import { isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
+import { dbNameLogCategory, isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
 
 const logger = getLogger('dbAnalyser');
 
@@ -69,6 +69,7 @@ export class DatabaseAnalyser {
   }
 
   async fullAnalysis() {
+    logger.info(`Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
     return res;
@@ -89,6 +90,7 @@ export class DatabaseAnalyser {
   }
 
   async incrementalAnalysis(structure) {
+    logger.info(`Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
     this.structure = structure;
 
     const modifications = await this.getModifications();
