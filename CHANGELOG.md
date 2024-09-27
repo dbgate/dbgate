@@ -15,6 +15,7 @@ Builds:
 - ADDED: Improved column mapping in import/export #330
 - FIXED: Fixed some errors in create-table workflow
 - CHANGED: Show single schema by default only if all objects are from default schema
+- FIXED: MS Entra authentication for Azure SQL
 
 ### 5.5.2
 - FIXED: MySQL, PostgreSQL readonly conections #900
