@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.3
+- FIXED: Separate schema mode #894 - for databases with many schemas
+- FIXED: Sort by UUID column in POstgreSQL #895
+- ADDED: Load pg_dump outputs #893
+- ADDED: Improved column mapping in import/export #330
+- FIXED: Fixed some errors in create-table workflow
+- CHANGED: Show single schema by default only if all objects are from default schema
+
 ### 5.5.2
 - FIXED: MySQL, PostgreSQL readonly conections #900
 
