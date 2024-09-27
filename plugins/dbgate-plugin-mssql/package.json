@@ -33,7 +33,7 @@
   "devDependencies": {
     "async-lock": "^1.2.6",
     "dbgate-plugin-tools": "^1.0.7",
-    "dbgate-query-splitter": "^4.10.4",
+    "dbgate-query-splitter": "^4.10.5",
     "dbgate-tools": "^5.0.0-alpha.1",
     "tedious": "^18.2.0",
     "webpack": "^5.91.0",

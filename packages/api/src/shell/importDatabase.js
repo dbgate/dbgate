@@ -19,10 +19,14 @@ class ImportStream extends stream.Transform {
     try {
       if (chunk.specialMarker == 'copy_stdin_start') {
         this.writeQueryStream = await this.driver.writeQueryFromStream(this.dbhan, chunk.text);
-      } else if (chunk.specialMarker == 'copy_stdin_data') {
+      } else if (chunk.specialMarker == 'copy_stdin_line') {
         this.writeQueryStream.write(chunk.text);
       } else if (chunk.specialMarker == 'copy_stdin_end') {
         this.writeQueryStream.end();
+        await new Promise((resolve, reject) => {
+          this.writeQueryStream.on('finish', resolve);
+          this.writeQueryStream.on('error', reject);
+        });
         this.writeQueryStream = null;
       } else {
         await this.driver.script(this.dbhan, chunk.text, { queryOptions: { importSqlDump: true } });

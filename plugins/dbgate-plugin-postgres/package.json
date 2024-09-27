@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.7",
-    "dbgate-query-splitter": "^4.10.4",
+    "dbgate-query-splitter": "^4.10.5",
     "dbgate-tools": "^5.0.0-alpha.1",
     "lodash": "^4.17.21",
     "pg": "^8.11.5",

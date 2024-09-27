@@ -52,7 +52,7 @@ const drivers = driverBases.map(driverBase => ({
     const dbhan = {
       client,
       database,
-    }
+    };
     if (isReadOnly) {
       await this.query(dbhan, 'SET SESSION TRANSACTION READ ONLY');
     }
@@ -69,7 +69,11 @@ const drivers = driverBases.map(driverBase => ({
       };
     }
 
-    if (options?.importSqlDump && sql.trim().startsWith('/*!') && sql.includes('character_set_client')) {
+    if (
+      options?.importSqlDump &&
+      (sql.trim().startsWith('/*!') || sql.trim().startsWith('/*M!')) &&
+      (sql.includes('character_set_client') || sql.includes('NOTE_VERBOSITY'))
+    ) {
       // skip this in SQL dumps
       return {
         rows: [],
