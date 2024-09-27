@@ -188,6 +188,8 @@ export interface EngineDriver extends FilterBehaviourProvider {
   stream(dbhan: DatabaseHandle, sql: string, options: StreamOptions);
   readQuery(dbhan: DatabaseHandle, sql: string, structure?: TableInfo): Promise<stream.Readable>;
   readJsonQuery(dbhan: DatabaseHandle, query: any, structure?: TableInfo): Promise<stream.Readable>;
+  // eg. PostgreSQL COPY FROM stdin
+  writeQueryFromStream(dbhan: DatabaseHandle, sql: string): Promise<stream.Writable>;
   writeTable(dbhan: DatabaseHandle, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writable>;
   analyseSingleObject(
     dbhan: DatabaseHandle,
@@ -218,7 +220,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
   createDatabase(dbhan: DatabaseHandle, name: string): Promise;
   dropDatabase(dbhan: DatabaseHandle, name: string): Promise;
-  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
+  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
   script(dbhan: DatabaseHandle, sql: string, options?: RunScriptOptions): Promise;
   operation(dbhan: DatabaseHandle, operation: {}, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];

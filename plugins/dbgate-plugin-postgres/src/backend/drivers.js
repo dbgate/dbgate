@@ -4,6 +4,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
+const pgCopyStreams = require('pg-copy-streams');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractDbNameFromComposite } =
   global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -291,6 +292,11 @@ const drivers = driverBases.map(driverBase => ({
     }));
 
     return schemas;
+  },
+
+  writeQueryFromStream(dbhan, sql) {
+    const stream = dbhan.client.query(pgCopyStreams.from(sql));
+    return stream;
   },
 }));
 

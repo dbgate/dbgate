@@ -195,4 +195,8 @@ export const driverBase = {
   async listSchemas(pool) {
     return null;
   },
+
+  async writeQueryFromStream(dbhan, sql) {
+    return null;
+  },
 };

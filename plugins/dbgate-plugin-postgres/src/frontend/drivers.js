@@ -124,6 +124,11 @@ const postgresDriverBase = {
   getQuerySplitterOptions: usage =>
     usage == 'editor'
       ? { ...postgreSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : usage == 'import'
+      ? {
+          ...postgreSplitterOptions,
+          copyFromStdin: true,
+        }
       : postgreSplitterOptions,
   readOnlySessions: true,
 

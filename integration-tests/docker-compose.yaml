@@ -8,14 +8,14 @@ services:
     ports: 
       - 15000:5432
 
-  # mariadb:
-  #   image: mariadb
-  #   command: --default-authentication-plugin=mysql_native_password
-  #   restart: always
-  #   ports: 
-  #     - 15004:3306
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=Pwd2020Db
+  mariadb:
+    image: mariadb
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports: 
+      - 15004:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=Pwd2020Db
 
   # mysql:
   #   image: mysql:8.0.18

@@ -30,6 +30,13 @@ const engines = [
     // skipOnCI: true,
     objects: [views],
     dbSnapshotBySeconds: true,
+    dumpFile: 'data/chinook-mysql.sql',
+    dumpChecks: [
+      {
+        sql: 'select count(*) as res from genre',
+        res: '25',
+      },
+    ],
   },
   {
     label: 'MariaDB',
@@ -47,6 +54,13 @@ const engines = [
     skipOnCI: true,
     objects: [views],
     dbSnapshotBySeconds: true,
+    dumpFile: 'data/chinook-mysql.sql',
+    dumpChecks: [
+      {
+        sql: 'select count(*) as res from genre',
+        res: '25',
+      },
+    ],
   },
   {
     label: 'PostgreSQL',
@@ -83,6 +97,13 @@ const engines = [
     ],
     supportSchemas: true,
     defaultSchemaName: 'public',
+    dumpFile: 'data/chinook-postgre.sql',
+    dumpChecks: [
+      {
+        sql: 'select count(*) as res from "public"."Genre"',
+        res: '25',
+      },
+    ],
   },
   {
     label: 'SQL Server',
@@ -164,10 +185,10 @@ const engines = [
 const filterLocal = [
   // filter local testing
   '-MySQL',
-  '-MariaDB',
-  '-PostgreSQL',
+  'MariaDB',
+  'PostgreSQL',
   '-SQL Server',
-  'SQLite',
+  '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
 ];
