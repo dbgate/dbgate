@@ -3,6 +3,7 @@ const stream = require('stream');
 const { testWrapper } = require('../tools');
 const tableWriter = require('dbgate-api/src/shell/tableWriter');
 const copyStream = require('dbgate-api/src/shell/copyStream');
+const importDatabase = require('dbgate-api/src/shell/importDatabase');
 const fakeObjectReader = require('dbgate-api/src/shell/fakeObjectReader');
 
 function createImportStream() {
@@ -72,4 +73,29 @@ describe('DB Import', () => {
     })
   );
 
+  test.each(engines.filter(x => x.dumpFile).map(engine => [engine.label, engine]))(
+    'Import SQL dump - %s',
+    testWrapper(async (conn, driver, engine) => {
+      // const reader = await fakeObjectReader({ delay: 10 });
+      // const reader = await fakeObjectReader();
+      await importDatabase({
+        systemConnection: conn,
+        driver,
+        inputFile: engine.dumpFile,
+      });
+
+      const structure = await driver.analyseFull(conn);
+
+      for (const check of engine.dumpChecks || []) {
+        const res = await driver.query(conn, check.sql);
+        expect(res.rows[0].res.toString()).toEqual(check.res);
+      }
+
+      // const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      // expect(res1.rows[0].cnt.toString()).toEqual('6');
+
+      // const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      // expect(res2.rows[0].cnt.toString()).toEqual('6');
+    })
+  );
 });
