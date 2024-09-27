@@ -198,6 +198,19 @@ class LoginsProvider extends AuthProviderBase {
   amoid = 'logins';
 
   async login(login, password, options = undefined) {
+    if (login && password && process.env['LOGIN'] == login && process.env['PASSWORD'] == password) {
+      return {
+        accessToken: jwt.sign(
+          {
+            amoid: this.amoid,
+            login,
+          },
+          getTokenSecret(),
+          { expiresIn: getTokenLifetime() }
+        ),
+      };
+    }
+
     if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
         accessToken: jwt.sign(
@@ -210,6 +223,7 @@ class LoginsProvider extends AuthProviderBase {
         ),
       };
     }
+    
     return { error: 'Invalid credentials' };
   }
 
