@@ -8,6 +8,7 @@ global.PLUGINS_DIR = process.env.DEVMODE
   ? path.join(path.dirname(path.dirname(global.API_PACKAGE)), 'plugins')
   : path.dirname(global.API_PACKAGE);
 global.IS_NPM_DIST = true;
+global.IS_DB_MODEL = true;
 
 const program = require('commander');
 const dbgateApi = require('dbgate-api');

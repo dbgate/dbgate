@@ -11,6 +11,7 @@ const isLinux = platform === 'linux';
 const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
 const isNpmDist = !!global['IS_NPM_DIST'];
+const isDbModel = !!global['IS_DB_MODEL'];
 const isForkedApi = processArgs.isForkedApi;
 
 // function moduleAvailable(name) {
@@ -39,8 +40,10 @@ const platformInfo = {
   environment: process.env.NODE_ENV,
   platform,
   runningInWebpack: !!process.env.WEBPACK_DEV_SERVER_URL,
-  allowShellConnection: (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_CONNECTION || !!isElectron(),
-  allowShellScripting: (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_SCRIPTING || !!isElectron(),
+  allowShellConnection:
+    (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_CONNECTION || !!isElectron() || !!isDbModel,
+  allowShellScripting:
+    (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_SCRIPTING || !!isElectron() || !!isDbModel,
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
 };
 
