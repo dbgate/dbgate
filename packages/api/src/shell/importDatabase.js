@@ -59,21 +59,27 @@ async function importDatabase({ connection = undefined, systemConnection = undef
 
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
-  logger.info(`Connected.`);
+  try {
+    logger.info(`Connected.`);
 
-  logger.info(`Input file: ${inputFile}`);
-  const downloadedFile = await download(inputFile);
-  logger.info(`Downloaded file: ${downloadedFile}`);
+    logger.info(`Input file: ${inputFile}`);
+    const downloadedFile = await download(inputFile);
+    logger.info(`Downloaded file: ${downloadedFile}`);
 
-  const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
-  const splittedStream = splitQueryStream(fileStream, {
-    ...driver.getQuerySplitterOptions('import'),
-    returnRichInfo: true,
-  });
-  const importStream = new ImportStream(dbhan, driver);
-  // @ts-ignore
-  splittedStream.pipe(importStream);
-  await awaitStreamEnd(importStream);
+    const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
+    const splittedStream = splitQueryStream(fileStream, {
+      ...driver.getQuerySplitterOptions('import'),
+      returnRichInfo: true,
+    });
+    const importStream = new ImportStream(dbhan, driver);
+    // @ts-ignore
+    splittedStream.pipe(importStream);
+    await awaitStreamEnd(importStream);
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
+  }
 }
 
 module.exports = importDatabase;

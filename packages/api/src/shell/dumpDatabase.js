@@ -27,15 +27,23 @@ async function dumpDatabase({
   logger.info(`Dumping database`);
 
   if (!driver) driver = requireEngineDriver(connection);
-  const pool = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
-  logger.info(`Connected.`);
 
-  const dumper = await driver.createBackupDumper(pool, {
-    outputFile,
-    databaseName,
-    schemaName,
-  });
-  await doDump(dumper);
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
+
+  try {
+    logger.info(`Connected.`);
+
+    const dumper = await driver.createBackupDumper(dbhan, {
+      outputFile,
+      databaseName,
+      schemaName,
+    });
+    await doDump(dumper);
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
+  }
 }
 
 module.exports = dumpDatabase;

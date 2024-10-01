@@ -9,12 +9,15 @@ async function executeQuery({ connection = undefined, systemConnection = undefin
 
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'script'));
-  logger.info(`Connected.`);
 
-  await driver.script(dbhan, sql);
+  try {
+    logger.info(`Connected.`);
 
-  if (!systemConnection) {
-    await driver.close(dbhan);
+    await driver.script(dbhan, sql);
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
   }
 }
 

@@ -9,10 +9,16 @@ async function tableWriter({ connection, schemaName, pureName, driver, systemCon
   if (!driver) {
     driver = requireEngineDriver(connection);
   }
-  const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  logger.info(`Connected.`);
-  return await driver.writeTable(pool, { schemaName, pureName }, options);
+  try {
+    logger.info(`Connected.`);
+    return await driver.writeTable(dbhan, { schemaName, pureName }, options);
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
+  }
 }
 
 module.exports = tableWriter;

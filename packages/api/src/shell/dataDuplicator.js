@@ -19,32 +19,39 @@ async function dataDuplicator({
   systemConnection,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
-  const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
+  
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  logger.info(`Connected.`);
+  try {
+    logger.info(`Connected.`);
 
-  if (!analysedStructure) {
-    analysedStructure = await driver.analyseFull(pool);
+    if (!analysedStructure) {
+      analysedStructure = await driver.analyseFull(dbhan);
+    }
+
+    const dupl = new DataDuplicator(
+      dbhan,
+      driver,
+      analysedStructure,
+      items.map(item => ({
+        name: item.name,
+        operation: item.operation,
+        matchColumns: item.matchColumns,
+        openStream:
+          item.openStream ||
+          (() => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) })),
+      })),
+      stream,
+      copyStream,
+      options
+    );
+
+    await dupl.run();
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
   }
-
-  const dupl = new DataDuplicator(
-    pool,
-    driver,
-    analysedStructure,
-    items.map(item => ({
-      name: item.name,
-      operation: item.operation,
-      matchColumns: item.matchColumns,
-      openStream:
-        item.openStream ||
-        (() => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) })),
-    })),
-    stream,
-    copyStream,
-    options
-  );
-
-  await dupl.run();
 }
 
 module.exports = dataDuplicator;

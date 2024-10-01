@@ -9,13 +9,19 @@ async function loadDatabase({ connection = undefined, systemConnection = undefin
   logger.info(`Analysing database`);
 
   if (!driver) driver = requireEngineDriver(connection);
-  const pool = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
-  logger.info(`Connected.`);
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
+  try {
+    logger.info(`Connected.`);
 
-  const dbInfo = await driver.analyseFull(pool);
-  logger.info(`Analyse finished`);
+    const dbInfo = await driver.analyseFull(dbhan);
+    logger.info(`Analyse finished`);
 
-  await exportDbModel(dbInfo, outputDir);
+    await exportDbModel(dbInfo, outputDir);
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
+  }
 }
 
 module.exports = loadDatabase;
