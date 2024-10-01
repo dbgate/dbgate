@@ -43,6 +43,29 @@ async function connect(engine, database) {
   }
 }
 
+async function prepareConnection(engine, database) {
+  const connection = extractConnection(engine);
+  const driver = requireEngineDriver(connection);
+
+  if (engine.generateDbFile) {
+    return {
+      ...connection,
+      databaseFile: `dbtemp/${database}`,
+      isPreparedOnly: true,
+    };
+  } else {
+    const conn = await driver.connect(connection);
+    await driver.query(conn, `CREATE DATABASE ${database}`);
+    await driver.close(conn);
+
+    return {
+      ...connection,
+      database,
+      isPreparedOnly: true,
+    };
+  }
+}
+
 const testWrapper =
   body =>
   async (label, ...other) => {
@@ -56,9 +79,19 @@ const testWrapper =
     }
   };
 
+const testWrapperPrepareOnly =
+  body =>
+  async (label, ...other) => {
+    const engine = other[other.length - 1];
+    const driver = requireEngineDriver(engine.connection);
+    const conn = await prepareConnection(engine, randomDbName());
+    await body(conn, driver, ...other);
+  };
+
 module.exports = {
   randomDbName,
   connect,
   extractConnection,
   testWrapper,
+  testWrapperPrepareOnly,
 };

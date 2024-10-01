@@ -21,9 +21,9 @@ async function generateDeploySql({
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
-  const pool = systemConnection || (await connectUtility(driver, connection, 'read'));
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
   if (!analysedStructure) {
-    analysedStructure = await driver.analyseFull(pool);
+    analysedStructure = await driver.analyseFull(dbhan);
   }
 
   const deployedModel = generateDbPairingId(
@@ -41,7 +41,7 @@ async function generateDeploySql({
     noRenameColumn: true,
   };
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
-  const currentModelPairedPreloaded = await enrichWithPreloadedRows(deployedModel, currentModelPaired, pool, driver);
+  const currentModelPairedPreloaded = await enrichWithPreloadedRows(deployedModel, currentModelPaired, dbhan, driver);
 
   // console.log('currentModelPairedPreloaded', currentModelPairedPreloaded.tables[0]);
   // console.log('deployedModel', deployedModel.tables[0]);
@@ -55,6 +55,10 @@ async function generateDeploySql({
     deployedModel,
     driver
   );
+
+  if (!systemConnection) {
+    await driver.close(dbhan);
+  }
   return res;
 }
 

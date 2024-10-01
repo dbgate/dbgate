@@ -1,11 +1,12 @@
 /// TODO
 
-const { testWrapper } = require('../tools');
+const { testWrapper, testWrapperPrepareOnly } = require('../tools');
 const _ = require('lodash');
 const engines = require('../engines');
 const deployDb = require('dbgate-api/src/shell/deployDb');
 const { databaseInfoFromYamlModel } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
+const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
 function checkStructure(structure, model) {
   const expected = databaseInfoFromYamlModel(model);
@@ -23,7 +24,8 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, testEmptyLastScrip
   let index = 0;
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
-      systemConnection: conn,
+      systemConnection: conn.isPreparedOnly ? undefined : conn,
+      connection: conn.isPreparedOnly ? conn : undefined,
       driver,
       loadedDbModel,
     });
@@ -36,7 +38,8 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, testEmptyLastScrip
     }
 
     await deployDb({
-      systemConnection: conn,
+      systemConnection: conn.isPreparedOnly ? undefined : conn,
+      connection: conn.isPreparedOnly ? conn : undefined,
       driver,
       loadedDbModel,
     });
@@ -44,7 +47,9 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, testEmptyLastScrip
     index++;
   }
 
-  const structure = await driver.analyseFull(conn);
+  const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
+  const structure = await driver.analyseFull(dbhan);
+  if (conn.isPreparedOnly) await driver.close(dbhan);
   checkStructure(structure, dbModelsYaml[dbModelsYaml.length - 1]);
 }
 
@@ -52,6 +57,24 @@ describe('Deploy database', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Deploy database simple - %s',
     testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [{ name: 'id', type: 'int' }],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+      ]);
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Deploy database simple - %s - not connected',
+    testWrapperPrepareOnly(async (conn, driver, engine) => {
       await testDatabaseDeploy(conn, driver, [
         [
           {

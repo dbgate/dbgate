@@ -8,10 +8,14 @@ async function executeQuery({ connection = undefined, systemConnection = undefin
   logger.info({ sql }, `Execute query`);
 
   if (!driver) driver = requireEngineDriver(connection);
-  const pool = systemConnection || (await connectUtility(driver, connection, 'script'));
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'script'));
   logger.info(`Connected.`);
 
-  await driver.script(pool, sql);
+  await driver.script(dbhan, sql);
+
+  if (!systemConnection) {
+    await driver.close(dbhan);
+  }
 }
 
 module.exports = executeQuery;
