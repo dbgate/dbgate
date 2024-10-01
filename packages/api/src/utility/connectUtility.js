@@ -3,9 +3,10 @@ const { decryptConnection } = require('./crypting');
 const { getSshTunnelProxy } = require('./sshTunnelProxy');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
+const _ = require('lodash');
 
 async function loadConnection(driver, storedConnection, connectionMode) {
-  const { allowShellConnection } = platformInfo;
+  const { allowShellConnection, allowConnectionFromEnvVariables } = platformInfo;
 
   if (connectionMode == 'app') {
     return storedConnection;
@@ -33,6 +34,16 @@ async function loadConnection(driver, storedConnection, connectionMode) {
     }
     return loadedWithDb;
   }
+
+  if (allowConnectionFromEnvVariables) {
+    return _.mapValues(storedConnection, (value, key) => {
+      if (_.isString(value) && value.startsWith('$')) {
+        return process.env[value.substring(1)];
+      }
+      return value;
+    });
+  }
+
   return storedConnection;
 }
 

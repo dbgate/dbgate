@@ -44,6 +44,7 @@ const platformInfo = {
     (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_CONNECTION || !!isElectron() || !!isDbModel,
   allowShellScripting:
     (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_SCRIPTING || !!isElectron() || !!isDbModel,
+  allowConnectionFromEnvVariables: !!isDbModel,
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
 };
 
