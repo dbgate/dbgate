@@ -220,6 +220,7 @@ const postgresDriver = {
           version.versionMajor != null &&
           version.versionMinor != null &&
           (version.versionMajor > 9 || version.versionMajor == 9 || version.versionMinor >= 3),
+        isFipsComplianceOn: version.isFipsComplianceOn,
       };
     }
     return dialect;

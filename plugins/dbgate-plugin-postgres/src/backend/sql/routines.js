@@ -3,7 +3,7 @@ select
   routine_name as "pure_name",
   routine_schema as "schema_name",
   max(routine_definition) as "definition",
-  max(md5(routine_definition)) as "hash_code",
+  max($md5Function(routine_definition)) as "hash_code",
   routine_type as "object_type",
   $typeAggFunc(data_type $typeAggParam) as "data_type",
   max(external_language) as "language"

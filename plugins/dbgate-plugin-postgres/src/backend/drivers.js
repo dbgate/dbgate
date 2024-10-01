@@ -182,6 +182,13 @@ const drivers = driverBases.map(driverBase => ({
     const { rows } = await this.query(dbhan, 'SELECT version()');
     const { version } = rows[0];
 
+    let isFipsComplianceOn = false;
+    try {
+      await this.query(dbhan, "SELECT MD5('test')");
+    } catch (err) {
+      isFipsComplianceOn = true;
+    }
+
     const isCockroach = version.toLowerCase().includes('cockroachdb');
     const isRedshift = version.toLowerCase().includes('redshift');
     const isPostgres = !isCockroach && !isRedshift;
@@ -207,6 +214,7 @@ const drivers = driverBases.map(driverBase => ({
       isRedshift,
       versionMajor,
       versionMinor,
+      isFipsComplianceOn,
     };
   },
   async readQuery(dbhan, sql, structure) {
