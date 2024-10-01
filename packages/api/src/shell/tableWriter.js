@@ -11,14 +11,8 @@ async function tableWriter({ connection, schemaName, pureName, driver, systemCon
   }
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  try {
-    logger.info(`Connected.`);
-    return await driver.writeTable(dbhan, { schemaName, pureName }, options);
-  } finally {
-    if (!systemConnection) {
-      await driver.close(dbhan);
-    }
-  }
+  logger.info(`Connected.`);
+  return await driver.writeTable(dbhan, { schemaName, pureName }, options);
 }
 
 module.exports = tableWriter;
