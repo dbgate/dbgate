@@ -37,8 +37,8 @@ async function loadConnection(driver, storedConnection, connectionMode) {
 
   if (allowConnectionFromEnvVariables) {
     return _.mapValues(storedConnection, (value, key) => {
-      if (_.isString(value) && value.startsWith('$')) {
-        return process.env[value.substring(1)];
+      if (_.isString(value) && value.startsWith('${') && value.endsWith('}')) {
+        return process.env[value.slice(2, -1)];
       }
       return value;
     });
