@@ -6,7 +6,7 @@ const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('..
 const socket = require('../utility/socket');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const dbgateApi = require('../shell');
 const jsldata = require('./jsldata');
 const platformInfo = require('../utility/platformInfo');
@@ -74,7 +74,7 @@ module.exports = {
         ...fileType('.matview.sql', 'matview.sql'),
       ];
     } catch (err) {
-      logger.error({ err }, 'Error reading archive files');
+      logger.error(extractErrorLogData(err), 'Error reading archive files');
       return [];
     }
   },

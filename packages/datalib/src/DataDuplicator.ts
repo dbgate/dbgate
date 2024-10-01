@@ -1,4 +1,10 @@
-import { createAsyncWriteStream, getLogger, runCommandOnDriver, runQueryOnDriver } from 'dbgate-tools';
+import {
+  createAsyncWriteStream,
+  extractErrorLogData,
+  getLogger,
+  runCommandOnDriver,
+  runQueryOnDriver,
+} from 'dbgate-tools';
 import { DatabaseInfo, EngineDriver, ForeignKeyInfo, TableInfo } from 'dbgate-types';
 import _pick from 'lodash/pick';
 import _omit from 'lodash/omit';
@@ -255,7 +261,7 @@ export class DataDuplicator {
         );
       }
     } catch (err) {
-      logger.error({ err }, `Failed duplicator job, rollbacking. ${err.message}`);
+      logger.error(extractErrorLogData(err), `Failed duplicator job, rollbacking. ${err.message}`);
       await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
       return;
     }

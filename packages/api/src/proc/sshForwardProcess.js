@@ -3,7 +3,7 @@ const platformInfo = require('../utility/platformInfo');
 const childProcessChecker = require('../utility/childProcessChecker');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SSHConnection } = require('../utility/SSHConnection');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 
 const logger = getLogger('sshProcess');
 
@@ -40,7 +40,7 @@ async function handleStart({ connection, tunnelConfig }) {
       tunnelConfig,
     });
   } catch (err) {
-    logger.error({ err }, 'Error creating SSH tunnel connection:');
+    logger.error(extractErrorLogData(err), 'Error creating SSH tunnel connection:');
 
     process.send({
       msgtype: 'error',

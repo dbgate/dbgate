@@ -12,6 +12,7 @@ const {
   extendDatabaseInfo,
   modelCompareDbDiffOptions,
   getLogger,
+  extractErrorLogData,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -146,7 +147,7 @@ module.exports = {
       try {
         conn.subprocess.send({ msgid, ...message });
       } catch (err) {
-        logger.error({ err }, 'Error sending request do process');
+        logger.error(extractErrorLogData(err), 'Error sending request do process');
         this.close(conn.conid, conn.database);
       }
     });
@@ -318,7 +319,7 @@ module.exports = {
       try {
         existing.subprocess.send({ msgtype: 'ping' });
       } catch (err) {
-        logger.error({ err }, 'Error pinging DB connection');
+        logger.error(extractErrorLogData(err), 'Error pinging DB connection');
         this.close(conid, database);
 
         return {
@@ -362,7 +363,7 @@ module.exports = {
         try {
           existing.subprocess.kill();
         } catch (err) {
-          logger.error({ err }, 'Error killing subprocess');
+          logger.error(extractErrorLogData(err), 'Error killing subprocess');
         }
       }
       this.opened = this.opened.filter(x => x.conid != conid || x.database != database);

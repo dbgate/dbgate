@@ -6,6 +6,7 @@ import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
 import { dbNameLogCategory, isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
+import { extractErrorLogData } from './stringTools';
 
 const logger = getLogger('dbAnalyser');
 
@@ -90,7 +91,9 @@ export class DatabaseAnalyser {
   }
 
   async incrementalAnalysis(structure) {
-    logger.info(`Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
+    logger.info(
+      `Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
+    );
     this.structure = structure;
 
     const modifications = await this.getModifications();
@@ -336,7 +339,7 @@ export class DatabaseAnalyser {
       this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
       return res;
     } catch (err) {
-      logger.error({ err, message: err.message, template }, 'Error running analyser query');
+      logger.error(extractErrorLogData(err, { template }), 'Error running analyser query');
       return {
         rows: [],
       };

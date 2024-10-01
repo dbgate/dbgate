@@ -12,6 +12,7 @@ import _uniqBy from 'lodash/uniqBy';
 import { getLogger } from './getLogger';
 import { SqlDumper } from './SqlDumper';
 import { extendDatabaseInfo } from './structureTools';
+import { extractErrorLogData } from './stringTools';
 
 const logger = getLogger('sqlGenerator');
 
@@ -85,7 +86,7 @@ export class SqlGenerator {
   }
 
   private handleException = error => {
-    logger.error({ error }, 'Unhandled error');
+    logger.error(extractErrorLogData(error), 'Unhandled error');
     this.isUnhandledException = true;
   };
 

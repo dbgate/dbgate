@@ -8,7 +8,7 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 
@@ -222,7 +222,7 @@ module.exports = {
     try {
       session.subprocess.send({ msgtype: 'ping' });
     } catch (err) {
-      logger.error({ err }, 'Error pinging session');
+      logger.error(extractErrorLogData(err), 'Error pinging session');
 
       return {
         status: 'error',

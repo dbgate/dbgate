@@ -2,7 +2,7 @@ const _ = require('lodash');
 const express = require('express');
 const getExpressPath = require('./getExpressPath');
 const { MissingCredentialsError } = require('./exceptions');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 
 const logger = getLogger('useController');
 /**
@@ -16,7 +16,7 @@ module.exports = function useController(app, electron, route, controller) {
     try {
       controller._init();
     } catch (err) {
-      logger.error({ err }, `Error initializing controller, exiting application`);
+      logger.error(extractErrorLogData(err), `Error initializing controller, exiting application`);
       process.exit(1);
     }
   }
@@ -78,7 +78,7 @@ module.exports = function useController(app, electron, route, controller) {
           const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);
         } catch (err) {
-          logger.error({ err }, `Error when processing route ${route}/${key}`);
+          logger.error(extractErrorLogData(err), `Error when processing route ${route}/${key}`);
           if (err instanceof MissingCredentialsError) {
             res.json({
               missingCredentials: true,

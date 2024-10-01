@@ -5,8 +5,13 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
 const pgCopyStreams = require('pg-copy-streams');
-const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractDbNameFromComposite } =
-  global.DBGATE_PACKAGES['dbgate-tools'];
+const {
+  getLogger,
+  createBulkInsertStreamBase,
+  makeUniqueColumnNames,
+  extractDbNameFromComposite,
+  extractErrorLogData,
+} = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('postreDriver');
 
@@ -155,7 +160,7 @@ const drivers = driverBases.map(driverBase => ({
     });
 
     query.on('error', error => {
-      logger.error({ error }, 'Stream error');
+      logger.error(extractErrorLogData(error), 'Stream error');
       const { message, position, procName } = error;
       let line = null;
       if (position) {

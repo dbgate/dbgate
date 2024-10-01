@@ -12,7 +12,7 @@ const { pickSafeConnectionInfo } = require('../utility/crypting');
 const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
-const { safeJsonParse, getLogger } = require('dbgate-tools');
+const { safeJsonParse, getLogger, extractErrorLogData } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
@@ -430,7 +430,7 @@ module.exports = {
       socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
       return { success: true };
     } catch (err) {
-      logger.error({ err }, 'Error getting DB token');
+      logger.error(extractErrorLogData(err), 'Error getting DB token');
       return { error: err.message };
     }
   },
@@ -446,7 +446,7 @@ module.exports = {
       const resp = await authProvider.login(null, null, { conid: volatile._id });
       return resp;
     } catch (err) {
-      logger.error({ err }, 'Error getting DB token');
+      logger.error(extractErrorLogData(err), 'Error getting DB token');
       return { error: err.message };
     }
   },

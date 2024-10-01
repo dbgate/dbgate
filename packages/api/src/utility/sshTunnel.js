@@ -5,7 +5,7 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const { fork } = require('child_process');
 const processArgs = require('../utility/processArgs');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const pipeForkLogs = require('./pipeForkLogs');
 const logger = getLogger('sshTunnel');
 
@@ -40,7 +40,7 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       tunnelConfig,
     });
   } catch (err) {
-    logger.error({ err }, 'Error connecting SSH');
+    logger.error(extractErrorLogData(err), 'Error connecting SSH');
   }
   return new Promise((resolve, reject) => {
     subprocess.on('message', resp => {

@@ -3,7 +3,7 @@ const { fork } = require('child_process');
 const { handleProcessCommunication } = require('./processComm');
 const processArgs = require('../utility/processArgs');
 const pipeForkLogs = require('./pipeForkLogs');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('DatastoreProxy');
 
 class DatastoreProxy {
@@ -73,7 +73,7 @@ class DatastoreProxy {
       try {
         this.subprocess.send({ msgtype: 'read', msgid, offset, limit });
       } catch (err) {
-        logger.error({ err }, 'Error getting rows');
+        logger.error(extractErrorLogData(err), 'Error getting rows');
         this.subprocess = null;
       }
     });
@@ -87,7 +87,7 @@ class DatastoreProxy {
       try {
         this.subprocess.send({ msgtype: 'notify', msgid });
       } catch (err) {
-        logger.error({ err }, 'Error notifying subprocess');
+        logger.error(extractErrorLogData(err), 'Error notifying subprocess');
         this.subprocess = null;
       }
     });

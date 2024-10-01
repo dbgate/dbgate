@@ -7,6 +7,8 @@ const {
   getLogger,
   isCompositeDbName,
   dbNameLogCategory,
+  extractErrorMessage,
+  extractErrorLogData,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
@@ -32,25 +34,6 @@ let statusCounter = 0;
 function getStatusCounter() {
   statusCounter += 1;
   return statusCounter;
-}
-
-function extractErrorMessage(err, defaultMessage) {
-  if (!err) {
-    return defaultMessage;
-  }
-  if (err.errors) {
-    try {
-      return err.errors.map(x => x.message).join('\n');
-    } catch (e2) {}
-  }
-  if (err.message) {
-    return err.message;
-  }
-  const s = `${err}`;
-  if (s && (!s.endsWith('Error') || s.includes(' '))) {
-    return s;
-  }
-  return defaultMessage;
 }
 
 async function checkedAsyncCall(promise) {
@@ -261,7 +244,7 @@ async function handleDriverDataCore(msgid, callMethod, { logName }) {
     const result = await callMethod(driver);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
-    logger.error(err, `Error when handling message ${logName}`);
+    logger.error(extractErrorLogData(err, { logName }), `Error when handling message ${logName}`);
     process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error executing DB data') });
   }
 }
@@ -436,7 +419,7 @@ function start() {
     try {
       await handleMessage(message);
     } catch (err) {
-      logger.error({ err }, 'Error in DB connection');
+      logger.error(extractErrorLogData(err), 'Error in DB connection');
       process.send({ msgtype: 'error', error: extractErrorMessage(err, 'Error processing message') });
     }
   });

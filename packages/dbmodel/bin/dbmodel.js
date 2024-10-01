@@ -13,6 +13,7 @@ global.IS_DB_MODEL = true;
 const program = require('commander');
 const dbgateApi = require('dbgate-api');
 const { createLogger } = require('pinomin');
+const { extractErrorLogData } = require('dbgate-tools');
 
 const logger = createLogger('dbmodel');
 
@@ -22,7 +23,7 @@ async function runAndExit(promise) {
     logger.info('Success');
     process.exit();
   } catch (err) {
-    logger.error({ err }, 'Processing failed');
+    logger.error(extractErrorLogData(err), 'Processing failed');
     process.exit(1);
   }
 }

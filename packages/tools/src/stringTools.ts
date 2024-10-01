@@ -19,7 +19,8 @@ export type EditorDataType =
 const dateTimeStorageRegex =
   /^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
-const dateTimeParseRegex = /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
+const dateTimeParseRegex =
+  /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
 export function arrayToHexString(byteArray) {
   return byteArray.reduce((output, elem) => output + ('0' + elem.toString(16)).slice(-2), '').toUpperCase();
@@ -462,4 +463,32 @@ export function getConvertValueMenu(value, onSetValue, editorTypes?: DataEditorT
       },
     },
   ];
+}
+
+export function extractErrorMessage(err, defaultMessage = 'Unknown error') {
+  if (!err) {
+    return defaultMessage;
+  }
+  if (_isArray(err.errors)) {
+    try {
+      return err.errors.map(x => x.message).join('\n');
+    } catch (e2) {}
+  }
+  if (err.message) {
+    return err.message;
+  }
+  const s = `${err}`;
+  if (s && (!s.endsWith('Error') || s.includes(' '))) {
+    return s;
+  }
+  return defaultMessage;
+}
+
+export function extractErrorLogData(err, additionalFields = {}) {
+  if (!err) return null;
+  return {
+    errorMessage: extractErrorMessage(err),
+    errorObject: err,
+    ...additionalFields,
+  };
 }

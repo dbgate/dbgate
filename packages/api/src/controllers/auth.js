@@ -1,7 +1,7 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const getExpressPath = require('../utility/getExpressPath');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
@@ -71,7 +71,7 @@ function authMiddleware(req, res, next) {
       return next();
     }
 
-    logger.error({ err }, 'Sending invalid token error');
+    logger.error(extractErrorLogData(err), 'Sending invalid token error');
 
     return unauthorizedResponse(req, res, 'invalid token');
   }

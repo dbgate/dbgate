@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const path = require('path');
 const { uploadsdir, getLogsFilePath } = require('../utility/directories');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('uploads');
 const axios = require('axios');
 const os = require('os');
@@ -110,7 +110,7 @@ module.exports = {
 
       return response.data;
     } catch (err) {
-      logger.error({ err }, 'Error uploading gist');
+      logger.error(extractErrorLogData(err), 'Error uploading gist');
 
       return {
         apiErrorMessage: err.message,
