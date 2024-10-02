@@ -85,11 +85,10 @@ class OAuthProvider extends AuthProviderBase {
 
     const { access_token, refresh_token, id_token } = resp.data;
 
-    var payload = jwt.decode(access_token);
+    let payload = jwt.decode(access_token);
 
     // Fallback to id_token in case the access_token is not a JWT
     // https://www.oauth.com/oauth2-servers/access-tokens/
-    // https://github.com/dbgate/dbgate/issues/727
     if (!payload && id_token) {
       payload = jwt.decode(id_token);
     }
