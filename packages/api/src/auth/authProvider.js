@@ -89,6 +89,7 @@ class OAuthProvider extends AuthProviderBase {
 
     // Fallback to id_token in case the access_token is not a JWT
     // https://www.oauth.com/oauth2-servers/access-tokens/
+    // https://github.com/dbgate/dbgate/issues/727
     if (!payload && id_token) {
       payload = jwt.decode(id_token);
     }
