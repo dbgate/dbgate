@@ -484,11 +484,19 @@ export function extractErrorMessage(err, defaultMessage = 'Unknown error') {
   return defaultMessage;
 }
 
+export function extractErrorStackTrace(err) {
+  const { stack } = err;
+  if (!_isString(stack)) return undefined;
+  if (stack.length > 1000) return stack.substring(0, 1000) + '... (truncated)';
+  return stack;
+}
+
 export function extractErrorLogData(err, additionalFields = {}) {
   if (!err) return null;
   return {
     errorMessage: extractErrorMessage(err),
     errorObject: err,
+    errorStack: extractErrorStackTrace(err),
     ...additionalFields,
   };
 }

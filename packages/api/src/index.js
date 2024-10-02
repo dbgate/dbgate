@@ -1,10 +1,15 @@
-const { setLogConfig, getLogger, setLoggerName } = require('dbgate-tools');
+const { setLogConfig, getLogger, setLoggerName, extractErrorLogData } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
-const { createLogger } = require('pinomin');
+
+const logger = getLogger('apiIndex');
+
+process.on('uncaughtException', err => {
+  logger.fatal(extractErrorLogData(err), 'Uncaught exception');
+});
 
 if (processArgs.startProcess) {
   setLoggerName(processArgs.startProcess.replace(/Process$/, ''));

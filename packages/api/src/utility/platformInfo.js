@@ -10,6 +10,7 @@ const isMac = platform === 'darwin';
 const isLinux = platform === 'linux';
 const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
+const isBuiltWebMode = process.env.BUILTWEBMODE == '1';
 const isNpmDist = !!global['IS_NPM_DIST'];
 const isDbModel = !!global['IS_DB_MODEL'];
 const isForkedApi = processArgs.isForkedApi;

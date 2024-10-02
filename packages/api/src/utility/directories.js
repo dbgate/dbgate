@@ -71,6 +71,9 @@ function packagedPluginsDir() {
   if (platformInfo.isDevMode) {
     return path.resolve(__dirname, '../../../../plugins');
   }
+  if (platformInfo.isBuiltWebMode) {
+    return path.resolve(__dirname, '../../plugins');
+  }
   if (platformInfo.isDocker) {
     return '/home/dbgate-docker/plugins';
   }

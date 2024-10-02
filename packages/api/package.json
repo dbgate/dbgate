@@ -68,6 +68,7 @@
     "start:dblogin": "env-cmd -f env/dblogin/.env node src/index.js --listen-api",
     "start:filedb": "env-cmd node src/index.js /home/jena/test/chinook/Chinook.db --listen-api",
     "start:storage": "env-cmd -f env/storage/.env node src/index.js --listen-api",
+    "start:storage:built": "env-cmd -f env/storage/.env cross-env DEVMODE= BUILTWEBMODE=1 node dist/bundle.js --listen-api",
     "start:singleconn": "env-cmd node src/index.js --server localhost --user root --port 3307 --engine mysql@dbgate-plugin-mysql --password test --listen-api",
     "ts": "tsc",
     "build": "webpack"
