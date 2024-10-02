@@ -83,9 +83,16 @@ class OAuthProvider extends AuthProviderBase {
       )}&client_id=${process.env.OAUTH_CLIENT_ID}&client_secret=${process.env.OAUTH_CLIENT_SECRET}${scopeParam}`
     );
 
-    const { access_token, refresh_token } = resp.data;
+    const { access_token, refresh_token, id_token } = resp.data;
 
-    const payload = jwt.decode(access_token);
+    var payload = jwt.decode(access_token);
+
+    // Fallback to id_token in case the access_token is not a JWT
+    // https://www.oauth.com/oauth2-servers/access-tokens/
+    // https://github.com/dbgate/dbgate/issues/727
+    if (!payload && id_token) {
+      payload = jwt.decode(id_token);
+    }
 
     logger.info({ payload }, 'User payload returned from OAUTH');
 
