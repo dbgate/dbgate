@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import type {
   ColumnInfo,
   ConstraintInfo,
@@ -24,6 +23,7 @@ import _isNumber from 'lodash/isNumber';
 import _isDate from 'lodash/isDate';
 import _isArray from 'lodash/isArray';
 import _isPlainObject from 'lodash/isPlainObject';
+import _keys from 'lodash/keys';
 import uuidv1 from 'uuid/v1';
 
 export class SqlDumper implements AlterProcessor {
@@ -257,7 +257,7 @@ export class SqlDumper implements AlterProcessor {
     if (includeNullable && !this.dialect?.specificNullabilityImplementation) {
       this.put(column.notNull ? '^not ^null' : '^null');
     }
-    if (includeDefault && column.defaultValue?.trim()) {
+    if (includeDefault && column.defaultValue?.toString()?.trim()) {
       this.columnDefault(column);
     }
   }
@@ -736,7 +736,7 @@ export class SqlDumper implements AlterProcessor {
     let was = false;
     for (const row of newRows) {
       const old = oldRows?.find(r => key.every(col => r[col] == row[col]));
-      const rowKeys = _.keys(row);
+      const rowKeys = _keys(row);
       if (old) {
         const updated = [];
         for (const col of rowKeys) {
