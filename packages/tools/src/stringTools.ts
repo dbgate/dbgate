@@ -209,11 +209,11 @@ export function stringifyCellValue(
         case 'stringConversionIntent':
           return { value: value.$date };
         default:
-          const m = value.$date.match(dateTimeStorageRegex);
+          const m = value.$date.toString().match(dateTimeStorageRegex);
           if (m) {
             return { value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`, gridStyle: 'valueCellStyle' };
           } else {
-            return { value: value.$date.replaCE('T', ' '), gridStyle: 'valueCellStyle' };
+            return { value: value.$date.toString().replace('T', ' '), gridStyle: 'valueCellStyle' };
           }
       }
     }
