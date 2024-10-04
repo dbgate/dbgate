@@ -12,11 +12,20 @@
   import { apiCall } from './utility/api';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
   import getElectron from './utility/getElectron';
+  import { openWebLink } from './utility/exportFileTools';
 
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
 
+  $: isExpired = $config?.isLicenseExpired;
+
   let errorMessage = '';
+  let expiredMessageSet = false;
+
+  $: if (isExpired && !expiredMessageSet) {
+    errorMessage = 'Your license is expired';
+    expiredMessageSet = true;
+  }
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -50,17 +59,28 @@
           />
         </div>
 
+        {#if !isExpired}
+          <div class="submit">
+            <FormStyledButton
+              value="Start 30-day trial"
+              on:click={async e => {
+                errorMessage = '';
+                const license = await apiCall('config/start-trial');
+                if (license?.status == 'ok') {
+                  internalRedirectTo('/index.html');
+                } else {
+                  errorMessage = license?.errorMessage || 'Error starting trial';
+                }
+              }}
+            />
+          </div>
+        {/if}
+
         <div class="submit">
           <FormStyledButton
-            value="Start 30-day trial"
+            value="Purchase DbGate Premium"
             on:click={async e => {
-              errorMessage = '';
-              const license = await apiCall('config/start-trial');
-              if (license?.status == 'ok') {
-                internalRedirectTo('/index.html');
-              } else {
-                errorMessage = license?.errorMessage || 'Error starting trial';
-              }
+              openWebLink('https://auth.dbgate.eu/create-checkout-session-simple');
             }}
           />
         </div>
@@ -81,9 +101,8 @@
         {/if}
 
         <div class="purchase-info">
-          If you want to purchase Premium license, please contact us at <Link href="mailto:sales@dbgate.eu"
-            >sales@dbgate.eu</Link
-          >
+          For more info about DbGate licensing, you could visit <Link href="https://dbgate.eu/">dbgate.eu</Link> web or contact
+          us at <Link href="mailto:sales@dbgate.eu">sales@dbgate.eu</Link>
         </div>
       </div>
     </div>

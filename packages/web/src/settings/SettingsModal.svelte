@@ -36,6 +36,7 @@
   import { apiCall } from '../utility/api';
   import { useSettings } from '../utility/metadataLoaders';
   import { derived } from 'svelte/store';
+  import { safeFormatDate } from 'dbgate-tools';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -372,10 +373,14 @@ ORDER BY
                 <div>
                   <FontIcon icon="img ok" /> License key is valid
                 </div>
-                <div>
-                  License valid to: {licenseKeyCheckResult.validTo}
-                </div>
-                <div>License key expiration: {licenseKeyCheckResult.expiration}</div>
+                {#if licenseKeyCheckResult.validTo}
+                  <div>
+                    License valid to: {licenseKeyCheckResult.validTo}
+                  </div>
+                {/if}
+                {#if licenseKeyCheckResult.expiration}
+                  <div>License key expiration: <b>{safeFormatDate(licenseKeyCheckResult.expiration)}</b></div>
+                {/if}
               {:else if licenseKeyCheckResult.status == 'error'}
                 <FontIcon icon="img error" /> License key is invalid
               {/if}

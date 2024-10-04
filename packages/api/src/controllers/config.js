@@ -64,6 +64,7 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
       isLicenseValid,
+      isLicenseExpired: checkedLicense?.isExpired,
       checkedLicense,
       configurationError,
       logoutUrl: await authProvider.getLogoutUrl(),

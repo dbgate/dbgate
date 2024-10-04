@@ -500,3 +500,12 @@ export function extractErrorLogData(err, additionalFields = {}) {
     ...additionalFields,
   };
 }
+
+export function safeFormatDate(date) {
+  try {
+    const v = new Date(date);
+    return v.toISOString().substring(0, 10);
+  } catch (e) {
+    return date?.toString();
+  }
+}
