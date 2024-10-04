@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.4
+- FIXED: correct handling when use LOGIN and PASSWORD env variables #903
+- FIXED: fixed problems in dbmodel commandline tool
+- ADDED: dbmodel - allow connection defined in environment variables
+- FIXED: Load postgres schema on Azure #906
+- FIXED: Oauth2 in combination with Google doesn't log payload #72
+- CHANGED: Improved error reporting for unhandler errors
+- CHANGED: Don't restart docker container in case of unhandler error
+- FIXED: Crrash when displaying specific data values from MongoDB #908
+
 ### 5.5.3
 - FIXED: Separate schema mode #894 - for databases with many schemas
 - FIXED: Sort by UUID column in POstgreSQL #895
