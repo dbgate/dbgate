@@ -1,5 +1,6 @@
 import _isString from 'lodash/isString';
 import _isArray from 'lodash/isArray';
+import _isDate from 'lodash/isDate';
 import _isNumber from 'lodash/isNumber';
 import _isPlainObject from 'lodash/isPlainObject';
 import _pad from 'lodash/pad';
@@ -204,16 +205,17 @@ export function stringifyCellValue(
 
   if (editorTypes?.parseDateAsDollar) {
     if (value?.$date) {
+      const dateString = _isDate(value.$date) ? value.$date.toISOString() : value.$date.toString();
       switch (intent) {
         case 'exportIntent':
         case 'stringConversionIntent':
-          return { value: value.$date };
+          return { value: dateString };
         default:
-          const m = value.$date.toString().match(dateTimeStorageRegex);
+          const m = dateString.match(dateTimeStorageRegex);
           if (m) {
             return { value: `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`, gridStyle: 'valueCellStyle' };
           } else {
-            return { value: value.$date.toString().replace('T', ' '), gridStyle: 'valueCellStyle' };
+            return { value: dateString.replace('T', ' '), gridStyle: 'valueCellStyle' };
           }
       }
     }
