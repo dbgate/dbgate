@@ -15,6 +15,7 @@
   import { useAuthTypes, useConfig } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
 
   const { values } = getFormContext();
   const electron = getElectron();
@@ -39,6 +40,35 @@
     $values.passwordMode != 'askUser';
   $: showPasswordMode = driver?.showConnectionField('password', $values, showConnectionFieldArgs);
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
+
+  const awsRegions = [
+    'us-east-1',
+    'us-east-2',
+    'us-west-1',
+    'us-west-2',
+    'af-south-1',
+    'ap-east-1',
+    'ap-south-1',
+    'ap-northeast-1',
+    'ap-northeast-2',
+    'ap-northeast-3',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ap-southeast-3',
+    'ca-central-1',
+    'cn-north-1',
+    'cn-northwest-1',
+    'eu-central-1',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-west-3',
+    'eu-north-1',
+    'eu-south-1',
+    'eu-south-2',
+    'me-south-1',
+    'me-central-1',
+    'sa-east-1',
+  ];
 </script>
 
 <FormSelectField
@@ -48,12 +78,15 @@
   disabled={isConnected}
   options={[
     { label: '(select connection type)', value: '' },
-    ...$extensions.drivers
-      .filter(driver => !driver.isElectronOnly || electron)
-      .map(driver => ({
-        value: driver.engine,
-        label: driver.title,
-      })),
+    ..._.sortBy(
+      $extensions.drivers
+        .filter(driver => !driver.isElectronOnly || electron)
+        .map(driver => ({
+          value: driver.engine,
+          label: driver.title,
+        })),
+      'label'
+    ),
   ]}
 />
 
@@ -216,6 +249,44 @@
 {#if !showUser && showPassword}
   <FormPasswordField label="Password" name="password" disabled={isConnected || disabledFields.includes('password')} />
 {/if}
+
+{#if driver?.showConnectionField('awsRegion', $values, showConnectionFieldArgs)}
+  <FormDropDownTextField
+    label="AWS Region"
+    name="awsRegion"
+    menu={() => {
+      return awsRegions.map(region => ({
+        text: region,
+        onClick: () => {
+          $values.awsRegion = region;
+        },
+      }));
+    }}
+  />
+{/if}
+
+<div class="row">
+  {#if driver?.showConnectionField('accessKeyId', $values, showConnectionFieldArgs)}
+    <div class="col-6 mr-1">
+      <FormTextField
+        label="Access Key ID"
+        name="awsAccessKeyId"
+        disabled={isConnected || disabledFields.includes('accessKeyId')}
+        templateProps={{ noMargin: true }}
+      />
+    </div>
+  {/if}
+  {#if driver?.showConnectionField('secretAccessKey', $values, showConnectionFieldArgs)}
+    <div class="col-6 mr-1">
+      <FormPasswordField
+        label="Secret access key"
+        name="secretAccessKey"
+        disabled={isConnected || disabledFields.includes('secretAccessKey')}
+        templateProps={{ noMargin: true }}
+      />
+    </div>
+  {/if}
+</div>
 
 {#if !disabledFields.includes('password') && showPasswordMode}
   <FormSelectField

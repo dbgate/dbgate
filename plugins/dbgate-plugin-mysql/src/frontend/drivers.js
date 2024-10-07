@@ -150,10 +150,25 @@ const mysqlDialect = {
 
 const mysqlDriverBase = {
   ...driverBase,
-  showConnectionField: (field, values) =>
-    ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
-    (values.authType == 'socket' && ['socketPath'].includes(field)) ||
-    (values.authType != 'socket' && ['server', 'port'].includes(field)),
+  showConnectionField: (field, values) => {
+    if (['authType', 'user', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field)) {
+      return true;
+    }
+
+    if (values.authType == 'awsIam') {
+      return ['awsRegion', 'secretAccessKey', 'accessKeyId', 'server', 'port'].includes(field);
+    }
+
+    if (['password'].includes(field)) {
+      return true;
+    }
+
+    if (values.authType == 'socket') {
+      return ['socketPath'].includes(field);
+    }
+
+    return ['server', 'port'].includes(field);
+  },
   dumperClass: Dumper,
   defaultPort: 3306,
   getQuerySplitterOptions: usage =>

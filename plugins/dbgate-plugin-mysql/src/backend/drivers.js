@@ -9,6 +9,8 @@ const { MySqlDumper } = require('antares-mysql-dumper');
 
 const logger = getLogger('mysqlDriver');
 
+let authProxy;
+
 function extractColumns(fields) {
   if (fields) {
     const res = fields.map(col => ({
@@ -32,13 +34,19 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType }) {
+  async connect(props) {
+    const { server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType } = props;
+    let awsIamToken = null;
+    if (authType == 'awsIam') {
+      awsIamToken = await authProxy.getAwsIamToken(props);
+    }
+
     const options = {
       host: authType == 'socket' ? null : server,
       port: authType == 'socket' ? null : port,
       socketPath: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : null,
       user,
-      password,
+      password: awsIamToken || password,
       database,
       ssl,
       rowsAsArray: forceRowsAsObjects ? false : true,
@@ -48,6 +56,8 @@ const drivers = driverBases.map(driverBase => ({
       // TODO: test following options
       // multipleStatements: true,
     };
+
+    console.log('MySQL connection options', options);
 
     const client = mysql2.createConnection(options);
     const dbhan = {
@@ -203,7 +213,7 @@ const drivers = driverBases.map(driverBase => ({
     return res;
   },
   getAuthTypes() {
-    return [
+    const res = [
       {
         title: 'Host and port',
         name: 'hostPort',
@@ -215,7 +225,18 @@ const drivers = driverBases.map(driverBase => ({
         disabledFields: ['server', 'port'],
       },
     ];
+    if (authProxy.supportsAwsIam()) {
+      res.push({
+        title: 'AWS IAM',
+        name: 'awsIam',
+      });
+    }
+    return res;
   },
 }));
+
+drivers.initialize = dbgateEnv => {
+  authProxy = dbgateEnv.authProxy;
+};
 
 module.exports = drivers;
