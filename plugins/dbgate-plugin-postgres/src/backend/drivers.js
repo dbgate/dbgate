@@ -13,6 +13,8 @@ const {
   extractErrorLogData,
 } = global.DBGATE_PACKAGES['dbgate-tools'];
 
+let authProxy;
+
 const logger = getLogger('postreDriver');
 
 pg.types.setTypeParser(1082, 'text', val => val); // date
@@ -40,21 +42,26 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({
-    engine,
-    server,
-    port,
-    user,
-    password,
-    database,
-    databaseUrl,
-    useDatabaseUrl,
-    ssl,
-    isReadOnly,
-    authType,
-    socketPath,
-  }) {
+  async connect(props) {
+    const {
+      engine,
+      server,
+      port,
+      user,
+      password,
+      database,
+      databaseUrl,
+      useDatabaseUrl,
+      ssl,
+      isReadOnly,
+      authType,
+      socketPath,
+    } = props;
     let options = null;
+
+    if (authType == 'awsIam') {
+      awsIamToken = await authProxy.getAwsIamToken(props);
+    }
 
     if (engine == 'redshift@dbgate-plugin-postgres') {
       let url = databaseUrl;
@@ -82,9 +89,9 @@ const drivers = driverBases.map(driverBase => ({
             host: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : server,
             port: authType == 'socket' ? null : port,
             user,
-            password,
+            password: awsIamToken || password,
             database: extractDbNameFromComposite(database) || 'postgres',
-            ssl,
+            ssl: authType == 'awsIam' ? ssl || { rejectUnauthorized: false } : ssl,
             application_name: 'DbGate',
           };
     }
@@ -276,7 +283,7 @@ const drivers = driverBases.map(driverBase => ({
   },
 
   getAuthTypes() {
-    return [
+    const res = [
       {
         title: 'Host and port',
         name: 'hostPort',
@@ -286,6 +293,13 @@ const drivers = driverBases.map(driverBase => ({
         name: 'socket',
       },
     ];
+    if (authProxy.supportsAwsIam()) {
+      res.push({
+        title: 'AWS IAM',
+        name: 'awsIam',
+      });
+    }
+    return res;
   },
 
   async listSchemas(dbhan) {
@@ -312,5 +326,9 @@ const drivers = driverBases.map(driverBase => ({
     return stream;
   },
 }));
+
+drivers.initialize = dbgateEnv => {
+  authProxy = dbgateEnv.authProxy;
+};
 
 module.exports = drivers;

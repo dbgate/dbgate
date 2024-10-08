@@ -135,24 +135,31 @@ const postgresDriverBase = {
   databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',
 
   showConnectionField: (field, values) => {
-    if (field == 'useDatabaseUrl') return true;
-    if (values.useDatabaseUrl) {
-      return ['databaseUrl', 'isReadOnly'].includes(field);
+    const allowedFields = ['useDatabaseUrl', 'authType', 'user', 'isReadOnly', 'useSeparateSchemas'];
+
+    if (values.authType == 'awsIam') {
+      allowedFields.push('awsRegion', 'secretAccessKey', 'accessKeyId');
     }
 
-    return (
-      [
-        'authType',
-        'user',
-        'password',
-        'defaultDatabase',
-        'singleDatabase',
-        'isReadOnly',
-        'useSeparateSchemas',
-      ].includes(field) ||
-      (values.authType == 'socket' && ['socketPath'].includes(field)) ||
-      (values.authType != 'socket' && ['server', 'port'].includes(field))
-    );
+    if (values.authType == 'socket') {
+      allowedFields.push('socketPath');
+    } else {
+      if (values.useDatabaseUrl) {
+        allowedFields.push('databaseUrl');
+      } else {
+        allowedFields.push('server', 'port');
+      }
+    }
+
+    if (values.authType != 'awsIam' && values.authType != 'socket') {
+      allowedFields.push('password');
+    }
+
+    if (!values.useDatabaseUrl) {
+      allowedFields.push('defaultDatabase', 'singleDatabase');
+    }
+
+    return allowedFields.includes(field);
   },
 
   beforeConnectionSave: connection => {
@@ -162,6 +169,7 @@ const postgresDriverBase = {
       return {
         ...connection,
         singleDatabase: !!m,
+
         defaultDatabase: m ? m[1] : null,
       };
     }
