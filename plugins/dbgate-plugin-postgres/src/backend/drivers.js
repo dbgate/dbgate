@@ -59,6 +59,7 @@ const drivers = driverBases.map(driverBase => ({
     } = props;
     let options = null;
 
+    let awsIamToken = null;
     if (authType == 'awsIam') {
       awsIamToken = await authProxy.getAwsIamToken(props);
     }
