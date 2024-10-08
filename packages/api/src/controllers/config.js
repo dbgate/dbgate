@@ -65,6 +65,7 @@ module.exports = {
       isElectron: platformInfo.isElectron,
       isLicenseValid,
       isLicenseExpired: checkedLicense?.isExpired,
+      trialDaysLeft: checkedLicense?.isGeneratedTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
       checkedLicense,
       configurationError,
       logoutUrl: await authProvider.getLogoutUrl(),

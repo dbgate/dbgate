@@ -18,6 +18,7 @@
   const values = writable({ amoid: null, databaseServer: null });
 
   $: isExpired = $config?.isLicenseExpired;
+  $: trialDaysLeft = $config?.trialDaysLeft;
 
   let errorMessage = '';
   let expiredMessageSet = false;
@@ -48,6 +49,7 @@
           <FormSubmit
             value="Save license"
             on:click={async e => {
+              sessionStorage.setItem('continueTrialConfirmed', '1');
               const { licenseKey } = e.detail;
               const resp = await apiCall('config/save-license-key', { licenseKey });
               if (resp?.status == 'ok') {
@@ -59,7 +61,7 @@
           />
         </div>
 
-        {#if !isExpired}
+        {#if !isExpired && trialDaysLeft == null}
           <div class="submit">
             <FormStyledButton
               value="Start 30-day trial"
@@ -67,10 +69,23 @@
                 errorMessage = '';
                 const license = await apiCall('config/start-trial');
                 if (license?.status == 'ok') {
+                  sessionStorage.setItem('continueTrialConfirmed', '1');
                   internalRedirectTo('/index.html');
                 } else {
                   errorMessage = license?.errorMessage || 'Error starting trial';
                 }
+              }}
+            />
+          </div>
+        {/if}
+
+        {#if trialDaysLeft > 0}
+          <div class="submit">
+            <FormStyledButton
+              value={`Continue trial (${trialDaysLeft} days left)`}
+              on:click={async e => {
+                sessionStorage.setItem('continueTrialConfirmed', '1');
+                internalRedirectTo('/index.html');
               }}
             />
           </div>

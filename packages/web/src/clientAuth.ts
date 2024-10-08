@@ -131,6 +131,10 @@ export async function handleAuthOnStartup(config, isAdminPage = false) {
     }
   }
 
+  if (config.trialDaysLeft != null && config.trialDaysLeft <= 14 && !sessionStorage.getItem('continueTrialConfirmed')) {
+    internalRedirectTo(`/license.html`);
+  }
+
   if (getAuthCategory(config) == 'admin') {
     if (localStorage.getItem('adminAccessToken')) {
       return;
@@ -165,7 +169,7 @@ export async function redirectToLogin(config = null, force = false) {
 
   if (getAuthCategory(config) == 'token') {
     if (!force) {
-      const page = window['dbgate_page']
+      const page = window['dbgate_page'];
       if (page == 'login' || page == 'admin-login' || page == 'not-logged') {
         return;
       }
