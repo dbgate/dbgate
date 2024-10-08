@@ -255,10 +255,10 @@
     label="AWS Region"
     name="awsRegion"
     menu={() => {
-      return awsRegions.map(region => ({
-        text: region,
+      return awsRegions.map(awsRegion => ({
+        text: awsRegion,
         onClick: () => {
-          $values.awsRegion = region;
+          $values = { ...$values, awsRegion };
         },
       }));
     }}
@@ -270,7 +270,7 @@
     <div class="col-6 mr-1">
       <FormTextField
         label="Access Key ID"
-        name="awsAccessKeyId"
+        name="accessKeyId"
         disabled={isConnected || disabledFields.includes('accessKeyId')}
         templateProps={{ noMargin: true }}
       />

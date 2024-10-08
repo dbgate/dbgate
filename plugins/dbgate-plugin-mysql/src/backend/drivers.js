@@ -48,7 +48,7 @@ const drivers = driverBases.map(driverBase => ({
       user,
       password: awsIamToken || password,
       database,
-      ssl,
+      ssl: authType == 'awsIam' ? ssl || { rejectUnauthorized: false } : ssl,
       rowsAsArray: forceRowsAsObjects ? false : true,
       supportBigNumbers: true,
       bigNumberStrings: true,
@@ -56,8 +56,6 @@ const drivers = driverBases.map(driverBase => ({
       // TODO: test following options
       // multipleStatements: true,
     };
-
-    console.log('MySQL connection options', options);
 
     const client = mysql2.createConnection(options);
     const dbhan = {
