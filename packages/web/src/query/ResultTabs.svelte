@@ -13,6 +13,7 @@
   export let tabs = [];
   export let sessionId;
   export let executeNumber;
+  export let driver;
 
   export let resultCount;
 
@@ -54,7 +55,7 @@
           label: `Result ${index + 1}`,
           isResult: true,
           component: JslDataGrid,
-          props: { jslid: info.jslid },
+          props: { jslid: info.jslid, driver },
         }))),
   ];
 

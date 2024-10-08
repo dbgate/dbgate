@@ -3,6 +3,7 @@ import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { GridConfig, GridCache } from './GridConfig';
 import { analyseCollectionDisplayColumns } from './CollectionGridDisplay';
 import { evalFilterBehaviour } from 'dbgate-tools';
+import { EngineDriver } from 'dbgate-types';
 
 export class JslGridDisplay extends GridDisplay {
   constructor(
@@ -15,9 +16,10 @@ export class JslGridDisplay extends GridDisplay {
     rows: any,
     isDynamicStructure: boolean,
     supportsReload: boolean,
-    editable: boolean = false
+    editable: boolean = false,
+    driver: EngineDriver = null
   ) {
-    super(config, setConfig, cache, setCache, null);
+    super(config, setConfig, cache, setCache, driver);
 
     this.filterable = true;
     this.sortable = true;

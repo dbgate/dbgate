@@ -20,6 +20,8 @@
   export let allowChangeChangeSetStructure = false;
   export let infoLoadCounter = 0;
 
+  export let driver;
+
   let loadedRows;
   let infoCounter = 0;
 
@@ -68,7 +70,8 @@
     loadedRows,
     infoUsed?.__isDynamicStructure,
     supportsReload,
-    !!changeSetState
+    !!changeSetState,
+    driver
   );
 
   function handleSetLoadedRows(rows) {
@@ -99,22 +102,24 @@
     preprocessLoadedRow={changeSetState?.value?.dataUpdateCommands
       ? row => processJsonDataUpdateCommands(row, changeSetState?.value?.dataUpdateCommands)
       : null}
-    dataEditorTypesBehaviourOverride={{
-      parseJsonNull: true,
-      parseJsonBoolean: true,
-      parseNumber: true,
-      parseJsonArray: true,
-      parseJsonObject: true,
+    dataEditorTypesBehaviourOverride={driver
+      ? null
+      : {
+          parseJsonNull: true,
+          parseJsonBoolean: true,
+          parseNumber: true,
+          parseJsonArray: true,
+          parseJsonObject: true,
 
-      explicitDataType: true,
+          explicitDataType: true,
 
-      supportNumberType: true,
-      supportStringType: true,
-      supportBooleanType: true,
-      supportNullType: true,
-      supportJsonType: true,
+          supportNumberType: true,
+          supportStringType: true,
+          supportBooleanType: true,
+          supportNullType: true,
+          supportJsonType: true,
 
-      supportFieldRemoval: true,
-    }}
+          supportFieldRemoval: true,
+        }}
   />
 {/key}

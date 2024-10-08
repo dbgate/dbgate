@@ -398,7 +398,7 @@
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount>
+      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
         <svelte:fragment slot="0">
           <SocketMessageView
             eventName={sessionId ? `session-info-${sessionId}` : null}
