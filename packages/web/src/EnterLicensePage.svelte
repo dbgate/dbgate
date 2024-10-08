@@ -96,7 +96,7 @@
             value="Purchase DbGate Premium"
             on:click={async e => {
               openWebLink(
-                `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : trialDaysLeft}`
+                `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
               );
             }}
           />
