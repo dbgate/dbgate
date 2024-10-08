@@ -131,7 +131,12 @@ export async function handleAuthOnStartup(config, isAdminPage = false) {
     }
   }
 
-  if (config.trialDaysLeft != null && config.trialDaysLeft <= 14 && !sessionStorage.getItem('continueTrialConfirmed')) {
+  if (
+    config.trialDaysLeft != null &&
+    config.trialDaysLeft <= 14 &&
+    !sessionStorage.getItem('continueTrialConfirmed') &&
+    getElectron()
+  ) {
     internalRedirectTo(`/license.html`);
   }
 
