@@ -1,4 +1,3 @@
-import { ca } from 'date-fns/locale';
 import { apiCall, enableApi, getAuthCategory } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';

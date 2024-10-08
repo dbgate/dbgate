@@ -1,11 +1,19 @@
 import { arrayToHexString, isTypeDateTime } from 'dbgate-tools';
-import moment from 'moment';
+import { format, toDate } from 'date-fns';
+import _isString from 'lodash/isString';
 
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
 
+function getDateStringWithoutTimeZone(dateString) {
+  if (_isString(dateString)) {
+    return dateString.replace(/Z|([+-]\d{2}:\d{2})$/, '');
+  }
+  return dateString;
+}
+
 export function getFilterValueExpression(value, dataType?) {
   if (value == null) return 'NULL';
-  if (isTypeDateTime(dataType)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  if (isTypeDateTime(dataType)) return format(toDate(getDateStringWithoutTimeZone(value)), 'yyyy-MM-dd HH:mm:ss');
   if (value === true) return 'TRUE';
   if (value === false) return 'FALSE';
   if (value.$oid) return `ObjectId("${value.$oid}")`;

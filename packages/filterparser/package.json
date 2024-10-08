@@ -24,6 +24,7 @@
     "@types/parsimmon": "^1.10.1",
     "dbgate-tools": "^5.0.0-alpha.1",
     "lodash": "^4.17.21",
+    "date-fns": "^4.1.0",
     "moment": "^2.24.0",
     "parsimmon": "^1.13.0"
   }

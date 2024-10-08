@@ -13,8 +13,7 @@
   import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
   import { showSnackbarError } from '../utility/snackbar';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
-  import da from 'date-fns/locale/da';
-
+  
   export let onSave;
   export let value;
 
