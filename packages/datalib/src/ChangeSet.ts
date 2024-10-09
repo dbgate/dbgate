@@ -536,3 +536,12 @@ export function changeSetContainsChanges(changeSet: ChangeSet) {
 export function changeSetChangedCount(changeSet: ChangeSet) {
   return changeSet.deletes.length + changeSet.updates.length + changeSet.inserts.length;
 }
+
+export function removeSchemaFromChangeSet(changeSet: ChangeSet) {
+  return {
+    ...changeSet,
+    inserts: changeSet.inserts.map(x => ({ ...x, schemaName: undefined })),
+    updates: changeSet.updates.map(x => ({ ...x, schemaName: undefined })),
+    deletes: changeSet.deletes.map(x => ({ ...x, schemaName: undefined })),
+  };
+}
