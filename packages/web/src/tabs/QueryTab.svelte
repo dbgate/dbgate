@@ -499,6 +499,7 @@
         }))}
       label={QUERY_PARAMETER_STYLES.find(x => x.value == queryParameterStyle)?.text}
       icon="icon at"
+      title="Query parameter style"
     />
   </svelte:fragment>
 </ToolStripContainer>
