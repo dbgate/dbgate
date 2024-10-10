@@ -28,13 +28,13 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Edit query parameters</svelte:fragment>
 
-    {#each parameterNames as parameterName, index}
-      <FormTextField label={parameterName} name={parameterName} focused={index == 0} />
-    {/each}
-
-    <div>
-        String values must be 'quoted'. You can use valid SQL expressions.
+    <div class="params">
+      {#each parameterNames as parameterName, index}
+        <FormTextField label={parameterName} name={parameterName} focused={index == 0} />
+      {/each}
     </div>
+
+    <div>String values must be 'quoted'. You can use valid SQL expressions.</div>
 
     <svelte:fragment slot="footer">
       <FormSubmit value="Run query" on:click={handleSubmit} />
@@ -42,3 +42,10 @@
     </svelte:fragment>
   </ModalBase>
 </FormProvider>
+
+<style>
+  .params {
+    overflow-y: auto;
+    max-height: 60vh;
+  }
+</style>
