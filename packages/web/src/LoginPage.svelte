@@ -12,7 +12,8 @@
   import FormProviderCore from './forms/FormProviderCore.svelte';
   import FontIcon from './icons/FontIcon.svelte';
   import createRef from './utility/createRef';
-  
+  import Link from './elements/Link.svelte';
+
   export let isAdminPage;
 
   const config = useConfig();
@@ -134,6 +135,15 @@
     </div>
     <div class="box">
       <div class="heading">Log In</div>
+      <div class="login-link">
+        {#if $config?.isAdminLoginForm}
+          {#if isAdminPage}
+            <Link internalRedirect="/login.html">Log In as Regular User</Link>
+          {:else}
+            <Link internalRedirect="/admin-login.html">Log In as Administrator</Link>
+          {/if}
+        {/if}
+      </div>
       <FormProviderCore {values}>
         {#if !isAdminPage && availableProviders?.length >= 2}
           <FormSelectField
@@ -319,6 +329,7 @@
     border: 1px solid var(--theme-border);
     border-radius: 4px;
     background-color: var(--theme-bg-0);
+    position: relative;
   }
 
   .wrap {
@@ -353,5 +364,11 @@
     display: flex;
     flex-wrap: wrap;
     width: 600px;
+  }
+
+  .login-link {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
 </style>
