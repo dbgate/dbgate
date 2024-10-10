@@ -2,7 +2,7 @@ const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
 const { postgreSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
-const spatialTypes = ['GEOGRAPHY'];
+const spatialTypes = ['GEOGRAPHY','GEOMETRY'];
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
