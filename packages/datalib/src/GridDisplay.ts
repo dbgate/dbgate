@@ -169,12 +169,12 @@ export abstract class GridDisplay {
         if (isIncluded) {
           res = {
             ...res,
-            [field]: [...(cfg[field] || []), uniqueName],
+            [field]: _.uniq([...(cfg[field] || []), uniqueName]),
           };
         } else {
           res = {
             ...res,
-            [field]: (cfg[field] || []).filter(x => x != uniqueName),
+            [field]: _.uniq((cfg[field] || []).filter(x => x != uniqueName)),
           };
         }
       }
