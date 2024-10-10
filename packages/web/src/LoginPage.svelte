@@ -10,10 +10,9 @@
   import FormSelectField from './forms/FormSelectField.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from './forms/FormProviderCore.svelte';
-  import { openWebLink } from './utility/exportFileTools';
   import FontIcon from './icons/FontIcon.svelte';
   import createRef from './utility/createRef';
-
+  
   export let isAdminPage;
 
   const config = useConfig();
@@ -259,6 +258,14 @@
         </div>
       </FormProviderCore>
     </div>
+
+    <div class="loginButtonWrapper">
+      {#each availableProviders.filter(x => x.workflowType == 'anonymous' || x.workflowType == 'redirect') as provider}
+        <div class="loginButton" on:click={() => processSingleProvider(provider)}>
+          {provider.name}
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
@@ -322,5 +329,29 @@
     text-align: center;
     margin: 1em;
     font-size: xx-large;
+  }
+
+  .loginButton {
+    padding: 10px;
+    width: 300px;
+    margin: 20px;
+    flex: 1;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+
+    border: 1px solid var(--theme-bg-button-inv-3);
+    background-color: var(--theme-bg-button-inv-2);
+    color: var(--theme-font-inv-1);
+  }
+
+  .loginButton:hover {
+    background-color: var(--theme-bg-button-inv-3);
+  }
+
+  .loginButtonWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 600px;
   }
 </style>
