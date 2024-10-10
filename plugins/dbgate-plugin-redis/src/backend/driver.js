@@ -168,7 +168,7 @@ const driver = {
   },
 
   async loadKeys(dbhan, root = '', filter = null) {
-    const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.__treeKeySeparator}*` : '*');
+    const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
     const res = this.extractKeysFromLevel(dbhan, root, keysFiltered);
     await this.enrichKeyInfo(dbhan, res);
