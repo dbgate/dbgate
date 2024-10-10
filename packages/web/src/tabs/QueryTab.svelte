@@ -86,6 +86,9 @@
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
   import { getClipboardText } from '../utility/clipboard';
+  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
+  import { extractQueryParameters, replaceQueryParameters } from 'dbgate-query-splitter';
+  import QueryParametersModal from '../modals/QueryParametersModal.svelte';
 
   export let tabid;
   export let conid;
@@ -93,6 +96,33 @@
   export let initialArgs;
 
   export const activator = createActivator('QueryTab', false);
+
+  const QUERY_PARAMETER_STYLES = [
+    {
+      value: '',
+      text: '(no parameters)',
+    },
+    {
+      value: '?',
+      text: '? (positional)',
+    },
+    {
+      value: '@',
+      text: '@variable',
+    },
+    {
+      value: ':',
+      text: ':variable',
+    },
+    {
+      value: '$',
+      text: '$variable',
+    },
+    {
+      value: '#',
+      text: '#variable',
+    },
+  ];
 
   const tabVisible: any = getContext('tabVisible');
   const timerLabel = useTimerLabel();
@@ -179,8 +209,38 @@
     visibleResultTabs = !visibleResultTabs;
   }
 
+  function getParameterSplitterOptions() {
+    if (!queryParameterStyle) {
+      return null;
+    }
+
+    if (!driver) {
+      return null;
+    }
+
+    return { ...driver.getQuerySplitterOptions('editor'), queryParameterStyle };
+  }
+
   async function executeCore(sql, startLine = 0) {
     if (busy) return;
+
+    const parameters = extractQueryParameters(sql, getParameterSplitterOptions());
+
+    if (parameters.length > 0) {
+      showModal(QueryParametersModal, {
+        parameterNames: parameters,
+        parameterValues: parameters.reduce((acc, x) => ({ ...acc, [x]: '' }), {}),
+        onExecute: values => {
+          const newSql = replaceQueryParameters(sql, values, getParameterSplitterOptions());
+          executeCoreWithParams(newSql, startLine);
+        },
+      });
+    } else {
+      executeCoreWithParams(sql, startLine);
+    }
+  }
+
+  async function executeCoreWithParams(sql, startLine = 0) {
     if (!sql || !sql.trim()) {
       showSnackbarError('Skipped executing empty query');
       return;
@@ -349,6 +409,7 @@
   }
 
   let isInitialized = false;
+  let queryParameterStyle = ':';
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
@@ -421,6 +482,17 @@
     {#if resultCount == 1}
       <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
     {/if}
+    <ToolStripDropDownButton
+      menu={() =>
+        QUERY_PARAMETER_STYLES.map(param => ({
+          label: param.text,
+          onClick: () => {
+            queryParameterStyle = param.value;
+          },
+        }))}
+      label={QUERY_PARAMETER_STYLES.find(x => x.value == queryParameterStyle)?.text}
+      icon="icon at"
+    />
   </svelte:fragment>
 </ToolStripContainer>
 

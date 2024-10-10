@@ -32,7 +32,7 @@
     "devDependencies": {
       "dbgate-tools": "^5.0.0-alpha.1",
       "dbgate-plugin-tools": "^1.0.4",
-      "dbgate-query-splitter": "^4.10.5",
+      "dbgate-query-splitter": "^4.11.2",
       "byline": "^5.0.0",
       "webpack": "^5.91.0",
       "webpack-cli": "^5.1.4"

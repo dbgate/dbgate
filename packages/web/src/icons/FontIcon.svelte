@@ -199,6 +199,8 @@
     'icon type-null': 'mdi mdi-code-equal',
     'icon type-unknown': 'mdi mdi-help-box',
 
+    'icon at': 'mdi mdi-at',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',
