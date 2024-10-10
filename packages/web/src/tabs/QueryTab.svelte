@@ -75,7 +75,7 @@
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { findEngineDriver, safeJsonParse } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
@@ -227,10 +227,16 @@
     const parameters = extractQueryParameters(sql, getParameterSplitterOptions());
 
     if (parameters.length > 0) {
+      const defaultValues = {
+        ...parameters.reduce((acc, x) => ({ ...acc, [x]: '' }), {}),
+        ...safeJsonParse(localStorage.getItem(`tabdata_queryParams_${tabid}`)),
+      };
+
       showModal(QueryParametersModal, {
         parameterNames: parameters,
-        parameterValues: parameters.reduce((acc, x) => ({ ...acc, [x]: '' }), {}),
+        parameterValues: defaultValues,
         onExecute: values => {
+          localStorage.setItem(`tabdata_queryParams_${tabid}`, JSON.stringify(values));
           const newSql = replaceQueryParameters(sql, values, getParameterSplitterOptions());
           executeCoreWithParams(newSql, startLine);
         },
@@ -409,7 +415,7 @@
   }
 
   let isInitialized = false;
-  let queryParameterStyle = ':';
+  let queryParameterStyle = localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ?? ':';
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
@@ -488,6 +494,7 @@
           label: param.text,
           onClick: () => {
             queryParameterStyle = param.value;
+            localStorage.setItem(`tabdata_queryParamStyle_${tabid}`, queryParameterStyle);
           },
         }))}
       label={QUERY_PARAMETER_STYLES.find(x => x.value == queryParameterStyle)?.text}

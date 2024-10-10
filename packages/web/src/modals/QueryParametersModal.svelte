@@ -31,6 +31,11 @@
     {#each parameterNames as parameterName, index}
       <FormTextField label={parameterName} name={parameterName} focused={index == 0} />
     {/each}
+
+    <div>
+        String values must be 'quoted'. You can use valid SQL expressions.
+    </div>
+
     <svelte:fragment slot="footer">
       <FormSubmit value="Run query" on:click={handleSubmit} />
       <FormStyledButton value="Close" on:click={handleClose} />
