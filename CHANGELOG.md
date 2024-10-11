@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.5
+- ADDED: AWS IAM authentication for MySQL, MariaDB, PostgreSQL (Premium)
+- FIXED: Datitme filtering #912
+- FIXED: Load redis keys
+- ADDED: Query parameters #913
+- FIXED: Data grid with hidden columns #911
+- ADDED: Added buttons for one-click authentification methods (Anonymous, OAuth) (Team Premium)
+- ADDED: Link for switching Admin/user login (Team Premium)
+- FIXED: Save connection params in administration for MS SQL and Postgres storages (Team Premium)
+
 ### 5.5.4
 - FIXED: correct handling when use LOGIN and PASSWORD env variables #903
 - FIXED: fixed problems in dbmodel commandline tool
