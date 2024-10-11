@@ -344,8 +344,11 @@
 
   .loginButton {
     padding: 10px;
-    width: 300px;
+    width: 140px;
+    max-width: 140px;
+    min-width: 140px;
     margin: 20px;
+    margin-bottom: 0;
     flex: 1;
     text-align: center;
     border-radius: 5px;
