@@ -197,7 +197,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
     objectTypeField: keyof DatabaseInfo
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
   analyseSingleTable(dbhan: DatabaseHandle, name: NamedObjectInfo): Promise<TableInfo>;
-  getVersion(dbhan: DatabaseHandle): Promise<{ version: string }>;
+  getVersion(dbhan: DatabaseHandle): Promise<{ version: string; versionText?: string }>;
   listDatabases(dbhan: DatabaseHandle): Promise<
     {
       name: string;
