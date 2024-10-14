@@ -14,7 +14,7 @@ const { getLogger, extractIntSettingsValue, extractBoolSettingsValue } = require
 
 const logger = getLogger('sessionProcess');
 
-let systemConnection;
+let dbhan;
 let storedConnection;
 let afterConnectCallbacks = [];
 // let currentHandlers = [];
@@ -177,7 +177,7 @@ function handleStream(driver, resultIndexHolder, sqlItem) {
   return new Promise((resolve, reject) => {
     const start = sqlItem.trimStart || sqlItem.start;
     const handler = new StreamHandler(resultIndexHolder, resolve, start && start.line);
-    driver.stream(systemConnection, sqlItem.text, handler);
+    driver.stream(dbhan, sqlItem.text, handler);
   });
 }
 
@@ -196,7 +196,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await connectUtility(driver, storedConnection, 'app');
+  dbhan = await connectUtility(driver, storedConnection, 'app');
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
@@ -210,7 +210,7 @@ async function handleConnect(connection) {
 // }
 
 function waitConnected() {
-  if (systemConnection) return Promise.resolve();
+  if (dbhan) return Promise.resolve();
   return new Promise((resolve, reject) => {
     afterConnectCallbacks.push([resolve, reject]);
   });
@@ -230,7 +230,7 @@ async function handleStartProfiler({ jslid }) {
   const writer = new TableWriter();
   writer.initializeFromReader(jslid);
 
-  currentProfiler = await driver.startProfiler(systemConnection, {
+  currentProfiler = await driver.startProfiler(dbhan, {
     row: data => writer.rowFromReader(data),
   });
   currentProfiler.writer = writer;
@@ -241,7 +241,7 @@ async function handleStopProfiler({ jslid }) {
 
   const driver = requireEngineDriver(storedConnection);
   currentProfiler.writer.close();
-  driver.stopProfiler(systemConnection, currentProfiler);
+  driver.stopProfiler(dbhan, currentProfiler);
   currentProfiler = null;
 }
 
@@ -304,7 +304,7 @@ async function handleExecuteReader({ jslid, sql, fileName }) {
   const writer = new TableWriter();
   writer.initializeFromReader(jslid);
 
-  const reader = await driver.readQuery(systemConnection, sql);
+  const reader = await driver.readQuery(dbhan, sql);
 
   reader.on('data', data => {
     writer.rowFromReader(data);
@@ -340,10 +340,12 @@ function start() {
 
   lastPing = new Date().getTime();
 
-  setInterval(() => {
+  setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 25 * 1000) {
       logger.info('Session not alive, exiting');
+      const driver = requireEngineDriver(storedConnection);
+      await driver.close(dbhan);
       process.exit(0);
     }
 
@@ -362,6 +364,8 @@ function start() {
       executingScripts == 0
     ) {
       logger.info('Session not active, exiting');
+      const driver = requireEngineDriver(storedConnection);
+      await driver.close(dbhan);
       process.exit(0);
     }
   }, 10 * 1000);

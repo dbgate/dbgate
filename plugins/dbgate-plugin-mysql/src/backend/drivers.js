@@ -67,8 +67,10 @@ const drivers = driverBases.map(driverBase => ({
     }
     return dbhan;
   },
-  async close(dbhan) {
-    return dbhan.client.close();
+  close(dbhan) {
+    return new Promise(resolve => {
+      dbhan.client.end(resolve);
+    });
   },
   query(dbhan, sql, options) {
     if (sql == null) {

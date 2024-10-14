@@ -6,7 +6,7 @@ const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const logger = getLogger('srvconnProcess');
 
-let systemConnection;
+let dbhan;
 let storedConnection;
 let lastDatabases = null;
 let lastStatus = null;
@@ -16,7 +16,7 @@ let afterConnectCallbacks = [];
 async function handleRefresh() {
   const driver = requireEngineDriver(storedConnection);
   try {
-    let databases = await driver.listDatabases(systemConnection);
+    let databases = await driver.listDatabases(dbhan);
     if (storedConnection?.allowedDatabases?.trim()) {
       const allowedDatabaseList = storedConnection.allowedDatabases
         .split('\n')
@@ -46,7 +46,7 @@ async function handleRefresh() {
 
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
-  const version = await driver.getVersion(systemConnection);
+  const version = await driver.getVersion(dbhan);
   process.send({ msgtype: 'version', version });
 }
 
@@ -70,7 +70,7 @@ async function handleConnect(connection) {
 
   const driver = requireEngineDriver(storedConnection);
   try {
-    systemConnection = await connectUtility(driver, storedConnection, 'app');
+    dbhan = await connectUtility(driver, storedConnection, 'app');
     readVersion();
     handleRefresh();
     if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
@@ -95,7 +95,7 @@ async function handleConnect(connection) {
 }
 
 function waitConnected() {
-  if (systemConnection) return Promise.resolve();
+  if (dbhan) return Promise.resolve();
   return new Promise((resolve, reject) => {
     afterConnectCallbacks.push([resolve, reject]);
   });
@@ -108,14 +108,14 @@ function handlePing() {
 async function handleDatabaseOp(op, { msgid, name }) {
   try {
     const driver = requireEngineDriver(storedConnection);
-    systemConnection = await connectUtility(driver, storedConnection, 'app');
+    dbhan = await connectUtility(driver, storedConnection, 'app');
     if (driver[op]) {
-      await driver[op](systemConnection, name);
+      await driver[op](dbhan, name);
     } else {
       const dmp = driver.createDumper();
       dmp[op](name);
       logger.info({ sql: dmp.s }, 'Running script');
-      await driver.query(systemConnection, dmp.s, { discardResult: true });
+      await driver.query(dbhan, dmp.s, { discardResult: true });
     }
     await handleRefresh();
 
@@ -137,11 +137,11 @@ async function handleDriverDataCore(msgid, callMethod) {
 }
 
 async function handleServerSummary({ msgid }) {
-  return handleDriverDataCore(msgid, driver => driver.serverSummary(systemConnection));
+  return handleDriverDataCore(msgid, driver => driver.serverSummary(dbhan));
 }
 
 async function handleSummaryCommand({ msgid, command, row }) {
-  return handleDriverDataCore(msgid, driver => driver.summaryCommand(systemConnection, command, row));
+  return handleDriverDataCore(msgid, driver => driver.summaryCommand(dbhan, command, row));
 }
 
 const messageHandlers = {
@@ -161,10 +161,13 @@ async function handleMessage({ msgtype, ...other }) {
 function start() {
   childProcessChecker();
 
-  setInterval(() => {
+  setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
+      
       logger.info('Server connection not alive, exiting');
+      const driver = requireEngineDriver(storedConnection);
+      await driver.close(dbhan);
       process.exit(0);
     }
   }, 10 * 1000);

@@ -329,8 +329,9 @@ async function handleSqlPreview({ msgid, objects, options }) {
     await generator.dump();
     process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
     if (generator.isUnhandledException) {
-      setTimeout(() => {
+      setTimeout(async () => {
         logger.error('Exiting because of unhandled exception');
+        await driver.close(dbhan);
         process.exit(0);
       }, 500);
     }
@@ -406,10 +407,12 @@ async function handleMessage({ msgtype, ...other }) {
 function start() {
   childProcessChecker();
 
-  setInterval(() => {
+  setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
       logger.info('Database connection not alive, exiting');
+      const driver = requireEngineDriver(storedConnection);
+      await driver.close(dbhan);
       process.exit(0);
     }
   }, 10 * 1000);

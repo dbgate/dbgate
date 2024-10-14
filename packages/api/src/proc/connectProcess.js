@@ -20,9 +20,10 @@ function start() {
     if (handleProcessCommunication(connection)) return;
     try {
       const driver = requireEngineDriver(connection);
-      const conn = await connectUtility(driver, connection, 'app');
-      const res = await driver.getVersion(conn);
+      const dbhan = await connectUtility(driver, connection, 'app');
+      const res = await driver.getVersion(dbhan);
       process.send({ msgtype: 'connected', ...res });
+      await driver.close(dbhan);
     } catch (e) {
       console.error(e);
       process.send({
