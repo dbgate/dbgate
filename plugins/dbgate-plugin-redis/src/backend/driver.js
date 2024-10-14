@@ -371,6 +371,10 @@ const driver = {
     }
     return null;
   },
+
+  async close(dbhan) {
+    return dbhan.client.quit();
+  },
 };
 
 module.exports = driver;

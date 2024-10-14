@@ -5,7 +5,6 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
-const { platform } = require('os');
 
 let requireOracledb;
 let platformInfo;
@@ -94,7 +93,7 @@ const driver = {
     };
   },
   async close(dbhan) {
-    return dbhan.client.end();
+    return dbhan.client.close();
   },
   async query(dbhan, sql) {
     if (sql == null || sql.trim() == '') {

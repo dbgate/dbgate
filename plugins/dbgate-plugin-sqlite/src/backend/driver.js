@@ -70,7 +70,8 @@ const driver = {
     };
   },
   async close(dbhan) {
-    return dbhan.client.close();
+    // sqlite close is sync, returns this
+    dbhan.client.close();
   },
   // @ts-ignore
   async query(dbhan, sql) {

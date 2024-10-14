@@ -547,6 +547,10 @@ const driver = {
       })),
     };
   },
+
+  async close(dbhan) {
+    return dbhan.client.close();
+  },
 };
 
 module.exports = driver;
