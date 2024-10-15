@@ -66,7 +66,7 @@ const driver = {
     }
 
     const options = {
-      useUnifiedTopology: true,
+      // useUnifiedTopology: true, // this options has no longer effect
     };
     if (ssl) {
       options.tls = true;
