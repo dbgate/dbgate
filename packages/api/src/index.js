@@ -9,7 +9,7 @@ const platformInfo = require('./utility/platformInfo');
 const logger = getLogger('apiIndex');
 
 process.on('uncaughtException', err => {
-  logger.fatal(extractErrorLogData(err), 'Uncaught exception');
+  logger.fatal(extractErrorLogData(err), 'Uncaught exception, exiting process');
   process.exit(1);
 });
 
