@@ -4,7 +4,7 @@ const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
-const platformInfo = require('./utility/platformInfo');
+const currentVersion = require('./currentVersion');
 
 const logger = getLogger('apiIndex');
 
@@ -109,11 +109,9 @@ if (processArgs.listenApi) {
       logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
     }
   }
-  
 }
 
 const shell = require('./shell/index');
-const currentVersion = require('./currentVersion');
 
 global.DBGATE_PACKAGES = {
   'dbgate-tools': require('dbgate-tools'),
