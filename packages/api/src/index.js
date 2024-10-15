@@ -20,6 +20,13 @@ if (processArgs.processDisplayName) {
   setLoggerName(processArgs.processDisplayName);
 }
 
+if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
+  logger.info('Debug print environment variables:');
+  for (const key of Object.keys(process.env)) {
+    logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
+  }
+}
+
 // function loadLogsContent(maxLines) {
 //   const text = fs.readFileSync(getLogsFilePath(), { encoding: 'utf8' });
 //   if (maxLines) {
