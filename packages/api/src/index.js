@@ -20,13 +20,6 @@ if (processArgs.processDisplayName) {
   setLoggerName(processArgs.processDisplayName);
 }
 
-if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
-  logger.info('Debug print environment variables:');
-  for (const key of Object.keys(process.env)) {
-    logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
-  }
-}
-
 // function loadLogsContent(maxLines) {
 //   const text = fs.readFileSync(getLogsFilePath(), { encoding: 'utf8' });
 //   if (maxLines) {
@@ -108,6 +101,15 @@ function configureLogger() {
 
 if (processArgs.listenApi) {
   configureLogger();
+  logger.info(`Starting API process version ${currentVersion.version}`);
+
+  if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
+    logger.info('Debug print environment variables:');
+    for (const key of Object.keys(process.env)) {
+      logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
+    }
+  }
+  
 }
 
 const shell = require('./shell/index');
