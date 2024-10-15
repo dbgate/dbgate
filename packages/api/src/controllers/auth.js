@@ -22,7 +22,8 @@ function unauthorizedResponse(req, res, text) {
   // if (req.path == getExpressPath('/connections/list')) {
   //   return res.json([]);
   // }
-  return res.sendStatus(401).send(text);
+
+  return res.status(401).send(text);
 }
 
 function authMiddleware(req, res, next) {
