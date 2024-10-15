@@ -361,16 +361,17 @@ const driver = {
             res.replaced.push(resdoc._id);
           }
         } else {
-          const resdoc = await collection.updateOne(convertObjectId(update.condition), {
-            $set: convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$)),
-            $unset: _.fromPairs(
-              Object.keys(update.fields)
-                .filter((k) => update.fields[k]?.$$undefined$$)
-                .map((k) => [k, ''])
-            ),
+          const set = convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$));
+          const unset = _.fromPairs(
+            Object.keys(update.fields)
+              .filter((k) => update.fields[k]?.$$undefined$$)
+              .map((k) => [k, ''])
+          );
+          const updates = {};
+          if (!_.isEmpty(set)) updates.$set = set;
+          if (!_.isEmpty(unset)) updates.$unset = unset;
 
-            // $set: convertObjectId(update.fields),
-          });
+          const resdoc = await collection.updateOne(convertObjectId(update.condition), updates);
           res.updated.push(resdoc._id);
         }
       }

@@ -95,16 +95,19 @@ const driver = {
           ...update.fields,
         })});\n`;
       } else {
+        const set = _pickBy(update.fields, (v, k) => v !== undefined);
+        const unset = _fromPairs(
+          Object.keys(update.fields)
+            .filter((k) => update.fields[k] === undefined)
+            .map((k) => [k, ''])
+        );
+        const updates = {};
+        if (!_.isEmpty(set)) updates.$set = set;
+        if (!_.isEmpty(unset)) updates.$unset = unset;
+
         res += `db.${update.pureName}.updateOne(${jsonStringifyWithObjectId(
           update.condition
-        )}, ${jsonStringifyWithObjectId({
-          $set: _pickBy(update.fields, (v, k) => v !== undefined),
-          $unset: _fromPairs(
-            Object.keys(update.fields)
-              .filter((k) => update.fields[k] === undefined)
-              .map((k) => [k, ''])
-          ),
-        })});\n`;
+        )}, ${jsonStringifyWithObjectId(updates)});\n`;
       }
     }
     for (const del of changeSet.deletes) {
