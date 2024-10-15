@@ -10,10 +10,7 @@ const logger = getLogger('apiIndex');
 
 process.on('uncaughtException', err => {
   logger.fatal(extractErrorLogData(err), 'Uncaught exception');
-  if (err?.['code'] == 'EPIPE' && platformInfo.isForkedApi) {
-    // stop subprocess on EPIPE errors
-    process.exit(0);
-  }
+  process.exit(1);
 });
 
 if (processArgs.startProcess) {
