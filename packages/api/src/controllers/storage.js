@@ -17,4 +17,8 @@ module.exports = {
   async getConnectionsForLoginPage() {
     return null;
   },
+
+  getStorageConnectionError() {
+    return null;
+  }
 };

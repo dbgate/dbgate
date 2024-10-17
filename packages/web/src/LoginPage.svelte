@@ -125,6 +125,13 @@
     }
     internalRedirectTo(`/not-logged.html`);
   }
+
+  $: {
+    if ($config?.configurationError) {
+      console.log('Configuration error', $config);
+      internalRedirectTo(`/error.html`);
+    }
+  }
 </script>
 
 <div class="root theme-light theme-type-light">

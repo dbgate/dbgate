@@ -17,6 +17,7 @@ const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
 const { getAuthProxyUrl } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
+const { extractErrorMessage } = require('dbgate-tools');
 
 const lock = new AsyncLock();
 
@@ -39,10 +40,12 @@ module.exports = {
     const isUserLoggedIn = authProvider.isUserLoggedIn(req);
 
     const singleConid = authProvider.getSingleConnectionId(req);
+    const storageConnectionError = storage.getStorageConnectionError();
 
-    const singleConnection = singleConid
-      ? await connections.getCore({ conid: singleConid })
-      : connections.singleConnection;
+    const singleConnection =
+      singleConid && !storageConnectionError
+        ? await connections.getCore({ conid: singleConid })
+        : connections.singleConnection;
 
     let configurationError = null;
     if (process.env.STORAGE_DATABASE && process.env.BASIC_AUTH) {
@@ -50,8 +53,13 @@ module.exports = {
         'Basic authentization is not allowed, when using storage. Cannot use both STORAGE_DATABASE and BASIC_AUTH';
     }
 
-    const checkedLicense = await checkLicense();
+    if (storageConnectionError && !configurationError) {
+      configurationError = extractErrorMessage(storageConnectionError);
+    }
+
+    const checkedLicense = storageConnectionError ? null : await checkLicense();
     const isLicenseValid = checkedLicense?.status == 'ok';
+    const logoutUrl = storageConnectionError ? null : await authProvider.getLogoutUrl();
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -68,7 +76,7 @@ module.exports = {
       trialDaysLeft: checkedLicense?.isGeneratedTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
       checkedLicense,
       configurationError,
-      logoutUrl: await authProvider.getLogoutUrl(),
+      logoutUrl,
       permissions,
       login,
       // ...additionalConfigProps,
