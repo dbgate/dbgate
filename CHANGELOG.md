@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.5.6
+- FIXED: DbGate process consumes 100% after UI closed - Mac, Linux (#917, #915)
+- FIXED: Correctly closing connection behind SSH tunnel (#920)
+- FIXED: Updating MongoDB documents on MongoDB 4 (#916)
+- FIXED: (Premium) DbGate container correctly waits for underlying storage database, if database container is started after dbgate container is started
+- FIXED: (Premium) Better handling of connection storage errors
+
 ### 5.5.5
 - ADDED: AWS IAM authentication for MySQL, MariaDB, PostgreSQL (Premium)
 - FIXED: Datitme filtering #912
