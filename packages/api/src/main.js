@@ -73,6 +73,8 @@ function start() {
   if (platformInfo.isDocker) {
     // server static files inside docker container
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
+  } else if (platformInfo.isAwsUbuntuLayout) {
+    app.use(getExpressPath('/'), express.static('/home/ubuntu/build/public'));
   } else if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
   } else if (process.env.DEVWEB) {
