@@ -1,4 +1,4 @@
-const { driverBase } = require('dbgate-tools');
+const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
 const { mysqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const _cloneDeepWith = require('lodash/cloneDeepWith');
