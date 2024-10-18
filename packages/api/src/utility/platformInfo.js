@@ -14,6 +14,7 @@ const isBuiltWebMode = process.env.BUILTWEBMODE == '1';
 const isNpmDist = !!global['IS_NPM_DIST'];
 const isDbModel = !!global['IS_DB_MODEL'];
 const isForkedApi = processArgs.isForkedApi;
+const isAwsUbuntuLayout = fs.existsSync('/home/ubuntu/build/public');
 
 // function moduleAvailable(name) {
 //   try {
@@ -47,6 +48,7 @@ const platformInfo = {
     (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_SCRIPTING || !!isElectron() || !!isDbModel,
   allowConnectionFromEnvVariables: !!isDbModel,
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
+  isAwsUbuntuLayout,
 };
 
 module.exports = platformInfo;

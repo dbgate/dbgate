@@ -77,6 +77,9 @@ function packagedPluginsDir() {
   if (platformInfo.isDocker) {
     return '/home/dbgate-docker/plugins';
   }
+  if (platformInfo.isAwsUbuntuLayout) {
+    return '/home/ubuntu/build/plugins';
+  }
   if (platformInfo.isNpmDist) {
     // node_modules
     return global['PLUGINS_DIR'];
