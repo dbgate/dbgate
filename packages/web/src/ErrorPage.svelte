@@ -10,11 +10,6 @@
 
   const params = new URLSearchParams(location.search);
   const error = params.get('error');
-
-  onMount(() => {
-    const removed = document.getElementById('starting_dbgate_zero');
-    if (removed) removed.remove();
-  });
 </script>
 
 <SpecialPageLayout>

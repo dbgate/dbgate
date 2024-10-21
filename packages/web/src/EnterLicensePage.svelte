@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { useConfig } from './utility/metadataLoaders';
   import Link from './elements/Link.svelte';
   import { internalRedirectTo } from './clientAuth';
@@ -26,11 +25,6 @@
     errorMessage = 'Your license is expired';
     expiredMessageSet = true;
   }
-
-  onMount(() => {
-    const removed = document.getElementById('starting_dbgate_zero');
-    if (removed) removed.remove();
-  });
 </script>
 
 <FormProviderCore {values}>
