@@ -36,8 +36,9 @@ function authMiddleware(req, res, next) {
     '/auth/login',
     '/auth/redirect',
     '/stream',
-    'storage/get-connections-for-login-page',
-    'auth/get-providers',
+    '/storage/get-connections-for-login-page',
+    '/storage/set-admin-password',
+    '/auth/get-providers',
     '/connections/dblogin-web',
     '/connections/dblogin-app',
     '/connections/dblogin-auth',
@@ -69,6 +70,7 @@ function authMiddleware(req, res, next) {
     return next();
   } catch (err) {
     if (skipAuth) {
+      req.isInvalidToken = true;
       return next();
     }
 

@@ -1,9 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { getConfig } from '../utility/metadataLoaders';
+  import { handleAuthOnStartup } from '../clientAuth';
+  import { setConfigForPermissions } from '../utility/hasPermission';
+
+  async function loadApi() {
+    try {
+      const config = await getConfig();
+      setConfigForPermissions(config);
+      await handleAuthOnStartup(config);
+    } catch (e) {
+      console.log('Error calling API, trying again in 1s');
+      setTimeout(loadApi, 1000);
+    }
+  }
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
+
+    loadApi();
   });
 </script>
 

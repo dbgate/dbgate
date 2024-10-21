@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
-import { isOauthCallback, redirectToAdminLogin, redirectToLogin } from '../clientAuth';
+import { handleAuthOnStartup, isOauthCallback, redirectToAdminLogin, redirectToLogin } from '../clientAuth';
 import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
@@ -144,17 +144,23 @@ export function transformApiArgsInv(args) {
   });
 }
 
-export async function apiCall(route: string, args: {} = undefined) {
+export async function apiCall(
+  route: string,
+  args: {} = undefined,
+  options: { skipDisableChecks: boolean } = undefined
+) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
   }
-  if (apiDisabled) {
-    console.log('API disabled!!', route);
-    return;
-  }
-  if (disabledOnOauth && route != 'auth/oauth-token') {
-    console.log('API disabled because oauth callback!!', route);
-    return;
+  if (!options?.skipDisableChecks) {
+    if (apiDisabled) {
+      console.log('API disabled!!', route);
+      return;
+    }
+    if (disabledOnOauth && route != 'auth/oauth-token') {
+      console.log('API disabled because oauth callback!!', route);
+      return;
+    }
   }
 
   args = transformApiArgs(args);
@@ -180,12 +186,15 @@ export async function apiCall(route: string, args: {} = undefined) {
       disableApi();
       console.log('Disabling API', route);
       if (page != 'login' && page != 'admin-login' && page != 'not-logged') {
-        // unauthorized
-        if (page == 'admin') {
-          redirectToAdminLogin();
-        } else {
-          redirectToLogin();
-        }
+        const config = await apiCall('config/get', {}, { skipDisableChecks: true });
+        await handleAuthOnStartup(config);
+
+        // // unauthorized
+        // if (page == 'admin') {
+        //   redirectToAdminLogin();
+        // } else {
+        //   redirectToLogin();
+        // }
       }
       return;
     }

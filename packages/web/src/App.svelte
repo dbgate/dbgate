@@ -38,7 +38,7 @@
       // console.log('************** LOADING API');
 
       const config = await getConfig();
-      await handleAuthOnStartup(config, isAdminPage);
+      await handleAuthOnStartup(config);
 
       const connections = await apiCall('connections/list');
       const settings = await getSettings();

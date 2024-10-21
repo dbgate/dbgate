@@ -116,48 +116,120 @@ export function handleOauthCallback() {
   return false;
 }
 
-export async function handleAuthOnStartup(config, isAdminPage = false) {
-  if (config.configurationError) {
-    internalRedirectTo(`/error.html`);
-    return;
-  }
+export async function handleAuthOnStartup(config) {
+  const page = window['dbgate_page'];
 
-  if (!config.isLicenseValid) {
-    if (config.storageDatabase || getElectron()) {
-      internalRedirectTo(`/license.html`);
-    } else {
+  function checkConfigError() {
+    if (config.configurationError) {
       internalRedirectTo(`/error.html`);
+      return true;
     }
   }
 
-  if (
-    config.trialDaysLeft != null &&
-    config.trialDaysLeft <= 14 &&
-    !sessionStorage.getItem('continueTrialConfirmed') &&
-    getElectron()
-  ) {
-    internalRedirectTo(`/license.html`);
+  function checkInvalidLicense() {
+    if (!config.isLicenseValid) {
+      if (config.storageDatabase || getElectron()) {
+        internalRedirectTo(`/license.html`);
+      } else {
+        internalRedirectTo(`/error.html`);
+      }
+      return true;
+    }
   }
 
-  if (getAuthCategory(config) == 'admin') {
-    if (localStorage.getItem('adminAccessToken')) {
-      return;
+  function checkTrialDaysLeft() {
+    if (
+      config.trialDaysLeft != null &&
+      config.trialDaysLeft <= 14 &&
+      !sessionStorage.getItem('continueTrialConfirmed') &&
+      getElectron()
+    ) {
+      internalRedirectTo(`/license.html`);
+      return true;
+    }
+  }
+
+  function checkLoggedUser() {
+    if (getAuthCategory(config) == 'admin') {
+      if (!config.isInvalidToken && localStorage.getItem('adminAccessToken')) {
+        return false;
+      }
+
+      redirectToAdminLogin();
+      return true;
     }
 
-    redirectToAdminLogin();
-    return;
+    if (getAuthCategory(config) == 'token') {
+      if (!config.isInvalidToken && localStorage.getItem('accessToken')) {
+        return false;
+      }
+
+      redirectToLogin(config);
+      return true;
+    }
   }
 
-  // if (config.oauth) {
-  //   console.log('OAUTH callback URL:', location.origin + location.pathname);
+  function checkAdminPasswordSet() {
+    if (config.isAdminPasswordMissing) {
+      internalRedirectTo(`/set-admin-password.html`);
+      return true;
+    }
+  }
+
+  if (page == 'error') return;
+  if (checkConfigError()) return;
+
+  if (page == 'set-admin-password') return;
+  if (checkAdminPasswordSet()) return;
+
+  if (page == 'login' || page == 'admin-login' || page == 'not-logged') return;
+  if (checkLoggedUser()) return;
+
+  if (page == 'license') return;
+  if (checkTrialDaysLeft()) return;
+  if (checkInvalidLicense()) return;
+
+  // if (config.configurationError) {
+  //   internalRedirectTo(`/error.html`);
+  //   return;
   // }
-  if (getAuthCategory(config) == 'token') {
-    if (localStorage.getItem('accessToken')) {
-      return;
-    }
 
-    redirectToLogin(config);
-  }
+  // if (!config.isLicenseValid) {
+  //   if (config.storageDatabase || getElectron()) {
+  //     internalRedirectTo(`/license.html`);
+  //   } else {
+  //     internalRedirectTo(`/error.html`);
+  //   }
+  // }
+
+  // if (
+  //   config.trialDaysLeft != null &&
+  //   config.trialDaysLeft <= 14 &&
+  //   !sessionStorage.getItem('continueTrialConfirmed') &&
+  //   getElectron()
+  // ) {
+  //   internalRedirectTo(`/license.html`);
+  // }
+
+  // if (getAuthCategory(config) == 'admin') {
+  //   if (localStorage.getItem('adminAccessToken')) {
+  //     return;
+  //   }
+
+  //   redirectToAdminLogin();
+  //   return;
+  // }
+
+  // // if (config.oauth) {
+  // //   console.log('OAUTH callback URL:', location.origin + location.pathname);
+  // // }
+  // if (getAuthCategory(config) == 'token') {
+  //   if (localStorage.getItem('accessToken')) {
+  //     return;
+  //   }
+
+  //   redirectToLogin(config);
+  // }
 }
 
 export async function redirectToAdminLogin() {

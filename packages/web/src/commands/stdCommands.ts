@@ -36,7 +36,7 @@ import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 import { isMac, switchCurrentDatabase } from '../utility/common';
-import { doLogout, internalRedirectTo } from '../clientAuth';
+import { doLogout } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
 import UploadErrorModal from '../modals/UploadErrorModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';

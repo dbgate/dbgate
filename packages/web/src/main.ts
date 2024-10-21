@@ -8,6 +8,8 @@ import LoginPage from './LoginPage.svelte';
 import NotLoggedPage from './NotLoggedPage.svelte';
 import ErrorPage from './ErrorPage.svelte';
 import EnterLicensePage from './EnterLicensePage.svelte';
+import SetAdminPasswordPage from './SetAdminPasswordPage.svelte';
+import RedirectPage from './RedirectPage.svelte';
 
 const isOauthCallback = handleOauthCallback();
 
@@ -43,8 +45,17 @@ function createApp() {
           isAdminPage: true,
         },
       });
+    case 'redirect':
+      return new RedirectPage({
+        target: document.body,
+      });
     case 'not-logged':
       return new NotLoggedPage({
+        target: document.body,
+        props: {},
+      });
+    case 'set-admin-password':
+      return new SetAdminPasswordPage({
         target: document.body,
         props: {},
       });

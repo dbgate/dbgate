@@ -18,3 +18,7 @@ export function subscribePermissionCompiler() {
     // console.log('COMPILED PERMS', compiled);
   });
 }
+
+export function setConfigForPermissions(config) {
+  compiled = compilePermissions(config?.permissions || {});
+}

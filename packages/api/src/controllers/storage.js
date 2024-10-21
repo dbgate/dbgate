@@ -20,5 +20,10 @@ module.exports = {
 
   getStorageConnectionError() {
     return null;
-  }
+  },
+
+  readConfig_meta: true,
+  async readConfig({ group }) {
+    return {};
+  },
 };

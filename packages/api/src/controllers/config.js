@@ -60,6 +60,14 @@ module.exports = {
     const checkedLicense = storageConnectionError ? null : await checkLicense();
     const isLicenseValid = checkedLicense?.status == 'ok';
     const logoutUrl = storageConnectionError ? null : await authProvider.getLogoutUrl();
+    const adminConfig = storageConnectionError ? null : await storage.readConfig({ group: 'admin' });
+
+    const isAdminPasswordMissing = !!(
+      process.env.STORAGE_DATABASE &&
+      !process.env.ADMIN_PASSWORD &&
+      !process.env.BASIC_AUTH &&
+      !adminConfig?.adminPasswordState
+    );
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -87,6 +95,9 @@ module.exports = {
         !process.env.BASIC_AUTH &&
         checkedLicense?.type == 'premium'
       ),
+      isAdminPasswordMissing,
+      isInvalidToken: req.isInvalidToken,
+      adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),
