@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
   import { doLogout, redirectToAdminLogin, redirectToLogin } from './clientAuth';
+  import SpecialPageLayout from './widgets/SpecialPageLayout.svelte';
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -21,26 +22,23 @@
   }
 </script>
 
-<div class="root theme-light theme-type-light">
-  <div class="title">Sorry, you are not authorized to run DbGate</div>
-  {#if error}
-    <div class="error">{error}</div>
-  {/if}
+<SpecialPageLayout>
+  <div class="my-6">
+    <div class="title">Sorry, you are not authorized to run DbGate</div>
+    {#if error}
+      <div class="error">{error}</div>
+    {/if}
 
-  <div class="button">
-    <FormStyledButton value="Log In" on:click={handleLogin} />
-    <FormStyledButton value="Log Out" on:click={doLogout} />
+    <div class="button">
+      <FormStyledButton value="Log In" on:click={handleLogin} />
+      <FormStyledButton value="Log Out" on:click={doLogout} />
+    </div>
   </div>
-</div>
+</SpecialPageLayout>
 
 <style>
-  .root {
-    color: var(--theme-font-1);
-  }
-
   .title {
     font-size: x-large;
-    margin-top: 20vh;
     text-align: center;
   }
 
