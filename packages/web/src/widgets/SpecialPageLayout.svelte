@@ -64,6 +64,7 @@
     border: 1px solid var(--theme-border);
     border-radius: 4px;
     background-color: var(--theme-bg-0);
+    position: relative;
   }
 
   .wrap {
