@@ -91,9 +91,8 @@ module.exports = {
       isBasicAuth: !!process.env.BASIC_AUTH,
       isAdminLoginForm: !!(
         process.env.STORAGE_DATABASE &&
-        process.env.ADMIN_PASSWORD &&
-        !process.env.BASIC_AUTH &&
-        checkedLicense?.type == 'premium'
+        (process.env.ADMIN_PASSWORD || adminConfig?.adminPasswordState == 'set') &&
+        !process.env.BASIC_AUTH
       ),
       isAdminPasswordMissing,
       isInvalidToken: req.isInvalidToken,

@@ -91,7 +91,12 @@ module.exports = {
     const { amoid, login, password, isAdminPage } = params;
 
     if (isAdminPage) {
-      if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD == password) {
+      let adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword) {
+        const adminConfig = await storage.readConfig({ group: 'admin' });
+        adminPassword = adminConfig?.adminPassword;
+      }
+      if (adminPassword && adminPassword == password) {
         return {
           accessToken: jwt.sign(
             {
