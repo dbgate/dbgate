@@ -93,8 +93,17 @@
       );
     }
 
+    if (filterBehaviour.supportEmpty) {
+      res.push(
+        { onClick: () => setFilter('EMPTY, NULL'), text: 'Is Empty Or Null' },
+        { onClick: () => setFilter('NOT EMPTY NOT NULL'), text: 'Has Not Empty Value' }
+      );
+    }
+
     if (filterBehaviour.supportNumberLikeComparison) {
       res.push(
+        { divider: true },
+        
         { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
         { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
         { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
