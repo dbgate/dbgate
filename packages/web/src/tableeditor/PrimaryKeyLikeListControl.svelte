@@ -53,11 +53,11 @@
       fieldName: 'columns',
       header: 'Columns',
       slot: 0,
+      sortable: true,
     },
     isWritable
       ? {
           fieldName: 'actions',
-          sortable: true,
           slot: 1,
         }
       : null,

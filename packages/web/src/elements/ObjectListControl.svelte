@@ -46,6 +46,7 @@
               fieldName: 'displayName',
               header: 'Name',
               slot: -1,
+              sortable: true,
             },
             ...columns,
           ])}

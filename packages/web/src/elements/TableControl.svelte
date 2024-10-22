@@ -8,6 +8,7 @@
     formatter?: any;
     slot?: number;
     isHighlighted?: Function;
+    sortable?: boolean;
   }
 </script>
 
@@ -17,6 +18,7 @@
   import { onMount } from 'svelte';
   import keycodes from '../utility/keycodes';
   import { createEventDispatcher } from 'svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let columns: TableControlColumn[];
   export let rows;
@@ -40,12 +42,18 @@
 
   const handleKeyDown = event => {
     if (event.keyCode == keycodes.downArrow) {
-      selectedIndex = Math.min(selectedIndex + 1, rows.length - 1);
+      selectedIndex = Math.min(selectedIndex + 1, sortedRows.length - 1);
     }
     if (event.keyCode == keycodes.upArrow) {
       selectedIndex = Math.max(0, selectedIndex - 1);
     }
   };
+
+  let sortedByField = null;
+  let sortOrderIsDesc = false;
+
+  $: sortedRowsTmp = sortedByField ? _.sortBy(rows || [], sortedByField) : rows;
+  $: sortedRows = sortOrderIsDesc ? [...sortedRowsTmp].reverse() : sortedRowsTmp;
 </script>
 
 <table
@@ -59,12 +67,34 @@
   <thead>
     <tr>
       {#each columnList as col}
-        <td>{col.header || ''}</td>
+        <td
+          class:clickable={col.sortable}
+          on:click={() => {
+            if (col.sortable) {
+              if (sortedByField == col.fieldName) {
+                if (sortOrderIsDesc) {
+                  sortOrderIsDesc = false;
+                  sortedByField = null;
+                } else {
+                  sortOrderIsDesc = true;
+                }
+              } else {
+                sortOrderIsDesc = false;
+                sortedByField = col.fieldName;
+              }
+            }
+          }}
+        >
+          {col.header || ''}
+          {#if sortedByField == col.fieldName}
+            <FontIcon icon={sortOrderIsDesc ? 'img sort-desc' : 'img sort-asc'} padLeft />
+          {/if}
+        </td>
       {/each}
     </tr>
   </thead>
   <tbody>
-    {#each rows as row, index}
+    {#each sortedRows as row, index}
       <tr
         class:selected={selectable && selectedIndex == index}
         class:clickable
@@ -105,7 +135,7 @@
         {/each}
       </tr>
     {/each}
-    {#if emptyMessage && rows.length == 0}
+    {#if emptyMessage && sortedRows.length == 0}
       <tr>
         <td colspan={columnList.length}>{emptyMessage}</td>
       </tr>
@@ -149,5 +179,9 @@
 
   td.isHighlighted {
     background-color: var(--theme-bg-1);
+  }
+
+  td.clickable {
+    cursor: pointer;
   }
 </style>

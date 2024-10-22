@@ -245,7 +245,6 @@
       isWritable
         ? {
             fieldName: 'actions',
-            sortable: true,
             slot: 3,
           }
         : null,
@@ -293,16 +292,17 @@
           fieldName: 'columns',
           header: 'Columns',
           slot: 0,
+          sortable: true,
         },
         {
           fieldName: 'unique',
           header: 'Unique',
           slot: 1,
+          sortable: true,
         },
         isWritable
           ? {
               fieldName: 'actions',
-              sortable: true,
               slot: 2,
             }
           : null,
@@ -335,6 +335,7 @@
           fieldName: 'columns',
           header: 'Columns',
           slot: 0,
+          sortable: true,
         },
         isWritable
           ? {
