@@ -1,5 +1,5 @@
 const stableStringify = require('json-stable-stringify');
-const { extractBoolSettingsValue, extractIntSettingsValue, getLogger } = require('dbgate-tools');
+const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, extractErrorLogData } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
@@ -39,7 +39,7 @@ async function handleRefresh() {
       name: 'error',
       message: err.message,
     });
-    // console.error(err);
+    logger.error(extractErrorLogData(err), 'Error refreshing server databases');
     setTimeout(() => process.exit(1), 1000);
   }
 }
@@ -84,7 +84,7 @@ async function handleConnect(connection) {
       name: 'error',
       message: err.message,
     });
-    // console.error(err);
+    logger.error(extractErrorLogData(err), 'Error connecting to server');
     setTimeout(() => process.exit(1), 1000);
   }
 
@@ -164,7 +164,6 @@ function start() {
   setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
-      
       logger.info('Server connection not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
       await driver.close(dbhan);
@@ -181,6 +180,7 @@ function start() {
         name: 'error',
         message: err.message,
       });
+      logger.error(extractErrorLogData(err), `Error processing message ${message?.['msgtype']}`);
     }
   });
 }
