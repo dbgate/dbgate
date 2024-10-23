@@ -129,7 +129,7 @@ function start() {
     logger.info(`DbGate API listening on port ${port} (docker build)`);
     server.listen(port);
   } else if (platformInfo.isAwsUbuntuLayout) {
-    const port = process.env.PORT || 80;
+    const port = process.env.PORT || 3000;
     logger.info(`DbGate API listening on port ${port} (AWS AMI build)`);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
