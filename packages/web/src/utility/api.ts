@@ -12,7 +12,7 @@ import uuidv1 from 'uuid/v1';
 import { openWebLink } from './exportFileTools';
 import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
-import { isAdminPage } from './pageDefs';
+import { isAdminPage, isOneOfPage } from './pageDefs';
 
 export const strmid = uuidv1();
 
@@ -282,7 +282,7 @@ export function getAuthCategory(config) {
   if (config.isBasicAuth) {
     return 'basic';
   }
-  if (isAdminPage() && config.isAdminLoginForm) {
+  if (isOneOfPage('admin', 'admin-license') && config.isAdminLoginForm) {
     return 'admin';
   }
   if (getElectron()) {

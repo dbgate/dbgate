@@ -34,6 +34,7 @@ function createApp() {
         props: {},
       });
     case 'license':
+    case 'admin-license':
       return new EnterLicensePage({
         target: document.body,
         props: {},

@@ -9,8 +9,8 @@
       const config = await getConfig();
       setConfigForPermissions(config);
       await handleAuthOnStartup(config);
-    } catch (e) {
-      console.log('Error calling API, trying again in 1s');
+    } catch (err) {
+      console.log('Error calling API, trying again in 1s:', err.message);
       setTimeout(loadApi, 1000);
     }
   }

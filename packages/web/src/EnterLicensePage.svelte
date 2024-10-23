@@ -13,6 +13,7 @@
   import SpecialPageLayout from './widgets/SpecialPageLayout.svelte';
   import hasPermission from './utility/hasPermission';
   import ErrorInfo from './elements/ErrorInfo.svelte';
+  import { isOneOfPage } from './utility/pageDefs';
 
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
@@ -45,7 +46,7 @@
             const { licenseKey } = e.detail;
             const resp = await apiCall('config/save-license-key', { licenseKey });
             if (resp?.status == 'ok') {
-              internalRedirectTo('/index.html');
+              internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
             } else {
               errorMessage = resp?.errorMessage || 'Error saving license key';
             }
@@ -62,7 +63,7 @@
               const license = await apiCall('config/start-trial');
               if (license?.status == 'ok') {
                 sessionStorage.setItem('continueTrialConfirmed', '1');
-                internalRedirectTo('/index.html');
+                internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
               } else {
                 errorMessage = license?.errorMessage || 'Error starting trial';
               }
@@ -77,7 +78,7 @@
             value={`Continue trial (${trialDaysLeft} days left)`}
             on:click={async e => {
               sessionStorage.setItem('continueTrialConfirmed', '1');
-              internalRedirectTo('/index.html');
+              internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
             }}
           />
         </div>

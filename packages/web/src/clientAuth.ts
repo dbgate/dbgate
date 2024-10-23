@@ -129,7 +129,11 @@ export async function handleAuthOnStartup(config) {
   function checkInvalidLicense() {
     if (!config.isLicenseValid) {
       if (config.storageDatabase || getElectron()) {
-        internalRedirectTo(`/license.html`);
+        if (isAdminPage()) {
+          internalRedirectTo(`/admin-license.html`);
+        } else {
+          internalRedirectTo(`/license.html`);
+        }
       } else {
         internalRedirectTo(`/error.html`);
       }
@@ -185,7 +189,7 @@ export async function handleAuthOnStartup(config) {
   if (page == 'login' || page == 'admin-login' || page == 'not-logged') return;
   if (checkLoggedUser()) return;
 
-  if (page == 'license') return;
+  if (page == 'license' || page == 'admin-license') return;
   if (checkTrialDaysLeft()) return;
   if (checkInvalidLicense()) return;
 

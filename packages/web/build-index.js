@@ -6,10 +6,11 @@ for (const page of [
   '',
   'not-logged',
   'error',
-  'admin-login',
   'login',
+  'admin-login',
   'admin',
   'license',
+  'admin-license',
   'set-admin-password',
   'redirect',
 ]) {

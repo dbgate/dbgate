@@ -20,5 +20,5 @@ export function subscribePermissionCompiler() {
 }
 
 export function setConfigForPermissions(config) {
-  compiled = compilePermissions(config?.permissions || {});
+  compiled = compilePermissions(config?.permissions || []);
 }
