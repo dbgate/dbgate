@@ -46,7 +46,7 @@
 
     <div class="submit">
       <FormSubmit
-        value="Set password"
+        value={$values?.denyUseAdminPassword ? 'Save' : 'Set password'}
         on:click={async e => {
           const resp = await apiCall('storage/set-admin-password', e.detail);
           if (resp?.status == 'error') {

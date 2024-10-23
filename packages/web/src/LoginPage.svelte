@@ -133,7 +133,7 @@
 </script>
 
 <SpecialPageLayout>
-  <div class="heading">Log In</div>
+  <div class="heading">{isAdminPage ? 'Admin Log In' : 'Log In'}</div>
   <div class="login-link">
     {#if $config?.isAdminLoginForm}
       {#if isAdminPage}
