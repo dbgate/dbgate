@@ -50,7 +50,7 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
         resolve(subprocess);
       }
       if (msgtype == 'error') {
-        reject(errorMessage);
+        reject(new Error(errorMessage));
       }
     });
     subprocess.on('exit', code => {
@@ -91,6 +91,7 @@ async function getSshTunnel(connection) {
       };
       return sshTunnelCache[tunnelCacheKey];
     } catch (err) {
+      logger.error(extractErrorLogData(err), 'Error creating SSH tunnel:');
       // error is not cached
       return {
         state: 'error',

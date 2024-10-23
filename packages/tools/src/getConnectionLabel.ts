@@ -21,6 +21,9 @@ function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {
   if (connection.databaseFile) {
     return getDatabaseFileLabel(connection.databaseFile);
   }
+  if (connection.useSshTunnel && connection.server == 'localhost') {
+    return `${connection.sshHost} - SSH`;
+  }
   if (connection.server) {
     return connection.server;
   }

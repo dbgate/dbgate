@@ -3,7 +3,7 @@ const platformInfo = require('../utility/platformInfo');
 const childProcessChecker = require('../utility/childProcessChecker');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SSHConnection } = require('../utility/SSHConnection');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, extractErrorMessage } = require('dbgate-tools');
 
 const logger = getLogger('sshProcess');
 
@@ -46,7 +46,7 @@ async function handleStart({ connection, tunnelConfig }) {
       msgtype: 'error',
       connection,
       tunnelConfig,
-      errorMessage: err.message,
+      errorMessage: extractErrorMessage(err.message),
     });
   }
 }
