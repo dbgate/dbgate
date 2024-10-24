@@ -1,0 +1,114 @@
+name: Docker image PREMIUM
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-packer-beta.[0-9]+'
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        with:
+          version: latest
+
+      - name: Checkout dbgate/dbgate-pro
+        uses: actions/checkout@v2
+        with:
+          repository: dbgate/dbgate-pro
+          token: ${{ secrets.GH_TOKEN }}
+          path: dbgate-pro
+
+      - name: Merge dbgate/dbgate-pro
+        run: |
+          mkdir ../dbgate-pro
+          mv dbgate-pro/* ../dbgate-pro/
+          cd ..
+          mkdir dbgate-merged
+          cd dbgate-pro
+          cd sync
+          yarn
+          node sync.js --nowatch
+          cd ..
+
+      - name: yarn install
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn install
+
+      - name: setCurrentVersion
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn setCurrentVersion
+          
+      - name: printSecrets
+        run: |
+          cd ..
+          cd dbgate-merged
+            yarn printSecrets
+        env:
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+
+      - name: Prepare packer build
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn run prepare:packer
+          zip -r cloud-build.zip packer/build
+
+      - name: Copy artifacts
+        run: |
+          mkdir artifacts          
+          cp ../dbgate-merged/cloud-build.zip artifacts/cloud-build.zip || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: artifacts
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: 'artifacts/**'
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run `packer init`
+        id: init
+        run: |
+          cd packer
+          packer init ./aws-ubuntu.pkr.hcl
+
+      - name: Run `packer build`
+        id: init
+        run: |
+          cd packer
+          packer build ./aws-ubuntu.pkr.hcl
