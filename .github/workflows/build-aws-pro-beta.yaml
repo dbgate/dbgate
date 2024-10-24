@@ -1,4 +1,4 @@
-name: Docker image PREMIUM
+name: AWS image PREMIUM
 
 on:
   push:
@@ -102,13 +102,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run `packer init`
-        id: init
         run: |
           cd packer
           packer init ./aws-ubuntu.pkr.hcl
 
       - name: Run `packer build`
-        id: init
         run: |
           cd packer
           packer build ./aws-ubuntu.pkr.hcl
