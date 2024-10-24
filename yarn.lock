@@ -4129,10 +4129,10 @@ dbgate-plugin-xml@^5.0.0-alpha.1:
   resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-5.2.7.tgz#0762af51ba6f100e75a63907ea6c679e827c9f7c"
   integrity sha512-gBXy4qetf7eJQW6lM01B+OKLnKB8MKesojdYKysD9oZ+YpQCX8Tq7aHJCrN14FiyIDinpX61kmFH1+LGJ2RkxQ==
 
-dbgate-query-splitter@^4.11.1:
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.1.tgz#8bbf8e1d5bc1dbc7ca43be5cf7b7fa9ac0fed0c7"
-  integrity sha512-5qcSRmnTkdZFWy9m7iiE1PtaE0fkwFx0HuUV5M/EjF6susz1DXStg05rWvybK9y7Sgvu5SjQlV1C3cvsEnSNSw==
+dbgate-query-splitter@^4.11.2:
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.2.tgz#f54e6bcb998de7630978cd45b347d6f329115171"
+  integrity sha512-LG326CAsTvb4IhJPDf6vbv92zOEhVza/Cncj1L4RSFchppIdlJMhwEyAekZzCm7U2NKzYObPJN5eWvF/QJrrKQ==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -10153,6 +10153,11 @@ semver@7.x, semver@^7.1.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^
   version "7.6.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.1.tgz#60bfe090bf907a25aa8119a72b9f90ef7ca281b2"
   integrity sha512-f/vbBsu+fOiYt+lmwZV0rVwJScl46HppnOA1ZvIuBWKOTlllpyJ3bfVax76/OrhCH38dyxoDIA8K7uB963IYgA==
+
+semver@^7.6.3:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 semver@~7.0.0:
   version "7.0.0"

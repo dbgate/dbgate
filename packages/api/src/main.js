@@ -35,6 +35,7 @@ const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
 const { getDefaultAuthProvider } = require('./auth/authProvider');
+const startCloudUpgradeTimer = require('./utility/cloudUpgrade');
 
 const logger = getLogger('main');
 
@@ -168,6 +169,10 @@ function start() {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
   process.on('SIGBREAK', shutdown);
+
+  if (process.env.CLOUD_UPGRADE_FILE) {
+    startCloudUpgradeTimer();
+  }
 }
 
 function useAllControllers(app, electron) {
