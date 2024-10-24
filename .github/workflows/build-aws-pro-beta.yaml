@@ -79,12 +79,13 @@ jobs:
           cd ..
           cd dbgate-merged
           yarn run prepare:packer
-          zip -r cloud-build.zip packer/build
+          cd packer
+          zip -r cloud-build.zip build
 
       - name: Copy artifacts
         run: |
           mkdir artifacts          
-          cp ../dbgate-merged/cloud-build.zip artifacts/cloud-build.zip || true
+          cp ../dbgate-merged/packer/cloud-build.zip artifacts/cloud-build.zip || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -103,10 +104,16 @@ jobs:
 
       - name: Run `packer init`
         run: |
-          cd packer
+          cd ../dbgate-merged/packer
           packer init ./aws-ubuntu.pkr.hcl
+        env:
+          AWS_ACCESS_KEY_ID : ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY : ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: Run `packer build`
         run: |
-          cd packer
+          cd ../dbgate-merged/packer
           packer build ./aws-ubuntu.pkr.hcl
+        env:
+          AWS_ACCESS_KEY_ID : ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY : ${{secrets.AWS_SECRET_ACCESS_KEY}}
