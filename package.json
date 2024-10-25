@@ -53,7 +53,7 @@
     "resetPackagedPlugins": "node resetPackagedPlugins",
     "prettier": "prettier --write packages/api/src && prettier --write packages/datalib/src && prettier --write packages/filterparser/src && prettier --write packages/sqltree/src && prettier --write packages/tools/src && prettier --write packages/types && prettier --write packages/web/src && prettier --write app/src",
     "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/public/* docker -u 2 && copyfiles \"packages/web/public/**/*\" docker -u 2 && copyfiles \"plugins/dist/**/*\" docker/plugins -u 2",
-    "copy:packer:build": "copyfiles packages/api/dist/* packer/build -f && copyfiles packages/web/public/* packer/build -u 2 && copyfiles \"packages/web/public/**/*\" packer/build -u 2 && copyfiles \"plugins/dist/**/*\" packer/build/plugins -u 2",
+    "copy:packer:build": "copyfiles packages/api/dist/* packer/build -f && copyfiles packages/web/public/* packer/build -u 2 && copyfiles \"packages/web/public/**/*\" packer/build -u 2 && copyfiles \"plugins/dist/**/*\" packer/build/plugins -u 2 && copyfiles packer/install-packages.sh packer/build -f",
     "install:drivers:docker": "cd docker && yarn init --yes && yarn add better-sqlite3 && yarn add oracledb && cd ..",
     "prepare:docker": "yarn plugins:copydist && yarn build:web && yarn build:api && yarn copy:docker:build && yarn install:drivers:docker",
     "prepare:packer": "yarn plugins:copydist && yarn build:web && yarn build:api && yarn copy:packer:build",
