@@ -107,13 +107,15 @@ jobs:
           cd ../dbgate-merged/packer
           packer init ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID : ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY : ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
 
       - name: Run `packer build`
         run: |
           cd ../dbgate-merged/packer
           packer build ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID : ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY : ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
