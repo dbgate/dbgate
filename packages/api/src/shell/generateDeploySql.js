@@ -18,6 +18,7 @@ async function generateDeploySql({
   analysedStructure = undefined,
   modelFolder = undefined,
   loadedDbModel = undefined,
+  modelTransforms = undefined,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
@@ -28,9 +29,15 @@ async function generateDeploySql({
       analysedStructure = await driver.analyseFull(dbhan);
     }
 
-    const deployedModel = generateDbPairingId(
-      extendDatabaseInfo(loadedDbModel ? databaseInfoFromYamlModel(loadedDbModel) : await importDbModel(modelFolder))
-    );
+    let deployedModelSource = loadedDbModel
+      ? databaseInfoFromYamlModel(loadedDbModel)
+      : await importDbModel(modelFolder);
+
+    for (const transform of modelTransforms || []) {
+      deployedModelSource = transform(deployedModelSource);
+    }
+
+    const deployedModel = generateDbPairingId(extendDatabaseInfo(deployedModelSource));
     const currentModel = generateDbPairingId(extendDatabaseInfo(analysedStructure));
     const opts = {
       ...modelCompareDbDiffOptions,
@@ -57,7 +64,7 @@ async function generateDeploySql({
       deployedModel,
       driver
     );
-    
+
     return res;
   } finally {
     if (!systemConnection) {

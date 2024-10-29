@@ -686,7 +686,8 @@ export class SqlDumper implements AlterProcessor {
   }
 
   createSqlObject(obj: SqlObjectInfo) {
-    this.putCmd(obj.createSql);
+    this.putRaw(obj.createSql);
+    this.endCommand();
   }
 
   getSqlObjectSqlName(ojectTypeField: string) {

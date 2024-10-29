@@ -511,3 +511,13 @@ export function safeFormatDate(date) {
     return date?.toString();
   }
 }
+
+export function getLimitedQuery(sql: string): string {
+  if (!sql) {
+    return sql;
+  }
+  if (sql.length > 1000) {
+    return sql.substring(0, 1000) + '...';
+  }
+  return sql;
+}

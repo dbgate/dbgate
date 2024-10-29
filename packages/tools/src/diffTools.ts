@@ -7,6 +7,7 @@ import type {
   SqlDialect,
   SqlObjectInfo,
   TableInfo,
+  ViewInfo,
 } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
@@ -15,6 +16,8 @@ import _omit from 'lodash/omit';
 import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import _pick from 'lodash/pick';
+import _compact from 'lodash/compact';
+import toposort from 'toposort';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -504,6 +507,40 @@ export function createAlterTablePlan(
   return plan;
 }
 
+function sortViewsByDependency(views: ViewInfo[]): ViewInfo[] {
+  const viewNames: string[] = [];
+  const viewDict: { [name: string]: string } = {};
+
+  for (const view of views) {
+    if (!viewNames.includes(view.pureName)) {
+      viewNames.push(view.pureName);
+    }
+    viewDict[view.pureName] = viewDict[view.pureName]
+      ? `${viewDict[view.pureName]} ${view.createSql}}`
+      : view.createSql;
+  }
+
+  const edges = [];
+  for (const viewName of viewNames) {
+    edges.push([viewName, null]);
+    const viewText = viewDict[viewName];
+    for (const otherView of viewNames) {
+      if (otherView === viewName) continue;
+      if ((' ' + viewText + ' ').match('[\\W]' + otherView + '[\\W]')) {
+        edges.push([otherView, viewName]);
+      }
+    }
+  }
+
+  const ordered: string[] = _compact(toposort(edges));
+
+  const res: ViewInfo[] = [];
+  for (const viewName of ordered) {
+    res.push(...views.filter(x => x.pureName == viewName));
+  }
+  return res;
+}
+
 export function createAlterDatabasePlan(
   oldDb: DatabaseInfo,
   newDb: DatabaseInfo,
@@ -539,7 +576,13 @@ export function createAlterDatabasePlan(
         }
       }
     }
-    for (const newobj of newDb[objectTypeField] || []) {
+
+    let newList = newDb[objectTypeField] || [];
+    if (objectTypeField == 'views') {
+      newList = sortViewsByDependency(newList);
+    }
+
+    for (const newobj of newList) {
       const oldobj = (oldDb[objectTypeField] || []).find(x => x.pairingId == newobj.pairingId);
       if (objectTypeField == 'tables') {
         if (oldobj == null) {

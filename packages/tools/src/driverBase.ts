@@ -4,6 +4,10 @@ import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
 import { EngineDriver, QueryResult, RunScriptOptions } from 'dbgate-types';
 import { detectSqlFilterBehaviour } from './detectSqlFilterBehaviour';
+import { getLogger } from './getLogger';
+import { getLimitedQuery } from './stringTools';
+
+const logger = getLogger('driverBase');
 
 const dialect = {
   limitSelect: true,
@@ -71,6 +75,9 @@ export const driverBase = {
     }
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
       try {
+        if (options?.logScriptItems) {
+          logger.info({ sql: getLimitedQuery(sqlItem as string) }, `Execute script item`);
+        }
         await this.query(pool, sqlItem, { discardResult: true, ...options?.queryOptions });
       } catch (err) {
         if (options?.useTransaction && this.supportsTransactions) {

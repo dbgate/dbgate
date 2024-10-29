@@ -498,22 +498,25 @@ export class AlterPlan {
       return this.operations;
     }
     const fks = [];
-    const res = this.operations.map(op => {
-      if (op.operationType == 'createTable') {
-        fks.push(...(op.newObject.foreignKeys || []));
-        return {
-          ...op,
-          newObject: {
-            ...op.newObject,
-            foreignKeys: [],
-          },
-        };
-      }
-      return op;
-    });
+    const res = this.operations
+      .filter(op => op.operationType != 'createConstraint')
+      .map(op => {
+        if (op.operationType == 'createTable') {
+          fks.push(...(op.newObject.foreignKeys || []));
+          return {
+            ...op,
+            newObject: {
+              ...op.newObject,
+              foreignKeys: [],
+            },
+          };
+        }
+        return op;
+      });
 
     return [
       ...res,
+      ...this.operations.filter(op => op.operationType == 'createConstraint'),
       ...fks.map(
         fk =>
           ({

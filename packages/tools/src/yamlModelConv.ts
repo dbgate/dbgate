@@ -74,10 +74,11 @@ function columnInfoFromYaml(column: ColumnInfoYaml, table: TableInfoYaml): Colum
   const res: ColumnInfo = {
     pureName: table.name,
     columnName: column.name,
-    dataType: column.length ? `${column.type}(${column.length})` : column.type,
+    dataType: column.length ? `${column.type}(${column.length < 0 ? 'max' : column.length})` : column.type,
     autoIncrement: column.autoIncrement,
     notNull: column.notNull || (table.primaryKey && table.primaryKey.includes(column.name)),
     defaultValue: column.default,
+    defaultConstraint: column.default != null ? `DF_${table.name}_${column.name}` : undefined,
   };
   return res;
 }
@@ -108,6 +109,7 @@ function convertForeignKeyFromYaml(
   if (!refTable || !refTable.primaryKey) return null;
   return {
     constraintType: 'foreignKey',
+    constraintName: `FK_${table.name}_${col.name}`,
     pureName: table.name,
     refTableName: col.references,
     deleteAction: col.refDeleteAction,
@@ -133,6 +135,7 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
     res.primaryKey = {
       pureName: table.name,
       constraintType: 'primaryKey',
+      constraintName: `PK_${table.name}`,
       columns: table.primaryKey.map(columnName => ({ columnName })),
     };
   }
@@ -140,6 +143,7 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
     res.sortingKey = {
       pureName: table.name,
       constraintType: 'sortingKey',
+      constraintName: `SK_${table.name}`,
       columns: table.sortingKey.map(columnName => ({ columnName })),
     };
   }

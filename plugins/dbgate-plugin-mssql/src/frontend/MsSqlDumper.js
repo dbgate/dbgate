@@ -108,13 +108,13 @@ class MsSqlDumper extends SqlDumper {
   }
 
   guessDefaultName(col) {
-    return col.defaultConstraint || `DF${col.schemaName || 'dbo'}_${col.pureName}_col.columnName`;
+    return col.defaultConstraint || `DF_${col.schemaName || 'dbo'}_${col.pureName}_col.columnName`;
   }
 
   createDefault(col) {
-    if (!col.defaultValue) return;
-    const defsql = col.defaultValue;
-    if (!defsql) {
+    if (col.defaultValue == null) return;
+    const defsql = col.defaultValue?.toString();
+    if (defsql) {
       const defname = this.guessDefaultName(col);
       this.putCmd('^alter ^table %f ^add ^constraint %i ^default %s for %i', col, defname, defsql, col.columnName);
     }

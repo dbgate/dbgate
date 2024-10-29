@@ -25,6 +25,7 @@ export interface StreamOptions {
 
 export interface RunScriptOptions {
   useTransaction: boolean;
+  logScriptItems?: boolean;
   queryOptions?: QueryOptions;
 }
 
