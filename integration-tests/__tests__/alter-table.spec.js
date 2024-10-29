@@ -12,7 +12,10 @@ function pickImportantTableInfo(engine, table) {
   if (!engine.skipAutoIncrement) props.push('autoIncrement');
   return {
     pureName: table.pureName,
-    columns: table.columns.filter(x => x.columnName != 'rowid').map(fp.pick(props)),
+    columns: table.columns
+      .filter(x => x.columnName != 'rowid')
+      .map(fp.pick(props))
+      .map(props => _.omitBy(props, x => x == null)),
   };
 }
 
