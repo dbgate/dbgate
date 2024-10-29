@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
 
 function pickImportantTableInfo(engine, table) {
-  const props = ['columnName'];
+  const props = ['columnName', 'defaultValue'];
   if (!engine.skipNullability) props.push('notNull');
   if (!engine.skipAutoIncrement) props.push('autoIncrement');
   return {
@@ -141,7 +141,7 @@ describe('Alter table', () => {
     'Add default value - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableDiff(engine, conn, driver, tbl => {
-        tbl.columns.find(x => x.columnName == 'col_std').defaultValue = 123;
+        tbl.columns.find(x => x.columnName == 'col_std').defaultValue = '123';
       });
     })
   );
@@ -159,7 +159,7 @@ describe('Alter table', () => {
     'Change default value - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableDiff(engine, conn, driver, tbl => {
-        tbl.columns.find(x => x.columnName == 'col_def').defaultValue = 567;
+        tbl.columns.find(x => x.columnName == 'col_def').defaultValue = '567';
       });
     })
   );
