@@ -6,9 +6,10 @@ const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
 const t2Sql = engine =>
   `CREATE TABLE t2 (id int not null primary key, val2 varchar(50) ${engine.skipUnique ? '' : 'unique'})`;
 const t3Sql = 'CREATE TABLE t3 (id int not null primary key, valfk int, foreign key (valfk) references t2(id))';
+const t4Sql = 'CREATE TABLE t4 (id int not null primary key, valdef int not null default 12)';
 // const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
-const txMatch = (engine, tname, vcolname, nextcol) =>
+const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
   expect.objectContaining({
     pureName: tname,
     columns: [
@@ -19,10 +20,14 @@ const txMatch = (engine, tname, vcolname, nextcol) =>
       }),
       expect.objectContaining({
         columnName: vcolname,
-        ...(engine.skipNullability ? {} : { notNull: false }),
-        dataType: engine.skipStringLength
-          ? expect.stringMatching(/.*string|char.*/i)
-          : expect.stringMatching(/.*char.*\(50\)/i),
+        ...(engine.skipNullability ? {} : { notNull: !!defaultValue }),
+        ...(defaultValue
+          ? { defaultValue }
+          : {
+              dataType: engine.skipStringLength
+                ? expect.stringMatching(/.*string|char.*/i)
+                : expect.stringMatching(/.*char.*\(50\)/i),
+            }),
       }),
       ...(nextcol
         ? [
@@ -48,6 +53,7 @@ const txMatch = (engine, tname, vcolname, nextcol) =>
 const t1Match = engine => txMatch(engine, 't1', 'val1');
 const t2Match = engine => txMatch(engine, 't2', 'val2');
 const t2NextColMatch = engine => txMatch(engine, 't2', 'val2', true);
+const t4Match = engine => txMatch(engine, 't4', 'valdef', null, '12');
 
 describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
@@ -167,6 +173,18 @@ describe('Table analyse', () => {
       expect(t3.foreignKeys[0].columns[0]).toEqual(
         expect.objectContaining({ columnName: 'valfk', refColumnName: 'id' })
       );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Table structure - default value - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await driver.query(conn, t4Sql);
+
+      const structure = await driver.analyseFull(conn);
+
+      expect(structure.tables.length).toEqual(1);
+      expect(structure.tables[0]).toEqual(t4Match(engine));
     })
   );
 });
