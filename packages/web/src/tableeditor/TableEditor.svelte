@@ -176,7 +176,7 @@
         schemaList={isCreateTable && schemaList?.length >= 0 ? schemaList : null}
         values={_.pick(tableInfo, ['schemaName', 'pureName', ...(tableFormOptions ?? []).map(x => x.name)])}
         onChangeValues={vals => {
-          if (!_.isEmpty(vals)) {
+          if (!_.isEmpty(vals) && setTableInfo) {
             setTableInfo(tbl => ({ ...tbl, ...vals }));
           }
         }}
