@@ -8,6 +8,12 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### Not published
+- ADDED: Order or filter the indexes for huge tables #922
+- ADDED: Empty string filters
+- CHANGED: (Premium) Workflow for new installation (used in Docker and AWS distribution)
+
+
 ### 5.5.6
 - FIXED: DbGate process consumes 100% after UI closed - Mac, Linux (#917, #915)
 - FIXED: Correctly closing connection behind SSH tunnel (#920)
