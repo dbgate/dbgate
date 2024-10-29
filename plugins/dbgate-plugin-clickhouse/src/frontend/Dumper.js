@@ -13,6 +13,9 @@ class Dumper extends SqlDumper {
 
     this.put('^alter ^table %f ^modify ^column %i ', newcol, newcol.columnName);
     this.columnDefinition(newcol);
+    if (oldcol.defaultValue != null && newcol.defaultValue == null) {
+      this.put(' ^remove ^default ');
+    }
     this.endCommand();
   }
 

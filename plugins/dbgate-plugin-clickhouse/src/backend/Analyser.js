@@ -45,6 +45,7 @@ class Analyser extends DatabaseAnalyser {
           .filter((col) => col.pureName == table.pureName)
           .map((col) => ({
             ...col,
+            defaultValue: col.defaultValue ? col.defaultValue : undefined,
             ...extractDataType(col.dataType),
           })),
         primaryKey: table.primaryKeyColumns
