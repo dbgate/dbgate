@@ -51,6 +51,15 @@ function getColumnInfo({
   if (numericPrecision && numericScale && isTypeNumeric(dataType)) {
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
   }
+
+  if (defaultValue) {
+    defaultValue = defaultValue.trim();
+    while (defaultValue.startsWith('(') && defaultValue.endsWith(')')) {
+      defaultValue = defaultValue.slice(1, -1);
+      defaultValue = defaultValue.trim();
+    }
+  }
+
   return {
     columnName,
     dataType: fullDataType,
