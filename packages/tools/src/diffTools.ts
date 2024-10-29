@@ -12,12 +12,13 @@ import type {
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
 import stableStringify from 'json-stable-stringify';
+import toposort from 'toposort';
 import _omit from 'lodash/omit';
 import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
-import toposort from 'toposort';
+import _isString from 'lodash/isString';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -156,6 +157,14 @@ function testEqualFullNames(lft: NamedObjectInfo, rgt: NamedObjectInfo, opts: Db
 function testEqualDefaultValues(value1: string | null | undefined, value2: string | null | undefined) {
   if (value1 == null) return value2 == null || value2 == 'NULL';
   if (value2 == null) return value1 == null || value1 == 'NULL';
+  if (_isString(value1) && _isString(value2)) {
+    value1 = value1.trim();
+    value2 = value1.trim();
+    if (value1.startsWith("'") && value1.endsWith("'") && value2.startsWith("'") && value2.endsWith("'")) {
+      return value1 == value2;
+    }
+    return value1.toLowerCase() == value2.toLowerCase();
+  }
   return value1 == value2;
 }
 
