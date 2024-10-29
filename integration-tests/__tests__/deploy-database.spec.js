@@ -8,19 +8,50 @@ const { databaseInfoFromYamlModel } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
-function checkStructure(structure, model) {
+function checkStructure(structure, model, { checkRenameDeletedObjects = false, disallowExtraObjects = false }) {
   const expected = databaseInfoFromYamlModel(model);
   expect(structure.tables.length).toEqual(expected.tables.length);
 
-  for (const [realTable, expectedTable] of _.zip(
-    _.sortBy(structure.tables, 'pureName'),
-    _.sortBy(expected.tables, 'pureName')
-  )) {
-    expect(realTable.columns.length).toBeGreaterThanOrEqual(expectedTable.columns.length);
+  for (const expectedTable of expected.tables) {
+    const realTable = structure.tables.find(x => x.pureName == expectedTable.pureName);
+
+    for (const column of expectedTable.columns) {
+      const realColumn = realTable.columns.find(x => x.columnName == column.columnName);
+      expect(realColumn).toBeTruthy();
+      expect(realColumn.notNull).toEqual(column.notNull);
+    }
+
+    for (const realColumn of realTable.columns) {
+      const column = expectedTable.columns.find(x => x.columnName == realColumn.columnName);
+      if (!column) {
+        if (checkRenameDeletedObjects) {
+          expect(realColumn.columnName).toMatch(/^_deleted_/);
+        }
+
+        if (disallowExtraObjects) {
+          expect(realColumn).toBeFalsy();
+        }
+      }
+    }
+  }
+
+  for (const realTable of structure.tables) {
+    const expectedTable = expected.tables.find(x => x.pureName == realTable.pureName);
+    if (!expectedTable) {
+      if (checkRenameDeletedObjects) {
+        expect(realTable.pureName).toMatch(/^_deleted_/);
+      }
+
+      if (disallowExtraObjects) {
+        expect(realTable).toBeFalsy();
+      }
+    }
   }
 }
 
-async function testDatabaseDeploy(conn, driver, dbModelsYaml, testEmptyLastScript) {
+async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
+  const { testEmptyLastScript, checkDeletedObjects, finalCheckAgainstModel, finalCheckAgainstFirstModel } =
+    options || {};
   let index = 0;
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
@@ -50,7 +81,11 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, testEmptyLastScrip
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(structure, dbModelsYaml[dbModelsYaml.length - 1]);
+  checkStructure(
+    structure,
+    finalCheckAgainstFirstModel ? dbModelsYaml[0] : finalCheckAgainstModel ?? dbModelsYaml[dbModelsYaml.length - 1],
+    options
+  );
 }
 
 describe('Deploy database', () => {
@@ -118,7 +153,7 @@ describe('Deploy database', () => {
             },
           ],
         ],
-        true
+        { testEmptyLastScript: true }
       );
     })
   );
@@ -185,7 +220,7 @@ describe('Deploy database', () => {
             },
           ],
         ],
-        true
+        { testEmptyLastScript: true }
       );
     })
   );
@@ -240,7 +275,7 @@ describe('Deploy database', () => {
             },
           ],
         ],
-        true
+        { testEmptyLastScript: true }
       );
     })
   );
@@ -347,6 +382,69 @@ describe('Deploy database', () => {
       await driver.query(conn, `insert into t1 (id) values (1)`);
       const res = await driver.query(conn, ` select val from t1 where id = 1`);
       expect(res.rows[0].val.toString().substring(0, 2)).toEqual('20');
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Dont remove column - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [{ name: 'id', type: 'int' }],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        ],
+        { finalCheckAgainstFirstModel: true, disallowExtraObjects: true }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Dont remove table - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+          [],
+        ],
+        { finalCheckAgainstFirstModel: true, disallowExtraObjects: true }
+      );
     })
   );
 });
