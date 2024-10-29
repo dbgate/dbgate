@@ -32,6 +32,7 @@ const jsonToDbModel = require('./jsonToDbModel');
 const jsonReader = require('./jsonReader');
 const dataTypeMapperTransform = require('./dataTypeMapperTransform');
 const sqlTextReplacementTransform = require('./sqlTextReplacementTransform');
+const autoIndexForeignKeysTransform = require('./autoIndexForeignKeysTransform');
 
 const dbgateApi = {
   queryReader,
@@ -67,6 +68,7 @@ const dbgateApi = {
   jsonToDbModel,
   dataTypeMapperTransform,
   sqlTextReplacementTransform,
+  autoIndexForeignKeysTransform,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);
