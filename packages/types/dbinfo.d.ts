@@ -3,6 +3,7 @@ export interface NamedObjectInfo {
   schemaName?: string;
   contentHash?: string;
   engine?: string;
+  undropPureName?: string;
 }
 
 export interface ColumnReference {
@@ -63,6 +64,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   isZerofill?: boolean;
   options?: [];
   canSelectMultipleOptions?: boolean;
+  undropColumnName?: string;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
