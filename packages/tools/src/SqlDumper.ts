@@ -324,7 +324,7 @@ export class SqlDumper implements AlterProcessor {
   createTablePrimaryKeyCore(table: TableInfo) {
     if (table.primaryKey) {
       this.put(',&n');
-      if (table.primaryKey.constraintName) {
+      if (table.primaryKey.constraintName && !this.dialect.anonymousPrimaryKey) {
         this.put('^constraint %i', table.primaryKey.constraintName);
       }
       this.put(
