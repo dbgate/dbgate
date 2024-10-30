@@ -35,9 +35,17 @@ export interface DbDiffOptions {
   ignoreConstraintNames?: boolean;
 
   noDropTable?: boolean;
+  allowTableRecreateWhenNoDrop?: boolean;
+  allowTableMarkDropped?: boolean;
+
   noDropColumn?: boolean;
+  allowColumnMarkDropped?: boolean;
+
   noDropConstraint?: boolean;
+
   noDropSqlObject?: boolean;
+  allowSqlObjectMarkDropped?: boolean;
+
   noRenameTable?: boolean;
   noRenameColumn?: boolean;
 
@@ -565,7 +573,9 @@ export function createAlterDatabasePlan(
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
         if (newobj == null) {
-          if (!opts.noDropTable) {
+          if (opts.allowTableMarkDropped) {
+            plan.renameTable(oldobj, '_deleted_' + oldobj.pureName);
+          } else if (!opts.noDropTable) {
             plan.dropTable(oldobj);
           }
         } else {

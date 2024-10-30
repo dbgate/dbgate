@@ -19,6 +19,7 @@ async function generateDeploySql({
   modelFolder = undefined,
   loadedDbModel = undefined,
   modelTransforms = undefined,
+  dbdiffOptionsExtra = {},
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
@@ -48,6 +49,8 @@ async function generateDeploySql({
       noDropSqlObject: true,
       noRenameTable: true,
       noRenameColumn: true,
+
+      ...dbdiffOptionsExtra,
     };
     const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
     const currentModelPairedPreloaded = await enrichWithPreloadedRows(deployedModel, currentModelPaired, dbhan, driver);

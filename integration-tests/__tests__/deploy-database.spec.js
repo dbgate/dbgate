@@ -10,7 +10,6 @@ const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
 function checkStructure(structure, model, { checkRenameDeletedObjects = false, disallowExtraObjects = false }) {
   const expected = databaseInfoFromYamlModel(model);
-  expect(structure.tables.length).toEqual(expected.tables.length);
 
   for (const expectedTable of expected.tables) {
     const realTable = structure.tables.find(x => x.pureName == expectedTable.pureName);
@@ -50,8 +49,13 @@ function checkStructure(structure, model, { checkRenameDeletedObjects = false, d
 }
 
 async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
-  const { testEmptyLastScript, checkDeletedObjects, finalCheckAgainstModel, finalCheckAgainstFirstModel } =
-    options || {};
+  const {
+    testEmptyLastScript,
+    checkDeletedObjects,
+    finalCheckAgainstModel,
+    finalCheckAgainstFirstModel,
+    dbdiffOptionsExtra,
+  } = options || {};
   let index = 0;
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
@@ -59,6 +63,7 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
       connection: conn.isPreparedOnly ? conn : undefined,
       driver,
       loadedDbModel,
+      dbdiffOptionsExtra,
     });
     console.debug('Generated deploy script:', sql);
     expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
@@ -73,6 +78,7 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
       connection: conn.isPreparedOnly ? conn : undefined,
       driver,
       loadedDbModel,
+      dbdiffOptionsExtra,
     });
 
     index++;
@@ -444,6 +450,38 @@ describe('Deploy database', () => {
           [],
         ],
         { finalCheckAgainstFirstModel: true, disallowExtraObjects: true }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Mark table removed - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+          [],
+        ],
+        {
+          checkRenameDeletedObjects: true,
+          dbdiffOptionsExtra: {
+            allowTableMarkDropped: true,
+          },
+        }
       );
     })
   );
