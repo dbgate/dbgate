@@ -9,6 +9,7 @@ async function deployDb({
   modelFolder,
   loadedDbModel,
   modelTransforms,
+  dbdiffOptionsExtra,
 }) {
   const { sql } = await generateDeploySql({
     connection,
@@ -18,6 +19,7 @@ async function deployDb({
     modelFolder,
     loadedDbModel,
     modelTransforms,
+    dbdiffOptionsExtra,
   });
   // console.log('RUNNING DEPLOY SCRIPT:', sql);
   await executeQuery({ connection, systemConnection, driver, sql, logScriptItems: true });
