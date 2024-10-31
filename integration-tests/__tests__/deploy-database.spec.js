@@ -506,9 +506,9 @@ describe('Deploy database', () => {
         ],
         {
           dbdiffOptionsExtra: {
-            allowTableMarkDropped: true,
-            allowSqlObjectMarkDropped: true,
-            allowColumnMarkDropped: true,
+            deletedTablePrefix: '_deleted_',
+            deletedColumnPrefix: '_deleted_',
+            deletedSqlObjectPrefix: '_deleted_',
           },
           finalCheckAgainstModel: [
             {
@@ -528,7 +528,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
     'Mark view removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -569,9 +569,9 @@ describe('Deploy database', () => {
         ],
         {
           dbdiffOptionsExtra: {
-            allowTableMarkDropped: true,
-            allowSqlObjectMarkDropped: true,
-            allowColumnMarkDropped: true,
+            deletedTablePrefix: '_deleted_',
+            deletedColumnPrefix: '_deleted_',
+            deletedSqlObjectPrefix: '_deleted_',
           },
           finalCheckAgainstModel: [
             {
@@ -588,6 +588,62 @@ describe('Deploy database', () => {
             {
               name: '_deleted_v1.view.sql',
               text: 'create view v1 as select * from t1',
+            },
+          ],
+        }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Mark column removed - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        engine,
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [{ name: 'id', type: 'int' }],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        ],
+        {
+          dbdiffOptionsExtra: {
+            deletedTablePrefix: '_deleted_',
+            deletedColumnPrefix: '_deleted_',
+            deletedSqlObjectPrefix: '_deleted_',
+          },
+          finalCheckAgainstModel: [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: '_deleted_val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
             },
           ],
         }

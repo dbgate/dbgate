@@ -36,15 +36,15 @@ export interface DbDiffOptions {
 
   noDropTable?: boolean;
   allowTableRecreateWhenNoDrop?: boolean;
-  allowTableMarkDropped?: boolean;
+  deletedTablePrefix?: string;
 
   noDropColumn?: boolean;
-  allowColumnMarkDropped?: boolean;
+  deletedColumnPrefix?: string;
 
   noDropConstraint?: boolean;
 
   noDropSqlObject?: boolean;
-  allowSqlObjectMarkDropped?: boolean;
+  deletedSqlObjectPrefix?: string;
 
   noRenameTable?: boolean;
   noRenameColumn?: boolean;
@@ -425,7 +425,11 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   if (!opts.noDropConstraint) {
     constraintPairs.filter(x => x[1] == null).forEach(x => plan.dropConstraint(x[0]));
   }
-  if (!opts.noDropColumn) {
+  if (opts.deletedColumnPrefix) {
+    columnPairs
+      .filter(x => x[1] == null)
+      .forEach(x => plan.renameColumn(x[0], opts.deletedColumnPrefix + x[0].columnName));
+  } else if (!opts.noDropColumn) {
     columnPairs.filter(x => x[1] == null).forEach(x => plan.dropColumn(x[0]));
   }
 
@@ -573,8 +577,8 @@ export function createAlterDatabasePlan(
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
         if (newobj == null) {
-          if (opts.allowTableMarkDropped) {
-            plan.renameTable(oldobj, '_deleted_' + oldobj.pureName);
+          if (opts.deletedTablePrefix) {
+            plan.renameTable(oldobj, opts.deletedTablePrefix + oldobj.pureName);
           } else if (!opts.noDropTable) {
             plan.dropTable(oldobj);
           }
@@ -583,8 +587,8 @@ export function createAlterDatabasePlan(
         }
       } else {
         if (newobj == null) {
-          if (opts.allowSqlObjectMarkDropped && driver.dialect.renameSqlObject) {
-            plan.renameSqlObject(oldobj, '_deleted_' + oldobj.pureName);
+          if (opts.deletedSqlObjectPrefix && driver.dialect.renameSqlObject) {
+            plan.renameSqlObject(oldobj, opts.deletedSqlObjectPrefix + oldobj.pureName);
           } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
           }
