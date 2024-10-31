@@ -167,7 +167,7 @@ function testEqualDefaultValues(value1: string | null | undefined, value2: strin
   if (value2 == null) return value1 == null || value1 == 'NULL';
   if (_isString(value1) && _isString(value2)) {
     value1 = value1.trim();
-    value2 = value1.trim();
+    value2 = value2.trim();
     if (value1.startsWith("'") && value1.endsWith("'") && value2.startsWith("'") && value2.endsWith("'")) {
       return value1 == value2;
     }
