@@ -465,6 +465,11 @@ describe('Deploy database', () => {
     text: 'create view v1 as select * from t1',
   };
 
+  const V1_VARIANT2 = {
+    name: 'v1.view.sql',
+    text: 'create view v1 as select 1 as c1',
+  };
+
   const V1_DELETED = {
     name: '_deleted_v1.view.sql',
     text: 'create view _deleted_v1 as select * from t1',
@@ -563,6 +568,45 @@ describe('Deploy database', () => {
         markDeleted: true,
         disallowExtraObjects: true,
       });
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'View redeploy - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        engine,
+        conn,
+        driver,
+        [
+          [T1, V1],
+          [T1, V1],
+          [T1, V1],
+        ],
+        {
+          markDeleted: true,
+          disallowExtraObjects: true,
+        }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Change view - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        engine,
+        conn,
+        driver,
+        [
+          [T1, V1],
+          [T1, V1_VARIANT2],
+        ],
+        {
+          markDeleted: true,
+          disallowExtraObjects: true,
+        }
+      );
     })
   );
 });
