@@ -504,7 +504,7 @@ describe('Deploy database', () => {
   test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
     'Mark view removed - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1]], {
+      await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1], [T1]], {
         markDeleted: true,
         disallowExtraObjects: true,
         finalCheckAgainstModel: [T1, V1_DELETED],
@@ -552,6 +552,16 @@ describe('Deploy database', () => {
         markDeleted: true,
         disallowExtraObjects: true,
         allowDropStatements: true,
+      });
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Undelete column - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL], [T1]], {
+        markDeleted: true,
+        disallowExtraObjects: true,
       });
     })
   );

@@ -482,13 +482,24 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   columnPairs
     .filter(x => x[0] && x[1])
     .forEach(x => {
-      if (!testEqualColumns(x[0], x[1], true, true, opts)) {
-        if (testEqualColumns(x[0], x[1], false, true, opts) && !opts.noRenameColumn) {
+      let srccol: ColumnInfo = x[0];
+      let dstcol: ColumnInfo = x[1];
+      if (hasDeletedPrefix(srccol.columnName, opts, opts.deletedColumnPrefix)) {
+        plan.renameColumn(srccol, dstcol.columnName);
+        // rename is already done
+        srccol = {
+          ...srccol,
+          columnName: dstcol.columnName,
+        };
+      }
+
+      if (!testEqualColumns(srccol, dstcol, true, true, opts)) {
+        if (testEqualColumns(srccol, dstcol, false, true, opts) && !opts.noRenameColumn) {
           // console.log('PLAN RENAME COLUMN')
-          plan.renameColumn(x[0], x[1].columnName);
+          plan.renameColumn(srccol, dstcol.columnName);
         } else {
           // console.log('PLAN CHANGE COLUMN', x[0], x[1]);
-          plan.changeColumn(x[0], x[1]);
+          plan.changeColumn(srccol, dstcol);
         }
       }
     });
@@ -724,7 +735,9 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
 
         if (objectTypeField == 'tables') {
           for (const col2 of obj2.columns) {
-            const col1 = obj1.columns.find(x => testEqualNames(x.columnName, col2.columnName, opts));
+            const col1 = obj1.columns.find(x =>
+              testEqualNames(x.columnName, col2.columnName, opts, opts.deletedColumnPrefix)
+            );
             if (col1) col2.pairingId = col1.pairingId;
           }
 
