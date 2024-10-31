@@ -10,6 +10,7 @@ export interface AlterProcessor {
   changeConstraint(oldConstraint: ConstraintInfo, newConstraint: ConstraintInfo);
   dropConstraint(constraint: ConstraintInfo);
   renameTable(table: TableInfo, newName: string);
+  renameSqlObject(obj: SqlObjectInfo, newName: string);
   renameColumn(column: ColumnInfo, newName: string);
   renameConstraint(constraint: ConstraintInfo, newName: string);
   recreateTable(oldTable: TableInfo, newTable: TableInfo);

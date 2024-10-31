@@ -39,6 +39,12 @@ interface AlterOperation_RenameTable {
   newName: string;
 }
 
+interface AlterOperation_RenameSqlObject {
+  operationType: 'renameSqlObject';
+  object: SqlObjectInfo;
+  newName: string;
+}
+
 interface AlterOperation_CreateColumn {
   operationType: 'createColumn';
   newObject: ColumnInfo;
@@ -120,7 +126,8 @@ type AlterOperation =
   | AlterOperation_DropSqlObject
   | AlterOperation_RecreateTable
   | AlterOperation_FillPreloadedRows
-  | AlterOperation_SetTableOption;
+  | AlterOperation_SetTableOption
+  | AlterOperation_RenameSqlObject;
 
 export class AlterPlan {
   recreates = {
@@ -212,6 +219,14 @@ export class AlterPlan {
   renameTable(table: TableInfo, newName: string) {
     this.operations.push({
       operationType: 'renameTable',
+      object: table,
+      newName,
+    });
+  }
+
+  renameSqlObject(table: TableInfo, newName: string) {
+    this.operations.push({
+      operationType: 'renameSqlObject',
       object: table,
       newName,
     });
@@ -594,6 +609,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'renameTable':
       processor.renameTable(op.object, op.newName);
+      break;
+    case 'renameSqlObject':
+      processor.renameSqlObject(op.object, op.newName);
       break;
     case 'renameConstraint':
       processor.renameConstraint(op.object, op.newName);

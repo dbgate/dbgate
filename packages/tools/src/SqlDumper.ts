@@ -588,6 +588,8 @@ export class SqlDumper implements AlterProcessor {
 
   renameTable(obj: TableInfo, newname: string) {}
 
+  renameSqlObject(obj: SqlObjectInfo, newname: string) {}
+
   beginTransaction() {
     this.putCmd('^begin ^transaction');
   }

@@ -583,7 +583,9 @@ export function createAlterDatabasePlan(
         }
       } else {
         if (newobj == null) {
-          if (!opts.noDropSqlObject) {
+          if (opts.allowSqlObjectMarkDropped) {
+            plan.renameSqlObject(oldobj, '_deleted_' + oldobj.pureName);
+          } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
           }
         } else if (!testEqualSqlObjects(oldobj.createSql, newobj.createSql, opts)) {

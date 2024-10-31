@@ -5,10 +5,12 @@ const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
 
-function flatSource() {
+const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
+
+function flatSource(engineCond = x => !x.skipReferences) {
   return _.flatten(
     engines
-      .filter(x => !x.skipReferences)
+      .filter(engineCond)
       .map(engine => (engine.objects || []).map(object => [engine.label, object.type, object, engine]))
   );
 }
@@ -66,5 +68,24 @@ describe('Alter database', () => {
       expect(db[type].length).toEqual(0);
     })
   );
-});
 
+  test.each(flatSource(x => x.supportRenameSqlObject))(
+    'Rename object - %s - %s',
+    testWrapper(async (conn, driver, type, object, engine) => {
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+
+      await driver.query(conn, object.create1, { discardResult: true });
+
+      const structure = extendDatabaseInfo(await driver.analyseFull(conn));
+
+      const dmp = driver.createDumper();
+      dmp.renameSqlObject(structure[type][0], 'renamed1');
+
+      await driver.query(conn, dmp.s);
+
+      const structure2 = await driver.analyseFull(conn);
+      expect(structure2[type].length).toEqual(1);
+      expect(structure2[type][0].pureName).toEqual('renamed1');
+    })
+  );
+});

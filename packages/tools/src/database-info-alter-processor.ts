@@ -112,6 +112,11 @@ export class DatabaseInfoAlterProcessor {
     this.db.tables.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName).pureName = newName;
   }
 
+  renameSqlObject(obj: SqlObjectInfo, newName: string) {
+    this.db[obj.objectTypeField].find(x => x.pureName == obj.pureName && x.schemaName == obj.schemaName).pureName =
+      newName;
+  }
+
   renameColumn(column: ColumnInfo, newName: string) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
     table.columns.find(x => x.columnName == column.columnName).columnName = newName;

@@ -96,6 +96,7 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    supportRenameSqlObject: true,
     defaultSchemaName: 'public',
     dumpFile: 'data/chinook-postgre.sql',
     dumpChecks: [
@@ -129,6 +130,7 @@ const engines = [
       },
     ],
     supportSchemas: true,
+    supportRenameSqlObject: true,
     defaultSchemaName: 'dbo',
     // skipSeparateSchemas: true,
   },
@@ -184,9 +186,9 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
-  '-PostgreSQL',
+  'PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',

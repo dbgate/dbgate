@@ -175,5 +175,6 @@ MsSqlDumper.prototype.changeTriggerSchema = MsSqlDumper.prototype.changeObjectSc
 
 MsSqlDumper.prototype.renameTable = MsSqlDumper.prototype.renameObject;
 MsSqlDumper.prototype.changeTableSchema = MsSqlDumper.prototype.changeObjectSchema;
+MsSqlDumper.prototype.renameSqlObject = MsSqlDumper.prototype.renameObject;
 
 module.exports = MsSqlDumper;
