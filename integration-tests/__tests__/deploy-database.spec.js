@@ -70,8 +70,16 @@ function checkStructure(
 }
 
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
-  const { testEmptyLastScript, finalCheckAgainstModel, dbdiffOptionsExtra, allowDropStatements } = options || {};
+  const { testEmptyLastScript, finalCheckAgainstModel, markDeleted, allowDropStatements } = options || {};
   let index = 0;
+  const dbdiffOptionsExtra = markDeleted
+    ? {
+        deletedTablePrefix: '_deleted_',
+        deletedColumnPrefix: '_deleted_',
+        deletedSqlObjectPrefix: '_deleted_',
+      }
+    : {};
+
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
       systemConnection: conn.isPreparedOnly ? undefined : conn,
@@ -486,11 +494,7 @@ describe('Deploy database', () => {
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [], []], {
-        dbdiffOptionsExtra: {
-          deletedTablePrefix: '_deleted_',
-          deletedColumnPrefix: '_deleted_',
-          deletedSqlObjectPrefix: '_deleted_',
-        },
+        markDeleted: true,
         disallowExtraObjects: true,
         finalCheckAgainstModel: [T1_DELETED],
       });
@@ -501,11 +505,7 @@ describe('Deploy database', () => {
     'Mark view removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1]], {
-        dbdiffOptionsExtra: {
-          deletedTablePrefix: '_deleted_',
-          deletedColumnPrefix: '_deleted_',
-          deletedSqlObjectPrefix: '_deleted_',
-        },
+        markDeleted: true,
         disallowExtraObjects: true,
         finalCheckAgainstModel: [T1, V1_DELETED],
       });
@@ -516,11 +516,7 @@ describe('Deploy database', () => {
     'Mark column removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL]], {
-        dbdiffOptionsExtra: {
-          deletedTablePrefix: '_deleted_',
-          deletedColumnPrefix: '_deleted_',
-          deletedSqlObjectPrefix: '_deleted_',
-        },
+        markDeleted: true,
         disallowExtraObjects: true,
         finalCheckAgainstModel: [T1_DELETED_VAL],
       });
@@ -542,11 +538,7 @@ describe('Deploy database', () => {
           [T1],
         ],
         {
-          dbdiffOptionsExtra: {
-            deletedTablePrefix: '_deleted_',
-            deletedColumnPrefix: '_deleted_',
-            deletedSqlObjectPrefix: '_deleted_',
-          },
+          markDeleted: true,
           disallowExtraObjects: true,
         }
       );
@@ -557,11 +549,7 @@ describe('Deploy database', () => {
     'Undelete view - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1], [T1, V1]], {
-        dbdiffOptionsExtra: {
-          deletedTablePrefix: '_deleted_',
-          deletedColumnPrefix: '_deleted_',
-          deletedSqlObjectPrefix: '_deleted_',
-        },
+        markDeleted: true,
         disallowExtraObjects: true,
         allowDropStatements: true,
       });
