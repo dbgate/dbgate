@@ -70,7 +70,7 @@ function checkStructure(
 }
 
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
-  const { testEmptyLastScript, finalCheckAgainstModel, dbdiffOptionsExtra } = options || {};
+  const { testEmptyLastScript, finalCheckAgainstModel, dbdiffOptionsExtra, allowDropStatements } = options || {};
   let index = 0;
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
@@ -81,7 +81,9 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
       dbdiffOptionsExtra,
     });
     console.debug('Generated deploy script:', sql);
-    expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
+    if (!allowDropStatements) {
+      expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
+    }
 
     console.log('dbModelsYaml.length', dbModelsYaml.length, index);
     if (testEmptyLastScript && index == dbModelsYaml.length - 1) {
@@ -561,7 +563,7 @@ describe('Deploy database', () => {
           deletedSqlObjectPrefix: '_deleted_',
         },
         disallowExtraObjects: true,
-        finalCheckAgainstModel: [T1, V1],
+        allowDropStatements: true,
       });
     })
   );

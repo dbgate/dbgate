@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { DbDiffOptions, generateTablePairingId } from './diffTools';
+import { DbDiffOptions, generateTablePairingId, hasDeletedPrefix } from './diffTools';
 import {
   AlterProcessor,
   ColumnInfo,
@@ -548,7 +548,13 @@ export class AlterPlan {
       if (this.opts.noDropTable && op.operationType == 'dropTable') return false;
       if (this.opts.noDropTable && op.operationType == 'recreateTable') return false;
       if (this.opts.noDropConstraint && op.operationType == 'dropConstraint') return false;
-      if (this.opts.noDropSqlObject && op.operationType == 'dropSqlObject') return false;
+      if (
+        this.opts.noDropSqlObject &&
+        op.operationType == 'dropSqlObject' &&
+        // allow to drop previously deleted SQL objects
+        !hasDeletedPrefix(op.oldObject.pureName, this.opts, this.opts.deletedSqlObjectPrefix)
+      )
+        return false;
       return true;
     });
   }

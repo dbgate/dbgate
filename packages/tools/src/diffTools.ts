@@ -156,11 +156,11 @@ function getNameWithoutDeletedPrefix(name: string, opts: DbDiffOptions, deletedP
       }
     }
   }
-  
+
   return name;
 }
 
-function hasDeletedPrefix(name: string, opts: DbDiffOptions, deletedPrefix?: string) {
+export function hasDeletedPrefix(name: string, opts: DbDiffOptions, deletedPrefix?: string) {
   if (deletedPrefix) {
     if (opts.ignoreCase) {
       return (name || '').toLowerCase().startsWith(deletedPrefix.toLowerCase());
@@ -636,11 +636,9 @@ export function createAlterDatabasePlan(
           } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
           }
-        } else if (!testEqualSqlObjects(oldobj.createSql, newobj.createSql, opts)) {
+        } else if (!testEqualSqlObjects(oldobj, newobj, opts)) {
           plan.recreates.sqlObjects += 1;
-          if (!opts.noDropSqlObject) {
-            plan.dropSqlObject(oldobj);
-          }
+          plan.dropSqlObject(oldobj);
           plan.createSqlObject(newobj);
         }
       }
