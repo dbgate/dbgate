@@ -8,7 +8,7 @@ const { databaseInfoFromYamlModel } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
-function checkStructure(structure, model, { checkRenameDeletedObjects = false, disallowExtraObjects = false }) {
+function checkStructure(structure, model, { checkRenameDeletedObjects = false, disallowExtraObjects = false } = {}) {
   const expected = databaseInfoFromYamlModel(model);
 
   for (const expectedTable of expected.tables) {
