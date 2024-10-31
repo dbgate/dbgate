@@ -53,6 +53,20 @@ function checkStructure(
       }
     }
   }
+
+  for (const expectedView of expected.views) {
+    const realView = structure.views.find(x => x.pureName == expectedView.pureName);
+    expect(realView).toBeTruthy();
+  }
+
+  for (const realView of structure.views) {
+    const expectedView = expected.views.find(x => x.pureName == realView.pureName);
+    if (!expectedView) {
+      if (disallowExtraObjects) {
+        expect(realView).toBeFalsy();
+      }
+    }
+  }
 }
 
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
@@ -491,10 +505,91 @@ describe('Deploy database', () => {
           [],
         ],
         {
-          checkRenameDeletedObjects: true,
           dbdiffOptionsExtra: {
             allowTableMarkDropped: true,
+            allowSqlObjectMarkDropped: true,
+            allowColumnMarkDropped: true,
           },
+          finalCheckAgainstModel: [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: '_deleted_t1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Mark view removed - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        engine,
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+            {
+              name: 'v1.view.sql',
+              text: 'create view v1 as select * from t1',
+            },
+          ],
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        ],
+        {
+          dbdiffOptionsExtra: {
+            allowTableMarkDropped: true,
+            allowSqlObjectMarkDropped: true,
+            allowColumnMarkDropped: true,
+          },
+          finalCheckAgainstModel: [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+            {
+              name: '_deleted_v1.view.sql',
+              text: 'create view v1 as select * from t1',
+            },
+          ],
         }
       );
     })

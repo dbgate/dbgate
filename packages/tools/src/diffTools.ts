@@ -583,7 +583,7 @@ export function createAlterDatabasePlan(
         }
       } else {
         if (newobj == null) {
-          if (opts.allowSqlObjectMarkDropped) {
+          if (opts.allowSqlObjectMarkDropped && driver.dialect.renameSqlObject) {
             plan.renameSqlObject(oldobj, '_deleted_' + oldobj.pureName);
           } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
