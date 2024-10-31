@@ -70,13 +70,7 @@ function checkStructure(
 }
 
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
-  const {
-    testEmptyLastScript,
-    checkDeletedObjects,
-    finalCheckAgainstModel,
-    finalCheckAgainstFirstModel,
-    dbdiffOptionsExtra,
-  } = options || {};
+  const { testEmptyLastScript, finalCheckAgainstModel, dbdiffOptionsExtra } = options || {};
   let index = 0;
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
@@ -108,12 +102,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(
-    engine,
-    structure,
-    finalCheckAgainstFirstModel ? dbModelsYaml[0] : finalCheckAgainstModel ?? dbModelsYaml[dbModelsYaml.length - 1],
-    options
-  );
+  checkStructure(engine, structure, finalCheckAgainstModel ?? dbModelsYaml[dbModelsYaml.length - 1], options);
 }
 
 describe('Deploy database', () => {
@@ -416,242 +405,123 @@ describe('Deploy database', () => {
     })
   );
 
+  const T1 = {
+    name: 't1.table.yaml',
+    json: {
+      name: 't1',
+      columns: [
+        { name: 'id', type: 'int' },
+        { name: 'val', type: 'int' },
+      ],
+      primaryKey: ['id'],
+    },
+  };
+
+  const T1_DELETED = {
+    name: '_deleted_t1.table.yaml',
+    json: {
+      name: '_deleted_t1',
+      columns: [
+        { name: 'id', type: 'int' },
+        { name: 'val', type: 'int' },
+      ],
+      primaryKey: ['id'],
+    },
+  };
+
+  const T1_NO_VAL = {
+    name: 't1.table.yaml',
+    json: {
+      name: 't1',
+      columns: [{ name: 'id', type: 'int' }],
+      primaryKey: ['id'],
+    },
+  };
+
+  const T1_DELETED_VAL = {
+    name: 't1.table.yaml',
+    json: {
+      name: 't1',
+      columns: [
+        { name: 'id', type: 'int' },
+        { name: '_deleted_val', type: 'int' },
+      ],
+      primaryKey: ['id'],
+    },
+  };
+
+  const V1 = {
+    name: 'v1.view.sql',
+    text: 'create view v1 as select * from t1',
+  };
+
+  const V1_DELETED = {
+    name: '_deleted_v1.view.sql',
+    text: 'create view _deleted_v1 as select * from t1',
+  };
+
   test.each(engines.map(engine => [engine.label, engine]))(
     'Dont remove column - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(
-        engine,
-        conn,
-        driver,
-        [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [{ name: 'id', type: 'int' }],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-        ],
-        { finalCheckAgainstFirstModel: true, disallowExtraObjects: true }
-      );
+      await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL]], {
+        finalCheckAgainstModel: [T1],
+        disallowExtraObjects: true,
+      });
     })
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
     'Dont remove table - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(
-        engine,
-        conn,
-        driver,
-        [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-          [],
-        ],
-        { finalCheckAgainstFirstModel: true, disallowExtraObjects: true }
-      );
+      await testDatabaseDeploy(engine, conn, driver, [[T1], []], {
+        finalCheckAgainstModel: [T1],
+        disallowExtraObjects: true,
+      });
     })
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(
-        engine,
-        conn,
-        driver,
-        [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-          [],
-          [],
-        ],
-        {
-          dbdiffOptionsExtra: {
-            deletedTablePrefix: '_deleted_',
-            deletedColumnPrefix: '_deleted_',
-            deletedSqlObjectPrefix: '_deleted_',
-          },
-          disallowExtraObjects: true,
-          finalCheckAgainstModel: [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: '_deleted_t1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-        }
-      );
+      await testDatabaseDeploy(engine, conn, driver, [[T1], [], []], {
+        dbdiffOptionsExtra: {
+          deletedTablePrefix: '_deleted_',
+          deletedColumnPrefix: '_deleted_',
+          deletedSqlObjectPrefix: '_deleted_',
+        },
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1_DELETED],
+      });
     })
   );
 
   test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
     'Mark view removed - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(
-        engine,
-        conn,
-        driver,
-        [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-            {
-              name: 'v1.view.sql',
-              text: 'create view v1 as select * from t1',
-            },
-          ],
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-        ],
-        {
-          dbdiffOptionsExtra: {
-            deletedTablePrefix: '_deleted_',
-            deletedColumnPrefix: '_deleted_',
-            deletedSqlObjectPrefix: '_deleted_',
-          },
-          disallowExtraObjects: true,
-          finalCheckAgainstModel: [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-            {
-              name: '_deleted_v1.view.sql',
-              text: 'create view v1 as select * from t1',
-            },
-          ],
-        }
-      );
+      await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1]], {
+        dbdiffOptionsExtra: {
+          deletedTablePrefix: '_deleted_',
+          deletedColumnPrefix: '_deleted_',
+          deletedSqlObjectPrefix: '_deleted_',
+        },
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1, V1_DELETED],
+      });
     })
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
     'Mark column removed - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(
-        engine,
-        conn,
-        driver,
-        [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [{ name: 'id', type: 'int' }],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-        ],
-        {
-          dbdiffOptionsExtra: {
-            deletedTablePrefix: '_deleted_',
-            deletedColumnPrefix: '_deleted_',
-            deletedSqlObjectPrefix: '_deleted_',
-          },
-          disallowExtraObjects: true,
-          finalCheckAgainstModel: [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: '_deleted_val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
-        }
-      );
+      await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL]], {
+        dbdiffOptionsExtra: {
+          deletedTablePrefix: '_deleted_',
+          deletedColumnPrefix: '_deleted_',
+          deletedSqlObjectPrefix: '_deleted_',
+        },
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1_DELETED_VAL],
+      });
     })
   );
 
@@ -663,35 +533,11 @@ describe('Deploy database', () => {
         conn,
         driver,
         [
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
+          [T1],
           // delete table
           [],
           // undelete table
-          [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
+          [T1],
         ],
         {
           dbdiffOptionsExtra: {
@@ -700,21 +546,23 @@ describe('Deploy database', () => {
             deletedSqlObjectPrefix: '_deleted_',
           },
           disallowExtraObjects: true,
-          finalCheckAgainstModel: [
-            {
-              name: 't1.table.yaml',
-              json: {
-                name: 't1',
-                columns: [
-                  { name: 'id', type: 'int' },
-                  { name: 'val', type: 'int' },
-                ],
-                primaryKey: ['id'],
-              },
-            },
-          ],
         }
       );
+    })
+  );
+
+  test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
+    'Undelete view - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1], [T1, V1]], {
+        dbdiffOptionsExtra: {
+          deletedTablePrefix: '_deleted_',
+          deletedColumnPrefix: '_deleted_',
+          deletedSqlObjectPrefix: '_deleted_',
+        },
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1, V1],
+      });
     })
   );
 });
