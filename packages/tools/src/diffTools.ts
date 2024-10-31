@@ -647,10 +647,19 @@ export function createAlterDatabasePlan(
           } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
           }
-        } else if (!testEqualSqlObjects(oldobj, newobj, opts)) {
-          plan.recreates.sqlObjects += 1;
-          plan.dropSqlObject(oldobj);
-          plan.createSqlObject(newobj);
+        } else {
+          if (
+            opts.deletedSqlObjectPrefix &&
+            driver.dialect.renameSqlObject &&
+            hasDeletedPrefix(oldobj.pureName, opts, opts.deletedSqlObjectPrefix)
+          ) {
+            plan.dropSqlObject(oldobj);
+            plan.createSqlObject(newobj);
+          } else if (!testEqualSqlObjects(oldobj, newobj, opts)) {
+            plan.recreates.sqlObjects += 1;
+            plan.dropSqlObject(oldobj);
+            plan.createSqlObject(newobj);
+          }
         }
       }
     }
