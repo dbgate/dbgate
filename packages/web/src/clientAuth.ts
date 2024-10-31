@@ -2,6 +2,7 @@ import { apiCall, enableApi, getAuthCategory } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';
 import getElectron from './utility/getElectron';
+import { isProApp } from './utility/proTools';
 
 export function isOauthCallback() {
   const params = new URLSearchParams(location.search);
@@ -127,6 +128,9 @@ export async function handleAuthOnStartup(config) {
   }
 
   function checkInvalidLicense() {
+    if (!isProApp()) {
+      return;
+    }
     if (!config.isLicenseValid) {
       if (config.storageDatabase || getElectron()) {
         if (isAdminPage()) {
@@ -142,6 +146,9 @@ export async function handleAuthOnStartup(config) {
   }
 
   function checkTrialDaysLeft() {
+    if (!isProApp()) {
+      return;
+    }
     if (
       config.trialDaysLeft != null &&
       config.trialDaysLeft <= 14 &&
