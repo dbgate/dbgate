@@ -503,6 +503,7 @@ describe('Deploy database', () => {
             },
           ],
           [],
+          [],
         ],
         {
           dbdiffOptionsExtra: {
@@ -510,6 +511,7 @@ describe('Deploy database', () => {
             deletedColumnPrefix: '_deleted_',
             deletedSqlObjectPrefix: '_deleted_',
           },
+          disallowExtraObjects: true,
           finalCheckAgainstModel: [
             {
               name: 't1.table.yaml',
@@ -573,6 +575,7 @@ describe('Deploy database', () => {
             deletedColumnPrefix: '_deleted_',
             deletedSqlObjectPrefix: '_deleted_',
           },
+          disallowExtraObjects: true,
           finalCheckAgainstModel: [
             {
               name: 't1.table.yaml',
@@ -633,6 +636,7 @@ describe('Deploy database', () => {
             deletedColumnPrefix: '_deleted_',
             deletedSqlObjectPrefix: '_deleted_',
           },
+          disallowExtraObjects: true,
           finalCheckAgainstModel: [
             {
               name: 't1.table.yaml',
@@ -641,6 +645,69 @@ describe('Deploy database', () => {
                 columns: [
                   { name: 'id', type: 'int' },
                   { name: '_deleted_val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        }
+      );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Undelete table - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(
+        engine,
+        conn,
+        driver,
+        [
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+          // delete table
+          [],
+          // undelete table
+          [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
+                ],
+                primaryKey: ['id'],
+              },
+            },
+          ],
+        ],
+        {
+          dbdiffOptionsExtra: {
+            deletedTablePrefix: '_deleted_',
+            deletedColumnPrefix: '_deleted_',
+            deletedSqlObjectPrefix: '_deleted_',
+          },
+          disallowExtraObjects: true,
+          finalCheckAgainstModel: [
+            {
+              name: 't1.table.yaml',
+              json: {
+                name: 't1',
+                columns: [
+                  { name: 'id', type: 'int' },
+                  { name: 'val', type: 'int' },
                 ],
                 primaryKey: ['id'],
               },

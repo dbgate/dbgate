@@ -144,7 +144,36 @@ export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
   };
 }
 
-function testEqualNames(a: string, b: string, opts: DbDiffOptions) {
+function getNameWithoutDeletedPrefix(name: string, opts: DbDiffOptions, deletedPrefix?: string) {
+  if (deletedPrefix) {
+    if (opts.ignoreCase) {
+      if ((name || '').toLowerCase().startsWith(deletedPrefix.toLowerCase())) {
+        return name.slice(deletedPrefix.length);
+      }
+    } else {
+      if ((name || '').startsWith(deletedPrefix)) {
+        return name.slice(deletedPrefix.length);
+      }
+    }
+  }
+  
+  return name;
+}
+
+function hasDeletedPrefix(name: string, opts: DbDiffOptions, deletedPrefix?: string) {
+  if (deletedPrefix) {
+    if (opts.ignoreCase) {
+      return (name || '').toLowerCase().startsWith(deletedPrefix.toLowerCase());
+    } else {
+      return (name || '').startsWith(deletedPrefix);
+    }
+  }
+  return false;
+}
+
+function testEqualNames(a: string, b: string, opts: DbDiffOptions, deletedPrefix?: string) {
+  a = getNameWithoutDeletedPrefix(a, opts, deletedPrefix);
+  b = getNameWithoutDeletedPrefix(b, opts, deletedPrefix);
   if (opts.ignoreCase) return (a || '').toLowerCase() == (b || '').toLowerCase();
   return a == b;
 }
@@ -157,9 +186,12 @@ function testEqualSchemas(lschema: string, rschema: string, opts: DbDiffOptions)
   return testEqualNames(lschema, rschema, opts);
 }
 
-function testEqualFullNames(lft: NamedObjectInfo, rgt: NamedObjectInfo, opts: DbDiffOptions) {
+function testEqualFullNames(lft: NamedObjectInfo, rgt: NamedObjectInfo, opts: DbDiffOptions, deletedPrefix?: string) {
   if (lft == null || rgt == null) return lft == rgt;
-  return testEqualSchemas(lft.schemaName, rgt.schemaName, opts) && testEqualNames(lft.pureName, rgt.pureName, opts);
+  return (
+    testEqualSchemas(lft.schemaName, rgt.schemaName, opts) &&
+    testEqualNames(lft.pureName, rgt.pureName, opts, deletedPrefix)
+  );
 }
 
 function testEqualDefaultValues(value1: string | null | undefined, value2: string | null | undefined) {
@@ -428,12 +460,20 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   if (opts.deletedColumnPrefix) {
     columnPairs
       .filter(x => x[1] == null)
-      .forEach(x => plan.renameColumn(x[0], opts.deletedColumnPrefix + x[0].columnName));
+      .forEach(x => {
+        if (!hasDeletedPrefix(x[0].columnName, opts, opts.deletedColumnPrefix)) {
+          plan.renameColumn(x[0], opts.deletedColumnPrefix + x[0].columnName);
+        }
+      });
   } else if (!opts.noDropColumn) {
     columnPairs.filter(x => x[1] == null).forEach(x => plan.dropColumn(x[0]));
   }
 
   if (!testEqualFullNames(oldTable, newTable, opts) && !opts.noRenameTable) {
+    plan.renameTable(oldTable, newTable.pureName);
+  }
+
+  if (hasDeletedPrefix(oldTable.pureName, opts, opts.deletedTablePrefix)) {
     plan.renameTable(oldTable, newTable.pureName);
   }
 
@@ -577,7 +617,7 @@ export function createAlterDatabasePlan(
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
         if (newobj == null) {
-          if (opts.deletedTablePrefix) {
+          if (opts.deletedTablePrefix && !hasDeletedPrefix(oldobj.pureName, opts, opts.deletedTablePrefix)) {
             plan.renameTable(oldobj, opts.deletedTablePrefix + oldobj.pureName);
           } else if (!opts.noDropTable) {
             plan.dropTable(oldobj);
@@ -587,7 +627,11 @@ export function createAlterDatabasePlan(
         }
       } else {
         if (newobj == null) {
-          if (opts.deletedSqlObjectPrefix && driver.dialect.renameSqlObject) {
+          if (
+            opts.deletedSqlObjectPrefix &&
+            driver.dialect.renameSqlObject &&
+            !hasDeletedPrefix(oldobj.pureName, opts, opts.deletedSqlObjectPrefix)
+          ) {
             plan.renameSqlObject(oldobj, opts.deletedSqlObjectPrefix + oldobj.pureName);
           } else if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
@@ -669,7 +713,14 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     for (const obj2 of res[objectTypeField] || []) {
-      const obj1 = db1[objectTypeField].find(x => testEqualFullNames(x, obj2, opts));
+      const obj1 = db1[objectTypeField].find(x =>
+        testEqualFullNames(
+          x,
+          obj2,
+          opts,
+          objectTypeField == 'tables' ? opts.deletedTablePrefix : opts.deletedSqlObjectPrefix
+        )
+      );
       if (obj1) {
         obj2.pairingId = obj1.pairingId;
 
