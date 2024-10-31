@@ -186,11 +186,11 @@ const filterLocal = [
   // filter local testing
   '-MySQL',
   '-MariaDB',
-  'PostgreSQL',
+  '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
-  '-ClickHouse',
+  'ClickHouse',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');

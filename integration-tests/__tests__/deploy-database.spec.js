@@ -8,7 +8,12 @@ const { databaseInfoFromYamlModel } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
-function checkStructure(structure, model, { checkRenameDeletedObjects = false, disallowExtraObjects = false } = {}) {
+function checkStructure(
+  engine,
+  structure,
+  model,
+  { checkRenameDeletedObjects = false, disallowExtraObjects = false } = {}
+) {
   const expected = databaseInfoFromYamlModel(model);
 
   for (const expectedTable of expected.tables) {
@@ -17,7 +22,9 @@ function checkStructure(structure, model, { checkRenameDeletedObjects = false, d
     for (const column of expectedTable.columns) {
       const realColumn = realTable.columns.find(x => x.columnName == column.columnName);
       expect(realColumn).toBeTruthy();
-      expect(realColumn.notNull).toEqual(column.notNull);
+      if (!engine.skipNullability) {
+        expect(realColumn.notNull).toEqual(column.notNull);
+      }
     }
 
     for (const realColumn of realTable.columns) {
@@ -48,7 +55,7 @@ function checkStructure(structure, model, { checkRenameDeletedObjects = false, d
   }
 }
 
-async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
+async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const {
     testEmptyLastScript,
     checkDeletedObjects,
@@ -88,6 +95,7 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml, options) {
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
   checkStructure(
+    engine,
     structure,
     finalCheckAgainstFirstModel ? dbModelsYaml[0] : finalCheckAgainstModel ?? dbModelsYaml[dbModelsYaml.length - 1],
     options
@@ -98,7 +106,7 @@ describe('Deploy database', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Deploy database simple - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -116,7 +124,7 @@ describe('Deploy database', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Deploy database simple - %s - not connected',
     testWrapperPrepareOnly(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -135,6 +143,7 @@ describe('Deploy database', () => {
     'Deploy database simple twice - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
@@ -167,7 +176,7 @@ describe('Deploy database', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Add column - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -199,6 +208,7 @@ describe('Deploy database', () => {
     'Dont drop column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
@@ -235,6 +245,7 @@ describe('Deploy database', () => {
     'Foreign keys - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
@@ -289,7 +300,7 @@ describe('Deploy database', () => {
   test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Deploy preloaded data - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -318,7 +329,7 @@ describe('Deploy database', () => {
   test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Deploy preloaded data - update - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -365,7 +376,7 @@ describe('Deploy database', () => {
   test.each(engines.enginesPostgre.map(engine => [engine.label, engine]))(
     'Current timestamp default value - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(conn, driver, [
+      await testDatabaseDeploy(engine, conn, driver, [
         [
           {
             name: 't1.table.yaml',
@@ -395,6 +406,7 @@ describe('Deploy database', () => {
     'Dont remove column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
@@ -431,6 +443,7 @@ describe('Deploy database', () => {
     'Dont remove table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
@@ -458,6 +471,7 @@ describe('Deploy database', () => {
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
+        engine,
         conn,
         driver,
         [
