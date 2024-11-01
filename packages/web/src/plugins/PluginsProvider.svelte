@@ -42,13 +42,17 @@
     return res;
   }
 
+  function filterByEdition(arr) {
+    return arr.filter(x => !x.premiumOnly || isProApp());
+  }
+
   export function buildExtensions(plugins) {
     const extensions = {
       plugins,
-      fileFormats: buildFileFormats(plugins),
-      themes: buildThemes(plugins),
-      drivers: buildDrivers(plugins),
-      quickExports: buildQuickExports(plugins),
+      fileFormats: filterByEdition(buildFileFormats(plugins)),
+      themes: filterByEdition(buildThemes(plugins)),
+      drivers: filterByEdition(buildDrivers(plugins)),
+      quickExports: filterByEdition(buildQuickExports(plugins)),
     };
     return extensions;
   }
@@ -63,6 +67,7 @@
   import * as dbgateTools from 'dbgate-tools';
   import * as sqlTree from 'dbgate-sqltree';
   import { apiCall } from '../utility/api';
+  import { isProApp } from '../utility/proTools';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();

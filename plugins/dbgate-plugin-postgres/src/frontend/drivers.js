@@ -264,6 +264,7 @@ const redshiftDriver = {
   engine: 'redshift@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
   defaultPort: 5439,
+  premiumOnly: true,
   databaseUrlPlaceholder: 'e.g. redshift-cluster-1.xxxx.redshift.amazonaws.com:5439/dev',
   showConnectionField: (field, values) =>
     ['databaseUrl', 'user', 'password', 'isReadOnly', 'useSeparateSchemas'].includes(field),
