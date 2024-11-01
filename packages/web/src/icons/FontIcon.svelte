@@ -283,6 +283,7 @@
     'img duplicator': 'mdi mdi-content-duplicate color-icon-green',
     'img import': 'mdi mdi-database-import color-icon-green',
     'img export': 'mdi mdi-database-export color-icon-green',
+    'img transform': 'mdi mdi-rotate-orbit color-icon-blue',
   };
 </script>
 

@@ -81,6 +81,14 @@
     currentConnection: true,
   };
 
+  const modtrans: FileTypeHandler = {
+    icon: 'img transform',
+    format: 'text',
+    tabComponent: 'ModelTransformTab',
+    folder: 'modtrans',
+    currentConnection: false,
+  };
+
   export const SAVED_FILE_HANDLERS = {
     sql,
     shell,
@@ -91,6 +99,7 @@
     diagrams,
     perspectives,
     jobs,
+    modtrans,
   };
 
   export const extractKey = data => data.file;

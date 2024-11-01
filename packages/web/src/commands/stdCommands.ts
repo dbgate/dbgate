@@ -185,6 +185,50 @@ registerCommand({
     findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
 });
 
+if (isProApp()) {
+  registerCommand({
+    id: 'new.modelTransform',
+    category: 'New',
+    icon: 'img transform',
+    name: 'Model transform',
+    menuName: 'New model transform',
+    onClick: () => {
+      openNewTab(
+        {
+          title: 'Model transform #',
+          icon: 'img transform',
+          tabComponent: 'ModelTransformTab',
+        },
+        {
+          editor: JSON.stringify(
+            [
+              {
+                transform: 'dataTypeMapperTransform',
+                arguments: ['json', 'nvarchar(max)'],
+              },
+              {
+                transform: 'sqlTextReplacementTransform',
+                arguments: [
+                  {
+                    oldval1: 'newval1',
+                    oldval2: 'newval2',
+                  },
+                ],
+              },
+              {
+                transform: 'autoIndexForeignKeysTransform',
+                arguments: [],
+              },
+            ],
+            null,
+            2
+          ),
+        }
+      );
+    },
+  });
+}
+
 registerCommand({
   id: 'new.perspective',
   category: 'New',
