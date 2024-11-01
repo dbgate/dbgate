@@ -586,6 +586,7 @@ describe('Deploy database', () => {
         {
           markDeleted: true,
           disallowExtraObjects: true,
+          allowDropStatements: true,
         }
       );
     })
@@ -605,6 +606,7 @@ describe('Deploy database', () => {
         {
           markDeleted: true,
           disallowExtraObjects: true,
+          allowDropStatements: true,
         }
       );
     })

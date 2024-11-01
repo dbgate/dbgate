@@ -648,11 +648,7 @@ export function createAlterDatabasePlan(
             plan.dropSqlObject(oldobj);
           }
         } else {
-          if (
-            opts.deletedSqlObjectPrefix &&
-            driver.dialect.renameSqlObject &&
-            hasDeletedPrefix(oldobj.pureName, opts, opts.deletedSqlObjectPrefix)
-          ) {
+          if (opts.deletedSqlObjectPrefix && hasDeletedPrefix(oldobj.pureName, opts, opts.deletedSqlObjectPrefix)) {
             plan.dropSqlObject(oldobj);
             plan.createSqlObject(newobj);
           } else if (!testEqualSqlObjects(oldobj, newobj, opts)) {
