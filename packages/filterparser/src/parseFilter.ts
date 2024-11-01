@@ -485,6 +485,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
   if (filterBehaviour.supportDatetimeSymbols) {
     allowedElements.push(
       'today',
+      'yesterday',
       'tomorrow',
       'lastWeek',
       'thisWeek',
