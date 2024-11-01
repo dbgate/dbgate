@@ -7,6 +7,7 @@ function replaceInText(text, replacements) {
 }
 
 function replaceInCollection(collection, replacements) {
+  if (!collection) return collection;
   return collection.map(item => {
     if (item.createSql) {
       return {
@@ -22,6 +23,9 @@ const sqlTextReplacementTransform = replacements => database => {
   return {
     ...database,
     views: replaceInCollection(database.views, replacements),
+    matviews: replaceInCollection(database.matviews, replacements),
+    procedures: replaceInCollection(database.procedures, replacements),
+    functions: replaceInCollection(database.functions, replacements),
   };
 };
 
