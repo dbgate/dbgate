@@ -333,6 +333,7 @@
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
         hasPermission('dbops/model/compare') &&
+        isProApp() &&
         (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
@@ -406,6 +407,7 @@
   import { openImportExportTab } from '../utility/importExportTools';
   import newTable from '../tableeditor/newTable';
   import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
+  import { isProApp } from '../utility/proTools';
 
   export let data;
   export let passProps;

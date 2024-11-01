@@ -45,6 +45,7 @@ import ConfirmModal from '../modals/ConfirmModal.svelte';
 import localforage from 'localforage';
 import { openImportExportTab } from '../utility/importExportTools';
 import newTable from '../tableeditor/newTable';
+import { isProApp } from '../utility/proTools';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -298,20 +299,22 @@ registerCommand({
   },
 });
 
-registerCommand({
-  id: 'new.modelCompare',
-  category: 'New',
-  icon: 'icon compare',
-  name: 'Compare DB',
-  toolbar: true,
-  onClick: () => {
-    openNewTab({
-      title: 'Compare',
-      icon: 'img compare',
-      tabComponent: 'CompareModelTab',
-    });
-  },
-});
+if (isProApp()) {
+  registerCommand({
+    id: 'new.modelCompare',
+    category: 'New',
+    icon: 'icon compare',
+    name: 'Compare DB',
+    toolbar: true,
+    onClick: () => {
+      openNewTab({
+        title: 'Compare',
+        icon: 'img compare',
+        tabComponent: 'CompareModelTab',
+      });
+    },
+  });
+}
 
 registerCommand({
   id: 'new.jsonl',
