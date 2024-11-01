@@ -6,9 +6,9 @@ import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
 import { apiCall, apiOff, apiOn } from './api';
 
-const databaseInfoLoader = ({ conid, database }) => ({
+const databaseInfoLoader = ({ conid, database, modelTransFile }) => ({
   url: 'database-connections/structure',
-  params: { conid, database },
+  params: { conid, database, modelTransFile },
   reloadTrigger: { key: `database-structure-changed`, conid, database },
   transform: extendDatabaseInfo,
 });

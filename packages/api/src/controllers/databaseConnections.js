@@ -31,6 +31,7 @@ const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
+const loadModelTransform = require('../utility/loadModelTransform');
 
 const logger = getLogger('databaseConnections');
 
@@ -392,11 +393,12 @@ module.exports = {
   },
 
   structure_meta: true,
-  async structure({ conid, database }, req) {
+  async structure({ conid, database, modelTransFile }, req) {
     testConnectionPermission(conid, req);
     if (conid == '__model') {
       const model = await importDbModel(database);
-      return model;
+      const trans = await loadModelTransform(modelTransFile);
+      return trans ? trans(model) : model;
     }
 
     const opened = await this.ensureOpened(conid, database);
