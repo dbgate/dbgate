@@ -43,6 +43,7 @@ export interface DbDiffOptions {
 
   noDropConstraint?: boolean;
 
+  // unlike tables, sql objects could be recreated, when this option is set
   noDropSqlObject?: boolean;
   deletedSqlObjectPrefix?: string;
 
