@@ -9,6 +9,7 @@
   export let name;
   export let disabled = false;
   export let defaultFileName = '';
+  export let dialogProperties = ['showHiddenFiles', 'openFile'];
 
   const { values, setFieldValue } = getFormContext();
 
@@ -17,7 +18,7 @@
     if (!electron) return;
     const filePaths = await electron.showOpenDialog({
       defaultPath: values[name],
-      properties: ['showHiddenFiles', 'openFile'],
+      properties: dialogProperties,
       filters: [{ name: 'All Files', extensions: ['*'] }],
     });
     const filePath = filePaths && filePaths[0];
