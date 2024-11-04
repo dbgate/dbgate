@@ -415,7 +415,7 @@
   }
 
   let isInitialized = false;
-  let queryParameterStyle = localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ?? ':';
+  let queryParameterStyle = localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ?? '';
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
