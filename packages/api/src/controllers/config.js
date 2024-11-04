@@ -69,7 +69,7 @@ module.exports = {
       !adminConfig?.adminPasswordState
     );
 
-    return {
+    const configResult = {
       runAsPortal: !!connections.portalConnections,
       singleDbConnection: connections.singleDbConnection,
       singleConnection: singleConnection,
@@ -95,13 +95,15 @@ module.exports = {
         !process.env.BASIC_AUTH
       ),
       isAdminPasswordMissing,
-      isInvalidToken: req.isInvalidToken,
+      isInvalidToken: req?.isInvalidToken,
       adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),
       ...currentVersion,
     };
+
+    return configResult;
   },
 
   logout_meta: {
