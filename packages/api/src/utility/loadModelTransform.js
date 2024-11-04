@@ -7,10 +7,9 @@ const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('loadModelTransform');
 
 function modelTransformFromJson(json) {
-  const { transform, arguments } = json;
-  if (!dbgateApi[transform]) return null;
-  const creator = dbgateApi[transform];
-  return creator(...arguments);
+  if (!dbgateApi[json.transform]) return null;
+  const creator = dbgateApi[json.transform];
+  return creator(...json.arguments);
 }
 
 async function loadModelTransform(file) {
