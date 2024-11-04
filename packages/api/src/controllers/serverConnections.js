@@ -134,6 +134,7 @@ module.exports = {
   listDatabases_meta: true,
   async listDatabases({ conid }, req) {
     if (!conid) return [];
+    if (conid == '__model') return [];
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     return opened.databases;
@@ -172,7 +173,7 @@ module.exports = {
         }
       })
     );
-    socket.setStreamIdFilter(strmid, { conid: conidArray });
+    socket.setStreamIdFilter(strmid, { conid: [...(conidArray ?? []), '__model'] });
     return { status: 'ok' };
   },
 

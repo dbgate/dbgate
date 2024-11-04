@@ -368,6 +368,11 @@ module.exports = {
 
   get_meta: true,
   async get({ conid }, req) {
+    if (conid == '__model') {
+      return {
+        _id: '__model',
+      };
+    }
     testConnectionPermission(conid, req);
     return this.getCore({ conid, mask: true });
   },

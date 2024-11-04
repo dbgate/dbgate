@@ -350,6 +350,11 @@ module.exports = {
 
   syncModel_meta: true,
   async syncModel({ conid, database, isFullRefresh }, req) {
+    if (conid == '__model') {
+      socket.emitChanged('database-structure-changed', { conid, database });
+      return { status: 'ok' };
+    }
+
     testConnectionPermission(conid, req);
     const conn = await this.ensureOpened(conid, database);
     conn.subprocess.send({ msgtype: 'syncModel', isFullRefresh });
