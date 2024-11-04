@@ -347,7 +347,7 @@ export function testEqualColumns(
 }
 
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
-  const omitList = [];
+  const omitList = ['pairingId'];
   if (opts.ignoreForeignKeyActions) {
     omitList.push('updateAction');
     omitList.push('deleteAction');
@@ -375,7 +375,10 @@ function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiff
   //   console.log('IX2', stableStringify(_omit(b, omitList)));
   // }
 
-  return stableStringify(_omit(a, omitList)) == stableStringify(_omit(b, omitList));
+  const aStringified = stableStringify(_omit(a, omitList));
+  const bStringified = stableStringify(_omit(b, omitList));
+
+  return aStringified == bStringified;
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
