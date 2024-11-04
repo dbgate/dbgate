@@ -1,12 +1,18 @@
 import type {
+  CheckInfo,
   ColumnInfo,
+  ColumnReference,
   ConstraintInfo,
   DatabaseInfo,
   EngineDriver,
+  ForeignKeyInfo,
+  IndexInfo,
   NamedObjectInfo,
+  PrimaryKeyInfo,
   SqlDialect,
   SqlObjectInfo,
   TableInfo,
+  UniqueInfo,
   ViewInfo,
 } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
@@ -346,19 +352,82 @@ export function testEqualColumns(
   return true;
 }
 
+function testEqualColumnRefs(a: ColumnReference[], b: ColumnReference[], opts: DbDiffOptions) {
+  if (a.length != b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (!testEqualNames(a[i].columnName, b[i].columnName, opts)) return false;
+    if (!testEqualNames(a[i].refColumnName, b[i].refColumnName, opts)) return false;
+  }
+}
+
+function testEqualPrimaryKeys(a: PrimaryKeyInfo, b: PrimaryKeyInfo, opts: DbDiffOptions) {
+  if (!testEqualColumnRefs(a.columns, b.columns, opts)) return false;
+  return true;
+}
+
+function testEqualForeignKeys(a: ForeignKeyInfo, b: ForeignKeyInfo, opts: DbDiffOptions) {
+  if (!testEqualColumnRefs(a.columns, b.columns, opts)) return false;
+  if (!opts.ignoreConstraintNames && !testEqualNames(a.constraintName, b.constraintName, opts)) return false;
+  return true;
+}
+
+function testEqualIndex(a: IndexInfo, b: IndexInfo, opts: DbDiffOptions) {
+  if (!testEqualColumnRefs(a.columns, b.columns, opts)) return false;
+  if (!!a.isUnique != !!b.isUnique) return false;
+
+  if (!opts.ignoreConstraintNames && !testEqualNames(a.constraintName, b.constraintName, opts)) return false;
+  return true;
+}
+
+function testEqualUnique(a: UniqueInfo, b: UniqueInfo, opts: DbDiffOptions) {
+  if (!testEqualColumnRefs(a.columns, b.columns, opts)) return false;
+
+  if (!opts.ignoreConstraintNames && !testEqualNames(a.constraintName, b.constraintName, opts)) return false;
+  return true;
+}
+
+function testEqualCheck(a: CheckInfo, b: CheckInfo, opts: DbDiffOptions) {
+  if (a.definition != b.definition) return false;
+  if (!opts.ignoreConstraintNames && !testEqualNames(a.constraintName, b.constraintName, opts)) return false;
+  return true;
+}
+
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
-  const omitList = ['pairingId'];
-  if (opts.ignoreForeignKeyActions) {
-    omitList.push('updateAction');
-    omitList.push('deleteAction');
+  if (a.constraintType != b.constraintType) {
+    console.debug(`Constraint ${a.pureName}: different constraint type: ${a.constraintType}, ${b.constraintType}`);
+    return false;
   }
-  if (opts.ignoreConstraintNames) {
-    omitList.push('constraintName');
+
+  switch (a.constraintType) {
+    case 'primaryKey':
+    case 'sortingKey':
+      return testEqualPrimaryKeys(a as PrimaryKeyInfo, b as PrimaryKeyInfo, opts);
+    case 'foreignKey':
+      return testEqualForeignKeys(a as ForeignKeyInfo, b as ForeignKeyInfo, opts);
+    case 'index':
+      return testEqualIndex(a as IndexInfo, b as IndexInfo, opts);
+    case 'unique':
+      return testEqualUnique(a as UniqueInfo, b as UniqueInfo, opts);
+    case 'check':
+      return testEqualCheck(a as CheckInfo, b as CheckInfo, opts);
   }
-  if (opts.schemaMode == 'ignore') {
-    omitList.push('schemaName');
-    omitList.push('refSchemaName');
-  }
+
+  console.debug(`Unknown constraint type: ${a.pureName}`);
+
+  return false;
+
+  // const omitList = ['pairingId'];
+  // if (opts.ignoreForeignKeyActions) {
+  //   omitList.push('updateAction');
+  //   omitList.push('deleteAction');
+  // }
+  // if (opts.ignoreConstraintNames) {
+  //   omitList.push('constraintName');
+  // }
+  // if (opts.schemaMode == 'ignore') {
+  //   omitList.push('schemaName');
+  //   omitList.push('refSchemaName');
+  // }
 
   // if (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') {
   //   console.log('PK1', stableStringify(_.omit(a, omitList)));
@@ -375,10 +444,10 @@ function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiff
   //   console.log('IX2', stableStringify(_omit(b, omitList)));
   // }
 
-  const aStringified = stableStringify(_omit(a, omitList));
-  const bStringified = stableStringify(_omit(b, omitList));
+  // const aStringified = stableStringify(_omit(a, omitList));
+  // const bStringified = stableStringify(_omit(b, omitList));
 
-  return aStringified == bStringified;
+  // return aStringified == bStringified;
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
