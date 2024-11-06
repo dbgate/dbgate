@@ -22,6 +22,7 @@
       label: folder.name,
     })),
     ...additionalFolders
+      .filter(x => x != '@create')
       .filter(x => !($folders || []).find(y => y.name == x))
       .map(folder => ({
         value: folder,

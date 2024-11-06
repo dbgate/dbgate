@@ -170,14 +170,18 @@
     };
 
     const handleExportModel = async () => {
-      const resp = await apiCall('database-connections/export-model', {
+      showModal(ExportDbModelModal, {
         conid: connection._id,
         database: name,
       });
-      currentArchive.set(resp.archiveFolder);
-      selectedWidget.set('archive');
-      visibleWidgetSideBar.set(true);
-      showSnackbarSuccess(`Saved to archive ${resp.archiveFolder}`);
+      // const resp = await apiCall('database-connections/export-model', {
+      //   conid: connection._id,
+      //   database: name,
+      // });
+      // currentArchive.set(resp.archiveFolder);
+      // selectedWidget.set('archive');
+      // visibleWidgetSideBar.set(true);
+      // showSnackbarSuccess(`Saved to archive ${resp.archiveFolder}`);
     };
 
     const handleCompareWithCurrentDb = () => {
@@ -198,13 +202,13 @@
       );
     };
 
-    const handleOpenJsonModel = async () => {
-      const db = await getDatabaseInfo({
-        conid: connection._id,
-        database: name,
-      });
-      openJsonDocument(db, name);
-    };
+    // const handleOpenJsonModel = async () => {
+    //   const db = await getDatabaseInfo({
+    //     conid: connection._id,
+    //     database: name,
+    //   });
+    //   openJsonDocument(db, name);
+    // };
 
     const handleGenerateScript = async () => {
       const data = await apiCall('database-connections/export-keys', {
@@ -325,11 +329,12 @@
         hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       driver?.supportsDatabaseProfiler &&
         hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
+      // isSqlOrDoc &&
+      //   isSqlOrDoc &&
+      //   hasPermission(`dbops/model/view`) && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc &&
-        isSqlOrDoc &&
-        hasPermission(`dbops/model/view`) && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
-      isSqlOrDoc &&
-        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: 'Export DB model - experimental' },
+        isProApp() &&
+        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: 'Export DB model' },
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
         hasPermission('dbops/model/compare') &&
@@ -408,6 +413,7 @@
   import newTable from '../tableeditor/newTable';
   import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
   import { isProApp } from '../utility/proTools';
+  import ExportDbModelModal from '../modals/ExportDbModelModal.svelte';
 
   export let data;
   export let passProps;
