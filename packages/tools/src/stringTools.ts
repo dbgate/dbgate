@@ -521,3 +521,23 @@ export function getLimitedQuery(sql: string): string {
   }
   return sql;
 }
+
+export function pinoLogRecordToMessageRecord(logRecord, defaultSeverity = 'info') {
+  const { level, time, msg, ...rest } = logRecord;
+
+  const levelToSeverity = {
+    10: 'debug',
+    20: 'debug',
+    30: 'info',
+    40: 'info',
+    50: 'error',
+    60: 'error',
+  };
+
+  return {
+    ...rest,
+    time,
+    message: msg,
+    severity: levelToSeverity[level] ?? defaultSeverity,
+  };
+}

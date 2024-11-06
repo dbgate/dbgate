@@ -23,6 +23,8 @@
   $: time0 = items[0] && new Date(items[0].time).getTime();
 
   const dispatch = createEventDispatcher();
+
+  // $: console.log('MESSAGE ROWS', items);
 </script>
 
 <div class="main">
@@ -43,6 +45,7 @@
     {#each items as row, index}
       <tr
         class:isError={row.severity == 'error'}
+        class:isDebug={row.severity == 'debug'}
         class:isActive={row.line}
         on:click={() => dispatch('messageclick', row)}
       >
@@ -98,5 +101,8 @@
   }
   tr.isError {
     color: var(--theme-icon-red);
+  }
+  tr.isDebug {
+    color: var(--theme-font-3);
   }
 </style>

@@ -12,6 +12,7 @@ const {
   jsonScriptToJavascript,
   getLogger,
   safeJsonParse,
+  pinoLogRecordToMessageRecord,
 } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
@@ -68,18 +69,20 @@ module.exports = {
 
   dispatchMessage(runid, message) {
     if (message) {
-      const json = safeJsonParse(message.message);
+      if (_.isPlainObject(message)) logger.log(message);
+      else logger.info(message);
 
-      if (json) logger.log(json);
-      else logger.info(message.message);
+      const toEmit = _.isPlainObject(message)
+        ? {
+            time: new Date(),
+            ...message,
+          }
+        : {
+            message,
+            time: new Date(),
+          };
 
-      const toEmit = {
-        time: new Date(),
-        ...message,
-        message: json ? json.msg : message.message,
-      };
-
-      if (json && json.level >= 50) {
+      if (toEmit.level >= 50) {
         toEmit.severity = 'error';
       }
 
@@ -131,7 +134,16 @@ module.exports = {
       }
     );
     const pipeDispatcher = severity => data => {
-      return this.dispatchMessage(runid, { severity, message: data.toString().trim() });
+      const json = safeJsonParse(data, null);
+
+      if (json) {
+        return this.dispatchMessage(runid, pinoLogRecordToMessageRecord(json));
+      } else {
+        return this.dispatchMessage(runid, {
+          message: json == null ? data.toString().trim() : null,
+          severity,
+        });
+      }
     };
 
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
@@ -165,7 +177,7 @@ module.exports = {
 
   start_meta: true,
   async start({ script }) {
-    const runid = crypto.randomUUID()
+    const runid = crypto.randomUUID();
 
     if (script.type == 'json') {
       const js = jsonScriptToJavascript(script);

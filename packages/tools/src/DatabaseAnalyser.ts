@@ -70,7 +70,7 @@ export class DatabaseAnalyser {
   }
 
   async fullAnalysis() {
-    logger.info(`Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
+    logger.debug(`Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
     return res;

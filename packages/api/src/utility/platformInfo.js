@@ -43,9 +43,17 @@ const platformInfo = {
   platform,
   runningInWebpack: !!process.env.WEBPACK_DEV_SERVER_URL,
   allowShellConnection:
-    (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_CONNECTION || !!isElectron() || !!isDbModel,
+    (!processArgs.listenApiChild && !isNpmDist) ||
+    !!process.env.SHELL_CONNECTION ||
+    !!isElectron() ||
+    !!isDbModel ||
+    isDevMode,
   allowShellScripting:
-    (!processArgs.listenApiChild && !isNpmDist) || !!process.env.SHELL_SCRIPTING || !!isElectron() || !!isDbModel,
+    (!processArgs.listenApiChild && !isNpmDist) ||
+    !!process.env.SHELL_SCRIPTING ||
+    !!isElectron() ||
+    !!isDbModel ||
+    isDevMode,
   allowConnectionFromEnvVariables: !!isDbModel,
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
   isAwsUbuntuLayout,
