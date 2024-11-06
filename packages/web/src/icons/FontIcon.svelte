@@ -208,6 +208,7 @@
     'img error-inv': 'mdi mdi-close-circle color-icon-inv-red',
     'img warn': 'mdi mdi-alert color-icon-gold',
     'img info': 'mdi mdi-information color-icon-blue',
+    'img debug': 'mdi mdi-monitor color-icon-green',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
     'img circular': 'mdi mdi-circular-saw color-icon-red',
 
