@@ -12,7 +12,6 @@
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import moment from 'moment';
   import JSONTree from '../jsontree/JSONTree.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -27,17 +26,16 @@
   export let startLine;
 
   export let previousRow = null;
+  export let onMessageClick = null;
 
   let isExpanded = false;
-
-  const dispatch = createEventDispatcher();
 </script>
 
 <tr
   class:isError={row.severity == 'error'}
   class:isDebug={row.severity == 'debug'}
   class:isActive={row.line}
-  on:click={() => dispatch('messageclick', row)}
+  on:click={() => onMessageClick?.(row)}
 >
   <td>{index + 1}</td>
   <td>
@@ -87,6 +85,9 @@
   td:not(.header) {
     border-top: 1px solid var(--theme-border);
     padding: 5px;
+  }
+  tr.isActive {
+    cursor: pointer;
   }
   tr.isActive:hover {
     background: var(--theme-bg-2);

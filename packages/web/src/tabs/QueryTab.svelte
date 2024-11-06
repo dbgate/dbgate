@@ -469,7 +469,7 @@
         <svelte:fragment slot="0">
           <SocketMessageView
             eventName={sessionId ? `session-info-${sessionId}` : null}
-            on:messageClick={handleMesageClick}
+            onMessageClick={handleMesageClick}
             {executeNumber}
             startLine={executeStartLine}
             showProcedure

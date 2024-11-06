@@ -10,6 +10,7 @@
   export let showLine = false;
   export let showCaller = false;
   export let startLine = 0;
+  export let onMessageClick = null;
 
   export let filter = '';
 
@@ -88,7 +89,7 @@
           {time0}
           {startLine}
           previousRow={index > 0 ? items[index - 1] : null}
-          on:messageclick
+          {onMessageClick}
         />
       {/each}
     </table>

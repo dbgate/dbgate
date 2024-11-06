@@ -16,6 +16,7 @@
   export let showNoMessagesAlert = false;
   export let startLine = 0;
   export let onChangeErrors = null;
+  export let onMessageClick = null;
 
   const cachedMessagesRef = createRef([]);
   const lastErrorMessageCountRef = createRef(0);
@@ -69,5 +70,5 @@
 {#if showNoMessagesAlert && (!displayedMessages || displayedMessages.length == 0)}
   <ErrorInfo message="No messages" icon="img alert" />
 {:else}
-  <MessageView items={displayedMessages} on:messageclick {showProcedure} {showLine} {showCaller} {startLine} />
+  <MessageView items={displayedMessages} {onMessageClick} {showProcedure} {showLine} {showCaller} {startLine} />
 {/if}
