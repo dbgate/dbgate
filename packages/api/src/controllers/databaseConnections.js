@@ -448,7 +448,7 @@ module.exports = {
       : outputFolder;
 
     const model = await this.structure({ conid, database });
-    await exportDbModel(model, realFolder);
+    await exportDbModel(extendDatabaseInfo(model), realFolder);
 
     if (outputFolder.startsWith('archive:')) {
       socket.emitChanged(`archive-files-changed`, { folder: outputFolder.substring('archive:'.length) });
@@ -464,7 +464,7 @@ module.exports = {
     const driver = requireEngineDriver(connection);
 
     const model = await this.structure({ conid, database });
-    await exportDbModelSql(model, driver, outputFolder, outputFile);
+    await exportDbModelSql(extendDatabaseInfo(model), driver, outputFolder, outputFile);
 
     return { status: 'ok' };
   },
