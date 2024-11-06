@@ -211,16 +211,6 @@ export async function saveFileToDisk(
   }
 }
 
-export function openWebLink(href) {
-  const electron = getElectron();
-
-  if (electron) {
-    electron.send('open-link', href);
-  } else {
-    window.open(href, '_blank');
-  }
-}
-
 export async function downloadFromApi(route: string, donloadName: string) {
   fetch(`${resolveApi()}/${route}`, {
     method: 'GET',
@@ -240,4 +230,3 @@ export async function downloadFromApi(route: string, donloadName: string) {
       });
     });
 }
-

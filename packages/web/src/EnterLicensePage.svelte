@@ -9,11 +9,11 @@
   import { apiCall } from './utility/api';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
   import getElectron from './utility/getElectron';
-  import { openWebLink } from './utility/exportFileTools';
   import SpecialPageLayout from './widgets/SpecialPageLayout.svelte';
   import hasPermission from './utility/hasPermission';
   import ErrorInfo from './elements/ErrorInfo.svelte';
   import { isOneOfPage } from './utility/pageDefs';
+  import { openWebLink } from './utility/simpleTools';
 
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });

@@ -202,11 +202,6 @@
           on:click={async e => {
             const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}:${$values.amoid}`;
             sessionStorage.setItem('dbloginAuthState', state);
-            // openWebLink(
-            //   `connections/dblogin?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${
-            //     location.origin + location.pathname
-            //   }`
-            // );
             internalRedirectTo(
               `/connections/dblogin-web?conid=${selectedConnection?.conid}&state=${encodeURIComponent(state)}&redirectUri=${extractRedirectUri()}`
             );

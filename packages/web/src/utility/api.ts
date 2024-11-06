@@ -9,10 +9,10 @@ import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
-import { openWebLink } from './exportFileTools';
 import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
+import { openWebLink } from './simpleTools';
 
 export const strmid = uuidv1();
 

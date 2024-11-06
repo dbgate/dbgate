@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { openWebLink } from '../utility/exportFileTools';
   import contextMenu from '../utility/contextMenu';
   import { internalRedirectTo } from '../clientAuth';
+  import { openWebLink } from '../utility/simpleTools';
 
   export let href = undefined;
   export let onClick = undefined;

@@ -33,7 +33,6 @@ import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
 import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
-import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 import { isMac, switchCurrentDatabase } from '../utility/common';
 import { doLogout } from '../clientAuth';
@@ -46,6 +45,7 @@ import localforage from 'localforage';
 import { openImportExportTab } from '../utility/importExportTools';
 import newTable from '../tableeditor/newTable';
 import { isProApp } from '../utility/proTools';
+import { openWebLink } from '../utility/simpleTools';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
