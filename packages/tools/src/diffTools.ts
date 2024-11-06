@@ -392,62 +392,49 @@ function testEqualCheck(a: CheckInfo, b: CheckInfo, opts: DbDiffOptions) {
   return true;
 }
 
+// function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
+//   if (a.constraintType != b.constraintType) {
+//     console.debug(`Constraint ${a.pureName}: different constraint type: ${a.constraintType}, ${b.constraintType}`);
+//     return false;
+//   }
+
+//   switch (a.constraintType) {
+//     case 'primaryKey':
+//     case 'sortingKey':
+//       return testEqualPrimaryKeys(a as PrimaryKeyInfo, b as PrimaryKeyInfo, opts);
+//     case 'foreignKey':
+//       return testEqualForeignKeys(a as ForeignKeyInfo, b as ForeignKeyInfo, opts);
+//     case 'index':
+//       return testEqualIndex(a as IndexInfo, b as IndexInfo, opts);
+//     case 'unique':
+//       return testEqualUnique(a as UniqueInfo, b as UniqueInfo, opts);
+//     case 'check':
+//       return testEqualCheck(a as CheckInfo, b as CheckInfo, opts);
+//   }
+
+//   console.debug(`Unknown constraint type: ${a.pureName}`);
+
+//   return false;
+// }
+
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
-  if (a.constraintType != b.constraintType) {
-    console.debug(`Constraint ${a.pureName}: different constraint type: ${a.constraintType}, ${b.constraintType}`);
-    return false;
+  const omitList = ['pairingId'];
+  if (opts.ignoreForeignKeyActions) {
+    omitList.push('updateAction');
+    omitList.push('deleteAction');
+  }
+  if (opts.ignoreConstraintNames) {
+    omitList.push('constraintName');
+  }
+  if (opts.schemaMode == 'ignore') {
+    omitList.push('schemaName');
+    omitList.push('refSchemaName');
   }
 
-  switch (a.constraintType) {
-    case 'primaryKey':
-    case 'sortingKey':
-      return testEqualPrimaryKeys(a as PrimaryKeyInfo, b as PrimaryKeyInfo, opts);
-    case 'foreignKey':
-      return testEqualForeignKeys(a as ForeignKeyInfo, b as ForeignKeyInfo, opts);
-    case 'index':
-      return testEqualIndex(a as IndexInfo, b as IndexInfo, opts);
-    case 'unique':
-      return testEqualUnique(a as UniqueInfo, b as UniqueInfo, opts);
-    case 'check':
-      return testEqualCheck(a as CheckInfo, b as CheckInfo, opts);
-  }
+  const aStringified = stableStringify(_omit(a, omitList));
+  const bStringified = stableStringify(_omit(b, omitList));
 
-  console.debug(`Unknown constraint type: ${a.pureName}`);
-
-  return false;
-
-  // const omitList = ['pairingId'];
-  // if (opts.ignoreForeignKeyActions) {
-  //   omitList.push('updateAction');
-  //   omitList.push('deleteAction');
-  // }
-  // if (opts.ignoreConstraintNames) {
-  //   omitList.push('constraintName');
-  // }
-  // if (opts.schemaMode == 'ignore') {
-  //   omitList.push('schemaName');
-  //   omitList.push('refSchemaName');
-  // }
-
-  // if (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') {
-  //   console.log('PK1', stableStringify(_.omit(a, omitList)));
-  //   console.log('PK2', stableStringify(_.omit(b, omitList)));
-  // }
-
-  // if (a.constraintType == 'foreignKey' && b.constraintType == 'foreignKey') {
-  //   console.log('FK1', stableStringify(_omit(a, omitList)));
-  //   console.log('FK2', stableStringify(_omit(b, omitList)));
-  // }
-
-  // if (a.constraintType == 'index' && b.constraintType == 'index') {
-  //   console.log('IX1', stableStringify(_omit(a, omitList)));
-  //   console.log('IX2', stableStringify(_omit(b, omitList)));
-  // }
-
-  // const aStringified = stableStringify(_omit(a, omitList));
-  // const bStringified = stableStringify(_omit(b, omitList));
-
-  // return aStringified == bStringified;
+  return aStringified == bStringified;
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
