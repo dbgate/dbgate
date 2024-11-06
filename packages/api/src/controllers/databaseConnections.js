@@ -32,6 +32,7 @@ const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
+const exportDbModelSql = require('../utility/exportDbModelSql');
 
 const logger = getLogger('databaseConnections');
 
@@ -398,7 +399,7 @@ module.exports = {
   },
 
   structure_meta: true,
-  async structure({ conid, database, modelTransFile }, req) {
+  async structure({ conid, database, modelTransFile = null }, req) {
     testConnectionPermission(conid, req);
     if (conid == '__model') {
       const model = await importDbModel(database);
@@ -439,14 +440,33 @@ module.exports = {
   },
 
   exportModel_meta: true,
-  async exportModel({ conid, database }, req) {
+  async exportModel({ conid, database, outputFolder }, req) {
     testConnectionPermission(conid, req);
-    const archiveFolder = await archive.getNewArchiveFolder({ database });
-    await fs.mkdir(path.join(archivedir(), archiveFolder));
+
+    const realFolder = outputFolder.startsWith('archive:')
+      ? resolveArchiveFolder(outputFolder.substring('archive:'.length))
+      : outputFolder;
+
     const model = await this.structure({ conid, database });
-    await exportDbModel(model, path.join(archivedir(), archiveFolder));
-    socket.emitChanged(`archive-folders-changed`);
-    return { archiveFolder };
+    await exportDbModel(model, realFolder);
+
+    if (outputFolder.startsWith('archive:')) {
+      socket.emitChanged(`archive-files-changed`, { folder: outputFolder.substring('archive:'.length) });
+    }
+    return { status: 'ok' };
+  },
+
+  exportModelSql_meta: true,
+  async exportModelSql({ conid, database, outputFolder, outputFile }, req) {
+    testConnectionPermission(conid, req);
+
+    const connection = await connections.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+
+    const model = await this.structure({ conid, database });
+    await exportDbModelSql(model, driver, outputFolder, outputFile);
+
+    return { status: 'ok' };
   },
 
   generateDeploySql_meta: true,

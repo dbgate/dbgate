@@ -9,20 +9,32 @@
   export let name;
   export let disabled = false;
   export let defaultFileName = '';
-  export let dialogProperties = ['showHiddenFiles', 'openFile'];
+  export let dialogProperties = undefined;
+  export let isSaveDialog = false;
+  export let dialogFilters = [{ name: 'All Files', extensions: ['*'] }];
 
   const { values, setFieldValue } = getFormContext();
 
   async function handleBrowse() {
     const electron = getElectron();
     if (!electron) return;
-    const filePaths = await electron.showOpenDialog({
-      defaultPath: values[name],
-      properties: dialogProperties,
-      filters: [{ name: 'All Files', extensions: ['*'] }],
-    });
-    const filePath = filePaths && filePaths[0];
-    if (filePath) setFieldValue(name, filePath);
+
+    if (isSaveDialog) {
+      const filePath = await electron.showSaveDialog({
+        defaultPath: values[name],
+        properties: dialogProperties ?? ['showHiddenFiles', 'showOverwriteConfirmation'],
+        filters: dialogFilters,
+      });
+      if (filePath) setFieldValue(name, filePath);
+    } else {
+      const filePaths = await electron.showOpenDialog({
+        defaultPath: values[name],
+        properties: dialogProperties ?? ['showHiddenFiles', 'openFile'],
+        filters: dialogFilters,
+      });
+      const filePath = filePaths && filePaths[0];
+      if (filePath) setFieldValue(name, filePath);
+    }
   }
 </script>
 
