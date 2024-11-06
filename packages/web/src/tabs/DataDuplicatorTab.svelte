@@ -386,7 +386,12 @@
       </div>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} showNoMessagesAlert />
+      <SocketMessageView
+        eventName={runnerId ? `runner-info-${runnerId}` : null}
+        {executeNumber}
+        showNoMessagesAlert
+        showCaller
+      />
     </svelte:fragment>
   </VerticalSplitter>
 

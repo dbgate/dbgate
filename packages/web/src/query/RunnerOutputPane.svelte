@@ -11,7 +11,12 @@
 <HorizontalSplitter>
   <div class="container" slot="1">
     <WidgetTitle>Messages</WidgetTitle>
-    <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} showNoMessagesAlert />
+    <SocketMessageView
+      eventName={runnerId ? `runner-info-${runnerId}` : null}
+      {executeNumber}
+      showNoMessagesAlert
+      showCaller
+    />
   </div>
   <div class="container" slot="2">
     <WidgetTitle>Output files</WidgetTitle>

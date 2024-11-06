@@ -15,6 +15,7 @@
   export let isParentArray;
   export let expanded = !!getContext('json-tree-default-expanded');
   export let labelOverride = null;
+  export let onRootExpandedChanged = null;
 
   $: nodeType = objType(value);
   $: componentType = getComponent(nodeType);
@@ -79,4 +80,5 @@
   {valueGetter}
   {expanded}
   {labelOverride}
+  {onRootExpandedChanged}
 />

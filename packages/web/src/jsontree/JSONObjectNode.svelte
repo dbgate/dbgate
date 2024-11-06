@@ -4,6 +4,7 @@
   export let key, value, isParentExpanded, isParentArray, nodeType;
   export let expanded = false;
   export let labelOverride = null;
+  export let onRootExpandedChanged = null;
 
   $: keys = Object.getOwnPropertyNames(value);
 
@@ -24,4 +25,5 @@
   bracketOpen={'{'}
   bracketClose={'}'}
   elementValue={value}
+  {onRootExpandedChanged}
 />

@@ -10,6 +10,7 @@
 
   export let showProcedure = false;
   export let showLine = false;
+  export let showCaller = false;
   export let eventName;
   export let executeNumber;
   export let showNoMessagesAlert = false;
@@ -68,5 +69,5 @@
 {#if showNoMessagesAlert && (!displayedMessages || displayedMessages.length == 0)}
   <ErrorInfo message="No messages" icon="img alert" />
 {:else}
-  <MessageView items={displayedMessages} on:messageclick {showProcedure} {showLine} {startLine} />
+  <MessageView items={displayedMessages} on:messageclick {showProcedure} {showLine} {showCaller} {startLine} />
 {/if}

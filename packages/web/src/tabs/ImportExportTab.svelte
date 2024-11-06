@@ -255,6 +255,7 @@
               eventName={runnerId ? `runner-info-${runnerId}` : null}
               {executeNumber}
               showNoMessagesAlert
+              showCaller
             />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>

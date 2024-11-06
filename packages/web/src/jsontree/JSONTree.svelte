@@ -17,6 +17,7 @@
   export let labelOverride = null;
   export let slicedKeyCount = null;
   export let disableContextMenu = null;
+  export let onRootExpandedChanged = null;
 
   export let isDeleted = false;
   export let isInserted = false;
@@ -66,7 +67,15 @@
   class:isInserted
   class:isModified
 >
-  <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} {expanded} {labelOverride} />
+  <JSONNode
+    {key}
+    {value}
+    isParentExpanded={true}
+    isParentArray={false}
+    {expanded}
+    {labelOverride}
+    {onRootExpandedChanged}
+  />
 </ul>
 
 <style>

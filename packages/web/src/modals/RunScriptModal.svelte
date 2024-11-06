@@ -67,7 +67,12 @@
     </svelte:fragment>
 
     <div class="messages">
-      <SocketMessageView eventName={runid ? `runner-info-${runid}` : null} {executeNumber} showNoMessagesAlert />
+      <SocketMessageView
+        eventName={runid ? `runner-info-${runid}` : null}
+        {executeNumber}
+        showNoMessagesAlert
+        showCaller
+      />
     </div>
 
     <svelte:fragment slot="footer">
