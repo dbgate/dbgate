@@ -358,6 +358,7 @@ function testEqualColumnRefs(a: ColumnReference[], b: ColumnReference[], opts: D
     if (!testEqualNames(a[i].columnName, b[i].columnName, opts)) return false;
     if (!testEqualNames(a[i].refColumnName, b[i].refColumnName, opts)) return false;
   }
+  return true;
 }
 
 function testEqualPrimaryKeys(a: PrimaryKeyInfo, b: PrimaryKeyInfo, opts: DbDiffOptions) {
