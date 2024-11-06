@@ -6,6 +6,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
+  import stableStringify from 'json-stable-stringify';
 
   export let title;
   export let fieldDefinitions;
@@ -18,7 +19,9 @@
 
   const valuesStore = writable(values || {});
 
-  $: onChangeValues($valuesStore);
+  $: if (stableStringify($valuesStore) != stableStringify(values)) {
+    onChangeValues($valuesStore);
+  }
 </script>
 
 <div class="wrapper">

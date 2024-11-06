@@ -150,7 +150,7 @@
     schemaList={$schemaList}
     {driver}
     {resetCounter}
-    isCreateTable={objectTypeField == 'tables' && !$editorValue?.base}
+    isCreateTable={objectTypeField == 'tables' && $editorValue && !$editorValue?.base}
     setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly && hasPermission(`dbops/model/edit`)
       ? tableInfoUpdater =>
           setEditorData(tbl =>
