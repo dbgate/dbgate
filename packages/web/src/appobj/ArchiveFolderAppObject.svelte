@@ -19,6 +19,7 @@
   import { apiCall } from '../utility/api';
   import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
+  import { extractShellConnection } from '../impexp/createImpExpScript';
 
   export let data;
 
@@ -66,10 +67,7 @@
         
 await dbgateApi.deployDb(${JSON.stringify(
           {
-            connection: {
-              ..._.omit($currentDatabase.connection, '_id', 'displayName'),
-              database: $currentDatabase.name,
-            },
+            connection: extractShellConnection($currentDatabase.connection, $currentDatabase.name),
             modelFolder: `archive:${data.name}`,
           },
           undefined,

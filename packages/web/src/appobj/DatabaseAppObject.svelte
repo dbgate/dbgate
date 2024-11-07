@@ -297,14 +297,35 @@
         
 await dbgateApi.dropAllDbObjects(${JSON.stringify(
                 {
-                  connection: {
-                    ..._.omit(connection, '_id', 'displayName'),
-                    database: name,
-                  },
+                  connection: extractShellConnection(connection, name),
                 },
                 undefined,
                 2
               )})`,
+            }
+          );
+        },
+      });
+    };
+
+    const handleImportWithDbDuplicator = () => {
+      showModal(ChooseArchiveFolderModal, {
+        message: 'Choose archive folder for import from',
+        onConfirm: archiveFolder => {
+          openNewTab(
+            {
+              title: archiveFolder,
+              icon: 'img duplicator',
+              tabComponent: 'DataDuplicatorTab',
+              props: {
+                conid: connection?._id,
+                database: name,
+              },
+            },
+            {
+              editor: {
+                archiveFolder,
+              },
             }
           );
         },
@@ -390,6 +411,14 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
           text: 'Shell: Drop all objects',
         },
 
+      driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`dbops/import`) && {
+          onClick: handleImportWithDbDuplicator,
+          text: 'Import with DB duplicator',
+        },
+
+      { divider: true },
+
       commands.length > 0 && [
         commands.map((cmd: any) => ({
           text: cmd.name,
@@ -451,6 +480,8 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
   import { isProApp } from '../utility/proTools';
   import ExportDbModelModal from '../modals/ExportDbModelModal.svelte';
+  import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
+  import { extractShellConnection } from '../impexp/createImpExpScript';
 
   export let data;
   export let passProps;

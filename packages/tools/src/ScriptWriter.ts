@@ -58,7 +58,7 @@ export class ScriptWriter {
   }
 
   dataDuplicator(options) {
-    this._put(`await dbgateApi.dataDuplicator(${JSON.stringify(options)});`);
+    this._put(`await dbgateApi.dataDuplicator(${JSON.stringify(options, null, 2)});`);
   }
 
   comment(s) {

@@ -22,6 +22,16 @@
     testEnabled: () => getCurrentEditor()?.canKill(),
     onClick: () => getCurrentEditor().kill(),
   });
+  registerCommand({
+    id: 'dataDuplicator.generateScript',
+    category: 'Data duplicator',
+    icon: 'img shell',
+    name: 'Generate Script',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.canRun(),
+    onClick: () => getCurrentEditor().generateScript(),
+  });
 </script>
 
 <script lang="ts">
@@ -52,7 +62,6 @@
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
   import appObjectTypes from '../appobj';
-  import RowHeaderCell from '../datagrid/RowHeaderCell.svelte';
 
   export let conid;
   export let database;
@@ -124,6 +133,7 @@
       options: {
         rollbackAfterFinish: !!$editorState.value?.rollbackAfterFinish,
         skipRowsWithUnresolvedRefs: !!$editorState.value?.skipRowsWithUnresolvedRefs,
+        setNullForUnresolvedNullableRefs: !!$editorState.value?.setNullForUnresolvedNullableRefs,
       },
     });
     return script.getScript();
@@ -143,6 +153,18 @@
     runid = resp.runid;
     runnerId = runid;
     timerLabel.start();
+  }
+
+  export async function generateScript() {
+    const code = await createScript();
+    openNewTab(
+      {
+        title: 'Shell #',
+        icon: 'img shell',
+        tabComponent: 'ShellTab',
+      },
+      { editor: code }
+    );
   }
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
@@ -286,6 +308,29 @@
               }}
             />
           </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Set NULL for nullable unresolved references"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  setNullForUnresolvedNullableRefs: !$editorState.value?.setNullForUnresolvedNullableRefs,
+                }));
+              },
+            }}
+          >
+            <CheckboxField
+              checked={$editorState.value?.setNullForUnresolvedNullableRefs}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  setNullForUnresolvedNullableRefs: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
         </ObjectConfigurationControl>
 
         <ObjectConfigurationControl title="Imported files">
@@ -398,6 +443,7 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataDuplicator.run" />
     <ToolStripCommandButton command="dataDuplicator.kill" />
+    <ToolStripCommandButton command="dataDuplicator.generateScript" />
   </svelte:fragment>
 </ToolStripContainer>
 

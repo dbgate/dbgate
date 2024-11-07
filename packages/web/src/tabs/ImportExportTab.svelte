@@ -275,7 +275,7 @@
     {:else}
       <ToolStripButton on:click={handleExecute} icon="icon run">Run</ToolStripButton>
     {/if}
-    <ToolStripButton icon="img sql-file" on:click={handleGenerateScript}>Generate script</ToolStripButton>
+    <ToolStripButton icon="img shell" on:click={handleGenerateScript}>Generate script</ToolStripButton>
     <ToolStripSaveButton idPrefix="job" />
   </svelte:fragment>
 </ToolStripContainer>
