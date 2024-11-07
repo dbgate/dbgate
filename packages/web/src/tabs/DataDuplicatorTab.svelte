@@ -124,6 +124,7 @@
       options: {
         rollbackAfterFinish: !!$editorState.value?.rollbackAfterFinish,
         skipRowsWithUnresolvedRefs: !!$editorState.value?.skipRowsWithUnresolvedRefs,
+        setNullForUnresolvedNullableRefs: !!$editorState.value?.setNullForUnresolvedNullableRefs,
       },
     });
     return script.getScript();

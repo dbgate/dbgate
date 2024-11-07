@@ -125,7 +125,7 @@ class DuplicatorItemHolder {
 
   // returns list of columns that are weak references and are not resolved
   async getMissingWeakRefsForRow(row): Promise<string[]> {
-    if (!this.duplicator.options.setNullForUnresolvedNullableRefs) {
+    if (!this.duplicator.options.setNullForUnresolvedNullableRefs || !this.weakReferences?.length) {
       return [];
     }
 
