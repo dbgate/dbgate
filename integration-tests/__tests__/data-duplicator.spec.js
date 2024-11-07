@@ -121,7 +121,7 @@ describe('Data duplicator', () => {
           foreignKeys: [{ refTableName: 't1', columns: [{ columnName: 'valfk', refColumnName: 'id' }] }],
         })
       );
-      runCommandOnDriver(conn, driver, dmp => dmp.put("insert into ~t1 (~id, ~val) ~values (1, 'first')"));
+      runCommandOnDriver(conn, driver, dmp => dmp.put("insert into ~t1 (~id, ~val) values (1, 'first')"));
 
       const gett2 = () =>
         stream.Readable.from([
@@ -149,7 +149,10 @@ describe('Data duplicator', () => {
       expect(res1.rows[0].cnt.toString()).toEqual('1');
 
       const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
-      expect(res2.rows[0].cnt.toString()).toEqual('1');
+      expect(res2.rows[0].cnt.toString()).toEqual('2');
+
+      const res3 = await driver.query(conn, `select count(*) as cnt from t2 where valfk is not null`);
+      expect(res3.rows[0].cnt.toString()).toEqual('1');
     })
   );
 });

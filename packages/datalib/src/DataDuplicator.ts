@@ -79,7 +79,11 @@ class DuplicatorItemHolder {
       const isMandatory = this.table.columns.find(x => x.columnName == fk.columns[0]?.columnName)?.notNull;
       if (refHolder == null) {
         if (!isMandatory) {
-          const weakref = new DuplicatorWeakReference(this, this.duplicator.db.tables.find(x => x.pureName == fk.refTableName), fk);
+          const weakref = new DuplicatorWeakReference(
+            this,
+            this.duplicator.db.tables.find(x => x.pureName == fk.refTableName),
+            fk
+          );
           this.weakReferences.push(weakref);
         }
       } else {
@@ -92,13 +96,13 @@ class DuplicatorItemHolder {
     }
   }
 
-  createInsertObject(chunk) {
+  createInsertObject(chunk, weakrefcols: string[]) {
     const res = _omit(
       _pick(
         chunk,
         this.table.columns.map(x => x.columnName)
       ),
-      [this.autoColumn, ...this.backReferences.map(x => x.columnName)]
+      [this.autoColumn, ...this.backReferences.map(x => x.columnName), ...weakrefcols]
     );
 
     for (const key in res) {
@@ -119,6 +123,28 @@ class DuplicatorItemHolder {
     return res;
   }
 
+  // returns list of columns that are weak references and are not resolved
+  async getMissingWeakRefsForRow(row): Promise<string[]> {
+    if (!this.duplicator.options.setNullForUnresolvedNullableRefs) {
+      return [];
+    }
+
+    const qres = await runQueryOnDriver(this.duplicator.pool, this.duplicator.driver, dmp => {
+      dmp.put('^select ');
+      dmp.putCollection(',', this.weakReferences, weakref => {
+        dmp.put(
+          '(^case ^when ^exists (^select * ^from %f where %i = %v) ^then 1 ^else 0 ^end) as %i',
+          weakref.ref,
+          weakref.foreignKey.columns[0].refColumnName,
+          row[weakref.foreignKey.columns[0].columnName],
+          weakref.foreignKey.columns[0].columnName
+        );
+      });
+    });
+    const qrow = qres.rows[0];
+    return this.weakReferences.filter(x => !qrow[x.columnName]).map(x => x.columnName);
+  }
+
   async runImport() {
     const readStream = await this.item.openStream();
     const driver = this.duplicator.driver;
@@ -129,6 +155,8 @@ class DuplicatorItemHolder {
     let skipped = 0;
     let lastLogged = new Date();
 
+    const existingWeakRefs = {};
+
     const writeStream = createAsyncWriteStream(this.duplicator.stream, {
       processItem: async chunk => {
         if (chunk.__isStreamHeader) {
@@ -137,7 +165,8 @@ class DuplicatorItemHolder {
 
         const doCopy = async () => {
           // console.log('chunk', this.name, JSON.stringify(chunk));
-          const insertedObj = this.createInsertObject(chunk);
+          const weakrefcols = await this.getMissingWeakRefsForRow(chunk);
+          const insertedObj = this.createInsertObject(chunk, weakrefcols);
           // console.log('insertedObj', this.name, JSON.stringify(insertedObj));
           if (insertedObj == null) {
             skipped += 1;
