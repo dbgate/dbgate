@@ -281,6 +281,36 @@
       saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
 
+    const handleGenerateDropAllObjectsScript = () => {
+      showModal(ConfirmModal, {
+        message: `This will generate script, after executing this script all objects in ${name} will be dropped. Continue?`,
+
+        onConfirm: () => {
+          openNewTab(
+            {
+              title: 'Shell #',
+              icon: 'img shell',
+              tabComponent: 'ShellTab',
+            },
+            {
+              editor: `// @require ${extractPackageName(connection.engine)}
+        
+await dbgateApi.dropAllDbObjects(${JSON.stringify(
+                {
+                  connection: {
+                    ..._.omit(connection, '_id', 'displayName'),
+                    database: name,
+                  },
+                },
+                undefined,
+                2
+              )})`,
+            }
+          );
+        },
+      });
+    };
+
     const driver = findEngineDriver(connection, getExtensions());
 
     const commands = _.flatten((apps || []).map(x => x.commands || []));
@@ -352,8 +382,15 @@
         (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
           _.get($currentDatabase, 'name') == name)) && { onClick: handleDisconnect, text: 'Disconnect' },
 
+      { divider: true },
+
+      driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`dbops/dropdb`) && {
+          onClick: handleGenerateDropAllObjectsScript,
+          text: 'Shell: Drop all objects',
+        },
+
       commands.length > 0 && [
-        { divider: true },
         commands.map((cmd: any) => ({
           text: cmd.name,
           onClick: () => {
@@ -394,7 +431,7 @@
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
-  import { extractDbNameFromComposite, findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import { extractDbNameFromComposite, extractPackageName, findEngineDriver, getConnectionLabel } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
