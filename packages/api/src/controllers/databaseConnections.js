@@ -440,7 +440,7 @@ module.exports = {
   },
 
   exportModel_meta: true,
-  async exportModel({ conid, database, outputFolder }, req) {
+  async exportModel({ conid, database, outputFolder, schema }, req) {
     testConnectionPermission(conid, req);
 
     const realFolder = outputFolder.startsWith('archive:')

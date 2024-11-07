@@ -6,6 +6,7 @@
 
   export let conidName;
   export let databaseName;
+  export let allowAllSchemas = false;
 
   const { values } = getFormContext();
   $: schemaList = useSchemaList({ conid: $values[conidName], database: $values[databaseName] });
@@ -17,5 +18,8 @@
 </script>
 
 {#if schemaOptions.length > 0}
-  <FormSelectField {...$$restProps} options={schemaOptions} />
+  <FormSelectField
+    {...$$restProps}
+    options={allowAllSchemas ? [{ value: '__all', label: '(All schemas)' }, ...schemaOptions] : schemaOptions}
+  />
 {/if}
