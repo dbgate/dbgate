@@ -21,6 +21,7 @@ export interface DataDuplicatorItem {
 export interface DataDuplicatorOptions {
   rollbackAfterFinish?: boolean;
   skipRowsWithUnresolvedRefs?: boolean;
+  setNullForUnresolvedNullableRefs?: boolean;
 }
 
 class DuplicatorReference {
@@ -36,9 +37,19 @@ class DuplicatorReference {
   }
 }
 
+class DuplicatorWeakReference {
+  constructor(public base: DuplicatorItemHolder, public ref: TableInfo, public foreignKey: ForeignKeyInfo) {}
+
+  get columnName() {
+    return this.foreignKey.columns[0].columnName;
+  }
+}
+
 class DuplicatorItemHolder {
   references: DuplicatorReference[] = [];
   backReferences: DuplicatorReference[] = [];
+  // not mandatory references to entities out of the model
+  weakReferences: DuplicatorWeakReference[] = [];
   table: TableInfo;
   isPlanned = false;
   idMap = {};
@@ -65,13 +76,19 @@ class DuplicatorItemHolder {
     for (const fk of this.table.foreignKeys) {
       if (fk.columns?.length != 1) continue;
       const refHolder = this.duplicator.itemHolders.find(y => y.name.toUpperCase() == fk.refTableName.toUpperCase());
-      if (refHolder == null) continue;
       const isMandatory = this.table.columns.find(x => x.columnName == fk.columns[0]?.columnName)?.notNull;
-      const newref = new DuplicatorReference(this, refHolder, isMandatory, fk);
-      this.references.push(newref);
-      this.refByColumn[newref.columnName] = newref;
+      if (refHolder == null) {
+        if (!isMandatory) {
+          const weakref = new DuplicatorWeakReference(this, this.duplicator.db.tables.find(x => x.pureName == fk.refTableName), fk);
+          this.weakReferences.push(weakref);
+        }
+      } else {
+        const newref = new DuplicatorReference(this, refHolder, isMandatory, fk);
+        this.references.push(newref);
+        this.refByColumn[newref.columnName] = newref;
 
-      refHolder.isReferenced = true;
+        refHolder.isReferenced = true;
+      }
     }
   }
 

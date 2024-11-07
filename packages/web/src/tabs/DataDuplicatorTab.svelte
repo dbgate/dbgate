@@ -286,6 +286,29 @@
               }}
             />
           </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Set NULL for nullable unresolved references"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  setNullForUnresolvedNullableRefs: !$editorState.value?.setNullForUnresolvedNullableRefs,
+                }));
+              },
+            }}
+          >
+            <CheckboxField
+              checked={$editorState.value?.setNullForUnresolvedNullableRefs}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  setNullForUnresolvedNullableRefs: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
         </ObjectConfigurationControl>
 
         <ObjectConfigurationControl title="Imported files">
