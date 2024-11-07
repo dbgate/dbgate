@@ -297,10 +297,7 @@
         
 await dbgateApi.dropAllDbObjects(${JSON.stringify(
                 {
-                  connection: {
-                    ..._.omit(connection, '_id', 'displayName'),
-                    database: name,
-                  },
+                  connection: extractShellConnection(connection, name),
                 },
                 undefined,
                 2
@@ -484,6 +481,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import { isProApp } from '../utility/proTools';
   import ExportDbModelModal from '../modals/ExportDbModelModal.svelte';
   import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
+  import { extractShellConnection } from '../impexp/createImpExpScript';
 
   export let data;
   export let passProps;
