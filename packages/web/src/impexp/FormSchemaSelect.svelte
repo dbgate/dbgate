@@ -8,7 +8,7 @@
   export let databaseName;
 
   const { values } = getFormContext();
-  $: schemaList = useSchemaList({ conid: $values[conidName], database: values[databaseName] });
+  $: schemaList = useSchemaList({ conid: $values[conidName], database: $values[databaseName] });
 
   $: schemaOptions = (_.isArray($schemaList) ? $schemaList : []).map(schema => ({
     value: schema.schemaName,
