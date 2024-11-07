@@ -142,7 +142,7 @@ class DuplicatorItemHolder {
       });
     });
     const qrow = qres.rows[0];
-    return this.weakReferences.filter(x => !qrow[x.columnName]).map(x => x.columnName);
+    return this.weakReferences.filter(x => qrow[x.columnName] == 0).map(x => x.columnName);
   }
 
   async runImport() {
