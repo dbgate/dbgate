@@ -135,8 +135,8 @@ await dbgateApi.deployDb(${JSON.stringify(
       data.name != 'default' &&
         $currentDatabase && [
           { text: 'Data duplicator', onClick: handleOpenDuplicatorTab },
-          { text: 'Generate deploy DB SQL - experimental', onClick: handleGenerateDeploySql },
-          { text: 'Shell: Deploy DB - experimental', onClick: handleGenerateDeployScript },
+          { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
+          { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
         ],
 
       data.name != 'default' &&
