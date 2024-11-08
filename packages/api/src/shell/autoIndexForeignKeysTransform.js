@@ -8,7 +8,7 @@ const autoIndexForeignKeysTransform = () => database => {
           ...(table.indexes || []),
           ...table.foreignKeys.map(fk => ({
             constraintName: `IX_${fk.constraintName}`,
-            columns: fk.columns,
+            columns: fk.columns.map(x => ({ columnName: x.columnName })),
           })),
         ],
       };

@@ -145,6 +145,10 @@ export function isCollectionInfo(obj: { objectTypeField?: string }): obj is Coll
 }
 
 export function filterStructureBySchema(db: DatabaseInfo, schema: string) {
+  if (!db) {
+    return db;
+  }
+
   return {
     ...db,
     tables: (db.tables || []).filter(x => x.schemaName == schema),
@@ -158,6 +162,10 @@ export function filterStructureBySchema(db: DatabaseInfo, schema: string) {
 }
 
 export function getSchemasUsedByStructure(db: DatabaseInfo) {
+  if (!db) {
+    return db;
+  }
+
   return _uniq([
     ...(db.tables || []).map(x => x.schemaName),
     ...(db.views || []).map(x => x.schemaName),
@@ -167,4 +175,31 @@ export function getSchemasUsedByStructure(db: DatabaseInfo) {
     ...(db.functions || []).map(x => x.schemaName),
     ...(db.triggers || []).map(x => x.schemaName),
   ]);
+}
+
+export function replaceSchemaInStructure(db: DatabaseInfo, schema: string) {
+  if (!db) {
+    return db;
+  }
+
+  return {
+    ...db,
+    tables: (db.tables || []).map(tbl => ({
+      ...tbl,
+      schemaName: schema,
+      columns: (tbl.columns || []).map(column => ({ ...column, schemaName: schema })),
+      primaryKey: tbl.primaryKey ? { ...tbl.primaryKey, schemaName: schema } : undefined,
+      sortingKey: tbl.sortingKey ? { ...tbl.sortingKey, schemaName: schema } : undefined,
+      foreignKeys: (tbl.foreignKeys || []).map(fk => ({ ...fk, refSchemaName: schema, schemaName: schema })),
+      indexes: (tbl.indexes || []).map(idx => ({ ...idx, schemaName: schema })),
+      uniques: (tbl.uniques || []).map(idx => ({ ...idx, schemaName: schema })),
+      checks: (tbl.checks || []).map(idx => ({ ...idx, schemaName: schema })),
+    })),
+    views: (db.views || []).map(x => ({ ...x, schemaName: schema })),
+    collections: (db.collections || []).map(x => ({ ...x, schemaName: schema })),
+    matviews: (db.matviews || []).map(x => ({ ...x, schemaName: schema })),
+    procedures: (db.procedures || []).map(x => ({ ...x, schemaName: schema })),
+    functions: (db.functions || []).map(x => ({ ...x, schemaName: schema })),
+    triggers: (db.triggers || []).map(x => ({ ...x, schemaName: schema })),
+  };
 }

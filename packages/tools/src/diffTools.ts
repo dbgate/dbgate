@@ -624,7 +624,9 @@ export function testEqualTables(
 ) {
   const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
   planAlterTable(plan, a, b, opts);
-  // console.log('plan.operations', a, b, plan.operations);
+  // if (plan.operations.length > 0) {
+  //   console.log('************** plan.operations', a, b, plan.operations);
+  // }
   return plan.operations.length == 0;
 }
 
@@ -856,7 +858,6 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
 
 export const modelCompareDbDiffOptions: DbDiffOptions = {
   ignoreCase: true,
-  schemaMode: 'ignore',
   ignoreConstraintNames: true,
   ignoreForeignKeyActions: true,
   ignoreDataTypes: true,

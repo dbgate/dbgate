@@ -9,6 +9,7 @@ const dialect = {
   rangeSelect: true,
   ilike: true,
   defaultSchemaName: 'public',
+  multipleSchema: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',

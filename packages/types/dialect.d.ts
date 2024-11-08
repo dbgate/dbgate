@@ -35,6 +35,7 @@ export interface SqlDialect {
   createCheck?: boolean;
   dropCheck?: boolean;
   renameSqlObject?: boolean;
+  multipleSchema?: boolean;
 
   specificNullabilityImplementation?: boolean;
   omitForeignKeys?: boolean;
