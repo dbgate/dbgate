@@ -1,6 +1,14 @@
-import { DbDiffOptions, testEqualColumns, testEqualTables, testEqualSqlObjects } from './diffTools';
-import type { DatabaseInfo, EngineDriver, SqlObjectInfo, TableInfo } from 'dbgate-types';
+import {
+  DbDiffOptions,
+  testEqualColumns,
+  testEqualTables,
+  testEqualSqlObjects,
+  createAlterDatabasePlan,
+} from './diffTools';
+import type { DatabaseInfo, EngineDriver, NamedObjectInfo, SqlObjectInfo, TableInfo } from 'dbgate-types';
 import _ from 'lodash';
+import { extendDatabaseInfo } from './structureTools';
+import { AlterOperation, runAlterOperation } from './alterPlan';
 
 export function computeDiffRowsCore(sourceList, targetList, testEqual) {
   const res = [];
@@ -122,6 +130,58 @@ export function computeTableDiffColumns(
     sourceNotNull: row?.source?.notNull,
     targetNotNull: row?.target?.notNull,
   }));
+}
+
+export interface DiffOperationItemDisplay {
+  operationType: string;
+  name: string;
+  sqlScript: string;
+  identifier?: string;
+}
+
+function getOperationDisplay(operation: AlterOperation, driver: EngineDriver, index: number): DiffOperationItemDisplay {
+  const op = operation as any;
+  const name =
+    op?.newName ??
+    op?.newObject?.columnName ??
+    op?.newObject?.constraintName ??
+    op?.newObject?.pureName ??
+    op?.oldObject?.columnName ??
+    op?.oldObject?.constraintName ??
+    op?.oldObject?.pureName ??
+    op?.table?.pureName ??
+    op?.object?.columnName ??
+    op?.object?.constraintName ??
+    op?.object?.pureName;
+
+  const dmp = driver.createDumper();
+  runAlterOperation(operation, dmp);
+
+  return {
+    operationType: operation.operationType,
+    name,
+    sqlScript: dmp.s,
+    identifier: `${name}-${index}-${operation.operationType}`,
+  };
+}
+
+export function computeObjectDiffOperations(
+  sourceObject: { objectTypeField: string },
+  targetObject: { objectTypeField: string },
+  sourceDb: DatabaseInfo,
+  targetDb: DatabaseInfo,
+  opts: DbDiffOptions,
+  driver: EngineDriver
+): DiffOperationItemDisplay[] {
+  if (!driver) return [];
+  const srcdb = sourceObject
+    ? extendDatabaseInfo({ [sourceObject.objectTypeField]: [sourceObject] } as unknown as DatabaseInfo)
+    : extendDatabaseInfo({} as unknown as DatabaseInfo);
+  const dstdb = targetObject
+    ? extendDatabaseInfo({ [targetObject.objectTypeField]: [targetObject] } as unknown as DatabaseInfo)
+    : extendDatabaseInfo({} as unknown as DatabaseInfo);
+  const plan = createAlterDatabasePlan(dstdb, srcdb, opts, targetDb, sourceDb, driver);
+  return plan.operations.map((item, index) => getOperationDisplay(item, driver, index));
 }
 
 export function getCreateObjectScript(obj: TableInfo | SqlObjectInfo, driver: EngineDriver) {

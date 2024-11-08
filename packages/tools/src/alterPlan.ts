@@ -110,7 +110,7 @@ interface AlterOperation_SetTableOption {
   optionValue: string;
 }
 
-type AlterOperation =
+export type AlterOperation =
   | AlterOperation_CreateColumn
   | AlterOperation_ChangeColumn
   | AlterOperation_DropColumn
