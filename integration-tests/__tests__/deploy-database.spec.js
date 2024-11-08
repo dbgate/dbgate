@@ -79,6 +79,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         deletedSqlObjectPrefix: '_deleted_',
       }
     : {};
+  dbdiffOptionsExtra.schemaMode = 'ignore';
 
   for (const loadedDbModel of dbModelsYaml) {
     const { sql, isEmpty } = await generateDeploySql({
