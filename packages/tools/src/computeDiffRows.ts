@@ -139,7 +139,7 @@ export interface DiffOperationItemDisplay {
   identifier?: string;
 }
 
-function getOperationDisplay(operation: AlterOperation, driver: EngineDriver, index: number): DiffOperationItemDisplay {
+export function getOperationDisplay(operation: AlterOperation, driver: EngineDriver): DiffOperationItemDisplay {
   const op = operation as any;
   const name =
     op?.newName ??
@@ -161,7 +161,7 @@ function getOperationDisplay(operation: AlterOperation, driver: EngineDriver, in
     operationType: operation.operationType,
     name,
     sqlScript: dmp.s,
-    identifier: `${name}-${index}-${operation.operationType}`,
+    identifier: dmp.s,
   };
 }
 
@@ -181,7 +181,7 @@ export function computeObjectDiffOperations(
     ? extendDatabaseInfo({ [targetObject.objectTypeField]: [targetObject] } as unknown as DatabaseInfo)
     : extendDatabaseInfo({} as unknown as DatabaseInfo);
   const plan = createAlterDatabasePlan(dstdb, srcdb, opts, targetDb, sourceDb, driver);
-  return plan.operations.map((item, index) => getOperationDisplay(item, driver, index));
+  return plan.operations.map(item => getOperationDisplay(item, driver));
 }
 
 export function getCreateObjectScript(obj: TableInfo | SqlObjectInfo, driver: EngineDriver) {

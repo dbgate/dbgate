@@ -784,9 +784,13 @@ export function getAlterDatabaseScript(
   opts: DbDiffOptions,
   wholeOldDb: DatabaseInfo,
   wholeNewDb: DatabaseInfo,
-  driver: EngineDriver
+  driver: EngineDriver,
+  transformPlan: (plan: AlterPlan) => void = null
 ) {
   const plan = createAlterDatabasePlan(oldDb, newDb, opts, wholeOldDb, wholeNewDb, driver);
+  if (transformPlan) {
+    transformPlan(plan);
+  }
   const dmp = driver.createDumper({ useHardSeparator: true });
   plan.run(dmp);
   return {
