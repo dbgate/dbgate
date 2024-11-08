@@ -13,6 +13,7 @@ const {
   modelCompareDbDiffOptions,
   getLogger,
   extractErrorLogData,
+  filterStructureBySchema,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -448,7 +449,8 @@ module.exports = {
       : outputFolder;
 
     const model = await this.structure({ conid, database });
-    await exportDbModel(extendDatabaseInfo(model), realFolder);
+    const filteredModel = schema ? filterStructureBySchema(model, schema) : model;
+    await exportDbModel(extendDatabaseInfo(filteredModel), realFolder);
 
     if (outputFolder.startsWith('archive:')) {
       socket.emitChanged(`archive-files-changed`, { folder: outputFolder.substring('archive:'.length) });
@@ -457,14 +459,15 @@ module.exports = {
   },
 
   exportModelSql_meta: true,
-  async exportModelSql({ conid, database, outputFolder, outputFile }, req) {
+  async exportModelSql({ conid, database, outputFolder, outputFile, schema }, req) {
     testConnectionPermission(conid, req);
 
     const connection = await connections.getCore({ conid });
     const driver = requireEngineDriver(connection);
 
     const model = await this.structure({ conid, database });
-    await exportDbModelSql(extendDatabaseInfo(model), driver, outputFolder, outputFile);
+    const filteredModel = schema ? filterStructureBySchema(model, schema) : model;
+    await exportDbModelSql(extendDatabaseInfo(filteredModel), driver, outputFolder, outputFile);
 
     return { status: 'ok' };
   },

@@ -1,5 +1,6 @@
 import type { DatabaseInfo, TableInfo, ApplicationDefinition, ViewInfo, CollectionInfo } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
+import _uniq from 'lodash/uniq';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   if (!db.tables) {
@@ -141,4 +142,29 @@ export function isViewInfo(obj: { objectTypeField?: string }): obj is ViewInfo {
 
 export function isCollectionInfo(obj: { objectTypeField?: string }): obj is CollectionInfo {
   return obj.objectTypeField == 'collections';
+}
+
+export function filterStructureBySchema(db: DatabaseInfo, schema: string) {
+  return {
+    ...db,
+    tables: (db.tables || []).filter(x => x.schemaName == schema),
+    views: (db.views || []).filter(x => x.schemaName == schema),
+    collections: (db.collections || []).filter(x => x.schemaName == schema),
+    matviews: (db.matviews || []).filter(x => x.schemaName == schema),
+    procedures: (db.procedures || []).filter(x => x.schemaName == schema),
+    functions: (db.functions || []).filter(x => x.schemaName == schema),
+    triggers: (db.triggers || []).filter(x => x.schemaName == schema),
+  };
+}
+
+export function getSchemasUsedByStructure(db: DatabaseInfo) {
+  return _uniq([
+    ...(db.tables || []).map(x => x.schemaName),
+    ...(db.views || []).map(x => x.schemaName),
+    ...(db.collections || []).map(x => x.schemaName),
+    ...(db.matviews || []).map(x => x.schemaName),
+    ...(db.procedures || []).map(x => x.schemaName),
+    ...(db.functions || []).map(x => x.schemaName),
+    ...(db.triggers || []).map(x => x.schemaName),
+  ]);
 }

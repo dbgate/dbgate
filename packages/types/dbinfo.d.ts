@@ -3,7 +3,6 @@ export interface NamedObjectInfo {
   schemaName?: string;
   contentHash?: string;
   engine?: string;
-  undropPureName?: string;
 }
 
 export interface ColumnReference {

@@ -1,10 +1,20 @@
 const fs = require('fs-extra');
 const path = require('path');
-const yaml = require('js-yaml');
-const { mkdirp } = require('mkdirp');
+const { getSchemasUsedByStructure } = require('dbgate-tools');
 
 async function exportDbModelSql(dbModel, driver, outputDir, outputFile) {
   const { tables, views, procedures, functions, triggers, matviews } = dbModel;
+
+  const usedSchemas = getSchemasUsedByStructure(dbModel);
+  const useSchemaDir = usedSchemas.length > 1;
+
+  const createdDirs = new Set();
+  async function ensureDir(dir) {
+    if (!createdDirs.has(dir)) {
+      await fs.mkdir(dir, { recursive: true });
+      createdDirs.add(dir);
+    }
+  }
 
   async function writeLists(writeList) {
     await writeList(views, 'views');
@@ -39,25 +49,29 @@ async function exportDbModelSql(dbModel, driver, outputDir, outputFile) {
   }
 
   if (outputDir) {
-    await mkdirp(path.join(outputDir, 'tables'));
     for (const table of tables || []) {
+      const tablesDir = useSchemaDir
+        ? path.join(outputDir, table.schemaName ?? 'default', 'tables')
+        : path.join(outputDir, 'tables');
+      await ensureDir(tablesDir);
       const dmp = driver.createDumper();
       dmp.createTable({
         ...table,
         foreignKeys: [],
         dependencies: [],
       });
-      await fs.writeFile(path.join(outputDir, 'tables', `${table.pureName}.sql`), dmp.s);
+      await fs.writeFile(path.join(tablesDir, `${table.pureName}.sql`), dmp.s);
     }
 
     await writeLists(async (list, folder) => {
-      if (list.length > 0) {
-        await mkdirp(path.join(outputDir, folder));
-      }
       for (const obj of list || []) {
+        const objdir = useSchemaDir
+          ? path.join(outputDir, obj.schemaName ?? 'default', folder)
+          : path.join(outputDir, folder);
+        await ensureDir(objdir);
         const dmp = driver.createDumper();
         dmp.createSqlObject(obj);
-        await fs.writeFile(path.join(outputDir, folder, `${obj.pureName}.sql`), dmp.s);
+        await fs.writeFile(path.join(objdir, `${obj.pureName}.sql`), dmp.s);
       }
     });
   }
