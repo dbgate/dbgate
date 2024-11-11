@@ -127,6 +127,13 @@ export function removeTablePairingId(table: TableInfo): TableInfo {
   };
 }
 
+function simplifySqlExpression(sql: string) {
+  return (sql || '')
+    .replace(/[\s\(\)\[\]\"]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 function generateObjectPairingId(obj) {
   if (obj.objectTypeField)
     return {
@@ -375,6 +382,7 @@ function testEqualForeignKeys(a: ForeignKeyInfo, b: ForeignKeyInfo, opts: DbDiff
 function testEqualIndex(a: IndexInfo, b: IndexInfo, opts: DbDiffOptions) {
   if (!testEqualColumnRefs(a.columns, b.columns, opts)) return false;
   if (!!a.isUnique != !!b.isUnique) return false;
+  if (simplifySqlExpression(a.filterDefinition) != simplifySqlExpression(b.filterDefinition)) return false;
 
   if (!opts.ignoreConstraintNames && !testEqualNames(a.constraintName, b.constraintName, opts)) return false;
   return true;
@@ -456,7 +464,7 @@ export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions
     return true;
   }
 
-  if ((a.dataType || '').toLowerCase() != (b.dataType || '').toLowerCase()) {
+  if (simplifySqlExpression(a.dataType) != simplifySqlExpression(b.dataType)) {
     console.debug(
       `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`
     );

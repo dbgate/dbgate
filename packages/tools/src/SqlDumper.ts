@@ -515,6 +515,9 @@ export class SqlDumper implements AlterProcessor {
       this.put('%i %k', col.columnName, col.isDescending == true ? 'DESC' : 'ASC');
     });
     this.put('&<&n)');
+    if (ix.filterDefinition && this.dialect.filteredIndexes) {
+      this.put('&n^where %s', ix.filterDefinition);
+    }
     this.endCommand();
   }
 

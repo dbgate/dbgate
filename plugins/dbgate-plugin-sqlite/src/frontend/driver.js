@@ -34,6 +34,7 @@ const dialect = {
   createPrimaryKey: false,
   dropPrimaryKey: false,
   dropReferencesWhenDropTable: false,
+  filteredIndexes: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

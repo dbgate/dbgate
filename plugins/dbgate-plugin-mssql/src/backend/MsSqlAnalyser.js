@@ -131,7 +131,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       indexes: indexesRows.rows
         .filter(idx => idx.object_id == row.objectId && !idx.is_unique_constraint)
         .map(idx => ({
-          ..._.pick(idx, ['constraintName', 'indexType', 'isUnique']),
+          ..._.pick(idx, ['constraintName', 'indexType', 'isUnique', 'filterDefinition']),
           columns: indexcolsRows.rows
             .filter(col => col.object_id == idx.object_id && col.index_id == idx.index_id)
             .map(col => ({

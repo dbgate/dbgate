@@ -159,6 +159,7 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
       pureName: table.name,
       isUnique: index.unique,
       constraintType: 'index',
+      filterDefinition: index.filter,
       columns: [
         ...index.columns.map(columnName => ({ columnName })),
         ...(index.included || []).map(columnName => ({ columnName, isIncludedColumn: true })),

@@ -7,6 +7,8 @@ const {
   modelCompareDbDiffOptions,
   enrichWithPreloadedRows,
   skipNamesInStructureByRegex,
+  replaceSchemaInStructure,
+  filterStructureBySchema,
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -22,6 +24,7 @@ async function generateDeploySql({
   modelTransforms = undefined,
   dbdiffOptionsExtra = {},
   ignoreNameRegex = '',
+  targetSchema = null,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
@@ -42,6 +45,11 @@ async function generateDeploySql({
 
     for (const transform of modelTransforms || []) {
       deployedModelSource = transform(deployedModelSource);
+    }
+
+    if (targetSchema) {
+      deployedModelSource = replaceSchemaInStructure(deployedModelSource, targetSchema);
+      analysedStructure = filterStructureBySchema(analysedStructure, targetSchema);
     }
 
     const deployedModel = generateDbPairingId(extendDatabaseInfo(deployedModelSource));

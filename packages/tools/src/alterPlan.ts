@@ -81,6 +81,7 @@ interface AlterOperation_ChangeConstraint {
 interface AlterOperation_DropConstraint {
   operationType: 'dropConstraint';
   oldObject: ConstraintInfo;
+  isRecreate?: boolean;
 }
 
 interface AlterOperation_RenameConstraint {
@@ -337,15 +338,16 @@ export class AlterPlan {
         if (op.operationType == testedOperationType) {
           const constraints = this._getDependendColumnConstraints(testedObject as ColumnInfo, testedDependencies);
 
-          if (constraints.length > 0 && this.opts.noDropConstraint) {
-            return [];
-          }
+          // if (constraints.length > 0 && this.opts.noDropConstraint) {
+          //   return [];
+          // }
 
           const res: AlterOperation[] = [
             ...constraints.map(oldObject => {
               const opRes: AlterOperation = {
                 operationType: 'dropConstraint',
                 oldObject,
+                isRecreate: true,
               };
               return opRes;
             }),
@@ -382,15 +384,16 @@ export class AlterPlan {
       }
 
       if (op.operationType == 'changeConstraint') {
-        if (this.opts.noDropConstraint) {
-          // skip constraint recreate
-          return [];
-        }
+        // if (this.opts.noDropConstraint) {
+        //   // skip constraint recreate
+        //   return [];
+        // }
 
         this.recreates.constraints += 1;
         const opDrop: AlterOperation = {
           operationType: 'dropConstraint',
           oldObject: op.oldObject,
+          isRecreate: true,
         };
         const opCreate: AlterOperation = {
           operationType: 'createConstraint',
@@ -547,7 +550,7 @@ export class AlterPlan {
       if (this.opts.noDropColumn && op.operationType == 'dropColumn') return false;
       if (this.opts.noDropTable && op.operationType == 'dropTable') return false;
       if (this.opts.noDropTable && op.operationType == 'recreateTable') return false;
-      if (this.opts.noDropConstraint && op.operationType == 'dropConstraint') return false;
+      if (this.opts.noDropConstraint && op.operationType == 'dropConstraint' && !op.isRecreate) return false;
       // if (
       //   this.opts.noDropSqlObject &&
       //   op.operationType == 'dropSqlObject' &&

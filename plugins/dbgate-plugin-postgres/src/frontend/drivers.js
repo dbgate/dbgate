@@ -36,6 +36,7 @@ const dialect = {
   dropCheck: true,
   allowMultipleValuesInsert: true,
   renameSqlObject: true,
+  filteredIndexes: true,
 
   dropReferencesWhenDropTable: true,
   requireStandaloneSelectForScopeIdentity: true,

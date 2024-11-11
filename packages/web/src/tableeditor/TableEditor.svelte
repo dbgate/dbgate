@@ -141,6 +141,7 @@
       setTableInfo,
       tableInfo,
       dbInfo,
+      driver,
     });
   }
 
@@ -286,7 +287,7 @@
       title={`Indexes (${indexes?.length || 0})`}
       emptyMessage={isWritable ? 'No index defined' : null}
       clickable
-      on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+      on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, driver })}
       columns={[
         {
           fieldName: 'columns',

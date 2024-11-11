@@ -39,6 +39,7 @@ const dialect = {
   createCheck: true,
   dropCheck: true,
   renameSqlObject: true,
+  filteredIndexes: true,
 
   dropReferencesWhenDropTable: true,
 
