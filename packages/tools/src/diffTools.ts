@@ -25,6 +25,7 @@ import _isEqual from 'lodash/isEqual';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import _isString from 'lodash/isString';
+import { detectChangesInPreloadedRows } from './structureTools';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -507,7 +508,7 @@ function createPairs(oldList, newList, additionalCondition = null) {
 
 function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo) {
   const key = newTable.preloadedRowsKey || newTable.primaryKey?.columns?.map(x => x.columnName);
-  if (newTable.preloadedRows?.length > 0 && key?.length > 0) {
+  if (newTable.preloadedRows?.length > 0 && key?.length > 0 && detectChangesInPreloadedRows(oldTable, newTable)) {
     plan.fillPreloadedRows(
       newTable,
       oldTable?.preloadedRows,
@@ -597,8 +598,6 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
 
   constraintPairs.filter(x => x[0] == null).forEach(x => plan.createConstraint(x[1]));
 
-  planTablePreload(plan, oldTable, newTable);
-
   planChangeTableOptions(plan, oldTable, newTable, opts);
 
   // console.log('oldTable', oldTable);
@@ -635,7 +634,15 @@ export function testEqualTables(
   // if (plan.operations.length > 0) {
   //   console.log('************** plan.operations', a, b, plan.operations);
   // }
-  return plan.operations.length == 0;
+  if (plan.operations.length > 0) {
+    return false;
+  }
+
+  if (detectChangesInPreloadedRows(a, b)) {
+    return false;
+  }
+
+  return true;
 }
 
 export function testEqualSqlObjects(a: SqlObjectInfo, b: SqlObjectInfo, opts: DbDiffOptions) {
@@ -658,6 +665,7 @@ export function createAlterTablePlan(
     plan.dropTable(oldTable);
   } else {
     planAlterTable(plan, oldTable, newTable, opts);
+    planTablePreload(plan, oldTable, newTable);
   }
   plan.transformPlan();
   return plan;
@@ -719,6 +727,7 @@ export function createAlterDatabasePlan(
           }
         } else {
           planAlterTable(plan, oldobj, newobj, opts);
+          planTablePreload(plan, oldobj, newobj);
         }
       } else {
         if (newobj == null) {

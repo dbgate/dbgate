@@ -1,6 +1,14 @@
-import type { DatabaseInfo, TableInfo, ApplicationDefinition, ViewInfo, CollectionInfo } from 'dbgate-types';
+import type {
+  DatabaseInfo,
+  TableInfo,
+  ApplicationDefinition,
+  ViewInfo,
+  CollectionInfo,
+  NamedObjectInfo,
+} from 'dbgate-types';
 import _flatten from 'lodash/flatten';
 import _uniq from 'lodash/uniq';
+import _keys from 'lodash/keys';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   if (!db.tables) {
@@ -218,5 +226,63 @@ export function skipNamesInStructureByRegex(db: DatabaseInfo, regex: RegExp) {
     procedures: (db.procedures || []).filter(tbl => !regex.test(tbl.pureName)),
     functions: (db.functions || []).filter(tbl => !regex.test(tbl.pureName)),
     triggers: (db.triggers || []).filter(tbl => !regex.test(tbl.pureName)),
+  };
+}
+
+export function detectChangesInPreloadedRows(oldTable: TableInfo, newTable: TableInfo): boolean {
+  const key =
+    newTable.preloadedRowsKey ||
+    oldTable.preloadedRowsKey ||
+    newTable.primaryKey?.columns?.map(x => x.columnName) ||
+    oldTable.primaryKey?.columns?.map(x => x.columnName);
+  const oldRows = oldTable?.preloadedRows || [];
+  const newRows = newTable?.preloadedRows || [];
+  const insertOnly = newTable.preloadedRowsInsertOnly || oldTable.preloadedRowsInsertOnly;
+
+  if (newRows.length != oldRows.length) {
+    return true;
+  }
+
+  for (const row of newRows) {
+    const old = oldRows?.find(r => key.every(col => r[col] == row[col]));
+    const rowKeys = _keys(row);
+    if (old) {
+      const updated = [];
+      for (const col of rowKeys) {
+        if (row[col] != old[col] && !insertOnly?.includes(col)) {
+          updated.push(col);
+        }
+      }
+      if (updated.length > 0) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+
+  for (const row of oldRows || []) {
+    const newr = oldRows?.find(r => key.every(col => r[col] == row[col]));
+    if (!newr) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function removePreloadedRowsFromStructure(db: DatabaseInfo): DatabaseInfo {
+  if (!db) {
+    return db;
+  }
+
+  return {
+    ...db,
+    tables: (db.tables || []).map(tbl => ({
+      ...tbl,
+      preloadedRows: undefined,
+      preloadedRowsKey: undefined,
+      preloadedRowsInsertOnly: undefined,
+    })),
   };
 }
