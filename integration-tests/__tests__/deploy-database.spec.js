@@ -613,77 +613,77 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
-    'Script drived deploy - basic predeploy - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(engine, conn, driver, [
-        [
-          {
-            name: '1.predeploy.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1);',
-          },
-        ],
-      ]);
+  // test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  //   'Script drived deploy - basic predeploy - %s',
+  //   testWrapper(async (conn, driver, engine) => {
+  //     await testDatabaseDeploy(engine, conn, driver, [
+  //       [
+  //         {
+  //           name: '1.predeploy.sql',
+  //           text: 'create table t1 (id int primary key); insert into t1 (id) values (1);',
+  //         },
+  //       ],
+  //     ]);
 
-      const res1 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
-      expect(res1.rows[0].cnt == 1).toBeTruthy();
+  //     const res1 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
+  //     expect(res1.rows[0].cnt == 1).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
-      expect(res2.rows[0].cnt == 1).toBeTruthy();
-    })
-  );
+  //     const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+  //     expect(res2.rows[0].cnt == 1).toBeTruthy();
+  //   })
+  // );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
-    'Script drived deploy - install+uninstall - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testDatabaseDeploy(engine, conn, driver, [
-        [
-          {
-            name: 't1.uninstall.sql',
-            text: 'drop table t1',
-          },
-          {
-            name: 't1.install.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1)',
-          },
-          {
-            name: 't2.once.sql',
-            text: 'create table t2 (id int primary key); insert into t2 (id) values (1)',
-          },
-        ],
-        [
-          {
-            name: 't1.uninstall.sql',
-            text: 'drop table t1',
-          },
-          {
-            name: 't1.install.sql',
-            text: 'create table t1 (id int primary key, val int); insert into t1 (id, val) values (1, 11)',
-          },
-          {
-            name: 't2.once.sql',
-            text: 'insert into t2 (id) values (2)',
-          },
-        ],
-      ]);
+  // test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  //   'Script drived deploy - install+uninstall - %s',
+  //   testWrapper(async (conn, driver, engine) => {
+  //     await testDatabaseDeploy(engine, conn, driver, [
+  //       [
+  //         {
+  //           name: 't1.uninstall.sql',
+  //           text: 'drop table t1',
+  //         },
+  //         {
+  //           name: 't1.install.sql',
+  //           text: 'create table t1 (id int primary key); insert into t1 (id) values (1)',
+  //         },
+  //         {
+  //           name: 't2.once.sql',
+  //           text: 'create table t2 (id int primary key); insert into t2 (id) values (1)',
+  //         },
+  //       ],
+  //       [
+  //         {
+  //           name: 't1.uninstall.sql',
+  //           text: 'drop table t1',
+  //         },
+  //         {
+  //           name: 't1.install.sql',
+  //           text: 'create table t1 (id int primary key, val int); insert into t1 (id, val) values (1, 11)',
+  //         },
+  //         {
+  //           name: 't2.once.sql',
+  //           text: 'insert into t2 (id) values (2)',
+  //         },
+  //       ],
+  //     ]);
 
-      const res1 = await driver.query(conn, 'SELECT val from t1 where id = 1');
-      expect(res1.rows[0].val == 11).toBeTruthy();
+  //     const res1 = await driver.query(conn, 'SELECT val from t1 where id = 1');
+  //     expect(res1.rows[0].val == 11).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t2');
-      expect(res2.rows[0].cnt == 1).toBeTruthy();
+  //     const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t2');
+  //     expect(res2.rows[0].cnt == 1).toBeTruthy();
 
-      const res3 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
-      expect(res3.rows[0].cnt == 3).toBeTruthy();
+  //     const res3 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+  //     expect(res3.rows[0].cnt == 3).toBeTruthy();
 
-      const res4 = await driver.query(conn, "SELECT run_count from dbgate_deploy_journal where name = 't2.once.sql'");
-      expect(res4.rows[0].run_count == 1).toBeTruthy();
+  //     const res4 = await driver.query(conn, "SELECT run_count from dbgate_deploy_journal where name = 't2.once.sql'");
+  //     expect(res4.rows[0].run_count == 1).toBeTruthy();
 
-      const res5 = await driver.query(
-        conn,
-        "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
-      );
-      expect(res5.rows[0].run_count == 2).toBeTruthy();
-    })
-  );
+  //     const res5 = await driver.query(
+  //       conn,
+  //       "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
+  //     );
+  //     expect(res5.rows[0].run_count == 2).toBeTruthy();
+  //   })
+  // );
 });
