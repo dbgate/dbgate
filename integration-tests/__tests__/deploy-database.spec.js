@@ -671,6 +671,15 @@ describe('Deploy database', () => {
 
       const res3 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
       expect(res3.rows[0].cnt == 3).toBeTruthy();
+
+      const res4 = await driver.query(conn, "SELECT run_count from dbgate_deploy_journal where name = 't2.once.sql'");
+      expect(res4.rows[0].run_count == 1).toBeTruthy();
+
+      const res5 = await driver.query(
+        conn,
+        "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
+      );
+      expect(res5.rows[0].run_count == 2).toBeTruthy();
     })
   );
 });

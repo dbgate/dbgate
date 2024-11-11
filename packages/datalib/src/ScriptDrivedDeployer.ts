@@ -57,9 +57,10 @@ export class ScriptDrivedDeployer {
           { columnName: 'id', dataType: 'int', autoIncrement: true, notNull: true, pureName: 'dbgate_deploy_journal' },
           { columnName: 'name', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
           { columnName: 'category', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
+          { columnName: 'script_hash', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
           { columnName: 'first_run_date', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
           { columnName: 'last_run_date', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
-          { columnName: 'script_hash', dataType: 'varchar(100)', notNull: true, pureName: 'dbgate_deploy_journal' },
+          { columnName: 'run_count', dataType: 'int', notNull: true, pureName: 'dbgate_deploy_journal' },
         ],
         foreignKeys: [],
         primaryKey: {
@@ -101,7 +102,7 @@ export class ScriptDrivedDeployer {
     if (existing) {
       await runCommandOnDriver(this.dbhan, this.driver, dmp => {
         dmp.put(
-          'update ~dbgate_deploy_journal set ~last_run_date = %v, ~script_hash = %v where ~id = %v',
+          'update ~dbgate_deploy_journal set ~last_run_date = %v, ~script_hash = %v, ~run_count = ~run_count + 1 where ~id = %v',
           new Date().toISOString(),
           hash,
           existing.id
@@ -110,7 +111,7 @@ export class ScriptDrivedDeployer {
     } else {
       await runCommandOnDriver(this.dbhan, this.driver, dmp => {
         dmp.put(
-          'insert into ~dbgate_deploy_journal (~name, ~category, ~first_run_date, ~last_run_date, ~script_hash) values (%v, %v, %v, %v, %v)',
+          'insert into ~dbgate_deploy_journal (~name, ~category, ~first_run_date, ~last_run_date, ~script_hash, ~run_count) values (%v, %v, %v, %v, %v, 1)',
           file.name,
           category,
           new Date().toISOString(),
