@@ -613,7 +613,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Script drived deploy - basic predeploy - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -633,7 +633,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Script drived deploy - install+uninstall - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
