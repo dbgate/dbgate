@@ -34,7 +34,9 @@ export interface ForeignKeyInfo extends ColumnsConstraintInfo {
 export interface IndexInfo extends ColumnsConstraintInfo {
   isUnique: boolean;
   // indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
-  indexType: string;
+  indexType?: string;
+  // condition for filtered index (SQL Server)  
+  filterDefinition?: string;
 }
 
 export interface UniqueInfo extends ColumnsConstraintInfo {}

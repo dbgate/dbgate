@@ -22,12 +22,22 @@ export interface DatabaseModelFile {
   text: string;
   json: {};
 }
+
+export interface IndexInfoYaml {
+  name: string;
+  unique?: boolean;
+  filter?: string;
+  columns: string[];
+  included?: string[];
+}
+
 export interface TableInfoYaml {
   name: string;
   // schema?: string;
   columns: ColumnInfoYaml[];
   primaryKey?: string[];
   sortingKey?: string[];
+  indexes?: IndexInfoYaml[];
 
   insertKey?: string[];
   insertOnly?: string[];
@@ -97,6 +107,20 @@ export function tableInfoToYaml(table: TableInfo): TableInfoYaml {
     res.sortingKey = tableCopy.sortingKey.columns.map(x => x.columnName);
   }
   // const foreignKeys = (tableCopy.foreignKeys || []).filter(x => !x['_dumped']).map(foreignKeyInfoToYaml);
+  if (tableCopy.indexes?.length > 0) {
+    res.indexes = tableCopy.indexes.map(index => {
+      const idx: IndexInfoYaml = {
+        name: index.constraintName,
+        unique: index.isUnique,
+        filter: index.filterDefinition,
+        columns: index.columns.filter(x => !x.isIncludedColumn).map(x => x.columnName),
+      };
+      if (index.columns.some(x => x.isIncludedColumn)) {
+        idx.included = index.columns.filter(x => x.isIncludedColumn).map(x => x.columnName);
+      }
+      return idx;
+    });
+  }
   return res;
 }
 
@@ -130,6 +154,16 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
     foreignKeys: _compact(
       table.columns.filter(x => x.references).map(col => convertForeignKeyFromYaml(col, table, allTables))
     ),
+    indexes: table.indexes?.map(index => ({
+      constraintName: index.name,
+      pureName: table.name,
+      isUnique: index.unique,
+      constraintType: 'index',
+      columns: [
+        ...index.columns.map(columnName => ({ columnName })),
+        ...(index.included || []).map(columnName => ({ columnName, isIncludedColumn: true })),
+      ],
+    })),
   };
   if (table.primaryKey) {
     res.primaryKey = {
