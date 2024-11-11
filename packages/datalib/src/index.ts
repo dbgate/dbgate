@@ -22,3 +22,4 @@ export * from './DataDuplicator';
 export * from './FreeTableGridDisplay';
 export * from './FreeTableModel';
 export * from './CustomGridDisplay';
+export * from './ScriptDrivedDeployer';

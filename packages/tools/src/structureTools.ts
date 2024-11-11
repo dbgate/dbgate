@@ -286,3 +286,10 @@ export function removePreloadedRowsFromStructure(db: DatabaseInfo): DatabaseInfo
     })),
   };
 }
+
+export function skipDbGateInternalObjects(db: DatabaseInfo) {
+  return {
+    ...db,
+    tables: (db.tables || []).filter(tbl => tbl.pureName != 'dbgate_deploy_journal'),
+  };
+}

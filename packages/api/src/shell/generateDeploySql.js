@@ -9,6 +9,7 @@ const {
   skipNamesInStructureByRegex,
   replaceSchemaInStructure,
   filterStructureBySchema,
+  skipDbGateInternalObjects,
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -38,6 +39,7 @@ async function generateDeploySql({
     if (ignoreNameRegex) {
       analysedStructure = skipNamesInStructureByRegex(analysedStructure, new RegExp(ignoreNameRegex, 'i'));
     }
+    analysedStructure = skipDbGateInternalObjects(analysedStructure);
 
     let deployedModelSource = loadedDbModel
       ? databaseInfoFromYamlModel(loadedDbModel)
