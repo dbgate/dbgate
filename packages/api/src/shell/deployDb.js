@@ -17,28 +17,38 @@ async function deployDb({
   ignoreNameRegex = '',
   targetSchema = null,
 }) {
-  const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
   if (!driver) driver = requireEngineDriver(connection);
+  const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
 
-  const scriptDeployer = new ScriptDrivedDeployer(dbhan, driver, loadedDbModel ?? (await loadModelFolder(modelFolder)));
-  await scriptDeployer.runPre();
+  try {
+    const scriptDeployer = new ScriptDrivedDeployer(
+      dbhan,
+      driver,
+      loadedDbModel ?? (await loadModelFolder(modelFolder))
+    );
+    await scriptDeployer.runPre();
 
-  const { sql } = await generateDeploySql({
-    connection,
-    systemConnection: dbhan,
-    driver,
-    analysedStructure,
-    modelFolder,
-    loadedDbModel,
-    modelTransforms,
-    dbdiffOptionsExtra,
-    ignoreNameRegex,
-    targetSchema,
-  });
-  // console.log('RUNNING DEPLOY SCRIPT:', sql);
-  await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
+    const { sql } = await generateDeploySql({
+      connection,
+      systemConnection: dbhan,
+      driver,
+      analysedStructure,
+      modelFolder,
+      loadedDbModel,
+      modelTransforms,
+      dbdiffOptionsExtra,
+      ignoreNameRegex,
+      targetSchema,
+    });
+    // console.log('RUNNING DEPLOY SCRIPT:', sql);
+    await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
 
-  await scriptDeployer.runPost();
+    await scriptDeployer.runPost();
+  } finally {
+    if (!systemConnection) {
+      await driver.close(dbhan);
+    }
+  }
 }
 
 module.exports = deployDb;
