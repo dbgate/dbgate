@@ -161,7 +161,8 @@ export class ScriptDrivedDeployer {
       case 'install':
         if (isEqual) return;
         const uninstallFile = this.uninstall.find(x => x.name == file.name.replace('.install.sql', '.uninstall.sql'));
-        if (uninstallFile) {
+        if (uninstallFile && journalItem) {
+          // file was previously installed, uninstall first
           await this.runFileCore(
             uninstallFile,
             'uninstall',

@@ -639,6 +639,10 @@ describe('Deploy database', () => {
       await testDatabaseDeploy(engine, conn, driver, [
         [
           {
+            name: 't1.uninstall.sql',
+            text: 'drop table t1',
+          },
+          {
             name: 't1.install.sql',
             text: 'create table t1 (id int primary key); insert into t1 (id) values (1)',
           },
