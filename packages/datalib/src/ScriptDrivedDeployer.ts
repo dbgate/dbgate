@@ -46,7 +46,7 @@ export class ScriptDrivedDeployer {
       this.journalItems = rows;
       logger.debug(`Loaded ${rows.length} items from DbGate deploy journal`);
     } catch (err) {
-      logger.error(
+      logger.warn(
         extractErrorLogData(err),
         'Error loading DbGate deploy journal, createing table dbgate_deploy_journal'
       );
