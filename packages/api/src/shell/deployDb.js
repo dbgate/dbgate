@@ -10,6 +10,7 @@ async function deployDb({
   loadedDbModel,
   modelTransforms,
   dbdiffOptionsExtra,
+  ignoreNameRegex = '',
 }) {
   const { sql } = await generateDeploySql({
     connection,
@@ -20,6 +21,7 @@ async function deployDb({
     loadedDbModel,
     modelTransforms,
     dbdiffOptionsExtra,
+    ignoreNameRegex,
   });
   // console.log('RUNNING DEPLOY SCRIPT:', sql);
   await executeQuery({ connection, systemConnection, driver, sql, logScriptItems: true });

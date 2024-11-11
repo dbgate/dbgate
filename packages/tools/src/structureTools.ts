@@ -203,3 +203,20 @@ export function replaceSchemaInStructure(db: DatabaseInfo, schema: string) {
     triggers: (db.triggers || []).map(x => ({ ...x, schemaName: schema })),
   };
 }
+
+export function skipNamesInStructureByRegex(db: DatabaseInfo, regex: RegExp) {
+  if (!db) {
+    return db;
+  }
+
+  return {
+    ...db,
+    tables: (db.tables || []).filter(tbl => !regex.test(tbl.pureName)),
+    views: (db.views || []).filter(tbl => !regex.test(tbl.pureName)),
+    collections: (db.collections || []).filter(tbl => !regex.test(tbl.pureName)),
+    matviews: (db.matviews || []).filter(tbl => !regex.test(tbl.pureName)),
+    procedures: (db.procedures || []).filter(tbl => !regex.test(tbl.pureName)),
+    functions: (db.functions || []).filter(tbl => !regex.test(tbl.pureName)),
+    triggers: (db.triggers || []).filter(tbl => !regex.test(tbl.pureName)),
+  };
+}
