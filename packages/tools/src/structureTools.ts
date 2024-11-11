@@ -231,13 +231,13 @@ export function skipNamesInStructureByRegex(db: DatabaseInfo, regex: RegExp) {
 
 export function detectChangesInPreloadedRows(oldTable: TableInfo, newTable: TableInfo): boolean {
   const key =
-    newTable.preloadedRowsKey ||
-    oldTable.preloadedRowsKey ||
-    newTable.primaryKey?.columns?.map(x => x.columnName) ||
-    oldTable.primaryKey?.columns?.map(x => x.columnName);
+    newTable?.preloadedRowsKey ||
+    oldTable?.preloadedRowsKey ||
+    newTable?.primaryKey?.columns?.map(x => x.columnName) ||
+    oldTable?.primaryKey?.columns?.map(x => x.columnName);
   const oldRows = oldTable?.preloadedRows || [];
   const newRows = newTable?.preloadedRows || [];
-  const insertOnly = newTable.preloadedRowsInsertOnly || oldTable.preloadedRowsInsertOnly;
+  const insertOnly = newTable?.preloadedRowsInsertOnly || oldTable?.preloadedRowsInsertOnly;
 
   if (newRows.length != oldRows.length) {
     return true;
