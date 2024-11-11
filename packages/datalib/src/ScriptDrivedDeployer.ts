@@ -48,7 +48,7 @@ export class ScriptDrivedDeployer {
     } catch (err) {
       logger.warn(
         extractErrorLogData(err),
-        'Error loading DbGate deploy journal, createing table dbgate_deploy_journal'
+        'Error loading DbGate deploy journal, creating table dbgate_deploy_journal'
       );
       const dmp = this.driver.createDumper();
       dmp.createTable({
