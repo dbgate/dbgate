@@ -7,7 +7,9 @@ const loadFilesRecursive = require('./loadFilesRecursive');
 async function loadModelFolder(inputDir) {
   const files = [];
 
-  const dir = inputDir.startsWith('archive:') ? resolveArchiveFolder(inputDir.substring('archive:'.length)) : inputDir;
+  const dir = inputDir.startsWith('archive:')
+    ? resolveArchiveFolder(inputDir.substring('archive:'.length))
+    : path.resolve(inputDir);
 
   for (const name of await loadFilesRecursive(dir)) {
     if (name.endsWith('.table.yaml') || name.endsWith('.sql')) {
