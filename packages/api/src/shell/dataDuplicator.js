@@ -12,6 +12,7 @@ const { resolveArchiveFolder } = require('../utility/directories');
 async function dataDuplicator({
   connection,
   archive,
+  folder,
   items,
   options,
   analysedStructure = null,
@@ -19,7 +20,7 @@ async function dataDuplicator({
   systemConnection,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
-  
+
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
   try {
@@ -28,6 +29,12 @@ async function dataDuplicator({
     if (!analysedStructure) {
       analysedStructure = await driver.analyseFull(dbhan);
     }
+
+    const sourceDir = archive
+      ? resolveArchiveFolder(archive)
+      : folder?.startsWith('archive:')
+      ? resolveArchiveFolder(folder.substring('archive:'.length))
+      : folder;
 
     const dupl = new DataDuplicator(
       dbhan,
@@ -38,8 +45,7 @@ async function dataDuplicator({
         operation: item.operation,
         matchColumns: item.matchColumns,
         openStream:
-          item.openStream ||
-          (() => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) })),
+          item.openStream || (() => jsonLinesReader({ fileName: path.join(sourceDir, `${item.name}.jsonl`) })),
       })),
       stream,
       copyStream,
