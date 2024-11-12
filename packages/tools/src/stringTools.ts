@@ -312,6 +312,14 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
   }
 }
 
+export function safeCompileRegExp(regex: string, flags: string) {
+  try {
+    return new RegExp(regex, flags);
+  } catch (err) {
+    return null;
+  }
+}
+
 export function shouldOpenMultilineDialog(value) {
   if (_isString(value)) {
     if (value.includes('\n')) {

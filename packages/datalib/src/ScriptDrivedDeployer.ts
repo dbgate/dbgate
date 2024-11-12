@@ -1,6 +1,5 @@
 import { DatabaseModelFile, extractErrorLogData, getLogger, runCommandOnDriver, runQueryOnDriver } from 'dbgate-tools';
 import { EngineDriver } from 'dbgate-types';
-import crypto from 'crypto';
 import _sortBy from 'lodash/sortBy';
 
 const logger = getLogger('ScriptDrivedDeployer');
@@ -24,7 +23,7 @@ export class ScriptDrivedDeployer {
 
   journalItems: DeployScriptJournalItem[] = [];
 
-  constructor(public dbhan: any, public driver: EngineDriver, public files: DatabaseModelFile[]) {
+  constructor(public dbhan: any, public driver: EngineDriver, public files: DatabaseModelFile[], public crypto: any) {
     this.predeploy = files.filter(x => x.name.endsWith('.predeploy.sql'));
     this.uninstall = files.filter(x => x.name.endsWith('.uninstall.sql'));
     this.install = files.filter(x => x.name.endsWith('.install.sql'));
@@ -145,7 +144,7 @@ export class ScriptDrivedDeployer {
   }
 
   async runFile(file: DatabaseModelFile, category: string) {
-    const hash = crypto.createHash('md5').update(file.text.trim()).digest('hex');
+    const hash = this.crypto.createHash('md5').update(file.text.trim()).digest('hex');
     const journalItem = this.journalItems.find(x => x.name == file.name);
     const isEqual = journalItem && journalItem.script_hash == hash;
 
@@ -166,7 +165,7 @@ export class ScriptDrivedDeployer {
           await this.runFileCore(
             uninstallFile,
             'uninstall',
-            crypto.createHash('md5').update(uninstallFile.text.trim()).digest('hex')
+            this.crypto.createHash('md5').update(uninstallFile.text.trim()).digest('hex')
           );
         }
         await this.runFileCore(file, category, hash);

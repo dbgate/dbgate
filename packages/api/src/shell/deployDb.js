@@ -4,6 +4,7 @@ const { ScriptDrivedDeployer } = require('dbgate-datalib');
 const connectUtility = require('../utility/connectUtility');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const loadModelFolder = require('../utility/loadModelFolder');
+const crypto = require('crypto');
 
 async function deployDb({
   connection,
@@ -24,7 +25,8 @@ async function deployDb({
     const scriptDeployer = new ScriptDrivedDeployer(
       dbhan,
       driver,
-      loadedDbModel ?? (await loadModelFolder(modelFolder))
+      Array.isArray(loadedDbModel) ? loadedDbModel : modelFolder ? await loadModelFolder(modelFolder) : [],
+      crypto
     );
     await scriptDeployer.runPre();
 
