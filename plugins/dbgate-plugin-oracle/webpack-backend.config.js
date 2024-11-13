@@ -40,6 +40,7 @@ var config = {
     'dbgate-tools': 'commonjs dbgate-tools',
     'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
     lodash: 'commonjs lodash',
+    oracledb: 'commonjs oracledb',
   },
 };
 
