@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../utility/directories');
-const nativeModules = require('../nativeModules');
 const platformInfo = require('../utility/platformInfo');
 const authProxy = require('../utility/authProxy');
 const { getLogger } = require('dbgate-tools');
@@ -11,7 +10,6 @@ const loadedPlugins = {};
 
 const dbgateEnv = {
   dbgateApi: null,
-  nativeModules,
   platformInfo,
   authProxy,
 };
