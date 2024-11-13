@@ -19,7 +19,7 @@
   "dependencies": {
     "@aws-sdk/rds-signer": "^3.665.0",
     "activedirectory2": "^2.1.0",
-    "async-lock": "^1.2.4",
+    "async-lock": "^1.2.6",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
