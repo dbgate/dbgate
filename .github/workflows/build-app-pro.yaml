@@ -56,6 +56,9 @@ jobs:
           cd ..
           cd dbgate-merged
           yarn adjustPackageJson
+      - name: yarn adjustAppPackageJson
+        run: |
+          yarn adjustAppPackageJson
       - name: yarn adjustPackageJsonPremium
         run: |
           cd ..

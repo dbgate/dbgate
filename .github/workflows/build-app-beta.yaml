@@ -30,6 +30,9 @@ jobs:
       - name: yarn adjustPackageJson
         run: |
           yarn adjustPackageJson
+      - name: yarn adjustAppPackageJson
+        run: |
+          yarn adjustAppPackageJson
       - name: setUpdaterChannel beta
         run: |
           node setUpdaterChannel beta
