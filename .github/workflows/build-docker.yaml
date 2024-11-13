@@ -56,6 +56,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+
+      - name: yarn adjustPackageJson
+        run: |
+          cd ..
+          cd dbgate-merged
+          yarn adjustPackageJson
+
       - name: yarn install
         run: |
           # yarn --version
