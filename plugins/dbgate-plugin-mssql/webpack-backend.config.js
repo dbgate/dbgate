@@ -17,6 +17,10 @@ var config = {
   // optimization: {
   //   minimize: false,
   // },
+
+  externals: {
+    msnodesqlv8: 'commonjs msnodesqlv8',
+  },
 };
 
 module.exports = config;

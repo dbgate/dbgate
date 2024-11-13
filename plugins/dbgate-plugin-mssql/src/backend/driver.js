@@ -5,15 +5,13 @@ const MsSqlAnalyser = require('./MsSqlAnalyser');
 const createTediousBulkInsertStream = require('./createTediousBulkInsertStream');
 const createNativeBulkInsertStream = require('./createNativeBulkInsertStream');
 const AsyncLock = require('async-lock');
-const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
-const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
+const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = require('./nativeDriver');
 const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('mssqlDriver');
 
-let requireMsnodesqlv8;
 let platformInfo;
 let authProxy;
 
@@ -59,7 +57,7 @@ const driver = {
 
   getAuthTypes() {
     const res = [];
-    if (requireMsnodesqlv8) res.push(...windowsAuthTypes);
+    if (platformInfo?.isWindows) res.push(...windowsAuthTypes);
 
     if (authProxy.isAuthProxySupported()) {
       res.push(
@@ -82,7 +80,7 @@ const driver = {
 
   async connect(conn) {
     const { authType } = conn;
-    const connectionType = requireMsnodesqlv8 && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
+    const connectionType = platformInfo?.isWindows && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
     const client = connectionType == 'msnodesqlv8' ? await nativeConnect(conn) : await tediousConnect(conn);
 
     return {
@@ -172,12 +170,8 @@ const driver = {
 };
 
 driver.initialize = dbgateEnv => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.msnodesqlv8) {
-    requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
-  }
   platformInfo = dbgateEnv.platformInfo;
   authProxy = dbgateEnv.authProxy;
-  nativeDriver.initialize(dbgateEnv);
 };
 
 module.exports = driver;
