@@ -1,9 +1,9 @@
 const fs = require('fs');
 
-function adjustRootPackageJson(file) {
+function adjustAppPackageJson(file) {
   const json = JSON.parse(fs.readFileSync(file, { encoding: 'utf-8' }));
-  json.workspaces.push('app');
+  json.workspaces = ['../packages/*'];
   fs.writeFileSync(file, JSON.stringify(json, null, 2), 'utf-8');
 }
 
-adjustRootPackageJson('package.json');
+adjustAppPackageJson('app/package.json');
