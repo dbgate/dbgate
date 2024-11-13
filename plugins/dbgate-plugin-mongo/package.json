@@ -41,7 +41,9 @@
     "dbgate-tools": "^5.0.0-alpha.1",
     "is-promise": "^4.0.0",
     "lodash": "^4.17.21",
-    "mongodb": "^6.3.0",
+    "mongodb": "^6.3.0"
+  },
+  "optionalDependencies": {
     "mongodb-client-encryption": "^6.0.0"
   }
 }
