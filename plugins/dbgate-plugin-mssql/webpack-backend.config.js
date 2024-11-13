@@ -20,6 +20,10 @@ var config = {
 
   externals: {
     msnodesqlv8: 'commonjs msnodesqlv8',
+    'async-lock': 'commonjs async-lock',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    'dbgate-tools': 'commonjs dbgate-tools',
+    tedious: 'commonjs tedious',
   },
 };
 

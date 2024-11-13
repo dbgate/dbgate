@@ -35,6 +35,12 @@ var config = {
       },
     }),
   ],
+
+  externals: {
+    'dbgate-tools': 'commonjs dbgate-tools',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    lodash: 'commonjs lodash',
+  },
 };
 
 module.exports = config;

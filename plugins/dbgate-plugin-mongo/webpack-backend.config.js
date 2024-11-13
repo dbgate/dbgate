@@ -18,6 +18,16 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+
+  externals: {
+    'dbgate-tools': 'commonjs dbgate-tools',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    lodash: 'commonjs lodash',
+    mongodb: 'commonjs mongodb',
+    'mongodb-client-encryption': 'commonjs mongodb-client-encryption',
+    bson: 'commonjs bson',
+    'is-promise': 'commonjs is-promise',
+  },
 };
 
 module.exports = config;

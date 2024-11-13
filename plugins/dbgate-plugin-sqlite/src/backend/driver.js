@@ -7,12 +7,10 @@ const { getLogger, createBulkInsertStreamBase, extractErrorLogData } = global.DB
 
 const logger = getLogger('sqliteDriver');
 
-let requireBetterSqlite;
-
 let betterSqliteValue;
 function getBetterSqlite() {
   if (!betterSqliteValue) {
-    betterSqliteValue = requireBetterSqlite();
+    betterSqliteValue = require('better-sqlite3');
   }
   return betterSqliteValue;
 }
@@ -188,10 +186,6 @@ const driver = {
   },
 };
 
-driver.initialize = (dbgateEnv) => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['better-sqlite3']) {
-    requireBetterSqlite = dbgateEnv.nativeModules['better-sqlite3'];
-  }
-};
+driver.initialize = (dbgateEnv) => {};
 
 module.exports = driver;

@@ -18,6 +18,12 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+
+  externals: {
+    csv: 'commonjs csv',
+    'line-reader': 'commonjs line-reader',
+    lodash: 'commonjs lodash',
+  },
 };
 
 module.exports = config;
