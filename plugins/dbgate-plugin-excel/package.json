@@ -14,8 +14,7 @@
     "excel",
     "import",
     "export",
-    "dbgate",
-    "dbgateplugin"
+    "dbgate"
   ],
   "files": [
     "dist",

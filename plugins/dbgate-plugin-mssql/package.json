@@ -13,8 +13,7 @@
   "keywords": [
     "sql",
     "mssql",
-    "dbgate",
-    "dbgateplugin"
+    "dbgate"
   ],
   "files": [
     "dist",

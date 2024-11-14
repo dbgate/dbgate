@@ -14,8 +14,7 @@
     "csv",
     "import",
     "export",
-    "dbgate",
-    "dbgateplugin"
+    "dbgate"
   ],
   "files": [
     "dist",

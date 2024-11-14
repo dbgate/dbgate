@@ -12,7 +12,6 @@
   "author": "Jan Prochazka",
   "keywords": [
     "dbgate",
-    "dbgateplugin",
     "postgresql"
   ],
   "files": [
