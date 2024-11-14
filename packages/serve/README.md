@@ -63,8 +63,17 @@ dbgate-serve
 .env file could be used in the same way as in Premium edition, without STORAGE_xxx variables, which are specific for Premium.
 Then open http://localhost:3000 in your browser
 
-## Download electron app
-You can also download binary packages from https://dbgate.org . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
+## Download desktop app
+You can also download binary packages for desktop app from https://dbgate.org . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
+
+## Use Oracle with thick client
+If you are Oracle database user and you would like to use Oracle instant client (thick mode) instead of thin mode (pure JS NPM package), please make the following:
+* Download Oracle instant client - https://www.oracle.com/cz/database/technologies/instant-client/downloads.html
+* Unpack it somewhere (og. /opt/oracle in Linux systems)
+* Configure ORACLE_INSTANT_CLIENT variable - should contain directory name of unpacked Instant client
+
+If you don't know, whether you will need Instance client, please use this [table](https://node-oracledb.readthedocs.io/en/latest/user_guide/appendix_a.html) of features,
+which are supported only in thick mode (with instant client). Eg. thin mode works from Oracle 12, if you have older Oracle server, you will need to install Oracle Instant client.
 
 ## Other dbgate packages
 You can use some functionality of dbgate from your JavaScript code. See [dbgate-api](https://npmjs.com/dbgate-api) package.
