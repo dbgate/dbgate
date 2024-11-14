@@ -89,29 +89,25 @@ jobs:
           GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
 
       - name: Publish dbgate-api-premium
-        working-directory: packages/api
         run: |
           cd ..
-          cd dbgate-merged
+          cd dbgate-merged/packages/api
           npm publish
 
       - name: Publish dbgate-web-premium
-        working-directory: packages/web
         run: |
           cd ..
-          cd dbgate-merged
+          cd dbgate-merged/packages/web
           npm publish
 
       - name: Publish dbgate-serve-premium
-        working-directory: packages/serve
         run: |
           cd ..
-          cd dbgate-merged
+          cd dbgate-merged/packages/serve
           npm publish
 
       - name: Publish dbgate-plugin-cosmosdb
-        working-directory: plugins/dbgate-plugin-cosmosdb
         run: |
           cd ..
-          cd dbgate-merged
+          cd dbgate-merged/plugins/dbgate-plugin-cosmosdb
           npm publish
