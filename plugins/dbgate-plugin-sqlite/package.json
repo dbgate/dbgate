@@ -12,7 +12,8 @@
   "license": "GPL-3.0",
   "keywords": [
     "dbgate",
-    "sqlite"
+    "sqlite",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",

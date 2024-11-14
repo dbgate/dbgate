@@ -13,7 +13,8 @@
   "keywords": [
     "dbgate",
     "mongo",
-    "mongodb"
+    "mongodb",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",

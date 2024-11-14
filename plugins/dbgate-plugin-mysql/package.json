@@ -13,7 +13,8 @@
   "keywords": [
     "sql",
     "dbgate",
-    "mysql"
+    "mysql",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",

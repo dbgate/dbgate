@@ -7,7 +7,8 @@
   "description": "Clickhouse connector for DbGate",
   "keywords": [
     "dbgate",
-    "clickhouse"
+    "clickhouse",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",

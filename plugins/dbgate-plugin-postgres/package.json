@@ -12,7 +12,8 @@
   "author": "Jan Prochazka",
   "keywords": [
     "dbgate",
-    "postgresql"
+    "postgresql",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",

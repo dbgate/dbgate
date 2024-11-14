@@ -12,7 +12,8 @@
   "author": "Jan Prochazka",
   "keywords": [
     "dbgate",
-    "redis"
+    "redis",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist"
