@@ -67,7 +67,7 @@ Then open http://localhost:3000 in your browser
 ## Download desktop app
 You can also download binary packages for desktop app from https://dbgate.org . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
 
-## Use Oracle with thick client
+## Use Oracle with Instant client (thick mode)
 If you are Oracle database user and you would like to use Oracle instant client (thick mode) instead of thin mode (pure JS NPM package), please make the following:
 * Download Oracle instant client - https://www.oracle.com/cz/database/technologies/instant-client/downloads.html
 * Unpack it somewhere (og. /opt/oracle in Linux systems)
