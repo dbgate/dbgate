@@ -80,6 +80,7 @@ const databaseListLoader = ({ conid }) => ({
   onLoaded: value => {
     if (value?.length > 0) setLocalStorage(`database_list_${conid}`, value);
   },
+  errorValue: [],
 });
 
 // const databaseKeysLoader = ({ conid, database, root }) => ({
