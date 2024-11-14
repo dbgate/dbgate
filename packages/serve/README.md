@@ -61,6 +61,7 @@ dbgate-serve
 ```
 
 .env file could be used in the same way as in Premium edition, without STORAGE_xxx variables, which are specific for Premium.
+
 Then open http://localhost:3000 in your browser
 
 ## Download desktop app
