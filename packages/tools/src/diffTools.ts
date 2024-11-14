@@ -646,7 +646,7 @@ export function testEqualTables(
 }
 
 export function testEqualSqlObjects(a: SqlObjectInfo, b: SqlObjectInfo, opts: DbDiffOptions) {
-  return a.createSql?.trim() == b.createSql?.trim();
+  return a.createSql?.trim()?.toLowerCase() == b.createSql?.trim()?.toLowerCase();
 }
 
 export function createAlterTablePlan(
