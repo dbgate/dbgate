@@ -18,6 +18,14 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+  externals: {
+    'dbgate-tools': 'commmonjs dbgate-tools',
+    'dbgate-query-splitter': 'commmonjs dbgate-query-splitter',
+    lodash: 'commmonjs lodash',
+    async: 'commmonjs async',
+    ioredis: 'commmonjs ioredis',
+    'node-redis-dump2': 'commmonjs node-redis-dump2',
+  },
 };
 
 module.exports = config;

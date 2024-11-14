@@ -1,4 +1,3 @@
-const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
@@ -172,7 +171,7 @@ class Analyser extends DatabaseAnalyser {
       })),
       procedures: programmables.rows
         .filter(x => x.objectType == 'PROCEDURE')
-        .map(fp.omit(['objectType']))
+        .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
           createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`()\n${x.routineDefinition}\n\nDELIMITER ;\n`,
@@ -181,7 +180,7 @@ class Analyser extends DatabaseAnalyser {
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
-        .map(fp.omit(['objectType']))
+        .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
           createSql: `CREATE FUNCTION \`${x.pureName}\`()\nRETURNS ${x.returnDataType} ${

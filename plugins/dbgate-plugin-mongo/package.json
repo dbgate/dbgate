@@ -12,9 +12,9 @@
   },
   "keywords": [
     "dbgate",
-    "dbgateplugin",
     "mongo",
-    "mongodb"
+    "mongodb",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",
@@ -31,15 +31,19 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "bson": "^6.8.0",
     "dbgate-plugin-tools": "^1.0.7",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "bson": "^6.8.0",
     "dbgate-query-splitter": "^4.11.2",
     "dbgate-tools": "^5.0.0-alpha.1",
     "is-promise": "^4.0.0",
     "lodash": "^4.17.21",
-    "mongodb": "^6.3.0",
-    "mongodb-client-encryption": "^6.0.0",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "mongodb": "^6.3.0"
+  },
+  "optionalDependencies": {
+    "mongodb-client-encryption": "^6.0.0"
   }
 }

@@ -17,6 +17,15 @@ var config = {
   // optimization: {
   //   minimize: false,
   // },
+
+  externals: {
+    msnodesqlv8: 'commonjs msnodesqlv8',
+    'async-lock': 'commonjs async-lock',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    'dbgate-tools': 'commonjs dbgate-tools',
+    lodash: 'commonjs lodash',
+    tedious: 'commonjs tedious',
+  },
 };
 
 module.exports = config;

@@ -7,8 +7,8 @@
   "description": "Clickhouse connector for DbGate",
   "keywords": [
     "dbgate",
-    "dbgateplugin",
-    "clickhouse"
+    "clickhouse",
+    "dbgatebuiltin"
   ],
   "files": [
     "dist",
@@ -25,14 +25,14 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "byline": "^5.0.0",
     "dbgate-plugin-tools": "^1.0.8",
-    "dbgate-tools": "^5.0.0-alpha.1",
-    "json-stable-stringify": "^1.0.1",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@clickhouse/client": "^1.5.0"
+    "@clickhouse/client": "^1.5.0",
+    "dbgate-tools": "^5.0.0-alpha.1",
+    "json-stable-stringify": "^1.0.1",
+    "lodash": "^4.17.21"
   }
 }

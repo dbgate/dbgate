@@ -18,6 +18,11 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+
+  externals: {
+    xlsx: 'commonjs xlsx',
+    lodash: 'commonjs lodash',
+  },
 };
 
 module.exports = config;

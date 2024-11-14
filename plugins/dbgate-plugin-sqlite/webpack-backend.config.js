@@ -18,6 +18,12 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+  externals: {
+    'dbgate-tools': 'commonjs dbgate-tools',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    'better-sqlite3': 'commonjs better-sqlite3',
+    lodash: 'commonjs lodash',
+  },
 };
 
 module.exports = config;

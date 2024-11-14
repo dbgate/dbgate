@@ -94,7 +94,7 @@ module.exports = {
           if (!manifest.keywords) {
             continue;
           }
-          if (!manifest.keywords.includes('dbgateplugin')) {
+          if (!manifest.keywords.includes('dbgateplugin') && !manifest.keywords.includes('dbgatebuiltin')) {
             continue;
           }
           const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');

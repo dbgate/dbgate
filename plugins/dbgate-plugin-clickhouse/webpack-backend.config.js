@@ -18,6 +18,13 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+
+  externals: {
+    '@clickhouse/client': 'commonjs @clickhouse/client',
+    'json-stable-stringify': 'commonjs json-stable-stringify',
+    'dbgate-tools': 'commonjs dbgate-tools',
+    lodash: 'commonjs lodash',
+  },
 };
 
 module.exports = config;

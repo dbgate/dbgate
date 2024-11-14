@@ -18,6 +18,9 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
+  externals: {
+    'node-xml-stream-parser': 'commonjs node-xml-stream-parser',
+  },
 };
 
 module.exports = config;

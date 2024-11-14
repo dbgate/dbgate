@@ -90,11 +90,6 @@ jobs:
         run: |
           npm publish
 
-      - name: Publish dbgate (obsolete)
-        working-directory: packages/dbgate
-        run: |
-          npm publish
-
       - name: Publish dbgate-serve
         working-directory: packages/serve
         run: |

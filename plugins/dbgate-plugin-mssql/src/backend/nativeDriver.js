@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const stream = require('stream');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
-let requireMsnodesqlv8;
 const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 // async function nativeQueryCore(pool, sql, options) {
@@ -24,7 +23,7 @@ const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 let msnodesqlv8Value;
 function getMsnodesqlv8() {
   if (!msnodesqlv8Value) {
-    msnodesqlv8Value = requireMsnodesqlv8();
+    msnodesqlv8Value = require('msnodesqlv8');
   }
   return msnodesqlv8Value;
 }
@@ -225,16 +224,9 @@ async function nativeStream(dbhan, sql, options) {
   });
 }
 
-const initialize = dbgateEnv => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.msnodesqlv8) {
-    requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
-  }
-};
-
 module.exports = {
   nativeConnect,
   nativeQueryCore,
   nativeReadQuery,
   nativeStream,
-  initialize,
 };

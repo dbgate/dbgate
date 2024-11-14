@@ -56,11 +56,11 @@ jobs:
           cd ..
           cd dbgate-merged
           yarn adjustPackageJson
-      - name: yarn adjustPackageJsonPremium
+      - name: adjustAppPackageJsonPremium
         run: |
           cd ..
           cd dbgate-merged
-          node adjustPackageJsonPremium
+          node adjustAppPackageJsonPremium
       - name: setUpdaterChannel premium
         run: |
           cd ..
@@ -88,11 +88,6 @@ jobs:
           yarn printSecrets
         env:
           GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
-      - name: fillNativeModulesElectron
-        run: |
-          cd ..
-          cd dbgate-merged
-          yarn fillNativeModulesElectron
       - name: fillPackagedPlugins
         run: |
           cd ..

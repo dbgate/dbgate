@@ -17,9 +17,6 @@ const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
 
 function getPassArgs() {
   const res = [];
-  if (global['NATIVE_MODULES']) {
-    res.push('--native-modules', global['NATIVE_MODULES']);
-  }
   if (global['PLUGINS_DIR']) {
     res.push('--plugins-dir', global['PLUGINS_DIR']);
   }

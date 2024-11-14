@@ -14,6 +14,14 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
+  externals: {
+    'dbgate-tools': 'commonjs dbgate-tools',
+    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
+    'antares-mysql-dumper': 'commonjs antares-mysql-dumper',
+    lodash: 'commonjs lodash',
+    mysql2: 'commonjs mysql2',
+  },
+
   // uncomment for disable minimalization
   // optimization: {
   //   minimize: false,

@@ -6,13 +6,12 @@ const Analyser = require('./Analyser');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
 
-let requireOracledb;
 let platformInfo;
 
 let oracledbValue;
 function getOracledb() {
   if (!oracledbValue) {
-    oracledbValue = requireOracledb();
+    oracledbValue = require('oracledb');
   }
   return oracledbValue;
 }
@@ -359,9 +358,6 @@ const driver = {
 };
 
 driver.initialize = dbgateEnv => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['oracledb']) {
-    requireOracledb = dbgateEnv.nativeModules['oracledb'];
-  }
   platformInfo = dbgateEnv.platformInfo;
 };
 

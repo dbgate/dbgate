@@ -19,12 +19,16 @@
   ],
   "dependencies": {
     "dbgate-api": "^5.0.0-alpha.1",
+    "dbgate-plugin-clickhouse": "^5.0.0-alpha.1",
     "dbgate-plugin-csv": "^5.0.0-alpha.1",
     "dbgate-plugin-excel": "^5.0.0-alpha.1",
     "dbgate-plugin-mongo": "^5.0.0-alpha.1",
     "dbgate-plugin-mssql": "^5.0.0-alpha.1",
     "dbgate-plugin-mysql": "^5.0.0-alpha.1",
+    "dbgate-plugin-oracle": "^5.0.0-alpha.1",
     "dbgate-plugin-postgres": "^5.0.0-alpha.1",
+    "dbgate-plugin-redis": "^5.0.0-alpha.1",
+    "dbgate-plugin-sqlite": "^5.0.0-alpha.1",
     "dbgate-plugin-xml": "^5.0.0-alpha.1",
     "dbgate-web": "^5.0.0-alpha.1",
     "dotenv": "^16.0.0"

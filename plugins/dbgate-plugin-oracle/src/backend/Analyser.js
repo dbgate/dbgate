@@ -1,4 +1,3 @@
-const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 

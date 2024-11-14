@@ -39,19 +39,12 @@ changePackageFile('packages/types', json.version);
 changePackageFile('packages/tools', json.version);
 changePackageFile('packages/web', json.version);
 changePackageFile('packages/datalib', json.version);
-changePackageFile('packages/dbgate', json.version);
 changePackageFile('packages/serve', json.version);
 changePackageFile('packages/filterparser', json.version);
 changePackageFile('packages/dbmodel', json.version);
 
-changePackageFile('plugins/dbgate-plugin-csv', json.version);
-changePackageFile('plugins/dbgate-plugin-xml', json.version);
-changePackageFile('plugins/dbgate-plugin-excel', json.version);
-changePackageFile('plugins/dbgate-plugin-mssql', json.version);
-changePackageFile('plugins/dbgate-plugin-mysql', json.version);
-changePackageFile('plugins/dbgate-plugin-mongo', json.version);
-changePackageFile('plugins/dbgate-plugin-postgres', json.version);
-changePackageFile('plugins/dbgate-plugin-sqlite', json.version);
-changePackageFile('plugins/dbgate-plugin-redis', json.version);
-changePackageFile('plugins/dbgate-plugin-oracle', json.version);
-changePackageFile('plugins/dbgate-plugin-clickhouse', json.version);
+for (const package of fs.readdirSync('plugins')) {
+  if (!package.startsWith('dbgate-plugin-')) continue;
+
+  changePackageFile(`plugins/${package}`, json.version);
+}
