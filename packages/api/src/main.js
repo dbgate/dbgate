@@ -36,6 +36,7 @@ const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
 const { getDefaultAuthProvider } = require('./auth/authProvider');
 const startCloudUpgradeTimer = require('./utility/cloudUpgrade');
+const { isProApp } = require('./utility/checkLicense');
 
 const logger = getLogger('main');
 
@@ -77,7 +78,10 @@ function start() {
   } else if (platformInfo.isAwsUbuntuLayout) {
     app.use(getExpressPath('/'), express.static('/home/ubuntu/build/public'));
   } else if (platformInfo.isNpmDist) {
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
+    app.use(
+      getExpressPath('/'),
+      express.static(path.join(__dirname, isProApp() ? '../../dbgate-web-premium/public' : '../../dbgate-web/public'))
+    );
   } else if (process.env.DEVWEB) {
     // console.log('__dirname', __dirname);
     // console.log(path.join(__dirname, '../../web/public/build'));

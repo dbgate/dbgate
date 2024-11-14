@@ -12,7 +12,12 @@ function checkLicenseKey(key) {
   };
 }
 
+function isProApp() {
+  return false;
+}
+
 module.exports = {
   checkLicense,
   checkLicenseKey,
+  isProApp,
 };
