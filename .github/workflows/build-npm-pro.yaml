@@ -91,19 +91,27 @@ jobs:
       - name: Publish dbgate-api-premium
         working-directory: packages/api
         run: |
+          cd ..
+          cd dbgate-merged
           npm publish
 
       - name: Publish dbgate-web-premium
         working-directory: packages/web
         run: |
+          cd ..
+          cd dbgate-merged
           npm publish
 
       - name: Publish dbgate-serve-premium
         working-directory: packages/serve
         run: |
+          cd ..
+          cd dbgate-merged
           npm publish
 
       - name: Publish dbgate-plugin-cosmosdb
         working-directory: plugins/dbgate-plugin-cosmosdb
         run: |
+          cd ..
+          cd dbgate-merged
           npm publish
