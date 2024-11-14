@@ -1,4 +1,4 @@
-const zipObject = require('lodash/zipObject');
+const _ = require('lodash');
 const csv = require('csv');
 const fs = require('fs');
 const stream = require('stream');
@@ -37,7 +37,7 @@ class CsvPrepareStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     if (this.structure) {
       this.push(
-        zipObject(
+        _.zipObject(
           this.structure.columns.map((x) => x.columnName),
           chunk
         )
@@ -57,7 +57,7 @@ class CsvPrepareStream extends stream.Transform {
         };
         this.push(this.structure);
         this.push(
-          zipObject(
+          _.zipObject(
             this.structure.columns.map((x) => x.columnName),
             chunk
           )

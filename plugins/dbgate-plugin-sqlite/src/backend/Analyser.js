@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];;
+const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const indexcolsQuery = `
 SELECT 

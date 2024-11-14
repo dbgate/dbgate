@@ -23,6 +23,7 @@ var config = {
     '@clickhouse/client': 'commonjs @clickhouse/client',
     'json-stable-stringify': 'commonjs json-stable-stringify',
     'dbgate-tools': 'commonjs dbgate-tools',
+    lodash: 'commonjs lodash',
   },
 };
 

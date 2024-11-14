@@ -23,6 +23,7 @@ var config = {
     'async-lock': 'commonjs async-lock',
     'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
     'dbgate-tools': 'commonjs dbgate-tools',
+    lodash: 'commonjs lodash',
     tedious: 'commonjs tedious',
   },
 };
