@@ -76,13 +76,15 @@
     "start:storage:built": "env-cmd -f env/storage/.env cross-env DEVMODE= BUILTWEBMODE=1 node dist/bundle.js --listen-api",
     "start:singleconn": "env-cmd node src/index.js --server localhost --user root --port 3307 --engine mysql@dbgate-plugin-mysql --password test --listen-api",
     "ts": "tsc",
-    "build": "webpack"
+    "build": "webpack",
+    "build:doc": "jsdoc2md --template doctpl.hbs  ./src/shell/* > ../../../dbgate.github.io/_docs/apidoc.md"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.149",
     "dbgate-types": "^5.0.0-alpha.1",
     "env-cmd": "^10.1.0",
+    "jsdoc-to-markdown": "^9.0.5",
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
     "typescript": "^4.4.3",

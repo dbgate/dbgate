@@ -2,6 +2,13 @@ const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
 const Stream = require('stream');
 const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
 
+/**
+ * Copies reader to writer. Used for import, export tables and transfer data between tables
+ * @param {readerType} input - reader object
+ * @param {writerType} output - writer object
+ * @param {object} options - options
+ * @returns {Promise}
+ */
 function copyStream(input, output, options) {
   const { columns } = options || {};
 

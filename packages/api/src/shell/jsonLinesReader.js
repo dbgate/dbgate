@@ -33,6 +33,14 @@ class ParseStream extends stream.Transform {
   }
 }
 
+/**
+ * Reader function, which reads JSNOL file or URL. JSONL format - text file, every line is JSON encoded row.
+ * @param {Object} options
+ * @param {string} options.fileName - file name or URL
+ * @param {string} options.encoding - encoding of the file
+ * @param {number} options.limitRows - maximum number of rows to read
+ * @returns {Promise<readerType>} - reader object
+ */
 async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined }) {
   logger.info(`Reading file ${fileName}`);
 
