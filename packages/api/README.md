@@ -12,15 +12,14 @@ This example exports table Customer info CSV file.
 
 ```javascript
 const dbgateApi = require('dbgate-api');
-const dbgatePluginMssql = require("dbgate-plugin-mssql");
+const dbgatePluginMysql = require("dbgate-plugin-mysql");
 const dbgatePluginCsv = require("dbgate-plugin-csv");
 
-dbgateApi.registerPlugins(dbgatePluginMssql);
+dbgateApi.registerPlugins(dbgatePluginMysql);
 
 async function run() {
   const reader = await dbgateApi.tableReader({
-    connection: { server: 'localhost', engine: 'mssql', user: 'sa', password: 'xxxx', database: 'Chinook' },
-    schemaName: 'dbo',
+    connection: { server: 'localhost', engine: 'mysql@dbgate-plugin-mysql', user: 'root', password: 'xxxx', database: 'Chinook' },
     pureName: 'Customer',
   });
   const writer = await dbgatePluginCsv.shellApi.writer({ fileName: 'Customer.csv' });
@@ -59,8 +58,8 @@ Copies data from reader into writer. Reader and writer should be created from fu
 Reads table or view.
 ```js
   const reader = await dbgateApi.tableReader({
-    connection: { server: 'localhost', engine: 'mssql' | 'postgres' | 'mysql', user: 'root', password: 'xxxx', database: 'DB_NAME' },
-    schemaName: 'dbo',
+    connection: { server: 'localhost', engine: 'postgres@dbgate-plugin-postgres', user: 'root', password: 'xxxx', database: 'DB_NAME' },
+    schemaName: 'public',
     pureName: 'Customer',
   });
 ```
@@ -69,7 +68,7 @@ Reads table or view.
 Executes query and reads its result.
 ```js
   const reader = await dbgateApi.tableReader({
-    connection: { server: 'localhost', engine: 'mssql' | 'postgres' | 'mysql', user: 'root', password: 'xxxx', database: 'DB_NAME' },
+    connection: { server: 'localhost', engine: 'mysql@dbgate-plugin-mysql', user: 'root', password: 'xxxx', database: 'DB_NAME' },
     sql: 'SELECT * FROM Album',
   });
 ```
@@ -81,8 +80,7 @@ Imports data into table. Options are optional, default values are false.
 - createIfNotExists - create table, if not exists
 ```js
   const reader = await dbgateApi.tableWriter({
-    connection: { server: 'localhost', engine: 'mssql' | 'postgres' | 'mysql', user: 'root', password: 'xxxx', database: 'DB_NAME' },
-    schemaName: 'dbo',
+    connection: { server: 'localhost', engine: 'mysql@dbgate-plugin-mysql', user: 'root', password: 'xxxx', database: 'DB_NAME' },
     pureName: 'Customer',
     options: {
       dropIfExists: false,
