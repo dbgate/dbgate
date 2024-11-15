@@ -5,7 +5,7 @@ const volatilePackages = require('./common/volatilePackages');
 function adjustFile(file, isApp = false) {
   const json = JSON.parse(fs.readFileSync(file, { encoding: 'utf-8' }));
 
-  function processFile(packageFile) {
+  function processPackageFile(packageFile) {
     const pluginJson = JSON.parse(fs.readFileSync(packageFile, { encoding: 'utf-8' }));
     for (const depkey of ['dependencies', 'optionalDependencies']) {
       for (const dependency of Object.keys(pluginJson[depkey] || {})) {
@@ -29,12 +29,12 @@ function adjustFile(file, isApp = false) {
 
   for (const packageName of fs.readdirSync('plugins')) {
     if (!packageName.startsWith('dbgate-plugin-')) continue;
-    processFile(path.join('plugins', packageName, 'package.json'));
+    processPackageFile(path.join('plugins', packageName, 'package.json'));
   }
 
   if (isApp) {
     // add volatile dependencies from api to app
-    processFile(path.join('packages', 'api', 'package.json'));
+    processPackageFile(path.join('packages', 'api', 'package.json'));
   }
 
   if (process.platform != 'win32') {
