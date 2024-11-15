@@ -18,7 +18,6 @@ const volatilePackages = [
   '@aws-sdk/rds-signer',
   'activedirectory2',
   'axios',
-  'bufferutil',
   'ssh2',
 ];
 
