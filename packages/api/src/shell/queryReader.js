@@ -3,6 +3,15 @@ const connectUtility = require('../utility/connectUtility');
 const { getLogger } = require('dbgate-tools');
 const logger = getLogger('queryReader');
 
+/**
+ * Returns reader object for {@link copyStream} function. This reader object reads data from query.
+ * @param {object} options
+ * @param {connectionType} options.connection - connection object
+ * @param {string} options.query - SQL query
+ * @param {string} [options.queryType] - query type
+ * @param {string} [options.sql] - SQL query. obsolete; use query instead
+ * @returns {Promise<readerType>} - reader object
+ */
 async function queryReader({
   connection,
   query,

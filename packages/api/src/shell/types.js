@@ -1,11 +1,11 @@
 /**
- * Reader (input) object for copyStream function
+ * Reader (input) object for {@link copyStream} function
  * @typedef {Object} readerType
  *
  */
 
 /**
- * Writer (output) object for copyStream function
+ * Writer (output) object for {@link copyStream} function
  * @typedef {Object} writerType
  *
  */

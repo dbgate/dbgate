@@ -24,6 +24,14 @@ class StringifyStream extends stream.Transform {
   }
 }
 
+/**
+ * Returns writer object for {@link copyStream} function. This writer object writes data to JSONL file. JSONL format - text file, every line is JSON encoded row, used eg. by MongoDB.
+ * @param {object} options
+ * @param {string} options.fileName - file name
+ * @param {string} [options.encoding] - encoding of the file
+ * @param {boolean} [options.header] - whether to write header. Header is JSON describing source table structure. Header is specific to DbGate, if you want eg. to import data to MongoDB, you should not write header.
+ * @returns {Promise<writerType>} - writer object
+ */
 async function jsonLinesWriter({ fileName, encoding = 'utf-8', header = true }) {
   logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ header });

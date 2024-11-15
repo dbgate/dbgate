@@ -7,7 +7,7 @@ const logger = getLogger('tableReader');
  * Creates reader object for {@link copyStream} function. This reader object reads data from table or view.
  * @param {object} options
  * @param {connectionType} options.connection - connection object
- * @param {object} options.systemConnection - system connection (result of driver.connect)
+ * @param {object} options.systemConnection - system connection (result of driver.connect). If not provided, new connection will be created
  * @param {string} options.pureName - table name
  * @param {string} options.schemaName - schema name
  * @returns {Promise<readerType>} - reader object

@@ -45,6 +45,17 @@ class ParseStream extends stream.Transform {
   }
 }
 
+/**
+ * Creates reader object for JSON file for {@link copyStream} function.
+ * @param {object} options
+ * @param {string} options.fileName - file name or URL
+ * @param {string} options.jsonStyle - 'object' or 'array'
+ * @param {string} [options.keyField] - key field for object style
+ * @param {string} [options.rootField] - root field for object style
+ * @param {string} [options.encoding] - encoding of the file
+ * @param {number} [options.limitRows] - maximum number of rows to read
+ * @returns {Promise<readerType>} - reader object
+ */
 async function jsonReader({
   fileName,
   jsonStyle,

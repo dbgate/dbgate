@@ -5,6 +5,15 @@ const { getLogger, extendDatabaseInfo } = require('dbgate-tools');
 
 const logger = getLogger('dropAllDbObjects');
 
+/**
+ * Drops all database objects
+ * @param {object} options
+ * @param {connectionType} options.connection - connection object
+ * @param {object} options.systemConnection - system connection (result of driver.connect). If not provided, new connection will be created
+ * @param {object} options.driver - driver object. If not provided, it will be loaded from connection
+ * @param {object} options.analysedStructure - analysed structure of the database. If not provided, it will be loaded
+ * @returns {Promise}
+ */
 async function dropAllDbObjects({ connection, systemConnection, driver, analysedStructure }) {
   if (!driver) driver = requireEngineDriver(connection);
 

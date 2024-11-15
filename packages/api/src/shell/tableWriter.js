@@ -7,10 +7,10 @@ const logger = getLogger('tableWriter');
  * Creates writer object for {@link copyStream} function. This writer object writes data to table. Table could be created if not exists.
  * @param {object} options
  * @param {connectionType} options.connection - connection object
- * @param {object} options.systemConnection - system connection (result of driver.connect)
+ * @param {object} options.systemConnection - system connection (result of driver.connect). If not provided, new connection will be created
+ * @param {object} options.driver - driver object. If not provided, it will be loaded from connection
  * @param {string} options.pureName - table name
  * @param {string} options.schemaName - schema name
- * @param {object} options.driver - driver object
  * @param {boolean} options.dropIfExists - drop table if exists
  * @param {boolean} options.truncate - truncate table before insert
  * @param {boolean} options.createIfNotExists - create table if not exists

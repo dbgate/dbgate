@@ -85,6 +85,16 @@ class StringifyStream extends stream.Transform {
   }
 }
 
+/**
+ * Returns writer object for {@link copyStream} function. This writer object writes data to JSON file.
+ * @param {object} options
+ * @param {string} options.fileName - file name
+ * @param {string} [options.jsonStyle] - 'object' or 'array'
+ * @param {string} [options.keyField] - key field for object style
+ * @param {string} [options.rootField] - root field for object style
+ * @param {string} [options.encoding] - encoding of the file
+ * @returns {Promise<writerType>} - writer object
+ */
 async function jsonWriter({ fileName, jsonStyle, keyField = '_key', rootField, encoding = 'utf-8' }) {
   logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ jsonStyle, keyField, rootField });

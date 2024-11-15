@@ -8,12 +8,12 @@ const logger = getLogger('execQuery');
 /**
  * Executes SQL query
  * @param {object} options
- * @param {connectionType} options.connection - connection object
- * @param {object} options.systemConnection - system connection (result of driver.connect)
- * @param {object} options.driver - driver object
- * @param {string} options.sql - SQL query
- * @param {string} options.sqlFile - SQL file
- * @param {boolean} options.logScriptItems - whether to log script items instead of whole script
+ * @param {connectionType} [options.connection] - connection object
+ * @param {object} [options.systemConnection] - system connection (result of driver.connect). If not provided, new connection will be created
+ * @param {object} [options.driver] - driver object. If not provided, it will be loaded from connection
+ * @param {string} [options.sql] - SQL query
+ * @param {string} [options.sqlFile] - SQL file
+ * @param {boolean} [options.logScriptItems] - whether to log script items instead of whole script
  */
 async function executeQuery({
   connection = undefined,
