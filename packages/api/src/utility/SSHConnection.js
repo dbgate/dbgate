@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-const { Client } = require('ssh2');
 const net = require('net');
 const fs = require('fs');
 const os = require('os');
@@ -147,6 +146,7 @@ class SSHConnection {
   }
 
   async connect(host, stream) {
+    const { Client } = require('ssh2');
     this.debug('Connecting to "%s"', host);
     const connection = new Client();
     return new Promise(async (resolve, reject) => {
