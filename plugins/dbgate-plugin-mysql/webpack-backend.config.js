@@ -1,6 +1,10 @@
 var webpack = require('webpack');
 var path = require('path');
 
+const packageJson = require('./package.json');
+const buildPluginExternals = require('../../common/buildPluginExternals');
+const externals = buildPluginExternals(packageJson);
+
 var config = {
   context: __dirname + '/src/backend',
 
@@ -14,13 +18,7 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
-  externals: {
-    'dbgate-tools': 'commonjs dbgate-tools',
-    'dbgate-query-splitter': 'commonjs dbgate-query-splitter',
-    'antares-mysql-dumper': 'commonjs antares-mysql-dumper',
-    lodash: 'commonjs lodash',
-    mysql2: 'commonjs mysql2',
-  },
+  externals,
 
   // uncomment for disable minimalization
   // optimization: {

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const volatilePackages = require('./common/volatilePackages');
 
 function adjustFile(file) {
   const json = JSON.parse(fs.readFileSync(file, { encoding: 'utf-8' }));
@@ -11,6 +12,10 @@ function adjustFile(file) {
     );
     for (const depkey of ['dependencies', 'optionalDependencies']) {
       for (const dependency of Object.keys(pluginJson[depkey] || {})) {
+        if (!volatilePackages.includes(dependency)) {
+          // add only voletile packages
+          continue;
+        }
         if (!json[depkey]) {
           json[depkey] = {};
         }
@@ -34,3 +39,5 @@ function adjustFile(file) {
 
 adjustFile('packages/api/package.json');
 adjustFile('app/package.json');
+
+fs.writeFileSync('common/useBundleExternals.js', "module.exports = 'true';", 'utf-8');

@@ -1,6 +1,10 @@
 var webpack = require('webpack');
 var path = require('path');
 
+const packageJson = require('./package.json');
+const buildPluginExternals = require('../../common/buildPluginExternals');
+const externals = buildPluginExternals(packageJson);
+
 var config = {
   context: __dirname + '/src/backend',
 
@@ -18,14 +22,7 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
-  externals: {
-    'dbgate-tools': 'commmonjs dbgate-tools',
-    'dbgate-query-splitter': 'commmonjs dbgate-query-splitter',
-    lodash: 'commmonjs lodash',
-    async: 'commmonjs async',
-    ioredis: 'commmonjs ioredis',
-    'node-redis-dump2': 'commmonjs node-redis-dump2',
-  },
+  externals,
 };
 
 module.exports = config;
