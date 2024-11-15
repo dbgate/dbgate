@@ -3,6 +3,15 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const logger = getLogger('tableReader');
 
+/**
+ * Creates reader object for {@link copyStream} function. This reader object reads data from table or view.
+ * @param {object} options
+ * @param {connectionType} options.connection - connection object
+ * @param {object} options.systemConnection - system connection (result of driver.connect)
+ * @param {string} options.pureName - table name
+ * @param {string} options.schemaName - schema name
+ * @returns {Promise<readerType>} - reader object
+ */
 async function tableReader({ connection, systemConnection, pureName, schemaName }) {
   const driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));

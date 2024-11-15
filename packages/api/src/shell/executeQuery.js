@@ -5,6 +5,16 @@ const { getLogger, getLimitedQuery } = require('dbgate-tools');
 
 const logger = getLogger('execQuery');
 
+/**
+ * Executes SQL query
+ * @param {object} options
+ * @param {connectionType} options.connection - connection object
+ * @param {object} options.systemConnection - system connection (result of driver.connect)
+ * @param {object} options.driver - driver object
+ * @param {string} options.sql - SQL query
+ * @param {string} options.sqlFile - SQL file
+ * @param {boolean} options.logScriptItems - whether to log script items instead of whole script
+ */
 async function executeQuery({
   connection = undefined,
   systemConnection = undefined,
