@@ -2,14 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const volatilePackages = require('./common/volatilePackages');
 
-function adjustFile(file) {
+function adjustFile(file, isApp = false) {
   const json = JSON.parse(fs.readFileSync(file, { encoding: 'utf-8' }));
 
-  for (const packageName of fs.readdirSync('plugins')) {
-    if (!packageName.startsWith('dbgate-plugin-')) continue;
-    const pluginJson = JSON.parse(
-      fs.readFileSync(path.join('plugins', packageName, 'package.json'), { encoding: 'utf-8' })
-    );
+  function processFile(packageFile) {
+    const pluginJson = JSON.parse(fs.readFileSync(packageFile, { encoding: 'utf-8' }));
     for (const depkey of ['dependencies', 'optionalDependencies']) {
       for (const dependency of Object.keys(pluginJson[depkey] || {})) {
         if (!volatilePackages.includes(dependency)) {
@@ -30,6 +27,16 @@ function adjustFile(file) {
     }
   }
 
+  for (const packageName of fs.readdirSync('plugins')) {
+    if (!packageName.startsWith('dbgate-plugin-')) continue;
+    processFile(path.join('plugins', packageName, 'package.json'));
+  }
+
+  if (isApp) {
+    // add volatile dependencies from api to app
+    processFile(path.join('packages', 'api', 'package.json'));
+  }
+
   if (process.platform != 'win32') {
     delete json.optionalDependencies.msnodesqlv8;
   }
@@ -38,6 +45,6 @@ function adjustFile(file) {
 }
 
 adjustFile('packages/api/package.json');
-adjustFile('app/package.json');
+adjustFile('app/package.json', true);
 
 fs.writeFileSync('common/useBundleExternals.js', "module.exports = 'true';", 'utf-8');
