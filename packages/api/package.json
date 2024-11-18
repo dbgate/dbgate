@@ -19,6 +19,11 @@
   "files": [
     "src"
   ],
+  "build": {
+    "files": [
+      "!node_modules/cpu-features/build/**"
+    ]
+  },
   "dependencies": {
     "@aws-sdk/rds-signer": "^3.665.0",
     "activedirectory2": "^2.1.0",
