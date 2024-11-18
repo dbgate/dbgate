@@ -76,10 +76,6 @@ class Dumper extends SqlDumper {
     if (!testEqualTypes(oldcol, newcol)) {
       this.putCmd('^alter ^table %f ^alter ^column %i ^type %s', oldcol, newcol.columnName, newcol.dataType);
     }
-    if (oldcol.notNull != newcol.notNull) {
-      if (newcol.notNull) this.putCmd('^alter ^table %f ^alter ^column %i ^set ^not ^null', newcol, newcol.columnName);
-      else this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^not ^null', newcol, newcol.columnName);
-    }
     if (oldcol.defaultValue != newcol.defaultValue) {
       if (newcol.defaultValue == null) {
         this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^default', newcol, newcol.columnName);
@@ -91,6 +87,11 @@ class Dumper extends SqlDumper {
           newcol.defaultValue
         );
       }
+    }
+    if (oldcol.notNull != newcol.notNull) {
+      this.fillNewNotNullDefaults(newcol);
+      if (newcol.notNull) this.putCmd('^alter ^table %f ^alter ^column %i ^set ^not ^null', newcol, newcol.columnName);
+      else this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^not ^null', newcol, newcol.columnName);
     }
   }
 
