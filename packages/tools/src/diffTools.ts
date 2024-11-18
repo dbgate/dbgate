@@ -42,7 +42,7 @@ export interface DbDiffOptions {
   ignoreConstraintNames?: boolean;
 
   noDropTable?: boolean;
-  allowTableRecreateWhenNoDrop?: boolean;
+  allowTableRecreate?: boolean;
   deletedTablePrefix?: string;
 
   noDropColumn?: boolean;
