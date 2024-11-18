@@ -731,6 +731,12 @@ export class SqlDumper implements AlterProcessor {
     this.put(formatString, optionValue);
   }
 
+  fillNewNotNullDefaults(col: ColumnInfo) {
+    if (col.notNull && col.defaultValue != null) {
+      this.putCmd('^update %f ^set %i = %s ^where %i ^is ^null', col, col.columnName, col.defaultValue, col.columnName);
+    }
+  }
+
   fillPreloadedRows(
     table: NamedObjectInfo,
     oldRows: any[],

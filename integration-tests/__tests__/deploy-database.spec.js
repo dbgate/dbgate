@@ -82,30 +82,34 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   dbdiffOptionsExtra.schemaMode = 'ignore';
 
   for (const loadedDbModel of dbModelsYaml) {
-    const { sql, isEmpty } = await generateDeploySql({
-      systemConnection: conn.isPreparedOnly ? undefined : conn,
-      connection: conn.isPreparedOnly ? conn : undefined,
-      driver,
-      loadedDbModel,
-      dbdiffOptionsExtra,
-    });
-    console.debug('Generated deploy script:', sql);
-    if (!allowDropStatements) {
-      expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
-    }
+    if (_.isString(loadedDbModel)) {
+      await driver.script(conn, loadedDbModel);
+    } else {
+      const { sql, isEmpty } = await generateDeploySql({
+        systemConnection: conn.isPreparedOnly ? undefined : conn,
+        connection: conn.isPreparedOnly ? conn : undefined,
+        driver,
+        loadedDbModel,
+        dbdiffOptionsExtra,
+      });
+      console.debug('Generated deploy script:', sql);
+      if (!allowDropStatements) {
+        expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
+      }
 
-    console.log('dbModelsYaml.length', dbModelsYaml.length, index);
-    if (testEmptyLastScript && index == dbModelsYaml.length - 1) {
-      expect(isEmpty).toBeTruthy();
-    }
+      console.log('dbModelsYaml.length', dbModelsYaml.length, index);
+      if (testEmptyLastScript && index == dbModelsYaml.length - 1) {
+        expect(isEmpty).toBeTruthy();
+      }
 
-    await deployDb({
-      systemConnection: conn.isPreparedOnly ? undefined : conn,
-      connection: conn.isPreparedOnly ? conn : undefined,
-      driver,
-      loadedDbModel,
-      dbdiffOptionsExtra,
-    });
+      await deployDb({
+        systemConnection: conn.isPreparedOnly ? undefined : conn,
+        connection: conn.isPreparedOnly ? conn : undefined,
+        driver,
+        loadedDbModel,
+        dbdiffOptionsExtra,
+      });
+    }
 
     index++;
   }
@@ -416,10 +420,64 @@ describe('Deploy database', () => {
     })
   );
 
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Change column to NOT NULL column with default - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(engine, conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int', notNull: true },
+                { name: 'val', type: 'int' },
+              ],
+
+              primaryKey: ['id'],
+            },
+          },
+        ],
+        'insert into t1 (id, val) values (1, 1); insert into t1 (id) values (2)',
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int', notNull: true },
+                { name: 'val', type: 'int', notNull: true, default: '20' },
+              ],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+      ]);
+
+      const res1 = await driver.query(conn, `select val from t1 where id = 1`);
+      expect(res1.rows[0].val).toEqual(1);
+
+      const res2 = await driver.query(conn, `select val from t1 where id = 2`);
+      expect(res2.rows[0].val).toEqual(20);
+    })
+  );
+
   const T1 = {
     name: 't1.table.yaml',
     json: {
       name: 't1',
+      columns: [
+        { name: 'id', type: 'int' },
+        { name: 'val', type: 'int' },
+      ],
+      primaryKey: ['id'],
+    },
+  };
+
+  const T2 = {
+    name: 't2.table.yaml',
+    json: {
+      name: 't2',
       columns: [
         { name: 'id', type: 'int' },
         { name: 'val', type: 'int' },
@@ -684,6 +742,17 @@ describe('Deploy database', () => {
         "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
       );
       expect(res5.rows[0].run_count == 2).toBeTruthy();
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Mark table removed, one remains - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(engine, conn, driver, [[T1, T2], [T2], [T2]], {
+        markDeleted: true,
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1_DELETED, T2],
+      });
     })
   );
 });

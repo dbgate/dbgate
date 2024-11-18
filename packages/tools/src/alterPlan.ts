@@ -459,7 +459,7 @@ export class AlterPlan {
       // console.log('*****************RECREATED NEEDED', op, operationType, isAllowed);
       // console.log(this.dialect);
 
-      if (!this.opts.allowTableRecreate) {
+      if (this.opts.noDropTable && !this.opts.allowTableRecreate) {
         // skip this operation, as it cannot be achieved
         return [];
       }
