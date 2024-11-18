@@ -42,6 +42,7 @@ const dialect = {
   filteredIndexes: true,
 
   dropReferencesWhenDropTable: true,
+  namedDefaultConstraint: true,
 
   columnProperties: {
     isSparse: true,

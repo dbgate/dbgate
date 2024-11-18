@@ -37,6 +37,7 @@ export interface SqlDialect {
   renameSqlObject?: boolean;
   multipleSchema?: boolean;
   filteredIndexes?: boolean;
+  namedDefaultConstraint?: boolean;
 
   specificNullabilityImplementation?: boolean;
   omitForeignKeys?: boolean;

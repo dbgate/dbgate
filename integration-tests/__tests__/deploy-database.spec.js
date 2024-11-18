@@ -117,7 +117,12 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(engine, structure, finalCheckAgainstModel ?? dbModelsYaml[dbModelsYaml.length - 1], options);
+  checkStructure(
+    engine,
+    structure,
+    finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)),
+    options
+  );
 }
 
 describe('Deploy database', () => {
@@ -452,12 +457,16 @@ describe('Deploy database', () => {
             },
           },
         ],
+        'insert into t1 (id) values (3);',
       ]);
 
       const res1 = await driver.query(conn, `select val from t1 where id = 1`);
       expect(res1.rows[0].val).toEqual(1);
 
       const res2 = await driver.query(conn, `select val from t1 where id = 2`);
+      expect(res2.rows[0].val).toEqual(20);
+
+      const res3 = await driver.query(conn, `select val from t1 where id = 3`);
       expect(res2.rows[0].val).toEqual(20);
     })
   );

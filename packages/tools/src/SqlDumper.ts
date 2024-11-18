@@ -263,7 +263,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   columnDefault(column: ColumnInfo) {
-    if (column.defaultConstraint != null) {
+    if (column.defaultConstraint != null && this.dialect?.namedDefaultConstraint) {
       this.put(' ^constraint %i ^default %s ', column.defaultConstraint, column.defaultValue);
     } else {
       this.put(' ^default %s ', column.defaultValue);

@@ -32,6 +32,10 @@ class Dumper extends SqlDumper {
   }
 
   changeColumn(oldcol, newcol, constraints) {
+    this.fillNewNotNullDefaults({
+      ...newcol,
+      columnName: oldcol.columnName,
+    });
     this.put('^alter ^table %f ^change ^column %i %i ', oldcol, oldcol.columnName, newcol.columnName);
     this.columnDefinition(newcol);
     this.inlineConstraints(constraints);
@@ -91,7 +95,7 @@ class Dumper extends SqlDumper {
   }
 
   selectScopeIdentity() {
-    this.put('^select ^last_insert_id()')
+    this.put('^select ^last_insert_id()');
   }
 }
 
