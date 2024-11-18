@@ -1,7 +1,10 @@
 <script context="module">
-  export function computeSplitterSize(initialValue, clientSize, customRatio) {
+  export function computeSplitterSize(initialValue, clientSize, customRatio, initialSizeRight) {
     if (customRatio != null) {
       return clientSize * customRatio;
+    }
+    if (initialSizeRight) {
+      return clientSize - initialSizeRight;
     }
     if (_.isString(initialValue) && initialValue.startsWith('~') && initialValue.endsWith('px'))
       return clientSize - parseInt(initialValue.slice(1, -2));
@@ -20,6 +23,7 @@
 
   export let isSplitter = true;
   export let initialValue = undefined;
+  export let initialSizeRight = undefined;
   export let hideFirst = false;
 
   export let allowCollapseChild1 = false;
@@ -32,7 +36,7 @@
   let clientWidth;
   let customRatio = null;
 
-  $: size = computeSplitterSize(initialValue, clientWidth, customRatio);
+  $: size = computeSplitterSize(initialValue, clientWidth, customRatio, initialSizeRight);
 </script>
 
 <div class="container" bind:clientWidth>
@@ -43,8 +47,8 @@
         ? collapsed1
           ? 'display:none'
           : collapsed2
-          ? 'flex:1'
-          : `width:${size}px; min-width:${size}px; max-width:${size}px}`
+            ? 'flex:1'
+            : `width:${size}px; min-width:${size}px; max-width:${size}px}`
         : `flex:1`}
     >
       <slot name="1" />
