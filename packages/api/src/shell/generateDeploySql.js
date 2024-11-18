@@ -30,6 +30,14 @@ async function generateDeploySql({
   if (!driver) driver = requireEngineDriver(connection);
 
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
+  if (
+    driver?.dialect?.multipleSchema &&
+    !targetSchema &&
+    dbdiffOptionsExtra?.['schemaMode'] !== 'ignore' &&
+    dbdiffOptionsExtra?.['schemaMode'] !== 'ignoreImplicit'
+  ) {
+    throw new Error('targetSchema is required for databases with multiple schemas');
+  }
 
   try {
     if (!analysedStructure) {
