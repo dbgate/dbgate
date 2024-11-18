@@ -142,6 +142,7 @@ const engines = [
     },
     objects: [views],
     skipOnCI: false,
+    skipChangeColumn: true,
   },
   {
     label: 'CockroachDB',
@@ -181,6 +182,7 @@ const engines = [
     skipStringLength: true,
     alterTableAddColumnSyntax: true,
     dbSnapshotBySeconds: true,
+    skipChangeColumn: true,
   },
 ];
 

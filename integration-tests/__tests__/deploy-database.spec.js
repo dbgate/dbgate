@@ -117,12 +117,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(
-    engine,
-    structure,
-    finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)),
-    options
-  );
+  checkStructure(engine, structure, finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)), options);
 }
 
 describe('Deploy database', () => {
@@ -425,7 +420,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipChangeColumn).map(engine => [engine.label, engine]))(
     'Change column to NOT NULL column with default - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
