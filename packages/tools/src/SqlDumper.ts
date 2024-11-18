@@ -732,7 +732,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   fillNewNotNullDefaults(col: ColumnInfo) {
-    if (col.notNull && col.defaultValue) {
+    if (col.notNull && col.defaultValue != null) {
       this.putCmd('^update %f ^set %i = %s ^where %i ^is ^null', col, col.columnName, col.defaultValue, col.columnName);
     }
   }
