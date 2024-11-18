@@ -428,6 +428,18 @@ describe('Deploy database', () => {
     },
   };
 
+  const T2 = {
+    name: 't2.table.yaml',
+    json: {
+      name: 't2',
+      columns: [
+        { name: 'id', type: 'int' },
+        { name: 'val', type: 'int' },
+      ],
+      primaryKey: ['id'],
+    },
+  };
+
   const T1_DELETED = {
     name: '_deleted_t1.table.yaml',
     json: {
@@ -684,6 +696,17 @@ describe('Deploy database', () => {
         "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
       );
       expect(res5.rows[0].run_count == 2).toBeTruthy();
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Mark table removed, one remains - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(engine, conn, driver, [[T1, T2], [T2], [T2]], {
+        markDeleted: true,
+        disallowExtraObjects: true,
+        finalCheckAgainstModel: [T1_DELETED, T2],
+      });
     })
   );
 });
