@@ -336,6 +336,12 @@
     setSelectedTab(tabid);
   };
 
+  const handleMouseDown = (e, tabid) => {
+    if (e.button == 1) {
+      e.preventDefault();
+    }
+  };
+
   const handleMouseUp = (e, tabid) => {
     if (e.button == 1) {
       e.preventDefault();
@@ -563,6 +569,7 @@
                 ? tab.tabid == $draggingTabTarget?.tabid
                 : tab.tabid == shownTab?.tabid}
               on:click={e => handleTabClick(e, tab.tabid)}
+              on:mousedown={e => handleMouseDown(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}
               draggable={true}
