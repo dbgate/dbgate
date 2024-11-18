@@ -127,6 +127,8 @@ export function computeTableDiffColumns(
     targetColumnName: row?.target?.columnName,
     sourceDataType: row?.source?.dataType,
     targetDataType: row?.target?.dataType,
+    sourceAutoIncrement: row?.source?.autoIncrement,
+    targetAutoIncrement: row?.target?.autoIncrement,
     sourceNotNull: row?.source?.notNull,
     targetNotNull: row?.target?.notNull,
   }));
