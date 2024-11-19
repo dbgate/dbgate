@@ -66,6 +66,11 @@
   }
 
   // $: console.log(title, indentLevel);
+  let domDiv;
+
+  $: if (isBold && domDiv) {
+    domDiv.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
 </script>
 
 <div
@@ -83,6 +88,7 @@
   on:dragenter
   on:dragend
   on:drop
+  bind:this={domDiv}
 >
   {#if checkedObjectsStore}
     <CheckboxField

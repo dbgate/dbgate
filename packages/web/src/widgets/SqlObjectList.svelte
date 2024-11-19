@@ -36,13 +36,20 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { findEngineDriver } from 'dbgate-tools';
-  import { currentDatabase, extensions } from '../stores';
+  import {
+    currentDatabase,
+    extensions,
+    getSelectedDatabaseObjectAppObject,
+    selectedDatabaseObjectAppObject,
+  } from '../stores';
   import newQuery from '../query/newQuery';
   import runCommand from '../commands/runCommand';
   import { apiCall } from '../utility/api';
   import { filterAppsForDatabase } from '../utility/appTools';
   import SchemaSelector from './SchemaSelector.svelte';
   import { appliedCurrentSchema } from '../stores';
+  import AppObjectListHandler from './AppObjectListHandler.svelte';
+  import { matchDatabaseObjectAppObject } from '../appobj/appObjectMatchers';
 
   export let conid;
   export let database;
@@ -172,23 +179,32 @@
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
-      <AppObjectList
+      <AppObjectListHandler
         list={objectList
           .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
           .map(x => ({ ...x, conid, database }))}
-        module={databaseObjectAppObject}
-        groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
-        subItemsComponent={SubColumnParamList}
-        isExpandable={data =>
-          data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
-        expandIconFunc={chevronExpandIcon}
-        {filter}
-        passProps={{
-          showPinnedInsteadOfUnpin: true,
-          connection: $connection,
-          hideSchemaName: !!$appliedCurrentSchema,
-        }}
-      />
+        selectedObjectStore={selectedDatabaseObjectAppObject}
+        getSelectedObject={getSelectedDatabaseObjectAppObject}
+        selectedObjectMatcher={matchDatabaseObjectAppObject}
+      >
+        <AppObjectList
+          list={objectList
+            .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
+            .map(x => ({ ...x, conid, database }))}
+          module={databaseObjectAppObject}
+          groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
+          subItemsComponent={SubColumnParamList}
+          isExpandable={data =>
+            data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
+          expandIconFunc={chevronExpandIcon}
+          {filter}
+          passProps={{
+            showPinnedInsteadOfUnpin: true,
+            connection: $connection,
+            hideSchemaName: !!$appliedCurrentSchema,
+          }}
+        />
+      </AppObjectListHandler>
     {/if}
   </WidgetsInnerContainer>
 {/if}

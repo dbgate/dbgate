@@ -853,6 +853,7 @@
     getExtensions,
     openedConnections,
     pinnedTables,
+    selectedDatabaseObjectAppObject,
   } from '../stores';
   import openNewTab from '../utility/openNewTab';
   import {
@@ -880,11 +881,13 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
+  import { matchDatabaseObjectAppObject } from './appObjectMatchers';
 
   export let data;
   export let passProps;
 
   function handleClick(forceNewTab = false, preventPreviewMode = false) {
+    $selectedDatabaseObjectAppObject = data;
     handleDatabaseObjectClick(data, forceNewTab, preventPreviewMode);
   }
 
@@ -918,6 +921,7 @@
   onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
   extInfo={getExtInfo(data)}
+  isBold={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:dblclick={() => handleClick(false, true)}

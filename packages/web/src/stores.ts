@@ -153,6 +153,8 @@ export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 
+export const selectedDatabaseObjectAppObject = writable(null);
+
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
@@ -321,3 +323,9 @@ appliedCurrentSchema.subscribe(value => {
   appliedCurrentSchemaValue = value;
 });
 export const getAppliedCurrentSchema = () => appliedCurrentSchemaValue;
+
+let selectedDatabaseObjectAppObjectValue = null;
+selectedDatabaseObjectAppObject.subscribe(value => {
+  selectedDatabaseObjectAppObjectValue = value;
+});
+export const getSelectedDatabaseObjectAppObject = () => selectedDatabaseObjectAppObjectValue;
