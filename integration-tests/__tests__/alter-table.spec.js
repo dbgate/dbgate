@@ -166,4 +166,14 @@ describe('Alter table', () => {
       });
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Change autoincrement - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(engine, conn, driver, tbl => {
+        tbl.columns.find(x => x.columnName == 'col_pk').autoIncrement = true;
+      });
+    })
+  );
+
 });

@@ -24,6 +24,7 @@ export interface SqlDialect {
   createColumn?: boolean;
   dropColumn?: boolean;
   changeColumn?: boolean;
+  changeAutoIncrement?: boolean;
   createIndex?: boolean;
   dropIndex?: boolean;
   createForeignKey?: boolean;
