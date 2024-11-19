@@ -219,13 +219,13 @@ export function skipNamesInStructureByRegex(db: DatabaseInfo, regex: RegExp) {
 
   return {
     ...db,
-    tables: (db.tables || []).filter(tbl => !regex.test(tbl.pureName)),
-    views: (db.views || []).filter(tbl => !regex.test(tbl.pureName)),
-    collections: (db.collections || []).filter(tbl => !regex.test(tbl.pureName)),
-    matviews: (db.matviews || []).filter(tbl => !regex.test(tbl.pureName)),
-    procedures: (db.procedures || []).filter(tbl => !regex.test(tbl.pureName)),
-    functions: (db.functions || []).filter(tbl => !regex.test(tbl.pureName)),
-    triggers: (db.triggers || []).filter(tbl => !regex.test(tbl.pureName)),
+    tables: (db.tables || []).filter(x => !regex.test(x.pureName)),
+    views: (db.views || []).filter(x => !regex.test(x.pureName)),
+    collections: (db.collections || []).filter(x => !regex.test(x.pureName)),
+    matviews: (db.matviews || []).filter(x => !regex.test(x.pureName)),
+    procedures: (db.procedures || []).filter(x => !regex.test(x.pureName)),
+    functions: (db.functions || []).filter(x => !regex.test(x.pureName)),
+    triggers: (db.triggers || []).filter(x => !regex.test(x.pureName)),
   };
 }
 

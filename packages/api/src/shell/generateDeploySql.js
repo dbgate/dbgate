@@ -44,14 +44,15 @@ async function generateDeploySql({
       analysedStructure = await driver.analyseFull(dbhan);
     }
 
-    if (ignoreNameRegex) {
-      analysedStructure = skipNamesInStructureByRegex(analysedStructure, new RegExp(ignoreNameRegex, 'i'));
-    }
-    analysedStructure = skipDbGateInternalObjects(analysedStructure);
-
     let deployedModelSource = loadedDbModel
       ? databaseInfoFromYamlModel(loadedDbModel)
       : await importDbModel(modelFolder);
+
+    if (ignoreNameRegex) {
+      analysedStructure = skipNamesInStructureByRegex(analysedStructure, new RegExp(ignoreNameRegex, 'i'));
+      deployedModelSource = skipNamesInStructureByRegex(deployedModelSource, new RegExp(ignoreNameRegex, 'i'));
+    }
+    analysedStructure = skipDbGateInternalObjects(analysedStructure);
 
     for (const transform of modelTransforms || []) {
       deployedModelSource = transform(deployedModelSource);

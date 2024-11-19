@@ -748,6 +748,8 @@ export function createAlterDatabasePlan(
             plan.recreates.sqlObjects += 1;
             plan.dropSqlObject(oldobj);
             plan.createSqlObject(newobj);
+          } else if (!testEqualFullNames(oldobj, newobj, opts)) {
+            plan.renameSqlObject(oldobj, newobj.pureName);
           }
         }
       }

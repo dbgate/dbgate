@@ -197,9 +197,15 @@
             forceNewTab: true,
             icon: 'img perspective',
           },
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop view',
             isDrop: true,
+            requiresWriteAccess: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Rename view',
+            isRename: true,
+            requiresWriteAccess: true,
           },
           {
             divider: true,
@@ -256,9 +262,15 @@
             label: 'Open structure',
             tab: 'TableStructureTab',
           },
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop view',
             isDrop: true,
+            requiresWriteAccess: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Rename view',
+            isRename: true,
+            requiresWriteAccess: true,
           },
           {
             label: 'Query designer',
@@ -318,9 +330,15 @@
         ];
       case 'procedures':
         return [
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop procedure',
             isDrop: true,
+            requiresWriteAccess: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Rename procedure',
+            isRename: true,
+            requiresWriteAccess: true,
           },
           {
             label: 'SQL: CREATE PROCEDURE',
@@ -349,9 +367,15 @@
         ];
       case 'functions':
         return [
-          {
+          hasPermission('dbops/model/edit') && {
             label: 'Drop function',
             isDrop: true,
+            requiresWriteAccess: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Rename function',
+            isRename: true,
+            requiresWriteAccess: true,
           },
           {
             label: 'SQL: CREATE FUNCTION',
