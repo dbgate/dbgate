@@ -657,7 +657,7 @@ export class SqlDumper implements AlterProcessor {
       }
 
       this.putCmd(
-        '^insert ^into %f (%,i) select %,s ^from %f',
+        '^insert ^into %f (%,i) select %,i ^from %f',
         newTable,
         columnPairs.map(x => x.newcol.columnName),
         columnPairs.map(x => x.oldcol.columnName),
