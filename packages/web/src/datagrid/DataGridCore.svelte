@@ -492,6 +492,8 @@
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
 
+  let isGridFocused=false;
+
   const tabid = getContext('tabid');
 
   let unsubscribeDbRefresh;
@@ -1040,7 +1042,6 @@
   export function canShowLeftPanel() {
     return !hideGridLeftColumn;
   }
-
 
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
@@ -1863,6 +1864,7 @@
 {:else}
   <div
     class="container"
+    class:data-grid-focused={isGridFocused}
     bind:clientWidth={containerWidth}
     bind:clientHeight={containerHeight}
     use:contextMenu={buildMenu}
@@ -1877,10 +1879,14 @@
       on:focus={() => {
         activator.activate();
         invalidateCommands();
+        isGridFocused = true;
       }}
+      on:blur
       on:paste={handlePaste}
       on:copy={copyToClipboard}
-      on:blur={handleBlur}
+      on:blur={() => {
+        isGridFocused = false;
+      }}
     />
     <table
       class="table"

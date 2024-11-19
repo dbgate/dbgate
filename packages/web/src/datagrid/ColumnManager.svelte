@@ -142,6 +142,8 @@
       },
     });
   }
+
+  let isColumnManagerFocused = false;
 </script>
 
 {#if allowChangeChangeSetStructure}
@@ -207,8 +209,12 @@
     bind:this={domFocusField}
     on:keydown={handleKeyDown}
     on:focus={() => {
+      isColumnManagerFocused = true;
       // activator.activate();
       // invalidateCommands();
+    }}
+    on:blur={() => {
+      isColumnManagerFocused = false;
     }}
     on:copy={copyToClipboard}
   />
@@ -224,6 +230,7 @@
       {database}
       {tableInfo}
       {setTableInfo}
+      {isColumnManagerFocused}
       columnInfo={tableInfo?.columns?.[columnIndex]}
       {columnIndex}
       {allowChangeChangeSetStructure}
