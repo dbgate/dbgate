@@ -701,7 +701,8 @@
     forceNewTab?,
     initialData?,
     icon?,
-    appObjectData?
+    appObjectData?,
+    preventPreviewMode?
   ) {
     const connection = await getConnectionInfo({ conid });
     const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
@@ -717,6 +718,7 @@
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         appObject: 'DatabaseObjectAppObject',
         appObjectData,
+        tabPreviewMode: !preventPreviewMode,
         props: {
           schemaName,
           pureName,
@@ -731,7 +733,7 @@
     );
   }
 
-  export function handleDatabaseObjectClick(data, forceNewTab = false) {
+  export function handleDatabaseObjectClick(data, forceNewTab = false, preventPreviewMode = false) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
     const driver = findEngineDriver(data, getExtensions());
 
@@ -755,7 +757,8 @@
       forceNewTab,
       null,
       null,
-      data
+      data,
+      preventPreviewMode
     );
   }
 
@@ -881,8 +884,8 @@
   export let data;
   export let passProps;
 
-  function handleClick(forceNewTab = false) {
-    handleDatabaseObjectClick(data, forceNewTab);
+  function handleClick(forceNewTab = false, preventPreviewMode = false) {
+    handleDatabaseObjectClick(data, forceNewTab, preventPreviewMode);
   }
 
   function createMenu() {
@@ -917,6 +920,7 @@
   extInfo={getExtInfo(data)}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
+  on:dblclick={() => handleClick(false, true)}
   on:expand
   on:dragstart
   on:dragenter

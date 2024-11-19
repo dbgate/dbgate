@@ -22,6 +22,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   let existing = null;
 
   const { savedFile, savedFolder, savedFilePath } = newTab.props || {};
+  const { tabPreviewMode } = newTab;
   if (savedFile || savedFilePath) {
     existing = oldTabs.find(
       x =>
@@ -49,7 +50,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   }
 
   if (existing) {
-    openedTabs.update(tabs => setSelectedTabFunc(tabs, existing.tabid));
+    openedTabs.update(tabs => setSelectedTabFunc(tabs, existing.tabid, !tabPreviewMode ? false : undefined));
     return;
   }
 
@@ -92,8 +93,14 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
       items.push(newItem);
     }
 
+    const filesFiltered = tabPreviewMode ? (files || []).filter(x => !x.tabPreviewMode) : files;
+
     return [
-      ...(files || []).map(x => ({ ...x, selected: false, tabOrder: _.findIndex(items, y => y.tabid == x.tabid) })),
+      ...(filesFiltered || []).map(x => ({
+        ...x,
+        selected: false,
+        tabOrder: _.findIndex(items, y => y.tabid == x.tabid),
+      })),
       {
         ...newTab,
         tabid,

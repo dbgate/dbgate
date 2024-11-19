@@ -349,6 +349,17 @@
     }
   };
 
+  const handleDoubleClick = (e, tabid) => {
+    e.preventDefault();
+
+    openedTabs.update(tabs =>
+      tabs.map(x => ({
+        ...x,
+        tabPreviewMode: x.tabid == tabid ? false : x.tabPreviewMode,
+      }))
+    );
+  };
+
   const getContextMenu = tab => () => {
     const { tabid, props, tabComponent, appObject, appObjectData } = tab;
 
@@ -568,9 +579,11 @@
               class:selected={$draggingTab || $draggingDbGroup
                 ? tab.tabid == $draggingTabTarget?.tabid
                 : tab.tabid == shownTab?.tabid}
+              class:preview={!!tab.tabPreviewMode}
               on:click={e => handleTabClick(e, tab.tabid)}
               on:mousedown={e => handleMouseDown(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
+              on:dblclick={e => handleDoubleClick(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}
               draggable={true}
               on:dragstart={async e => {
@@ -713,6 +726,9 @@
   }
   .file-tab-item.selected {
     background-color: var(--theme-bg-0);
+  }
+  .file-tab-item.preview {
+    font-style: italic;
   }
   .file-name {
     margin-left: 5px;
