@@ -416,12 +416,12 @@ export class AlterPlan {
         this._testTableRecreate(op, 'createConstraint', obj => this._canCreateConstraint(obj), 'newObject') ||
         this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') ||
         this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') ||
-        this._testTableRecreate(
-          op,
-          'changeColumn',
-          obj => this._canChangeAutoIncrement(obj, op as AlterOperation_ChangeColumn),
-          'newObject'
-        ) ||
+        // this._testTableRecreate(
+        //   op,
+        //   'changeColumn',
+        //   obj => this._canChangeAutoIncrement(obj, op as AlterOperation_ChangeColumn),
+        //   'newObject'
+        // ) ||
         this._testTableRecreate(op, 'renameColumn', true, 'object') || [op]
       );
     });
@@ -449,12 +449,12 @@ export class AlterPlan {
     return null;
   }
 
-  _canChangeAutoIncrement(column: ColumnInfo, op: AlterOperation_ChangeColumn) {
-    if (!!column.autoIncrement != !!op.oldObject.autoIncrement) {
-      return this.dialect.changeAutoIncrement;
-    }
-    return null;
-  }
+  // _canChangeAutoIncrement(column: ColumnInfo, op: AlterOperation_ChangeColumn) {
+  //   if (!!column.autoIncrement != !!op.oldObject.autoIncrement) {
+  //     return this.dialect.changeAutoIncrement;
+  //   }
+  //   return null;
+  // }
 
   _testTableRecreate(
     op: AlterOperation,
