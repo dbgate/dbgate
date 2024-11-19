@@ -35,6 +35,7 @@
     "build:lib": "yarn build:sqltree && yarn build:tools && yarn build:filterparser && yarn build:datalib",
     "build:app": "yarn plugins:copydist && cd app && yarn install && yarn build",
     "build:api": "yarn workspace dbgate-api build",
+    "build:api:doc": "yarn workspace dbgate-api build:doc",
     "build:web": "yarn workspace dbgate-web build",
     "build:plugins:frontend": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn build:frontend",
     "build:plugins:backend": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn build:backend",
