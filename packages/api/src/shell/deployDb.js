@@ -17,6 +17,7 @@ async function deployDb({
   dbdiffOptionsExtra,
   ignoreNameRegex = '',
   targetSchema = null,
+  maxMissingTablesRatio = undefined,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
@@ -41,6 +42,7 @@ async function deployDb({
       dbdiffOptionsExtra,
       ignoreNameRegex,
       targetSchema,
+      maxMissingTablesRatio,
     });
     // console.log('RUNNING DEPLOY SCRIPT:', sql);
     await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });

@@ -742,8 +742,12 @@ export function createAlterDatabasePlan(
           }
         } else {
           if (opts.deletedSqlObjectPrefix && hasDeletedPrefix(oldobj.pureName, opts, opts.deletedSqlObjectPrefix)) {
-            plan.dropSqlObject(oldobj);
-            plan.createSqlObject(newobj);
+            if (driver.dialect.renameSqlObject && testEqualSqlObjects(oldobj, newobj, opts)) {
+              plan.renameSqlObject(oldobj, newobj.pureName);
+            } else {
+              plan.dropSqlObject(oldobj);
+              plan.createSqlObject(newobj);
+            }
           } else if (!testEqualSqlObjects(oldobj, newobj, opts)) {
             plan.recreates.sqlObjects += 1;
             plan.dropSqlObject(oldobj);
@@ -819,7 +823,7 @@ export function getAlterDatabaseScript(
   };
 }
 
-export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: DbDiffOptions) {
+export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: DbDiffOptions): DatabaseInfo {
   if (!db1 || !db2) return null;
 
   const res = _cloneDeep(db2);

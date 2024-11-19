@@ -26,6 +26,7 @@ async function generateDeploySql({
   dbdiffOptionsExtra = {},
   ignoreNameRegex = '',
   targetSchema = null,
+  maxMissingTablesRatio = undefined,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
@@ -79,6 +80,17 @@ async function generateDeploySql({
     };
     const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
     const currentModelPairedPreloaded = await enrichWithPreloadedRows(deployedModel, currentModelPaired, dbhan, driver);
+
+    if (maxMissingTablesRatio != null) {
+      const missingTables = currentModelPaired.tables.filter(
+        x => !deployedModel.tables.find(y => y.pairingId == x.pairingId)
+      );
+      const missingTableCount = missingTables.length;
+      const missingTablesRatio = missingTableCount / (currentModelPaired.tables.length || 1);
+      if (missingTablesRatio > maxMissingTablesRatio) {
+        throw new Error(`Too many missing tables (${missingTablesRatio * 100}%), aborting deploy`);
+      }
+    }
 
     // console.log('currentModelPairedPreloaded', currentModelPairedPreloaded.tables[0]);
     // console.log('deployedModel', deployedModel.tables[0]);
