@@ -31,6 +31,13 @@
     queries: 'QueryDataTab',
   };
 
+  function createScriptTemplatesSubmenu(objectTypeField) {
+    return {
+      label: 'SQL template',
+      submenu: getSupportedScriptTemplates(objectTypeField),
+    };
+  }
+
   function createMenusCore(
     objectTypeField,
     driver
@@ -145,14 +152,7 @@
           {
             divider: true,
           },
-          {
-            label: 'SQL: CREATE TABLE',
-            scriptTemplate: 'CREATE TABLE',
-          },
-          {
-            label: 'SQL: SELECT',
-            scriptTemplate: 'SELECT',
-          },
+          createScriptTemplatesSubmenu('tables'),
           {
             label: 'SQL Generator: CREATE TABLE',
             sqlGeneratorProps: {
@@ -222,22 +222,7 @@
           {
             divider: true,
           },
-          {
-            label: 'SQL: CREATE VIEW',
-            scriptTemplate: 'CREATE OBJECT',
-          },
-          {
-            label: 'SQL: ALTER VIEW',
-            scriptTemplate: 'ALTER OBJECT',
-          },
-          {
-            label: 'SQL: CREATE TABLE',
-            scriptTemplate: 'CREATE TABLE',
-          },
-          {
-            label: 'SQL: SELECT',
-            scriptTemplate: 'SELECT',
-          },
+          createScriptTemplatesSubmenu('views'),
           {
             label: 'SQL Generator: CREATE VIEW',
             sqlGeneratorProps: {
@@ -291,22 +276,7 @@
           {
             divider: true,
           },
-          {
-            label: 'SQL: CREATE MATERIALIZED VIEW',
-            scriptTemplate: 'CREATE OBJECT',
-          },
-          {
-            label: 'SQL: ALTER MATERIALIZED VIEW',
-            scriptTemplate: 'ALTER OBJECT',
-          },
-          {
-            label: 'SQL: CREATE TABLE',
-            scriptTemplate: 'CREATE TABLE',
-          },
-          {
-            label: 'SQL: SELECT',
-            scriptTemplate: 'SELECT',
-          },
+          createScriptTemplatesSubmenu('matviews'),
           {
             label: 'SQL Generator: CREATE MATERIALIZED VIEW',
             sqlGeneratorProps: {
@@ -340,18 +310,7 @@
             isRename: true,
             requiresWriteAccess: true,
           },
-          {
-            label: 'SQL: CREATE PROCEDURE',
-            scriptTemplate: 'CREATE OBJECT',
-          },
-          {
-            label: 'SQL: ALTER PROCEDURE',
-            scriptTemplate: 'ALTER OBJECT',
-          },
-          {
-            label: 'SQL: EXECUTE',
-            scriptTemplate: 'EXECUTE PROCEDURE',
-          },
+          createScriptTemplatesSubmenu('procedures'),
           {
             label: 'SQL Generator: CREATE PROCEDURE',
             sqlGeneratorProps: {
@@ -377,14 +336,7 @@
             isRename: true,
             requiresWriteAccess: true,
           },
-          {
-            label: 'SQL: CREATE FUNCTION',
-            scriptTemplate: 'CREATE OBJECT',
-          },
-          {
-            label: 'SQL: ALTER FUNCTION',
-            scriptTemplate: 'ALTER OBJECT',
-          },
+          createScriptTemplatesSubmenu('functions'),
           {
             label: 'SQL Generator: CREATE FUNCTION',
             sqlGeneratorProps: {
@@ -772,64 +724,74 @@
     );
   }
 
+  function menuItemMapper(menu, data, connection) {
+    if (menu.divider) return menu;
+
+    if (menu.isExport) {
+      return createQuickExportMenu(
+        fmt => async () => {
+          const coninfo = await getConnectionInfo(data);
+          exportQuickExportFile(
+            data.pureName,
+            {
+              functionName: menu.functionName,
+              props: {
+                connection: extractShellConnection(coninfo, data.database),
+                ..._.pick(data, ['pureName', 'schemaName']),
+              },
+            },
+            fmt
+          );
+        },
+        {
+          onClick: () => {
+            openImportExportTab({
+              sourceStorageType: 'database',
+              sourceConnectionId: data.conid,
+              sourceDatabaseName: extractDbNameFromComposite(data.database),
+              sourceSchemaName: data.schemaName,
+              sourceList: [data.pureName],
+            });
+            // showModal(ImportExportModal, {
+            //   initialValues: {
+            //     sourceStorageType: 'database',
+            //     sourceConnectionId: data.conid,
+            //     sourceDatabaseName: data.database,
+            //     sourceSchemaName: data.schemaName,
+            //     sourceList: [data.pureName],
+            //   },
+            // });
+          },
+        }
+      );
+    }
+
+    if (connection?.isReadOnly && menu.requiresWriteAccess) {
+      return null;
+    }
+
+    if (menu.submenu) {
+      return {
+        ...menu,
+        submenu: menu.submenu.map(x => menuItemMapper(x, data, connection)),
+      };
+    }
+
+    return {
+      text: menu.label,
+      onClick: () => {
+        databaseObjectMenuClickHandler(data, menu);
+      },
+    };
+  }
+
   export function createDatabaseObjectMenu(data, connection = null) {
     const driver = findEngineDriver(data, getExtensions());
 
     const { objectTypeField } = data;
     return createMenus(objectTypeField, driver)
       .filter(x => x)
-      .map(menu => {
-        if (menu.divider) return menu;
-
-        if (menu.isExport) {
-          return createQuickExportMenu(
-            fmt => async () => {
-              const coninfo = await getConnectionInfo(data);
-              exportQuickExportFile(
-                data.pureName,
-                {
-                  functionName: menu.functionName,
-                  props: {
-                    connection: extractShellConnection(coninfo, data.database),
-                    ..._.pick(data, ['pureName', 'schemaName']),
-                  },
-                },
-                fmt
-              );
-            },
-            {
-              onClick: () => {
-                openImportExportTab({
-                  sourceStorageType: 'database',
-                  sourceConnectionId: data.conid,
-                  sourceDatabaseName: extractDbNameFromComposite(data.database),
-                  sourceSchemaName: data.schemaName,
-                  sourceList: [data.pureName],
-                });
-                // showModal(ImportExportModal, {
-                //   initialValues: {
-                //     sourceStorageType: 'database',
-                //     sourceConnectionId: data.conid,
-                //     sourceDatabaseName: data.database,
-                //     sourceSchemaName: data.schemaName,
-                //     sourceList: [data.pureName],
-                //   },
-                // });
-              },
-            }
-          );
-        }
-
-        if (connection?.isReadOnly && menu.requiresWriteAccess) {
-          return null;
-        }
-        return {
-          text: menu.label,
-          onClick: () => {
-            databaseObjectMenuClickHandler(data, menu);
-          },
-        };
-      });
+      .map(menu => menuItemMapper(menu, data, connection));
   }
 
   function formatRowCount(value) {
@@ -886,6 +848,7 @@
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import { matchDatabaseObjectAppObject } from './appObjectMatchers';
+  import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
 
   export let data;
   export let passProps;

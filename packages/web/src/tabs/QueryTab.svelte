@@ -450,7 +450,7 @@
         />
       {:else}
         <AceEditor
-          mode={driver?.editorMode || 'text'}
+          mode={driver?.editorMode || 'sql'}
           value={$editorState.value || ''}
           splitterOptions={driver?.getQuerySplitterOptions('editor')}
           menu={createMenu()}

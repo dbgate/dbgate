@@ -63,3 +63,79 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
 
   return res;
 }
+
+export function getSupportedScriptTemplates(objectTypeField: string): { label: string; scriptTemplate: string }[] {
+  switch (objectTypeField) {
+    case 'tables':
+      return [
+        { label: 'CREATE TABLE', scriptTemplate: 'CREATE TABLE' },
+        { label: 'SELECT', scriptTemplate: 'SELECT' },
+      ];
+    case 'views':
+      return [
+        {
+          label: 'CREATE VIEW',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+        {
+          label: 'ALTER VIEW',
+          scriptTemplate: 'ALTER OBJECT',
+        },
+        {
+          label: 'CREATE TABLE',
+          scriptTemplate: 'CREATE TABLE',
+        },
+        {
+          label: 'SELECT',
+          scriptTemplate: 'SELECT',
+        },
+      ];
+    case 'matviews':
+      return [
+        {
+          label: 'CREATE MATERIALIZED VIEW',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+        {
+          label: 'ALTER MATERIALIZED VIEW',
+          scriptTemplate: 'ALTER OBJECT',
+        },
+        {
+          label: 'CREATE TABLE',
+          scriptTemplate: 'CREATE TABLE',
+        },
+        {
+          label: 'SELECT',
+          scriptTemplate: 'SELECT',
+        },
+      ];
+
+    case 'procedures':
+      return [
+        {
+          label: 'CREATE PROCEDURE',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+        {
+          label: 'ALTER PROCEDURE',
+          scriptTemplate: 'ALTER OBJECT',
+        },
+        {
+          label: 'EXECUTE',
+          scriptTemplate: 'EXECUTE PROCEDURE',
+        },
+      ];
+
+    case 'functions':
+      return [
+        {
+          label: 'CREATE FUNCTION',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+        {
+          label: ' ALTER FUNCTION',
+          scriptTemplate: 'ALTER OBJECT',
+        },
+      ];
+  }
+}
