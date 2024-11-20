@@ -9,6 +9,8 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().find(),
   });
+
+  export const matchingProps = ['conid', 'database', 'schemaName', 'pureName', 'objectTypeField'];
 </script>
 
 <script lang="ts">
@@ -59,7 +61,7 @@
   let domToolStrip;
 
   $: if ($tabVisible && domEditor) {
-    domEditor?.getEditor()?.focus();
+    // domEditor?.getEditor()?.focus();
   }
 
   export function find() {

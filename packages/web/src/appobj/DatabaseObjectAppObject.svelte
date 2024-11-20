@@ -29,6 +29,8 @@
     views: 'ViewDataTab',
     matviews: 'ViewDataTab',
     queries: 'QueryDataTab',
+    procedures: 'SqlObjectTab',
+    functions: 'SqlObjectTab',
   };
 
   function createScriptTemplatesSubmenu(objectTypeField) {
@@ -70,25 +72,9 @@
     switch (objectTypeField) {
       case 'tables':
         return [
+          ...defaultDatabaseObjectAppObjectActions['tables'],
           {
-            label: 'Open data',
-            tab: 'TableDataTab',
-            forceNewTab: true,
-          },
-          {
-            label: 'Open form',
-            tab: 'TableDataTab',
-            forceNewTab: true,
-            initialData: {
-              grid: {
-                isFormView: true,
-              },
-            },
-          },
-          {
-            label: 'Open structure',
-            tab: 'TableStructureTab',
-            icon: 'img table-structure',
+            divider: true,
           },
           {
             label: 'Design query',
@@ -100,6 +86,33 @@
             tab: 'PerspectiveTab',
             forceNewTab: true,
             icon: 'img perspective',
+          },
+          createScriptTemplatesSubmenu('tables'),
+          {
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE TABLE',
+                sqlGeneratorProps: {
+                  createTables: true,
+                  createIndexes: true,
+                  createForeignKeys: true,
+                },
+              },
+              {
+                label: 'DROP TABLE',
+                sqlGeneratorProps: {
+                  dropTables: true,
+                  dropReferences: true,
+                },
+              },
+              {
+                label: 'INSERT',
+                sqlGeneratorProps: {
+                  insert: true,
+                },
+              },
+            ],
           },
           {
             divider: true,
@@ -150,52 +163,12 @@
             label: 'Open active chart',
             isActiveChart: true,
           },
-          {
-            divider: true,
-          },
-          {
-            isShowSql: true,
-            label: 'Show SQL',
-          },
-          createScriptTemplatesSubmenu('tables'),
-          {
-            label: 'SQL generator',
-            submenu: [
-              {
-                label: 'CREATE TABLE',
-                sqlGeneratorProps: {
-                  createTables: true,
-                  createIndexes: true,
-                  createForeignKeys: true,
-                },
-              },
-              {
-                label: 'DROP TABLE',
-                sqlGeneratorProps: {
-                  dropTables: true,
-                  dropReferences: true,
-                },
-              },
-              {
-                label: 'INSERT',
-                sqlGeneratorProps: {
-                  insert: true,
-                },
-              },
-            ],
-          },
         ];
       case 'views':
         return [
+          ...defaultDatabaseObjectAppObjectActions['views'],
           {
-            label: 'Open data',
-            tab: 'ViewDataTab',
-            forceNewTab: true,
-          },
-          {
-            label: 'Open structure',
-            tab: 'TableStructureTab',
-            icon: 'img view-structure',
+            divider: true,
           },
           {
             label: 'Design query',
@@ -206,35 +179,6 @@
             tab: 'PerspectiveTab',
             forceNewTab: true,
             icon: 'img perspective',
-          },
-          hasPermission('dbops/model/edit') && {
-            label: 'Drop view',
-            isDrop: true,
-            requiresWriteAccess: true,
-          },
-          hasPermission('dbops/model/edit') && {
-            label: 'Rename view',
-            isRename: true,
-            requiresWriteAccess: true,
-          },
-          {
-            divider: true,
-          },
-          {
-            label: 'Export',
-            isExport: true,
-            functionName: 'tableReader',
-          },
-          {
-            label: 'Open active chart',
-            isActiveChart: true,
-          },
-          {
-            divider: true,
-          },
-          {
-            isShowSql: true,
-            label: 'Show SQL',
           },
           createScriptTemplatesSubmenu('views'),
           {
@@ -254,17 +198,8 @@
               },
             ],
           },
-        ];
-      case 'matviews':
-        return [
           {
-            label: 'Open data',
-            tab: 'ViewDataTab',
-            forceNewTab: true,
-          },
-          {
-            label: 'Open structure',
-            tab: 'TableStructureTab',
+            divider: true,
           },
           hasPermission('dbops/model/edit') && {
             label: 'Drop view',
@@ -275,10 +210,6 @@
             label: 'Rename view',
             isRename: true,
             requiresWriteAccess: true,
-          },
-          {
-            label: 'Query designer',
-            isQueryDesigner: true,
           },
           {
             divider: true,
@@ -292,12 +223,29 @@
             label: 'Open active chart',
             isActiveChart: true,
           },
+        ];
+      case 'matviews':
+        return [
+          ...defaultDatabaseObjectAppObjectActions['matviews'],
+          {
+            divider: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Drop view',
+            isDrop: true,
+            requiresWriteAccess: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Rename view',
+            isRename: true,
+            requiresWriteAccess: true,
+          },
           {
             divider: true,
           },
           {
-            isShowSql: true,
-            label: 'Show SQL',
+            label: 'Query designer',
+            isQueryDesigner: true,
           },
           createScriptTemplatesSubmenu('matviews'),
           {
@@ -317,6 +265,18 @@
               },
             ],
           },
+          {
+            divider: true,
+          },
+          {
+            label: 'Export',
+            isExport: true,
+            functionName: 'tableReader',
+          },
+          {
+            label: 'Open active chart',
+            isActiveChart: true,
+          },
         ];
       case 'queries':
         return [
@@ -328,6 +288,10 @@
         ];
       case 'procedures':
         return [
+          ...defaultDatabaseObjectAppObjectActions['procedures'],
+          {
+            divider: true,
+          },
           hasPermission('dbops/model/edit') && {
             label: 'Drop procedure',
             isDrop: true,
@@ -337,10 +301,6 @@
             label: 'Rename procedure',
             isRename: true,
             requiresWriteAccess: true,
-          },
-          {
-            isShowSql: true,
-            label: 'Show SQL',
           },
           createScriptTemplatesSubmenu('procedures'),
           {
@@ -363,6 +323,10 @@
         ];
       case 'functions':
         return [
+          ...defaultDatabaseObjectAppObjectActions['functions'],
+          {
+            divider: true,
+          },
           hasPermission('dbops/model/edit') && {
             label: 'Drop function',
             isDrop: true,
@@ -372,10 +336,6 @@
             label: 'Rename function',
             isRename: true,
             requiresWriteAccess: true,
-          },
-          {
-            isShowSql: true,
-            label: 'Show SQL',
           },
           createScriptTemplatesSubmenu('functions'),
           {
@@ -398,20 +358,9 @@
         ];
       case 'collections':
         return [
+          ...defaultDatabaseObjectAppObjectActions['collections'],
           {
-            label: 'Open data',
-            tab: 'CollectionDataTab',
-            forceNewTab: true,
-          },
-          {
-            label: 'Open JSON',
-            tab: 'CollectionDataTab',
-            forceNewTab: true,
-            initialData: {
-              grid: {
-                isJsonView: true,
-              },
-            },
+            divider: true,
           },
           {
             label: 'Design perspective query',
@@ -657,20 +606,20 @@
       //     fixedTargetPureName: data.pureName,
       //   },
       // });
-    } else if (menu.isShowSql) {
-      openNewTab({
-        title: data.pureName,
-        icon: 'img sql-file',
-        tabComponent: 'SqlObjectTab',
-        tabPreviewMode: true,
-        props: {
-          conid: data.conid,
-          database: data.database,
-          schemaName: data.schemaName,
-          pureName: data.pureName,
-          objectTypeField: data.objectTypeField,
-        },
-      });
+      // } else if (menu.isShowSql) {
+      //   openNewTab({
+      //     title: data.pureName,
+      //     icon: 'img sql-file',
+      //     tabComponent: 'SqlObjectTab',
+      //     tabPreviewMode: true,
+      //     props: {
+      //       conid: data.conid,
+      //       database: data.database,
+      //       schemaName: data.schemaName,
+      //       pureName: data.pureName,
+      //       objectTypeField: data.objectTypeField,
+      //     },
+      //   });
     } else {
       openDatabaseObjectDetail(
         menu.tab,
@@ -724,10 +673,13 @@
 
     openNewTab(
       {
-        title: getObjectTitle(connection, schemaName, pureName),
+        // title: getObjectTitle(connection, schemaName, pureName),
+        title: tabComponent ? getObjectTitle(connection, schemaName, pureName) : 'Query #',
         tooltip,
-        icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
-        tabComponent: scriptTemplate ? 'SqlObjectTab' : tabComponent,
+        icon:
+          icon ||
+          (scriptTemplate || tabComponent == 'SqlObjectTab' ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
+        tabComponent: tabComponent ?? 'QueryTab',
         appObject: 'DatabaseObjectAppObject',
         appObjectData,
         tabPreviewMode,
@@ -750,6 +702,7 @@
     const driver = findEngineDriver(data, getExtensions());
 
     const activeTab = getActiveTab();
+    console.log('activeTab', activeTab);
 
     const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
     const overrideMenu = createMenus(objectTypeField, driver).find(x => x.label && x.label == configuredAction);
@@ -760,7 +713,7 @@
 
     openDatabaseObjectDetail(
       defaultTabs[objectTypeField],
-      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
+      null,
       {
         schemaName,
         pureName,
@@ -910,7 +863,7 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
-  import { matchDatabaseObjectAppObject } from './appObjectMatchers';
+  import { defaultDatabaseObjectAppObjectActions, matchDatabaseObjectAppObject } from './appObjectTools';
   import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
 
   export let data;

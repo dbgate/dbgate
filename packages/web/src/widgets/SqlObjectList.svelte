@@ -49,7 +49,7 @@
   import SchemaSelector from './SchemaSelector.svelte';
   import { appliedCurrentSchema } from '../stores';
   import AppObjectListHandler from './AppObjectListHandler.svelte';
-  import { matchDatabaseObjectAppObject } from '../appobj/appObjectMatchers';
+  import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
 
   export let conid;
   export let database;
