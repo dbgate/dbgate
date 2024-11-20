@@ -26,13 +26,13 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import { changeTab } from '../utility/common';
 
   export let tabid;
   export let appObjectData;
-  export let initialScriptTemplate;
+  export let scriptTemplate;
 
-  let scriptTemplate =
-    initialScriptTemplate ?? getSupportedScriptTemplates(appObjectData.objectTypeField)?.[0]?.scriptTemplate;
+  $: defaultScriptTemplate = getSupportedScriptTemplates(appObjectData.objectTypeField)?.[0]?.scriptTemplate;
 
   $: connection = useConnectionInfo({ conid: appObjectData.conid });
   $: driver = findEngineDriver($connection, $extensions);
@@ -58,11 +58,12 @@
 </script>
 
 <ToolStripContainer>
-  {#await applyScriptTemplate(scriptTemplate, $extensions, appObjectData)}
+  {#await applyScriptTemplate(scriptTemplate ?? defaultScriptTemplate, $extensions, appObjectData)}
     <LoadingInfo message="Loading script..." />
   {:then sql}
     <AceEditor
       value={sql || ''}
+      readOnly
       menu={createMenu()}
       on:focus={() => {
         activator.activate();
@@ -75,16 +76,21 @@
   {/await}
 
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="sqlObject.find" />
     <SelectField
       isNative
-      value={scriptTemplate}
+      value={scriptTemplate ?? defaultScriptTemplate}
       options={getSupportedScriptTemplates(appObjectData.objectTypeField).map(x => ({
         label: x.label,
         value: x.scriptTemplate,
       }))}
       on:change={e => {
-        scriptTemplate = e.detail;
+        changeTab(tabid, tab => ({
+          ...tab,
+          props: {
+            ...tab.props,
+            scriptTemplate: e.detail,
+          },
+        }));
       }}
     />
   </svelte:fragment>
