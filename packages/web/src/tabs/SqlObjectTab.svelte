@@ -32,9 +32,23 @@
   export let appObjectData;
   export let scriptTemplate;
 
+  export let schemaName;
+  export let pureName;
+  export let conid;
+  export let database;
+  export let objectTypeField;
+
+  $: appObjectData = {
+    schemaName,
+    pureName,
+    conid,
+    database,
+    objectTypeField,
+  };
+
   $: defaultScriptTemplate = getSupportedScriptTemplates(appObjectData.objectTypeField)?.[0]?.scriptTemplate;
 
-  $: connection = useConnectionInfo({ conid: appObjectData.conid });
+  $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
 
   const tabVisible: any = getContext('tabVisible');

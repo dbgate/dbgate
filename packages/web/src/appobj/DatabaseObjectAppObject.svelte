@@ -664,9 +664,11 @@
         tabComponent: 'SqlObjectTab',
         tabPreviewMode: true,
         props: {
-          appObjectData: data,
           conid: data.conid,
           database: data.database,
+          schemaName: data.schemaName,
+          pureName: data.pureName,
+          objectTypeField: data.objectTypeField,
         },
       });
     } else {
@@ -722,10 +724,10 @@
 
     openNewTab(
       {
-        title: scriptTemplate ? 'Query #' : getObjectTitle(connection, schemaName, pureName),
+        title: getObjectTitle(connection, schemaName, pureName),
         tooltip,
         icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
-        tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
+        tabComponent: scriptTemplate ? 'SqlObjectTab' : tabComponent,
         appObject: 'DatabaseObjectAppObject',
         appObjectData,
         tabPreviewMode,
