@@ -16,7 +16,7 @@
       const index = _.findIndex(list, x => selectedObjectMatcher(x, selected));
       if (index >= 0 && list[index + diff]) {
         selectedObjectStore.set(list[index + diff]);
-        module.handleObjectClick(list[index + diff]);
+        module.handleObjectClick(list[index + diff], { tabPreviewMode: true });
       }
     }
     if (ev.keyCode == keycodes.upArrow) {

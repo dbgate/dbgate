@@ -38,10 +38,7 @@
     };
   }
 
-  function createMenusCore(
-    objectTypeField,
-    driver
-  ): {
+  interface DbObjMenuItem {
     label?: string;
     tab?: string;
     forceNewTab?: boolean;
@@ -66,7 +63,10 @@
     isDropCollection?: boolean;
     isRenameCollection?: boolean;
     isDuplicateCollection?: boolean;
-  }[] {
+    submenu?: DbObjMenuItem[];
+  }
+
+  function createMenusCore(objectTypeField, driver): DbObjMenuItem[] {
     switch (objectTypeField) {
       case 'tables':
         return [
@@ -159,25 +159,30 @@
           },
           createScriptTemplatesSubmenu('tables'),
           {
-            label: 'SQL Generator: CREATE TABLE',
-            sqlGeneratorProps: {
-              createTables: true,
-              createIndexes: true,
-              createForeignKeys: true,
-            },
-          },
-          {
-            label: 'SQL Generator: DROP TABLE',
-            sqlGeneratorProps: {
-              dropTables: true,
-              dropReferences: true,
-            },
-          },
-          {
-            label: 'SQL Generator: INSERT',
-            sqlGeneratorProps: {
-              insert: true,
-            },
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE TABLE',
+                sqlGeneratorProps: {
+                  createTables: true,
+                  createIndexes: true,
+                  createForeignKeys: true,
+                },
+              },
+              {
+                label: 'DROP TABLE',
+                sqlGeneratorProps: {
+                  dropTables: true,
+                  dropReferences: true,
+                },
+              },
+              {
+                label: 'INSERT',
+                sqlGeneratorProps: {
+                  insert: true,
+                },
+              },
+            ],
           },
         ];
       case 'views':
@@ -233,16 +238,21 @@
           },
           createScriptTemplatesSubmenu('views'),
           {
-            label: 'SQL Generator: CREATE VIEW',
-            sqlGeneratorProps: {
-              createViews: true,
-            },
-          },
-          {
-            label: 'SQL Generator: DROP VIEW',
-            sqlGeneratorProps: {
-              dropViews: true,
-            },
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE VIEW',
+                sqlGeneratorProps: {
+                  createViews: true,
+                },
+              },
+              {
+                label: 'DROP VIEW',
+                sqlGeneratorProps: {
+                  dropViews: true,
+                },
+              },
+            ],
           },
         ];
       case 'matviews':
@@ -291,16 +301,21 @@
           },
           createScriptTemplatesSubmenu('matviews'),
           {
-            label: 'SQL Generator: CREATE MATERIALIZED VIEW',
-            sqlGeneratorProps: {
-              createMatviews: true,
-            },
-          },
-          {
-            label: 'SQL Generator: DROP MATERIALIZED VIEW',
-            sqlGeneratorProps: {
-              dropMatviews: true,
-            },
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE MATERIALIZED VIEW',
+                sqlGeneratorProps: {
+                  createMatviews: true,
+                },
+              },
+              {
+                label: 'DROP MATERIALIZED VIEW',
+                sqlGeneratorProps: {
+                  dropMatviews: true,
+                },
+              },
+            ],
           },
         ];
       case 'queries':
@@ -329,16 +344,21 @@
           },
           createScriptTemplatesSubmenu('procedures'),
           {
-            label: 'SQL Generator: CREATE PROCEDURE',
-            sqlGeneratorProps: {
-              createProcedures: true,
-            },
-          },
-          {
-            label: 'SQL Generator: DROP PROCEDURE',
-            sqlGeneratorProps: {
-              dropProcedures: true,
-            },
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE PROCEDURE',
+                sqlGeneratorProps: {
+                  createProcedures: true,
+                },
+              },
+              {
+                label: 'DROP PROCEDURE',
+                sqlGeneratorProps: {
+                  dropProcedures: true,
+                },
+              },
+            ],
           },
         ];
       case 'functions':
@@ -359,16 +379,21 @@
           },
           createScriptTemplatesSubmenu('functions'),
           {
-            label: 'SQL Generator: CREATE FUNCTION',
-            sqlGeneratorProps: {
-              createFunctions: true,
-            },
-          },
-          {
-            label: 'SQL Generator: DROP FUNCTION',
-            sqlGeneratorProps: {
-              dropFunctions: true,
-            },
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE FUNCTION',
+                sqlGeneratorProps: {
+                  createFunctions: true,
+                },
+              },
+              {
+                label: 'DROP FUNCTION',
+                sqlGeneratorProps: {
+                  dropFunctions: true,
+                },
+              },
+            ],
           },
         ];
       case 'collections':
@@ -687,7 +712,7 @@
     initialData?,
     icon?,
     appObjectData?,
-    preventPreviewMode?
+    tabPreviewMode?
   ) {
     const connection = await getConnectionInfo({ conid });
     const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
@@ -703,7 +728,7 @@
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         appObject: 'DatabaseObjectAppObject',
         appObjectData,
-        tabPreviewMode: !preventPreviewMode,
+        tabPreviewMode,
         props: {
           schemaName,
           pureName,
@@ -718,9 +743,11 @@
     );
   }
 
-  export function handleDatabaseObjectClick(data, forceNewTab = false, preventPreviewMode = false) {
+  export function handleDatabaseObjectClick(data, { forceNewTab = false, tabPreviewMode = false } = {}) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
     const driver = findEngineDriver(data, getExtensions());
+
+    const activeTab = getActiveTab();
 
     const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
     const overrideMenu = createMenus(objectTypeField, driver).find(x => x.label && x.label == configuredAction);
@@ -743,7 +770,7 @@
       null,
       null,
       data,
-      preventPreviewMode
+      tabPreviewMode
     );
   }
 
@@ -837,8 +864,8 @@
     return createDatabaseObjectMenu(data);
   }
 
-  export function handleObjectClick(data, forceNewTab = false, preventPreviewMode = false) {
-    return handleDatabaseObjectClick(data, forceNewTab, preventPreviewMode);
+  export function handleObjectClick(data, { forceNewTab = false, tabPreviewMode = false }) {
+    return handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode });
   }
 </script>
 
@@ -848,6 +875,7 @@
   import {
     currentDatabase,
     extensions,
+    getActiveTab,
     getCurrentSettings,
     getExtensions,
     openedConnections,
@@ -886,9 +914,9 @@
   export let data;
   export let passProps;
 
-  function handleClick(forceNewTab = false, preventPreviewMode = false) {
+  function handleClick({ forceNewTab = false, tabPreviewMode = false } = {}) {
     $selectedDatabaseObjectAppObject = data;
-    handleDatabaseObjectClick(data, forceNewTab, preventPreviewMode);
+    handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode });
   }
 
   function createMenu() {
@@ -922,9 +950,9 @@
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
   extInfo={getExtInfo(data)}
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
-  on:click={() => handleClick()}
-  on:middleclick={() => handleClick(true)}
-  on:dblclick={() => handleClick(false, true)}
+  on:click={() => handleClick({ tabPreviewMode: true })}
+  on:middleclick={() => handleClick({ forceNewTab: true })}
+  on:dblclick={() => handleClick({})}
   on:expand
   on:dragstart
   on:dragenter
