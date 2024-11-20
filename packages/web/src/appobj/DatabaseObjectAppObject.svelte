@@ -60,6 +60,7 @@
     isExport?: boolean;
     isImport?: boolean;
     isActiveChart?: boolean;
+    isShowSql?: boolean;
     scriptTemplate?: string;
     sqlGeneratorProps?: any;
     isDropCollection?: boolean;
@@ -152,6 +153,10 @@
           {
             divider: true,
           },
+          {
+            isShowSql: true,
+            label: 'Show SQL',
+          },
           createScriptTemplatesSubmenu('tables'),
           {
             label: 'SQL Generator: CREATE TABLE',
@@ -222,6 +227,10 @@
           {
             divider: true,
           },
+          {
+            isShowSql: true,
+            label: 'Show SQL',
+          },
           createScriptTemplatesSubmenu('views'),
           {
             label: 'SQL Generator: CREATE VIEW',
@@ -276,6 +285,10 @@
           {
             divider: true,
           },
+          {
+            isShowSql: true,
+            label: 'Show SQL',
+          },
           createScriptTemplatesSubmenu('matviews'),
           {
             label: 'SQL Generator: CREATE MATERIALIZED VIEW',
@@ -310,6 +323,10 @@
             isRename: true,
             requiresWriteAccess: true,
           },
+          {
+            isShowSql: true,
+            label: 'Show SQL',
+          },
           createScriptTemplatesSubmenu('procedures'),
           {
             label: 'SQL Generator: CREATE PROCEDURE',
@@ -335,6 +352,10 @@
             label: 'Rename function',
             isRename: true,
             requiresWriteAccess: true,
+          },
+          {
+            isShowSql: true,
+            label: 'Show SQL',
           },
           createScriptTemplatesSubmenu('functions'),
           {
@@ -611,6 +632,18 @@
       //     fixedTargetPureName: data.pureName,
       //   },
       // });
+    } else if (menu.isShowSql) {
+      openNewTab({
+        title: data.pureName,
+        icon: 'img sql-file',
+        tabComponent: 'SqlObjectTab',
+        tabPreviewMode: true,
+        props: {
+          appObjectData: data,
+          conid: data.conid,
+          database: data.database,
+        },
+      });
     } else {
       openDatabaseObjectDetail(
         menu.tab,
