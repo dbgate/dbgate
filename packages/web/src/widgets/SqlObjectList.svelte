@@ -186,6 +186,7 @@
         selectedObjectStore={selectedDatabaseObjectAppObject}
         getSelectedObject={getSelectedDatabaseObjectAppObject}
         selectedObjectMatcher={matchDatabaseObjectAppObject}
+        module={databaseObjectAppObject}
       >
         <AppObjectList
           list={objectList

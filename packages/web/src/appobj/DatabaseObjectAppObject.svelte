@@ -841,6 +841,10 @@
   export function createAppObjectMenu(data) {
     return createDatabaseObjectMenu(data);
   }
+
+  export function handleObjectClick(data, forceNewTab = false, preventPreviewMode = false) {
+    return handleDatabaseObjectClick(data, forceNewTab, preventPreviewMode);
+  }
 </script>
 
 <script lang="ts">

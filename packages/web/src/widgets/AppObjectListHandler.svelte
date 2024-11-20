@@ -6,6 +6,7 @@
   export let selectedObjectStore;
   export let getSelectedObject;
   export let selectedObjectMatcher;
+  export let module;
 
   let isListFocused = false;
 
@@ -15,6 +16,7 @@
       const index = _.findIndex(list, x => selectedObjectMatcher(x, selected));
       if (index >= 0 && list[index + diff]) {
         selectedObjectStore.set(list[index + diff]);
+        module.handleObjectClick(list[index + diff]);
       }
     }
     if (ev.keyCode == keycodes.upArrow) {
