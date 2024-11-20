@@ -7,6 +7,8 @@
   export let getSelectedObject;
   export let selectedObjectMatcher;
 
+  let isListFocused = false;
+
   function handleKeyDown(ev) {
     function selectByDiff(diff) {
       const selected = getSelectedObject();
@@ -26,7 +28,18 @@
   }
 </script>
 
-<div tabindex="0" on:keydown={handleKeyDown} class="wrapper">
+<div
+  tabindex="0"
+  on:keydown={handleKeyDown}
+  class="wrapper"
+  class:app-object-list-focused={isListFocused}
+  on:focus={() => {
+    isListFocused = true;
+  }}
+  on:blur={() => {
+    isListFocused = false;
+  }}
+>
   <slot />
 </div>
 

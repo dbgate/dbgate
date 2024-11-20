@@ -921,7 +921,7 @@
   onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
   extInfo={getExtInfo(data)}
-  isBold={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
+  isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:dblclick={() => handleClick(false, true)}
