@@ -24,11 +24,15 @@
   import registerCommand from '../commands/registerCommand';
   import applyScriptTemplate, { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import SelectField from '../forms/SelectField.svelte';
 
   export let tabid;
   export let appObjectData;
+  export let initialScriptTemplate;
 
-  let scriptTemplate = getSupportedScriptTemplates(appObjectData.objectTypeField)?.[0]?.scriptTemplate;
+  let scriptTemplate =
+    initialScriptTemplate ?? getSupportedScriptTemplates(appObjectData.objectTypeField)?.[0]?.scriptTemplate;
 
   $: connection = useConnectionInfo({ conid: appObjectData.conid });
   $: driver = findEngineDriver($connection, $extensions);
@@ -53,18 +57,35 @@
   }
 </script>
 
-{#await applyScriptTemplate(scriptTemplate, $extensions, appObjectData)}
-  <LoadingInfo message="Loading script..." />
-{:then sql}
-  <AceEditor
-    value={sql || ''}
-    menu={createMenu()}
-    on:focus={() => {
-      activator.activate();
-      domToolStrip?.activate();
-      invalidateCommands();
-    }}
-    bind:this={domEditor}
-    mode={driver?.editorMode || 'sql'}
-  />
-{/await}
+<ToolStripContainer>
+  {#await applyScriptTemplate(scriptTemplate, $extensions, appObjectData)}
+    <LoadingInfo message="Loading script..." />
+  {:then sql}
+    <AceEditor
+      value={sql || ''}
+      menu={createMenu()}
+      on:focus={() => {
+        activator.activate();
+        domToolStrip?.activate();
+        invalidateCommands();
+      }}
+      bind:this={domEditor}
+      mode={driver?.editorMode || 'sql'}
+    />
+  {/await}
+
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="sqlObject.find" />
+    <SelectField
+      isNative
+      value={scriptTemplate}
+      options={getSupportedScriptTemplates(appObjectData.objectTypeField).map(x => ({
+        label: x.label,
+        value: x.scriptTemplate,
+      }))}
+      on:change={e => {
+        scriptTemplate = e.detail;
+      }}
+    />
+  </svelte:fragment>
+</ToolStripContainer>
