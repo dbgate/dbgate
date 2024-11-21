@@ -472,7 +472,7 @@
   export let dataEditorTypesBehaviourOverride = null;
 
   const wheelRowCount = 5;
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
   let containerWidth = 0;
@@ -1135,7 +1135,7 @@
     }
   }
 
-  $: if ($tabVisible && domFocusField && focusOnVisible) {
+  $: if ($tabFocused && domFocusField && focusOnVisible) {
     domFocusField.focus();
   }
 

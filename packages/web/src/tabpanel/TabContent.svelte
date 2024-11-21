@@ -4,17 +4,22 @@
 
   export let tabid;
   export let tabVisible;
+  export let tabFocused;
   export let tabComponent;
 
-  const tabVisibleStore = writable(tabVisible);
   setContext('tabid', tabid);
-  setContext('tabVisible', tabVisibleStore);
 
+  const tabVisibleStore = writable(tabVisible);
+  setContext('tabVisible', tabVisibleStore);
   $: tabVisibleStore.set(tabVisible);
+
+  const tabFocusedStore = writable(tabFocused);
+  setContext('tabFocused', tabFocusedStore);
+  $: tabFocusedStore.set(tabFocused);
 </script>
 
 <div class:tabVisible>
-  <svelte:component this={tabComponent} {...$$restProps} {tabid} {tabVisible} />
+  <svelte:component this={tabComponent} {...$$restProps} {tabid} {tabVisible} {tabFocused} />
 </div>
 
 <style>

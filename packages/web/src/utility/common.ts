@@ -30,12 +30,23 @@ export function markTabSaved(tabid) {
   openedTabs.update(files => files.map(tab => (tab.tabid == tabid ? { ...tab, unsaved: false } : tab)));
 }
 
-export function setSelectedTabFunc(files, tabid, previewModeValue = undefined) {
+export function setSelectedTabFunc(files, tabid, additionalProps = {}) {
   return [
-    ...(files || []).filter(x => x.tabid != tabid).map(x => ({ ...x, selected: false })),
+    ...(files || [])
+      .filter(x => x.tabid != tabid)
+      .map(x => ({
+        ...x,
+        selected: false,
+        focused: false,
+      })),
     ...(files || [])
       .filter(x => x.tabid == tabid)
-      .map(x => ({ ...x, selected: true, tabPreviewMode: previewModeValue ?? x.tabPreviewMode })),
+      .map(x => ({
+        ...x,
+        selected: true,
+        focused: false,
+        ...additionalProps,
+      })),
   ];
 }
 

@@ -50,7 +50,9 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   }
 
   if (existing) {
-    openedTabs.update(tabs => setSelectedTabFunc(tabs, existing.tabid, !tabPreviewMode ? false : undefined));
+    openedTabs.update(tabs =>
+      setSelectedTabFunc(tabs, existing.tabid, !tabPreviewMode ? { tabPreviewMode: false } : {})
+    );
     return;
   }
 

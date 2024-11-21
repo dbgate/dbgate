@@ -699,7 +699,10 @@
     );
   }
 
-  export function handleDatabaseObjectClick(data, { forceNewTab = false, tabPreviewMode = false } = {}) {
+  export function handleDatabaseObjectClick(
+    data,
+    { forceNewTab = false, tabPreviewMode = false, focusTab = false } = {}
+  ) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
     const driver = findEngineDriver(data, getExtensions());
 
@@ -708,6 +711,15 @@
     const activeDefaultActionId = activeTab?.props?.defaultActionId;
 
     if (matchDatabaseObjectAppObject(data, activeTabProps)) {
+      if (!tabPreviewMode) {
+        openedTabs.update(tabs => {
+          return tabs.map(tab => ({
+            ...tab,
+            tabPreviewMode: tab.tabid == activeTab.tabid ? false : tab.tabPreviewMode,
+            focused: focusTab && tab.tabid == activeTab.tabid ? true : tab.focused,
+          }));
+        });
+      }
       return;
     }
 
@@ -851,6 +863,7 @@
     getCurrentSettings,
     getExtensions,
     openedConnections,
+    openedTabs,
     pinnedTables,
     selectedDatabaseObjectAppObject,
   } from '../stores';
@@ -886,9 +899,9 @@
   export let data;
   export let passProps;
 
-  function handleClick({ forceNewTab = false, tabPreviewMode = false } = {}) {
+  function handleClick({ forceNewTab = false, tabPreviewMode = false, focusTab = false } = {}) {
     $selectedDatabaseObjectAppObject = _.pick(data, ['conid', 'database', 'objectTypeField', 'pureName', 'schemaName']);
-    handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode });
+    handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
   }
 
   function createMenu() {
@@ -924,7 +937,7 @@
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
   on:click={() => handleClick({ tabPreviewMode: true })}
   on:middleclick={() => handleClick({ forceNewTab: true })}
-  on:dblclick={() => handleClick({ tabPreviewMode: false })}
+  on:dblclick={() => handleClick({ tabPreviewMode: false, focusTab: true })}
   on:expand
   on:dragstart
   on:dragenter

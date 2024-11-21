@@ -23,6 +23,7 @@ export interface TabDefinition {
   multiTabIndex?: number;
   unsaved?: boolean;
   tabPreviewMode?: boolean;
+  focused?: boolean;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {

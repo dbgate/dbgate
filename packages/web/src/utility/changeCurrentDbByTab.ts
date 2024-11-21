@@ -38,7 +38,7 @@ import { switchCurrentDatabase } from './common';
 //   }
 // });
 
-export async function changeDatabaseByCurrentTab() {
+export async function handleAfterTabClick() {
   const currentTab = getActiveTab();
   const { conid, database, objectTypeField, pureName, schemaName, defaultActionId } = currentTab?.props || {};
   const db = getCurrentDatabase();
@@ -67,6 +67,14 @@ export async function changeDatabaseByCurrentTab() {
       schemaName,
     });
   }
+
+  // focus current tab
+  openedTabs.update(tabs => {
+    return tabs.map(tab => ({
+      ...tab,
+      focused: !!tab.selected && !tab.closedTime,
+    }));
+  });
 }
 
 currentDatabase.subscribe(currentDb => {

@@ -295,7 +295,7 @@
   import CloseTabModal from '../modals/CloseTabModal.svelte';
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
   import { getConnectionLabel } from 'dbgate-tools';
-  import { changeDatabaseByCurrentTab } from '../utility/changeCurrentDbByTab';
+  import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
 
   export let multiTabIndex;
   export let shownTab;
@@ -335,7 +335,7 @@
       return;
     }
     setSelectedTab(tabid);
-    changeDatabaseByCurrentTab();
+    handleAfterTabClick();
   };
 
   const handleMouseDown = (e, tabid) => {
