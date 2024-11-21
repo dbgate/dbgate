@@ -21,6 +21,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import {
     currentEditorFontSize,
+    currentEditorWrapEnabled,
     currentEditorTheme,
     currentEditorKeybindigMode,
     extensions,
@@ -159,6 +160,14 @@ ORDER BY
                   options={EDITOR_KEYBINDINGS_MODES.map(mode => ({ label: mode.label, value: mode.value }))}
                   value={$currentEditorKeybindigMode}
                   on:change={e => ($currentEditorKeybindigMode = e.detail)}
+                />
+              </FormFieldTemplateLarge>
+            </div>
+            <div class="col-3">
+              <FormFieldTemplateLarge label="Enable word wrap" type="combo">
+                <CheckboxField
+                  checked={$currentEditorWrapEnabled}
+                  on:change={e => ($currentEditorWrapEnabled = e.target.checked)}
                 />
               </FormFieldTemplateLarge>
             </div>
