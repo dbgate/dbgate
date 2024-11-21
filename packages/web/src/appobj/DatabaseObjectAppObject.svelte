@@ -848,8 +848,8 @@
     return createDatabaseObjectMenu(data);
   }
 
-  export function handleObjectClick(data, { forceNewTab = false, tabPreviewMode = false }) {
-    return handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode });
+  export function handleObjectClick(data, { forceNewTab = false, tabPreviewMode = false, focusTab = false }) {
+    return handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
   }
 </script>
 

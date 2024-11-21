@@ -27,6 +27,10 @@
       selectByDiff(1);
       ev.preventDefault();
     }
+    if (ev.keyCode == keycodes.enter) {
+      module.handleObjectClick(getSelectedObject(), { tabPreviewMode: false, focusTab: true });
+      ev.preventDefault();
+    }
   }
 </script>
 
