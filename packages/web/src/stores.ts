@@ -92,7 +92,7 @@ export const openedConnections = writable([]);
 export const temporaryOpenedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
-export const currentDatabase = writable(null);
+export const currentDatabase = writableWithForage(null, 'currentDatabase');
 export const openedTabs = writableWithForage<TabDefinition[]>([], getOpenedTabsStorageName(), x => [...(x || [])]);
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
