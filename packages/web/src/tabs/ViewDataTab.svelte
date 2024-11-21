@@ -68,6 +68,7 @@
       setConfig={config.update}
       cache={$cache}
       setCache={cache.update}
+      focusOnVisible
       hasMultiColumnFilter
       gridCoreComponent={SqlDataGridCore}
       formViewComponent={SqlFormView}

@@ -170,6 +170,7 @@
       supportsReload
       allowChangeChangeSetStructure
       changeSetState={$changeSetStore}
+      focusOnVisible
       {changeSetStore}
       {dispatchChangeSet}
       {infoLoadCounter}

@@ -191,6 +191,7 @@
     cache={$cache}
     setCache={cache.update}
     changeSetState={$changeSetStore}
+    focusOnVisible
     {display}
     {changeSetStore}
     {dispatchChangeSet}

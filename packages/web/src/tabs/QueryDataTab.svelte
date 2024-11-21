@@ -100,7 +100,7 @@
 
 <ToolStripContainer>
   {#if jslid}
-    <JslDataGrid {jslid} listenInitializeFile onCustomGridRefresh={handleRefresh} />
+    <JslDataGrid {jslid} listenInitializeFile onCustomGridRefresh={handleRefresh} focusOnVisible />
   {:else}
     <LoadingInfo message="Loading data..." />
   {/if}
