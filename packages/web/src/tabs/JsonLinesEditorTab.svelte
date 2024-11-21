@@ -81,14 +81,14 @@
 
   let jslid = null;
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   export const activator = createActivator('JsonLinesEditorTab', false);
 
   let domEditor;
   let domToolStrip;
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 

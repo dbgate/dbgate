@@ -53,15 +53,15 @@
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   export const activator = createActivator('SqlObjectTab', false);
 
   let domEditor;
   let domToolStrip;
 
-  $: if ($tabVisible && domEditor) {
-    // domEditor?.getEditor()?.focus();
+  $: if ($tabFocused && domEditor) {
+    domEditor?.getEditor()?.focus();
   }
 
   export function find() {

@@ -124,7 +124,7 @@
     },
   ];
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
   const timerLabel = useTimerLabel();
 
   let busy = false;
@@ -181,7 +181,7 @@
     invalidateCommands();
   }
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 

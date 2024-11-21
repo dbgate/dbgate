@@ -217,12 +217,12 @@
   $: rowHeight = $dataGridRowHeight;
   let currentCell = [0, 0];
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
   const domCells = {};
 
   let domFocusField;
 
-  $: if ($tabVisible && domFocusField && focusOnVisible) {
+  $: if ($tabFocused && domFocusField && focusOnVisible) {
     domFocusField.focus();
   }
 
