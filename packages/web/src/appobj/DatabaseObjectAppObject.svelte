@@ -624,11 +624,12 @@
       openDatabaseObjectDetail(
         menu.tab,
         menu.scriptTemplate,
-        data,
+        { ...data, defaultActionId: menu.defaultActionId },
         menu.forceNewTab,
         menu.initialData,
         menu.icon,
-        data
+        data,
+        !!menu.defaultActionId
       );
     }
   }
@@ -658,7 +659,7 @@
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
-    { schemaName, pureName, conid, database, objectTypeField },
+    { schemaName, pureName, conid, database, objectTypeField, defaultActionId },
     forceNewTab?,
     initialData?,
     icon?,
@@ -690,6 +691,7 @@
           database,
           objectTypeField,
           initialArgs: scriptTemplate ? { scriptTemplate } : null,
+          defaultActionId,
         },
       },
       initialData,
@@ -702,24 +704,39 @@
     const driver = findEngineDriver(data, getExtensions());
 
     const activeTab = getActiveTab();
-    console.log('activeTab', activeTab);
+    const activeTabProps = activeTab?.props || {};
+    const activeDefaultActionId = activeTab?.props?.defaultActionId;
 
-    const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
-    const overrideMenu = createMenus(objectTypeField, driver).find(x => x.label && x.label == configuredAction);
-    if (overrideMenu) {
-      databaseObjectMenuClickHandler(data, overrideMenu);
+    if (matchDatabaseObjectAppObject(data, activeTabProps)) {
       return;
     }
 
+    const availableDefaultActions = defaultDatabaseObjectAppObjectActions[objectTypeField];
+
+    const configuredActionId = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
+    const prefferedAction =
+      availableDefaultActions.find(x => x.defaultActionId == activeDefaultActionId) ??
+      availableDefaultActions.find(x => x.defaultActionId == configuredActionId) ??
+      availableDefaultActions[0];
+
+    // console.log('activeTab', activeTab);
+
+    // const overrideMenu = createMenus(objectTypeField, driver).find(x => x.label && x.label == configuredAction);
+    // if (overrideMenu) {
+    //   databaseObjectMenuClickHandler(data, overrideMenu);
+    //   return;
+    // }
+
     openDatabaseObjectDetail(
-      defaultTabs[objectTypeField],
-      null,
+      prefferedAction.tab,
+      activeTabProps?.scriptTemplate,
       {
         schemaName,
         pureName,
         conid,
         database,
         objectTypeField,
+        defaultActionId: prefferedAction.defaultActionId,
       },
       forceNewTab,
       null,
