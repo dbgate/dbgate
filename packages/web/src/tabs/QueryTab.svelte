@@ -62,7 +62,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { extensions } from '../stores';
+  import { currentEditorWrapEnabled, extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
@@ -154,6 +154,7 @@
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
+  $: enableWrap = $currentEditorWrapEnabled || false;
 
   $: effect = useEffect(() => {
     return onSession(sessionId);
@@ -427,6 +428,9 @@
           {conid}
           {database}
           splitterOptions={driver?.getQuerySplitterOptions('editor')}
+          options={{
+            wrap: enableWrap,
+          }}
           value={$editorState.value || ''}
           menu={createMenu()}
           on:input={e => {
@@ -453,6 +457,9 @@
           mode={driver?.editorMode || 'text'}
           value={$editorState.value || ''}
           splitterOptions={driver?.getQuerySplitterOptions('editor')}
+          options={{
+            wrap: enableWrap,
+          }}
           menu={createMenu()}
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {

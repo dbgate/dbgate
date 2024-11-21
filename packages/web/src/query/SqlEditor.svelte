@@ -59,6 +59,7 @@
   on:blur
   bind:this={domEditor}
   options={{
+    ...$$props.options,
     enableBasicAutocompletion: true,
   }}
 />
