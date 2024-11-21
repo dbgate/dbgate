@@ -887,7 +887,7 @@
   export let passProps;
 
   function handleClick({ forceNewTab = false, tabPreviewMode = false } = {}) {
-    $selectedDatabaseObjectAppObject = data;
+    $selectedDatabaseObjectAppObject = _.pick(data, ['conid', 'database', 'objectTypeField', 'pureName', 'schemaName']);
     handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode });
   }
 
@@ -924,7 +924,7 @@
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
   on:click={() => handleClick({ tabPreviewMode: true })}
   on:middleclick={() => handleClick({ forceNewTab: true })}
-  on:dblclick={() => handleClick({})}
+  on:dblclick={() => handleClick({ tabPreviewMode: false })}
   on:expand
   on:dragstart
   on:dragenter

@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { currentDatabase, getActiveTab, getCurrentDatabase, getLockedDatabaseMode, openedTabs } from '../stores';
+import {
+  currentDatabase,
+  getActiveTab,
+  getCurrentDatabase,
+  getLockedDatabaseMode,
+  openedTabs,
+  selectedDatabaseObjectAppObject,
+} from '../stores';
 import { shouldShowTab } from '../tabpanel/TabsPanel.svelte';
 import { callWhenAppLoaded, getAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
@@ -31,19 +38,34 @@ import { switchCurrentDatabase } from './common';
 //   }
 // });
 
-export function changeDatabaseByCurrentTab() {
+export async function changeDatabaseByCurrentTab() {
   const currentTab = getActiveTab();
-  const { conid, database } = currentTab?.props || {};
+  const { conid, database, objectTypeField, pureName, schemaName, defaultActionId } = currentTab?.props || {};
   const db = getCurrentDatabase();
   if (conid && database && (conid != db?.connection?._id || database != db?.name)) {
-    const doWork = async () => {
-      const connection = await getConnectionInfo({ conid });
-      switchCurrentDatabase({
-        connection,
-        name: database,
-      });
-    };
-    callWhenAppLoaded(doWork);
+    const connection = await getConnectionInfo({ conid });
+    switchCurrentDatabase({
+      connection,
+      name: database,
+    });
+    // const doWork = async () => {
+    //   const connection = await getConnectionInfo({ conid });
+    //   switchCurrentDatabase({
+    //     connection,
+    //     name: database,
+    //   });
+    // };
+    // callWhenAppLoaded(doWork);
+  }
+
+  if (conid && database && objectTypeField && pureName && defaultActionId) {
+    selectedDatabaseObjectAppObject.set({
+      conid,
+      database,
+      objectTypeField,
+      pureName,
+      schemaName,
+    });
   }
 }
 
