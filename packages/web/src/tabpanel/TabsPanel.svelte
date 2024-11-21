@@ -224,7 +224,12 @@
     category: 'Tabs',
     name: 'Close tab',
     keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : null,
-    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
+    testEnabled: () => {
+      const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
+      const hasAnyModalOpen = getOpenedModals().length > 0;
+
+      return hasAnyOtherTab && !hasConfirmModalOpen;
+    },
     onClick: closeCurrentTab,
   });
 
@@ -283,6 +288,7 @@
     draggingDbGroupTarget,
     draggingTab,
     draggingTabTarget,
+    getOpenedModals,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab, switchCurrentDatabase } from '../utility/common';

@@ -323,3 +323,9 @@ appliedCurrentSchema.subscribe(value => {
   appliedCurrentSchemaValue = value;
 });
 export const getAppliedCurrentSchema = () => appliedCurrentSchemaValue;
+
+let openedModalsValue = [];
+openedModals.subscribe(value => {
+  openedModalsValue = value;
+});
+export const getOpenedModals = () => openedModalsValue;
