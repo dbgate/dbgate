@@ -241,7 +241,7 @@
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
       const hasAnyModalOpen = getOpenedModals().length > 0;
 
-      return hasAnyOtherTab && !hasConfirmModalOpen;
+      return hasAnyOtherTab && !hasAnyModalOpen;
     },
     onClick: closeCurrentTab,
   });
@@ -323,6 +323,7 @@
   import CloseTabModal from '../modals/CloseTabModal.svelte';
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
   import { getConnectionLabel } from 'dbgate-tools';
+  import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
 
   export let multiTabIndex;
   export let shownTab;
@@ -362,6 +363,7 @@
       return;
     }
     setSelectedTab(tabid);
+    handleAfterTabClick();
   };
 
   const handleMouseDown = (e, tabid) => {
@@ -375,6 +377,17 @@
       e.preventDefault();
       closeTab(tabid);
     }
+  };
+
+  const handleDoubleClick = (e, tabid) => {
+    e.preventDefault();
+
+    openedTabs.update(tabs =>
+      tabs.map(x => ({
+        ...x,
+        tabPreviewMode: x.tabid == tabid ? false : x.tabPreviewMode,
+      }))
+    );
   };
 
   const getContextMenu = tab => () => {
@@ -596,9 +609,11 @@
               class:selected={$draggingTab || $draggingDbGroup
                 ? tab.tabid == $draggingTabTarget?.tabid
                 : tab.tabid == shownTab?.tabid}
+              class:preview={!!tab.tabPreviewMode}
               on:click={e => handleTabClick(e, tab.tabid)}
               on:mousedown={e => handleMouseDown(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
+              on:dblclick={e => handleDoubleClick(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}
               draggable={true}
               on:dragstart={async e => {
@@ -741,6 +756,9 @@
   }
   .file-tab-item.selected {
     background-color: var(--theme-bg-0);
+  }
+  .file-tab-item.preview {
+    font-style: italic;
   }
   .file-name {
     margin-left: 5px;

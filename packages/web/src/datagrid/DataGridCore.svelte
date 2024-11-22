@@ -472,7 +472,7 @@
   export let dataEditorTypesBehaviourOverride = null;
 
   const wheelRowCount = 5;
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
   let containerWidth = 0;
@@ -491,6 +491,8 @@
   let autofillDragStartCell = nullCell;
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
+
+  let isGridFocused=false;
 
   const tabid = getContext('tabid');
 
@@ -1041,7 +1043,6 @@
     return !hideGridLeftColumn;
   }
 
-
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
       ? [_.max(selectedCells.map(x => x[0])), _.max(selectedCells.map(x => x[1]))]
@@ -1134,7 +1135,7 @@
     }
   }
 
-  $: if ($tabVisible && domFocusField && focusOnVisible) {
+  $: if ($tabFocused && domFocusField && focusOnVisible) {
     domFocusField.focus();
   }
 
@@ -1863,6 +1864,7 @@
 {:else}
   <div
     class="container"
+    class:data-grid-focused={isGridFocused}
     bind:clientWidth={containerWidth}
     bind:clientHeight={containerHeight}
     use:contextMenu={buildMenu}
@@ -1877,10 +1879,14 @@
       on:focus={() => {
         activator.activate();
         invalidateCommands();
+        isGridFocused = true;
       }}
+      on:blur
       on:paste={handlePaste}
       on:copy={copyToClipboard}
-      on:blur={handleBlur}
+      on:blur={() => {
+        isGridFocused = false;
+      }}
     />
     <table
       class="table"

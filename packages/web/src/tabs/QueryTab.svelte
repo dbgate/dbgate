@@ -124,7 +124,7 @@
     },
   ];
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
   const timerLabel = useTimerLabel();
 
   let busy = false;
@@ -182,7 +182,7 @@
     invalidateCommands();
   }
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 
@@ -454,7 +454,7 @@
         />
       {:else}
         <AceEditor
-          mode={driver?.editorMode || 'text'}
+          mode={driver?.editorMode || 'sql'}
           value={$editorState.value || ''}
           splitterOptions={driver?.getQuerySplitterOptions('editor')}
           options={{

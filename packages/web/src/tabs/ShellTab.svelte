@@ -52,7 +52,7 @@
   
   export let tabid;
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
   const timerLabel = useTimerLabel();
 
   let runnerId;
@@ -82,7 +82,7 @@
     invalidateCommands();
   }
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 

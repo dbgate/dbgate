@@ -47,13 +47,13 @@
   export let tabid;
   export let savedFile;
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   export const activator = createActivator('FavoriteEditorTab', false);
 
   let domEditor;
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 

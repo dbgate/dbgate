@@ -36,18 +36,28 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { findEngineDriver } from 'dbgate-tools';
-  import { currentDatabase, extensions } from '../stores';
+  import {
+    currentDatabase,
+    extensions,
+    getSelectedDatabaseObjectAppObject,
+    selectedDatabaseObjectAppObject,
+  } from '../stores';
   import newQuery from '../query/newQuery';
   import runCommand from '../commands/runCommand';
   import { apiCall } from '../utility/api';
   import { filterAppsForDatabase } from '../utility/appTools';
   import SchemaSelector from './SchemaSelector.svelte';
   import { appliedCurrentSchema } from '../stores';
+  import AppObjectListHandler from './AppObjectListHandler.svelte';
+  import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
 
   export let conid;
   export let database;
 
   let filter = '';
+  let domContainer = null;
+  let domFilter = null;
+  let domListHandler;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -151,7 +161,14 @@
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search in tables, objects, # prefix in columns" bind:value={filter} />
+    <SearchInput
+      placeholder="Search in tables, objects, # prefix in columns"
+      bind:value={filter}
+      bind:this={domFilter}
+      onFocusFilteredList={() => {
+        domListHandler?.focusFirst();
+      }}
+    />
     <CloseSearchButton bind:filter />
     <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
@@ -168,27 +185,42 @@
     negativeMarginTop
   />
 
-  <WidgetsInnerContainer>
+  <WidgetsInnerContainer bind:this={domContainer}>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
-      <AppObjectList
-        list={objectList
-          .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
-          .map(x => ({ ...x, conid, database }))}
+      <AppObjectListHandler
+        bind:this={domListHandler}
+        list={flatFilteredList.map(x => ({ ...x, conid, database }))}
+        selectedObjectStore={selectedDatabaseObjectAppObject}
+        getSelectedObject={getSelectedDatabaseObjectAppObject}
+        selectedObjectMatcher={matchDatabaseObjectAppObject}
         module={databaseObjectAppObject}
-        groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
-        subItemsComponent={SubColumnParamList}
-        isExpandable={data =>
-          data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
-        expandIconFunc={chevronExpandIcon}
-        {filter}
-        passProps={{
-          showPinnedInsteadOfUnpin: true,
-          connection: $connection,
-          hideSchemaName: !!$appliedCurrentSchema,
+        onScrollTop={() => {
+          domContainer?.scrollTop();
         }}
-      />
+        onFocusFilterBox={() => {
+          domFilter?.focus();
+        }}
+      >
+        <AppObjectList
+          list={objectList
+            .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
+            .map(x => ({ ...x, conid, database }))}
+          module={databaseObjectAppObject}
+          groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
+          subItemsComponent={SubColumnParamList}
+          isExpandable={data =>
+            data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
+          expandIconFunc={chevronExpandIcon}
+          {filter}
+          passProps={{
+            showPinnedInsteadOfUnpin: true,
+            connection: $connection,
+            hideSchemaName: !!$appliedCurrentSchema,
+          }}
+        />
+      </AppObjectListHandler>
     {/if}
   </WidgetsInnerContainer>
 {/if}

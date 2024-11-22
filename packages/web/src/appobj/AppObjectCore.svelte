@@ -14,6 +14,7 @@
   export let module = null;
 
   export let isBold = false;
+  export let isChoosed = false;
   export let isBusy = false;
   export let statusIcon = undefined;
   export let statusIconBefore = undefined;
@@ -66,11 +67,21 @@
   }
 
   // $: console.log(title, indentLevel);
+  let domDiv;
+
+  $: if (isBold && domDiv) {
+    domDiv.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  $: if (isChoosed && domDiv) {
+    domDiv.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
 </script>
 
 <div
   class="main"
   class:isBold
+  class:isChoosed
   draggable={true}
   on:click={handleClick}
   on:mouseup={handleMouseUp}
@@ -83,6 +94,7 @@
   on:dragenter
   on:dragend
   on:drop
+  bind:this={domDiv}
 >
   {#if checkedObjectsStore}
     <CheckboxField
@@ -179,6 +191,12 @@
   }
   .isBold {
     font-weight: bold;
+  }
+  .isChoosed {
+    background-color: var(--theme-bg-3);
+  }
+  :global(.app-object-list-focused) .isChoosed {
+    background-color: var(--theme-bg-selected);
   }
   .status {
     margin-left: 5px;

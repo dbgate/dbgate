@@ -22,6 +22,8 @@
   export let columnInfo = null;
   export let columnIndex = -1;
 
+  export let isColumnManagerFocused = false;
+
   export let allowChangeChangeSetStructure = false;
   $: addDataCommand = allowChangeChangeSetStructure;
 
@@ -49,6 +51,7 @@
     else display.focusColumns([column.uniqueName]);
   }}
   class:isSelected
+  class:isFocused={isColumnManagerFocused}
   on:click
   on:mousedown
   on:mousemove
@@ -123,6 +126,10 @@
   }
 
   .row.isSelected {
+    background: var(--theme-bg-3);
+  }
+
+  .row.isSelected.isFocused {
     background: var(--theme-bg-selected);
   }
 

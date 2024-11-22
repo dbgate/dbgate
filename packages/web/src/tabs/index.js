@@ -28,6 +28,7 @@ import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ProfilerTab from './ProfilerTab.svelte';
 import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
 import * as ImportExportTab from './ImportExportTab.svelte';
+import * as SqlObjectTab from './SqlObjectTab.svelte';
 
 import protabs from './index-pro';
 
@@ -62,5 +63,6 @@ export default {
   ProfilerTab,
   DataDuplicatorTab,
   ImportExportTab,
+  SqlObjectTab,
   ...protabs,
 };

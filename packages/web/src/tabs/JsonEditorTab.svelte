@@ -27,14 +27,14 @@
 
   export let tabid;
 
-  const tabVisible: any = getContext('tabVisible');
+  const tabFocused: any = getContext('tabFocused');
 
   export const activator = createActivator('JsonEditorTab', false);
 
   let domEditor;
   let domToolStrip;
 
-  $: if ($tabVisible && domEditor) {
+  $: if ($tabFocused && domEditor) {
     domEditor?.getEditor()?.focus();
   }
 

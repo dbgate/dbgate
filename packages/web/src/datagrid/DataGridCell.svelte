@@ -173,6 +173,9 @@
     background: var(--theme-bg-volcano);
   }
   td.isSelected {
+    background: var(--theme-bg-3);
+  }
+  :global(.data-grid-focused) td.isSelected {
     background: var(--theme-bg-selected);
   }
   td.isDeleted {

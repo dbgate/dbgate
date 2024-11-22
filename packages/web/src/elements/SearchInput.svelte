@@ -7,6 +7,7 @@
 
   $: searchValue = value || '';
   export let isDebounced = false;
+  export let onFocusFilteredList = null;
 
   let domInput;
 
@@ -14,9 +15,17 @@
     if (e.keyCode == keycodes.escape) {
       value = '';
     }
+    if (e.keyCode == keycodes.downArrow || e.keyCode == keycodes.pageDown || e.keyCode == keycodes.enter) {
+      onFocusFilteredList?.();
+      e.preventDefault();
+    }
   }
 
   const debouncedSet = _.debounce(x => (value = x), 500);
+
+  export function focus() {
+    domInput.focus();
+  }
 </script>
 
 <input

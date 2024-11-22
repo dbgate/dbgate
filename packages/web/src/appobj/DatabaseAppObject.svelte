@@ -509,9 +509,9 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   extInfo={data.extInfo}
   icon="img database"
   colorMark={passProps?.connectionColorFactory &&
-    passProps?.connectionColorFactory({ conid: _.get(data.connection, '_id'), database: data.name }, null, null, false)}
-  isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
-    extractDbNameFromComposite(_.get($currentDatabase, 'name')) == data.name}
+    passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false)}
+  isBold={$currentDatabase?.connection?._id == data?.connection?._id &&
+    extractDbNameFromComposite($currentDatabase?.name) == data.name}
   on:click={() => switchCurrentDatabase(data)}
   on:dragstart
   on:dragenter

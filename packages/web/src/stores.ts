@@ -22,6 +22,8 @@ export interface TabDefinition {
   tabOrder?: number;
   multiTabIndex?: number;
   unsaved?: boolean;
+  tabPreviewMode?: boolean;
+  focused?: boolean;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {
@@ -91,7 +93,7 @@ export const openedConnections = writable([]);
 export const temporaryOpenedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
-export const currentDatabase = writable(null);
+export const currentDatabase = writableWithForage(null, 'currentDatabase');
 export const openedTabs = writableWithForage<TabDefinition[]>([], getOpenedTabsStorageName(), x => [...(x || [])]);
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
@@ -154,6 +156,8 @@ export const loadingPluginStore = writable({
 export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
+
+export const selectedDatabaseObjectAppObject = writable(null);
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
@@ -323,6 +327,12 @@ appliedCurrentSchema.subscribe(value => {
   appliedCurrentSchemaValue = value;
 });
 export const getAppliedCurrentSchema = () => appliedCurrentSchemaValue;
+
+let selectedDatabaseObjectAppObjectValue = null;
+selectedDatabaseObjectAppObject.subscribe(value => {
+  selectedDatabaseObjectAppObjectValue = value;
+});
+export const getSelectedDatabaseObjectAppObject = () => selectedDatabaseObjectAppObjectValue;
 
 let openedModalsValue = [];
 openedModals.subscribe(value => {

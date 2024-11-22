@@ -38,6 +38,7 @@
   import { useSettings } from '../utility/metadataLoaders';
   import { derived } from 'svelte/store';
   import { safeFormatDate } from 'dbgate-tools';
+  import FormDefaultActionField from './FormDefaultActionField.svelte';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -288,56 +289,11 @@ ORDER BY
             ]}
           />
 
-          <FormSelectField
-            label="Table click"
-            name="defaultAction.dbObjectClick.tables"
-            isNative
-            defaultValue=""
-            options={[
-              { value: '', label: 'Open data, or open existing' },
-              { value: 'Open data', label: 'Open data (always new tab)' },
-              { value: 'Open form', label: 'Open form (always new tab)' },
-              { value: 'Open structure', label: 'Open structure' },
-              { value: 'SQL: CREATE TABLE', label: 'SQL: CREATE' },
-              { value: 'SQL: SELECT', label: 'SQL: SELECT' },
-            ]}
-          />
-
-          <FormSelectField
-            label="View click"
-            name="defaultAction.dbObjectClick.views"
-            isNative
-            defaultValue=""
-            options={[
-              { value: '', label: 'Open data, or open existing' },
-              { value: 'Open data', label: 'Open data (always new tab)' },
-              { value: 'SQL: CREATE VIEW', label: 'SQL: CREATE' },
-            ]}
-          />
-
-          <FormSelectField
-            label="Materialized view click"
-            name="defaultAction.dbObjectClick.matviews"
-            isNative
-            defaultValue=""
-            options={[
-              { value: '', label: 'Open data, or open existing' },
-              { value: 'Open data', label: 'Open data (always new tab)' },
-              { value: 'SQL: CREATE MATERIALIZED VIEW', label: 'SQL: CREATE' },
-            ]}
-          />
-
-          <FormSelectField
-            label="Procedure click"
-            name="defaultAction.dbObjectClick.procedures"
-            isNative
-            defaultValue=""
-            options={[
-              { value: '', label: 'SQL: CREATE' },
-              { value: 'SQL: EXECUTE', label: 'SQL: EXECUTE' },
-              // { value: 'SQL: CREATE PROCEDURE', label: 'SQL: CREATE' },
-            ]}
-          />
+          <FormDefaultActionField label="Table click" objectTypeField="tables" />
+          <FormDefaultActionField label="View click" objectTypeField="views" />
+          <FormDefaultActionField label="Materialized view click" objectTypeField="matviews" />
+          <FormDefaultActionField label="Procedure click" objectTypeField="procedures" />
+          <FormDefaultActionField label="Function click" objectTypeField="functions" />
         </svelte:fragment>
         <svelte:fragment slot="5">
           <div class="heading">Confirmations</div>
