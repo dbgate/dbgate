@@ -236,7 +236,7 @@
     id: 'tabs.closeTab',
     category: 'Tabs',
     name: 'Close tab',
-    keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : null,
+    keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : 'CtrlOrCommand+Shift+W',
     testEnabled: () => {
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
       const hasAnyModalOpen = getOpenedModals().length > 0;
