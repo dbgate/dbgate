@@ -15,7 +15,7 @@
     if (e.keyCode == keycodes.escape) {
       value = '';
     }
-    if (e.keyCode == keycodes.downArrow) {
+    if (e.keyCode == keycodes.downArrow || e.keyCode == keycodes.pageDown || e.keyCode == keycodes.enter) {
       onFocusFilteredList?.();
       e.preventDefault();
     }
