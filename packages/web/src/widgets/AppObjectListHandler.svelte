@@ -8,15 +8,31 @@
   export let selectedObjectMatcher;
   export let module;
 
+  export let onScrollTop = null;
+
   let isListFocused = false;
 
   function handleKeyDown(ev) {
     function selectByDiff(diff) {
       const selected = getSelectedObject();
       const index = _.findIndex(list, x => selectedObjectMatcher(x, selected));
-      if (index >= 0 && list[index + diff]) {
-        selectedObjectStore.set(list[index + diff]);
-        module.handleObjectClick(list[index + diff], { tabPreviewMode: true });
+      if (index >= 0) {
+        let newIndex = index + diff;
+        if (newIndex >= list.length) {
+          newIndex = list.length - 1;
+        }
+        if (newIndex < 0) {
+          newIndex = 0;
+        }
+
+        if (list[newIndex]) {
+          selectedObjectStore.set(list[newIndex]);
+          module.handleObjectClick(list[newIndex], { tabPreviewMode: true });
+        }
+
+        if (newIndex == 0 && onScrollTop) {
+          onScrollTop();
+        }
       }
     }
     if (ev.keyCode == keycodes.upArrow) {
@@ -30,6 +46,27 @@
     if (ev.keyCode == keycodes.enter) {
       module.handleObjectClick(getSelectedObject(), { tabPreviewMode: false, focusTab: true });
       ev.preventDefault();
+    }
+    if (ev.keyCode == keycodes.pageDown) {
+      selectByDiff(10);
+      ev.preventDefault();
+    }
+    if (ev.keyCode == keycodes.pageUp) {
+      selectByDiff(-10);
+      ev.preventDefault();
+    }
+    if (ev.keyCode == keycodes.home) {
+      if (list[0]) {
+        selectedObjectStore.set(list[0]);
+        module.handleObjectClick(list[0], { tabPreviewMode: true });
+        onScrollTop?.();
+      }
+    }
+    if (ev.keyCode == keycodes.end) {
+      if (list[list.length - 1]) {
+        selectedObjectStore.set(list[list.length - 1]);
+        module.handleObjectClick(list[list.length - 1], { tabPreviewMode: true });
+      }
     }
   }
 </script>

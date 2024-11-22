@@ -1,4 +1,12 @@
-<div on:drop><slot /></div>
+<script lang="ts">
+  let domDiv;
+
+  export function scrollTop() {
+    domDiv.scrollTop = 0;
+  }
+</script>
+
+<div on:drop bind:this={domDiv}><slot /></div>
 
 <style>
   div {

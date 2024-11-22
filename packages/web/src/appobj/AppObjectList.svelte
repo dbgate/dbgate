@@ -28,6 +28,7 @@
   export let emptyGroupNames = [];
 
   export let collapsedGroupNames = writable([]);
+  export let onChangeFilteredList;
 
   $: filtered = !groupFunc
     ? list.filter(data => {

@@ -55,6 +55,7 @@
   export let database;
 
   let filter = '';
+  let domContainer = null;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -175,18 +176,19 @@
     negativeMarginTop
   />
 
-  <WidgetsInnerContainer>
+  <WidgetsInnerContainer bind:this={domContainer}>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
       <AppObjectListHandler
-        list={objectList
-          .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
-          .map(x => ({ ...x, conid, database }))}
+        list={flatFilteredList.map(x => ({ ...x, conid, database }))}
         selectedObjectStore={selectedDatabaseObjectAppObject}
         getSelectedObject={getSelectedDatabaseObjectAppObject}
         selectedObjectMatcher={matchDatabaseObjectAppObject}
         module={databaseObjectAppObject}
+        onScrollTop={() => {
+          domContainer?.scrollTop();
+        }}
       >
         <AppObjectList
           list={objectList
