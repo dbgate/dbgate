@@ -49,8 +49,8 @@
 
     --theme-border: #555;
 
-    --theme-bg-hover: #112a45;
-    --theme-bg-selected: #15395b; /* blue-3 */
+    --theme-bg-hover: #555;
+    --theme-bg-selected: #1d4d7e; /* blue-4 */
     --theme-bg-selected-point: #1765ad; /* blue-5 */
 
     --theme-bg-statusbar-inv: #0050b3;
