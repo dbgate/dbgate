@@ -9,13 +9,21 @@
   export let module;
 
   export let onScrollTop = null;
+  export let onFocusFilterBox = null;
 
   let isListFocused = false;
+  let domDiv = null;
 
   function handleKeyDown(ev) {
     function selectByDiff(diff) {
       const selected = getSelectedObject();
       const index = _.findIndex(list, x => selectedObjectMatcher(x, selected));
+
+      if (index == 0 && diff < 0) {
+        onFocusFilterBox?.();
+        return;
+      }
+
       if (index >= 0) {
         let newIndex = index + diff;
         if (newIndex >= list.length) {
@@ -30,8 +38,8 @@
           module.handleObjectClick(list[newIndex], { tabPreviewMode: true });
         }
 
-        if (newIndex == 0 && onScrollTop) {
-          onScrollTop();
+        if (newIndex == 0) {
+          onScrollTop?.();
         }
       }
     }
@@ -69,6 +77,15 @@
       }
     }
   }
+
+  export function focusFirst() {
+    domDiv?.focus();
+    if (list[0]) {
+      selectedObjectStore.set(list[0]);
+      module.handleObjectClick(list[0], { tabPreviewMode: true });
+      onScrollTop?.();
+    }
+  }
 </script>
 
 <div
@@ -82,6 +99,7 @@
   on:blur={() => {
     isListFocused = false;
   }}
+  bind:this={domDiv}
 >
   <slot />
 </div>

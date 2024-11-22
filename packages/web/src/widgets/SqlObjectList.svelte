@@ -56,6 +56,8 @@
 
   let filter = '';
   let domContainer = null;
+  let domFilter = null;
+  let domListHandler;
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -159,7 +161,14 @@
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search in tables, objects, # prefix in columns" bind:value={filter} />
+    <SearchInput
+      placeholder="Search in tables, objects, # prefix in columns"
+      bind:value={filter}
+      bind:this={domFilter}
+      onFocusFilteredList={() => {
+        domListHandler?.focusFirst();
+      }}
+    />
     <CloseSearchButton bind:filter />
     <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
@@ -181,6 +190,7 @@
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
       <AppObjectListHandler
+        bind:this={domListHandler}
         list={flatFilteredList.map(x => ({ ...x, conid, database }))}
         selectedObjectStore={selectedDatabaseObjectAppObject}
         getSelectedObject={getSelectedDatabaseObjectAppObject}
@@ -188,6 +198,9 @@
         module={databaseObjectAppObject}
         onScrollTop={() => {
           domContainer?.scrollTop();
+        }}
+        onFocusFilterBox={() => {
+          domFilter?.focus();
         }}
       >
         <AppObjectList
