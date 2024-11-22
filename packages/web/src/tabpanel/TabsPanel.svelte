@@ -241,7 +241,7 @@
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
       const hasAnyModalOpen = getOpenedModals().length > 0;
 
-      return hasAnyOtherTab && !hasConfirmModalOpen;
+      return hasAnyOtherTab && !hasAnyModalOpen;
     },
     onClick: closeCurrentTab,
   });
