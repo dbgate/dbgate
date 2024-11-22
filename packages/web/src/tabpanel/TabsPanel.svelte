@@ -155,6 +155,19 @@
   );
   const closeOthersInMultiTab = multiTabIndex =>
     closeTabFunc((x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex);
+  const reopenClosedTab = () => {
+    const lastClosedTabId = getOpenedTabs()
+      .filter(x => x.closedTime)
+      .sort((a, b) => b.closedTime - a.closedTime)[0]?.tabid;
+
+    if (!lastClosedTabId) return;
+
+    openedTabs.update(x =>
+      x.map(tab =>
+        tab.tabid === lastClosedTabId ? { ...tab, selected: true, closedTime: null } : { ...tab, selected: false }
+      )
+    );
+  };
 
   function getTabDbName(tab, connectionList) {
     if (tab.tabComponent == 'ConnectionTab') return 'Connections';
@@ -247,6 +260,15 @@
     name: 'Close tabs but current DB',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsButCurrentDb,
+  });
+
+  registerCommand({
+    id: 'tabs.reopenClosedTab',
+    category: 'Tabs',
+    name: 'Reopen closed tab',
+    keyText: 'CtrlOrCommand+Shift+T',
+    testEnabled: () => getOpenedTabs().filter(x => x.closedTime).length >= 1,
+    onClick: reopenClosedTab,
   });
 
   registerCommand({
