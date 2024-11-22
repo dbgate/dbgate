@@ -61,7 +61,13 @@
 
   {#if (isExpanded || isExpandedBySearch) && subItemsComponent}
     <div class="subitems">
-      <svelte:component this={subItemsComponent} {data} {filter} {passProps} />
+      <svelte:component
+        this={subItemsComponent}
+        {data}
+        {filter}
+        {passProps}
+        isExpandedOnlyBySearch={isExpandedBySearch && !isExpanded}
+      />
     </div>
   {/if}
 {/if}

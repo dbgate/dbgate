@@ -5,17 +5,21 @@
   import AppObjectList from './AppObjectList.svelte';
   import * as databaseAppObject from './DatabaseAppObject.svelte';
   import { volatileConnectionMapStore } from '../utility/api';
+  import { getLocalStorage } from '../utility/storageCache';
 
   export let filter;
   export let data;
   export let passProps;
 
-  $: databases = useDatabaseList({ conid: data._id });
+  export let isExpandedOnlyBySearch;
+
+  $: databases = useDatabaseList({ conid: isExpandedOnlyBySearch ? null : data._id });
+  $: dbList = isExpandedOnlyBySearch ? getLocalStorage(`database_list_${data._id}`) || [] : $databases || [];
 </script>
 
 <AppObjectList
   list={_.sortBy(
-    ($databases || []).filter(x => filterName(filter, x.name)),
+    dbList.filter(x => filterName(filter, x.name)),
     x => x.sortOrder ?? x.name
   ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}

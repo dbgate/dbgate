@@ -36,6 +36,9 @@ export function extractShellApiFunctionName(functionName) {
 }
 
 export function findEngineDriver(connection, extensions: ExtensionsDirectory): EngineDriver {
+  if (!extensions) {
+    return null;
+  }
   if (_isString(connection)) {
     return extensions.drivers.find(x => x.engine == connection);
   }
