@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filterName } from 'dbgate-tools';
+  import { filterName, getConnectionLabel } from 'dbgate-tools';
   import _ from 'lodash';
   import { useDatabaseList } from '../utility/metadataLoaders';
   import AppObjectList from './AppObjectList.svelte';
@@ -15,11 +15,13 @@
 
   $: databases = useDatabaseList({ conid: isExpandedOnlyBySearch ? null : data._id });
   $: dbList = isExpandedOnlyBySearch ? getLocalStorage(`database_list_${data._id}`) || [] : $databases || [];
+
+  $: connectionLabel = getConnectionLabel(data);
 </script>
 
 <AppObjectList
   list={_.sortBy(
-    dbList.filter(x => filterName(filter, x.name)),
+    dbList.filter(x => filterName(filter, x.name, connectionLabel)),
     x => x.sortOrder ?? x.name
   ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
