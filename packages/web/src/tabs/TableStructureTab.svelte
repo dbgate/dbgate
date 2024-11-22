@@ -175,24 +175,43 @@
     <ToolStripCommandButton command="tableEditor.addColumn" />
     <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
 
-    {#if objectTypeField == 'tables'}
-      <ToolStripButton
-        icon="icon table"
-        on:click={() => {
-          openNewTab({
-            title: pureName,
-            icon: 'img table',
-            tabComponent: 'TableDataTab',
-            props: {
-              schemaName,
-              pureName,
-              conid,
-              database,
-              objectTypeField: 'tables',
-            },
-          });
-        }}>Open data</ToolStripButton
-      >
-    {/if}
+    <ToolStripButton
+      icon={'icon table'}
+      on:click={() => {
+        openNewTab({
+          title: pureName,
+          icon: objectTypeField == 'tables' ? 'img table' : 'img view',
+          tabComponent: objectTypeField == 'tables' ? 'TableDataTab' : 'ViewDataTab',
+          tabPreviewMode: true,
+          props: {
+            schemaName,
+            pureName,
+            conid,
+            database,
+            objectTypeField,
+            defaultActionId: 'openTable',
+          },
+        });
+      }}>Open data</ToolStripButton
+    >
+    <ToolStripButton
+      icon="img sql-file"
+      on:click={() => {
+        openNewTab({
+          title: pureName,
+          icon: 'img sql-file',
+          tabComponent: 'SqlObjectTab',
+          tabPreviewMode: true,
+          props: {
+            schemaName,
+            pureName,
+            conid,
+            database,
+            objectTypeField,
+            defaultActionId: 'showSql',
+          },
+        });
+      }}>Show SQL</ToolStripButton
+    >
   </svelte:fragment>
 </ToolStripContainer>

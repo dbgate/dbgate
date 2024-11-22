@@ -138,4 +138,6 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
         },
       ];
   }
+
+  return [];
 }

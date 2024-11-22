@@ -29,6 +29,9 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { changeTab } from '../utility/common';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import openNewTab from '../utility/openNewTab';
+  import { template } from 'lodash';
 
   export let tabid;
   export let appObjectData;
@@ -109,5 +112,67 @@
         }));
       }}
     />
+    {#if objectTypeField == 'tables' || objectTypeField == 'views' || objectTypeField == 'matviews'}
+      <ToolStripButton
+        icon="icon structure"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: 'img table-structure',
+            tabComponent: 'TableStructureTab',
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'openStructure',
+            },
+          });
+        }}>Open structure</ToolStripButton
+      >
+      <ToolStripButton
+        icon="icon table"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: objectTypeField == 'tables' ? 'img table' : 'img view',
+            tabComponent: objectTypeField == 'tables' ? 'TableDataTab' : 'ViewDataTab',
+            objectTypeField,
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'openTable',
+            },
+          });
+        }}>Open data</ToolStripButton
+      >
+    {/if}
+    {#each getSupportedScriptTemplates(appObjectData.objectTypeField) as template}
+      <ToolStripButton
+        icon="img sql-file"
+        on:click={() => {
+          openNewTab({
+            title: 'Query #',
+            icon: 'img sql-file',
+            tabComponent: 'QueryTab',
+            objectTypeField: appObjectData.objectTypeField,
+            props: {
+              conid,
+              database,
+              schemaName,
+              pureName,
+              objectTypeField,
+              initialArgs: { scriptTemplate: template.scriptTemplate },
+            },
+          });
+        }}>{template.label}</ToolStripButton
+      >
+    {/each}
   </svelte:fragment>
 </ToolStripContainer>

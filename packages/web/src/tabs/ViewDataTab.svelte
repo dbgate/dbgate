@@ -18,16 +18,24 @@
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { extensions } from '../stores';
-  import { useConnectionInfo, useDatabaseInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
+  import {
+    useConnectionInfo,
+    useDatabaseInfo,
+    useDatabaseServerVersion,
+    useViewInfo,
+  } from '../utility/metadataLoaders';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import useGridConfig from '../utility/useGridConfig';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let tabid;
   export let conid;
   export let database;
   export let schemaName;
   export let pureName;
+  export let objectTypeField;
 
   $: connection = useConnectionInfo({ conid });
   $: viewInfo = useViewInfo({ conid, database, schemaName, pureName });
@@ -76,6 +84,46 @@
     <svelte:fragment slot="toolstrip">
       <ToolStripCommandButton command="dataGrid.refresh" />
       <ToolStripExportButton {quickExportHandlerRef} />
+
+      <ToolStripButton
+        icon="icon structure"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: 'img table-structure',
+            tabComponent: 'TableStructureTab',
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'openStructure',
+            },
+          });
+        }}>Open structure</ToolStripButton
+      >
+
+      <ToolStripButton
+        icon="img sql-file"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: 'img sql-file',
+            tabComponent: 'SqlObjectTab',
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'showSql',
+            },
+          });
+        }}>View SQL</ToolStripButton
+      >
     </svelte:fragment>
   </ToolStripContainer>
 {/if}
