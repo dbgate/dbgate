@@ -108,6 +108,9 @@ export const currentEditorTheme = getElectron()
 export const currentEditorKeybindigMode = getElectron()
   ? writableSettingsValue(null, 'currentEditorKeybindigMode')
   : writableWithStorage(null, 'currentEditorKeybindigMode');
+export const currentEditorWrapEnabled = getElectron()
+  ? writableSettingsValue(false, 'currentEditorWrapEnabled')
+  : writableWithStorage(false, 'currentEditorWrapEnabled');
 export const currentEditorFontSize = getElectron()
   ? writableSettingsValue(null, 'currentEditorFontSize')
   : writableWithStorage(null, 'currentEditorFontSize');
@@ -330,3 +333,9 @@ selectedDatabaseObjectAppObject.subscribe(value => {
   selectedDatabaseObjectAppObjectValue = value;
 });
 export const getSelectedDatabaseObjectAppObject = () => selectedDatabaseObjectAppObjectValue;
+
+let openedModalsValue = [];
+openedModals.subscribe(value => {
+  openedModalsValue = value;
+});
+export const getOpenedModals = () => openedModalsValue;

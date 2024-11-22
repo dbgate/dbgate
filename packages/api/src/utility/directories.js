@@ -110,7 +110,12 @@ function getPluginBackendPath(packageName) {
     return path.join(packagedPluginsDir(), packageName, 'dist', 'backend.js');
   }
 
-  return path.join(pluginsdir(), packageName, 'dist', 'backend.js');
+  const res = path.join(pluginsdir(), packageName, 'dist', 'backend.js')
+  if (fs.existsSync(res)) {
+    return res;
+  }
+
+  return require.resolve(packageName);
 }
 
 let archiveLinksCache = {};

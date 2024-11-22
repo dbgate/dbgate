@@ -155,6 +155,19 @@
   );
   const closeOthersInMultiTab = multiTabIndex =>
     closeTabFunc((x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex);
+  const reopenClosedTab = () => {
+    const lastClosedTabId = getOpenedTabs()
+      .filter(x => x.closedTime)
+      .sort((a, b) => b.closedTime - a.closedTime)[0]?.tabid;
+
+    if (!lastClosedTabId) return;
+
+    openedTabs.update(x =>
+      x.map(tab =>
+        tab.tabid === lastClosedTabId ? { ...tab, selected: true, closedTime: null } : { ...tab, selected: false }
+      )
+    );
+  };
 
   function getTabDbName(tab, connectionList) {
     if (tab.tabComponent == 'ConnectionTab') return 'Connections';
@@ -224,7 +237,12 @@
     category: 'Tabs',
     name: 'Close tab',
     keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : null,
-    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
+    testEnabled: () => {
+      const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
+      const hasAnyModalOpen = getOpenedModals().length > 0;
+
+      return hasAnyOtherTab && !hasConfirmModalOpen;
+    },
     onClick: closeCurrentTab,
   });
 
@@ -242,6 +260,15 @@
     name: 'Close tabs but current DB',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsButCurrentDb,
+  });
+
+  registerCommand({
+    id: 'tabs.reopenClosedTab',
+    category: 'Tabs',
+    name: 'Reopen closed tab',
+    keyText: 'CtrlOrCommand+Shift+T',
+    testEnabled: () => getOpenedTabs().filter(x => x.closedTime).length >= 1,
+    onClick: reopenClosedTab,
   });
 
   registerCommand({
@@ -283,6 +310,7 @@
     draggingDbGroupTarget,
     draggingTab,
     draggingTabTarget,
+    getOpenedModals,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab, switchCurrentDatabase } from '../utility/common';
