@@ -53,5 +53,6 @@
     unsaved={openedTabsByTabId[tabid]?.unsaved}
     tabVisible={tabid == shownTab?.tabid}
     tabFocused={tabid == shownTab?.tabid && shownTab?.focused}
+    tabPreviewMode={tabid == shownTab?.tabid && shownTab?.tabPreviewMode}
   />
 {/each}

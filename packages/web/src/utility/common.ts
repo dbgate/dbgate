@@ -23,7 +23,9 @@ export function changeTab(tabid, changeFunc) {
 export function markTabUnsaved(tabid) {
   const tab = getOpenedTabs().find(x => x.tabid == tabid);
   if (tab.unsaved) return;
-  openedTabs.update(files => files.map(tab => (tab.tabid == tabid ? { ...tab, unsaved: true } : tab)));
+  openedTabs.update(files =>
+    files.map(tab => (tab.tabid == tabid ? { ...tab, unsaved: true, tabPreviewMode: false } : tab))
+  );
 }
 
 export function markTabSaved(tabid) {

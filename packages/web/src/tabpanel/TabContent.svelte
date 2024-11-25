@@ -5,6 +5,7 @@
   export let tabid;
   export let tabVisible;
   export let tabFocused;
+  export let tabPreviewMode;
   export let tabComponent;
 
   setContext('tabid', tabid);
@@ -19,7 +20,7 @@
 </script>
 
 <div class:tabVisible>
-  <svelte:component this={tabComponent} {...$$restProps} {tabid} {tabVisible} {tabFocused} />
+  <svelte:component this={tabComponent} {...$$restProps} {tabid} {tabVisible} {tabFocused} {tabPreviewMode} />
 </div>
 
 <style>
