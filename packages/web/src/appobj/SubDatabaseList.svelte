@@ -15,13 +15,11 @@
 
   $: databases = useDatabaseList({ conid: isExpandedOnlyBySearch ? null : data._id });
   $: dbList = isExpandedOnlyBySearch ? getLocalStorage(`database_list_${data._id}`) || [] : $databases || [];
-
-  $: connectionLabel = getConnectionLabel(data);
 </script>
 
 <AppObjectList
   list={_.sortBy(
-    dbList.filter(x => filterName(filter, x.name, connectionLabel)),
+    dbList.filter(x => filterName(filter, x.name, data.displayName, data.server)),
     x => x.sortOrder ?? x.name
   ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}

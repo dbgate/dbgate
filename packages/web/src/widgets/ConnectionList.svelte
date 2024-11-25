@@ -1,4 +1,10 @@
 <script lang="ts">
+connectionAppObject.
+
+connectionAppObject.
+
+connectionAppObject.
+
   import _ from 'lodash';
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -20,7 +26,7 @@
     getFocusedConnectionOrDatabase,
   } from '../stores';
   import runCommand from '../commands/runCommand';
-  import { getConnectionLabel } from 'dbgate-tools';
+  import { filterName, getConnectionLabel } from 'dbgate-tools';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -32,9 +38,15 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import AppObjectListHandler from './AppObjectListHandler.svelte';
+  import { getLocalStorage } from '../utility/storageCache';
+  import { switchCurrentDatabase } from '../utility/common';
+  import openNewTab from '../utility/openNewTab';
+  import {openConnection} from '../appobj/ConnectionAppObject.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
+
+  export let passProps: any = {};
 
   let filter = '';
   let domListHandler;
@@ -66,10 +78,42 @@
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
 
-  $: focusFlatList = [
-    ...connectionsWithParent.map(x => ({ conid: x._id })),
-    ...connectionsWithoutParent.map(x => ({ conid: x._id })),
-  ];
+  function getFocusFlatList() {
+    const expanded = $expandedConnections;
+    const opened = $openedConnections;
+
+    const res = [];
+    for (const con of [...connectionsWithParent, ...connectionsWithoutParent]) {
+      const databases = getLocalStorage(`database_list_${con._id}`) || [];
+      if (!filterName(filter, con.displayName, con.server, ...databases.map(x => x.name))) {
+        continue;
+      }
+
+      res.push({
+        connection: con,
+        conid: con._id,
+      });
+
+      if ((expanded.includes(con._id) && opened.includes(con._id)) || filter) {
+        for (const db of _.sortBy(databases, x => x.sortOrder ?? x.name)) {
+          if (!filterName(filter, con.displayName, con.server, db.name)) {
+            continue;
+          }
+
+          res.push({
+            conid: con._id,
+            database: db.name,
+            dbobj: {
+              connection: con,
+              name: db.name,
+            },
+          });
+        }
+      }
+    }
+
+    return res;
+  }
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
@@ -161,7 +205,7 @@
 >
   <AppObjectListHandler
     bind:this={domListHandler}
-    list={focusFlatList}
+    list={getFocusFlatList}
     selectedObjectStore={focusedConnectionOrDatabase}
     getSelectedObject={getFocusedConnectionOrDatabase}
     selectedObjectMatcher={(o1, o2) => o1.conid == o2.conid && o1.database == o2.database}
@@ -171,6 +215,28 @@
     onFocusFilterBox={() => {
       domFilter?.focus();
     }}
+    handleObjectClick={(data, options) => {
+      if (data.database) {
+        if (options.focusTab) {
+          switchCurrentDatabase(data.dbobj);
+          passProps?.onFocusSqlObjectList?.();
+        }
+      } else {
+        if (options.focusTab) {
+          openConnection(data.connection);
+        } else {
+          openNewTab({
+            title: getConnectionLabel(data.connection),
+            icon: 'img connection',
+            tabComponent: 'ConnectionTab',
+            tabPreviewMode: options.tabPreviewMode,
+            props: {
+              conid: data.conid,
+            },
+          });
+        }
+      }
+    }}
   >
     <AppObjectList
       list={connectionsWithParent}
@@ -179,7 +245,7 @@
       expandOnClick
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
-      passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+      passProps={{ ...passProps, connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
       getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
       setIsExpanded={(data, value) => {
         expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));

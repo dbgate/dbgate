@@ -125,6 +125,10 @@
     if (matcher && !matcher(filter)) return false;
     return true;
   });
+
+  export function focus() {
+    domListHandler?.focusFirst();
+  }
 </script>
 
 {#if $status && $status.name == 'error'}
