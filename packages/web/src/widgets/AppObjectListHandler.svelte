@@ -16,7 +16,7 @@
 
   function handleKeyDown(ev) {
     const listInstance = _.isFunction(list) ? list() : list;
-    
+
     function selectByDiff(diff) {
       const selected = getSelectedObject();
       const index = _.findIndex(listInstance, x => selectedObjectMatcher(x, selected));
@@ -78,6 +78,20 @@
         handleObjectClick?.(listInstance[listInstance.length - 1], { tabPreviewMode: true });
       }
     }
+
+    if (
+      !ev.ctrlKey &&
+      !ev.altKey &&
+      !ev.metaKey &&
+      ((ev.keyCode >= keycodes.a && ev.keyCode <= keycodes.z) ||
+        (ev.keyCode >= keycodes.n0 && ev.keyCode <= keycodes.n9) ||
+        (ev.keyCode >= keycodes.numPad0 && ev.keyCode <= keycodes.numPad9) ||
+        ev.keyCode == keycodes.dash)
+    ) {
+      const text = ev.key;
+      onFocusFilterBox?.(text);
+      ev.preventDefault();
+    }
   }
 
   export function focusFirst() {
@@ -90,6 +104,16 @@
       onScrollTop?.();
     }
   }
+
+  function handleFocus() {
+    isListFocused = true;
+    const listInstance = _.isFunction(list) ? list() : list;
+    const selected = getSelectedObject();
+    const index = _.findIndex(listInstance, x => selectedObjectMatcher(x, selected));
+    if (index < 0) {
+      focusFirst();
+    }
+  }
 </script>
 
 <div
@@ -97,9 +121,7 @@
   on:keydown={handleKeyDown}
   class="wrapper"
   class:app-object-list-focused={isListFocused}
-  on:focus={() => {
-    isListFocused = true;
-  }}
+  on:focus={handleFocus}
   on:blur={() => {
     isListFocused = false;
   }}

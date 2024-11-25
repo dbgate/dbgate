@@ -12,6 +12,16 @@
     return filterName(filter, ...databases.map(x => x.name));
   };
   export function openConnection(connection) {
+    if (connection.singleDatabase) {
+      if (getOpenedSingleDatabaseConnections().includes(connection._id)) {
+        return;
+      }
+    } else {
+      if (getOpenedConnections().includes(connection._id)) {
+        return;
+      }
+    }
+
     const config = getCurrentConfig();
     if (connection.singleDatabase) {
       switchCurrentDatabase({ connection, name: connection.defaultDatabase });
@@ -88,6 +98,7 @@
     getCurrentDatabase,
     getCurrentSettings,
     getOpenedConnections,
+    getOpenedSingleDatabaseConnections,
     getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
@@ -159,8 +170,17 @@
     }
   };
 
-  const handleClick = async (e) => {
+  const handleClick = async e => {
     focusedConnectionOrDatabase.set({ conid: data?._id });
+    openNewTab({
+      title: getConnectionLabel(data),
+      icon: 'img connection',
+      tabComponent: 'ConnectionTab',
+      tabPreviewMode: true,
+      props: {
+        conid: data._id,
+      },
+    });
   };
 
   const handleSqlRestore = () => {
@@ -333,9 +353,8 @@
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
-  on:dblclick={handleDoubleClick}
   on:click={handleClick}
-  on:click
+  on:dblclick
   on:expand
   on:dblclick={handleConnect}
   on:middleclick={() => {

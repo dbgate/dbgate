@@ -515,9 +515,10 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     extractDbNameFromComposite($currentDatabase?.name) == data.name}
   on:dblclick={() => {
     switchCurrentDatabase(data);
-    passProps?.onFocusSqlObjectList?.();
+    // passProps?.onFocusSqlObjectList?.();
   }}
   on:click={() => {
+    // switchCurrentDatabase(data);
     $focusedConnectionOrDatabase = { conid: data.connection?._id, database: data.name };
   }}
   on:dragstart

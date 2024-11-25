@@ -203,8 +203,8 @@
         onScrollTop={() => {
           domContainer?.scrollTop();
         }}
-        onFocusFilterBox={() => {
-          domFilter?.focus();
+        onFocusFilterBox={text => {
+          domFilter?.focus(text);
         }}
       >
         <AppObjectList

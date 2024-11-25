@@ -1,10 +1,4 @@
 <script lang="ts">
-connectionAppObject.
-
-connectionAppObject.
-
-connectionAppObject.
-
   import _ from 'lodash';
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -41,7 +35,7 @@ connectionAppObject.
   import { getLocalStorage } from '../utility/storageCache';
   import { switchCurrentDatabase } from '../utility/common';
   import openNewTab from '../utility/openNewTab';
-  import {openConnection} from '../appobj/ConnectionAppObject.svelte';
+  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -212,14 +206,15 @@ connectionAppObject.
     onScrollTop={() => {
       domContainer?.scrollTop();
     }}
-    onFocusFilterBox={() => {
-      domFilter?.focus();
+    onFocusFilterBox={text => {
+      domFilter?.focus(text);
     }}
     handleObjectClick={(data, options) => {
       if (data.database) {
         if (options.focusTab) {
           switchCurrentDatabase(data.dbobj);
-          passProps?.onFocusSqlObjectList?.();
+          // console.log('FOCUSING DB', passProps);
+          // passProps?.onFocusSqlObjectList?.();
         }
       } else {
         if (options.focusTab) {

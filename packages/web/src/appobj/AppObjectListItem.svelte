@@ -50,7 +50,7 @@
   <svelte:component
     this={module.default}
     {data}
-    on:click={handleExpand}
+    on:dblclick={handleExpand}
     on:expand={handleExpandButton}
     expandIcon={getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)}
     {checkedObjectsStore}

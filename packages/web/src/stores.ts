@@ -346,3 +346,9 @@ focusedConnectionOrDatabase.subscribe(value => {
   focusedConnectionOrDatabaseValue = value;
 });
 export const getFocusedConnectionOrDatabase = () => focusedConnectionOrDatabaseValue;
+
+let openedSingleDatabaseConnectionsValue = [];
+openedSingleDatabaseConnections.subscribe(value => {
+  openedSingleDatabaseConnectionsValue = value;
+});
+export const getOpenedSingleDatabaseConnections = () => openedSingleDatabaseConnectionsValue;
