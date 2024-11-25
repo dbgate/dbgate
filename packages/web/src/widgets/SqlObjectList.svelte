@@ -31,7 +31,7 @@
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import { getObjectTypeFieldLabel } from '../utility/common';
+  import { getObjectTypeFieldLabel, switchCurrentDatabase } from '../utility/common';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -39,6 +39,7 @@
   import {
     currentDatabase,
     extensions,
+    focusedConnectionOrDatabase,
     getSelectedDatabaseObjectAppObject,
     selectedDatabaseObjectAppObject,
   } from '../stores';
@@ -50,6 +51,8 @@
   import { appliedCurrentSchema } from '../stores';
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import clickOutside from '../utility/clickOutside';
 
   export let conid;
   export let database;
@@ -129,6 +132,11 @@
   export function focus() {
     domListHandler?.focusFirst();
   }
+
+  $: differentFocusedDb =
+    $focusedConnectionOrDatabase &&
+    $focusedConnectionOrDatabase?.database &&
+    ($focusedConnectionOrDatabase.conid != conid || $focusedConnectionOrDatabase?.database != database);
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -189,7 +197,25 @@
     negativeMarginTop
   />
 
-  <WidgetsInnerContainer bind:this={domContainer}>
+  {#if differentFocusedDb}
+    <div class="no-focused-info">
+      <div class="m-1">Current database:</div>
+      <div class="m-1 ml-3 mb-3">
+        <b>{database}</b>
+      </div>
+      <FormStyledButton
+        value={`Switch to ${$focusedConnectionOrDatabase?.database}`}
+        skipWidth
+        on:click={() =>
+          switchCurrentDatabase({
+            connection: $focusedConnectionOrDatabase?.connection,
+            name: $focusedConnectionOrDatabase?.database,
+          })}
+      />
+    </div>
+  {/if}
+
+  <WidgetsInnerContainer bind:this={domContainer} hideContent={differentFocusedDb}>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
@@ -228,3 +254,12 @@
     {/if}
   </WidgetsInnerContainer>
 {/if}
+
+<style>
+  .no-focused-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+</style>

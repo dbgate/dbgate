@@ -13,6 +13,7 @@
 
   let isListFocused = false;
   let domDiv = null;
+  export let hideContent = false;
 
   function handleKeyDown(ev) {
     const listInstance = _.isFunction(list) ? list() : list;
@@ -126,6 +127,7 @@
     isListFocused = false;
   }}
   bind:this={domDiv}
+  class:hideContent
 >
   <slot />
 </div>
@@ -133,5 +135,9 @@
 <style>
   .wrapper:focus {
     outline: none;
+  }
+
+  .hideContent {
+    visibility: hidden;
   }
 </style>

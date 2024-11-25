@@ -97,10 +97,7 @@
           res.push({
             conid: con._id,
             database: db.name,
-            dbobj: {
-              connection: con,
-              name: db.name,
-            },
+            connection: con,
           });
         }
       }
@@ -202,7 +199,7 @@
     list={getFocusFlatList}
     selectedObjectStore={focusedConnectionOrDatabase}
     getSelectedObject={getFocusedConnectionOrDatabase}
-    selectedObjectMatcher={(o1, o2) => o1.conid == o2.conid && o1.database == o2.database}
+    selectedObjectMatcher={(o1, o2) => o1?.conid == o2?.conid && o1?.database == o2?.database}
     onScrollTop={() => {
       domContainer?.scrollTop();
     }}
@@ -212,7 +209,7 @@
     handleObjectClick={(data, options) => {
       if (data.database) {
         if (options.focusTab) {
-          switchCurrentDatabase(data.dbobj);
+          switchCurrentDatabase({ connection: data.connection, name: data.database });
           // console.log('FOCUSING DB', passProps);
           // passProps?.onFocusSqlObjectList?.();
         }

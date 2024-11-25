@@ -158,7 +158,7 @@ export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 
 export const selectedDatabaseObjectAppObject = writable(null);
-export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string }>(null);
+export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
