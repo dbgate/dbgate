@@ -158,6 +158,7 @@ export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 
 export const selectedDatabaseObjectAppObject = writable(null);
+export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string }>(null);
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
@@ -339,3 +340,9 @@ openedModals.subscribe(value => {
   openedModalsValue = value;
 });
 export const getOpenedModals = () => openedModalsValue;
+
+let focusedConnectionOrDatabaseValue = null;
+focusedConnectionOrDatabase.subscribe(value => {
+  focusedConnectionOrDatabaseValue = value;
+});
+export const getFocusedConnectionOrDatabase = () => focusedConnectionOrDatabaseValue;

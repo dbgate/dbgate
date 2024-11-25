@@ -83,6 +83,7 @@
     currentDatabase,
     expandedConnections,
     extensions,
+    focusedConnectionOrDatabase,
     getCurrentConfig,
     getCurrentDatabase,
     getCurrentSettings,
@@ -135,7 +136,7 @@
     });
   };
 
-  const handleClick = async () => {
+  const handleDoubleClick = async () => {
     const config = getCurrentConfig();
     if (config.runAsPortal) {
       await tick();
@@ -156,6 +157,10 @@
       await tick();
       handleConnect();
     }
+  };
+
+  const handleClick = async (e) => {
+    focusedConnectionOrDatabase.set({ conid: data?._id });
   };
 
   const handleSqlRestore = () => {
@@ -328,6 +333,7 @@
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
+  on:dblclick={handleDoubleClick}
   on:click={handleClick}
   on:click
   on:expand
@@ -337,4 +343,5 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  isChoosed={data._id == $focusedConnectionOrDatabase?.conid && !$focusedConnectionOrDatabase?.database}
 />

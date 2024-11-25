@@ -6,7 +6,7 @@
   export let selectedObjectStore;
   export let getSelectedObject;
   export let selectedObjectMatcher;
-  export let module;
+  export let handleObjectClick;
 
   export let onScrollTop = null;
   export let onFocusFilterBox = null;
@@ -35,7 +35,7 @@
 
         if (list[newIndex]) {
           selectedObjectStore.set(list[newIndex]);
-          module.handleObjectClick(list[newIndex], { tabPreviewMode: true });
+          handleObjectClick?.(list[newIndex], { tabPreviewMode: true });
         }
 
         if (newIndex == 0) {
@@ -52,7 +52,7 @@
       ev.preventDefault();
     }
     if (ev.keyCode == keycodes.enter) {
-      module.handleObjectClick(getSelectedObject(), { tabPreviewMode: false, focusTab: true });
+      handleObjectClick?.(getSelectedObject(), { tabPreviewMode: false, focusTab: true });
       ev.preventDefault();
     }
     if (ev.keyCode == keycodes.pageDown) {
@@ -66,14 +66,14 @@
     if (ev.keyCode == keycodes.home) {
       if (list[0]) {
         selectedObjectStore.set(list[0]);
-        module.handleObjectClick(list[0], { tabPreviewMode: true });
+        handleObjectClick?.(list[0], { tabPreviewMode: true });
         onScrollTop?.();
       }
     }
     if (ev.keyCode == keycodes.end) {
       if (list[list.length - 1]) {
         selectedObjectStore.set(list[list.length - 1]);
-        module.handleObjectClick(list[list.length - 1], { tabPreviewMode: true });
+        handleObjectClick?.(list[list.length - 1], { tabPreviewMode: true });
       }
     }
   }
@@ -82,7 +82,7 @@
     domDiv?.focus();
     if (list[0]) {
       selectedObjectStore.set(list[0]);
-      module.handleObjectClick(list[0], { tabPreviewMode: true });
+      handleObjectClick?.(list[0], { tabPreviewMode: true });
       onScrollTop?.();
     }
   }

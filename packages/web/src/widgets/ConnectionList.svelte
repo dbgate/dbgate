@@ -16,6 +16,8 @@
     openedTabs,
     emptyConnectionGroupNames,
     collapsedConnectionGroupNames,
+    focusedConnectionOrDatabase,
+    getFocusedConnectionOrDatabase,
   } from '../stores';
   import runCommand from '../commands/runCommand';
   import { getConnectionLabel } from 'dbgate-tools';
@@ -29,11 +31,15 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import AppObjectListHandler from './AppObjectListHandler.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
 
   let filter = '';
+  let domListHandler;
+  let domContainer = null;
+  let domFilter = null;
 
   $: connectionsWithStatus =
     $connections && $serverStatus
@@ -47,12 +53,23 @@
     x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
   );
 
-  $: connectionsWithParent = connectionsWithStatusFiltered
-    ? connectionsWithStatusFiltered?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
-    : [];
-  $: connectionsWithoutParent = connectionsWithStatusFiltered
-    ? connectionsWithStatusFiltered?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
-    : [];
+  $: connectionsWithParent = _.sortBy(
+    connectionsWithStatusFiltered
+      ? connectionsWithStatusFiltered?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
+      : [],
+    connection => (getConnectionLabel(connection) || '').toUpperCase()
+  );
+  $: connectionsWithoutParent = _.sortBy(
+    connectionsWithStatusFiltered
+      ? connectionsWithStatusFiltered?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
+      : [],
+    connection => (getConnectionLabel(connection) || '').toUpperCase()
+  );
+
+  $: focusFlatList = [
+    ...connectionsWithParent.map(x => ({ conid: x._id })),
+    ...connectionsWithoutParent.map(x => ({ conid: x._id })),
+  ];
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
@@ -112,7 +129,14 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search connection or database" bind:value={filter} />
+  <SearchInput
+    placeholder="Search connection or database"
+    bind:value={filter}
+    bind:this={domFilter}
+    onFocusFilteredList={() => {
+      domListHandler?.focusFirst();
+    }}
+  />
   <CloseSearchButton bind:filter />
   {#if $commandsCustomized['new.connection']?.enabled}
     <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
@@ -127,6 +151,7 @@
   </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer
+  bind:this={domContainer}
   on:drop={e => {
     var data = e.dataTransfer.getData('app_object_drag_data');
     if (data) {
@@ -134,43 +159,57 @@
     }
   }}
 >
-  <AppObjectList
-    list={_.sortBy(connectionsWithParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
-    module={connectionAppObject}
-    subItemsComponent={SubDatabaseList}
-    expandOnClick
-    isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
-    {filter}
-    passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
-    getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-    setIsExpanded={(data, value) => {
-      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+  <AppObjectListHandler
+    bind:this={domListHandler}
+    list={focusFlatList}
+    selectedObjectStore={focusedConnectionOrDatabase}
+    getSelectedObject={getFocusedConnectionOrDatabase}
+    selectedObjectMatcher={(o1, o2) => o1.conid == o2.conid && o1.database == o2.database}
+    onScrollTop={() => {
+      domContainer?.scrollTop();
     }}
-    groupIconFunc={chevronExpandIcon}
-    groupFunc={data => data.parent}
-    expandIconFunc={plusExpandIcon}
-    onDropOnGroup={handleDropOnGroup}
-    emptyGroupNames={$emptyConnectionGroupNames}
-    sortGroups
-    groupContextMenu={createGroupContextMenu}
-    collapsedGroupNames={collapsedConnectionGroupNames}
-  />
-  {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
-    <div class="br" />
-  {/if}
-  <AppObjectList
-    list={_.sortBy(connectionsWithoutParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
-    module={connectionAppObject}
-    subItemsComponent={SubDatabaseList}
-    expandOnClick
-    isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
-    {filter}
-    passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
-    getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-    setIsExpanded={(data, value) => {
-      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+    onFocusFilterBox={() => {
+      domFilter?.focus();
     }}
-  />
+  >
+    <AppObjectList
+      list={connectionsWithParent}
+      module={connectionAppObject}
+      subItemsComponent={SubDatabaseList}
+      expandOnClick
+      isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+      {filter}
+      passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+      getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+      setIsExpanded={(data, value) => {
+        expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+      }}
+      groupIconFunc={chevronExpandIcon}
+      groupFunc={data => data.parent}
+      expandIconFunc={plusExpandIcon}
+      onDropOnGroup={handleDropOnGroup}
+      emptyGroupNames={$emptyConnectionGroupNames}
+      sortGroups
+      groupContextMenu={createGroupContextMenu}
+      collapsedGroupNames={collapsedConnectionGroupNames}
+    />
+    {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
+      <div class="br" />
+    {/if}
+    <AppObjectList
+      list={connectionsWithoutParent}
+      module={connectionAppObject}
+      subItemsComponent={SubDatabaseList}
+      expandOnClick
+      isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+      {filter}
+      passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+      getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+      setIsExpanded={(data, value) => {
+        expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+      }}
+    />
+  </AppObjectListHandler>
   {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
       >Add new connection</LargeButton
