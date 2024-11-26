@@ -130,7 +130,7 @@
           changeActiveSubmenu();
         }}
       >
-        <a on:click={e => handleClick(e, item)} class:disabled={item.disabled}>
+        <a on:click={e => handleClick(e, item)} class:disabled={item.disabled} class:bold={item.isBold}>
           {item.text || item.label}
           {#if item.keyText}
             <span class="keyText">{formatKeyText(item.keyText)}</span>
@@ -199,6 +199,10 @@
 
   a.disabled {
     color: var(--theme-font-3);
+  }
+
+  a.bold {
+    font-weight: bold;
   }
 
   a:hover:not(.disabled) {

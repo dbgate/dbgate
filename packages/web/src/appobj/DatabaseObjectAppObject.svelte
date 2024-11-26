@@ -697,6 +697,16 @@
       initialData,
       { forceNewTab }
     );
+
+    if (tabPreviewMode && defaultActionId && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+      lastUsedDefaultActions.update(actions => ({
+        ...actions,
+        [objectTypeField]: defaultActionId,
+      }));
+      // apiCall('config/update-settings', {
+      //   [`defaultAction.dbObjectClick.${objectTypeField}`]: defaultActionId,
+      // });
+    }
   }
 
   export function handleDatabaseObjectClick(
@@ -708,7 +718,7 @@
 
     const activeTab = getActiveTab();
     const activeTabProps = activeTab?.props || {};
-    const activeDefaultActionId = activeTab?.props?.defaultActionId;
+    // const activeDefaultActionId = activeTab?.props?.defaultActionId;
 
     if (matchDatabaseObjectAppObject(data, activeTabProps)) {
       if (!tabPreviewMode) {
@@ -725,11 +735,10 @@
 
     const availableDefaultActions = defaultDatabaseObjectAppObjectActions[objectTypeField];
 
-    const configuredActionId = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
+    const configuredActionId = getLastUsedDefaultActions()[objectTypeField];
     const prefferedAction =
-      availableDefaultActions.find(x => x.defaultActionId == activeDefaultActionId) ??
-      availableDefaultActions.find(x => x.defaultActionId == configuredActionId) ??
-      availableDefaultActions[0];
+      // availableDefaultActions.find(x => x.defaultActionId == activeDefaultActionId) ??
+      availableDefaultActions.find(x => x.defaultActionId == configuredActionId) ?? availableDefaultActions[0];
 
     // console.log('activeTab', activeTab);
 
@@ -832,6 +841,10 @@
             databaseObjectMenuClickHandler(data, { ...menu, forceNewTab: true, defaultActionId: null });
           }
         : null,
+      isBold:
+        data.objectTypeField &&
+        menu.defaultActionId &&
+        getLastUsedDefaultActions()[data.objectTypeField] == menu.defaultActionId,
     };
   }
 
@@ -868,6 +881,8 @@
     getActiveTab,
     getCurrentSettings,
     getExtensions,
+    getLastUsedDefaultActions,
+    lastUsedDefaultActions,
     openedConnections,
     openedTabs,
     pinnedTables,
@@ -901,6 +916,7 @@
   import { openImportExportTab } from '../utility/importExportTools';
   import { defaultDatabaseObjectAppObjectActions, matchDatabaseObjectAppObject } from './appObjectTools';
   import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let data;
   export let passProps;

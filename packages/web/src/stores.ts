@@ -156,6 +156,7 @@ export const loadingPluginStore = writable({
 export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
+export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultActions');
 
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
@@ -352,3 +353,9 @@ openedSingleDatabaseConnections.subscribe(value => {
   openedSingleDatabaseConnectionsValue = value;
 });
 export const getOpenedSingleDatabaseConnections = () => openedSingleDatabaseConnectionsValue;
+
+let lastUsedDefaultActionsValue = {};
+lastUsedDefaultActions.subscribe(value => {
+  lastUsedDefaultActionsValue = value;
+});
+export const getLastUsedDefaultActions = () => lastUsedDefaultActionsValue;

@@ -278,22 +278,33 @@ ORDER BY
         </svelte:fragment>
         <svelte:fragment slot="4">
           <div class="heading">Default actions</div>
-          <FormSelectField
-            label="Connection click"
-            name="defaultAction.connectionClick"
-            isNative
-            defaultValue="connect"
-            options={[
-              { value: 'openDetails', label: 'Edit / open details' },
-              { value: 'connect', label: 'Connect' },
-            ]}
-          />
+          <FormCheckboxField name="defaultAction.useLastUsedAction" label="Use last used action" defaultValue={true} />
 
-          <FormDefaultActionField label="Table click" objectTypeField="tables" />
-          <FormDefaultActionField label="View click" objectTypeField="views" />
-          <FormDefaultActionField label="Materialized view click" objectTypeField="matviews" />
-          <FormDefaultActionField label="Procedure click" objectTypeField="procedures" />
-          <FormDefaultActionField label="Function click" objectTypeField="functions" />
+          <FormDefaultActionField
+            label="Table click"
+            objectTypeField="tables"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
+          <FormDefaultActionField
+            label="View click"
+            objectTypeField="views"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
+          <FormDefaultActionField
+            label="Materialized view click"
+            objectTypeField="matviews"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
+          <FormDefaultActionField
+            label="Procedure click"
+            objectTypeField="procedures"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
+          <FormDefaultActionField
+            label="Function click"
+            objectTypeField="functions"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
         </svelte:fragment>
         <svelte:fragment slot="5">
           <div class="heading">Confirmations</div>
