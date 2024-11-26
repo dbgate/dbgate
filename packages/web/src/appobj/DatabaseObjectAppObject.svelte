@@ -826,6 +826,12 @@
       onClick: () => {
         databaseObjectMenuClickHandler(data, menu);
       },
+      iconAlt: menu.defaultActionId ? 'icon open-in-new' : null,
+      onClickAlt: menu.defaultActionId
+        ? () => {
+            databaseObjectMenuClickHandler(data, { ...menu, forceNewTab: true, defaultActionId: null });
+          }
+        : null,
     };
   }
 

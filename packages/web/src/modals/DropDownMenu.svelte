@@ -85,6 +85,13 @@
     if (item.onClick) item.onClick();
   }
 
+  function handleClickAlt(e, item) {
+    if (item.disabled) return;
+    dispatchClose();
+    if (onCloseParent) onCloseParent();
+    if (item.onClickAlt) item.onClickAlt();
+  }
+
   onMount(() => {
     fixPopupPlacement(element);
   });
@@ -128,6 +135,11 @@
           {#if item.keyText}
             <span class="keyText">{formatKeyText(item.keyText)}</span>
           {/if}
+          {#if item.iconAlt}
+            <span class="alt-icon" on:click={e => handleClickAlt(e, item)}>
+              <FontIcon icon={item.iconAlt} />
+            </span>
+          {/if}
           {#if item.submenu}
             <div class="menu-right">
               <FontIcon icon="icon menu-right" />
@@ -166,7 +178,7 @@
     cursor: default;
     white-space: nowrap;
     overflow-y: auto;
-    max-height: calc(100% - 20px)
+    max-height: calc(100% - 20px);
   }
 
   .keyText {
@@ -204,5 +216,13 @@
   .menu-right {
     position: relative;
     left: 15px;
+  }
+
+  .alt-icon:hover {
+    cursor: pointer;
+  }
+
+  .alt-icon:hover {
+    color: var(--theme-font-hover);
   }
 </style>
