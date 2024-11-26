@@ -1,6 +1,7 @@
 <script lang="ts">
   import keycodes from '../utility/keycodes';
   import _ from 'lodash';
+  import { sleep } from '../utility/common';
 
   export let list;
   export let selectedObjectStore;
@@ -10,6 +11,7 @@
 
   export let onScrollTop = null;
   export let onFocusFilterBox = null;
+  export let getDefaultFocusedItem = null;
 
   let isListFocused = false;
   let domDiv = null;
@@ -106,12 +108,24 @@
     }
   }
 
-  function handleFocus() {
+  async function handleFocus() {
     isListFocused = true;
+    // await tick();
+    await sleep(100);
+    // console.log('ON FOCUS AFTER SLEEP');
     const listInstance = _.isFunction(list) ? list() : list;
     const selected = getSelectedObject();
     const index = _.findIndex(listInstance, x => selectedObjectMatcher(x, selected));
     if (index < 0) {
+      const focused = getDefaultFocusedItem?.();
+      if (focused) {
+        const index2 = _.findIndex(listInstance, x => selectedObjectMatcher(x, focused));
+        if (index2 >= 0) {
+          selectedObjectStore.set(focused);
+          handleObjectClick?.(focused, { tabPreviewMode: true });
+          return;
+        }
+      }
       focusFirst();
     }
   }

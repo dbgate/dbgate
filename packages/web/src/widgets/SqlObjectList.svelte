@@ -212,6 +212,17 @@
             name: $focusedConnectionOrDatabase?.database,
           })}
       />
+      <FormStyledButton
+        value={`Show ${database}`}
+        skipWidth
+        on:click={() => {
+          $focusedConnectionOrDatabase = {
+            conid,
+            database,
+            connection: $connection,
+          };
+        }}
+      />
     </div>
   {/if}
 

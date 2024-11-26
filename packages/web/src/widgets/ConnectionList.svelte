@@ -18,6 +18,7 @@
     collapsedConnectionGroupNames,
     focusedConnectionOrDatabase,
     getFocusedConnectionOrDatabase,
+    currentDatabase,
   } from '../stores';
   import runCommand from '../commands/runCommand';
   import { filterName, getConnectionLabel } from 'dbgate-tools';
@@ -200,6 +201,14 @@
     selectedObjectStore={focusedConnectionOrDatabase}
     getSelectedObject={getFocusedConnectionOrDatabase}
     selectedObjectMatcher={(o1, o2) => o1?.conid == o2?.conid && o1?.database == o2?.database}
+    getDefaultFocusedItem={() =>
+      $currentDatabase
+        ? {
+            conid: $currentDatabase?.connection?._id,
+            database: $currentDatabase?.name,
+            connection: $currentDatabase?.connection,
+          }
+        : null}
     onScrollTop={() => {
       domContainer?.scrollTop();
     }}
