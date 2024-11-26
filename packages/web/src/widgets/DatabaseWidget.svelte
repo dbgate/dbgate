@@ -1,6 +1,6 @@
 <script lang="ts">
   import { findEngineDriver } from 'dbgate-tools';
-  import { currentDatabase, extensions, pinnedDatabases, pinnedTables } from '../stores';
+  import { currentDatabase, extensions, pinnedDatabases, pinnedTables, focusedConnectionOrDatabase } from '../stores';
   import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
   import ConnectionList from './ConnectionList.svelte';
@@ -14,6 +14,8 @@
   import DbKeysTree from './DbKeysTree.svelte';
   import SingleConnectionDatabaseList from './SingleConnectionDatabaseList.svelte';
   import _ from 'lodash';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import { switchCurrentDatabase } from '../utility/common';
 
   export let hidden = false;
   let domSqlObjectList = null;
@@ -79,6 +81,18 @@
   >
     <WidgetsInnerContainer>
       <ErrorInfo message="Database not selected" icon="img alert" />
+
+      {#if $focusedConnectionOrDatabase?.database}
+        <FormStyledButton
+          value={`Switch to ${$focusedConnectionOrDatabase?.database}`}
+          skipWidth
+          on:click={() =>
+            switchCurrentDatabase({
+              connection: $focusedConnectionOrDatabase?.connection,
+              name: $focusedConnectionOrDatabase?.database,
+            })}
+        />
+      {/if}
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 </WidgetColumnBar>

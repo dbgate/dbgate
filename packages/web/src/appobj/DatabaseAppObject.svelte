@@ -451,8 +451,10 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     getExtensions,
     getOpenedTabs,
     loadingSchemaLists,
+    lockedDatabaseMode,
     openedConnections,
     openedSingleDatabaseConnections,
+    openedTabs,
     pinnedDatabases,
     selectedWidget,
     visibleWidgetSideBar,
@@ -483,6 +485,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import ExportDbModelModal from '../modals/ExportDbModelModal.svelte';
   import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
+  import { getNumberIcon } from '../icons/FontIcon.svelte';
 
   export let data;
   export let passProps;
@@ -530,7 +533,15 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
       .find(x => x.isNewQuery)
       .onClick();
   }}
-  statusIcon={isLoadingSchemas ? 'icon loading' : ''}
+  statusIcon={isLoadingSchemas
+    ? 'icon loading'
+    : $lockedDatabaseMode
+      ? getNumberIcon(
+          $openedTabs.filter(
+            x => !x.closedTime && x.props.conid == data?.connection?._id && x.props.database == data?.name
+          ).length
+        )
+      : ''}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}
