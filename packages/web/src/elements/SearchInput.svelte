@@ -23,8 +23,12 @@
 
   const debouncedSet = _.debounce(x => (value = x), 500);
 
-  export function focus() {
+  export function focus(text) {
     domInput.focus();
+    if (text) {
+      domInput.value = text;
+      value = text;
+    }
   }
 </script>
 

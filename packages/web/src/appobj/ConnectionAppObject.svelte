@@ -12,6 +12,16 @@
     return filterName(filter, ...databases.map(x => x.name));
   };
   export function openConnection(connection) {
+    if (connection.singleDatabase) {
+      if (getOpenedSingleDatabaseConnections().includes(connection._id)) {
+        return;
+      }
+    } else {
+      if (getOpenedConnections().includes(connection._id)) {
+        return;
+      }
+    }
+
     const config = getCurrentConfig();
     if (connection.singleDatabase) {
       switchCurrentDatabase({ connection, name: connection.defaultDatabase });
@@ -83,10 +93,12 @@
     currentDatabase,
     expandedConnections,
     extensions,
+    focusedConnectionOrDatabase,
     getCurrentConfig,
     getCurrentDatabase,
     getCurrentSettings,
     getOpenedConnections,
+    getOpenedSingleDatabaseConnections,
     getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
@@ -135,7 +147,7 @@
     });
   };
 
-  const handleClick = async () => {
+  const handleDoubleClick = async () => {
     const config = getCurrentConfig();
     if (config.runAsPortal) {
       await tick();
@@ -156,6 +168,19 @@
       await tick();
       handleConnect();
     }
+  };
+
+  const handleClick = async e => {
+    focusedConnectionOrDatabase.set({ conid: data?._id });
+    openNewTab({
+      title: getConnectionLabel(data),
+      icon: 'img connection',
+      tabComponent: 'ConnectionTab',
+      tabPreviewMode: true,
+      props: {
+        conid: data._id,
+      },
+    });
   };
 
   const handleSqlRestore = () => {
@@ -329,7 +354,7 @@
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
   on:click={handleClick}
-  on:click
+  on:dblclick
   on:expand
   on:dblclick={handleConnect}
   on:middleclick={() => {
@@ -337,4 +362,5 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  isChoosed={data._id == $focusedConnectionOrDatabase?.conid && !$focusedConnectionOrDatabase?.database}
 />

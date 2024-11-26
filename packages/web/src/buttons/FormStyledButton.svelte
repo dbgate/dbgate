@@ -7,6 +7,7 @@
   export let disabled = false;
   export let value;
   export let title = null;
+  export let skipWidth = false;
 
   function handleClick() {
     if (!disabled) dispatch('click');
@@ -19,17 +20,20 @@
   }
 </script>
 
-<input {type} {value} {title} class:disabled {...$$restProps} on:click={handleClick} bind:this={domButton} />
+<input {type} {value} {title} class:disabled {...$$restProps} on:click={handleClick} bind:this={domButton} class:skipWidth />
 
 <style>
   input {
     border: 1px solid var(--theme-bg-button-inv-2);
     padding: 5px;
     margin: 2px;
-    width: 100px;
     background-color: var(--theme-bg-button-inv);
     color: var(--theme-font-inv-1);
     border-radius: 2px;
+  }
+
+  input:not(.skipWidth) {
+    width: 100px;
   }
 
   input:hover:not(.disabled) {

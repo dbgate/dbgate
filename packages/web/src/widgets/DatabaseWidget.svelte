@@ -16,6 +16,7 @@
   import _ from 'lodash';
 
   export let hidden = false;
+  let domSqlObjectList = null;
 
   $: conid = $currentDatabase?.connection?._id;
   $: connection = useConnectionInfo({ conid });
@@ -32,7 +33,7 @@
     </WidgetColumnBarItem>
   {:else if !$config?.singleDbConnection}
     <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
-      <ConnectionList />
+      <ConnectionList passProps={{ onFocusSqlObjectList: () => domSqlObjectList.focus() }} />
     </WidgetColumnBarItem>
   {/if}
   <WidgetColumnBarItem
@@ -48,7 +49,7 @@
 
   <WidgetColumnBarItem
     title={driver?.databaseEngineTypes?.includes('document')
-      ? driver?.collectionPluralLabel ?? 'Collections/containers'
+      ? (driver?.collectionPluralLabel ?? 'Collections/containers')
       : 'Tables, views, functions'}
     name="dbObjects"
     storageName="dbObjectsWidget"
@@ -58,7 +59,7 @@
       (driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document'))
     )}
   >
-    <SqlObjectList {conid} {database} />
+    <SqlObjectList {conid} {database} bind:this={domSqlObjectList} />
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem

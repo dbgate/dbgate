@@ -446,6 +446,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     currentArchive,
     currentDatabase,
     extensions,
+    focusedConnectionOrDatabase,
     getCurrentDatabase,
     getExtensions,
     getOpenedTabs,
@@ -512,7 +513,14 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false)}
   isBold={$currentDatabase?.connection?._id == data?.connection?._id &&
     extractDbNameFromComposite($currentDatabase?.name) == data.name}
-  on:click={() => switchCurrentDatabase(data)}
+  on:dblclick={() => {
+    switchCurrentDatabase(data);
+    // passProps?.onFocusSqlObjectList?.();
+  }}
+  on:click={() => {
+    // switchCurrentDatabase(data);
+    $focusedConnectionOrDatabase = { conid: data.connection?._id, database: data.name, connection: data.connection };
+  }}
   on:dragstart
   on:dragenter
   on:dragend
@@ -532,4 +540,6 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
           list.filter(x => x?.name != data?.name || x?.connection?._id != data?.connection?._id)
         )
     : null}
+  isChoosed={data.connection?._id == $focusedConnectionOrDatabase?.conid &&
+    data.name == $focusedConnectionOrDatabase?.database}
 />

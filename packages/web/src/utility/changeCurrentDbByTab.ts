@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import {
   currentDatabase,
+  focusedConnectionOrDatabase,
   getActiveTab,
   getCurrentDatabase,
   getLockedDatabaseMode,
@@ -78,6 +79,16 @@ export async function handleAfterTabClick() {
 }
 
 currentDatabase.subscribe(currentDb => {
+  if (currentDb) {
+    focusedConnectionOrDatabase.set({
+      conid: currentDb.connection?._id,
+      database: currentDb.name,
+      connection: currentDb.connection,
+    });
+  } else {
+    focusedConnectionOrDatabase.set(null);
+  }
+
   if (!getLockedDatabaseMode()) return;
   if (!currentDb && !getAppLoaded()) return;
   openedTabs.update(tabs => {
