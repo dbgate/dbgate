@@ -111,7 +111,7 @@ module.exports = {
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
     fs.mkdirSync(directory);
-    const pluginNames = _.union(fs.readdirSync(pluginsdir()), packagedPluginList);
+    const pluginNames = extractPlugins(scriptText);
     logger.info({ scriptFile }, 'Running script');
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(
