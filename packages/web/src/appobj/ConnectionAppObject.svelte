@@ -11,7 +11,7 @@
     const databases = getLocalStorage(`database_list_${_id}`) || [];
     return filterName(filter, ...databases.map(x => x.name));
   };
-  export function openConnection(connection) {
+  export function openConnection(connection, disableExpand = false) {
     if (connection.singleDatabase) {
       if (getOpenedSingleDatabaseConnections().includes(connection._id)) {
         return;
@@ -37,7 +37,10 @@
         conid: connection._id,
         keepOpen: true,
       });
-      expandedConnections.update(x => _.uniq([...x, connection._id]));
+
+      if (!disableExpand) {
+        expandedConnections.update(x => _.uniq([...x, connection._id]));
+      }
 
       // if (!config.runAsPortal && getCurrentSettings()['defaultAction.connectionClick'] != 'connect') {
       //   expandedConnections.update(x => _.uniq([...x, connection._id]));
@@ -132,8 +135,8 @@
 
   const electron = getElectron();
 
-  const handleConnect = () => {
-    openConnection(data);
+  const handleConnect = (disableExpand = false) => {
+    openConnection(data, disableExpand);
   };
 
   const handleOpenConnectionTab = () => {
@@ -148,12 +151,13 @@
   };
 
   const handleDoubleClick = async () => {
-    const config = getCurrentConfig();
-    if (config.runAsPortal) {
-      await tick();
-      handleConnect();
-      return;
-    }
+    // const config = getCurrentConfig();
+    // if (config.runAsPortal) {
+    //   await tick();
+    //   handleConnect(true);
+    //   return;
+    // }
+
     if ($openedSingleDatabaseConnections.includes(data._id)) {
       switchCurrentDatabase({ connection: data, name: data.defaultDatabase });
       return;
@@ -161,17 +165,28 @@
     if ($openedConnections.includes(data._id)) {
       return;
     }
+    await tick();
+    handleConnect(true);
 
-    if (getCurrentSettings()['defaultAction.connectionClick'] == 'openDetails') {
-      handleOpenConnectionTab();
-    } else {
-      await tick();
-      handleConnect();
-    }
+    // if (getCurrentSettings()['defaultAction.connectionClick'] == 'openDetails') {
+    //   handleOpenConnectionTab();
+    // } else {
+    //   await tick();
+    //   handleConnect();
+    // }
   };
 
   const handleClick = async e => {
-    focusedConnectionOrDatabase.set({ conid: data?._id });
+    focusedConnectionOrDatabase.set({
+      conid: data?._id,
+      connection: data,
+      database: data.singleDatabase ? data.defaultDatabase : null,
+    });
+    console.log('SET focusedConnectionOrDatabase', {
+      conid: data?._id,
+      connection: data,
+      database: data.singleDatabase ? data.defaultDatabase : null,
+    });
     openNewTab({
       title: getConnectionLabel(data),
       icon: 'img connection',
@@ -344,8 +359,8 @@
   title={getConnectionLabel(data, { showUnsaved: true })}
   icon={data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
-    ? _.get($currentDatabase, 'connection._id') == data._id && _.get($currentDatabase, 'name') == data.defaultDatabase
-    : _.get($currentDatabase, 'connection._id') == data._id}
+    ? $currentDatabase?.connection?._id == data._id && $currentDatabase?.name == data.defaultDatabase
+    : $currentDatabase?.connection?._id == data._id}
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   statusTitleToCopy={statusTitle || engineStatusTitle}
@@ -356,11 +371,14 @@
   on:click={handleClick}
   on:dblclick
   on:expand
-  on:dblclick={handleConnect}
+  on:dblclick={handleDoubleClick}
   on:middleclick={() => {
     _.flattenDeep(getContextMenu())
       .find(x => x.isNewQuery)
       .onClick();
   }}
-  isChoosed={data._id == $focusedConnectionOrDatabase?.conid && !$focusedConnectionOrDatabase?.database}
+  isChoosed={data._id == $focusedConnectionOrDatabase?.conid &&
+    (data.singleDatabase
+      ? $focusedConnectionOrDatabase?.database == data.defaultDatabase
+      : !$focusedConnectionOrDatabase?.database)}
 />

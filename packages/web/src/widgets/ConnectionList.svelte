@@ -87,6 +87,7 @@
       res.push({
         connection: con,
         conid: con._id,
+        database: con.singleDatabase ? con.defaultDatabase : null,
       });
 
       if ((expanded.includes(con._id) && opened.includes(con._id)) || filter) {
@@ -218,7 +219,11 @@
     handleObjectClick={(data, options) => {
       if (data.database) {
         if (options.focusTab) {
-          switchCurrentDatabase({ connection: data.connection, name: data.database });
+          if ($openedSingleDatabaseConnections.includes(data.conid)) {
+            switchCurrentDatabase({ connection: data.connection, name: data.database });
+          } else {
+            switchCurrentDatabase({ connection: data.connection, name: data.database });
+          }
           // console.log('FOCUSING DB', passProps);
           // passProps?.onFocusSqlObjectList?.();
         }
