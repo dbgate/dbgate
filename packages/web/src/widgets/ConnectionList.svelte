@@ -251,7 +251,7 @@
     <AppObjectList
       list={connectionsWithParent}
       module={connectionAppObject}
-      subItemsComponent={SubDatabaseList}
+      subItemsComponent={() => SubDatabaseList}
       expandOnClick
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
@@ -275,7 +275,7 @@
     <AppObjectList
       list={connectionsWithoutParent}
       module={connectionAppObject}
-      subItemsComponent={SubDatabaseList}
+      subItemsComponent={() => SubDatabaseList}
       expandOnClick
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
