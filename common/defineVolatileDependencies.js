@@ -14,7 +14,7 @@ for (const pkg of volatilePackages) {
     dependencies[pkg] = apiPackageJson.dependencies[pkg];
   }
   if (apiPackageJson.optionalDependencies[pkg]) {
-    dependencies[pkg] = apiPackageJson.optionalDependencies[pkg];
+    optionalDependencies[pkg] = apiPackageJson.optionalDependencies[pkg];
   }
 }
 
