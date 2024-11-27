@@ -5,6 +5,7 @@ const volatilePackages = require('./volatilePackages');
 const apiPackageJson = JSON.parse(fs.readFileSync(`packages/api/package.json`, { encoding: 'utf-8' }));
 
 const dependencies = {};
+const optionalDependencies = {};
 for (const pkg of volatilePackages) {
   if (pkg == 'msnodesqlv8' && process.platform != 'win32') {
     continue;
@@ -18,4 +19,15 @@ for (const pkg of volatilePackages) {
   }
 }
 
-fs.writeFileSync(`${directory}/package.json`, JSON.stringify({ dependencies }, null, 2), 'utf-8');
+fs.writeFileSync(
+  `${directory}/package.json`,
+  JSON.stringify(
+    {
+      dependencies,
+      optionalDependencies,
+    },
+    null,
+    2
+  ),
+  'utf-8'
+);
