@@ -14,6 +14,7 @@ const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
 const geometryColumns = require('./geometryColumns');
 const geographyColumns = require('./geographyColumns');
+const proceduresParameters = require('./proceduresParameters');
 
 const fk_keyColumnUsage = require('./fk_key_column_usage');
 const fk_referentialConstraints = require('./fk_referential_constraints');
@@ -39,4 +40,5 @@ module.exports = {
   uniqueNames,
   geometryColumns,
   geographyColumns,
+  proceduresParameters,
 };

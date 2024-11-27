@@ -144,6 +144,8 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
 
+    const routineParametersRows = await this.analyserQuery('proceduresParameters');
+
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
@@ -190,6 +192,42 @@ class Analyser extends DatabaseAnalyser {
       constraintName: x.constraint_name,
       columnName: x.column_name,
     }));
+
+    const procedurePerameters = routineParametersRows.rows
+      .filter(i => i.routine_type == 'PROCEDURE')
+      .map(i => ({
+        objectId: 'procedures:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
+        routineName: i.routine_name,
+        pureName: i.pure_name,
+        dataType: i.data_type,
+        fullDataType: i.data_type,
+        isOutputParameter: i.is_output_parameter,
+      }));
+
+    const procedureNameToParameters = procedurePerameters.reduce((acc, row) => {
+      if (!acc[row.routineName]) acc[row.routineName] = [];
+      acc[row.routineName].push(row);
+
+      return acc;
+    }, {});
+
+    const fucntionPerameters = routineParametersRows.rows
+      .filter(i => i.routine_type == 'FUNCTION')
+      .map(i => ({
+        objectId: 'functions:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
+        routineName: i.routine_name,
+        pureName: i.pure_name,
+        dataType: i.data_type,
+        fullDataType: i.data_type,
+        isOutputParameter: i.is_output_parameter,
+      }));
+
+    const functionNameToParameters = fucntionPerameters.reduce((acc, row) => {
+      if (!acc[row.routineName]) acc[row.routineName] = [];
+      acc[row.routineName].push(row);
+
+      return acc;
+    }, {});
 
     const res = {
       tables: tables.rows.map(table => {
@@ -281,6 +319,7 @@ class Analyser extends DatabaseAnalyser {
           schemaName: proc.schema_name,
           createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
+          parameters: procedureNameToParameters[proc.pure_name],
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
@@ -290,6 +329,7 @@ class Analyser extends DatabaseAnalyser {
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
+          parameters: functionNameToParameters[func.pure_name],
         })),
     };
 

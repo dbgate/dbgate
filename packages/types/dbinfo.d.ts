@@ -121,6 +121,7 @@ export interface ViewInfo extends SqlObjectInfo {
 export interface ParameterInfo {
   objectId?: string | number;
   parentObjectId?: string | number;
+  routineName?: string;
   pureName: string;
   dataType: string;
   fullDataType: string;
