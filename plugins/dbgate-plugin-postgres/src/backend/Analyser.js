@@ -49,6 +49,12 @@ function getColumnInfo(
   };
 }
 
+function getParametersSqlString(parameters = []) {
+  if (!parameters?.length) return '';
+
+  return parameters.map(i => `${i.parameterMode} ${i.parameterName} ${i.dataType.toUpperCase()}`).join(', ');
+}
+
 class Analyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
     super(dbhan, driver, version);
@@ -319,7 +325,9 @@ class Analyser extends DatabaseAnalyser {
           objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
           pureName: proc.pure_name,
           schemaName: proc.schema_name,
-          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
+          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"(${getParametersSqlString(
+            procedureNameToParameters[proc.pure_name]
+          )}) LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
           parameters: procedureNameToParameters[proc.pure_name],
         })),
@@ -327,7 +335,9 @@ class Analyser extends DatabaseAnalyser {
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
-          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"(${getParametersSqlString(
+            functionNameToParameters[func.pure_name]
+          )}) RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
