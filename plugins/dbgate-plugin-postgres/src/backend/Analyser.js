@@ -52,7 +52,13 @@ function getColumnInfo(
 function getParametersSqlString(parameters = []) {
   if (!parameters?.length) return '';
 
-  return parameters.map(i => `${i.parameterMode} ${i.parameterName} ${i.dataType.toUpperCase()}`).join(', ');
+  return parameters
+    .map(i => {
+      const mode = i.parameterMode ? `${i.parameterMode} ` : '';
+      const dataType = i.dataType ? ` ${i.dataType.toUpperCase()}` : '';
+      return mode + i.parameterName + dataType;
+    })
+    .join(', ');
 }
 
 class Analyser extends DatabaseAnalyser {
@@ -335,7 +341,7 @@ class Analyser extends DatabaseAnalyser {
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
           createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"(${getParametersSqlString(
             functionNameToParameters[func.pure_name]
-          )}) RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          )}) RETURNS ${func.data_type.toUpperCase()} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
