@@ -13,14 +13,21 @@ SELECT
         ELSE FALSE
     END AS is_output_parameter
 FROM 
-    information_schema.routines proc
+    information_schema.routines proc 
 LEFT JOIN 
     information_schema.parameters args
     ON proc.specific_schema = args.specific_schema
     AND proc.specific_name = args.specific_name
 WHERE 
-    proc.routine_schema NOT IN ('pg_catalog', 'information_schema') -- Exclude system schemas
+    proc.specific_schema NOT IN ('pg_catalog', 'information_schema') -- Exclude system schemas
     AND proc.routine_type IN ('PROCEDURE', 'FUNCTION') -- Filter for procedures
+    AND proc.specific_schema !~ '^_timescaledb_' 
+    AND proc.specific_schema =SCHEMA_NAME_CONDITION
+    AND (
+      (routine_type = 'PROCEDURE' AND ('procedures:' || proc.specific_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
+      OR
+      (routine_type = 'FUNCTION' AND ('functions:' || proc.specific_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
+    )
 ORDER BY 
     schema_name,
     parameter_name,
