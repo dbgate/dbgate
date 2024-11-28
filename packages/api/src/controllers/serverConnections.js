@@ -52,7 +52,7 @@ module.exports = {
       if (existing) return existing;
       const connection = await connections.getCore({ conid });
       if (!connection) {
-        throw new Error(`Connection with conid="${conid}" not fund`);
+        throw new Error(`Connection with conid="${conid}" not found`);
       }
       if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
         throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
