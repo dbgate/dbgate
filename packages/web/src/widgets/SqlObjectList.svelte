@@ -139,7 +139,11 @@
 </script>
 
 {#if $status && $status.name == 'error'}
-  <WidgetsInnerContainer>
+  {#if differentFocusedDb}
+    <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
+  {/if}
+
+  <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo message={$status.message} icon="img error" />
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
   </WidgetsInnerContainer>
@@ -152,7 +156,11 @@
     {database}
     {driver}
   />
-  <WidgetsInnerContainer>
+  {#if differentFocusedDb}
+    <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
+  {/if}
+
+  <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo
       message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
       icon="img alert"

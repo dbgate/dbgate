@@ -32,6 +32,7 @@
       <FormStyledButton
         value={`Show ${database}`}
         skipWidth
+        outline 
         on:click={() => {
           $focusedConnectionOrDatabase = {
             conid,
@@ -59,6 +60,7 @@
       <FormStyledButton
         value={`Show ${getConnectionLabel(connection)}`}
         skipWidth
+        outline
         on:click={() => {
           $focusedConnectionOrDatabase = {
             conid,
