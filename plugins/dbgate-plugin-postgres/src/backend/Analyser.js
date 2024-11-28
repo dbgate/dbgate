@@ -197,34 +197,36 @@ class Analyser extends DatabaseAnalyser {
       .filter(i => i.routine_type == 'PROCEDURE')
       .map(i => ({
         objectId: 'procedures:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
-        routineName: i.routine_name,
         pureName: i.pure_name,
+        parameterName: i.parameter_name,
         dataType: i.data_type,
-        fullDataType: i.data_type,
         isOutputParameter: i.is_output_parameter,
+        parameterMode: i.parameter_mode,
+        schemaName: i.schema_name,
       }));
 
     const procedureNameToParameters = procedurePerameters.reduce((acc, row) => {
-      if (!acc[row.routineName]) acc[row.routineName] = [];
-      acc[row.routineName].push(row);
+      if (!acc[row.pureName]) acc[row.pureName] = [];
+      acc[row.pureName].push(row);
 
       return acc;
     }, {});
 
-    const fucntionPerameters = routineParametersRows.rows
+    const functionParameters = routineParametersRows.rows
       .filter(i => i.routine_type == 'FUNCTION')
       .map(i => ({
         objectId: 'functions:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
-        routineName: i.routine_name,
         pureName: i.pure_name,
+        parameterName: i.parameter_name,
         dataType: i.data_type,
-        fullDataType: i.data_type,
         isOutputParameter: i.is_output_parameter,
+        parameterMode: i.parameter_mode,
+        schemaName: i.schema_name,
       }));
 
-    const functionNameToParameters = fucntionPerameters.reduce((acc, row) => {
-      if (!acc[row.routineName]) acc[row.routineName] = [];
-      acc[row.routineName].push(row);
+    const functionNameToParameters = functionParameters.reduce((acc, row) => {
+      if (!acc[row.pureName]) acc[row.pureName] = [];
+      acc[row.pureName].push(row);
 
       return acc;
     }, {});

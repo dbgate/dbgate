@@ -11,8 +11,8 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.pureName}
-  extInfo={data.isOutputParameter ? `data.fullDataType OUT` : data.fullDataType}
+  title={data.parameterName}
+  extInfo={data.isOutputParameter ? `${data.dataType} OUT` : data.dataType}
   icon={'icon parameter'}
   disableHover
 />

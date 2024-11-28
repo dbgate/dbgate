@@ -120,14 +120,10 @@ export interface ViewInfo extends SqlObjectInfo {
 
 export interface ParameterInfo {
   objectId?: string | number;
-  parentObjectId?: string | number;
-  routineName?: string;
+  schemaName: string;
+  parameterName?: string;
   pureName: string;
   dataType: string;
-  fullDataType: string;
-  maxLength?: number;
-  precision?: number;
-  scale?: string;
   isOutputParameter?: boolean;
 }
 export interface ProcedureInfo extends SqlObjectInfo {
