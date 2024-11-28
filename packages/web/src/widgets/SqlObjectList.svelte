@@ -31,17 +31,16 @@
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import { getObjectTypeFieldLabel, switchCurrentDatabase } from '../utility/common';
+  import { getObjectTypeFieldLabel } from '../utility/common';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
-  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import { findEngineDriver } from 'dbgate-tools';
   import {
     currentDatabase,
     extensions,
     focusedConnectionOrDatabase,
     getSelectedDatabaseObjectAppObject,
-    openedConnections,
     selectedDatabaseObjectAppObject,
   } from '../stores';
   import newQuery from '../query/newQuery';
@@ -52,9 +51,7 @@
   import { appliedCurrentSchema } from '../stores';
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import clickOutside from '../utility/clickOutside';
-  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
 
   export let conid;
   export let database;
@@ -200,56 +197,7 @@
   />
 
   {#if differentFocusedDb}
-    <div class="no-focused-info">
-      {#if $focusedConnectionOrDatabase?.database}
-        <div class="m-1">Current database:</div>
-        <div class="m-1 ml-3 mb-3">
-          <b>{database}</b>
-        </div>
-        <FormStyledButton
-          value={`Switch to ${$focusedConnectionOrDatabase?.database}`}
-          skipWidth
-          on:click={() =>
-            switchCurrentDatabase({
-              connection: $focusedConnectionOrDatabase?.connection,
-              name: $focusedConnectionOrDatabase?.database,
-            })}
-        />
-        <FormStyledButton
-          value={`Show ${database}`}
-          skipWidth
-          on:click={() => {
-            $focusedConnectionOrDatabase = {
-              conid,
-              database,
-              connection: $connection,
-            };
-          }}
-        />
-      {:else}
-        <div class="m-1">Current connection:</div>
-        <div class="m-1 ml-3 mb-3">
-          <b>{getConnectionLabel($connection)}</b>
-        </div>
-        {#if !$openedConnections.includes($focusedConnectionOrDatabase?.conid)}
-          <FormStyledButton
-            value={`Connect to ${getConnectionLabel($focusedConnectionOrDatabase?.connection)}`}
-            skipWidth
-            on:click={() => openConnection($focusedConnectionOrDatabase?.connection)}
-          />
-        {/if}
-        <FormStyledButton
-          value={`Show ${getConnectionLabel($connection)}`}
-          skipWidth
-          on:click={() => {
-            $focusedConnectionOrDatabase = {
-              conid,
-              connection: $connection,
-            };
-          }}
-        />
-      {/if}
-    </div>
+    <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
   {/if}
 
   <WidgetsInnerContainer bind:this={domContainer} hideContent={differentFocusedDb}>
@@ -291,12 +239,3 @@
     {/if}
   </WidgetsInnerContainer>
 {/if}
-
-<style>
-  .no-focused-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-</style>

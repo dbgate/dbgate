@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import { findEngineDriver } from 'dbgate-tools';
   import {
     currentDatabase,
     extensions,
     pinnedDatabases,
     pinnedTables,
-    focusedConnectionOrDatabase,
-    openedConnections,
   } from '../stores';
   import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
@@ -21,9 +19,7 @@
   import DbKeysTree from './DbKeysTree.svelte';
   import SingleConnectionDatabaseList from './SingleConnectionDatabaseList.svelte';
   import _ from 'lodash';
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import { switchCurrentDatabase } from '../utility/common';
-  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
 
   export let hidden = false;
   let domSqlObjectList = null;
@@ -88,25 +84,9 @@
     skip={conid && (database || singleDatabase)}
   >
     <WidgetsInnerContainer>
-      <ErrorInfo message="Database not selected" icon="img alert" />
+      <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 
-      {#if $focusedConnectionOrDatabase?.database}
-        <FormStyledButton
-          value={`Switch to ${$focusedConnectionOrDatabase?.database}`}
-          skipWidth
-          on:click={() =>
-            switchCurrentDatabase({
-              connection: $focusedConnectionOrDatabase?.connection,
-              name: $focusedConnectionOrDatabase?.database,
-            })}
-        />
-      {:else if $focusedConnectionOrDatabase?.connection && !$openedConnections.includes($focusedConnectionOrDatabase?.conid)}
-        <FormStyledButton
-          value={`Connect to ${getConnectionLabel($focusedConnectionOrDatabase?.connection)}`}
-          skipWidth
-          on:click={() => openConnection($focusedConnectionOrDatabase?.connection)}
-        />
-      {/if}
+      <ErrorInfo message="Database not selected" icon="img alert" />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 </WidgetColumnBar>

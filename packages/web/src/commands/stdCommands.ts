@@ -942,6 +942,14 @@ registerCommand({
   onClick: () => showModal(UploadErrorModal),
 });
 
+registerCommand({
+  id: 'app.unsetCurrentDatabase',
+  category: 'Application',
+  name: 'Unset current database',
+  testEnabled: () => getCurrentDatabase() != null,
+  onClick: () => currentDatabase.set(null),
+});
+
 const electron = getElectron();
 if (electron) {
   electron.addEventListener('run-command', (e, commandId) => runCommand(commandId));

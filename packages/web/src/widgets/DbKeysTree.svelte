@@ -10,12 +10,13 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import AddDbKeyModal from '../modals/AddDbKeyModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { currentDatabase, getExtensions } from '../stores';
+  import { currentDatabase, focusedConnectionOrDatabase, getExtensions } from '../stores';
   import { apiCall } from '../utility/api';
   import { useConnectionInfo } from '../utility/metadataLoaders';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
+  import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
 
   export let conid;
   export let database;
@@ -50,6 +51,13 @@
       },
     });
   }
+
+  $: differentFocusedDb =
+    $focusedConnectionOrDatabase &&
+    ($focusedConnectionOrDatabase.conid != conid ||
+      ($focusedConnectionOrDatabase?.database && $focusedConnectionOrDatabase?.database != database));
+
+  $: connection = useConnectionInfo({ conid });
 </script>
 
 <SearchBoxWrapper>
@@ -62,6 +70,9 @@
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
-<WidgetsInnerContainer>
+{#if differentFocusedDb}
+  <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
+{/if}
+<WidgetsInnerContainer hideContent={differentFocusedDb}>
   <DbKeysSubTree {conid} {database} root="" {reloadToken} connection={$currentDatabase?.connection} {filter} />
 </WidgetsInnerContainer>
