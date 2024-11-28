@@ -6,10 +6,9 @@
 </script>
 
 <AppObjectList
-  list={data.parameters ||
-    [].map(parameter => ({
-      ...data,
-      ...parameter,
-    }))}
+  list={(data.parameters || []).map(parameter => ({
+    ...data,
+    ...parameter,
+  }))}
   module={parameterAppObject}
 />
