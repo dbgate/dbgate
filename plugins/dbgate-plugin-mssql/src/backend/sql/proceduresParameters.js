@@ -2,7 +2,8 @@ module.exports = `
 SELECT 
     o.object_id as parentObjectId,
     p.object_id as objectId,
-    p.name AS pureName,
+    o.name as pureName,
+    p.name AS parameterName,
     TYPE_NAME(p.user_type_id) AS dataType,
     p.max_length AS charMaxLength,
     p.precision AS precision,
