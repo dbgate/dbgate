@@ -8,7 +8,10 @@ SELECT
     p.max_length AS charMaxLength,
     p.precision AS precision,
     p.scale AS scale,
-    p.is_output AS isOutputParameter,
+    CASE 
+        WHEN p.is_output = 1 THEN 'OUT'
+        ELSE 'IN'
+    END AS parameterMode,
     p.parameter_id AS parameterIndex
     s.name as schemaName
 FROM 

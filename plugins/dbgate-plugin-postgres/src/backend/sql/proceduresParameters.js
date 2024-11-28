@@ -7,11 +7,7 @@ SELECT
     args.parameter_mode,
     args.data_type AS data_type,
     args.ordinal_position AS parameter_index,
-    args.parameter_mode AS parameter_mode,
-    CASE 
-        WHEN args.parameter_mode IN ('OUT', 'INOUT') THEN TRUE
-        ELSE FALSE
-    END AS is_output_parameter
+    args.parameter_mode AS parameter_mode
 FROM 
     information_schema.routines proc 
 LEFT JOIN 

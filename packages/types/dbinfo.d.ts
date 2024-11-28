@@ -118,13 +118,15 @@ export interface ViewInfo extends SqlObjectInfo {
   columns: ColumnInfo[];
 }
 
+export type ParameterMode = 'IN' | 'OUT' | 'INOUT' | 'RETURN';
+
 export interface ParameterInfo {
   objectId?: string | number;
   schemaName: string;
   parameterName?: string;
   pureName: string;
   dataType: string;
-  isOutputParameter?: boolean;
+  parameterMode?: ParameterMode;
 }
 export interface ProcedureInfo extends SqlObjectInfo {
   parameters?: ParameterInfo[];

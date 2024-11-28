@@ -206,7 +206,6 @@ class Analyser extends DatabaseAnalyser {
         pureName: i.pure_name,
         parameterName: i.parameter_name,
         dataType: i.data_type,
-        isOutputParameter: i.is_output_parameter,
         parameterMode: i.parameter_mode,
         schemaName: i.schema_name,
       }));
@@ -225,7 +224,6 @@ class Analyser extends DatabaseAnalyser {
         pureName: i.pure_name,
         parameterName: i.parameter_name,
         dataType: i.data_type,
-        isOutputParameter: i.is_output_parameter,
         parameterMode: i.parameter_mode,
         schemaName: i.schema_name,
       }));

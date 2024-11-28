@@ -12,7 +12,7 @@
   {...$$restProps}
   {data}
   title={data.parameterName}
-  extInfo={data.isOutputParameter ? `${data.dataType} OUT` : data.dataType}
+  extInfo={data.parameterMode && data.parameterMode !== 'IN' ? `${data.dataType} ${data.parameterMode}` : data.dataType}
   icon={'icon parameter'}
   disableHover
 />
