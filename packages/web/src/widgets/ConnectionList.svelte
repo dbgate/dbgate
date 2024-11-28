@@ -19,6 +19,7 @@
     focusedConnectionOrDatabase,
     getFocusedConnectionOrDatabase,
     currentDatabase,
+    getCurrentConfig,
   } from '../stores';
   import runCommand from '../commands/runCommand';
   import { filterName, getConnectionLabel } from 'dbgate-tools';
@@ -231,15 +232,18 @@
         if (options.focusTab) {
           openConnection(data.connection);
         } else {
-          openNewTab({
-            title: getConnectionLabel(data.connection),
-            icon: 'img connection',
-            tabComponent: 'ConnectionTab',
-            tabPreviewMode: options.tabPreviewMode,
-            props: {
-              conid: data.conid,
-            },
-          });
+          const config = getCurrentConfig();
+          if (config.runAsPortal == false && !config.storageDatabase) {
+            openNewTab({
+              title: getConnectionLabel(data.connection),
+              icon: 'img connection',
+              tabComponent: 'ConnectionTab',
+              tabPreviewMode: options.tabPreviewMode,
+              props: {
+                conid: data.conid,
+              },
+            });
+          }
         }
       }
     }}

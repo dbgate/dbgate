@@ -24,6 +24,7 @@ export default function newQuery({
       tooltip,
       tabComponent,
       multiTabIndex,
+      focused: true,
       props: {
         ...props,
         conid: connection._id,

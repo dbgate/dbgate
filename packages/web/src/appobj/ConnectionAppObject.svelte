@@ -182,20 +182,19 @@
       connection: data,
       database: data.singleDatabase ? data.defaultDatabase : null,
     });
-    console.log('SET focusedConnectionOrDatabase', {
-      conid: data?._id,
-      connection: data,
-      database: data.singleDatabase ? data.defaultDatabase : null,
-    });
-    openNewTab({
-      title: getConnectionLabel(data),
-      icon: 'img connection',
-      tabComponent: 'ConnectionTab',
-      tabPreviewMode: true,
-      props: {
-        conid: data._id,
-      },
-    });
+
+    const config = getCurrentConfig();
+    if (config.runAsPortal == false && !config.storageDatabase) {
+      openNewTab({
+        title: getConnectionLabel(data),
+        icon: 'img connection',
+        tabComponent: 'ConnectionTab',
+        tabPreviewMode: true,
+        props: {
+          conid: data._id,
+        },
+      });
+    }
   };
 
   const handleSqlRestore = () => {
