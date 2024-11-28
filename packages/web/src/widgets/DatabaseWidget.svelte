@@ -1,6 +1,13 @@
 <script lang="ts">
-  import { findEngineDriver } from 'dbgate-tools';
-  import { currentDatabase, extensions, pinnedDatabases, pinnedTables, focusedConnectionOrDatabase } from '../stores';
+  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import {
+    currentDatabase,
+    extensions,
+    pinnedDatabases,
+    pinnedTables,
+    focusedConnectionOrDatabase,
+    openedConnections,
+  } from '../stores';
   import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
   import ConnectionList from './ConnectionList.svelte';
@@ -16,6 +23,7 @@
   import _ from 'lodash';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { switchCurrentDatabase } from '../utility/common';
+  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
 
   export let hidden = false;
   let domSqlObjectList = null;
@@ -91,6 +99,12 @@
               connection: $focusedConnectionOrDatabase?.connection,
               name: $focusedConnectionOrDatabase?.database,
             })}
+        />
+      {:else if $focusedConnectionOrDatabase?.connection && !$openedConnections.includes($focusedConnectionOrDatabase?.conid)}
+        <FormStyledButton
+          value={`Connect to ${getConnectionLabel($focusedConnectionOrDatabase?.connection)}`}
+          skipWidth
+          on:click={() => openConnection($focusedConnectionOrDatabase?.connection)}
         />
       {/if}
     </WidgetsInnerContainer>

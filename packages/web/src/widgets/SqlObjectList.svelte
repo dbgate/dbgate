@@ -41,6 +41,7 @@
     extensions,
     focusedConnectionOrDatabase,
     getSelectedDatabaseObjectAppObject,
+    openedConnections,
     selectedDatabaseObjectAppObject,
   } from '../stores';
   import newQuery from '../query/newQuery';
@@ -230,11 +231,13 @@
         <div class="m-1 ml-3 mb-3">
           <b>{getConnectionLabel($connection)}</b>
         </div>
-        <FormStyledButton
-          value={`Connect to ${getConnectionLabel($focusedConnectionOrDatabase?.connection)}`}
-          skipWidth
-          on:click={() => openConnection($focusedConnectionOrDatabase?.connection)}
-        />
+        {#if !$openedConnections.includes($focusedConnectionOrDatabase?.conid)}
+          <FormStyledButton
+            value={`Connect to ${getConnectionLabel($focusedConnectionOrDatabase?.connection)}`}
+            skipWidth
+            on:click={() => openConnection($focusedConnectionOrDatabase?.connection)}
+          />
+        {/if}
         <FormStyledButton
           value={`Show ${getConnectionLabel($connection)}`}
           skipWidth
