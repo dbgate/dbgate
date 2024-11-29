@@ -159,6 +159,34 @@ const engines = [
           },
         ],
       },
+      {
+        testName: 'paramModesFunction',
+        objectTypeField: 'functions',
+        create: `
+create or replace function get_film_stat(
+    out min_len int,
+    out max_len int)
+language plpgsql
+as $$
+begin
+  select min(id),
+         max(id)
+  into min_len, max_len
+  from t1;
+end;$$`,
+        list: [
+          {
+            parameterName: 'min_len',
+            parameterMode: 'OUT',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'max_len',
+            parameterMode: 'OUT',
+            dataType: 'integer',
+          },
+        ],
+      },
     ],
   },
   {
