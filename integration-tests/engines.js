@@ -105,6 +105,61 @@ const engines = [
         res: '25',
       },
     ],
+
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1(a integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+        ],
+      },
+      {
+        testName: 'dataTypes',
+        create:
+          'CREATE PROCEDURE obj1(a integer, b varchar(20), c numeric(18,2)) LANGUAGE SQL AS $$ select * from t1 $$',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'IN',
+            dataType: 'varchar(20)',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'IN',
+            dataType: 'numeric(18,2)',
+          },
+        ],
+      },
+      {
+        testName: 'paramModes',
+        create: 'CREATE PROCEDURE obj1(IN a integer, INOUT b integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'INOUT',
+            dataType: 'integer',
+          },
+        ],
+      },
+    ],
   },
   {
     label: 'SQL Server',
@@ -243,8 +298,8 @@ const filterLocal = [
   // filter local testing
   '-MySQL',
   '-MariaDB',
-  '-PostgreSQL',
-  'SQL Server',
+  'PostgreSQL',
+  '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
