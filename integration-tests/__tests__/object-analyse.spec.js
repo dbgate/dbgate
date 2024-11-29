@@ -10,6 +10,14 @@ function flatSource() {
   );
 }
 
+function flatSourceParameters() {
+  return _.flatten(
+    engines.map(engine =>
+      (engine.parameters || []).map(parameter => [engine.label, parameter.testName, parameter, engine])
+    )
+  );
+}
+
 const obj1Match = expect.objectContaining({
   pureName: 'obj1',
 });
@@ -84,6 +92,23 @@ describe('Object analyse', () => {
 
       expect(structure3[type].length).toEqual(1);
       expect(structure3[type][0]).toEqual(type.includes('views') ? view1Match : obj1Match);
+    })
+  );
+
+  test.each(flatSourceParameters())(
+    'Test parameters simple analyse - %s - %s',
+    testWrapper(async (conn, driver, testName, parameter, engine) => {
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+
+      await driver.query(conn, parameter.create, { discardResult: true });
+      const structure = await driver.analyseFull(conn);
+
+      const parameters = structure[parameter.objectTypeField][0].parameters;
+
+      expect(parameters.length).toEqual(parameter.list.length);
+      for (let i = 0; i < parameters.length; i += 1) {
+        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+      }
     })
   );
 });

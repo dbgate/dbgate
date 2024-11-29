@@ -129,6 +129,59 @@ const engines = [
         drop2: 'DROP PROCEDURE obj2',
       },
     ],
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1 (@param1 int) AS SELECT id from t1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@param1',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+        ],
+      },
+      {
+        testName: 'dataTypes',
+        create: 'CREATE PROCEDURE obj1 (@p1 bit, @p2 nvarchar(20), @p3 decimal(18,2), @p4 float) AS SELECT id from t1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@p1',
+            parameterMode: 'IN',
+            dataType: 'bit',
+          },
+          {
+            parameterName: '@p2',
+            parameterMode: 'IN',
+            dataType: 'nvarchar(20)',
+          },
+          {
+            parameterName: '@p3',
+            parameterMode: 'IN',
+            dataType: 'decimal(18,2)',
+          },
+          {
+            parameterName: '@p4',
+            parameterMode: 'IN',
+            dataType: 'float',
+          },
+        ],
+      },
+      {
+        testName: 'outputParam',
+        create: 'CREATE PROCEDURE obj1 (@p1 int OUTPUT) AS SELECT id from t1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@p1',
+            parameterMode: 'OUT',
+            dataType: 'int',
+          },
+        ],
+      },
+    ],
     supportSchemas: true,
     supportRenameSqlObject: true,
     defaultSchemaName: 'dbo',
