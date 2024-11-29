@@ -156,6 +156,7 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
 
+    this.feedback({ analysingMessage: 'Loading routine parameters' });
     const routineParametersRows = await this.analyserQuery('proceduresParameters');
 
     this.feedback({ analysingMessage: 'Loading indexes' });
@@ -205,7 +206,7 @@ class Analyser extends DatabaseAnalyser {
       columnName: x.column_name,
     }));
 
-    const procedurePerameters = routineParametersRows.rows
+    const procedureParameters = routineParametersRows.rows
       .filter(i => i.routine_type == 'PROCEDURE')
       .map(i => ({
         objectId: 'procedures:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
@@ -216,7 +217,7 @@ class Analyser extends DatabaseAnalyser {
         schemaName: i.schema_name,
       }));
 
-    const procedureNameToParameters = procedurePerameters.reduce((acc, row) => {
+    const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
       if (!acc[row.pureName]) acc[row.pureName] = [];
       acc[row.pureName].push(row);
 
