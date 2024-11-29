@@ -99,11 +99,12 @@ describe('Object analyse', () => {
     'Test parameters simple analyse - %s - %s',
     testWrapper(async (conn, driver, testName, parameter, engine) => {
       for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
 
       await driver.query(conn, parameter.create, { discardResult: true });
       const structure = await driver.analyseFull(conn);
 
-      const parameters = structure[parameter.objectTypeField][0].parameters;
+      const parameters = structure[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
 
       expect(parameters.length).toEqual(parameter.list.length);
       for (let i = 0; i < parameters.length; i += 1) {
@@ -116,16 +117,17 @@ describe('Object analyse', () => {
     'Test parameters create SQL - %s - %s',
     testWrapper(async (conn, driver, testName, parameter, engine) => {
       for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
 
       await driver.query(conn, parameter.create, { discardResult: true });
       const structure1 = await driver.analyseFull(conn);
       await driver.query(conn, parameter.drop, { discardResult: true });
 
-      const obj = structure1[parameter.objectTypeField][0];
+      const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
       await driver.query(conn, obj.createSql, { discardResult: true });
 
       const structure2 = await driver.analyseFull(conn);
-      const parameters = structure2[parameter.objectTypeField][0].parameters;
+      const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
 
       expect(parameters.length).toEqual(parameter.list.length);
       for (let i = 0; i < parameters.length; i += 1) {

@@ -37,6 +37,7 @@ const engines = [
         res: '25',
       },
     ],
+    parametersOtherSql: ['CREATE PROCEDURE obj2(a int, b int) BEGIN SELECT * FROM t1; END'],
     parameters: [
       {
         testName: 'simple',
@@ -167,6 +168,7 @@ const engines = [
       },
     ],
 
+    parametersOtherSql: ['CREATE PROCEDURE obj2(a integer, b integer) LANGUAGE SQL AS $$ select * from t1 $$'],
     parameters: [
       {
         testName: 'simple',
@@ -277,6 +279,7 @@ end;$$`,
         drop2: 'DROP PROCEDURE obj2',
       },
     ],
+    parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
     parameters: [
       {
         testName: 'simple',
