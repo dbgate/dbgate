@@ -37,6 +37,64 @@ const engines = [
         res: '25',
       },
     ],
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1(a int) BEGIN SELECT * FROM t1; END',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+        ],
+      },
+      {
+        testName: 'paramTypes',
+        create: 'CREATE PROCEDURE obj1(a int, b varchar(50), c numeric(10,2)) BEGIN SELECT * FROM t1; END',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'IN',
+            dataType: 'varchar(50)',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'IN',
+            dataType: 'numeric(10,2)',
+          },
+        ],
+      },
+      {
+        testName: 'paramModes',
+        create: 'CREATE PROCEDURE obj1(IN a int, OUT b int, INOUT c int) BEGIN SELECT * FROM t1; END',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'OUT',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'INOUT',
+            dataType: 'int',
+          },
+        ],
+      }
+    ]
   },
   {
     label: 'MariaDB',
@@ -324,9 +382,9 @@ end;$$`,
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-MariaDB',
-  'PostgreSQL',
+  '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
