@@ -41,6 +41,7 @@ const engines = [
       {
         testName: 'simple',
         create: 'CREATE PROCEDURE obj1(a int) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -53,6 +54,7 @@ const engines = [
       {
         testName: 'paramTypes',
         create: 'CREATE PROCEDURE obj1(a int, b varchar(50), c numeric(10,2)) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -75,6 +77,7 @@ const engines = [
       {
         testName: 'paramModes',
         create: 'CREATE PROCEDURE obj1(IN a int, OUT b int, INOUT c int) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -93,8 +96,8 @@ const engines = [
             dataType: 'int',
           },
         ],
-      }
-    ]
+      },
+    ],
   },
   {
     label: 'MariaDB',
@@ -168,6 +171,7 @@ const engines = [
       {
         testName: 'simple',
         create: 'CREATE PROCEDURE obj1(a integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -181,6 +185,7 @@ const engines = [
         testName: 'dataTypes',
         create:
           'CREATE PROCEDURE obj1(a integer, b varchar(20), c numeric(18,2)) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -203,6 +208,7 @@ const engines = [
       {
         testName: 'paramModes',
         create: 'CREATE PROCEDURE obj1(IN a integer, INOUT b integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -232,6 +238,7 @@ begin
   into min_len, max_len
   from t1;
 end;$$`,
+        drop: 'DROP FUNCTION obj1',
         list: [
           {
             parameterName: 'min_len',
@@ -274,6 +281,7 @@ end;$$`,
       {
         testName: 'simple',
         create: 'CREATE PROCEDURE obj1 (@param1 int) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -286,6 +294,7 @@ end;$$`,
       {
         testName: 'dataTypes',
         create: 'CREATE PROCEDURE obj1 (@p1 bit, @p2 nvarchar(20), @p3 decimal(18,2), @p4 float) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -313,6 +322,7 @@ end;$$`,
       {
         testName: 'outputParam',
         create: 'CREATE PROCEDURE obj1 (@p1 int OUTPUT) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
         objectTypeField: 'procedures',
         list: [
           {
@@ -382,10 +392,10 @@ end;$$`,
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
-  '-SQL Server',
+  'SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',

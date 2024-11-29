@@ -111,4 +111,26 @@ describe('Object analyse', () => {
       }
     })
   );
+
+  test.each(flatSourceParameters())(
+    'Test parameters create SQL - %s - %s',
+    testWrapper(async (conn, driver, testName, parameter, engine) => {
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+
+      await driver.query(conn, parameter.create, { discardResult: true });
+      const structure1 = await driver.analyseFull(conn);
+      await driver.query(conn, parameter.drop, { discardResult: true });
+
+      const obj = structure1[parameter.objectTypeField][0];
+      await driver.query(conn, obj.createSql, { discardResult: true });
+
+      const structure2 = await driver.analyseFull(conn);
+      const parameters = structure2[parameter.objectTypeField][0].parameters;
+
+      expect(parameters.length).toEqual(parameter.list.length);
+      for (let i = 0; i < parameters.length; i += 1) {
+        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+      }
+    })
+  );
 });
