@@ -30,6 +30,12 @@
   }
 
   // $: console.log('CONFIG', $config);
+
+  $: {
+    if ($config?.isLicenseValid) {
+      internalRedirectTo('/');
+    }
+  }
 </script>
 
 <FormProviderCore {values}>
@@ -88,9 +94,18 @@
         <FormStyledButton
           value="Purchase DbGate Premium"
           on:click={async e => {
+            // openWebLink(
+            //   `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+            // );
+
+            // openWebLink(
+            //   `https://auth-proxy.dbgate.udolni.net/redirect-to-purchase?product=${getElectron() ? 'premium' : 'teram-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+            // );
+
             openWebLink(
-              `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+              `https://auth.dbgate.eu/redirect-to-purchase?product=${getElectron() ? 'premium' : 'teram-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
             );
+
           }}
         />
       </div>

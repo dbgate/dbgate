@@ -62,6 +62,8 @@ module.exports = {
     const logoutUrl = storageConnectionError ? null : await authProvider.getLogoutUrl();
     const adminConfig = storageConnectionError ? null : await storage.readConfig({ group: 'admin' });
 
+    storage.startRefreshLicense();
+
     const isAdminPasswordMissing = !!(
       process.env.STORAGE_DATABASE &&
       !process.env.ADMIN_PASSWORD &&
@@ -81,7 +83,7 @@ module.exports = {
       isElectron: platformInfo.isElectron,
       isLicenseValid,
       isLicenseExpired: checkedLicense?.isExpired,
-      trialDaysLeft: checkedLicense?.isGeneratedTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
+      trialDaysLeft: checkedLicense?.licenseTypeObj?.isTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
       checkedLicense,
       configurationError,
       logoutUrl,

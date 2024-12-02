@@ -26,4 +26,6 @@ module.exports = {
   async readConfig({ group }) {
     return {};
   },
+
+  startRefreshLicense() {},
 };
