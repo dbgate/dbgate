@@ -15,16 +15,16 @@ function getTableLikeActions(dataTab) {
       tab: dataTab,
       defaultActionId: 'openTable',
     },
-    {
-      label: 'Open form',
-      tab: dataTab,
-      initialData: {
-        grid: {
-          isFormView: true,
-        },
-      },
-      defaultActionId: 'openForm',
-    },
+    // {
+    //   label: 'Open form',
+    //   tab: dataTab,
+    //   initialData: {
+    //     grid: {
+    //       isFormView: true,
+    //     },
+    //   },
+    //   defaultActionId: 'openForm',
+    // },
     {
       label: 'Open structure',
       tab: 'TableStructureTab',
