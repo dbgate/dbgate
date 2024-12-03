@@ -26,6 +26,5 @@ WHERE
     )
 ORDER BY 
     schema_name,
-    parameter_name,
     args.ordinal_position;
 `;
