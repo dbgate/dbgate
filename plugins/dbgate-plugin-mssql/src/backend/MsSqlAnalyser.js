@@ -174,7 +174,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const procedureParameter = procedureParameterRows.rows.map(row => ({
       ...row,
-      fullDataType: getFullDataTypeName(row),
+      dataType: getFullDataTypeName(row),
     }));
 
     const prodceureToParameters = procedureParameter.reduce((acc, parameter) => {
@@ -195,7 +195,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const functionParameters = functionParameterRows.rows.map(row => ({
       ...row,
-      fullDataType: getFullDataTypeName(row),
+      dataType: getFullDataTypeName(row),
     }));
 
     const functionToParameters = functionParameters.reduce((acc, parameter) => {
