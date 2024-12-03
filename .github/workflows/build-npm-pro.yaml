@@ -68,6 +68,12 @@ jobs:
           cd dbgate-merged
           npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
 
+      - name: Remove dbmodel - should be not published
+        run: |
+          cd ..
+          cd dbgate-merged
+          rm -rf packages/dbmodel
+
       - name: yarn install
         run: |
           cd ..
