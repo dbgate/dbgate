@@ -5,13 +5,24 @@ SELECT
     o.name as pureName,
     p.name AS parameterName,
     TYPE_NAME(p.user_type_id) AS dataType,
-    p.max_length AS charMaxLength,
+    CASE 
+        WHEN TYPE_NAME(p.user_type_id) = 'nvarchar' THEN p.max_length / 2
+        ELSE p.max_length
+    END AS charMaxLength,
     p.precision AS precision,
     p.scale AS scale,
     CASE 
         WHEN p.is_output = 1 THEN 'OUT'
         ELSE 'IN'
     END AS parameterMode,
+    CASE
+        WHEN TYPE_NAME(p.user_type_id) IN ('numeric', 'decimal') THEN p.precision
+        ELSE NULL
+    END AS numericPrecision,
+    CASE
+        WHEN TYPE_NAME(p.user_type_id) IN ('numeric', 'decimal') THEN p.scale
+        ELSE NULL
+    END AS numericScale,
     p.parameter_id AS parameterIndex,
     s.name as schemaName
 FROM 
