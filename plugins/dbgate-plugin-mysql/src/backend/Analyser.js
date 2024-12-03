@@ -15,6 +15,11 @@ function quoteDefaultValue(value) {
   return value;
 }
 
+function normalizeTypeName(typeName) {
+  if (/int\(\d+\)/.test(typeName)) return 'int';
+  return typeName;
+}
+
 function getColumnInfo(
   {
     isNullable,
@@ -132,7 +137,10 @@ class Analyser extends DatabaseAnalyser {
     const functionNameToParameters = functionParameters.reduce((acc, row) => {
       if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
 
-      acc[`${row.schemaName}.${row.pureName}`].push(row);
+      acc[`${row.schemaName}.${row.pureName}`].push({
+        ...row,
+        dataType: normalizeTypeName(row.dataType),
+      });
       return acc;
     }, {});
 
@@ -140,7 +148,10 @@ class Analyser extends DatabaseAnalyser {
     const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
       if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
 
-      acc[`${row.schemaName}.${row.pureName}`].push(row);
+      acc[`${row.schemaName}.${row.pureName}`].push({
+        ...row,
+        dataType: normalizeTypeName(row.dataType),
+      });
       return acc;
     }, {});
 
