@@ -80,7 +80,7 @@ const engines = [
           {
             parameterName: 'c',
             parameterMode: 'IN',
-            dataType: 'numeric(10,2)',
+            dataType: 'decimal(10,2)',
           },
         ],
       },
