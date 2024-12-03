@@ -35,6 +35,7 @@
     display: flex;
     margin-right: 10px;
     align-items: center;
+    overflow-wrap: anywhere;
   }
   .icon {
     font-size: 20pt;

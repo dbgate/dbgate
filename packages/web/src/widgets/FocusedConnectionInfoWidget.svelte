@@ -5,10 +5,14 @@
   import { focusedConnectionOrDatabase, openedConnections } from '../stores';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import { useServerStatus } from '../utility/metadataLoaders';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let conid;
   export let database;
   export let connection;
+
+  $: serverStatus = useServerStatus();
 </script>
 
 <div class="no-focused-info">
@@ -32,7 +36,7 @@
       <FormStyledButton
         value={`Show ${database}`}
         skipWidth
-        outline 
+        outline
         on:click={() => {
           $focusedConnectionOrDatabase = {
             conid,
@@ -43,6 +47,11 @@
       />
     {/if}
   {:else}
+    {#if $focusedConnectionOrDatabase?.conid && $serverStatus?.[$focusedConnectionOrDatabase?.conid]?.message}
+      <div class="m-1">Error connecting <b>{getConnectionLabel($focusedConnectionOrDatabase?.connection)}</b>:</div>
+      <ErrorInfo message={$serverStatus?.[$focusedConnectionOrDatabase?.conid]?.message} />
+      <div class="m-3" />
+    {/if}
     {#if connection}
       <div class="m-1">Current connection:</div>
       <div class="m-1 ml-3 mb-3">
