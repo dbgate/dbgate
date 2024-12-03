@@ -28,7 +28,16 @@ const engines = [
       port: 15001,
     },
     // skipOnCI: true,
-    objects: [views],
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
+        create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
+        drop1: 'DROP PROCEDURE obj1',
+        drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
     dbSnapshotBySeconds: true,
     dumpFile: 'data/chinook-mysql.sql',
     dumpChecks: [
@@ -395,10 +404,10 @@ end;$$`,
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-MariaDB',
   '-PostgreSQL',
-  'SQL Server',
+  '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',

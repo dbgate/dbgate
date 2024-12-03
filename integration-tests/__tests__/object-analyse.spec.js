@@ -86,7 +86,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2[type].length).toEqual(0);
 
-      await driver.query(conn, structure1[type][0].createSql, { discardResult: true });
+      await driver.script(conn, structure1[type][0].createSql, { discardResult: true });
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
 
@@ -124,7 +124,7 @@ describe('Object analyse', () => {
       await driver.query(conn, parameter.drop, { discardResult: true });
 
       const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
-      await driver.query(conn, obj.createSql, { discardResult: true });
+      await driver.script(conn, obj.createSql, { discardResult: true });
 
       const structure2 = await driver.analyseFull(conn);
       const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
