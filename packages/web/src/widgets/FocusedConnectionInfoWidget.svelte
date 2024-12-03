@@ -13,6 +13,9 @@
   export let connection;
 
   $: serverStatus = useServerStatus();
+  $: focusedServerStatus = $focusedConnectionOrDatabase?.conid
+    ? $serverStatus?.[$focusedConnectionOrDatabase?.conid]
+    : null;
 </script>
 
 <div class="no-focused-info">
@@ -47,9 +50,9 @@
       />
     {/if}
   {:else}
-    {#if $focusedConnectionOrDatabase?.conid && $serverStatus?.[$focusedConnectionOrDatabase?.conid]?.message}
+    {#if focusedServerStatus?.name == 'error' && focusedServerStatus?.message}
       <div class="m-1">Error connecting <b>{getConnectionLabel($focusedConnectionOrDatabase?.connection)}</b>:</div>
-      <ErrorInfo message={$serverStatus?.[$focusedConnectionOrDatabase?.conid]?.message} />
+      <ErrorInfo message={focusedServerStatus?.message} />
       <div class="m-3" />
     {/if}
     {#if connection}

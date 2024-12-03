@@ -77,6 +77,7 @@
   function getFocusFlatList() {
     const expanded = $expandedConnections;
     const opened = $openedConnections;
+    const status = $serverStatus;
 
     const res = [];
     for (const con of [...connectionsWithParent, ...connectionsWithoutParent]) {
@@ -91,7 +92,7 @@
         database: con.singleDatabase ? con.defaultDatabase : null,
       });
 
-      if ((expanded.includes(con._id) && opened.includes(con._id)) || filter) {
+      if ((expanded.includes(con._id) && opened.includes(con._id) && status?.[con._id]?.name == 'ok') || filter) {
         for (const db of _.sortBy(databases, x => x.sortOrder ?? x.name)) {
           if (!filterName(filter, con.displayName, con.server, db.name)) {
             continue;
