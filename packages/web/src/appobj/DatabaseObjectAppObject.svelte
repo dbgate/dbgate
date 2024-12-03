@@ -76,12 +76,12 @@
           {
             divider: true,
           },
-          {
+          isProApp() && {
             label: 'Design query',
             isQueryDesigner: true,
             requiresWriteAccess: true,
           },
-          {
+          isProApp() && {
             label: 'Design perspective query',
             tab: 'PerspectiveTab',
             forceNewTab: true,
@@ -170,11 +170,11 @@
           {
             divider: true,
           },
-          {
+          isProApp() && {
             label: 'Design query',
             isQueryDesigner: true,
           },
-          {
+          isProApp() && {
             label: 'Design perspective query',
             tab: 'PerspectiveTab',
             forceNewTab: true,
@@ -362,7 +362,7 @@
           {
             divider: true,
           },
-          {
+          isProApp() && {
             label: 'Design perspective query',
             tab: 'PerspectiveTab',
             forceNewTab: true,
@@ -917,6 +917,7 @@
   import { defaultDatabaseObjectAppObjectActions, matchDatabaseObjectAppObject } from './appObjectTools';
   import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { isProApp } from '../utility/proTools';
 
   export let data;
   export let passProps;

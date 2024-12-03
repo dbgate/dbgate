@@ -351,8 +351,8 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
           text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
         },
       hasPermission(`dbops/query`) &&
-        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
-      driver?.databaseEngineTypes?.includes('sql') && {
+        driver?.databaseEngineTypes?.includes('sql') && isProApp() && { onClick: handleQueryDesigner, text: 'Design query' },
+      driver?.databaseEngineTypes?.includes('sql') && isProApp() && {
         onClick: handleNewPerspective,
         text: 'Design perspective query',
       },

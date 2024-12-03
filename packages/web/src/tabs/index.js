@@ -11,7 +11,6 @@ import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 import * as MarkdownViewTab from './MarkdownViewTab.svelte';
 import * as MarkdownPreviewTab from './MarkdownPreviewTab.svelte';
 import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
-import * as QueryDesignTab from './QueryDesignTab.svelte';
 import * as CommandListTab from './CommandListTab.svelte';
 import * as YamlEditorTab from './YamlEditorTab.svelte';
 import * as JsonEditorTab from './JsonEditorTab.svelte';
@@ -23,7 +22,6 @@ import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
 import * as QueryDataTab from './QueryDataTab.svelte';
 import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
-import * as PerspectiveTab from './PerspectiveTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ProfilerTab from './ProfilerTab.svelte';
 import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
@@ -46,7 +44,6 @@ export default {
   MarkdownViewTab,
   MarkdownPreviewTab,
   FavoriteEditorTab,
-  QueryDesignTab,
   CommandListTab,
   YamlEditorTab,
   JsonEditorTab,
@@ -58,7 +55,6 @@ export default {
   QueryDataTab,
   ConnectionTab,
   MapTab,
-  PerspectiveTab,
   ServerSummaryTab,
   ProfilerTab,
   DataDuplicatorTab,
