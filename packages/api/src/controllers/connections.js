@@ -201,6 +201,7 @@ module.exports = {
       // @ts-ignore
       this.datastore = new JsonLinesDatabase(path.join(dir, 'connections.jsonl'));
     }
+    await this.checkUnsavedConnectionsLimit();
   },
 
   list_meta: true,
@@ -298,6 +299,29 @@ module.exports = {
     //   socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
     // }
     return res;
+  },
+
+  async checkUnsavedConnectionsLimit() {
+    const MAX_UNSAVED_CONNECTIONS = 5;
+    await this.datastore.transformAll(connections => {
+      const count = connections.filter(x => x.unsaved).length;
+      if (count > MAX_UNSAVED_CONNECTIONS) {
+        const res = [];
+        let unsavedToSkip = count - MAX_UNSAVED_CONNECTIONS;
+        for (const item of connections) {
+          if (item.unsaved) {
+            if (unsavedToSkip > 0) {
+              unsavedToSkip--;
+            } else {
+              res.push(item);
+            }
+          } else {
+            res.push(item);
+          }
+        }
+        return res;
+      }
+    });
   },
 
   update_meta: true,

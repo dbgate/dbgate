@@ -111,6 +111,15 @@ class JsonLinesDatabase {
     return removed;
   }
 
+  async transformAll(transformFunction) {
+    await this._ensureLoaded();
+    const newData = transformFunction(this.data);
+    if (newData) {
+      this.data = newData;
+      await this._save();
+    }
+  }
+
   //   async _openReader() {
   //     return new Promise((resolve, reject) =>
   //       lineReader.open(this.filename, (err, reader) => {
