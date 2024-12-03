@@ -130,17 +130,17 @@ class Analyser extends DatabaseAnalyser {
 
     const functionParameters = parameters.rows.filter(x => x.routineType == 'FUNCTION');
     const functionNameToParameters = functionParameters.reduce((acc, row) => {
-      if (!acc[row.pureName]) acc[row.pureName] = [];
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
 
-      acc[row.pureName].push(row);
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
       return acc;
     }, {});
 
     const procedureParameters = parameters.rows.filter(x => x.routineType == 'PROCEDURE');
     const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
-      if (!acc[row.pureName]) acc[row.pureName] = [];
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
 
-      acc[row.pureName].push(row);
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
       return acc;
     }, {});
 
@@ -205,11 +205,11 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`(${getParametersSqlString(
-            procedureNameToParameters[x.pureName]
+            procedureNameToParameters[`${x.schemaName}.${x.pureName}`]
           )})\n${x.routineDefinition}\n\nDELIMITER ;\n`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
-          parameters: procedureNameToParameters[x.pureName],
+          parameters: procedureNameToParameters[`${x.schemaName}.${x.pureName}`],
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
@@ -217,13 +217,13 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
-            functionNameToParameters[x.pureName].filter(i => i.parameterMode !== 'RETURN')
+            functionNameToParameters[`${x.schemaName}.${x.pureName}`].filter(i => i.parameterMode !== 'RETURN')
           )})\nRETURNS ${x.returnDataType} ${x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'}\n${
             x.routineDefinition
           }`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
-          parameters: functionNameToParameters[x.pureName],
+          parameters: functionNameToParameters[`${x.schemaName}.${x.pureName}`],
         })),
     };
     this.feedback({ analysingMessage: null });

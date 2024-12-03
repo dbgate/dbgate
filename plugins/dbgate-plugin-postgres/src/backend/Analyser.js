@@ -209,7 +209,6 @@ class Analyser extends DatabaseAnalyser {
     const procedureParameters = routineParametersRows.rows
       .filter(i => i.routine_type == 'PROCEDURE')
       .map(i => ({
-        objectId: 'procedures:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
         pureName: i.pure_name,
         parameterName: i.parameter_name,
         dataType: i.data_type,
@@ -218,8 +217,8 @@ class Analyser extends DatabaseAnalyser {
       }));
 
     const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
-      if (!acc[row.pureName]) acc[row.pureName] = [];
-      acc[row.pureName].push(row);
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
 
       return acc;
     }, {});
@@ -227,7 +226,6 @@ class Analyser extends DatabaseAnalyser {
     const functionParameters = routineParametersRows.rows
       .filter(i => i.routine_type == 'FUNCTION')
       .map(i => ({
-        objectId: 'functions:' + i.specific_schema + '.' + i.routine_name + '@' + i.pure_name,
         pureName: i.pure_name,
         parameterName: i.parameter_name,
         dataType: i.data_type,
@@ -236,8 +234,8 @@ class Analyser extends DatabaseAnalyser {
       }));
 
     const functionNameToParameters = functionParameters.reduce((acc, row) => {
-      if (!acc[row.pureName]) acc[row.pureName] = [];
-      acc[row.pureName].push(row);
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
 
       return acc;
     }, {});
@@ -331,22 +329,22 @@ class Analyser extends DatabaseAnalyser {
           pureName: proc.pure_name,
           schemaName: proc.schema_name,
           createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"(${getParametersSqlString(
-            procedureNameToParameters[proc.pure_name]
+            procedureNameToParameters[`${proc.schema_name}.${proc.pure_name}`]
           )}) LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
-          parameters: procedureNameToParameters[proc.pure_name],
+          parameters: procedureNameToParameters[`${proc.schema_name}.${proc.pure_name}`],
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
           createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"(${getParametersSqlString(
-            functionNameToParameters[func.pure_name]
+            functionNameToParameters[`${func.schema_name}.${func.pure_name}`]
           )}) RETURNS ${func.data_type.toUpperCase()} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
-          parameters: functionNameToParameters[func.pure_name],
+          parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
         })),
     };
 
