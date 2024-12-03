@@ -1,7 +1,7 @@
 {
   "name": "dbgate-plugin-xml",
   "main": "dist/backend.js",
-  "version": "1.0.0",
+  "version": "6.0.0-alpha.1",
   "homepage": "https://dbgate.org",
   "description": "XML import/export plugin for DbGate",
   "repository": {

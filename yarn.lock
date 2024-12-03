@@ -4221,16 +4221,6 @@ dateformat@^4.6.3:
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-4.6.3.tgz#556fa6497e5217fedb78821424f8a1c22fa3f4b5"
   integrity sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==
 
-dbgate-plugin-oracle@^5.0.0-alpha.1:
-  version "5.2.7"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-oracle/-/dbgate-plugin-oracle-5.2.7.tgz#19076d8eb513e02e11610bb488ea303842b48b93"
-  integrity sha512-cVQIKDjhf7DqS9aMTL650lwcRVB+qN9x08HHK6YRQGP1xJu3u20fuOhVpzR/ev+dbakJ4Gt3latgw4OBSpYAMg==
-
-dbgate-plugin-redis@^5.0.0-alpha.1:
-  version "5.5.6"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-redis/-/dbgate-plugin-redis-5.5.6.tgz#813c60d778bc7bbedf2927f0744f920e241e9f2d"
-  integrity sha512-BxJqTsYqFyaemM+knB8+6tkd7PMIkCT/9BI2NJmVIXWoZUHo6RgpfJMJJmU/ubOrn2Ll5f1nrgM7ViW1tDYpXg==
-
 dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.8.tgz#bb16f38ff7161d9b57c08f0918e152593e7ac695"
@@ -4239,11 +4229,6 @@ dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0
     ncp "^2.0.0"
     pacote "^11.1.13"
     rimraf "^3.0.2"
-
-dbgate-plugin-xml@^5.0.0-alpha.1:
-  version "5.2.7"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-5.2.7.tgz#0762af51ba6f100e75a63907ea6c679e827c9f7c"
-  integrity sha512-gBXy4qetf7eJQW6lM01B+OKLnKB8MKesojdYKysD9oZ+YpQCX8Tq7aHJCrN14FiyIDinpX61kmFH1+LGJ2RkxQ==
 
 dbgate-query-splitter@^4.11.2:
   version "4.11.2"

@@ -1,7 +1,7 @@
 {
   "name": "dbgate-plugin-mysql",
   "main": "dist/backend.js",
-  "version": "5.0.0-alpha.1",
+  "version": "6.0.0-alpha.1",
   "homepage": "https://dbgate.org",
   "description": "MySQL connect plugin for DbGate",
   "repository": {
@@ -38,7 +38,7 @@
   "dependencies": {
     "antares-mysql-dumper": "^0.0.1",
     "dbgate-query-splitter": "^4.11.2",
-    "dbgate-tools": "^5.0.0-alpha.1",
+    "dbgate-tools": "^6.0.0-alpha.1",
     "lodash": "^4.17.21",
     "mysql2": "^3.11.3"
   }

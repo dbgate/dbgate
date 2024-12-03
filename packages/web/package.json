@@ -1,6 +1,6 @@
 {
   "name": "dbgate-web",
-  "version": "5.0.0-alpha.1",
+  "version": "6.0.0-alpha.1",
   "scripts": {
     "build": "yarn build:index && rollup -c",
     "dev": "yarn build:index && cross-env API_URL=http://localhost:3000 rollup -c -w",
@@ -24,11 +24,11 @@
     "chart.js": "^4.4.2",
     "chartjs-adapter-moment": "^1.0.0",
     "cross-env": "^7.0.3",
-    "dbgate-datalib": "^5.0.0-alpha.1",
+    "dbgate-datalib": "^6.0.0-alpha.1",
     "dbgate-query-splitter": "^4.11.2",
-    "dbgate-sqltree": "^5.0.0-alpha.1",
-    "dbgate-tools": "^5.0.0-alpha.1",
-    "dbgate-types": "^5.0.0-alpha.1",
+    "dbgate-sqltree": "^6.0.0-alpha.1",
+    "dbgate-tools": "^6.0.0-alpha.1",
+    "dbgate-types": "^6.0.0-alpha.1",
     "diff": "^5.0.0",
     "diff2html": "^3.4.13",
     "file-selector": "^0.2.4",
