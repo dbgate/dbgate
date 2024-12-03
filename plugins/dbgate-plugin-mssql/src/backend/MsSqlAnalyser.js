@@ -129,7 +129,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading procedures & functions' });
 
     const programmableRows = await this.analyserQuery('programmables', ['procedures', 'functions']);
-    const prodceureParameterRows = await this.analyserQuery('proceduresParameters');
+    const procedureParameterRows = await this.analyserQuery('proceduresParameters');
     const functionParameterRows = await this.analyserQuery('functionParameters');
 
     this.feedback({ analysingMessage: 'Loading view columns' });
@@ -172,12 +172,12 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
 
-    const prodceureParameter = prodceureParameterRows.rows.map(row => ({
+    const procedureParameter = procedureParameterRows.rows.map(row => ({
       ...row,
       fullDataType: getFullDataTypeName(row),
     }));
 
-    const prodceureToParameters = prodceureParameter.reduce((acc, parameter) => {
+    const prodceureToParameters = procedureParameter.reduce((acc, parameter) => {
       if (!acc[parameter.parentObjectId]) acc[parameter.parentObjectId] = [];
       acc[parameter.parentObjectId].push(parameter);
 
