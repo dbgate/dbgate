@@ -165,6 +165,13 @@
       { text: 'Delete', onClick: handleDelete },
     ];
   }
+
+  $: addNewConnectionsButton =
+    !!$connections &&
+    !$connections.find(x => !x.unsaved) &&
+    $openedConnections.length == 0 &&
+    $commandsCustomized['new.connection']?.enabled &&
+    !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid);
 </script>
 
 <SearchBoxWrapper>
@@ -198,108 +205,109 @@
     }
   }}
 >
-  <AppObjectListHandler
-    bind:this={domListHandler}
-    list={getFocusFlatList}
-    selectedObjectStore={focusedConnectionOrDatabase}
-    getSelectedObject={getFocusedConnectionOrDatabase}
-    selectedObjectMatcher={(o1, o2) => o1?.conid == o2?.conid && o1?.database == o2?.database}
-    getDefaultFocusedItem={() =>
-      $currentDatabase
-        ? {
-            conid: $currentDatabase?.connection?._id,
-            database: $currentDatabase?.name,
-            connection: $currentDatabase?.connection,
-          }
-        : null}
-    onScrollTop={() => {
-      domContainer?.scrollTop();
-    }}
-    onFocusFilterBox={text => {
-      domFilter?.focus(text);
-    }}
-    handleObjectClick={(data, options) => {
-      if (data.database) {
-        if (options.focusTab) {
-          if ($openedSingleDatabaseConnections.includes(data.conid)) {
-            switchCurrentDatabase({ connection: data.connection, name: data.database });
-          } else {
-            switchCurrentDatabase({ connection: data.connection, name: data.database });
-          }
-          // console.log('FOCUSING DB', passProps);
-          // passProps?.onFocusSqlObjectList?.();
-        }
-      } else {
-        if (options.focusTab) {
-          openConnection(data.connection);
-        } else {
-          const config = getCurrentConfig();
-          if (config.runAsPortal == false && !config.storageDatabase) {
-            openNewTab({
-              title: getConnectionLabel(data.connection),
-              icon: 'img connection',
-              tabComponent: 'ConnectionTab',
-              tabPreviewMode: options.tabPreviewMode,
-              props: {
-                conid: data.conid,
-              },
-            });
-          }
-        }
-      }
-    }}
-    handleExpansion={(item, value) => {
-      if (item.database) {
-        return;
-      }
-      expandedConnections.update(old => (value ? [...old, item.conid] : old.filter(x => x != item.conid)));
-    }}
-  >
-    <AppObjectList
-      list={connectionsWithParent}
-      module={connectionAppObject}
-      subItemsComponent={SubDatabaseList}
-      expandOnClick
-      isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
-      {filter}
-      passProps={{ ...passProps, connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
-      getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-      setIsExpanded={(data, value) => {
-        expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
-      }}
-      groupIconFunc={chevronExpandIcon}
-      groupFunc={data => data.parent}
-      expandIconFunc={plusExpandIcon}
-      onDropOnGroup={handleDropOnGroup}
-      emptyGroupNames={$emptyConnectionGroupNames}
-      sortGroups
-      groupContextMenu={createGroupContextMenu}
-      collapsedGroupNames={collapsedConnectionGroupNames}
-    />
-    {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
-      <div class="br" />
-    {/if}
-    <AppObjectList
-      list={connectionsWithoutParent}
-      module={connectionAppObject}
-      subItemsComponent={SubDatabaseList}
-      expandOnClick
-      isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
-      {filter}
-      passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
-      getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-      setIsExpanded={(data, value) => {
-        expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
-      }}
-    />
-  </AppObjectListHandler>
-  {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
+  {#if addNewConnectionsButton}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
       >Add new connection</LargeButton
     >
     <!-- <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>
-      Add new connection
-    </ToolbarButton> -->
+  Add new connection
+</ToolbarButton> -->
+  {:else}
+    <AppObjectListHandler
+      bind:this={domListHandler}
+      list={getFocusFlatList}
+      selectedObjectStore={focusedConnectionOrDatabase}
+      getSelectedObject={getFocusedConnectionOrDatabase}
+      selectedObjectMatcher={(o1, o2) => o1?.conid == o2?.conid && o1?.database == o2?.database}
+      getDefaultFocusedItem={() =>
+        $currentDatabase
+          ? {
+              conid: $currentDatabase?.connection?._id,
+              database: $currentDatabase?.name,
+              connection: $currentDatabase?.connection,
+            }
+          : null}
+      onScrollTop={() => {
+        domContainer?.scrollTop();
+      }}
+      onFocusFilterBox={text => {
+        domFilter?.focus(text);
+      }}
+      handleObjectClick={(data, options) => {
+        if (data.database) {
+          if (options.focusTab) {
+            if ($openedSingleDatabaseConnections.includes(data.conid)) {
+              switchCurrentDatabase({ connection: data.connection, name: data.database });
+            } else {
+              switchCurrentDatabase({ connection: data.connection, name: data.database });
+            }
+            // console.log('FOCUSING DB', passProps);
+            // passProps?.onFocusSqlObjectList?.();
+          }
+        } else {
+          if (options.focusTab) {
+            openConnection(data.connection);
+          } else {
+            const config = getCurrentConfig();
+            if (config.runAsPortal == false && !config.storageDatabase) {
+              openNewTab({
+                title: getConnectionLabel(data.connection),
+                icon: 'img connection',
+                tabComponent: 'ConnectionTab',
+                tabPreviewMode: options.tabPreviewMode,
+                props: {
+                  conid: data.conid,
+                },
+              });
+            }
+          }
+        }
+      }}
+      handleExpansion={(item, value) => {
+        if (item.database) {
+          return;
+        }
+        expandedConnections.update(old => (value ? [...old, item.conid] : old.filter(x => x != item.conid)));
+      }}
+    >
+      <AppObjectList
+        list={connectionsWithParent}
+        module={connectionAppObject}
+        subItemsComponent={SubDatabaseList}
+        expandOnClick
+        isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+        {filter}
+        passProps={{ ...passProps, connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+        getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+        setIsExpanded={(data, value) => {
+          expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+        }}
+        groupIconFunc={chevronExpandIcon}
+        groupFunc={data => data.parent}
+        expandIconFunc={plusExpandIcon}
+        onDropOnGroup={handleDropOnGroup}
+        emptyGroupNames={$emptyConnectionGroupNames}
+        sortGroups
+        groupContextMenu={createGroupContextMenu}
+        collapsedGroupNames={collapsedConnectionGroupNames}
+      />
+      {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
+        <div class="br" />
+      {/if}
+      <AppObjectList
+        list={connectionsWithoutParent}
+        module={connectionAppObject}
+        subItemsComponent={SubDatabaseList}
+        expandOnClick
+        isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+        {filter}
+        passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+        getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+        setIsExpanded={(data, value) => {
+          expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+        }}
+      />
+    </AppObjectListHandler>
   {/if}
 </WidgetsInnerContainer>
 
