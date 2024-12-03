@@ -31,6 +31,18 @@ function simplifyComutedExpression(expr) {
   return expr;
 }
 
+function getFullDataTypeName({ dataType, charMaxLength, numericScale, numericPrecision }) {
+  let fullDataType = dataType;
+  if (charMaxLength && isTypeString(dataType)) {
+    fullDataType = `${dataType}(${charMaxLength < 0 ? 'MAX' : charMaxLength})`;
+  }
+  if (numericPrecision && numericScale && isTypeNumeric(dataType)) {
+    fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
+  }
+
+  return fullDataType;
+}
+
 function getColumnInfo({
   isNullable,
   isIdentity,
@@ -43,13 +55,12 @@ function getColumnInfo({
   defaultConstraint,
   computedExpression,
 }) {
-  let fullDataType = dataType;
-  if (charMaxLength && isTypeString(dataType)) {
-    fullDataType = `${dataType}(${charMaxLength < 0 ? 'MAX' : charMaxLength})`;
-  }
-  if (numericPrecision && numericScale && isTypeNumeric(dataType)) {
-    fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
-  }
+  const fullDataType = getFullDataTypeName({
+    dataType,
+    charMaxLength,
+    numericPrecision,
+    numericScale,
+  });
 
   if (defaultValue) {
     defaultValue = defaultValue.trim();
@@ -116,7 +127,11 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading views' });
     const viewsRows = await this.analyserQuery('views', ['views']);
     this.feedback({ analysingMessage: 'Loading procedures & functions' });
+
     const programmableRows = await this.analyserQuery('programmables', ['procedures', 'functions']);
+    const procedureParameterRows = await this.analyserQuery('proceduresParameters');
+    const functionParameterRows = await this.analyserQuery('functionParameters');
+
     this.feedback({ analysingMessage: 'Loading view columns' });
     const viewColumnRows = await this.analyserQuery('viewColumns', ['views']);
 
@@ -157,13 +172,38 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
 
+    const procedureParameter = procedureParameterRows.rows.map(row => ({
+      ...row,
+      dataType: getFullDataTypeName(row),
+    }));
+
+    const prodceureToParameters = procedureParameter.reduce((acc, parameter) => {
+      if (!acc[parameter.parentObjectId]) acc[parameter.parentObjectId] = [];
+      acc[parameter.parentObjectId].push(parameter);
+
+      return acc;
+    }, {});
+
     const procedures = programmableRows.rows
       .filter(x => x.sqlObjectType.trim() == 'P')
       .map(row => ({
         ...row,
         contentHash: row.modifyDate && row.modifyDate.toISOString(),
         createSql: getCreateSql(row),
+        parameters: prodceureToParameters[row.objectId],
       }));
+
+    const functionParameters = functionParameterRows.rows.map(row => ({
+      ...row,
+      dataType: getFullDataTypeName(row),
+    }));
+
+    const functionToParameters = functionParameters.reduce((acc, parameter) => {
+      if (!acc[parameter.parentObjectId]) acc[parameter.parentObjectId] = [];
+
+      acc[parameter.parentObjectId].push(parameter);
+      return acc;
+    }, {});
 
     const functions = programmableRows.rows
       .filter(x => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
@@ -171,6 +211,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         ...row,
         contentHash: row.modifyDate && row.modifyDate.toISOString(),
         createSql: getCreateSql(row),
+        parameters: functionToParameters[row.objectId],
       }));
 
     this.feedback({ analysingMessage: null });

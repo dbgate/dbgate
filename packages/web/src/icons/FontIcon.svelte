@@ -63,6 +63,7 @@
     'icon open-in-new': 'mdi mdi-open-in-new',
     'icon add-folder': 'mdi mdi-folder-plus-outline',
     'icon add-column': 'mdi mdi-table-column-plus-after',
+    'icon parameter': 'mdi mdi-at',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',

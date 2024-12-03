@@ -35,7 +35,7 @@ export interface IndexInfo extends ColumnsConstraintInfo {
   isUnique: boolean;
   // indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
   indexType?: string;
-  // condition for filtered index (SQL Server)  
+  // condition for filtered index (SQL Server)
   filterDefinition?: string;
 }
 
@@ -118,9 +118,21 @@ export interface ViewInfo extends SqlObjectInfo {
   columns: ColumnInfo[];
 }
 
-export interface ProcedureInfo extends SqlObjectInfo {}
+export type ParameterMode = 'IN' | 'OUT' | 'INOUT' | 'RETURN';
+
+export interface ParameterInfo {
+  schemaName: string;
+  parameterName?: string;
+  pureName: string;
+  dataType: string;
+  parameterMode?: ParameterMode;
+}
+export interface ProcedureInfo extends SqlObjectInfo {
+  parameters?: ParameterInfo[];
+}
 
 export interface FunctionInfo extends SqlObjectInfo {
+  parameters?: ParameterInfo[];
   // returnDataType?: string;
 }
 

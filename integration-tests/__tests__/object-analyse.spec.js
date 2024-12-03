@@ -10,6 +10,14 @@ function flatSource() {
   );
 }
 
+function flatSourceParameters() {
+  return _.flatten(
+    engines.map(engine =>
+      (engine.parameters || []).map(parameter => [engine.label, parameter.testName, parameter, engine])
+    )
+  );
+}
+
 const obj1Match = expect.objectContaining({
   pureName: 'obj1',
 });
@@ -78,12 +86,53 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2[type].length).toEqual(0);
 
-      await driver.query(conn, structure1[type][0].createSql, { discardResult: true });
+      await driver.script(conn, structure1[type][0].createSql);
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
 
       expect(structure3[type].length).toEqual(1);
       expect(structure3[type][0]).toEqual(type.includes('views') ? view1Match : obj1Match);
+    })
+  );
+
+  test.each(flatSourceParameters())(
+    'Test parameters simple analyse - %s - %s',
+    testWrapper(async (conn, driver, testName, parameter, engine) => {
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
+
+      await driver.query(conn, parameter.create, { discardResult: true });
+      const structure = await driver.analyseFull(conn);
+
+      const parameters = structure[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
+
+      expect(parameters.length).toEqual(parameter.list.length);
+      for (let i = 0; i < parameters.length; i += 1) {
+        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+      }
+    })
+  );
+
+  test.each(flatSourceParameters())(
+    'Test parameters create SQL - %s - %s',
+    testWrapper(async (conn, driver, testName, parameter, engine) => {
+      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
+
+      await driver.query(conn, parameter.create, { discardResult: true });
+      const structure1 = await driver.analyseFull(conn);
+      await driver.query(conn, parameter.drop, { discardResult: true });
+
+      const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
+      await driver.script(conn, obj.createSql);
+
+      const structure2 = await driver.analyseFull(conn);
+      const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
+
+      expect(parameters.length).toEqual(parameter.list.length);
+      for (let i = 0; i < parameters.length; i += 1) {
+        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+      }
     })
   );
 });

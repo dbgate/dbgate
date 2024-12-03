@@ -28,13 +28,84 @@ const engines = [
       port: 15001,
     },
     // skipOnCI: true,
-    objects: [views],
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
+        create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
+        drop1: 'DROP PROCEDURE obj1',
+        drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
     dbSnapshotBySeconds: true,
     dumpFile: 'data/chinook-mysql.sql',
     dumpChecks: [
       {
         sql: 'select count(*) as res from genre',
         res: '25',
+      },
+    ],
+    parametersOtherSql: ['CREATE PROCEDURE obj2(a int, b int) BEGIN SELECT * FROM t1; END'],
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1(a int) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+        ],
+      },
+      {
+        testName: 'paramTypes',
+        create: 'CREATE PROCEDURE obj1(a int, b varchar(50), c numeric(10,2)) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'IN',
+            dataType: 'varchar(50)',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'IN',
+            dataType: 'decimal(10,2)',
+          },
+        ],
+      },
+      {
+        testName: 'paramModes',
+        create: 'CREATE PROCEDURE obj1(IN a int, OUT b int, INOUT c int) BEGIN SELECT * FROM t1; END',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'OUT',
+            dataType: 'int',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'INOUT',
+            dataType: 'int',
+          },
+        ],
       },
     ],
   },
@@ -105,6 +176,94 @@ const engines = [
         res: '25',
       },
     ],
+
+    parametersOtherSql: ['CREATE PROCEDURE obj2(a integer, b integer) LANGUAGE SQL AS $$ select * from t1 $$'],
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1(a integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+        ],
+      },
+      {
+        testName: 'dataTypes',
+        create:
+          'CREATE PROCEDURE obj1(a integer, b varchar(20), c numeric(18,2)) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'IN',
+            dataType: 'varchar',
+          },
+          {
+            parameterName: 'c',
+            parameterMode: 'IN',
+            dataType: 'numeric',
+          },
+        ],
+      },
+      {
+        testName: 'paramModes',
+        create: 'CREATE PROCEDURE obj1(IN a integer, INOUT b integer) LANGUAGE SQL AS $$ select * from t1 $$',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: 'a',
+            parameterMode: 'IN',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'b',
+            parameterMode: 'INOUT',
+            dataType: 'integer',
+          },
+        ],
+      },
+      {
+        testName: 'paramModesFunction',
+        objectTypeField: 'functions',
+        create: `
+create or replace function obj1(
+    out min_len int,
+    out max_len int)
+language plpgsql
+as $$
+begin
+  select min(id),
+         max(id)
+  into min_len, max_len
+  from t1;
+end;$$`,
+        drop: 'DROP FUNCTION obj1',
+        list: [
+          {
+            parameterName: 'min_len',
+            parameterMode: 'OUT',
+            dataType: 'integer',
+          },
+          {
+            parameterName: 'max_len',
+            parameterMode: 'OUT',
+            dataType: 'integer',
+          },
+        ],
+      },
+    ],
   },
   {
     label: 'SQL Server',
@@ -127,6 +286,63 @@ const engines = [
         create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
         drop1: 'DROP PROCEDURE obj1',
         drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
+    parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
+    parameters: [
+      {
+        testName: 'simple',
+        create: 'CREATE PROCEDURE obj1 (@param1 int) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@param1',
+            parameterMode: 'IN',
+            dataType: 'int',
+          },
+        ],
+      },
+      {
+        testName: 'dataTypes',
+        create: 'CREATE PROCEDURE obj1 (@p1 bit, @p2 nvarchar(20), @p3 decimal(18,2), @p4 float) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@p1',
+            parameterMode: 'IN',
+            dataType: 'bit',
+          },
+          {
+            parameterName: '@p2',
+            parameterMode: 'IN',
+            dataType: 'nvarchar(20)',
+          },
+          {
+            parameterName: '@p3',
+            parameterMode: 'IN',
+            dataType: 'decimal(18,2)',
+          },
+          {
+            parameterName: '@p4',
+            parameterMode: 'IN',
+            dataType: 'float',
+          },
+        ],
+      },
+      {
+        testName: 'outputParam',
+        create: 'CREATE PROCEDURE obj1 (@p1 int OUTPUT) AS SELECT id from t1',
+        drop: 'DROP PROCEDURE obj1',
+        objectTypeField: 'procedures',
+        list: [
+          {
+            parameterName: '@p1',
+            parameterMode: 'OUT',
+            dataType: 'int',
+          },
+        ],
       },
     ],
     supportSchemas: true,
@@ -188,10 +404,10 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-MariaDB',
   '-PostgreSQL',
-  'SQL Server',
+  '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
