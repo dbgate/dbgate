@@ -56,7 +56,8 @@ function getParametersSqlString(parameters = []) {
     .map(i => {
       const mode = i.parameterMode ? `${i.parameterMode} ` : '';
       const dataType = i.dataType ? ` ${i.dataType.toUpperCase()}` : '';
-      return mode + i.parameterName + dataType;
+      const parameterName = i.parameterName ?? '';
+      return `${mode}${parameterName}${dataType}`;
     })
     .join(', ');
 }
