@@ -16,6 +16,7 @@ LEFT JOIN
     AND proc.specific_name = args.specific_name
 WHERE 
     proc.specific_schema NOT IN ('pg_catalog', 'information_schema') -- Exclude system schemas
+    AND args.parameter_name IS NOT NULL
     AND proc.routine_type IN ('PROCEDURE', 'FUNCTION') -- Filter for procedures
     AND proc.specific_schema !~ '^_timescaledb_' 
     AND proc.specific_schema =SCHEMA_NAME_CONDITION
