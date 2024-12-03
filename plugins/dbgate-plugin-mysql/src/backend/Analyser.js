@@ -15,6 +15,11 @@ function quoteDefaultValue(value) {
   return value;
 }
 
+function normalizeTypeName(typeName) {
+  if (/int\(\d+\)/.test(typeName)) return 'int';
+  return typeName;
+}
+
 function getColumnInfo(
   {
     isNullable,
@@ -58,6 +63,18 @@ function getColumnInfo(
     isZerofill: columnTypeTokens.includes('zerofill'),
     ...optionsInfo,
   };
+}
+
+function getParametersSqlString(parameters = []) {
+  if (!parameters?.length) return '';
+
+  return parameters
+    .map(i => {
+      const mode = i.parameterMode ? `${i.parameterMode} ` : '';
+      const dataType = i.dataType ? ` ${i.dataType.toUpperCase()}` : '';
+      return mode + i.parameterName + dataType;
+    })
+    .join(', ');
 }
 
 class Analyser extends DatabaseAnalyser {
@@ -113,6 +130,30 @@ class Analyser extends DatabaseAnalyser {
     const views = await this.analyserQuery('views', ['views']);
     this.feedback({ analysingMessage: 'Loading programmables' });
     const programmables = await this.analyserQuery('programmables', ['procedures', 'functions']);
+
+    const parameters = await this.analyserQuery('parameters', ['procedures', 'functions']);
+
+    const functionParameters = parameters.rows.filter(x => x.routineType == 'FUNCTION');
+    const functionNameToParameters = functionParameters.reduce((acc, row) => {
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+
+      acc[`${row.schemaName}.${row.pureName}`].push({
+        ...row,
+        dataType: normalizeTypeName(row.dataType),
+      });
+      return acc;
+    }, {});
+
+    const procedureParameters = parameters.rows.filter(x => x.routineType == 'PROCEDURE');
+    const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+
+      acc[`${row.schemaName}.${row.pureName}`].push({
+        ...row,
+        dataType: normalizeTypeName(row.dataType),
+      });
+      return acc;
+    }, {});
 
     this.feedback({ analysingMessage: 'Loading view texts' });
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
@@ -174,20 +215,26 @@ class Analyser extends DatabaseAnalyser {
         .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
-          createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`()\n${x.routineDefinition}\n\nDELIMITER ;\n`,
+          createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`(${getParametersSqlString(
+            procedureNameToParameters[`${x.schemaName}.${x.pureName}`]
+          )})\n${x.routineDefinition}\n\nDELIMITER ;\n`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
+          parameters: procedureNameToParameters[`${x.schemaName}.${x.pureName}`],
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
         .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
-          createSql: `CREATE FUNCTION \`${x.pureName}\`()\nRETURNS ${x.returnDataType} ${
-            x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'
-          }\n${x.routineDefinition}`,
+          createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
+            functionNameToParameters[`${x.schemaName}.${x.pureName}`]?.filter(i => i.parameterMode !== 'RETURN')
+          )})\nRETURNS ${x.returnDataType} ${x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'}\n${
+            x.routineDefinition
+          }`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
+          parameters: functionNameToParameters[`${x.schemaName}.${x.pureName}`],
         })),
     };
     this.feedback({ analysingMessage: null });

@@ -10,6 +10,7 @@ const procedureModifications = require('./procedureModifications');
 const functionModifications = require('./functionModifications');
 const uniqueNames = require('./uniqueNames');
 const viewTexts = require('./viewTexts');
+const parameters = require('./parameters');
 
 module.exports = {
   columns,
@@ -19,6 +20,7 @@ module.exports = {
   tableModifications,
   views,
   programmables,
+  parameters,
   procedureModifications,
   functionModifications,
   indexes,

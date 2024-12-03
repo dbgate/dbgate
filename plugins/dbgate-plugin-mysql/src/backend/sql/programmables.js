@@ -1,5 +1,6 @@
 module.exports = `
 select 
+    ROUTINE_SCHEMA AS schemaName,
     ROUTINE_NAME as pureName,
     ROUTINE_TYPE as objectType,
     COALESCE(LAST_ALTERED, CREATED) as modifyDate,

@@ -49,6 +49,19 @@ function getColumnInfo(
   };
 }
 
+function getParametersSqlString(parameters = []) {
+  if (!parameters?.length) return '';
+
+  return parameters
+    .map(i => {
+      const mode = i.parameterMode ? `${i.parameterMode} ` : '';
+      const dataType = i.dataType ? ` ${i.dataType.toUpperCase()}` : '';
+      const parameterName = i.parameterName ?? '';
+      return `${mode}${parameterName}${dataType}`;
+    })
+    .join(', ');
+}
+
 class Analyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
     super(dbhan, driver, version);
@@ -144,6 +157,9 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
 
+    this.feedback({ analysingMessage: 'Loading routine parameters' });
+    const routineParametersRows = await this.analyserQuery('proceduresParameters');
+
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
@@ -190,6 +206,40 @@ class Analyser extends DatabaseAnalyser {
       constraintName: x.constraint_name,
       columnName: x.column_name,
     }));
+
+    const procedureParameters = routineParametersRows.rows
+      .filter(i => i.routine_type == 'PROCEDURE')
+      .map(i => ({
+        pureName: i.pure_name,
+        parameterName: i.parameter_name,
+        dataType: normalizeTypeName(i.data_type),
+        parameterMode: i.parameter_mode,
+        schemaName: i.schema_name,
+      }));
+
+    const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
+
+      return acc;
+    }, {});
+
+    const functionParameters = routineParametersRows.rows
+      .filter(i => i.routine_type == 'FUNCTION')
+      .map(i => ({
+        pureName: i.pure_name,
+        parameterName: i.parameter_name,
+        dataType: normalizeTypeName(i.data_type),
+        parameterMode: i.parameter_mode,
+        schemaName: i.schema_name,
+      }));
+
+    const functionNameToParameters = functionParameters.reduce((acc, row) => {
+      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      acc[`${row.schemaName}.${row.pureName}`].push(row);
+
+      return acc;
+    }, {});
 
     const res = {
       tables: tables.rows.map(table => {
@@ -279,17 +329,23 @@ class Analyser extends DatabaseAnalyser {
           objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
           pureName: proc.pure_name,
           schemaName: proc.schema_name,
-          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
+          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"(${getParametersSqlString(
+            procedureNameToParameters[`${proc.schema_name}.${proc.pure_name}`]
+          )}) LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
+          parameters: procedureNameToParameters[`${proc.schema_name}.${proc.pure_name}`],
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
-          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"(${getParametersSqlString(
+            functionNameToParameters[`${func.schema_name}.${func.pure_name}`]
+          )}) RETURNS ${func.data_type.toUpperCase()} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
+          parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
         })),
     };
 

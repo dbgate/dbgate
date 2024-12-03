@@ -52,6 +52,7 @@
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
+  import SubProcedureParamList from '../appobj/SubProcedureParamList.svelte';
 
   export let conid;
   export let database;
@@ -238,9 +239,16 @@
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
           groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
-          subItemsComponent={SubColumnParamList}
+          subItemsComponent={data =>
+            data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
+              ? SubProcedureParamList
+              : SubColumnParamList}
           isExpandable={data =>
-            data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
+            data.objectTypeField == 'tables' ||
+            data.objectTypeField == 'views' ||
+            data.objectTypeField == 'matviews' ||
+            ((data.objectTypeField == 'procedures' || data.objectTypeField == 'functions') &&
+              !!data.parameters?.length)}
           expandIconFunc={chevronExpandIcon}
           {filter}
           passProps={{

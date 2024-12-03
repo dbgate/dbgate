@@ -7,6 +7,8 @@ const modifications = require('./modifications');
 const loadSqlCode = require('./loadSqlCode');
 const views = require('./views');
 const programmables = require('./programmables');
+const proceduresParameters = require('./proceduresParameters');
+const functionParameters = require('./functionParameters');
 const viewColumns = require('./viewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
@@ -20,6 +22,8 @@ module.exports = {
   loadSqlCode,
   views,
   programmables,
+  proceduresParameters,
+  functionParameters,
   viewColumns,
   indexes,
   indexcols,
