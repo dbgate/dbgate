@@ -238,7 +238,7 @@ const engines = [
         testName: 'paramModesFunction',
         objectTypeField: 'functions',
         create: `
-create or replace function get_film_stat(
+create or replace function obj1(
     out min_len int,
     out max_len int)
 language plpgsql
