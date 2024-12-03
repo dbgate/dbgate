@@ -9,8 +9,6 @@ SELECT
         WHEN TYPE_NAME(p.user_type_id) = 'nvarchar' THEN p.max_length / 2
         ELSE p.max_length
     END AS charMaxLength,
-    p.precision AS precision,
-    p.scale AS scale,
     CASE 
         WHEN p.is_output = 1 THEN 'OUT'
         ELSE 'IN'
