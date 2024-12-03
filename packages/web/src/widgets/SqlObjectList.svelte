@@ -60,6 +60,7 @@
   let domContainer = null;
   let domFilter = null;
   let domListHandler;
+  let expandedObjects = [];
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
@@ -225,6 +226,11 @@
         onFocusFilterBox={text => {
           domFilter?.focus(text);
         }}
+        handleExpansion={(data, value) => {
+          expandedObjects = value
+            ? [...expandedObjects, `${data.objectTypeField}||${data.schemaName}||${data.pureName}`]
+            : expandedObjects.filter(x => x != `${data.objectTypeField}||${data.schemaName}||${data.pureName}`);
+        }}
       >
         <AppObjectList
           list={objectList
@@ -241,6 +247,13 @@
             showPinnedInsteadOfUnpin: true,
             connection: $connection,
             hideSchemaName: !!$appliedCurrentSchema,
+          }}
+          getIsExpanded={data =>
+            expandedObjects.includes(`${data.objectTypeField}||${data.schemaName}||${data.pureName}`)}
+          setIsExpanded={(data, value) => {
+            expandedObjects = value
+              ? [...expandedObjects, `${data.objectTypeField}||${data.schemaName}||${data.pureName}`]
+              : expandedObjects.filter(x => x != `${data.objectTypeField}||${data.schemaName}||${data.pureName}`);
           }}
         />
       </AppObjectListHandler>
