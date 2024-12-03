@@ -217,7 +217,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
-            functionNameToParameters[`${x.schemaName}.${x.pureName}`].filter(i => i.parameterMode !== 'RETURN')
+            functionNameToParameters[`${x.schemaName}.${x.pureName}`]?.filter(i => i.parameterMode !== 'RETURN')
           )})\nRETURNS ${x.returnDataType} ${x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'}\n${
             x.routineDefinition
           }`,
