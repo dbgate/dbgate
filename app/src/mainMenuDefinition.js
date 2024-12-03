@@ -1,4 +1,4 @@
-module.exports = ({ editMenu }) => [
+module.exports = ({ editMenu, isMac }) => [
   {
     label: 'File',
     submenu: [
@@ -24,20 +24,6 @@ module.exports = ({ editMenu }) => [
       { command: 'app.disconnect', hideDisabled: true, skipInApp: true },
     ],
   },
-  {
-    label: 'Window',
-    submenu: [
-      { command: 'tabs.closeTab', hideDisabled: false },
-      { command: 'tabs.closeAll', hideDisabled: false },
-      { command: 'tabs.closeTabsWithCurrentDb', hideDisabled: false },
-      { command: 'tabs.closeTabsButCurrentDb', hideDisabled: false },
-      { divider: true },
-      { command: 'app.zoomIn', hideDisabled: true },
-      { command: 'app.zoomOut', hideDisabled: true },
-      { command: 'app.zoomReset', hideDisabled: true },
-    ],
-  },
-
   editMenu
     ? {
         label: 'Edit',
@@ -75,6 +61,15 @@ module.exports = ({ editMenu }) => [
       { divider: true },
       { command: 'theme.changeTheme', hideDisabled: true },
       { command: 'settings.show' },
+      { divider: true },
+      { command: 'tabs.closeTab', hideDisabled: false },
+      { command: 'tabs.closeAll', hideDisabled: false },
+      { command: 'tabs.closeTabsWithCurrentDb', hideDisabled: false },
+      { command: 'tabs.closeTabsButCurrentDb', hideDisabled: false },
+      { divider: true },
+      { command: 'app.zoomIn', hideDisabled: true },
+      { command: 'app.zoomOut', hideDisabled: true },
+      { command: 'app.zoomReset', hideDisabled: true },
     ],
   },
   {
@@ -94,6 +89,17 @@ module.exports = ({ editMenu }) => [
       { command: 'app.resetSettings', hideDisabled: true },
     ],
   },
+  isMac
+    ? {
+        role: 'window',
+        submenu: [
+          { role: 'minimize' },
+          { role: 'zoom' },
+          { type: 'separator' },
+          { role: 'front' },
+        ],
+      }
+    : null,
   {
     label: 'Help',
     submenu: [

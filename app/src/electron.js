@@ -108,7 +108,7 @@ function commandItem(item) {
 }
 
 function buildMenu() {
-  let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true }), item => {
+  let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac() }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
