@@ -89,17 +89,14 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'app.resetSettings', hideDisabled: true },
     ],
   },
-  isMac
-    ? {
-        role: 'window',
-        submenu: [
-          { role: 'minimize' },
-          { role: 'zoom' },
-          { type: 'separator' },
-          { role: 'front' },
-        ],
-      }
-    : null,
+  ...(isMac
+    ? [
+        {
+          role: 'window',
+          submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
+        },
+      ]
+    : []),
   {
     label: 'Help',
     submenu: [
