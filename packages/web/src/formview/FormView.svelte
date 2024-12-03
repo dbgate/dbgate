@@ -216,6 +216,7 @@
   let wrapperWidth = 1;
   $: rowHeight = $dataGridRowHeight;
   let currentCell = [0, 0];
+  let isGridFocused = false;
 
   const tabFocused: any = getContext('tabFocused');
   const domCells = {};
@@ -614,7 +615,7 @@
   }
 </script>
 
-<div class="outer">
+<div class="outer" class:data-grid-focused={isGridFocused}>
   <div class="wrapper" use:contextMenu={menu} bind:clientHeight={wrapperHeight} bind:clientWidth={wrapperWidth}>
     {#each columnChunks as chunk, chunkIndex}
       <table on:mousedown={handleTableMouseDown}>
@@ -697,6 +698,10 @@
       on:focus={() => {
         activator.activate();
         invalidateCommands();
+        isGridFocused = true;
+      }}
+      on:blur={() => {
+        isGridFocused = false;
       }}
       on:keydown={handleKeyDown}
       on:copy={copyToClipboard}
@@ -757,6 +762,10 @@
     overflow: hidden;
   }
   .header-cell.isSelected {
+    background: var(--theme-bg-3);
+  }
+
+  :global(.data-grid-focused) .header-cell.isSelected {
     background: var(--theme-bg-selected);
   }
 
