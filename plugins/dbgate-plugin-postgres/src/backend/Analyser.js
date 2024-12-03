@@ -211,7 +211,7 @@ class Analyser extends DatabaseAnalyser {
       .map(i => ({
         pureName: i.pure_name,
         parameterName: i.parameter_name,
-        dataType: i.data_type,
+        dataType: normalizeTypeName(i.data_type),
         parameterMode: i.parameter_mode,
         schemaName: i.schema_name,
       }));
@@ -228,7 +228,7 @@ class Analyser extends DatabaseAnalyser {
       .map(i => ({
         pureName: i.pure_name,
         parameterName: i.parameter_name,
-        dataType: i.data_type,
+        dataType: normalizeTypeName(i.data_type),
         parameterMode: i.parameter_mode,
         schemaName: i.schema_name,
       }));

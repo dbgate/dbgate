@@ -207,12 +207,12 @@ const engines = [
           {
             parameterName: 'b',
             parameterMode: 'IN',
-            dataType: 'varchar(20)',
+            dataType: 'varchar',
           },
           {
             parameterName: 'c',
             parameterMode: 'IN',
-            dataType: 'numeric(18,2)',
+            dataType: 'numeric',
           },
         ],
       },
