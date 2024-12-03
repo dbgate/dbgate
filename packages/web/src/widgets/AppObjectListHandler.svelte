@@ -8,6 +8,7 @@
   export let getSelectedObject;
   export let selectedObjectMatcher;
   export let handleObjectClick;
+  export let handleExpansion = null;
 
   export let onScrollTop = null;
   export let onFocusFilterBox = null;
@@ -80,6 +81,12 @@
         selectedObjectStore.set(listInstance[listInstance.length - 1]);
         handleObjectClick?.(listInstance[listInstance.length - 1], { tabPreviewMode: true });
       }
+    }
+    if (ev.keyCode == keycodes.numPadAdd) {
+      handleExpansion?.(getSelectedObject(), true);
+    }
+    if (ev.keyCode == keycodes.numPadSub) {
+      handleExpansion?.(getSelectedObject(), false);
     }
 
     if (

@@ -247,6 +247,12 @@
         }
       }
     }}
+    handleExpansion={(item, value) => {
+      if (item.database) {
+        return;
+      }
+      expandedConnections.update(old => (value ? [...old, item.conid] : old.filter(x => x != item.conid)));
+    }}
   >
     <AppObjectList
       list={connectionsWithParent}
