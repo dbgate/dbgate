@@ -11,12 +11,16 @@ function changeDependencies(deps, version) {
 }
 
 function changePackageFile(packagePath, version) {
-  const text = fs.readFileSync(path.join(packagePath, 'package.json'), { encoding: 'utf-8' });
-  const json = JSON.parse(text);
-  json.version = version;
-  changeDependencies(json.dependencies, version);
-  changeDependencies(json.devDependencies, version);
-  fs.writeFileSync(path.join(packagePath, 'package.json'), JSON.stringify(json, null, 2), { encoding: 'utf-8' });
+  try {
+    const text = fs.readFileSync(path.join(packagePath, 'package.json'), { encoding: 'utf-8' });
+    const json = JSON.parse(text);
+    json.version = version;
+    changeDependencies(json.dependencies, version);
+    changeDependencies(json.devDependencies, version);
+    fs.writeFileSync(path.join(packagePath, 'package.json'), JSON.stringify(json, null, 2), { encoding: 'utf-8' });
+  } catch (err) {
+    console.log('Error changing package file', packagePath, err.message);
+  }
 }
 
 const packageJson = fs.readFileSync('package.json', { encoding: 'utf-8' });
