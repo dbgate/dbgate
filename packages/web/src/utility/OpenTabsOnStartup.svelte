@@ -51,7 +51,7 @@
 
     if (
       !$openedTabs.find(x => x.closedTime == null) &&
-      !(await getConnectionList()).find(x => !x.unsaved) &&
+      !(await getConnectionList()).length &&
       $commandsCustomized['new.connection']?.enabled
     ) {
       openNewTab({

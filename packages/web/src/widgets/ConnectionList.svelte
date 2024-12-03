@@ -49,6 +49,17 @@
   let domContainer = null;
   let domFilter = null;
 
+  // function extractConnectionParent(data, openedConnections, openedSingleDatabaseConnections) {
+  //   if (data.parent) {
+  //     return data.parent;
+  //   }
+  //   if (data.unsaved && !openedConnections.includes(data._id) && !openedSingleDatabaseConnections.includes(data._id)) {
+  //     return 'Recent & unsaved';
+  //   }
+
+  //   return null;
+  // }
+
   $: connectionsWithStatus =
     $connections && $serverStatus
       ? $connections.map(conn => ({
@@ -57,19 +68,15 @@
         }))
       : $connections;
 
-  $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(
-    x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
-  );
-
   $: connectionsWithParent = _.sortBy(
-    connectionsWithStatusFiltered
-      ? connectionsWithStatusFiltered?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
+    connectionsWithStatus
+      ? connectionsWithStatus?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
       : [],
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
   $: connectionsWithoutParent = _.sortBy(
-    connectionsWithStatusFiltered
-      ? connectionsWithStatusFiltered?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
+    connectionsWithStatus
+      ? connectionsWithStatus?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
       : [],
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
@@ -293,7 +300,7 @@
       }}
     />
   </AppObjectListHandler>
-  {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
+  {#if $connections && $connections.length == 0 && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
       >Add new connection</LargeButton
     >

@@ -12,7 +12,7 @@
     ...(allowChooseModel ? [{ label: '(DB Model)', value: '__model' }] : []),
     ..._.sortBy(
       ($connections || [])
-        .filter(conn => !conn.unsaved && (direction == 'target' ? !conn.isReadOnly : true))
+        .filter(conn => (direction == 'target' ? !conn.isReadOnly : true))
         .map(conn => ({
           value: conn._id,
           label: getConnectionLabel(conn),

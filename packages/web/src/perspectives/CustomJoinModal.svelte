@@ -93,7 +93,7 @@
     { value: null, label: 'The same as root' },
     ..._.sortBy(
       ($connections || [])
-        .filter(x => !x.unsaved)
+        // .filter(x => !x.unsaved)
         .map(conn => ({
           value: conn._id,
           label: getConnectionLabel(conn),
