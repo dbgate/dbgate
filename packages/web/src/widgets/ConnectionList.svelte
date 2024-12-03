@@ -49,16 +49,18 @@
   let domContainer = null;
   let domFilter = null;
 
-  // function extractConnectionParent(data, openedConnections, openedSingleDatabaseConnections) {
-  //   if (data.parent) {
-  //     return data.parent;
-  //   }
-  //   if (data.unsaved && !openedConnections.includes(data._id) && !openedSingleDatabaseConnections.includes(data._id)) {
-  //     return 'Recent & unsaved';
-  //   }
+  const RECENT_AND_UNSAVED_LABEL = 'Recent & unsaved';
 
-  //   return null;
-  // }
+  function extractConnectionParent(data, openedConnections, openedSingleDatabaseConnections) {
+    if (data.parent) {
+      return data.parent;
+    }
+    if (data.unsaved && !openedConnections.includes(data._id) && !openedSingleDatabaseConnections.includes(data._id)) {
+      return RECENT_AND_UNSAVED_LABEL;
+    }
+
+    return null;
+  }
 
   $: connectionsWithStatus =
     $connections && $serverStatus
@@ -70,13 +72,17 @@
 
   $: connectionsWithParent = _.sortBy(
     connectionsWithStatus
-      ? connectionsWithStatus?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
+      ? connectionsWithStatus?.filter(x =>
+          extractConnectionParent(x, $openedConnections, $openedSingleDatabaseConnections)
+        )
       : [],
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
   $: connectionsWithoutParent = _.sortBy(
     connectionsWithStatus
-      ? connectionsWithStatus?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
+      ? connectionsWithStatus?.filter(
+          x => !extractConnectionParent(x, $openedConnections, $openedSingleDatabaseConnections)
+        )
       : [],
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
@@ -124,6 +130,9 @@
   };
 
   const handleDropOnGroup = (data, group) => {
+    if (group == RECENT_AND_UNSAVED_LABEL) {
+      return;
+    }
     const json = safeJsonParse(data);
     if (json?._id) {
       // if (json.parent) {
@@ -131,7 +140,7 @@
       // }
       apiCall('connections/update', {
         _id: json?._id,
-        values: { parent: group },
+        values: { parent: group, unsaved: false },
       });
     }
   };
@@ -275,7 +284,7 @@
         expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
       }}
       groupIconFunc={chevronExpandIcon}
-      groupFunc={data => data.parent}
+      groupFunc={data => extractConnectionParent(data, $openedConnections, $openedSingleDatabaseConnections)}
       expandIconFunc={plusExpandIcon}
       onDropOnGroup={handleDropOnGroup}
       emptyGroupNames={$emptyConnectionGroupNames}
