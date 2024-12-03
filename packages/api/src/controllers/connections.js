@@ -302,6 +302,9 @@ module.exports = {
   },
 
   async checkUnsavedConnectionsLimit() {
+    if (!this.datastore) {
+      return;
+    }
     const MAX_UNSAVED_CONNECTIONS = 5;
     await this.datastore.transformAll(connections => {
       const count = connections.filter(x => x.unsaved).length;
