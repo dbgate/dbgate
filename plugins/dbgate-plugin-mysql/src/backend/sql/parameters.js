@@ -1,5 +1,5 @@
 module.exports = `
-SELECT DISTINCT
+SELECT
     r.ROUTINE_SCHEMA AS schemaName,
     r.SPECIFIC_NAME AS pureName,
     CASE 
