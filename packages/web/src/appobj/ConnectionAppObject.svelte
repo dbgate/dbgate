@@ -261,6 +261,18 @@
     };
 
     return [
+      !data.singleDatabase && [
+        !$openedConnections.includes(data._id) && {
+          text: 'Connect',
+          onClick: handleConnect,
+          isBold: true,
+        },
+        $openedConnections.includes(data._id) && {
+          text: 'Disconnect',
+          onClick: handleDisconnect,
+        },
+      ],
+      { divider: true },
       config.runAsPortal == false &&
         !config.storageDatabase && [
           {
@@ -276,21 +288,14 @@
             onClick: handleDuplicate,
           },
         ],
+      { divider: true },
       !data.singleDatabase && [
-        !$openedConnections.includes(data._id) && {
-          text: 'Connect',
-          onClick: handleConnect,
-        },
         hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
             text: 'Refresh',
             onClick: handleRefresh,
           },
-        $openedConnections.includes(data._id) && {
-          text: 'Disconnect',
-          onClick: handleDisconnect,
-        },
         hasPermission(`dbops/createdb`) &&
           $openedConnections.includes(data._id) &&
           driver?.supportedCreateDatabase &&
