@@ -1,11 +1,6 @@
 <script lang="ts">
   import { findEngineDriver } from 'dbgate-tools';
-  import {
-    currentDatabase,
-    extensions,
-    pinnedDatabases,
-    pinnedTables,
-  } from '../stores';
+  import { currentDatabase, extensions, pinnedDatabases, pinnedTables } from '../stores';
   import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
   import ConnectionList from './ConnectionList.svelte';
@@ -87,6 +82,19 @@
       <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 
       <ErrorInfo message="Database not selected" icon="img alert" />
+    </WidgetsInnerContainer>
+  </WidgetColumnBarItem>
+
+  <WidgetColumnBarItem
+    title="Database content"
+    name="dbObjects"
+    storageName="dbObjectsWidget"
+    skip={!(conid && (database || singleDatabase) && !driver)}
+  >
+    <WidgetsInnerContainer>
+      <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
+
+      <ErrorInfo message="Invalid database connection, driver not found" />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 </WidgetColumnBar>
