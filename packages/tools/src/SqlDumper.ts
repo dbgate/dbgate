@@ -17,6 +17,7 @@ import type {
   CheckInfo,
   AlterProcessor,
   SqlObjectInfo,
+  CallableObjectInfo,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
@@ -781,5 +782,10 @@ export class SqlDumper implements AlterProcessor {
     if (was) {
       this.endCommand();
     }
+  }
+
+  declareVariable(name: string, type: string, defaultValueLiteral?: string) {}
+  executeCallable(func: CallableObjectInfo, argLiterals: string[]) {
+    this.putCmd('^call %f(%,s)', func, argLiterals);
   }
 }

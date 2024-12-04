@@ -120,21 +120,19 @@ export interface ViewInfo extends SqlObjectInfo {
 
 export type ParameterMode = 'IN' | 'OUT' | 'INOUT' | 'RETURN';
 
-export interface ParameterInfo {
-  schemaName: string;
+export interface ParameterInfo extends NamedObjectInfo {
   parameterName?: string;
-  pureName: string;
   dataType: string;
   parameterMode?: ParameterMode;
 }
-export interface ProcedureInfo extends SqlObjectInfo {
+
+export interface CallableObjectInfo extends SqlObjectInfo {
   parameters?: ParameterInfo[];
 }
 
-export interface FunctionInfo extends SqlObjectInfo {
-  parameters?: ParameterInfo[];
-  // returnDataType?: string;
-}
+export interface ProcedureInfo extends CallableObjectInfo {}
+
+export interface FunctionInfo extends CallableObjectInfo {}
 
 export interface TriggerInfo extends SqlObjectInfo {}
 

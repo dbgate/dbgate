@@ -55,12 +55,13 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
         // mark as not saved
         changeCounter += 1;
       } catch (err) {
-        const message = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
+        const message =
+          (err && err.response && err.response.data && err.response.data.error) || err.message || 'Loading failed';
         editorState.update(x => ({
           ...x,
           errorMessage: message,
         }));
-        console.error(err.response);
+        console.error(err.response || err.message);
       }
     } else {
       const initFallback = getParsedLocalStorage(localStorageKey);

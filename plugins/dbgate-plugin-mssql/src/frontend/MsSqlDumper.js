@@ -1,4 +1,5 @@
 const { SqlDumper, testEqualColumns, arrayToHexString } = global.DBGATE_PACKAGES['dbgate-tools'];
+const _zip = require('lodash/zip');
 
 class MsSqlDumper extends SqlDumper {
   constructor(driver, options) {
@@ -159,6 +160,28 @@ class MsSqlDumper extends SqlDumper {
 
   selectScopeIdentity() {
     this.put('^select ^scope_identity()');
+  }
+
+  declareVariable(name, type, defaultValueLiteral) {
+    this.put('^declare %s %s', name, type);
+    if (defaultValueLiteral) {
+      this.put(' = %s', defaultValueLiteral);
+    }
+    this.endCommand();
+  }
+
+  executeCallable(func, argLiterals) {
+    console.log('executeCallable', func, argLiterals);
+    if (func.objectTypeField == 'procedures') {
+      this.put('^execute %f&>&n', func, argLiterals);
+
+      this.putCollection(',&n', _zip(func.parameters || [], argLiterals || []), ([param, value]) => {
+        this.putRaw(value);
+        if (param?.parameterMode == 'OUT') this.put(' ^output');
+      });
+      this.put('&<&n');
+      this.endCommand();
+    }
   }
 }
 

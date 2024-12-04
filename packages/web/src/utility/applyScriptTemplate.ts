@@ -70,13 +70,29 @@ export default async function applyScriptTemplate(
       return createSql.replace(/^\s*create\s+/i, alterPrefix);
     }
   }
-  if (scriptTemplate == 'EXECUTE PROCEDURE') {
+  if (scriptTemplate == 'EXECUTE PROCEDURE' || scriptTemplate == 'CALL FUNCTION') {
     const procedureInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
     const connection = connectionInfo || (await getConnectionInfo(props));
 
     const driver = findEngineDriver(connection, extensions) || driverBase;
     const dmp = driver.createDumper();
-    if (procedureInfo) dmp.put('^execute %f', procedureInfo);
+    if (procedureInfo) {
+      const sqlVars = [];
+      for (const param of procedureInfo.parameters || []) {
+        const sqlVarName = param.parameterName?.startsWith('@')
+          ? param.parameterName?.substring(1)
+          : param.parameterName;
+
+        dmp.declareVariable(
+          param.parameterName,
+          param.dataType,
+          param.parameterMode == 'OUT' ? null : `:${sqlVarName}`
+        );
+        sqlVars.push(param.parameterName);
+      }
+      dmp.executeCallable(procedureInfo, sqlVars);
+    }
+    // if (procedureInfo) dmp.put('^execute %f', procedureInfo);
     return dmp.s;
   }
 
@@ -158,6 +174,10 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
         {
           label: ' ALTER FUNCTION',
           scriptTemplate: 'ALTER OBJECT',
+        },
+        {
+          label: 'CALL',
+          scriptTemplate: 'CALL FUNCTION',
         },
       ];
   }

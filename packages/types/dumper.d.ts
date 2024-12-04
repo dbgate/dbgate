@@ -1,5 +1,5 @@
 import { AlterProcessor } from './alter-processor';
-import { TableInfo } from './dbinfo';
+import { CallableObjectInfo, NamedObjectInfo, TableInfo } from './dbinfo';
 import { SqlDialect } from './dialect';
 
 export type TransformType = 'GROUP:YEAR' | 'GROUP:MONTH' | 'GROUP:DAY' | 'YEAR' | 'MONTH' | 'DAY'; // | 'GROUP:HOUR' | 'GROUP:MINUTE';
@@ -16,6 +16,9 @@ export interface SqlDumper extends AlterProcessor {
   transform(type: TransformType, dumpExpr: () => void);
   createDatabase(name: string);
   dropDatabase(name: string);
+
+  declareVariable(name: string, type: string, defaultValueLiteral?: string);
+  executeCallable(func: CallableObjectInfo, argLiterals: string[]);
 
   endCommand();
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean);
