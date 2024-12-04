@@ -1,19 +1,40 @@
 import { getDbCore, getConnectionInfo, getSqlObjectInfo } from './metadataLoaders';
 import sqlFormatter from 'sql-formatter';
 import { driverBase, findEngineDriver } from 'dbgate-tools';
+import { DatabaseInfo } from 'dbgate-types';
 
-async function generateTableSql(extensions, props, dumpProc, format = false) {
-  const tableInfo = await getDbCore(props, props.objectTypeField || 'tables');
-  const connection = await getConnectionInfo(props);
+function extractDbObjectInfo(dbinfo: DatabaseInfo, { objectTypeField, pureName, schemaName }) {
+  if (!dbinfo) return null;
+  return dbinfo[objectTypeField || 'tables'].find(x => x.pureName == pureName && x.schemaName == schemaName);
+}
+
+async function generateTableSql(extensions, props, dumpProc, format = false, dbinfo?: DatabaseInfo, connectionInfo?) {
+  const tableInfo = dbinfo
+    ? extractDbObjectInfo(dbinfo, props)
+    : await getDbCore(props, props.objectTypeField || 'tables');
+  const connection = connectionInfo || (await getConnectionInfo(props));
   const driver = findEngineDriver(connection, extensions) || driverBase;
   const dmp = driver.createDumper();
   if (tableInfo) dumpProc(dmp, tableInfo);
   return format ? sqlFormatter.format(dmp.s) : dmp.s;
 }
 
-export default async function applyScriptTemplate(scriptTemplate, extensions, props) {
+export default async function applyScriptTemplate(
+  scriptTemplate,
+  extensions,
+  props,
+  dbinfo?: DatabaseInfo,
+  connectionInfo?
+) {
   if (scriptTemplate == 'CREATE TABLE') {
-    return generateTableSql(extensions, props, (dmp, tableInfo) => dmp.createTable(tableInfo));
+    return generateTableSql(
+      extensions,
+      props,
+      (dmp, tableInfo) => dmp.createTable(tableInfo),
+      false,
+      dbinfo,
+      connectionInfo
+    );
   }
   if (scriptTemplate == 'SELECT') {
     return generateTableSql(
@@ -26,18 +47,20 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
           tableInfo
         );
       },
-      true
+      true,
+      dbinfo,
+      connectionInfo
     );
   }
   if (scriptTemplate == 'CREATE OBJECT') {
-    const objectInfo = await getSqlObjectInfo(props);
+    const objectInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
     if (objectInfo) {
       if (objectInfo.requiresFormat && objectInfo.createSql) return sqlFormatter.format(objectInfo.createSql);
       else return objectInfo.createSql;
     }
   }
   if (scriptTemplate == 'ALTER OBJECT') {
-    const objectInfo = await getSqlObjectInfo(props);
+    const objectInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
     if (objectInfo) {
       const createSql =
         objectInfo.requiresFormat && objectInfo.createSql
@@ -48,8 +71,8 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
     }
   }
   if (scriptTemplate == 'EXECUTE PROCEDURE') {
-    const procedureInfo = await getSqlObjectInfo(props);
-    const connection = await getConnectionInfo(props);
+    const procedureInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
+    const connection = connectionInfo || (await getConnectionInfo(props));
 
     const driver = findEngineDriver(connection, extensions) || driverBase;
     const dmp = driver.createDumper();
@@ -57,7 +80,7 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
     return dmp.s;
   }
 
-  const connection = await getConnectionInfo(props);
+  const connection = connectionInfo || (await getConnectionInfo(props));
   const driver = findEngineDriver(connection, extensions) || driverBase;
   const res = await driver.getScriptTemplateContent(scriptTemplate, props);
 

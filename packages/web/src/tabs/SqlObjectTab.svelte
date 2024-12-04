@@ -20,18 +20,16 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
-  import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
   import { findEngineDriver } from 'dbgate-tools';
   import registerCommand from '../commands/registerCommand';
   import applyScriptTemplate, { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { changeTab } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import openNewTab from '../utility/openNewTab';
-  import { template } from 'lodash';
 
   export let tabid;
   export let appObjectData;
@@ -55,6 +53,7 @@
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
+  $: dbinfo = useDatabaseInfo({ conid, database });
 
   const tabFocused: any = getContext('tabFocused');
 
@@ -77,7 +76,7 @@
 </script>
 
 <ToolStripContainer>
-  {#await applyScriptTemplate(scriptTemplate ?? defaultScriptTemplate, $extensions, appObjectData)}
+  {#await applyScriptTemplate(scriptTemplate ?? defaultScriptTemplate, $extensions, appObjectData, $dbinfo, $connection)}
     <LoadingInfo message="Loading script..." />
   {:then sql}
     <AceEditor
