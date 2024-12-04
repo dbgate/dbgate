@@ -212,7 +212,7 @@ class Analyser extends DatabaseAnalyser {
       })),
       procedures: programmables.rows
         .filter(x => x.objectType == 'PROCEDURE')
-        .map(x => _.omit(x, ['objectType']))
+        .map(x => _.omit(x, ['objectType', 'schemaName']))
         .map(x => ({
           ...x,
           createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`(${getParametersSqlString(
@@ -224,7 +224,7 @@ class Analyser extends DatabaseAnalyser {
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
-        .map(x => _.omit(x, ['objectType']))
+        .map(x => _.omit(x, ['objectType', 'schemaName']))
         .map(x => ({
           ...x,
           createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
