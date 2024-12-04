@@ -1,5 +1,4 @@
 const { SqlDumper, testEqualColumns, arrayToHexString } = global.DBGATE_PACKAGES['dbgate-tools'];
-const _zip = require('lodash/zip');
 
 class MsSqlDumper extends SqlDumper {
   constructor(driver, options) {
@@ -170,16 +169,31 @@ class MsSqlDumper extends SqlDumper {
     this.endCommand();
   }
 
-  executeCallable(func, argLiterals) {
-    console.log('executeCallable', func, argLiterals);
-    if (func.objectTypeField == 'procedures') {
-      this.put('^execute %f&>&n', func, argLiterals);
+  executeCallable(func, argLiteralsByName) {
+    const putParameters = (parameters, delimiter) => {
+      this.putCollection(
+        delimiter,
+        (parameters || []), param => {
+          this.putRaw(argLiteralsByName[param]);
+          if (param?.parameterMode == 'OUT') this.put(' ^output');
+        }
+      );
+    };
 
-      this.putCollection(',&n', _zip(func.parameters || [], argLiterals || []), ([param, value]) => {
-        this.putRaw(value);
-        if (param?.parameterMode == 'OUT') this.put(' ^output');
-      });
+    if (func.objectTypeField == 'procedures') {
+      this.put('^execute %f&>&n', func);
+      putParameters(func.parameters, ',&n');
       this.put('&<&n');
+      this.endCommand();
+    }
+
+    if (func.objectTypeField == 'functions') {
+      this.put('^select %f(', func);
+      putParameters(
+        (func.parameters || []).filter(x => x.parameterMode != 'OUT'),
+        ', '
+      );
+      this.put(')');
       this.endCommand();
     }
   }

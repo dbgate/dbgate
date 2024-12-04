@@ -77,7 +77,7 @@ export default async function applyScriptTemplate(
     const driver = findEngineDriver(connection, extensions) || driverBase;
     const dmp = driver.createDumper();
     if (procedureInfo) {
-      const sqlVars = [];
+      const argLiteralsByName = {};
       for (const param of procedureInfo.parameters || []) {
         const sqlVarName = param.parameterName?.startsWith('@')
           ? param.parameterName?.substring(1)
@@ -88,9 +88,9 @@ export default async function applyScriptTemplate(
           param.dataType,
           param.parameterMode == 'OUT' ? null : `:${sqlVarName}`
         );
-        sqlVars.push(param.parameterName);
+        argLiteralsByName[param.parameterName] = param.parameterName;
       }
-      dmp.executeCallable(procedureInfo, sqlVars);
+      dmp.executeCallable(procedureInfo, argLiteralsByName);
     }
     // if (procedureInfo) dmp.put('^execute %f', procedureInfo);
     return dmp.s;

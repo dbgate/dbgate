@@ -18,7 +18,7 @@ export interface SqlDumper extends AlterProcessor {
   dropDatabase(name: string);
 
   declareVariable(name: string, type: string, defaultValueLiteral?: string);
-  executeCallable(func: CallableObjectInfo, argLiterals: string[]);
+  executeCallable(func: CallableObjectInfo, argLiteralsByName: { [name: string]: string });
 
   endCommand();
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean);
