@@ -173,17 +173,19 @@ registerCommand({
   },
 });
 
-registerCommand({
-  id: 'new.queryDesign',
-  category: 'New',
-  icon: 'img query-design',
-  name: 'Query design',
-  menuName: 'New query design',
-  onClick: () => newQueryDesign(),
-  testEnabled: () =>
-    getCurrentDatabase() &&
-    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
-});
+if (isProApp()) {
+  registerCommand({
+    id: 'new.queryDesign',
+    category: 'New',
+    icon: 'img query-design',
+    name: 'Query design',
+    menuName: 'New query design',
+    onClick: () => newQueryDesign(),
+    testEnabled: () =>
+      getCurrentDatabase() &&
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+  });
+}
 
 if (isProApp()) {
   registerCommand({
@@ -229,14 +231,16 @@ if (isProApp()) {
   });
 }
 
-registerCommand({
-  id: 'new.perspective',
-  category: 'New',
-  icon: 'img perspective',
-  name: 'Perspective',
-  menuName: 'New perspective',
-  onClick: () => newPerspective(),
-});
+if (isProApp()) {
+  registerCommand({
+    id: 'new.perspective',
+    category: 'New',
+    icon: 'img perspective',
+    name: 'Perspective',
+    menuName: 'New perspective',
+    onClick: () => newPerspective(),
+  });
+}
 
 registerCommand({
   id: 'new.diagram',

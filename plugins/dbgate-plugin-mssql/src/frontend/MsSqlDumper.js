@@ -174,7 +174,7 @@ class MsSqlDumper extends SqlDumper {
       this.putCollection(
         delimiter,
         (parameters || []), param => {
-          this.putRaw(argLiteralsByName[param]);
+          this.putRaw(argLiteralsByName[param.parameterName]);
           if (param?.parameterMode == 'OUT') this.put(' ^output');
         }
       );
