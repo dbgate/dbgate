@@ -96,10 +96,20 @@ function fillDatabaseExtendedInfo(db: DatabaseInfo): DatabaseInfo {
     procedures: (db.procedures || []).map(obj => ({
       ...obj,
       objectTypeField: 'procedures',
+      parameters: (obj.parameters || []).map(param => ({
+        ...param,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+      })),
     })),
     functions: (db.functions || []).map(obj => ({
       ...obj,
       objectTypeField: 'functions',
+      parameters: (obj.parameters || []).map(param => ({
+        ...param,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+      })),
     })),
     triggers: (db.triggers || []).map(obj => ({
       ...obj,
