@@ -11,7 +11,7 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.parameterName}
+  title={data.parameterName?.startsWith('@') ? data.parameterName.substring(1) : data.parameterName}
   extInfo={data.parameterMode && data.parameterMode !== 'IN' ? `${data.dataType} ${data.parameterMode}` : data.dataType}
   icon={'icon parameter'}
   disableHover
