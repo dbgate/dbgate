@@ -184,7 +184,7 @@ class Analyser extends DatabaseAnalyser {
           columns: indexes.rows
             .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
             .map(col => ({
-              ..._.pick(col, ['columnName']),
+              ..._.pick(col, ['columnName', 'isDescending']),
             })),
         })),
 
