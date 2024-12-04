@@ -135,9 +135,9 @@ class Analyser extends DatabaseAnalyser {
 
     const functionParameters = parameters.rows.filter(x => x.routineType == 'FUNCTION');
     const functionNameToParameters = functionParameters.reduce((acc, row) => {
-      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      if (!acc[row.pureName]) acc[row.pureName] = [];
 
-      acc[`${row.schemaName}.${row.pureName}`].push({
+      acc[row.pureName].push({
         ...row,
         dataType: normalizeTypeName(row.dataType),
       });
@@ -146,9 +146,9 @@ class Analyser extends DatabaseAnalyser {
 
     const procedureParameters = parameters.rows.filter(x => x.routineType == 'PROCEDURE');
     const procedureNameToParameters = procedureParameters.reduce((acc, row) => {
-      if (!acc[`${row.schemaName}.${row.pureName}`]) acc[`${row.schemaName}.${row.pureName}`] = [];
+      if (!acc[row.pureName]) acc[row.pureName] = [];
 
-      acc[`${row.schemaName}.${row.pureName}`].push({
+      acc[row.pureName].push({
         ...row,
         dataType: normalizeTypeName(row.dataType),
       });
@@ -212,29 +212,29 @@ class Analyser extends DatabaseAnalyser {
       })),
       procedures: programmables.rows
         .filter(x => x.objectType == 'PROCEDURE')
-        .map(x => _.omit(x, ['objectType', 'schemaName']))
+        .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
           createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`(${getParametersSqlString(
-            procedureNameToParameters[`${x.schemaName}.${x.pureName}`]
+            procedureNameToParameters[x.pureName]
           )})\n${x.routineDefinition}\n\nDELIMITER ;\n`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
-          parameters: procedureNameToParameters[`${x.schemaName}.${x.pureName}`],
+          parameters: procedureNameToParameters[x.pureName],
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
-        .map(x => _.omit(x, ['objectType', 'schemaName']))
+        .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
           createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
-            functionNameToParameters[`${x.schemaName}.${x.pureName}`]?.filter(i => i.parameterMode !== 'RETURN')
+            functionNameToParameters[x.pureName]?.filter(i => i.parameterMode !== 'RETURN')
           )})\nRETURNS ${x.returnDataType} ${x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'}\n${
             x.routineDefinition
           }`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
-          parameters: functionNameToParameters[`${x.schemaName}.${x.pureName}`],
+          parameters: functionNameToParameters[x.pureName],
         })),
     };
     this.feedback({ analysingMessage: null });
