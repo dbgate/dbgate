@@ -794,7 +794,7 @@ export class SqlDumper implements AlterProcessor {
       this.putRaw(param.parameterMode == 'IN' ? ':' + param.parameterName : param.parameterName);
     });
 
-    this.put('&<&n');
+    this.put('&<&n)');
     this.endCommand();
   }
 }
