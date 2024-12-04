@@ -12,7 +12,33 @@ Builds:
 - ADDED: Order or filter the indexes for huge tables #922
 - ADDED: Empty string filters
 - CHANGED: (Premium) Workflow for new installation (used in Docker and AWS distribution)
-
+- ADDED: Show stored procedure and function parameters (MySQL, PostgreSQL, SQL Server, MariaDB) #348
+- FIXED: Selected database has changed when closing database grouped tab #983
+- ADDED: Add line break option to editor #823
+- ADDED: Order or filter the indexes for huge tables #922
+- ADDED: Preview mode for the top bar tab like vscode #767
+- ADDED: Keyboard navigatioon between connections, databases and tables
+- FIXED: Fixed some issues in connection search
+- FIXED: Schema selection in Export does not provide all schemas #924
+- CHANGED: Standardized Window menu in MacOS app
+- FIXED: Typecast ::date is treated as a parameter #925
+- FIXED: App crashes when trying to 'Open Structure' in a readonly connection #926
+- FIXED: Selected database has changed when closing database grouped tab #938
+- CHANGED: (Premium) Query designer and Query perspective designer moved to Premium editioin
+- CHANGED: (Premium) Compare database tool - many improvements, moved to Premium edition
+- ADDED: (Premium) Export DB model - exporting model to YAML folder, JSON or SQL folder
+- CHANGED: Model deployer - many improvements, support of rename missing objects
+- ADDED: (Premium) Premium NPM distribution
+- CHANGED: (Premium) Amazon Redshift driver moved to Premium edition
+- ADDED: Generated API documentation https://dbgate.org/docs/apidoc.html
+- ADDED: NPM distribution now supports all dbgate database connectors, many improvements NPM packages
+- CHANGED: Optimalized size of NPM plugins (eg. dbgate-plugin-mssql from 1.34 MB to 71 kB)
+- CHANGED: Unsaved connections are now shown in "Recent and unsaved" folder after disconnect
+- FIXED: Correctly show focused control, as defined by UX standards
+- ADDED: Data duplicator - weak references
+- ADDED: View JSON detail of log messages from export/import jobs and query executions
+- ADDED: Rename procedure/function context menu
+- ADDED: Show SQL quick view
 
 ### 5.5.6
 - FIXED: DbGate process consumes 100% after UI closed - Mac, Linux (#917, #915)
