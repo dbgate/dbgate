@@ -70,29 +70,15 @@ export default async function applyScriptTemplate(
       return createSql.replace(/^\s*create\s+/i, alterPrefix);
     }
   }
-  if (scriptTemplate == 'EXECUTE PROCEDURE' || scriptTemplate == 'CALL FUNCTION') {
+  if (scriptTemplate == 'CALL OBJECT') {
     const procedureInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
     const connection = connectionInfo || (await getConnectionInfo(props));
 
     const driver = findEngineDriver(connection, extensions) || driverBase;
     const dmp = driver.createDumper();
     if (procedureInfo) {
-      const argLiteralsByName = {};
-      for (const param of procedureInfo.parameters || []) {
-        const sqlVarName = param.parameterName?.startsWith('@')
-          ? param.parameterName?.substring(1)
-          : param.parameterName;
-
-        dmp.declareVariable(
-          param.parameterName,
-          param.dataType,
-          param.parameterMode == 'OUT' ? null : `:${sqlVarName}`
-        );
-        argLiteralsByName[param.parameterName] = param.parameterName;
-      }
-      dmp.executeCallable(procedureInfo, argLiteralsByName);
+      dmp.callableTemplate(procedureInfo);
     }
-    // if (procedureInfo) dmp.put('^execute %f', procedureInfo);
     return dmp.s;
   }
 
@@ -161,7 +147,7 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
         },
         {
           label: 'EXECUTE',
-          scriptTemplate: 'EXECUTE PROCEDURE',
+          scriptTemplate: 'CALL OBJECT',
         },
       ];
 
@@ -177,7 +163,7 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
         },
         {
           label: 'CALL',
-          scriptTemplate: 'CALL FUNCTION',
+          scriptTemplate: 'CALL OBJECT',
         },
       ];
   }

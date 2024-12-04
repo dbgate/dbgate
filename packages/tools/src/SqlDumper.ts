@@ -784,12 +784,17 @@ export class SqlDumper implements AlterProcessor {
     }
   }
 
-  declareVariable(name: string, type: string, defaultValueLiteral?: string) {}
-  executeCallable(func: CallableObjectInfo, argLiteralsByName: { [name: string]: string }) {
-    this.putCmd(
-      '^call %f(%,s)',
+  callableTemplate(func: CallableObjectInfo) {
+    this.put(
+      '^call %f(&>&n',
       func,
-      (func.parameters || []).map(x => argLiteralsByName[x.parameterName])
     );
+
+    this.putCollection(',&n', func.parameters || [], param => {
+      this.putRaw(param.parameterMode == 'IN' ? ':' + param.parameterName : param.parameterName);
+    });
+
+    this.put('&<&n');
+    this.endCommand();
   }
 }

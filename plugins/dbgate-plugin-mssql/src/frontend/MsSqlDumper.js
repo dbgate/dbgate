@@ -161,26 +161,25 @@ class MsSqlDumper extends SqlDumper {
     this.put('^select ^scope_identity()');
   }
 
-  declareVariable(name, type, defaultValueLiteral) {
-    this.put('^declare %s %s', name, type);
-    if (defaultValueLiteral) {
-      this.put(' = %s', defaultValueLiteral);
-    }
-    this.endCommand();
-  }
-
-  executeCallable(func, argLiteralsByName) {
+  callableTemplate(func) {
     const putParameters = (parameters, delimiter) => {
-      this.putCollection(
-        delimiter,
-        (parameters || []), param => {
-          this.putRaw(argLiteralsByName[param.parameterName]);
-          if (param?.parameterMode == 'OUT') this.put(' ^output');
+      this.putCollection(delimiter, parameters || [], param => {
+        this.putRaw(param.parameterName);
+        if (param?.parameterMode == 'OUT') this.put(' ^output');
+      });
+    };
+    const putDeclareParameters = parameters => {
+      for (const param of parameters || []) {
+        this.put('^declare %s %s', param.parameterName, param.dataType);
+        if (param.parameterMode == 'IN') {
+          this.put(' = :%s', param.parameterName.substring(1));
         }
-      );
+        this.endCommand();
+      }
     };
 
     if (func.objectTypeField == 'procedures') {
+      putDeclareParameters(func.parameters);
       this.put('^execute %f&>&n', func);
       putParameters(func.parameters, ',&n');
       this.put('&<&n');
@@ -188,11 +187,10 @@ class MsSqlDumper extends SqlDumper {
     }
 
     if (func.objectTypeField == 'functions') {
+      const pars = (func.parameters || []).filter(x => x.parameterMode != 'OUT');
+      putDeclareParameters(pars);
       this.put('^select %f(', func);
-      putParameters(
-        (func.parameters || []).filter(x => x.parameterMode != 'OUT'),
-        ', '
-      );
+      putParameters(pars, ', ');
       this.put(')');
       this.endCommand();
     }

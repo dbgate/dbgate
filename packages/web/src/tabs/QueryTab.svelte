@@ -419,7 +419,7 @@
   let queryParameterStyle =
     localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
     initialArgs?.queryParameterStyle ??
-    (initialArgs?.scriptTemplate == 'EXECUTE PROCEDURE' || initialArgs?.scriptTemplate == 'CALL FUNCTION' ? ':' : null);
+    (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : null);
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
