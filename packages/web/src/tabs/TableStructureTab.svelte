@@ -55,7 +55,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import hasPermission from '../utility/hasPermission';
-  import { changeTab } from '../utility/common';
+  import { changeTab, markTabSaved, markTabUnsaved } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -115,6 +115,7 @@
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
+      markTabSaved(tabid);
       await apiCall('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
       const isCreateTable = $editorValue?.base == null;
@@ -152,7 +153,7 @@
     {resetCounter}
     isCreateTable={objectTypeField == 'tables' && $editorValue && !$editorValue?.base}
     setTableInfo={objectTypeField == 'tables' && !$connection?.isReadOnly && hasPermission(`dbops/model/edit`)
-      ? tableInfoUpdater =>
+      ? tableInfoUpdater => {
           setEditorData(tbl =>
             tbl
               ? {
@@ -163,7 +164,9 @@
                   base: tableInfoWithPairingId,
                   current: tableInfoUpdater(tableInfoWithPairingId),
                 }
-          )
+          );
+          markTabUnsaved(tabid);
+        }
       : null}
   />
   <svelte:fragment slot="toolstrip">
