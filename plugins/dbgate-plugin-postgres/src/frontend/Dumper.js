@@ -109,6 +109,57 @@ class Dumper extends SqlDumper {
     const column = table.columns && table.columns.find(x => x.autoIncrement);
     this.put("^SELECT currval(pg_get_serial_sequence('%f','%s'))", table, column ? column.columnName : null);
   }
+
+  callableTemplate(func) {
+    const putDeclareParamters = parameters => {
+      for (const param of parameters.filter(i => i.parameterMode != 'RETURN')) {
+        if (param.parameterMode == 'IN') {
+          this.put('%s %s := :%s', param.parameterName, param.dataType, param.parameterName);
+          this.endCommand();
+        } else {
+          this.put('%s %s', param.parameterName, param.dataType);
+          this.endCommand();
+        }
+      }
+      this.put('&n');
+    };
+
+    const putParameters = (parameters, delimiter) => {
+      this.putCollection(delimiter, parameters || [], param => {
+        this.putRaw(param.parameterName);
+      });
+    };
+
+    if (func.objectTypeField == 'procedures') {
+      this.put('^do $$&n');
+      this.put('^declare&n');
+      putDeclareParamters(func.parameters);
+      this.put('^begin&n');
+      this.put('^call %f(&>&n', func);
+      putParameters(func.parameters, ',&n');
+      this.put('&<&n)');
+      this.endCommand();
+      this.put('&n');
+      this.put('^end $$');
+      this.endCommand();
+    }
+
+    if (func.objectTypeField == 'functions') {
+      this.put('^do $$&n');
+      this.put('^declare&n');
+      this.put('result %s', func.returnType);
+      this.endCommand();
+      putDeclareParamters(func.parameters);
+      this.put('^begin&n');
+      this.put('result := %f(&>&n', func);
+      putParameters(func.parameters, ',&n');
+      this.put('&<&n)');
+      this.endCommand();
+      this.put('&n');
+      this.put('^end $$');
+      this.endCommand();
+    }
+  }
 }
 
 module.exports = Dumper;
