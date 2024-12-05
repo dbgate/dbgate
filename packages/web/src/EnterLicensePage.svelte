@@ -33,7 +33,7 @@
 
   $: {
     if ($config?.isLicenseValid) {
-      internalRedirectTo('/index.html');
+      internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
     }
   }
 </script>
@@ -105,7 +105,6 @@
             openWebLink(
               `https://auth.dbgate.eu/redirect-to-purchase?product=${getElectron() ? 'premium' : 'team-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
             );
-
           }}
         />
       </div>
