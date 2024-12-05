@@ -33,7 +33,7 @@
 
   $: {
     if ($config?.isLicenseValid) {
-      internalRedirectTo('/');
+      internalRedirectTo('/index.html');
     }
   }
 </script>
