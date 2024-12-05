@@ -219,7 +219,7 @@
       return null;
     }
 
-    return { ...driver.getQuerySplitterOptions('editor'), queryParameterStyle };
+    return { ...driver.getQuerySplitterOptions('editor'), queryParameterStyle, allowDollarDollarString: false };
   }
 
   async function executeCore(sql, startLine = 0) {

@@ -97,6 +97,46 @@ class Dumper extends SqlDumper {
   selectScopeIdentity() {
     this.put('^select ^last_insert_id()');
   }
+
+  callableTemplate(func) {
+    const parameters = (func.parameters || []).filter(x => x.parameterMode != 'RETURN');
+
+    const putParameters = (parameters, delimiter) => {
+      this.putCollection(delimiter, parameters || [], param => {
+        if (param.parameterMode == 'IN') {
+          this.putRaw('@' + param.parameterName);
+        } else {
+          this.putRaw('@' + param.parameterName + 'Output');
+        }
+      });
+    };
+
+    const putSetParamters = parameters => {
+      for (const param of parameters || []) {
+        if (param.parameterMode == 'IN') {
+          this.put('SET @%s = :%s', param.parameterName, param.parameterName);
+          this.endCommand();
+        }
+      }
+      this.put('&n');
+    };
+
+    if (func.objectTypeField == 'procedures') {
+      putSetParamters(func.parameters);
+      this.put('^call %f(&>&n', func);
+      putParameters(parameters, ',&n');
+      this.put('&<&n)');
+      this.endCommand();
+    }
+
+    if (func.objectTypeField == 'functions') {
+      putSetParamters(parameters);
+      this.put('^select %f(&>&n', func);
+      putParameters(parameters, ',&n');
+      this.put('&<&n)');
+      this.endCommand();
+    }
+  }
 }
 
 module.exports = Dumper;

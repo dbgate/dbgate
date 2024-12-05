@@ -346,6 +346,7 @@ class Analyser extends DatabaseAnalyser {
           schemaName: func.schema_name,
           contentHash: func.hash_code,
           parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
+          returnType: func.data_type,
         })),
     };
 
