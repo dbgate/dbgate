@@ -132,7 +132,9 @@ export interface CallableObjectInfo extends SqlObjectInfo {
 
 export interface ProcedureInfo extends CallableObjectInfo {}
 
-export interface FunctionInfo extends CallableObjectInfo {}
+export interface FunctionInfo extends CallableObjectInfo {
+  returnType?: string;
+}
 
 export interface TriggerInfo extends SqlObjectInfo {}
 
