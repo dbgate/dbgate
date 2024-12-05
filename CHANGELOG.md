@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### Not published
+### 6.0.0
 - ADDED: Order or filter the indexes for huge tables #922
 - ADDED: Empty string filters
 - CHANGED: (Premium) Workflow for new installation (used in Docker and AWS distribution)
