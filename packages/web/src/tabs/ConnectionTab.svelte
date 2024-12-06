@@ -230,7 +230,7 @@
           {:else if isConnected}
             <FormButton value="Disconnect" on:click={handleDisconnect} />
           {:else}
-            <FormButton value="Connect" on:click={handleConnect} />
+            <FormButton value="Connect" on:click={handleConnect} data-testid='ConnectionTab_connect' />
             {#if isTesting}
               <FormButton value="Cancel test" on:click={handleCancelTest} />
             {:else}

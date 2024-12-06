@@ -5,5 +5,8 @@
   "license": "GPL",
   "devDependencies": {
     "cypress": "^13.16.1"
+  },
+  "scripts": {
+    "cy:open": "cypress open"
   }
 }

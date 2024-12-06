@@ -76,6 +76,7 @@
   name="engine"
   isNative
   disabled={isConnected}
+  data-testid="ConnectionDriverFields_connectionType"
   options={[
     { label: '(select connection type)', value: '' },
     ..._.sortBy(
@@ -116,6 +117,7 @@
   <FormTextField
     label="Database URL"
     name="databaseUrl"
+    data-testid="ConnectionDriverFields_databaseUrl"
     placeholder={driver?.databaseUrlPlaceholder}
     disabled={isConnected || disabledFields.includes('databaseUrl')}
   />
@@ -125,6 +127,7 @@
   {#key $authTypes}
     <FormSelectField
       label={driver?.authTypeLabel ?? 'Authentication'}
+      data-testid="ConnectionDriverFields_authType"
       name="authType"
       isNative
       disabled={isConnected}
@@ -138,11 +141,21 @@
 {/if}
 
 {#if driver?.showConnectionField('endpoint', $values, showConnectionFieldArgs)}
-  <FormTextField label="Endpoint" name="endpoint" disabled={isConnected || disabledFields.includes('endpoint')} />
+  <FormTextField
+    label="Endpoint"
+    name="endpoint"
+    disabled={isConnected || disabledFields.includes('endpoint')}
+    data-testid="ConnectionDriverFields_endpoint"
+  />
 {/if}
 
 {#if driver?.showConnectionField('endpointKey', $values, showConnectionFieldArgs)}
-  <FormTextField label="Key" name="endpointKey" disabled={isConnected || disabledFields.includes('endpointKey')} />
+  <FormTextField
+    label="Key"
+    name="endpointKey"
+    disabled={isConnected || disabledFields.includes('endpointKey')}
+    data-testid="ConnectionDriverFields_endpointKey"
+  />
 {/if}
 
 {#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}
@@ -150,6 +163,7 @@
     label="Client library path"
     name="clientLibraryPath"
     disabled={isConnected || disabledFields.includes('clientLibraryPath')}
+    data-testid="ConnectionDriverFields_clientLibraryPath"
   />
 {/if}
 
@@ -161,6 +175,7 @@
         name="server"
         disabled={isConnected || disabledFields.includes('server')}
         templateProps={{ noMargin: true }}
+        data-testid="ConnectionDriverFields_server"
       />
     </div>
     {#if driver?.showConnectionField('port', $values, showConnectionFieldArgs)}
@@ -171,6 +186,7 @@
           disabled={isConnected || disabledFields.includes('port')}
           templateProps={{ noMargin: true }}
           placeholder={driver?.defaultPort}
+          data-testid="ConnectionDriverFields_port"
         />
       </div>
     {/if}
@@ -191,6 +207,7 @@
         name="serviceName"
         disabled={isConnected}
         templateProps={{ noMargin: true }}
+        data-testid="ConnectionDriverFields_serviceName"
       />
     </div>
     <div class="col-3">
@@ -205,6 +222,7 @@
           { value: 'serviceName', label: 'Service name' },
           { value: 'sid', label: 'SID' },
         ]}
+        data-testid="ConnectionDriverFields_serviceNameType"
       />
     </div>
   </div>
@@ -216,6 +234,7 @@
     name="socketPath"
     disabled={isConnected || disabledFields.includes('socketPath')}
     placeholder={driver?.defaultSocketPath}
+    data-testid="ConnectionDriverFields_scoketPath"
   />
 {/if}
 
@@ -228,6 +247,7 @@
           name="user"
           disabled={isConnected || disabledFields.includes('user')}
           templateProps={{ noMargin: true }}
+          data-testid="ConnectionDriverFields_user"
         />
       </div>
     {/if}
@@ -238,22 +258,34 @@
           name="password"
           disabled={isConnected || disabledFields.includes('password')}
           templateProps={{ noMargin: true }}
+          data-testid="ConnectionDriverFields_password"
         />
       </div>
     {/if}
   </div>
 {/if}
 {#if showUser && !showPassword}
-  <FormTextField label="User" name="user" disabled={isConnected || disabledFields.includes('user')} />
+  <FormTextField
+    label="User"
+    name="user"
+    disabled={isConnected || disabledFields.includes('user')}
+    data-testid="ConnectionDriverFields_user"
+  />
 {/if}
 {#if !showUser && showPassword}
-  <FormPasswordField label="Password" name="password" disabled={isConnected || disabledFields.includes('password')} />
+  <FormPasswordField
+    label="Password"
+    name="password"
+    disabled={isConnected || disabledFields.includes('password')}
+    data-testid="ConnectionDriverFields_password"
+  />
 {/if}
 
 {#if driver?.showConnectionField('awsRegion', $values, showConnectionFieldArgs)}
   <FormDropDownTextField
     label="AWS Region"
     name="awsRegion"
+    data-testid="ConnectionDriverFields_awsRegion"
     menu={() => {
       return awsRegions.map(awsRegion => ({
         text: awsRegion,
@@ -273,6 +305,7 @@
         name="accessKeyId"
         disabled={isConnected || disabledFields.includes('accessKeyId')}
         templateProps={{ noMargin: true }}
+        data-testid="ConnectionDriverFields_accesKeyId"
       />
     </div>
   {/if}
@@ -283,6 +316,7 @@
         name="secretAccessKey"
         disabled={isConnected || disabledFields.includes('secretAccessKey')}
         templateProps={{ noMargin: true }}
+        data-testid="ConnectionDriverFields_secretAccessKey"
       />
     </div>
   {/if}
@@ -301,31 +335,63 @@
       { value: 'askPassword', label: "Don't save, ask for password" },
       { value: 'askUser', label: "Don't save, ask for login and password" },
     ]}
+    data-testid="ConnectionDriverFields_passwordMode"
   />
 {/if}
 
 {#if driver?.showConnectionField('treeKeySeparator', $values, showConnectionFieldArgs)}
-  <FormTextField label="Key separator" name="treeKeySeparator" disabled={isConnected} placeholder=":" />
+  <FormTextField
+    label="Key separator"
+    name="treeKeySeparator"
+    disabled={isConnected}
+    placeholder=":"
+    data-testid="ConnectionDriverFields_treeKeySeparator"
+  />
 {/if}
 
 {#if driver?.showConnectionField('windowsDomain', $values, showConnectionFieldArgs)}
-  <FormTextField label="Domain (specify to use NTLM authentication)" name="windowsDomain" disabled={isConnected} />
+  <FormTextField
+    label="Domain (specify to use NTLM authentication)"
+    name="windowsDomain"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_windowsDomain"
+  />
 {/if}
 
 {#if driver?.showConnectionField('isReadOnly', $values, showConnectionFieldArgs)}
-  <FormCheckboxField label="Is read only" name="isReadOnly" disabled={isConnected} />
+  <FormCheckboxField
+    label="Is read only"
+    name="isReadOnly"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_isReadOnly"
+  />
 {/if}
 
 {#if driver?.showConnectionField('trustServerCertificate', $values, showConnectionFieldArgs)}
-  <FormCheckboxField label="Trust server certificate" name="trustServerCertificate" disabled={isConnected} />
+  <FormCheckboxField
+    label="Trust server certificate"
+    name="trustServerCertificate"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_trustServerCertificate"
+  />
 {/if}
 
 {#if driver?.showConnectionField('defaultDatabase', $values, showConnectionFieldArgs)}
-  <FormTextField label="Default database" name="defaultDatabase" disabled={isConnected} />
+  <FormTextField
+    label="Default database"
+    name="defaultDatabase"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_defaultDatabase"
+  />
 {/if}
 
 {#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values, showConnectionFieldArgs)}
-  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" disabled={isConnected} />
+  <FormCheckboxField
+    label={`Use only database ${defaultDatabase}`}
+    name="singleDatabase"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_singleDatabase"
+  />
 {/if}
 
 {#if driver?.showConnectionField('useSeparateSchemas', $values, showConnectionFieldArgs)}
@@ -333,6 +399,7 @@
     label={`Use schemas separately (use this if you have many large schemas)`}
     name="useSeparateSchemas"
     disabled={isConnected}
+    data-testid="ConnectionDriverFields_useSeparateSchemas"
   />
 {/if}
 
