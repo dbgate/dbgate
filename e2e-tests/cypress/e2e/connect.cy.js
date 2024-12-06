@@ -1,11 +1,11 @@
 describe('Initialization', () => {
   it('successfully loads', () => {
-    cy.visit('http://localhost:5001');
+    cy.visit('http://localhost:3000');
     cy.contains('Database not selected');
   });
 
   it('adds connection', () => {
-    cy.visit('http://localhost:5001');
+    cy.visit('http://localhost:3000');
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');

@@ -1,0 +1,43 @@
+name: E2E tests
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - 'feature/**'
+
+jobs:
+  test-runner:
+    runs-on: ubuntu-latest
+    container: node:18
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: yarn install
+        run: |
+          yarn install
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          build: yarn prepare:packer
+          start: node packer/build/bundle.js --listen-api
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npm start
+          
+    services:
+      mysql:
+        image: mysql:8.0.18
+        env:
+          MYSQL_ROOT_PASSWORD: Pwd2020Db
+        ports:
+          - 16004:3306
