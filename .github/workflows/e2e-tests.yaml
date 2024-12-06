@@ -30,9 +30,7 @@ jobs:
         with:
           build: yarn prepare:packer
           start: node packer/build/bundle.js --listen-api --static-dir packer/build/public
-          with:
-            project: ./e2e-tests
-
+          project: ./e2e-tests
           
     services:
       mysql:
