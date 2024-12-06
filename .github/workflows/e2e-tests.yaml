@@ -12,6 +12,9 @@ jobs:
     container: node:18
 
     steps:
+      - name: Install dependencies
+        run: |
+            apt-get install libgtk2.0-0t64 libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
       - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -26,13 +29,10 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           build: yarn prepare:packer
-          start: node packer/build/bundle.js --listen-api
+          start: node packer/build/bundle.js --listen-api --static-dir packer/build/public
+          with:
+            project: ./e2e-tests
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          build: npm run build
-          start: npm start
           
     services:
       mysql:

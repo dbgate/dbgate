@@ -14,6 +14,7 @@ const workspaceDir = getNamedArg('--workspace-dir');
 const processDisplayName = getNamedArg('--process-display-name');
 const listenApi = process.argv.includes('--listen-api');
 const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
+const staticDir = getNamedArg('--static-dir');
 
 function getPassArgs() {
   const res = [];
@@ -36,4 +37,5 @@ module.exports = {
   listenApi,
   listenApiChild,
   processDisplayName,
+  staticDir,
 };

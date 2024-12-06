@@ -28,6 +28,7 @@ const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const onFinished = require('on-finished');
+const processArgs = require('./utility/processArgs');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
@@ -77,6 +78,8 @@ function start() {
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
   } else if (platformInfo.isAwsUbuntuLayout) {
     app.use(getExpressPath('/'), express.static('/home/ubuntu/build/public'));
+  } else if (processArgs.staticDir) {
+    app.use(getExpressPath('/'), express.static(processArgs.staticDir));
   } else if (platformInfo.isNpmDist) {
     app.use(
       getExpressPath('/'),
