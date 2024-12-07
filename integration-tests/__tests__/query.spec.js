@@ -160,7 +160,7 @@ describe('Query', () => {
         'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;',
         { discardResult: true }
       );
-      const res = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
+      const res = await driver.query(conn, 'SELECT count(1) AS cnt FROM t1');
       // console.log(res);
       expect(res.rows[0].cnt == 3).toBeTruthy();
     })
