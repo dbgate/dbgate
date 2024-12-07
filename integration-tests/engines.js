@@ -42,7 +42,7 @@ const engines = [
     dumpFile: 'data/chinook-mysql.sql',
     dumpChecks: [
       {
-        sql: 'select count(*) as res from genre',
+        sql: 'select count(1) as res from genre',
         res: '25',
       },
     ],
@@ -128,7 +128,7 @@ const engines = [
     dumpFile: 'data/chinook-mysql.sql',
     dumpChecks: [
       {
-        sql: 'select count(*) as res from genre',
+        sql: 'select count(1) as res from genre',
         res: '25',
       },
     ],
@@ -159,9 +159,9 @@ const engines = [
       {
         type: 'functions',
         create1:
-          'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
+          'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(1) into res from t1; return res; end; $$',
         create2:
-          'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
+          'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(1) into res from t2; return res; end; $$',
         drop1: 'DROP FUNCTION obj1',
         drop2: 'DROP FUNCTION obj2',
       },
@@ -172,7 +172,7 @@ const engines = [
     dumpFile: 'data/chinook-postgre.sql',
     dumpChecks: [
       {
-        sql: 'select count(*) as res from "public"."Genre"',
+        sql: 'select count(1) as res from "public"."Genre"',
         res: '25',
       },
     ],

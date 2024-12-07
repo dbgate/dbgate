@@ -319,7 +319,7 @@ export class PerspectiveDataLoader {
       columns: [
         {
           exprType: 'raw',
-          sql: 'COUNT(*)',
+          sql: 'count(1)',
           alias: 'count',
         },
       ],

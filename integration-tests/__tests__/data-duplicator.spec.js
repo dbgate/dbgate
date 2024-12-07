@@ -84,10 +84,10 @@ describe('Data duplicator', () => {
         ],
       });
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await driver.query(conn, `select count(1) as cnt from t1`);
       expect(res1.rows[0].cnt.toString()).toEqual('6');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await driver.query(conn, `select count(1) as cnt from t2`);
       expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );
@@ -145,13 +145,13 @@ describe('Data duplicator', () => {
         },
       });
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await driver.query(conn, `select count(1) as cnt from t1`);
       expect(res1.rows[0].cnt.toString()).toEqual('1');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await driver.query(conn, `select count(1) as cnt from t2`);
       expect(res2.rows[0].cnt.toString()).toEqual('2');
 
-      const res3 = await driver.query(conn, `select count(*) as cnt from t2 where valfk is not null`);
+      const res3 = await driver.query(conn, `select count(1) as cnt from t2 where valfk is not null`);
       expect(res3.rows[0].cnt.toString()).toEqual('1');
     })
   );

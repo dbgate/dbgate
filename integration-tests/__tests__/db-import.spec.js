@@ -37,7 +37,7 @@ describe('DB Import', () => {
       });
       await copyStream(reader, writer);
 
-      const res = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res = await driver.query(conn, `select count(1) as cnt from t1`);
       expect(res.rows[0].cnt.toString()).toEqual('6');
     })
   );
@@ -65,10 +65,10 @@ describe('DB Import', () => {
       });
       await copyStream(reader2, writer2);
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await driver.query(conn, `select count(1) as cnt from t1`);
       expect(res1.rows[0].cnt.toString()).toEqual('6');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await driver.query(conn, `select count(1) as cnt from t2`);
       expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );
@@ -91,10 +91,10 @@ describe('DB Import', () => {
         expect(res.rows[0].res.toString()).toEqual(check.res);
       }
 
-      // const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      // const res1 = await driver.query(conn, `select count(1) as cnt from t1`);
       // expect(res1.rows[0].cnt.toString()).toEqual('6');
 
-      // const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      // const res2 = await driver.query(conn, `select count(1) as cnt from t2`);
       // expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );

@@ -755,7 +755,7 @@ export abstract class GridDisplay {
         columns: [
           {
             exprType: 'raw',
-            sql: 'COUNT(*)',
+            sql: 'count(1)',
             alias: 'count',
           },
         ],
@@ -764,7 +764,7 @@ export abstract class GridDisplay {
       select.columns = [
         {
           exprType: 'raw',
-          sql: 'COUNT(*)',
+          sql: 'count(1)',
           alias: 'count',
         },
       ];
