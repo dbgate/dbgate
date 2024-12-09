@@ -39,7 +39,7 @@ jobs:
           yarn cy:run
         env:
           CI: true
-     - name: Stop backend server
+      - name: Stop backend server
         run: |
           kill $(cat backend.pid)
           rm backend.pid
