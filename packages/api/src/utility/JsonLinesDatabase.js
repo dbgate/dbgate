@@ -23,6 +23,12 @@ class JsonLinesDatabase {
     await fs.writeFile(this.filename, this.data.map(x => JSON.stringify(x)).join('\n'));
   }
 
+  async unload() {
+    this.data = [];
+    this.loadedOk = false;
+    this.loadPerformed = false;
+  }
+
   async _ensureLoaded() {
     if (!this.loadPerformed) {
       await lock.acquire('reader', async () => {

@@ -510,4 +510,10 @@ module.exports = {
     }
     return null;
   },
+
+  reloadConnectionList_meta: true,
+  async reloadConnectionList() {
+    if (portalConnections) return;
+    await this.datastore.unload();
+  },
 };

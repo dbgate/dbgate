@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "GPL",
   "devDependencies": {
+    "axios": "^1.7.9",
     "cross-env": "^7.0.3",
     "cypress": "^13.16.1",
     "start-server-and-test": "^2.0.8"
@@ -12,7 +13,7 @@
     "cy:open": "cypress open --config experimentalInteractiveRunEvents=true",
     "cy:run": "cypress run",
     "cy:run:ci": "cross-env CI=true cypress run",
-    "start": "cd .. && node packer/build/bundle.js --listen-api --run-packer-build",
+    "start": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
     "test:ci": "start-server-and-test start http://localhost:3000 cy:run:ci",
     "test": "start-server-and-test start http://localhost:3000 cy:run"
   }

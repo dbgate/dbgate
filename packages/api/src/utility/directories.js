@@ -96,7 +96,7 @@ function packagedPluginsDir() {
     //   return path.resolve(__dirname, '../../plugins');
     // }
   }
-  if (processArgs.runPackerBuild) {
+  if (processArgs.runE2eTests) {
     return path.resolve('packer/build/plugins');    
   }
   return null;
