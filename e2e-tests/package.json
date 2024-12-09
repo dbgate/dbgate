@@ -4,14 +4,16 @@
   "main": "index.js",
   "license": "GPL",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "cypress": "^13.16.1",
     "start-server-and-test": "^2.0.8"
   },
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "start": "cd .. && node packer/build/bundle.js --listen-api --run-packer-build",
-    "test": "yarn cy:run",
-    "ci": "start-server-and-test http://localhost:3000"
+    "start:ci": "cd .. && cross-env CI=true node packer/build/bundle.js --listen-api --run-packer-build",
+    "start:local": "cd .. && node common/clearDataWithBackup.js && cross-env CI=true node packer/build/bundle.js --listen-api --run-packer-build",
+    "test:ci": "start-server-and-test start:ci http://localhost:3000 cy:run",
+    "test:local": "start-server-and-test start:local http://localhost:3000 cy:run"
   }
 }
