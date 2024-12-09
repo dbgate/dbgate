@@ -12,10 +12,11 @@ describe('Initialization', () => {
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');
-    cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');
     if (runOnCI) {
       cy.get('[data-testid=ConnectionDriverFields_server]').clear().type('mysql');
-    } 
+    } else {
+      cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');
+    }
     cy.get('[data-testid=ConnectionDriverFields_displayName]').clear().type('test-mysql-1');
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();
     cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
@@ -24,7 +25,7 @@ describe('Initialization', () => {
 
   // it('import chinook DB', () => {
   //   cy.visit('http://localhost:3000');
-  //   cy.findByText('test-mysql-1').dblclick();
+  //   cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
   // });
 
 });

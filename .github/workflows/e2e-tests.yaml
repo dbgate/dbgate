@@ -39,5 +39,3 @@ jobs:
         image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
-        ports:
-          - 16004:3306
