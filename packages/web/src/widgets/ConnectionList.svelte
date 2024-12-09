@@ -194,7 +194,7 @@
   />
   <CloseSearchButton bind:filter />
   {#if $commandsCustomized['new.connection']?.enabled}
-    <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
+    <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection" data-testid="ConnectionList_buttonNewConnection">
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
     <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">

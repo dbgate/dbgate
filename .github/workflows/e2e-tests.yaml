@@ -29,20 +29,12 @@ jobs:
         run: |
           cd e2e-tests
           yarn install
-      - name: Start backend server
-        run: |
-          node packer/build/bundle.js --listen-api --run-packer-build &
-          echo $! > backend.pid
       - name: Run Cypress tests
         run: |
           cd e2e-tests
-          yarn cy:run
+          yarn ci
         env:
           CI: true
-      - name: Stop backend server
-        run: |
-          kill $(cat backend.pid)
-          rm backend.pid
 
     services:
       mysql:

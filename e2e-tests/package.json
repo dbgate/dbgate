@@ -4,10 +4,14 @@
   "main": "index.js",
   "license": "GPL",
   "devDependencies": {
-    "cypress": "^13.16.1"
+    "cypress": "^13.16.1",
+    "start-server-and-test": "^2.0.8"
   },
   "scripts": {
     "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:run": "cypress run",
+    "start": "cd .. && node packer/build/bundle.js --listen-api --run-packer-build",
+    "test": "yarn cy:run",
+    "ci": "start-server-and-test http://localhost:3000"
   }
 }
