@@ -14,7 +14,15 @@ describe('Initialization', () => {
     if (process.env.CI) {
       cy.get('[data-testid=ConnectionDriverFields_server]').clear().type('mysql');
     } 
+    cy.get('[data-testid=ConnectionDriverFields_displayName]').clear().type('test-mysql-1');
+    cy.get('[data-testid=ConnectionTab_buttonSave]').click();
     cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
     cy.contains('performance_schema');
   });
+
+  // it('import chinook DB', () => {
+  //   cy.visit('http://localhost:3000');
+  //   cy.findByText('test-mysql-1').dblclick();
+  // });
+
 });

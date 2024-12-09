@@ -18,9 +18,15 @@ function createTimeStamp() {
   return ts;
 }
 
-if (fs.existsSync(path.join(baseDir, 'connections.jsonl'))) {
-  fs.renameSync(
-    path.join(baseDir, 'connections.jsonl'),
-    path.join(baseDir, `connections-${createTimeStamp()}.jsonl.bak`)
-  );
+function clearDataWithBackup() {
+  if (fs.existsSync(path.join(baseDir, 'connections.jsonl'))) {
+    fs.renameSync(
+      path.join(baseDir, 'connections.jsonl'),
+      path.join(baseDir, `connections-${createTimeStamp()}.jsonl.bak`)
+    );
+  }
 }
+
+module.exports = {
+  clearDataWithBackup,
+};

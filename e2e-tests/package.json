@@ -9,11 +9,11 @@
     "start-server-and-test": "^2.0.8"
   },
   "scripts": {
-    "cy:open": "cypress open",
+    "cy:open": "cypress open --config experimentalInteractiveRunEvents=true",
     "cy:run": "cypress run",
-    "start:ci": "cd .. && cross-env CI=true node packer/build/bundle.js --listen-api --run-packer-build",
-    "start:local": "cd .. && node common/clearDataWithBackup.js && node packer/build/bundle.js --listen-api --run-packer-build",
-    "test:ci": "start-server-and-test start:ci http://localhost:3000 cy:run",
-    "test:local": "start-server-and-test start:local http://localhost:3000 cy:run"
+    "cy:run:ci": "cross-env CI=true cypress run",
+    "start": "cd .. && node packer/build/bundle.js --listen-api --run-packer-build",
+    "test:ci": "start-server-and-test start http://localhost:3000 cy:run:ci",
+    "test": "start-server-and-test start http://localhost:3000 cy:run"
   }
 }

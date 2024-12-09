@@ -411,7 +411,8 @@
         name="displayName"
         templateProps={{ noMargin: true }}
         disabled={isConnected}
-      />
+        data-testid="ConnectionDriverFields_displayName"
+        />
     </div>
     <div class="col-6 mr-1">
       <FormColorField
@@ -421,6 +422,7 @@
         emptyLabel="(not selected)"
         templateProps={{ noMargin: true }}
         disabled={isConnected}
+        data-testid="ConnectionDriverFields_connectionColor"
       />
     </div>
   </div>
