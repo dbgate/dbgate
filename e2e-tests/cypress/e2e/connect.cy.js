@@ -11,6 +11,9 @@ describe('Initialization', () => {
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');
     cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');
+    if (process.env.CI) {
+      cy.get('[data-testid=ConnectionDriverFields_server]').clear().type('mysql');
+    } 
     cy.get('[data-testid=ConnectionTab_connect]').click();
     cy.contains('performance_schema');
   });
