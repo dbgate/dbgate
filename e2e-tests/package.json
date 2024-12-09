@@ -12,7 +12,7 @@
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "start:ci": "cd .. && cross-env CI=true node packer/build/bundle.js --listen-api --run-packer-build",
-    "start:local": "cd .. && node common/clearDataWithBackup.js && cross-env CI=true node packer/build/bundle.js --listen-api --run-packer-build",
+    "start:local": "cd .. && node common/clearDataWithBackup.js && node packer/build/bundle.js --listen-api --run-packer-build",
     "test:ci": "start-server-and-test start:ci http://localhost:3000 cy:run",
     "test:local": "start-server-and-test start:local http://localhost:3000 cy:run"
   }

@@ -32,7 +32,7 @@ jobs:
       - name: Run Cypress tests
         run: |
           cd e2e-tests
-          yarn ci
+          yarn test:ci
 
     services:
       mysql:

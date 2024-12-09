@@ -14,7 +14,7 @@ describe('Initialization', () => {
     if (process.env.CI) {
       cy.get('[data-testid=ConnectionDriverFields_server]').clear().type('mysql');
     } 
-    cy.get('[data-testid=ConnectionTab_connect]').click();
+    cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
     cy.contains('performance_schema');
   });
 });
