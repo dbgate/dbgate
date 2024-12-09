@@ -43,7 +43,6 @@ function authMiddleware(req, res, next) {
     '/connections/dblogin-app',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
-    '/connections/reload-connection-list',
   ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
