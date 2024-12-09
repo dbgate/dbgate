@@ -14,7 +14,7 @@ const workspaceDir = getNamedArg('--workspace-dir');
 const processDisplayName = getNamedArg('--process-display-name');
 const listenApi = process.argv.includes('--listen-api');
 const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
-const staticDir = getNamedArg('--static-dir');
+const runPackerBuild = process.argv.includes('--run-packer-build');
 
 function getPassArgs() {
   const res = [];
@@ -23,6 +23,9 @@ function getPassArgs() {
   }
   if (listenApiChild) {
     res.push('listen-api-child');
+  }
+  if (runPackerBuild) {
+    res.push('--run-packer-build');
   }
   return res;
 }
@@ -37,5 +40,5 @@ module.exports = {
   listenApi,
   listenApiChild,
   processDisplayName,
-  staticDir,
+  runPackerBuild,
 };

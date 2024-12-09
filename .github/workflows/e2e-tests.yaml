@@ -16,23 +16,34 @@ jobs:
         run: |
           apt-get update
           apt-get install -y xvfb libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6
-      - name: Context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: yarn install
         run: |
           yarn install
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          build: yarn prepare:packer
-          start: node packer/build/bundle.js --listen-api --static-dir packer/build/public
-          project: ./e2e-tests
-          
+      - name: Build
+        run: |
+          yarn prepare:packer
+      - name: yarn install cypress
+        run: |
+          cd e2e-tests
+          yarn install
+      - name: Start backend server
+        run: |
+          node packer/build/bundle.js --listen-api --run-packer-build &
+          echo $! > backend.pid
+      - name: Run Cypress tests
+        run: |
+          cd e2e-tests
+          yarn cy:run
+        env:
+          CI: true
+     - name: Stop backend server
+        run: |
+          kill $(cat backend.pid)
+          rm backend.pid
+
     services:
       mysql:
         image: mysql:8.0.18
