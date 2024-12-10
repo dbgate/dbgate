@@ -199,7 +199,9 @@ module.exports = {
     const dir = datadir();
     if (!portalConnections) {
       // @ts-ignore
-      this.datastore = new JsonLinesDatabase(path.join(dir, 'connections.jsonl'));
+      this.datastore = new JsonLinesDatabase(
+        path.join(dir, processArgs.runE2eTests ? 'connections-e2etests.jsonl' : 'connections.jsonl')
+      );
     }
     await this.checkUnsavedConnectionsLimit();
   },

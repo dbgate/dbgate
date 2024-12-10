@@ -9,6 +9,7 @@ const _ = require('lodash');
 const AsyncLock = require('async-lock');
 const jwt = require('jsonwebtoken');
 
+const processArgs = require('../utility/processArgs');
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
@@ -83,7 +84,8 @@ module.exports = {
       isElectron: platformInfo.isElectron,
       isLicenseValid,
       isLicenseExpired: checkedLicense?.isExpired,
-      trialDaysLeft: checkedLicense?.licenseTypeObj?.isTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
+      trialDaysLeft:
+        checkedLicense?.licenseTypeObj?.isTrial && !checkedLicense?.isExpired ? checkedLicense?.daysLeft : null,
       checkedLicense,
       configurationError,
       logoutUrl,
@@ -101,7 +103,10 @@ module.exports = {
       adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
-      connectionsFilePath: path.join(datadir(), 'connections.jsonl'),
+      connectionsFilePath: path.join(
+        datadir(),
+        processArgs.runE2eTests ? 'connections-e2etests.jsonl' : 'connections.jsonl'
+      ),
       ...currentVersion,
     };
 

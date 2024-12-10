@@ -1,6 +1,6 @@
 const { defineConfig } = require('cypress');
 const killPort = require('kill-port');
-const { clearDataWithBackup } = require('./e2eTestTools');
+const { clearTestingData } = require('./e2eTestTools');
 const waitOn = require('wait-on');
 const { exec } = require('child_process');
 
@@ -10,7 +10,7 @@ module.exports = defineConfig({
       // implement node event listeners here
 
       on('before:spec', async details => {
-        await clearDataWithBackup();
+        await clearTestingData();
         
         if (config.isInteractive) {
           await killPort(3000);
