@@ -414,7 +414,7 @@ end;$$`,
       server: 'localhost',
       port: 15006,
     },
-    skipOnCI: true,
+    skipOnCI: false,
     dbSnapshotBySeconds: true,
   },
 ];
