@@ -70,3 +70,9 @@ services:
 #       - cockroachdb
 #     restart: on-failure
 
+  oracle:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    environment:
+      ORACLE_PWD: Pwd2020Db
+    ports:
+      - 15006:1521

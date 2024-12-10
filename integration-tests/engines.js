@@ -400,17 +400,35 @@ end;$$`,
     dbSnapshotBySeconds: true,
     skipChangeColumn: true,
   },
+  {
+    label: 'Oracle',
+    connection: {
+      engine: 'oracle@dbgate-plugin-oracle',
+      password: 'Pwd2020Db',
+      user: 'system',
+      server: 'oracle',
+      port: 1521,
+      serviceName: 'xe',
+    },
+    local: {
+      server: 'localhost',
+      port: 15006,
+    },
+    skipOnCI: true,
+    dbSnapshotBySeconds: true,
+  },
 ];
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
+  'Oracle',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');

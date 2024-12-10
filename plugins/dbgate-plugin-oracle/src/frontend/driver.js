@@ -20,6 +20,7 @@ const dialect = {
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
+  userDatabaseNamePrefix: 'c##',
 
   createColumn: true,
   dropColumn: true,

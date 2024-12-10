@@ -32,12 +32,14 @@ async function connect(engine, database) {
     return conn;
   } else {
     const conn = await driver.connect(connection);
-    await driver.query(conn, `CREATE DATABASE ${database}`);
+    const dmp = driver.createDumper();
+    dmp.createDatabase(database);
+    await driver.query(conn, dmp.s);
     await driver.close(conn);
 
     const res = await driver.connect({
       ...connection,
-      database,
+      database: (driver.dialect.userDatabaseNamePrefix ?? '') + database,
     });
     return res;
   }
@@ -55,12 +57,14 @@ async function prepareConnection(engine, database) {
     };
   } else {
     const conn = await driver.connect(connection);
-    await driver.query(conn, `CREATE DATABASE ${database}`);
+    const dmp = driver.createDumper();
+    dmp.createDatabase(database);
+    await driver.query(conn, dmp.s);
     await driver.close(conn);
 
     return {
       ...connection,
-      database,
+      database: (driver.dialect.userDatabaseNamePrefix ?? '') + database,
       isPreparedOnly: true,
     };
   }
