@@ -84,5 +84,10 @@ jobs:
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
 
+      oracle:
+        image: container-registry.oracle.com/database/express:21.3.0-xe
+        env:
+          ORACLE_PWD: Pwd2020Db
+
       # cockroachdb:
       #   image: cockroachdb/cockroach
