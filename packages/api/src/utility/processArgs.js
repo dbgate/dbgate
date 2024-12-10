@@ -14,6 +14,7 @@ const workspaceDir = getNamedArg('--workspace-dir');
 const processDisplayName = getNamedArg('--process-display-name');
 const listenApi = process.argv.includes('--listen-api');
 const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
+const runE2eTests = process.argv.includes('--run-e2e-tests');
 
 function getPassArgs() {
   const res = [];
@@ -22,6 +23,9 @@ function getPassArgs() {
   }
   if (listenApiChild) {
     res.push('listen-api-child');
+  }
+  if (runE2eTests) {
+    res.push('--run-e2e-tests');
   }
   return res;
 }
@@ -36,4 +40,5 @@ module.exports = {
   listenApi,
   listenApiChild,
   processDisplayName,
+  runE2eTests,
 };

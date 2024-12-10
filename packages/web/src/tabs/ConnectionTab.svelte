@@ -223,20 +223,20 @@
         <div class="buttons">
           {#if onlyTestButton}
             {#if isTesting}
-              <FormButton value="Cancel test" on:click={handleCancelTest} />
+              <FormButton value="Cancel test" on:click={handleCancelTest} data-testid="ConnectionTab_buttonCancelTest" />
             {:else}
-              <FormButton value="Test connection" on:click={handleTest} />
+              <FormButton value="Test connection" on:click={handleTest} data-testid="ConnectionTab_buttonDisconnect" />
             {/if}
           {:else if isConnected}
-            <FormButton value="Disconnect" on:click={handleDisconnect} />
+            <FormButton value="Disconnect" on:click={handleDisconnect} data-testid='ConnectionTab_buttonDisconnect' />
           {:else}
-            <FormButton value="Connect" on:click={handleConnect} />
+            <FormButton value="Connect" on:click={handleConnect} data-testid='ConnectionTab_buttonConnect' />
             {#if isTesting}
               <FormButton value="Cancel test" on:click={handleCancelTest} />
             {:else}
-              <FormButton value="Test" on:click={handleTest} />
+              <FormButton value="Test" on:click={handleTest} data-testid='ConnectionTab_buttonTest' />
             {/if}
-            <FormButton value="Save" on:click={handleSave} />
+            <FormButton value="Save" on:click={handleSave} data-testid='ConnectionTab_buttonSave' />
           {/if}
         </div>
         <div class="test-result">

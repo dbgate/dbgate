@@ -11,7 +11,16 @@
   }
 </script>
 
-<div class="outer buttonLike" {title} class:disabled class:square class:narrow on:click bind:this={domButton}>
+<div
+  class="outer buttonLike"
+  {title}
+  class:disabled
+  class:square
+  class:narrow
+  on:click
+  bind:this={domButton}
+  data-testid={$$props['data-testid']}
+>
   <div class="inner">
     <slot />
   </div>
