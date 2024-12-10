@@ -71,8 +71,8 @@ services:
 #     restart: on-failure
 
   oracle:
-    image: container-registry.oracle.com/database/express:21.3.0-xe
+    image: gvenzl/oracle-xe:21-slim
     environment:
-      ORACLE_PWD: Pwd2020Db
+      ORACLE_PASSWORD: Pwd2020Db
     ports:
       - 15006:1521
