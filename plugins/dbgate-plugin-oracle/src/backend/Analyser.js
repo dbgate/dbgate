@@ -40,7 +40,7 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _computeSingleObjectId() {
-    const { typeField,  pureName } = this.singleObjectFilter;
+    const { typeField, pureName } = this.singleObjectFilter;
     this.singleObjectId = `${typeField}:${pureName}`;
   }
 
@@ -114,7 +114,8 @@ class Analyser extends DatabaseAnalyser {
             indexes.rows.filter(
               idx =>
                 idx.tableName == newTable.pureName &&
-                !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+                !uniqueNames.rows.find(x => x.constraintName == idx.constraintName) &&
+                !idx.constraintName.startsWith('SYS_C')
             ),
             'constraintName'
           ).map(idx => ({
