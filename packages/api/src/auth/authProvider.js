@@ -230,7 +230,7 @@ class LoginsProvider extends AuthProviderBase {
         ),
       };
     }
-    
+
     return { error: 'Invalid credentials' };
   }
 
@@ -271,11 +271,10 @@ function hasEnvLogins() {
   return false;
 }
 
-function detectEnvAuthProvider() {
+function detectEnvAuthProviderCore() {
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
   }
-
   if (process.env.STORAGE_DATABASE) {
     return 'denyall';
   }
@@ -289,6 +288,14 @@ function detectEnvAuthProvider() {
     return 'logins';
   }
   return 'none';
+}
+
+function detectEnvAuthProvider() {
+  const authProvider = detectEnvAuthProviderCore();
+  if (process.env.BASIC_AUTH && authProvider != 'logins' && authProvider != 'ad') {
+    throw new Error(`BASIC_AUTH is not supported with ${authProvider} auth provider`);
+  }
+  return authProvider;
 }
 
 function createEnvAuthProvider() {
