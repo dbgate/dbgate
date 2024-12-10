@@ -1,10 +1,12 @@
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const crypto = require('crypto');
 
-function randomDbName() {
+function randomDbName(dialect) {
   const generatedKey = crypto.randomBytes(6);
   const newKey = generatedKey.toString('hex');
-  return `db${newKey}`;
+  const res = `db${newKey}`;
+  if (dialect.upperCaseAllDbObjectNames) return res.toUpperCase();
+  return res;
 }
 
 function extractConnection(engine) {
@@ -75,7 +77,7 @@ const testWrapper =
   async (label, ...other) => {
     const engine = other[other.length - 1];
     const driver = requireEngineDriver(engine.connection);
-    const conn = await connect(engine, randomDbName());
+    const conn = await connect(engine, randomDbName(driver.dialect));
     try {
       await body(conn, driver, ...other);
     } finally {
@@ -88,7 +90,7 @@ const testWrapperPrepareOnly =
   async (label, ...other) => {
     const engine = other[other.length - 1];
     const driver = requireEngineDriver(engine.connection);
-    const conn = await prepareConnection(engine, randomDbName());
+    const conn = await prepareConnection(engine, randomDbName(driver.dialect));
     await body(conn, driver, ...other);
   };
 

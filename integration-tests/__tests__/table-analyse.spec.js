@@ -1,7 +1,8 @@
+const { runCommandOnDriver } = require('dbgate-tools');
 const engines = require('../engines');
 const { testWrapper } = require('../tools');
 
-const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50))';
+const t1Sql = 'CREATE TABLE ~t1 (~id int not null primary key, ~val1 varchar(50))';
 const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
 const t2Sql = engine =>
   `CREATE TABLE t2 (id int not null primary key, val2 varchar(50) ${engine.skipUnique ? '' : 'unique'})`;
@@ -15,7 +16,7 @@ const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
     columns: [
       expect.objectContaining({
         columnName: 'id',
-        dataType: expect.stringMatching(/int.*/i),
+        dataType: expect.stringMatching(/int.*|number/i),
         ...(engine.skipNullability ? {} : { notNull: true }),
       }),
       expect.objectContaining({
@@ -59,9 +60,10 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table structure - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t1Sql);
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
 
       const structure = await driver.analyseFull(conn);
+      console.log(JSON.stringify(structure, null, 2));
 
       expect(structure.tables.length).toEqual(1);
       expect(structure.tables[0]).toEqual(t1Match(engine));
@@ -77,7 +79,7 @@ describe('Table analyse', () => {
       expect(structure1.tables.length).toEqual(1);
       expect(structure1.tables[0]).toEqual(t2Match(engine));
 
-      await driver.query(conn, t1Sql);
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2.tables.length).toEqual(2);
@@ -89,7 +91,7 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table remove - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t1Sql);
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
       await driver.query(conn, t2Sql(engine));
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(2);
@@ -107,7 +109,7 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table change - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t1Sql);
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
       await driver.query(conn, t2Sql(engine));
       const structure1 = await driver.analyseFull(conn);
 
@@ -130,7 +132,7 @@ describe('Table analyse', () => {
   test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Index - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t1Sql);
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
       await driver.query(conn, ix1Sql);
       const structure = await driver.analyseFull(conn);
 

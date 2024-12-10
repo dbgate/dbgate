@@ -52,6 +52,7 @@ export interface SqlDialect {
   dropReferencesWhenDropTable?: boolean;
   requireFromDual?: boolean;
   userDatabaseNamePrefix?: string; // c## in Oracle
+  upperCaseAllDbObjectNames?: boolean;
 
   predefinedDataTypes: string[];
 
