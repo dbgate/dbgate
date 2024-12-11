@@ -179,4 +179,27 @@ describe('Query', () => {
       expect(res.rows[0].cnt == 3).toBeTruthy();
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Select scope identity - %s',
+    testWrapper(async (conn, driver, engine) => {
+      const table = {
+        pureName: 't1',
+        columns: [
+          { columnName: 'id', dataType: 'int', notNull: true, autoIncrement: true },
+          { columnName: 'val', dataType: 'varchar(50)' },
+        ],
+        primaryKey: {
+          columns: [{ columnName: 'id' }],
+        },
+      };
+      await runCommandOnDriver(conn, driver, dmp => dmp.createTable(table));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES ('aaa')"));
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity());
+      const row = res.rows[0];
+      const keys = Object.keys(row);
+      expect(keys.length).toEqual(1);
+      expect(row[keys[0]] == 1).toBeTruthy();
+    })
+  );
 });
