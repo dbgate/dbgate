@@ -69,6 +69,13 @@ function checkStructure(
   }
 }
 
+function convertModelToEngine(model, driver) {
+  return model.map(x => ({
+    ...x,
+    text: x.text ? formatQueryWithoutParams(driver, x.text) : undefined,
+  }));
+}
+
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const { testEmptyLastScript, finalCheckAgainstModel, markDeleted, allowDropStatements } = options || {};
   let index = 0;
@@ -89,10 +96,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         systemConnection: conn.isPreparedOnly ? undefined : conn,
         connection: conn.isPreparedOnly ? conn : undefined,
         driver,
-        loadedDbModel: loadedDbModel.map(x => ({
-          ...x,
-          text: x.text ? formatQueryWithoutParams(driver, x.text) : undefined,
-        })),
+        loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
       });
       console.debug('Generated deploy script:', sql);
@@ -109,7 +113,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         systemConnection: conn.isPreparedOnly ? undefined : conn,
         connection: conn.isPreparedOnly ? conn : undefined,
         driver,
-        loadedDbModel,
+        loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
       });
     }
@@ -120,7 +124,12 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(engine, structure, finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)), options);
+  checkStructure(
+    engine,
+    structure,
+    convertModelToEngine(finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)), driver),
+    options
+  );
 }
 
 describe('Deploy database', () => {
@@ -528,17 +537,17 @@ describe('Deploy database', () => {
 
   const V1 = {
     name: 'v1.view.sql',
-    text: 'create view v1 as select * from t1',
+    text: 'create view ~v1 as select * from ~t1',
   };
 
   const V1_VARIANT2 = {
     name: 'v1.view.sql',
-    text: 'create view v1 as select 1 as c1',
+    text: 'create view ~v1 as select 1 as c1',
   };
 
   const V1_DELETED = {
     name: '_deleted_v1.view.sql',
-    text: 'create view _deleted_v1 as select * from t1',
+    text: 'create view ~_deleted_v1 as select * from ~t1',
   };
 
   test.each(engines.map(engine => [engine.label, engine]))(
