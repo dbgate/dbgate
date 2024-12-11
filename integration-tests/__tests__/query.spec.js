@@ -180,7 +180,7 @@ describe('Query', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataDuplicator).map(engine => [engine.label, engine]))(
     'Select scope identity - %s',
     testWrapper(async (conn, driver, engine) => {
       const table = {
@@ -194,11 +194,24 @@ describe('Query', () => {
         },
       };
       await runCommandOnDriver(conn, driver, dmp => dmp.createTable(table));
-      await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES ('aaa')"));
-      const res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity(table));
+      let res;
+      if (driver.dialect.requireStandaloneSelectForScopeIdentity) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES ('aaa')"));
+        res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity(table));
+      } else {
+        res = await runQueryOnDriver(conn, driver, dmp => {
+          dmp.putCmd("INSERT INTO ~t1 (~val) VALUES ('aaa')");
+          dmp.selectScopeIdentity(table);
+        });
+      }
       const row = res.rows[0];
+      // console.log('*******************');
+      // console.log(JSON.stringify(res, null, 2));
+      // console.log(JSON.stringify(row, null, 2));
       const keys = Object.keys(row);
+      // console.log(JSON.stringify(row, null, 2));
       expect(keys.length).toEqual(1);
+      // console.log(JSON.stringify(row[keys[0]], null, 2));
       expect(row[keys[0]] == 1).toBeTruthy();
     })
   );

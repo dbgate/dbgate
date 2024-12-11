@@ -2,7 +2,7 @@ const engines = require('../engines');
 const stream = require('stream');
 const { testWrapper } = require('../tools');
 const dataDuplicator = require('dbgate-api/src/shell/dataDuplicator');
-const { runCommandOnDriver } = require('dbgate-tools');
+const { runCommandOnDriver, runQueryOnDriver } = require('dbgate-tools');
 
 describe('Data duplicator', () => {
   test.each(engines.filter(x => !x.skipDataDuplicator).map(engine => [engine.label, engine]))(
@@ -84,10 +84,10 @@ describe('Data duplicator', () => {
         ],
       });
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
       expect(res1.rows[0].cnt.toString()).toEqual('6');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t2`));
       expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );
@@ -145,13 +145,15 @@ describe('Data duplicator', () => {
         },
       });
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
       expect(res1.rows[0].cnt.toString()).toEqual('1');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t2`));
       expect(res2.rows[0].cnt.toString()).toEqual('2');
 
-      const res3 = await driver.query(conn, `select count(*) as cnt from t2 where valfk is not null`);
+      const res3 = await runQueryOnDriver(conn, driver, dmp =>
+        dmp.put(`select count(*) as ~cnt from ~t2 where ~valfk is not null`)
+      );
       expect(res3.rows[0].cnt.toString()).toEqual('1');
     })
   );
