@@ -7,7 +7,7 @@ const ix1Sql = 'CREATE index ~ix1 ON ~t1(~val1, ~id)';
 const t2Sql = engine =>
   `CREATE TABLE ~t2 (~id int not null primary key, ~val2 varchar(50) ${engine.skipUnique ? '' : 'unique'})`;
 const t3Sql = 'CREATE TABLE ~t3 (~id int not null primary key, ~valfk int, foreign key (~valfk) references ~t2(~id))';
-const t4Sql = 'CREATE TABLE ~t4 (~id int not null primary key, ~valdef int not null default 12)';
+const t4Sql = 'CREATE TABLE ~t4 (~id int not null primary key, ~valdef int default 12 not null)';
 // const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
 const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
