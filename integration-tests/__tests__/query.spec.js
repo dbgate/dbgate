@@ -195,7 +195,7 @@ describe('Query', () => {
       };
       await runCommandOnDriver(conn, driver, dmp => dmp.createTable(table));
       await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES ('aaa')"));
-      const res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity());
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity(table));
       const row = res.rows[0];
       const keys = Object.keys(row);
       expect(keys.length).toEqual(1);
