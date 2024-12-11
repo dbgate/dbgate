@@ -126,6 +126,10 @@ class Dumper extends SqlDumper {
     this.putCmd('^alter ^table %f ^rename ^to %i', obj, newname);
   }
 
+  renameSqlObject(obj, newname) {
+    this.putCmd('^rename %f ^to %i', obj, newname);
+  }
+
   // putValue(value) {
   //   if (value === true) this.putRaw('true');
   //   else if (value === false) this.putRaw('false');
