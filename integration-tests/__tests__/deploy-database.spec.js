@@ -4,7 +4,7 @@ const { testWrapper, testWrapperPrepareOnly } = require('../tools');
 const _ = require('lodash');
 const engines = require('../engines');
 const deployDb = require('dbgate-api/src/shell/deployDb');
-const { databaseInfoFromYamlModel } = require('dbgate-tools');
+const { databaseInfoFromYamlModel, runQueryOnDriver, formatQueryWithoutParams } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
@@ -83,7 +83,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
 
   for (const loadedDbModel of dbModelsYaml) {
     if (_.isString(loadedDbModel)) {
-      await driver.script(conn, loadedDbModel);
+      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel));
     } else {
       const { sql, isEmpty } = await generateDeploySql({
         systemConnection: conn.isPreparedOnly ? undefined : conn,
@@ -339,7 +339,7 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res = await runQueryOnDriver(conn, driver, `select count(*) as ~cnt from ~t1`);
       expect(res.rows[0].cnt.toString()).toEqual('3');
     })
   );
@@ -386,7 +386,7 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res = await driver.query(conn, `select val from t1 where id = 2`);
+      const res = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 2`);
       expect(res.rows[0].val.toString()).toEqual('5');
     })
   );
@@ -414,8 +414,8 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      await driver.query(conn, `insert into t1 (id) values (1)`);
-      const res = await driver.query(conn, ` select val from t1 where id = 1`);
+      await runQueryOnDriver(conn, driver, `insert into ~t1 (~id) values (1)`);
+      const res = await runQueryOnDriver(conn, driver, ` select ~val from ~t1 where ~id = 1`);
       expect(res.rows[0].val.toString().substring(0, 2)).toEqual('20');
     })
   );
@@ -438,7 +438,7 @@ describe('Deploy database', () => {
             },
           },
         ],
-        'insert into t1 (id, val) values (1, 1); insert into t1 (id) values (2)',
+        'insert into ~t1 (~id, ~val) values (1, 1); insert into ~t1 (~id) values (2)',
         [
           {
             name: 't1.table.yaml',
@@ -452,16 +452,16 @@ describe('Deploy database', () => {
             },
           },
         ],
-        'insert into t1 (id) values (3);',
+        'insert into ~t1 (~id) values (3);',
       ]);
 
-      const res1 = await driver.query(conn, `select val from t1 where id = 1`);
+      const res1 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 1`);
       expect(res1.rows[0].val).toEqual(1);
 
-      const res2 = await driver.query(conn, `select val from t1 where id = 2`);
+      const res2 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 2`);
       expect(res2.rows[0].val).toEqual(20);
 
-      const res3 = await driver.query(conn, `select val from t1 where id = 3`);
+      const res3 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 3`);
       expect(res2.rows[0].val).toEqual(20);
     })
   );
@@ -687,10 +687,10 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res1 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
+      const res1 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~t1');
       expect(res1.rows[0].cnt == 1).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+      const res2 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~dbgate_deploy_journal');
       expect(res2.rows[0].cnt == 1).toBeTruthy();
     })
   );
@@ -729,21 +729,26 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res1 = await driver.query(conn, 'SELECT val from t1 where id = 1');
+      const res1 = await runQueryOnDriver(conn, driver, 'SELECT ~val from ~t1 where ~id = 1');
       expect(res1.rows[0].val == 11).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t2');
+      const res2 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~t2');
       expect(res2.rows[0].cnt == 1).toBeTruthy();
 
-      const res3 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+      const res3 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~dbgate_deploy_journal');
       expect(res3.rows[0].cnt == 3).toBeTruthy();
 
-      const res4 = await driver.query(conn, "SELECT run_count from dbgate_deploy_journal where name = 't2.once.sql'");
+      const res4 = await runQueryOnDriver(
+        conn,
+        driver,
+        "SELECT ~run_count from ~dbgate_deploy_journal where ~name = 't2.once.sql'"
+      );
       expect(res4.rows[0].run_count == 1).toBeTruthy();
 
-      const res5 = await driver.query(
+      const res5 = await runQueryOnDriver(
         conn,
-        "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
+        driver,
+        "SELECT ~run_count from ~dbgate_deploy_journal where ~name = 't1.install.sql'"
       );
       expect(res5.rows[0].run_count == 2).toBeTruthy();
     })

@@ -92,6 +92,10 @@ class Dumper extends SqlDumper {
       this.putCmd('^alter ^table %f ^rename ^column %i ^to %i', oldcol, oldcol.columnName, newcol.columnName);
     }
 
+    if (!oldcol.notNull) {
+      this.fillNewNotNullDefaults(newcol);
+    }
+
     if (!testEqualTypes(oldcol, newcol) || oldcol.notNull != newcol.notNull) {
       this.putCmd(
         '^alter ^table %f ^modify (%i %s %k)',

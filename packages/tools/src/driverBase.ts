@@ -1,4 +1,5 @@
 import _compact from 'lodash/compact';
+import _isString from 'lodash/isString';
 import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
@@ -26,9 +27,17 @@ const dialect = {
   defaultSchemaName: null,
 };
 
-export async function runCommandOnDriver(pool, driver: EngineDriver, cmd: (dmp: SqlDumper) => void): Promise<void> {
+export async function runCommandOnDriver(
+  pool,
+  driver: EngineDriver,
+  cmd: (dmp: SqlDumper) => void | string
+): Promise<void> {
   const dmp = driver.createDumper();
-  cmd(dmp as any);
+  if (_isString(cmd)) {
+    dmp.put(cmd);
+  } else {
+    cmd(dmp as any);
+  }
   // console.log('CMD:', dmp.s);
   await driver.query(pool, dmp.s, { discardResult: true });
 }
@@ -39,7 +48,11 @@ export async function runQueryOnDriver(
   cmd: (dmp: SqlDumper) => void
 ): Promise<QueryResult> {
   const dmp = driver.createDumper();
-  cmd(dmp as any);
+  if (_isString(cmd)) {
+    dmp.put(cmd);
+  } else {
+    cmd(dmp as any);
+  }
   // console.log('QUERY:', dmp.s);
   return await driver.query(pool, dmp.s);
 }
