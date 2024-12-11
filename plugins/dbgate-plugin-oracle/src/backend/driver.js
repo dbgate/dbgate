@@ -107,6 +107,7 @@ const driver = {
       sql = mtrim[1];
     }
 
+    // console.log('EXECUTE SQL:', sql);
     const res = await dbhan.client.execute(sql);
     try {
       const columns = extractOracleColumns(res.metaData);

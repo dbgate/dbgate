@@ -13,7 +13,7 @@ const dialect = {
   ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
-  fallbackDataType: 'varchar',
+  fallbackDataType: 'varchar(250)',
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['dependencies'],
