@@ -23,7 +23,7 @@ function getColumnInfo(
     columnName: column_name,
     dataType: fullDataType,
     notNull: is_nullable == 'N',
-    defaultValue: autoIncrement ? undefined : default_value,
+    defaultValue: autoIncrement ? undefined : default_value?.trim(),
     autoIncrement,
   };
 }
