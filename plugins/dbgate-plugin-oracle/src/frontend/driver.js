@@ -22,6 +22,7 @@ const dialect = {
   },
   userDatabaseNamePrefix: 'C##',
   upperCaseAllDbObjectNames: true,
+  requireStandaloneSelectForScopeIdentity: true,
 
   createColumn: true,
   dropColumn: true,
