@@ -5,6 +5,7 @@ const tableWriter = require('dbgate-api/src/shell/tableWriter');
 const copyStream = require('dbgate-api/src/shell/copyStream');
 const importDatabase = require('dbgate-api/src/shell/importDatabase');
 const fakeObjectReader = require('dbgate-api/src/shell/fakeObjectReader');
+const { runQueryOnDriver } = require('dbgate-tools');
 
 function createImportStream() {
   const pass = new stream.PassThrough({
@@ -37,7 +38,7 @@ describe('DB Import', () => {
       });
       await copyStream(reader, writer);
 
-      const res = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
       expect(res.rows[0].cnt.toString()).toEqual('6');
     })
   );
@@ -65,10 +66,10 @@ describe('DB Import', () => {
       });
       await copyStream(reader2, writer2);
 
-      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
       expect(res1.rows[0].cnt.toString()).toEqual('6');
 
-      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t2`));
       expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );
