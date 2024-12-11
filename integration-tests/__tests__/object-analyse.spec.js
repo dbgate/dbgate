@@ -1,6 +1,7 @@
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const _ = require('lodash');
+const { formatQueryWithoutParams } = require('dbgate-tools');
 
 const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
 
@@ -36,7 +37,7 @@ describe('Object analyse', () => {
     testWrapper(async (conn, driver, type, object, engine) => {
       for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create1, { discardResult: true });
+      await driver.query(conn, formatQueryWithoutParams(driver, object.create1), { discardResult: true });
       const structure = await driver.analyseFull(conn);
 
       expect(structure[type].length).toEqual(1);
