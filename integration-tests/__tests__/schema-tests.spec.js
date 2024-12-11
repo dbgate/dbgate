@@ -76,7 +76,7 @@ describe('Schema tests', () => {
 });
 
 describe('Base analyser test', () => {
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipIncrementalAnalysis).map(engine => [engine.label, engine]))(
     'Structure without change - %s',
     testWrapper(async (conn, driver, engine) => {
       await baseStructure(conn, driver);

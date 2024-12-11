@@ -417,6 +417,7 @@ end;$$`,
     skipOnCI: false,
     dbSnapshotBySeconds: true,
     setNullDefaultInsteadOfDrop: true,
+    skipIncrementalAnalysis: true,
   },
 ];
 

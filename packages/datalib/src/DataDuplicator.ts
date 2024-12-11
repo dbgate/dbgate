@@ -140,6 +140,9 @@ class DuplicatorItemHolder {
           weakref.foreignKey.columns[0].columnName
         );
       });
+      if (this.duplicator.driver.dialect.requireFromDual) {
+        dmp.put(' ^from ^dual');
+      }
     });
     const qrow = qres.rows[0];
     return this.weakReferences.filter(x => qrow[x.columnName] == 0).map(x => x.columnName);

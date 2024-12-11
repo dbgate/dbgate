@@ -69,6 +69,22 @@ function checkStructure(
   }
 }
 
+// function convertObjectText(text, driver) {
+//   if (!text) return undefined;
+//   text = formatQueryWithoutParams(driver, text);
+//   if (driver.dialect.requireFromDual && text.startsWith('create view ') && !text.includes('from')) {
+//     text = text + ' from dual';
+//   }
+//   return text;
+// }
+
+// function convertModelToEngine(model, driver) {
+//   return model.map(x => ({
+//     ...x,
+//     text: convertObjectText(x.text, driver),
+//   }));
+// }
+
 function convertModelToEngine(model, driver) {
   return model.map(x => ({
     ...x,
@@ -542,7 +558,7 @@ describe('Deploy database', () => {
 
   const V1_VARIANT2 = {
     name: 'v1.view.sql',
-    text: 'create view ~v1 as select 1 as c1',
+    text: 'create view ~v1 as select ~id + ~id from ~t1',
   };
 
   const V1_DELETED = {
@@ -694,7 +710,7 @@ describe('Deploy database', () => {
         [
           {
             name: '1.predeploy.sql',
-            text: 'create table ~t1 (~id int primary key); insert into ~t1 (id) values (1);',
+            text: 'create table ~t1 (~id int primary key); insert into ~t1 (~id) values (1);',
           },
         ],
       ]);
