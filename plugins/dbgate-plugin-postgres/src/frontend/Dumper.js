@@ -89,7 +89,9 @@ class Dumper extends SqlDumper {
       }
     }
     if (oldcol.notNull != newcol.notNull) {
-      this.fillNewNotNullDefaults(newcol);
+      if (!oldcol.notNull) {
+        this.fillNewNotNullDefaults(newcol);
+      }
       if (newcol.notNull) this.putCmd('^alter ^table %f ^alter ^column %i ^set ^not ^null', newcol, newcol.columnName);
       else this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^not ^null', newcol, newcol.columnName);
     }
