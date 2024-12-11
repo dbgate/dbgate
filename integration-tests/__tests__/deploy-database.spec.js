@@ -89,7 +89,10 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         systemConnection: conn.isPreparedOnly ? undefined : conn,
         connection: conn.isPreparedOnly ? conn : undefined,
         driver,
-        loadedDbModel,
+        loadedDbModel: loadedDbModel.map(x => ({
+          ...x,
+          text: x.text ? formatQueryWithoutParams(driver, x.text) : undefined,
+        })),
         dbdiffOptionsExtra,
       });
       console.debug('Generated deploy script:', sql);
@@ -682,7 +685,7 @@ describe('Deploy database', () => {
         [
           {
             name: '1.predeploy.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1);',
+            text: 'create table ~t1 (~id int primary key); insert into ~t1 (id) values (1);',
           },
         ],
       ]);
@@ -702,29 +705,29 @@ describe('Deploy database', () => {
         [
           {
             name: 't1.uninstall.sql',
-            text: 'drop table t1',
+            text: 'drop table ~t1',
           },
           {
             name: 't1.install.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1)',
+            text: 'create table ~t1 (~id int primary key); insert into ~t1 (~id) values (1)',
           },
           {
             name: 't2.once.sql',
-            text: 'create table t2 (id int primary key); insert into t2 (id) values (1)',
+            text: 'create table ~t2 (~id int primary key); insert into ~t2 (~id) values (1)',
           },
         ],
         [
           {
             name: 't1.uninstall.sql',
-            text: 'drop table t1',
+            text: 'drop table ~t1',
           },
           {
             name: 't1.install.sql',
-            text: 'create table t1 (id int primary key, val int); insert into t1 (id, val) values (1, 11)',
+            text: 'create table ~t1 (~id int primary key, ~val int); insert into ~t1 (~id, ~val) values (1, 11)',
           },
           {
             name: 't2.once.sql',
-            text: 'insert into t2 (id) values (2)',
+            text: 'insert into ~t2 (~id) values (2)',
           },
         ],
       ]);
