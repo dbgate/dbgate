@@ -66,7 +66,7 @@ class DuplicatorItemHolder {
     this.autoColumn = this.table.columns.find(x => x.autoIncrement)?.columnName;
     if (
       this.table.primaryKey?.columns?.length != 1 ||
-      this.table.primaryKey?.columns?.[0].columnName != this.autoColumn
+      this.table.primaryKey?.columns?.[0]?.columnName != this.autoColumn
     ) {
       this.autoColumn = null;
     }
@@ -194,6 +194,7 @@ class DuplicatorItemHolder {
               res = await runQueryOnDriver(pool, driver, dmp => dmp.selectScopeIdentity(this.table));
             }
             // console.log('IDRES', JSON.stringify(res));
+            // console.log('*********** ENTRIES OF', res?.rows?.[0]);
             const resId = Object.entries(res?.rows?.[0])?.[0]?.[1];
             if (resId != null) {
               this.idMap[chunk[this.autoColumn]] = resId;
