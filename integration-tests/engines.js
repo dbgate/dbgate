@@ -416,6 +416,7 @@ end;$$`,
     },
     skipOnCI: true,
     dbSnapshotBySeconds: true,
+    setNullDefaultInsteadOfDrop: true,
   },
 ];
 
