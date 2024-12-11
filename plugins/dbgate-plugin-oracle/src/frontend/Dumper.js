@@ -109,23 +109,13 @@ class Dumper extends SqlDumper {
         this.putCmd('^alter ^table %f ^modify (%i ^default ^null)', newcol, newcol.columnName);
       }
     }
+  }
 
-    // if (oldcol.notNull != newcol.notNull) {
-    //   if (newcol.notNull) this.putCmd('^alter ^table %f ^alter ^column %i ^set ^not ^null', newcol, newcol.columnName);
-    //   else this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^not ^null', newcol, newcol.columnName);
-    // }
-    // if (oldcol.defaultValue != newcol.defaultValue) {
-    //   if (newcol.defaultValue == null) {
-    //     this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^default', newcol, newcol.columnName);
-    //   } else {
-    //     this.putCmd(
-    //       '^alter ^table %f ^alter ^column %i ^set ^default %s',
-    //       newcol,
-    //       newcol.columnName,
-    //       newcol.defaultValue
-    //     );
-    //   }
-    // }
+  selectScopeIdentity(table) {
+    const sequence = table.identitySequenceName;
+    if (sequence) {
+      this.put('^select %i.CURRVAL FROM DUAL', sequence);
+    }
   }
 
   // putValue(value) {

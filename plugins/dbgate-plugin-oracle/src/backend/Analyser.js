@@ -142,6 +142,9 @@ class Analyser extends DatabaseAnalyser {
                 ..._.pick(col, ['columnName']),
               })),
           })),
+          identitySequenceName: (columnsGrouped[columnGroup(table)] || [])
+            .find(x => x?.default_value?.endsWith('.nextval'))
+            ?.default_value?.match(/\"([^"]+)\"\.nextval/)?.[1],
         };
       }),
       views: views.rows.map(view => ({
