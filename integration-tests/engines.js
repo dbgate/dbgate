@@ -418,6 +418,7 @@ end;$$`,
     dbSnapshotBySeconds: true,
     setNullDefaultInsteadOfDrop: true,
     skipIncrementalAnalysis: true,
+    objects: [views],
   },
 ];
 

@@ -558,7 +558,7 @@ describe('Deploy database', () => {
 
   const V1_VARIANT2 = {
     name: 'v1.view.sql',
-    text: 'create view ~v1 as select ~id + ~id from ~t1',
+    text: 'create view ~v1 as select ~id + ~id ~idsum from ~t1',
   };
 
   const V1_DELETED = {
