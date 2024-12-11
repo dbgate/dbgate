@@ -12,16 +12,27 @@ jobs:
     container: node:18
 
     steps:
-      - name: Context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      - name: Install dependencies for cypress
+        run: |
+          apt-get update
+          apt-get install -y xvfb libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: yarn install
         run: |
           yarn install
+      - name: Build packer dist for cypress
+        run: |
+          yarn prepare:packer
+      - name: yarn install cypress
+        run: |
+          cd e2e-tests
+          yarn install
+      - name: Run Cypress tests
+        run: |
+          cd e2e-tests
+          yarn test:ci
       - name: Integration tests
         run: |
           cd integration-tests
