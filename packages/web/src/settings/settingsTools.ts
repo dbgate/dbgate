@@ -28,3 +28,11 @@ export function getStringSettingsValue(name, defaultValue) {
   if (res == null) return defaultValue;
   return res;
 }
+
+export function getConnectionClickActionSetting(): 'connect' | 'openDetails' | 'none' {
+  return getStringSettingsValue('defaultAction.connectionClick', 'connect');
+}
+
+export function getDatabaseClickActionSetting(): 'switch' | 'none' {
+  return getStringSettingsValue('defaultAction.databaseClick', 'switch');
+}

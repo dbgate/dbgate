@@ -278,6 +278,30 @@ ORDER BY
         </svelte:fragment>
         <svelte:fragment slot="4">
           <div class="heading">Default actions</div>
+
+          <FormSelectField
+            label="Connection click"
+            name="defaultAction.connectionClick"
+            isNative
+            defaultValue="connect"
+            options={[
+              { value: 'openDetails', label: 'Edit / open details' },
+              { value: 'connect', label: 'Connect' },
+              { value: 'none', label: 'Do nothing' },
+            ]}
+          />
+
+          <FormSelectField
+            label="Database click"
+            name="defaultAction.databaseClick"
+            isNative
+            defaultValue="switch"
+            options={[
+              { value: 'switch', label: 'Switch database' },
+              { value: 'none', label: 'Do nothing' },
+            ]}
+          />
+
           <FormCheckboxField name="defaultAction.useLastUsedAction" label="Use last used action" defaultValue={true} />
 
           <FormDefaultActionField

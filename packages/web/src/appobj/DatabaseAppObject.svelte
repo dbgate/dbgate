@@ -351,11 +351,13 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
           text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
         },
       hasPermission(`dbops/query`) &&
-        driver?.databaseEngineTypes?.includes('sql') && isProApp() && { onClick: handleQueryDesigner, text: 'Design query' },
-      driver?.databaseEngineTypes?.includes('sql') && isProApp() && {
-        onClick: handleNewPerspective,
-        text: 'Design perspective query',
-      },
+        driver?.databaseEngineTypes?.includes('sql') &&
+        isProApp() && { onClick: handleQueryDesigner, text: 'Design query' },
+      driver?.databaseEngineTypes?.includes('sql') &&
+        isProApp() && {
+          onClick: handleNewPerspective,
+          text: 'Design perspective query',
+        },
       connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: 'Refresh schemas' },
 
       { divider: true },
@@ -486,6 +488,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
+  import { getDatabaseClickActionSetting } from '../settings/settingsTools';
 
   export let data;
   export let passProps;
@@ -523,6 +526,9 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   on:click={() => {
     // switchCurrentDatabase(data);
     $focusedConnectionOrDatabase = { conid: data.connection?._id, database: data.name, connection: data.connection };
+    if (getDatabaseClickActionSetting() == 'switch') {
+      switchCurrentDatabase(data);
+    }
   }}
   on:dragstart
   on:dragenter

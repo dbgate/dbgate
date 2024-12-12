@@ -123,6 +123,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
   import hasPermission from '../utility/hasPermission';
   import { switchCurrentDatabase } from '../utility/common';
+  import { getConnectionClickActionSetting } from '../settings/settingsTools';
 
   export let data;
   export let passProps;
@@ -184,16 +185,24 @@
     });
 
     const config = getCurrentConfig();
-    if (config.runAsPortal == false && !config.storageDatabase) {
-      openNewTab({
-        title: getConnectionLabel(data),
-        icon: 'img connection',
-        tabComponent: 'ConnectionTab',
-        tabPreviewMode: true,
-        props: {
-          conid: data._id,
-        },
-      });
+
+    const connectionClickAction = getConnectionClickActionSetting();
+    if (connectionClickAction == 'openDetails') {
+      if (config.runAsPortal == false && !config.storageDatabase) {
+        openNewTab({
+          title: getConnectionLabel(data),
+          icon: 'img connection',
+          tabComponent: 'ConnectionTab',
+          tabPreviewMode: true,
+          props: {
+            conid: data._id,
+          },
+        });
+      }
+    }
+    if (connectionClickAction == 'connect') {
+      await tick();
+      handleConnect();
     }
   };
 

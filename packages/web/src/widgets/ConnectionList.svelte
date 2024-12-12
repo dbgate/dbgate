@@ -38,6 +38,7 @@
   import { switchCurrentDatabase } from '../utility/common';
   import openNewTab from '../utility/openNewTab';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import { getConnectionClickActionSetting } from '../settings/settingsTools';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -194,7 +195,11 @@
   />
   <CloseSearchButton bind:filter />
   {#if $commandsCustomized['new.connection']?.enabled}
-    <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection" data-testid="ConnectionList_buttonNewConnection">
+    <InlineButton
+      on:click={() => runCommand('new.connection')}
+      title="Add new connection"
+      data-testid="ConnectionList_buttonNewConnection"
+    >
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
     <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">
@@ -235,6 +240,8 @@
       domFilter?.focus(text);
     }}
     handleObjectClick={(data, options) => {
+      const connectionClickAction = getConnectionClickActionSetting();
+
       if (data.database) {
         if (options.focusTab) {
           if ($openedSingleDatabaseConnections.includes(data.conid)) {
@@ -250,7 +257,7 @@
           openConnection(data.connection);
         } else {
           const config = getCurrentConfig();
-          if (config.runAsPortal == false && !config.storageDatabase) {
+          if (config.runAsPortal == false && !config.storageDatabase && connectionClickAction == 'openDetails') {
             openNewTab({
               title: getConnectionLabel(data.connection),
               icon: 'img connection',
