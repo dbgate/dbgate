@@ -241,6 +241,8 @@ class Analyser extends DatabaseAnalyser {
       return acc;
     }, {});
 
+    const triggers = await this.analyserQuery('triggers');
+
     const res = {
       tables: tables.rows.map(table => {
         const newTable = {
@@ -348,6 +350,18 @@ class Analyser extends DatabaseAnalyser {
           parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
           returnType: func.data_type,
         })),
+      triggers: triggers.rows.map(row => ({
+        trigerName: row.trigger_name,
+        functionName: row.function_name,
+        triggerTiming: row.trigger_timing,
+        triggerLevel: row.trigger_level,
+        eventType: row.event_type,
+        schemaName: row.schema_name,
+        tableName: row.table_name,
+        createSql: row.definition,
+        contentHash: `triggers:${row.trigger_id}`,
+        objectId: `triggers:${row.trigger_id}`,
+      })),
     };
 
     this.feedback({ analysingMessage: null });
