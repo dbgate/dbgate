@@ -38,7 +38,8 @@
         "target": "default",
         "arch": [
           "universal",
-          "x64"
+          "x64",
+          "arm64"
         ]
       }
     },
