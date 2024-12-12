@@ -19,6 +19,7 @@ const volatilePackages = [
   'activedirectory2',
   'axios',
   'ssh2',
+  'wkx',
 ];
 
 module.exports = volatilePackages;
