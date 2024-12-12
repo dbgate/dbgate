@@ -285,7 +285,11 @@
       expandOnClick
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
-      passProps={{ ...passProps, connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+      passProps={{
+        ...passProps,
+        connectionColorFactory: $connectionColorFactory,
+        showPinnedInsteadOfUnpin: true,
+      }}
       getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
       setIsExpanded={(data, value) => {
         expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
@@ -309,7 +313,10 @@
       expandOnClick
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
-      passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+      passProps={{
+        connectionColorFactory: $connectionColorFactory,
+        showPinnedInsteadOfUnpin: true,
+      }}
       getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
       setIsExpanded={(data, value) => {
         expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));

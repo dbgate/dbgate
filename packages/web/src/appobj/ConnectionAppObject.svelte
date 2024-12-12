@@ -394,4 +394,5 @@
     (data.singleDatabase
       ? $focusedConnectionOrDatabase?.database == data.defaultDatabase
       : !$focusedConnectionOrDatabase?.database)}
-/>
+  disableBoldScroll={!!$focusedConnectionOrDatabase}
+  />

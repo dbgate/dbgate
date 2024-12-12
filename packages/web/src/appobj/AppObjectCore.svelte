@@ -30,6 +30,7 @@
   export let onUnpin = null;
   export let showPinnedInsteadOfUnpin = false;
   export let indentLevel = 0;
+  export let disableBoldScroll = false;
 
   $: isChecked =
     checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));
@@ -69,7 +70,7 @@
   // $: console.log(title, indentLevel);
   let domDiv;
 
-  $: if (isBold && domDiv) {
+  $: if (isBold && domDiv && !disableBoldScroll) {
     domDiv.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 

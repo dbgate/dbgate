@@ -1,6 +1,5 @@
 <script>
-  import _, { sortBy } from 'lodash';
-  import { asyncFilter } from '../utility/common';
+  import _ from 'lodash';
   import AppObjectGroup from './AppObjectGroup.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
 
