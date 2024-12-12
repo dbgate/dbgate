@@ -86,6 +86,7 @@
   draggable={true}
   on:click={handleClick}
   on:mouseup={handleMouseUp}
+  on:mousedown
   on:dblclick
   use:contextMenu={disableContextMenu ? null : menu}
   on:dragstart={e => {

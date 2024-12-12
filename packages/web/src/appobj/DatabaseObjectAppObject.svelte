@@ -923,7 +923,6 @@
   export let passProps;
 
   function handleClick({ forceNewTab = false, tabPreviewMode = false, focusTab = false } = {}) {
-    $selectedDatabaseObjectAppObject = _.pick(data, ['conid', 'database', 'objectTypeField', 'pureName', 'schemaName']);
     handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
   }
 
@@ -966,4 +965,7 @@
   on:dragenter
   on:dragend
   on:drop
+  on:mousedown={() => {
+    $selectedDatabaseObjectAppObject = _.pick(data, ['conid', 'database', 'objectTypeField', 'pureName', 'schemaName']);
+  }}
 />

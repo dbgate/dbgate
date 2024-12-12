@@ -178,11 +178,11 @@
   };
 
   const handleClick = async e => {
-    focusedConnectionOrDatabase.set({
-      conid: data?._id,
-      connection: data,
-      database: data.singleDatabase ? data.defaultDatabase : null,
-    });
+    // focusedConnectionOrDatabase.set({
+    //   conid: data?._id,
+    //   connection: data,
+    //   database: data.singleDatabase ? data.defaultDatabase : null,
+    // });
 
     const config = getCurrentConfig();
 
@@ -204,6 +204,14 @@
       await tick();
       handleConnect();
     }
+  };
+
+  const handleMouseDown = () => {
+    focusedConnectionOrDatabase.set({
+      conid: data?._id,
+      connection: data,
+      database: data.singleDatabase ? data.defaultDatabase : null,
+    });
   };
 
   const handleSqlRestore = () => {
@@ -382,6 +390,7 @@
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
   on:click={handleClick}
+  on:mousedown={handleMouseDown}
   on:dblclick
   on:expand
   on:dblclick={handleDoubleClick}
@@ -395,4 +404,4 @@
       ? $focusedConnectionOrDatabase?.database == data.defaultDatabase
       : !$focusedConnectionOrDatabase?.database)}
   disableBoldScroll={!!$focusedConnectionOrDatabase}
-  />
+/>
