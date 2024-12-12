@@ -11,6 +11,7 @@ const functionModifications = require('./functionModifications');
 const uniqueNames = require('./uniqueNames');
 const viewTexts = require('./viewTexts');
 const parameters = require('./parameters');
+const triggers = require('./triggers');
 
 module.exports = {
   columns,
@@ -26,4 +27,5 @@ module.exports = {
   indexes,
   uniqueNames,
   viewTexts,
+  triggers,
 };

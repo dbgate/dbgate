@@ -160,6 +160,9 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading uniques' });
+
+    const triggers = await this.analyserQuery('triggers');
+
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
@@ -236,6 +239,16 @@ class Analyser extends DatabaseAnalyser {
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
           parameters: functionNameToParameters[x.pureName],
         })),
+      triggers: triggers.rows.map(row => ({
+        objectId: row.triggerName,
+        contentHash: row.modifyDate,
+        triggerName: row.triggerName,
+        eventType: row.triggerEvent,
+        triggerTiming: row.triggerTiming,
+        schemaName: row.schemaName,
+        tableName: row.tableName,
+        createSql: row.definition,
+      })),
     };
     this.feedback({ analysingMessage: null });
     return res;
