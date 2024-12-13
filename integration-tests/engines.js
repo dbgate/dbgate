@@ -424,14 +424,14 @@ end;$$`,
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
-  'Oracle',
+  '-Oracle',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
