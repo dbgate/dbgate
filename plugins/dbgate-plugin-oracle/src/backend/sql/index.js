@@ -6,6 +6,7 @@ const views = require('./views');
 const matviews = require('./matviews');
 const routines = require('./routines');
 const indexes = require('./indexes'); // use mysql
+const triggers = require('./triggers');
 //const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
 //const geometryColumns = require('./geometryColumns');
@@ -24,7 +25,8 @@ module.exports = {
   routines,
   matviews,
   indexes,
-//  indexcols,
+  triggers,
+  //  indexcols,
   uniqueNames,
   //geometryColumns,
   //geographyColumns,

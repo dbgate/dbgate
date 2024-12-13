@@ -71,6 +71,9 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Loading unique names' });
+
+    const triggers = await this.analyserQuery('triggers', undefined, { $owner: this.dbhan.database });
+
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
@@ -183,6 +186,13 @@ class Analyser extends DatabaseAnalyser {
           // schemaName: func.schema_name,
           contentHash: func.hash_code,
         })),
+      triggers: triggers.rows.map(row => ({
+        trigerName: row.TRIGGER_NAME,
+        definition: row.DEFINITION,
+        tableName: row.TABLE_NAME,
+        triggerLevel: row.TRIGGER_LEVEL,
+        eventType: row.EVENT_TYPE,
+      })),
     };
 
     this.feedback({ analysingMessage: null });
