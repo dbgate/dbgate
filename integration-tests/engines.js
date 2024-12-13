@@ -1,9 +1,9 @@
 const views = {
   type: 'views',
-  create1: 'CREATE VIEW obj1 AS SELECT id FROM t1',
-  create2: 'CREATE VIEW obj2 AS SELECT id FROM t2',
-  drop1: 'DROP VIEW obj1',
-  drop2: 'DROP VIEW obj2',
+  create1: 'CREATE VIEW ~obj1 AS SELECT ~id FROM ~t1',
+  create2: 'CREATE VIEW ~obj2 AS SELECT ~id FROM ~t2',
+  drop1: 'DROP VIEW ~obj1',
+  drop2: 'DROP VIEW ~obj2',
 };
 const matviews = {
   type: 'matviews',
@@ -414,8 +414,27 @@ end;$$`,
       server: 'localhost',
       port: 15006,
     },
-    skipOnCI: true,
+    skipOnCI: false,
     dbSnapshotBySeconds: true,
+    setNullDefaultInsteadOfDrop: true,
+    skipIncrementalAnalysis: true,
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE ~obj1 AS BEGIN SELECT ~id FROM ~t1 END',
+        create2: 'CREATE PROCEDURE ~obj2 AS BEGIN SELECT ~id FROM ~t2 END',
+        drop1: 'DROP PROCEDURE ~obj1',
+        drop2: 'DROP PROCEDURE ~obj2',
+      },
+      {
+        type: 'functions',
+        create1: 'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
+        create2: 'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
+        drop1: 'DROP FUNCTION ~obj1',
+        drop2: 'DROP FUNCTION ~obj2',
+      },
+    ],
   },
 ];
 

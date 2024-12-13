@@ -3,9 +3,15 @@ const _ = require('lodash');
 const fp = require('lodash/fp');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
-const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
+const {
+  getAlterDatabaseScript,
+  extendDatabaseInfo,
+  generateDbPairingId,
+  formatQueryWithoutParams,
+  runCommandOnDriver,
+} = require('dbgate-tools');
 
-const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
+const initSql = ['CREATE TABLE ~t1 (~id int primary key)', 'CREATE TABLE ~t2 (~id int primary key)'];
 
 function flatSource(engineCond = x => !x.skipReferences) {
   return _.flatten(
@@ -16,13 +22,14 @@ function flatSource(engineCond = x => !x.skipReferences) {
 }
 
 async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
-  await driver.query(conn, `create table t1 (id int not null primary key)`);
+  await runCommandOnDriver(conn, driver, `create table ~t1 (~id int not null primary key)`);
 
-  await driver.query(
+  await runCommandOnDriver(
     conn,
-    `create table t2 (
-    id int not null primary key, 
-    t1_id int null references t1(id)
+    driver,
+    `create table ~t2 (
+    ~id int not null primary key, 
+    ~t1_id int null references ~t1(~id)
   )`
   );
 
@@ -63,7 +70,7 @@ describe('Alter database', () => {
         db => {
           _.remove(db[type], x => x.pureName == 'obj1');
         },
-        object.create1
+        formatQueryWithoutParams(driver, object.create1)
       );
       expect(db[type].length).toEqual(0);
     })
@@ -72,9 +79,9 @@ describe('Alter database', () => {
   test.each(flatSource(x => x.supportRenameSqlObject))(
     'Rename object - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
 
-      await driver.query(conn, object.create1, { discardResult: true });
+      await runCommandOnDriver(conn, driver, object.create1);
 
       const structure = extendDatabaseInfo(await driver.analyseFull(conn));
 

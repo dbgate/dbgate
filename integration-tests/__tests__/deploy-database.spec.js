@@ -4,7 +4,7 @@ const { testWrapper, testWrapperPrepareOnly } = require('../tools');
 const _ = require('lodash');
 const engines = require('../engines');
 const deployDb = require('dbgate-api/src/shell/deployDb');
-const { databaseInfoFromYamlModel } = require('dbgate-tools');
+const { databaseInfoFromYamlModel, runQueryOnDriver, formatQueryWithoutParams } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 const connectUtility = require('dbgate-api/src/utility/connectUtility');
 
@@ -69,6 +69,29 @@ function checkStructure(
   }
 }
 
+// function convertObjectText(text, driver) {
+//   if (!text) return undefined;
+//   text = formatQueryWithoutParams(driver, text);
+//   if (driver.dialect.requireFromDual && text.startsWith('create view ') && !text.includes('from')) {
+//     text = text + ' from dual';
+//   }
+//   return text;
+// }
+
+// function convertModelToEngine(model, driver) {
+//   return model.map(x => ({
+//     ...x,
+//     text: convertObjectText(x.text, driver),
+//   }));
+// }
+
+function convertModelToEngine(model, driver) {
+  return model.map(x => ({
+    ...x,
+    text: x.text ? formatQueryWithoutParams(driver, x.text) : undefined,
+  }));
+}
+
 async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const { testEmptyLastScript, finalCheckAgainstModel, markDeleted, allowDropStatements } = options || {};
   let index = 0;
@@ -83,13 +106,13 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
 
   for (const loadedDbModel of dbModelsYaml) {
     if (_.isString(loadedDbModel)) {
-      await driver.script(conn, loadedDbModel);
+      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel));
     } else {
       const { sql, isEmpty } = await generateDeploySql({
         systemConnection: conn.isPreparedOnly ? undefined : conn,
         connection: conn.isPreparedOnly ? conn : undefined,
         driver,
-        loadedDbModel,
+        loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
       });
       console.debug('Generated deploy script:', sql);
@@ -106,7 +129,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         systemConnection: conn.isPreparedOnly ? undefined : conn,
         connection: conn.isPreparedOnly ? conn : undefined,
         driver,
-        loadedDbModel,
+        loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
       });
     }
@@ -117,7 +140,12 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
   const dbhan = conn.isPreparedOnly ? await connectUtility(driver, conn, 'read') : conn;
   const structure = await driver.analyseFull(dbhan);
   if (conn.isPreparedOnly) await driver.close(dbhan);
-  checkStructure(engine, structure, finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)), options);
+  checkStructure(
+    engine,
+    structure,
+    convertModelToEngine(finalCheckAgainstModel ?? _.findLast(dbModelsYaml, x => _.isArray(x)), driver),
+    options
+  );
 }
 
 describe('Deploy database', () => {
@@ -339,7 +367,7 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res = await driver.query(conn, `select count(*) as cnt from t1`);
+      const res = await runQueryOnDriver(conn, driver, `select count(*) as ~cnt from ~t1`);
       expect(res.rows[0].cnt.toString()).toEqual('3');
     })
   );
@@ -386,7 +414,7 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      const res = await driver.query(conn, `select val from t1 where id = 2`);
+      const res = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 2`);
       expect(res.rows[0].val.toString()).toEqual('5');
     })
   );
@@ -414,8 +442,8 @@ describe('Deploy database', () => {
         ],
       ]);
 
-      await driver.query(conn, `insert into t1 (id) values (1)`);
-      const res = await driver.query(conn, ` select val from t1 where id = 1`);
+      await runQueryOnDriver(conn, driver, `insert into ~t1 (~id) values (1)`);
+      const res = await runQueryOnDriver(conn, driver, ` select ~val from ~t1 where ~id = 1`);
       expect(res.rows[0].val.toString().substring(0, 2)).toEqual('20');
     })
   );
@@ -438,7 +466,7 @@ describe('Deploy database', () => {
             },
           },
         ],
-        'insert into t1 (id, val) values (1, 1); insert into t1 (id) values (2)',
+        'insert into ~t1 (~id, ~val) values (1, 1); insert into ~t1 (~id) values (2)',
         [
           {
             name: 't1.table.yaml',
@@ -452,16 +480,16 @@ describe('Deploy database', () => {
             },
           },
         ],
-        'insert into t1 (id) values (3);',
+        'insert into ~t1 (~id) values (3);',
       ]);
 
-      const res1 = await driver.query(conn, `select val from t1 where id = 1`);
+      const res1 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 1`);
       expect(res1.rows[0].val).toEqual(1);
 
-      const res2 = await driver.query(conn, `select val from t1 where id = 2`);
+      const res2 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 2`);
       expect(res2.rows[0].val).toEqual(20);
 
-      const res3 = await driver.query(conn, `select val from t1 where id = 3`);
+      const res3 = await runQueryOnDriver(conn, driver, `select ~val from ~t1 where ~id = 3`);
       expect(res2.rows[0].val).toEqual(20);
     })
   );
@@ -525,17 +553,17 @@ describe('Deploy database', () => {
 
   const V1 = {
     name: 'v1.view.sql',
-    text: 'create view v1 as select * from t1',
+    text: 'create view ~v1 as select * from ~t1',
   };
 
   const V1_VARIANT2 = {
     name: 'v1.view.sql',
-    text: 'create view v1 as select 1 as c1',
+    text: 'create view ~v1 as select ~id + ~id ~idsum from ~t1',
   };
 
   const V1_DELETED = {
     name: '_deleted_v1.view.sql',
-    text: 'create view _deleted_v1 as select * from t1',
+    text: 'create view ~_deleted_v1 as select * from ~t1',
   };
 
   test.each(engines.map(engine => [engine.label, engine]))(
@@ -682,15 +710,15 @@ describe('Deploy database', () => {
         [
           {
             name: '1.predeploy.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1);',
+            text: 'create table ~t1 (~id int primary key); insert into ~t1 (~id) values (1);',
           },
         ],
       ]);
 
-      const res1 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
+      const res1 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~t1');
       expect(res1.rows[0].cnt == 1).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+      const res2 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~dbgate_deploy_journal');
       expect(res2.rows[0].cnt == 1).toBeTruthy();
     })
   );
@@ -702,48 +730,53 @@ describe('Deploy database', () => {
         [
           {
             name: 't1.uninstall.sql',
-            text: 'drop table t1',
+            text: 'drop table ~t1',
           },
           {
             name: 't1.install.sql',
-            text: 'create table t1 (id int primary key); insert into t1 (id) values (1)',
+            text: 'create table ~t1 (~id int primary key); insert into ~t1 (~id) values (1)',
           },
           {
             name: 't2.once.sql',
-            text: 'create table t2 (id int primary key); insert into t2 (id) values (1)',
+            text: 'create table ~t2 (~id int primary key); insert into ~t2 (~id) values (1)',
           },
         ],
         [
           {
             name: 't1.uninstall.sql',
-            text: 'drop table t1',
+            text: 'drop table ~t1',
           },
           {
             name: 't1.install.sql',
-            text: 'create table t1 (id int primary key, val int); insert into t1 (id, val) values (1, 11)',
+            text: 'create table ~t1 (~id int primary key, ~val int); insert into ~t1 (~id, ~val) values (1, 11)',
           },
           {
             name: 't2.once.sql',
-            text: 'insert into t2 (id) values (2)',
+            text: 'insert into ~t2 (~id) values (2)',
           },
         ],
       ]);
 
-      const res1 = await driver.query(conn, 'SELECT val from t1 where id = 1');
+      const res1 = await runQueryOnDriver(conn, driver, 'SELECT ~val from ~t1 where ~id = 1');
       expect(res1.rows[0].val == 11).toBeTruthy();
 
-      const res2 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t2');
+      const res2 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~t2');
       expect(res2.rows[0].cnt == 1).toBeTruthy();
 
-      const res3 = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM dbgate_deploy_journal');
+      const res3 = await runQueryOnDriver(conn, driver, 'SELECT COUNT(*) AS ~cnt FROM ~dbgate_deploy_journal');
       expect(res3.rows[0].cnt == 3).toBeTruthy();
 
-      const res4 = await driver.query(conn, "SELECT run_count from dbgate_deploy_journal where name = 't2.once.sql'");
+      const res4 = await runQueryOnDriver(
+        conn,
+        driver,
+        "SELECT ~run_count from ~dbgate_deploy_journal where ~name = 't2.once.sql'"
+      );
       expect(res4.rows[0].run_count == 1).toBeTruthy();
 
-      const res5 = await driver.query(
+      const res5 = await runQueryOnDriver(
         conn,
-        "SELECT run_count from dbgate_deploy_journal where name = 't1.install.sql'"
+        driver,
+        "SELECT ~run_count from ~dbgate_deploy_journal where ~name = 't1.install.sql'"
       );
       expect(res5.rows[0].run_count == 2).toBeTruthy();
     })

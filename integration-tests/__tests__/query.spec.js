@@ -1,11 +1,12 @@
 const engines = require('../engines');
 const { splitQuery } = require('dbgate-query-splitter');
 const { testWrapper } = require('../tools');
+const { runQueryOnDriver, runCommandOnDriver, formatQueryWithoutParams } = require('dbgate-tools');
 
 const initSql = [
-  'CREATE TABLE t1 (id int primary key)',
-  'INSERT INTO t1 (id) VALUES (1)',
-  'INSERT INTO t1 (id) VALUES (2)',
+  'CREATE TABLE ~t1 (~id int primary key)',
+  'INSERT INTO ~t1 (~id) VALUES (1)',
+  'INSERT INTO ~t1 (~id) VALUES (2)',
 ];
 
 expect.extend({
@@ -51,7 +52,7 @@ class StreamHandler {
 function executeStreamItem(driver, conn, sql) {
   return new Promise(resolve => {
     const handler = new StreamHandler(resolve);
-    driver.stream(conn, sql, handler);
+    driver.stream(conn, formatQueryWithoutParams(driver, sql), handler);
   });
 }
 
@@ -68,9 +69,11 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Simple query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
+      }
 
-      const res = await driver.query(conn, 'SELECT id FROM t1 ORDER BY id');
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT ~id FROM ~t1 ORDER BY ~id'));
       expect(res.columns).toEqual([
         expect.objectContaining({
           columnName: 'id',
@@ -91,8 +94,11 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Simple stream query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
-      const results = await executeStream(driver, conn, 'SELECT id FROM t1 ORDER BY id');
+      for (const sql of initSql) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
+      }
+
+      const results = await executeStream(driver, conn, 'SELECT ~id FROM ~t1 ORDER BY ~id');
       expect(results.length).toEqual(1);
       const res = results[0];
 
@@ -104,11 +110,14 @@ describe('Query', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'More queries - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
+      }
+
       const results = await executeStream(
         driver,
         conn,
-        'SELECT id FROM t1 ORDER BY id; SELECT id FROM t1 ORDER BY id DESC'
+        'SELECT ~id FROM ~t1 ORDER BY ~id; SELECT ~id FROM ~t1 ORDER BY ~id DESC'
       );
       expect(results.length).toEqual(2);
 
@@ -128,7 +137,7 @@ describe('Query', () => {
       const results = await executeStream(
         driver,
         conn,
-        'CREATE TABLE t1 (id int primary key); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2); SELECT id FROM t1 ORDER BY id; '
+        'CREATE TABLE ~t1 (~id int primary key); INSERT INTO ~t1 (~id) VALUES (1); INSERT INTO ~t1 (~id) VALUES (2); SELECT ~id FROM ~t1 ORDER BY ~id; '
       );
       expect(results.length).toEqual(1);
 
@@ -144,7 +153,7 @@ describe('Query', () => {
       const results = await executeStream(
         driver,
         conn,
-        'CREATE TABLE t1 (id int); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2) '
+        'CREATE TABLE ~t1 (~id int); INSERT INTO ~t1 (~id) VALUES (1); INSERT INTO ~t1 (~id) VALUES (2) '
       );
       expect(results.length).toEqual(0);
     })
@@ -153,16 +162,57 @@ describe('Query', () => {
   test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
     'Save data query - %s',
     testWrapper(async (conn, driver, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
+      }
 
       await driver.script(
         conn,
-        'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;',
+        formatQueryWithoutParams(
+          driver,
+          'INSERT INTO ~t1 (~id) VALUES (3);INSERT INTO ~t1 (~id) VALUES (4);UPDATE ~t1 SET ~id=10 WHERE ~id=1;DELETE FROM ~t1 WHERE ~id=2;'
+        ),
         { discardResult: true }
       );
-      const res = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT COUNT(*) AS ~cnt FROM ~t1'));
       // console.log(res);
       expect(res.rows[0].cnt == 3).toBeTruthy();
+    })
+  );
+
+  test.each(engines.filter(x => !x.skipDataDuplicator).map(engine => [engine.label, engine]))(
+    'Select scope identity - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await runCommandOnDriver(conn, driver, dmp =>
+        dmp.createTable({
+          pureName: 't1',
+          columns: [
+            { columnName: 'id', dataType: 'int', notNull: true, autoIncrement: true },
+            { columnName: 'val', dataType: 'varchar(50)' },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+        })
+      );
+
+      const structure = await driver.analyseFull(conn);
+      const table = structure.tables.find(x => x.pureName == 't1');
+
+      let res;
+      if (driver.dialect.requireStandaloneSelectForScopeIdentity) {
+        await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES ('aaa')"));
+        res = await runQueryOnDriver(conn, driver, dmp => dmp.selectScopeIdentity(table));
+      } else {
+        res = await runQueryOnDriver(conn, driver, dmp => {
+          dmp.putCmd("INSERT INTO ~t1 (~val) VALUES ('aaa')");
+          dmp.selectScopeIdentity(table);
+        });
+      }
+      const row = res.rows[0];
+      const keys = Object.keys(row);
+      expect(keys.length).toEqual(1);
+      expect(row[keys[0]] == 1).toBeTruthy();
     })
   );
 });

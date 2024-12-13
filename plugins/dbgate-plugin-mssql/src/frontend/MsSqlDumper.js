@@ -132,7 +132,9 @@ class MsSqlDumper extends SqlDumper {
     } else {
       this.dropDefault(oldcol);
       if (oldcol.columnName != newcol.columnName) this.renameColumn(oldcol, newcol.columnName);
-      this.fillNewNotNullDefaults(newcol);
+      if (!oldcol.notNull) {
+        this.fillNewNotNullDefaults(newcol);
+      }
       this.put('^alter ^table %f ^alter ^column %i ', oldcol, oldcol.columnName, newcol.columnName);
       this.columnDefinition(newcol, { includeDefault: false });
       this.endCommand();

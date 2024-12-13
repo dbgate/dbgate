@@ -4,7 +4,12 @@ const fp = require('lodash/fp');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const crypto = require('crypto');
-const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
+const {
+  getAlterTableScript,
+  extendDatabaseInfo,
+  generateDbPairingId,
+  formatQueryWithoutParams,
+} = require('dbgate-tools');
 
 function pickImportantTableInfo(engine, table) {
   const props = ['columnName', 'defaultValue'];
@@ -15,7 +20,10 @@ function pickImportantTableInfo(engine, table) {
     columns: table.columns
       .filter(x => x.columnName != 'rowid')
       .map(fp.pick(props))
-      .map(props => _.omitBy(props, x => x == null)),
+      .map(props => _.omitBy(props, x => x == null))
+      .map(props =>
+        _.omitBy(props, (v, k) => k == 'defaultValue' && v == 'NULL' && engine.setNullDefaultInsteadOfDrop)
+      ),
   };
 }
 
@@ -25,27 +33,36 @@ function checkTableStructure(engine, t1, t2) {
 }
 
 async function testTableDiff(engine, conn, driver, mangle) {
-  await driver.query(conn, `create table t0 (id int not null primary key)`);
+  await driver.query(conn, formatQueryWithoutParams(driver, `create table ~t0 (~id int not null primary key)`));
 
   await driver.query(
     conn,
-    `create table t1 (
-    col_pk int not null primary key, 
-    col_std int, 
-    col_def int default 12,
-    ${engine.skipReferences ? '' : 'col_fk int references t0(id),'}
-    col_idx int,
-    col_uq int ${engine.skipUnique ? '' : 'unique'} ,
-    col_ref int ${engine.skipUnique ? '' : 'unique'}
+    formatQueryWithoutParams(
+      driver,
+      `create table ~t1 (
+    ~col_pk int not null primary key, 
+    ~col_std int, 
+    ~col_def int default 12,
+    ${engine.skipReferences ? '' : '~col_fk int references ~t0(~id),'}
+    ~col_idx int,
+    ~col_uq int ${engine.skipUnique ? '' : 'unique'} ,
+    ~col_ref int ${engine.skipUnique ? '' : 'unique'}
   )`
+    )
   );
 
   if (!engine.skipIndexes) {
-    await driver.query(conn, `create index idx1 on t1(col_idx)`);
+    await driver.query(conn, formatQueryWithoutParams(driver, `create index ~idx1 on ~t1(~col_idx)`));
   }
 
   if (!engine.skipReferences) {
-    await driver.query(conn, `create table t2 (id int not null primary key, fkval int null references t1(col_ref))`);
+    await driver.query(
+      conn,
+      formatQueryWithoutParams(
+        driver,
+        `create table ~t2 (~id int not null primary key, ~fkval int null references ~t1(~col_ref))`
+      )
+    );
   }
 
   const tget = x => x.tables.find(y => y.pureName == 't1');
@@ -175,5 +192,4 @@ describe('Alter table', () => {
   //     });
   //   })
   // );
-
 });

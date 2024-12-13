@@ -13,7 +13,7 @@ const dialect = {
   ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
-  fallbackDataType: 'varchar',
+  fallbackDataType: 'varchar(250)',
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['dependencies'],
@@ -22,6 +22,7 @@ const dialect = {
   },
   userDatabaseNamePrefix: 'C##',
   upperCaseAllDbObjectNames: true,
+  requireStandaloneSelectForScopeIdentity: true,
 
   createColumn: true,
   dropColumn: true,
@@ -36,6 +37,7 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
+  renameSqlObject: true,
 
   dropReferencesWhenDropTable: true,
   requireFromDual: true,

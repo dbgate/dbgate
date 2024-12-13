@@ -23,7 +23,7 @@ function getColumnInfo(
     columnName: column_name,
     dataType: fullDataType,
     notNull: is_nullable == 'N',
-    defaultValue: autoIncrement ? undefined : default_value,
+    defaultValue: autoIncrement ? undefined : default_value?.trim(),
     autoIncrement,
   };
 }
@@ -40,7 +40,7 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _computeSingleObjectId() {
-    const { typeField,  pureName } = this.singleObjectFilter;
+    const { typeField, pureName } = this.singleObjectFilter;
     this.singleObjectId = `${typeField}:${pureName}`;
   }
 
@@ -114,7 +114,8 @@ class Analyser extends DatabaseAnalyser {
             indexes.rows.filter(
               idx =>
                 idx.tableName == newTable.pureName &&
-                !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+                !uniqueNames.rows.find(x => x.constraintName == idx.constraintName) &&
+                !idx.constraintName.startsWith('SYS_C')
             ),
             'constraintName'
           ).map(idx => ({
@@ -141,6 +142,9 @@ class Analyser extends DatabaseAnalyser {
                 ..._.pick(col, ['columnName']),
               })),
           })),
+          identitySequenceName: (columnsGrouped[columnGroup(table)] || [])
+            .find(x => x?.default_value?.endsWith('.nextval'))
+            ?.default_value?.match(/\"([^"]+)\"\.nextval/)?.[1],
         };
       }),
       views: views.rows.map(view => ({
@@ -167,14 +171,14 @@ class Analyser extends DatabaseAnalyser {
           objectId: `procedures:${proc.pure_name}`,
           pureName: proc.pure_name,
           // schemaName: proc.schema_name,
-          createSql: `CREATE PROCEDURE "${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
+          createSql: `SET SQLTERMINATOR "/"\nCREATE ${proc.source_code}\n/\n`,
           contentHash: proc.hash_code,
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.pure_name}`,
-          createSql: `CREATE FUNCTION "${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          createSql: `SET SQLTERMINATOR "/"\nCREATE ${func.source_code}\n/\n`,
           pureName: func.pure_name,
           // schemaName: func.schema_name,
           contentHash: func.hash_code,
