@@ -73,6 +73,7 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading unique names' });
 
     const triggers = await this.analyserQuery('triggers', undefined, { $owner: this.dbhan.database });
+    this.feedback({ analysingMessage: 'Loading triggers' });
 
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Finalizing DB structure' });

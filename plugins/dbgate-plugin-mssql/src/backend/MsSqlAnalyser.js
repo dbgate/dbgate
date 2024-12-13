@@ -132,6 +132,9 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const procedureParameterRows = await this.analyserQuery('proceduresParameters');
     const functionParameterRows = await this.analyserQuery('functionParameters');
 
+    this.feedback({ analysingMessage: 'Loading triggers' });
+    const triggerRows = await this.analyserQuery('triggers');
+
     this.feedback({ analysingMessage: 'Loading view columns' });
     const viewColumnRows = await this.analyserQuery('viewColumns', ['views']);
 
@@ -213,8 +216,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         createSql: getCreateSql(row),
         parameters: functionToParameters[row.objectId],
       }));
-
-    const triggerRows = await this.analyserQuery('triggers');
 
     const triggers = triggerRows.rows.map(row => ({
       objectId: `triggers:${row.objectId}`,

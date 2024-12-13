@@ -161,6 +161,7 @@ class Analyser extends DatabaseAnalyser {
     const indexes = await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading uniques' });
 
+    this.feedback({ analysingMessage: 'Loading triggers' });
     const triggers = await this.analyserQuery('triggers');
 
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);

@@ -185,6 +185,9 @@ class Analyser extends DatabaseAnalyser {
       geographyColumns = await this.analyserQuery('geographyColumns', ['tables']);
     }
 
+    this.feedback({ analysingMessage: 'Loading triggers' });
+    const triggers = await this.analyserQuery('triggers');
+
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const columnColumnsMapped = fkColumns.rows.map(x => ({
@@ -240,8 +243,6 @@ class Analyser extends DatabaseAnalyser {
 
       return acc;
     }, {});
-
-    const triggers = await this.analyserQuery('triggers');
 
     const res = {
       tables: tables.rows.map(table => {
