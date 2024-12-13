@@ -418,20 +418,29 @@ end;$$`,
     dbSnapshotBySeconds: true,
     setNullDefaultInsteadOfDrop: true,
     skipIncrementalAnalysis: true,
-    objects: [views],
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE ~obj1 AS BEGIN SELECT ~id FROM ~t1 END',
+        create2: 'CREATE PROCEDURE ~obj2 AS BEGIN SELECT ~id FROM ~t2 END',
+        drop1: 'DROP PROCEDURE ~obj1',
+        drop2: 'DROP PROCEDURE ~obj2',
+      },
+    ],
   },
 ];
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
-  '-Oracle',
+  'Oracle',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');

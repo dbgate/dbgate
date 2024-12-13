@@ -171,14 +171,14 @@ class Analyser extends DatabaseAnalyser {
           objectId: `procedures:${proc.pure_name}`,
           pureName: proc.pure_name,
           // schemaName: proc.schema_name,
-          createSql: `CREATE PROCEDURE "${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
+          createSql: `CREATE ${proc.source_code}`,
           contentHash: proc.hash_code,
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.pure_name}`,
-          createSql: `CREATE FUNCTION "${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          createSql: `CREATE ${func.source_code}`,
           pureName: func.pure_name,
           // schemaName: func.schema_name,
           contentHash: func.hash_code,
