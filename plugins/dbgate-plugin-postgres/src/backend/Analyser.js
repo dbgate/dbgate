@@ -97,30 +97,30 @@ class Analyser extends DatabaseAnalyser {
     let fkColumns = null;
 
     this.feedback({ analysingMessage: 'Loading foreign key constraints' });
-    const fk_tableConstraints = await this.analyserQuery('fk_tableConstraints', ['tables']);
+    // const fk_tableConstraints = await this.analyserQuery('fk_tableConstraints', ['tables']);
 
     this.feedback({ analysingMessage: 'Loading foreign key refs' });
-    const fk_referentialConstraints = await this.analyserQuery('fk_referentialConstraints', ['tables']);
+    const foreignKeys = await this.analyserQuery('foreignKeys', ['tables']);
 
     this.feedback({ analysingMessage: 'Loading foreign key columns' });
     const fk_keyColumnUsage = await this.analyserQuery('fk_keyColumnUsage', ['tables']);
 
-    const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
+    // const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
     const fkRows = [];
-    const fkConstraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
-    for (const fkRef of fk_referentialConstraints.rows) {
-      const cntBase = fkConstraintDct[cntKey(fkRef)];
-      const cntRef = fkConstraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
-      if (!cntBase || !cntRef) continue;
+    // const fkConstraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
+    for (const fkRef of foreignKeys.rows) {
+      // const cntBase = fkConstraintDct[cntKey(fkRef)];
+      // const cntRef = fkConstraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
+      // if (!cntBase || !cntRef) continue;
       const baseCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == cntBase.table_name && x.constraint_name == cntBase.constraint_name
+          x => x.table_name == fkRef.table_name && x.constraint_name == fkRef.constraint_name && x.table_schema == fkRef.table_schema
         ),
         'ordinal_position'
       );
       const refCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == cntRef.table_name && x.constraint_name == cntRef.constraint_name
+          x => x.table_name == fkRef.ref_table_name && x.constraint_name == fkRef.unique_constraint_name && x.table_schema == fkRef.ref_table_schema
         ),
         'ordinal_position'
       );
@@ -132,10 +132,10 @@ class Analyser extends DatabaseAnalyser {
 
         fkRows.push({
           ...fkRef,
-          pure_name: cntBase.table_name,
-          schema_name: cntBase.table_schema,
-          ref_table_name: cntRef.table_name,
-          ref_schema_name: cntRef.table_schema,
+          pure_name: fkRef.table_name,
+          schema_name: fkRef.table_schema,
+          ref_table_name: fkRef.ref_table_name,
+          ref_schema_name: fkRef.ref_table_schema,
           column_name: baseCol.column_name,
           ref_column_name: refCol.column_name,
         });

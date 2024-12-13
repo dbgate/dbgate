@@ -7,6 +7,7 @@ select
 	key_column_usage.column_name as "column_name"
 from information_schema.table_constraints
 inner join information_schema.key_column_usage on table_constraints.table_name = key_column_usage.table_name and table_constraints.constraint_name = key_column_usage.constraint_name
+    and table_constraints.table_schema = key_column_usage.table_schema
 where 
 		table_constraints.table_schema !~ '^_timescaledb_' 
 		and table_constraints.constraint_type = 'PRIMARY KEY'

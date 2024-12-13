@@ -359,7 +359,7 @@ export class DatabaseAnalyser {
   }
 
   static byTableFilter(table) {
-    return x => x.pureName == table.pureName && x.schemaName == x.schemaName;
+    return x => x.pureName == table.pureName && x.schemaName == table.schemaName;
   }
 
   static extractPrimaryKeys(table, pkColumns) {
