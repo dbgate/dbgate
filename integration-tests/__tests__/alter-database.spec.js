@@ -11,7 +11,7 @@ const {
   runCommandOnDriver,
 } = require('dbgate-tools');
 
-const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
+const initSql = ['CREATE TABLE ~t1 (~id int primary key)', 'CREATE TABLE ~t2 (~id int primary key)'];
 
 function flatSource(engineCond = x => !x.skipReferences) {
   return _.flatten(
@@ -22,13 +22,14 @@ function flatSource(engineCond = x => !x.skipReferences) {
 }
 
 async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
-  await driver.query(conn, `create table t1 (id int not null primary key)`);
+  await runCommandOnDriver(conn, driver, `create table ~t1 (~id int not null primary key)`);
 
-  await driver.query(
+  await runCommandOnDriver(
     conn,
-    `create table t2 (
-    id int not null primary key, 
-    t1_id int null references t1(id)
+    driver,
+    `create table ~t2 (
+    ~id int not null primary key, 
+    ~t1_id int null references ~t1(~id)
   )`
   );
 
@@ -78,7 +79,7 @@ describe('Alter database', () => {
   test.each(flatSource(x => x.supportRenameSqlObject))(
     'Rename object - %s - %s',
     testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
 
       await runCommandOnDriver(conn, driver, object.create1);
 
