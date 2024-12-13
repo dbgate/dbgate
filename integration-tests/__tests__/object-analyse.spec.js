@@ -125,7 +125,7 @@ describe('Object analyse', () => {
       await runCommandOnDriver(conn, driver, parameter.drop);
 
       const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
-      await runCommandOnDriver(conn, driver, obj.createSql);
+      await driver.script(conn, obj.createSql, { discardResult: true });
 
       const structure2 = await driver.analyseFull(conn);
       const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
