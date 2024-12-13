@@ -1,9 +1,9 @@
 const views = {
   type: 'views',
-  create1: 'CREATE VIEW obj1 AS SELECT id FROM t1',
-  create2: 'CREATE VIEW obj2 AS SELECT id FROM t2',
-  drop1: 'DROP VIEW obj1',
-  drop2: 'DROP VIEW obj2',
+  create1: 'CREATE VIEW ~obj1 AS SELECT ~id FROM ~t1',
+  create2: 'CREATE VIEW ~obj2 AS SELECT ~id FROM ~t2',
+  drop1: 'DROP VIEW ~obj1',
+  drop2: 'DROP VIEW ~obj2',
 };
 const matviews = {
   type: 'matviews',
