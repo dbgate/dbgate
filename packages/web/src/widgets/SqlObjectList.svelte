@@ -35,7 +35,7 @@
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { extractDbNameFromComposite, findEngineDriver } from 'dbgate-tools';
   import {
     currentDatabase,
     extensions,
@@ -137,7 +137,8 @@
   $: differentFocusedDb =
     $focusedConnectionOrDatabase &&
     ($focusedConnectionOrDatabase.conid != conid ||
-      ($focusedConnectionOrDatabase?.database && $focusedConnectionOrDatabase?.database != database));
+      ($focusedConnectionOrDatabase?.database &&
+        $focusedConnectionOrDatabase?.database != extractDbNameFromComposite(database)));
 </script>
 
 {#if $status && $status.name == 'error'}

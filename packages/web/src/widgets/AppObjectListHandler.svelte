@@ -117,6 +117,7 @@
 
   async function handleFocus() {
     isListFocused = true;
+
     // await tick();
     await sleep(100);
     // console.log('ON FOCUS AFTER SLEEP');

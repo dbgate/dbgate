@@ -2,10 +2,11 @@ import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { getActiveTab, getOpenedTabs, openedTabs } from '../stores';
 import tabs from '../tabs';
-import { setSelectedTabFunc } from './common';
+import { setSelectedTabFunc, switchCurrentDatabase } from './common';
 import localforage from 'localforage';
 import stableStringify from 'json-stable-stringify';
 import { saveAllPendingEditorData } from '../query/useEditorData';
+import { getConnectionInfo } from './metadataLoaders';
 
 function findFreeNumber(numbers: number[]) {
   if (numbers.length == 0) return 1;
@@ -21,7 +22,16 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
 
   let existing = null;
 
-  const { savedFile, savedFolder, savedFilePath } = newTab.props || {};
+  const { savedFile, savedFolder, savedFilePath, conid, database } = newTab.props || {};
+
+  if (conid && database) {
+    const connection = await getConnectionInfo({ conid });
+    await switchCurrentDatabase({
+      connection,
+      name: database,
+    });
+  }
+
   const { tabPreviewMode } = newTab;
   if (savedFile || savedFilePath) {
     existing = oldTabs.find(

@@ -58,6 +58,13 @@
     }
   }
 
+  function handleMouseDown(e) {
+    if (e.button == 1) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
   function setChecked(value) {
     if (!value && isChecked) {
       checkedObjectsStore.update(x => x.filter(y => module?.extractKey(data) != module?.extractKey(y)));
@@ -86,6 +93,7 @@
   draggable={true}
   on:click={handleClick}
   on:mouseup={handleMouseUp}
+  on:mousedown={handleMouseDown}
   on:mousedown
   on:dblclick
   use:contextMenu={disableContextMenu ? null : menu}

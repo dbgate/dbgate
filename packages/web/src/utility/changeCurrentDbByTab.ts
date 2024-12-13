@@ -12,6 +12,7 @@ import { shouldShowTab } from '../tabpanel/TabsPanel.svelte';
 import { callWhenAppLoaded, getAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
 import { switchCurrentDatabase } from './common';
+import { extractDbNameFromComposite, isCompositeDbName } from 'dbgate-tools';
 
 // let lastCurrentTab = null;
 
@@ -82,7 +83,10 @@ currentDatabase.subscribe(currentDb => {
   if (currentDb) {
     focusedConnectionOrDatabase.set({
       conid: currentDb.connection?._id,
-      database: currentDb.name,
+      database:
+        currentDb.connection?.useSeparateSchemas && isCompositeDbName(currentDb.name)
+          ? extractDbNameFromComposite(currentDb.name)
+          : currentDb.name,
       connection: currentDb.connection,
     });
   } else {
