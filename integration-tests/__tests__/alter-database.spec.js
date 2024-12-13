@@ -3,7 +3,13 @@ const _ = require('lodash');
 const fp = require('lodash/fp');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
-const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
+const {
+  getAlterDatabaseScript,
+  extendDatabaseInfo,
+  generateDbPairingId,
+  formatQueryWithoutParams,
+  runCommandOnDriver,
+} = require('dbgate-tools');
 
 const initSql = ['CREATE TABLE t1 (id int primary key)', 'CREATE TABLE t2 (id int primary key)'];
 
@@ -63,7 +69,7 @@ describe('Alter database', () => {
         db => {
           _.remove(db[type], x => x.pureName == 'obj1');
         },
-        object.create1
+        formatQueryWithoutParams(driver, object.create1)
       );
       expect(db[type].length).toEqual(0);
     })
@@ -74,7 +80,7 @@ describe('Alter database', () => {
     testWrapper(async (conn, driver, type, object, engine) => {
       for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
 
-      await driver.query(conn, object.create1, { discardResult: true });
+      await runCommandOnDriver(conn, driver, object.create1);
 
       const structure = extendDatabaseInfo(await driver.analyseFull(conn));
 

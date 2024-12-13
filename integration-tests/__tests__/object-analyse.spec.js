@@ -99,10 +99,10 @@ describe('Object analyse', () => {
   test.each(flatSourceParameters())(
     'Test parameters simple analyse - %s - %s',
     testWrapper(async (conn, driver, testName, parameter, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
-      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+      for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
 
-      await driver.query(conn, parameter.create, { discardResult: true });
+      await runCommandOnDriver(conn, driver, parameter.create);
       const structure = await driver.analyseFull(conn);
 
       const parameters = structure[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
@@ -117,15 +117,15 @@ describe('Object analyse', () => {
   test.each(flatSourceParameters())(
     'Test parameters create SQL - %s - %s',
     testWrapper(async (conn, driver, testName, parameter, engine) => {
-      for (const sql of initSql) await driver.query(conn, sql, { discardResult: true });
-      for (const sql of engine.parametersOtherSql) await driver.query(conn, sql, { discardResult: true });
+      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+      for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
 
-      await driver.query(conn, parameter.create, { discardResult: true });
+      await runCommandOnDriver(conn, driver, parameter.create);
       const structure1 = await driver.analyseFull(conn);
-      await driver.query(conn, parameter.drop, { discardResult: true });
+      await runCommandOnDriver(conn, driver, parameter.drop);
 
       const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
-      await driver.script(conn, obj.createSql);
+      await runCommandOnDriver(conn, driver, obj.createSql);
 
       const structure2 = await driver.analyseFull(conn);
       const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
