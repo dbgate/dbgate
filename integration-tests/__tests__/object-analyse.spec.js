@@ -87,7 +87,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
       expect(structure2[type].length).toEqual(0);
 
-      await runCommandOnDriver(conn, driver, structure1[type][0].createSql);
+      await driver.script(conn, structure1[type][0].createSql);
 
       const structure3 = await driver.analyseIncremental(conn, structure2);
 

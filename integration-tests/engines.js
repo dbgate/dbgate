@@ -427,20 +427,27 @@ end;$$`,
         drop1: 'DROP PROCEDURE ~obj1',
         drop2: 'DROP PROCEDURE ~obj2',
       },
+      {
+        type: 'functions',
+        create1: 'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
+        create2: 'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
+        drop1: 'DROP FUNCTION ~obj1',
+        drop2: 'DROP FUNCTION ~obj2',
+      },
     ],
   },
 ];
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-MariaDB',
   '-PostgreSQL',
   '-SQL Server',
   '-SQLite',
   '-CockroachDB',
   '-ClickHouse',
-  'Oracle',
+  '-Oracle',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
