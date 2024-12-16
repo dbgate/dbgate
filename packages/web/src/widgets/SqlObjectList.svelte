@@ -274,7 +274,9 @@
               ? isExpandedBySearch
                 ? SubProcedureLineList
                 : SubProcedureParamList
-              : SubTableColumnList}
+              : isExpandedBySearch && (data.objectTypeField == 'views' || data.objectTypeField == 'matviews')
+                ? SubProcedureLineList
+                : SubTableColumnList}
           isExpandable={data =>
             data.objectTypeField == 'tables' ||
             data.objectTypeField == 'views' ||

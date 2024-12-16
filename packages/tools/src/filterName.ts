@@ -67,24 +67,56 @@ export function filterNameCompoud(
   return 'none';
 }
 
-export function tokenizeBySearchFilter(text: string, filter: string): { token: string; isMatch: boolean }[] {
-  const tokens = filter.split(' ').map(x => x.trim());
-
-  const result = [];
-  let lastMatch = 0;
-  for (const token of tokens) {
-    const index = text.indexOf(token, lastMatch);
-    if (index < 0) {
-      result.push({ token, isMatch: false });
-      continue;
+export function tokenizeBySearchFilter(text: string, filter: string): { text: string; isMatch: boolean }[] {
+  const camelTokens = [];
+  const stdTokens = [];
+  for (const token of filter.split(' ').map(x => x.trim())) {
+    if (token.replace(/[A-Z]/g, '').length == 0) {
+      camelTokens.push(token);
+    } else {
+      stdTokens.push(token.toUpperCase());
     }
-
-    result.push({ token: text.substring(lastMatch, index), isMatch: false });
-    result.push({ token: text.substring(index, index + token.length), isMatch: true });
-    lastMatch = index + token.length;
   }
 
-  result.push({ token: text.substring(lastMatch), isMatch: false });
+  let res = [
+    {
+      text,
+      isMatch: false,
+    },
+  ];
 
-  return result;
+  for (const token of stdTokens) {
+    const nextres = [];
+    for (const item of res) {
+      const index = item.text?.toUpperCase().indexOf(token);
+      if (index < 0) {
+        nextres.push(item);
+      } else {
+        nextres.push({ text: item.text.substring(0, index), isMatch: false });
+        nextres.push({ text: item.text.substring(index, index + token.length), isMatch: true });
+        nextres.push({ text: item.text.substring(index + token.length), isMatch: false });
+      }
+    }
+    res = nextres;
+  }
+
+  return res;
+
+  // const result = [];
+  // let lastMatch = 0;
+  // for (const token of tokens) {
+  //   const index = text.indexOf(token, lastMatch);
+  //   if (index < 0) {
+  //     result.push({ token, isMatch: false });
+  //     continue;
+  //   }
+
+  //   result.push({ token: text.substring(lastMatch, index), isMatch: false });
+  //   result.push({ token: text.substring(index, index + token.length), isMatch: true });
+  //   lastMatch = index + token.length;
+  // }
+
+  // result.push({ token: text.substring(lastMatch), isMatch: false });
+
+  // return result;
 }

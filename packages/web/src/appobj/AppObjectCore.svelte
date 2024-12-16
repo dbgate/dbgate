@@ -5,6 +5,7 @@
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import TokenizedFilteredText from '../widgets/TokenizedFilteredText.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -134,7 +135,7 @@
   {#if colorMark}
     <FontIcon style={`color:${colorMark}`} icon="icon square" />
   {/if}
-  {title}
+  <TokenizedFilteredText text={title} {filter} />
   {#if statusIconBefore}
     <span class="status">
       <FontIcon icon={statusIconBefore} />
@@ -156,7 +157,7 @@
   {/if}
   {#if extInfo}
     <span class="ext-info">
-      {extInfo}
+      <TokenizedFilteredText text={extInfo} {filter} />
     </span>
   {/if}
   {#if onPin}
