@@ -73,5 +73,5 @@
   {extInfo}
   icon={getColumnIcon(data, true)}
   menu={createMenu}
-  disableHover
+  \
 />

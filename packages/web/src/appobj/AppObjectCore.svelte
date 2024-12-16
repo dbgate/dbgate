@@ -32,6 +32,7 @@
   export let indentLevel = 0;
   export let disableBoldScroll = false;
   export let filter = null;
+  export let disableHover = false;
 
   $: isChecked =
     checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));
@@ -91,6 +92,7 @@
   class="main"
   class:isBold
   class:isChoosed
+  class:disableHover
   draggable={true}
   on:click={handleClick}
   on:mouseup={handleMouseUp}
@@ -197,7 +199,7 @@
     white-space: nowrap;
     font-weight: normal;
   }
-  .main:hover {
+  .main:hover:not(.disableHover) {
     background-color: var(--theme-bg-hover);
   }
   .isBold {

@@ -55,6 +55,7 @@
   import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import SubProcedureParamList from '../appobj/SubProcedureParamList.svelte';
+  import SubProcedureLineList from '../appobj/SubProcedureLineList.svelte';
 
   export let conid;
   export let database;
@@ -270,7 +271,9 @@
           groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
           subItemsComponent={data =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
-              ? SubProcedureParamList
+              ? filter
+                ? SubProcedureLineList
+                : SubProcedureParamList
               : SubTableColumnList}
           isExpandable={data =>
             data.objectTypeField == 'tables' ||
