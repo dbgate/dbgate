@@ -1,11 +1,11 @@
 <script context="module">
   export const extractKey = data => data._id;
-  export const createMatcher = props => filter => {
+  export const createMatcher = filter => props => {
     const { _id, displayName, server } = props;
     const databases = getLocalStorage(`database_list_${_id}`) || [];
     return filterName(filter, displayName, server, ...databases.map(x => x.name));
   };
-  export const createChildMatcher = props => filter => {
+  export const createChildMatcher = filter => props => {
     if (!filter) return false;
     const { _id } = props;
     const databases = getLocalStorage(`database_list_${_id}`) || [];

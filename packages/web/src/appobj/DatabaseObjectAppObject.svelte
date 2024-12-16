@@ -3,11 +3,8 @@
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
-    (
-      { schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql },
-      cfg = DEFAULT_SEARCH_SETTINGS
-    ) =>
-    filter => {
+    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql }) => {
       const filterArgs = [];
       if (cfg.schemaName) filterArgs.push(schemaName);
       if (objectTypeField == 'tables') {
@@ -25,7 +22,8 @@
         if (cfg.sqlObjectText) filterArgs.push(createSql);
       }
 
-      return filterName(filter, ...filterArgs);
+      const res = filterName(filter, ...filterArgs);
+      return res;
     };
   export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 

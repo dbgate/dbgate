@@ -29,21 +29,12 @@
   export let collapsedGroupNames = writable([]);
   export let onChangeFilteredList;
 
-  $: filtered = !groupFunc
-    ? list.filter(data => {
-        const matcher = module.createMatcher && module.createMatcher(data, passProps?.searchSettings);
-        if (matcher && !matcher(filter)) return false;
-        return true;
-      })
-    : null;
+  $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
+  $: childMatcher = module.createChildMatcher && module.createChildMatcher(filter, passProps?.searchSettings);
 
-  $: childrenMatched = !groupFunc
-    ? list.filter(data => {
-        const matcher = module.createChildMatcher && module.createChildMatcher(data, passProps?.searchSettings);
-        if (matcher && !matcher(filter)) return false;
-        return true;
-      })
-    : null;
+  $: filtered = !groupFunc ? list.filter(data => !matcher || matcher(data)) : null;
+
+  $: childrenMatched = !groupFunc ? list.filter(data => !childMatcher || childMatcher(data)) : null;
 
   // let filtered = [];
 
@@ -62,8 +53,7 @@
   $: listGrouped = groupFunc
     ? _.compact(
         (list || []).map(data => {
-          const matcher = module.createMatcher && module.createMatcher(data, passProps?.searchSettings);
-          const isMatched = matcher && !matcher(filter) ? false : true;
+          const isMatched = matcher && !matcher(data) ? false : true;
           const group = groupFunc(data);
           return { group, data, isMatched };
         })

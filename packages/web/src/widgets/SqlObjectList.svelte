@@ -150,11 +150,8 @@
     }));
   }
 
-  $: flatFilteredList = objectList.filter(data => {
-    const matcher = databaseObjectAppObject.createMatcher(data, $databaseObjectAppObjectSearchSettings);
-    if (matcher && !matcher(filter)) return false;
-    return true;
-  });
+  $: matcher = databaseObjectAppObject.createMatcher(filter, $databaseObjectAppObjectSearchSettings);
+  $: flatFilteredList = objectList.filter(data => !matcher || matcher(data));
 
   export function focus() {
     domListHandler?.focusFirst();

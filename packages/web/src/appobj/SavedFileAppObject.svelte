@@ -104,8 +104,8 @@
 
   export const extractKey = data => data.file;
   export const createMatcher =
-    ({ file }) =>
     filter =>
+    ({ file }) =>
       filterName(filter, file);
 </script>
 
