@@ -6,6 +6,7 @@
 
   export let data;
   export let filter;
+  export let isExpandedOnlyBySearch;
 </script>
 
 <AppObjectList
@@ -16,4 +17,5 @@
   }))}
   module={columnAppObject}
   {filter}
+  {isExpandedOnlyBySearch}
 />

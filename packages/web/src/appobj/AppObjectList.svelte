@@ -5,6 +5,7 @@
 
   import AppObjectListItem from './AppObjectListItem.svelte';
   import { writable } from 'svelte/store';
+  import Link from '../elements/Link.svelte';
 
   export let list;
   export let module;
@@ -25,9 +26,12 @@
   export let groupFunc = undefined;
   export let onDropOnGroup = undefined;
   export let emptyGroupNames = [];
+  export let isExpandedOnlyBySearch = false;
 
   export let collapsedGroupNames = writable([]);
   export let onChangeFilteredList = undefined;
+
+  let expandLimited = false;
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
   $: childMatcher = module.createChildMatcher && module.createChildMatcher(filter, passProps?.searchSettings);
@@ -73,6 +77,10 @@
   }
 
   $: groups = groupFunc ? extendGroups(_.groupBy(listGrouped, 'group'), emptyGroupNames) : null;
+
+  $: listLimited =
+    isExpandedOnlyBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
+  $: isListLimited = isExpandedOnlyBySearch && listLimited.length < filtered.length;
 </script>
 
 {#if groupFunc}
@@ -98,7 +106,7 @@
     />
   {/each}
 {:else}
-  {#each list as data}
+  {#each listLimited as data}
     <AppObjectListItem
       isHidden={!filtered.includes(data)}
       {module}
@@ -117,4 +125,13 @@
       {setIsExpanded}
     />
   {/each}
+  {#if isListLimited}
+    <div class="ml-2">
+      <Link
+        onClick={() => {
+          expandLimited = true;
+        }}>Show next {filtered.length - listLimited.length}</Link
+      >
+    </div>
+  {/if}
 {/if}

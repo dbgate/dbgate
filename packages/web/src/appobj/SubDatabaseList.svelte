@@ -24,4 +24,5 @@
   module={databaseAppObject}
   {passProps}
   {filter}
+  {isExpandedOnlyBySearch}
 />
