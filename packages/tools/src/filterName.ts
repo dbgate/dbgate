@@ -85,6 +85,35 @@ export function tokenizeBySearchFilter(text: string, filter: string): { text: st
     },
   ];
 
+  for (const token of camelTokens) {
+    const nextres = [];
+    for (const item of res) {
+      const indexes = [];
+      for (const char of token) {
+        const index = item.text.indexOf(char, indexes.length > 0 ? indexes[indexes.length - 1] + 1 : 0);
+        if (index < 0) {
+          indexes.push(-1);
+        } else {
+          indexes.push(index);
+        }
+      }
+      if (indexes.some(x => x < 0)) {
+        nextres.push(item);
+      } else {
+        let lastIndex = 0;
+        for (let i = 0; i < indexes.length; i++) {
+          if (indexes[i] > lastIndex) {
+            nextres.push({ text: item.text.substring(lastIndex, indexes[i]), isMatch: false });
+          }
+          nextres.push({ text: item.text.substring(indexes[i], indexes[i] + 1), isMatch: true });
+          lastIndex = indexes[i] + 1;
+        }
+        nextres.push({ text: item.text.substring(lastIndex), isMatch: false });
+      }
+    }
+    res = nextres;
+  }
+
   for (const token of stdTokens) {
     const nextres = [];
     for (const item of res) {
@@ -100,7 +129,7 @@ export function tokenizeBySearchFilter(text: string, filter: string): { text: st
     res = nextres;
   }
 
-  return res;
+  return res.filter(x => x.text.length > 0);
 
   // const result = [];
   // let lastMatch = 0;
