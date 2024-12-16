@@ -57,6 +57,7 @@
     {module}
     {disableContextMenu}
     {passProps}
+    {filter}
   />
 
   {#if (isExpanded || isExpandedBySearch) && subItemsComponent}

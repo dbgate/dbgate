@@ -31,6 +31,7 @@
   export let showPinnedInsteadOfUnpin = false;
   export let indentLevel = 0;
   export let disableBoldScroll = false;
+  export let filter = null;
 
   $: isChecked =
     checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));

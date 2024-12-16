@@ -38,8 +38,10 @@
   import { extractDbNameFromComposite, findEngineDriver } from 'dbgate-tools';
   import {
     currentDatabase,
+    databaseObjectAppObjectSearchSettings,
     extensions,
     focusedConnectionOrDatabase,
+    getDatabaseObjectAppObjectSearchSettings,
     getSelectedDatabaseObjectAppObject,
     selectedDatabaseObjectAppObject,
   } from '../stores';
@@ -124,8 +126,32 @@
     return res;
   }
 
+  function createSearchMenu() {
+    const res = [];
+    if (driver?.databaseEngineTypes?.includes('document')) {
+      res.push({ label: 'Collection names' });
+    }
+    if (driver?.databaseEngineTypes?.includes('sql')) {
+      res.push({ label: 'Schema name', switchValue: 'schemaName' });
+      res.push({ label: 'Table name', switchValue: 'tableName' });
+      res.push({ label: 'View name', switchValue: 'viewName' });
+      res.push({ label: 'Column name', switchValue: 'columnName' });
+      res.push({ label: 'Column data type', switchValue: 'columnType' });
+      res.push({ label: 'Table comment', switchValue: 'tableComment' });
+      res.push({ label: 'Column comment', switchValue: 'columnComment' });
+      res.push({ label: 'Procedure/function/trigger name', switchValue: 'sqlObjectName' });
+      res.push({ label: 'Procedure/function/trigger text', switchValue: 'sqlObjectText' });
+      res.push({ label: 'Table engine', switchValue: 'tableEngine' });
+    }
+    return res.map(item => ({
+      ...item,
+      switchStore: databaseObjectAppObjectSearchSettings,
+      switchStoreGetter: getDatabaseObjectAppObjectSearchSettings,
+    }));
+  }
+
   $: flatFilteredList = objectList.filter(data => {
-    const matcher = databaseObjectAppObject.createMatcher(data);
+    const matcher = databaseObjectAppObject.createMatcher(data, $databaseObjectAppObjectSearchSettings);
     if (matcher && !matcher(filter)) return false;
     return true;
   });
@@ -184,7 +210,7 @@
 {:else}
   <SearchBoxWrapper>
     <SearchInput
-      placeholder="Search in tables, objects, # prefix in columns"
+      placeholder="Search in tables, views, procedures"
       bind:value={filter}
       bind:this={domFilter}
       onFocusFilteredList={() => {
@@ -192,7 +218,12 @@
       }}
     />
     <CloseSearchButton bind:filter />
-    <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+    {#if filter}
+      <DropDownButton icon="icon filter" menu={createSearchMenu} />
+    {/if}
+    {#if !filter}
+      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+    {/if}
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
       <FontIcon icon="icon refresh" />
     </InlineButton>
@@ -256,6 +287,7 @@
             showPinnedInsteadOfUnpin: true,
             connection: $connection,
             hideSchemaName: !!$appliedCurrentSchema,
+            searchSettings: $databaseObjectAppObjectSearchSettings,
           }}
           getIsExpanded={data =>
             expandedObjects.includes(`${data.objectTypeField}||${data.schemaName}||${data.pureName}`)}

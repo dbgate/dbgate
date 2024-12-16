@@ -31,7 +31,7 @@
 
   $: filtered = !groupFunc
     ? list.filter(data => {
-        const matcher = module.createMatcher && module.createMatcher(data);
+        const matcher = module.createMatcher && module.createMatcher(data, passProps?.searchSettings);
         if (matcher && !matcher(filter)) return false;
         return true;
       })
@@ -39,7 +39,7 @@
 
   $: childrenMatched = !groupFunc
     ? list.filter(data => {
-        const matcher = module.createChildMatcher && module.createChildMatcher(data);
+        const matcher = module.createChildMatcher && module.createChildMatcher(data, passProps?.searchSettings);
         if (matcher && !matcher(filter)) return false;
         return true;
       })
@@ -62,7 +62,7 @@
   $: listGrouped = groupFunc
     ? _.compact(
         (list || []).map(data => {
-          const matcher = module.createMatcher && module.createMatcher(data);
+          const matcher = module.createMatcher && module.createMatcher(data, passProps?.searchSettings);
           const isMatched = matcher && !matcher(filter) ? false : true;
           const group = groupFunc(data);
           return { group, data, isMatched };

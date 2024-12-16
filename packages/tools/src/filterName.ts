@@ -2,9 +2,9 @@ import _compact from 'lodash/compact';
 import _isString from 'lodash/isString';
 import _startCase from 'lodash/startCase';
 
-export interface FilterNameDefinition {
-  childName: string;
-}
+// export interface FilterNameDefinition {
+//   childName: string;
+// }
 
 function camelMatch(filter: string, text: string): boolean {
   if (!text) return false;
@@ -20,7 +20,7 @@ function camelMatch(filter: string, text: string): boolean {
   }
 }
 
-export function filterName(filter: string, ...names: (string | FilterNameDefinition)[]) {
+export function filterName(filter: string, ...names: string[]) {
   if (!filter) return true;
 
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
@@ -28,22 +28,32 @@ export function filterName(filter: string, ...names: (string | FilterNameDefinit
 
   const namesCompacted = _compact(names);
 
-  // @ts-ignore
-  const namesOwn: string[] = namesCompacted.filter(x => _isString(x));
-  // @ts-ignore
-  const namesChild: string[] = namesCompacted.filter(x => x.childName).map(x => x.childName);
-
   for (const token of tokens) {
-    // const tokenUpper = token.toUpperCase();
-    if (token.startsWith('#')) {
-      // const tokenUpperSub = tokenUpper.substring(1);
-      const found = namesChild.find(name => camelMatch(token.substring(1), name));
-      if (!found) return false;
-    } else {
-      const found = namesOwn.find(name => camelMatch(token, name));
-      if (!found) return false;
-    }
+    const found = namesCompacted.find(name => camelMatch(token, name));
+    if (!found) return false;
   }
 
   return true;
+}
+
+export function tokenizeBySearchFilter(text: string, filter: string): { token: string; isMatch: boolean }[] {
+  const tokens = filter.split(' ').map(x => x.trim());
+
+  const result = [];
+  let lastMatch = 0;
+  for (const token of tokens) {
+    const index = text.indexOf(token, lastMatch);
+    if (index < 0) {
+      result.push({ token, isMatch: false });
+      continue;
+    }
+
+    result.push({ token: text.substring(lastMatch, index), isMatch: false });
+    result.push({ token: text.substring(index, index + token.length), isMatch: true });
+    lastMatch = index + token.length;
+  }
+
+  result.push({ token: text.substring(lastMatch), isMatch: false });
+
+  return result;
 }

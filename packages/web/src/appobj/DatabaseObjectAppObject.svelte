@@ -3,14 +3,30 @@
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
-    ({ schemaName, pureName, columns }) =>
-    filter =>
-      filterName(
-        filter,
-        pureName,
-        schemaName,
-        ...(columns?.map(({ columnName }) => ({ childName: columnName })) || [])
-      );
+    (
+      { schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql },
+      cfg = DEFAULT_SEARCH_SETTINGS
+    ) =>
+    filter => {
+      const filterArgs = [];
+      if (cfg.schemaName) filterArgs.push(schemaName);
+      if (objectTypeField == 'tables') {
+        if (cfg.tableName) filterArgs.push(pureName);
+        if (cfg.tableComment) filterArgs.push(objectComment);
+        if (cfg.tableEngine) filterArgs.push(tableEngine);
+
+        for (const column of columns || []) {
+          if (cfg.columnName) filterArgs.push(column.columnName);
+          if (cfg.columnComment) filterArgs.push(column.columnComment);
+          if (cfg.columnDataType) filterArgs.push(column.dataType);
+        }
+      } else {
+        if (cfg.sqlObjectName) filterArgs.push(pureName);
+        if (cfg.sqlObjectText) filterArgs.push(createSql);
+      }
+
+      return filterName(filter, ...filterArgs);
+    };
   export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
@@ -877,9 +893,11 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import {
     currentDatabase,
+    DEFAULT_SEARCH_SETTINGS,
     extensions,
     getActiveTab,
     getCurrentSettings,
+    getDatabaseObjectAppObjectSearchSettings,
     getExtensions,
     getLastUsedDefaultActions,
     lastUsedDefaultActions,
