@@ -5,6 +5,7 @@
   import * as columnAppObject from './ColumnAppObject.svelte';
 
   export let data;
+  export let filter;
 </script>
 
 <AppObjectList
@@ -14,4 +15,5 @@
     foreignKey: findForeignKeyForColumn(data, col),
   }))}
   module={columnAppObject}
+  {filter}
 />

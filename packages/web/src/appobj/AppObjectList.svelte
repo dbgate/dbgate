@@ -15,7 +15,7 @@
   export let expandIconFunc = undefined;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
-  export let passProps;
+  export let passProps = {};
   export let getIsExpanded = null;
   export let setIsExpanded = null;
   export let sortGroups = false;
@@ -27,7 +27,7 @@
   export let emptyGroupNames = [];
 
   export let collapsedGroupNames = writable([]);
-  export let onChangeFilteredList;
+  export let onChangeFilteredList = undefined;
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
   $: childMatcher = module.createChildMatcher && module.createChildMatcher(filter, passProps?.searchSettings);
@@ -53,9 +53,10 @@
   $: listGrouped = groupFunc
     ? _.compact(
         (list || []).map(data => {
-          const isMatched = matcher && !matcher(data) ? false : true;
+          const isMatched = !matcher || matcher(data);
+          const isChildMatched = !childMatcher || childMatcher(data);
           const group = groupFunc(data);
-          return { group, data, isMatched };
+          return { group, data, isMatched, isChildMatched };
         })
       )
     : null;
@@ -110,7 +111,7 @@
       {checkedObjectsStore}
       {disableContextMenu}
       {filter}
-      isExpandedBySearch={childrenMatched.includes(data)}
+      isExpandedBySearch={filter && childrenMatched.includes(data)}
       {passProps}
       {getIsExpanded}
       {setIsExpanded}

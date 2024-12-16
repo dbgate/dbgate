@@ -3,6 +3,11 @@
 
   export const extractKey = props => props.name;
 
+  export const createMatcher = filter => props => {
+    const { name, displayName, server } = props;
+    return filterName(filter, name, displayName, server);
+  };
+
   export function disconnectDatabaseConnection(conid, database, showConfirmation = true) {
     const closeCondition = x =>
       x.props?.conid == conid &&
@@ -465,7 +470,13 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
-  import { extractDbNameFromComposite, extractPackageName, findEngineDriver, getConnectionLabel } from 'dbgate-tools';
+  import {
+    extractDbNameFromComposite,
+    extractPackageName,
+    filterName,
+    findEngineDriver,
+    getConnectionLabel,
+  } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';

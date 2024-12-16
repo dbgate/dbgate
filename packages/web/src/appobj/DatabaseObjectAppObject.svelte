@@ -25,6 +25,25 @@
       const res = filterName(filter, ...filterArgs);
       return res;
     };
+
+  export const createChildMatcher =
+    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    ({ columns, objectTypeField, createSql }) => {
+      const filterArgs = [];
+      if (objectTypeField == 'tables') {
+        for (const column of columns || []) {
+          if (cfg.columnName) filterArgs.push(column.columnName);
+          if (cfg.columnComment) filterArgs.push(column.columnComment);
+          if (cfg.columnDataType) filterArgs.push(column.dataType);
+        }
+      } else {
+        if (cfg.sqlObjectText) filterArgs.push(createSql);
+      }
+
+      const res = filterName(filter, ...filterArgs);
+      return res;
+    };
+
   export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
