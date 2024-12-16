@@ -36,9 +36,19 @@
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
   $: childMatcher = module.createChildMatcher && module.createChildMatcher(filter, passProps?.searchSettings);
 
-  $: filtered = !groupFunc ? list.filter(data => !matcher || matcher(data)) : null;
+  $: dataLabeled = _.compact(
+    (list || []).map(data => {
+      const isMatched = !matcher || matcher(data);
+      const isChildMatched =
+        module.disableShowChildrenWithParentMatch && isMatched ? false : !childMatcher || childMatcher(data);
+      const group = groupFunc ? groupFunc(data) : undefined;
+      return { group, data, isMatched, isChildMatched };
+    })
+  );
 
-  $: childrenMatched = !groupFunc ? list.filter(data => !childMatcher || childMatcher(data)) : null;
+  $: filtered = dataLabeled.filter(x => x.isMatched).map(x => x.data);
+
+  $: childrenMatched = dataLabeled.filter(x => x.isChildMatched).map(x => x.data);
 
   // let filtered = [];
 
@@ -54,17 +64,6 @@
   //   }
   // }
 
-  $: listGrouped = groupFunc
-    ? _.compact(
-        (list || []).map(data => {
-          const isMatched = !matcher || matcher(data);
-          const isChildMatched = !childMatcher || childMatcher(data);
-          const group = groupFunc(data);
-          return { group, data, isMatched, isChildMatched };
-        })
-      )
-    : null;
-
   function extendGroups(base, emptyList) {
     const res = {
       ...base,
@@ -76,10 +75,9 @@
     return res;
   }
 
-  $: groups = groupFunc ? extendGroups(_.groupBy(listGrouped, 'group'), emptyGroupNames) : null;
+  $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
 
-  $: listLimited =
-    isExpandedBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
+  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
 </script>
 

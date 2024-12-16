@@ -44,6 +44,8 @@
       return res;
     };
 
+  export const disableShowChildrenWithParentMatch = true;
+
   export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
