@@ -26,7 +26,7 @@
   export let groupFunc = undefined;
   export let onDropOnGroup = undefined;
   export let emptyGroupNames = [];
-  export let isExpandedOnlyBySearch = false;
+  export let isExpandedBySearch = false;
 
   export let collapsedGroupNames = writable([]);
   export let onChangeFilteredList = undefined;
@@ -79,8 +79,8 @@
   $: groups = groupFunc ? extendGroups(_.groupBy(listGrouped, 'group'), emptyGroupNames) : null;
 
   $: listLimited =
-    isExpandedOnlyBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
-  $: isListLimited = isExpandedOnlyBySearch && listLimited.length < filtered.length;
+    isExpandedBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
+  $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
 </script>
 
 {#if groupFunc}

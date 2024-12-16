@@ -12,6 +12,7 @@
   export let passProps;
 
   export let isExpandedOnlyBySearch;
+  export let isExpandedBySearch;
 
   $: databases = useDatabaseList({ conid: isExpandedOnlyBySearch ? null : data._id });
   $: dbList = isExpandedOnlyBySearch ? getLocalStorage(`database_list_${data._id}`) || [] : $databases || [];
@@ -24,5 +25,5 @@
   module={databaseAppObject}
   {passProps}
   {filter}
-  {isExpandedOnlyBySearch}
+  {isExpandedBySearch}
 />

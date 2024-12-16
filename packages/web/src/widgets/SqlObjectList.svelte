@@ -269,9 +269,9 @@
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
           groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
-          subItemsComponent={(data, { isExpandedOnlyBySearch }) =>
+          subItemsComponent={(data, { isExpandedBySearch }) =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
-              ? filter && isExpandedOnlyBySearch
+              ? isExpandedBySearch
                 ? SubProcedureLineList
                 : SubProcedureParamList
               : SubTableColumnList}

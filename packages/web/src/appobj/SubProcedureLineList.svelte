@@ -8,7 +8,7 @@
 
   export let data;
   export let filter;
-  export let isExpandedOnlyBySearch;
+  export let isExpandedBySearch;
 </script>
 
 <AppObjectList
@@ -17,5 +17,5 @@
   }))}
   module={procedureLineAppObject}
   {filter}
-  {isExpandedOnlyBySearch}
+  {isExpandedBySearch}
 />
