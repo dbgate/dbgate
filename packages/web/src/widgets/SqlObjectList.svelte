@@ -27,7 +27,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
-  import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
+  import SubTableColumnList from '../appobj/SubTableColumnList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
@@ -38,8 +38,10 @@
   import { extractDbNameFromComposite, findEngineDriver } from 'dbgate-tools';
   import {
     currentDatabase,
+    databaseObjectAppObjectSearchSettings,
     extensions,
     focusedConnectionOrDatabase,
+    getDatabaseObjectAppObjectSearchSettings,
     getSelectedDatabaseObjectAppObject,
     selectedDatabaseObjectAppObject,
   } from '../stores';
@@ -53,6 +55,7 @@
   import { matchDatabaseObjectAppObject } from '../appobj/appObjectTools';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import SubProcedureParamList from '../appobj/SubProcedureParamList.svelte';
+  import SubProcedureLineList from '../appobj/SubProcedureLineList.svelte';
 
   export let conid;
   export let database;
@@ -124,11 +127,32 @@
     return res;
   }
 
-  $: flatFilteredList = objectList.filter(data => {
-    const matcher = databaseObjectAppObject.createMatcher(data);
-    if (matcher && !matcher(filter)) return false;
-    return true;
-  });
+  function createSearchMenu() {
+    const res = [];
+    if (driver?.databaseEngineTypes?.includes('document')) {
+      res.push({ label: 'Collection names' });
+    }
+    if (driver?.databaseEngineTypes?.includes('sql')) {
+      res.push({ label: 'Schema name', switchValue: 'schemaName' });
+      res.push({ label: 'Table name', switchValue: 'tableName' });
+      res.push({ label: 'View name', switchValue: 'viewName' });
+      res.push({ label: 'Column name', switchValue: 'columnName' });
+      res.push({ label: 'Column data type', switchValue: 'columnType' });
+      res.push({ label: 'Table comment', switchValue: 'tableComment' });
+      res.push({ label: 'Column comment', switchValue: 'columnComment' });
+      res.push({ label: 'Procedure/function/trigger name', switchValue: 'sqlObjectName' });
+      res.push({ label: 'Procedure/function/trigger text', switchValue: 'sqlObjectText' });
+      res.push({ label: 'Table engine', switchValue: 'tableEngine' });
+    }
+    return res.map(item => ({
+      ...item,
+      switchStore: databaseObjectAppObjectSearchSettings,
+      switchStoreGetter: getDatabaseObjectAppObjectSearchSettings,
+    }));
+  }
+
+  $: matcher = databaseObjectAppObject.createMatcher(filter, $databaseObjectAppObjectSearchSettings);
+  $: flatFilteredList = objectList.filter(data => !matcher || matcher(data));
 
   export function focus() {
     domListHandler?.focusFirst();
@@ -184,7 +208,7 @@
 {:else}
   <SearchBoxWrapper>
     <SearchInput
-      placeholder="Search in tables, objects, # prefix in columns"
+      placeholder="Search in tables, views, procedures"
       bind:value={filter}
       bind:this={domFilter}
       onFocusFilteredList={() => {
@@ -192,7 +216,12 @@
       }}
     />
     <CloseSearchButton bind:filter />
-    <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+    {#if filter}
+      <DropDownButton icon="icon filter" menu={createSearchMenu} />
+    {/if}
+    {#if !filter}
+      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+    {/if}
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
       <FontIcon icon="icon refresh" />
     </InlineButton>
@@ -240,10 +269,14 @@
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
           groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
-          subItemsComponent={data =>
+          subItemsComponent={(data, { isExpandedBySearch }) =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
-              ? SubProcedureParamList
-              : SubColumnParamList}
+              ? isExpandedBySearch
+                ? SubProcedureLineList
+                : SubProcedureParamList
+              : isExpandedBySearch && (data.objectTypeField == 'views' || data.objectTypeField == 'matviews')
+                ? SubProcedureLineList
+                : SubTableColumnList}
           isExpandable={data =>
             data.objectTypeField == 'tables' ||
             data.objectTypeField == 'views' ||
@@ -256,6 +289,7 @@
             showPinnedInsteadOfUnpin: true,
             connection: $connection,
             hideSchemaName: !!$appliedCurrentSchema,
+            searchSettings: $databaseObjectAppObjectSearchSettings,
           }}
           getIsExpanded={data =>
             expandedObjects.includes(`${data.objectTypeField}||${data.schemaName}||${data.pureName}`)}

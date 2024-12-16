@@ -55,6 +55,8 @@
   let submenuItem;
   let submenuOffset;
 
+  let switchIndex = 0;
+
   const dispatch = createEventDispatcher();
   let closeHandlers = [];
 
@@ -78,6 +80,14 @@
 
       submenuItem = item;
       submenuOffset = hoverOffset;
+      return;
+    }
+    if (item.switchStore) {
+      item.switchStore.update(x => ({
+        ...x,
+        [item.switchValue]: !x[item.switchValue],
+      }));
+      switchIndex++;
       return;
     }
     dispatchClose();
@@ -131,7 +141,18 @@
         }}
       >
         <a on:click={e => handleClick(e, item)} class:disabled={item.disabled} class:bold={item.isBold}>
-          {item.text || item.label}
+          <span>
+            {#if item.switchStoreGetter}
+              {#key switchIndex}
+                {#if item.switchStoreGetter()[item.switchValue]}
+                  <FontIcon icon="icon checkbox-marked" padRight />
+                {:else}
+                  <FontIcon icon="icon checkbox-blank" padRight />
+                {/if}
+              {/key}
+            {/if}
+            {item.text || item.label}
+          </span>
           {#if item.keyText}
             <span class="keyText">{formatKeyText(item.keyText)}</span>
           {/if}
@@ -179,6 +200,7 @@
     white-space: nowrap;
     overflow-y: auto;
     max-height: calc(100% - 20px);
+    user-select: none;
   }
 
   .keyText {

@@ -1,15 +1,13 @@
 <script context="module">
   export const extractKey = data => data._id;
-  export const createMatcher = props => filter => {
+  export const createMatcher = filter => props => {
     const { _id, displayName, server } = props;
     const databases = getLocalStorage(`database_list_${_id}`) || [];
-    return filterName(filter, displayName, server, ...databases.map(x => x.name));
-  };
-  export const createChildMatcher = props => filter => {
-    if (!filter) return false;
-    const { _id } = props;
-    const databases = getLocalStorage(`database_list_${_id}`) || [];
-    return filterName(filter, ...databases.map(x => x.name));
+    return filterNameCompoud(
+      filter,
+      [displayName, server],
+      databases.map(x => x.name)
+    );
   };
   export function openConnection(connection, disableExpand = false) {
     if (connection.singleDatabase) {
@@ -106,7 +104,7 @@
     openedConnections,
     openedSingleDatabaseConnections,
   } from '../stores';
-  import { filterName } from 'dbgate-tools';
+  import { filterName, filterNameCompoud } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';

@@ -5,6 +5,7 @@
 
   import AppObjectListItem from './AppObjectListItem.svelte';
   import { writable } from 'svelte/store';
+  import Link from '../elements/Link.svelte';
 
   export let list;
   export let module;
@@ -15,7 +16,7 @@
   export let expandIconFunc = undefined;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
-  export let passProps;
+  export let passProps = {};
   export let getIsExpanded = null;
   export let setIsExpanded = null;
   export let sortGroups = false;
@@ -25,25 +26,47 @@
   export let groupFunc = undefined;
   export let onDropOnGroup = undefined;
   export let emptyGroupNames = [];
+  export let isExpandedBySearch = false;
 
   export let collapsedGroupNames = writable([]);
-  export let onChangeFilteredList;
+  export let onChangeFilteredList = undefined;
 
-  $: filtered = !groupFunc
-    ? list.filter(data => {
-        const matcher = module.createMatcher && module.createMatcher(data);
-        if (matcher && !matcher(filter)) return false;
-        return true;
-      })
-    : null;
+  let expandLimited = false;
 
-  $: childrenMatched = !groupFunc
-    ? list.filter(data => {
-        const matcher = module.createChildMatcher && module.createChildMatcher(data);
-        if (matcher && !matcher(filter)) return false;
-        return true;
-      })
-    : null;
+  $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
+
+  $: dataLabeled = _.compact(
+    (list || []).map(data => {
+      const matchResult = matcher ? matcher(data) : true;
+
+      let isMatched = true;
+      let isChildMatched = true;
+
+      if (matchResult == false) {
+        isMatched = false;
+        isChildMatched = false;
+      } else if (matchResult == 'child') {
+        isMatched = true;
+        isChildMatched = true;
+      } else if (matchResult == 'main') {
+        isMatched = true;
+        isChildMatched = false;
+      } else if (matchResult == 'none') {
+        isMatched = false;
+        isChildMatched = false;
+      } else if (matchResult == 'both') {
+        isMatched = true;
+        isChildMatched = !module.disableShowChildrenWithParentMatch;
+      }
+
+      const group = groupFunc ? groupFunc(data) : undefined;
+      return { group, data, isMatched, isChildMatched };
+    })
+  );
+
+  $: filtered = dataLabeled.filter(x => x.isMatched).map(x => x.data);
+
+  $: childrenMatched = dataLabeled.filter(x => x.isChildMatched).map(x => x.data);
 
   // let filtered = [];
 
@@ -59,17 +82,6 @@
   //   }
   // }
 
-  $: listGrouped = groupFunc
-    ? _.compact(
-        (list || []).map(data => {
-          const matcher = module.createMatcher && module.createMatcher(data);
-          const isMatched = matcher && !matcher(filter) ? false : true;
-          const group = groupFunc(data);
-          return { group, data, isMatched };
-        })
-      )
-    : null;
-
   function extendGroups(base, emptyList) {
     const res = {
       ...base,
@@ -81,7 +93,10 @@
     return res;
   }
 
-  $: groups = groupFunc ? extendGroups(_.groupBy(listGrouped, 'group'), emptyGroupNames) : null;
+  $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
+
+  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
+  $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
 </script>
 
 {#if groupFunc}
@@ -107,7 +122,7 @@
     />
   {/each}
 {:else}
-  {#each list as data}
+  {#each listLimited as data}
     <AppObjectListItem
       isHidden={!filtered.includes(data)}
       {module}
@@ -120,10 +135,19 @@
       {checkedObjectsStore}
       {disableContextMenu}
       {filter}
-      isExpandedBySearch={childrenMatched.includes(data)}
+      isExpandedBySearch={filter && childrenMatched.includes(data)}
       {passProps}
       {getIsExpanded}
       {setIsExpanded}
     />
   {/each}
+  {#if isListLimited}
+    <div class="ml-2">
+      <Link
+        onClick={() => {
+          expandLimited = true;
+        }}>Show next {filtered.length - listLimited.length}</Link
+      >
+    </div>
+  {/if}
 {/if}

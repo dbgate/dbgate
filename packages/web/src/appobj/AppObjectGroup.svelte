@@ -19,6 +19,7 @@
   export let onDropOnGroup = undefined;
   export let groupContextMenu = null;
   export let collapsedGroupNames;
+  export let filter = undefined;
 
   $: isExpanded = !$collapsedGroupNames.includes(group);
 
@@ -86,6 +87,8 @@
         on:objectClick
         {disableContextMenu}
         {passProps}
+        isExpandedBySearch={filter && item.isChildMatched}
+        {filter}
       />
     {/each}
   </div>

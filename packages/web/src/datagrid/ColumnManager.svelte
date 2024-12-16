@@ -235,6 +235,7 @@
       {columnIndex}
       {allowChangeChangeSetStructure}
       isSelected={selectedColumns.includes(column.uniqueName) || currentColumnUniqueName == column.uniqueName}
+      {filter}
       on:click={() => {
         if (domFocusField) domFocusField.focus();
         selectedColumns = [column.uniqueName];

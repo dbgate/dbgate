@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   export const extractKey = data => data.name;
-  export const createMatcher = data => filter => filterName(filter, data.name);
+  export const createMatcher = filter => data => filterName(filter, data.name);
 </script>
 
 <script lang="ts">

@@ -42,8 +42,8 @@
 
   export const extractKey = data => data.fileName;
   export const createMatcher =
-    ({ fileName }) =>
     filter =>
+    ({ fileName }) =>
       filterName(filter, fileName);
   const ARCHIVE_ICONS = {
     'table.yaml': 'img table',
@@ -70,7 +70,7 @@
   import { getExtensions } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportQuickExportFile,  } from '../utility/exportFileTools';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';

@@ -3,14 +3,32 @@
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
-    ({ schemaName, pureName, columns }) =>
-    filter =>
-      filterName(
-        filter,
-        pureName,
-        schemaName,
-        ...(columns?.map(({ columnName }) => ({ childName: columnName })) || [])
-      );
+    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql }) => {
+      const mainArgs = [];
+      const childArgs = [];
+      if (cfg.schemaName) mainArgs.push(schemaName);
+      if (objectTypeField == 'tables') {
+        if (cfg.tableName) mainArgs.push(pureName);
+        if (cfg.tableComment) mainArgs.push(objectComment);
+        if (cfg.tableEngine) mainArgs.push(tableEngine);
+
+        for (const column of columns || []) {
+          if (cfg.columnName) childArgs.push(column.columnName);
+          if (cfg.columnComment) childArgs.push(column.columnComment);
+          if (cfg.columnDataType) childArgs.push(column.dataType);
+        }
+      } else {
+        if (cfg.sqlObjectName) mainArgs.push(pureName);
+        if (cfg.sqlObjectText) childArgs.push(createSql);
+      }
+
+      const res = filterNameCompoud(filter, mainArgs, childArgs);
+      return res;
+    };
+
+  export const disableShowChildrenWithParentMatch = true;
+
   export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
@@ -877,9 +895,11 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import {
     currentDatabase,
+    DEFAULT_SEARCH_SETTINGS,
     extensions,
     getActiveTab,
     getCurrentSettings,
+    getDatabaseObjectAppObjectSearchSettings,
     getExtensions,
     getLastUsedDefaultActions,
     lastUsedDefaultActions,
@@ -892,6 +912,7 @@
   import {
     extractDbNameFromComposite,
     filterName,
+    filterNameCompoud,
     generateDbPairingId,
     getAlterDatabaseScript,
     getConnectionLabel,

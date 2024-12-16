@@ -1,6 +1,9 @@
 <script lang="ts" context="module">
   export const extractKey = data => data.name;
-  export const createMatcher = ({ name, title }) => filter => filterName(filter, name, title);
+  export const createMatcher =
+    filter =>
+    ({ name, title }) =>
+      filterName(filter, name, title);
 </script>
 
 <script lang="ts">

@@ -29,8 +29,8 @@
 
   export const extractKey = data => data.fileName;
   export const createMatcher =
-    ({ fileName }) =>
     filter =>
+    ({ fileName }) =>
       filterName(filter, fileName);
   const APP_ICONS = {
     'config.json': 'img json',

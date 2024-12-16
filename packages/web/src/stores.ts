@@ -161,6 +161,25 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
+export const DEFAULT_SEARCH_SETTINGS = {
+  collectionName: true,
+  schemaName: false,
+  tableName: true,
+  viewName: true,
+  columnName: true,
+  columnDataType: false,
+  tableComment: true,
+  columnComment: true,
+  sqlObjectName: true,
+  sqlObjectText: true,
+  tableEngine: false,
+};
+
+export const databaseObjectAppObjectSearchSettings = writableWithStorage(
+  DEFAULT_SEARCH_SETTINGS,
+  'databaseObjectAppObjectSearchSettings'
+);
+
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
@@ -359,3 +378,11 @@ lastUsedDefaultActions.subscribe(value => {
   lastUsedDefaultActionsValue = value;
 });
 export const getLastUsedDefaultActions = () => lastUsedDefaultActionsValue;
+
+let databaseObjectAppObjectSearchSettingsValue: typeof DEFAULT_SEARCH_SETTINGS = {
+  ...DEFAULT_SEARCH_SETTINGS,
+};
+databaseObjectAppObjectSearchSettings.subscribe(value => {
+  databaseObjectAppObjectSearchSettingsValue = value;
+});
+export const getDatabaseObjectAppObjectSearchSettings = () => databaseObjectAppObjectSearchSettingsValue;

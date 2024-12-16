@@ -5,6 +5,8 @@
   import * as columnAppObject from './ColumnAppObject.svelte';
 
   export let data;
+  export let filter;
+  export let isExpandedBySearch;
 </script>
 
 <AppObjectList
@@ -14,4 +16,6 @@
     foreignKey: findForeignKeyForColumn(data, col),
   }))}
   module={columnAppObject}
+  {filter}
+  {isExpandedBySearch}
 />

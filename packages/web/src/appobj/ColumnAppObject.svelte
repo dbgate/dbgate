@@ -1,5 +1,17 @@
 <script lang="ts" context="module">
   export const extractKey = ({ columnName }) => columnName;
+
+  export const createMatcher =
+    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    data => {
+      const filterArgs = [];
+      if (cfg.columnName) filterArgs.push(data.columnName);
+      if (cfg.columnComment) filterArgs.push(data.columnComment);
+      if (cfg.columnDataType) filterArgs.push(data.dataType);
+
+      const res = filterName(filter, ...filterArgs);
+      return res;
+    };
 </script>
 
 <script lang="ts">
@@ -9,6 +21,8 @@
   import { renameDatabaseObjectDialog, alterDatabaseDialog } from '../utility/alterDatabaseTools';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { DEFAULT_SEARCH_SETTINGS } from '../stores';
+  import { filterName } from 'dbgate-tools';
 
   export let data;
 
@@ -59,5 +73,5 @@
   {extInfo}
   icon={getColumnIcon(data, true)}
   menu={createMenu}
-  disableHover
+  \
 />
