@@ -27,7 +27,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
-  import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
+  import SubTableColumnList from '../appobj/SubTableColumnList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
@@ -271,7 +271,7 @@
           subItemsComponent={data =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
               ? SubProcedureParamList
-              : SubColumnParamList}
+              : SubTableColumnList}
           isExpandable={data =>
             data.objectTypeField == 'tables' ||
             data.objectTypeField == 'views' ||
