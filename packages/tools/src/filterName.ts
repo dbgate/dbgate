@@ -36,6 +36,37 @@ export function filterName(filter: string, ...names: string[]) {
   return true;
 }
 
+export function filterNameCompoud(
+  filter: string,
+  namesMain: string[],
+  namesChild: string[]
+): 'main' | 'child' | 'both' | 'none' {
+  if (!filter) return 'both';
+
+  // const camelVariants = [name.replace(/[^A-Z]/g, '')]
+  const tokens = filter.split(' ').map(x => x.trim());
+
+  const namesCompactedMain = _compact(namesMain);
+  const namesCompactedChild = _compact(namesChild);
+
+  let isMainOnly = true;
+  let isChildOnly = true;
+
+  for (const token of tokens) {
+    const foundMain = namesCompactedMain.find(name => camelMatch(token, name));
+    const foundChild = namesCompactedChild.find(name => camelMatch(token, name));
+    if (!foundMain && !foundChild) return 'none';
+
+    if (!foundMain) isMainOnly = false;
+    if (!foundChild) isChildOnly = false;
+  }
+
+  if (isMainOnly && isChildOnly) return 'both';
+  if (isMainOnly) return 'main';
+  if (isChildOnly) return 'child';
+  return 'none';
+}
+
 export function tokenizeBySearchFilter(text: string, filter: string): { token: string; isMatch: boolean }[] {
   const tokens = filter.split(' ').map(x => x.trim());
 

@@ -5,42 +5,25 @@
   export const createMatcher =
     (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
     ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql }) => {
-      const filterArgs = [];
-      if (cfg.schemaName) filterArgs.push(schemaName);
+      const mainArgs = [];
+      const childArgs = [];
+      if (cfg.schemaName) mainArgs.push(schemaName);
       if (objectTypeField == 'tables') {
-        if (cfg.tableName) filterArgs.push(pureName);
-        if (cfg.tableComment) filterArgs.push(objectComment);
-        if (cfg.tableEngine) filterArgs.push(tableEngine);
+        if (cfg.tableName) mainArgs.push(pureName);
+        if (cfg.tableComment) mainArgs.push(objectComment);
+        if (cfg.tableEngine) mainArgs.push(tableEngine);
 
         for (const column of columns || []) {
-          if (cfg.columnName) filterArgs.push(column.columnName);
-          if (cfg.columnComment) filterArgs.push(column.columnComment);
-          if (cfg.columnDataType) filterArgs.push(column.dataType);
+          if (cfg.columnName) childArgs.push(column.columnName);
+          if (cfg.columnComment) childArgs.push(column.columnComment);
+          if (cfg.columnDataType) childArgs.push(column.dataType);
         }
       } else {
-        if (cfg.sqlObjectName) filterArgs.push(pureName);
-        if (cfg.sqlObjectText) filterArgs.push(createSql);
+        if (cfg.sqlObjectName) mainArgs.push(pureName);
+        if (cfg.sqlObjectText) childArgs.push(createSql);
       }
 
-      const res = filterName(filter, ...filterArgs);
-      return res;
-    };
-
-  export const createChildMatcher =
-    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
-    ({ columns, objectTypeField, createSql }) => {
-      const filterArgs = [];
-      if (objectTypeField == 'tables') {
-        for (const column of columns || []) {
-          if (cfg.columnName) filterArgs.push(column.columnName);
-          if (cfg.columnComment) filterArgs.push(column.columnComment);
-          if (cfg.columnDataType) filterArgs.push(column.dataType);
-        }
-      } else {
-        if (cfg.sqlObjectText) filterArgs.push(createSql);
-      }
-
-      const res = filterName(filter, ...filterArgs);
+      const res = filterNameCompoud(filter, mainArgs, childArgs);
       return res;
     };
 
@@ -929,6 +912,7 @@
   import {
     extractDbNameFromComposite,
     filterName,
+    filterNameCompoud,
     generateDbPairingId,
     getAlterDatabaseScript,
     getConnectionLabel,

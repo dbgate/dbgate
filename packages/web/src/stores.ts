@@ -167,7 +167,7 @@ export const DEFAULT_SEARCH_SETTINGS = {
   tableName: true,
   viewName: true,
   columnName: true,
-  columnDataType: true,
+  columnDataType: false,
   tableComment: true,
   columnComment: true,
   sqlObjectName: true,

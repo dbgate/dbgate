@@ -34,13 +34,31 @@
   let expandLimited = false;
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
-  $: childMatcher = module.createChildMatcher && module.createChildMatcher(filter, passProps?.searchSettings);
 
   $: dataLabeled = _.compact(
     (list || []).map(data => {
-      const isMatched = !matcher || matcher(data);
-      const isChildMatched =
-        module.disableShowChildrenWithParentMatch && isMatched ? false : !childMatcher || childMatcher(data);
+      const matchResult = matcher ? matcher(data) : true;
+
+      let isMatched = true;
+      let isChildMatched = true;
+
+      if (matchResult == false) {
+        isMatched = false;
+        isChildMatched = false;
+      } else if (matchResult == 'child') {
+        isMatched = true;
+        isChildMatched = true;
+      } else if (matchResult == 'main') {
+        isMatched = true;
+        isChildMatched = false;
+      } else if (matchResult == 'none') {
+        isMatched = false;
+        isChildMatched = false;
+      } else if (matchResult == 'both') {
+        isMatched = true;
+        isChildMatched = !module.disableShowChildrenWithParentMatch;
+      }
+
       const group = groupFunc ? groupFunc(data) : undefined;
       return { group, data, isMatched, isChildMatched };
     })
