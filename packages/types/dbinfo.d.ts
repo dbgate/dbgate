@@ -75,7 +75,7 @@ export interface DatabaseObjectInfo extends NamedObjectInfo {
   modifyDate?: string;
   hashCode?: string;
   objectTypeField?: string;
-  obejctComment?: string;
+  objectComment?: string;
 }
 
 export interface SqlObjectInfo extends DatabaseObjectInfo {

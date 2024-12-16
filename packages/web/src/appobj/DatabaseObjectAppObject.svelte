@@ -932,6 +932,9 @@
 
   function getExtInfo(data) {
     const res = [];
+    if (data.objectComment) {
+      res.push(data.objectComment);
+    }
     if (data.tableRowCount != null) {
       res.push(`${formatRowCount(data.tableRowCount)} rows`);
     }

@@ -35,7 +35,21 @@
     ];
   }
 
-  $: extInfo = data.foreignKey ? `${data.dataType} -> ${data.foreignKey.refTableName}` : data.dataType;
+  function getExtInfo(data) {
+    const res = [];
+    if (data.foreignKey) {
+      res.push(`${data.dataType} -> ${data.foreignKey.refTableName}`);
+    } else {
+      res.push(data.dataType);
+    }
+    if (data.columnComment) {
+      res.push(data.columnComment);
+    }
+    if (res.length > 0) return res.join(', ');
+    return null;
+  }
+
+  $: extInfo = getExtInfo(data);
 </script>
 
 <AppObjectCore
