@@ -15,6 +15,7 @@
   export let conid;
   export let database;
   export let isDynamicStructure;
+  export let filter = undefined;
 
   export let tableInfo;
   export let setTableInfo;
@@ -83,7 +84,7 @@
         }}
       />
     {/if}
-    <ColumnLabel {...column} showDataType {conid} {database} />
+    <ColumnLabel {...column} showDataType {conid} {database} {filter} />
   </div>
 
   {#if allowChangeChangeSetStructure && !isDynamicStructure}

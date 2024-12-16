@@ -11,6 +11,7 @@
   import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject.svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
+  import TokenizedFilteredText from '../widgets/TokenizedFilteredText.svelte';
   import Link from './Link.svelte';
 
   export let notNull = false;
@@ -25,6 +26,7 @@
   export let conid = undefined;
   export let database = undefined;
   export let iconOverride = undefined;
+  export let filter = undefined;
 
   $: icon = iconOverride || getColumnIcon($$props, forceIcon);
 </script>
@@ -33,7 +35,7 @@
   {#if icon}
     <FontIcon {icon} />
   {/if}
-  {headerText || columnName}
+  <TokenizedFilteredText text={headerText || columnName} {filter} />
   {#if extInfo}
     <span class="extinfo">{extInfo}</span>
   {/if}
