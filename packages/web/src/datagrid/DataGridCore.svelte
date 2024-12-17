@@ -483,6 +483,7 @@
   let domFocusField;
   let domHorizontalScroll;
   let domVerticalScroll;
+  let domContainer;
 
   let currentCell = topLeftCell;
   let selectedCells = [topLeftCell];
@@ -492,7 +493,7 @@
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
 
-  let isGridFocused=false;
+  let isGridFocused = false;
 
   const tabid = getContext('tabid');
 
@@ -596,6 +597,7 @@
     selectedCells = [cell];
     await tick();
     scrollIntoView(cell);
+    domFocusField?.focus();
   }
 
   export async function cloneRows() {
@@ -1838,11 +1840,11 @@
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
-  <div>
+  <div class="ml-2">
     <ErrorInfo
       alignTop
       message={grider.editable
-        ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
+        ? 'No rows loaded, check filter or add new documents. You could copy documents from other collections/tables with Copy advanved/Copy as JSON command.'
         : 'No rows loaded'}
     />
     {#if display.filterCount > 0}
@@ -1867,9 +1869,15 @@
     class:data-grid-focused={isGridFocused}
     bind:clientWidth={containerWidth}
     bind:clientHeight={containerHeight}
+    bind:this={domContainer}
     use:contextMenu={buildMenu}
     use:contextMenuActivator={activator}
     on:wheel={handleGridWheel}
+    on:click={e => {
+      if (e.target == domContainer) {
+        domFocusField?.focus();
+      }
+    }}
   >
     <input
       type="text"
@@ -2014,6 +2022,24 @@
         {/each}
       </tbody>
     </table>
+
+    {#if !isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
+      <div class="no-rows-info ml-2">
+        <div class="mb-3">
+          <ErrorInfo alignTop message="No rows loaded" icon="img info" />
+        </div>
+        {#if display.filterCount > 0}
+          <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
+        {/if}
+        {#if grider.editable}
+          <FormStyledButton value="Add row" on:click={insertNewRow} />
+        {/if}
+        {#if onOpenQuery}
+          <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+        {/if}
+      </div>
+    {/if}
+
     <HorizontalScrollBar
       minimum={0}
       maximum={maxScrollColumn}
@@ -2091,5 +2117,9 @@
     background-color: var(--theme-bg-2);
     right: 40px;
     bottom: 20px;
+  }
+
+  .no-rows-info {
+    margin-top: 60px;
   }
 </style>
