@@ -3,7 +3,7 @@ const stream = require('stream');
 
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const { createBulkInsertStreamBase, makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { makeUniqueColumnNames } = global.DBGATE_PACKAGES['dbgate-tools'];
 const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
 
 let platformInfo;
@@ -12,15 +12,10 @@ let oracledbValue;
 function getOracledb() {
   if (!oracledbValue) {
     oracledbValue = require('oracledb');
+    oracledbValue.fetchAsString = [oracledbValue.CLOB, oracledbValue.NCLOB];
   }
   return oracledbValue;
 }
-
-/*
-pg.types.setTypeParser(1082, 'text', val => val); // date
-pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
-pg.types.setTypeParser(1184, 'text', val => val); // timestamp
-*/
 
 function extractOracleColumns(result) {
   if (!result /*|| !result.fields */) return [];
