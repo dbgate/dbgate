@@ -216,9 +216,7 @@
       }}
     />
     <CloseSearchButton bind:filter />
-    {#if filter}
-      <DropDownButton icon="icon filter" menu={createSearchMenu} />
-    {/if}
+    <DropDownButton icon="icon filter" menu={createSearchMenu} />
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}

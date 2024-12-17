@@ -129,7 +129,13 @@ export function tokenizeBySearchFilter(text: string, filter: string): { text: st
     res = nextres;
   }
 
-  return res.filter(x => x.text.length > 0);
+  res = res.filter(x => x.text.length > 0);
+
+  if (res.length == 1 && !res[0].isMatch) {
+    return null;
+  }
+
+  return res;
 
   // const result = [];
   // let lastMatch = 0;
