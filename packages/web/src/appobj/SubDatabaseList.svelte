@@ -11,8 +11,10 @@
   export let data;
   export let passProps;
 
-  export let isExpandedOnlyBySearch;
   export let isExpandedBySearch;
+  export let isExpanded;
+
+  $: isExpandedOnlyBySearch = isExpandedBySearch && !isExpanded;
 
   $: databases = useDatabaseList({ conid: isExpandedOnlyBySearch ? null : data._id });
   $: dbList = isExpandedOnlyBySearch ? getLocalStorage(`database_list_${data._id}`) || [] : $databases || [];
@@ -24,6 +26,6 @@
   list={_.sortBy(dbList, x => x.sortOrder ?? x.name).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
   {passProps}
-  {filter}
+  filter={isExpanded ? '' : filter}
   {isExpandedBySearch}
 />

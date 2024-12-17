@@ -70,7 +70,7 @@
         {filter}
         {passProps}
         {isExpandedBySearch}
-        isExpandedOnlyBySearch={isExpandedBySearch && !isExpanded}
+        {isExpanded}
       />
     </div>
   {/if}
