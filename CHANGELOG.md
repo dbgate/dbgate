@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### Not released
+- ADDED: Fulltext search in DB model and connections, highlight searched names
+- ADDED: Tab preview mode configuration #963
+- CHANGED: Single-click to open server connection/database + ability to configure this #959
+- ADDED: Option to align numbers to right in data grid #957
+- FIXED: Cursor Becomes Stuck When Escaping "Case" #954
+- ADDED: Postgres GEOGRAPHY types are shown on map, event when executing query #948
+- FIXED: Error displaying CLOB and NCLOB in Oracle
+- FIXED: Analysing of foreign keys in Postgres and MS SQL, when the same FKS are used across different schemas
+- ADDED: Support of views, procedures, functions to Oracle. Added integration tests for Oracle
+- ADDED: Display "No rows" message, quick add new row
+
 ### 6.0.0
 - ADDED: Order or filter the indexes for huge tables #922
 - ADDED: Empty string filters
