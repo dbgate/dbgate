@@ -161,7 +161,7 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
-export const DEFAULT_SEARCH_SETTINGS = {
+export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   collectionName: true,
   schemaName: false,
   tableName: true,
@@ -175,9 +175,22 @@ export const DEFAULT_SEARCH_SETTINGS = {
   tableEngine: false,
 };
 
+export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {
+  displayName: true,
+  server: true,
+  user: false,
+  engine: false,
+  database: true,
+};
+
 export const databaseObjectAppObjectSearchSettings = writableWithStorage(
-  DEFAULT_SEARCH_SETTINGS,
+  DEFAULT_OBJECT_SEARCH_SETTINGS,
   'databaseObjectAppObjectSearchSettings'
+);
+
+export const connectionAppObjectSearchSettings = writableWithStorage(
+  DEFAULT_CONNECTION_SEARCH_SETTINGS,
+  'connectionAppObjectSearchSettings'
 );
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
@@ -379,10 +392,18 @@ lastUsedDefaultActions.subscribe(value => {
 });
 export const getLastUsedDefaultActions = () => lastUsedDefaultActionsValue;
 
-let databaseObjectAppObjectSearchSettingsValue: typeof DEFAULT_SEARCH_SETTINGS = {
-  ...DEFAULT_SEARCH_SETTINGS,
+let databaseObjectAppObjectSearchSettingsValue: typeof DEFAULT_OBJECT_SEARCH_SETTINGS = {
+  ...DEFAULT_OBJECT_SEARCH_SETTINGS,
 };
 databaseObjectAppObjectSearchSettings.subscribe(value => {
   databaseObjectAppObjectSearchSettingsValue = value;
 });
 export const getDatabaseObjectAppObjectSearchSettings = () => databaseObjectAppObjectSearchSettingsValue;
+
+let connectionAppObjectSearchSettingsValue: typeof DEFAULT_CONNECTION_SEARCH_SETTINGS = {
+  ...DEFAULT_CONNECTION_SEARCH_SETTINGS,
+};
+connectionAppObjectSearchSettings.subscribe(value => {
+  connectionAppObjectSearchSettingsValue = value;
+});
+export const getConnectionAppObjectSearchSettings = () => connectionAppObjectSearchSettingsValue;

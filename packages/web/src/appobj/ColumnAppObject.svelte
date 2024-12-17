@@ -2,7 +2,7 @@
   export const extractKey = ({ columnName }) => columnName;
 
   export const createMatcher =
-    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    (filter, cfg = DEFAULT_OBJECT_SEARCH_SETTINGS) =>
     data => {
       const filterArgs = [];
       if (cfg.columnName) filterArgs.push(data.columnName);
@@ -21,7 +21,7 @@
   import { renameDatabaseObjectDialog, alterDatabaseDialog } from '../utility/alterDatabaseTools';
 
   import AppObjectCore from './AppObjectCore.svelte';
-  import { DEFAULT_SEARCH_SETTINGS } from '../stores';
+  import { DEFAULT_OBJECT_SEARCH_SETTINGS } from '../stores';
   import { filterName } from 'dbgate-tools';
 
   export let data;

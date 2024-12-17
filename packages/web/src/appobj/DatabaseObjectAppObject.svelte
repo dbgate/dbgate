@@ -3,7 +3,7 @@
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
-    (filter, cfg = DEFAULT_SEARCH_SETTINGS) =>
+    (filter, cfg = DEFAULT_OBJECT_SEARCH_SETTINGS) =>
     ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql }) => {
       const mainArgs = [];
       const childArgs = [];
@@ -18,6 +18,8 @@
           if (cfg.columnComment) childArgs.push(column.columnComment);
           if (cfg.columnDataType) childArgs.push(column.dataType);
         }
+      } else if (objectTypeField == 'collections') {
+        if (cfg.collectionName) mainArgs.push(pureName);
       } else {
         if (cfg.sqlObjectName) mainArgs.push(pureName);
         if (cfg.sqlObjectText) childArgs.push(createSql);
@@ -895,7 +897,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import {
     currentDatabase,
-    DEFAULT_SEARCH_SETTINGS,
+    DEFAULT_OBJECT_SEARCH_SETTINGS,
     extensions,
     getActiveTab,
     getCurrentSettings,

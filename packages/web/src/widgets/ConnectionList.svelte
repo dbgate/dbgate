@@ -20,6 +20,8 @@
     getFocusedConnectionOrDatabase,
     currentDatabase,
     getCurrentConfig,
+    connectionAppObjectSearchSettings,
+    getConnectionAppObjectSearchSettings,
   } from '../stores';
   import runCommand from '../commands/runCommand';
   import { filterName, getConnectionLabel } from 'dbgate-tools';
@@ -39,6 +41,7 @@
   import openNewTab from '../utility/openNewTab';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { getConnectionClickActionSetting } from '../settings/settingsTools';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -182,6 +185,20 @@
       { text: 'Delete', onClick: handleDelete },
     ];
   }
+
+  function createSearchMenu() {
+    const res = [];
+    res.push({ label: 'Display name', switchValue: 'displayName' });
+    res.push({ label: 'Server', switchValue: 'server' });
+    res.push({ label: 'User', switchValue: 'user' });
+    res.push({ label: 'Database engine', switchValue: 'engine' });
+    res.push({ label: 'Database name', switchValue: 'database' });
+    return res.map(item => ({
+      ...item,
+      switchStore: connectionAppObjectSearchSettings,
+      switchStoreGetter: getConnectionAppObjectSearchSettings,
+    }));
+  }
 </script>
 
 <SearchBoxWrapper>
@@ -194,6 +211,7 @@
     }}
   />
   <CloseSearchButton bind:filter />
+  <DropDownButton icon="icon filter" menu={createSearchMenu} square={!!filter} narrow={false} />
   {#if $commandsCustomized['new.connection']?.enabled}
     <InlineButton
       on:click={() => runCommand('new.connection')}
@@ -289,6 +307,7 @@
         ...passProps,
         connectionColorFactory: $connectionColorFactory,
         showPinnedInsteadOfUnpin: true,
+        searchSettings: $connectionAppObjectSearchSettings,
       }}
       getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
       setIsExpanded={(data, value) => {
@@ -316,6 +335,7 @@
       passProps={{
         connectionColorFactory: $connectionColorFactory,
         showPinnedInsteadOfUnpin: true,
+        searchSettings: $connectionAppObjectSearchSettings,
       }}
       getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
       setIsExpanded={(data, value) => {

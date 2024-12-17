@@ -130,7 +130,7 @@
   function createSearchMenu() {
     const res = [];
     if (driver?.databaseEngineTypes?.includes('document')) {
-      res.push({ label: 'Collection names' });
+      res.push({ label: 'Collection names', switchValue: 'collectionName' });
     }
     if (driver?.databaseEngineTypes?.includes('sql')) {
       res.push({ label: 'Schema name', switchValue: 'schemaName' });
@@ -216,7 +216,7 @@
       }}
     />
     <CloseSearchButton bind:filter />
-    <DropDownButton icon="icon filter" menu={createSearchMenu} />
+    <DropDownButton icon="icon filter" menu={createSearchMenu} square={!!filter} narrow={false} />
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}

@@ -1,14 +1,24 @@
 <script context="module">
   export const extractKey = data => data._id;
-  export const createMatcher = filter => props => {
-    const { _id, displayName, server } = props;
-    const databases = getLocalStorage(`database_list_${_id}`) || [];
-    return filterNameCompoud(
-      filter,
-      [displayName, server],
-      databases.map(x => x.name)
-    );
-  };
+  export const createMatcher =
+    (filter, cfg = DEFAULT_CONNECTION_SEARCH_SETTINGS) =>
+    props => {
+      const { _id, displayName, server, user, engine } = props;
+      const databases = getLocalStorage(`database_list_${_id}`) || [];
+      const match = (engine || '').match(/^([^@]*)@/);
+      const engineDisplay = match ? match[1] : engine;
+
+      return filterNameCompoud(
+        filter,
+        [
+          cfg.displayName ? displayName : null,
+          cfg.server ? server : null,
+          cfg.user ? user : null,
+          cfg.engine ? engineDisplay : null,
+        ],
+        cfg.database ? databases.map(x => x.name) : []
+      );
+    };
   export function openConnection(connection, disableExpand = false) {
     if (connection.singleDatabase) {
       if (getOpenedSingleDatabaseConnections().includes(connection._id)) {
@@ -92,6 +102,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import {
     currentDatabase,
+    DEFAULT_CONNECTION_SEARCH_SETTINGS,
     expandedConnections,
     extensions,
     focusedConnectionOrDatabase,
