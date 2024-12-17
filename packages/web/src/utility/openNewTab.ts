@@ -7,6 +7,7 @@ import localforage from 'localforage';
 import stableStringify from 'json-stable-stringify';
 import { saveAllPendingEditorData } from '../query/useEditorData';
 import { getConnectionInfo } from './metadataLoaders';
+import { getBoolSettingsValue } from '../settings/settingsTools';
 
 function findFreeNumber(numbers: number[]) {
   if (numbers.length == 0) return 1;
@@ -21,6 +22,13 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   const activeTab = getActiveTab();
 
   let existing = null;
+
+  if (!getBoolSettingsValue('behaviour.useTabPreviewMode', true) && newTab.tabPreviewMode) {
+    newTab = {
+      ...newTab,
+      tabPreviewMode: false,
+    };
+  }
 
   const { savedFile, savedFolder, savedFilePath, conid, database } = newTab.props || {};
 

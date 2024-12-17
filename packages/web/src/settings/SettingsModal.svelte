@@ -100,7 +100,7 @@ ORDER BY
           { label: 'Connection', slot: 2 },
           { label: 'Themes', slot: 3 },
           { label: 'Default Actions', slot: 4 },
-          { label: 'Confirmations', slot: 5 },
+          { label: 'Behaviour', slot: 5 },
           { label: 'Other', slot: 6 },
         ]}
       >
@@ -331,6 +331,17 @@ ORDER BY
           />
         </svelte:fragment>
         <svelte:fragment slot="5">
+          <div class="heading">Behaviour</div>
+
+          <FormCheckboxField name="behaviour.useTabPreviewMode" label="Use tab preview mode" defaultValue={true} />
+
+          <div class="tip">
+            <FontIcon icon="img tip" /> When you single-click or select a file in the "Tables, Views, Functions" view, it
+            is shown in a preview mode and reuses an existing tab (preview tab). This is useful if you are quickly browsing
+            tables and don't want every visited table to have its own tab. When you start editing the table or use double-click
+            to open the table from the "Tables" view, a new tab is dedicated to that table.
+          </div>
+
           <div class="heading">Confirmations</div>
 
           <FormCheckboxField name="skipConfirm.tableDataSave" label="Skip confirmation when saving table data (SQL)" />
@@ -401,6 +412,11 @@ ORDER BY
   .heading {
     font-size: 20px;
     margin: 5px;
+    margin-left: var(--dim-large-form-margin);
+    margin-top: var(--dim-large-form-margin);
+  }
+
+  .tip {
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
   }
