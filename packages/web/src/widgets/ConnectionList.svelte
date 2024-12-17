@@ -188,6 +188,7 @@
 
   function createSearchMenu() {
     const res = [];
+    res.push({ label: 'Search by:', isBold: true, disabled: true });
     res.push({ label: 'Display name', switchValue: 'displayName' });
     res.push({ label: 'Server', switchValue: 'server' });
     res.push({ label: 'User', switchValue: 'user' });

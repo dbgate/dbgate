@@ -82,7 +82,7 @@
       submenuOffset = hoverOffset;
       return;
     }
-    if (item.switchStore) {
+    if (item.switchStore && item.switchValue) {
       item.switchStore.update(x => ({
         ...x,
         [item.switchValue]: !x[item.switchValue],
@@ -142,12 +142,12 @@
       >
         <a on:click={e => handleClick(e, item)} class:disabled={item.disabled} class:bold={item.isBold}>
           <span>
-            {#if item.switchStoreGetter}
+            {#if item.switchValue && item.switchStoreGetter}
               {#key switchIndex}
                 {#if item.switchStoreGetter()[item.switchValue]}
-                  <FontIcon icon="icon checkbox-marked" padRight />
+                  <FontIcon icon="icon check" padRight />
                 {:else}
-                  <FontIcon icon="icon checkbox-blank" padRight />
+                  <FontIcon icon="icon invisible-box" padRight />
                 {/if}
               {/key}
             {/if}

@@ -129,6 +129,7 @@
 
   function createSearchMenu() {
     const res = [];
+    res.push({ label: 'Search by:', isBold: true, disabled: true });
     if (driver?.databaseEngineTypes?.includes('document')) {
       res.push({ label: 'Collection names', switchValue: 'collectionName' });
     }
