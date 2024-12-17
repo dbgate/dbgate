@@ -9,7 +9,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import ColumnManagerRow from './ColumnManagerRow.svelte';
+  import TokenizedFilteredText from '../widgets/TokenizedFilteredText.svelte';
 
   export let managerSize;
   export let display: GridDisplay;
@@ -21,7 +21,6 @@
 
   $: foreignKeys = display?.baseTable?.foreignKeys || [];
   $: dependencies = display?.baseTable?.dependencies || [];
-
 </script>
 
 <SearchBoxWrapper>
@@ -46,7 +45,7 @@
       >
         <FontIcon icon="img link" />
         <div class="ml-1 nowrap">
-          {fk.refTableName}
+          <TokenizedFilteredText text={fk.refTableName} {filter} />
           ({fk.columns.map(x => x.columnName).join(', ')})
         </div>
       </div>
@@ -70,7 +69,7 @@
       >
         <FontIcon icon="img reference" />
         <div class="ml-1 nowrap">
-          {fk.pureName}
+          <TokenizedFilteredText text={fk.pureName} {filter} />
           ({fk.columns.map(x => x.columnName).join(', ')})
         </div>
       </div>
@@ -89,5 +88,4 @@
   .link:hover {
     text-decoration: underline;
   }
-
 </style>
