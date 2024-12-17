@@ -134,16 +134,8 @@ const drivers = driverBases.map(driverBase => ({
       database,
     };
 
-    const datatypes = await this.query(
-      dbhan,
-      `SELECT oid AS datatypeid, typname AS datatypename FROM pg_type WHERE typname in ('geography')`
-    );
-
-    const typeIdToName = datatypes.rows.reduce((acc, cur) => {
-      acc[cur.datatypeid] = cur.datatypename;
-      return acc;
-    }, {});
-
+    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography')`);
+    const typeIdToName = _.fromPairs(datatypes.rows.map(cur => [cur.oid, cur.typname]));
     dbhan['typeIdToName'] = typeIdToName;
 
     if (isReadOnly) {
