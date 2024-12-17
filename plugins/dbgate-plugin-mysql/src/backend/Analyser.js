@@ -244,6 +244,7 @@ class Analyser extends DatabaseAnalyser {
         objectId: row.triggerName,
         contentHash: row.modifyDate,
         triggerName: row.triggerName,
+        pureName: row.triggerName,
         eventType: row.triggerEvent,
         triggerTiming: row.triggerTiming,
         schemaName: row.schemaName,

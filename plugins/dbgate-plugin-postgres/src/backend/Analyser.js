@@ -114,13 +114,19 @@ class Analyser extends DatabaseAnalyser {
       // if (!cntBase || !cntRef) continue;
       const baseCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == fkRef.table_name && x.constraint_name == fkRef.constraint_name && x.table_schema == fkRef.table_schema
+          x =>
+            x.table_name == fkRef.table_name &&
+            x.constraint_name == fkRef.constraint_name &&
+            x.table_schema == fkRef.table_schema
         ),
         'ordinal_position'
       );
       const refCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == fkRef.ref_table_name && x.constraint_name == fkRef.unique_constraint_name && x.table_schema == fkRef.ref_table_schema
+          x =>
+            x.table_name == fkRef.ref_table_name &&
+            x.constraint_name == fkRef.unique_constraint_name &&
+            x.table_schema == fkRef.ref_table_schema
         ),
         'ordinal_position'
       );
@@ -352,6 +358,7 @@ class Analyser extends DatabaseAnalyser {
           returnType: func.data_type,
         })),
       triggers: triggers.rows.map(row => ({
+        pureName: row.trigger_name,
         trigerName: row.trigger_name,
         functionName: row.function_name,
         triggerTiming: row.trigger_timing,

@@ -188,6 +188,7 @@ class Analyser extends DatabaseAnalyser {
           contentHash: func.hash_code,
         })),
       triggers: triggers.rows.map(row => ({
+        pureName: row.TRIGGER_NAME,
         trigerName: row.TRIGGER_NAME,
         definition: row.DEFINITION,
         tableName: row.TABLE_NAME,

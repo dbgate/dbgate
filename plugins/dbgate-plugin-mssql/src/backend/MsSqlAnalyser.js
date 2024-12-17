@@ -226,6 +226,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       schemaName: row.schemaName,
       tableName: row.tableName,
       triggerName: row.triggerName,
+      pureName: row.triggerName,
     }));
 
     this.feedback({ analysingMessage: null });
