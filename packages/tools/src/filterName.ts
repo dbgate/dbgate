@@ -90,11 +90,16 @@ export function tokenizeBySearchFilter(text: string, filter: string): { text: st
     for (const item of res) {
       const indexes = [];
       for (const char of token) {
-        const index = item.text.indexOf(char, indexes.length > 0 ? indexes[indexes.length - 1] + 1 : 0);
-        if (index < 0) {
-          indexes.push(-1);
+        if (indexes.length == 0 && char == item.text[0]?.toUpperCase()) {
+          // handle first letter of camelcase
+          indexes.push(0);
         } else {
-          indexes.push(index);
+          const index = item.text.indexOf(char, indexes.length > 0 ? indexes[indexes.length - 1] + 1 : 0);
+          if (index < 0) {
+            indexes.push(-1);
+          } else {
+            indexes.push(index);
+          }
         }
       }
       if (indexes.some(x => x < 0)) {
