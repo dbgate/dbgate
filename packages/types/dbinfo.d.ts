@@ -138,7 +138,6 @@ export interface FunctionInfo extends CallableObjectInfo {
 
 export interface TriggerInfo extends SqlObjectInfo {
   objectId: string;
-  trigerName: string;
   functionName?: string;
   tableName: string;
   triggerTiming?: 'BEFORE' | 'AFTER' | 'INSTEAD OF' | null;

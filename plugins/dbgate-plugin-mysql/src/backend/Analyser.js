@@ -241,9 +241,7 @@ class Analyser extends DatabaseAnalyser {
           parameters: functionNameToParameters[x.pureName],
         })),
       triggers: triggers.rows.map(row => ({
-        objectId: row.triggerName,
         contentHash: row.modifyDate,
-        triggerName: row.triggerName,
         pureName: row.triggerName,
         eventType: row.triggerEvent,
         triggerTiming: row.triggerTiming,

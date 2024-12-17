@@ -225,7 +225,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       eventType: row.eventType,
       schemaName: row.schemaName,
       tableName: row.tableName,
-      triggerName: row.triggerName,
       pureName: row.triggerName,
     }));
 
