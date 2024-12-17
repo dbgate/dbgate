@@ -138,6 +138,8 @@ ORDER BY
             defaultValue="10"
           />
 
+          <FormCheckboxField name="dataGrid.alignNumbersRight" label="Align numbers to right" defaultValue={false} />
+
           <div class="heading">SQL editor</div>
 
           <div class="flex">

@@ -218,6 +218,9 @@ export const visibleTitleBar = derived(useSettings(), $settings => {
   // console.log('nativeMenuOnStartup', nativeMenuOnStartup);
   return !$settings['app.fullscreen'] && !nativeMenuOnStartup;
 });
+export const alignDataGridNumbersToRight = derived(useSettings(), $settings => {
+  return !!$settings?.['dataGrid.alignNumbersRight'];
+});
 
 export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
   const electron = getElectron();
@@ -231,6 +234,7 @@ subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-lef
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
 subscribeCssVariable(lockedDatabaseMode, x => (x ? 0 : 1), '--dim-visible-tabs-databases');
+subscribeCssVariable(alignDataGridNumbersToRight, x => (x ? 'right' : 'left'), '--data-grid-numbers-align');
 
 let activeTabIdValue = null;
 activeTabId.subscribe(value => {

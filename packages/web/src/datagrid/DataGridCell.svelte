@@ -54,6 +54,8 @@
 
   // don't parse JSON for explicit data types
   $: jsonParsedValue = !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;
+
+  $: showHint = allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName]);
 </script>
 
 <td
@@ -68,11 +70,12 @@
   class:isDeleted
   class:isAutofillSelected
   class:isFocusedColumn
+  class:alignRight={_.isNumber(value) && !showHint}
   {style}
 >
   <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
 
-  {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
+  {#if showHint}
     <span class="hint"
       >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
     >
@@ -198,5 +201,10 @@
     bottom: 0px;
     overflow: visible;
     cursor: crosshair;
+  }
+
+  .alignRight {
+    color: var(--theme-icon-green);
+    text-align: var(--data-grid-numbers-align);
   }
 </style>
