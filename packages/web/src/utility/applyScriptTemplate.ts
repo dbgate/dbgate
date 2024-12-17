@@ -166,6 +166,13 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
           scriptTemplate: 'CALL OBJECT',
         },
       ];
+    case 'triggers':
+      return [
+        {
+          label: 'CREATE TRIGGER',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+      ];
   }
 
   return [];

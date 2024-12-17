@@ -80,7 +80,7 @@
   // $: console.log('OBJECTS', $objects);
 
   $: objectList = _.flatten([
-    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers'].map(objectTypeField =>
       _.sortBy(
         (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
