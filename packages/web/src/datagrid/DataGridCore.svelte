@@ -416,7 +416,6 @@
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
-  import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import { apiCall } from '../utility/api';
@@ -430,8 +429,7 @@
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import hasPermission from '../utility/hasPermission';
-
+  
   export let onLoadNextData = undefined;
   export let grider = undefined;
   export let display: GridDisplay = undefined;
@@ -1749,6 +1747,11 @@
         // { text: 'Copy as CSV', onClick: () => copyToClipboardCore('csv') },
         // { text: 'Copy as JSON', onClick: () => copyToClipboardCore('json') },
       ],
+    },
+    {
+      text: 'Paste',
+      onClick: () => domFocusField.paste(),
+      keyText: 'CtrlOrCommand+V',
     },
     { placeTag: 'switch' },
     { divider: true },
