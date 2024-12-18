@@ -17,7 +17,9 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
 
-  const { values } = getFormContext();
+  export let getDatabaseList;
+
+  const { values, setFieldValue } = getFormContext();
   const electron = getElectron();
 
   $: authType = $values.authType;
@@ -69,6 +71,14 @@
     'me-central-1',
     'sa-east-1',
   ];
+
+  async function createDatabasesMenu() {
+    const databases = await getDatabaseList();
+    return databases.map(db => ({
+      text: db.name,
+      onClick: () => setFieldValue('defaultDatabase', db.name),
+    }));
+  }
 </script>
 
 <FormSelectField
@@ -377,11 +387,12 @@
 {/if}
 
 {#if driver?.showConnectionField('defaultDatabase', $values, showConnectionFieldArgs)}
-  <FormTextField
+  <FormDropDownTextField
     label="Default database"
     name="defaultDatabase"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_defaultDatabase"
+    asyncMenu={createDatabasesMenu}
   />
 {/if}
 
@@ -412,7 +423,7 @@
         templateProps={{ noMargin: true }}
         disabled={isConnected}
         data-testid="ConnectionDriverFields_displayName"
-        />
+      />
     </div>
     <div class="col-6 mr-1">
       <FormColorField

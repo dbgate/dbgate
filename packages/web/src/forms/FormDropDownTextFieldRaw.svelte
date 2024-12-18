@@ -9,6 +9,7 @@
   export let disabled = false;
   export let defaultValue;
   export let menu;
+  export let asyncMenu;
 
   const { values, setFieldValue } = getFormContext();
 
@@ -26,5 +27,5 @@
     value={$values[name] ?? defaultValue}
     on:input={e => setFieldValue(name, e.target['value'])}
   />
-  <DropDownButton {menu} {disabled} />
+  <DropDownButton {menu} {asyncMenu} {disabled} />
 </div>

@@ -63,15 +63,16 @@
 
   const testIdRef = createRef(0);
 
-  async function handleTest(e) {
+  async function handleTest(e, requestDbList = false) {
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
-    const resp = await apiCall('connections/test', e.detail);
+    const resp = await apiCall('connections/test', { connection: e.detail, requestDbList });
     if (testIdRef.get() != testid) return;
 
     isTesting = false;
     sqlConnectResult = resp;
+    return resp;
   }
 
   function handleCancelTest() {
@@ -190,6 +191,14 @@
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 
   // $: console.log('CONN VALUES', $values);
+
+  async function getDatabaseList() {
+    const resp = await handleTest({ detail: getCurrentConnection() }, true);
+    if (resp && resp.msgtype == 'connected') {
+      return resp.databases;
+    }
+    return [];
+  }
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -202,6 +211,7 @@
         {
           label: 'General',
           component: ConnectionDriverFields,
+          props: { getDatabaseList },
         },
         driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
@@ -223,20 +233,24 @@
         <div class="buttons">
           {#if onlyTestButton}
             {#if isTesting}
-              <FormButton value="Cancel test" on:click={handleCancelTest} data-testid="ConnectionTab_buttonCancelTest" />
+              <FormButton
+                value="Cancel test"
+                on:click={handleCancelTest}
+                data-testid="ConnectionTab_buttonCancelTest"
+              />
             {:else}
               <FormButton value="Test connection" on:click={handleTest} data-testid="ConnectionTab_buttonDisconnect" />
             {/if}
           {:else if isConnected}
-            <FormButton value="Disconnect" on:click={handleDisconnect} data-testid='ConnectionTab_buttonDisconnect' />
+            <FormButton value="Disconnect" on:click={handleDisconnect} data-testid="ConnectionTab_buttonDisconnect" />
           {:else}
-            <FormButton value="Connect" on:click={handleConnect} data-testid='ConnectionTab_buttonConnect' />
+            <FormButton value="Connect" on:click={handleConnect} data-testid="ConnectionTab_buttonConnect" />
             {#if isTesting}
               <FormButton value="Cancel test" on:click={handleCancelTest} />
             {:else}
-              <FormButton value="Test" on:click={handleTest} data-testid='ConnectionTab_buttonTest' />
+              <FormButton value="Test" on:click={handleTest} data-testid="ConnectionTab_buttonTest" />
             {/if}
-            <FormButton value="Save" on:click={handleSave} data-testid='ConnectionTab_buttonSave' />
+            <FormButton value="Save" on:click={handleSave} data-testid="ConnectionTab_buttonSave" />
           {/if}
         </div>
         <div class="test-result">

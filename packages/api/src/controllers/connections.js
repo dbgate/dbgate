@@ -222,7 +222,7 @@ module.exports = {
   },
 
   test_meta: true,
-  test(connection) {
+  test({ connection, requestDbList }) {
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
@@ -237,7 +237,7 @@ module.exports = {
       }
     );
     pipeForkLogs(subprocess);
-    subprocess.send(connection);
+    subprocess.send({ connection, requestDbList });
     return new Promise(resolve => {
       subprocess.on('message', resp => {
         if (handleProcessCommunication(resp, subprocess)) return;

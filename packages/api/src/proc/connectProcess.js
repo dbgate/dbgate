@@ -16,13 +16,19 @@ Platform: ${process.platform}
 
 function start() {
   childProcessChecker();
-  process.on('message', async connection => {
+  process.on('message', async args => {
+    // @ts-ignore
+    const { connection, requestDbList } = args;
     if (handleProcessCommunication(connection)) return;
     try {
       const driver = requireEngineDriver(connection);
       const dbhan = await connectUtility(driver, connection, 'app');
       const res = await driver.getVersion(dbhan);
-      process.send({ msgtype: 'connected', ...res });
+      let databases = undefined;
+      if (requestDbList) {
+        databases = await driver.listDatabases(dbhan);
+      }
+      process.send({ msgtype: 'connected', ...res, databases });
       await driver.close(dbhan);
     } catch (e) {
       console.error(e);
