@@ -95,7 +95,7 @@
 
   $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
 
-  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, Math.min(filter.trim().length, 3)) : list;
+  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : list;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
 </script>
 
