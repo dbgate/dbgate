@@ -139,7 +139,7 @@ export interface FunctionInfo extends CallableObjectInfo {
 export interface TriggerInfo extends SqlObjectInfo {
   objectId: string;
   functionName?: string;
-  tableName: string;
+  tableName?: string;
   triggerTiming?: 'BEFORE' | 'AFTER' | 'INSTEAD OF' | null;
   triggerLevel?: 'ROW' | 'STATEMENT';
   eventType?: 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE';
