@@ -6,6 +6,8 @@
   import AppObjectListItem from './AppObjectListItem.svelte';
   import { writable } from 'svelte/store';
   import Link from '../elements/Link.svelte';
+  import { focusedConnectionOrDatabase } from '../stores';
+  import { tick } from 'svelte';
 
   export let list;
   export let module;
@@ -93,10 +95,24 @@
     return res;
   }
 
+  function setExpandLimited() {
+    expandLimited = true;
+  }
+
   $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
 
   $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : list;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
+  $: listMissingItems = isListLimited ? filtered.slice(listLimited.length) : [];
+
+  $: if (
+    $focusedConnectionOrDatabase &&
+    listMissingItems.some(
+      x => $focusedConnectionOrDatabase.conid == x?.connection?._id && $focusedConnectionOrDatabase.database == x?.name
+    )
+  ) {
+    tick().then(setExpandLimited);
+  }
 </script>
 
 {#if groupFunc}
