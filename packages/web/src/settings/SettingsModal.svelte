@@ -344,6 +344,13 @@ ORDER BY
             to open the table from the "Tables" view, a new tab is dedicated to that table.
           </div>
 
+          <FormCheckboxField
+            name="behaviour.openDetailOnArrows"
+            label="Open detail on keyboard navigation"
+            defaultValue={true}
+            disabled={values['behaviour.useTabPreviewMode'] === false}
+          />
+
           <div class="heading">Confirmations</div>
 
           <FormCheckboxField name="skipConfirm.tableDataSave" label="Skip confirmation when saving table data (SQL)" />

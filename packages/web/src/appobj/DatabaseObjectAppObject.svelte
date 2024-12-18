@@ -887,7 +887,35 @@
     return createDatabaseObjectMenu(data);
   }
 
-  export function handleObjectClick(data, { forceNewTab = false, tabPreviewMode = false, focusTab = false }) {
+  export function handleObjectClick(data, clickAction) {
+    //   on:click={() => handleObjectClick(data, { tabPreviewMode: true })}
+    // on:middleclick={() => handleObjectClick(data, { forceNewTab: true })}
+    // on:dblclick={() => handleObjectClick(data, { tabPreviewMode: false, focusTab: true })}
+    const openDetailOnArrows = getOpenDetailOnArrowsSettings();
+
+    let forceNewTab = false;
+    let tabPreviewMode = false;
+    let focusTab = false;
+
+    switch (clickAction) {
+      case 'leftClick':
+        tabPreviewMode = true;
+        break;
+      case 'middleClick':
+        forceNewTab = true;
+        break;
+      case 'dblClick':
+        focusTab = true;
+        break;
+      case 'keyEnter':
+        focusTab = true;
+        break;
+      case 'keyArrow':
+        if (!openDetailOnArrows) return;
+        tabPreviewMode = true;
+        break;
+    }
+
     return handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
   }
 </script>
@@ -939,15 +967,11 @@
   import { openImportExportTab } from '../utility/importExportTools';
   import { defaultDatabaseObjectAppObjectActions, matchDatabaseObjectAppObject } from './appObjectTools';
   import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { getBoolSettingsValue, getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import { isProApp } from '../utility/proTools';
 
   export let data;
   export let passProps;
-
-  function handleClick({ forceNewTab = false, tabPreviewMode = false, focusTab = false } = {}) {
-    handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
-  }
 
   function createMenu() {
     return createDatabaseObjectMenu(data, passProps?.connection);
@@ -983,9 +1007,9 @@
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
   extInfo={getExtInfo(data)}
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
-  on:click={() => handleClick({ tabPreviewMode: true })}
-  on:middleclick={() => handleClick({ forceNewTab: true })}
-  on:dblclick={() => handleClick({ tabPreviewMode: false, focusTab: true })}
+  on:click={() => handleObjectClick(data, 'leftClick')}
+  on:middleclick={() => handleObjectClick(data, 'middleClick')}
+  on:dblclick={() => handleObjectClick(data, 'dblClick')}
   on:expand
   on:dragstart
   on:dragenter

@@ -13,6 +13,7 @@
   import { filterName } from 'dbgate-tools';
   import { currentDatabase, focusedConnectionOrDatabase, getFocusedConnectionOrDatabase } from '../stores';
   import { switchCurrentDatabase } from '../utility/common';
+  import { getConnectionClickActionSetting, getDatabaseClickActionSetting } from '../settings/settingsTools';
 
   export let connection;
 
@@ -81,9 +82,16 @@
     onFocusFilterBox={text => {
       domFilter?.focus(text);
     }}
-    handleObjectClick={(data, options) => {
+    handleObjectClick={(data, clickAction) => {
+      const connectionClickAction = getConnectionClickActionSetting();
+      const databaseClickAction = getDatabaseClickActionSetting();
+
       if (data.database) {
-        if (options.focusTab) {
+        if (databaseClickAction == 'switch' && clickAction == 'leftClick') {
+          switchCurrentDatabase({ connection: data.connection, name: data.database });
+        }
+
+        if (clickAction == 'keyEnter' || clickAction == 'dblClick') {
           switchCurrentDatabase({ connection: data.connection, name: data.database });
         }
       }

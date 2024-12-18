@@ -249,7 +249,7 @@
         selectedObjectStore={selectedDatabaseObjectAppObject}
         getSelectedObject={getSelectedDatabaseObjectAppObject}
         selectedObjectMatcher={matchDatabaseObjectAppObject}
-        handleObjectClick={(data, options) => databaseObjectAppObject.handleObjectClick(data, options)}
+        handleObjectClick={(data, clickAction) => databaseObjectAppObject.handleObjectClick(data, clickAction)}
         onScrollTop={() => {
           domContainer?.scrollTop();
         }}

@@ -40,7 +40,12 @@
   import { switchCurrentDatabase } from '../utility/common';
   import openNewTab from '../utility/openNewTab';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
-  import { getConnectionClickActionSetting } from '../settings/settingsTools';
+  import {
+    getBoolSettingsValue,
+    getConnectionClickActionSetting,
+    getDatabaseClickActionSetting,
+    getOpenDetailOnArrowsSettings,
+  } from '../settings/settingsTools';
   import DropDownButton from '../buttons/DropDownButton.svelte';
 
   const connections = useConnectionList();
@@ -258,30 +263,35 @@
     onFocusFilterBox={text => {
       domFilter?.focus(text);
     }}
-    handleObjectClick={(data, options) => {
+    handleObjectClick={(data, clickAction) => {
       const connectionClickAction = getConnectionClickActionSetting();
+      const databaseClickAction = getDatabaseClickActionSetting();
+      const openDetailOnArrows = getOpenDetailOnArrowsSettings();
 
       if (data.database) {
-        if (options.focusTab) {
-          if ($openedSingleDatabaseConnections.includes(data.conid)) {
-            switchCurrentDatabase({ connection: data.connection, name: data.database });
-          } else {
-            switchCurrentDatabase({ connection: data.connection, name: data.database });
-          }
-          // console.log('FOCUSING DB', passProps);
-          // passProps?.onFocusSqlObjectList?.();
+        if (databaseClickAction == 'switch' && clickAction == 'leftClick') {
+          switchCurrentDatabase({ connection: data.connection, name: data.database });
+        }
+
+        if (clickAction == 'keyEnter' || clickAction == 'dblClick') {
+          switchCurrentDatabase({ connection: data.connection, name: data.database });
         }
       } else {
-        if (options.focusTab) {
+        if (clickAction == 'keyEnter' || clickAction == 'dblClick') {
           openConnection(data.connection);
         } else {
           const config = getCurrentConfig();
-          if (config.runAsPortal == false && !config.storageDatabase && connectionClickAction == 'openDetails') {
+          if (
+            config.runAsPortal == false &&
+            !config.storageDatabase &&
+            connectionClickAction == 'openDetails' &&
+            (clickAction == 'leftClick' || (clickAction == 'keyArrow' && openDetailOnArrows))
+          ) {
             openNewTab({
               title: getConnectionLabel(data.connection),
               icon: 'img connection',
               tabComponent: 'ConnectionTab',
-              tabPreviewMode: options.tabPreviewMode,
+              tabPreviewMode: true,
               props: {
                 conid: data.conid,
               },

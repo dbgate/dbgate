@@ -41,7 +41,7 @@
 
         if (listInstance[newIndex]) {
           selectedObjectStore.set(listInstance[newIndex]);
-          handleObjectClick?.(listInstance[newIndex], { tabPreviewMode: true });
+          handleObjectClick?.(listInstance[newIndex], 'keyArrow');
         }
 
         if (newIndex == 0) {
@@ -58,7 +58,7 @@
       ev.preventDefault();
     }
     if (ev.keyCode == keycodes.enter) {
-      handleObjectClick?.(getSelectedObject(), { tabPreviewMode: false, focusTab: true });
+      handleObjectClick?.(getSelectedObject(), 'keyEnter');
       ev.preventDefault();
     }
     if (ev.keyCode == keycodes.pageDown) {
@@ -72,14 +72,14 @@
     if (ev.keyCode == keycodes.home) {
       if (listInstance[0]) {
         selectedObjectStore.set(listInstance[0]);
-        handleObjectClick?.(listInstance[0], { tabPreviewMode: true });
+        handleObjectClick?.(listInstance[0], 'keyArrow');
         onScrollTop?.();
       }
     }
     if (ev.keyCode == keycodes.end) {
       if (listInstance[listInstance.length - 1]) {
         selectedObjectStore.set(listInstance[listInstance.length - 1]);
-        handleObjectClick?.(listInstance[listInstance.length - 1], { tabPreviewMode: true });
+        handleObjectClick?.(listInstance[listInstance.length - 1], 'keyArrow');
       }
     }
     if (ev.keyCode == keycodes.numPadAdd) {
@@ -110,7 +110,7 @@
     domDiv?.focus();
     if (listInstance[0]) {
       selectedObjectStore.set(listInstance[0]);
-      handleObjectClick?.(listInstance[0], { tabPreviewMode: true });
+      handleObjectClick?.(listInstance[0], 'keyArrow');
       onScrollTop?.();
     }
   }
@@ -130,7 +130,7 @@
         const index2 = _.findIndex(listInstance, x => selectedObjectMatcher(x, focused));
         if (index2 >= 0) {
           selectedObjectStore.set(focused);
-          handleObjectClick?.(focused, { tabPreviewMode: true });
+          handleObjectClick?.(focused, 'keyArrow');
           return;
         }
       }

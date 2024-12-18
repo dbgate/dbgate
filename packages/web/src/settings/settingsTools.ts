@@ -36,3 +36,10 @@ export function getConnectionClickActionSetting(): 'connect' | 'openDetails' | '
 export function getDatabaseClickActionSetting(): 'switch' | 'none' {
   return getStringSettingsValue('defaultAction.databaseClick', 'switch');
 }
+
+export function getOpenDetailOnArrowsSettings(): boolean {
+  return (
+    getBoolSettingsValue('behaviour.useTabPreviewMode', true) &&
+    getBoolSettingsValue('behaviour.openDetailOnArrows', true)
+  );
+}
