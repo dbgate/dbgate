@@ -40,33 +40,33 @@
       const matchResult = matcher ? matcher(data) : true;
 
       let isMatched = true;
+      let isMainMatched = true;
       let isChildMatched = true;
 
       if (matchResult == false) {
         isMatched = false;
         isChildMatched = false;
+        isMainMatched = false;
       } else if (matchResult == 'child') {
-        isMatched = true;
-        isChildMatched = true;
+        isMainMatched = false;
       } else if (matchResult == 'main') {
-        isMatched = true;
         isChildMatched = false;
       } else if (matchResult == 'none') {
         isMatched = false;
         isChildMatched = false;
+        isMainMatched = false;
       } else if (matchResult == 'both') {
-        isMatched = true;
         isChildMatched = !module.disableShowChildrenWithParentMatch;
       }
 
       const group = groupFunc ? groupFunc(data) : undefined;
-      return { group, data, isMatched, isChildMatched };
+      return { group, data, isMatched, isChildMatched, isMainMatched };
     })
   );
 
   $: filtered = dataLabeled.filter(x => x.isMatched).map(x => x.data);
-
   $: childrenMatched = dataLabeled.filter(x => x.isChildMatched).map(x => x.data);
+  $: mainMatched = dataLabeled.filter(x => x.isMainMatched).map(x => x.data);
 
   // let filtered = [];
 
@@ -136,6 +136,7 @@
       {disableContextMenu}
       {filter}
       isExpandedBySearch={filter && childrenMatched.includes(data)}
+      isMainMatched={filter && mainMatched.includes(data)}
       {passProps}
       {getIsExpanded}
       {setIsExpanded}

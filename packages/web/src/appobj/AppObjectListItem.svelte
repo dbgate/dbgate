@@ -24,6 +24,7 @@
   export let passProps;
   export let getIsExpanded = null;
   export let setIsExpanded = null;
+  export let isMainMatched = false;
 
   let isExpandedCore = false;
 
@@ -71,6 +72,7 @@
         {passProps}
         {isExpandedBySearch}
         {isExpanded}
+        {isMainMatched}
       />
     </div>
   {/if}

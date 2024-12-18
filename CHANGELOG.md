@@ -21,6 +21,7 @@ Builds:
 - ADDED: Display "No rows" message, quick add new row
 - ADDED: Choose default database from list
 - ADDED: Default database is automatically selected on connect
+- ADDED: arm64-only build for Mac
 
 ### 6.0.0
 - ADDED: Order or filter the indexes for huge tables #922

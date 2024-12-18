@@ -89,6 +89,7 @@
         {passProps}
         isExpandedBySearch={filter && item.isChildMatched}
         {filter}
+        isMainMatched={item.isMainMatched}
       />
     {/each}
   </div>

@@ -13,6 +13,7 @@
 
   export let isExpandedBySearch;
   export let isExpanded;
+  export let isMainMatched;
 
   $: isExpandedOnlyBySearch = isExpandedBySearch && !isExpanded;
 
@@ -26,6 +27,6 @@
   list={_.sortBy(dbList, x => x.sortOrder ?? x.name).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
   {passProps}
-  filter={isExpanded ? '' : filter}
+  filter={isMainMatched ? '' : filter}
   {isExpandedBySearch}
 />
