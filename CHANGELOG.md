@@ -19,6 +19,8 @@ Builds:
 - FIXED: Analysing of foreign keys in Postgres and MS SQL, when the same FKS are used across different schemas
 - ADDED: Support of views, procedures, functions to Oracle. Added integration tests for Oracle
 - ADDED: Display "No rows" message, quick add new row
+- ADDED: Choose default database from list
+- ADDED: Default database is automatically selected on connect
 
 ### 6.0.0
 - ADDED: Order or filter the indexes for huge tables #922

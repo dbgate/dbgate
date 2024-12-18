@@ -16,8 +16,10 @@
   import FormColorField from '../forms/FormColorField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let getDatabaseList;
+  export let currentConnection;
 
   const { values, setFieldValue } = getFormContext();
   const electron = getElectron();
@@ -393,6 +395,7 @@
     disabled={isConnected}
     data-testid="ConnectionDriverFields_defaultDatabase"
     asyncMenu={createDatabasesMenu}
+    placeholder="(not selected - optional)"
   />
 {/if}
 
@@ -423,6 +426,7 @@
         templateProps={{ noMargin: true }}
         disabled={isConnected}
         data-testid="ConnectionDriverFields_displayName"
+        placeholder={getConnectionLabel(currentConnection)}
       />
     </div>
     <div class="col-6 mr-1">

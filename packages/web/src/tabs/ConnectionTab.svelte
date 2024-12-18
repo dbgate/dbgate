@@ -81,6 +81,10 @@
   }
 
   function getCurrentConnection() {
+    return getCurrentConnectionCore($values, driver);
+  }
+
+  function getCurrentConnectionCore(values, driver) {
     const allProps = [
       'databaseFile',
       'useDatabaseUrl',
@@ -95,15 +99,15 @@
       'socketPath',
       'serviceName',
     ];
-    const visibleProps = allProps.filter(x => driver?.showConnectionField(x, $values, { config: $config }));
+    const visibleProps = allProps.filter(x => driver?.showConnectionField(x, values, { config: $config }));
     const omitProps = _.difference(allProps, visibleProps);
-    if (!$values.defaultDatabase) omitProps.push('singleDatabase');
+    if (!values.defaultDatabase) omitProps.push('singleDatabase');
 
-    let connection: Dictionary<string | boolean> = _.omit($values, omitProps);
+    let connection: Dictionary<string | boolean> = _.omit(values, omitProps);
     if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
 
-    if (driver?.showConnectionTab('sshTunnel', $values)) {
-      if (!$values.useSshTunnel) {
+    if (driver?.showConnectionTab('sshTunnel', values)) {
+      if (!values.useSshTunnel) {
         connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
       }
     } else {
@@ -111,8 +115,8 @@
       connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
     }
 
-    if (driver?.showConnectionTab('ssl', $values)) {
-      if (!$values.useSsl) {
+    if (driver?.showConnectionTab('ssl', values)) {
+      if (!values.useSsl) {
         connection = _.omitBy(connection, (v, k) => k.startsWith('ssl'));
       }
     } else {
@@ -122,6 +126,8 @@
 
     return connection;
   }
+
+  $: currentConnection = getCurrentConnectionCore($values, driver);
 
   async function handleSave() {
     let connection = getCurrentConnection();
@@ -211,7 +217,7 @@
         {
           label: 'General',
           component: ConnectionDriverFields,
-          props: { getDatabaseList },
+          props: { getDatabaseList, currentConnection },
         },
         driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
