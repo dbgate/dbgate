@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### Not released
+### 6.1.0
 - ADDED: Fulltext search in DB model and connections, highlight searched names
 - ADDED: Tab preview mode configuration #963
 - CHANGED: Single-click to open server connection/database + ability to configure this #959
@@ -21,7 +21,8 @@ Builds:
 - ADDED: Display "No rows" message, quick add new row
 - ADDED: Choose default database from list
 - ADDED: Default database is automatically selected on connect
-- ADDED: arm64-only build for Mac
+- ADDED: Apple-Silicon-only build for Mac #949
+- ADDED: Display comment into tables and column list #755
 
 ### 6.0.0
 - ADDED: Order or filter the indexes for huge tables #922
