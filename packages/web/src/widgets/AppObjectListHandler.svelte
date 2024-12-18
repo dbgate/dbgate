@@ -16,6 +16,7 @@
 
   let isListFocused = false;
   let domDiv = null;
+  let lastInputMethod = null;
   export let hideContent = false;
 
   function handleKeyDown(ev) {
@@ -24,6 +25,11 @@
     function selectByDiff(diff) {
       const selected = getSelectedObject();
       const index = _.findIndex(listInstance, x => selectedObjectMatcher(x, selected));
+
+      if (index < 0) {
+        focusFirst();
+        return;
+      }
 
       if (index == 0 && diff < 0) {
         onFocusFilterBox?.();
@@ -115,12 +121,13 @@
     }
   }
 
-  async function handleFocus() {
+  async function handleFocus(e) {
     isListFocused = true;
 
-    // await tick();
-    await sleep(100);
-    // console.log('ON FOCUS AFTER SLEEP');
+    if (lastInputMethod == 'mouse') {
+      return;
+    }
+
     const listInstance = _.isFunction(list) ? list() : list;
     const selected = getSelectedObject();
     const index = _.findIndex(listInstance, x => selectedObjectMatcher(x, selected));
@@ -138,6 +145,15 @@
     }
   }
 </script>
+
+<svelte:window
+  on:keydown={() => {
+    lastInputMethod = 'keyboard';
+  }}
+  on:mousedown={() => {
+    lastInputMethod = 'mouse';
+  }}
+/>
 
 <div
   tabindex="0"
