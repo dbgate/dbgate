@@ -108,6 +108,30 @@ const engines = [
         ],
       },
     ],
+    triggers: [
+      {
+        testName: 'triggers insert after',
+        create: 'CREATE TRIGGER obj1 AFTER INSERT ON t1 FOR EACH ROW BEGIN END',
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'INSERT',
+          triggerTiming: 'AFTER',
+        },
+      },
+      {
+        testName: 'triggers insert before',
+        create: 'CREATE TRIGGER obj1 BEFORE INSERT ON t1 FOR EACH ROW BEGIN END',
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'INSERT',
+          triggerTiming: 'BEFORE',
+        },
+      },
+    ],
   },
   {
     label: 'MariaDB',
@@ -429,10 +453,34 @@ end;$$`,
       },
       {
         type: 'functions',
-        create1: 'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
-        create2: 'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
+        create1:
+          'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
+        create2:
+          'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
         drop1: 'DROP FUNCTION ~obj1',
         drop2: 'DROP FUNCTION ~obj2',
+      },
+    ],
+    triggers: [
+      {
+        testName: 'triggers after each row',
+        create: 'CREATE OR REPLACE TRIGGER obj1 AFTER INSERT ON T1 FOR EACH ROW BEGIN END obj1;',
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'AFTER EACH ROW',
+        },
+      },
+      {
+        testName: 'triggers before each row',
+        create: 'CREATE OR REPLACE TRIGGER obj1 BEFORE INSERT ON T1 FOR EACH ROW BEGIN END obj1;',
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'BEFORE EACH ROW',
+        },
       },
     ],
   },
@@ -440,14 +488,14 @@ end;$$`,
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
-  '-MariaDB',
-  '-PostgreSQL',
-  '-SQL Server',
-  '-SQLite',
-  '-CockroachDB',
-  '-ClickHouse',
-  'Oracle',
+  'MySQL',
+  // '-MariaDB',
+  // '-PostgreSQL',
+  // '-SQL Server',
+  // '-SQLite',
+  // '-CockroachDB',
+  // '-ClickHouse',
+  // 'Oracle',
 ];
 
 const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');

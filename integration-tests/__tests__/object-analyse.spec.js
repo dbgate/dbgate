@@ -19,6 +19,10 @@ function flatSourceParameters() {
   );
 }
 
+function flatSourceTriggers() {
+  return _.flatten(engines.map(engine => (engine.triggers || []).map(trigger => [engine.label, trigger, engine])));
+}
+
 const obj1Match = expect.objectContaining({
   pureName: 'obj1',
 });
@@ -136,4 +140,20 @@ describe('Object analyse', () => {
       }
     })
   );
+
+  test.each(flatSourceTriggers())(
+    'Test triggers - %s - %s',
+    testWrapper(async (conn, driver, testName, trigger, engine) => {
+      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+
+      await runCommandOnDriver(conn, driver, trigger.create);
+      const structure = await driver.analyseFull(conn);
+      await runCommandOnDriver(conn, driver, trigger.drop);
+
+      const createdTrigger = structure[trigger.objectTypeField].find(x => x.pureName == trigger.pureName);
+      expect(createdTrigger).toEqual(expect.objectContaining(trigger.expected));
+    })
+  );
 });
+
+console.log(flatSourceTriggers());
