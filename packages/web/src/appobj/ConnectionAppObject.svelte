@@ -50,6 +50,10 @@
         expandedConnections.update(x => _.uniq([...x, connection._id]));
       }
 
+      if (connection.defaultDatabase) {
+        switchCurrentDatabase({ connection, name: connection.defaultDatabase });
+      }
+
       // if (!config.runAsPortal && getCurrentSettings()['defaultAction.connectionClick'] != 'connect') {
       //   expandedConnections.update(x => _.uniq([...x, connection._id]));
       // }
