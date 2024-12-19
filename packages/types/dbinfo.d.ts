@@ -124,6 +124,7 @@ export interface ParameterInfo extends NamedObjectInfo {
   parameterName?: string;
   dataType: string;
   parameterMode?: ParameterMode;
+  position?: number;
 }
 
 export interface CallableObjectInfo extends SqlObjectInfo {
