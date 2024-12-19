@@ -143,15 +143,21 @@ describe('Object analyse', () => {
 
   test.each(flatSourceTriggers())(
     'Test triggers - %s - %s',
-    testWrapper(async (conn, driver, testName, trigger, engine) => {
+    testWrapper(async (conn, driver, trigger) => {
       for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
 
-      await runCommandOnDriver(conn, driver, trigger.create);
-      const structure = await driver.analyseFull(conn);
-      await runCommandOnDriver(conn, driver, trigger.drop);
+      const { triggerOtherDropSql, triggerOtherCreateSql, create, drop, expected, objectTypeField } = trigger;
 
-      const createdTrigger = structure[trigger.objectTypeField].find(x => x.pureName == trigger.pureName);
-      expect(createdTrigger).toEqual(expect.objectContaining(trigger.expected));
+      if (triggerOtherCreateSql) await runCommandOnDriver(conn, driver, triggerOtherCreateSql);
+
+      await runCommandOnDriver(conn, driver, create);
+      const structure = await driver.analyseFull(conn);
+      await runCommandOnDriver(conn, driver, drop);
+
+      if (triggerOtherDropSql) await runCommandOnDriver(conn, driver, triggerOtherDropSql);
+
+      const createdTrigger = structure[objectTypeField].find(x => x.pureName == expected.pureName);
+      expect(createdTrigger).toEqual(expect.objectContaining(expected));
     })
   );
 });
