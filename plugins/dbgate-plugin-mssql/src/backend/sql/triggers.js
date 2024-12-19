@@ -14,7 +14,7 @@ SELECT
        WHEN OBJECTPROPERTY(o.object_id, 'ExecIsInsertTrigger') = 1 THEN 'INSERT'
        WHEN OBJECTPROPERTY(o.object_id, 'ExecIsUpdateTrigger') = 1 THEN 'UPDATE'
        WHEN OBJECTPROPERTY(o.object_id, 'ExecIsDeleteTrigger') = 1 THEN 'DELETE'
-   END AS triggerEvent,
+   END AS eventType,
    OBJECT_DEFINITION(o.object_id) AS definition
 FROM sys.objects o
 INNER JOIN sys.tables t 
