@@ -544,7 +544,7 @@ END;`,
     triggers: [
       {
         testName: 'triggers after each row',
-        create: 'CREATE OR REPLACE TRIGGER obj1 AFTER INSERT ON T1 FOR EACH ROW BEGIN END obj1;',
+        create: 'CREATE OR REPLACE TRIGGER obj1 AFTER INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
         drop: 'DROP TRIGGER obj1;',
         objectTypeField: 'triggers',
         expected: {
@@ -555,7 +555,7 @@ END;`,
       },
       {
         testName: 'triggers before each row',
-        create: 'CREATE OR REPLACE TRIGGER obj1 BEFORE INSERT ON T1 FOR EACH ROW BEGIN END obj1;',
+        create: 'CREATE OR REPLACE TRIGGER obj1 BEFORE INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
         drop: 'DROP TRIGGER obj1;',
         objectTypeField: 'triggers',
         expected: {
