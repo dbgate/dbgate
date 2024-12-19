@@ -193,6 +193,7 @@ class Analyser extends DatabaseAnalyser {
         definition: row.DEFINITION,
         tableName: row.TABLE_NAME,
         triggerLevel: row.TRIGGER_LEVEL,
+        triggerTiming: row.TRIGGER_TIMING,
         eventType: row.EVENT_TYPE,
       })),
     };
