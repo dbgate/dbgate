@@ -417,6 +417,42 @@ $$ LANGUAGE plpgsql;`,
     supportRenameSqlObject: true,
     defaultSchemaName: 'dbo',
     // skipSeparateSchemas: true,
+    triggers: [
+      {
+        testName: 'triggers before each row',
+        create: `CREATE TRIGGER obj1
+ON t1
+AFTER INSERT
+AS
+BEGIN
+SELECT * FROM t1
+END;`,
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'INSERT',
+          triggerTiming: 'AFTER',
+        },
+      },
+      {
+        testName: 'triggers before each row',
+        create: `CREATE TRIGGER obj1
+ON t1
+AFTER UPDATE
+AS
+BEGIN
+SELECT * FROM t1
+END;`,
+        drop: 'DROP TRIGGER obj1;',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'UPDATE',
+          triggerTiming: 'AFTER',
+        },
+      },
+    ],
   },
   {
     label: 'SQLite',
@@ -532,10 +568,10 @@ $$ LANGUAGE plpgsql;`,
 
 const filterLocal = [
   // filter local testing
-  // 'MySQL',
+  '-MySQL',
   // '-MariaDB',
-  'PostgreSQL',
-  // '-SQL Server',
+  '-PostgreSQL',
+  'SQL Server',
   // '-SQLite',
   // '-CockroachDB',
   // '-ClickHouse',
