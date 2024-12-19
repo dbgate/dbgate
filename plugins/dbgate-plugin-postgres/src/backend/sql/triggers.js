@@ -10,18 +10,17 @@ SELECT
         WHEN t.tgtype & 1 = 1 THEN 'ROW' 
         ELSE 'STATEMENT' 
     END AS trigger_level,
-    CASE 
-           WHEN tgtype & 2 = 2 THEN 'AFTER'
-           WHEN tgtype & 1 = 1 THEN 'BEFORE'
-        ELSE NULL
-    END AS trigger_timing,
-    CASE 
-           WHEN tgtype & 32 = 32 THEN 'TRUNCATE'
-           WHEN tgtype & 16 = 16 THEN 'UPDATE'
-           WHEN tgtype & 8 = 8 THEN 'DELETE'
-           WHEN tgtype & 4 = 4 THEN 'INSERT'
-        ELSE NULL
-    END AS event_type,
+    COALESCE(
+    CASE WHEN (tgtype::int::bit(7) & b'0000010')::int = 0 THEN NULL ELSE 'BEFORE' END,
+    CASE WHEN (tgtype::int::bit(7) & b'0000010')::int = 0 THEN 'AFTER' ELSE NULL END,
+    CASE WHEN (tgtype::int::bit(7) & b'1000000')::int = 0 THEN NULL ELSE 'INSTEAD' END,
+    ''
+  )::text as trigger_timing, 
+    (CASE WHEN (tgtype::int::bit(7) & b'0000100')::int = 0 THEN '' ELSE 'INSERT' END) ||
+    (CASE WHEN (tgtype::int::bit(7) & b'0001000')::int = 0 THEN '' ELSE 'DELETE' END) ||
+    (CASE WHEN (tgtype::int::bit(7) & b'0010000')::int = 0 THEN '' ELSE 'UPDATE' END) ||
+    (CASE WHEN (tgtype::int::bit(7) & b'0100000')::int = 0 THEN '' ELSE 'TRUNCATE' END)
+  as event_type,
     pg_get_triggerdef(t.oid) AS definition
 FROM 
     pg_trigger t
