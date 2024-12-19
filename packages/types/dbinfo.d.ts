@@ -140,7 +140,18 @@ export interface TriggerInfo extends SqlObjectInfo {
   objectId: string;
   functionName?: string;
   tableName?: string;
-  triggerTiming?: 'BEFORE' | 'AFTER' | 'INSTEAD OF' | null;
+  triggerTiming?:
+    | 'BEFORE'
+    | 'AFTER'
+    | 'INSTEAD OF'
+    | 'BEFORE EACH ROW'
+    | 'INSTEAD OF'
+    | 'AFTER EACH ROW'
+    | 'AFTER STATEMENT'
+    | 'BEFORE STATEMENT'
+    | 'AFTER EVENT'
+    | 'BEFORE EVENT'
+    | null;
   triggerLevel?: 'ROW' | 'STATEMENT';
   eventType?: 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE';
 }
