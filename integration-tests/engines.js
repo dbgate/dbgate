@@ -292,11 +292,11 @@ end;$$`,
       {
         testName: 'triggers after each row',
         create: `CREATE TRIGGER obj1
-BEFORE INSERT ON t1
+AFTER INSERT ON t1
 FOR EACH ROW
 EXECUTE FUNCTION test_function();
 `,
-        drop: 'DROP TRIGGER obj1;',
+        drop: 'DROP TRIGGER obj1 ON t1;',
         triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -306,8 +306,8 @@ $$ LANGUAGE plpgsql;`,
         objectTypeField: 'triggers',
         expected: {
           pureName: 'obj1',
-          eventType: 'insert',
-          triggerTiming: 'after',
+          eventType: 'INSERT',
+          triggerTiming: 'AFTER',
         },
       },
       {
@@ -317,7 +317,7 @@ BEFORE INSERT ON t1
 FOR EACH ROW
 EXECUTE FUNCTION test_function();
 `,
-        drop: 'DROP TRIGGER obj1;',
+        drop: 'DROP TRIGGER obj1 ON t1;',
         triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -327,8 +327,8 @@ $$ LANGUAGE plpgsql;`,
         objectTypeField: 'triggers',
         expected: {
           pureName: 'obj1',
-          eventType: 'insert',
-          triggerTiming: 'before',
+          eventType: 'INSERT',
+          triggerTiming: 'BEFORE',
         },
       },
     ],
@@ -532,9 +532,9 @@ $$ LANGUAGE plpgsql;`,
 
 const filterLocal = [
   // filter local testing
-  'MySQL',
+  // 'MySQL',
   // '-MariaDB',
-  // '-PostgreSQL',
+  'PostgreSQL',
   // '-SQL Server',
   // '-SQLite',
   // '-CockroachDB',
