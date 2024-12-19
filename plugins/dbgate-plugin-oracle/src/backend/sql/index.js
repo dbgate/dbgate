@@ -5,6 +5,7 @@ const foreignKeys = require('./foreignKeys');
 const views = require('./views');
 const matviews = require('./matviews');
 const routines = require('./routines');
+const parameters = require('./parameters');
 const indexes = require('./indexes'); // use mysql
 const triggers = require('./triggers');
 //const indexcols = require('./indexcols');
@@ -23,6 +24,7 @@ module.exports = {
   foreignKeys,
   views,
   routines,
+  parameters,
   matviews,
   indexes,
   triggers,

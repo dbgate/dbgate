@@ -68,6 +68,29 @@ class Analyser extends DatabaseAnalyser {
     const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
       $owner: this.dbhan.database,
     });
+
+    const parameters = await this.analyserQuery('parameters', ['procedures', 'functions'], {
+      $owner: this.dbhan.database,
+    });
+    console.dir(parameters, { depth: 4 });
+
+    const routineToParams = parameters.rows.reduce((acc, row) => {
+      if (!acc[row.PURE_NAME]) acc[row.PURE_NAME] = [];
+
+      acc[row.PURE_NAME].push({
+        pureName: row.PURE_NAME,
+        parameterName: row.PARAMETER_NAME,
+        dataType: row.DATA_TYPE,
+        charMaxLength: row.CHAR_MAX,
+        numericPrecision: row.NUMERIC_PRECISION,
+        numericScale: row.NUMERIC_SCALE,
+        parameterMode: row.PARAMETER_MODE,
+        position: row.ORDINAL_POSITION ?? acc[row.PURE_NAME].length,
+      });
+
+      return acc;
+    }, {});
+
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.dbhan.database });
     this.feedback({ analysingMessage: 'Loading unique names' });
@@ -177,6 +200,7 @@ class Analyser extends DatabaseAnalyser {
           // schemaName: proc.schema_name,
           createSql: `SET SQLTERMINATOR "/"\nCREATE ${proc.source_code}\n/\n`,
           contentHash: proc.hash_code,
+          parameters: routineToParams[proc.pure_name],
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
@@ -186,6 +210,7 @@ class Analyser extends DatabaseAnalyser {
           pureName: func.pure_name,
           // schemaName: func.schema_name,
           contentHash: func.hash_code,
+          parameters: routineToParams[func.pure_name],
         })),
       triggers: triggers.rows.map(row => ({
         pureName: row.TRIGGER_NAME,
