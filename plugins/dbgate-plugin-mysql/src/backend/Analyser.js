@@ -243,7 +243,7 @@ class Analyser extends DatabaseAnalyser {
       triggers: triggers.rows.map(row => ({
         contentHash: row.modifyDate,
         pureName: row.triggerName,
-        eventType: row.triggerEvent,
+        eventType: row.eventType,
         triggerTiming: row.triggerTiming,
         schemaName: row.schemaName,
         tableName: row.tableName,
