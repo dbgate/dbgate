@@ -114,13 +114,19 @@ class Analyser extends DatabaseAnalyser {
       // if (!cntBase || !cntRef) continue;
       const baseCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == fkRef.table_name && x.constraint_name == fkRef.constraint_name && x.table_schema == fkRef.table_schema
+          x =>
+            x.table_name == fkRef.table_name &&
+            x.constraint_name == fkRef.constraint_name &&
+            x.table_schema == fkRef.table_schema
         ),
         'ordinal_position'
       );
       const refCols = _.sortBy(
         fk_keyColumnUsage.rows.filter(
-          x => x.table_name == fkRef.ref_table_name && x.constraint_name == fkRef.unique_constraint_name && x.table_schema == fkRef.ref_table_schema
+          x =>
+            x.table_name == fkRef.ref_table_name &&
+            x.constraint_name == fkRef.unique_constraint_name &&
+            x.table_schema == fkRef.ref_table_schema
         ),
         'ordinal_position'
       );
@@ -184,6 +190,9 @@ class Analyser extends DatabaseAnalyser {
       this.feedback({ analysingMessage: 'Loading geography columns' });
       geographyColumns = await this.analyserQuery('geographyColumns', ['tables']);
     }
+
+    this.feedback({ analysingMessage: 'Loading triggers' });
+    const triggers = await this.analyserQuery('triggers');
 
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
@@ -348,6 +357,19 @@ class Analyser extends DatabaseAnalyser {
           parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
           returnType: func.data_type,
         })),
+      triggers: triggers.rows.map(row => ({
+        pureName: row.trigger_name,
+        trigerName: row.trigger_name,
+        functionName: row.function_name,
+        triggerTiming: row.trigger_timing,
+        triggerLevel: row.trigger_level,
+        eventType: row.event_type,
+        schemaName: row.schema_name,
+        tableName: row.table_name,
+        createSql: row.definition,
+        contentHash: `triggers:${row.trigger_id}`,
+        objectId: `triggers:${row.trigger_id}`,
+      })),
     };
 
     this.feedback({ analysingMessage: null });

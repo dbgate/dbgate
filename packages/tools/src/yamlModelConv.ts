@@ -234,6 +234,7 @@ export function databaseInfoFromYamlModel(filesOrDbInfo: DatabaseModelFile[] | D
 
       if (file.name.endsWith('.trigger.sql')) {
         model.triggers.push({
+          objectId: `triggers:${file.name.slice(0, -'.trigger.sql'.length)}`,
           pureName: file.name.slice(0, -'.trigger.sql'.length),
           createSql: file.text,
         });

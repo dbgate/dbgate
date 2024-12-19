@@ -16,6 +16,8 @@ const geometryColumns = require('./geometryColumns');
 const geographyColumns = require('./geographyColumns');
 const proceduresParameters = require('./proceduresParameters');
 const foreignKeys = require('./foreignKeys');
+const triggers = require('./triggers');
+
 const fk_keyColumnUsage = require('./fk_key_column_usage');
 
 module.exports = {
@@ -38,4 +40,5 @@ module.exports = {
   geometryColumns,
   geographyColumns,
   proceduresParameters,
+  triggers,
 };

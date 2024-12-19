@@ -60,6 +60,14 @@ export const defaultDatabaseObjectAppObjectActions = {
       icon: 'img sql-file',
     },
   ],
+  triggers: [
+    {
+      label: 'Show SQL',
+      tab: 'SqlObjectTab',
+      defaultActionId: 'showSql',
+      icon: 'img sql-file',
+    },
+  ],
   collections: [
     {
       label: 'Open data',

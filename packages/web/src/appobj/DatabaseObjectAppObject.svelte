@@ -41,6 +41,7 @@
     procedures: 'img procedure',
     functions: 'img function',
     queries: 'img query-data',
+    triggers: 'icon trigger',
   };
 
   const defaultTabs = {
@@ -51,6 +52,7 @@
     queries: 'QueryDataTab',
     procedures: 'SqlObjectTab',
     functions: 'SqlObjectTab',
+    triggers: 'SqlObjectTab',
   };
 
   function createScriptTemplatesSubmenu(objectTypeField) {
@@ -342,40 +344,8 @@
           },
         ];
       case 'functions':
-        return [
-          ...defaultDatabaseObjectAppObjectActions['functions'],
-          {
-            divider: true,
-          },
-          hasPermission('dbops/model/edit') && {
-            label: 'Drop function',
-            isDrop: true,
-            requiresWriteAccess: true,
-          },
-          hasPermission('dbops/model/edit') && {
-            label: 'Rename function',
-            isRename: true,
-            requiresWriteAccess: true,
-          },
-          createScriptTemplatesSubmenu('functions'),
-          {
-            label: 'SQL generator',
-            submenu: [
-              {
-                label: 'CREATE FUNCTION',
-                sqlGeneratorProps: {
-                  createFunctions: true,
-                },
-              },
-              {
-                label: 'DROP FUNCTION',
-                sqlGeneratorProps: {
-                  dropFunctions: true,
-                },
-              },
-            ],
-          },
-        ];
+      case 'triggers':
+        return [...defaultDatabaseObjectAppObjectActions['triggers']];
       case 'collections':
         return [
           ...defaultDatabaseObjectAppObjectActions['collections'],
@@ -753,7 +723,7 @@
       return;
     }
 
-    const availableDefaultActions = defaultDatabaseObjectAppObjectActions[objectTypeField];
+    const availableDefaultActions = defaultDatabaseObjectAppObjectActions[objectTypeField] ?? [];
 
     const configuredActionId = getLastUsedDefaultActions()[objectTypeField];
     const prefferedAction =
@@ -979,6 +949,10 @@
 
   function getExtInfo(data) {
     const res = [];
+    if (data.objectTypeField === 'triggers') {
+      res.push(`${data.triggerTiming ?? ''} ${data.eventType ?? ''}`.toLowerCase());
+    }
+
     if (data.objectComment) {
       res.push(data.objectComment);
     }

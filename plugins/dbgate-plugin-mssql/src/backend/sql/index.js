@@ -12,6 +12,7 @@ const functionParameters = require('./functionParameters');
 const viewColumns = require('./viewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
+const triggers = require('./triggers');
 
 module.exports = {
   columns,
@@ -28,4 +29,5 @@ module.exports = {
   indexes,
   indexcols,
   tableSizes,
+  triggers,
 };
