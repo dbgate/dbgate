@@ -288,6 +288,50 @@ end;$$`,
         ],
       },
     ],
+    triggers: [
+      {
+        testName: 'triggers after each row',
+        create: `CREATE TRIGGER obj1
+BEFORE INSERT ON t1
+FOR EACH ROW
+EXECUTE FUNCTION test_function();
+`,
+        drop: 'DROP TRIGGER obj1;',
+        triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
+RETURNS TRIGGER AS $$
+BEGIN
+END;
+$$ LANGUAGE plpgsql;`,
+        triggerOtherDropSql: 'DROP FUNCTION test_function',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'insert',
+          triggerTiming: 'after',
+        },
+      },
+      {
+        testName: 'triggers before each row',
+        create: `CREATE TRIGGER obj1
+BEFORE INSERT ON t1
+FOR EACH ROW
+EXECUTE FUNCTION test_function();
+`,
+        drop: 'DROP TRIGGER obj1;',
+        triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
+RETURNS TRIGGER AS $$
+BEGIN
+END;
+$$ LANGUAGE plpgsql;`,
+        triggerOtherDropSql: 'DROP FUNCTION test_function',
+        objectTypeField: 'triggers',
+        expected: {
+          pureName: 'obj1',
+          eventType: 'insert',
+          triggerTiming: 'before',
+        },
+      },
+    ],
   },
   {
     label: 'SQL Server',
