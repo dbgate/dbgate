@@ -13,7 +13,7 @@ SELECT
     COALESCE(
     CASE WHEN (tgtype::int::bit(7) & b'0000010')::int = 0 THEN NULL ELSE 'BEFORE' END,
     CASE WHEN (tgtype::int::bit(7) & b'0000010')::int = 0 THEN 'AFTER' ELSE NULL END,
-    CASE WHEN (tgtype::int::bit(7) & b'1000000')::int = 0 THEN NULL ELSE 'INSTEAD' END,
+    CASE WHEN (tgtype::int::bit(7) & b'1000000')::int = 0 THEN NULL ELSE 'INSTEAD OF' END,
     ''
   )::text as trigger_timing, 
     (CASE WHEN (tgtype::int::bit(7) & b'0000100')::int = 0 THEN '' ELSE 'INSERT' END) ||
