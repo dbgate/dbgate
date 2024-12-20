@@ -306,12 +306,9 @@ const driver = {
         }
         wasHeader = true;
       }
-
-      pass.write(zipDataRow(row, columns));
     });
 
     query.on('data', row => {
-      // console.log('readQuery data', row);
       pass.write(zipDataRow(row, columns));
     });
 

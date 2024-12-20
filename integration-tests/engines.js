@@ -580,11 +580,11 @@ const enginesOnLocal = [
   // mysqlEngine,
   // mariaDbEngine,
   // postgreSqlEngine,
-  sqlServerEngine,
+  // sqlServerEngine,
   // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
-  // oracleEngine,
+  oracleEngine,
 ];
 
 module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
