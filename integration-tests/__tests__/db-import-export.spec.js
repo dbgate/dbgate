@@ -25,12 +25,13 @@ function createImportStream() {
 }
 
 function createExportStream() {
-  const writable = new Stream.Writable({ objectMode: true });
+  const writable = new stream.Writable({ objectMode: true });
   writable.result = [];
-  writable._write = (object, encoding, done) => {
-    result.push(object);
-    done();
+  writable._write = (chunk, encoding, callback) => {
+    writable.result.push(chunk);
+    callback();
   };
+  return writable;
 }
 
 describe('DB Import/export', () => {
@@ -125,18 +126,19 @@ describe('DB Import/export', () => {
         [6, 'Bosna, Hecegovina'],
       ];
       for (const row of data) {
-        await runCommandOnDriver(conn, driver, 'insert into ~t1(~id, ~country) values (%v, %v)', ...row);
+        await runCommandOnDriver(conn, driver, dmp =>
+          dmp.put('insert into ~t1(~id, ~country) values (%v, %v)', ...row)
+        );
       }
       const reader = await tableReader({
         systemConnection: conn,
         driver,
         pureName: 't1',
-        createIfNotExists: true,
       });
       const writer = createExportStream();
       await copyStream(reader, writer);
 
-      expect(writer.result).toEqual(data);
+      expect(writer.result.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country])).toEqual(data);
     })
   );
 });

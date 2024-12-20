@@ -8,12 +8,15 @@ const logger = getLogger('tableReader');
  * @param {object} options
  * @param {connectionType} options.connection - connection object
  * @param {object} options.systemConnection - system connection (result of driver.connect). If not provided, new connection will be created
+ * @param {object} options.driver - driver object. If not provided, it will be loaded from connection
  * @param {string} options.pureName - table name
  * @param {string} options.schemaName - schema name
  * @returns {Promise<readerType>} - reader object
  */
-async function tableReader({ connection, systemConnection, pureName, schemaName }) {
-  const driver = requireEngineDriver(connection);
+async function tableReader({ connection, systemConnection, pureName, schemaName, driver }) {
+  if (!driver) {
+    driver = requireEngineDriver(connection);
+  }
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
   logger.info(`Connected.`);
 
