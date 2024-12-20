@@ -301,7 +301,7 @@ const drivers = driverBases.map(driverBase => ({
       const zippedRow = zipDataRow(row, columns);
       const transformedRow = transformRow(zippedRow, columnsToTransform);
 
-      options.row(transformedRow);
+      pass.write(transformedRow);
     });
 
     query.on('end', () => {

@@ -2,10 +2,11 @@ const engines = require('../engines');
 const stream = require('stream');
 const { testWrapper } = require('../tools');
 const tableWriter = require('dbgate-api/src/shell/tableWriter');
+const tableReader = require('dbgate-api/src/shell/tableReader');
 const copyStream = require('dbgate-api/src/shell/copyStream');
 const importDatabase = require('dbgate-api/src/shell/importDatabase');
 const fakeObjectReader = require('dbgate-api/src/shell/fakeObjectReader');
-const { runQueryOnDriver } = require('dbgate-tools');
+const { runQueryOnDriver, runCommandOnDriver } = require('dbgate-tools');
 
 function createImportStream() {
   const pass = new stream.PassThrough({
@@ -23,7 +24,16 @@ function createImportStream() {
   return pass;
 }
 
-describe('DB Import', () => {
+function createExportStream() {
+  const writable = new Stream.Writable({ objectMode: true });
+  writable.result = [];
+  writable._write = (object, encoding, done) => {
+    result.push(object);
+    done();
+  };
+}
+
+describe('DB Import/export', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Import one table - %s',
     testWrapper(async (conn, driver, engine) => {
@@ -97,6 +107,36 @@ describe('DB Import', () => {
 
       // const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
       // expect(res2.rows[0].cnt.toString()).toEqual('6');
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Export one table - %s',
+    testWrapper(async (conn, driver, engine) => {
+      // const reader = await fakeObjectReader({ delay: 10 });
+      // const reader = await fakeObjectReader();
+      await runCommandOnDriver(conn, driver, 'create table ~t1 (~id int, ~country varchar(100))');
+      const data = [
+        [1, 'Czechia'],
+        [2, 'Austria'],
+        [3, 'Germany'],
+        [4, 'Romania'],
+        [5, 'Great Britain'],
+        [6, 'Bosna, Hecegovina'],
+      ];
+      for (const row of data) {
+        await runCommandOnDriver(conn, driver, 'insert into ~t1(~id, ~country) values (%v, %v)', ...row);
+      }
+      const reader = await tableReader({
+        systemConnection: conn,
+        driver,
+        pureName: 't1',
+        createIfNotExists: true,
+      });
+      const writer = createExportStream();
+      await copyStream(reader, writer);
+
+      expect(writer.result).toEqual(data);
     })
   );
 });
