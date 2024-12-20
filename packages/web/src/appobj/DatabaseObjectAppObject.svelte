@@ -891,30 +891,18 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import {
-    currentDatabase,
     DEFAULT_OBJECT_SEARCH_SETTINGS,
-    extensions,
     getActiveTab,
-    getCurrentSettings,
-    getDatabaseObjectAppObjectSearchSettings,
     getExtensions,
     getLastUsedDefaultActions,
     lastUsedDefaultActions,
-    openedConnections,
     openedTabs,
     pinnedTables,
     selectedDatabaseObjectAppObject,
   } from '../stores';
   import openNewTab from '../utility/openNewTab';
-  import {
-    extractDbNameFromComposite,
-    filterName,
-    filterNameCompoud,
-    generateDbPairingId,
-    getAlterDatabaseScript,
-    getConnectionLabel,
-  } from 'dbgate-tools';
-  import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
+  import { extractDbNameFromComposite, filterNameCompoud, getConnectionLabel } from 'dbgate-tools';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
@@ -925,7 +913,6 @@
   import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import { apiCall } from '../utility/api';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { format as dateFormat } from 'date-fns';
@@ -947,9 +934,8 @@
   function getExtInfo(data) {
     const res = [];
     if (data.objectTypeField === 'triggers') {
-      res.push(`${data.triggerTiming ?? ''} ${data.eventType ?? ''}`.toLowerCase());
+      res.push(`${data.tableName}, ${data.triggerTiming?.toLowerCase() ?? ''} ${data.eventType?.toLowerCase() ?? ''}`);
     }
-
     if (data.objectComment) {
       res.push(data.objectComment);
     }
