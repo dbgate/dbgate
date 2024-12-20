@@ -13,577 +13,592 @@ const matviews = {
   drop2: 'DROP MATERIALIZED VIEW obj2',
 };
 
-const engines = [
-  {
-    label: 'MySQL',
-    connection: {
-      engine: 'mysql@dbgate-plugin-mysql',
-      password: 'Pwd2020Db',
-      user: 'root',
-      server: 'mysql',
-      port: 3306,
-    },
-    local: {
-      server: 'localhost',
-      port: 15001,
-    },
-    // skipOnCI: true,
-    objects: [
-      views,
-      {
-        type: 'procedures',
-        create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
-        create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
-        drop1: 'DROP PROCEDURE obj1',
-        drop2: 'DROP PROCEDURE obj2',
-      },
-    ],
-    dbSnapshotBySeconds: true,
-    dumpFile: 'data/chinook-mysql.sql',
-    dumpChecks: [
-      {
-        sql: 'select count(*) as res from genre',
-        res: '25',
-      },
-    ],
-    parametersOtherSql: ['CREATE PROCEDURE obj2(a int, b int) BEGIN SELECT * FROM t1; END'],
-    parameters: [
-      {
-        testName: 'simple',
-        create: 'CREATE PROCEDURE obj1(a int) BEGIN SELECT * FROM t1; END',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'int',
-          },
-        ],
-      },
-      {
-        testName: 'paramTypes',
-        create: 'CREATE PROCEDURE obj1(a int, b varchar(50), c numeric(10,2)) BEGIN SELECT * FROM t1; END',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'int',
-          },
-          {
-            parameterName: 'b',
-            parameterMode: 'IN',
-            dataType: 'varchar(50)',
-          },
-          {
-            parameterName: 'c',
-            parameterMode: 'IN',
-            dataType: 'decimal(10,2)',
-          },
-        ],
-      },
-      {
-        testName: 'paramModes',
-        create: 'CREATE PROCEDURE obj1(IN a int, OUT b int, INOUT c int) BEGIN SELECT * FROM t1; END',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'int',
-          },
-          {
-            parameterName: 'b',
-            parameterMode: 'OUT',
-            dataType: 'int',
-          },
-          {
-            parameterName: 'c',
-            parameterMode: 'INOUT',
-            dataType: 'int',
-          },
-        ],
-      },
-    ],
-    triggers: [
-      {
-        testName: 'triggers insert after',
-        create: 'CREATE TRIGGER obj1 AFTER INSERT ON t1 FOR EACH ROW BEGIN END',
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'INSERT',
-          triggerTiming: 'AFTER',
-        },
-      },
-      {
-        testName: 'triggers insert before',
-        create: 'CREATE TRIGGER obj1 BEFORE INSERT ON t1 FOR EACH ROW BEGIN END',
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'INSERT',
-          triggerTiming: 'BEFORE',
-        },
-      },
-    ],
+const mysqlEngine = {
+  label: 'MySQL',
+  connection: {
+    engine: 'mysql@dbgate-plugin-mysql',
+    password: 'Pwd2020Db',
+    user: 'root',
+    server: 'mysql',
+    port: 3306,
   },
-  {
-    label: 'MariaDB',
-    connection: {
-      engine: 'mariadb@dbgate-plugin-mysql',
-      password: 'Pwd2020Db',
-      user: 'root',
-      server: 'mysql',
-      port: 3306,
-    },
-    local: {
-      server: 'localhost',
-      port: 15004,
-    },
-    skipOnCI: true,
-    objects: [views],
-    dbSnapshotBySeconds: true,
-    dumpFile: 'data/chinook-mysql.sql',
-    dumpChecks: [
-      {
-        sql: 'select count(*) as res from genre',
-        res: '25',
-      },
-    ],
+  local: {
+    server: 'localhost',
+    port: 15001,
   },
-  {
-    label: 'PostgreSQL',
-    connection: {
-      engine: 'postgres@dbgate-plugin-postgres',
-      password: 'Pwd2020Db',
-      user: 'postgres',
-      server: 'postgres',
-      port: 5432,
+  objects: [
+    views,
+    {
+      type: 'procedures',
+      create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
+      create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
+      drop1: 'DROP PROCEDURE obj1',
+      drop2: 'DROP PROCEDURE obj2',
     },
-    local: {
-      server: 'localhost',
-      port: 15000,
+  ],
+  dbSnapshotBySeconds: true,
+  dumpFile: 'data/chinook-mysql.sql',
+  dumpChecks: [
+    {
+      sql: 'select count(*) as res from genre',
+      res: '25',
     },
-    objects: [
-      views,
-      matviews,
-      {
-        type: 'procedures',
-        create1: 'CREATE PROCEDURE obj1() LANGUAGE SQL AS $$  select * from t1 $$',
-        create2: 'CREATE PROCEDURE obj2() LANGUAGE SQL AS $$  select * from t2 $$',
-        drop1: 'DROP PROCEDURE obj1',
-        drop2: 'DROP PROCEDURE obj2',
+  ],
+  parametersOtherSql: ['CREATE PROCEDURE obj2(a int, b int) BEGIN SELECT * FROM t1; END'],
+  parameters: [
+    {
+      testName: 'simple',
+      create: 'CREATE PROCEDURE obj1(a int) BEGIN SELECT * FROM t1; END',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'int',
+        },
+      ],
+    },
+    {
+      testName: 'paramTypes',
+      create: 'CREATE PROCEDURE obj1(a int, b varchar(50), c numeric(10,2)) BEGIN SELECT * FROM t1; END',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'int',
+        },
+        {
+          parameterName: 'b',
+          parameterMode: 'IN',
+          dataType: 'varchar(50)',
+        },
+        {
+          parameterName: 'c',
+          parameterMode: 'IN',
+          dataType: 'decimal(10,2)',
+        },
+      ],
+    },
+    {
+      testName: 'paramModes',
+      create: 'CREATE PROCEDURE obj1(IN a int, OUT b int, INOUT c int) BEGIN SELECT * FROM t1; END',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'int',
+        },
+        {
+          parameterName: 'b',
+          parameterMode: 'OUT',
+          dataType: 'int',
+        },
+        {
+          parameterName: 'c',
+          parameterMode: 'INOUT',
+          dataType: 'int',
+        },
+      ],
+    },
+  ],
+  triggers: [
+    {
+      testName: 'triggers insert after',
+      create: 'CREATE TRIGGER obj1 AFTER INSERT ON t1 FOR EACH ROW BEGIN END',
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'INSERT',
+        triggerTiming: 'AFTER',
       },
-      {
-        type: 'functions',
-        create1:
-          'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
-        create2:
-          'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
-        drop1: 'DROP FUNCTION obj1',
-        drop2: 'DROP FUNCTION obj2',
+    },
+    {
+      testName: 'triggers insert before',
+      create: 'CREATE TRIGGER obj1 BEFORE INSERT ON t1 FOR EACH ROW BEGIN END',
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'INSERT',
+        triggerTiming: 'BEFORE',
       },
-    ],
-    supportSchemas: true,
-    supportRenameSqlObject: true,
-    defaultSchemaName: 'public',
-    dumpFile: 'data/chinook-postgre.sql',
-    dumpChecks: [
-      {
-        sql: 'select count(*) as res from "public"."Genre"',
-        res: '25',
-      },
-    ],
+    },
+  ],
+};
 
-    parametersOtherSql: ['CREATE PROCEDURE obj2(a integer, b integer) LANGUAGE SQL AS $$ select * from t1 $$'],
-    parameters: [
-      {
-        testName: 'simple',
-        create: 'CREATE PROCEDURE obj1(a integer) LANGUAGE SQL AS $$ select * from t1 $$',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'integer',
-          },
-        ],
-      },
-      {
-        testName: 'dataTypes',
-        create:
-          'CREATE PROCEDURE obj1(a integer, b varchar(20), c numeric(18,2)) LANGUAGE SQL AS $$ select * from t1 $$',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'integer',
-          },
-          {
-            parameterName: 'b',
-            parameterMode: 'IN',
-            dataType: 'varchar',
-          },
-          {
-            parameterName: 'c',
-            parameterMode: 'IN',
-            dataType: 'numeric',
-          },
-        ],
-      },
-      {
-        testName: 'paramModes',
-        create: 'CREATE PROCEDURE obj1(IN a integer, INOUT b integer) LANGUAGE SQL AS $$ select * from t1 $$',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: 'a',
-            parameterMode: 'IN',
-            dataType: 'integer',
-          },
-          {
-            parameterName: 'b',
-            parameterMode: 'INOUT',
-            dataType: 'integer',
-          },
-        ],
-      },
-      {
-        testName: 'paramModesFunction',
-        objectTypeField: 'functions',
-        create: `
+const mariaDbEngine = {
+  label: 'MariaDB',
+  connection: {
+    engine: 'mariadb@dbgate-plugin-mysql',
+    password: 'Pwd2020Db',
+    user: 'root',
+    server: 'mysql',
+    port: 3306,
+  },
+  local: {
+    server: 'localhost',
+    port: 15004,
+  },
+  objects: [views],
+  dbSnapshotBySeconds: true,
+  dumpFile: 'data/chinook-mysql.sql',
+  dumpChecks: [
+    {
+      sql: 'select count(*) as res from genre',
+      res: '25',
+    },
+  ],
+};
+
+const postgreSqlEngine = {
+  label: 'PostgreSQL',
+  connection: {
+    engine: 'postgres@dbgate-plugin-postgres',
+    password: 'Pwd2020Db',
+    user: 'postgres',
+    server: 'postgres',
+    port: 5432,
+  },
+  local: {
+    server: 'localhost',
+    port: 15000,
+  },
+  objects: [
+    views,
+    matviews,
+    {
+      type: 'procedures',
+      create1: 'CREATE PROCEDURE obj1() LANGUAGE SQL AS $$  select * from t1 $$',
+      create2: 'CREATE PROCEDURE obj2() LANGUAGE SQL AS $$  select * from t2 $$',
+      drop1: 'DROP PROCEDURE obj1',
+      drop2: 'DROP PROCEDURE obj2',
+    },
+    {
+      type: 'functions',
+      create1:
+        'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
+      create2:
+        'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
+      drop1: 'DROP FUNCTION obj1',
+      drop2: 'DROP FUNCTION obj2',
+    },
+  ],
+  supportSchemas: true,
+  supportRenameSqlObject: true,
+  defaultSchemaName: 'public',
+  dumpFile: 'data/chinook-postgre.sql',
+  dumpChecks: [
+    {
+      sql: 'select count(*) as res from "public"."Genre"',
+      res: '25',
+    },
+  ],
+
+  parametersOtherSql: ['CREATE PROCEDURE obj2(a integer, b integer) LANGUAGE SQL AS $$ select * from t1 $$'],
+  parameters: [
+    {
+      testName: 'simple',
+      create: 'CREATE PROCEDURE obj1(a integer) LANGUAGE SQL AS $$ select * from t1 $$',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'integer',
+        },
+      ],
+    },
+    {
+      testName: 'dataTypes',
+      create: 'CREATE PROCEDURE obj1(a integer, b varchar(20), c numeric(18,2)) LANGUAGE SQL AS $$ select * from t1 $$',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'integer',
+        },
+        {
+          parameterName: 'b',
+          parameterMode: 'IN',
+          dataType: 'varchar',
+        },
+        {
+          parameterName: 'c',
+          parameterMode: 'IN',
+          dataType: 'numeric',
+        },
+      ],
+    },
+    {
+      testName: 'paramModes',
+      create: 'CREATE PROCEDURE obj1(IN a integer, INOUT b integer) LANGUAGE SQL AS $$ select * from t1 $$',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: 'a',
+          parameterMode: 'IN',
+          dataType: 'integer',
+        },
+        {
+          parameterName: 'b',
+          parameterMode: 'INOUT',
+          dataType: 'integer',
+        },
+      ],
+    },
+    {
+      testName: 'paramModesFunction',
+      objectTypeField: 'functions',
+      create: `
 create or replace function obj1(
-    out min_len int,
-    out max_len int)
+  out min_len int,
+  out max_len int)
 language plpgsql
 as $$
 begin
-  select min(id),
-         max(id)
-  into min_len, max_len
-  from t1;
+select min(id),
+       max(id)
+into min_len, max_len
+from t1;
 end;$$`,
-        drop: 'DROP FUNCTION obj1',
-        list: [
-          {
-            parameterName: 'min_len',
-            parameterMode: 'OUT',
-            dataType: 'integer',
-          },
-          {
-            parameterName: 'max_len',
-            parameterMode: 'OUT',
-            dataType: 'integer',
-          },
-        ],
-      },
-    ],
-    triggers: [
-      {
-        testName: 'triggers after each row',
-        create: `CREATE TRIGGER obj1
+      drop: 'DROP FUNCTION obj1',
+      list: [
+        {
+          parameterName: 'min_len',
+          parameterMode: 'OUT',
+          dataType: 'integer',
+        },
+        {
+          parameterName: 'max_len',
+          parameterMode: 'OUT',
+          dataType: 'integer',
+        },
+      ],
+    },
+  ],
+  triggers: [
+    {
+      testName: 'triggers after each row',
+      create: `CREATE TRIGGER obj1
 AFTER INSERT ON t1
 FOR EACH ROW
 EXECUTE FUNCTION test_function();
 `,
-        drop: 'DROP TRIGGER obj1 ON t1;',
-        triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
+      drop: 'DROP TRIGGER obj1 ON t1;',
+      triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
 RETURNS TRIGGER AS $$
 BEGIN
 END;
 $$ LANGUAGE plpgsql;`,
-        triggerOtherDropSql: 'DROP FUNCTION test_function',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'INSERT',
-          triggerTiming: 'AFTER',
-        },
+      triggerOtherDropSql: 'DROP FUNCTION test_function',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'INSERT',
+        triggerTiming: 'AFTER',
       },
-      {
-        testName: 'triggers before each row',
-        create: `CREATE TRIGGER obj1
+    },
+    {
+      testName: 'triggers before each row',
+      create: `CREATE TRIGGER obj1
 BEFORE INSERT ON t1
 FOR EACH ROW
 EXECUTE FUNCTION test_function();
 `,
-        drop: 'DROP TRIGGER obj1 ON t1;',
-        triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
+      drop: 'DROP TRIGGER obj1 ON t1;',
+      triggerOtherCreateSql: `CREATE OR REPLACE FUNCTION test_function()
 RETURNS TRIGGER AS $$
 BEGIN
 END;
 $$ LANGUAGE plpgsql;`,
-        triggerOtherDropSql: 'DROP FUNCTION test_function',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'INSERT',
-          triggerTiming: 'BEFORE',
-        },
+      triggerOtherDropSql: 'DROP FUNCTION test_function',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'INSERT',
+        triggerTiming: 'BEFORE',
       },
-    ],
+    },
+  ],
+};
+
+const sqlServerEngine = {
+  label: 'SQL Server',
+  connection: {
+    engine: 'mssql@dbgate-plugin-mssql',
+    password: 'Pwd2020Db',
+    user: 'sa',
+    server: 'mssql',
+    port: 1433,
   },
-  {
-    label: 'SQL Server',
-    connection: {
-      engine: 'mssql@dbgate-plugin-mssql',
-      password: 'Pwd2020Db',
-      user: 'sa',
-      server: 'mssql',
-      port: 1433,
+  local: {
+    server: 'localhost',
+    port: 15002,
+  },
+  objects: [
+    views,
+    {
+      type: 'procedures',
+      create1: 'CREATE PROCEDURE obj1 AS SELECT id FROM t1',
+      create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
+      drop1: 'DROP PROCEDURE obj1',
+      drop2: 'DROP PROCEDURE obj2',
     },
-    local: {
-      server: 'localhost',
-      port: 15002,
+  ],
+  parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
+  parameters: [
+    {
+      testName: 'simple',
+      create: 'CREATE PROCEDURE obj1 (@param1 int) AS SELECT id from t1',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: '@param1',
+          parameterMode: 'IN',
+          dataType: 'int',
+        },
+      ],
     },
-    objects: [
-      views,
-      {
-        type: 'procedures',
-        create1: 'CREATE PROCEDURE obj1 AS SELECT id FROM t1',
-        create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
-        drop1: 'DROP PROCEDURE obj1',
-        drop2: 'DROP PROCEDURE obj2',
-      },
-    ],
-    parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
-    parameters: [
-      {
-        testName: 'simple',
-        create: 'CREATE PROCEDURE obj1 (@param1 int) AS SELECT id from t1',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: '@param1',
-            parameterMode: 'IN',
-            dataType: 'int',
-          },
-        ],
-      },
-      {
-        testName: 'dataTypes',
-        create: 'CREATE PROCEDURE obj1 (@p1 bit, @p2 nvarchar(20), @p3 decimal(18,2), @p4 float) AS SELECT id from t1',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: '@p1',
-            parameterMode: 'IN',
-            dataType: 'bit',
-          },
-          {
-            parameterName: '@p2',
-            parameterMode: 'IN',
-            dataType: 'nvarchar(20)',
-          },
-          {
-            parameterName: '@p3',
-            parameterMode: 'IN',
-            dataType: 'decimal(18,2)',
-          },
-          {
-            parameterName: '@p4',
-            parameterMode: 'IN',
-            dataType: 'float',
-          },
-        ],
-      },
-      {
-        testName: 'outputParam',
-        create: 'CREATE PROCEDURE obj1 (@p1 int OUTPUT) AS SELECT id from t1',
-        drop: 'DROP PROCEDURE obj1',
-        objectTypeField: 'procedures',
-        list: [
-          {
-            parameterName: '@p1',
-            parameterMode: 'OUT',
-            dataType: 'int',
-          },
-        ],
-      },
-    ],
-    supportSchemas: true,
-    supportRenameSqlObject: true,
-    defaultSchemaName: 'dbo',
-    // skipSeparateSchemas: true,
-    triggers: [
-      {
-        testName: 'triggers before each row',
-        create: `CREATE TRIGGER obj1
+    {
+      testName: 'dataTypes',
+      create: 'CREATE PROCEDURE obj1 (@p1 bit, @p2 nvarchar(20), @p3 decimal(18,2), @p4 float) AS SELECT id from t1',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: '@p1',
+          parameterMode: 'IN',
+          dataType: 'bit',
+        },
+        {
+          parameterName: '@p2',
+          parameterMode: 'IN',
+          dataType: 'nvarchar(20)',
+        },
+        {
+          parameterName: '@p3',
+          parameterMode: 'IN',
+          dataType: 'decimal(18,2)',
+        },
+        {
+          parameterName: '@p4',
+          parameterMode: 'IN',
+          dataType: 'float',
+        },
+      ],
+    },
+    {
+      testName: 'outputParam',
+      create: 'CREATE PROCEDURE obj1 (@p1 int OUTPUT) AS SELECT id from t1',
+      drop: 'DROP PROCEDURE obj1',
+      objectTypeField: 'procedures',
+      list: [
+        {
+          parameterName: '@p1',
+          parameterMode: 'OUT',
+          dataType: 'int',
+        },
+      ],
+    },
+  ],
+  supportSchemas: true,
+  supportRenameSqlObject: true,
+  defaultSchemaName: 'dbo',
+  // skipSeparateSchemas: true,
+  triggers: [
+    {
+      testName: 'triggers before each row',
+      create: `CREATE TRIGGER obj1
 ON t1
 AFTER INSERT
 AS
 BEGIN
 SELECT * FROM t1
 END;`,
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'INSERT',
-          triggerTiming: 'AFTER',
-        },
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'INSERT',
+        triggerTiming: 'AFTER',
       },
-      {
-        testName: 'triggers before each row',
-        create: `CREATE TRIGGER obj1
+    },
+    {
+      testName: 'triggers before each row',
+      create: `CREATE TRIGGER obj1
 ON t1
 AFTER UPDATE
 AS
 BEGIN
 SELECT * FROM t1
 END;`,
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'obj1',
-          eventType: 'UPDATE',
-          triggerTiming: 'AFTER',
-        },
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        eventType: 'UPDATE',
+        triggerTiming: 'AFTER',
       },
-    ],
+    },
+  ],
+};
+
+const sqliteEngine = {
+  label: 'SQLite',
+  generateDbFile: true,
+  connection: {
+    engine: 'sqlite@dbgate-plugin-sqlite',
   },
-  {
-    label: 'SQLite',
-    generateDbFile: true,
-    connection: {
-      engine: 'sqlite@dbgate-plugin-sqlite',
-    },
-    objects: [views],
-    skipOnCI: false,
-    skipChangeColumn: true,
+  objects: [views],
+  skipOnCI: false,
+  skipChangeColumn: true,
+};
+
+const cockroachDbEngine = {
+  label: 'CockroachDB',
+  connection: {
+    engine: 'cockroach@dbgate-plugin-postgres',
+    user: 'root',
+    server: 'cockroachdb',
+    port: 26257,
   },
-  {
-    label: 'CockroachDB',
-    connection: {
-      engine: 'cockroach@dbgate-plugin-postgres',
-      user: 'root',
-      server: 'cockroachdb',
-      port: 26257,
-    },
-    local: {
-      server: 'localhost',
-      port: 15003,
-    },
-    skipOnCI: true,
-    objects: [views, matviews],
+  local: {
+    server: 'localhost',
+    port: 15003,
   },
-  {
-    label: 'ClickHouse',
-    connection: {
-      engine: 'clickhouse@dbgate-plugin-clickhouse',
-      databaseUrl: 'http://clickhouse:8123',
-      password: 'Pwd2020Db',
-    },
-    local: {
-      databaseUrl: 'http://localhost:15005',
-    },
-    skipOnCI: false,
-    objects: [views],
-    skipDataModifications: true,
-    skipReferences: true,
-    skipIndexes: true,
-    skipNullability: true,
-    skipUnique: true,
-    skipAutoIncrement: true,
-    skipPkColumnTesting: true,
-    skipDataDuplicator: true,
-    skipStringLength: true,
-    alterTableAddColumnSyntax: true,
-    dbSnapshotBySeconds: true,
-    skipChangeColumn: true,
+  objects: [views, matviews],
+};
+
+const clickhouseEngine = {
+  label: 'ClickHouse',
+  connection: {
+    engine: 'clickhouse@dbgate-plugin-clickhouse',
+    databaseUrl: 'http://clickhouse:8123',
+    password: 'Pwd2020Db',
   },
-  {
-    label: 'Oracle',
-    connection: {
-      engine: 'oracle@dbgate-plugin-oracle',
-      password: 'Pwd2020Db',
-      user: 'system',
-      server: 'oracle',
-      port: 1521,
-      serviceName: 'xe',
+  local: {
+    databaseUrl: 'http://localhost:15005',
+  },
+  objects: [views],
+  skipDataModifications: true,
+  skipReferences: true,
+  skipIndexes: true,
+  skipNullability: true,
+  skipUnique: true,
+  skipAutoIncrement: true,
+  skipPkColumnTesting: true,
+  skipDataDuplicator: true,
+  skipStringLength: true,
+  alterTableAddColumnSyntax: true,
+  dbSnapshotBySeconds: true,
+  skipChangeColumn: true,
+};
+
+const oracleEngine = {
+  label: 'Oracle',
+  connection: {
+    engine: 'oracle@dbgate-plugin-oracle',
+    password: 'Pwd2020Db',
+    user: 'system',
+    server: 'oracle',
+    port: 1521,
+    serviceName: 'xe',
+  },
+  local: {
+    server: 'localhost',
+    port: 15006,
+  },
+  skipOnCI: false,
+  dbSnapshotBySeconds: true,
+  setNullDefaultInsteadOfDrop: true,
+  skipIncrementalAnalysis: true,
+  objects: [
+    views,
+    {
+      type: 'procedures',
+      create1: 'CREATE PROCEDURE ~obj1 AS BEGIN SELECT ~id FROM ~t1 END',
+      create2: 'CREATE PROCEDURE ~obj2 AS BEGIN SELECT ~id FROM ~t2 END',
+      drop1: 'DROP PROCEDURE ~obj1',
+      drop2: 'DROP PROCEDURE ~obj2',
     },
-    local: {
-      server: 'localhost',
-      port: 15006,
+    {
+      type: 'functions',
+      create1:
+        'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
+      create2:
+        'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
+      drop1: 'DROP FUNCTION ~obj1',
+      drop2: 'DROP FUNCTION ~obj2',
     },
-    skipOnCI: false,
-    dbSnapshotBySeconds: true,
-    setNullDefaultInsteadOfDrop: true,
-    skipIncrementalAnalysis: true,
-    objects: [
-      views,
-      {
-        type: 'procedures',
-        create1: 'CREATE PROCEDURE ~obj1 AS BEGIN SELECT ~id FROM ~t1 END',
-        create2: 'CREATE PROCEDURE ~obj2 AS BEGIN SELECT ~id FROM ~t2 END',
-        drop1: 'DROP PROCEDURE ~obj1',
-        drop2: 'DROP PROCEDURE ~obj2',
+  ],
+  triggers: [
+    {
+      testName: 'triggers after each row',
+      create: 'CREATE OR REPLACE TRIGGER obj1 AFTER INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'OBJ1',
+        eventType: 'INSERT',
+        triggerTiming: 'AFTER EACH ROW',
       },
-      {
-        type: 'functions',
-        create1:
-          'CREATE FUNCTION ~obj1 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t1;\n RETURN v_count;\n END ~obj1',
-        create2:
-          'CREATE FUNCTION ~obj2 RETURN NUMBER IS v_count NUMBER; \n BEGIN SELECT COUNT(*) INTO v_count FROM ~t2;\n RETURN v_count;\n END ~obj2',
-        drop1: 'DROP FUNCTION ~obj1',
-        drop2: 'DROP FUNCTION ~obj2',
+    },
+    {
+      testName: 'triggers before each row',
+      create: 'CREATE OR REPLACE TRIGGER obj1 BEFORE INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
+      drop: 'DROP TRIGGER obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'OBJ1',
+        eventType: 'INSERT',
+        triggerTiming: 'BEFORE EACH ROW',
       },
-    ],
-    triggers: [
-      {
-        testName: 'triggers after each row',
-        create: 'CREATE OR REPLACE TRIGGER obj1 AFTER INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'OBJ1',
-          eventType: 'INSERT',
-          triggerTiming: 'AFTER EACH ROW',
-        },
-      },
-      {
-        testName: 'triggers before each row',
-        create: 'CREATE OR REPLACE TRIGGER obj1 BEFORE INSERT ON "t1" FOR EACH ROW BEGIN END obj1;',
-        drop: 'DROP TRIGGER obj1;',
-        objectTypeField: 'triggers',
-        expected: {
-          pureName: 'OBJ1',
-          eventType: 'INSERT',
-          triggerTiming: 'BEFORE EACH ROW',
-        },
-      },
-    ],
-  },
+    },
+  ],
+};
+
+const enginesOnCi = [
+  // all engines, which would be run on GitHub actions
+  mysqlEngine,
+  // mariaDbEngine,
+  postgreSqlEngine,
+  sqlServerEngine,
+  sqliteEngine,
+  // cockroachDbEngine,
+  clickhouseEngine,
+  oracleEngine,
 ];
 
-const filterLocal = [
-  // filter local testing
-  '-MySQL',
-  // '-MariaDB',
-  '-PostgreSQL',
-  'SQL Server',
-  // '-SQLite',
-  // '-CockroachDB',
-  // '-ClickHouse',
-  // 'Oracle',
-];
+const enginesOnLocal = {
+  // all engines, which would be run on local test
+  mysqlEngine,
+  mariaDbEngine,
+  postgreSqlEngine,
+  sqlServerEngine,
+  sqliteEngine,
+  cockroachDbEngine,
+  clickhouseEngine,
+  oracleEngine,
+};
 
-const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
+module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
 
-module.exports = process.env.CITEST
-  ? engines.filter(x => !x.skipOnCI)
-  : engines.filter(x => filterLocal.find(y => x.label == y));
-
-module.exports.enginesPostgre = enginesPostgre;
+module.exports.mysqlEngine = mysqlEngine;
+module.exports.mariaDbEngine = mariaDbEngine;
+module.exports.postgreSqlEngine = postgreSqlEngine;
+module.exports.sqlServerEngine = sqlServerEngine;
+module.exports.sqliteEngine = sqliteEngine;
+module.exports.cockroachDbEngine = cockroachDbEngine;
+module.exports.clickhouseEngine = clickhouseEngine;
+module.exports.oracleEngine = oracleEngine;
