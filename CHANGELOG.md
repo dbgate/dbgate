@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### Not releaset yet
+- ADDED: Trigger support (SQL Server, PostgreSQL, MySQL, Oracle)
+- FIXED: PostgreSQL and Oracle export #970
+- FIXED: Cursor Becomes Stuck When Escaping "Case" #954
+- CHANGED: Defualt search criteria for tables are names only
+- FIXED: Search in packed list
+
 ### 6.1.0
 - ADDED: Fulltext search in DB model and connections, highlight searched names
 - ADDED: Tab preview mode configuration #963
