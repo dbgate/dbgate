@@ -245,9 +245,8 @@ class Analyser extends DatabaseAnalyser {
         pureName: row.triggerName,
         eventType: row.eventType,
         triggerTiming: row.triggerTiming,
-        schemaName: row.schemaName,
         tableName: row.tableName,
-        createSql: row.definition,
+        createSql: `CREATE TRIGGER ${row.triggerName} ${row.triggerTiming} ${row.eventType} ON ${row.tableName} FOR EACH ROW ${row.definition}` ,
       })),
     };
     this.feedback({ analysingMessage: null });

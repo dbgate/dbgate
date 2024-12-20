@@ -213,13 +213,15 @@ class Analyser extends DatabaseAnalyser {
           parameters: routineToParams[func.pure_name],
         })),
       triggers: triggers.rows.map(row => ({
-        pureName: row.TRIGGER_NAME,
-        trigerName: row.TRIGGER_NAME,
-        definition: row.DEFINITION,
-        tableName: row.TABLE_NAME,
-        triggerLevel: row.TRIGGER_LEVEL,
-        triggerTiming: row.TRIGGER_TIMING,
-        eventType: row.EVENT_TYPE,
+        pureName: row.trigger_name,
+        createSql: `SET SQLTERMINATOR "/"\nCREATE TRIGGER "${row.trigger_name}" ${
+          row.trigger_timing.includes('BEFORE') ? 'BEFORE' : 'AFTER'
+        } ${row.event_type} ON "${row.table_name}" FOR EACH ROW ${row.definition} \n/\n`,
+        // createSql: `SET SQLTERMINATOR "/"\n${row.definition}\n/\n`,
+        tableName: row.table_name,
+        triggerLevel: row.trigger_level,
+        triggerTiming: row.trigger_timing,
+        eventType: row.event_type,
       })),
     };
 
