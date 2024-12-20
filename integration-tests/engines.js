@@ -354,6 +354,13 @@ const sqlServerEngine = {
       drop1: 'DROP PROCEDURE obj1',
       drop2: 'DROP PROCEDURE obj2',
     },
+    {
+      type:'triggers',
+      create1: 'CREATE TRIGGER obj1 ON t1 AFTER INSERT AS BEGIN SELECT * FROM t1 END',
+      create2: 'CREATE TRIGGER obj2 ON t2 AFTER INSERT AS BEGIN SELECT * FROM t2 END',
+      drop1: 'DROP TRIGGER obj1',
+      drop2: 'DROP TRIGGER obj2',
+    }
   ],
   parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
   parameters: [
@@ -419,14 +426,8 @@ const sqlServerEngine = {
   triggers: [
     {
       testName: 'triggers before each row',
-      create: `CREATE TRIGGER obj1
-ON t1
-AFTER INSERT
-AS
-BEGIN
-SELECT * FROM t1
-END;`,
-      drop: 'DROP TRIGGER obj1;',
+      create: `CREATE TRIGGER obj1 ON t1 AFTER INSERT AS BEGIN SELECT * FROM t1 END`,
+      drop: 'DROP TRIGGER obj1',
       objectTypeField: 'triggers',
       expected: {
         pureName: 'obj1',
@@ -436,14 +437,8 @@ END;`,
     },
     {
       testName: 'triggers before each row',
-      create: `CREATE TRIGGER obj1
-ON t1
-AFTER UPDATE
-AS
-BEGIN
-SELECT * FROM t1
-END;`,
-      drop: 'DROP TRIGGER obj1;',
+      create: `CREATE TRIGGER obj1 ON t1 AFTER UPDATE AS BEGIN SELECT * FROM t1 END`,
+      drop: 'DROP TRIGGER obj1',
       objectTypeField: 'triggers',
       expected: {
         pureName: 'obj1',
@@ -580,17 +575,17 @@ const enginesOnCi = [
   oracleEngine,
 ];
 
-const enginesOnLocal = {
+const enginesOnLocal = [
   // all engines, which would be run on local test
-  mysqlEngine,
-  mariaDbEngine,
-  postgreSqlEngine,
+  // mysqlEngine,
+  // mariaDbEngine,
+  // postgreSqlEngine,
   sqlServerEngine,
-  sqliteEngine,
-  cockroachDbEngine,
-  clickhouseEngine,
-  oracleEngine,
-};
+  // sqliteEngine,
+  // cockroachDbEngine,
+  // clickhouseEngine,
+  // oracleEngine,
+];
 
 module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
 

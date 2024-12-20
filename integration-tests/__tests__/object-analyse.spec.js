@@ -158,6 +158,13 @@ describe('Object analyse', () => {
 
       const createdTrigger = structure[objectTypeField].find(x => x.pureName == expected.pureName);
       expect(createdTrigger).toEqual(expect.objectContaining(expected));
+
+      // test trigger createSql
+      if (triggerOtherCreateSql) await runCommandOnDriver(conn, driver, triggerOtherCreateSql);
+      await runCommandOnDriver(conn, driver, createdTrigger.createSql);
+      const structure2 = await driver.analyseFull(conn);
+      const createdTrigger2 = structure2[objectTypeField].find(x => x.pureName == expected.pureName);
+      expect(createdTrigger2).toEqual(expect.objectContaining(expected));
     })
   );
 });
