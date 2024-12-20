@@ -171,6 +171,7 @@ class Analyser extends DatabaseAnalyser {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: table.pureName,
+        objectComment: _.isString(table.objectComment) ? table.objectComment : undefined,
         contentHash: _.isDate(table.modifyDate) ? table.modifyDate.toISOString() : table.modifyDate,
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(x => getColumnInfo(x, this.driver)),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
@@ -246,7 +247,7 @@ class Analyser extends DatabaseAnalyser {
         eventType: row.eventType,
         triggerTiming: row.triggerTiming,
         tableName: row.tableName,
-        createSql: `CREATE TRIGGER ${row.triggerName} ${row.triggerTiming} ${row.eventType} ON ${row.tableName} FOR EACH ROW ${row.definition}` ,
+        createSql: `CREATE TRIGGER ${row.triggerName} ${row.triggerTiming} ${row.eventType} ON ${row.tableName} FOR EACH ROW ${row.definition}`,
       })),
     };
     this.feedback({ analysingMessage: null });
