@@ -25,12 +25,13 @@ function createImportStream() {
 }
 
 function createExportStream() {
-  const writable = new Stream.Writable({ objectMode: true });
-  writable.result = [];
-  writable._write = (object, encoding, done) => {
-    result.push(object);
-    done();
+  const writable = new stream.Writable({ objectMode: true });
+  writable.resultArray = [];
+  writable._write = (chunk, encoding, callback) => {
+    writable.resultArray.push(chunk);
+    callback();
   };
+  return writable;
 }
 
 describe('DB Import/export', () => {
@@ -115,7 +116,7 @@ describe('DB Import/export', () => {
     testWrapper(async (conn, driver, engine) => {
       // const reader = await fakeObjectReader({ delay: 10 });
       // const reader = await fakeObjectReader();
-      await runCommandOnDriver(conn, driver, 'create table ~t1 (~id int, ~country varchar(100))');
+      await runCommandOnDriver(conn, driver, 'create table ~t1 (~id int primary key, ~country varchar(100))');
       const data = [
         [1, 'Czechia'],
         [2, 'Austria'],
@@ -125,18 +126,19 @@ describe('DB Import/export', () => {
         [6, 'Bosna, Hecegovina'],
       ];
       for (const row of data) {
-        await runCommandOnDriver(conn, driver, 'insert into ~t1(~id, ~country) values (%v, %v)', ...row);
+        await runCommandOnDriver(conn, driver, dmp =>
+          dmp.put('insert into ~t1(~id, ~country) values (%v, %v)', ...row)
+        );
       }
       const reader = await tableReader({
         systemConnection: conn,
         driver,
         pureName: 't1',
-        createIfNotExists: true,
       });
       const writer = createExportStream();
       await copyStream(reader, writer);
 
-      expect(writer.result).toEqual(data);
+      expect(writer.resultArray.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country])).toEqual(data);
     })
   );
 });
