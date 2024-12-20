@@ -715,7 +715,7 @@ export function createAlterDatabasePlan(
 ): AlterPlan {
   const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
 
-  for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
+  for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions', 'triggers']) {
     for (const oldobj of oldDb[objectTypeField] || []) {
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
