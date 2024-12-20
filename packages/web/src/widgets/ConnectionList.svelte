@@ -217,7 +217,12 @@
     }}
   />
   <CloseSearchButton bind:filter />
-  <DropDownButton icon="icon filter" menu={createSearchMenu} square={!!filter} narrow={false} />
+  <DropDownButton
+    icon={filter ? 'img filter-active' : 'icon filter'}
+    menu={createSearchMenu}
+    square={!!filter}
+    narrow={false}
+  />
   {#if $commandsCustomized['new.connection']?.enabled}
     <InlineButton
       on:click={() => runCommand('new.connection')}

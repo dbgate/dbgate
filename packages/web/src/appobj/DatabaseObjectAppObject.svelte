@@ -8,8 +8,8 @@
       const mainArgs = [];
       const childArgs = [];
       if (cfg.schemaName) mainArgs.push(schemaName);
+      if (cfg.pureName) mainArgs.push(pureName);
       if (objectTypeField == 'tables') {
-        if (cfg.tableName) mainArgs.push(pureName);
         if (cfg.tableComment) mainArgs.push(objectComment);
         if (cfg.tableEngine) mainArgs.push(tableEngine);
 
@@ -18,10 +18,7 @@
           if (cfg.columnComment) childArgs.push(column.columnComment);
           if (cfg.columnDataType) childArgs.push(column.dataType);
         }
-      } else if (objectTypeField == 'collections') {
-        if (cfg.collectionName) mainArgs.push(pureName);
       } else {
-        if (cfg.sqlObjectName) mainArgs.push(pureName);
         if (cfg.sqlObjectText) childArgs.push(createSql);
       }
 

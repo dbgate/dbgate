@@ -289,6 +289,8 @@
     'img export': 'mdi mdi-database-export color-icon-green',
     'img transform': 'mdi mdi-rotate-orbit color-icon-blue',
     'img tip': 'mdi mdi-lightbulb-on color-icon-yellow',
+
+    'img filter-active': 'mdi mdi-filter-cog color-icon-blue',
   };
 </script>
 

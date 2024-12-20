@@ -131,18 +131,16 @@
     const res = [];
     res.push({ label: 'Search by:', isBold: true, disabled: true });
     if (driver?.databaseEngineTypes?.includes('document')) {
-      res.push({ label: 'Collection names', switchValue: 'collectionName' });
+      res.push({ label: 'Collection name', switchValue: 'pureName' });
     }
     if (driver?.databaseEngineTypes?.includes('sql')) {
-      res.push({ label: 'Schema name', switchValue: 'schemaName' });
-      res.push({ label: 'Table name', switchValue: 'tableName' });
-      res.push({ label: 'View name', switchValue: 'viewName' });
+      res.push({ label: 'Table/view/procedure name', switchValue: 'pureName' });
+      res.push({ label: 'Schema', switchValue: 'schemaName' });
       res.push({ label: 'Column name', switchValue: 'columnName' });
       res.push({ label: 'Column data type', switchValue: 'columnType' });
       res.push({ label: 'Table comment', switchValue: 'tableComment' });
       res.push({ label: 'Column comment', switchValue: 'columnComment' });
-      res.push({ label: 'Procedure/function/trigger name', switchValue: 'sqlObjectName' });
-      res.push({ label: 'Procedure/function/trigger text', switchValue: 'sqlObjectText' });
+      res.push({ label: 'View/procedure/trigger text', switchValue: 'sqlObjectText' });
       res.push({ label: 'Table engine', switchValue: 'tableEngine' });
     }
     return res.map(item => ({
@@ -217,7 +215,12 @@
       }}
     />
     <CloseSearchButton bind:filter />
-    <DropDownButton icon="icon filter" menu={createSearchMenu} square={!!filter} narrow={false} />
+    <DropDownButton
+      icon={filter ? 'img filter-active' : 'icon filter'}
+      menu={createSearchMenu}
+      square={!!filter}
+      narrow={false}
+    />
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}

@@ -162,16 +162,13 @@ export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
-  collectionName: true,
+  pureName: true,
   schemaName: false,
-  tableName: true,
-  viewName: true,
-  columnName: true,
+  columnName: false,
   columnDataType: false,
   tableComment: true,
-  columnComment: true,
-  sqlObjectName: true,
-  sqlObjectText: true,
+  columnComment: false,
+  sqlObjectText: false,
   tableEngine: false,
 };
 
@@ -185,12 +182,12 @@ export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {
 
 export const databaseObjectAppObjectSearchSettings = writableWithStorage(
   DEFAULT_OBJECT_SEARCH_SETTINGS,
-  'databaseObjectAppObjectSearchSettings'
+  'databaseObjectAppObjectSearchSettings2'
 );
 
 export const connectionAppObjectSearchSettings = writableWithStorage(
   DEFAULT_CONNECTION_SEARCH_SETTINGS,
-  'connectionAppObjectSearchSettings'
+  'connectionAppObjectSearchSettings2'
 );
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
