@@ -4,7 +4,7 @@
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
     (filter, cfg = DEFAULT_OBJECT_SEARCH_SETTINGS) =>
-    ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, createSql }) => {
+    ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, tableName, createSql }) => {
       const mainArgs = [];
       const childArgs = [];
       if (cfg.schemaName) mainArgs.push(schemaName);
@@ -20,6 +20,9 @@
         }
       } else {
         if (cfg.sqlObjectText) childArgs.push(createSql);
+      }
+      if (objectTypeField == 'triggers' && cfg.pureName) {
+        mainArgs.push(tableName);
       }
 
       const res = filterNameCompoud(filter, mainArgs, childArgs);
