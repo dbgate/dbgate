@@ -120,7 +120,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print content of notarization-error.log
-        if: failure() and matrix.os == 'macos-14'
+        if: failure() && matrix.os == 'macos-14'
         run: |
           echo "=== Begin of notarization-error.log ==="
           cat app/dist/notarization-error.log
