@@ -118,3 +118,10 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print content of notarization-error.log
+        if: failure() and matrix.os == 'macos-14'
+        run: |
+          echo "=== Begin of notarization-error.log ==="
+          cat app/dist/notarization-error.log
+          echo "=== End of notarization-error.log ==="
