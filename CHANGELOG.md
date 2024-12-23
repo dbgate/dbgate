@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### Not releaset yet
+### 6.1.1
 - ADDED: Trigger support (SQL Server, PostgreSQL, MySQL, Oracle)
 - FIXED: PostgreSQL and Oracle export #970
 - FIXED: Cursor Becomes Stuck When Escaping "Case" #954
