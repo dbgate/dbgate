@@ -21,7 +21,6 @@ jobs:
         id: mac_python
         run: |
           brew install python@3.11
-          npm config set python $(which python3.11)
 
       - name: Context
         env:
@@ -45,6 +44,7 @@ jobs:
           yarn config set network-timeout 100000
       - name: yarn install
         run: |
+          npm config set python "/opt/homebrew/bin/python3.11"
           yarn install
       - name: setCurrentVersion
         run: |
