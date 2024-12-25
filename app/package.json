@@ -129,7 +129,7 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "33.2.1",
+    "electron": "30.0.2",
     "electron-builder": "25.1.8"
   }
 }

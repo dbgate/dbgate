@@ -16,14 +16,8 @@ jobs:
         # os: [macOS-10.15]
 
     steps:
-      - name: "Install python 3.11 (Linux, Windows)"
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-        if: matrix.os.setup_python
-
       - name: Install python 3.11 (MacOS)
-        if: matrix.os.type == 'macos'
+        if: matrix.os == 'macos-14'
         id: mac_python
         env:
           ARCH: ${{ matrix.os.arch }}
