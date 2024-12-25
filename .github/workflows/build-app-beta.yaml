@@ -19,28 +19,9 @@ jobs:
       - name: Install python 3.11 (MacOS)
         if: matrix.os == 'macos-14'
         id: mac_python
-        env:
-          ARCH: ${{ matrix.os.arch }}
         run: |
-          rm -f /usr/local/bin/2to3-3.11
-          rm -f /usr/local/bin/idle3.11
-          rm -f /usr/local/bin/pydoc3.11
-          rm -f /usr/local/bin/python3.11
-          rm -f /usr/local/bin/python3.11-config
           brew install python@3.11
-          if [ "$ARCH" = "arm64" ]; then
-              # Add Python 3.11 to PATH for arm64
-              echo "/opt/homebrew/opt/python@3.11/libexec/bin" >> $GITHUB_PATH
-              export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
-              export PYTHON_PATH="/opt/homebrew/opt/python@3.11/libexec/bin/python3"
-              echo "python_path=$PYTHON_PATH" >> $GITHUB_OUTPUT
-          else
-              # Add Python 3.11 to PATH for other architectures
-              echo "/usr/local/opt/python@3.11/libexec/bin" >> $GITHUB_PATH
-              export PATH="/usr/local/opt/python@3.11/libexec/bin:$PATH"
-              export PYTHON_PATH="/usr/local/opt/python@3.11/libexec/bin/python3"
-              echo "python_path=$PYTHON_PATH" >> $GITHUB_OUTPUT
-          fi
+          npm config set python $(which python3.11)
 
       - name: Context
         env:
@@ -55,7 +36,7 @@ jobs:
           node-version: 22.x
       - name: adjustPackageJson
         run: |
-          node adjustPackageJson --premium
+          node adjustPackageJson --community
       - name: setUpdaterChannel beta
         run: |
           node setUpdaterChannel beta
