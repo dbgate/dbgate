@@ -122,6 +122,4 @@ jobs:
       - name: Print content of notarization-error.log
         if: failure() && matrix.os == 'macos-14'
         run: |
-          echo "=== Begin of notarization-error.log ==="
           find . -type f -name "notarization-error.log" -exec echo "=== Start of {} ===" \; -exec cat {} \; -exec echo "=== End of {} ===" \;
-          echo "=== End of notarization-error.log ==="
