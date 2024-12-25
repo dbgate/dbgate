@@ -44,6 +44,6 @@
     "mongodb": "^6.3.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.0.0"
+    "mongodb-client-encryption": "^6.1.1"
   }
 }
