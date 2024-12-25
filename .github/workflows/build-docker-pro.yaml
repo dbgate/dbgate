@@ -62,11 +62,11 @@ jobs:
           node sync.js --nowatch
           cd ..
 
-      - name: yarn adjustPackageJson
+      - name: adjustPackageJson
         run: |
           cd ..
           cd dbgate-merged
-          yarn adjustPackageJson
+          node adjustPackageJson --premium
 
       - name: yarn install
         run: |

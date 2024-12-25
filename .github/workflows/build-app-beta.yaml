@@ -16,6 +16,38 @@ jobs:
         # os: [macOS-10.15]
 
     steps:
+      - name: "Install python 3.11 (Linux, Windows)"
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+        if: matrix.os.setup_python
+
+      - name: Install python 3.11 (MacOS)
+        if: matrix.os.type == 'macos'
+        id: mac_python
+        env:
+          ARCH: ${{ matrix.os.arch }}
+        run: |
+          rm -f /usr/local/bin/2to3-3.11
+          rm -f /usr/local/bin/idle3.11
+          rm -f /usr/local/bin/pydoc3.11
+          rm -f /usr/local/bin/python3.11
+          rm -f /usr/local/bin/python3.11-config
+          brew install python@3.11
+          if [ "$ARCH" = "arm64" ]; then
+              # Add Python 3.11 to PATH for arm64
+              echo "/opt/homebrew/opt/python@3.11/libexec/bin" >> $GITHUB_PATH
+              export PATH="/opt/homebrew/opt/python@3.11/libexec/bin:$PATH"
+              export PYTHON_PATH="/opt/homebrew/opt/python@3.11/libexec/bin/python3"
+              echo "python_path=$PYTHON_PATH" >> $GITHUB_OUTPUT
+          else
+              # Add Python 3.11 to PATH for other architectures
+              echo "/usr/local/opt/python@3.11/libexec/bin" >> $GITHUB_PATH
+              export PATH="/usr/local/opt/python@3.11/libexec/bin:$PATH"
+              export PYTHON_PATH="/usr/local/opt/python@3.11/libexec/bin/python3"
+              echo "python_path=$PYTHON_PATH" >> $GITHUB_OUTPUT
+          fi
+
       - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -27,9 +59,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - name: yarn adjustPackageJson
+      - name: adjustPackageJson
         run: |
-          yarn adjustPackageJson
+          node adjustPackageJson --premium
       - name: setUpdaterChannel beta
         run: |
           node setUpdaterChannel beta

@@ -47,7 +47,6 @@
     "setCurrentVersion": "node setCurrentVersion",
     "printSecrets": "node printSecrets",
     "generatePadFile": "node generatePadFile",
-    "adjustPackageJson": "node adjustPackageJson",
     "fillPackagedPlugins": "node fillPackagedPlugins",
     "resetPackagedPlugins": "node resetPackagedPlugins",
     "prettier": "prettier --write packages/api/src && prettier --write packages/datalib/src && prettier --write packages/filterparser/src && prettier --write packages/sqltree/src && prettier --write packages/tools/src && prettier --write packages/types && prettier --write packages/web/src && prettier --write app/src",

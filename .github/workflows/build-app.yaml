@@ -31,9 +31,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - name: yarn adjustPackageJson
+      - name: adjustPackageJson
         run: |
-          yarn adjustPackageJson
+          node adjustPackageJson --community
       - name: yarn set timeout
         run: |
           yarn config set network-timeout 100000

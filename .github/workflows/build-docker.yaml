@@ -57,9 +57,9 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: yarn adjustPackageJson
+      - name: adjustPackageJson
         run: |
-          yarn adjustPackageJson
+          node adjustPackageJson --community
 
       - name: yarn install
         run: |

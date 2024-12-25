@@ -41,6 +41,29 @@ function adjustFile(file, isApp = false) {
     delete json.optionalDependencies.msnodesqlv8;
   }
 
+  if (process.argv.includes('--community')) {
+    delete json.optionalDependencies['mongodb-client-encryption'];
+  }
+
+  if (isApp && process.argv.includes('--premium')) {
+    json.build.win.target = [
+      {
+        target: 'nsis',
+        arch: ['x64'],
+      },
+    ];
+    json.build.linux.target = [
+      {
+        target: 'AppImage',
+        arch: ['x64'],
+      },
+    ];
+    json.name = 'dbgate-premium';
+    json.build.artifactName = 'dbgate-premium-${version}-${os}_${arch}.${ext}';
+    json.build.appId = 'org.dbgate.premium';
+    json.build.productName = 'DbGate Premium';
+  }
+
   fs.writeFileSync(file, JSON.stringify(json, null, 2), 'utf-8');
 }
 
