@@ -18,10 +18,9 @@ jobs:
     steps:
       - name: Install python 3.11 (MacOS)
         if: matrix.os == 'macos-14'
-        id: mac_python
         run: |
           brew install python@3.11
-
+          echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
       - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -44,7 +43,6 @@ jobs:
           yarn config set network-timeout 100000
       - name: yarn install
         run: |
-          npm config set python "/opt/homebrew/bin/python3.11"
           yarn install
       - name: setCurrentVersion
         run: |
