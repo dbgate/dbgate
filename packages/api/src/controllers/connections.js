@@ -237,7 +237,7 @@ module.exports = {
       }
     );
     pipeForkLogs(subprocess);
-    subprocess.send({ connection, requestDbList });
+    subprocess.send({ ...connection, requestDbList });
     return new Promise(resolve => {
       subprocess.on('message', resp => {
         if (handleProcessCommunication(resp, subprocess)) return;

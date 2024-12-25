@@ -16,9 +16,9 @@ Platform: ${process.platform}
 
 function start() {
   childProcessChecker();
-  process.on('message', async args => {
+  process.on('message', async connection => {
     // @ts-ignore
-    const { connection, requestDbList } = args;
+    const { requestDbList } = connection;
     if (handleProcessCommunication(connection)) return;
     try {
       const driver = requireEngineDriver(connection);
