@@ -19,6 +19,11 @@ jobs:
         # os: [macOS-10.15]
 
     steps:
+      - name: Install python 3.11 (MacOS)
+        if: matrix.os == 'macos-14'
+        run: |
+          brew install python@3.11
+          echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
       - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -106,6 +111,8 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
 
       - name: Copy artifacts
         run: |
