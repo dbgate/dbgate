@@ -93,6 +93,8 @@ jobs:
           cd dbgate-merged
           yarn fillPackagedPlugins
       - name: Publish
+        env:
+          DEBUG: electron-builder, electron-notarize, notarytool
         run: |
           cd ..
           cd dbgate-merged
