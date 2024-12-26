@@ -93,8 +93,6 @@ jobs:
           cd dbgate-merged
           yarn fillPackagedPlugins
       - name: Publish
-        env:
-          DEBUG: electron-builder, electron-notarize, notarytool
         run: |
           cd ..
           cd dbgate-merged
@@ -115,6 +113,9 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
+
+          DEBUG: electron-builder, electron-notarize, notarytool
+
 
       - name: Copy artifacts
         run: |
