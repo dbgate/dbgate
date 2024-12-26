@@ -148,3 +148,10 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print content of notarization-error.log
+        if: failure() && matrix.os == 'macos-14'
+        run: |
+          cd ..
+          cd dbgate-merged
+          find . -type f -name "notarization-error.log" -exec echo "=== Start of {} ===" \; -exec cat {} \; -exec echo "=== End of {} ===" \;
