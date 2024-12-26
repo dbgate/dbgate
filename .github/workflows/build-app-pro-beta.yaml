@@ -114,7 +114,7 @@ jobs:
 
           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
 
-          DEBUG: electron-builder, electron-notarize, notarytool
+          # DEBUG: electron-builder, electron-notarize, notarytool
 
 
       - name: Copy artifacts
