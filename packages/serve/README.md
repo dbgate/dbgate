@@ -41,7 +41,7 @@ STORAGE_DATABASE=dbname
 STORAGE_ENGINE=mysql@dbgate-plugin-mysql
 ```
 
-You could find more about environment variable configuration on [DbGate docs](https://dbgate.org/docs/env-variables.html) page.
+You could find more about environment variable configuration on [DbGate docs](https://dbgate.org/docs/env-variables/) page.
 
 After installing, you can run dbgate with command:
 ```sh
