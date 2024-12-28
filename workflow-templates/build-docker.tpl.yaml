@@ -77,11 +77,11 @@ jobs:
 
       - _include: 
           _name: checkout-dbgate-pro
-          _if: _premium
+        _if: _premium
 
       - _include: 
           _name: merge-dbgate-pro
-          _if: _premium
+        _if: _premium
 
       - name: adjustPackageJson
         run: |

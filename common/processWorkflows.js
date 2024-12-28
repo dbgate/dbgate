@@ -42,6 +42,8 @@ function processJsonStep(json, args) {
           if (conditionMatch(item._if, args)) {
             res.push(_.omit(item, ['_if']));
           }
+        } else {
+          res.push(item);
         }
       }
       return res;
@@ -120,7 +122,7 @@ function processFiles() {
 function deleteOldFiles() {
   const files = fs.readdirSync(outdir);
   for (const file of files) {
-    fs.unlink(path.join(outdir, file));
+    fs.unlinkSync(path.join(outdir, file));
   }
 }
 
