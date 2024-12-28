@@ -44,7 +44,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: |
+          images:
             _community: dbgate/dbgate
             _premium: dbgate/dbgate-premium
           flavor: |
@@ -76,12 +76,12 @@ jobs:
           node-version: 18.x
 
       - _include: 
-        _name: checkout-dbgate-pro
-        _if: _premium
+          _name: checkout-dbgate-pro
+          _if: _premium
 
       - _include: 
-        _name: merge-dbgate-pro
-        _if: _premium
+          _name: merge-dbgate-pro
+          _if: _premium
 
       - name: adjustPackageJson
         run: |
