@@ -21,7 +21,7 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - _community: 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
-        _premium: - 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
+        _premium: 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
 
 jobs:
   build:

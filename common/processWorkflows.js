@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const rimraf = require('rimraf');
 const _ = require('lodash');
 
 const indir = path.resolve(path.join(__dirname, '..', 'workflow-templates'));
@@ -34,7 +33,7 @@ function conditionMatch(condition, args) {
 }
 
 function processJsonStep(json, args) {
-  return _.cloneDeepWith(value, x => {
+  return _.cloneDeepWith(json, value => {
     if (_.isArray(value)) {
       const res = [];
       for (const item of value) {
@@ -71,7 +70,7 @@ function processJsonStep(json, args) {
     }
 
     if (_.isPlainObject(value)) {
-      if (_.intersection(args.allNames ?? [], Object.keys(values))?.length > 0) {
+      if (_.intersection(args.allNames ?? [], Object.keys(value))?.length > 0) {
         modified = true;
         return value[args.name];
       }
@@ -118,8 +117,15 @@ function processFiles() {
   }
 }
 
-async function run() {
-  await new Promise(resolve => rimraf(outdir, resolve));
+function deleteOldFiles() {
+  const files = fs.readdirSync(outdir);
+  for (const file of files) {
+    fs.unlink(path.join(outdir, file));
+  }
+}
+
+function run() {
+  deleteOldFiles();
   readIncludes();
   processFiles();
 }
