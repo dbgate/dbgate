@@ -27,7 +27,7 @@ let modified = false;
 
 function conditionMatch(condition, args) {
   if (_.isString(condition)) {
-    return args.name == condition;
+    return args.key == condition;
   }
   return false;
 }
@@ -74,8 +74,12 @@ function processJsonStep(json, args) {
     if (_.isPlainObject(value)) {
       if (_.intersection(args.allNames ?? [], Object.keys(value))?.length > 0) {
         modified = true;
-        return value[args.name];
+        return value[args.key];
       }
+    }
+
+    if (value?._include) {
+      return includes[value?._include];
     }
   });
 }

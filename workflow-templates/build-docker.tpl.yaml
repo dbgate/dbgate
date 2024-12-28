@@ -75,12 +75,10 @@ jobs:
         with:
           node-version: 18.x
 
-      - _include: 
-          _name: checkout-dbgate-pro
+      - _include: checkout-dbgate-pro 
         _if: _premium
 
-      - _include: 
-          _name: merge-dbgate-pro
+      - _include: merge-dbgate-pro 
         _if: _premium
 
       - name: adjustPackageJson
