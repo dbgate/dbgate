@@ -42,6 +42,18 @@ function processJsonStep(json, args) {
           if (conditionMatch(item._if, args)) {
             res.push(_.omit(item, ['_if']));
           }
+        } else if (item._replace || item._include) {
+          const replaceWith = item._replace ? args.replace?.[item._replace] : includes[item._include];
+          if (replaceWith) {
+            modified = true;
+            if (_.isArray(replaceWith)) {
+              res.push(...replaceWith);
+            } else {
+              res.push(replaceWith);
+            }
+          } else {
+            res.push(item);
+          }
         } else {
           res.push(item);
         }
@@ -49,27 +61,27 @@ function processJsonStep(json, args) {
       return res;
     }
 
-    if (value?.run && _.isArray(value.run)) {
-      const newrun = [];
-      for (const item of value.run) {
-        let replaced = false;
-        for (const repl of args.run) {
-          if (item == repl.from) {
-            replaced = true;
-            modified = true;
-            newrun.push(...repl.to);
-            break;
-          }
-        }
-        if (!replaced) {
-          newrun.push(item);
-        }
-      }
-      return {
-        ...value,
-        run: newrun,
-      };
-    }
+    // if (value?.run && _.isArray(value.run)) {
+    //   const newrun = [];
+    //   for (const item of value.run) {
+    //     let replaced = false;
+    //     for (const repl of args.run) {
+    //       if (item == repl.from) {
+    //         replaced = true;
+    //         modified = true;
+    //         newrun.push(...repl.to);
+    //         break;
+    //       }
+    //     }
+    //     if (!replaced) {
+    //       newrun.push(item);
+    //     }
+    //   }
+    //   return {
+    //     ...value,
+    //     run: newrun,
+    //   };
+    // }
 
     if (_.isPlainObject(value)) {
       if (_.intersection(args.allNames ?? [], Object.keys(value))?.length > 0) {
@@ -80,6 +92,10 @@ function processJsonStep(json, args) {
 
     if (value?._include) {
       return includes[value?._include];
+    }
+
+    if (value?._replace) {
+      return args?.replace[value?._replace];
     }
   });
 }

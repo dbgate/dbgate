@@ -1,16 +1,16 @@
 _templates:
   _community:
     file: build-docker.yaml
-    run:
-      - from: _cd_merged
-        to: []
+    replace:
+      _cd_merged:
+        - cd ..
+        - cd dbgate-merged 
   _premium:
     file: build-docker-pro.yaml
-    run:
-      - from: _cd_merged
-        to:
-          - cd ..
-          - cd dbgate-merged 
+    replace:
+      _cd_merged:
+        - cd ..
+        - cd dbgate-merged 
 
 name: 
   _community: Docker image Community
