@@ -5,7 +5,7 @@ const rimraf = require('rimraf');
 const _ = require('lodash');
 
 const indir = path.resolve(path.join(__dirname, '..', 'workflow-templates'));
-const outdir = path.resolve(path.join(__dirname, '..', 'workflow-templates'));
+const outdir = path.resolve(path.join(__dirname, '..', '.github', 'workflows'));
 
 const includes = {};
 
