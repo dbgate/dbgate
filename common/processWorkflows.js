@@ -67,28 +67,6 @@ function processJsonStep(json, args) {
       return undefined;
     }
 
-    // if (value?.run && _.isArray(value.run)) {
-    //   const newrun = [];
-    //   for (const item of value.run) {
-    //     let replaced = false;
-    //     for (const repl of args.run) {
-    //       if (item == repl.from) {
-    //         replaced = true;
-    //         modified = true;
-    //         newrun.push(...repl.to);
-    //         break;
-    //       }
-    //     }
-    //     if (!replaced) {
-    //       newrun.push(item);
-    //     }
-    //   }
-    //   return {
-    //     ...value,
-    //     run: newrun,
-    //   };
-    // }
-
     if (_.isPlainObject(value)) {
       if (_.intersection(args.allNames ?? [], Object.keys(value))?.length > 0) {
         modified = true;
