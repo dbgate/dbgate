@@ -1,20 +1,20 @@
 _templates:
   _community:
     file: build-docker.yaml
-    replace:
-      _cd_merged:
-        - cd ..
-        - cd dbgate-merged 
+    string-replace:
+      "<<cd_merged>>": ''
+      "<<name>>": community
   _premium:
     file: build-docker-pro.yaml
-    replace:
-      _cd_merged:
-        - cd ..
-        - cd dbgate-merged 
+    string-replace:
+      "<<cd_merged>>": |
+        cd ..
+        cd dbgate-merged
+      "<<name>>": premium
 
 name: 
   _community: Docker image Community
-  _premium: Docker image Premium
+  _premium: Docker image PREMIUM
 
 on:
   push:
@@ -75,33 +75,35 @@ jobs:
         with:
           node-version: 18.x
 
-      - _include: checkout-dbgate-pro 
-        _if: _premium
-
-      - _include: merge-dbgate-pro 
+      - _include: checkout-and-merge-pro
         _if: _premium
 
       - name: adjustPackageJson
         run: |
-          node adjustPackageJson --community
+          <<cd_merged>>
+          node adjustPackageJson --<<name>>
 
       - name: yarn install
         run: |
+          <<cd_merged>>
           # yarn --version
           # yarn config set network-timeout 300000
           yarn install
 
       - name: setCurrentVersion
         run: |
+          <<cd_merged>>
           yarn setCurrentVersion
           
       - name: printSecrets
         run: |
-            yarn printSecrets
+          <<cd_merged>>
+          yarn printSecrets
         env:
           GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
       - name: Prepare docker image
         run: |
+          <<cd_merged>>
           yarn run prepare:docker
 
       - name: Set up Docker Buildx
@@ -116,12 +118,17 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          context: ./docker
+          context: 
+            _community: ./docker
+            _premium: ../dbgate-merged/docker
           tags: ${{ steps.meta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: 
+            _community: linux/amd64,linux/arm64,linux/arm/v7
+            _premium: linux/amd64,linux/arm64
 
       - name: Build and push alpine
         uses: docker/build-push-action@v3
+        _if: _community
         with:
           push: true
           context: ./docker

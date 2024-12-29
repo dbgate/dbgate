@@ -36,9 +36,11 @@ function processJsonStep(json, args) {
   return _.cloneDeepWith(json, value => {
     if (_.isArray(value)) {
       const res = [];
+      let arrayModified = false;
       for (const item of value) {
         if (item._if) {
           modified = true;
+          arrayModified = true;
           if (conditionMatch(item._if, args)) {
             res.push(_.omit(item, ['_if']));
           }
@@ -46,6 +48,7 @@ function processJsonStep(json, args) {
           const replaceWith = item._replace ? args.replace?.[item._replace] : includes[item._include];
           if (replaceWith) {
             modified = true;
+            arrayModified = true;
             if (_.isArray(replaceWith)) {
               res.push(...replaceWith);
             } else {
@@ -58,7 +61,10 @@ function processJsonStep(json, args) {
           res.push(item);
         }
       }
-      return res;
+      if (arrayModified) {
+        return res;
+      }
+      return undefined;
     }
 
     // if (value?.run && _.isArray(value.run)) {
@@ -90,11 +96,28 @@ function processJsonStep(json, args) {
       }
     }
 
+    if (_.isString(value)) {
+      let stringModified = false;
+      for (const key of Object.keys(args.stringReplace ?? {})) {
+        if (value.includes(key)) {
+          modified = true;
+          stringModified = true;
+          value = value.replaceAll(key, args.stringReplace[key]);
+        }
+      }
+      if (stringModified) {
+        return value;
+      }
+      return undefined;
+    }
+
     if (value?._include) {
+      modified = true;
       return includes[value?._include];
     }
 
     if (value?._replace) {
+      modified = true;
       return args?.replace[value?._replace];
     }
   });
@@ -113,6 +136,9 @@ function processJson(json, args = {}) {
 }
 
 function processFiles() {
+  const dumpOptions = {
+    lineWidth: -1,
+  };
   for (const file of fs.readdirSync(indir)) {
     const text = fs.readFileSync(path.join(indir, file), { encoding: 'utf-8' });
     const json = yaml.load(text);
@@ -126,15 +152,16 @@ function processFiles() {
         const allNames = Object.keys(json._templates);
         const args = {
           key,
-          run: json._templates[key],
+          replace: json._templates[key]?.replace,
+          stringReplace: json._templates[key]?.['string-replace'],
           allNames,
         };
         const converted = processJson(_.omit(json, ['_templates']), args);
         const out = path.join(outdir, json._templates[key].file);
-        fs.writeFileSync(out, yaml.dump(converted));
+        fs.writeFileSync(out, yaml.dump(converted, dumpOptions));
       }
     } else {
-      fs.writeFileSync(path.join(outdir, file), yaml.dump(processJson(json)));
+      fs.writeFileSync(path.join(outdir, file), yaml.dump(processJson(json), dumpOptions));
     }
   }
 }
