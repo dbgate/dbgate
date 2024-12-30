@@ -8,6 +8,11 @@ const outdir = path.resolve(path.join(__dirname, '..', '.github', 'workflows'));
 
 const includes = {};
 
+const HEADER = `# --------------------------------------------------------------------------------------------
+# This file is generated. Do not edit manually
+# --------------------------------------------------------------------------------------------
+`;
+
 function readIncludes() {
   for (const file of fs.readdirSync(indir)) {
     const text = fs.readFileSync(path.join(indir, file), { encoding: 'utf-8' });
@@ -145,10 +150,10 @@ function processFiles() {
         };
         const converted = processJson(_.omit(json, ['_templates']), args);
         const out = path.join(outdir, json._templates[key].file);
-        fs.writeFileSync(out, yaml.dump(converted, dumpOptions));
+        fs.writeFileSync(out, HEADER + yaml.dump(converted, dumpOptions));
       }
     } else {
-      fs.writeFileSync(path.join(outdir, file), yaml.dump(processJson(json), dumpOptions));
+      fs.writeFileSync(path.join(outdir, file), HEADER + yaml.dump(processJson(json), dumpOptions));
     }
   }
 }
