@@ -16,3 +16,10 @@ services:
       - 16004:3306
     environment:
       - MYSQL_ROOT_PASSWORD=Pwd2020Db
+
+  mysql-ssh:
+    build: mysql-ssh
+    restart: always
+    ports: 
+      - 16005:3306
+      - 16006:22
