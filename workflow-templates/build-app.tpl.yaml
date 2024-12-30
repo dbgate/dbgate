@@ -1,0 +1,220 @@
+_templates:
+  _community_beta:
+    file: build-app-beta.yaml
+    defs:
+      - _community
+      - _beta
+      - _channel
+    string-replace:
+      "<<cd_merged>>": ''
+      "<<adjust>>": '--community'
+      "<<artifact-root>>": 'app/dist'
+      "<<channel>>": beta
+      "<<suffix>>": 'beta'
+  _community_stable:
+    file: build-app.yaml
+    defs:
+      - _community
+      - _stable
+    string-replace:
+      "<<cd_merged>>": ''
+      "<<adjust>>": '--community'
+      "<<artifact-root>>": 'app/dist'
+      "<<suffix>>": 'latest'
+
+
+  _premium_beta:
+    file: build-app-pro-beta.yaml
+    defs:
+      - _premium
+      - _beta
+      - _channel
+    string-replace:
+      "<<cd_merged>>": |
+        cd ..
+        cd dbgate-merged
+      "<<adjust>>": '--premium'
+      "<<artifact-root>>": '../dbgate-merged/app/dist'
+      "<<channel>>": 'premium-beta'
+      "<<suffix>>": 'premium-beta'
+  _premium_stable:
+    file: build-app-pro.yaml
+    defs:
+      - _premium
+      - _stable
+      - _channel
+    string-replace:
+      "<<cd_merged>>": |
+        cd ..
+        cd dbgate-merged
+      "<<adjust>>": '--premium'
+      "<<artifact-root>>": '../dbgate-merged/app/dist'
+      "<<channel>>": 'premium'
+      "<<suffix>>": 'premium-latest'
+
+name: 
+  _community_beta: Electron app BETA
+  _community_stable: Electron app
+  _premium_beta: Electron app PREMIUM BETA
+  _premium_stable: Electron app PREMIUM
+
+on:
+  push:
+    tags:
+      - _community_beta: 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+        _premium_beta: 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
+        _stable: 'v[0-9]+.[0-9]+.[0-9]+'
+      # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+    # branches:
+    #   - production
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # os: [ubuntu-22.04, windows-2016]
+        os: [macos-14, windows-2022, ubuntu-22.04]
+
+    steps:
+      - name: Install python 3.11 (MacOS)
+        if: matrix.os == 'macos-14'
+        run: |
+          brew install python@3.11
+          echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22.x
+
+      - _include: checkout-and-merge-pro
+        _if: _premium
+
+      - name: adjustPackageJson
+        run: |
+          <<cd_merged>>
+          node adjustPackageJson <<adjust>>
+      - name: setUpdaterChannel <<channel>>
+        _if: _channel
+        run: |
+          <<cd_merged>>
+          node setUpdaterChannel <<channel>>
+      - name: yarn set timeout
+        run: |
+          <<cd_merged>>
+          yarn config set network-timeout 100000
+      - name: yarn install
+        run: |
+          <<cd_merged>>
+          yarn install
+      - name: setCurrentVersion
+        run: |
+          <<cd_merged>>
+          yarn setCurrentVersion
+      - name: printSecrets
+        run: |
+          <<cd_merged>>
+          yarn printSecrets
+        env:
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+      - name: fillPackagedPlugins
+        run: |
+          <<cd_merged>>
+          yarn fillPackagedPlugins
+      - name: Install Snapcraft
+        _if: _community
+        if: matrix.os == 'ubuntu-22.04'
+        uses: samuelmeuli/action-snapcraft@v1
+      - name: Publish
+        run: |
+          <<cd_merged>>
+          yarn run build:app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+
+          WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
+          # WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
+          # WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
+
+          CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
+
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+          SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
+
+      - name: generatePadFile
+        _if: _community_stable
+        run: |
+          yarn generatePadFile
+
+      - name: Copy artifacts
+        run: |
+          mkdir artifacts          
+
+          cp <<artifact-root>>/*.deb artifacts/dbgate-<<suffix>>.deb || true
+          cp <<artifact-root>>/*x86*.AppImage artifacts/dbgate-<<suffix>>.AppImage || true
+          cp <<artifact-root>>/*arm64*.AppImage artifacts/dbgate-<<suffix>>-arm64.AppImage || true
+          cp <<artifact-root>>/*armv7l*.AppImage artifacts/dbgate-<<suffix>>-armv7l.AppImage || true
+          cp <<artifact-root>>/*win*.exe artifacts/dbgate-<<suffix>>.exe || true
+          cp <<artifact-root>>/*win_x64.zip artifacts/dbgate-windows-<<suffix>>.zip || true
+          cp <<artifact-root>>/*win_arm64.zip artifacts/dbgate-windows-<<suffix>>-arm64.zip || true
+          cp <<artifact-root>>/*-mac_universal.dmg artifacts/dbgate-<<suffix>>.dmg || true
+          cp <<artifact-root>>/*-mac_x64.dmg artifacts/dbgate-<<suffix>>-x64.dmg || true
+          cp <<artifact-root>>/*-mac_arm64.dmg artifacts/dbgate-<<suffix>>-arm64.dmg || true
+          mv <<artifact-root>>/*.snap artifacts/dbgate-<<suffix>>.snap || true
+
+          mv <<artifact-root>>/*.exe artifacts/ || true
+          mv <<artifact-root>>/*.zip artifacts/ || true
+          mv <<artifact-root>>/*.tar.gz artifacts/ || true
+          mv <<artifact-root>>/*.AppImage artifacts/ || true
+          mv <<artifact-root>>/*.deb artifacts/ || true
+          mv <<artifact-root>>/*.snap artifacts/ || true
+          mv <<artifact-root>>/*.dmg artifacts/ || true
+          mv <<artifact-root>>/*.blockmap artifacts/ || true
+
+          mv <<artifact-root>>/*.yml artifacts/ || true
+          rm artifacts/builder-debug.yml
+
+      - name: Copy PAD file
+        _if: _community_stable
+        if: matrix.os == 'windows-2022'
+        run: |
+          mv app/dist/dbgate-pad.xml artifacts/ || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: artifacts
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: 'artifacts/**'
+          prerelease: 
+            _beta: true
+            _stable: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print content of notarization-error.log
+        if: failure() && matrix.os == 'macos-14'
+        run: |
+          <<cd_merged>>
+          find . -type f -name "notarization-error.log" -exec echo "=== Start of {} ===" \; -exec cat {} \; -exec echo "=== End of {} ===" \;

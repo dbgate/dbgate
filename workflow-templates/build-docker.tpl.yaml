@@ -1,32 +1,52 @@
-# --------------------------------------------------------------------------------------------
-# This file is generated. Do not edit manually
-# --------------------------------------------------------------------------------------------
-name: Docker image Community
-'on':
+_templates:
+  _community:
+    file: build-docker.yaml
+    string-replace:
+      "<<cd_merged>>": ''
+      "<<adjust>>": '--community'
+  _premium:
+    file: build-docker-pro.yaml
+    string-replace:
+      "<<cd_merged>>": |
+        cd ..
+        cd dbgate-merged
+      "<<adjust>>": '--premium'
+
+name: 
+  _community: Docker image Community
+  _premium: Docker image PREMIUM
+
+on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      - _community: 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+        _premium: 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
+
 jobs:
   build:
-    runs-on: '${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os:
-          - ubuntu-22.04
+        os: [ubuntu-22.04]
+
     steps:
       - name: Context
         env:
-          GITHUB_CONTEXT: '${{ toJson(github) }}'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: dbgate/dbgate
+          images:
+            _community: dbgate/dbgate
+            _premium: dbgate/dbgate-premium
           flavor: |
             latest=false
           tags: |
@@ -34,7 +54,9 @@ jobs:
 
             type=match,pattern=\d+.\d+.\d+,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
             type=raw,value=latest,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+
       - name: Docker alpine meta
+        _if: _community
         id: alpmeta
         uses: docker/metadata-action@v4
         with:
@@ -47,53 +69,69 @@ jobs:
 
             type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
             type=raw,value=alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+
       - name: Use Node.js 18.x
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+
+      - _include: checkout-and-merge-pro
+        _if: _premium
+
       - name: adjustPackageJson
         run: |
+          <<cd_merged>>
+          node adjustPackageJson <<adjust>>
 
-          node adjustPackageJson --community
       - name: yarn install
         run: |
-
+          <<cd_merged>>
           # yarn --version
           # yarn config set network-timeout 300000
           yarn install
+
       - name: setCurrentVersion
         run: |
-
+          <<cd_merged>>
           yarn setCurrentVersion
+          
       - name: printSecrets
         run: |
-
+          <<cd_merged>>
           yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
       - name: Prepare docker image
         run: |
-
+          <<cd_merged>>
           yarn run prepare:docker
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: '${{ secrets.DOCKER_USERNAME }}'
-          password: '${{ secrets.DOCKER_PASSWORD }}'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
-          context: ./docker
-          tags: '${{ steps.meta.outputs.tags }}'
-          platforms: 'linux/amd64,linux/arm64,linux/arm/v7'
+          context: 
+            _community: ./docker
+            _premium: ../dbgate-merged/docker
+          tags: ${{ steps.meta.outputs.tags }}
+          platforms: 
+            _community: linux/amd64,linux/arm64,linux/arm/v7
+            _premium: linux/amd64,linux/arm64
+
       - name: Build and push alpine
         uses: docker/build-push-action@v3
+        _if: _community
         with:
           push: true
           context: ./docker
           file: ./docker/Dockerfile-alpine
-          tags: '${{ steps.alpmeta.outputs.tags }}'
-          platforms: 'linux/amd64,linux/arm64,linux/arm/v7'
+          tags: ${{ steps.alpmeta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7

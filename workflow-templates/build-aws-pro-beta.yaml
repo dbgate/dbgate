@@ -1,41 +1,47 @@
-# --------------------------------------------------------------------------------------------
-# This file is generated. Do not edit manually
-# --------------------------------------------------------------------------------------------
 name: AWS image PREMIUM
-'on':
+
+on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+      # - 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-packer-beta.[0-9]+'
+
 jobs:
   build:
-    runs-on: '${{ matrix.os }}'
+
+    runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os:
-          - ubuntu-22.04
+        os: [ubuntu-22.04]
+
     steps:
       - name: Context
         env:
-          GITHUB_CONTEXT: '${{ toJson(github) }}'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+
       - name: Use Node.js 18.x
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
         with:
           version: latest
+
       - name: Checkout dbgate/dbgate-pro
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: '${{ secrets.GH_TOKEN }}'
+          token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
+
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -47,28 +53,33 @@ jobs:
           yarn
           node sync.js --nowatch
           cd ..
+
       - name: adjustPackageJson
         run: |
           cd ..
           cd dbgate-merged
           node adjustPackageJson --premium
+
       - name: yarn install
         run: |
           cd ..
           cd dbgate-merged
           yarn install
+
       - name: setCurrentVersion
         run: |
           cd ..
           cd dbgate-merged
           yarn setCurrentVersion
+          
       - name: printSecrets
         run: |
           cd ..
           cd dbgate-merged
             yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+
       - name: Prepare packer build
         run: |
           cd ..
@@ -76,48 +87,62 @@ jobs:
           yarn run prepare:packer
           cd packer
           zip -r cloud-build.zip build
+
       - name: Copy artifacts
         run: |
           mkdir artifacts          
           cp ../dbgate-merged/packer/cloud-build.zip artifacts/cloud-build.zip || true
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ matrix.os }}'
+          name: ${{ matrix.os }}
           path: artifacts
+
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: 'startsWith(github.ref, ''refs/tags/'')'
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: artifacts/**
+          files: 'artifacts/**'
           prerelease: true
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run `packer init`
         run: |
           cd ../dbgate-merged/packer
           packer init ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+
       - name: Run `packer build`
         run: |
           cd ../dbgate-merged/packer
           packer build ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+
+      # - name: Install AWS CLI
+      #   run: |
+      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #     unzip awscliv2.zip
+      #     sudo ./aws/install
+      #     sudo apt-get install jq -y
+
       - name: Install jq
         run: |
           sudo apt-get install jq -y
+
       - name: Delete old AMIs
         run: |
           cd ../dbgate-merged/packer
           chmod +x delete-old-amis.sh
           ./delete-old-amis.sh
         env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "6.1.2",
+  "version": "6.1.3-beta.1",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -62,7 +62,8 @@
     "ts:web": "yarn workspace dbgate-web ts",
     "ts": "yarn ts:api && yarn ts:web",
     "postinstall": "yarn resetPackagedPlugins && yarn build:lib && patch-package && yarn build:plugins:frontend",
-    "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js"
+    "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js",
+    "workflows": "node common/processWorkflows.js"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
