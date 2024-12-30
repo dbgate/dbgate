@@ -1,24 +1,18 @@
 name: Electron app PREMIUM
-
-on:
+'on':
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-      # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-
-    # branches:
-    #   - production
-
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
+    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-22.04, windows-2016]
-        os: [macos-14, windows-2022, ubuntu-22.04]
-
+        os:
+          - macos-14
+          - windows-2022
+          - ubuntu-22.04
     steps:
       - name: Install python 3.11 (MacOS)
         if: matrix.os == 'macos-14'
@@ -27,7 +21,7 @@ jobs:
           echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
       - name: Context
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_CONTEXT: '${{ toJson(github) }}'
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
@@ -36,14 +30,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-
       - name: Checkout dbgate/dbgate-pro
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: ${{ secrets.GH_TOKEN }}
+          token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
-
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -55,99 +47,111 @@ jobs:
           yarn
           node sync.js --nowatch
           cd ..
-
       - name: adjustPackageJson
         run: |
           cd ..
           cd dbgate-merged
+
           node adjustPackageJson --premium
       - name: setUpdaterChannel premium
         run: |
           cd ..
           cd dbgate-merged
+
           node setUpdaterChannel premium
       - name: yarn set timeout
         run: |
           cd ..
           cd dbgate-merged
+
           yarn config set network-timeout 100000
       - name: yarn install
         run: |
           cd ..
           cd dbgate-merged
+
           yarn install
       - name: setCurrentVersion
         run: |
           cd ..
           cd dbgate-merged
+
           yarn setCurrentVersion
       - name: printSecrets
         run: |
           cd ..
           cd dbgate-merged
+
           yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
+          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
       - name: fillPackagedPlugins
         run: |
           cd ..
           cd dbgate-merged
+
           yarn fillPackagedPlugins
       - name: Publish
         run: |
           cd ..
           cd dbgate-merged
+
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
-
-          WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
-          # WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
-          # WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
-
-          CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
-          CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
-
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
-          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
-
+          GH_TOKEN: '${{ secrets.GH_TOKEN }}'
+          WIN_CSC_LINK: '${{ secrets.WINCERT_2025 }}'
+          WIN_CSC_KEY_PASSWORD: '${{ secrets.WINCERT_2025_PASSWORD }}'
+          CSC_LINK: '${{ secrets.APPLECERT_CERTIFICATE }}'
+          CSC_KEY_PASSWORD: '${{ secrets.APPLECERT_PASSWORD }}'
+          APPLE_ID: '${{ secrets.APPLE_ID }}'
+          APPLE_TEAM_ID: '${{ secrets.APPLE_TEAM_ID }}'
+          APPLE_ID_PASSWORD: '${{ secrets.APPLE_ID_PASSWORD }}'
+          SNAPCRAFT_STORE_CREDENTIALS: '${{secrets.SNAPCRAFT_LOGIN}}'
+          APPLE_APP_SPECIFIC_PASSWORD: '${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}'
       - name: Copy artifacts
         run: |
           mkdir artifacts          
 
+          cp ../dbgate-merged/app/dist/*.deb artifacts/dbgate-premium-latest.deb || true
           cp ../dbgate-merged/app/dist/*x86*.AppImage artifacts/dbgate-premium-latest.AppImage || true
-          cp ../dbgate-merged/app/dist/*.exe artifacts/dbgate-premium-latest.exe || true
-          cp ../dbgate-merged/app/dist/*win_x64.zip artifacts/dbgate-premium-windows-latest.zip || true
-          cp ../dbgate-merged/app/dist/*win_arm64.zip artifacts/dbgate-premium-windows-latest-arm64.zip || true
+          cp ../dbgate-merged/app/dist/*arm64*.AppImage artifacts/dbgate-premium-latest-arm64.AppImage || true
+          cp ../dbgate-merged/app/dist/*armv7l*.AppImage artifacts/dbgate-premium-latest-armv7l.AppImage || true
+          cp ../dbgate-merged/app/dist/*win*.exe artifacts/dbgate-premium-latest.exe || true
+          cp ../dbgate-merged/app/dist/*win_x64.zip artifacts/dbgate-windows-premium-latest.zip || true
+          cp ../dbgate-merged/app/dist/*win_arm64.zip artifacts/dbgate-windows-premium-latest-arm64.zip || true
           cp ../dbgate-merged/app/dist/*-mac_universal.dmg artifacts/dbgate-premium-latest.dmg || true
           cp ../dbgate-merged/app/dist/*-mac_x64.dmg artifacts/dbgate-premium-latest-x64.dmg || true
           cp ../dbgate-merged/app/dist/*-mac_arm64.dmg artifacts/dbgate-premium-latest-arm64.dmg || true
+          mv ../dbgate-merged/app/dist/*.snap artifacts/dbgate-premium-latest.snap || true
 
           mv ../dbgate-merged/app/dist/*.exe artifacts/ || true
           mv ../dbgate-merged/app/dist/*.zip artifacts/ || true
           mv ../dbgate-merged/app/dist/*.tar.gz artifacts/ || true
           mv ../dbgate-merged/app/dist/*.AppImage artifacts/ || true
           mv ../dbgate-merged/app/dist/*.deb artifacts/ || true
+          mv ../dbgate-merged/app/dist/*.snap artifacts/ || true
           mv ../dbgate-merged/app/dist/*.dmg artifacts/ || true
           mv ../dbgate-merged/app/dist/*.blockmap artifacts/ || true
 
           mv ../dbgate-merged/app/dist/*.yml artifacts/ || true
           rm artifacts/builder-debug.yml
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}
+          name: '${{ matrix.os }}'
           path: artifacts
-
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: 'startsWith(github.ref, ''refs/tags/'')'
         with:
-          files: 'artifacts/**'
+          files: artifacts/**
+          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Print content of notarization-error.log
+        if: failure() && matrix.os == 'macos-14'
+        run: |
+          cd ..
+          cd dbgate-merged
+
+          find . -type f -name "notarization-error.log" -exec echo "=== Start of {} ===" \; -exec cat {} \; -exec echo "=== End of {} ===" \;

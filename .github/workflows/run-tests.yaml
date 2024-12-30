@@ -1,16 +1,14 @@
 name: Run tests
-on:
+'on':
   push:
     branches:
       - master
       - develop
-      - 'feature/**'
-
+      - feature/**
 jobs:
   test-runner:
     runs-on: ubuntu-latest
-    container: node:18
-
+    container: 'node:18'
     steps:
       - name: Install dependencies for cypress
         run: |
@@ -37,7 +35,6 @@ jobs:
         run: |
           cd integration-tests
           yarn test:ci
-#          yarn wait:ci
       - name: Filter parser tests
         if: always()
         run: |
@@ -51,54 +48,42 @@ jobs:
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: integration-tests/result.json
           action-name: Integration tests
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: packages/filterparser/result.json
           action-name: Filter parser test results
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: packages/datalib/result.json
           action-name: Datalib (perspectives) test results
-
     services:
       postgres:
         image: postgres
         env:
           POSTGRES_PASSWORD: Pwd2020Db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+        options: '--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5'
       mysql:
-        image: mysql:8.0.18
+        image: 'mysql:8.0.18'
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
-
       mssql:
         image: mcr.microsoft.com/mssql/server
         env:
-          ACCEPT_EULA: Y
+          ACCEPT_EULA: 'Y'
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
-
       clickhouse:
-        image: bitnami/clickhouse:24.8.4
+        image: 'bitnami/clickhouse:24.8.4'
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
-
       oracle:
-        image: gvenzl/oracle-xe:21-slim
+        image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
-
-      # cockroachdb:
-      #   image: cockroachdb/cockroach
