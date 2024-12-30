@@ -3,14 +3,14 @@ _templates:
     file: build-docker.yaml
     string-replace:
       "<<cd_merged>>": ''
-      "<<name>>": community
+      "<<adjust>>": '--community'
   _premium:
     file: build-docker-pro.yaml
     string-replace:
       "<<cd_merged>>": |
         cd ..
         cd dbgate-merged
-      "<<name>>": premium
+      "<<adjust>>": '--premium'
 
 name: 
   _community: Docker image Community
@@ -81,7 +81,7 @@ jobs:
       - name: adjustPackageJson
         run: |
           <<cd_merged>>
-          node adjustPackageJson --<<name>>
+          node adjustPackageJson <<adjust>>
 
       - name: yarn install
         run: |

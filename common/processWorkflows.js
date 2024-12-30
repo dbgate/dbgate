@@ -27,7 +27,7 @@ let modified = false;
 
 function conditionMatch(condition, args) {
   if (_.isString(condition)) {
-    return args.key == condition;
+    return args.defs.includes(condition);
   }
   return false;
 }
@@ -68,9 +68,14 @@ function processJsonStep(json, args) {
     }
 
     if (_.isPlainObject(value)) {
-      if (_.intersection(args.allNames ?? [], Object.keys(value))?.length > 0) {
+      if (_.intersection(args.allDefs ?? [], Object.keys(value))?.length > 0) {
         modified = true;
-        return value[args.key];
+        for (const key in value) {
+          if (args.defs.includes(key)) {
+            return value[key];
+          }
+        }
+        return undefined;
       }
     }
 
@@ -126,13 +131,17 @@ function processFiles() {
     }
 
     if (json._templates) {
+      const allDefs = Object.keys(json._templates);
       for (const key in json._templates) {
-        const allNames = Object.keys(json._templates);
+        allDefs.push(...(json._templates[key].defs ?? []));
+      }
+
+      for (const key in json._templates) {
         const args = {
-          key,
+          defs: [key, ...(json._templates[key]?.defs ?? [])],
           replace: json._templates[key]?.replace,
           stringReplace: json._templates[key]?.['string-replace'],
-          allNames,
+          allDefs,
         };
         const converted = processJson(_.omit(json, ['_templates']), args);
         const out = path.join(outdir, json._templates[key].file);
