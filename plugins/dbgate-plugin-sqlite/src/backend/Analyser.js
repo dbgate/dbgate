@@ -1,19 +1,6 @@
 const _ = require('lodash');
 const { DatabaseAnalyser } = global.DBGATE_PACKAGES['dbgate-tools'];
-
-const indexcolsQuery = `
-SELECT 
-    m.name as tableName,
-    il.name as constraintName,
-    il."unique" as isUnique,
-    ii.name as columnName,
-    il.origin
-  FROM sqlite_schema AS m,
-       pragma_index_list(m.name) AS il,
-       pragma_index_info(il.name) AS ii
- WHERE m.type='table' AND il.origin <> 'pk'
- ORDER BY ii.seqno, il.name
-  `;
+const sql = require('./sql');
 
 class Analyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
@@ -26,8 +13,8 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _getFastSnapshot() {
-    const objects = await this.driver.query(this.dbhan, "select * from sqlite_master where type='table' or type='view'");
-    const indexcols = await this.driver.query(this.dbhan, indexcolsQuery);
+    const objects = await this.driver.query(this.dbhan, sql.objects);
+    const indexcols = await this.driver.query(this.dbhan, sql.indexcols);
 
     return {
       tables: objects.rows
@@ -53,10 +40,7 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    const objects = await this.analyserQuery(
-      "select * from sqlite_master where (type='table' or type='view') and name =OBJECT_ID_CONDITION",
-      ['tables', 'views']
-    );
+    const objects = await this.analyserQuery(sql.objectsConditioned, ['tables', 'views']);
     const tables = objects.rows.filter((x) => x.type == 'table');
     const views = objects.rows.filter((x) => x.type == 'view');
     // console.log('TABLES', tables);
@@ -79,7 +63,7 @@ class Analyser extends DatabaseAnalyser {
       createSql: x.sql,
     }));
 
-    const indexcols = await this.driver.query(this.dbhan, indexcolsQuery);
+    const indexcols = await this.driver.query(this.dbhan, sql.indexcols);
 
     for (const tableName of this.getRequestedObjectPureNames(
       'tables',
