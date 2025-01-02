@@ -149,9 +149,12 @@ class Analyser extends DatabaseAnalyser {
       }));
     }
 
+    const triggers = await this.driver.query(this.dbhan, sql.triggers);
+
     return {
       tables: tableList,
       views: viewList,
+      triggers: triggers.rows,
     };
   }
 }
