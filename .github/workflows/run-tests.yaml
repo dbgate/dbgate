@@ -9,29 +9,28 @@ name: Run tests
       - develop
       - feature/**
 jobs:
-  build:
+  build-docker-ssh:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Detect changed files
-        uses: tj-actions/changed-files@v34
+        uses: tj-actions/changed-files@v45
         with:
-          files: |
-            e2e-tests/mysql-ssh/Dockerfile
+          files: e2e-tests/mysql-ssh/Dockerfile
       - name: Build mysql-ssh image
-        if: '${{ steps.filecheck.outputs.any_changed == ''true'' }}'
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           docker build -t dbgate/mysql-ssh:latest e2e-tests/mysql-ssh
       - name: Log in to GHCR
-        if: '${{ steps.filecheck.outputs.any_changed == ''true'' }}'
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: '${{ github.actor }}'
           password: '${{ secrets.GITHUB_TOKEN }}'
       - name: Push image to GHCR
-        if: '${{ steps.filecheck.outputs.any_changed == ''true'' }}'
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           docker tag dbgate/mysql-ssh:latest ghcr.io/dbgate/mysql-ssh:latest
           docker push ghcr.io/dbgate/mysql-ssh:latest
