@@ -42,6 +42,7 @@
     functions: 'img function',
     queries: 'img query-data',
     triggers: 'icon trigger',
+    schedulerEvents: 'icon scheduler-event',
   };
 
   const defaultTabs = {
@@ -87,6 +88,8 @@
     isDropCollection?: boolean;
     isRenameCollection?: boolean;
     isDuplicateCollection?: boolean;
+    isDisableEvent?: boolean;
+    isEnableEvent?: boolean;
     submenu?: DbObjMenuItem[];
   }
 
@@ -383,6 +386,21 @@
           },
           ...(driver?.getScriptTemplates?.('collections') || []),
         ];
+      case 'schedulerEvents':
+        return [
+          ...defaultDatabaseObjectAppObjectActions['schedulerEvents'],
+          {
+            divider: true,
+          },
+          {
+            label: 'Disable',
+            isDisableEvent: true,
+          },
+          {
+            label: 'Enable',
+            isEnableEvent: true,
+          },
+        ];
     }
   }
 
@@ -478,6 +496,36 @@
           db[data.objectTypeField] as any[],
           x => x.schemaName == data.schemaName && x.pureName == data.pureName
         );
+      });
+    } else if (menu.isDisableEvent) {
+      const { conid, database, disableSql } = data;
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.put(disableSql);
+
+      const sql = dmp.s;
+
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: async () => {
+          saveScriptToDatabase({ conid, database }, sql);
+        },
+        engine: driver.engine,
+      });
+    } else if (menu.isEnableEvent) {
+      const { conid, database, enableSql } = data;
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.put(enableSql);
+
+      const sql = dmp.s;
+
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: async () => {
+          saveScriptToDatabase({ conid, database }, sql);
+        },
+        engine: driver.engine,
       });
     } else if (menu.isTruncate) {
       const { conid, database } = data;
@@ -939,6 +987,15 @@
     if (data.objectTypeField === 'triggers') {
       res.push(`${data.tableName}, ${data.triggerTiming?.toLowerCase() ?? ''} ${data.eventType?.toLowerCase() ?? ''}`);
     }
+
+    if (data.objectTypeField == 'schedulerEvents') {
+      if (data.eventType == 'RECURRING') {
+        res.push(`${data.status}, ${data.eventType}, ${data.intervalValue} ${data.intervalField}`);
+      } else {
+        res.push(`${data.status}, ${data.eventType}, ${data.executeAt}`);
+      }
+    }
+
     if (data.objectComment) {
       res.push(data.objectComment);
     }
