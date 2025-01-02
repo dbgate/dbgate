@@ -90,3 +90,5 @@ jobs:
         image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
+      mysql-ssh:
+        build: ../../e2e-tests/mysql-ssh
