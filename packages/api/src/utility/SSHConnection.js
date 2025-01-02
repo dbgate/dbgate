@@ -228,9 +228,9 @@ class SSHConnection {
             options.toPort
           );
           connection.forwardOut(
-            'localhost',
+            '127.0.0.1',
             options.fromPort,
-            options.toHost || 'localhost',
+            options.toHost || '127.0.0.1',
             options.toPort,
             (error, stream) => {
               if (error) {
@@ -241,7 +241,7 @@ class SSHConnection {
             }
           );
         })
-        .listen(options.fromPort, 'localhost', () => {
+        .listen(options.fromPort, '127.0.0.1', () => {
           return resolve();
         });
     });
