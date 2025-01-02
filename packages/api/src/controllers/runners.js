@@ -149,7 +149,7 @@ module.exports = {
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', code => {
-      this.rejectRequest(runid, { message: 'No data retured, maybe input data source is too big' });
+      this.rejectRequest(runid, { message: 'No data returned, maybe input data source is too big' });
       logger.info({ code, pid: subprocess.pid }, 'Exited process');
       socket.emit(`runner-done-${runid}`, code);
     });
