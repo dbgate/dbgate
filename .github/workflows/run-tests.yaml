@@ -9,7 +9,26 @@ name: Run tests
       - develop
       - feature/**
 jobs:
-  test-runner:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Build mysql-ssh image
+        run: |
+          docker build -t dbgate/mysql-ssh:latest e2e-tests/mysql-ssh
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: '${{ github.actor }}'
+          password: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Push image to GHCR
+        run: |
+          docker tag dbgate/mysql-ssh:latest ghcr.io/dbgate/mysql-ssh:latest
+          docker push ghcr.io/dbgate/mysql-ssh:latest
+  test:
+    needs: build
     runs-on: ubuntu-latest
     container: 'node:18'
     steps:
@@ -17,7 +36,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y xvfb libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: yarn install
@@ -91,4 +110,4 @@ jobs:
         env:
           ORACLE_PASSWORD: Pwd2020Db
       mysql-ssh:
-        build: ../../e2e-tests/mysql-ssh
+        image: 'ghcr.io/dbgate/mysql-ssh:latest'
