@@ -14,11 +14,19 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
+      - name: Detect changed files
+        uses: tj-actions/changed-files@v34
+        with:
+          files: |
+            e2e-tests/mysql-ssh/Dockerfile
+
       - name: Build mysql-ssh image
+        if: ${{ steps.filecheck.outputs.any_changed == 'true' }}
         run: |
           docker build -t dbgate/mysql-ssh:latest e2e-tests/mysql-ssh
 
       - name: Log in to GHCR
+        if: ${{ steps.filecheck.outputs.any_changed == 'true' }}
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -26,6 +34,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image to GHCR
+        if: ${{ steps.filecheck.outputs.any_changed == 'true' }}
         run: |
           docker tag dbgate/mysql-ssh:latest ghcr.io/dbgate/mysql-ssh:latest
           docker push ghcr.io/dbgate/mysql-ssh:latest
@@ -136,4 +145,3 @@ jobs:
           
       mysql-ssh:
         image: ghcr.io/dbgate/mysql-ssh:latest
-

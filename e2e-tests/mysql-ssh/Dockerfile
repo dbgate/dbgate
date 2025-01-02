@@ -14,7 +14,7 @@ RUN service mysql start && \
     mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;" && \
     service mysql stop
 
-EXPOSE 22 3306
+EXPOSE 22
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
