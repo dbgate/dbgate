@@ -39,7 +39,7 @@ jobs:
           docker push ghcr.io/dbgate/mysql-ssh:latest
 
   test:
-    needs: build
+    needs: build-docker-ssh
     runs-on: ubuntu-latest
     container: node:18
 
