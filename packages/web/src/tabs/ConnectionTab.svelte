@@ -218,18 +218,22 @@
           label: 'General',
           component: ConnectionDriverFields,
           props: { getDatabaseList, currentConnection },
+          testid: 'ConnectionTab_tabGeneral',
         },
         driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
           component: ConnectionSshTunnelFields,
+          testid: 'ConnectionTab_tabSshTunnel',
         },
         driver?.showConnectionTab('ssl', $values) && {
           label: 'SSL',
           component: ConnectionSslFields,
+          testid: 'ConnectionTab_tabSsl',
         },
         {
           label: 'Advanced',
           component: ConnectionAdvancedDriverFields,
+          testid: 'ConnectionTab_tabAdvanced',
         },
       ]}
     />

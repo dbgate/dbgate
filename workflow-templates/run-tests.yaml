@@ -100,5 +100,9 @@ jobs:
         env:
           ORACLE_PASSWORD: Pwd2020Db
 
+      mysql-ssh:
+        build: ../../e2e-tests/mysql-ssh
+
+
       # cockroachdb:
       #   image: cockroachdb/cockroach
