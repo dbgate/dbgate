@@ -10,7 +10,16 @@ import { extractErrorLogData } from './stringTools';
 
 const logger = getLogger('dbAnalyser');
 
-const STRUCTURE_FIELDS = ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers'];
+const STRUCTURE_FIELDS = [
+  'tables',
+  'collections',
+  'views',
+  'matviews',
+  'functions',
+  'procedures',
+  'triggers',
+  'schedulerEvents',
+];
 
 const fp_pick = arg => array => _pick(array, arg);
 
@@ -70,7 +79,9 @@ export class DatabaseAnalyser {
   }
 
   async fullAnalysis() {
-    logger.debug(`Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`);
+    logger.debug(
+      `Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
+    );
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
     return res;
@@ -255,6 +266,7 @@ export class DatabaseAnalyser {
       ...this.getDeletedObjectsForField(snapshot, 'procedures'),
       ...this.getDeletedObjectsForField(snapshot, 'functions'),
       ...this.getDeletedObjectsForField(snapshot, 'triggers'),
+      ...this.getDeletedObjectsForField(snapshot, 'schedulerEvents'),
     ];
   }
 
@@ -355,6 +367,7 @@ export class DatabaseAnalyser {
       functions: [],
       procedures: [],
       triggers: [],
+      schedulerEvents: [],
     };
   }
 

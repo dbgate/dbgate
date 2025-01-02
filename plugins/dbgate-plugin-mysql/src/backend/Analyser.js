@@ -164,6 +164,9 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading triggers' });
     const triggers = await this.analyserQuery('triggers');
 
+    this.feedback({ analysingMessage: 'Loading scehduler events' });
+    const schedulerEvents = await this.analyserQuery('schedulerEvents');
+
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
@@ -249,6 +252,23 @@ class Analyser extends DatabaseAnalyser {
         tableName: row.tableName,
         createSql: `CREATE TRIGGER ${row.triggerName} ${row.triggerTiming} ${row.eventType} ON ${row.tableName} FOR EACH ROW ${row.definition}`,
       })),
+      schedulerEvents: schedulerEvents.rows.map(row => ({
+        contentHash: _.isDate(row.LAST_ALTERED) ? row.LAST_ALTERED.toISOString() : row.LAST_ALTERED,
+        pureName: row.EVENT_NAME,
+        createSql: row.CREATE_SQL,
+        enableSql: row.ENABLE_SQL,
+        disableSql: row.DISABLE_SQL,
+        objectId: row.EVENT_NAME,
+        intervalValue: row.INTERVAL_VALUE,
+        intervalField: row.INTERVAL_FIELD,
+        starts: row.STARTS,
+        status: row.STATUS,
+        executeAt: row.EXECUTE_AT,
+        lastExecuted: row.LAST_EXECUTED,
+        eventType: row.EVENT_TYPE,
+        definer: row.DEFINER,
+        objectTypeField: 'schedulerEvents',
+      })),
     };
     this.feedback({ analysingMessage: null });
     return res;
@@ -258,6 +278,7 @@ class Analyser extends DatabaseAnalyser {
     const tableModificationsQueryData = await this.analyserQuery('tableModifications');
     const procedureModificationsQueryData = await this.analyserQuery('procedureModifications');
     const functionModificationsQueryData = await this.analyserQuery('functionModifications');
+    const schedulerEvents = await this.analyserQuery('schedulerEvents');
 
     return {
       tables: tableModificationsQueryData.rows
@@ -284,6 +305,23 @@ class Analyser extends DatabaseAnalyser {
         contentHash: x.Modified,
         objectId: x.Name,
         pureName: x.Name,
+      })),
+      schedulerEvents: schedulerEvents.rows.map(row => ({
+        contentHash: _.isDate(row.LAST_ALTERED) ? row.LAST_ALTERED.toISOString() : row.LAST_ALTERED,
+        pureName: row.EVENT_NAME,
+        createSql: row.CREATE_SQL,
+        enableSql: row.ENABLE_SQL,
+        disableSql: row.DISABLE_SQL,
+        objectId: row.EVENT_NAME,
+        intervalValue: row.INTERVAL_VALUE,
+        intervalField: row.INTERVAL_FIELD,
+        starts: row.STARTS,
+        status: row.STATUS,
+        executeAt: row.EXECUTE_AT,
+        lastExecuted: row.LAST_EXECUTED,
+        eventType: row.EVENT_TYPE,
+        definer: row.DEFINER,
+        objectTypeField: 'schedulerEvents',
       })),
     };
   }

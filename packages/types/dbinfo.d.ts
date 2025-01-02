@@ -157,6 +157,20 @@ export interface TriggerInfo extends SqlObjectInfo {
   eventType?: 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE';
 }
 
+export interface SchedulerEventInfo extends SqlObjectInfo {
+  definer: string;
+  eventType: 'RECURRING' | 'ONE TIME';
+  onCompletion: 'PRESERVE' | 'NOT PRESERVE';
+  status: 'ENABLED' | 'DISABLED';
+  lastExecuted?: string;
+  intervalValue: number;
+  intervalField: string;
+  starts: string;
+  executeAt: string;
+  enableSql: string;
+  disableSql: string;
+}
+
 export interface SchemaInfo {
   objectId?: string;
   schemaName: string;
@@ -171,6 +185,7 @@ export interface DatabaseInfoObjects {
   procedures: ProcedureInfo[];
   functions: FunctionInfo[];
   triggers: TriggerInfo[];
+  schedulerEvents: SchedulerEventInfo[];
 }
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
