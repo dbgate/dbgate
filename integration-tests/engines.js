@@ -29,6 +29,13 @@ const mysqlEngine = {
   objects: [
     views,
     {
+      type: 'schedulerEvents',
+      create1: 'CREATE EVENT obj1 ON SCHEDULE EVERY 1 HOUR DO BEGIN END',
+      create2: 'CREATE EVENT obj2 ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY DO BEGIN END',
+      drop1: 'DROP EVENT obj1',
+      drop2: 'DROP EVENT obj2',
+    },
+    {
       type: 'procedures',
       create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
       create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
@@ -127,6 +134,34 @@ const mysqlEngine = {
         pureName: 'obj1',
         eventType: 'INSERT',
         triggerTiming: 'BEFORE',
+      },
+    },
+  ],
+  schedulerEvents: [
+    {
+      create: 'CREATE EVENT obj1 ON SCHEDULE EVERY 1 HOUR DO BEGIN END',
+      drop: 'DROP EVENT obj1',
+      objectTypeField: 'schedulerEvents',
+      expected: {
+        pureName: 'obj1',
+        status: 'ENABLED',
+        eventType: 'RECURRING',
+        enableSql: 'ALTER EVENT obj1 ENABLE;',
+        disableSql: 'ALTER EVENT obj1 DISABLE;',
+        intervalValue: '1',
+        intervalField: 'HOUR',
+      },
+    },
+    {
+      create: 'CREATE EVENT obj1 ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY DO BEGIN END',
+      drop: 'DROP EVENT obj1',
+      objectTypeField: 'schedulerEvents',
+      expected: {
+        pureName: 'obj1',
+        status: 'ENABLED',
+        eventType: 'ONE TIME',
+        enableSql: 'ALTER EVENT obj1 ENABLE;',
+        disableSql: 'ALTER EVENT obj1 DISABLE;',
       },
     },
   ],
@@ -355,12 +390,12 @@ const sqlServerEngine = {
       drop2: 'DROP PROCEDURE obj2',
     },
     {
-      type:'triggers',
+      type: 'triggers',
       create1: 'CREATE TRIGGER obj1 ON t1 AFTER INSERT AS BEGIN SELECT * FROM t1 END',
       create2: 'CREATE TRIGGER obj2 ON t2 AFTER INSERT AS BEGIN SELECT * FROM t2 END',
       drop1: 'DROP TRIGGER obj1',
       drop2: 'DROP TRIGGER obj2',
-    }
+    },
   ],
   parametersOtherSql: ['CREATE PROCEDURE obj2 (@p1 int, @p2 int) AS SELECT id from t1'],
   parameters: [
@@ -577,14 +612,14 @@ const enginesOnCi = [
 
 const enginesOnLocal = [
   // all engines, which would be run on local test
-  // mysqlEngine,
+  mysqlEngine,
   // mariaDbEngine,
   // postgreSqlEngine,
   // sqlServerEngine,
   // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
-  oracleEngine,
+  // oracleEngine,
 ];
 
 module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
