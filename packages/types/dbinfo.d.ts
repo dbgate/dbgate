@@ -167,8 +167,6 @@ export interface SchedulerEventInfo extends SqlObjectInfo {
   intervalField: string;
   starts: string;
   executeAt: string;
-  enableSql: string;
-  disableSql: string;
 }
 
 export interface SchemaInfo {

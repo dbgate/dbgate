@@ -498,10 +498,10 @@
         );
       });
     } else if (menu.isDisableEvent) {
-      const { conid, database, disableSql } = data;
+      const { conid, database, pureName } = data;
       const driver = await getDriver();
       const dmp = driver.createDumper();
-      dmp.put(disableSql);
+      dmp.put('^alter ^event %i ^disable', pureName);
 
       const sql = dmp.s;
 
@@ -513,10 +513,10 @@
         engine: driver.engine,
       });
     } else if (menu.isEnableEvent) {
-      const { conid, database, enableSql } = data;
+      const { conid, database, pureName } = data;
       const driver = await getDriver();
       const dmp = driver.createDumper();
-      dmp.put(enableSql);
+      dmp.put('^alter ^event %i ^enable', pureName);
 
       const sql = dmp.s;
 
