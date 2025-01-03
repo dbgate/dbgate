@@ -10,7 +10,6 @@ name: Run tests
       - feature/**
 jobs:
   test:
-    needs: build-docker-ssh
     runs-on: ubuntu-latest
     container: 'node:18'
     steps:

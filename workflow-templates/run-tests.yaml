@@ -9,7 +9,6 @@ on:
 
 jobs:
   test:
-    needs: build-docker-ssh
     runs-on: ubuntu-latest
     container: node:18
 
