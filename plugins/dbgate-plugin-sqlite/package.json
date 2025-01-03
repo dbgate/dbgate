@@ -37,7 +37,7 @@
   "dependencies": {
     "dbgate-tools": "^6.0.0-alpha.1",
     "lodash": "^4.17.21",
-    "dbgate-query-splitter": "^4.11.2"
+    "dbgate-query-splitter": "^4.11.3"
   },
   "optionalDependencies": {
     "better-sqlite3": "9.6.0"

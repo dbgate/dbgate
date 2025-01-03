@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "antares-mysql-dumper": "^0.0.1",
-    "dbgate-query-splitter": "^4.11.2",
+    "dbgate-query-splitter": "^4.11.3",
     "dbgate-tools": "^6.0.0-alpha.1",
     "lodash": "^4.17.21",
     "mysql2": "^3.11.3"

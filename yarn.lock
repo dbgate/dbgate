@@ -4230,10 +4230,10 @@ dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0
     pacote "^11.1.13"
     rimraf "^3.0.2"
 
-dbgate-query-splitter@^4.11.2:
-  version "4.11.2"
-  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.2.tgz#f54e6bcb998de7630978cd45b347d6f329115171"
-  integrity sha512-LG326CAsTvb4IhJPDf6vbv92zOEhVza/Cncj1L4RSFchppIdlJMhwEyAekZzCm7U2NKzYObPJN5eWvF/QJrrKQ==
+dbgate-query-splitter@^4.11.3:
+  version "4.11.3"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.3.tgz#8391363be4cac1bd41793e1aebb8c85b5b296f28"
+  integrity sha512-rdAGiaQ3f02gvN2SPMX5j3DqojIL/WE+EArvc7OkVk5QuCDNojWvDjqSxJoOBG593+Ob3lQ8/FYbKRCOYhAVYg==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
