@@ -1492,6 +1492,7 @@ export const chinookDbInfo: DatabaseInfo = {
   collections: [],
   matviews: [],
   triggers: [],
+  schedulerEvents: [],
 };
 
 // const ARTIST_TABLE: TableInfo = {

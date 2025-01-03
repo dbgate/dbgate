@@ -12,6 +12,7 @@ const uniqueNames = require('./uniqueNames');
 const viewTexts = require('./viewTexts');
 const parameters = require('./parameters');
 const triggers = require('./triggers');
+const schedulerEvents = require('./schedulerEvents.js');
 
 module.exports = {
   columns,
@@ -28,4 +29,5 @@ module.exports = {
   uniqueNames,
   viewTexts,
   triggers,
+  schedulerEvents,
 };

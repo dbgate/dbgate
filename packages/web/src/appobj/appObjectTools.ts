@@ -85,4 +85,12 @@ export const defaultDatabaseObjectAppObjectActions = {
       },
     },
   ],
+  schedulerEvents: [
+    {
+      label: 'Show SQL',
+      tab: 'SqlObjectTab',
+      defaultActionId: 'showSql',
+      icon: 'img sql-file',
+    },
+  ],
 };

@@ -2,7 +2,7 @@
   function generateObjectList(seed = 0) {
     const counts = [1000, 1200, 1100, 2100, 720];
     const schemas = ['A', 'dev', 'public', 'dbo'];
-    const types = ['tables', 'views', 'functions', 'procedures', 'matviews', 'triggers'];
+    const types = ['tables', 'views', 'functions', 'procedures', 'matviews', 'triggers', 'schedulerEvents'];
     const res = _.range(1, counts[seed % counts.length]).map(i => ({
       pureName: `name ${i}`,
       schemaName: schemas[i % schemas.length],
@@ -80,11 +80,12 @@
   // $: console.log('OBJECTS', $objects);
 
   $: objectList = _.flatten([
-    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers'].map(objectTypeField =>
-      _.sortBy(
-        (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
-        ['schemaName', 'pureName']
-      )
+    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(
+      objectTypeField =>
+        _.sortBy(
+          (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
+          ['schemaName', 'pureName']
+        )
     ),
     ...dbApps.map(app =>
       app.queries.map(query => ({

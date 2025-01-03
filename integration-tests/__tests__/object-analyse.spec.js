@@ -23,6 +23,12 @@ function flatSourceTriggers() {
   return _.flatten(engines.map(engine => (engine.triggers || []).map(trigger => [engine.label, trigger, engine])));
 }
 
+function flatSourceSchedulerEvents() {
+  return _.flatten(
+    engines.map(engine => (engine.schedulerEvents || []).map(schedulerEvent => [engine.label, schedulerEvent, engine]))
+  );
+}
+
 const obj1Match = expect.objectContaining({
   pureName: 'obj1',
 });
@@ -168,6 +174,22 @@ describe('Object analyse', () => {
       expect(createdTrigger2).toEqual(expect.objectContaining(expected));
     })
   );
-});
 
-console.log(flatSourceTriggers());
+  const schedulerEvents = flatSourceSchedulerEvents();
+  if (schedulerEvents.length > 0) {
+    test.each(schedulerEvents)(
+      'Test scheduler events - %s - %s',
+      testWrapper(async (conn, driver, event) => {
+        for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+        const { create, drop, objectTypeField, expected } = event;
+
+        await runCommandOnDriver(conn, driver, create);
+        const structure = await driver.analyseFull(conn);
+        await runCommandOnDriver(conn, driver, drop);
+
+        const createdEvent = structure[objectTypeField].find(x => x.pureName == expected.pureName);
+        expect(createdEvent).toEqual(expect.objectContaining(expected));
+      })
+    );
+  }
+});

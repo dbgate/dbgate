@@ -65,6 +65,7 @@
     'icon add-column': 'mdi mdi-table-column-plus-after',
     'icon parameter': 'mdi mdi-at',
     'icon trigger': 'mdi mdi-lightning-bolt',
+    'icon scheduler-event': 'mdi mdi-calendar-blank',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',
