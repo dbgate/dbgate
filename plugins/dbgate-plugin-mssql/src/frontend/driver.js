@@ -166,6 +166,10 @@ const driver = {
         label: 'New table valued function',
         sql: 'CREATE FUNCTION myfunc (@arg1 INT) RETURNS TABLE \nAS\nRETURN SELECT * FROM table1',
       },
+      {
+        label: 'New trigger',
+        sql: 'CREATE TRIGGER trigger_name\nON table_name AFTER INSERT AS\nBEGIN\nSELECT * FROM table_name\nEND',
+      },
     ];
   },
 
