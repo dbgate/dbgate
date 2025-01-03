@@ -76,23 +76,26 @@ describe('Alter database', () => {
     })
   );
 
-  test.each(flatSource(x => x.supportRenameSqlObject))(
-    'Rename object - %s - %s',
-    testWrapper(async (conn, driver, type, object, engine) => {
-      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+  const objectsSupportingRename = flatSource(x => x.supportRenameSqlObject);
+  if (objectsSupportingRename.length > 0) {
+    test.each(objectsSupportingRename)(
+      'Rename object - %s - %s',
+      testWrapper(async (conn, driver, type, object, engine) => {
+        for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
 
-      await runCommandOnDriver(conn, driver, object.create1);
+        await runCommandOnDriver(conn, driver, object.create1);
 
-      const structure = extendDatabaseInfo(await driver.analyseFull(conn));
+        const structure = extendDatabaseInfo(await driver.analyseFull(conn));
 
-      const dmp = driver.createDumper();
-      dmp.renameSqlObject(structure[type][0], 'renamed1');
+        const dmp = driver.createDumper();
+        dmp.renameSqlObject(structure[type][0], 'renamed1');
 
-      await driver.query(conn, dmp.s);
+        await driver.query(conn, dmp.s);
 
-      const structure2 = await driver.analyseFull(conn);
-      expect(structure2[type].length).toEqual(1);
-      expect(structure2[type][0].pureName).toEqual('renamed1');
-    })
-  );
+        const structure2 = await driver.analyseFull(conn);
+        expect(structure2[type].length).toEqual(1);
+        expect(structure2[type][0].pureName).toEqual('renamed1');
+      })
+    );
+  }
 });

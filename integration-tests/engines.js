@@ -43,6 +43,7 @@ const mysqlEngine = {
       drop2: 'DROP PROCEDURE obj2',
     },
   ],
+  supportRenameSqlObject: false,
   dbSnapshotBySeconds: true,
   dumpFile: 'data/chinook-mysql.sql',
   dumpChecks: [
