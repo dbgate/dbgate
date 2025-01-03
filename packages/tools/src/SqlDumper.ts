@@ -708,6 +708,8 @@ export class SqlDumper implements AlterProcessor {
         return 'TRIGGER';
       case 'matviews':
         return 'MATERIALIZED VIEW';
+      case 'schedulerEvents':
+        return 'EVENT';
     }
   }
 
@@ -785,10 +787,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   callableTemplate(func: CallableObjectInfo) {
-    this.put(
-      '^call %f(&>&n',
-      func,
-    );
+    this.put('^call %f(&>&n', func);
 
     this.putCollection(',&n', func.parameters || [], param => {
       this.putRaw(param.parameterMode == 'IN' ? ':' + param.parameterName : param.parameterName);
