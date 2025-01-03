@@ -9,24 +9,6 @@ name: Run tests
       - develop
       - feature/**
 jobs:
-  build-docker-ssh:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-      - name: Build mysql-ssh image
-        run: |
-          docker build -t dbgate/mysql-ssh:latest e2e-tests/mysql-ssh
-      - name: Log in to GHCR
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: '${{ github.actor }}'
-          password: '${{ secrets.GITHUB_TOKEN }}'
-      - name: Push image to GHCR
-        run: |
-          docker tag dbgate/mysql-ssh:latest ghcr.io/dbgate/mysql-ssh:latest
-          docker push ghcr.io/dbgate/mysql-ssh:latest
   test:
     needs: build-docker-ssh
     runs-on: ubuntu-latest
