@@ -61,15 +61,20 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
 }
 
 async function getSshTunnel(connection) {
+  const config = require('../controllers/config');
+
   const tunnelCacheKey = stableStringify(_.pick(connection, TUNNEL_FIELDS));
+  const globalSettings = await config.getSettings();
 
   return await lock.acquire(tunnelCacheKey, async () => {
     if (sshTunnelCache[tunnelCacheKey]) return sshTunnelCache[tunnelCacheKey];
     const localPort = await portfinder.getPortPromise({ port: 10000, stopPort: 60000 });
+    const localHost = globalSettings?.['connection.sshBindHost'] || '127.0.0.1';
     // workaround for `getPortPromise` not releasing the port quickly enough
     await new Promise(resolve => setTimeout(resolve, 500));
     const tunnelConfig = {
       fromPort: localPort,
+      fromHost: localHost,
       toPort: connection.port,
       toHost: connection.server,
     };
@@ -87,6 +92,7 @@ async function getSshTunnel(connection) {
       sshTunnelCache[tunnelCacheKey] = {
         state: 'ok',
         localPort,
+        localHost,
         subprocess,
       };
       return sshTunnelCache[tunnelCacheKey];

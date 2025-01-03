@@ -202,6 +202,18 @@ ORDER BY
             defaultValue="30"
             disabled={values['connection.autoRefresh'] === false}
           />
+          <FormSelectField
+            label="Local host address for SSH connections"
+            name="connection.sshBindHost"
+            isNative
+            defaultValue="127.0.0.1"
+            options={[
+              { value: '127.0.0.1', label: '127.0.0.1 (IPv4)' },
+              { value: '::1', label: '::1  (IPv6)' },
+              { value: 'localhost', label: 'localhost (domain name)' },
+              { value: 'testerror', label: 'testerror' },
+            ]}
+          />
 
           <div class="heading">Query sessions</div>
           <FormCheckboxField

@@ -166,7 +166,9 @@ function start() {
     if (time - lastPing > 40 * 1000) {
       logger.info('Server connection not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
-      await driver.close(dbhan);
+      if (dbhan) {
+        await driver.close(dbhan);
+      }
       process.exit(0);
     }
   }, 10 * 1000);

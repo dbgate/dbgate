@@ -130,7 +130,7 @@ class SSHConnection {
     const connectionToBastion = await this.connect(bastionHost);
     return new Promise((resolve, reject) => {
       connectionToBastion.forwardOut(
-        '127.0.0.1',
+        this.options.bindHost,
         22,
         this.options.endHost,
         this.options.endPort || 22,
@@ -228,9 +228,9 @@ class SSHConnection {
             options.toPort
           );
           connection.forwardOut(
-            '127.0.0.1',
+            this.options.bindHost,
             options.fromPort,
-            options.toHost || '127.0.0.1',
+            options.toHost || this.options.bindHost,
             options.toPort,
             (error, stream) => {
               if (error) {
@@ -241,7 +241,7 @@ class SSHConnection {
             }
           );
         })
-        .listen(options.fromPort, '127.0.0.1', () => {
+        .listen(options.fromPort, this.options.bindHost, () => {
           return resolve();
         });
     });

@@ -7,7 +7,7 @@ const { getLogger, extractErrorLogData, extractErrorMessage } = require('dbgate-
 
 const logger = getLogger('sshProcess');
 
-async function getSshConnection(connection) {
+async function getSshConnection(connection, tunnelConfig) {
   const sshConfig = {
     endHost: connection.sshHost || '',
     endPort: connection.sshPort || 22,
@@ -23,6 +23,7 @@ async function getSshConnection(connection) {
         : undefined,
     skipAutoPrivateKey: true,
     noReadline: true,
+    bindHost: tunnelConfig.fromHost,
   };
 
   const sshConn = new SSHConnection(sshConfig);
@@ -31,7 +32,7 @@ async function getSshConnection(connection) {
 
 async function handleStart({ connection, tunnelConfig }) {
   try {
-    const sshConn = await getSshConnection(connection);
+    const sshConn = await getSshConnection(connection, tunnelConfig);
     await sshConn.forward(tunnelConfig);
 
     process.send({
