@@ -139,6 +139,15 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;`,
       },
+      {
+        label: 'New trigger',
+        sql: `
+CREATE OR REPLACE TRIGGER trigger_name
+AFTER INSERT ON "table_name" FOR EACH ROW 
+BEGIN
+END trigger_name;
+`,
+      },
     ];
   },
 
