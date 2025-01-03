@@ -194,6 +194,12 @@
 <slot />
 
 <style>
+  .pin,
+  .pin-active {
+    position: absolute;
+    right: 0;
+    z-index: 150;
+  }
   .main {
     padding: 5px;
     cursor: pointer;

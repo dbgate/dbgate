@@ -100,46 +100,50 @@ describe('Object analyse', () => {
     })
   );
 
-  test.each(flatSourceParameters())(
-    'Test parameters simple analyse - %s - %s',
-    testWrapper(async (conn, driver, testName, parameter, engine) => {
-      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
-      for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
+  const flatParameters = flatSourceParameters();
 
-      await runCommandOnDriver(conn, driver, parameter.create);
-      const structure = await driver.analyseFull(conn);
+  if (flatParameters.length > 0) {
+    test.each(flatParameters)(
+      'Test parameters simple analyse - %s - %s',
+      testWrapper(async (conn, driver, testName, parameter, engine) => {
+        for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+        for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
 
-      const parameters = structure[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
+        await runCommandOnDriver(conn, driver, parameter.create);
+        const structure = await driver.analyseFull(conn);
 
-      expect(parameters.length).toEqual(parameter.list.length);
-      for (let i = 0; i < parameters.length; i += 1) {
-        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
-      }
-    })
-  );
+        const parameters = structure[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
 
-  test.each(flatSourceParameters())(
-    'Test parameters create SQL - %s - %s',
-    testWrapper(async (conn, driver, testName, parameter, engine) => {
-      for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
-      for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
+        expect(parameters.length).toEqual(parameter.list.length);
+        for (let i = 0; i < parameters.length; i += 1) {
+          expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+        }
+      })
+    );
 
-      await runCommandOnDriver(conn, driver, parameter.create);
-      const structure1 = await driver.analyseFull(conn);
-      await runCommandOnDriver(conn, driver, parameter.drop);
+    test.each(flatParameters)(
+      'Test parameters create SQL - %s - %s',
+      testWrapper(async (conn, driver, testName, parameter, engine) => {
+        for (const sql of initSql) await runCommandOnDriver(conn, driver, sql);
+        for (const sql of engine.parametersOtherSql) await runCommandOnDriver(conn, driver, sql);
 
-      const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
-      await driver.script(conn, obj.createSql, { discardResult: true });
+        await runCommandOnDriver(conn, driver, parameter.create);
+        const structure1 = await driver.analyseFull(conn);
+        await runCommandOnDriver(conn, driver, parameter.drop);
 
-      const structure2 = await driver.analyseFull(conn);
-      const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
+        const obj = structure1[parameter.objectTypeField].find(x => x.pureName == 'obj1');
+        await driver.script(conn, obj.createSql, { discardResult: true });
 
-      expect(parameters.length).toEqual(parameter.list.length);
-      for (let i = 0; i < parameters.length; i += 1) {
-        expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
-      }
-    })
-  );
+        const structure2 = await driver.analyseFull(conn);
+        const parameters = structure2[parameter.objectTypeField].find(x => x.pureName == 'obj1').parameters;
+
+        expect(parameters.length).toEqual(parameter.list.length);
+        for (let i = 0; i < parameters.length; i += 1) {
+          expect(parameters[i]).toEqual(expect.objectContaining(parameter.list[i]));
+        }
+      })
+    );
+  }
 
   test.each(flatSourceTriggers())(
     'Test triggers - %s - %s',
