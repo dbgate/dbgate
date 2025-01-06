@@ -11,10 +11,19 @@ module.exports = defineConfig({
 
       on('before:spec', async details => {
         await clearTestingData();
-        
+        // console.log('********************* DETAILS *********************', JSON.stringify(details));
+
         if (config.isInteractive) {
           await killPort(3000);
-          serverProcess = exec('yarn start');
+          switch (details.fileName) {
+            case 'add-connection':
+              serverProcess = exec('yarn start:add-connection');
+              break;
+            case 'portal':
+              serverProcess = exec('yarn start:portal:local');
+              break;
+          }
+
           await waitOn({ resources: ['http://localhost:3000'] });
           serverProcess.stdout.on('data', data => {
             console.log(data.toString());

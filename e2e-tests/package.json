@@ -8,15 +8,25 @@
     "cross-env": "^7.0.3",
     "cypress": "^13.16.1",
     "cypress-real-events": "^1.13.0",
+    "env-cmd": "^10.1.0",
     "kill-port": "^2.0.1",
     "start-server-and-test": "^2.0.8"
   },
   "scripts": {
     "cy:open": "cypress open --config experimentalInteractiveRunEvents=true",
-    "cy:run": "cypress run",
-    "cy:run:ci": "cypress run --env runOnCI=true",
-    "start": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "test:ci": "start-server-and-test start http://localhost:3000 cy:run:ci",
-    "test": "start-server-and-test start http://localhost:3000 cy:run"
+
+    "cy:run:add-connection:local": "cypress run --spec cypress/e2e/add-connection.cy.js",
+    "cy:run:add-connection:ci": "cypress run --env runOnCI=true --spec cypress/e2e/add-connection.cy.js",
+
+    "cy:run:portal:local": "cypress run --spec cypress/e2e/portal.cy.js",
+    "cy:run:portal:ci": "cypress run --env runOnCI=true --spec cypress/e2e/portal.cy.js",
+
+    "start:add-connection": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
+
+    "start:portal:local": "cd .. && env-cmd -f e2e-tests/env/portal-local/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:portal:ci": "cd .. && env-cmd -f e2e-tests/env/portal-ci/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+
+    "test:ci": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection:ci && start-server-and-test start:portal:ci http://localhost:3000 cy:run:portal:ci",
+    "test:local": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection:local && start-server-and-test start:portal:local http://localhost:3000 cy:run:portal:local"
   }
 }

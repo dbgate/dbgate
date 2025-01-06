@@ -1,6 +1,6 @@
 const path = require('path');
 
-describe('Initialization', () => {
+describe('Add connection', () => {
   it('successfully loads', () => {
     cy.visit('http://localhost:3000');
     cy.contains('Database not selected');
