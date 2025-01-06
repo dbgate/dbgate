@@ -192,6 +192,11 @@ const mysqlDriverBase = {
         sql: 'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
       },
       { label: 'New function', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
+      { label: 'New trigger', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
+      {
+        label: 'New event',
+        sql: 'CREATE EVENT `event_name`\nON SCHEDULE EVERY 1 HOUR\nDO\nBEGIN\n\nEND',
+      },
     ];
   },
 };
