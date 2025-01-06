@@ -43,19 +43,25 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
     logger.error(extractErrorLogData(err), 'Error connecting SSH');
   }
   return new Promise((resolve, reject) => {
+    let promiseHandled = false;
     subprocess.on('message', resp => {
       // @ts-ignore
       const { msgtype, errorMessage } = resp;
       if (msgtype == 'connected') {
         resolve(subprocess);
+        promiseHandled = true;
       }
       if (msgtype == 'error') {
         reject(new Error(errorMessage));
+        promiseHandled = true;
       }
     });
     subprocess.on('exit', code => {
       logger.info('SSH forward process exited');
       delete sshTunnelCache[tunnelCacheKey];
+      if (!promiseHandled) {
+        reject(new Error('SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'));
+      }
     });
   });
 }

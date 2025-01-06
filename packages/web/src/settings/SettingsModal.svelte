@@ -211,7 +211,6 @@ ORDER BY
               { value: '127.0.0.1', label: '127.0.0.1 (IPv4)' },
               { value: '::1', label: '::1  (IPv6)' },
               { value: 'localhost', label: 'localhost (domain name)' },
-              { value: 'testerror', label: 'testerror' },
             ]}
           />
 
