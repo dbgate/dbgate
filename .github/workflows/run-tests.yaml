@@ -92,3 +92,5 @@ jobs:
           ORACLE_PASSWORD: Pwd2020Db
       mysql-ssh-login:
         image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
+      mysql-ssh-keyfile:
+        image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
