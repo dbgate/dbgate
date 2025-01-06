@@ -18,8 +18,15 @@ services:
       - MYSQL_ROOT_PASSWORD=Pwd2020Db
 
   mysql-ssh-login:
-    build: mysql-ssh-login
+    build: containers/mysql-ssh-login
     restart: always
     ports: 
       - 16005:3306
       - 16006:22
+
+  mysql-ssh-keyfile:
+    build: containers/mysql-ssh-keyfile
+    restart: always
+    ports: 
+      - 16007:3306
+      - 16008:22

@@ -19,13 +19,20 @@ jobs:
       - name: Build mysql-ssh-login image
         run: |
           docker build -t dbgate/mysql-ssh-login:latest e2e-tests/containers/mysql-ssh-login
+      - name: Build mysql-ssh-keyfile image
+        run: |
+          docker build -t dbgate/mysql-ssh-keyfile:latest e2e-tests/containers/mysql-ssh-keyfile
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: '${{ github.actor }}'
           password: '${{ secrets.GITHUB_TOKEN }}'
-      - name: Push image to GHCR
+      - name: Push mysql-ssh-login to GHCR
         run: |
           docker tag dbgate/mysql-ssh-login:latest ghcr.io/dbgate/mysql-ssh-login:latest
           docker push ghcr.io/dbgate/mysql-ssh-login:latest
+      - name: Push mysql-ssh-keyfile to GHCR
+        run: |
+          docker tag dbgate/mysql-ssh-keyfile:latest ghcr.io/dbgate/mysql-ssh-keyfile:latest
+          docker push ghcr.io/dbgate/mysql-ssh-keyfile:latest
