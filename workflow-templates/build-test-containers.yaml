@@ -7,7 +7,7 @@ on:
       - develop
       - 'feature/**'
     paths:
-      - "e2e-tests/mysql-ssh/Dockerfile"
+      - e2e-tests/containers
 
 jobs:
   build-docker-ssh:
@@ -16,9 +16,9 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Build mysql-ssh image
+      - name: Build mysql-ssh-login image
         run: |
-          docker build -t dbgate/mysql-ssh:latest e2e-tests/mysql-ssh
+          docker build -t dbgate/mysql-ssh-login:latest e2e-tests/containers/mysql-ssh-login
 
       - name: Log in to GHCR
         uses: docker/login-action@v2
@@ -29,5 +29,5 @@ jobs:
 
       - name: Push image to GHCR
         run: |
-          docker tag dbgate/mysql-ssh:latest ghcr.io/dbgate/mysql-ssh:latest
-          docker push ghcr.io/dbgate/mysql-ssh:latest
+          docker tag dbgate/mysql-ssh-login:latest ghcr.io/dbgate/mysql-ssh-login:latest
+          docker push ghcr.io/dbgate/mysql-ssh-login:latest

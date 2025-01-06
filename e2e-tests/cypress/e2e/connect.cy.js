@@ -45,7 +45,7 @@ describe('Initialization', () => {
     cy.get('[data-testid=ConnectionSshTunnelFields_sshLogin]').clear().type('root');
     cy.get('[data-testid=ConnectionSshTunnelFields_sshPassword]').clear().type('root');
     if (runOnCI) {
-      cy.get('[data-testid=ConnectionSshTunnelFields_sshHost]').clear().type('mysql-ssh');
+      cy.get('[data-testid=ConnectionSshTunnelFields_sshHost]').clear().type('mysql-ssh-login');
     } else {
       cy.get('[data-testid=ConnectionSshTunnelFields_sshPort]').clear().type('16006');
     }
