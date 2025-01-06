@@ -43,33 +43,44 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
     logger.error(extractErrorLogData(err), 'Error connecting SSH');
   }
   return new Promise((resolve, reject) => {
+    let promiseHandled = false;
     subprocess.on('message', resp => {
       // @ts-ignore
       const { msgtype, errorMessage } = resp;
       if (msgtype == 'connected') {
         resolve(subprocess);
+        promiseHandled = true;
       }
       if (msgtype == 'error') {
         reject(new Error(errorMessage));
+        promiseHandled = true;
       }
     });
     subprocess.on('exit', code => {
       logger.info('SSH forward process exited');
       delete sshTunnelCache[tunnelCacheKey];
+      if (!promiseHandled) {
+        reject(new Error('SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'));
+      }
     });
   });
 }
 
 async function getSshTunnel(connection) {
+  const config = require('../controllers/config');
+
   const tunnelCacheKey = stableStringify(_.pick(connection, TUNNEL_FIELDS));
+  const globalSettings = await config.getSettings();
 
   return await lock.acquire(tunnelCacheKey, async () => {
     if (sshTunnelCache[tunnelCacheKey]) return sshTunnelCache[tunnelCacheKey];
     const localPort = await portfinder.getPortPromise({ port: 10000, stopPort: 60000 });
+    const localHost = globalSettings?.['connection.sshBindHost'] || '127.0.0.1';
     // workaround for `getPortPromise` not releasing the port quickly enough
     await new Promise(resolve => setTimeout(resolve, 500));
     const tunnelConfig = {
       fromPort: localPort,
+      fromHost: localHost,
       toPort: connection.port,
       toHost: connection.server,
     };
@@ -87,6 +98,7 @@ async function getSshTunnel(connection) {
       sshTunnelCache[tunnelCacheKey] = {
         state: 'ok',
         localPort,
+        localHost,
         subprocess,
       };
       return sshTunnelCache[tunnelCacheKey];

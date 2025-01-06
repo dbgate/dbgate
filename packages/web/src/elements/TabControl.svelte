@@ -7,6 +7,7 @@
     slot?: number;
     component?: any;
     props?: any;
+    testid?: string;
   }
 
   export let tabs: TabDef[];
@@ -27,7 +28,7 @@
 <div class="main" class:flex1>
   <div class="tabs">
     {#each _.compact(tabs) as tab, index}
-      <div class="tab-item" class:selected={value == index} on:click={() => (value = index)}>
+      <div class="tab-item" class:selected={value == index} on:click={() => (value = index)} data-testid={tab.testid}>
         <span class="ml-2">
           {tab.label}
         </span>

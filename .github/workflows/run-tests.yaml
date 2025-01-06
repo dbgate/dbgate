@@ -9,7 +9,7 @@ name: Run tests
       - develop
       - feature/**
 jobs:
-  test-runner:
+  test:
     runs-on: ubuntu-latest
     container: 'node:18'
     steps:
@@ -17,7 +17,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y xvfb libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: yarn install
@@ -90,3 +90,7 @@ jobs:
         image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
+      mysql-ssh-login:
+        image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
+      mysql-ssh-keyfile:
+        image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
