@@ -90,5 +90,5 @@ jobs:
         image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
-      mysql-ssh:
-        image: 'ghcr.io/dbgate/mysql-ssh:latest'
+      mysql-ssh-login:
+        image: 'ghcr.io/dbgate/mysql-ssh-login:latest'

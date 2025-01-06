@@ -7,7 +7,7 @@ on:
       - develop
       - 'feature/**'
     paths:
-      - e2e-tests/containers
+      - e2e-tests/containers/**
 
 jobs:
   build-docker-ssh:
