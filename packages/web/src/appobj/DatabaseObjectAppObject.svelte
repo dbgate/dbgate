@@ -93,7 +93,7 @@
     submenu?: DbObjMenuItem[];
   }
 
-  function createMenusCore(objectTypeField, driver): DbObjMenuItem[] {
+  function createMenusCore(objectTypeField, driver, data): DbObjMenuItem[] {
     switch (objectTypeField) {
       case 'tables':
         return [
@@ -387,20 +387,27 @@
           ...(driver?.getScriptTemplates?.('collections') || []),
         ];
       case 'schedulerEvents':
-        return [
+        const menu: DbObjMenuItem[] = [
           ...defaultDatabaseObjectAppObjectActions['schedulerEvents'],
           {
             divider: true,
           },
-          {
+          ,
+        ];
+
+        if (data?.status === 'ENABLED') {
+          menu.push({
             label: 'Disable',
             isDisableEvent: true,
-          },
-          {
+          });
+        } else {
+          menu.push({
             label: 'Enable',
             isEnableEvent: true,
-          },
-        ];
+          });
+        }
+
+        return menu;
     }
   }
 
@@ -672,8 +679,8 @@
     }
   }
 
-  function createMenus(objectTypeField, driver): ReturnType<typeof createMenusCore> {
-    return createMenusCore(objectTypeField, driver).filter(x => {
+  function createMenus(objectTypeField, driver, data): ReturnType<typeof createMenusCore> {
+    return createMenusCore(objectTypeField, driver, data).filter(x => {
       if (x.scriptTemplate) {
         return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
       }
@@ -890,7 +897,7 @@
     const driver = findEngineDriver(data, getExtensions());
 
     const { objectTypeField } = data;
-    return createMenus(objectTypeField, driver)
+    return createMenus(objectTypeField, driver, data)
       .filter(x => x)
       .map(menu => menuItemMapper(menu, data, connection));
   }
