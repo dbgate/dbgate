@@ -57,6 +57,7 @@
             title: 'Query #',
             icon: 'icon sql-file',
             tabComponent: 'QueryTab',
+            focused: true,
             props: {
               conid: item.conid,
               database: item.database,

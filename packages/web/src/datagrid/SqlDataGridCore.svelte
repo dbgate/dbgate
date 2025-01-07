@@ -153,6 +153,7 @@
         title: 'Query #',
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
+        focused: true,
         props: {
           schemaName: display.baseTableOrSimilar?.schemaName,
           pureName: display.baseTableOrSimilar?.pureName,
