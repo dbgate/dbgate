@@ -349,7 +349,17 @@
       case 'functions':
         return [...defaultDatabaseObjectAppObjectActions['functions']];
       case 'triggers':
-        return [...defaultDatabaseObjectAppObjectActions['triggers']];
+        return [
+          ...defaultDatabaseObjectAppObjectActions['triggers'],
+          {
+            divider: true,
+          },
+          hasPermission('dbops/model/edit') && {
+            label: 'Drop trigger',
+            isDrop: true,
+            requiresWriteAccess: true,
+          },
+        ];
       case 'collections':
         return [
           ...defaultDatabaseObjectAppObjectActions['collections'],
@@ -393,7 +403,14 @@
           {
             divider: true,
           },
-          ,
+          hasPermission('dbops/model/edit') && {
+            label: 'Drop event',
+            isDrop: true,
+            requiresWriteAccess: true,
+          },
+          {
+            divider: true,
+          },
         ];
 
         if (data?.status === 'ENABLED') {
