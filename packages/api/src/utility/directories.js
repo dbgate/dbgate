@@ -97,7 +97,7 @@ function packagedPluginsDir() {
     // }
   }
   if (processArgs.runE2eTests) {
-    return path.resolve('packer/build/plugins');    
+    return path.resolve('packer/build/plugins');
   }
   return null;
 }
@@ -113,7 +113,7 @@ function getPluginBackendPath(packageName) {
     return path.join(packagedPluginsDir(), packageName, 'dist', 'backend.js');
   }
 
-  const res = path.join(pluginsdir(), packageName, 'dist', 'backend.js')
+  const res = path.join(pluginsdir(), packageName, 'dist', 'backend.js');
   if (fs.existsSync(res)) {
     return res;
   }

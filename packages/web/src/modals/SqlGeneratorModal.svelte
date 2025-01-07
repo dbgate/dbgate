@@ -116,6 +116,7 @@
         title: 'Query #',
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
+        focused: true,
         props: {
           conid,
           database,
