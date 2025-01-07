@@ -14,9 +14,31 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import "cypress-real-events";
+import 'cypress-real-events';
+
+beforeEach(() => {
+  // Replace 'my-database-name' with the actual IndexedDB name
+  cy.window().then(win => {
+    return new Promise((resolve, reject) => {
+      const request = win.indexedDB.deleteDatabase('localforage');
+      request.onsuccess = () => {
+        // Database successfully deleted
+        resolve();
+      };
+      request.onerror = () => {
+        // Some error occurred
+        reject(request.error);
+      };
+      request.onblocked = () => {
+        // Might happen if there are open connections
+        console.warn('IndexedDB deletion blocked');
+        resolve();
+      };
+    });
+  });
+});

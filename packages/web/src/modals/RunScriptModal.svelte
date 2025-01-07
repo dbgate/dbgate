@@ -77,9 +77,9 @@
 
     <svelte:fragment slot="footer">
       {#if isRunning}
-        <FormStyledButton value="Stop" on:click={handleStop} />
+        <FormStyledButton value="Stop" on:click={handleStop} data-testid="RunScriptModal_stop" />
       {:else}
-        <FormStyledButton value="Close" on:click={handleClose} />
+        <FormStyledButton value="Close" on:click={handleClose} data-testid="RunScriptModal_close" />
       {/if}
 
       {#if onOpenResult && !isRunning}

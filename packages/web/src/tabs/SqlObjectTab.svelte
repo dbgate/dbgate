@@ -161,6 +161,7 @@
             icon: 'img sql-file',
             tabComponent: 'QueryTab',
             objectTypeField: appObjectData.objectTypeField,
+            focused: true,
             props: {
               conid,
               database,

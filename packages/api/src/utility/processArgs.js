@@ -1,3 +1,5 @@
+const path = require('path');
+
 function getNamedArg(name) {
   const argIndex = process.argv.indexOf(name);
   if (argIndex > 0) {
@@ -20,13 +22,15 @@ function getPassArgs() {
   const res = [];
   if (global['PLUGINS_DIR']) {
     res.push('--plugins-dir', global['PLUGINS_DIR']);
+  } else if (runE2eTests) {
+    res.push('--plugins-dir', path.resolve('packer/build/plugins'));
   }
   if (listenApiChild) {
     res.push('listen-api-child');
   }
-  if (runE2eTests) {
-    res.push('--run-e2e-tests');
-  }
+  // if (runE2eTests) {
+  //   res.push('--run-e2e-tests');
+  // }
   return res;
 }
 

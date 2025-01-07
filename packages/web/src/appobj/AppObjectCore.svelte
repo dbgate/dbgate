@@ -34,6 +34,7 @@
   export let disableBoldScroll = false;
   export let filter = null;
   export let disableHover = false;
+  export let divProps = {};
 
   $: isChecked =
     checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));
@@ -109,6 +110,7 @@
   on:dragend
   on:drop
   bind:this={domDiv}
+  {...divProps}
 >
   {#if checkedObjectsStore}
     <CheckboxField

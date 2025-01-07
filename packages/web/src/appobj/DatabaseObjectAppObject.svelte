@@ -421,6 +421,7 @@
           title: 'Query #',
           icon: 'img query-design',
           tabComponent: 'QueryDesignTab',
+          focused: true,
           props: {
             conid: data.conid,
             database: data.database,
@@ -666,6 +667,7 @@
       {
         // title: getObjectTitle(connection, schemaName, pureName),
         title: tabComponent ? getObjectTitle(connection, schemaName, pureName) : 'Query #',
+        focused: tabComponent == null,
         tooltip,
         icon:
           icon ||

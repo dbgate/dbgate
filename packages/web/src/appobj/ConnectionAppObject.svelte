@@ -284,6 +284,7 @@
         icon: 'img sql-file',
         tooltip,
         tabComponent: 'QueryTab',
+        focused: true,
         props: {
           conid: data._id,
         },
@@ -320,7 +321,7 @@
         ],
       { divider: true },
       !data.singleDatabase && [
-        hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
+        hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New Query (server)', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
             text: 'Refresh',

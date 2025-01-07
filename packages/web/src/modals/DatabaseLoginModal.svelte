@@ -107,6 +107,7 @@
       disabled={passwordMode == 'askPassword'}
       focused={passwordMode == 'askUser'}
       saveOnInput
+      data-testid="DatabaseLoginModal_username"
     />
     <FormPasswordField
       label="Password"
@@ -114,6 +115,7 @@
       autocomplete="current-password"
       focused={passwordMode == 'askPassword'}
       saveOnInput
+      data-testid="DatabaseLoginModal_password"
     />
 
     {#if isTesting}
@@ -141,11 +143,11 @@
 
     <svelte:fragment slot="footer">
       {#if isTesting}
-        <FormStyledButton value="Stop connecting" on:click={handleCancelTest} />
+        <FormStyledButton value="Stop connecting" on:click={handleCancelTest} data-testid="DatabaseLoginModal_stop" />
       {:else}
-        <FormSubmit value="Connect" on:click={handleSubmit} />
+        <FormSubmit value="Connect" on:click={handleSubmit} data-testid="DatabaseLoginModal_connect" />
       {/if}
-      <FormStyledButton value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton value="Close" on:click={closeCurrentModal} data-testid="DatabaseLoginModal_close" />
     </svelte:fragment>
   </ModalBase>
 </FormProviderCore>

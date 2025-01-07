@@ -53,6 +53,7 @@
         icon: 'img sql-file',
         tooltip,
         tabComponent: 'QueryTab',
+        focused: true,
         props: {
           conid: connection._id,
           database: name,
@@ -240,6 +241,7 @@
         title: 'Query #',
         icon: 'img query-design',
         tabComponent: 'QueryDesignTab',
+        focused: true,
         props: {
           conid: connection._id,
           database: name,
@@ -573,4 +575,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   isChoosed={data.connection?._id == $focusedConnectionOrDatabase?.conid &&
     data.name == $focusedConnectionOrDatabase?.database}
   disableBoldScroll={!!$focusedConnectionOrDatabase}
+  divProps={{
+    'data-testid': `DatabaseAppObject_${data.name}`,
+  }}
 />

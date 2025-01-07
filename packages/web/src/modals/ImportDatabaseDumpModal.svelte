@@ -113,8 +113,18 @@
     </div>
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="Run import" on:click={e => handleSubmit(e.detail)} disabled={!inputFile} />
-      <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
+      <FormSubmit
+        value="Run import"
+        on:click={e => handleSubmit(e.detail)}
+        disabled={!inputFile}
+        data-testid="ImportDatabaseDumpModal_runImport"
+      />
+      <FormStyledButton
+        type="button"
+        value="Cancel"
+        on:click={closeCurrentModal}
+        data-testid="ImportDatabaseDumpModal_cancel"
+      />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

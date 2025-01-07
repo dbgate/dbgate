@@ -31,9 +31,9 @@ describe('Add connection', () => {
     cy.visit('http://localhost:3000');
     cy.contains('Connections');
 
-    cy.realPress('F1');
-    cy.realType('Close all');
-    cy.realPress('Enter');
+    // cy.realPress('F1');
+    // cy.realType('Close all');
+    // cy.realPress('Enter');
 
     cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
@@ -62,9 +62,9 @@ describe('Add connection', () => {
     cy.visit('http://localhost:3000');
     cy.contains('Connections');
 
-    cy.realPress('F1');
-    cy.realType('Close all');
-    cy.realPress('Enter');
+    // cy.realPress('F1');
+    // cy.realType('Close all');
+    // cy.realPress('Enter');
 
     cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
