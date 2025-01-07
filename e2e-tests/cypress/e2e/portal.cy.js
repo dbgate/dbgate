@@ -45,7 +45,6 @@ describe('Run as portal', () => {
     cy.get('[data-testid=InputTextModal_ok]').click();
   });
 
-
   it('Import Chinook MySQL', () => {
     cy.visit('http://localhost:3000');
     cy.contains('MySql-connection').click();
@@ -56,13 +55,13 @@ describe('Run as portal', () => {
     cy.wait(500);
     cy.get('[data-testid=ImportDatabaseDumpModal_runImport]').click();
     cy.contains('Importing database');
-    cy.contains('Finished job script');    
+    cy.contains('Finished job script');
     cy.get('[data-testid=RunScriptModal_close]').click();
     cy.contains('Chinook').click();
     cy.contains('Album');
   });
 
-  it('Import Chinook Potgres', () => {
+  it('Import Chinook Postgres', () => {
     cy.visit('http://localhost:3000');
     cy.contains('Postgres-connection').click();
     cy.get('[data-testid=DatabaseAppObject_Chinook]').rightclick();
@@ -71,10 +70,18 @@ describe('Run as portal', () => {
     cy.wait(500);
     cy.get('[data-testid=ImportDatabaseDumpModal_runImport]').click();
     cy.contains('Importing database');
-    cy.contains('Finished job script');    
+    cy.contains('Finished job script');
     cy.get('[data-testid=RunScriptModal_close]').click();
     cy.contains('Chinook').click();
     cy.contains('album');
+  });
+
+  it('Open ask pwd connection', () => {
+    cy.visit('http://localhost:3000');
+    cy.contains('Postgres-ask-connection').click();
+    cy.testid('DatabaseLoginModal_username').clear().type('postgres');
+    cy.testid('DatabaseLoginModal_password').clear().type('Pwd2020Db');
+    cy.testid('DatabaseLoginModal_connect').click();
   });
 
   // it('import chinook DB', () => {
