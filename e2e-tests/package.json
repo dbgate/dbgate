@@ -23,8 +23,8 @@
 
     "start:add-connection": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
 
-    "start:portal:local": "cd .. && env-cmd -f e2e-tests/env/portal-local/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:portal:ci": "cd .. && env-cmd -f e2e-tests/env/portal-ci/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:portal:local": "cd .. && env-cmd -f e2e-tests/env/portal-local/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal-local/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:portal:ci": "cd .. && env-cmd -f e2e-tests/env/portal-ci/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal-ci/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
 
     "test:ci": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection:ci && start-server-and-test start:portal:ci http://localhost:3000 cy:run:portal:ci",
     "test:local": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection:local && start-server-and-test start:portal:local http://localhost:3000 cy:run:portal:local"

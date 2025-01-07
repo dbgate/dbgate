@@ -575,4 +575,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   isChoosed={data.connection?._id == $focusedConnectionOrDatabase?.conid &&
     data.name == $focusedConnectionOrDatabase?.database}
   disableBoldScroll={!!$focusedConnectionOrDatabase}
+  divProps={{
+    'data-testid': `DatabaseAppObject_${data.name}`,
+  }}
 />
