@@ -15,7 +15,7 @@ SELECT
     STATUS,
     ON_COMPLETION,
         CONCAT(
-        'CREATE EVENT ', EVENT_NAME, ' ',
+        'CREATE EVENT \`', EVENT_NAME, '\` ',
         CASE WHEN EVENT_TYPE = 'RECURRING' THEN
             'ON SCHEDULE EVERY ' 
             ELSE 'ON SCHEDULE AT ' 
