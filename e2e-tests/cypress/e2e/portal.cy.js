@@ -82,6 +82,8 @@ describe('Run as portal', () => {
     cy.testid('DatabaseLoginModal_username').clear().type('postgres');
     cy.testid('DatabaseLoginModal_password').clear().type('Pwd2020Db');
     cy.testid('DatabaseLoginModal_connect').click();
+    cy.contains('Chinook').click();
+    cy.contains('album');
   });
 
   // it('import chinook DB', () => {

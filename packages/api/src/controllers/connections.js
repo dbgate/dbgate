@@ -222,7 +222,7 @@ module.exports = {
   },
 
   test_meta: true,
-  test({ connection, requestDbList }) {
+  test({ connection, requestDbList = false }) {
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
@@ -267,7 +267,7 @@ module.exports = {
     }
 
     if (test) {
-      const testRes = await this.test(res);
+      const testRes = await this.test({ connection: res });
       if (testRes.msgtype == 'connected') {
         volatileConnections[res._id] = res;
         return {
