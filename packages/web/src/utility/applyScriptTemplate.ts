@@ -173,6 +173,13 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
           scriptTemplate: 'CREATE OBJECT',
         },
       ];
+    case 'schedulerEvents':
+      return [
+        {
+          label: 'CREATE SCHEDULER EVENT',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+      ];
   }
 
   return [];

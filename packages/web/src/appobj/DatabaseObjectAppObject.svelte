@@ -42,6 +42,7 @@
     functions: 'img function',
     queries: 'img query-data',
     triggers: 'icon trigger',
+    schedulerEvents: 'icon scheduler-event',
   };
 
   const defaultTabs = {
@@ -87,10 +88,12 @@
     isDropCollection?: boolean;
     isRenameCollection?: boolean;
     isDuplicateCollection?: boolean;
+    isDisableEvent?: boolean;
+    isEnableEvent?: boolean;
     submenu?: DbObjMenuItem[];
   }
 
-  function createMenusCore(objectTypeField, driver): DbObjMenuItem[] {
+  function createMenusCore(objectTypeField, driver, data): DbObjMenuItem[] {
     switch (objectTypeField) {
       case 'tables':
         return [
@@ -344,6 +347,7 @@
           },
         ];
       case 'functions':
+        return [...defaultDatabaseObjectAppObjectActions['functions']];
       case 'triggers':
         return [...defaultDatabaseObjectAppObjectActions['triggers']];
       case 'collections':
@@ -383,6 +387,28 @@
           },
           ...(driver?.getScriptTemplates?.('collections') || []),
         ];
+      case 'schedulerEvents':
+        const menu: DbObjMenuItem[] = [
+          ...defaultDatabaseObjectAppObjectActions['schedulerEvents'],
+          {
+            divider: true,
+          },
+          ,
+        ];
+
+        if (data?.status === 'ENABLED') {
+          menu.push({
+            label: 'Disable',
+            isDisableEvent: true,
+          });
+        } else {
+          menu.push({
+            label: 'Enable',
+            isEnableEvent: true,
+          });
+        }
+
+        return menu;
     }
   }
 
@@ -479,6 +505,36 @@
           db[data.objectTypeField] as any[],
           x => x.schemaName == data.schemaName && x.pureName == data.pureName
         );
+      });
+    } else if (menu.isDisableEvent) {
+      const { conid, database, pureName } = data;
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.put('^alter ^event %i ^disable', pureName);
+
+      const sql = dmp.s;
+
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: async () => {
+          saveScriptToDatabase({ conid, database }, sql);
+        },
+        engine: driver.engine,
+      });
+    } else if (menu.isEnableEvent) {
+      const { conid, database, pureName } = data;
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.put('^alter ^event %i ^enable', pureName);
+
+      const sql = dmp.s;
+
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: async () => {
+          saveScriptToDatabase({ conid, database }, sql);
+        },
+        engine: driver.engine,
       });
     } else if (menu.isTruncate) {
       const { conid, database } = data;
@@ -625,8 +681,8 @@
     }
   }
 
-  function createMenus(objectTypeField, driver): ReturnType<typeof createMenusCore> {
-    return createMenusCore(objectTypeField, driver).filter(x => {
+  function createMenus(objectTypeField, driver, data): ReturnType<typeof createMenusCore> {
+    return createMenusCore(objectTypeField, driver, data).filter(x => {
       if (x.scriptTemplate) {
         return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
       }
@@ -844,7 +900,7 @@
     const driver = findEngineDriver(data, getExtensions());
 
     const { objectTypeField } = data;
-    return createMenus(objectTypeField, driver)
+    return createMenus(objectTypeField, driver, data)
       .filter(x => x)
       .map(menu => menuItemMapper(menu, data, connection));
   }
@@ -941,6 +997,15 @@
     if (data.objectTypeField === 'triggers') {
       res.push(`${data.tableName}, ${data.triggerTiming?.toLowerCase() ?? ''} ${data.eventType?.toLowerCase() ?? ''}`);
     }
+
+    if (data.objectTypeField == 'schedulerEvents') {
+      if (data.eventType == 'RECURRING') {
+        res.push(`${data.status}, ${data.eventType}, ${data.intervalValue} ${data.intervalField}`);
+      } else {
+        res.push(`${data.status}, ${data.eventType}, ${data.executeAt}`);
+      }
+    }
+
     if (data.objectComment) {
       res.push(data.objectComment);
     }

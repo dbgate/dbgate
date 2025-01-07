@@ -29,6 +29,13 @@ const mysqlEngine = {
   objects: [
     views,
     {
+      type: 'schedulerEvents',
+      create1: 'CREATE EVENT obj1 ON SCHEDULE EVERY 1 HOUR DO BEGIN END',
+      create2: 'CREATE EVENT obj2 ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY DO BEGIN END',
+      drop1: 'DROP EVENT obj1',
+      drop2: 'DROP EVENT obj2',
+    },
+    {
       type: 'procedures',
       create1: 'CREATE PROCEDURE obj1() BEGIN SELECT * FROM t1; END',
       create2: 'CREATE PROCEDURE obj2() BEGIN SELECT * FROM t2; END',
@@ -36,6 +43,7 @@ const mysqlEngine = {
       drop2: 'DROP PROCEDURE obj2',
     },
   ],
+  supportRenameSqlObject: false,
   dbSnapshotBySeconds: true,
   dumpFile: 'data/chinook-mysql.sql',
   dumpChecks: [
@@ -127,6 +135,30 @@ const mysqlEngine = {
         pureName: 'obj1',
         eventType: 'INSERT',
         triggerTiming: 'BEFORE',
+      },
+    },
+  ],
+  schedulerEvents: [
+    {
+      create: 'CREATE EVENT obj1 ON SCHEDULE EVERY 1 HOUR DO BEGIN END',
+      drop: 'DROP EVENT obj1',
+      objectTypeField: 'schedulerEvents',
+      expected: {
+        pureName: 'obj1',
+        status: 'ENABLED',
+        eventType: 'RECURRING',
+        intervalValue: '1',
+        intervalField: 'HOUR',
+      },
+    },
+    {
+      create: 'CREATE EVENT obj1 ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY DO BEGIN END',
+      drop: 'DROP EVENT obj1',
+      objectTypeField: 'schedulerEvents',
+      expected: {
+        pureName: 'obj1',
+        status: 'ENABLED',
+        eventType: 'ONE TIME',
       },
     },
   ],
@@ -601,7 +633,7 @@ const enginesOnCi = [
 
 const enginesOnLocal = [
   // all engines, which would be run on local test
-  // mysqlEngine,
+  mysqlEngine,
   // mariaDbEngine,
   // postgreSqlEngine,
   // sqlServerEngine,
