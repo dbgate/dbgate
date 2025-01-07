@@ -49,7 +49,8 @@ logger.info('Finished job script');
 dbgateApi.runScript(run);
 `;
 
-const loaderScriptTemplate = (functionName, props, runid) => `
+const loaderScriptTemplate = (prefix, functionName, props, runid) => `
+${prefix}
 const dbgateApi = require(process.env.DBGATE_API);
 dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
@@ -107,8 +108,6 @@ module.exports = {
   },
 
   startCore(runid, scriptText) {
-    // console.log('************* RUN SCRIPT *************');
-    // console.log(scriptText);
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
@@ -226,10 +225,14 @@ module.exports = {
 
   loadReader_meta: true,
   async loadReader({ functionName, props }) {
+    const prefix = extractShellApiPlugins(functionName)
+      .map(packageName => `// @require ${packageName}\n`)
+      .join('');
+
     const promise = new Promise((resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = [resolve, reject];
-      this.startCore(runid, loaderScriptTemplate(functionName, props, runid));
+      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid));
     });
     return promise;
   },
