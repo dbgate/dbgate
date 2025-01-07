@@ -351,13 +351,30 @@
       case 'triggers':
         return [
           ...defaultDatabaseObjectAppObjectActions['triggers'],
-          {
-            divider: true,
-          },
           hasPermission('dbops/model/edit') && {
             label: 'Drop trigger',
             isDrop: true,
             requiresWriteAccess: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE TRIGGER',
+                sqlGeneratorProps: {
+                  createTriggers: true,
+                },
+              },
+              {
+                label: 'DROP TRIGGER',
+                sqlGeneratorProps: {
+                  dropTriggers: true,
+                },
+              },
+            ],
           },
         ];
       case 'collections':
@@ -400,16 +417,10 @@
       case 'schedulerEvents':
         const menu: DbObjMenuItem[] = [
           ...defaultDatabaseObjectAppObjectActions['schedulerEvents'],
-          {
-            divider: true,
-          },
           hasPermission('dbops/model/edit') && {
             label: 'Drop event',
             isDrop: true,
             requiresWriteAccess: true,
-          },
-          {
-            divider: true,
           },
         ];
 
@@ -424,6 +435,29 @@
             isEnableEvent: true,
           });
         }
+
+        menu.push(
+          {
+            divider: true,
+          },
+          {
+            label: 'SQL generator',
+            submenu: [
+              {
+                label: 'CREATE SCHEDULER EVENT',
+                sqlGeneratorProps: {
+                  createSchedulerEvents: true,
+                },
+              },
+              {
+                label: 'DROP SCHEDULER EVENT',
+                sqlGeneratorProps: {
+                  dropSchedulerEvents: true,
+                },
+              },
+            ],
+          }
+        );
 
         return menu;
     }
