@@ -107,6 +107,8 @@ module.exports = {
   },
 
   startCore(runid, scriptText) {
+    // console.log('************* RUN SCRIPT *************');
+    // console.log(scriptText);
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
