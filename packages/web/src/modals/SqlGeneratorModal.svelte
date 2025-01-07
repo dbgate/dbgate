@@ -74,7 +74,7 @@
   $: generatePreview($valuesStore, $checkedObjectsStore);
 
   $: objectList = _.flatten(
-    ['tables', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+    ['tables', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(objectTypeField =>
       _.sortBy(
         (($dbinfo || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
@@ -214,8 +214,8 @@
 
                   <FormCheckboxField label="Truncate tables (delete all rows)" name="truncate" />
 
-                  {#each ['View', 'Matview', 'Procedure', 'Function', 'Trigger'] as objtype}
-                    <div class="obj-heading">{getObjectTypeFieldLabel(objtype.toLowerCase() + 's')}</div>
+                  {#each ['View', 'Matview', 'Procedure', 'Function', 'Trigger', 'SchedulerEvent'] as objtype}
+                    <div class="obj-heading">{getObjectTypeFieldLabel(objtype + 's')}</div>
                     <FormCheckboxField label="Create" name={`create${objtype}s`} />
                     <FormCheckboxField label="Drop" name={`drop${objtype}s`} />
                     {#if values[`drop${objtype}s`]}

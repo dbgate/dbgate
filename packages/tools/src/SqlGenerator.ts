@@ -3,6 +3,7 @@ import type {
   EngineDriver,
   FunctionInfo,
   ProcedureInfo,
+  SchedulerEventInfo,
   TableInfo,
   TriggerInfo,
   ViewInfo,
@@ -49,12 +50,16 @@ interface SqlGeneratorOptions {
   dropTriggers: boolean;
   checkIfTriggerExists: boolean;
   createTriggers: boolean;
+
+  dropSchedulerEvents: boolean;
+  checkIfSchedulerEventExists: boolean;
+  createSchedulerEvents: boolean;
 }
 
 interface SqlGeneratorObject {
   schemaName: string;
   pureName: string;
-  objectTypeField: 'tables' | 'views' | 'procedures' | 'functions';
+  objectTypeField: 'tables' | 'views' | 'procedures' | 'functions' | 'triggers' | 'schedulerEvents';
 }
 
 export class SqlGenerator {
@@ -64,6 +69,7 @@ export class SqlGenerator {
   private procedures: ProcedureInfo[];
   private functions: FunctionInfo[];
   private triggers: TriggerInfo[];
+  private schedulerEvents: SchedulerEventInfo[];
   public dbinfo: DatabaseInfo;
   public isTruncated = false;
   public isUnhandledException = false;
@@ -83,6 +89,7 @@ export class SqlGenerator {
     this.procedures = this.extract('procedures');
     this.functions = this.extract('functions');
     this.triggers = this.extract('triggers');
+    this.schedulerEvents = this.extract('schedulerEvents');
   }
 
   private handleException = error => {
@@ -103,6 +110,8 @@ export class SqlGenerator {
       this.dropObjects(this.matviews, 'Matview');
       if (this.checkDumper()) return;
       this.dropObjects(this.triggers, 'Trigger');
+      if (this.checkDumper()) return;
+      this.dropObjects(this.schedulerEvents, 'SchedulerEvent');
       if (this.checkDumper()) return;
 
       this.dropTables();
@@ -129,6 +138,8 @@ export class SqlGenerator {
       this.createObjects(this.matviews, 'Matview');
       if (this.checkDumper()) return;
       this.createObjects(this.triggers, 'Trigger');
+      if (this.checkDumper()) return;
+      this.createObjects(this.schedulerEvents, 'SchedulerEvent');
       if (this.checkDumper()) return;
     } finally {
       process.off('uncaughtException', this.handleException);
