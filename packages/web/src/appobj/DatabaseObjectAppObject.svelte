@@ -347,6 +347,7 @@
           },
         ];
       case 'functions':
+        return [...defaultDatabaseObjectAppObjectActions['functions']];
       case 'triggers':
         return [...defaultDatabaseObjectAppObjectActions['triggers']];
       case 'collections':
