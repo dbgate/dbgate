@@ -10,13 +10,13 @@ oauth2:
 staticClients:
   - id: my-app
     redirectURIs:
-      - 'http://localhost:3000/callback'
+      - 'http://localhost:3000/'
     name: 'My Test App'
     secret: my-secret
 
 enablePasswordDB: true
 staticPasswords:
   - email: "test@example.com"
-    hash: "$2y$05$olu30d4lgn7r1/Xfe13N1.5dz0N9AVlKXUFIxXUYVkhiq8D6gwYGG"
+    hash: "$2y$10$JcmlXnV1y7.egUdKwYNbseOnqYVIGc323gtvvHh4ZuSPZB30veYZy"
     username: "test"
     userID: "1234"
