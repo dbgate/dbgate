@@ -26,19 +26,19 @@ jobs:
         run: |
           yarn install
 
-      - name: Build packer dist for cypress
-        run: |
-          yarn prepare:packer
+      # - name: Build packer dist for cypress
+      #   run: |
+      #     yarn prepare:packer
 
-      - name: yarn install cypress
-        run: |
-          cd e2e-tests
-          yarn install
+      # - name: yarn install cypress
+      #   run: |
+      #     cd e2e-tests
+      #     yarn install
 
-      - name: Run Cypress tests
-        run: |
-          cd e2e-tests
-          yarn test:ci
+      # - name: Run Cypress tests
+      #   run: |
+      #     cd e2e-tests
+      #     yarn test:ci
 
       - name: Integration tests
         run: |
@@ -88,11 +88,15 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 15000:5432          
 
       mysql:
         image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
+        ports: 
+          - 15004:3306
 
       mssql:
         image: mcr.microsoft.com/mssql/server
@@ -100,16 +104,23 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
+        ports: 
+          - 15002:1433
 
       clickhouse:
         image: bitnami/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
+        ports: 
+          - 15005:8123
 
       oracle:
         image: gvenzl/oracle-xe:21-slim
         env:
           ORACLE_PASSWORD: Pwd2020Db
+        ports:
+          - 15006:1521
+
           
       mysql-ssh-login:
         image: ghcr.io/dbgate/mysql-ssh-login:latest

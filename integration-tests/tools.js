@@ -10,16 +10,21 @@ function randomDbName(dialect) {
 }
 
 function extractConnection(engine) {
-  const { connection } = engine;
+  return {
+    ...connection,
+    ...engine.local,
+  };
 
-  if (process.env.LOCALTEST && engine.local) {
-    return {
-      ...connection,
-      ...engine.local,
-    };
-  }
+  // const { connection } = engine;
 
-  return connection;
+  // if (process.env.LOCALTEST && engine.local) {
+  //   return {
+  //     ...connection,
+  //     ...engine.local,
+  //   };
+  // }
+
+  // return connection;
 }
 
 async function connect(engine, database) {
