@@ -24,6 +24,10 @@ jobs:
         run: |
           docker build -t dbgate/mysql-ssh-keyfile:latest e2e-tests/containers/mysql-ssh-keyfile
 
+      - name: Build dex image
+        run: |
+          docker build -t dbgate/dex:latest e2e-tests/containers/dex
+
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
@@ -40,3 +44,8 @@ jobs:
         run: |
           docker tag dbgate/mysql-ssh-keyfile:latest ghcr.io/dbgate/mysql-ssh-keyfile:latest
           docker push ghcr.io/dbgate/mysql-ssh-keyfile:latest
+
+      - name: Push dex to GHCR
+        run: |
+          docker tag dbgate/dex:latest ghcr.io/dbgate/dex:latest
+          docker push ghcr.io/dbgate/dex:latest

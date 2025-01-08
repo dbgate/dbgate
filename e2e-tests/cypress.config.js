@@ -22,6 +22,9 @@ module.exports = defineConfig({
             case 'portal':
               serverProcess = exec('yarn start:portal:local');
               break;
+            case 'oauth':
+              serverProcess = exec('yarn start:oauth:local');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });

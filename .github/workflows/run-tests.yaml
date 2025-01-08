@@ -94,3 +94,5 @@ jobs:
         image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
       mysql-ssh-keyfile:
         image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
+      dex:
+        image: 'ghcr.io/dbgate/dex:latest'
