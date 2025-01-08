@@ -34,6 +34,7 @@
   import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';
   import { useConfig } from '../utility/metadataLoaders';
   import ConnectionAdvancedDriverFields from '../settings/ConnectionAdvancedDriverFields.svelte';
+  import DatabaseLoginModal from '../modals/DatabaseLoginModal.svelte';
 
   export let connection;
   export let tabid;
@@ -63,11 +64,26 @@
 
   const testIdRef = createRef(0);
 
-  async function handleTest(e, requestDbList = false) {
+  function handleTest(requestDbList = false) {
+    const connection = getCurrentConnection();
+    return new Promise((resolve, reject) => {
+      if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
+        showModal(DatabaseLoginModal, {
+          testedConnection: connection,
+          onConnect: conn => handleTestCore(conn, requestDbList).then(res => resolve(res)),
+          onCancel: () => resolve(null),
+        });
+      } else {
+        return handleTestCore(connection, requestDbList);
+      }
+    });
+  }
+
+  async function handleTestCore(connection, requestDbList = false) {
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
-    const resp = await apiCall('connections/test', { connection: getCurrentConnection(), requestDbList });
+    const resp = await apiCall('connections/test', { connection, requestDbList });
     if (testIdRef.get() != testid) return;
 
     isTesting = false;
@@ -207,7 +223,7 @@
   // $: console.log('CONN VALUES', $values);
 
   async function getDatabaseList() {
-    const resp = await handleTest({ detail: getCurrentConnection() }, true);
+    const resp = await handleTest(true);
     if (resp && resp.msgtype == 'connected') {
       return resp.databases;
     }
@@ -257,7 +273,11 @@
                 data-testid="ConnectionTab_buttonCancelTest"
               />
             {:else}
-              <FormButton value="Test connection" on:click={handleTest} data-testid="ConnectionTab_buttonDisconnect" />
+              <FormButton
+                value="Test connection"
+                on:click={() => handleTest(false)}
+                data-testid="ConnectionTab_buttonDisconnect"
+              />
             {/if}
           {:else if isConnected}
             <FormButton value="Disconnect" on:click={handleDisconnect} data-testid="ConnectionTab_buttonDisconnect" />
@@ -266,7 +286,7 @@
             {#if isTesting}
               <FormButton value="Cancel test" on:click={handleCancelTest} />
             {:else}
-              <FormButton value="Test" on:click={handleTest} data-testid="ConnectionTab_buttonTest" />
+              <FormButton value="Test" on:click={() => handleTest(false)} data-testid="ConnectionTab_buttonTest" />
             {/if}
             <FormButton value="Save" on:click={handleSave} data-testid="ConnectionTab_buttonSave" />
           {/if}

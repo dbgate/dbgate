@@ -30,6 +30,11 @@
 
   export let conid;
   export let passwordMode;
+  export let testedConnection;
+  export let onConnect = null;
+  export let onCancel = null;
+
+  $: usedPasswordMode = testedConnection?.passwordMode ?? passwordMode;
 
   const values = writable({});
   let connection;
@@ -39,19 +44,24 @@
   const testIdRef = createRef(0);
 
   let engineTitle;
+  let closedWithOk = false;
 
   currentModalConid = conid;
 
   onMount(async () => {
-    connection = await getConnectionInfo({ conid });
-    if (passwordMode == 'askPassword') {
+    if (testedConnection) {
+      connection = testedConnection;
+    } else {
+      connection = await getConnectionInfo({ conid });
+    }
+    if (usedPasswordMode == 'askPassword') {
       $values = {
         ...$values,
         user: connection.user,
         connectionLabel: getConnectionLabel(connection),
       };
     }
-    if (passwordMode == 'askUser') {
+    if (usedPasswordMode == 'askUser') {
       $values = {
         ...$values,
         connectionLabel: getConnectionLabel(connection),
@@ -64,6 +74,7 @@
 
   onDestroy(() => {
     currentModalConid = null;
+    if (onCancel && !closedWithOk) onCancel();
   });
 
   function handleCancelTest() {
@@ -72,6 +83,17 @@
   }
 
   async function handleSubmit(ev) {
+    if (onConnect) {
+      closedWithOk = true;
+      onConnect({
+        ...testedConnection,
+        user: usedPasswordMode == 'askUser' ? $values['user'] : testedConnection.user,
+        password: $values['password'],
+      });
+      closeCurrentModal();
+      return;
+    }
+
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
@@ -104,8 +126,8 @@
       label="Username"
       name="user"
       autocomplete="username"
-      disabled={passwordMode == 'askPassword'}
-      focused={passwordMode == 'askUser'}
+      disabled={usedPasswordMode == 'askPassword'}
+      focused={usedPasswordMode == 'askUser'}
       saveOnInput
       data-testid="DatabaseLoginModal_username"
     />
@@ -113,7 +135,7 @@
       label="Password"
       name="password"
       autocomplete="current-password"
-      focused={passwordMode == 'askPassword'}
+      focused={usedPasswordMode == 'askPassword'}
       saveOnInput
       data-testid="DatabaseLoginModal_password"
     />
