@@ -67,7 +67,7 @@
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
-    const resp = await apiCall('connections/test', { connection: e.detail, requestDbList });
+    const resp = await apiCall('connections/test', { connection: getCurrentConnection(), requestDbList });
     if (testIdRef.get() != testid) return;
 
     isTesting = false;
@@ -122,6 +122,14 @@
     } else {
       connection = _.omit(connection, ['useSsl']);
       connection = _.omitBy(connection, (v, k) => k.startsWith('ssl'));
+    }
+
+    if (values?.passwordMode == 'askPassword') {
+      connection = _.omit(connection, ['password']);
+    }
+
+    if (values?.passwordMode == 'askUser') {
+      connection = _.omit(connection, ['user', 'password']);
     }
 
     return connection;
