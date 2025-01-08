@@ -30,3 +30,11 @@ services:
     ports: 
       - 16007:3306
       - 16008:22
+
+  dex:
+    image: dexidp/dex:v2.35.3
+    ports:
+      - "16009:5556"
+    volumes:
+      - ./dex-config.yaml:/etc/dex/cfg/config.yaml
+    command: ["serve", "/etc/dex/cfg/config.yaml"]

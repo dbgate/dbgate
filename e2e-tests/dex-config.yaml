@@ -1,0 +1,22 @@
+issuer: http://localhost:16009/dex
+storage:
+  type: memory
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  - id: my-app
+    redirectURIs:
+      - 'http://localhost:3000/callback'
+    name: 'My Test App'
+    secret: my-secret
+
+enablePasswordDB: true
+staticPasswords:
+  - email: "test@example.com"
+    hash: "$apr1$Jt1q33YL$HtIJEPYtMAf6aEtCdF4j80"
+    username: "test"
+    userID: "1234"
