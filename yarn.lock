@@ -4221,6 +4221,13 @@ dateformat@^4.6.3:
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-4.6.3.tgz#556fa6497e5217fedb78821424f8a1c22fa3f4b5"
   integrity sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==
 
+dbffile@^1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/dbffile/-/dbffile-1.12.0.tgz#626593b5248b273b3194bbb57e21bb8f1661802c"
+  integrity sha512-repLNtp1jyODRyAbqSaCiComsLi9/2w+ljYC760TXf69ExFVoJzdDr5STBx21gunM59RipYK5zHeDIuGf1LA8w==
+  dependencies:
+    iconv-lite "^0.4.24"
+
 dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.8.tgz#bb16f38ff7161d9b57c08f0918e152593e7ac695"
