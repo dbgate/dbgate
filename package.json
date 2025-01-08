@@ -72,7 +72,6 @@
   },
   "devDependencies": {
     "copyfiles": "^2.2.0",
-    "kill-port": "^2.0.1",
     "prettier": "^2.2.1",
     "workspaces-run": "^1.0.1"
   }
