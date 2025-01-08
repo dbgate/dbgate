@@ -10,6 +10,8 @@ function randomDbName(dialect) {
 }
 
 function extractConnection(engine) {
+  const { connection } = engine;
+  
   return {
     ...connection,
     ...engine.local,
