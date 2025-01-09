@@ -45,6 +45,8 @@
   export let setCache;
   export let multipleGridsOnTab = false;
 
+  export let isRawMode = false;
+
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
@@ -71,7 +73,8 @@
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          $connection?.isReadOnly
+          $connection?.isReadOnly,
+          isRawMode
         )
       : null;
 

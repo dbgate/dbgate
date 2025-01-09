@@ -37,7 +37,8 @@ export class TableGridDisplay extends GridDisplay {
     public displayOptions: any,
     serverVersion,
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
-    isReadOnly = false
+    isReadOnly = false,
+    public isRawMode = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
 
@@ -172,6 +173,9 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   addHintsToSelect(select: Select): boolean {
+    if (this.isRawMode) {
+      return false;
+    }
     let res = false;
     const groupColumns = this.groupColumns;
     for (const column of this.hintBaseColumns || this.getGridColumns()) {
