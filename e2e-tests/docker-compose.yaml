@@ -22,19 +22,16 @@ services:
     restart: always
     ports: 
       - 16005:3306
-      - 16006:22
+      - "16006:22"
 
   mysql-ssh-keyfile:
     build: containers/mysql-ssh-keyfile
     restart: always
     ports: 
       - 16007:3306
-      - 16008:22
+      - "16008:22"
 
   dex:
-    image: dexidp/dex:v2.35.3
+    build: containers/dex
     ports:
       - "16009:5556"
-    volumes:
-      - ./dex-config.yaml:/etc/dex/cfg/config.yaml
-    command: ["dex", "serve", "/etc/dex/cfg/config.yaml"]

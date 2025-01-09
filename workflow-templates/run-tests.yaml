@@ -37,7 +37,7 @@ jobs:
       - name: Run Cypress tests
         run: |
           cd e2e-tests
-          yarn test:local
+          yarn test:ci
 
       - name: Integration tests
         run: |
