@@ -133,8 +133,8 @@ export interface FilterBehaviourProvider {
   getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
 }
 
-export interface DatabaseHandle {
-  client: any;
+export interface DatabaseHandle<TClient = any> {
+  client: TClient;
   database?: string;
   feedback?: (message: any) => void;
   getDatabase?: () => any;
@@ -142,7 +142,7 @@ export interface DatabaseHandle {
   treeKeySeparator?: string;
 }
 
-export interface EngineDriver extends FilterBehaviourProvider {
+export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   engine: string;
   title: string;
   defaultPort?: number;
@@ -183,23 +183,27 @@ export interface EngineDriver extends FilterBehaviourProvider {
   defaultSocketPath?: string;
   authTypeLabel?: string;
   importExportArgs?: any[];
-  connect({ server, port, user, password, database }): Promise<DatabaseHandle>;
-  close(dbhan: DatabaseHandle): Promise<any>;
-  query(dbhan: DatabaseHandle, sql: string, options?: QueryOptions): Promise<QueryResult>;
-  stream(dbhan: DatabaseHandle, sql: string, options: StreamOptions);
-  readQuery(dbhan: DatabaseHandle, sql: string, structure?: TableInfo): Promise<stream.Readable>;
-  readJsonQuery(dbhan: DatabaseHandle, query: any, structure?: TableInfo): Promise<stream.Readable>;
+  connect({ server, port, user, password, database }): Promise<DatabaseHandle<TClient>>;
+  close(dbhan: DatabaseHandle<TClient>): Promise<any>;
+  query(dbhan: DatabaseHandle<TClient>, sql: string, options?: QueryOptions): Promise<QueryResult>;
+  stream(dbhan: DatabaseHandle<TClient>, sql: string, options: StreamOptions);
+  readQuery(dbhan: DatabaseHandle<TClient>, sql: string, structure?: TableInfo): Promise<stream.Readable>;
+  readJsonQuery(dbhan: DatabaseHandle<TClient>, query: any, structure?: TableInfo): Promise<stream.Readable>;
   // eg. PostgreSQL COPY FROM stdin
-  writeQueryFromStream(dbhan: DatabaseHandle, sql: string): Promise<stream.Writable>;
-  writeTable(dbhan: DatabaseHandle, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writable>;
+  writeQueryFromStream(dbhan: DatabaseHandle<TClient>, sql: string): Promise<stream.Writable>;
+  writeTable(
+    dbhan: DatabaseHandle<TClient>,
+    name: NamedObjectInfo,
+    options: WriteTableOptions
+  ): Promise<stream.Writable>;
   analyseSingleObject(
-    dbhan: DatabaseHandle,
+    dbhan: DatabaseHandle<TClient>,
     name: NamedObjectInfo,
     objectTypeField: keyof DatabaseInfo
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
-  analyseSingleTable(dbhan: DatabaseHandle, name: NamedObjectInfo): Promise<TableInfo>;
-  getVersion(dbhan: DatabaseHandle): Promise<{ version: string; versionText?: string }>;
-  listDatabases(dbhan: DatabaseHandle): Promise<
+  analyseSingleTable(dbhan: DatabaseHandle<TClient>, name: NamedObjectInfo): Promise<TableInfo>;
+  getVersion(dbhan: DatabaseHandle<TClient>): Promise<{ version: string; versionText?: string }>;
+  listDatabases(dbhan: DatabaseHandle<TClient>): Promise<
     {
       name: string;
     }[]
@@ -220,23 +224,23 @@ export interface EngineDriver extends FilterBehaviourProvider {
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
-  createBackupDumper(dbhan: DatabaseHandle, options): Promise<SqlBackupDumper>;
+  createBackupDumper(dbhan: DatabaseHandle<TClient>, options): Promise<SqlBackupDumper>;
   getAuthTypes(): EngineAuthType[];
-  readCollection(dbhan: DatabaseHandle, options: ReadCollectionOptions): Promise<any>;
-  updateCollection(dbhan: DatabaseHandle, changeSet: any): Promise<any>;
+  readCollection(dbhan: DatabaseHandle<TClient>, options: ReadCollectionOptions): Promise<any>;
+  updateCollection(dbhan: DatabaseHandle<TClient>, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
-  createDatabase(dbhan: DatabaseHandle, name: string): Promise;
-  dropDatabase(dbhan: DatabaseHandle, name: string): Promise;
+  createDatabase(dbhan: DatabaseHandle<TClient>, name: string): Promise;
+  dropDatabase(dbhan: DatabaseHandle<TClient>, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
-  script(dbhan: DatabaseHandle, sql: string, options?: RunScriptOptions): Promise;
-  operation(dbhan: DatabaseHandle, operation: {}, options?: RunScriptOptions): Promise;
+  script(dbhan: DatabaseHandle<TClient>, sql: string, options?: RunScriptOptions): Promise;
+  operation(dbhan: DatabaseHandle<TClient>, operation: {}, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of dbhan.client method, only some methods could be supported, on only some drivers
-  callMethod(dbhan: DatabaseHandle, method, args);
-  serverSummary(dbhan: DatabaseHandle): Promise<ServerSummary>;
-  summaryCommand(dbhan: DatabaseHandle, command, row): Promise<void>;
-  startProfiler(dbhan: DatabaseHandle, options): Promise<any>;
-  stopProfiler(dbhan: DatabaseHandle, profiler): Promise<void>;
+  callMethod(dbhan: DatabaseHandle<TClient>, method, args);
+  serverSummary(dbhan: DatabaseHandle<TClient>): Promise<ServerSummary>;
+  summaryCommand(dbhan: DatabaseHandle<TClient>, command, row): Promise<void>;
+  startProfiler(dbhan: DatabaseHandle<TClient>, options): Promise<any>;
+  stopProfiler(dbhan: DatabaseHandle<TClient>, profiler): Promise<void>;
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
@@ -251,7 +255,7 @@ export interface EngineDriver extends FilterBehaviourProvider {
   ): any[];
   // adapts table info from different source (import, other database) to be suitable for this database
   adaptTableInfo(table: TableInfo): TableInfo;
-  listSchemas(dbhan: DatabaseHandle): SchemaInfo[];
+  listSchemas(dbhan: DatabaseHandle<TClient>): SchemaInfo[];
 
   analyserClass?: any;
   dumperClass?: any;
