@@ -20,10 +20,10 @@ module.exports = defineConfig({
               serverProcess = exec('yarn start:add-connection');
               break;
             case 'portal':
-              serverProcess = exec('yarn start:portal:local');
+              serverProcess = exec('yarn start:portal');
               break;
             case 'oauth':
-              serverProcess = exec('yarn start:oauth:local');
+              serverProcess = exec('yarn start:oauth');
               break;
           }
 

@@ -1,4 +1,4 @@
-issuer: http://dex:5556/dex
+issuer: http://localhost:16009/dex
 storage:
   type: memory
 web:

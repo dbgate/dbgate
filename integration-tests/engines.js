@@ -19,10 +19,6 @@ const mysqlEngine = {
     engine: 'mysql@dbgate-plugin-mysql',
     password: 'Pwd2020Db',
     user: 'root',
-    server: 'mysql',
-    port: 3306,
-  },
-  local: {
     server: 'localhost',
     port: 15001,
   },
@@ -170,10 +166,6 @@ const mariaDbEngine = {
     engine: 'mariadb@dbgate-plugin-mysql',
     password: 'Pwd2020Db',
     user: 'root',
-    server: 'mysql',
-    port: 3306,
-  },
-  local: {
     server: 'localhost',
     port: 15004,
   },
@@ -194,10 +186,6 @@ const postgreSqlEngine = {
     engine: 'postgres@dbgate-plugin-postgres',
     password: 'Pwd2020Db',
     user: 'postgres',
-    server: 'postgres',
-    port: 5432,
-  },
-  local: {
     server: 'localhost',
     port: 15000,
   },
@@ -370,10 +358,6 @@ const sqlServerEngine = {
     engine: 'mssql@dbgate-plugin-mssql',
     password: 'Pwd2020Db',
     user: 'sa',
-    server: 'mssql',
-    port: 1433,
-  },
-  local: {
     server: 'localhost',
     port: 15002,
   },
@@ -521,10 +505,6 @@ const cockroachDbEngine = {
   connection: {
     engine: 'cockroach@dbgate-plugin-postgres',
     user: 'root',
-    server: 'cockroachdb',
-    port: 26257,
-  },
-  local: {
     server: 'localhost',
     port: 15003,
   },
@@ -535,11 +515,8 @@ const clickhouseEngine = {
   label: 'ClickHouse',
   connection: {
     engine: 'clickhouse@dbgate-plugin-clickhouse',
-    databaseUrl: 'http://clickhouse:8123',
-    password: 'Pwd2020Db',
-  },
-  local: {
     databaseUrl: 'http://localhost:15005',
+    password: 'Pwd2020Db',
   },
   objects: [views],
   skipDataModifications: true,
@@ -562,13 +539,9 @@ const oracleEngine = {
     engine: 'oracle@dbgate-plugin-oracle',
     password: 'Pwd2020Db',
     user: 'system',
-    server: 'oracle',
-    port: 1521,
-    serviceName: 'xe',
-  },
-  local: {
     server: 'localhost',
     port: 15006,
+    serviceName: 'xe',
   },
   skipOnCI: false,
   dbSnapshotBySeconds: true,

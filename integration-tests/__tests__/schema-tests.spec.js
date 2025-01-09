@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
 const fp = require('lodash/fp');
-const { testWrapper, extractConnection } = require('../tools');
+const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { runCommandOnDriver } = require('dbgate-tools');
 
@@ -62,7 +62,7 @@ describe('Schema tests', () => {
       await runCommandOnDriver(handle, driver, dmp => dmp.createSchema('myschema'));
 
       const schemaConnDef = {
-        ...extractConnection(engine),
+        ...engine.connection,
         database: `${handle.database}::myschema`,
       };
 
