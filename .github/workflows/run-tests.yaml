@@ -102,7 +102,7 @@ jobs:
       postgres-cypress:
         image: postgres
         options: '--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5'
-        environment:
+        env:
           POSTGRES_PASSWORD: Pwd2020Db
         ports:
           - '16000:5432'
@@ -110,7 +110,7 @@ jobs:
         image: 'mysql:8.0.18'
         ports:
           - '16004:3306'
-        environment:
+        env:
           - MYSQL_ROOT_PASSWORD=Pwd2020Db
       mysql-ssh-login:
         image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
