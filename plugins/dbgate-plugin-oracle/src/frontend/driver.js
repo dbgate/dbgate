@@ -10,7 +10,7 @@ const dialect = {
   limitSelect: false,
   offsetFetchRangeSyntax: true,
   rowNumberOverPaging: true,
-  ilike: true,
+  ilike: false,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar(250)',
