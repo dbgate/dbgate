@@ -18,12 +18,14 @@
     "cy:run:add-connection": "cypress run --spec cypress/e2e/add-connection.cy.js",
     "cy:run:portal": "cypress run --spec cypress/e2e/portal.cy.js",
     "cy:run:oauth": "cypress run --spec cypress/e2e/oauth.cy.js",
+    "cy:run:browse-data": "cypress run --spec cypress/e2e/browse-data.cy.js",
 
     "start:add-connection": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
     "start:portal": "cd .. && env-cmd -f e2e-tests/env/portal/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
     "start:oauth": "cd .. && env-cmd -f e2e-tests/env/oauth/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:browse-data": "cd .. && env-cmd -f e2e-tests/env/browse-data/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
 
-    "test": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection && start-server-and-test start:portal http://localhost:3000 cy:run:portal && start-server-and-test start:oauth http://localhost:3000 cy:run:oauth",
+    "test": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection && start-server-and-test start:portal http://localhost:3000 cy:run:portal && start-server-and-test start:oauth http://localhost:3000 cy:run:oauth && start-server-and-test start:browse-data http://localhost:3000 cy:run:browse-data",
     "test:ci": "yarn test"
   }
 }

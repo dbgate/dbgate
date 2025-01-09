@@ -25,6 +25,9 @@ module.exports = defineConfig({
             case 'oauth':
               serverProcess = exec('yarn start:oauth');
               break;
+            case 'browse-data':
+              serverProcess = exec('yarn start:browse-data');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });
