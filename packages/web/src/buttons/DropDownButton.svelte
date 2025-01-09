@@ -33,6 +33,13 @@
   }
 </script>
 
-<InlineButton {square} {narrow} on:click={handleClick} bind:this={domButton} {disabled}>
+<InlineButton
+  {square}
+  {narrow}
+  on:click={handleClick}
+  bind:this={domButton}
+  {disabled}
+  data-testid={$$props['data-testid']}
+>
   <FontIcon icon={isLoading ? 'icon loading' : icon} />
 </InlineButton>

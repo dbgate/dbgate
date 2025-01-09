@@ -215,6 +215,7 @@
     onFocusFilteredList={() => {
       domListHandler?.focusFirst();
     }}
+    data-testid="ConnectionList_search"
   />
   <CloseSearchButton bind:filter />
   <DropDownButton

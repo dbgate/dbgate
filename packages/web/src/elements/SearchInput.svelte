@@ -43,6 +43,7 @@
   on:keydown={handleKeyDown}
   bind:this={domInput}
   on:focus={e => domInput.select()}
+  data-testid={$$props['data-testid']}
 />
 
 <style>

@@ -214,6 +214,7 @@
       onFocusFilteredList={() => {
         domListHandler?.focusFirst();
       }}
+      data-testid="SqlObjectList_search"
     />
     <CloseSearchButton bind:filter />
     <DropDownButton
@@ -221,6 +222,7 @@
       menu={createSearchMenu}
       square={!!filter}
       narrow={false}
+      data-testid="SqlObjectList_searchMenuDropDown"
     />
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
