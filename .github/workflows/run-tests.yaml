@@ -67,7 +67,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
         ports:
-          - '15004:3306'
+          - '15001:3306'
       mssql:
         image: mcr.microsoft.com/mssql/server
         env:
