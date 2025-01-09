@@ -143,7 +143,7 @@ jobs:
         ports: 
           - 16004:3306
         env:
-          - MYSQL_ROOT_PASSWORD=Pwd2020Db
+          MYSQL_ROOT_PASSWORD: Pwd2020Db
 
       mysql-ssh-login:
         image: ghcr.io/dbgate/mysql-ssh-login:latest
