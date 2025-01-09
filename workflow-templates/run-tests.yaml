@@ -10,9 +10,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: node:18
 
     steps:
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+
       - name: Install dependencies for cypress
         run: |
           apt-get update
