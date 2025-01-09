@@ -1,13 +1,12 @@
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const engines = require('./engines');
-const { extractConnection } = require('./tools');
 global.DBGATE_PACKAGES = {
   'dbgate-tools': require('dbgate-tools'),
   'dbgate-sqltree': require('dbgate-sqltree'),
 };
 
 async function connectEngine(engine) {
-  const connection = extractConnection(engine);
+  const { connection } = engine;
   const driver = requireEngineDriver(connection);
   for (;;) {
     try {

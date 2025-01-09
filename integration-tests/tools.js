@@ -9,28 +9,8 @@ function randomDbName(dialect) {
   return res;
 }
 
-function extractConnection(engine) {
-  const { connection } = engine;
-  
-  return {
-    ...connection,
-    ...engine.local,
-  };
-
-  // const { connection } = engine;
-
-  // if (process.env.LOCALTEST && engine.local) {
-  //   return {
-  //     ...connection,
-  //     ...engine.local,
-  //   };
-  // }
-
-  // return connection;
-}
-
 async function connect(engine, database) {
-  const connection = extractConnection(engine);
+  const { connection } = engine;
   const driver = requireEngineDriver(connection);
 
   if (engine.generateDbFile) {
@@ -55,7 +35,7 @@ async function connect(engine, database) {
 }
 
 async function prepareConnection(engine, database) {
-  const connection = extractConnection(engine);
+  const { connection } = engine;
   const driver = requireEngineDriver(connection);
 
   if (engine.generateDbFile) {
@@ -104,7 +84,6 @@ const testWrapperPrepareOnly =
 module.exports = {
   randomDbName,
   connect,
-  extractConnection,
   testWrapper,
   testWrapperPrepareOnly,
 };
