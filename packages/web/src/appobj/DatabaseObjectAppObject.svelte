@@ -722,7 +722,7 @@
       openDatabaseObjectDetail(
         menu.tab,
         menu.scriptTemplate,
-        { ...data, defaultActionId: menu.defaultActionId },
+        { ...data, defaultActionId: menu.defaultActionId, isRawMode: menu.isRawMode },
         menu.forceNewTab,
         menu.initialData,
         menu.icon,
@@ -757,7 +757,7 @@
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
-    { schemaName, pureName, conid, database, objectTypeField, defaultActionId },
+    { schemaName, pureName, conid, database, objectTypeField, defaultActionId, isRawMode },
     forceNewTab?,
     initialData?,
     icon?,
@@ -791,6 +791,7 @@
           objectTypeField,
           initialArgs: scriptTemplate ? { scriptTemplate } : null,
           defaultActionId,
+          isRawMode,
         },
       },
       initialData,
@@ -857,6 +858,7 @@
         database,
         objectTypeField,
         defaultActionId: prefferedAction.defaultActionId,
+        isRawMode: prefferedAction?.isRawMode ?? false,
       },
       forceNewTab,
       null,

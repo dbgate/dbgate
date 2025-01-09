@@ -15,6 +15,12 @@ function getTableLikeActions(dataTab) {
       tab: dataTab,
       defaultActionId: 'openTable',
     },
+    {
+      label: 'Open raw data',
+      tab: dataTab,
+      defaultActionId: 'openRawTable',
+      isRawMode: true,
+    },
     // {
     //   label: 'Open form',
     //   tab: dataTab,

@@ -108,6 +108,7 @@
   export let database;
   export let schemaName;
   export let pureName;
+  export let isRawMode = false;
 
   export const activator = createActivator('TableDataTab', true);
 
@@ -245,6 +246,8 @@
       ...INTERVALS.map(seconds => ({ command: `tableData.setAutoRefresh.${seconds}`, text: `...${seconds} seconds` })),
     ];
   }
+
+  $: console.log('isRawMode', isRawMode);
 </script>
 
 <ToolStripContainer>
