@@ -30,19 +30,19 @@ jobs:
         run: |
           yarn install
 
-      # - name: Build packer dist for cypress
-      #   run: |
-      #     yarn prepare:packer
+      - name: Build packer dist for cypress
+        run: |
+          yarn prepare:packer
 
-      # - name: yarn install cypress
-      #   run: |
-      #     cd e2e-tests
-      #     yarn install
+      - name: yarn install cypress
+        run: |
+          cd e2e-tests
+          yarn install
 
-      # - name: Run Cypress tests
-      #   run: |
-      #     cd e2e-tests
-      #     yarn test:ci
+      - name: Run Cypress tests
+        run: |
+          cd e2e-tests
+          yarn test:local
 
       - name: Integration tests
         run: |
@@ -83,7 +83,7 @@ jobs:
           action-name: Datalib (perspectives) test results
 
     services:
-      postgres:
+      postgres-integr:
         image: postgres
         env:
           POSTGRES_PASSWORD: Pwd2020Db
@@ -95,14 +95,14 @@ jobs:
         ports:
           - 15000:5432          
 
-      mysql:
+      mysql-integr:
         image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
         ports: 
           - 15001:3306
 
-      mssql:
+      mssql-integr:
         image: mcr.microsoft.com/mssql/server
         env:
           ACCEPT_EULA: Y
@@ -111,26 +111,51 @@ jobs:
         ports: 
           - 15002:1433
 
-      clickhouse:
+      clickhouse-integr:
         image: bitnami/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
         ports: 
           - 15005:8123
 
-      oracle:
+      oracle-integr:
         image: gvenzl/oracle-xe:21-slim
         env:
           ORACLE_PASSWORD: Pwd2020Db
         ports:
           - 15006:1521
 
-          
+
+      postgres-cypress:
+        image: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        environment:
+          POSTGRES_PASSWORD: Pwd2020Db
+        ports: 
+          - 16000:5432
+
+      mysql-cypress:
+        image: mysql:8.0.18
+        ports: 
+          - 16004:3306
+        environment:
+          - MYSQL_ROOT_PASSWORD=Pwd2020Db
+
       mysql-ssh-login:
         image: ghcr.io/dbgate/mysql-ssh-login:latest
+        ports:
+          - 16006:22
 
       mysql-ssh-keyfile:
         image: ghcr.io/dbgate/mysql-ssh-keyfile:latest
+        ports: 
+          - 16008:22
 
       dex:
         image: ghcr.io/dbgate/dex:latest
+        ports:
+          - 16009:5556
