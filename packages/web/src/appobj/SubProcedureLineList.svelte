@@ -9,6 +9,7 @@
   export let data;
   export let filter;
   export let isExpandedBySearch;
+  export let passProps;
 </script>
 
 <AppObjectList
@@ -18,4 +19,5 @@
   module={procedureLineAppObject}
   {filter}
   {isExpandedBySearch}
+  {passProps}
 />
