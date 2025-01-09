@@ -55,7 +55,7 @@
     onClick: () => getCurrentEditor().startAutoRefresh(),
   });
 
-  export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
+  export const matchingProps = ['conid', 'database', 'schemaName', 'pureName', 'isRawMode'];
   export const allowAddToFavorites = props => true;
   export const allowSwitchDatabase = props => true;
 </script>

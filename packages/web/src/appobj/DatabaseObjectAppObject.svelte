@@ -862,7 +862,7 @@
       },
       forceNewTab,
       null,
-      null,
+      prefferedAction.icon,
       data,
       tabPreviewMode
     );

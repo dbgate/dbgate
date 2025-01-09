@@ -16,6 +16,7 @@
 
   export let preprocessLoadedRow = null;
   export let setLoadedRows = null;
+  export let isRawMode = false;
 
   // export let griderFactory;
 
@@ -65,7 +66,7 @@
     if (nextRows.errorMessage) {
       errorMessage = nextRows.errorMessage;
     } else {
-      if (allRowCount == null) handleLoadRowCount();
+      if (allRowCount == null && !isRawMode) handleLoadRowCount();
 
       loadedRows = [...loadedRows, ...(preprocessLoadedRow ? nextRows.map(preprocessLoadedRow) : nextRows)];
       isLoadedAll = nextRows.length === 0;
