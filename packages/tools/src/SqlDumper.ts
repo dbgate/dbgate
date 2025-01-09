@@ -18,6 +18,7 @@ import type {
   AlterProcessor,
   SqlObjectInfo,
   CallableObjectInfo,
+  SchedulerEventInfo,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
@@ -430,6 +431,14 @@ export class SqlDumper implements AlterProcessor {
   }
   changeTriggerSchema(obj: TriggerInfo, newSchema: string) {}
   renameTrigger(obj: TriggerInfo, newSchema: string) {}
+
+  createSchedulerEvent(obj: SchedulerEventInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropSchedulerEvent(obj: SchedulerEventInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^event  %f', obj);
+  }
 
   dropConstraintCore(cnt: ConstraintInfo) {
     this.putCmd('^alter ^table %f ^drop ^constraint %i', cnt, cnt.constraintName);
