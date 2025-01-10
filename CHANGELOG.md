@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.1.3
+- FIXED: Fulltext search now shows correctly columns and SQL code lines
+- ADDED: Configuration of SSH tunnel local host (IPv4 vs IPv6). Should fix majority of SSH tunnel problems
+- FIXED: Handled SSH tunnel connection error, now it shows error instead of connecting forever
+- ADDED: Support of triggers (SQLite)
+- ADDED: Create, drop trigger 
+- ADDED: Support for MySQL scheduled events
+- FIXED: Cannot connect to DB using askUser/askPassword mode #995
+- FIXED: Filtering in Oracle #992
+- ADDED: Open table in raw mode #991, #962
+- ADDED: Introduced E2E Cypress tests, test refactor
+
 ### 6.1.1
 - ADDED: Trigger support (SQL Server, PostgreSQL, MySQL, Oracle)
 - FIXED: PostgreSQL and Oracle export #970
