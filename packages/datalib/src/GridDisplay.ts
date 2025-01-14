@@ -253,7 +253,7 @@ export abstract class GridDisplay {
             orCondition.conditions.push(
               _.cloneDeepWith(condition, (expr: Expression) => {
                 if (expr.exprType == 'placeholder') {
-                  return this.createColumnExpression(column, { alias: 'basetbl' }, undefined, 'filter');
+                  return this.createColumnExpression(column, {}, undefined, 'filter');
                 }
               })
             );
@@ -584,7 +584,7 @@ export abstract class GridDisplay {
     }
     return {
       exprType: 'column',
-      alias: alias || col.columnName,
+      ...(!this.dialect.omitTableAliases && { alias: alias || col.columnName }),
       source,
       ...col,
     };
@@ -597,9 +597,9 @@ export abstract class GridDisplay {
       commandType: 'select',
       from: {
         name: _.pick(name, ['schemaName', 'pureName']),
-        alias: 'basetbl',
+        ...(!this.dialect.omitTableAliases && { alias: 'basetbl' }),
       },
-      columns: columns.map(col => this.createColumnExpression(col, { alias: 'basetbl' }, undefined, 'view')),
+      columns: columns.map(col => this.createColumnExpression(col, {}, undefined, 'view')),
       orderBy: this.driver?.requiresDefaultSortCriteria
         ? [
             {
@@ -611,7 +611,10 @@ export abstract class GridDisplay {
         : null,
     };
     const displayedColumnInfo = _.keyBy(
-      this.columns.map(col => ({ ...col, sourceAlias: 'basetbl' })),
+      this.columns.map(col => ({
+        ...col,
+        ...(!this.dialect.omitTableAliases && { sourceAlias: 'basetbl' }),
+      })),
       'uniqueName'
     );
     this.processReferences(select, displayedColumnInfo, options);
@@ -639,7 +642,7 @@ export abstract class GridDisplay {
                   ? x
                   : {
                       ...x,
-                      source: { alias: 'basetbl' },
+                      ...(!this.dialect.omitTableAliases && { source: { alias: 'basetbl' } }),
                     }
               )
             : [
