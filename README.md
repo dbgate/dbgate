@@ -53,13 +53,15 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 <!-- ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png) -->
 
 ## Features
+* Browse table data with many filtering options, Excel-like filters, multi-value filters
 * Table data editing, with SQL change script preview
 * Edit table schema, indexes, primary and foreign keys
 * Compare and synchronize database structure
 * ER diagram
-* Light and dark theme
-* Master/detail views, foreign key lookups
-* Query designer
+* Light and dark theme, next themes available as plugins from github community
+* Huge support for work with related data - master/detail views, foreign key lookups, expanding columns from related tables in flat data view
+* Query designer - visual SQL query builder without writing SQL code. Complex conditions like WHERE NOT EXISTS.
+* Query perspectives – innovative nested table view over complex relational data, something like query designer on MongoDB databases
 * Form view for comfortable work with tables with many columns
 * JSON view on MongoDB collections
 * Explore tables, views, procedures, functions, MongoDB collections
@@ -71,13 +73,13 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
 * Redis tree view, generate script from keys, run Redis script
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
-* Import, export from/to CSV, Excel, JSON, NDJSON, XML
+* Import, export from/to CSV, Excel, JSON, NDJSON, XML, DBF
 * Archives - backup your data in NDJSON files on local filesystem (or on DbGate server, when using web application)
 * NDJSON data viewer and editor - browse NDJSON data, edit data and structure directly on NDJSON files. Works also for big NDSON files
 * Charts, export chart to HTML page
+* Show GEO data on map, export map to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
-* Perspectives - nested table view over complex relational data, query designer on MongoDB databases
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
