@@ -86,6 +86,7 @@ const driver = {
     let client;
     if (useDatabaseUrl) {
       client = new Redis(databaseUrl);
+      client.client('SETNAME', 'dbgate');
     } else {
       if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
       if (_.isNumber(database)) db = database;
@@ -95,6 +96,7 @@ const driver = {
         username: user,
         password,
         db,
+        connectionName: 'dbgate',
       });
     }
 
