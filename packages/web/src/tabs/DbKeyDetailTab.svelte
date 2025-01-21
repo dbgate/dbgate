@@ -9,7 +9,7 @@
   function getKeyText(key) {
     const keySplit = key.split(':');
     if (keySplit.length > 1) return keySplit[keySplit.length - 1];
-    return key;
+    return key || '(no name)';
   }
 </script>
 
@@ -32,6 +32,8 @@
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
+  import SelectField from '../forms/SelectField.svelte';
+  import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
 
   export let tabid;
   export let conid;
@@ -157,12 +159,15 @@
           </svelte:fragment>
         </VerticalSplitter>
       {:else}
-        <AceEditor
-          value={editedValue || keyInfo.value}
-          on:input={e => {
-            editedValue = e.detail;
-          }}
-        />
+        <div class="value-holder">
+          <DbKeyValueDetail
+            columnTitle="Value"
+            value={editedValue || keyInfo.value}
+            onChangeValue={value => {
+              editedValue = value;
+            }}
+          />
+        </div>
       {/if}
     </div>
   </div>
@@ -198,5 +203,16 @@
 
   .key-name :global(input) {
     flex-grow: 1;
+  }
+
+  .value-holder {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: column;
   }
 </style>

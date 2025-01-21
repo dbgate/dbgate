@@ -9,13 +9,13 @@
 
   let display = 'text';
 
-  export let column;
-  export let item;
-  export let onChangeItem = null;
+  export let columnTitle;
+  export let value;
+  export let onChangeValue = null;
 </script>
 
 <div class="colnamewrap">
-  <div class="colname">{_.startCase(column.name)}</div>
+  <div class="colname">{columnTitle}</div>
   <SelectField
     isNative
     value={display}
@@ -31,22 +31,17 @@
 <div class="colvalue">
   {#if display == 'text'}
     <AceEditor
-      readOnly={!onChangeItem}
-      value={item && item[column.name]}
+      readOnly={!onChangeValue}
+      {value}
       on:input={e => {
-        if (onChangeItem) {
-          onChangeItem({
-            ...item,
-            [column.name]: e.detail,
-          });
-        }
+        onChangeValue?.(e.detail);
       }}
     />
   {/if}
   {#if display == 'json'}
     <div class="outer">
       <div class="inner">
-        <JsonTree value={safeJsonParse(item[column.name]) || { error: 'Not valid JSON' }} expanded />
+        <JsonTree value={safeJsonParse(value) || { error: 'Not valid JSON' }} expanded />
       </div>
     </div>
   {/if}

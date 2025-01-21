@@ -9,7 +9,18 @@
 
 <div class="props">
   {#each dbKeyFields as column}
-    <DbKeyValueDetail {item} {column} {onChangeItem} />
+    <DbKeyValueDetail
+      value={item && item[column.name]}
+      columnTitle={_.startCase(column.name)}
+      onChangeValue={onChangeItem
+        ? value => {
+            onChangeItem?.({
+              ...item,
+              [column.name]: value,
+            });
+          }
+        : null}
+    />
   {/each}
 </div>
 

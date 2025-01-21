@@ -135,7 +135,7 @@
 
 <AppObjectCore
   icon={getIconForRedisType(item.type)}
-  title={item.text}
+  title={item.text || '(no name)'}
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
     if (item.type == 'dir') {
@@ -148,7 +148,7 @@
     } else {
       openNewTab({
         tabComponent: 'DbKeyDetailTab',
-        title: item.text,
+        title: item.text || '(no name)',
         icon: 'img keydb',
         props: {
           isDefaultBrowser: true,
