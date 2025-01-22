@@ -229,9 +229,9 @@ module.exports = {
   },
 
   loadKeys_meta: true,
-  async loadKeys({ conid, database, root, filter }, req) {
+  async loadKeys({ conid, database, root, filter, limit }, req) {
     testConnectionPermission(conid, req);
-    return this.loadDataCore('loadKeys', { conid, database, root, filter });
+    return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
   },
 
   exportKeys_meta: true,

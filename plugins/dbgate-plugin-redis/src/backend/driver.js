@@ -169,12 +169,14 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
-  async loadKeys(dbhan, root = '', filter = null) {
+  async loadKeys(dbhan, root = '', filter = null, limit = null) {
     const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(dbhan, root, keysFiltered);
-    await this.enrichKeyInfo(dbhan, res);
-    return res;
+    const keysSorted = _.sortBy(keysFiltered, 'text');
+    const res = this.extractKeysFromLevel(dbhan, root, keysSorted);
+    const resLimited = limit ? res.slice(0, limit) : res;
+    await this.enrichKeyInfo(dbhan, resLimited);
+    return resLimited;
   },
 
   async exportKeys(dbhan, options) {

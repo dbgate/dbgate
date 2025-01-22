@@ -5,7 +5,8 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall } from '../utility/api';
 
-  const SHOW_INCREMENT = 500;
+  // const SHOW_INCREMENT = 500;
+  const SHOW_INCREMENT = 10;
 
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
 
@@ -26,7 +27,7 @@
   // $: items = useDatabaseKeys({ conid, database, root, reloadToken });
 </script>
 
-{#await apiCall('database-connections/load-keys', { conid, database, root, filter, reloadToken, reloadToken2 })}
+{#await apiCall( 'database-connections/load-keys', { conid, database, root, filter, reloadToken, reloadToken2, limit: maxShowCount + 1 } )}
   <LoadingInfo message="Loading key list" wrapper />
 {:then items}
   {@const itemsSorted = _.sortBy(items || [], 'text')}
