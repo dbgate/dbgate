@@ -2,89 +2,38 @@
   import _ from 'lodash';
 
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
-  import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import { apiCall } from '../utility/api';
-
-  const SHOW_INCREMENT = 100;
 
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
-
-  export let conid;
-  export let database;
+  import { dbKeys_markNodeExpanded, DbKeysChangeModelFunction, DbKeysTreeModel } from 'dbgate-tools';
 
   export let root;
+  export let connection;
+  export let database;
+  export let conid;
   export let indentLevel = 0;
 
-  export let reloadToken = 0;
-  export let connection;
   export let filter;
 
-  let reloadToken2 = 0;
-  let maxShowCount = SHOW_INCREMENT;
-  let loading = false;
-  let loadingWhole = false;
-  let items = [];
+  export let model: DbKeysTreeModel;
+  export let changeModel: DbKeysChangeModelFunction;
 
-  async function loadData() {
-    loading = true;
-    const result = await apiCall('database-connections/load-keys', {
-      conid,
-      database,
-      root,
-      filter,
-      limit: maxShowCount + 1,
-    });
-    items = result;
-    loading = false;
-    loadingWhole = false;
-  }
-
-  $: {
-    conid;
-    database;
-    root;
-    filter;
-    reloadToken;
-    reloadToken2;
-    maxShowCount;
-    loadData();
-  }
-
-  $: {
-    reloadToken;
-    loadingWhole = true;
-  }
+  $: items = model.childrenByKey[root] ?? [];
 </script>
 
-{#if loadingWhole}
-  <LoadingInfo message="Loading key list" wrapper />
-{:else}
-  {#each items.slice(0, maxShowCount) as item}
-    <DbKeysTreeNode
-      {conid}
-      {database}
-      {root}
-      {connection}
-      {item}
-      {filter}
-      {indentLevel}
-      onRefreshParent={() => {
-        reloadToken2 += 1;
-      }}
-    />
-  {/each}
+{#each items as item}
+  <DbKeysTreeNode {conid} {database} {root} {connection} {item} {filter} {indentLevel} {model} {changeModel} />
+{/each}
 
-  {#if loading}
-    <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
-  {:else if items.length > maxShowCount}
-    <AppObjectCore
-      {indentLevel}
-      title="Show more..."
-      icon="icon dots-horizontal"
-      expandIcon="icon invisible-box"
-      on:click={() => {
-        maxShowCount += SHOW_INCREMENT;
-      }}
-    />
-  {/if}
+{#if model.dirsByKey[root]?.shouldLoadNext}
+  <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
+{:else if model.dirsByKey[root]?.hasNext}
+  <AppObjectCore
+    {indentLevel}
+    title="Show more..."
+    icon="icon dots-horizontal"
+    expandIcon="icon invisible-box"
+    on:click={() => {
+      changeModel(model => dbKeys_markNodeExpanded(model, root, true));
+    }}
+  />
 {/if}

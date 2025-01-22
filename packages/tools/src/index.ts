@@ -24,3 +24,4 @@ export * from './getConnectionLabel';
 export * from './detectSqlFilterBehaviour';
 export * from './filterBehaviours';
 export * from './schemaInfoTools';
+export * from './dbKeysLoader';

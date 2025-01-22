@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { getIconForRedisType } from 'dbgate-tools';
+  import {
+    dbKeys_markNodeExpanded,
+    dbKeys_reloadFolder,
+    DbKeysChangeModelFunction,
+    DbKeysTreeModel,
+    getIconForRedisType,
+  } from 'dbgate-tools';
 
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
@@ -25,10 +31,10 @@
   export let indentLevel = 0;
   export let filter;
 
-  export let onRefreshParent;
+  export let model: DbKeysTreeModel;
+  export let changeModel: DbKeysChangeModelFunction;
 
-  let isExpanded;
-  let reloadToken = 0;
+  $: isExpanded = model.dirsByKey[item.root]?.isExpanded;
 
   // $: console.log(item.text, indentLevel);
   function createMenu() {
@@ -47,9 +53,7 @@
                   args: [item.key],
                 });
 
-                if (onRefreshParent) {
-                  onRefreshParent();
-                }
+                changeModel(m => dbKeys_reloadFolder(m, root));
               },
             });
           },
@@ -70,9 +74,7 @@
                   args: [item.key, newName],
                 });
 
-                if (onRefreshParent) {
-                  onRefreshParent();
-                }
+                changeModel(m => dbKeys_reloadFolder(m, root));
               },
             });
           },
@@ -81,7 +83,7 @@
         !connection?.isReadOnly && {
           label: 'Reload',
           onClick: () => {
-            reloadToken += 1;
+            changeModel(m => dbKeys_reloadFolder(m, root));
           },
         },
       item.type == 'dir' &&
@@ -99,9 +101,7 @@
                   args: [branch],
                 });
 
-                if (onRefreshParent) {
-                  onRefreshParent();
-                }
+                changeModel(m => dbKeys_reloadFolder(m, root));
               },
             });
           },
@@ -139,12 +139,12 @@
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
     if (item.type == 'dir') {
-      isExpanded = !isExpanded;
+      changeModel(tree => dbKeys_markNodeExpanded(tree, item.root, !isExpanded));
     }
   }}
   on:click={() => {
     if (item.type == 'dir') {
-      isExpanded = !isExpanded;
+      changeModel(tree => dbKeys_markNodeExpanded(tree, item.root, !isExpanded));
     } else {
       openNewTab({
         tabComponent: 'DbKeyDetailTab',
@@ -177,8 +177,9 @@
     {database}
     root={item.root}
     indentLevel={indentLevel + 1}
-    {reloadToken}
     {connection}
     {filter}
+    {model}
+    {changeModel}
   />
 {/if}
