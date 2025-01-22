@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { dbKeys_getFlatList, dbKeys_loadMissing, dbKeys_refreshAll, findEngineDriver } from 'dbgate-tools';
+  import {
+    dbKeys_getFlatList,
+    dbKeys_loadMissing,
+    dbKeys_markNodeExpanded,
+    dbKeys_refreshAll,
+    findEngineDriver,
+  } from 'dbgate-tools';
 
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
@@ -10,6 +16,7 @@
   import AddDbKeyModal from '../modals/AddDbKeyModal.svelte';
   import { showModal } from '../modals/modalTools';
   import {
+    activeDbKeysStore,
     currentDatabase,
     focusedConnectionOrDatabase,
     focusedTreeDbKey,
@@ -23,11 +30,16 @@
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import AppObjectListHandler from './AppObjectListHandler.svelte';
+  import { getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
+  import openNewTab from '../utility/openNewTab';
+  import clickOutside from '../utility/clickOutside';
 
   export let conid;
   export let database;
 
   let domListHandler;
+  let domContainer = null;
+  let domFilter = null;
 
   let filter;
 
@@ -95,7 +107,15 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search keys" bind:value={filter} isDebounced />
+  <SearchInput
+    placeholder="Search keys"
+    bind:value={filter}
+    isDebounced
+    bind:this={domFilter}
+    onFocusFilteredList={() => {
+      domListHandler?.focusFirst();
+    }}
+  />
   <CloseSearchButton bind:filter />
   <InlineButton on:click={handleAddKey} title="Add new key">
     <FontIcon icon="icon plus-thick" />
@@ -107,7 +127,7 @@
 {#if differentFocusedDb}
   <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 {/if}
-<WidgetsInnerContainer hideContent={differentFocusedDb}>
+<WidgetsInnerContainer hideContent={differentFocusedDb} bind:this={domContainer}>
   <AppObjectListHandler
     bind:this={domListHandler}
     list={dbKeys_getFlatList(model)}
@@ -116,6 +136,37 @@
     selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type && o1?.root == o2?.root}
     handleObjectClick={(data, clickAction) => {
       focusedTreeDbKey.set(data);
+
+      const openDetailOnArrows = getOpenDetailOnArrowsSettings();
+
+      if (data.key && ((openDetailOnArrows && clickAction == 'keyArrow') || clickAction == 'keyEnter')) {
+        openNewTab({
+          tabComponent: 'DbKeyDetailTab',
+          title: data.text || '(no name)',
+          icon: 'img keydb',
+          props: {
+            isDefaultBrowser: true,
+            conid,
+            database,
+          },
+        });
+        $activeDbKeysStore = {
+          ...$activeDbKeysStore,
+          [`${conid}:${database}`]: data.key,
+        };
+      }
+      if (data.root && clickAction == 'keyEnter') {
+        changeModel(model => dbKeys_markNodeExpanded(model, data.root, !model.dirsByKey[data.root]?.isExpanded));
+      }
+    }}
+    handleExpansion={(data, value) => {
+      changeModel(model => dbKeys_markNodeExpanded(model, data.root, value));
+    }}
+    onScrollTop={() => {
+      domContainer?.scrollTop();
+    }}
+    onFocusFilterBox={text => {
+      domFilter?.focus(text);
     }}
   >
     <DbKeysSubTree root="" {filter} {model} {changeModel} {conid} {database} {connection} />

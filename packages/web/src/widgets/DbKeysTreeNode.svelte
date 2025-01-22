@@ -164,7 +164,7 @@
     }
   }}
   on:mousedown={() => {
-    $focusedTreeDbKey = _.pick(item, ['type', 'key', 'root']);
+    $focusedTreeDbKey = _.pick(item, ['type', 'key', 'root', 'text']);
   }}
   extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
