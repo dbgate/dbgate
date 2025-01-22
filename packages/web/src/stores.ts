@@ -161,6 +161,8 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
+export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
+
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
   schemaName: false,
@@ -408,3 +410,9 @@ connectionAppObjectSearchSettings.subscribe(value => {
   connectionAppObjectSearchSettingsValue = value;
 });
 export const getConnectionAppObjectSearchSettings = () => connectionAppObjectSearchSettingsValue;
+
+let focusedTreeDbKeyValue = null;
+focusedTreeDbKey.subscribe(value => {
+  focusedTreeDbKeyValue = value;
+});
+export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;

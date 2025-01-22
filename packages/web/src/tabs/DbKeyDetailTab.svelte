@@ -7,6 +7,7 @@
   export const allowAddToFavorites = props => false;
 
   function getKeyText(key) {
+    if (!key) return '(no name)';
     const keySplit = key.split(':');
     if (keySplit.length > 1) return keySplit[keySplit.length - 1];
     return key || '(no name)';

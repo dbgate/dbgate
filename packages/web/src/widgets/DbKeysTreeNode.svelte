@@ -13,9 +13,10 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
-  import { activeDbKeysStore } from '../stores';
+  import { activeDbKeysStore, focusedTreeDbKey } from '../stores';
   import { apiCall } from '../utility/api';
   import { getConnectionInfo } from '../utility/metadataLoaders';
+  import _ from 'lodash';
   import openNewTab from '../utility/openNewTab';
   import { showSnackbarError } from '../utility/snackbar';
 
@@ -162,9 +163,16 @@
       };
     }
   }}
+  on:mousedown={() => {
+    $focusedTreeDbKey = _.pick(item, ['type', 'key', 'root', 'text']);
+  }}
   extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
   menu={createMenu}
+  isChoosed={$focusedTreeDbKey &&
+    item.key == $focusedTreeDbKey.key &&
+    item.root == $focusedTreeDbKey.root &&
+    item.type == $focusedTreeDbKey.type}
 />
 <!-- <div on:click={() => (isExpanded = !isExpanded)}>
   <FontIcon icon={} />

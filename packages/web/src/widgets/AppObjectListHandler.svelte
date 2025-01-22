@@ -1,8 +1,7 @@
 <script lang="ts">
   import keycodes from '../utility/keycodes';
   import _ from 'lodash';
-  import { sleep } from '../utility/common';
-
+  
   export let list;
   export let selectedObjectStore;
   export let getSelectedObject;

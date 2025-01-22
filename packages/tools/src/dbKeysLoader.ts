@@ -175,3 +175,23 @@ export function dbKeys_reloadFolder(tree: DbKeysTreeModel, root: string): DbKeys
     },
   };
 }
+
+function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[]) {
+  const item = tree.dirsByKey[root];
+  if (!item.isExpanded) {
+    return false;
+  }
+  const children = tree.childrenByKey[root] || [];
+  for (const child of children) {
+    res.push(child);
+    if (child.type == 'dir') {
+      addFlatItems(tree, child.root, res);
+    }
+  }
+}
+
+export function dbKeys_getFlatList(tree: DbKeysTreeModel) {
+  const res: DbKeysNodeModel[] = [];
+  addFlatItems(tree, '', res);
+  return res;
+}
