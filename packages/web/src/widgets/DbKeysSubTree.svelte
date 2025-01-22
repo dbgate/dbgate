@@ -5,8 +5,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall } from '../utility/api';
 
-  // const SHOW_INCREMENT = 500;
-  const SHOW_INCREMENT = 10;
+  const SHOW_INCREMENT = 100;
 
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
 
@@ -33,8 +32,6 @@
       database,
       root,
       filter,
-      reloadToken,
-      reloadToken2,
       limit: maxShowCount + 1,
     });
     items = result;
@@ -54,11 +51,12 @@
   }
 
   $: {
+    reloadToken;
     loadingWhole = true;
   }
 </script>
 
-{#if loading && items.length == 0}
+{#if loadingWhole}
   <LoadingInfo message="Loading key list" wrapper />
 {:else}
   {#each items.slice(0, maxShowCount) as item}

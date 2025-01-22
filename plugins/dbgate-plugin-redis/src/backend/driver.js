@@ -194,14 +194,36 @@ const driver = {
   },
 
   async getKeys(dbhan, keyQuery = '*') {
-    const res = [];
-    let cursor = 0;
-    do {
-      const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
-      res.push(...keys);
-      cursor = parseInt(strCursor);
-    } while (cursor > 0);
-    return res;
+    const stream = dbhan.client.scanStream({
+      match: keyQuery,
+      count: 1000,
+    });
+
+    const keys = [];
+
+    stream.on('data', (resultKeys) => {
+      for (const key of resultKeys) {
+        keys.push(key);
+      }
+    });
+
+    return new Promise((resolve, reject) => {
+      stream.on('end', () => {
+        resolve(keys);
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    // const res = [];
+    // let cursor = 0;
+    // do {
+    //   const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
+    //   res.push(...keys);
+    //   cursor = parseInt(strCursor);
+    // } while (cursor > 0);
+    // return res;
   },
 
   extractKeysFromLevel(dbhan, root, keys) {
