@@ -81,7 +81,7 @@ function splitCommandLine(str) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
+  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator, ssl }) {
     let db = 0;
     let client;
     if (useDatabaseUrl) {
@@ -90,6 +90,12 @@ const driver = {
     } else {
       if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
       if (_.isNumber(database)) db = database;
+      if (ssl) {
+        ssl = {
+          ..._.omit(ssl, ['rejectUnauthorized', 'password']),
+          passphrase: ssl.password,
+        };
+      }
       client = new Redis({
         host: server,
         port,
@@ -97,6 +103,7 @@ const driver = {
         password,
         db,
         connectionName: 'dbgate',
+        tls: ssl,
       });
     }
 
