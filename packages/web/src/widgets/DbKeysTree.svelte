@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dbKeys_loadMissing, dbKeys_refreshAll, findEngineDriver } from 'dbgate-tools';
+  import { dbKeys_getFlatList, dbKeys_loadMissing, dbKeys_refreshAll, findEngineDriver } from 'dbgate-tools';
 
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
@@ -9,16 +9,25 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import AddDbKeyModal from '../modals/AddDbKeyModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { currentDatabase, focusedConnectionOrDatabase, getExtensions } from '../stores';
+  import {
+    currentDatabase,
+    focusedConnectionOrDatabase,
+    focusedTreeDbKey,
+    getExtensions,
+    getFocusedTreeDbKey,
+  } from '../stores';
   import { apiCall } from '../utility/api';
   import { useConnectionInfo } from '../utility/metadataLoaders';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
-  
+  import AppObjectListHandler from './AppObjectListHandler.svelte';
+
   export let conid;
   export let database;
+
+  let domListHandler;
 
   let filter;
 
@@ -99,5 +108,16 @@
   <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 {/if}
 <WidgetsInnerContainer hideContent={differentFocusedDb}>
-  <DbKeysSubTree root="" {filter} {model} {changeModel} {conid} {database} {connection} />
+  <AppObjectListHandler
+    bind:this={domListHandler}
+    list={dbKeys_getFlatList(model)}
+    selectedObjectStore={focusedTreeDbKey}
+    getSelectedObject={getFocusedTreeDbKey}
+    selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type && o1?.root == o2?.root}
+    handleObjectClick={(data, clickAction) => {
+      focusedTreeDbKey.set(data);
+    }}
+  >
+    <DbKeysSubTree root="" {filter} {model} {changeModel} {conid} {database} {connection} />
+  </AppObjectListHandler>
 </WidgetsInnerContainer>
