@@ -5,7 +5,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall } from '../utility/api';
 
-  const SHOW_INCREMENT = 500;
+  const SHOW_INCREMENT = 100;
 
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
 
@@ -20,18 +20,46 @@
   export let filter;
 
   let reloadToken2 = 0;
-
   let maxShowCount = SHOW_INCREMENT;
+  let loading = false;
+  let loadingWhole = false;
+  let items = [];
 
-  // $: items = useDatabaseKeys({ conid, database, root, reloadToken });
+  async function loadData() {
+    loading = true;
+    const result = await apiCall('database-connections/load-keys', {
+      conid,
+      database,
+      root,
+      filter,
+      limit: maxShowCount + 1,
+    });
+    items = result;
+    loading = false;
+    loadingWhole = false;
+  }
+
+  $: {
+    conid;
+    database;
+    root;
+    filter;
+    reloadToken;
+    reloadToken2;
+    maxShowCount;
+    loadData();
+  }
+
+  $: {
+    reloadToken;
+    loadingWhole = true;
+  }
 </script>
 
-{#await apiCall('database-connections/load-keys', { conid, database, root, filter, reloadToken, reloadToken2 })}
+{#if loadingWhole}
   <LoadingInfo message="Loading key list" wrapper />
-{:then items}
-  {@const itemsSorted = _.sortBy(items || [], 'text')}
-
-  {#each itemsSorted.slice(0, maxShowCount) as item}
+{:else}
+  {#each items.slice(0, maxShowCount) as item}
     <DbKeysTreeNode
       {conid}
       {database}
@@ -46,7 +74,9 @@
     />
   {/each}
 
-  {#if itemsSorted.length > maxShowCount}
+  {#if loading}
+    <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
+  {:else if items.length > maxShowCount}
     <AppObjectCore
       {indentLevel}
       title="Show more..."
@@ -57,4 +87,4 @@
       }}
     />
   {/if}
-{/await}
+{/if}

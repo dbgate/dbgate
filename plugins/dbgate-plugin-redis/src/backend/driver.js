@@ -169,12 +169,14 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
-  async loadKeys(dbhan, root = '', filter = null) {
+  async loadKeys(dbhan, root = '', filter = null, limit = null) {
     const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(dbhan, root, keysFiltered);
-    await this.enrichKeyInfo(dbhan, res);
-    return res;
+    const keysSorted = _.sortBy(keysFiltered, 'text');
+    const res = this.extractKeysFromLevel(dbhan, root, keysSorted);
+    const resLimited = limit ? res.slice(0, limit) : res;
+    await this.enrichKeyInfo(dbhan, resLimited);
+    return resLimited;
   },
 
   async exportKeys(dbhan, options) {
@@ -192,14 +194,36 @@ const driver = {
   },
 
   async getKeys(dbhan, keyQuery = '*') {
-    const res = [];
-    let cursor = 0;
-    do {
-      const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
-      res.push(...keys);
-      cursor = parseInt(strCursor);
-    } while (cursor > 0);
-    return res;
+    const stream = dbhan.client.scanStream({
+      match: keyQuery,
+      count: 1000,
+    });
+
+    const keys = [];
+
+    stream.on('data', (resultKeys) => {
+      for (const key of resultKeys) {
+        keys.push(key);
+      }
+    });
+
+    return new Promise((resolve, reject) => {
+      stream.on('end', () => {
+        resolve(keys);
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    // const res = [];
+    // let cursor = 0;
+    // do {
+    //   const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
+    //   res.push(...keys);
+    //   cursor = parseInt(strCursor);
+    // } while (cursor > 0);
+    // return res;
   },
 
   extractKeysFromLevel(dbhan, root, keys) {

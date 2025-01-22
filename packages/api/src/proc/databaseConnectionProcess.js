@@ -258,8 +258,8 @@ async function handleCollectionData({ msgid, options }) {
   return handleDriverDataCore(msgid, driver => driver.readCollection(dbhan, options), { logName: 'readCollection' });
 }
 
-async function handleLoadKeys({ msgid, root, filter }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter), { logName: 'loadKeys' });
+async function handleLoadKeys({ msgid, root, filter, limit }) {
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter, limit), { logName: 'loadKeys' });
 }
 
 async function handleExportKeys({ msgid, options }) {
