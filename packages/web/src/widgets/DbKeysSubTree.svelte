@@ -22,7 +22,8 @@
 
   let reloadToken2 = 0;
   let maxShowCount = SHOW_INCREMENT;
-  let loading = true;
+  let loading = false;
+  let loadingWhole = false;
   let items = [];
 
   async function loadData() {
@@ -38,6 +39,7 @@
     });
     items = result;
     loading = false;
+    loadingWhole = false;
   }
 
   $: {
@@ -49,6 +51,10 @@
     reloadToken2;
     maxShowCount;
     loadData();
+  }
+
+  $: {
+    loadingWhole = true;
   }
 </script>
 
@@ -71,12 +77,7 @@
   {/each}
 
   {#if loading}
-    <AppObjectCore
-      {indentLevel}
-      title="Loading next keys..."
-      icon="icon loading"
-      expandIcon="icon invisible-box"
-    />
+    <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
   {:else if items.length > maxShowCount}
     <AppObjectCore
       {indentLevel}
