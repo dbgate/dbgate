@@ -297,10 +297,12 @@ export class SqlGenerator {
   }
 
   extract(objectTypeField) {
-    return this.dbinfo[objectTypeField].filter(x =>
-      this.objects.find(
-        y => x.pureName == y.pureName && x.schemaName == y.schemaName && y.objectTypeField == objectTypeField
-      )
+    return (
+      this.dbinfo[objectTypeField]?.filter(x =>
+        this.objects.find(
+          y => x.pureName == y.pureName && x.schemaName == y.schemaName && y.objectTypeField == objectTypeField
+        )
+      ) ?? []
     );
   }
 
