@@ -20,6 +20,7 @@ const dialect = {
   anonymousPrimaryKey: true,
   createColumnWithColumnKeyword: true,
   specificNullabilityImplementation: true,
+  disableRenameTable: true,
   omitForeignKeys: true,
   omitUniqueConstraints: true,
   omitIndexes: true,

@@ -51,6 +51,7 @@ export interface SqlDialect {
   omitTableBeforeColumn?: boolean;
   disableAutoIncrement?: boolean;
   disableNonPrimaryKeyRename?: boolean;
+  disableRenameTable?: boolean;
   defaultNewTableColumns?: ColumnInfo[];
   sortingKeys?: boolean;
 
