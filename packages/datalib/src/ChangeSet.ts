@@ -230,7 +230,12 @@ export function batchUpdateChangeSet(
   return changeSet;
 }
 
-function extractFields(item: ChangeSetItem, allowNulls = true, allowedDocumentColumns: string[] = []): UpdateField[] {
+function extractFields(
+  item: ChangeSetItem,
+  allowNulls = true,
+  allowedDocumentColumns: string[] = [],
+  table?: TableInfo
+): UpdateField[] {
   const allFields = {
     ...item.fields,
   };
@@ -247,6 +252,7 @@ function extractFields(item: ChangeSetItem, allowNulls = true, allowedDocumentCo
       targetColumn,
       exprType: 'value',
       value: allFields[targetColumn],
+      dataType: table?.columns?.find(x => x.columnName == targetColumn)?.dataType,
     }));
 }
 
@@ -259,7 +265,8 @@ function changeSetInsertToSql(
   const fields = extractFields(
     item,
     false,
-    table?.columns?.map(x => x.columnName)
+    table?.columns?.map(x => x.columnName),
+    table
   );
   if (fields.length == 0) return null;
   let autoInc = false;
@@ -319,6 +326,7 @@ export function extractChangeSetCondition(
 
   function getColumnCondition(columnName: string): Condition {
     const shouldUseRawRightValue = getShouldUseRawRightValue(columnName);
+    const dataType = table?.columns?.find(x => x.columnName == columnName)?.dataType;
 
     const value = item.condition[columnName];
     const expr: Expression = {
@@ -351,6 +359,7 @@ export function extractChangeSetCondition(
             }
           : {
               exprType: 'value',
+              dataType,
               value,
             },
       };
@@ -408,7 +417,8 @@ function changeSetUpdateToSql(item: ChangeSetItem, dbinfo: DatabaseInfo = null, 
     fields: extractFields(
       item,
       true,
-      table?.columns?.map(x => x.columnName).filter(x => x != autoIncCol?.columnName)
+      table?.columns?.map(x => x.columnName).filter(x => x != autoIncCol?.columnName),
+      table
     ),
     where: extractChangeSetCondition(item, undefined, table, dialect),
   };

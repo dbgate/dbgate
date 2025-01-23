@@ -22,6 +22,18 @@ class Dumper extends SqlDumper {
   dropColumn(column) {
     this.putCmd('^alter ^table %f ^drop %i', column, column.columnName);
   }
+  
+  putValue(value, dataType) {
+    if (
+      dataType?.toLowerCase() === 'uuid' &&
+      value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+    ) {
+      this.putRaw(value);
+      return;
+    }
+
+    super.putValue(value);
+  }
 }
 
 module.exports = Dumper;
