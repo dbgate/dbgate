@@ -17,7 +17,6 @@ export interface SqlDialect {
   enableConstraintsPerTable?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
-  rawUuids?: boolean;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];

@@ -7,7 +7,6 @@ const _cloneDeepWith = require('lodash/cloneDeepWith');
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
-  rawUuids: true,
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',
   offsetNotSupported: true,

@@ -313,19 +313,7 @@ export function extractChangeSetCondition(
   table?: TableInfo,
   dialect?: SqlDialect
 ): Condition {
-  function getShouldUseRawRightValue(columnName: string) {
-    if (!table || !dialect || !dialect.rawUuids) return false;
-
-    const column = table.columns.find(x => x.columnName == columnName);
-    if (!column) return false;
-
-    if (column.dataType !== 'uuid') return false;
-
-    return true;
-  }
-
   function getColumnCondition(columnName: string): Condition {
-    const shouldUseRawRightValue = getShouldUseRawRightValue(columnName);
     const dataType = table?.columns?.find(x => x.columnName == columnName)?.dataType;
 
     const value = item.condition[columnName];
@@ -352,16 +340,11 @@ export function extractChangeSetCondition(
         conditionType: 'binary',
         operator: '=',
         left: expr,
-        right: shouldUseRawRightValue
-          ? {
-              exprType: 'raw',
-              sql: value,
-            }
-          : {
-              exprType: 'value',
-              dataType,
-              value,
-            },
+        right: {
+          exprType: 'value',
+          dataType,
+          value,
+        },
       };
     }
   }
