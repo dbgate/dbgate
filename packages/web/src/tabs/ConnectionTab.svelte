@@ -61,6 +61,7 @@
   $: engine = $values.engine;
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: config = useConfig();
+  $: console.log('#values', $values);
 
   const testIdRef = createRef(0);
 
@@ -110,6 +111,7 @@
       'port',
       'user',
       'password',
+      'localDataCenter',
       'defaultDatabase',
       'singleDatabase',
       'socketPath',

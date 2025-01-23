@@ -22,7 +22,7 @@ export default function newTable(connection, database) {
         current: {
           pureName: 'new_table',
           schemaName: getAppliedCurrentSchema() ?? driver?.dialect?.defaultSchemaName,
-          columns: [
+          columns: driver.dialect?.defaultNewTableColumns ?? [
             {
               columnName: 'id',
               dataType: 'int',

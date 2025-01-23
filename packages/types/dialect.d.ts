@@ -1,3 +1,5 @@
+import { ColumnInfo } from './dbinfo';
+
 export interface SqlDialect {
   rangeSelect?: boolean;
   limitSelect?: boolean;
@@ -6,6 +8,7 @@ export interface SqlDialect {
   topRecords?: boolean;
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
+  offsetNotSupported?: boolean;
   quoteIdentifier(s: string): string;
   fallbackDataType?: string;
   explicitDropConstraint?: boolean;
@@ -14,6 +17,7 @@ export interface SqlDialect {
   enableConstraintsPerTable?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
+  rawUuids?: boolean;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
@@ -45,6 +49,10 @@ export interface SqlDialect {
   omitUniqueConstraints?: boolean;
   omitIndexes?: boolean;
   omitTableAliases?: boolean;
+  omitTableBeforeColumn?: boolean;
+  disableAutoIncrement?: boolean;
+  disableNonPrimaryKeyRename?: boolean;
+  defaultNewTableColumns?: ColumnInfo[];
   sortingKeys?: boolean;
 
   // syntax for create column: ALTER TABLE table ADD COLUMN column

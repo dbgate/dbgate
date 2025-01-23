@@ -57,6 +57,7 @@
   let initialized = false;
   let error = null;
   let truncated = false;
+  $: console.log(error);
 
   $: dbinfo = useDatabaseInfo({ conid, database });
 
@@ -97,6 +98,7 @@
       return;
     }
     const { sql, isTruncated, isError, errorMessage } = response || {};
+    console.log(response);
 
     truncated = isTruncated;
     if (isError) {

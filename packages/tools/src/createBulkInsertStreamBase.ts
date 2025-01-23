@@ -14,6 +14,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
     objectMode: true,
   });
 
+  writable.fullNameQuoted = fullNameQuoted;
   writable.buffer = [];
   writable.structure = null;
   writable.columnNames = null;

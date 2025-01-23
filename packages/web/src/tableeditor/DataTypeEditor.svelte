@@ -15,6 +15,7 @@
 
   export let dialect;
   export let disabled = false;
+  console.log(dialect);
 </script>
 
 <FormDropDownTextField name="dataType" label="Data type" menu={createDataTypesMenu} {disabled} />

@@ -135,6 +135,16 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('localDataCenter', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label="Local DataCenter"
+    name="localDataCenter"
+    data-testid="ConnectionDriverFields_localDataCenter"
+    placeholder={driver?.defaultLocalDataCenter}
+    disabled={isConnected || disabledFields.includes('localDataCenter')}
+  />
+{/if}
+
 {#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs)}
   {#key $authTypes}
     <FormSelectField
