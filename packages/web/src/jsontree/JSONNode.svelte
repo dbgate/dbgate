@@ -35,6 +35,8 @@
         return typeof value.set === 'function' ? JSONIterableMapNode : JSONIterableArrayNode;
       case 'MapEntry':
         return JSONMapEntryNode;
+      case 'ObjectId':
+        return JSONValueNode;
       default:
         return JSONValueNode;
     }
@@ -64,6 +66,8 @@
       case 'Function':
       case 'Symbol':
         return raw => raw.toString();
+      case 'ObjectId':
+        return raw => `ObjectId("${raw.$oid}")`;
       default:
         return () => `<${nodeType}>`;
     }
