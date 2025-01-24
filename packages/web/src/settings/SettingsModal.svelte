@@ -140,6 +140,12 @@ ORDER BY
 
           <FormCheckboxField name="dataGrid.alignNumbersRight" label="Align numbers to right" defaultValue={false} />
 
+          <FormTextField
+            name="dataGrid.collectionPageSize"
+            label="Collection page size (for MongoDB JSON view, must be between 5 and 1000)"
+            defaultValue="50"
+          />
+
           <div class="heading">SQL editor</div>
 
           <div class="flex">

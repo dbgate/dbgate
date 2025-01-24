@@ -16,6 +16,7 @@
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import CollectionJsonRow from './CollectionJsonRow.svelte';
+  import { getIntSettingsValue } from '../settings/settingsTools';
 
   export let conid;
   export let database;
@@ -34,7 +35,7 @@
 
   let loadedRows = [];
   let skip = 0;
-  let limit = 50;
+  let limit = getIntSettingsValue('dataGrid.collectionPageSize', 50, 5, 1000);
 
   async function loadData() {
     isLoading = true;
