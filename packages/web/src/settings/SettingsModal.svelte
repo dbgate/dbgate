@@ -348,6 +348,11 @@ ORDER BY
             objectTypeField="functions"
             disabled={values['defaultAction.useLastUsedAction'] !== false}
           />
+          <FormDefaultActionField
+            label="NoSQL collection click"
+            objectTypeField="collections"
+            disabled={values['defaultAction.useLastUsedAction'] !== false}
+          />
         </svelte:fragment>
         <svelte:fragment slot="5">
           <div class="heading">Behaviour</div>

@@ -861,7 +861,7 @@
         isRawMode: prefferedAction?.isRawMode ?? false,
       },
       forceNewTab,
-      null,
+      prefferedAction?.initialData,
       prefferedAction.icon,
       data,
       tabPreviewMode

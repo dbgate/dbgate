@@ -22,10 +22,10 @@
     }))}
     value={$lastUsedDefaultActions[objectTypeField]}
     on:change={e => {
-      $lastUsedDefaultActions = {
-        ...$lastUsedDefaultActions,
-        [objectTypeField]: e.detail.value,
-      };
+      lastUsedDefaultActions.update(actions => ({
+        ...actions,
+        [objectTypeField]: e.detail,
+      }));
     }}
   />
 </FormFieldTemplateLarge>
