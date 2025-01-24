@@ -246,8 +246,6 @@
       ...INTERVALS.map(seconds => ({ command: `tableData.setAutoRefresh.${seconds}`, text: `...${seconds} seconds` })),
     ];
   }
-
-  $: console.log('isRawMode', isRawMode);
 </script>
 
 <ToolStripContainer>
