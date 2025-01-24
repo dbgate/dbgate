@@ -204,6 +204,8 @@
     'icon type-unknown': 'mdi mdi-help-box',
 
     'icon at': 'mdi mdi-at',
+    'icon expand-all': 'mdi mdi-expand-all',
+    'icon collapse-all': 'mdi mdi-collapse-all',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
