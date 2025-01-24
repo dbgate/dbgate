@@ -196,17 +196,12 @@
 <slot />
 
 <style>
-  .pin,
-  .pin-active {
-    position: absolute;
-    right: 0;
-    z-index: 150;
-  }
   .main {
     padding: 5px;
     cursor: pointer;
     white-space: nowrap;
     font-weight: normal;
+    position: relative;
   }
   .main:hover:not(.disableHover) {
     background-color: var(--theme-bg-hover);
@@ -232,8 +227,13 @@
     margin-right: 3px;
   }
 
+  .pin,
+  .pin-active {
+    z-index: 150;
+    position: absolute;
+    right: 0;
+  }
   .pin {
-    float: right;
     color: var(--theme-font-2);
   }
   .pin:hover {
@@ -247,7 +247,6 @@
   }
 
   .unpin {
-    float: right;
     color: var(--theme-font-2);
   }
   .unpin:hover {
@@ -255,7 +254,6 @@
   }
 
   .pin-active {
-    float: right;
     color: var(--theme-font-2);
   }
 </style>
