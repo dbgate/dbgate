@@ -54,6 +54,7 @@ export interface SqlDialect {
   disableRenameTable?: boolean;
   defaultNewTableColumns?: ColumnInfo[];
   sortingKeys?: boolean;
+  generateDefaultValueForUuid?: string;
 
   // syntax for create column: ALTER TABLE table ADD COLUMN column
   createColumnWithColumnKeyword?: boolean;

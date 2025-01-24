@@ -234,11 +234,36 @@ function extractFields(
   item: ChangeSetItem,
   allowNulls = true,
   allowedDocumentColumns: string[] = [],
-  table?: TableInfo
+  table?: TableInfo,
+  dialect?: SqlDialect
 ): UpdateField[] {
   const allFields = {
     ...item.fields,
   };
+
+  function isUuidColumn(columnName: string): boolean {
+    return table?.columns.find(x => x.columnName == columnName)?.dataType.toLowerCase() == 'uuid';
+  }
+
+  function createUpdateField(targetColumn: string): UpdateField {
+    const shouldGenerateDefaultValue =
+      isUuidColumn(targetColumn) && allFields[targetColumn] == null && dialect?.generateDefaultValueForUuid;
+
+    if (shouldGenerateDefaultValue) {
+      return {
+        targetColumn,
+        sql: dialect?.generateDefaultValueForUuid,
+        exprType: 'raw',
+      };
+    }
+
+    return {
+      targetColumn,
+      exprType: 'value',
+      value: allFields[targetColumn],
+      dataType: table?.columns?.find(x => x.columnName == targetColumn)?.dataType,
+    };
+  }
 
   for (const docField in item.document || {}) {
     if (allowedDocumentColumns.includes(docField)) {
@@ -246,14 +271,19 @@ function extractFields(
     }
   }
 
-  return _.keys(allFields)
-    .filter(targetColumn => allowNulls || allFields[targetColumn] != null)
-    .map(targetColumn => ({
-      targetColumn,
-      exprType: 'value',
-      value: allFields[targetColumn],
-      dataType: table?.columns?.find(x => x.columnName == targetColumn)?.dataType,
-    }));
+  const columnNames = Object.keys(allFields);
+  if (dialect?.generateDefaultValueForUuid && table) {
+    columnNames.push(...table.columns.map(i => i.columnName));
+  }
+
+  return _.uniq(columnNames)
+    .filter(
+      targetColumn =>
+        allowNulls ||
+        allFields[targetColumn] != null ||
+        (isUuidColumn(targetColumn) && dialect?.generateDefaultValueForUuid)
+    )
+    .map(targetColumn => createUpdateField(targetColumn));
 }
 
 function changeSetInsertToSql(
@@ -266,13 +296,13 @@ function changeSetInsertToSql(
     item,
     false,
     table?.columns?.map(x => x.columnName),
-    table
+    table,
+    dialect
   );
   if (fields.length == 0) return null;
   let autoInc = false;
   if (table) {
     const autoIncCol = table.columns.find(x => x.autoIncrement);
-    // console.log('autoIncCol', autoIncCol);
     if (autoIncCol && fields.find(x => x.targetColumn == autoIncCol.columnName)) {
       autoInc = true;
     }

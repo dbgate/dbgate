@@ -21,6 +21,7 @@ const dialect = {
   createColumnWithColumnKeyword: true,
   specificNullabilityImplementation: true,
   disableRenameTable: true,
+  generateDefaultValueForUuid: 'uuid()',
   omitForeignKeys: true,
   omitUniqueConstraints: true,
   omitIndexes: true,
