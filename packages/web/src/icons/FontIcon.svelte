@@ -58,6 +58,7 @@
     'icon auth': 'mdi mdi-account-key',
     'icon version': 'mdi mdi-ticket-confirmation',
     'icon pin': 'mdi mdi-pin',
+    'icon pin-outline': 'mdi mdi-pin-outline',
     'icon arrange': 'mdi mdi-arrange-send-to-back',
     'icon app': 'mdi mdi-layers-triple',
     'icon open-in-new': 'mdi mdi-open-in-new',

@@ -27,37 +27,44 @@
     });
   }
 
-  const closeTabFunc = closeCondition => async tabid => {
-    const activeCandidate = getOpenedTabs().find(x => x.tabid == tabid);
-    const closeCandidates = getOpenedTabs()
-      .filter(x => closeCondition(x, activeCandidate))
-      .filter(x => x.unsaved)
-      .filter(x => shouldShowTab(x));
+  const closeTabFunc =
+    (closeCondition, afterOperation = null) =>
+    async tabid => {
+      const activeCandidate = getOpenedTabs().find(x => x.tabid == tabid);
+      const closeCandidates = getOpenedTabs()
+        .filter(x => closeCondition(x, activeCandidate))
+        .filter(x => x.unsaved)
+        .filter(x => shouldShowTab(x));
 
-    if (!(await allowCloseTabs(closeCandidates))) return;
+      if (!(await allowCloseTabs(closeCandidates))) return;
 
-    openedTabs.update(files => {
-      const active = files.find(x => x.tabid == tabid);
-      if (!active) return files;
+      openedTabs.update(files => {
+        const active = files.find(x => x.tabid == tabid);
+        if (!active) return files;
 
-      const newFiles = files.map(x => ({
-        ...x,
-        closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
-        selected: false,
-      }));
+        const newFiles = files.map(x => ({
+          ...x,
+          closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
+          selected: false,
+        }));
 
-      if (newFiles.find(x => x.selected && shouldShowTab(x))) {
-        return newFiles;
-      }
+        if (newFiles.find(x => x.selected && shouldShowTab(x))) {
+          return newFiles;
+        }
 
-      const selectedIndex = _.findLastIndex(newFiles, x => shouldShowTab(x));
+        const selectedIndex = _.findLastIndex(newFiles, x => shouldShowTab(x));
 
-      return newFiles.map((x, index) => ({
-        ...x,
-        selected: index == selectedIndex,
-      }));
-    });
-  };
+        const res = newFiles.map((x, index) => ({
+          ...x,
+          selected: index == selectedIndex,
+        }));
+
+        if (afterOperation) {
+          return afterOperation(res);
+        }
+        return res;
+      });
+    };
 
   export const closeMultipleTabs = async (closeCondition, deleteFromHistory = false) => {
     const closeCandidates = getOpenedTabs()
@@ -128,6 +135,10 @@
       }))
     );
   };
+  const pinTab = tabid => {
+    openedTabs.update(tabs => tabs.map(x => (x.tabid == tabid ? { ...x, tabPreviewMode: false } : x)));
+  };
+
   const closeTabsWithCurrentDb = () => {
     const db = getCurrentDatabase();
     closeMultipleTabs(tab => {
@@ -154,7 +165,10 @@
       _.get(x, 'props.database') != _.get(active, 'props.database')
   );
   const closeOthersInMultiTab = multiTabIndex =>
-    closeTabFunc((x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex);
+    closeTabFunc(
+      (x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex,
+      tabs => tabs.map(x => (x.selected ? { ...x, tabPreviewMode: false } : x))
+    );
   const reopenClosedTab = () => {
     const lastClosedTabId = getOpenedTabs()
       .filter(x => x.closedTime)
@@ -396,6 +410,10 @@
     const appobj = appObject ? appObjectTypes[appObject] : null;
 
     return [
+      tab.tabPreviewMode && {
+        text: 'Pin tab',
+        onClick: () => pinTab(tabid),
+      },
       {
         text: 'Close',
         onClick: () => closeTab(tabid),
@@ -639,6 +657,15 @@
                 $draggingTabTarget = null;
               }}
             >
+              {#if tab.tabPreviewMode}
+                <span
+                  class="pin-button"
+                  on:click={e => pinTab(tab.tabid)}
+                  title="This tab is in preview mode, it will be replaced eg. when clicking table. Click to switch to normal mode. You could also double-click tab header."
+                >
+                  <FontIcon icon="icon pin-outline" />
+                </span>
+              {/if}
               <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
               <span class="file-name">
                 {tab.title}
@@ -773,6 +800,15 @@
   }
 
   .tab-group-button:hover {
+    color: var(--theme-font-1);
+  }
+
+  .pin-button {
+    color: var(--theme-font-3);
+    cursor: pointer;
+  }
+
+  .pin-button:hover {
     color: var(--theme-font-1);
   }
 </style>
