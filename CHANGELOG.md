@@ -14,11 +14,13 @@ Builds:
 - ADDED: Pin icon for tab in preview mode (#1013)
 - FIXED: Pin icon misplaced #1007
 - ADDED: Set client name when connecting to redis #1004
-- ADDED: Redis loading keys optimalization
+- ADDED: Redis loading keys optimalization #1002
 - ADDED: Browse redis keys with preview with keyboard
 - FIXED: Cannot expand tables and views returned from search #1000
 - ADDED: Expand all/Collapse all/Expand document commands in MongoDB JSON view #976
 - ADDED: Configurable page size for MongoDB collection #976
+- ADDED: Redis - SSL connection
+- ADDED: Redis JSON format for String values #852
 
 ### 6.1.3
 - FIXED: Fulltext search now shows correctly columns and SQL code lines
