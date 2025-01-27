@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.1.4
+- CHANGED: Show Data/Structure button in one place #1015
+- ADDED: Data view coloring (every second row) #1014
+- ADDED: Pin icon for tab in preview mode (#1013)
+- FIXED: Pin icon misplaced #1007
+- ADDED: Set client name when connecting to redis #1004
+- ADDED: Redis loading keys optimalization
+- ADDED: Browse redis keys with preview with keyboard
+- FIXED: Cannot expand tables and views returned from search #1000
+- ADDED: Expand all/Collapse all/Expand document commands in MongoDB JSON view #976
+- ADDED: Configurable page size for MongoDB collection #976
+
 ### 6.1.3
 - FIXED: Fulltext search now shows correctly columns and SQL code lines
 - ADDED: Configuration of SSH tunnel local host (IPv4 vs IPv6). Should fix majority of SSH tunnel problems
