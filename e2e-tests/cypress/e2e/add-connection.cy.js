@@ -22,6 +22,7 @@ describe('Add connection', () => {
     // save and connect
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();
     cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
+    cy.screenshot('add-connection');
     cy.contains('performance_schema');
   });
 
@@ -45,6 +46,7 @@ describe('Add connection', () => {
     cy.get('[data-testid=ConnectionSshTunnelFields_sshLogin]').clear().type('root');
     cy.get('[data-testid=ConnectionSshTunnelFields_sshPassword]').clear().type('root');
     cy.get('[data-testid=ConnectionSshTunnelFields_sshPort]').clear().type('16006');
+    cy.screenshot('ssh-tunnel-connection');
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();
     cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
     cy.contains('performance_schema');
