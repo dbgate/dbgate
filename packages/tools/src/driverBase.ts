@@ -190,8 +190,6 @@ export const driverBase = {
     // @ts-ignore
     dumpSqlSelect(dmp, select);
 
-    console.log('******************** QUERY:', dmp.s);
-
     const resp = await this.query(pool, dmp.s);
     return resp.rows;
   },
