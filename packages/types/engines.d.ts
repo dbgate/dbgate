@@ -208,7 +208,13 @@ export interface EngineDriver extends FilterBehaviourProvider {
   exportKeys(dbhan: DatabaseHandle, options: {}): Promise;
   loadKeyInfo(dbhan: DatabaseHandle, key): Promise;
   loadKeyTableRange(dbhan: DatabaseHandle, key, cursor, count): Promise;
-  loadFieldValues(dbhan: DatabaseHandle, name: NamedObjectInfo, field: string, search: string): Promise;
+  loadFieldValues(
+    dbhan: DatabaseHandle,
+    name: NamedObjectInfo,
+    field: string,
+    search: string,
+    dataType: string
+  ): Promise;
   analyseFull(dbhan: DatabaseHandle, serverVersion): Promise<DatabaseInfo>;
   analyseIncremental(dbhan: DatabaseHandle, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;

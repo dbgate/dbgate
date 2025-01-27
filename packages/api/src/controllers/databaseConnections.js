@@ -253,9 +253,9 @@ module.exports = {
   },
 
   loadFieldValues_meta: true,
-  async loadFieldValues({ conid, database, schemaName, pureName, field, search }, req) {
+  async loadFieldValues({ conid, database, schemaName, pureName, field, search, dataType }, req) {
     testConnectionPermission(conid, req);
-    return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search });
+    return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search, dataType });
   },
 
   callMethod_meta: true,

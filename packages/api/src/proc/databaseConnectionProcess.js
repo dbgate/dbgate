@@ -291,10 +291,14 @@ async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
   });
 }
 
-async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search }) {
-  return handleDriverDataCore(msgid, driver => driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search), {
-    logName: 'loadFieldValues',
-  });
+async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search, dataType }) {
+  return handleDriverDataCore(
+    msgid,
+    driver => driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search, dataType),
+    {
+      logName: 'loadFieldValues',
+    }
+  );
 }
 
 function ensureExecuteCustomScript(driver) {

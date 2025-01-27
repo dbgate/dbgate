@@ -39,6 +39,7 @@
   export let schemaName = null;
   export let columnName = null;
   export let uniqueName = null;
+  export let dataType = null;
 
   export let placeholder = 'Filter';
 
@@ -228,6 +229,7 @@
       pureName: foreignKey.refTableName,
       schemaName: foreignKey.refSchemaName,
       multiselect: true,
+      dataType,
       onConfirm: keys => setFilter(keys.join(',')),
     });
   }
@@ -243,6 +245,7 @@
       pureName,
       field: columnName || uniqueName,
       formatterFunction,
+      dataType,
       onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
     });
   }

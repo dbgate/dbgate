@@ -1994,6 +1994,7 @@
                   onFocusGrid={() => {
                     selectTopmostCell(col.uniqueName);
                   }}
+                  dataType={col.dataType}
                 />
               </td>
             {/each}

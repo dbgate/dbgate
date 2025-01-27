@@ -2,7 +2,7 @@ import _compact from 'lodash/compact';
 import _isString from 'lodash/isString';
 import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
-import { dumpSqlSelect } from 'dbgate-sqltree';
+import { dumpSqlSelect, Select } from 'dbgate-sqltree';
 import { EngineDriver, QueryResult, RunScriptOptions } from 'dbgate-types';
 import { detectSqlFilterBehaviour } from './detectSqlFilterBehaviour';
 import { getLogger } from './getLogger';
@@ -128,30 +128,43 @@ export const driverBase = {
     }
     return [];
   },
-  async loadFieldValues(pool, name, columnName, search) {
+  async loadFieldValues(pool, name, columnName, search, dataType) {
     const dmp = this.createDumper();
-    const select = {
+
+    let expr;
+    if (this.dialect.createColumnViewExpression) {
+      expr = this.dialect.createColumnViewExpression(columnName, dataType, { name }, 'value');
+    }
+    if (!expr) {
+      expr = {
+        exprType: 'column',
+        columnName,
+        alias: 'value',
+      };
+    }
+
+    const select: Select = {
       commandType: 'select',
       distinct: true,
-      topRecords: 100,
 
       from: {
         name,
       },
-      columns: [
-        {
-          exprType: 'column',
-          columnName,
-          alias: 'value',
-        },
-      ],
+      columns: [expr],
       orderBy: [
         {
           exprType: 'column',
           columnName,
+          direction: 'ASC',
         },
       ],
     };
+
+    if (this.dialect.topRecords) {
+      select.topRecords = 100;
+    } else {
+      select.range = { offset: 0, limit: 100 };
+    }
 
     if (search) {
       const tokens = _compact(search.split(' ').map(x => x.trim()));
@@ -176,6 +189,8 @@ export const driverBase = {
 
     // @ts-ignore
     dumpSqlSelect(dmp, select);
+
+    console.log('******************** QUERY:', dmp.s);
 
     const resp = await this.query(pool, dmp.s);
     return resp.rows;
