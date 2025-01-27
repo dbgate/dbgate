@@ -1,4 +1,4 @@
-name: Run tests with screesnhots PREMIUM
+name: Run tests with screenshots PREMIUM
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           yarn test:ci
 
       - name: Upload E2E screenshots
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-screenshots
           path: ../dbgate-merged/e2e-tests/cypress/screenshots
