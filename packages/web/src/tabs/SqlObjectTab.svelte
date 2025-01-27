@@ -94,6 +94,50 @@
   {/await}
 
   <svelte:fragment slot="toolstrip">
+    {#if objectTypeField == 'tables' || objectTypeField == 'views' || objectTypeField == 'matviews'}
+      <ToolStripButton
+        icon="icon structure"
+        iconAfter="icon arrow-link"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: 'img table-structure',
+            tabComponent: 'TableStructureTab',
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'openStructure',
+            },
+          });
+        }}>Structure</ToolStripButton
+      >
+      <ToolStripButton
+        icon="icon table"
+        iconAfter="icon arrow-link"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: objectTypeField == 'tables' ? 'img table' : 'img view',
+            tabComponent: objectTypeField == 'tables' ? 'TableDataTab' : 'ViewDataTab',
+            objectTypeField,
+            tabPreviewMode: true,
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField,
+              defaultActionId: 'openTable',
+            },
+          });
+        }}>Data</ToolStripButton
+      >
+    {/if}
+
     <SelectField
       isNative
       value={scriptTemplate ?? defaultScriptTemplate}
@@ -111,47 +155,6 @@
         }));
       }}
     />
-    {#if objectTypeField == 'tables' || objectTypeField == 'views' || objectTypeField == 'matviews'}
-      <ToolStripButton
-        icon="icon structure"
-        on:click={() => {
-          openNewTab({
-            title: pureName,
-            icon: 'img table-structure',
-            tabComponent: 'TableStructureTab',
-            tabPreviewMode: true,
-            props: {
-              schemaName,
-              pureName,
-              conid,
-              database,
-              objectTypeField,
-              defaultActionId: 'openStructure',
-            },
-          });
-        }}>Open structure</ToolStripButton
-      >
-      <ToolStripButton
-        icon="icon table"
-        on:click={() => {
-          openNewTab({
-            title: pureName,
-            icon: objectTypeField == 'tables' ? 'img table' : 'img view',
-            tabComponent: objectTypeField == 'tables' ? 'TableDataTab' : 'ViewDataTab',
-            objectTypeField,
-            tabPreviewMode: true,
-            props: {
-              schemaName,
-              pureName,
-              conid,
-              database,
-              objectTypeField,
-              defaultActionId: 'openTable',
-            },
-          });
-        }}>Open data</ToolStripButton
-      >
-    {/if}
     {#each getSupportedScriptTemplates(appObjectData.objectTypeField) as template}
       <ToolStripButton
         icon="img sql-file"

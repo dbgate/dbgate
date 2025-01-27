@@ -170,16 +170,9 @@
       : null}
   />
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton
-      command="tableStructure.save"
-      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
-    />
-    <ToolStripCommandButton command="tableStructure.reset" />
-    <ToolStripCommandButton command="tableEditor.addColumn" />
-    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
-
     <ToolStripButton
       icon={'icon table'}
+      iconAfter="icon arrow-link"
       on:click={() => {
         openNewTab({
           title: pureName,
@@ -195,10 +188,12 @@
             defaultActionId: 'openTable',
           },
         });
-      }}>Open data</ToolStripButton
+      }}>Data</ToolStripButton
     >
+
     <ToolStripButton
       icon="img sql-file"
+      iconAfter="icon arrow-link"
       on:click={() => {
         openNewTab({
           title: pureName,
@@ -214,7 +209,15 @@
             defaultActionId: 'showSql',
           },
         });
-      }}>Show SQL</ToolStripButton
+      }}>SQL</ToolStripButton
     >
+
+    <ToolStripCommandButton
+      command="tableStructure.save"
+      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
+    />
+    <ToolStripCommandButton command="tableStructure.reset" />
+    <ToolStripCommandButton command="tableEditor.addColumn" />
+    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
   </svelte:fragment>
 </ToolStripContainer>

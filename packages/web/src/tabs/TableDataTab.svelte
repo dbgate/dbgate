@@ -262,6 +262,48 @@
   />
 
   <svelte:fragment slot="toolstrip">
+    <ToolStripButton
+      icon="icon structure"
+      iconAfter="icon arrow-link"
+      on:click={() => {
+        openNewTab({
+          title: pureName,
+          icon: 'img table-structure',
+          tabComponent: 'TableStructureTab',
+          tabPreviewMode: true,
+          props: {
+            schemaName,
+            pureName,
+            conid,
+            database,
+            objectTypeField: 'tables',
+            defaultActionId: 'openStructure',
+          },
+        });
+      }}>Structure</ToolStripButton
+    >
+
+    <ToolStripButton
+      icon="img sql-file"
+      iconAfter="icon arrow-link"
+      on:click={() => {
+        openNewTab({
+          title: pureName,
+          icon: 'img sql-file',
+          tabComponent: 'SqlObjectTab',
+          tabPreviewMode: true,
+          props: {
+            schemaName,
+            pureName,
+            conid,
+            database,
+            objectTypeField: 'tables',
+            defaultActionId: 'showSql',
+          },
+        });
+      }}>SQL</ToolStripButton
+    >
+
     <ToolStripCommandSplitButton
       buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
       commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
@@ -291,46 +333,6 @@
     <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
     <ToolStripExportButton {quickExportHandlerRef} />
-
-    <ToolStripButton
-      icon="icon structure"
-      on:click={() => {
-        openNewTab({
-          title: pureName,
-          icon: 'img table-structure',
-          tabComponent: 'TableStructureTab',
-          tabPreviewMode: true,
-          props: {
-            schemaName,
-            pureName,
-            conid,
-            database,
-            objectTypeField: 'tables',
-            defaultActionId: 'openStructure',
-          },
-        });
-      }}>Open structure</ToolStripButton
-    >
-
-    <ToolStripButton
-      icon="img sql-file"
-      on:click={() => {
-        openNewTab({
-          title: pureName,
-          icon: 'img sql-file',
-          tabComponent: 'SqlObjectTab',
-          tabPreviewMode: true,
-          props: {
-            schemaName,
-            pureName,
-            conid,
-            database,
-            objectTypeField: 'tables',
-            defaultActionId: 'showSql',
-          },
-        });
-      }}>Table SQL</ToolStripButton
-    >
 
     <ToolStripButton
       icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
