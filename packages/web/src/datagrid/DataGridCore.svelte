@@ -425,12 +425,11 @@
   import { createGeoJsonFromSelection, selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
-  import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useDatabaseStatus, useSettings } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import hasPermission from '../utility/hasPermission';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -516,6 +515,10 @@
       refresh();
     }
   }
+
+  const settingsValue = useSettings();
+
+  $: gridColoringMode = $settingsValue?.['dataGrid.coloringMode'];
 
   export function refresh() {
     if (onCustomGridRefresh) onCustomGridRefresh();
@@ -2018,6 +2021,7 @@
             {frameSelection}
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
             {dataEditorTypesBehaviourOverride}
+            {gridColoringMode}
           />
         {/each}
       </tbody>

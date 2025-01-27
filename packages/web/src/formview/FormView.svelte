@@ -196,6 +196,7 @@
   import keycodes from '../utility/keycodes';
   import resizeObserver from '../utility/resizeObserver';
   import openReferenceForm from './openReferenceForm';
+  import { useSettings } from '../utility/metadataLoaders';
 
   export let conid;
   export let database;
@@ -235,6 +236,9 @@
   $: columnChunks = _.chunk(display?.formColumns || [], rowCount) as any[][];
 
   $: rowCountInfo = getRowCountInfo(allRowCount, display);
+
+  const settingsValue = useSettings();
+  $: gridColoringMode = $settingsValue?.['dataGrid.coloringMode'];
 
   function getRowCountInfo(allRowCount) {
     if (rowCountNotAvailable) {
@@ -620,7 +624,7 @@
     {#each columnChunks as chunk, chunkIndex}
       <table on:mousedown={handleTableMouseDown}>
         {#each chunk as col, rowIndex}
-          <tr>
+          <tr class={`coloring-mode-${gridColoringMode}`}>
             <td
               class="header-cell"
               data-row={rowIndex}
@@ -746,10 +750,18 @@
   tr {
     background-color: var(--theme-bg-0);
   }
-  tr:nth-child(6n + 3) {
+  tr.coloring-mode-36:nth-child(6n + 3) {
     background-color: var(--theme-bg-1);
   }
-  tr:nth-child(6n + 6) {
+  tr.coloring-mode-36:nth-child(6n + 6) {
+    background-color: var(--theme-bg-alt);
+  }
+
+  tr.coloring-mode-2-primary:nth-child(2n + 1) {
+    background-color: var(--theme-bg-1);
+  }
+
+  tr.coloring-mode-2-secondary:nth-child(2n + 1) {
     background-color: var(--theme-bg-alt);
   }
 

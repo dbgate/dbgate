@@ -146,6 +146,19 @@ ORDER BY
             defaultValue="50"
           />
 
+          <FormSelectField
+            label="Row coloring mode"
+            name="dataGrid.coloringMode"
+            isNative
+            defaultValue="36"
+            options={[
+              { value: '36', label: 'Every 3rd and 6th row' },
+              { value: '2-primary', label: 'Every 2-nd row, primary color' },
+              { value: '2-secondary', label: 'Every 2-nd row, secondary color' },
+              { value: 'none', label: 'None' },
+            ]}
+          />
+
           <div class="heading">SQL editor</div>
 
           <div class="flex">
