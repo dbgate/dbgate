@@ -54,11 +54,15 @@ jobs:
           cd ../dbgate-merged
           cd e2e-tests
           yarn test:ci
+      - name: Copy screenshots
+        run: |
+          mkdir screenshots
+          cp ../dbgate-merged/e2e-tests/cypress/screenshots/*.png screenshots/
       - name: Upload E2E screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-screenshots
-          path: ../dbgate-merged/e2e-tests/cypress/screenshots
+          name: screenshots
+          path: screenshots
     services:
       postgres-cypress:
         image: postgres
