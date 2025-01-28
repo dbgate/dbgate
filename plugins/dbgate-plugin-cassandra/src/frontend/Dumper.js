@@ -23,6 +23,11 @@ class Dumper extends SqlDumper {
     this.putCmd('^alter ^table %f ^drop %i', column, column.columnName);
   }
 
+  /**
+   * @param {import('dbgate-types').ColumnInfo} column
+   *
+   * @returns {void}
+   */
   createDatabase(name, replicationCalss = 'SimpleStrategy', replicationFactor = 1) {
     this.putCmd(
       "^create ^keyspace %s ^with replication = {'class': '%s','replication_factor': %s}",
@@ -32,6 +37,21 @@ class Dumper extends SqlDumper {
     );
   }
 
+  /**
+   * @param {import('dbgate-types').NamedObjectInfo} obj
+   *
+   * @returns {void}
+   */
+  dropDatabase(name) {
+    this.putCmd('^drop ^keyspace %s', name);
+  }
+
+  /**
+   * @param {string} value
+   * @param {string} dataType
+   *
+   * @returns {void}
+   */
   putValue(value, dataType) {
     if (
       dataType?.toLowerCase() === 'uuid' &&
