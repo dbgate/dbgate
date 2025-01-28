@@ -210,19 +210,19 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
       name: string;
     }[]
   >;
-  loadKeys(dbhan: DatabaseHandle, root: string, filter?: string): Promise;
-  exportKeys(dbhan: DatabaseHandle, options: {}): Promise;
-  loadKeyInfo(dbhan: DatabaseHandle, key): Promise;
-  loadKeyTableRange(dbhan: DatabaseHandle, key, cursor, count): Promise;
+  loadKeys(dbhan: DatabaseHandle<TClient>, root: string, filter?: string): Promise;
+  exportKeys(dbhan: DatabaseHandle<TClient>, options: {}): Promise;
+  loadKeyInfo(dbhan: DatabaseHandle<TClient>, key): Promise;
+  loadKeyTableRange(dbhan: DatabaseHandle<TClient>, key, cursor, count): Promise;
   loadFieldValues(
-    dbhan: DatabaseHandle,
+    dbhan: DatabaseHandle<TClient>,
     name: NamedObjectInfo,
     field: string,
     search: string,
     dataType: string
   ): Promise;
-  analyseFull(dbhan: DatabaseHandle, serverVersion): Promise<DatabaseInfo>;
-  analyseIncremental(dbhan: DatabaseHandle, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
+  analyseFull(dbhan: DatabaseHandle<TClient>, serverVersion): Promise<DatabaseInfo>;
+  analyseIncremental(dbhan: DatabaseHandle<TClient>, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
