@@ -18,7 +18,7 @@ const dialect = {
   createIndex: true,
   dropIndex: true,
   anonymousPrimaryKey: true,
-  createColumnWithColumnKeyword: true,
+  createColumnWithColumnKeyword: false,
   specificNullabilityImplementation: true,
   disableRenameTable: true,
   generateDefaultValueForUuid: 'uuid()',
