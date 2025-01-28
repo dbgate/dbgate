@@ -416,3 +416,5 @@ focusedTreeDbKey.subscribe(value => {
   focusedTreeDbKeyValue = value;
 });
 export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
+
+window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

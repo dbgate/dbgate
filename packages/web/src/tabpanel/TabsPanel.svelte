@@ -660,6 +660,7 @@
               {#if tab.tabPreviewMode}
                 <span
                   class="pin-button"
+                  data-testid='TabsPanel_pinTabButton'
                   on:click={e => pinTab(tab.tabid)}
                   title="This tab is in preview mode, it will be replaced eg. when clicking table. Click to switch to normal mode. You could also double-click tab header."
                 >
