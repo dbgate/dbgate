@@ -22,7 +22,16 @@ class Dumper extends SqlDumper {
   dropColumn(column) {
     this.putCmd('^alter ^table %f ^drop %i', column, column.columnName);
   }
-  
+
+  createDatabase(name, replicationCalss = 'SimpleStrategy', replicationFactor = 1) {
+    this.putCmd(
+      "^create ^keyspace %s ^with replication = {'class': '%s','replication_factor': %s}",
+      name,
+      replicationCalss,
+      replicationFactor
+    );
+  }
+
   putValue(value, dataType) {
     if (
       dataType?.toLowerCase() === 'uuid' &&
