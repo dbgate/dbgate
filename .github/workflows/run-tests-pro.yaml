@@ -54,6 +54,10 @@ jobs:
           cd ../dbgate-merged
           cd e2e-tests
           yarn test:ci
+      - name: ls -R
+        run: |
+          cd ../dbgate-merged
+          ls -R
       - name: Copy screenshots
         run: |
           mkdir screenshots
