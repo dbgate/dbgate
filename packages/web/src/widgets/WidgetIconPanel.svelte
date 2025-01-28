@@ -108,6 +108,7 @@
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
+      data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
       <FontIcon icon={item.icon} title={item.title} />
@@ -125,7 +126,7 @@
   >
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div>
-  
+
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
     <FontIcon icon="icon settings" />
   </div>

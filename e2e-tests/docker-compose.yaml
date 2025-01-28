@@ -35,3 +35,21 @@ services:
     build: containers/dex
     ports:
       - "16009:5556"
+
+  mongo:
+    image: mongo:4.0.12
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: Pwd2020Db
+    ports:
+      - 16010:27017
+    networks:
+      - dbgate
+
+  redis:
+    image: redis
+    ports:
+      - 16011:6379
+    networks:
+      - dbgate
