@@ -53,7 +53,7 @@ jobs:
       - name: Copy screenshots
         run: |
           mkdir screenshots
-          cp ../dbgate-merged/e2e-tests/cypress/screenshots/*.png screenshots/
+          cp ../dbgate-merged/e2e-tests/cypress/screenshots/**/*.png screenshots/
 
       - name: Upload E2E screenshots
         uses: actions/upload-artifact@v4
