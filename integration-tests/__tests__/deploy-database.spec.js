@@ -448,7 +448,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipChangeColumn).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipChangeColumn || x.skipNullability).map(engine => [engine.label, engine]))(
     'Change column to NOT NULL column with default - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
