@@ -14,10 +14,8 @@ const driver = {
   ...driverBase,
   analyserClass: Analyser,
   // creating connection
-  async connect({ server, port, user, password, database, localDataCenter, useDatabaseUrl, databaseUrl }) {
-    console.log('#conn', localDataCenter);
+  async connect({ server, user, password, database, localDataCenter, useDatabaseUrl, databaseUrl }) {
     const client = new cassandra.Client({
-      // port,
       // user,
       // password,
       contactPoints: server.split(','),

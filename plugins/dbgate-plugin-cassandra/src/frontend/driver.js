@@ -86,7 +86,7 @@ const driver = {
   engine: 'cassandra@dbgate-plugin-cassandra',
   title: 'Cassandra',
   showConnectionField: (field, values) =>
-    ['server', 'port', 'singleDatabase', 'localDataCenter', 'isReadOnly', 'user', 'password'].includes(field),
+    ['server', 'singleDatabase', 'localDataCenter', 'isReadOnly', 'user', 'password'].includes(field),
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'
       ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
