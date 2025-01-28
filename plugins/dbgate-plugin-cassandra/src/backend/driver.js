@@ -146,9 +146,7 @@ const driver = {
   },
   // list databases on server
   async listDatabases(dbhan) {
-    const result = await dbhan.client.execute(
-      "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name >= 'system' ALLOW FILTERING"
-    );
+    const result = await dbhan.client.execute('SELECT keyspace_name FROM system_schema.keyspaces');
     return result.rows.map((row) => ({ name: row.keyspace_name }));
   },
 
