@@ -36,9 +36,11 @@
   <span class="expandColumnIcon" style={`margin-right: ${5 + (node.level - (tempRoot?.level ?? 0)) * 10}px`}>
     <FontIcon
       icon={node.isExpandable ? plusExpandIcon(node.isExpanded) : 'icon invisible-box'}
+      data-testid={`PerspectiveNodeRow_expand_${node.pathIdentifier}`}
       on:click={() => {
         node.toggleExpanded();
       }}
+
     />
   </span>
 
@@ -54,6 +56,7 @@
     on:change={() => {
       node.toggleChecked();
     }}
+    data-testid={`PerspectiveNodeRow_check_${node.pathIdentifier}`}
   />
 
   {#if node.secondaryCheckable}

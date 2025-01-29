@@ -221,6 +221,11 @@ export abstract class PerspectiveTreeNode {
     return false;
   }
 
+  get pathIdentifier() {
+    if (this.parentNode) return `${this.parentNode.pathIdentifier}_${this.codeName}`;
+    return this.codeName;
+  }
+
   hasDesignerIdInIncestors(designerId: string): boolean {
     if (designerId == this.designerId) return true;
     return this.parentNode?.hasDesignerIdInIncestors(designerId) || false;

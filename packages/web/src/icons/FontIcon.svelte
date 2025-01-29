@@ -301,7 +301,15 @@
   };
 </script>
 
-<span class={iconNames[icon] || icon} {title} class:padLeft class:padRight {style} on:click />
+<span
+  class={iconNames[icon] || icon}
+  {title}
+  class:padLeft
+  class:padRight
+  {style}
+  on:click
+  data-testid={$$props['data-testid']}
+/>
 
 <style>
   .padLeft {

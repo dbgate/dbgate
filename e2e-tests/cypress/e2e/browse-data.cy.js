@@ -28,7 +28,7 @@ describe('Data browser data', () => {
     cy.contains('Finished job script');
   });
 
-  it('Data archive editor', () => {
+  it('Data archive editor - macros', () => {
     cy.testid('WidgetIconPanel_archive').click();
     cy.contains('Album').click();
     cy.testid('DataGrid_itemFilters').click();
@@ -112,5 +112,49 @@ describe('Data browser data', () => {
     cy.contains('SQL Generator').click();
     cy.contains('Check all').click();
     cy.screenshot('sqlgen');
+  });
+
+  it('Macros in DB', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').click();
+    cy.contains('Leonie').click();
+    cy.contains('Ramos').click({ shiftKey: true });
+    cy.testid('DataGrid_itemColumns').click();
+    cy.testid('DataGrid_itemFilters').click();
+    cy.testid('DataGrid_itemReferences').click();
+    cy.testid('DataGrid_itemMacros').click();
+    cy.contains('Change text case').click();
+    cy.contains('NIELSEN');
+    cy.screenshot('macros');
+  });
+
+  it('Perspectives', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Artist').rightclick();
+    cy.contains('Design perspective query').click();
+
+    cy.testid('PerspectiveNodeRow_check_Artist_Album').click();
+    cy.testid('PerspectiveNodeRow_expand_Artist_Album').click();
+    cy.testid('PerspectiveNodeRow_check_Artist_Album_Track').click();
+
+    // check track is loaded
+    cy.contains('Put The Finger On You');
+
+    cy.screenshot('perspective1');
+  });
+
+  it.only('Query editor', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('SQL template').click();
+    cy.contains('CREATE TABLE').click();
+    cy.get('body').realPress('PageDown');
+    cy.get('body').realType('select * from Album where Album.');
+    // code completion
+    cy.contains('ArtistId');
+    cy.screenshot('query');
   });
 });

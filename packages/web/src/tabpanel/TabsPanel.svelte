@@ -660,7 +660,7 @@
               {#if tab.tabPreviewMode}
                 <span
                   class="pin-button"
-                  data-testid='TabsPanel_pinTabButton'
+                  data-testid="TabsPanel_pinTabButton"
                   on:click={e => pinTab(tab.tabid)}
                   title="This tab is in preview mode, it will be replaced eg. when clicking table. Click to switch to normal mode. You could also double-click tab header."
                 >
@@ -683,11 +683,21 @@
   </div>
   <div class="icons-wrapper">
     {#if allowSplitTab}
-      <div class="icon-button" on:click={() => splitTab(multiTabIndex)} title="Split window">
+      <div
+        class="icon-button"
+        on:click={() => splitTab(multiTabIndex)}
+        title="Split window"
+        data-testid="TabsPanel_buttonSplit"
+      >
         <FontIcon icon="icon split" />
       </div>
     {/if}
-    <div class="icon-button" on:click={() => newQuery({ multiTabIndex })} title="New query">
+    <div
+      class="icon-button"
+      on:click={() => newQuery({ multiTabIndex })}
+      title="New query"
+      data-testid="TabsPanel_buttonNewQuery"
+    >
       <FontIcon icon="icon add" />
     </div>
   </div>
