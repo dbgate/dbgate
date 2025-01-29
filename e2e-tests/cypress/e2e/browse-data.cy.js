@@ -71,7 +71,7 @@ describe('Data browser data', () => {
     cy.screenshot('formview');
   });
 
-  it.only('SQL Gen', () => {
+  it('SQL Gen', () => {
     cy.contains('Postgres-connection').click();
     cy.contains('PgChinook').rightclick();
     cy.contains('SQL Generator').click();
