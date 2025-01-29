@@ -115,7 +115,8 @@ jobs:
 
       oracle-integr:
         image: gvenzl/oracle-xe:21-slim
-        env:ORACLE_PASSWORD: Pwd2020Db
+        env:
+          ORACLE_PASSWORD: Pwd2020Db
         ports:
           - 15006:1521
 
