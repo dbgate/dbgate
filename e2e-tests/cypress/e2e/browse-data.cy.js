@@ -145,7 +145,7 @@ describe('Data browser data', () => {
     cy.themeshot('perspective1');
   });
 
-  it('Query editor', () => {
+  it('Query editor - code completion', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Customer').rightclick();
@@ -156,5 +156,18 @@ describe('Data browser data', () => {
     // code completion
     cy.contains('ArtistId');
     cy.themeshot('query');
+  });
+
+  it.only('Query editor - join wizard', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.wait(1000);
+    cy.get('body').realType('select * from Invoice');
+    cy.get('body').realPress('{enter}');
+    cy.get('body').realPress(['Control', 'j']);
+    // JOIN wizard
+    cy.contains('INNER JOIN Customer ON Invoice.CustomerId = Customer.CustomerId');
+    cy.themeshot('joinwizard');
   });
 });
