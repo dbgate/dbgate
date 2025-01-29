@@ -79,11 +79,11 @@ async function initPostgresDatabase(dbname, inputFile) {
 }
 
 async function run() {
-  await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/Chinook-mysql.sql')));
+  await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
   // await initMySqlDatabase('Northwind', path.resolve(path.join(__dirname, '../data/northwind-mysql.sql')));
   // await initMySqlDatabase('Sakila', path.resolve(path.join(__dirname, '../data/sakila-mysql.sql')));
 
-  await initPostgresDatabase('PgChinook', path.resolve(path.join(__dirname, '../data/Chinook-postgres.sql')));
+  await initPostgresDatabase('PgChinook', path.resolve(path.join(__dirname, '../data/chinook-postgres.sql')));
 }
 
 dbgateApi.runScript(run);
