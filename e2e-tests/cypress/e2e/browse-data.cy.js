@@ -36,7 +36,7 @@ describe('Data browser data', () => {
     cy.contains('Out Of Exile').click({ shiftKey: true });
     cy.contains('Change text case').click();
     cy.contains('AUDIOSLAVE');
-    cy.screenshot('freetable');
+    cy.themeshot('freetable');
   });
 
   it('Load table data', () => {
@@ -94,16 +94,16 @@ describe('Data browser data', () => {
     cy.contains('PgChinook').click();
     cy.contains('customer').click();
     cy.contains('Leonie').click();
-    cy.screenshot('datagrid');
+    cy.themeshot('datagrid');
 
     cy.contains('invoice').click();
     cy.contains('invoice_line (invoice_id)').click();
-    cy.screenshot('masterdetail');
+    cy.themeshot('masterdetail');
 
     cy.contains('9, Place Louis Barthou').click();
     cy.contains('Switch to form').click();
     cy.contains('Switch to table'); // test that we are in form view
-    cy.screenshot('formview');
+    cy.themeshot('formview');
   });
 
   it('SQL Gen', () => {
@@ -111,7 +111,7 @@ describe('Data browser data', () => {
     cy.contains('PgChinook').rightclick();
     cy.contains('SQL Generator').click();
     cy.contains('Check all').click();
-    cy.screenshot('sqlgen');
+    cy.themeshot('sqlgen');
   });
 
   it('Macros in DB', () => {
@@ -126,7 +126,7 @@ describe('Data browser data', () => {
     cy.testid('DataGrid_itemMacros').click();
     cy.contains('Change text case').click();
     cy.contains('NIELSEN');
-    cy.screenshot('macros');
+    cy.themeshot('macros');
   });
 
   it('Perspectives', () => {
@@ -142,10 +142,10 @@ describe('Data browser data', () => {
     // check track is loaded
     cy.contains('Put The Finger On You');
 
-    cy.screenshot('perspective1');
+    cy.themeshot('perspective1');
   });
 
-  it.only('Query editor', () => {
+  it('Query editor', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Customer').rightclick();
@@ -155,6 +155,6 @@ describe('Data browser data', () => {
     cy.get('body').realType('select * from Album where Album.');
     // code completion
     cy.contains('ArtistId');
-    cy.screenshot('query');
+    cy.themeshot('query');
   });
 });

@@ -13,7 +13,7 @@ describe('Add connection', () => {
   it('adds connection', () => {
     // cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
-    cy.screenshot('connection');
+    cy.themeshot('connection');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');
     cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');

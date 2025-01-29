@@ -27,3 +27,17 @@
 Cypress.Commands.add('testid', (testId, options = {}) => {
   return cy.get(`[data-testid="${testId}"]`, options);
 });
+
+Cypress.Commands.add('themeshot', file => {
+  cy.window().then(win => {
+    win.__changeCurrentTheme('theme-dark');
+  });
+
+  cy.screenshot(`${file}-dark`);
+
+  cy.window().then(win => {
+    win.__changeCurrentTheme('theme-light');
+  });
+
+  cy.screenshot(`${file}-light`);
+});
