@@ -98,7 +98,7 @@ jobs:
 
       mongo:
         image: mongo:4.0.12
-        environment:
+        env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: Pwd2020Db
         ports:
