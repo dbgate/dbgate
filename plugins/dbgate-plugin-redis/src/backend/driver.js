@@ -114,6 +114,15 @@ const driver = {
   },
   // @ts-ignore
   async query(dbhan, sql) {
+    const parts = splitCommandLine(sql);
+
+    if (parts.length >= 1) {
+      const command = parts[0].toLowerCase();
+      const args = parts.slice(1);
+      await dbhan.client.call(command, ...args);
+    }
+
+    // redis queries don't return rows
     return {
       rows: [],
       columns: [],

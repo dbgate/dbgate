@@ -42,6 +42,7 @@
         <FormStyledButton
           type="button"
           value={`All ${field}`}
+          data-testid={`FormTablesSelect_buttonAll_${field}`}
           on:click={() =>
             setFieldValue(
               name,

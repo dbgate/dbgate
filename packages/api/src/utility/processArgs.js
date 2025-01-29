@@ -28,9 +28,9 @@ function getPassArgs() {
   if (listenApiChild) {
     res.push('listen-api-child');
   }
-  // if (runE2eTests) {
-  //   res.push('--run-e2e-tests');
-  // }
+  if (runE2eTests) {
+    res.push('--run-e2e-tests');
+  }
   return res;
 }
 

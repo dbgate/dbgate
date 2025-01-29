@@ -67,7 +67,11 @@
 </script>
 
 {#if !skip}
-  <WidgetTitle clickable={collapsible} on:click={collapsible ? () => (visible = !visible) : null}>{title}</WidgetTitle>
+  <WidgetTitle
+    clickable={collapsible}
+    on:click={collapsible ? () => (visible = !visible) : null}
+    data-testid={$$props['data-testid']}>{title}</WidgetTitle
+  >
 
   {#if visible}
     <div class="wrapper" style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}>

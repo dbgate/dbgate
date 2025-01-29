@@ -2,7 +2,7 @@
   export let clickable = false;
 </script>
 
-<div on:click class:clickable>
+<div on:click class:clickable {...$$restProps}>
   <slot />
 </div>
 
