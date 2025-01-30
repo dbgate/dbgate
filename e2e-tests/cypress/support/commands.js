@@ -30,50 +30,64 @@ Cypress.Commands.add('testid', (testId, options = {}) => {
   return cy.get(`[data-testid="${testId}"]`, options);
 });
 
-Cypress.Commands.add('themeshot', file => {
-  cy.window().then(win => {
-    win.__changeCurrentTheme('theme-dark');
-  });
+Cypress.Commands.add(
+  'themeshot',
+  {
+    prevSubject: 'optional',
+  },
+  (subject, file, options) => {
+    cy.window().then(win => {
+      win.__changeCurrentTheme('theme-dark');
+    });
 
-  // cy.screenshot(`${file}-dark`, {
-  //   onAfterScreenshot: (doc, props) => {
-  //     cy.task('renameFile', {
-  //       from: props.path,
-  //       to: path.resolve(__dirname, `../../screenshots/${file}-dark.png`),
-  //     });
+    // cy.screenshot(`${file}-dark`, {
+    //   onAfterScreenshot: (doc, props) => {
+    //     cy.task('renameFile', {
+    //       from: props.path,
+    //       to: path.resolve(__dirname, `../../screenshots/${file}-dark.png`),
+    //     });
 
-  //     // fs.rename(props.path, path.resolve(path.join(__dirname, `../../screenshots/${file}-dark.png`)));
-  //   },
-  // });
+    //     // fs.rename(props.path, path.resolve(path.join(__dirname, `../../screenshots/${file}-dark.png`)));
+    //   },
+    // });
 
-  cy.screenshot(`${file}-dark`);
-  // .then(props => {
-  //   return cy.task('renameFile', {
-  //     from: props.path,
-  //     to: path.resolve(__dirname, `../../screenshots/${file}-dark.png`),
-  //   });
-  // });
+    if (subject) {
+      cy.wrap(subject).screenshot(`${file}-dark`, options);
+    } else {
+      cy.screenshot(`${file}-dark`, options);
+    }
+    // .then(props => {
+    //   return cy.task('renameFile', {
+    //     from: props.path,
+    //     to: path.resolve(__dirname, `../../screenshots/${file}-dark.png`),
+    //   });
+    // });
 
-  cy.window().then(win => {
-    win.__changeCurrentTheme('theme-light');
-  });
+    cy.window().then(win => {
+      win.__changeCurrentTheme('theme-light');
+    });
 
-  cy.screenshot(`${file}-light`);
-  // .then(props => {
-  //   return cy.task('renameFile', {
-  //     from: props.path,
-  //     to: path.resolve(__dirname, `../../screenshots/${file}-light.png`),
-  //   });
-  // });
+    if (subject) {
+      cy.wrap(subject).screenshot(`${file}-light`, options);
+    } else {
+      cy.screenshot(`${file}-light`, options);
+    }
+    // .then(props => {
+    //   return cy.task('renameFile', {
+    //     from: props.path,
+    //     to: path.resolve(__dirname, `../../screenshots/${file}-light.png`),
+    //   });
+    // });
 
-  // cy.screenshot(`${file}-light`, {
-  //   onAfterScreenshot: (doc, props) => {
-  //     cy.task('renameFile', {
-  //       from: props.path,
-  //       to: path.resolve(__dirname, `../../screenshots/${file}-light.png`),
-  //     });
+    // cy.screenshot(`${file}-light`, {
+    //   onAfterScreenshot: (doc, props) => {
+    //     cy.task('renameFile', {
+    //       from: props.path,
+    //       to: path.resolve(__dirname, `../../screenshots/${file}-light.png`),
+    //     });
 
-  //     // fs.rename(props.path, path.resolve(path.join(__dirname, `../../screenshots/${file}-light.png`)));
-  //   },
-  // });
-});
+    //     // fs.rename(props.path, path.resolve(path.join(__dirname, `../../screenshots/${file}-light.png`)));
+    //   },
+    // });
+  }
+);

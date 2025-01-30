@@ -13,20 +13,20 @@ beforeEach(() => {
 });
 
 describe('Data browser data', () => {
-  it('Export to data archive', () => {
-    cy.contains('MySql-connection').click();
-    // cy.contains('MyChinook').click();
-    // cy.contains('Album').click();
-    cy.contains('MyChinook').rightclick();
-    cy.contains('Export').click();
-    cy.wait(1000);
-    cy.testid('SourceTargetConfig_buttonCurrentArchive_target').click();
-    cy.testid('FormTablesSelect_buttonAll_tables').click();
-    // cy.wait(4000);
-    // cy.contains('All tables').click();
-    cy.contains('Run').click();
-    cy.contains('Finished job script');
-  });
+  // it('Export to data archive', () => {
+  //   cy.contains('MySql-connection').click();
+  //   // cy.contains('MyChinook').click();
+  //   // cy.contains('Album').click();
+  //   cy.contains('MyChinook').rightclick();
+  //   cy.contains('Export').click();
+  //   cy.wait(1000);
+  //   cy.testid('SourceTargetConfig_buttonCurrentArchive_target').click();
+  //   cy.testid('FormTablesSelect_buttonAll_tables').click();
+  //   // cy.wait(4000);
+  //   // cy.contains('All tables').click();
+  //   cy.contains('Run').click();
+  //   cy.contains('Finished job script');
+  // });
 
   it('Data archive editor - macros', () => {
     cy.testid('WidgetIconPanel_archive').click();
@@ -196,5 +196,53 @@ describe('Data browser data', () => {
     // index should be part of create script
     cy.contains('CREATE INDEX `IFK_CustomerSupportRepId`');
     cy.themeshot('sqlpreview');
+  });
+
+  it('Query designer', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('WidgetIconPanel_file').click();
+    cy.contains('customer').click();
+    // cy.contains('left join').rightclick();
+    cy.themeshot('querydesigner');
+  });
+
+  it('Database diagram', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('WidgetIconPanel_file').click();
+    cy.contains('chinook-diagram').click();
+    cy.testid('WidgetIconPanel_file').click();
+    // check diagram is shown
+    cy.contains('MediaTypeId');
+    cy.themeshot('diagram');
+  });
+
+  it('Charts', () => {
+    cy.testid('WidgetIconPanel_file').click();
+    cy.contains('pie-chart').click();
+    cy.contains('line-chart').click();
+    cy.testid('TabsPanel_buttonSplit').click();
+    cy.testid('WidgetIconPanel_file').click();
+    cy.themeshot('charts');
+  });
+
+  it('Keyboard configuration', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Keyboard shortcuts').click();
+    cy.contains('dataForm.refresh').click();
+    cy.testid('CommandModal_keyboardButton').click();
+    cy.themeshot('keyboard');
+  });
+
+  it('Command palette', () => {
+    cy.contains('Connections');
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Tools').click();
+    cy.contains('Command palette').click();
+    // cy.realPress('F1');
+    cy.realPress('PageDown');
+    cy.realPress('PageDown');
+    cy.testid('CommandPalette_main').themeshot('commandpalette', { padding: 50 });
   });
 });

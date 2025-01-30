@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 const dbgateApi = require('dbgate-api');
 dbgateApi.initializeApiEnvironment();
@@ -164,6 +165,17 @@ async function initRedisDatabase(inputDirectory) {
   // });
 }
 
+const baseDir = path.join(os.homedir(), '.dbgate');
+
+async function copyFolder(source, target) {
+  if (!fs.existsSync(target)) {
+    fs.mkdirSync(target, { recursive: true });
+  }
+  for (const file of fs.readdirSync(source)) {
+    fs.copyFileSync(path.join(source, file), path.join(target, file));
+  }
+}
+
 async function run() {
   await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
   // await initMySqlDatabase('Northwind', path.resolve(path.join(__dirname, '../data/northwind-mysql.sql')));
@@ -171,9 +183,29 @@ async function run() {
 
   await initPostgresDatabase('PgChinook', path.resolve(path.join(__dirname, '../data/chinook-postgres.sql')));
 
-  await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/mongo')));
+  await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
 
   await initRedisDatabase(path.resolve(path.join(__dirname, '../data/redis')));
+
+  await copyFolder(
+    path.resolve(path.join(__dirname, '../data/chinook-jsonl')),
+    path.join(baseDir, 'archive-e2etests', 'default')
+  );
+
+  await copyFolder(
+    path.resolve(path.join(__dirname, '../data/files/query')),
+    path.join(baseDir, 'files-e2etests', 'query')
+  );
+
+  await copyFolder(
+    path.resolve(path.join(__dirname, '../data/files/diagrams')),
+    path.join(baseDir, 'files-e2etests', 'diagrams')
+  );
+
+  await copyFolder(
+    path.resolve(path.join(__dirname, '../data/files/charts')),
+    path.join(baseDir, 'files-e2etests', 'charts')
+  );
 }
 
 dbgateApi.runScript(run);

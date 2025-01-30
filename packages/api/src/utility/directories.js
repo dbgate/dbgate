@@ -59,10 +59,10 @@ const rundir = dirFunc('run', true);
 const uploadsdir = dirFunc('uploads', true);
 const pluginsdir = dirFunc('plugins');
 const archivedir = processArgs.runE2eTests
-  ? dirFunc('archive-e2etests', true, ['default'])
+  ? dirFunc('archive-e2etests', false, ['default'])
   : dirFunc('archive', false, ['default']);
 const appdir = dirFunc('apps');
-const filesdir = dirFunc('files');
+const filesdir = processArgs.runE2eTests ? dirFunc('files-e2etests') : dirFunc('files');
 const logsdir = dirFunc('logs', 3600 * 24 * 7);
 
 function packagedPluginsDir() {
