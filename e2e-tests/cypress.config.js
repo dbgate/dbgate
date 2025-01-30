@@ -3,11 +3,13 @@ const killPort = require('kill-port');
 const { clearTestingData } = require('./e2eTestTools');
 const waitOn = require('wait-on');
 const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = defineConfig({
   e2e: {
-    trashAssetsBeforeRuns: false,
-    
+    // trashAssetsBeforeRuns: false,
+
     setupNodeEvents(on, config) {
       // implement node event listeners here
 
@@ -41,6 +43,15 @@ module.exports = defineConfig({
           });
         }
       });
+
+      on('after:screenshot', details => {
+        fs.renameSync(details.path, path.resolve(__dirname, `screenshots/${details.name}.png`));
+      });
+      // on('task', {
+      //   renameFile({ from, to }) {
+      //     fs.renameSync(from, to);
+      //   },
+      // });
     },
   },
 });

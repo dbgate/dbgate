@@ -104,7 +104,7 @@
     if (filterBehaviour.supportNumberLikeComparison) {
       res.push(
         { divider: true },
-        
+
         { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
         { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
         { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
@@ -287,6 +287,7 @@
     class:isError
     class:isOk
     {placeholder}
+    data-testid={`DataFilterControl_input_${uniqueName}`}
   />
   {#if customCommandIcon && onCustomCommand}
     <InlineButton on:click={onCustomCommand} title={customCommandTooltip} narrow square>

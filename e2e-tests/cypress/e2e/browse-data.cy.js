@@ -158,7 +158,7 @@ describe('Data browser data', () => {
     cy.themeshot('query');
   });
 
-  it.only('Query editor - join wizard', () => {
+  it('Query editor - join wizard', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
@@ -169,5 +169,22 @@ describe('Data browser data', () => {
     // JOIN wizard
     cy.contains('INNER JOIN Customer ON Invoice.CustomerId = Customer.CustomerId');
     cy.themeshot('joinwizard');
+  });
+
+  it.only('Mongo JSON data view', () => {
+    cy.contains('Mongo-connection').click();
+    cy.contains('MgChinook').click();
+    cy.contains('Customer').click();
+    cy.testid('DataFilterControl_input_CustomerId').type('<=10{enter}');
+    // test filter
+    cy.contains('Rows: 10');
+    cy.contains('Helena').rightclick();
+    cy.contains('Open query').click();
+    cy.wait(1000);
+    cy.contains('Execute').click();
+    cy.testid('WidgetIconPanel_cell-data').click();
+    // test JSON view
+    cy.contains('Country: "Brazil"');
+    cy.themeshot('mongoquery');
   });
 });
