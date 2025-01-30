@@ -1,4 +1,4 @@
-name: Run tests with screenshots PREMIUM
+name: Cypress tests with screenshots PREMIUM
 
 on:
   push:
