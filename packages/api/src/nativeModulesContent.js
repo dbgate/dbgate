@@ -4,6 +4,7 @@ const content = {};
 
 content['better-sqlite3'] = () => require('better-sqlite3');
 content['oracledb'] = () => require('oracledb');
+content['duckdb'] = () => require('duckdb');
 
 
 module.exports = content;

@@ -1,6 +1,8 @@
 // these packages will be never bundled with webpack
 
 const volatilePackages = [
+    "better-sqlite3",
+    "duckdb",
   '@clickhouse/client',
   'bson', // this package is already bundled and is used in mongodb
   'mongodb',
