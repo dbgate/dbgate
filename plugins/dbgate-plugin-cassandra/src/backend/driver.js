@@ -4,9 +4,29 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const cassandra = require('cassandra-driver');
 const createCassandraBulkInsertStream = require('./createBulkInsertStream.js');
+const { makeUniqueColumnNames } = require('dbgate-tools');
 
 function getTypeName(code) {
   return Object.keys(cassandra.types.dataTypes).find((key) => cassandra.types.dataTypes[key] === code);
+}
+
+function zipDataRow(row, header) {
+  const zippedRow = {};
+
+  for (let i = 0; i < header.length; i++) {
+    zippedRow[header[i].columnName] = row.get(i);
+  }
+
+  return zippedRow;
+}
+
+function extractCassandraColumns(row) {
+  if (!row) return [];
+
+  const columns = row.__columns.map((column) => ({ columnName: column.name }));
+  makeUniqueColumnNames(columns);
+
+  return columns;
 }
 
 /** @type {import('dbgate-types').EngineDriver<cassandra.Client>} */
@@ -70,10 +90,16 @@ const driver = {
 
       const strm = dbhan.client.stream(query);
 
+      let header;
+
       strm.on('readable', () => {
         let row;
         while ((row = strm.read())) {
-          options.row(row);
+          if (!header) {
+            header = extractCassandraColumns(row);
+            options.recordset(header);
+          }
+          options.row(zipDataRow(row, header));
         }
       });
 
