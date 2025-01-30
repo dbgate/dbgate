@@ -9,7 +9,7 @@ name: Run tests with screenshots PREMIUM
       - develop
       - feature/**
 jobs:
-  alltests:
+  e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js 18.x

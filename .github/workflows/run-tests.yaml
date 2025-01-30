@@ -9,7 +9,7 @@ name: Run tests
       - develop
       - feature/**
 jobs:
-  e2etest:
+  all-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js 18.x
