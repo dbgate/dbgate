@@ -45,7 +45,9 @@ module.exports = defineConfig({
       });
 
       on('after:screenshot', details => {
-        fs.renameSync(details.path, path.resolve(__dirname, `screenshots/${details.name}.png`));
+        if (details.name) {
+          fs.renameSync(details.path, path.resolve(__dirname, `screenshots/${details.name}.png`));
+        }
       });
       // on('task', {
       //   renameFile({ from, to }) {

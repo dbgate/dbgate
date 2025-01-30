@@ -8,7 +8,7 @@ on:
       - 'feature/**'
 
 jobs:
-  e2etest:
+  all-tests:
     runs-on: ubuntu-latest
 
     steps:

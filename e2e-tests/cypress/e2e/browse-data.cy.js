@@ -171,7 +171,7 @@ describe('Data browser data', () => {
     cy.themeshot('joinwizard');
   });
 
-  it.only('Mongo JSON data view', () => {
+  it('Mongo JSON data view', () => {
     cy.contains('Mongo-connection').click();
     cy.contains('MgChinook').click();
     cy.contains('Customer').click();
@@ -186,5 +186,15 @@ describe('Data browser data', () => {
     // test JSON view
     cy.contains('Country: "Brazil"');
     cy.themeshot('mongoquery');
+  });
+
+  it('SQL preview', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('Show SQL').click();
+    // index should be part of create script
+    cy.contains('CREATE INDEX `IFK_CustomerSupportRepId`');
+    cy.themeshot('sqlpreview');
   });
 });
