@@ -32,6 +32,9 @@ module.exports = defineConfig({
             case 'browse-data':
               serverProcess = exec('yarn start:browse-data');
               break;
+            case 'team':
+              serverProcess = exec('yarn start:team');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });

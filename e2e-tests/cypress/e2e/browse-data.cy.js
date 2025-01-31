@@ -321,4 +321,31 @@ describe('Data browser data', () => {
     cy.testid('WidgetIconPanel_cell-data').click();
     cy.themeshot('collection');
   });
+
+  it('Table structure editor', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('Open structure').click();
+    cy.contains('varchar(40)');
+    cy.themeshot('structure');
+    cy.contains('EmployeeId').click();
+    cy.contains('Ref column - Employee');
+    cy.themeshot('fkeditor');
+  });
+
+  it('Compare database', () => {
+    // TODO FIX: SQL diff is not dark in dark mode
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('MyChangedChinook').rightclick();
+    cy.contains('Compare with').click();
+    cy.testid('CompareModelTab_gridObjects_Customer_Customer').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('CompareModelTab_tabDdl').click();
+    cy.themeshot('dbcompare');
+    cy.contains('Settings').click();
+    cy.testid('CompareModelTab_tabOperations').click();
+    cy.themeshot('comparesettings');
+  });
 });

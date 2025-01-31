@@ -178,6 +178,7 @@ async function copyFolder(source, target) {
 
 async function run() {
   await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
+  await initMySqlDatabase('MyChangedChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql-changed.sql')));
   // await initMySqlDatabase('Northwind', path.resolve(path.join(__dirname, '../data/northwind-mysql.sql')));
   // await initMySqlDatabase('Sakila', path.resolve(path.join(__dirname, '../data/sakila-mysql.sql')));
 

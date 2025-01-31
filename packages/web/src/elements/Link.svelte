@@ -16,6 +16,7 @@
     else openWebLink(href);
   }}
   use:contextMenu={menu}
+  {...$$restProps}
 >
   <slot />
 </a>

@@ -5,7 +5,7 @@
   export let vertical = false;
 </script>
 
-<div on:click|stopPropagation class="collapseButtonMarker">
+<div on:click|stopPropagation class="collapseButtonMarker" {...$$restProps}>
   <FontIcon
     icon={collapsed
       ? vertical
