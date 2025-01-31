@@ -13,20 +13,21 @@ beforeEach(() => {
 });
 
 describe('Data browser data', () => {
-  // it('Export to data archive', () => {
-  //   cy.contains('MySql-connection').click();
-  //   // cy.contains('MyChinook').click();
-  //   // cy.contains('Album').click();
-  //   cy.contains('MyChinook').rightclick();
-  //   cy.contains('Export').click();
-  //   cy.wait(1000);
-  //   cy.testid('SourceTargetConfig_buttonCurrentArchive_target').click();
-  //   cy.testid('FormTablesSelect_buttonAll_tables').click();
-  //   // cy.wait(4000);
-  //   // cy.contains('All tables').click();
-  //   cy.contains('Run').click();
-  //   cy.contains('Finished job script');
-  // });
+  it.only('Export window', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').rightclick();
+    cy.contains('Export').click();
+    cy.wait(1000);
+    // cy.testid('SourceTargetConfig_buttonCurrentArchive_target').click();
+    cy.testid('FormTablesSelect_buttonAll_tables').click();
+    // cy.wait(4000);
+    // cy.contains('All tables').click();
+    cy.contains('Run').click();
+    cy.contains('Finished job script');
+    cy.contains('Album.csv');
+    cy.testid('WidgetIconPanel_database').click();
+    cy.themeshot('exportcsv');
+  });
 
   it('Data archive editor - macros', () => {
     cy.testid('WidgetIconPanel_archive').click();
@@ -273,9 +274,9 @@ describe('Data browser data', () => {
 
   it('Plugin tab', () => {
     cy.testid('WidgetIconPanel_plugins').click();
-    cy.contains('dbgate-plugin-excel').click();
+    cy.contains('dbgate-plugin-theme-total-white').click();
     // text from plugin markdown
-    cy.contains('Usage without DbGate');
+    cy.contains('Total white theme');
     // wait for load logos
     cy.wait(2000);
     cy.themeshot('plugin');
