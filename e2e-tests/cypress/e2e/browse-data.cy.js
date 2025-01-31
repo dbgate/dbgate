@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 describe('Data browser data', () => {
-  it.only('Export window', () => {
+  it('Export window', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').rightclick();
     cy.contains('Export').click();
