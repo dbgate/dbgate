@@ -1,0 +1,8 @@
+{"_id":{"$oid":"679c75a41afa677c91ed7f32"},"country":"Austria","countryCode":"AT","riverCount":123}
+{"_id":{"$oid":"679c75a41afa677c91ed7f33"},"country":"Czechia","countryCode":"CZ","riverCount":307}
+{"_id":{"$oid":"679c75a41afa677c91ed7f34"},"country":"France","countryCode":"FR","riverCount":197}
+{"_id":{"$oid":"679c75a41afa677c91ed7f35"},"country":"Germany","countryCode":"DE","riverCount":466}
+{"_id":{"$oid":"679c75a41afa677c91ed7f36"},"country":"Italy","countryCode":"IT","riverCount":181}
+{"_id":{"$oid":"679c75a41afa677c91ed7f37"},"country":"Slovenia","countryCode":"SI","riverCount":103}
+{"_id":{"$oid":"679c75a41afa677c91ed7f38"},"country":"Spain","countryCode":"ES","riverCount":33}
+{"_id":{"$oid":"679c75a41afa677c91ed7f39"},"country":"Switzerland","countryCode":"CH","riverCount":109}

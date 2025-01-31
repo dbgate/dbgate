@@ -245,4 +245,80 @@ describe('Data browser data', () => {
     cy.realPress('PageDown');
     cy.testid('CommandPalette_main').themeshot('commandpalette', { padding: 50 });
   });
+
+  it('Show map', () => {
+    cy.contains('Postgres-connection').click();
+    cy.contains('PgGeoData').click();
+    cy.contains('cities').click();
+    // clicking column header doesn't work, TODO FIX in app!!!
+    // cy.contains('location').click();
+    cy.contains('14.2').click();
+    cy.contains('13.9').click({ shiftKey: true });
+    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.wait(2000);
+    cy.themeshot('map');
+  });
+
+  it('Search in connections', () => {
+    cy.testid('ConnectionList_search').type('my');
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+
+    cy.testid('SqlObjectList_search').type('album');
+    cy.contains('Album').click();
+    cy.testid('SqlObjectList_searchMenuDropDown').click();
+    cy.contains('Column name').click();
+    cy.themeshot('connsearch');
+  });
+
+  it('Plugin tab', () => {
+    cy.testid('WidgetIconPanel_plugins').click();
+    cy.contains('dbgate-plugin-excel').click();
+    // text from plugin markdown
+    cy.contains('Usage without DbGate');
+    // wait for load logos
+    cy.wait(2000);
+    cy.themeshot('plugin');
+  });
+
+  it('Edit mongo data JSON', () => {
+    // TODO FIX: Missing button+ctx menu Revert all changes, missing button+ctx menu add document
+    // TODO: Dark theme - not visible changed and deleted document
+    cy.contains('Mongo-connection').click();
+    cy.contains('MgChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('Open JSON').click();
+    cy.contains('Leonie').rightclick();
+    cy.contains('Edit document').click();
+    // cy.focused()
+    //   .type('{downArrow}'.repeat(11))
+    //   .type('{rightarrow}'.repeat(14))
+    //   .type('{del}'.repeat(7)) // 4*delete
+    //   .type('Italy'); // type "Italy"
+
+    Array.from({ length: 11 }).forEach(() => cy.realPress('ArrowDown'));
+    Array.from({ length: 14 }).forEach(() => cy.realPress('ArrowRight'));
+    Array.from({ length: 7 }).forEach(() => cy.realPress('Delete'));
+    cy.realType('Italy');
+    cy.testid('EditJsonModal_saveButton').click();
+
+    cy.contains('Helena').rightclick();
+    cy.contains('Delete document').click();
+    cy.contains('Save').click();
+    cy.themeshot('mongosave');
+  });
+
+  it('Edit mongo data JSON', () => {
+    // TODO FIX: Auto expand cell view
+    cy.contains('Mongo-connection').click();
+    cy.contains('MgRivers').click();
+    cy.contains('RiverInfo').click();
+    cy.testid('ColumnManagerRow_expand_countries').click();
+    cy.testid('ColumnManagerRow_checkbox_countries.0').click();
+    cy.testid('ColumnManagerRow_checkbox_countries.1').click();
+    cy.testid('ColumnManagerRow_checkbox__id').click();
+    cy.testid('DataFilterControl_input_countries.1').type('EXISTS{enter}');
+    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.themeshot('collection');
+  });
 });

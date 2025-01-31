@@ -44,6 +44,7 @@
     <div slot="footer">
       <FormStyledButton
         value="Save"
+        data-testid="EditJsonModal_saveButton"
         on:click={() => {
           try {
             const parsed = JSON.parse(value);
@@ -56,7 +57,12 @@
           }
         }}
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value="Close"
+        on:click={closeCurrentModal}
+        data-testid="EditJsonModal_closeButton"
+      />
     </div>
   </ModalBase>
 </FormProvider>

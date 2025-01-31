@@ -63,6 +63,7 @@
       <FontIcon
         icon={column.isExpandable ? plusExpandIcon(display.isExpandedColumn(column.uniqueName)) : 'icon invisible-box'}
         on:click={() => display.toggleExpandedColumn(column.uniqueName)}
+        data-testid="ColumnManagerRow_expand_{column.uniqueName}"
       />
     </span>
     {#if isJsonView}
@@ -82,6 +83,7 @@
           display.setColumnVisibility(column.uniquePath, newValue);
           dispatch('setvisibility', newValue);
         }}
+        data-testid="ColumnManagerRow_checkbox_{column.uniqueName}"
       />
     {/if}
     <ColumnLabel {...column} showDataType {conid} {database} {filter} />

@@ -182,8 +182,10 @@ async function run() {
   // await initMySqlDatabase('Sakila', path.resolve(path.join(__dirname, '../data/sakila-mysql.sql')));
 
   await initPostgresDatabase('PgChinook', path.resolve(path.join(__dirname, '../data/chinook-postgres.sql')));
+  await initPostgresDatabase('PgGeoData', path.resolve(path.join(__dirname, '../data/geo-data-postgres.sql')));
 
   await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
+  await initMongoDatabase('MgRivers', path.resolve(path.join(__dirname, '../data/rivers-jsonl')));
 
   await initRedisDatabase(path.resolve(path.join(__dirname, '../data/redis')));
 
