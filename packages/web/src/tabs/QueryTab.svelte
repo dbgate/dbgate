@@ -13,6 +13,15 @@
     onClick: () => getCurrentEditor().formatCode(),
   });
   registerCommand({
+    id: 'query.switchAiAssistant',
+    category: 'Query',
+    name: 'AI Assistant',
+    keyText: 'Shift+Alt+A',
+    icon: 'icon ai',
+    testEnabled: () => isProApp(),
+    onClick: () => getCurrentEditor().toggleAiAssistant(),
+  });
+  registerCommand({
     id: 'query.insertSqlJoin',
     category: 'Query',
     name: 'Insert SQL Join',
@@ -89,6 +98,8 @@
   import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import { extractQueryParameters, replaceQueryParameters } from 'dbgate-query-splitter';
   import QueryParametersModal from '../modals/QueryParametersModal.svelte';
+  import { isProApp } from '../utility/proTools';
+  import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
 
   export let tabid;
   export let conid;
@@ -137,6 +148,7 @@
   let domEditor;
   let domToolStrip;
   let intervalId;
+  let isAiAssistantVisible = false;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -208,6 +220,10 @@
 
   export function toggleVisibleResultTabs() {
     visibleResultTabs = !visibleResultTabs;
+  }
+
+  export function toggleAiAssistant() {
+    isAiAssistantVisible = !isAiAssistantVisible;
   }
 
   function getParameterSplitterOptions() {
@@ -401,6 +417,7 @@
       { command: 'query.replace' },
       { divider: true },
       { command: 'query.toggleVisibleResultTabs' },
+      { command: 'query.switchAiAssistant', hideDisabled: true },
     ];
   }
 
@@ -423,73 +440,80 @@
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
-  <VerticalSplitter isSplitter={visibleResultTabs}>
+  <HorizontalSplitter isSplitter={isAiAssistantVisible} initialSizeRight={300}>
     <svelte:fragment slot="1">
-      {#if driver?.databaseEngineTypes?.includes('sql')}
-        <SqlEditor
-          engine={$connection && $connection.engine}
-          {conid}
-          {database}
-          splitterOptions={driver?.getQuerySplitterOptions('editor')}
-          options={{
-            wrap: enableWrap,
-          }}
-          value={$editorState.value || ''}
-          menu={createMenu()}
-          on:input={e => {
-            setEditorData(e.detail);
-            if (isInitialized) {
-              markTabUnsaved(tabid);
-            }
-            errorMessages = [];
-          }}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-            setTimeout(() => {
-              isInitialized = true;
-            }, 100);
-          }}
-          bind:this={domEditor}
-          onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
-          {errorMessages}
-        />
-      {:else}
-        <AceEditor
-          mode={driver?.editorMode || 'sql'}
-          value={$editorState.value || ''}
-          splitterOptions={driver?.getQuerySplitterOptions('editor')}
-          options={{
-            wrap: enableWrap,
-          }}
-          menu={createMenu()}
-          on:input={e => setEditorData(e.detail)}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-          }}
-          bind:this={domEditor}
-        />
-      {/if}
+      <VerticalSplitter isSplitter={visibleResultTabs}>
+        <svelte:fragment slot="1">
+          {#if driver?.databaseEngineTypes?.includes('sql')}
+            <SqlEditor
+              engine={$connection && $connection.engine}
+              {conid}
+              {database}
+              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              options={{
+                wrap: enableWrap,
+              }}
+              value={$editorState.value || ''}
+              menu={createMenu()}
+              on:input={e => {
+                setEditorData(e.detail);
+                if (isInitialized) {
+                  markTabUnsaved(tabid);
+                }
+                errorMessages = [];
+              }}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+                setTimeout(() => {
+                  isInitialized = true;
+                }, 100);
+              }}
+              bind:this={domEditor}
+              onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
+              {errorMessages}
+            />
+          {:else}
+            <AceEditor
+              mode={driver?.editorMode || 'sql'}
+              value={$editorState.value || ''}
+              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              options={{
+                wrap: enableWrap,
+              }}
+              menu={createMenu()}
+              on:input={e => setEditorData(e.detail)}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+              }}
+              bind:this={domEditor}
+            />
+          {/if}
+        </svelte:fragment>
+        <svelte:fragment slot="2">
+          <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
+            <svelte:fragment slot="0">
+              <SocketMessageView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
+                onMessageClick={handleMesageClick}
+                {executeNumber}
+                startLine={executeStartLine}
+                showProcedure
+                showLine
+                onChangeErrors={handleChangeErrors}
+              />
+            </svelte:fragment>
+          </ResultTabs>
+        </svelte:fragment>
+      </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
-        <svelte:fragment slot="0">
-          <SocketMessageView
-            eventName={sessionId ? `session-info-${sessionId}` : null}
-            onMessageClick={handleMesageClick}
-            {executeNumber}
-            startLine={executeStartLine}
-            showProcedure
-            showLine
-            onChangeErrors={handleChangeErrors}
-          />
-        </svelte:fragment>
-      </ResultTabs>
+      <div>AI Assistant</div>
     </svelte:fragment>
-  </VerticalSplitter>
+  </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandSplitButton commands={['query.execute', 'query.executeCurrent']} />
     <ToolStripCommandButton command="query.kill" />
@@ -511,6 +535,7 @@
       icon="icon at"
       title="Query parameter style"
     />
+    <ToolStripCommandButton command="query.switchAiAssistant" hideDisabled />
   </svelte:fragment>
 </ToolStripContainer>
 
