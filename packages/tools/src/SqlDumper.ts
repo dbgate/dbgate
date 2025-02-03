@@ -253,7 +253,7 @@ export class SqlDumper implements AlterProcessor {
 
     this.columnType(column.dataType);
 
-    if (column.autoIncrement) {
+    if (column.autoIncrement && !this.dialect?.disableAutoIncrement) {
       this.autoIncrement();
     }
 
