@@ -653,7 +653,7 @@ const enginesOnLocal = [
   // oracleEngine,
 ];
 
-/** @type {any} */
+/** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */
 module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
 
 module.exports.mysqlEngine = mysqlEngine;
