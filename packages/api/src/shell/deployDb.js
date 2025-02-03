@@ -1,7 +1,7 @@
 const generateDeploySql = require('./generateDeploySql');
 const executeQuery = require('./executeQuery');
 const { ScriptDrivedDeployer } = require('dbgate-datalib');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const loadModelFolder = require('../utility/loadModelFolder');
 const crypto = require('crypto');

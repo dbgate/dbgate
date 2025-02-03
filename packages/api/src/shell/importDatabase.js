@@ -1,6 +1,6 @@
 const fs = require('fs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { splitQueryStream } = require('dbgate-query-splitter/lib/splitQueryStream');
 const download = require('./download');
 const stream = require('stream');

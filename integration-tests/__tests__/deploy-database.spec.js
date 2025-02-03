@@ -6,7 +6,7 @@ const engines = require('../engines');
 const deployDb = require('dbgate-api/src/shell/deployDb');
 const { databaseInfoFromYamlModel, runQueryOnDriver, formatQueryWithoutParams } = require('dbgate-tools');
 const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
-const connectUtility = require('dbgate-api/src/utility/connectUtility');
+const { connectUtility } = require('dbgate-api/src/utility/connectUtility');
 
 function checkStructure(
   engine,

@@ -11,7 +11,7 @@ const {
   extractErrorLogData,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');

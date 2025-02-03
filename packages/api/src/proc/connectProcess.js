@@ -1,6 +1,6 @@
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { pickSafeConnectionInfo } = require('../utility/crypting');
 const _ = require('lodash');

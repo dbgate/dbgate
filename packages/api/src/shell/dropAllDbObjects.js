@@ -1,6 +1,6 @@
 const executeQuery = require('./executeQuery');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { getLogger, extendDatabaseInfo } = require('dbgate-tools');
 
 const logger = getLogger('dropAllDbObjects');
