@@ -19,6 +19,7 @@ function pickImportantTableInfo(engine, table) {
     pureName: table.pureName,
     columns: table.columns
       .filter(x => x.columnName != 'rowid')
+      .sort((a, b) => a.columnName.localeCompare(b.columnName))
       .map(fp.pick(props))
       .map(props => _.omitBy(props, x => x == null))
       .map(props =>
