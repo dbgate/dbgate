@@ -622,6 +622,7 @@ const cassandraEngine = {
   skipNullability: true,
   skipUnique: true,
   skipIndexes: true,
+  skipOrderBy: true,
   // objects: [],
 };
 

@@ -73,7 +73,9 @@ describe('Query', () => {
         await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
       }
 
-      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT ~id FROM ~t1 ORDER BY ~id'));
+      const res = await runQueryOnDriver(conn, driver, dmp =>
+        dmp.put(`SELECT ~id FROM ~t1 ${engine.skipOrderBy ? '' : 'ORDER BY ~id'}`)
+      );
       expect(res.columns).toEqual([
         expect.objectContaining({
           columnName: 'id',
@@ -98,7 +100,11 @@ describe('Query', () => {
         await runCommandOnDriver(conn, driver, dmp => dmp.put(sql));
       }
 
-      const results = await executeStream(driver, conn, 'SELECT ~id FROM ~t1 ORDER BY ~id');
+      const results = await executeStream(
+        driver,
+        conn,
+        `SELECT ~id FROM ~t1 ${engine.skipOrderBy ? '' : 'ORDER BY ~id'}`
+      );
       expect(results.length).toEqual(1);
       const res = results[0];
 
@@ -107,7 +113,7 @@ describe('Query', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipOrderBy).map(engine => [engine.label, engine]))(
     'More queries - %s',
     testWrapper(async (conn, driver, engine) => {
       for (const sql of initSql) {
@@ -137,7 +143,9 @@ describe('Query', () => {
       const results = await executeStream(
         driver,
         conn,
-        'CREATE TABLE ~t1 (~id int primary key); INSERT INTO ~t1 (~id) VALUES (1); INSERT INTO ~t1 (~id) VALUES (2); SELECT ~id FROM ~t1 ORDER BY ~id; '
+        `CREATE TABLE ~t1 (~id int primary key); INSERT INTO ~t1 (~id) VALUES (1); INSERT INTO ~t1 (~id) VALUES (2); SELECT ~id FROM ~t1 ${
+          engine.skipOrderBy ? '' : 'ORDER BY ~id'
+        }; `
       );
       expect(results.length).toEqual(1);
 
