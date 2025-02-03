@@ -196,7 +196,7 @@ describe('Query', () => {
           pureName: 't1',
           columns: [
             { columnName: 'id', dataType: 'int', notNull: true, autoIncrement: true },
-            { columnName: 'val', dataType: 'varchar(50)' },
+            { columnName: 'val', dataType: engine.useTextTypeForStrings ? 'text' : 'varchar(50)' },
           ],
           primaryKey: {
             columns: [{ columnName: 'id' }],

@@ -623,6 +623,8 @@ const cassandraEngine = {
   skipUnique: true,
   skipIndexes: true,
   skipOrderBy: true,
+
+  useTextTypeForStrings: true,
   // objects: [],
 };
 

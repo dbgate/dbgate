@@ -43,6 +43,8 @@ export type TestEngineInfo = {
   dbSnapshotBySeconds?: boolean;
   setNullDefaultInsteadOfDrop?: boolean;
 
+  useTextTypeForStrings?: boolean;
+
   supportRenameSqlObject?: boolean;
   supportSchemas?: boolean;
 
