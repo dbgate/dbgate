@@ -623,6 +623,7 @@ const cassandraEngine = {
   skipUnique: true,
   skipIndexes: true,
   skipOrderBy: true,
+  skipAutoIncrement: true,
 
   useTextTypeForStrings: true,
   // objects: [],
