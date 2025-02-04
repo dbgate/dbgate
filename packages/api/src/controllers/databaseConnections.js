@@ -401,6 +401,10 @@ module.exports = {
 
   structure_meta: true,
   async structure({ conid, database, modelTransFile = null }, req) {
+    if (!conid || !database) {
+      return null;
+    }
+
     testConnectionPermission(conid, req);
     if (conid == '__model') {
       const model = await importDbModel(database);

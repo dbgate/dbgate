@@ -97,6 +97,10 @@ await dbgateApi.deployDb(${JSON.stringify(
         title: 'Compare',
         icon: 'img compare',
         tabComponent: 'CompareModelTab',
+        props: {
+          conid: $currentDatabase?.connection?._id,
+          database: $currentDatabase?.name,
+        }
       },
       {
         editor: {

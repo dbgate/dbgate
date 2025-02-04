@@ -22,7 +22,7 @@ const doServerPing = value => {
   }
 
   apiCall('server-connections/ping', {
-    conidArray,
+    conidArray: _.compact(conidArray),
     strmid,
   });
 };

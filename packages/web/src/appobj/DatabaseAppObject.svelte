@@ -196,13 +196,17 @@
           title: 'Compare',
           icon: 'img compare',
           tabComponent: 'CompareModelTab',
+          props: {
+            conid: $currentDatabase?.connection?._id,
+            database: $currentDatabase?.name,
+          },
         },
         {
           editor: {
-            sourceConid: _.get($currentDatabase, 'connection._id'),
-            sourceDatabase: _.get($currentDatabase, 'name'),
-            targetConid: _.get(connection, '_id'),
-            targetDatabase: name,
+            sourceConid: connection?._id,
+            sourceDatabase: name,
+            targetConid: $currentDatabase?.connection?._id,
+            targetDatabase: $currentDatabase?.name,
           },
         }
       );
