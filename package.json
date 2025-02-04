@@ -23,6 +23,7 @@
     "start:api:storage": "yarn workspace dbgate-api start:storage | pino-pretty",
     "start:api:storage:built": "yarn workspace dbgate-api start:storage:built | pino-pretty",
     "start:api:azure": "yarn workspace dbgate-api start:azure | pino-pretty",
+    "start:api:e2e:team": "yarn workspace dbgate-api start:e2e:team | pino-pretty",
     "sync:pro": "cd sync && yarn start",
     "start:web": "yarn workspace dbgate-web dev",
     "start:sqltree": "yarn workspace dbgate-sqltree start",

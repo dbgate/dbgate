@@ -63,6 +63,12 @@ export function formatQueryWithoutParams(driver: EngineDriver, sql: string) {
   return dmp.s;
 }
 
+export async function runQueryFmt(driver, conn, query, ...args) {
+  const dmp = driver.createDumper();
+  dmp.put(query, ...args);
+  await driver.query(conn, dmp.s);
+}
+
 export const driverBase = {
   analyserClass: null,
   dumperClass: SqlDumper,
