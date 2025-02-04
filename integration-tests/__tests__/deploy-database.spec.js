@@ -149,7 +149,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
 }
 
 describe('Deploy database', () => {
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Deploy database simple - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -167,7 +167,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Deploy database simple - %s - not connected',
     testWrapperPrepareOnly(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -185,7 +185,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Deploy database simple twice - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -219,7 +219,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Add column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -250,7 +250,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Dont drop column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -287,7 +287,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipReferences)
+      .map(engine => [engine.label, engine])
+  )(
     'Foreign keys - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -343,7 +348,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipDataModifications)
+      .map(engine => [engine.label, engine])
+  )(
     'Deploy preloaded data - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -372,7 +382,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipDataModifications)
+      .map(engine => [engine.label, engine])
+  )(
     'Deploy preloaded data - update - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -448,7 +463,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipChangeColumn || x.skipNullability).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipChangeColumn || x.skipNullability)
+      .map(engine => [engine.label, engine])
+  )(
     'Change column to NOT NULL column with default - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -566,7 +586,7 @@ describe('Deploy database', () => {
     text: 'create view ~_deleted_v1 as select * from ~t1',
   };
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Dont remove column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL]], {
@@ -576,7 +596,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Dont remove table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], []], {
@@ -586,7 +606,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [], []], {
@@ -597,7 +617,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(engine => engine.supportRenameSqlObject)
+      .map(engine => [engine.label, engine])
+  )(
     'Mark view removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1], [T1]], {
@@ -608,7 +633,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Mark column removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL]], {
@@ -619,7 +644,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Undelete table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -641,7 +666,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(engine => engine.supportRenameSqlObject).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(engine => engine.supportRenameSqlObject)
+      .map(engine => [engine.label, engine])
+  )(
     'Undelete view - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, V1], [T1], [T1, V1]], {
@@ -652,7 +682,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Undelete column - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [T1_NO_VAL], [T1]], {
@@ -662,7 +692,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'View redeploy - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -683,7 +713,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Change view - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(
@@ -703,7 +733,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipDataModifications)
+      .map(engine => [engine.label, engine])
+  )(
     'Script drived deploy - basic predeploy - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -723,7 +758,12 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataModifications).map(engine => [engine.label, engine]))(
+  test.each(
+    engines
+      .filter(i => !i.skipDeploy)
+      .filter(x => !x.skipDataModifications)
+      .map(engine => [engine.label, engine])
+  )(
     'Script drived deploy - install+uninstall - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [
@@ -782,7 +822,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
     'Mark table removed, one remains - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, T2], [T2], [T2]], {

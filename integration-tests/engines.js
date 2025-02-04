@@ -626,6 +626,7 @@ const cassandraEngine = {
   skipAutoIncrement: true,
   skipDataModifications: true,
   skipDataDuplicator: true,
+  skipDeploy: true,
 
   useTextTypeForStrings: true,
   objects: [],
