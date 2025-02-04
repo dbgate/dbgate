@@ -625,9 +625,10 @@ const cassandraEngine = {
   skipOrderBy: true,
   skipAutoIncrement: true,
   skipDataModifications: true,
+  skipDataDuplicator: true,
 
   useTextTypeForStrings: true,
-  // objects: [],
+  objects: [],
 };
 
 const enginesOnCi = [
