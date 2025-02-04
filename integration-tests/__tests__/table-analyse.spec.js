@@ -2,12 +2,37 @@ const { runCommandOnDriver } = require('dbgate-tools');
 const engines = require('../engines');
 const { testWrapper } = require('../tools');
 
-const t1Sql = 'CREATE TABLE ~t1 (~id int not null primary key, ~val1 varchar(50))';
+/**
+ * @param {import('dbgate-types').TestEngineInfo} engine
+ */
+const t1Sql = engine =>
+  `CREATE TABLE ~t1 (~id int ${engine.skipNullability ? '' : 'not null'} primary key, ~val1 ${
+    engine.useTextTypeForStrings ? 'text' : 'varchar(50)'
+  })`;
+
 const ix1Sql = 'CREATE index ~ix1 ON ~t1(~val1, ~id)';
+
+/**
+ * @param {import('dbgate-types').TestEngineInfo} engine
+ */
 const t2Sql = engine =>
-  `CREATE TABLE ~t2 (~id int not null primary key, ~val2 varchar(50) ${engine.skipUnique ? '' : 'unique'})`;
-const t3Sql = 'CREATE TABLE ~t3 (~id int not null primary key, ~valfk int, foreign key (~valfk) references ~t2(~id))';
-const t4Sql = 'CREATE TABLE ~t4 (~id int not null primary key, ~valdef int default 12 not null)';
+  `CREATE TABLE ~t2 (~id int ${engine.skipNullability ? '' : 'not null'} primary key, ~val2 ${
+    engine.useTextTypeForStrings ? 'text' : 'varchar(50)'
+  } ${engine.skipUnique ? '' : 'unique'})`;
+/**
+ * @param {import('dbgate-types').TestEngineInfo} engine
+ */
+const t3Sql = engine =>
+  `CREATE TABLE ~t3 (~id int ${
+    engine.skipNullability ? '' : 'not null'
+  } primary key, ~valfk int, foreign key (~valfk) references ~t2(~id))`;
+/**
+ * @param {import('dbgate-types').TestEngineInfo} engine
+ */
+const t4Sql = engine =>
+  `CREATE TABLE ~t4 (~id int ${engine.skipNullability ? '' : 'not null'} primary key, ~valdef int default 12 ${
+    engine.skipNullability ? '' : 'not null'
+  })`;
 // const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
 const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
@@ -26,8 +51,8 @@ const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
           ? { defaultValue }
           : {
               dataType: engine.skipStringLength
-                ? expect.stringMatching(/.*string|char.*/i)
-                : expect.stringMatching(/.*char.*\(50\)/i),
+                ? expect.stringMatching(/.*string|char.*|text/i)
+                : expect.stringMatching(/.*char.*\(50\)|text/i),
             }),
       }),
       ...(nextcol
@@ -36,8 +61,8 @@ const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
               columnName: 'nextcol',
               ...(engine.skipNullability ? {} : { notNull: false }),
               dataType: engine.skipStringLength
-                ? expect.stringMatching(/.*string.*|char.*/i)
-                : expect.stringMatching(/.*char.*\(50\).*/i),
+                ? expect.stringMatching(/.*string.*|char.*|text/i)
+                : expect.stringMatching(/.*char.*\(50\).*|text/i),
             }),
           ]
         : []),
@@ -60,10 +85,9 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table structure - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
 
       const structure = await driver.analyseFull(conn);
-      console.log(JSON.stringify(structure, null, 2));
 
       expect(structure.tables.length).toEqual(1);
       expect(structure.tables[0]).toEqual(t1Match(engine));
@@ -79,7 +103,7 @@ describe('Table analyse', () => {
       expect(structure1.tables.length).toEqual(1);
       expect(structure1.tables[0]).toEqual(t2Match(engine));
 
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2.tables.length).toEqual(2);
@@ -91,7 +115,7 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table remove - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t2Sql(engine)));
       const structure1 = await driver.analyseFull(conn);
       expect(structure1.tables.length).toEqual(2);
@@ -109,7 +133,7 @@ describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table change - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t2Sql(engine)));
       const structure1 = await driver.analyseFull(conn);
 
@@ -131,7 +155,7 @@ describe('Table analyse', () => {
   test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Index - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
       await runCommandOnDriver(conn, driver, dmp => dmp.put(ix1Sql));
       const structure = await driver.analyseFull(conn);
 
@@ -161,7 +185,7 @@ describe('Table analyse', () => {
     'Foreign key - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t2Sql(engine)));
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t3Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t3Sql(engine)));
       // await driver.query(conn, fkSql);
 
       const structure = await driver.analyseFull(conn);
@@ -177,10 +201,10 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(engine => !engine.skipDefaultValue).map(engine => [engine.label, engine]))(
     'Table structure - default value - %s',
     testWrapper(async (conn, driver, engine) => {
-      await runCommandOnDriver(conn, driver, dmp => dmp.put(t4Sql));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put(t4Sql(engine)));
 
       const structure = await driver.analyseFull(conn);
 
