@@ -121,7 +121,12 @@ describe('DB Import/export', () => {
     testWrapper(async (conn, driver, engine) => {
       // const reader = await fakeObjectReader({ delay: 10 });
       // const reader = await fakeObjectReader();
-      await runCommandOnDriver(conn, driver, 'create table ~t1 (~id int primary key, ~country varchar(100))');
+      await runCommandOnDriver(
+        conn,
+        driver,
+        `create table ~t1 (~id int primary key, ~country ${engine.useTextTypeForStrings ? 'text' : 'varchar(100)'})`
+      );
+
       const data = [
         [1, 'Czechia'],
         [2, 'Austria'],
@@ -143,7 +148,13 @@ describe('DB Import/export', () => {
       const writer = createExportStream();
       await copyStream(reader, writer);
 
-      expect(writer.resultArray.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country])).toEqual(data);
+      const result = writer.resultArray.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country]);
+
+      if (engine.forceSortResults) {
+        result.sort((a, b) => a[0] - b[0]);
+      }
+
+      expect(result).toEqual(data);
     })
   );
 });

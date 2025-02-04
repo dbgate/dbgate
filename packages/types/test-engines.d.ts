@@ -40,6 +40,7 @@ export type TestEngineInfo = {
   skipPkDrop?: boolean;
   skipOrderBy?: boolean;
 
+  forceSortResults?: boolean;
   alterTableAddColumnSyntax?: boolean;
   dbSnapshotBySeconds?: boolean;
   setNullDefaultInsteadOfDrop?: boolean;

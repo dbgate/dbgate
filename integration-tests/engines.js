@@ -628,6 +628,8 @@ const cassandraEngine = {
   skipDataDuplicator: true,
   skipDeploy: true,
 
+  forceSortResults: true,
+
   useTextTypeForStrings: true,
   objects: [],
 };
