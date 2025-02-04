@@ -8,6 +8,7 @@ name: Cypress tests with screenshots PREMIUM
       - master
       - develop
       - feature/**
+      - hotfix/**
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest

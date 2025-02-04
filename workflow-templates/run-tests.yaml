@@ -6,6 +6,7 @@ on:
       - master
       - develop
       - 'feature/**'
+      - hotfix/**
 
 jobs:
   all-tests:
