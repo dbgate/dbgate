@@ -4,7 +4,7 @@ beforeEach(() => {
 });
 
 describe('Team edition tests', () => {
-  it('Data archive editor - macros', () => {
+  it('Team edition screens', () => {
     cy.testid('LoginPage_linkAdmin').click();
     cy.testid('LoginPage_password').type('adminpwd');
     cy.testid('LoginPage_submitLogin').click();
@@ -27,4 +27,13 @@ describe('Team edition tests', () => {
     cy.contains('OAuth 2.0').click();
     cy.themeshot('authadmin');
   });
+
+  // it('OAuth authentication', () => {
+  //   cy.testid('AdminMenuWidget_itemAuthentication').click();
+  //   cy.contains('Add authentication').click();
+  //   cy.contains('Use database login').click();
+  //   cy.contains('Add authentication').click();
+  //   cy.contains('OAuth 2.0').click();
+  //   cy.themeshot('authadmin');
+  // });
 });

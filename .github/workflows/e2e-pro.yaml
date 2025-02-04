@@ -84,7 +84,7 @@ jobs:
       mysql-ssh-login:
         image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
         ports:
-          - '16006:22'
+          - '16012:22'
       mysql-ssh-keyfile:
         image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
         ports:
