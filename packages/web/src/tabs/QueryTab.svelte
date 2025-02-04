@@ -100,6 +100,7 @@
   import QueryParametersModal from '../modals/QueryParametersModal.svelte';
   import { isProApp } from '../utility/proTools';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
+  import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
 
   export let tabid;
   export let conid;
@@ -511,7 +512,7 @@
       </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <div>AI Assistant</div>
+      <QueryAiAssistant />
     </svelte:fragment>
   </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
