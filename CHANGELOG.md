@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.1.5
+- FIXED: Serious security hotfix (for Docker and NPM, when using LOGIN and PASSWORD environment variables or LOGIN_PASSWORD_xxx)
+- no changes for desktop app and for Team premium edition, when using storage DB
+
 ### 6.1.4
 - CHANGED: Show Data/Structure button in one place #1015
 - ADDED: Data view coloring (every second row) #1014
