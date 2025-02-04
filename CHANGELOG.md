@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.1.6
+- FIXED: Hotfix build process for premium edition
+
 ### 6.1.5
 - FIXED: Serious security hotfix (for Docker and NPM, when using LOGIN and PASSWORD environment variables or LOGIN_PASSWORD_xxx)
 - no changes for desktop app and for Team premium edition, when using storage DB
