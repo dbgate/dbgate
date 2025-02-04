@@ -93,6 +93,8 @@ const driver = {
       : mysqlSplitterOptions,
   adaptTableInfo(table) {
     if (!table.primaryKey && !table.sortingKey) {
+      const hasIdColumn = table.columns.some((x) => x.columnName == 'id');
+
       return {
         ...table,
         primaryKey: {
@@ -103,10 +105,14 @@ const driver = {
           ],
         },
         columns: [
-          {
-            columnName: 'id',
-            dataType: 'uuid',
-          },
+          ...(!hasIdColumn
+            ? [
+                {
+                  columnName: 'id',
+                  dataType: 'uuid',
+                },
+              ]
+            : []),
           ...table.columns,
         ],
       };
