@@ -8,6 +8,7 @@ name: Integration and unit tests
       - master
       - develop
       - feature/**
+      - hotfix/**
 jobs:
   all-tests:
     runs-on: ubuntu-latest

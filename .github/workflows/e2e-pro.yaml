@@ -8,6 +8,7 @@ name: Cypress tests with screenshots PREMIUM
       - master
       - develop
       - feature/**
+      - hotfix/**
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
@@ -25,6 +26,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
+          ref: a770b7e7a4d0ced5f1ade7cba4ba516220765648
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -84,7 +86,7 @@ jobs:
       mysql-ssh-login:
         image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
         ports:
-          - '16006:22'
+          - '16012:22'
       mysql-ssh-keyfile:
         image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
         ports:

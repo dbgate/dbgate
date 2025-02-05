@@ -72,6 +72,14 @@ const driver = {
         }
       );
     }
+    if (!platformInfo.isElectron) {
+      res.push({
+        title: 'Azure Managed Identity',
+        name: 'azureManagedIdentity',
+        disabledFields: ['user', 'password'],
+      });
+    }
+
     if (res.length > 0) {
       return _.uniqBy(res, 'name');
     }
@@ -80,7 +88,8 @@ const driver = {
 
   async connect(conn) {
     const { authType } = conn;
-    const connectionType = platformInfo?.isWindows && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
+    const connectionType =
+      platformInfo?.isWindows && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
     const client = connectionType == 'msnodesqlv8' ? await nativeConnect(conn) : await tediousConnect(conn);
 
     return {
