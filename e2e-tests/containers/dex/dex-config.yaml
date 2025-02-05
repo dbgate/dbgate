@@ -17,6 +17,11 @@ staticClients:
 enablePasswordDB: true
 staticPasswords:
   - email: "test@example.com"
+    emailVerified: true
     hash: "$2y$10$JcmlXnV1y7.egUdKwYNbseOnqYVIGc323gtvvHh4ZuSPZB30veYZy"
     username: "test"
     userID: "1234"
+    allowedScopes:
+      - openid
+      - email
+      - profile

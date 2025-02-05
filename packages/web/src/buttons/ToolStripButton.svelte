@@ -16,7 +16,7 @@
 </script>
 
 <div class="button" class:disabled {title}>
-  <div class="inner" class:disabled on:click={handleClick}>
+  <div class="inner" class:disabled on:click={handleClick} data-testid={$$props['data-testid']}>
     <span class="icon" class:disabled><FontIcon {icon} /></span>
     <slot />
     {#if iconAfter}

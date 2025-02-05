@@ -30,8 +30,8 @@
     {/if}
 
     <div class="button">
-      <FormStyledButton value="Log In" on:click={handleLogin} />
-      <FormStyledButton value="Log Out" on:click={doLogout} />
+      <FormStyledButton value="Log In" on:click={handleLogin} data-testid="NotLoggedPage_loginButton" />
+      <FormStyledButton value="Log Out" on:click={doLogout} data-testid="NotLoggedPage_logoutButton" />
     </div>
   </div>
 </SpecialPageLayout>
