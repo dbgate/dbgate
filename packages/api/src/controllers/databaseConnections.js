@@ -402,7 +402,7 @@ module.exports = {
   structure_meta: true,
   async structure({ conid, database, modelTransFile = null }, req) {
     if (!conid || !database) {
-      return null;
+      return {};
     }
 
     testConnectionPermission(conid, req);
