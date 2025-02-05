@@ -512,7 +512,14 @@
       </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <QueryAiAssistant />
+      <QueryAiAssistant
+        {conid}
+        {database}
+        {driver}
+        onClose={() => {
+          isAiAssistantVisible = false;
+        }}
+      />
     </svelte:fragment>
   </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
