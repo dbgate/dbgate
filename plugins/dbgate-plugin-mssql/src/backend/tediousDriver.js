@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const stream = require('stream');
 const tedious = require('tedious');
+const { ManagedIdentityCredential } = require('@azure/identity');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
 const { extractDbNameFromComposite } = global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -23,12 +24,50 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
   return res;
 }
 
+async function getDefaultAzureSqlToken() {
+  const credential = new ManagedIdentityCredential();
+  const tokenResponse = await credential.getToken('https://database.windows.net/.default');
+  return tokenResponse.token;
+}
+
+async function getAuthentication({ authType, accessToken, user, password, windowsDomain }) {
+  switch (authType) {
+    case 'azureManagedIdentity':
+      const token = await getDefaultAzureSqlToken();
+      return {
+        type: 'azure-active-directory-access-token',
+        options: {
+          token,
+        },
+      };
+
+    case 'msentra':
+      return {
+        type: 'azure-active-directory-access-token',
+        options: {
+          token: accessToken,
+        },
+      };
+    default:
+      return {
+        type: windowsDomain ? 'ntlm' : 'default',
+        options: {
+          userName: user,
+          password: password,
+          ...(windowsDomain ? { domain: windowsDomain } : {}),
+        },
+      };
+  }
+}
+
 async function tediousConnect(storedConnection) {
-  const { server, port, user, password, database, ssl, trustServerCertificate, windowsDomain, authType, accessToken } =
-    storedConnection;
+  const { server, port, database, ssl, trustServerCertificate, authType } = storedConnection;
+
+  const authentication = await getAuthentication(storedConnection);
+
   return new Promise((resolve, reject) => {
     const connectionOptions = {
-      encrypt: !!ssl || authType == 'msentra',
+      encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
@@ -42,23 +81,6 @@ async function tediousConnect(storedConnection) {
     if (database) {
       connectionOptions.database = extractDbNameFromComposite(database);
     }
-
-    const authentication =
-      authType == 'msentra'
-        ? {
-            type: 'azure-active-directory-access-token',
-            options: {
-              token: accessToken,
-            },
-          }
-        : {
-            type: windowsDomain ? 'ntlm' : 'default',
-            options: {
-              userName: user,
-              password: password,
-              ...(windowsDomain ? { domain: windowsDomain } : {}),
-            },
-          };
 
     const connection = new tedious.Connection({
       server,
