@@ -35,7 +35,7 @@ const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
-const { getAuthProxyUrl } = require('../utility/authProxy');
+const { callTextToSqlApi } = require('../utility/authProxy');
 
 const logger = getLogger('databaseConnections');
 
@@ -570,29 +570,13 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     const { structure } = existing || {};
     if (!structure) return { errorMessage: 'No database structure' };
-    const model = {
-      tables: structure.tables.map(table => ({
-        name: table.pureName,
-        columns: table.columns.map(column => column.columnName),
-        primaryKey: table.primaryKey?.columns?.map(column => column.columnName),
-        foreignKeys: table.foreignKeys.map(fk => ({
-          refTable: fk.refTableName,
-          column: fk.columns[0]?.columnName,
-          refColumn: fk.columns[0]?.refColumnName,
-        })),
-      })),
-    };
 
-    const resp = await axios.default.post(`${getAuthProxyUrl()}/text-to-sql`, {
-      text,
-      model,
-      dialect,
-    });
+    const res = await callTextToSqlApi(text, structure, dialect);
 
-    if (!resp.data.sql) {
+    if (!res.sql) {
       return { errorMessage: 'No SQL generated' };
     }
 
-    return resp.data;
+    return res;
   },
 };
