@@ -163,7 +163,6 @@ describe('Table analyse', () => {
             ),
           }
         : t2;
-      console.log(t2Enchanted);
       expect(t2Enchanted).toEqual(t2NextColMatch(engine));
     })
   );
