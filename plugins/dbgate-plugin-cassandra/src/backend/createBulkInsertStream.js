@@ -35,7 +35,7 @@ function getShouldAddUuidPkInfo(tableInfo) {
   const columnInfo = getColumnInfo(tableInfo, pkColumnName);
   if (!columnInfo) return { shouldAddUuidPk: false };
 
-  const shouldAddUuidPk = writable.columnNames.every((i) => i !== columnInfo.columnName);
+  const shouldAddUuidPk = tableInfo.columns.every((i) => i.columnName !== columnInfo.columnName);
   if (!shouldAddUuidPk) return { shouldAddUuidPk };
 
   return { shouldAddUuidPk, pkColumnName };
