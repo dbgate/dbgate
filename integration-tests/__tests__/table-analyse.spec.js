@@ -47,7 +47,7 @@ const txMatch = (engine, tname, vcolname, nextcol, defaultValue) =>
       expect.objectContaining({
         columnName: vcolname,
         ...(engine.skipNullability ? {} : { notNull: !!defaultValue }),
-        ...(defaultValue
+        ...(defaultValue && !engine.skipDefaultValue
           ? { defaultValue }
           : {
               dataType: engine.skipStringLength
