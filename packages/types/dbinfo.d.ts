@@ -189,3 +189,9 @@ export interface DatabaseInfoObjects {
 export interface DatabaseInfo extends DatabaseInfoObjects {
   engine?: string;
 }
+
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
+export type DatabaseInfoPartial = DeepPartial<DatabaseInfo>;
