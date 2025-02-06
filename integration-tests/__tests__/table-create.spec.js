@@ -24,8 +24,10 @@ function checkTableStructure2(t1, t2) {
   expect(t2).toEqual(createExpector(omitTableSpecificInfo(t1)));
 }
 
-async function testTableCreate(conn, driver, table) {
-  await runCommandOnDriver(conn, driver, dmp => dmp.put('create table ~t0 (~id int not null primary key)'));
+async function testTableCreate(engine, conn, driver, table) {
+  await runCommandOnDriver(conn, driver, dmp =>
+    dmp.put(`create table ~t0 (~id int ${engine.skipNullability ? '' : 'not null'} primary key)`)
+  );
 
   const dmp = driver.createDumper();
   const table1 = {
@@ -47,12 +49,12 @@ describe('Table create', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Simple table - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testTableCreate(conn, driver, {
+      await testTableCreate(engine, conn, driver, {
         columns: [
           {
             columnName: 'col1',
             dataType: 'int',
-            notNull: true,
+            ...(engine.skipNullability ? {} : { notNull: true }),
           },
         ],
         primaryKey: {
@@ -65,7 +67,7 @@ describe('Table create', () => {
   test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Table with index - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testTableCreate(conn, driver, {
+      await testTableCreate(engine, conn, driver, {
         columns: [
           {
             columnName: 'col1',
@@ -95,7 +97,7 @@ describe('Table create', () => {
   test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
     'Table with foreign key - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testTableCreate(conn, driver, {
+      await testTableCreate(engine, conn, driver, {
         columns: [
           {
             columnName: 'col1',
@@ -125,7 +127,7 @@ describe('Table create', () => {
   test.each(engines.filter(x => !x.skipUnique).map(engine => [engine.label, engine]))(
     'Table with unique - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testTableCreate(conn, driver, {
+      await testTableCreate(engine, conn, driver, {
         columns: [
           {
             columnName: 'col1',
