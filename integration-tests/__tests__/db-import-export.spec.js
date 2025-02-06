@@ -55,6 +55,25 @@ describe('DB Import/export', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
+    `Import to existing table - %s`,
+    testWrapper(async (conn, driver, engine) => {
+      await runQueryOnDriver(conn, driver, dmp => dmp.put(`create table ~t1 (~id int primary key, ~country text)`));
+
+      const reader = createImportStream();
+      const writer = await tableWriter({
+        systemConnection: conn,
+        driver,
+        pureName: 't1',
+        createIfNotExists: true,
+      });
+      await copyStream(reader, writer);
+
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
+      expect(res.rows[0].cnt.toString()).toEqual('6');
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Import two tables - %s',
     testWrapper(async (conn, driver, engine) => {
       // const reader = await fakeObjectReader({ delay: 10 });
