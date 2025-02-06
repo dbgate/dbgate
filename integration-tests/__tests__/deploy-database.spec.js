@@ -466,7 +466,7 @@ describe('Deploy database', () => {
   test.each(
     engines
       .filter(i => !i.skipDeploy)
-      .filter(x => !x.skipChangeColumn || x.skipNullability)
+      .filter(x => !x.skipChangeColumn && !x.skipNullability)
       .map(engine => [engine.label, engine])
   )(
     'Change column to NOT NULL column with default - %s',
