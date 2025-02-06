@@ -645,6 +645,7 @@ const enginesOnCi = [
   // cockroachDbEngine,
   clickhouseEngine,
   oracleEngine,
+  cassandraEngine,
 ];
 
 const enginesOnLocal = [
