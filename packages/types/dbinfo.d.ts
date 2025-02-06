@@ -163,7 +163,7 @@ export interface SchedulerEventInfo extends SqlObjectInfo {
   onCompletion: 'PRESERVE' | 'NOT PRESERVE';
   status: 'ENABLED' | 'DISABLED';
   lastExecuted?: string;
-  intervalValue: number;
+  intervalValue: string;
   intervalField: string;
   starts: string;
   executeAt: string;

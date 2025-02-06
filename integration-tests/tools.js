@@ -1,3 +1,4 @@
+// @ts-check
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const crypto = require('crypto');
 
@@ -81,9 +82,27 @@ const testWrapperPrepareOnly =
     await body(conn, driver, ...other);
   };
 
+/** @param {string} sql
+ * @returns {string} */
+const removeNotNull = sql => sql.replace(/not null/gi, '');
+
+/** @param {import('dbgate-types').TestEngineInfo} engine
+ * @param {string} sql
+ * @returns {string} */
+const transformSqlForEngine = (engine, sql) => {
+  let result = sql;
+
+  if (engine.removeNotNull) {
+    result = removeNotNull(result);
+  }
+
+  return result;
+};
+
 module.exports = {
   randomDbName,
   connect,
   testWrapper,
   testWrapperPrepareOnly,
+  transformSqlForEngine,
 };

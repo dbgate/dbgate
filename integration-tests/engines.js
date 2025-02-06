@@ -1,3 +1,4 @@
+// @ts-check
 const views = {
   type: 'views',
   create1: 'CREATE VIEW ~obj1 AS SELECT ~id FROM ~t1',
@@ -13,6 +14,7 @@ const matviews = {
   drop2: 'DROP MATERIALIZED VIEW obj2',
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const mysqlEngine = {
   label: 'MySQL',
   connection: {
@@ -160,6 +162,7 @@ const mysqlEngine = {
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const mariaDbEngine = {
   label: 'MariaDB',
   connection: {
@@ -180,6 +183,7 @@ const mariaDbEngine = {
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const postgreSqlEngine = {
   label: 'PostgreSQL',
   connection: {
@@ -352,6 +356,7 @@ $$ LANGUAGE plpgsql;`,
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const sqlServerEngine = {
   label: 'SQL Server',
   connection: {
@@ -465,6 +470,7 @@ const sqlServerEngine = {
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const sqliteEngine = {
   label: 'SQLite',
   generateDbFile: true,
@@ -500,6 +506,7 @@ const sqliteEngine = {
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const cockroachDbEngine = {
   label: 'CockroachDB',
   connection: {
@@ -511,6 +518,7 @@ const cockroachDbEngine = {
   objects: [views, matviews],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const clickhouseEngine = {
   label: 'ClickHouse',
   connection: {
@@ -533,6 +541,7 @@ const clickhouseEngine = {
   skipChangeColumn: true,
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
 const oracleEngine = {
   label: 'Oracle',
   connection: {
@@ -592,6 +601,40 @@ const oracleEngine = {
   ],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
+const cassandraEngine = {
+  label: 'Cassandra',
+  connection: {
+    server: 'localhost:15942',
+    engine: 'cassandra@dbgate-plugin-cassandra',
+  },
+  removeNotNull: true,
+
+  alterTableAddColumnSyntax: false,
+  skipOnCI: false,
+  skipReferences: true,
+  // dbSnapshotBySeconds: true,
+  // setNullDefaultInsteadOfDrop: true,
+  skipIncrementalAnalysis: true,
+  skipNonPkRename: true,
+  skipPkDrop: true,
+  skipDefaultValue: true,
+  skipNullability: true,
+  skipUnique: true,
+  skipIndexes: true,
+  skipOrderBy: true,
+  skipAutoIncrement: true,
+  skipDataModifications: true,
+  skipDataDuplicator: true,
+  skipDeploy: true,
+
+  forceSortResults: true,
+  forceSortStructureColumns: true,
+
+  useTextTypeForStrings: true,
+  objects: [],
+};
+
 const enginesOnCi = [
   // all engines, which would be run on GitHub actions
   mysqlEngine,
@@ -602,20 +645,23 @@ const enginesOnCi = [
   // cockroachDbEngine,
   clickhouseEngine,
   oracleEngine,
+  cassandraEngine,
 ];
 
 const enginesOnLocal = [
   // all engines, which would be run on local test
-  mysqlEngine,
+  cassandraEngine,
+  // mysqlEngine,
   // mariaDbEngine,
   // postgreSqlEngine,
   // sqlServerEngine,
-  sqliteEngine,
+  // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
   // oracleEngine,
 ];
 
+/** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */
 module.exports = process.env.CITEST ? enginesOnCi : enginesOnLocal;
 
 module.exports.mysqlEngine = mysqlEngine;
@@ -626,3 +672,4 @@ module.exports.sqliteEngine = sqliteEngine;
 module.exports.cockroachDbEngine = cockroachDbEngine;
 module.exports.clickhouseEngine = clickhouseEngine;
 module.exports.oracleEngine = oracleEngine;
+module.exports.cassandraEngine = cassandraEngine;

@@ -21,10 +21,14 @@
   import { renameDatabaseObjectDialog, alterDatabaseDialog } from '../utility/alterDatabaseTools';
 
   import AppObjectCore from './AppObjectCore.svelte';
-  import { DEFAULT_OBJECT_SEARCH_SETTINGS } from '../stores';
-  import { filterName } from 'dbgate-tools';
+  import { DEFAULT_OBJECT_SEARCH_SETTINGS, extensions } from '../stores';
+  import { filterName, findEngineDriver } from 'dbgate-tools';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
 
   export let data;
+
+  $: connection = useConnectionInfo({ conid: data.conid });
+  $: driver = findEngineDriver($connection, $extensions);
 
   function handleRenameColumn() {
     renameDatabaseObjectDialog(data.conid, data.database, data.columnName, (db, newName) => {
@@ -42,11 +46,20 @@
   }
 
   function createMenu() {
-    return [
-      { text: 'Rename column', onClick: handleRenameColumn },
+    const isPrimaryKey = !!data.primaryKey?.columns?.some(i => i.columnName == data.columnName);
+
+    const menu = [];
+
+    if (!driver.dialect.disableNonPrimaryKeyRename || isPrimaryKey) {
+      menu.push({ text: 'Rename column', onClick: handleRenameColumn });
+    }
+
+    menu.push(
       { text: 'Drop column', onClick: handleDropColumn },
-      { text: 'Copy name', onClick: () => navigator.clipboard.writeText(data.columnName) },
-    ];
+      { text: 'Copy name', onClick: () => navigator.clipboard.writeText(data.columnName) }
+    );
+
+    return menu;
   }
 
   function getExtInfo(data) {

@@ -110,6 +110,7 @@
       'port',
       'user',
       'password',
+      'localDataCenter',
       'defaultDatabase',
       'singleDatabase',
       'socketPath',

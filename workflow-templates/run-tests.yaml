@@ -106,3 +106,8 @@ jobs:
           ORACLE_PASSWORD: Pwd2020Db
         ports:
           - 15006:1521
+
+      cassandradb:
+        image: cassandra:5.0.2
+        ports:
+          - 15942:9042

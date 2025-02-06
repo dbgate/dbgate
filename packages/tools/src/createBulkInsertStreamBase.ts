@@ -14,6 +14,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
     objectMode: true,
   });
 
+  writable.fullNameQuoted = fullNameQuoted;
   writable.buffer = [];
   writable.structure = null;
   writable.columnNames = null;
@@ -30,7 +31,9 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
 
   writable.checkStructure = async () => {
     let structure = await driver.analyseSingleTable(dbhan, name);
-    // console.log('ANALYSING', name, structure);
+    if (structure) {
+      writable.structure = structure;
+    }
     if (structure && options.dropIfExists) {
       logger.info(`Dropping table ${fullNameQuoted}`);
       await driver.script(dbhan, `DROP TABLE ${fullNameQuoted}`);

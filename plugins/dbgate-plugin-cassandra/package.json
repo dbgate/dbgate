@@ -1,0 +1,38 @@
+{
+  "name": "dbgate-plugin-cassandra",
+  "main": "dist/backend.js",
+  "version": "6.0.0-alpha.1",
+  "license": "GPL-3.0",
+  "author": "Jan Prochazka",
+  "description": "cassandra connector for DbGate",
+  "keywords": [
+    "dbgate",
+    "cassandra",
+    "dbgatebuiltin"
+  ],
+  "files": [
+    "dist",
+    "icon.svg"
+  ],
+  "scripts": {
+    "build:frontend": "webpack --config webpack-frontend.config",
+    "build:frontend:watch": "webpack  --watch --config webpack-frontend.config",
+    "build:backend": "webpack --config webpack-backend.config.js",
+    "build": "yarn build:frontend && yarn build:backend",
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-cassandra",
+    "plugout": "dbgate-plugout dbgate-plugin-cassandra",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-cassandra",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "dbgate-plugin-tools": "^1.0.8",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "dbgate-tools": "^6.0.0-alpha.1",
+    "json-stable-stringify": "^1.0.1",
+    "lodash": "^4.17.21",
+    "cassandra-driver": "^4.7.2"
+  }
+}
