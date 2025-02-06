@@ -3,6 +3,8 @@
  */
 const { SqlDumper } = global.DBGATE_PACKAGES['dbgate-tools'];
 
+const numericDataTypes = ['tinyint', 'smallint', 'int', 'bigint', 'varint', 'float', 'double', 'decimal'];
+
 class Dumper extends SqlDumper {
   /**
    * @param {import('dbgate-types').ColumnInfo} column
@@ -57,6 +59,11 @@ class Dumper extends SqlDumper {
       dataType?.toLowerCase() === 'uuid' &&
       value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
     ) {
+      this.putRaw(value);
+      return;
+    }
+
+    if (numericDataTypes.includes(dataType?.toLowerCase()) && !Number.isNaN(parseFloat(value))) {
       this.putRaw(value);
       return;
     }
