@@ -10,6 +10,15 @@ function getTypeName(code) {
   return Object.keys(cassandra.types.dataTypes).find((key) => cassandra.types.dataTypes[key] === code);
 }
 
+function extractLineFromError(err) {
+  const match = err.message.match(/line (\d+):(\d+)/);
+  if (!match) return {};
+
+  const line = parseInt(match[1], 10) - 1;
+  const col = parseInt(match[2], 10);
+  return { line, col };
+}
+
 function zipDataRow(row, header) {
   const zippedRow = {};
 
@@ -108,19 +117,18 @@ const driver = {
       });
 
       strm.on('error', (err) => {
+        const { line } = extractLineFromError(err);
+
         options.info({
           message: err.toString(),
           time: new Date(),
           severity: 'error',
+          line,
         });
         options.done();
       });
     } catch (err) {
-      const mLine = err.message.match(/\(line (\d+)\,/);
-      let line = undefined;
-      if (mLine) {
-        line = parseInt(mLine[1]) - 1;
-      }
+      const { line } = extractLineFromError(err);
 
       options.info({
         message: err.message,
@@ -152,10 +160,13 @@ const driver = {
     });
 
     strm.on('error', (err) => {
+      const { line } = extractLineFromError(err);
+
       pass.info({
         message: err.toString(),
         time: new Date(),
         severity: 'error',
+        line,
       });
       pass.end();
     });
