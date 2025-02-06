@@ -27,6 +27,8 @@ function getColumnInfo(tableInfo, columnName) {
  * @returns {{ shouldAddUuidPk: true, pkColumnName: string } | { shouldAddUuidPk: false }}
  */
 function getShouldAddUuidPkInfo(tableInfo) {
+  const hasIdColumn = tableInfo.columns.some((x) => x.columnName == 'id');
+  if (hasIdColumn && !tableInfo.primaryKey) return { shouldAddUuidPk: false };
   const pkColumnName = tableInfo.primaryKey?.columns[0]?.columnName;
   if (!pkColumnName) return { shouldAddUuidPk: true, pkColumnName: 'id' };
 
@@ -72,7 +74,7 @@ function createCassandraBulkInsertStream(driver, stream, dbhan, name, options) {
         dmp.putRaw('uuid()');
         dmp.putRaw(', ');
       }
-      dmp.putCollection(',', writable.columnNames, (col) => dmp.putValue(row[col]));
+      dmp.putCollection(',', writable.columnNames, (col) => dmp.putValue(row[col]?.toString()));
       dmp.putRaw(')');
       await driver.query(dbhan, dmp.s, { discardResult: true });
     }
