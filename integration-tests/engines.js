@@ -629,6 +629,7 @@ const cassandraEngine = {
   skipDeploy: true,
 
   forceSortResults: true,
+  forceSortStructureColumns: true,
 
   useTextTypeForStrings: true,
   objects: [],
