@@ -74,7 +74,16 @@ function createCassandraBulkInsertStream(driver, stream, dbhan, name, options) {
         dmp.putRaw('uuid()');
         dmp.putRaw(', ');
       }
-      dmp.putCollection(',', writable.columnNames, (col) => dmp.putValue(row[col]?.toString()));
+      dmp.putCollection(',', writable.columnNames, (col) => {
+        const existingColumn = getColumnInfo(writable.structure, col);
+        const dataType = existingColumn?.dataType;
+
+        if (dataType) {
+          dmp.putValue(row[col], dataType);
+        } else {
+          dmp.putValue(row[col]?.toString());
+        }
+      });
       dmp.putRaw(')');
       await driver.query(dbhan, dmp.s, { discardResult: true });
     }
