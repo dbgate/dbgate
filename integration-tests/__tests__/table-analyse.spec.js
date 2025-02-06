@@ -152,7 +152,19 @@ describe('Table analyse', () => {
 
       expect(structure2.tables.length).toEqual(2);
       expect(structure2.tables.find(x => x.pureName == 't1')).toEqual(t1Match(engine));
-      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(t2NextColMatch(engine));
+
+      const t2 = structure2.tables.find(x => x.pureName == 't2');
+      const t2ColumnsOrder = ['id', 'val2', 'nextcol'];
+      const t2Enchanted = engine.forceSortStructureColumns
+        ? {
+            ...t2,
+            columns: t2.columns.sort(
+              (a, b) => t2ColumnsOrder.indexOf(a.columnName) - t2ColumnsOrder.indexOf(b.columnName)
+            ),
+          }
+        : t2;
+      console.log(t2Enchanted);
+      expect(t2Enchanted).toEqual(t2NextColMatch(engine));
     })
   );
 

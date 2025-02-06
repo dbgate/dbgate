@@ -41,6 +41,7 @@ export type TestEngineInfo = {
   skipOrderBy?: boolean;
 
   forceSortResults?: boolean;
+  forceSortStructureColumns?: boolean;
   alterTableAddColumnSyntax?: boolean;
   dbSnapshotBySeconds?: boolean;
   setNullDefaultInsteadOfDrop?: boolean;
