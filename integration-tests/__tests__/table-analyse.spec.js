@@ -140,7 +140,11 @@ describe('Table analyse', () => {
       if (engine.dbSnapshotBySeconds) await new Promise(resolve => setTimeout(resolve, 1100));
 
       await runCommandOnDriver(conn, driver, dmp =>
-        dmp.put(`ALTER TABLE ~t2 ADD ${engine.alterTableAddColumnSyntax ? 'COLUMN' : ''} ~nextcol varchar(50)`)
+        dmp.put(
+          `ALTER TABLE ~t2 ADD ${engine.alterTableAddColumnSyntax ? 'COLUMN' : ''} ~nextcol ${
+            engine.useTextTypeForStrings ? 'text' : 'varchar(50)'
+          }`
+        )
       );
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
