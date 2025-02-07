@@ -587,7 +587,7 @@ module.exports = {
     if (!structure) return { errorMessage: 'No database structure' };
     const res = await callCompleteOnCursorApi(text, structure, dialect, line);
 
-    if (!res?.sql) {
+    if (!res?.variants) {
       return { errorMessage: 'No SQL generated' };
     }
 
