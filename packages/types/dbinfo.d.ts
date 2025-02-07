@@ -190,10 +190,6 @@ export interface DatabaseInfo extends DatabaseInfoObjects {
   engine?: string;
 }
 
-type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
-};
-
 export interface ColumnReferenceTiny {
   n: string; // name
   r?: string; // ref name
@@ -217,6 +213,8 @@ export interface TableInfoTiny {
   n: string; //name
   o: string; // comment
   c: ColumnInfoTiny[]; // columns
+  p?: PrimaryKeyInfoTiny; // primary key
+  f?: ForeignKeyInfoTiny[]; // foreign keys
 }
 
 export interface DatabaseInfoTiny {

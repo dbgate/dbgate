@@ -21,6 +21,12 @@
       single: true,
     },
     {
+      type: 'jsonExpanded',
+      title: 'Json - expanded',
+      component: JsonExpandedCellView,
+      single: true,
+    },
+    {
       type: 'jsonRow',
       title: 'Json - Row',
       component: JsonRowView,
@@ -84,6 +90,7 @@
   import SelectField from '../forms/SelectField.svelte';
   import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
+  import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
 
   let selectedFormatType = 'autodetect';
 

@@ -5,6 +5,7 @@
 
   export let selection;
   export let showWholeRow = false;
+  export let expandAll = false;
 
   let json = null;
   let error = null;
@@ -31,7 +32,7 @@
 {:else}
   <div class="outer">
     <div class="inner">
-      <JSONTree value={json} expanded />
+      <JSONTree value={json} {expandAll} expanded />
     </div>
   </div>
 {/if}
