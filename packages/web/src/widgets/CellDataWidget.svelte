@@ -114,6 +114,7 @@
         isNative
         value={selectedFormatType}
         on:change={e => (selectedFormatType = e.detail)}
+        data-testid="CellDataWidget_selectFormat"
         options={[
           { value: 'autodetect', label: `Autodetect - ${autodetectFormat.title}` },
           ...formats.map(fmt => ({ label: fmt.title, value: fmt.type })),
