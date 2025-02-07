@@ -35,7 +35,7 @@ const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
-const { callTextToSqlApi } = require('../utility/authProxy');
+const { callTextToSqlApi, callCompleteOnCursorApi } = require('../utility/authProxy');
 
 const logger = getLogger('databaseConnections');
 
@@ -573,7 +573,21 @@ module.exports = {
 
     const res = await callTextToSqlApi(text, structure, dialect);
 
-    if (!res.sql) {
+    if (!res?.sql) {
+      return { errorMessage: 'No SQL generated' };
+    }
+
+    return res;
+  },
+
+  completeOnCursor_meta: true,
+  async completeOnCursor({ conid, database, text, dialect, line }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    const { structure } = existing || {};
+    if (!structure) return { errorMessage: 'No database structure' };
+    const res = await callCompleteOnCursorApi(text, structure, dialect, line);
+
+    if (!res?.sql) {
       return { errorMessage: 'No SQL generated' };
     }
 

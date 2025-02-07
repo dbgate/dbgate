@@ -28,6 +28,10 @@ async function callTextToSqlApi(text, structure, dialect) {
   return null;
 }
 
+async function callCompleteOnCursorApi(cursorId, query, position, dialect) {
+  return null;
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -37,4 +41,5 @@ module.exports = {
   supportsAwsIam,
   getAwsIamToken,
   callTextToSqlApi,
+  callCompleteOnCursorApi,
 };

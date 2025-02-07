@@ -519,6 +519,8 @@
         onClose={() => {
           isAiAssistantVisible = false;
         }}
+        text={$editorValue}
+        getLine={() => domEditor.getEditor().getSelectionRange().start.row}
       />
     </svelte:fragment>
   </HorizontalSplitter>
