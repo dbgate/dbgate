@@ -194,4 +194,31 @@ type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
-export type DatabaseInfoPartial = DeepPartial<DatabaseInfo>;
+export interface ColumnReferenceTiny {
+  n: string; // name
+  r?: string; // ref name
+}
+
+export interface PrimaryKeyInfoTiny {
+  c: ColumnReferenceTiny[]; // columns
+}
+
+export interface ForeignKeyInfoTiny {
+  c: ColumnReferenceTiny[]; // columns
+  r: string; // reference table name
+}
+
+export interface ColumnInfoTiny {
+  n: string; // name
+  t: string; // type
+}
+
+export interface TableInfoTiny {
+  n: string; //name
+  o: string; // comment
+  c: ColumnInfoTiny[]; // columns
+}
+
+export interface DatabaseInfoTiny {
+  t: TableInfoTiny[]; // tables
+}
