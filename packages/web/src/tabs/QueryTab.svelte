@@ -149,7 +149,7 @@
   let domEditor;
   let domToolStrip;
   let intervalId;
-  let isAiAssistantVisible = false;
+  let isAiAssistantVisible = localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -438,6 +438,8 @@
     localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
     initialArgs?.queryParameterStyle ??
     (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : '');
+
+  $: localStorage.setItem(`tabdata_isAiAssistantVisible_${tabid}`, isAiAssistantVisible ? 'true' : 'false');
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
