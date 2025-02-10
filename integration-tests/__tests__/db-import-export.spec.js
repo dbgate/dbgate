@@ -57,7 +57,12 @@ describe('DB Import/export', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     `Import to existing table - %s`,
     testWrapper(async (conn, driver, engine) => {
-      await runQueryOnDriver(conn, driver, dmp => dmp.put(`create table ~t1 (~id int primary key, ~country text)`));
+      await runQueryOnDriver(conn, driver, dmp =>
+        dmp.put(
+          `create table ~t1 (~id int primary key, ~country %s)`,
+          engine.useTextTypeForStrings ? 'text' : 'varchar(50)'
+        )
+      );
 
       const reader = createImportStream();
       const writer = await tableWriter({
