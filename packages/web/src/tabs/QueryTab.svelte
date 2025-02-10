@@ -538,12 +538,16 @@
             editor.setValue(text);
           }
         }}
+        {tabid}
       />
     </svelte:fragment>
   </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandSplitButton commands={['query.execute', 'query.executeCurrent']} />
-    <ToolStripCommandButton command="query.kill" />
+    <ToolStripCommandSplitButton
+      commands={['query.execute', 'query.executeCurrent']}
+      data-testid="QueryTab_executeButton"
+    />
+    <ToolStripCommandButton command="query.kill" data-testid="QueryTab_killButton" />
     <ToolStripSaveButton idPrefix="query" />
     <ToolStripCommandButton command="query.formatCode" />
     {#if resultCount == 1}
@@ -562,7 +566,13 @@
       icon="icon at"
       title="Query parameter style"
     />
-    <ToolStripCommandButton command="query.switchAiAssistant" hideDisabled />
+    <ToolStripCommandButton
+      command="query.switchAiAssistant"
+      hideDisabled
+      data-testid="QueryTab_switchAiAssistantButton"
+    >
+      AI Assistant
+    </ToolStripCommandButton>
   </svelte:fragment>
 </ToolStripContainer>
 

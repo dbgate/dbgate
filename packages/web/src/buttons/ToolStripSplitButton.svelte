@@ -21,7 +21,7 @@
 
 <div class="button" class:disabled {title}>
   <div class="inner" class:disabled>
-    <div class="main" class:disabled on:click={handleClick}>
+    <div class="main" class:disabled on:click={handleClick} data-testid={$$props['data-testid']}>
       <span class="icon" class:disabled><FontIcon {icon} /></span>
       <slot />
     </div>
