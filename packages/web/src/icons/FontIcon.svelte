@@ -148,6 +148,7 @@
     'icon parent-filter-outline': 'mdi mdi-home-alert-outline',
     'icon download': 'mdi mdi-download',
     'icon text': 'mdi mdi-text',
+    'icon ai': 'mdi mdi-head-lightbulb',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

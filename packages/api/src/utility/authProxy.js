@@ -24,6 +24,18 @@ async function getAwsIamToken(params) {
   return null;
 }
 
+async function callTextToSqlApi(text, structure, dialect) {
+  return null;
+}
+
+async function callCompleteOnCursorApi(cursorId, query, position, dialect) {
+  return null;
+}
+
+async function callRefactorSqlQueryApi(query, task, structure, dialect) {
+  return null;
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -32,4 +44,7 @@ module.exports = {
   getAuthProxyUrl,
   supportsAwsIam,
   getAwsIamToken,
+  callTextToSqlApi,
+  callCompleteOnCursorApi,
+  callRefactorSqlQueryApi,
 };

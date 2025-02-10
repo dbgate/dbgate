@@ -17,4 +17,5 @@
   {menu}
   {hideDisabled}
   {buttonLabel}
+  {...$$restProps}
 />

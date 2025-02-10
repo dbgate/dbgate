@@ -21,8 +21,14 @@
           closeCurrentModal();
           onConfirm();
         }}
+        data-testid="ConfirmModal_okButton"
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value="Close"
+        on:click={closeCurrentModal}
+        data-testid="ConfirmModal_closeButton"
+      />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

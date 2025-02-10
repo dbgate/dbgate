@@ -115,6 +115,7 @@ export const currentEditorFontSize = getElectron()
   ? writableSettingsValue(null, 'currentEditorFontSize')
   : writableWithStorage(null, 'currentEditorFontSize');
 export const currentEditorFont = writableSettingsValue(null, 'editor.fontFamily');
+export const allowedSendToAiService = writableSettingsValue(false, 'ai.allowSendModels');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
