@@ -16,6 +16,7 @@
   export let collapsed = null;
 
   export let storageName = null;
+  export let onClose = null;
 
   let size = 0;
 
@@ -70,7 +71,8 @@
   <WidgetTitle
     clickable={collapsible}
     on:click={collapsible ? () => (visible = !visible) : null}
-    data-testid={$$props['data-testid']}>{title}</WidgetTitle
+    data-testid={$$props['data-testid']}
+    {onClose}>{title}</WidgetTitle
   >
 
   {#if visible}

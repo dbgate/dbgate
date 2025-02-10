@@ -19,6 +19,6 @@
   }
 </script>
 
-<ToolStripSplitButton {title} {icon} {disabled} on:splitclick={handleClick} on:click>
+<ToolStripSplitButton {title} {icon} {disabled} on:splitclick={handleClick} on:click {...$$restProps}>
   <slot />
 </ToolStripSplitButton>

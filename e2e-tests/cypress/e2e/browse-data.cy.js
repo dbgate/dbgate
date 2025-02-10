@@ -349,4 +349,17 @@ describe('Data browser data', () => {
     cy.testid('CompareModelTab_tabOperations').click();
     cy.themeshot('comparesettings');
   });
+
+  it.only('Query editor - AI assistant', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('QueryTab_switchAiAssistantButton').click();
+    cy.testid('QueryAiAssistant_promptInput').type('album names');
+    cy.testid('QueryAiAssistant_queryFromQuestionButton').click();
+    cy.contains('Use this').click();
+    cy.testid('QueryTab_executeButton').click();
+    cy.contains('Balls to the Wall');
+    cy.themeshot('aiassistant');
+  });
 });
