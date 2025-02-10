@@ -410,6 +410,14 @@ ORDER BY
               { value: 'download', label: 'Check and download new versions' },
             ]}
           />
+
+          {#if isProApp()}
+            <FormCheckboxField
+              name="ai.allowSendModels"
+              label="Allow to send DB models and query snippets to AI service"
+              defaultValue={false}
+            />
+          {/if}
         </svelte:fragment>
 
         <svelte:fragment slot="7">
