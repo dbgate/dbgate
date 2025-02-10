@@ -355,6 +355,8 @@ describe('Data browser data', () => {
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
     cy.testid('QueryTab_switchAiAssistantButton').click();
+    cy.testid('QueryAiAssistant_allowSendToAiServiceButton').click();
+    cy.testid('ConfirmModal_okButton').click();
     cy.testid('QueryAiAssistant_promptInput').type('album names');
     cy.testid('QueryAiAssistant_queryFromQuestionButton').click();
     cy.contains('Use this').click();
