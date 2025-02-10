@@ -32,6 +32,10 @@ async function callCompleteOnCursorApi(cursorId, query, position, dialect) {
   return null;
 }
 
+async function callRefactorSqlQueryApi(query, task, structure, dialect) {
+  return null;
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -42,4 +46,5 @@ module.exports = {
   getAwsIamToken,
   callTextToSqlApi,
   callCompleteOnCursorApi,
+  callRefactorSqlQueryApi,
 };

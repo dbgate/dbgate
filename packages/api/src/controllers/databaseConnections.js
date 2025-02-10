@@ -35,7 +35,7 @@ const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
-const { callTextToSqlApi, callCompleteOnCursorApi } = require('../utility/authProxy');
+const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 
 const logger = getLogger('databaseConnections');
 
@@ -588,6 +588,20 @@ module.exports = {
     const res = await callCompleteOnCursorApi(text, structure, dialect, line);
 
     if (!res?.variants) {
+      return { errorMessage: 'No SQL generated' };
+    }
+
+    return res;
+  },
+
+  refactorSqlQuery_meta: true,
+  async refactorSqlQuery({ conid, database, query, task, dialect }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    const { structure } = existing || {};
+    if (!structure) return { errorMessage: 'No database structure' };
+    const res = await callRefactorSqlQueryApi(query, task, structure, dialect);
+
+    if (!res?.sql) {
       return { errorMessage: 'No SQL generated' };
     }
 

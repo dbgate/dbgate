@@ -526,6 +526,16 @@
           editor.session.insert(editor.getCursorPosition(), text);
           domEditor?.getEditor()?.focus();
         }}
+        getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
+        onSetSelectedText={text => {
+          const editor = domEditor.getEditor();
+          if (editor.getSelectedText()) {
+            const range = editor.selection.getRange();
+            editor.session.replace(range, text);
+          } else {
+            editor.setValue(text);
+          }
+        }}
       />
     </svelte:fragment>
   </HorizontalSplitter>
