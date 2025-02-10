@@ -521,6 +521,11 @@
         }}
         text={$editorValue}
         getLine={() => domEditor.getEditor().getSelectionRange().start.row}
+        onInsertAtCursor={text => {
+          const editor = domEditor.getEditor();
+          editor.session.insert(editor.getCursorPosition(), text);
+          domEditor?.getEditor()?.focus();
+        }}
       />
     </svelte:fragment>
   </HorizontalSplitter>
