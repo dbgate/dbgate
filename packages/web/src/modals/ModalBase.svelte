@@ -34,7 +34,6 @@
       if (oldFocus) oldFocus.focus();
     };
   });
-
 </script>
 
 <!-- The Modal -->
@@ -88,6 +87,7 @@
     border-radius: 10px;
     margin: auto;
     margin-top: 15vh;
+    max-height: 70vh;
     width: 50%;
   }
 
@@ -160,5 +160,4 @@
     border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
   }
-
 </style>
