@@ -18,7 +18,11 @@ module.exports = defineConfig({
         // console.log('********************* DETAILS *********************', JSON.stringify(details));
 
         if (config.isInteractive) {
-          await killPort(3000);
+          try {
+            await killPort(3000);
+          } catch (e) {
+            console.warn('Error killing process on port 3000:', e.message);
+          }
           switch (details.fileName) {
             case 'add-connection':
               serverProcess = exec('yarn start:add-connection');
