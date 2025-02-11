@@ -81,6 +81,8 @@
     border: 1px solid var(--theme-border);
     overflow: auto;
     outline: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .window:not(.fullScreen):not(.simple) {
@@ -125,6 +127,12 @@
 
   .header.fullScreen {
     border-bottom: 1px solid var(--theme-border);
+  }
+
+  .content {
+    max-height: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
   }
 
   .content:not(.fullScreen) {
