@@ -318,20 +318,29 @@
     <!-- <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
     <ToolStripCommandButton command="dataForm.refresh" hideDisabled /> -->
 
-    <ToolStripCommandButton command="dataForm.goToFirst" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToPrevious" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToNext" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToLast" hideDisabled />
+    <ToolStripCommandButton command="dataForm.goToFirst" hideDisabled data-testid="TableDataTab_goToFirst" />
+    <ToolStripCommandButton command="dataForm.goToPrevious" hideDisabled data-testid="TableDataTab_goToPrevious" />
+    <ToolStripCommandButton command="dataForm.goToNext" hideDisabled data-testid="TableDataTab_goToNext" />
+    <ToolStripCommandButton command="dataForm.goToLast" hideDisabled data-testid="TableDataTab_goToLast" />
 
     <ToolStripCommandButton
       command="tableData.save"
       iconAfter={getNumberIcon(changeSetChangedCount($changeSetStore?.value))}
+      data-testid="TableDataTab_save"
     />
-    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
+    <ToolStripCommandButton
+      command="dataGrid.revertAllChanges"
+      hideDisabled
+      data-testid="TableDataTab_revertAllChanges"
+    />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled data-testid="TableDataTab_insertNewRow" />
+    <ToolStripCommandButton
+      command="dataGrid.deleteSelectedRows"
+      hideDisabled
+      data-testid="TableDataTab_deleteSelectedRows"
+    />
+    <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled data-testid="TableDataTab_switchToForm" />
+    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled data-testid="TableDataTab_switchToTable" />
     <ToolStripExportButton {quickExportHandlerRef} />
 
     <ToolStripButton
