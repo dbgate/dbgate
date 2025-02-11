@@ -253,7 +253,12 @@ export abstract class GridDisplay {
             orCondition.conditions.push(
               _.cloneDeepWith(condition, (expr: Expression) => {
                 if (expr.exprType == 'placeholder') {
-                  return this.createColumnExpression(column, {}, undefined, 'filter');
+                  return this.createColumnExpression(
+                    column,
+                    !this.dialect.omitTableAliases ? { alias: 'basetbl' } : undefined,
+                    undefined,
+                    'filter'
+                  );
                 }
               })
             );
@@ -599,7 +604,14 @@ export abstract class GridDisplay {
         name: _.pick(name, ['schemaName', 'pureName']),
         ...(!this.dialect.omitTableAliases && { alias: 'basetbl' }),
       },
-      columns: columns.map(col => this.createColumnExpression(col, {}, undefined, 'view')),
+      columns: columns.map(col =>
+        this.createColumnExpression(
+          col,
+          !this.dialect.omitTableAliases ? { alias: 'basetbl' } : undefined,
+          undefined,
+          'view'
+        )
+      ),
       orderBy: this.driver?.requiresDefaultSortCriteria
         ? [
             {
