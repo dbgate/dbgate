@@ -70,7 +70,7 @@ export class SqlDumper implements AlterProcessor {
   putByteArrayValue(value) {
     this.put('^null');
   }
-  putValue(value) {
+  putValue(value, dataType = null) {
     if (value === null) this.put('^null');
     else if (value === true) this.putRaw('1');
     else if (value === false) this.putRaw('0');
@@ -116,6 +116,9 @@ export class SqlDumper implements AlterProcessor {
         break;
       case 'v':
         this.putValue(value);
+        break;
+      case 'V':
+        this.putValue(value.value, value.dataType);
         break;
       case 'c':
         value(this);
@@ -250,7 +253,7 @@ export class SqlDumper implements AlterProcessor {
 
     this.columnType(column.dataType);
 
-    if (column.autoIncrement) {
+    if (column.autoIncrement && !this.dialect?.disableAutoIncrement) {
       this.autoIncrement();
     }
 
