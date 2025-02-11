@@ -30,7 +30,7 @@
     {/if}
 
     <div slot="footer">
-      <FormSubmit value="Close" on:click={closeCurrentModal} />
+      <FormSubmit value="Close" on:click={closeCurrentModal} data-testid="ErrorMessageModal_closeButton" />
     </div>
   </ModalBase>
 </FormProvider>

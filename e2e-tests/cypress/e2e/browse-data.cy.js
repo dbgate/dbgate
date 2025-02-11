@@ -364,4 +364,43 @@ describe('Data browser data', () => {
     cy.contains('Balls to the Wall');
     cy.themeshot('aiassistant');
   });
+
+  it('Modify data', () => {
+    // TODO FIX: delete references cascade not working
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Employee').click();
+    cy.contains('Rows: 8');
+
+    cy.contains('Laura').click();
+    cy.contains('Laura').click();
+    cy.get('body').realType('Jane');
+    // cy.contains('Peacock').click();
+    // cy.testid('TableDataTab_deleteSelectedRows').click();
+    cy.contains('King').click();
+    cy.testid('TableDataTab_deleteSelectedRows').click();
+    cy.testid('TableDataTab_insertNewRow').click();
+    cy.get('body').realType('Novak');
+    cy.get('body').realPress('{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('Karel');
+    cy.testid('TableDataTab_save').click();
+    cy.contains('INSERT INTO `Employee`');
+    cy.contains("SET `FirstName`='Jane'");
+    cy.contains('DELETE FROM `Employee`');
+    cy.themeshot('modifydata');
+
+    // cy.testid('ConfirmSqlModal_okButton').click();
+    // cy.contains('Cannot delete or update a parent row')
+    // cy.testid('ConfirmSqlModal_okButton').click();
+
+    // cy.testid('TableDataTab_save').click();
+    // cy.testid('ConfirmSqlModal_deleteReferencesCascade').click();
+    // cy.testid('ConfirmSqlModal_okButton').click();
+
+    cy.testid('ConfirmSqlModal_okButton').click();
+
+    cy.contains('Novak');
+    cy.contains('Rows: 8');
+  });
 });
