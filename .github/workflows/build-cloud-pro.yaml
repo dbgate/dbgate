@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------------------
 # This file is generated. Do not edit manually
 # --------------------------------------------------------------------------------------------
-name: AWS image PREMIUM
+name: Cloud images PREMIUM
 'on':
   push:
     tags:
@@ -26,6 +26,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+      - name: Install jq
+        run: |
+          sudo apt-get install jq -y
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
         with:
@@ -36,7 +39,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
-          ref: ca1a1664e4c45945d7afe9534c43ca6cbb0b06e3
+          ref: 6114265cb2d8072f0a0c356f9e9c73db8abc1805
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -94,31 +97,11 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      - name: Run `packer init`
+      - name: Run `packer init` for Azure
         run: |
           cd ../dbgate-merged/packer
-          packer init ./aws-ubuntu.pkr.hcl
-        env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
-      - name: Run `packer build`
+          packer init ./azure-ubuntu.pkr.hcl
+      - name: Run `packer build` for Azure
         run: |
           cd ../dbgate-merged/packer
-          packer build ./aws-ubuntu.pkr.hcl
-        env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
-      - name: Install jq
-        run: |
-          sudo apt-get install jq -y
-      - name: Delete old AMIs
-        run: |
-          cd ../dbgate-merged/packer
-          chmod +x delete-old-amis.sh
-          ./delete-old-amis.sh
-        env:
-          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
-          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
-          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
+          packer build ./azure-ubuntu.pkr.hcl
