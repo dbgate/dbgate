@@ -105,3 +105,13 @@ jobs:
         run: |
           cd ../dbgate-merged/packer
           packer build ./azure-ubuntu.pkr.hcl
+      - name: Delete old Azure VMs
+        run: |
+          cd ../dbgate-merged/packer
+          chmod +x delete-old-azure-images.sh
+          ./delete-old-azure-images.sh
+        env:
+          AZURE_CLIENT_ID: '${{secrets.AZURE_CLIENT_ID}}'
+          AZURE_CLIENT_SECRET: '${{secrets.AZURE_CLIENT_SECRET}}'
+          AZURE_TENANT_ID: '${{secrets.AZURE_TENANT_ID}}'
+          AZURE_SUBSCRIPTION_ID: '${{secrets.AZURE_SUBSCRIPTION_ID}}'
