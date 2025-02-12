@@ -105,23 +105,23 @@ jobs:
           cd ../dbgate-merged/packer
           packer build ./azure-ubuntu.pkr.hcl
 
-      # - name: Run `packer init` for AWS
-      #   run: |
-      #     cd ../dbgate-merged/packer
-      #     packer init ./aws-ubuntu.pkr.hcl
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+      - name: Run `packer init` for AWS
+        run: |
+          cd ../dbgate-merged/packer
+          packer init ./aws-ubuntu.pkr.hcl
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
 
-      # - name: Run `packer build` for AWS
-      #   run: |
-      #     cd ../dbgate-merged/packer
-      #     packer build ./aws-ubuntu.pkr.hcl
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+      - name: Run `packer build` for AWS
+        run: |
+          cd ../dbgate-merged/packer
+          packer build ./aws-ubuntu.pkr.hcl
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
 
       - name: Delete old Azure VMs
         run: |
@@ -134,12 +134,12 @@ jobs:
           AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
           AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
 
-      # - name: Delete old AMIs (AWS)
-      #   run: |
-      #     cd ../dbgate-merged/packer
-      #     chmod +x delete-old-amis.sh
-      #     ./delete-old-amis.sh
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+      - name: Delete old AMIs (AWS)
+        run: |
+          cd ../dbgate-merged/packer
+          chmod +x delete-old-amis.sh
+          ./delete-old-amis.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
