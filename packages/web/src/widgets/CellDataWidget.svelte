@@ -45,6 +45,12 @@
       single: false,
     },
     {
+      type: 'xml',
+      title: 'XML',
+      component: XmlCellView,
+      single: false,
+    },
+    {
       type: 'map',
       title: 'Map',
       component: MapCellView,
@@ -67,6 +73,9 @@
     }
     if (_.isPlainObject(value) || _.isArray(value)) {
       return 'json';
+    }
+    if (typeof value === 'string' && value.startsWith('<') && value.endsWith('>')) {
+      return 'xml';
     }
     return 'textWrap';
   }
@@ -91,6 +100,7 @@
   import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
   import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
+  import XmlCellView from '../celldata/XmlCellView.svelte';
 
   let selectedFormatType = 'autodetect';
 
