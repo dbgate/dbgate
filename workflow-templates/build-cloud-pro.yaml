@@ -1,4 +1,4 @@
-name: AWS image PREMIUM
+name: Cloud images PREMIUM
 
 on:
   push:
@@ -29,6 +29,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.x
+
+      - name: Install jq
+        run: |
+          sudo apt-get install jq -y
 
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
@@ -91,41 +95,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run `packer init`
+      - name: Run `packer init` for Azure
         run: |
           cd ../dbgate-merged/packer
-          packer init ./aws-ubuntu.pkr.hcl
-        env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+          packer init ./azure-ubuntu.pkr.hcl
 
-      - name: Run `packer build`
+      - name: Run `packer build` for Azure
         run: |
           cd ../dbgate-merged/packer
-          packer build ./aws-ubuntu.pkr.hcl
-        env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+          packer build ./azure-ubuntu.pkr.hcl
 
-      # - name: Install AWS CLI
+      # - name: Run `packer init` for AWS
       #   run: |
-      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #     unzip awscliv2.zip
-      #     sudo ./aws/install
-      #     sudo apt-get install jq -y
+      #     cd ../dbgate-merged/packer
+      #     packer init ./aws-ubuntu.pkr.hcl
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
 
-      - name: Install jq
-        run: |
-          sudo apt-get install jq -y
+      # - name: Run `packer build` for AWS
+      #   run: |
+      #     cd ../dbgate-merged/packer
+      #     packer build ./aws-ubuntu.pkr.hcl
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
 
-      - name: Delete old AMIs
-        run: |
-          cd ../dbgate-merged/packer
-          chmod +x delete-old-amis.sh
-          ./delete-old-amis.sh
-        env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+      # - name: Delete old Azure VMs
+      #   run: |
+      #     cd ../dbgate-merged/packer
+      #     chmod +x delete-old-azure-images.sh
+      #     ./delete-old-azure-images.sh
+      # - name: Delete old AMIs (AWS)
+      #   run: |
+      #     cd ../dbgate-merged/packer
+      #     chmod +x delete-old-amis.sh
+      #     ./delete-old-amis.sh
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+      #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      #     AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
