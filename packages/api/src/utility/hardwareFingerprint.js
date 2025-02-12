@@ -73,6 +73,7 @@ async function getPublicHardwareFingerprint() {
       region: fingerprint.region,
       isDocker: platformInfo.isDocker,
       isAwsUbuntuLayout: platformInfo.isAwsUbuntuLayout,
+      isAzureUbuntuLayout: platformInfo.isAzureUbuntuLayout,
       isElectron: platformInfo.isElectron,
     },
   };

@@ -78,6 +78,8 @@ function start() {
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
   } else if (platformInfo.isAwsUbuntuLayout) {
     app.use(getExpressPath('/'), express.static('/home/ubuntu/build/public'));
+  } else if (platformInfo.isAzureUbuntuLayout) {
+    app.use(getExpressPath('/'), express.static('/home/azureuser/build/public'));
   } else if (processArgs.runE2eTests) {
     app.use(getExpressPath('/'), express.static(path.resolve('packer/build/public')));
   } else if (platformInfo.isNpmDist) {
@@ -139,6 +141,10 @@ function start() {
   } else if (platformInfo.isAwsUbuntuLayout) {
     const port = process.env.PORT || 3000;
     logger.info(`DbGate API listening on port ${port} (AWS AMI build)`);
+    server.listen(port);
+  } else if (platformInfo.isAzureUbuntuLayout) {
+    const port = process.env.PORT || 3000;
+    logger.info(`DbGate API listening on port ${port} (Azure VM build)`);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
     getPort({

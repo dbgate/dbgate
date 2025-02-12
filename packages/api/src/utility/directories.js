@@ -82,6 +82,9 @@ function packagedPluginsDir() {
   if (platformInfo.isAwsUbuntuLayout) {
     return '/home/ubuntu/build/plugins';
   }
+  if (platformInfo.isAzureUbuntuLayout) {
+    return '/home/azureuser/build/plugins';
+  }
   if (platformInfo.isNpmDist) {
     // node_modules
     return global['PLUGINS_DIR'];
