@@ -149,7 +149,8 @@ export class TableGridDisplay extends GridDisplay {
               },
               right: {
                 exprType: 'column',
-                columnName: table.primaryKey.columns[0].columnName,
+                columnName:
+                  column.foreignKey?.columns?.[0]?.refColumnName ?? table.primaryKey?.columns?.[0]?.columnName,
                 source: { name: table, alias: childAlias },
               },
             },
