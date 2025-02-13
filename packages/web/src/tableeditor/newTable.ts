@@ -31,6 +31,7 @@ export default function newTable(connection, database) {
             },
           ],
           primaryKey: {
+            constraintType: 'primaryKey',
             columns: [
               {
                 columnName: 'id',

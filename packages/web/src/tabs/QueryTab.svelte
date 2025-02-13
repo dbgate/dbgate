@@ -149,7 +149,7 @@
   let domEditor;
   let domToolStrip;
   let intervalId;
-  let isAiAssistantVisible = localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
+  let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
 
   onMount(() => {
     intervalId = setInterval(() => {
