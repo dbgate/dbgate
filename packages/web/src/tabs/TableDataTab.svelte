@@ -82,13 +82,12 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { scriptToSql } from 'dbgate-sqltree';
-  import { extensions } from '../stores';
+  import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { showSnackbarSuccess } from '../utility/snackbar';
-  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
   import { onDestroy, setContext } from 'svelte';
   import { apiCall } from '../utility/api';
@@ -109,6 +108,7 @@
   export let schemaName;
   export let pureName;
   export let isRawMode = false;
+  export let tabPreviewMode;
 
   export const activator = createActivator('TableDataTab', true);
 
@@ -266,6 +266,13 @@
       icon="icon structure"
       iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            tables: 'openStructure',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: 'img table-structure',
@@ -287,6 +294,13 @@
       icon="img sql-file"
       iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            tables: 'showSql',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: 'img sql-file',

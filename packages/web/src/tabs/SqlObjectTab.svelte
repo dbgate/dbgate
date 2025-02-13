@@ -21,7 +21,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
-  import { extensions } from '../stores';
+  import { extensions, lastUsedDefaultActions } from '../stores';
   import { findEngineDriver } from 'dbgate-tools';
   import registerCommand from '../commands/registerCommand';
   import applyScriptTemplate, { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
@@ -30,6 +30,7 @@
   import { changeTab } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let tabid;
   export let appObjectData;
@@ -40,6 +41,7 @@
   export let conid;
   export let database;
   export let objectTypeField;
+  export let tabPreviewMode;
 
   $: appObjectData = {
     schemaName,
@@ -99,6 +101,13 @@
         icon="icon structure"
         iconAfter="icon arrow-link"
         on:click={() => {
+          if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+            lastUsedDefaultActions.update(actions => ({
+              ...actions,
+              [objectTypeField]: 'openStructure',
+            }));
+          }
+
           openNewTab({
             title: pureName,
             icon: 'img table-structure',
@@ -119,6 +128,13 @@
         icon="icon table"
         iconAfter="icon arrow-link"
         on:click={() => {
+          if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+            lastUsedDefaultActions.update(actions => ({
+              ...actions,
+              [objectTypeField]: 'openTable',
+            }));
+          }
+
           openNewTab({
             title: pureName,
             icon: objectTypeField == 'tables' ? 'img table' : 'img view',
