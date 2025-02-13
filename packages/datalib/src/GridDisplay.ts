@@ -710,6 +710,13 @@ export abstract class GridDisplay {
     // return sql;
   }
 
+  getPageQueryText(offset: number, count: number) {
+    const select = this.getPageQuery(offset, count);
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
+  }
+  
+
   getExportQuery(postprocessSelect = null) {
     const select = this.createSelect({ isExport: true });
     if (!select) return null;

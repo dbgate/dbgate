@@ -462,6 +462,7 @@
   export let tabControlHiddenTab = false;
   export let onCustomGridRefresh = null;
   export let onOpenQuery = null;
+  export let onOpenQueryOnError = null;
   export let jslid;
   // export let generalAllowSave = false;
   export let hideGridLeftColumn = false;
@@ -1838,8 +1839,8 @@
     <ErrorInfo message={errorMessage} alignTop />
     <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
-    {#if onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+    {#if onOpenQueryOnError ?? onOpenQuery}
+      <FormStyledButton value="Open Query" on:click={onOpenQueryOnError ?? onOpenQuery} />
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}

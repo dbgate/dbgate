@@ -82,6 +82,7 @@
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
+  import { getIntSettingsValue } from '../settings/settingsTools';
 
   export let conid;
   export let display;
@@ -147,7 +148,7 @@
     // showModal(ImportExportModal, { initialValues });
   }
 
-  export function openQuery() {
+  export function openQuery(sql?) {
     openNewTab(
       {
         title: 'Query #',
@@ -162,9 +163,13 @@
         },
       },
       {
-        editor: display.getExportQuery(),
+        editor: sql ?? display.getExportQuery(),
       }
     );
+  }
+
+  function openQueryOnError() {
+    openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)));
   }
 
   export function openActiveChart() {
@@ -241,4 +246,5 @@
   {grider}
   {display}
   onOpenQuery={openQuery}
+  onOpenQueryOnError={openQueryOnError}
 />
