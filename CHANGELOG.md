@@ -12,6 +12,13 @@ Builds:
 - ADDED: Query AI Assistant (Premium)
 - ADDED: Cassandra database support
 - ADDED: XML cell data view
+- FIXED: Filtering by value in Oracle #1009
+- FIXED: Operand type clash: uniqueidentifier is incompatible with int #565
+- FIXED: UX in administration
+- FIXED: Error reporting of broken connections (sometimes it caused infinite loading of data grid)
+- ADDED: Azure managed identity support (Team Premium)
+- ADDED: Expanded JSON cell view
+- CHANGED: Open real executed query, when datagrid shows loading error
 
 ### 6.1.6
 - FIXED: Hotfix build process for premium edition
