@@ -123,3 +123,11 @@ jobs:
         working-directory: plugins/dbgate-plugin-clickhouse
         run: |
           npm publish
+      - name: Publish dbgate-plugin-dbf
+        working-directory: plugins/dbgate-plugin-dbf
+        run: |
+          npm publish
+      - name: Publish dbgate-plugin-cassandra
+        working-directory: plugins/dbgate-plugin-cassandra
+        run: |
+          npm publish
