@@ -33,14 +33,23 @@
           "repo": "dbgate"
         }
       ],
-      "target": {
-        "target": "default",
-        "arch": [
-          "universal",
-          "x64",
-          "arm64"
-        ]
-      },
+      "target": [
+        {
+          "target": "default",
+          "arch": [
+            "universal",
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
       "notarize": true
     },
     "linux": {
