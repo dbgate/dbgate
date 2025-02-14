@@ -427,7 +427,11 @@ function start() {
       await handleMessage(message);
     } catch (err) {
       logger.error(extractErrorLogData(err), 'Error in DB connection');
-      process.send({ msgtype: 'error', error: extractErrorMessage(err, 'Error processing message') });
+      process.send({
+        msgtype: 'error',
+        error: extractErrorMessage(err, 'Error processing message'),
+        msgid: message?.msgid,
+      });
     }
   });
 }

@@ -71,6 +71,11 @@ module.exports = {
   handle_error(conid, database, props) {
     const { error } = props;
     logger.error(`Error in database connection ${conid}, database ${database}: ${error}`);
+    if (props?.msgid) {
+      const [resolve, reject] = this.requests[props?.msgid];
+      reject(error);
+      delete this.requests[props?.msgid];
+    }
   },
   handle_response(conid, database, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];
