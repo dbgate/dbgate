@@ -199,6 +199,12 @@
     domEditor?.getEditor()?.focus();
   }
 
+  $: {
+    if (!isAiAssistantVisible && domEditor) {
+      domEditor?.getEditor()?.focus();
+    }
+  }
+
   export function isSqlEditor() {
     return driver?.databaseEngineTypes?.includes('sql');
   }
