@@ -73,7 +73,7 @@
   import useEditorData from '../query/useEditorData';
   import { currentEditorWrapEnabled, extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import { changeTab, markTabUnsaved } from '../utility/common';
+  import { changeTab, markTabUnsaved, sleep } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
@@ -150,6 +150,7 @@
   let domToolStrip;
   let intervalId;
   let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
+  let domAiAssistant;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -405,6 +406,26 @@
     errorMessages = errors;
   }
 
+  async function handleKeyDown(event) {
+    if (isProApp()) {
+      if (event.code == 'Space' && event.shiftKey && !isAiAssistantVisible) {
+        event.preventDefault();
+        toggleAiAssistant();
+        await sleep(100);
+        if (domAiAssistant) {
+          domAiAssistant.handleCompleteOnCursor();
+          domEditor?.getEditor()?.focus();
+        }
+      } else if (event.code == 'Space' && event.shiftKey && isAiAssistantVisible && domAiAssistant) {
+        event.preventDefault();
+        domAiAssistant.handleCompleteOnCursor();
+      } else if (event.code?.startsWith('Digit') && event.altKey && isAiAssistantVisible && domAiAssistant) {
+        event.preventDefault();
+        domAiAssistant.insertCompletion(parseInt(event.code.substring(5)) - 1);
+      }
+    }
+  }
+
   function createMenu() {
     return [
       { command: 'query.execute' },
@@ -482,6 +503,7 @@
               bind:this={domEditor}
               onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
               {errorMessages}
+              onKeyDown={handleKeyDown}
             />
           {:else}
             <AceEditor
@@ -521,6 +543,7 @@
     </svelte:fragment>
     <svelte:fragment slot="2">
       <QueryAiAssistant
+        bind:this={domAiAssistant}
         {conid}
         {database}
         {driver}
