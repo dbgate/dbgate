@@ -8,6 +8,11 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.2.0
+- ADDED: Query AI Assistant (Premium)
+- ADDED: Cassandra database support
+- ADDED: XML cell data view
+
 ### 6.1.6
 - FIXED: Hotfix build process for premium edition
 
