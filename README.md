@@ -33,6 +33,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * MariaDB
 * CosmosDB (Premium)
 * ClickHouse
+* Apache Cassandra
 
 <!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
