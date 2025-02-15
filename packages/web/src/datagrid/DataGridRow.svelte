@@ -26,6 +26,7 @@
   export let conid;
   export let database;
   export let driver;
+  export let gridColoringMode = '36';
 
   export let dataEditorTypesBehaviourOverride = null;
 
@@ -52,7 +53,7 @@
   }
 </script>
 
-<tr style={`height: ${rowHeight}px`}>
+<tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode}`}>
   <RowHeaderCell {rowIndex} onShowForm={onSetFormView ? () => onSetFormView(rowData, null) : null} />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
@@ -66,7 +67,7 @@
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
         {driver}
         {dataEditorTypesBehaviourOverride}
-        />
+      />
     {:else}
       <DataGridCell
         {rowIndex}
@@ -106,10 +107,18 @@
     background-color: var(--theme-bg-0);
   }
 
-  tr:nth-child(6n + 3) {
+  tr.coloring-mode-36:nth-child(6n + 3) {
     background-color: var(--theme-bg-1);
   }
-  tr:nth-child(6n + 6) {
+  tr.coloring-mode-36:nth-child(6n + 6) {
+    background-color: var(--theme-bg-alt);
+  }
+
+  tr.coloring-mode-2-primary:nth-child(2n + 1) {
+    background-color: var(--theme-bg-1);
+  }
+
+  tr.coloring-mode-2-secondary:nth-child(2n + 1) {
     background-color: var(--theme-bg-alt);
   }
 </style>

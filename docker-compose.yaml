@@ -1,6 +1,6 @@
 # this compose file is for testing purposes only
 # use it for testing docker containsers built on local machine
-version: "3"
+version: '3'
 services:
   dbgate:
     build: docker
@@ -15,31 +15,31 @@ services:
 
     volumes:
       - dbgate-data:/root/.dbgate
-    
+
     # environment:
     #   WEB_ROOT: /dbgate
 
-      # CONNECTIONS: mssql
-      # LABEL_mssql: MS Sql
-      # SERVER_mssql: mssql
-      # USER_mssql: sa
-      # PORT_mssql: 1433
-      # PASSWORD_mssql: Pwd2020Db
-      # ENGINE_mssql: mssql@dbgate-plugin-mssql
-  # proxy:
-  #   # image: nginx
-  #   build: test/nginx
-  #   ports:
-  #     - 8082:80
+    # CONNECTIONS: mssql
+    # LABEL_mssql: MS Sql
+    # SERVER_mssql: mssql
+    # USER_mssql: sa
+    # PORT_mssql: 1433
+    # PASSWORD_mssql: Pwd2020Db
+    # ENGINE_mssql: mssql@dbgate-plugin-mssql
+  proxy:
+    # image: nginx
+    build: test/nginx
+    ports:
+      - 8082:80
 
-    # volumes:
-    #   - /home/jena/test/chinook:/mnt/sqt
-    # environment:
-    #   CONNECTIONS: sqlite
+    volumes:
+      - /home/jena/test/chinook:/mnt/sqt
+    environment:
+      CONNECTIONS: sqlite
 
-    #   LABEL_sqlite: sqt
-    #   FILE_sqlite: /mnt/sqt/Chinook.db
-    #   ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
+      LABEL_sqlite: sqt
+      FILE_sqlite: /mnt/sqt/Chinook.db
+      ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
 
   # mssql:
   #   image: mcr.microsoft.com/mssql/server
@@ -52,3 +52,4 @@ services:
 volumes:
   dbgate-data:
     driver: local
+

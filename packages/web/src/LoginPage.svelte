@@ -137,9 +137,9 @@
   <div class="login-link">
     {#if $config?.isAdminLoginForm}
       {#if isAdminPage}
-        <Link internalRedirect="/login.html">Log In as Regular User</Link>
+        <Link internalRedirect="/login.html" data-testid="LoginPage_linkRegularUser">Log In as Regular User</Link>
       {:else}
-        <Link internalRedirect="/admin-login.html">Log In as Administrator</Link>
+        <Link internalRedirect="/admin-login.html" data-testid="LoginPage_linkAdmin">Log In as Administrator</Link>
       {/if}
     {/if}
   </div>
@@ -164,17 +164,41 @@
 
     {#if selectedConnection}
       {#if selectedConnection.passwordMode == 'askUser'}
-        <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        <FormTextField
+          label="Username"
+          name="login"
+          autocomplete="username"
+          saveOnInput
+          data-testid="LoginPage_username"
+        />
       {/if}
       {#if selectedConnection.passwordMode == 'askUser' || selectedConnection.passwordMode == 'askPassword'}
-        <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+        <FormPasswordField
+          label="Password"
+          name="password"
+          autocomplete="current-password"
+          saveOnInput
+          data-testid="LoginPage_password"
+        />
       {/if}
     {:else}
       {#if !isAdminPage && workflowType == 'credentials'}
-        <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        <FormTextField
+          label="Username"
+          name="login"
+          autocomplete="username"
+          saveOnInput
+          data-testid="LoginPage_username"
+        />
       {/if}
       {#if workflowType == 'credentials'}
-        <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
+        <FormPasswordField
+          label="Password"
+          name="password"
+          autocomplete="current-password"
+          saveOnInput
+          data-testid="LoginPage_password"
+        />
       {/if}
     {/if}
 
@@ -199,6 +223,7 @@
       {#if selectedConnection?.useRedirectDbLogin}
         <FormSubmit
           value="Open database login page"
+          data-testid="LoginPage_submitLogin"
           on:click={async e => {
             const state = `dbg-dblogin:${strmid}:${selectedConnection?.conid}:${$values.amoid}`;
             sessionStorage.setItem('dbloginAuthState', state);
@@ -210,6 +235,7 @@
       {:else if selectedConnection}
         <FormSubmit
           value="Log In"
+          data-testid="LoginPage_submitLogin"
           on:click={async e => {
             if (selectedConnection.passwordMode == 'askUser' || selectedConnection.passwordMode == 'askPassword') {
               enableApi();
@@ -257,6 +283,7 @@
               await processRedirectLogin($values.amoid);
             }
           }}
+          data-testid="LoginPage_submitLogin"
         />
       {/if}
     </div>
@@ -264,7 +291,11 @@
 
   <svelte:fragment slot="bottom-buttons">
     {#each availableProviders.filter(x => x.workflowType == 'anonymous' || x.workflowType == 'redirect') as provider}
-      <div class="loginButton" on:click={() => processSingleProvider(provider)}>
+      <div
+        class="loginButton"
+        on:click={() => processSingleProvider(provider)}
+        data-testid={`LoginPage_loginButton_${provider.name}`}
+      >
         {provider.name}
       </div>
     {/each}

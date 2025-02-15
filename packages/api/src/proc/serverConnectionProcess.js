@@ -2,7 +2,7 @@ const stableStringify = require('json-stable-stringify');
 const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, extractErrorLogData } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const logger = getLogger('srvconnProcess');
 

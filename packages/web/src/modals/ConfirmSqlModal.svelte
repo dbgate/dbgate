@@ -92,6 +92,7 @@
           templateProps={{ noMargin: true }}
           label="Delete references CASCADE"
           name="deleteReferencesCascade"
+          data-testid="ConfirmSqlModal_deleteReferencesCascade"
         />
       </div>
     {/if}
@@ -166,8 +167,14 @@
           closeCurrentModal();
           onConfirm(currentScript);
         }}
+        data-testid="ConfirmSqlModal_okButton"
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value="Close"
+        on:click={closeCurrentModal}
+        data-testid="ConfirmSqlModal_closeButton"
+      />
       <FormStyledButton
         type="button"
         value="Open script"
@@ -178,6 +185,7 @@
 
           closeCurrentModal();
         }}
+        data-testid="ConfirmSqlModal_openScriptButton"
       />
     </div>
   </ModalBase>

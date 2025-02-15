@@ -22,6 +22,15 @@ function clearTestingData() {
   if (fs.existsSync(path.join(baseDir, 'connections-e2etests.jsonl'))) {
     fs.unlinkSync(path.join(baseDir, 'connections-e2etests.jsonl'));
   }
+  if (fs.existsSync(path.join(baseDir, 'settings-e2etests.jsonl'))) {
+    fs.unlinkSync(path.join(baseDir, 'settings-e2etests.jsonl'));
+  }
+  if (fs.existsSync(path.join(baseDir, 'files-e2etests'))) {
+    fs.rmdirSync(path.join(baseDir, 'files-e2etests'), { recursive: true });
+  }
+  if (fs.existsSync(path.join(baseDir, 'archive-e2etests'))) {
+    fs.rmdirSync(path.join(baseDir, 'archive-e2etests'), { recursive: true });
+  }
 }
 
 module.exports = {

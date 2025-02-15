@@ -8,6 +8,7 @@
   export let filter;
   export let isExpandedBySearch;
   export let passProps;
+  export let isMainMatched;
 </script>
 
 <AppObjectList
@@ -17,7 +18,7 @@
     foreignKey: findForeignKeyForColumn(data, col),
   }))}
   module={columnAppObject}
-  {filter}
+  filter={isMainMatched ? '' : filter}
   {isExpandedBySearch}
   {passProps}
 />

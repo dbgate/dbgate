@@ -1,35 +1,41 @@
 version: '3'
 services:
-  postgres:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: Pwd2020Db
-    ports: 
-      - 15000:5432
-
-  mariadb:
-    image: mariadb
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    ports: 
-      - 15004:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=Pwd2020Db
+  # postgres:
+  #   image: postgres
+  #   restart: always
+  #   environment:
+  #     POSTGRES_PASSWORD: Pwd2020Db
+  #   ports:
+  #     - 15000:5432
+  #
+  # mariadb:
+  #   image: mariadb
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   restart: always
+  #   ports:
+  #     - 15004:3306
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=Pwd2020Db
 
   # mysql:
   #   image: mysql:8.0.18
   #   command: --default-authentication-plugin=mysql_native_password
   #   restart: always
-  #   ports: 
+  #   ports:
   #     - 15001:3306
   #   environment:
   #     - MYSQL_ROOT_PASSWORD=Pwd2020Db
+  #
+
+  cassandradb:
+    image: cassandra:5.0.2
+    ports:
+      - 15942:9042
 
   # clickhouse:
   #   image: bitnami/clickhouse:24.8.4
   #   restart: always
-  #   ports: 
+  #   ports:
   #     - 15005:8123
   #   environment:
   #     - CLICKHOUSE_ADMIN_PASSWORD=Pwd2020Db
@@ -37,19 +43,18 @@ services:
   # mssql:
   #   image: mcr.microsoft.com/mssql/server
   #   restart: always
-  #   ports: 
+  #   ports:
   #     - 15002:1433
   #   environment:
   #     - ACCEPT_EULA=Y
   #     - SA_PASSWORD=Pwd2020Db
   #     - MSSQL_PID=Express
-      
+
   # cockroachdb:
   #   image: cockroachdb/cockroach
   #   ports:
   #     - 15003:26257
   #   command: start-single-node --insecure
-
 #   mongodb:
 #     image: mongo:4.0.12
 #     restart: always
@@ -59,20 +64,19 @@ services:
 #     ports:
 #       - 27017:27017
 
-
 #   cockroachdb-init:
 #     image: cockroachdb/cockroach
 #     # build: cockroach
-#     # entrypoint: /cockroach/init.sh 
+#     # entrypoint: /cockroach/init.sh
 #     entrypoint: ./cockroach sql --insecure --host="cockroachdb" --execute="CREATE DATABASE IF NOT EXISTS test;"
 
 #     depends_on:
 #       - cockroachdb
 #     restart: on-failure
 
-  oracle:
-    image: gvenzl/oracle-xe:21-slim
-    environment:
-      ORACLE_PASSWORD: Pwd2020Db
-    ports:
-      - 15006:1521
+# oracle:
+#   image: gvenzl/oracle-xe:21-slim
+#   environment:
+#     ORACLE_PASSWORD: Pwd2020Db
+#   ports:
+#     - 15006:1521

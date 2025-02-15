@@ -82,13 +82,12 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { scriptToSql } from 'dbgate-sqltree';
-  import { extensions } from '../stores';
+  import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { showSnackbarSuccess } from '../utility/snackbar';
-  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
   import { onDestroy, setContext } from 'svelte';
   import { apiCall } from '../utility/api';
@@ -109,6 +108,7 @@
   export let schemaName;
   export let pureName;
   export let isRawMode = false;
+  export let tabPreviewMode;
 
   export const activator = createActivator('TableDataTab', true);
 
@@ -160,7 +160,7 @@
     const driver = findEngineDriver($connection, $extensions);
 
     const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
-      changeSetToSql($changeSetStore?.value, $dbinfo)
+      changeSetToSql($changeSetStore?.value, $dbinfo, driver.dialect)
     );
 
     const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
@@ -246,8 +246,6 @@
       ...INTERVALS.map(seconds => ({ command: `tableData.setAutoRefresh.${seconds}`, text: `...${seconds} seconds` })),
     ];
   }
-
-  $: console.log('isRawMode', isRawMode);
 </script>
 
 <ToolStripContainer>
@@ -264,39 +262,17 @@
   />
 
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
-      commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
-      hideDisabled
-    />
-    <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
-      commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
-      hideDisabled
-    />
-
-    <!-- <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
-    <ToolStripCommandButton command="dataForm.refresh" hideDisabled /> -->
-
-    <ToolStripCommandButton command="dataForm.goToFirst" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToPrevious" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToNext" hideDisabled />
-    <ToolStripCommandButton command="dataForm.goToLast" hideDisabled />
-
-    <ToolStripCommandButton
-      command="tableData.save"
-      iconAfter={getNumberIcon(changeSetChangedCount($changeSetStore?.value))}
-    />
-    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />
-    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
-    <ToolStripExportButton {quickExportHandlerRef} />
-
     <ToolStripButton
       icon="icon structure"
+      iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            tables: 'openStructure',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: 'img table-structure',
@@ -311,12 +287,20 @@
             defaultActionId: 'openStructure',
           },
         });
-      }}>Open structure</ToolStripButton
+      }}>Structure</ToolStripButton
     >
 
     <ToolStripButton
       icon="img sql-file"
+      iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            tables: 'showSql',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: 'img sql-file',
@@ -331,8 +315,47 @@
             defaultActionId: 'showSql',
           },
         });
-      }}>Table SQL</ToolStripButton
+      }}>SQL</ToolStripButton
     >
+
+    <ToolStripCommandSplitButton
+      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
+      hideDisabled
+    />
+    <ToolStripCommandSplitButton
+      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
+      hideDisabled
+    />
+
+    <!-- <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
+    <ToolStripCommandButton command="dataForm.refresh" hideDisabled /> -->
+
+    <ToolStripCommandButton command="dataForm.goToFirst" hideDisabled data-testid="TableDataTab_goToFirst" />
+    <ToolStripCommandButton command="dataForm.goToPrevious" hideDisabled data-testid="TableDataTab_goToPrevious" />
+    <ToolStripCommandButton command="dataForm.goToNext" hideDisabled data-testid="TableDataTab_goToNext" />
+    <ToolStripCommandButton command="dataForm.goToLast" hideDisabled data-testid="TableDataTab_goToLast" />
+
+    <ToolStripCommandButton
+      command="tableData.save"
+      iconAfter={getNumberIcon(changeSetChangedCount($changeSetStore?.value))}
+      data-testid="TableDataTab_save"
+    />
+    <ToolStripCommandButton
+      command="dataGrid.revertAllChanges"
+      hideDisabled
+      data-testid="TableDataTab_revertAllChanges"
+    />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled data-testid="TableDataTab_insertNewRow" />
+    <ToolStripCommandButton
+      command="dataGrid.deleteSelectedRows"
+      hideDisabled
+      data-testid="TableDataTab_deleteSelectedRows"
+    />
+    <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled data-testid="TableDataTab_switchToForm" />
+    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled data-testid="TableDataTab_switchToTable" />
+    <ToolStripExportButton {quickExportHandlerRef} />
 
     <ToolStripButton
       icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}

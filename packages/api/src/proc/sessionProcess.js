@@ -8,7 +8,7 @@ const { splitQuery } = require('dbgate-query-splitter');
 const { jsldir } = require('../utility/directories');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { getLogger, extractIntSettingsValue, extractBoolSettingsValue } = require('dbgate-tools');
 

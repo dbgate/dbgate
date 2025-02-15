@@ -19,6 +19,9 @@
   .String {
     color: var(--string-color);
   }
+  .ObjectId {
+    color: var(--number-color);
+  }
   .Date {
     color: var(--date-color);
   }

@@ -13,7 +13,7 @@ const {
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 
 /**
  * Generates query for deploying model into database

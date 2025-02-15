@@ -34,6 +34,8 @@ const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
+const axios = require('axios');
+const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 
 const logger = getLogger('databaseConnections');
 
@@ -69,6 +71,11 @@ module.exports = {
   handle_error(conid, database, props) {
     const { error } = props;
     logger.error(`Error in database connection ${conid}, database ${database}: ${error}`);
+    if (props?.msgid) {
+      const [resolve, reject] = this.requests[props?.msgid];
+      reject(error);
+      delete this.requests[props?.msgid];
+    }
   },
   handle_response(conid, database, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];
@@ -229,9 +236,9 @@ module.exports = {
   },
 
   loadKeys_meta: true,
-  async loadKeys({ conid, database, root, filter }, req) {
+  async loadKeys({ conid, database, root, filter, limit }, req) {
     testConnectionPermission(conid, req);
-    return this.loadDataCore('loadKeys', { conid, database, root, filter });
+    return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
   },
 
   exportKeys_meta: true,
@@ -253,9 +260,9 @@ module.exports = {
   },
 
   loadFieldValues_meta: true,
-  async loadFieldValues({ conid, database, schemaName, pureName, field, search }, req) {
+  async loadFieldValues({ conid, database, schemaName, pureName, field, search, dataType }, req) {
     testConnectionPermission(conid, req);
-    return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search });
+    return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search, dataType });
   },
 
   callMethod_meta: true,
@@ -401,6 +408,10 @@ module.exports = {
 
   structure_meta: true,
   async structure({ conid, database, modelTransFile = null }, req) {
+    if (!conid || !database) {
+      return {};
+    }
+
     testConnectionPermission(conid, req);
     if (conid == '__model') {
       const model = await importDbModel(database);
@@ -557,5 +568,48 @@ module.exports = {
     await fs.writeFile(filePath, diff2htmlPage(diffHtml));
 
     return true;
+  },
+
+  textToSql_meta: true,
+  async textToSql({ conid, database, text, dialect }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    const { structure } = existing || {};
+    if (!structure) return { errorMessage: 'No database structure' };
+
+    const res = await callTextToSqlApi(text, structure, dialect);
+
+    if (!res?.sql) {
+      return { errorMessage: 'No SQL generated' };
+    }
+
+    return res;
+  },
+
+  completeOnCursor_meta: true,
+  async completeOnCursor({ conid, database, text, dialect, line }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    const { structure } = existing || {};
+    if (!structure) return { errorMessage: 'No database structure' };
+    const res = await callCompleteOnCursorApi(text, structure, dialect, line);
+
+    if (!res?.variants) {
+      return { errorMessage: 'No SQL generated' };
+    }
+
+    return res;
+  },
+
+  refactorSqlQuery_meta: true,
+  async refactorSqlQuery({ conid, database, query, task, dialect }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    const { structure } = existing || {};
+    if (!structure) return { errorMessage: 'No database structure' };
+    const res = await callRefactorSqlQueryApi(query, task, structure, dialect);
+
+    if (!res?.sql) {
+      return { errorMessage: 'No SQL generated' };
+    }
+
+    return res;
   },
 };

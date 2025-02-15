@@ -21,6 +21,12 @@
       single: true,
     },
     {
+      type: 'jsonExpanded',
+      title: 'Json - expanded',
+      component: JsonExpandedCellView,
+      single: true,
+    },
+    {
       type: 'jsonRow',
       title: 'Json - Row',
       component: JsonRowView,
@@ -36,6 +42,12 @@
       type: 'html',
       title: 'HTML',
       component: HtmlCellView,
+      single: false,
+    },
+    {
+      type: 'xml',
+      title: 'XML',
+      component: XmlCellView,
       single: false,
     },
     {
@@ -62,6 +74,9 @@
     if (_.isPlainObject(value) || _.isArray(value)) {
       return 'json';
     }
+    if (typeof value === 'string' && value.startsWith('<') && value.endsWith('>')) {
+      return 'xml';
+    }
     return 'textWrap';
   }
 
@@ -84,6 +99,8 @@
   import SelectField from '../forms/SelectField.svelte';
   import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
+  import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
+  import XmlCellView from '../celldata/XmlCellView.svelte';
 
   let selectedFormatType = 'autodetect';
 
@@ -107,6 +124,7 @@
         isNative
         value={selectedFormatType}
         on:change={e => (selectedFormatType = e.detail)}
+        data-testid="CellDataWidget_selectFormat"
         options={[
           { value: 'autodetect', label: `Autodetect - ${autodetectFormat.title}` },
           ...formats.map(fmt => ({ label: fmt.title, value: fmt.type })),

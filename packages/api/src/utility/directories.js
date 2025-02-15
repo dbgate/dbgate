@@ -58,9 +58,11 @@ const jsldir = dirFunc('jsl', true);
 const rundir = dirFunc('run', true);
 const uploadsdir = dirFunc('uploads', true);
 const pluginsdir = dirFunc('plugins');
-const archivedir = dirFunc('archive', false, ['default']);
+const archivedir = processArgs.runE2eTests
+  ? dirFunc('archive-e2etests', false, ['default'])
+  : dirFunc('archive', false, ['default']);
 const appdir = dirFunc('apps');
-const filesdir = dirFunc('files');
+const filesdir = processArgs.runE2eTests ? dirFunc('files-e2etests') : dirFunc('files');
 const logsdir = dirFunc('logs', 3600 * 24 * 7);
 
 function packagedPluginsDir() {
@@ -79,6 +81,9 @@ function packagedPluginsDir() {
   }
   if (platformInfo.isAwsUbuntuLayout) {
     return '/home/ubuntu/build/plugins';
+  }
+  if (platformInfo.isAzureUbuntuLayout) {
+    return '/home/azureuser/build/plugins';
   }
   if (platformInfo.isNpmDist) {
     // node_modules

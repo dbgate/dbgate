@@ -100,7 +100,7 @@
 
 <div class="main">
   {#if $visibleHamburgerMenuWidget}
-    <div class="wrapper mb-3" on:click={handleMainMenu} bind:this={domMainMenu}>
+    <div class="wrapper mb-3" on:click={handleMainMenu} bind:this={domMainMenu} data-testid="WidgetIconPanel_menu">
       <FontIcon icon="icon menu" />
     </div>
   {/if}
@@ -108,6 +108,7 @@
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
+      data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
       <FontIcon icon={item.icon} title={item.title} />
@@ -122,11 +123,12 @@
     on:click={() => {
       $lockedDatabaseMode = !$lockedDatabaseMode;
     }}
+    data-testid="WidgetIconPanel_lockDb"
   >
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div>
-  
-  <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
+
+  <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">
     <FontIcon icon="icon settings" />
   </div>
 </div>

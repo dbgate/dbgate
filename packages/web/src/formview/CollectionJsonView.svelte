@@ -1,5 +1,24 @@
 <script lang="ts" context="module">
   const getCurrentEditor = () => getActiveComponent('CollectionJsonView');
+
+  registerCommand({
+    id: 'collectionJsonView.expandAll',
+    category: 'Collection data',
+    name: 'Expand all',
+    isRelatedToTab: true,
+    icon: 'icon expand-all',
+    onClick: () => getCurrentEditor().handleExpandAll(),
+    testEnabled: () => getCurrentEditor() != null && !getCurrentEditor()?.isExpandedAll(),
+  });
+  registerCommand({
+    id: 'collectionJsonView.collapseAll',
+    category: 'Collection data',
+    name: 'Collapse all',
+    isRelatedToTab: true,
+    icon: 'icon collapse-all',
+    onClick: () => getCurrentEditor().handleCollapseAll(),
+    testEnabled: () => getCurrentEditor() != null && getCurrentEditor()?.isExpandedAll(),
+  });
 </script>
 
 <script lang="ts">
@@ -16,6 +35,8 @@
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import CollectionJsonRow from './CollectionJsonRow.svelte';
+  import { getIntSettingsValue } from '../settings/settingsTools';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let conid;
   export let database;
@@ -31,10 +52,12 @@
 
   let isLoading = false;
   let loadedTime = null;
+  let expandAll = false;
+  let expandKey = 0;
 
   let loadedRows = [];
   let skip = 0;
-  let limit = 50;
+  let limit = getIntSettingsValue('dataGrid.collectionPageSize', 50, 5, 1000);
 
   async function loadData() {
     isLoading = true;
@@ -60,6 +83,22 @@
   $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
 
   // $: console.log('GRIDER', grider);
+
+  export function handleExpandAll() {
+    expandAll = true;
+    expandKey += 1;
+    invalidateCommands();
+  }
+
+  export function handleCollapseAll() {
+    expandAll = false;
+    expandKey += 1;
+    invalidateCommands();
+  }
+
+  export function isExpandedAll() {
+    return expandAll;
+  }
 </script>
 
 <div class="wrapper" use:contextMenu={menu}>
@@ -67,9 +106,11 @@
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
   <div class="json">
-    {#each _.range(0, grider.rowCount) as rowIndex}
-      <CollectionJsonRow {grider} {rowIndex} />
-    {/each}
+    {#key expandKey}
+      {#each _.range(0, grider.rowCount) as rowIndex}
+        <CollectionJsonRow {grider} {rowIndex} {expandAll} />
+      {/each}
+    {/key}
   </div>
 </div>
 

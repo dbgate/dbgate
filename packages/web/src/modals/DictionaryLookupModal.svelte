@@ -23,6 +23,7 @@
   export let schemaName;
   export let driver;
   export let multiselect = false;
+  export let dataType;
 
   let rows = null;
   let tableInfo;

@@ -30,7 +30,12 @@
 
     <div class="row">
       <FormTextField label="Keyboard shortcut" name="keyText" templateProps={{ noMargin: true }} focused />
-      <FormStyledButton type="button" value="Keyboard" on:click={handleKeyboard} />
+      <FormStyledButton
+        type="button"
+        value="Keyboard"
+        on:click={handleKeyboard}
+        data-testid="CommandModal_keyboardButton"
+      />
     </div>
 
     <svelte:fragment slot="footer">

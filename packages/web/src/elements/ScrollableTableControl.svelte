@@ -9,6 +9,7 @@
     headerSlot?: number;
     isHighlighted?: Function;
     width?: string;
+    testid?: (row: any) => string;
   }
 </script>
 
@@ -173,6 +174,7 @@
             <td
               class:isHighlighted={col.isHighlighted && col.isHighlighted(row)}
               style={col.width ? `width: ${col.width}` : undefined}
+              data-testid={col.testid ? col.testid(row) : undefined}
             >
               {#if col.component}
                 <svelte:component this={col.component} {...col.getProps(row)} />
@@ -237,7 +239,7 @@
   table.singleLineRow tbody tr td {
     white-space: nowrap;
   }
-  
+
   table tbody {
     display: block;
     overflow-y: scroll;

@@ -1,0 +1,1 @@
+{"data":{"structure":{"columns":[{"columnName":"OS"},{"columnName":"Downloads"}]},"rows":[{"OS":"Windows","Downloads":1724},{"OS":"MaxOS","Downloads":711},{"OS":"Linux","Downloads":445},{"OS":"iOS","Downloads":105},{"OS":"Android","Downloads":77}]},"config":{"chartType":"pie","labelColumn":"OS","dataColumn_Downloads":true,"showRelativeValues":false}}

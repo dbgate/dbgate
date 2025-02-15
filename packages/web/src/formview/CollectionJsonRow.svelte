@@ -31,6 +31,9 @@
   export let rowIndex;
   export let grider;
 
+  export let expandAll = false;
+  let expandKey = 0;
+
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
 
@@ -43,18 +46,27 @@
     copyTextToClipboard(JSON.stringify(rowData, undefined, 2));
   }
 
+  function handleExpandDocument() {
+    expandAll = true;
+    expandKey += 1;
+  }
+
   registerMenu([
     { text: 'Copy JSON document', onClick: handleCopyJsonDocument },
     { text: 'Edit document', onClick: handleEditDocument },
     { text: 'Delete document', onClick: () => grider.deleteRow(rowIndex) },
     { text: 'Revert row changes', onClick: () => grider.revertRowChanges(rowIndex) },
+    { text: 'Expand document', onClick: handleExpandDocument },
   ]);
 </script>
 
-<JSONTree
-  value={rowData}
-  labelOverride="({rowIndex + 1}) "
-  isModified={rowStatus.status == 'updated'}
-  isInserted={rowStatus.status == 'inserted'}
-  isDeleted={rowStatus.status == 'deleted'}
-/>
+{#key expandKey}
+  <JSONTree
+    value={rowData}
+    labelOverride="({rowIndex + 1}) "
+    isModified={rowStatus.status == 'updated'}
+    isInserted={rowStatus.status == 'inserted'}
+    isDeleted={rowStatus.status == 'deleted'}
+    {expandAll}
+  />
+{/key}

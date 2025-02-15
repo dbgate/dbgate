@@ -218,7 +218,7 @@ class LoginsProvider extends AuthProviderBase {
       };
     }
 
-    if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
+    if (password && password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
         accessToken: jwt.sign(
           {

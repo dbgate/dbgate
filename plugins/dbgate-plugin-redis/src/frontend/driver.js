@@ -82,8 +82,6 @@ const driver = {
     }
     return ['server', 'port', 'user', 'password', 'isReadOnly', 'treeKeySeparator'].includes(field);
   },
-
-  showConnectionTab: (field) => field == 'sshTunnel',
 };
 
 module.exports = driver;

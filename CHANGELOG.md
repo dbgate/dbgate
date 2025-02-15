@@ -8,6 +8,39 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.2.0
+- ADDED: Query AI Assistant (Premium)
+- ADDED: Cassandra database support
+- ADDED: XML cell data view
+- FIXED: Filtering by value in Oracle #1009
+- FIXED: Operand type clash: uniqueidentifier is incompatible with int #565
+- FIXED: UX in administration
+- FIXED: Error reporting of broken connections (sometimes it caused infinite loading of data grid)
+- ADDED: Azure managed identity support (Team Premium)
+- ADDED: Expanded JSON cell view
+- CHANGED: Open real executed query, when datagrid shows loading error
+
+### 6.1.6
+- FIXED: Hotfix build process for premium edition
+
+### 6.1.5
+- FIXED: Serious security hotfix (for Docker and NPM, when using LOGIN and PASSWORD environment variables or LOGIN_PASSWORD_xxx)
+- no changes for desktop app and for Team premium edition, when using storage DB
+
+### 6.1.4
+- CHANGED: Show Data/Structure button in one place #1015
+- ADDED: Data view coloring (every second row) #1014
+- ADDED: Pin icon for tab in preview mode (#1013)
+- FIXED: Pin icon misplaced #1007
+- ADDED: Set client name when connecting to redis #1004
+- ADDED: Redis loading keys optimalization #1002
+- ADDED: Browse redis keys with preview with keyboard
+- FIXED: Cannot expand tables and views returned from search #1000
+- ADDED: Expand all/Collapse all/Expand document commands in MongoDB JSON view #976
+- ADDED: Configurable page size for MongoDB collection #976
+- ADDED: Redis - SSL connection
+- ADDED: Redis JSON format for String values #852
+
 ### 6.1.3
 - FIXED: Fulltext search now shows correctly columns and SQL code lines
 - ADDED: Configuration of SSH tunnel local host (IPv4 vs IPv6). Should fix majority of SSH tunnel problems

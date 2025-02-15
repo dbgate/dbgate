@@ -34,7 +34,6 @@
       if (oldFocus) oldFocus.focus();
     };
   });
-
 </script>
 
 <!-- The Modal -->
@@ -82,12 +81,15 @@
     border: 1px solid var(--theme-border);
     overflow: auto;
     outline: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .window:not(.fullScreen):not(.simple) {
     border-radius: 10px;
     margin: auto;
     margin-top: 15vh;
+    max-height: 70vh;
     width: 50%;
   }
 
@@ -127,6 +129,12 @@
     border-bottom: 1px solid var(--theme-border);
   }
 
+  .content {
+    max-height: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
   .content:not(.fullScreen) {
     border-bottom: 1px solid var(--theme-border);
     border-top: 1px solid var(--theme-border);
@@ -160,5 +168,4 @@
     border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
   }
-
 </style>

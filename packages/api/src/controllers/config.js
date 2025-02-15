@@ -136,7 +136,7 @@ module.exports = {
 
   deleteSettings_meta: true,
   async deleteSettings() {
-    await fs.unlink(path.join(datadir(), 'settings.json'));
+    await fs.unlink(path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'));
     return true;
   },
 
@@ -161,7 +161,10 @@ module.exports = {
 
   async loadSettings() {
     try {
-      const settingsText = await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' });
+      const settingsText = await fs.readFile(
+        path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
+        { encoding: 'utf-8' }
+      );
       return {
         ...this.fillMissingSettings(JSON.parse(settingsText)),
         'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
@@ -247,7 +250,10 @@ module.exports = {
           ...currentValue,
           ..._.omit(values, ['other.licenseKey']),
         };
-        await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
+        await fs.writeFile(
+          path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
+          JSON.stringify(updated, undefined, 2)
+        );
         // this.settingsValue = updated;
 
         if (currentValue['other.licenseKey'] != values['other.licenseKey']) {

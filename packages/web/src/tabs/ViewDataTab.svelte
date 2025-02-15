@@ -82,11 +82,9 @@
       formViewComponent={SqlFormView}
     />
     <svelte:fragment slot="toolstrip">
-      <ToolStripCommandButton command="dataGrid.refresh" />
-      <ToolStripExportButton {quickExportHandlerRef} />
-
       <ToolStripButton
         icon="icon structure"
+        iconAfter="icon arrow-link"
         on:click={() => {
           openNewTab({
             title: pureName,
@@ -102,11 +100,12 @@
               defaultActionId: 'openStructure',
             },
           });
-        }}>Open structure</ToolStripButton
+        }}>Structure</ToolStripButton
       >
 
       <ToolStripButton
         icon="img sql-file"
+        iconAfter="icon arrow-link"
         on:click={() => {
           openNewTab({
             title: pureName,
@@ -122,8 +121,11 @@
               defaultActionId: 'showSql',
             },
           });
-        }}>View SQL</ToolStripButton
+        }}>SQL</ToolStripButton
       >
+
+      <ToolStripCommandButton command="dataGrid.refresh" />
+      <ToolStripExportButton {quickExportHandlerRef} />
     </svelte:fragment>
   </ToolStripContainer>
 {/if}

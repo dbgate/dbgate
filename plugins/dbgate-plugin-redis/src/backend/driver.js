@@ -81,20 +81,29 @@ function splitCommandLine(str) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
+  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator, ssl }) {
     let db = 0;
     let client;
     if (useDatabaseUrl) {
       client = new Redis(databaseUrl);
+      await client.client('SETNAME', 'dbgate');
     } else {
       if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
       if (_.isNumber(database)) db = database;
+      if (ssl) {
+        ssl = {
+          ..._.omit(ssl, ['rejectUnauthorized', 'password']),
+          passphrase: ssl.password,
+        };
+      }
       client = new Redis({
         host: server,
         port,
         username: user,
         password,
         db,
+        connectionName: 'dbgate',
+        tls: ssl,
       });
     }
 
@@ -105,6 +114,15 @@ const driver = {
   },
   // @ts-ignore
   async query(dbhan, sql) {
+    const parts = splitCommandLine(sql);
+
+    if (parts.length >= 1) {
+      const command = parts[0].toLowerCase();
+      const args = parts.slice(1);
+      await dbhan.client.call(command, ...args);
+    }
+
+    // redis queries don't return rows
     return {
       rows: [],
       columns: [],
@@ -167,12 +185,14 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
-  async loadKeys(dbhan, root = '', filter = null) {
+  async loadKeys(dbhan, root = '', filter = null, limit = null) {
     const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(dbhan, root, keysFiltered);
-    await this.enrichKeyInfo(dbhan, res);
-    return res;
+    const keysSorted = _.sortBy(keysFiltered, 'text');
+    const res = this.extractKeysFromLevel(dbhan, root, keysSorted);
+    const resLimited = limit ? res.slice(0, limit) : res;
+    await this.enrichKeyInfo(dbhan, resLimited);
+    return resLimited;
   },
 
   async exportKeys(dbhan, options) {
@@ -190,14 +210,36 @@ const driver = {
   },
 
   async getKeys(dbhan, keyQuery = '*') {
-    const res = [];
-    let cursor = 0;
-    do {
-      const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
-      res.push(...keys);
-      cursor = parseInt(strCursor);
-    } while (cursor > 0);
-    return res;
+    const stream = dbhan.client.scanStream({
+      match: keyQuery,
+      count: 1000,
+    });
+
+    const keys = [];
+
+    stream.on('data', (resultKeys) => {
+      for (const key of resultKeys) {
+        keys.push(key);
+      }
+    });
+
+    return new Promise((resolve, reject) => {
+      stream.on('end', () => {
+        resolve(keys);
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    // const res = [];
+    // let cursor = 0;
+    // do {
+    //   const [strCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
+    //   res.push(...keys);
+    //   cursor = parseInt(strCursor);
+    // } while (cursor > 0);
+    // return res;
   },
 
   extractKeysFromLevel(dbhan, root, keys) {

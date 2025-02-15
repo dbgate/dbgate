@@ -26,6 +26,7 @@
   export let multiselect = false;
   export let jslid;
   export let formatterFunction;
+  export let dataType;
 
   // console.log('ValueLookupModal', conid, database, pureName, schemaName, columnName, driver);
 
@@ -53,6 +54,7 @@
         schemaName,
         pureName,
         field,
+        dataType,
       });
     }
 

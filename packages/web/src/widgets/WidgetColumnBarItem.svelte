@@ -16,6 +16,7 @@
   export let collapsed = null;
 
   export let storageName = null;
+  export let onClose = null;
 
   let size = 0;
 
@@ -67,7 +68,12 @@
 </script>
 
 {#if !skip}
-  <WidgetTitle clickable={collapsible} on:click={collapsible ? () => (visible = !visible) : null}>{title}</WidgetTitle>
+  <WidgetTitle
+    clickable={collapsible}
+    on:click={collapsible ? () => (visible = !visible) : null}
+    data-testid={$$props['data-testid']}
+    {onClose}>{title}</WidgetTitle
+  >
 
   {#if visible}
     <div class="wrapper" style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}>

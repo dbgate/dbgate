@@ -216,5 +216,7 @@
     <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
     <ToolStripExportButton {quickExportHandlerRef} command="collectionDataGrid.export" />
+    <ToolStripCommandButton command="collectionJsonView.expandAll" hideDisabled />
+    <ToolStripCommandButton command="collectionJsonView.collapseAll" hideDisabled />
   </svelte:fragment>
 </ToolStripContainer>

@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
 const fp = require('lodash/fp');
-const { testWrapper } = require('../tools');
+const { testWrapper, removeNotNull, transformSqlForEngine } = require('../tools');
 const engines = require('../engines');
 const crypto = require('crypto');
 const {
@@ -19,6 +19,7 @@ function pickImportantTableInfo(engine, table) {
     pureName: table.pureName,
     columns: table.columns
       .filter(x => x.columnName != 'rowid')
+      .sort((a, b) => a.columnName.localeCompare(b.columnName))
       .map(fp.pick(props))
       .map(props => _.omitBy(props, x => x == null))
       .map(props =>
@@ -33,36 +34,36 @@ function checkTableStructure(engine, t1, t2) {
 }
 
 async function testTableDiff(engine, conn, driver, mangle) {
-  await driver.query(conn, formatQueryWithoutParams(driver, `create table ~t0 (~id int not null primary key)`));
+  const initQuery = formatQueryWithoutParams(driver, `create table ~t0 (~id int not null primary key)`);
+  await driver.query(conn, transformSqlForEngine(engine, initQuery));
 
-  await driver.query(
-    conn,
-    formatQueryWithoutParams(
-      driver,
-      `create table ~t1 (
+  const query = formatQueryWithoutParams(
+    driver,
+    `create table ~t1 (
     ~col_pk int not null primary key, 
     ~col_std int, 
-    ~col_def int default 12,
+    ~col_def int ${engine.skipDefaultValue ? '' : 'default 12'},
     ${engine.skipReferences ? '' : '~col_fk int references ~t0(~id),'}
     ~col_idx int,
     ~col_uq int ${engine.skipUnique ? '' : 'unique'} ,
     ~col_ref int ${engine.skipUnique ? '' : 'unique'}
   )`
-    )
   );
 
+  await driver.query(conn, transformSqlForEngine(engine, query));
+
   if (!engine.skipIndexes) {
-    await driver.query(conn, formatQueryWithoutParams(driver, `create index ~idx1 on ~t1(~col_idx)`));
+    const query = formatQueryWithoutParams(driver, `create index ~idx1 on ~t1(~col_idx)`);
+    await driver.query(conn, transformSqlForEngine(engine, query));
   }
 
   if (!engine.skipReferences) {
-    await driver.query(
-      conn,
-      formatQueryWithoutParams(
-        driver,
-        `create table ~t2 (~id int not null primary key, ~fkval int null references ~t1(~col_ref))`
-      )
+    const query = formatQueryWithoutParams(
+      driver,
+      `create table ~t2 (~id int not null primary key, ~fkval int null references ~t1(~col_ref))`
     );
+
+    await driver.query(conn, transformSqlForEngine(engine, query));
   }
 
   const tget = x => x.tables.find(y => y.pureName == 't1');
@@ -89,14 +90,12 @@ const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'co
 // const TESTED_COLUMNS = ['col_std'];
 // const TESTED_COLUMNS = ['col_ref'];
 
-function engines_columns_source() {
+function create_engines_columns_source(engines) {
   return _.flatten(
     engines.map(engine =>
-      TESTED_COLUMNS.filter(col => !col.endsWith('_pk') || !engine.skipPkColumnTesting).map(column => [
-        engine.label,
-        column,
-        engine,
-      ])
+      TESTED_COLUMNS.filter(col => col.endsWith('_pk') || !engine.skipNonPkRename)
+        .filter(col => !col.endsWith('_pk') || !engine.skipPkColumnTesting)
+        .map(column => [engine.label, column, engine])
     )
   );
 }
@@ -117,26 +116,45 @@ describe('Alter table', () => {
     })
   );
 
-  test.each(engines_columns_source())(
-    'Drop column - %s - %s',
-    testWrapper(async (conn, driver, column, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != column)));
-    })
+  const columnsSource = create_engines_columns_source(engines);
+  const dropableColumnsSrouce = columnsSource.filter(
+    ([_label, col, engine]) => !engine.skipPkDrop || !col.endsWith('_pk')
   );
+  const hasDropableColumns = dropableColumnsSrouce.length > 0;
 
-  test.each(engines_columns_source())(
-    'Change nullability - %s - %s',
-    testWrapper(async (conn, driver, column, engine) => {
-      await testTableDiff(
-        engine,
-        conn,
-        driver,
-        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, notNull: true } : x)))
-      );
-    })
-  );
+  if (hasDropableColumns) {
+    test.each(dropableColumnsSrouce)(
+      'Drop column - %s - %s',
+      testWrapper(async (conn, driver, column, engine) => {
+        await testTableDiff(
+          engine,
+          conn,
+          driver,
+          tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != column))
+        );
+      })
+    );
+  }
 
-  test.each(engines_columns_source())(
+  const hasEnginesWithNullable = engines.filter(x => !x.skipNullable).length > 0;
+
+  if (hasEnginesWithNullable) {
+    const source = create_engines_columns_source(engines.filter(x => !x.skipNullable));
+
+    test.each(source)(
+      'Change nullability - %s - %s',
+      testWrapper(async (conn, driver, column, engine) => {
+        await testTableDiff(
+          engine,
+          conn,
+          driver,
+          tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, notNull: true } : x)))
+        );
+      })
+    );
+  }
+
+  test.each(columnsSource)(
     'Rename column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
@@ -157,32 +175,37 @@ describe('Alter table', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Add default value - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => {
-        tbl.columns.find(x => x.columnName == 'col_std').defaultValue = '123';
-      });
-    })
-  );
+  const enginesWithDefault = engines.filter(x => !x.skipDefaultValue);
+  const hasEnginesWithDefault = enginesWithDefault.length > 0;
 
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Unset default value - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => {
-        tbl.columns.find(x => x.columnName == 'col_def').defaultValue = undefined;
-      });
-    })
-  );
+  if (hasEnginesWithDefault) {
+    test.each(enginesWithDefault.map(engine => [engine.label, engine]))(
+      'Add default value - %s',
+      testWrapper(async (conn, driver, engine) => {
+        await testTableDiff(engine, conn, driver, tbl => {
+          tbl.columns.find(x => x.columnName == 'col_std').defaultValue = '123';
+        });
+      })
+    );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Change default value - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => {
-        tbl.columns.find(x => x.columnName == 'col_def').defaultValue = '567';
-      });
-    })
-  );
+    test.each(enginesWithDefault.map(engine => [engine.label, engine]))(
+      'Unset default value - %s',
+      testWrapper(async (conn, driver, engine) => {
+        await testTableDiff(engine, conn, driver, tbl => {
+          tbl.columns.find(x => x.columnName == 'col_def').defaultValue = undefined;
+        });
+      })
+    );
+
+    test.each(enginesWithDefault.map(engine => [engine.label, engine]))(
+      'Change default value - %s',
+      testWrapper(async (conn, driver, engine) => {
+        await testTableDiff(engine, conn, driver, tbl => {
+          tbl.columns.find(x => x.columnName == 'col_def').defaultValue = '567';
+        });
+      })
+    );
+  }
 
   // test.each(engines.map(engine => [engine.label, engine]))(
   //   'Change autoincrement - %s',

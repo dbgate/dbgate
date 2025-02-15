@@ -8,6 +8,7 @@ name: Build test containers
       - master
       - develop
       - feature/**
+      - hotfix/**
     paths:
       - e2e-tests/containers/**
 jobs:

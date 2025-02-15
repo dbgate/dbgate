@@ -172,7 +172,13 @@
 >
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height="45%" skip={isFormView}>
+      <WidgetColumnBarItem
+        title="Columns"
+        name="columns"
+        height="45%"
+        skip={isFormView}
+        data-testid="DataGrid_itemColumns"
+      >
         <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
 
@@ -182,6 +188,7 @@
         height={showReferences && display?.hasReferences && !isFormView ? '15%' : '30%'}
         skip={!display?.filterable}
         collapsed={isDetailView}
+        data-testid="DataGrid_itemFilters"
       >
         <FormViewFilters
           {...$$props}
@@ -199,11 +206,18 @@
         height="30%"
         collapsed={isDetailView}
         skip={!(showReferences && display?.hasReferences)}
+        data-testid="DataGrid_itemReferences"
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed={!expandMacros}>
+      <WidgetColumnBarItem
+        title="Macros"
+        name="macros"
+        skip={!showMacros}
+        collapsed={!expandMacros}
+        data-testid="DataGrid_itemMacros"
+      >
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>

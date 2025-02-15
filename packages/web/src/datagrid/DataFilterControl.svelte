@@ -39,6 +39,7 @@
   export let schemaName = null;
   export let columnName = null;
   export let uniqueName = null;
+  export let dataType = null;
 
   export let placeholder = 'Filter';
 
@@ -103,7 +104,7 @@
     if (filterBehaviour.supportNumberLikeComparison) {
       res.push(
         { divider: true },
-        
+
         { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
         { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
         { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
@@ -228,6 +229,7 @@
       pureName: foreignKey.refTableName,
       schemaName: foreignKey.refSchemaName,
       multiselect: true,
+      dataType,
       onConfirm: keys => setFilter(keys.join(',')),
     });
   }
@@ -243,6 +245,7 @@
       pureName,
       field: columnName || uniqueName,
       formatterFunction,
+      dataType,
       onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
     });
   }
@@ -284,6 +287,7 @@
     class:isError
     class:isOk
     {placeholder}
+    data-testid={`DataFilterControl_input_${uniqueName}`}
   />
   {#if customCommandIcon && onCustomCommand}
     <InlineButton on:click={onCustomCommand} title={customCommandTooltip} narrow square>

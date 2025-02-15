@@ -1,6 +1,6 @@
 const { fullNameToString, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const logger = getLogger('tableWriter');
 
 /**

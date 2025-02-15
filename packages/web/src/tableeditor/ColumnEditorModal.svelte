@@ -36,7 +36,9 @@
       <FormCheckboxField name="notNull" label="NOT NULL" disabled={isReadOnly} />
     {/if}
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" disabled={isReadOnly} />
-    <FormCheckboxField name="autoIncrement" label="Is Autoincrement" disabled={isReadOnly} />
+    {#if !driver?.dialect?.disableAutoIncrement}
+      <FormCheckboxField name="autoIncrement" label="Is Autoincrement" disabled={isReadOnly} />
+    {/if}
     <FormTextField
       name="defaultValue"
       label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string"

@@ -84,6 +84,9 @@
     {/if}
     <FormStyledButton
       value="Current archive"
+      data-testid={direction == 'source'
+        ? 'SourceTargetConfig_buttonCurrentArchive_source'
+        : 'SourceTargetConfig_buttonCurrentArchive_target'}
       on:click={() => {
         values.update(x => ({
           ...x,

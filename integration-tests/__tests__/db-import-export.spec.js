@@ -55,6 +55,30 @@ describe('DB Import/export', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
+    `Import to existing table - %s`,
+    testWrapper(async (conn, driver, engine) => {
+      await runQueryOnDriver(conn, driver, dmp =>
+        dmp.put(
+          `create table ~t1 (~id int primary key, ~country %s)`,
+          engine.useTextTypeForStrings ? 'text' : 'varchar(50)'
+        )
+      );
+
+      const reader = createImportStream();
+      const writer = await tableWriter({
+        systemConnection: conn,
+        driver,
+        pureName: 't1',
+        createIfNotExists: true,
+      });
+      await copyStream(reader, writer);
+
+      const res = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
+      expect(res.rows[0].cnt.toString()).toEqual('6');
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Import two tables - %s',
     testWrapper(async (conn, driver, engine) => {
       // const reader = await fakeObjectReader({ delay: 10 });
@@ -85,38 +109,48 @@ describe('DB Import/export', () => {
     })
   );
 
-  test.each(engines.filter(x => x.dumpFile).map(engine => [engine.label, engine]))(
-    'Import SQL dump - %s',
-    testWrapper(async (conn, driver, engine) => {
-      // const reader = await fakeObjectReader({ delay: 10 });
-      // const reader = await fakeObjectReader();
-      await importDatabase({
-        systemConnection: conn,
-        driver,
-        inputFile: engine.dumpFile,
-      });
+  const enginesWithDumpFile = engines.filter(x => x.dumpFile);
+  const hasEnginesWithDumpFile = enginesWithDumpFile.length > 0;
 
-      const structure = await driver.analyseFull(conn);
+  if (hasEnginesWithDumpFile) {
+    test.each(enginesWithDumpFile.filter(x => x.dumpFile).map(engine => [engine.label, engine]))(
+      'Import SQL dump - %s',
+      testWrapper(async (conn, driver, engine) => {
+        // const reader = await fakeObjectReader({ delay: 10 });
+        // const reader = await fakeObjectReader();
+        await importDatabase({
+          systemConnection: conn,
+          driver,
+          inputFile: engine.dumpFile,
+        });
 
-      for (const check of engine.dumpChecks || []) {
-        const res = await driver.query(conn, check.sql);
-        expect(res.rows[0].res.toString()).toEqual(check.res);
-      }
+        const structure = await driver.analyseFull(conn);
 
-      // const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
-      // expect(res1.rows[0].cnt.toString()).toEqual('6');
+        for (const check of engine.dumpChecks || []) {
+          const res = await driver.query(conn, check.sql);
+          expect(res.rows[0].res.toString()).toEqual(check.res);
+        }
 
-      // const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
-      // expect(res2.rows[0].cnt.toString()).toEqual('6');
-    })
-  );
+        // const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+        // expect(res1.rows[0].cnt.toString()).toEqual('6');
+
+        // const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+        // expect(res2.rows[0].cnt.toString()).toEqual('6');
+      })
+    );
+  }
 
   test.each(engines.map(engine => [engine.label, engine]))(
     'Export one table - %s',
     testWrapper(async (conn, driver, engine) => {
       // const reader = await fakeObjectReader({ delay: 10 });
       // const reader = await fakeObjectReader();
-      await runCommandOnDriver(conn, driver, 'create table ~t1 (~id int primary key, ~country varchar(100))');
+      await runCommandOnDriver(
+        conn,
+        driver,
+        `create table ~t1 (~id int primary key, ~country ${engine.useTextTypeForStrings ? 'text' : 'varchar(100)'})`
+      );
+
       const data = [
         [1, 'Czechia'],
         [2, 'Austria'],
@@ -138,7 +172,13 @@ describe('DB Import/export', () => {
       const writer = createExportStream();
       await copyStream(reader, writer);
 
-      expect(writer.resultArray.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country])).toEqual(data);
+      const result = writer.resultArray.filter(x => !x.__isStreamHeader).map(row => [row.id, row.country]);
+
+      if (engine.forceSortResults) {
+        result.sort((a, b) => a[0] - b[0]);
+      }
+
+      expect(result).toEqual(data);
     })
   );
 });

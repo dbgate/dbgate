@@ -86,7 +86,7 @@ module.exports = function useController(app, electron, route, controller) {
               detail: err.detail,
             });
           } else {
-            res.status(500).json({ apiErrorMessage: err.message });
+            res.status(500).json({ apiErrorMessage: (_.isString(err) ? err : err.message) ?? 'Unknown error' });
           }
         }
       });

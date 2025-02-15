@@ -182,6 +182,7 @@ export interface ColumnRefExpression {
 export interface ValueExpression {
   exprType: 'value';
   value: any;
+  dataType?: string;
 }
 
 export interface PlaceholderExpression {

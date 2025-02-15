@@ -39,7 +39,7 @@
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
 
-  import { extensions } from '../stores';
+  import { extensions, lastUsedDefaultActions } from '../stores';
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -56,6 +56,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import hasPermission from '../utility/hasPermission';
   import { changeTab, markTabSaved, markTabUnsaved } from '../utility/common';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let tabid;
   export let conid;
@@ -63,6 +64,7 @@
   export let schemaName;
   export let pureName;
   export let objectTypeField = 'tables';
+  export let tabPreviewMode;
   let domEditor;
 
   let savedName;
@@ -170,17 +172,17 @@
       : null}
   />
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton
-      command="tableStructure.save"
-      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
-    />
-    <ToolStripCommandButton command="tableStructure.reset" />
-    <ToolStripCommandButton command="tableEditor.addColumn" />
-    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
-
     <ToolStripButton
       icon={'icon table'}
+      iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            [objectTypeField]: 'openTable',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: objectTypeField == 'tables' ? 'img table' : 'img view',
@@ -195,11 +197,20 @@
             defaultActionId: 'openTable',
           },
         });
-      }}>Open data</ToolStripButton
+      }}>Data</ToolStripButton
     >
+
     <ToolStripButton
       icon="img sql-file"
+      iconAfter="icon arrow-link"
       on:click={() => {
+        if (tabPreviewMode && getBoolSettingsValue('defaultAction.useLastUsedAction', true)) {
+          lastUsedDefaultActions.update(actions => ({
+            ...actions,
+            [objectTypeField]: 'showSql',
+          }));
+        }
+
         openNewTab({
           title: pureName,
           icon: 'img sql-file',
@@ -214,7 +225,15 @@
             defaultActionId: 'showSql',
           },
         });
-      }}>Show SQL</ToolStripButton
+      }}>SQL</ToolStripButton
     >
+
+    <ToolStripCommandButton
+      command="tableStructure.save"
+      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
+    />
+    <ToolStripCommandButton command="tableStructure.reset" />
+    <ToolStripCommandButton command="tableEditor.addColumn" />
+    <ToolStripCommandButton command="tableEditor.addIndex" hideDisabled />
   </svelte:fragment>
 </ToolStripContainer>

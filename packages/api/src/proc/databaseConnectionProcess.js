@@ -11,7 +11,7 @@ const {
   extractErrorLogData,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
@@ -213,13 +213,12 @@ async function handleRunOperation({ msgid, operation, useTransaction }, skipRead
   }
 }
 
-async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
+async function handleQueryData({ msgid, sql, range }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
-    // console.log(sql);
-    const res = await driver.query(dbhan, sql);
+    const res = await driver.query(dbhan, sql, { range });
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
     process.send({
@@ -234,7 +233,7 @@ async function handleSqlSelect({ msgid, select }) {
   const driver = requireEngineDriver(storedConnection);
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  return handleQueryData({ msgid, sql: dmp.s }, true);
+  return handleQueryData({ msgid, sql: dmp.s, range: select.range }, true);
 }
 
 async function handleDriverDataCore(msgid, callMethod, { logName }) {
@@ -258,8 +257,8 @@ async function handleCollectionData({ msgid, options }) {
   return handleDriverDataCore(msgid, driver => driver.readCollection(dbhan, options), { logName: 'readCollection' });
 }
 
-async function handleLoadKeys({ msgid, root, filter }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter), { logName: 'loadKeys' });
+async function handleLoadKeys({ msgid, root, filter, limit }) {
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter, limit), { logName: 'loadKeys' });
 }
 
 async function handleExportKeys({ msgid, options }) {
@@ -291,10 +290,14 @@ async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
   });
 }
 
-async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search }) {
-  return handleDriverDataCore(msgid, driver => driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search), {
-    logName: 'loadFieldValues',
-  });
+async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search, dataType }) {
+  return handleDriverDataCore(
+    msgid,
+    driver => driver.loadFieldValues(dbhan, { schemaName, pureName }, field, search, dataType),
+    {
+      logName: 'loadFieldValues',
+    }
+  );
 }
 
 function ensureExecuteCustomScript(driver) {
@@ -336,6 +339,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
       }, 500);
     }
   } catch (err) {
+    console.error(err);
     process.send({
       msgtype: 'response',
       msgid,
@@ -423,7 +427,11 @@ function start() {
       await handleMessage(message);
     } catch (err) {
       logger.error(extractErrorLogData(err), 'Error in DB connection');
-      process.send({ msgtype: 'error', error: extractErrorMessage(err, 'Error processing message') });
+      process.send({
+        msgtype: 'error',
+        error: extractErrorMessage(err, 'Error processing message'),
+        msgid: message?.msgid,
+      });
     }
   });
 }

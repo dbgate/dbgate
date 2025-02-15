@@ -13,6 +13,15 @@
     onClick: () => getCurrentEditor().formatCode(),
   });
   registerCommand({
+    id: 'query.switchAiAssistant',
+    category: 'Query',
+    name: 'AI Assistant',
+    keyText: 'Shift+Alt+A',
+    icon: 'icon ai',
+    testEnabled: () => isProApp(),
+    onClick: () => getCurrentEditor().toggleAiAssistant(),
+  });
+  registerCommand({
     id: 'query.insertSqlJoin',
     category: 'Query',
     name: 'Insert SQL Join',
@@ -64,7 +73,7 @@
   import useEditorData from '../query/useEditorData';
   import { currentEditorWrapEnabled, extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import { changeTab, markTabUnsaved } from '../utility/common';
+  import { changeTab, markTabUnsaved, sleep } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
@@ -89,6 +98,9 @@
   import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import { extractQueryParameters, replaceQueryParameters } from 'dbgate-query-splitter';
   import QueryParametersModal from '../modals/QueryParametersModal.svelte';
+  import { isProApp } from '../utility/proTools';
+  import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
+  import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
 
   export let tabid;
   export let conid;
@@ -137,6 +149,8 @@
   let domEditor;
   let domToolStrip;
   let intervalId;
+  let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
+  let domAiAssistant;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -186,6 +200,12 @@
     domEditor?.getEditor()?.focus();
   }
 
+  $: {
+    if (!isAiAssistantVisible && domEditor) {
+      domEditor?.getEditor()?.focus();
+    }
+  }
+
   export function isSqlEditor() {
     return driver?.databaseEngineTypes?.includes('sql');
   }
@@ -208,6 +228,10 @@
 
   export function toggleVisibleResultTabs() {
     visibleResultTabs = !visibleResultTabs;
+  }
+
+  export function toggleAiAssistant() {
+    isAiAssistantVisible = !isAiAssistantVisible;
   }
 
   function getParameterSplitterOptions() {
@@ -382,6 +406,26 @@
     errorMessages = errors;
   }
 
+  async function handleKeyDown(event) {
+    if (isProApp()) {
+      if (event.code == 'Space' && event.shiftKey && !isAiAssistantVisible) {
+        event.preventDefault();
+        toggleAiAssistant();
+        await sleep(100);
+        if (domAiAssistant) {
+          domAiAssistant.handleCompleteOnCursor();
+          domEditor?.getEditor()?.focus();
+        }
+      } else if (event.code == 'Space' && event.shiftKey && isAiAssistantVisible && domAiAssistant) {
+        event.preventDefault();
+        domAiAssistant.handleCompleteOnCursor();
+      } else if (event.code?.startsWith('Digit') && event.altKey && isAiAssistantVisible && domAiAssistant) {
+        event.preventDefault();
+        domAiAssistant.insertCompletion(parseInt(event.code.substring(5)) - 1);
+      }
+    }
+  }
+
   function createMenu() {
     return [
       { command: 'query.execute' },
@@ -401,6 +445,7 @@
       { command: 'query.replace' },
       { divider: true },
       { command: 'query.toggleVisibleResultTabs' },
+      { command: 'query.switchAiAssistant', hideDisabled: true },
     ];
   }
 
@@ -419,80 +464,119 @@
   let queryParameterStyle =
     localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
     initialArgs?.queryParameterStyle ??
-    (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : null);
+    (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : '');
+
+  $: localStorage.setItem(`tabdata_isAiAssistantVisible_${tabid}`, isAiAssistantVisible ? 'true' : 'false');
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
-  <VerticalSplitter isSplitter={visibleResultTabs}>
+  <HorizontalSplitter isSplitter={isAiAssistantVisible} initialSizeRight={300}>
     <svelte:fragment slot="1">
-      {#if driver?.databaseEngineTypes?.includes('sql')}
-        <SqlEditor
-          engine={$connection && $connection.engine}
-          {conid}
-          {database}
-          splitterOptions={driver?.getQuerySplitterOptions('editor')}
-          options={{
-            wrap: enableWrap,
-          }}
-          value={$editorState.value || ''}
-          menu={createMenu()}
-          on:input={e => {
-            setEditorData(e.detail);
-            if (isInitialized) {
-              markTabUnsaved(tabid);
-            }
-            errorMessages = [];
-          }}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-            setTimeout(() => {
-              isInitialized = true;
-            }, 100);
-          }}
-          bind:this={domEditor}
-          onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
-          {errorMessages}
-        />
-      {:else}
-        <AceEditor
-          mode={driver?.editorMode || 'sql'}
-          value={$editorState.value || ''}
-          splitterOptions={driver?.getQuerySplitterOptions('editor')}
-          options={{
-            wrap: enableWrap,
-          }}
-          menu={createMenu()}
-          on:input={e => setEditorData(e.detail)}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-          }}
-          bind:this={domEditor}
-        />
-      {/if}
+      <VerticalSplitter isSplitter={visibleResultTabs}>
+        <svelte:fragment slot="1">
+          {#if driver?.databaseEngineTypes?.includes('sql')}
+            <SqlEditor
+              engine={$connection && $connection.engine}
+              {conid}
+              {database}
+              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              options={{
+                wrap: enableWrap,
+              }}
+              value={$editorState.value || ''}
+              menu={createMenu()}
+              on:input={e => {
+                setEditorData(e.detail);
+                if (isInitialized) {
+                  markTabUnsaved(tabid);
+                }
+                errorMessages = [];
+              }}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+                setTimeout(() => {
+                  isInitialized = true;
+                }, 100);
+              }}
+              bind:this={domEditor}
+              onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
+              {errorMessages}
+              onKeyDown={handleKeyDown}
+            />
+          {:else}
+            <AceEditor
+              mode={driver?.editorMode || 'sql'}
+              value={$editorState.value || ''}
+              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              options={{
+                wrap: enableWrap,
+              }}
+              menu={createMenu()}
+              on:input={e => setEditorData(e.detail)}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+              }}
+              bind:this={domEditor}
+            />
+          {/if}
+        </svelte:fragment>
+        <svelte:fragment slot="2">
+          <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
+            <svelte:fragment slot="0">
+              <SocketMessageView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
+                onMessageClick={handleMesageClick}
+                {executeNumber}
+                startLine={executeStartLine}
+                showProcedure
+                showLine
+                onChangeErrors={handleChangeErrors}
+              />
+            </svelte:fragment>
+          </ResultTabs>
+        </svelte:fragment>
+      </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
-        <svelte:fragment slot="0">
-          <SocketMessageView
-            eventName={sessionId ? `session-info-${sessionId}` : null}
-            onMessageClick={handleMesageClick}
-            {executeNumber}
-            startLine={executeStartLine}
-            showProcedure
-            showLine
-            onChangeErrors={handleChangeErrors}
-          />
-        </svelte:fragment>
-      </ResultTabs>
+      <QueryAiAssistant
+        bind:this={domAiAssistant}
+        {conid}
+        {database}
+        {driver}
+        onClose={() => {
+          isAiAssistantVisible = false;
+        }}
+        text={$editorValue}
+        getLine={() => domEditor.getEditor().getSelectionRange().start.row}
+        onInsertAtCursor={text => {
+          const editor = domEditor.getEditor();
+          editor.session.insert(editor.getCursorPosition(), text);
+          domEditor?.getEditor()?.focus();
+        }}
+        getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
+        onSetSelectedText={text => {
+          const editor = domEditor.getEditor();
+          if (editor.getSelectedText()) {
+            const range = editor.selection.getRange();
+            editor.session.replace(range, text);
+          } else {
+            editor.setValue(text);
+          }
+        }}
+        {tabid}
+      />
     </svelte:fragment>
-  </VerticalSplitter>
+  </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandSplitButton commands={['query.execute', 'query.executeCurrent']} />
-    <ToolStripCommandButton command="query.kill" />
+    <ToolStripCommandSplitButton
+      commands={['query.execute', 'query.executeCurrent']}
+      data-testid="QueryTab_executeButton"
+    />
+    <ToolStripCommandButton command="query.kill" data-testid="QueryTab_killButton" />
     <ToolStripSaveButton idPrefix="query" />
     <ToolStripCommandButton command="query.formatCode" />
     {#if resultCount == 1}
@@ -511,6 +595,13 @@
       icon="icon at"
       title="Query parameter style"
     />
+    <ToolStripCommandButton
+      command="query.switchAiAssistant"
+      hideDisabled
+      data-testid="QueryTab_switchAiAssistantButton"
+    >
+      AI Assistant
+    </ToolStripCommandButton>
   </svelte:fragment>
 </ToolStripContainer>
 

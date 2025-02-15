@@ -1,15 +1,19 @@
 const path = require('path');
 
+beforeEach(() => {
+  cy.visit('http://localhost:3000');
+  cy.viewport(1200, 900);
+});
+
 describe('Add connection', () => {
   it('successfully loads', () => {
-    cy.visit('http://localhost:3000');
     cy.contains('Database not selected');
   });
 
   it('adds connection', () => {
-    cy.visit('http://localhost:3000');
     // cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
+    cy.themeshot('connection');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');
     cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');
@@ -26,7 +30,6 @@ describe('Add connection', () => {
   });
 
   it('SSH connection - user + password', () => {
-    cy.visit('http://localhost:3000');
     cy.contains('Connections');
 
     // cy.realPress('F1');
@@ -44,14 +47,13 @@ describe('Add connection', () => {
     cy.get('[data-testid=ConnectionSshTunnelFields_useSshTunnel]').check();
     cy.get('[data-testid=ConnectionSshTunnelFields_sshLogin]').clear().type('root');
     cy.get('[data-testid=ConnectionSshTunnelFields_sshPassword]').clear().type('root');
-    cy.get('[data-testid=ConnectionSshTunnelFields_sshPort]').clear().type('16006');
+    cy.get('[data-testid=ConnectionSshTunnelFields_sshPort]').clear().type('16012');
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();
     cy.get('[data-testid=ConnectionTab_buttonConnect]').click();
     cy.contains('performance_schema');
   });
 
   it('SSH connection - keyfile', () => {
-    cy.visit('http://localhost:3000');
     cy.contains('Connections');
 
     // cy.realPress('F1');
@@ -80,8 +82,6 @@ describe('Add connection', () => {
   });
 
   it('ask password - mysql', () => {
-    cy.visit('http://localhost:3000');
-
     cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');

@@ -163,7 +163,7 @@ export interface SchedulerEventInfo extends SqlObjectInfo {
   onCompletion: 'PRESERVE' | 'NOT PRESERVE';
   status: 'ENABLED' | 'DISABLED';
   lastExecuted?: string;
-  intervalValue: number;
+  intervalValue: string;
   intervalField: string;
   starts: string;
   executeAt: string;
@@ -188,4 +188,35 @@ export interface DatabaseInfoObjects {
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
   engine?: string;
+}
+
+export interface ColumnReferenceTiny {
+  n: string; // name
+  r?: string; // ref name
+}
+
+export interface PrimaryKeyInfoTiny {
+  c: ColumnReferenceTiny[]; // columns
+}
+
+export interface ForeignKeyInfoTiny {
+  c: ColumnReferenceTiny[]; // columns
+  r: string; // reference table name
+}
+
+export interface ColumnInfoTiny {
+  n: string; // name
+  t: string; // type
+}
+
+export interface TableInfoTiny {
+  n: string; //name
+  o: string; // comment
+  c: ColumnInfoTiny[]; // columns
+  p?: PrimaryKeyInfoTiny; // primary key
+  f?: ForeignKeyInfoTiny[]; // foreign keys
+}
+
+export interface DatabaseInfoTiny {
+  t: TableInfoTiny[]; // tables
 }

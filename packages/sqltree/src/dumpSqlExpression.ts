@@ -21,7 +21,14 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
       break;
 
     case 'value':
-      dmp.put('%v', expr.value);
+      if (expr.dataType) {
+        dmp.put('%V', {
+          value: expr.value,
+          dataType: expr.dataType,
+        });
+      } else {
+        dmp.put('%v', expr.value);
+      }
       break;
 
     case 'raw':

@@ -162,6 +162,7 @@
   on:clickOutside={() => {
     $visibleCommandPalette = null;
   }}
+  data-testid='CommandPalette_main'
 >
   <div class="pages">
     <div

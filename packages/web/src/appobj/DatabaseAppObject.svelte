@@ -196,13 +196,17 @@
           title: 'Compare',
           icon: 'img compare',
           tabComponent: 'CompareModelTab',
+          props: {
+            conid: $currentDatabase?.connection?._id,
+            database: $currentDatabase?.name,
+          },
         },
         {
           editor: {
-            sourceConid: _.get($currentDatabase, 'connection._id'),
-            sourceDatabase: _.get($currentDatabase, 'name'),
-            targetConid: _.get(connection, '_id'),
-            targetDatabase: name,
+            sourceConid: connection?._id,
+            sourceDatabase: name,
+            targetConid: $currentDatabase?.connection?._id,
+            targetDatabase: $currentDatabase?.name,
           },
         }
       );
@@ -243,7 +247,7 @@
         tabComponent: 'QueryDesignTab',
         focused: true,
         props: {
-          conid: connection._id,
+          conid: connection?._id,
           database: name,
         },
       });
@@ -255,7 +259,7 @@
         icon: 'img perspective',
         tabComponent: 'PerspectiveTab',
         props: {
-          conid: connection._id,
+          conid: connection?._id,
           database: name,
         },
       });
@@ -267,14 +271,14 @@
         icon: 'img profiler',
         tabComponent: 'ProfilerTab',
         props: {
-          conid: connection._id,
+          conid: connection?._id,
           database: name,
         },
       });
     };
 
     const handleRefreshSchemas = () => {
-      const conid = connection._id;
+      const conid = connection?._id;
       const database = name;
       apiCall('database-connections/dispatch-database-changed-event', {
         event: 'schema-list-changed',
@@ -285,7 +289,7 @@
     };
 
     async function handleConfirmSql(sql) {
-      saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
+      saveScriptToDatabase({ conid: connection?._id, database: name }, sql, false);
     }
 
     const handleGenerateDropAllObjectsScript = () => {
@@ -559,7 +563,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     : $lockedDatabaseMode
       ? getNumberIcon(
           $openedTabs.filter(
-            x => !x.closedTime && x.props.conid == data?.connection?._id && x.props.database == data?.name
+            x => !x.closedTime && x.props?.conid == data?.connection?._id && x.props?.database == data?.name
           ).length
         )
       : ''}

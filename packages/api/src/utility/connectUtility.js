@@ -47,6 +47,47 @@ async function loadConnection(driver, storedConnection, connectionMode) {
   return storedConnection;
 }
 
+async function extractConnectionSslParams(connection) {
+  /** @type {any} */
+  let ssl = undefined;
+  if (connection.useSsl) {
+    ssl = {};
+
+    if (connection.sslCaFile) {
+      ssl.ca = await fs.readFile(connection.sslCaFile);
+      ssl.sslCaFile = connection.sslCaFile;
+    }
+
+    if (connection.sslCertFile) {
+      ssl.cert = await fs.readFile(connection.sslCertFile);
+      ssl.sslCertFile = connection.sslCertFile;
+    }
+
+    if (connection.sslKeyFile) {
+      ssl.key = await fs.readFile(connection.sslKeyFile);
+      ssl.sslKeyFile = connection.sslKeyFile;
+    }
+
+    if (connection.sslCertFilePassword) {
+      ssl.password = connection.sslCertFilePassword;
+    }
+
+    if (!ssl.key && !ssl.ca && !ssl.cert) {
+      // TODO: provide this as an option in settings
+      // or per-connection as 'reject self-signed certs'
+      // How it works:
+      // if false, cert can be self-signed
+      // if true, has to be from a public CA
+      // Heroku certs are self-signed.
+      // if you provide ca/cert/key files, it overrides this
+      ssl.rejectUnauthorized = false;
+    } else {
+      ssl.rejectUnauthorized = connection.sslRejectUnauthorized;
+    }
+  }
+  return ssl;
+}
+
 async function connectUtility(driver, storedConnection, connectionMode, additionalOptions = null) {
   const connectionLoaded = await loadConnection(driver, storedConnection, connectionMode);
 
@@ -67,45 +108,13 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
     connection.port = tunnel.localPort;
   }
 
-  // SSL functionality - copied from https://github.com/beekeeper-studio/beekeeper-studio
-  if (connection.useSsl) {
-    connection.ssl = {};
-
-    if (connection.sslCaFile) {
-      connection.ssl.ca = await fs.readFile(connection.sslCaFile);
-      connection.ssl.sslCaFile = connection.sslCaFile;
-    }
-
-    if (connection.sslCertFile) {
-      connection.ssl.cert = await fs.readFile(connection.sslCertFile);
-      connection.ssl.sslCertFile = connection.sslCertFile;
-    }
-
-    if (connection.sslKeyFile) {
-      connection.ssl.key = await fs.readFile(connection.sslKeyFile);
-      connection.ssl.sslKeyFile = connection.sslKeyFile;
-    }
-
-    if (connection.sslCertFilePassword) {
-      connection.ssl.password = connection.sslCertFilePassword;
-    }
-
-    if (!connection.ssl.key && !connection.ssl.ca && !connection.ssl.cert) {
-      // TODO: provide this as an option in settings
-      // or per-connection as 'reject self-signed certs'
-      // How it works:
-      // if false, cert can be self-signed
-      // if true, has to be from a public CA
-      // Heroku certs are self-signed.
-      // if you provide ca/cert/key files, it overrides this
-      connection.ssl.rejectUnauthorized = false;
-    } else {
-      connection.ssl.rejectUnauthorized = connection.sslRejectUnauthorized;
-    }
-  }
+  connection.ssl = await extractConnectionSslParams(connection);
 
   const conn = await driver.connect({ ...connection, ...additionalOptions });
   return conn;
 }
 
-module.exports = connectUtility;
+module.exports = {
+  extractConnectionSslParams,
+  connectUtility,
+};

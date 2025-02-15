@@ -115,6 +115,7 @@ export const currentEditorFontSize = getElectron()
   ? writableSettingsValue(null, 'currentEditorFontSize')
   : writableWithStorage(null, 'currentEditorFontSize');
 export const currentEditorFont = writableSettingsValue(null, 'editor.fontFamily');
+export const allowedSendToAiService = writableSettingsValue(false, 'ai.allowSendModels');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
@@ -160,6 +161,8 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
+
+export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
@@ -408,3 +411,11 @@ connectionAppObjectSearchSettings.subscribe(value => {
   connectionAppObjectSearchSettingsValue = value;
 });
 export const getConnectionAppObjectSearchSettings = () => connectionAppObjectSearchSettingsValue;
+
+let focusedTreeDbKeyValue = null;
+focusedTreeDbKey.subscribe(value => {
+  focusedTreeDbKeyValue = value;
+});
+export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
+
+window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

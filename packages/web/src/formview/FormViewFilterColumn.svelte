@@ -63,6 +63,7 @@
       {pureName}
       columnName={column ? (column.uniquePath.length == 1 ? column.uniquePath[0] : null) : uniqueName}
       foreignKey={column?.foreignKey}
+      dataType={column?.dataType}
     />
   </div>
 {/if}

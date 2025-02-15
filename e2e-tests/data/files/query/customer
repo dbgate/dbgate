@@ -1,0 +1,592 @@
+{
+  "tables": [
+    {
+      "pureName": "InvoiceLine",
+      "tableRowCount": "2240",
+      "tableEngine": "InnoDB",
+      "objectComment": "",
+      "modifyDate": "2025-01-30 07:20:38",
+      "objectId": "InvoiceLine",
+      "contentHash": "2025-01-30 07:20:38",
+      "columns": [
+        {
+          "pureName": "InvoiceLine",
+          "notNull": true,
+          "autoIncrement": true,
+          "columnName": "InvoiceLineId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "InvoiceLine",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "InvoiceId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "InvoiceLine",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "TrackId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "InvoiceLine",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "UnitPrice",
+          "columnComment": "",
+          "dataType": "decimal(10,2)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "InvoiceLine",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "Quantity",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        }
+      ],
+      "primaryKey": {
+        "constraintName": "PRIMARY",
+        "pureName": "InvoiceLine",
+        "constraintType": "primaryKey",
+        "columns": [
+          {
+            "columnName": "InvoiceLineId"
+          }
+        ]
+      },
+      "foreignKeys": [
+        {
+          "constraintName": "FK_InvoiceLineInvoiceId",
+          "constraintType": "foreignKey",
+          "pureName": "InvoiceLine",
+          "refTableName": "Invoice",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "InvoiceId",
+              "refColumnName": "InvoiceId"
+            }
+          ]
+        },
+        {
+          "constraintName": "FK_InvoiceLineTrackId",
+          "constraintType": "foreignKey",
+          "pureName": "InvoiceLine",
+          "refTableName": "Track",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "TrackId",
+              "refColumnName": "TrackId"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "IFK_InvoiceLineInvoiceId",
+          "indexType": "BTREE",
+          "isUnique": false,
+          "columns": [
+            {
+              "columnName": "InvoiceId",
+              "isDescending": 0
+            }
+          ],
+          "pureName": "InvoiceLine",
+          "constraintType": "index"
+        },
+        {
+          "constraintName": "IFK_InvoiceLineTrackId",
+          "indexType": "BTREE",
+          "isUnique": false,
+          "columns": [
+            {
+              "columnName": "TrackId",
+              "isDescending": 0
+            }
+          ],
+          "pureName": "InvoiceLine",
+          "constraintType": "index"
+        }
+      ],
+      "uniques": [],
+      "engine": "mysql@dbgate-plugin-mysql",
+      "dependencies": [],
+      "objectTypeField": "tables",
+      "checks": [],
+      "conid": "mysql",
+      "database": "MyChinook",
+      "designerId": "InvoiceLine-61eb0ba0-dedc-11ef-acf9-b7e3c0869b02",
+      "left": 513,
+      "top": 247,
+      "alias": null
+    },
+    {
+      "pureName": "Customer",
+      "tableRowCount": "59",
+      "tableEngine": "InnoDB",
+      "objectComment": "",
+      "modifyDate": "2025-01-30 07:20:37",
+      "objectId": "Customer",
+      "contentHash": "2025-01-30 07:20:37",
+      "columns": [
+        {
+          "pureName": "Customer",
+          "notNull": true,
+          "autoIncrement": true,
+          "columnName": "CustomerId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "FirstName",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "LastName",
+          "columnComment": "",
+          "dataType": "varchar(20)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "Company",
+          "columnComment": "",
+          "dataType": "varchar(80)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "Address",
+          "columnComment": "",
+          "dataType": "varchar(70)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "City",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "State",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "Country",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "PostalCode",
+          "columnComment": "",
+          "dataType": "varchar(10)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "Phone",
+          "columnComment": "",
+          "dataType": "varchar(24)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "Fax",
+          "columnComment": "",
+          "dataType": "varchar(24)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "Email",
+          "columnComment": "",
+          "dataType": "varchar(60)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Customer",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "SupportRepId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        }
+      ],
+      "primaryKey": {
+        "constraintName": "PRIMARY",
+        "pureName": "Customer",
+        "constraintType": "primaryKey",
+        "columns": [
+          {
+            "columnName": "CustomerId"
+          }
+        ]
+      },
+      "foreignKeys": [
+        {
+          "constraintName": "FK_CustomerSupportRepId",
+          "constraintType": "foreignKey",
+          "pureName": "Customer",
+          "refTableName": "Employee",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "SupportRepId",
+              "refColumnName": "EmployeeId"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "IFK_CustomerSupportRepId",
+          "indexType": "BTREE",
+          "isUnique": false,
+          "columns": [
+            {
+              "columnName": "SupportRepId",
+              "isDescending": 0
+            }
+          ],
+          "pureName": "Customer",
+          "constraintType": "index"
+        }
+      ],
+      "uniques": [],
+      "engine": "mysql@dbgate-plugin-mysql",
+      "dependencies": [
+        {
+          "constraintName": "FK_InvoiceCustomerId",
+          "constraintType": "foreignKey",
+          "pureName": "Invoice",
+          "refTableName": "Customer",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "CustomerId",
+              "refColumnName": "CustomerId"
+            }
+          ]
+        }
+      ],
+      "objectTypeField": "tables",
+      "checks": [],
+      "conid": "mysql",
+      "database": "MyChinook",
+      "designerId": "5d82f690-dedc-11ef-acf9-b7e3c0869b02",
+      "left": 50,
+      "top": 50
+    },
+    {
+      "pureName": "Invoice",
+      "tableRowCount": "412",
+      "tableEngine": "InnoDB",
+      "objectComment": "",
+      "modifyDate": "2025-01-30 07:20:38",
+      "objectId": "Invoice",
+      "contentHash": "2025-01-30 07:20:38",
+      "columns": [
+        {
+          "pureName": "Invoice",
+          "notNull": true,
+          "autoIncrement": true,
+          "columnName": "InvoiceId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "CustomerId",
+          "columnComment": "",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "InvoiceDate",
+          "columnComment": "",
+          "dataType": "datetime",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "BillingAddress",
+          "columnComment": "",
+          "dataType": "varchar(70)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "BillingCity",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "BillingState",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "BillingCountry",
+          "columnComment": "",
+          "dataType": "varchar(40)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "BillingPostalCode",
+          "columnComment": "",
+          "dataType": "varchar(10)",
+          "defaultValue": "NULL",
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "pureName": "Invoice",
+          "notNull": true,
+          "autoIncrement": false,
+          "columnName": "Total",
+          "columnComment": "",
+          "dataType": "decimal(10,2)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        }
+      ],
+      "primaryKey": {
+        "constraintName": "PRIMARY",
+        "pureName": "Invoice",
+        "constraintType": "primaryKey",
+        "columns": [
+          {
+            "columnName": "InvoiceId"
+          }
+        ]
+      },
+      "foreignKeys": [
+        {
+          "constraintName": "FK_InvoiceCustomerId",
+          "constraintType": "foreignKey",
+          "pureName": "Invoice",
+          "refTableName": "Customer",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "CustomerId",
+              "refColumnName": "CustomerId"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "IFK_InvoiceCustomerId",
+          "indexType": "BTREE",
+          "isUnique": false,
+          "columns": [
+            {
+              "columnName": "CustomerId",
+              "isDescending": 0
+            }
+          ],
+          "pureName": "Invoice",
+          "constraintType": "index"
+        }
+      ],
+      "uniques": [],
+      "engine": "mysql@dbgate-plugin-mysql",
+      "dependencies": [
+        {
+          "constraintName": "FK_InvoiceLineInvoiceId",
+          "constraintType": "foreignKey",
+          "pureName": "InvoiceLine",
+          "refTableName": "Invoice",
+          "updateAction": "NO ACTION",
+          "deleteAction": "NO ACTION",
+          "columns": [
+            {
+              "columnName": "InvoiceId",
+              "refColumnName": "InvoiceId"
+            }
+          ]
+        }
+      ],
+      "objectTypeField": "tables",
+      "checks": [],
+      "conid": "mysql",
+      "database": "MyChinook",
+      "designerId": "Invoice-609cb9b0-dedc-11ef-acf9-b7e3c0869b02",
+      "left": 279,
+      "top": 112,
+      "alias": null
+    }
+  ],
+  "references": [
+    {
+      "designerId": "undefined-609cb9b1-dedc-11ef-acf9-b7e3c0869b02",
+      "sourceId": "Invoice-609cb9b0-dedc-11ef-acf9-b7e3c0869b02",
+      "targetId": "5d82f690-dedc-11ef-acf9-b7e3c0869b02",
+      "joinType": "INNER JOIN",
+      "columns": [
+        {
+          "source": "CustomerId",
+          "target": "CustomerId"
+        }
+      ]
+    },
+    {
+      "designerId": "undefined-61eb32b0-dedc-11ef-acf9-b7e3c0869b02",
+      "sourceId": "InvoiceLine-61eb0ba0-dedc-11ef-acf9-b7e3c0869b02",
+      "targetId": "Invoice-609cb9b0-dedc-11ef-acf9-b7e3c0869b02",
+      "joinType": "LEFT JOIN",
+      "columns": [
+        {
+          "source": "InvoiceId",
+          "target": "InvoiceId"
+        }
+      ]
+    }
+  ],
+  "columns": [
+    {
+      "designerId": "5d82f690-dedc-11ef-acf9-b7e3c0869b02",
+      "columnName": "LastName",
+      "isOutput": true,
+      "filter": "NOT NULL",
+      "sortOrder": 1
+    },
+    {
+      "designerId": "5d82f690-dedc-11ef-acf9-b7e3c0869b02",
+      "columnName": "FirstName",
+      "isOutput": true,
+      "sortOrder": 2
+    },
+    {
+      "designerId": "Invoice-609cb9b0-dedc-11ef-acf9-b7e3c0869b02",
+      "columnName": "InvoiceDate",
+      "isOutput": true
+    }
+  ]
+}

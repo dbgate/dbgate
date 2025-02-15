@@ -1,5 +1,5 @@
 diff --git a/node_modules/ace-builds/src-noconflict/mode-sqlserver.js b/node_modules/ace-builds/src-noconflict/mode-sqlserver.js
-index 7e61d3d..3e0fb97 100644
+index 799d0d8..5ebe1f1 100644
 --- a/node_modules/ace-builds/src-noconflict/mode-sqlserver.js
 +++ b/node_modules/ace-builds/src-noconflict/mode-sqlserver.js
 @@ -304,7 +304,7 @@ var BaseFoldMode = require("./cstyle").FoldMode;
@@ -7,7 +7,7 @@ index 7e61d3d..3e0fb97 100644
  oop.inherits(FoldMode, BaseFoldMode);
  (function () {
 -    this.foldingStartMarker = /(\bCASE\b|\bBEGIN\b)|^\s*(\/\*)/i;
-+    this.foldingStartMarker = /(?<!\[)(\bCASE\b|\bBEGIN\b)(?!\])|^\s*(\/\*)/i;
++    this.foldingStartMarker = /(?<!\[)(\bBEGIN\b)(?!\])|^\s*(\/\*)/i;
      this.startRegionRe = /^\s*(\/\*|--)#?region\b/;
      this.getFoldWidgetRange = function (session, foldStyle, row, forceMultiline) {
          var line = session.getLine(row);
@@ -16,7 +16,7 @@ index 7e61d3d..3e0fb97 100644
          var line;
          var depth = 1;
 -        var re = /(\bCASE\b|\bBEGIN\b)|(\bEND\b)/i;
-+        var re = /(?<!\[)(\bCASE\b|\bBEGIN\b)|(\bEND\b)(?!\])/i;
++        var re = /(?<!\[)(\bBEGIN\b)|(\bEND\b)(?!\])/i;
          while (++row < maxRow) {
              line = session.getLine(row);
              var m = re.exec(line);

@@ -425,12 +425,11 @@
   import { createGeoJsonFromSelection, selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
-  import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useDatabaseStatus, useSettings } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import hasPermission from '../utility/hasPermission';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -463,6 +462,7 @@
   export let tabControlHiddenTab = false;
   export let onCustomGridRefresh = null;
   export let onOpenQuery = null;
+  export let onOpenQueryOnError = null;
   export let jslid;
   // export let generalAllowSave = false;
   export let hideGridLeftColumn = false;
@@ -516,6 +516,10 @@
       refresh();
     }
   }
+
+  const settingsValue = useSettings();
+
+  $: gridColoringMode = $settingsValue?.['dataGrid.coloringMode'];
 
   export function refresh() {
     if (onCustomGridRefresh) onCustomGridRefresh();
@@ -1835,8 +1839,8 @@
     <ErrorInfo message={errorMessage} alignTop />
     <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
-    {#if onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+    {#if onOpenQueryOnError ?? onOpenQuery}
+      <FormStyledButton value="Open Query" on:click={onOpenQueryOnError ?? onOpenQuery} />
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
@@ -1991,6 +1995,7 @@
                   onFocusGrid={() => {
                     selectTopmostCell(col.uniqueName);
                   }}
+                  dataType={col.dataType}
                 />
               </td>
             {/each}
@@ -2018,6 +2023,7 @@
             {frameSelection}
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
             {dataEditorTypesBehaviourOverride}
+            {gridColoringMode}
           />
         {/each}
       </tbody>

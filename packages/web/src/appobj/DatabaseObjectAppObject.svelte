@@ -147,11 +147,12 @@
             isDrop: true,
             requiresWriteAccess: true,
           },
-          hasPermission('dbops/table/rename') && {
-            label: 'Rename table',
-            isRename: true,
-            requiresWriteAccess: true,
-          },
+          hasPermission('dbops/table/rename') &&
+            !driver?.dialect.disableRenameTable && {
+              label: 'Rename table',
+              isRename: true,
+              requiresWriteAccess: true,
+            },
           hasPermission('dbops/table/truncate') && {
             label: 'Truncate table',
             isTruncate: true,
@@ -861,7 +862,7 @@
         isRawMode: prefferedAction?.isRawMode ?? false,
       },
       forceNewTab,
-      null,
+      prefferedAction?.initialData,
       prefferedAction.icon,
       data,
       tabPreviewMode

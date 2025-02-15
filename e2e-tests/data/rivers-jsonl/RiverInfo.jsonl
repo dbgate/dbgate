@@ -1,0 +1,420 @@
+{"_id":{"$oid":"679c75e222b74f001c4b46aa"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"","gaugeCount":5,"sectionCount":0,"__fulltext":"","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b46ab"},"countries":["Germany"],"countryCodes":["DE"],"river":" Isar-Seitenkanal ","gaugeCount":1,"sectionCount":0,"__fulltext":" isar-seitenkanal ","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ac"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Aachbach","gaugeCount":1,"sectionCount":0,"__fulltext":"aachbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ad"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aalbach","gaugeCount":1,"sectionCount":0,"__fulltext":"aalbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ae"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Aare","gaugeCount":6,"sectionCount":8,"__fulltext":"aare","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46af"},"countries":["Germany"],"countryCodes":["DE"],"river":"Abens","gaugeCount":4,"sectionCount":0,"__fulltext":"abens","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b0"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ach","gaugeCount":2,"sectionCount":0,"__fulltext":"ach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Acher","gaugeCount":1,"sectionCount":2,"__fulltext":"acher","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b2"},"countries":["Italy"],"countryCodes":["IT"],"river":"Adda","gaugeCount":3,"sectionCount":3,"__fulltext":"adda","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b46b3"},"countries":["Italy"],"countryCodes":["IT"],"river":"Adige","gaugeCount":1,"sectionCount":0,"__fulltext":"adige","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b4"},"countries":["Italy"],"countryCodes":["IT"],"river":"Adige/Etch","gaugeCount":3,"sectionCount":1,"__fulltext":"adige/etch","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b5"},"countries":["France"],"countryCodes":["FR"],"river":"Adour","gaugeCount":1,"sectionCount":2,"__fulltext":"adour","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b6"},"countries":["France"],"countryCodes":["FR"],"river":"Agly","gaugeCount":1,"sectionCount":0,"__fulltext":"agly","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b7"},"countries":["Italy"],"countryCodes":["IT"],"river":"Agogna","gaugeCount":1,"sectionCount":1,"__fulltext":"agogna","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b8"},"countries":["France"],"countryCodes":["FR"],"river":"Aigue","gaugeCount":1,"sectionCount":0,"__fulltext":"aigue","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46b9"},"countries":["France"],"countryCodes":["FR"],"river":"Ain","gaugeCount":3,"sectionCount":2,"__fulltext":"ain","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ba"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aisch","gaugeCount":6,"sectionCount":0,"__fulltext":"aisch","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46bb"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aiterach","gaugeCount":1,"sectionCount":0,"__fulltext":"aiterach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46bc"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aitnach","gaugeCount":1,"sectionCount":0,"__fulltext":"aitnach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46bd"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aitrach","gaugeCount":1,"sectionCount":0,"__fulltext":"aitrach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46be"},"countries":["France"],"countryCodes":["FR"],"river":"Aix","gaugeCount":1,"sectionCount":1,"__fulltext":"aix","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46bf"},"countries":["France"],"countryCodes":["FR"],"river":"Alagnon","gaugeCount":3,"sectionCount":2,"__fulltext":"alagnon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c0"},"countries":["France"],"countryCodes":["FR"],"river":"Albarine","gaugeCount":1,"sectionCount":1,"__fulltext":"albarine","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c1"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Albrechtický potok","gaugeCount":1,"sectionCount":0,"__fulltext":"albrechticky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c2"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Albula","gaugeCount":1,"sectionCount":6,"__fulltext":"albula","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b46c3"},"countries":["France"],"countryCodes":["FR"],"river":"Allanche","gaugeCount":1,"sectionCount":1,"__fulltext":"allanche","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c4"},"countries":["France"],"countryCodes":["FR"],"river":"Allier","gaugeCount":8,"sectionCount":5,"__fulltext":"allier","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c5"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Allondon","gaugeCount":1,"sectionCount":1,"__fulltext":"allondon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c6"},"countries":["Austria"],"countryCodes":["AT"],"river":"Alm","gaugeCount":2,"sectionCount":0,"__fulltext":"alm","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c7"},"countries":["Austria","Germany"],"countryCodes":["AT","DE"],"river":"Almbach","gaugeCount":2,"sectionCount":1,"__fulltext":"almbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c8"},"countries":["Germany"],"countryCodes":["DE"],"river":"Almosbach","gaugeCount":1,"sectionCount":0,"__fulltext":"almosbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46c9"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Alp","gaugeCount":2,"sectionCount":1,"__fulltext":"alp","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ca"},"countries":["Germany"],"countryCodes":["DE"],"river":"Altbach","gaugeCount":1,"sectionCount":0,"__fulltext":"altbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46cb"},"countries":["Austria"],"countryCodes":["AT"],"river":"Alterbach","gaugeCount":1,"sectionCount":0,"__fulltext":"alterbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46cc"},"countries":["France"],"countryCodes":["FR"],"river":"Altier","gaugeCount":2,"sectionCount":1,"__fulltext":"altier","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46cd"},"countries":["Germany"],"countryCodes":["DE"],"river":"Altkollbach","gaugeCount":1,"sectionCount":0,"__fulltext":"altkollbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ce"},"countries":["Germany"],"countryCodes":["DE"],"river":"Altmühl","gaugeCount":11,"sectionCount":0,"__fulltext":"altmuhl","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46cf"},"countries":["Germany"],"countryCodes":["DE"],"river":"Altmühlsee","gaugeCount":1,"sectionCount":0,"__fulltext":"altmuhlsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d0"},"countries":["Germany"],"countryCodes":["DE"],"river":"Altmühlüberleiter","gaugeCount":1,"sectionCount":0,"__fulltext":"altmuhluberleiter","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Alz","gaugeCount":4,"sectionCount":0,"__fulltext":"alz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d2"},"countries":["Germany"],"countryCodes":["DE"],"river":"Alzkanal","gaugeCount":2,"sectionCount":0,"__fulltext":"alzkanal","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d3"},"countries":["France"],"countryCodes":["FR"],"river":"Alzou","gaugeCount":1,"sectionCount":1,"__fulltext":"alzou","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d4"},"countries":["Italy"],"countryCodes":["IT"],"river":"Ambra","gaugeCount":1,"sectionCount":1,"__fulltext":"ambra","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d5"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ammer","gaugeCount":3,"sectionCount":2,"__fulltext":"ammer","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b46d6"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ammersee","gaugeCount":1,"sectionCount":0,"__fulltext":"ammersee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d7"},"countries":["Germany"],"countryCodes":["DE"],"river":"Amper","gaugeCount":8,"sectionCount":0,"__fulltext":"amper","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d8"},"countries":["France"],"countryCodes":["FR"],"river":"Ance","gaugeCount":1,"sectionCount":1,"__fulltext":"ance","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46d9"},"countries":["France"],"countryCodes":["FR"],"river":"Angillon","gaugeCount":1,"sectionCount":2,"__fulltext":"angillon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46da"},"countries":["Italy"],"countryCodes":["IT"],"river":"Aniene","gaugeCount":1,"sectionCount":3,"__fulltext":"aniene","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46db"},"countries":["Germany"],"countryCodes":["DE"],"river":"Anlauter","gaugeCount":2,"sectionCount":0,"__fulltext":"anlauter","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46dc"},"countries":["Germany"],"countryCodes":["DE"],"river":"Antersdorfer Bach","gaugeCount":1,"sectionCount":0,"__fulltext":"antersdorfer bach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46dd"},"countries":["Italy"],"countryCodes":["IT"],"river":"Anza","gaugeCount":1,"sectionCount":1,"__fulltext":"anza","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46de"},"countries":["Spain"],"countryCodes":["ES"],"river":"Ara","gaugeCount":1,"sectionCount":6,"__fulltext":"ara","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46df"},"countries":["France"],"countryCodes":["FR"],"river":"Arac","gaugeCount":2,"sectionCount":1,"__fulltext":"arac","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e0"},"countries":["Spain"],"countryCodes":["ES"],"river":"Aragón","gaugeCount":3,"sectionCount":0,"__fulltext":"aragon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e1"},"countries":["France"],"countryCodes":["FR"],"river":"Arc","gaugeCount":4,"sectionCount":7,"__fulltext":"arc","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e2"},"countries":["France"],"countryCodes":["FR"],"river":"Ardèche","gaugeCount":4,"sectionCount":8,"__fulltext":"ardeche","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e3"},"countries":["France"],"countryCodes":["FR"],"river":"Ardèche [Ardèche]","gaugeCount":1,"sectionCount":0,"__fulltext":"ardeche [ardeche]","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e4"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Areuse","gaugeCount":1,"sectionCount":1,"__fulltext":"areuse","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e5"},"countries":["Spain"],"countryCodes":["ES"],"river":"Arga","gaugeCount":1,"sectionCount":1,"__fulltext":"arga","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e6"},"countries":["Germany"],"countryCodes":["DE"],"river":"Argen","gaugeCount":1,"sectionCount":3,"__fulltext":"argen","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e7"},"countries":["Austria"],"countryCodes":["AT"],"river":"Argenbach","gaugeCount":1,"sectionCount":1,"__fulltext":"argenbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e8"},"countries":["Italy"],"countryCodes":["IT"],"river":"Argentina","gaugeCount":1,"sectionCount":1,"__fulltext":"argentina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46e9"},"countries":["France"],"countryCodes":["FR"],"river":"Ariège","gaugeCount":3,"sectionCount":4,"__fulltext":"ariege","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ea"},"countries":["Italy"],"countryCodes":["IT"],"river":"Arno","gaugeCount":3,"sectionCount":5,"__fulltext":"arno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46eb"},"countries":["Italy"],"countryCodes":["IT"],"river":"Arnò","gaugeCount":1,"sectionCount":1,"__fulltext":"arno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ec"},"countries":["France"],"countryCodes":["FR"],"river":"Arros","gaugeCount":1,"sectionCount":2,"__fulltext":"arros","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ed"},"countries":["Italy"],"countryCodes":["IT"],"river":"Artanavaz","gaugeCount":1,"sectionCount":0,"__fulltext":"artanavaz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ee"},"countries":["Switzerland","France"],"countryCodes":["CH","FR"],"river":"Arve","gaugeCount":3,"sectionCount":2,"__fulltext":"arve","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ef"},"countries":["Germany"],"countryCodes":["DE"],"river":"Arzbach","gaugeCount":2,"sectionCount":0,"__fulltext":"arzbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f0"},"countries":["Italy"],"countryCodes":["IT"],"river":"Arzino","gaugeCount":1,"sectionCount":2,"__fulltext":"arzino","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Asbach","gaugeCount":1,"sectionCount":1,"__fulltext":"asbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f2"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ascha","gaugeCount":1,"sectionCount":0,"__fulltext":"ascha","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f3"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aschaff","gaugeCount":1,"sectionCount":0,"__fulltext":"aschaff","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f4"},"countries":["Austria"],"countryCodes":["AT"],"river":"Aschauer Ache","gaugeCount":1,"sectionCount":0,"__fulltext":"aschauer ache","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f5"},"countries":["France"],"countryCodes":["FR"],"river":"Asco","gaugeCount":1,"sectionCount":2,"__fulltext":"asco","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f6"},"countries":["Italy"],"countryCodes":["IT"],"river":"Astico","gaugeCount":2,"sectionCount":2,"__fulltext":"astico","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f7"},"countries":["Spain"],"countryCodes":["ES"],"river":"Asón","gaugeCount":1,"sectionCount":0,"__fulltext":"ason","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f8"},"countries":["Italy"],"countryCodes":["IT"],"river":"Aterno","gaugeCount":1,"sectionCount":0,"__fulltext":"aterno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46f9"},"countries":["Germany"],"countryCodes":["DE"],"river":"Attel","gaugeCount":2,"sectionCount":0,"__fulltext":"attel","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46fa"},"countries":["Austria"],"countryCodes":["AT"],"river":"Attersee","gaugeCount":1,"sectionCount":0,"__fulltext":"attersee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46fb"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aubach","gaugeCount":1,"sectionCount":1,"__fulltext":"aubach","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b46fc"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Aubonne","gaugeCount":1,"sectionCount":2,"__fulltext":"aubonne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46fd"},"countries":["France"],"countryCodes":["FR"],"river":"Aude","gaugeCount":1,"sectionCount":0,"__fulltext":"aude","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46fe"},"countries":["Germany"],"countryCodes":["DE"],"river":"Auerbach","gaugeCount":1,"sectionCount":1,"__fulltext":"auerbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b46ff"},"countries":["Italy"],"countryCodes":["IT"],"river":"Aulella","gaugeCount":1,"sectionCount":1,"__fulltext":"aulella","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4700"},"countries":["Germany"],"countryCodes":["DE"],"river":"Aurach","gaugeCount":3,"sectionCount":0,"__fulltext":"aurach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4701"},"countries":["Italy"],"countryCodes":["IT"],"river":"Aurino/Ahr","gaugeCount":2,"sectionCount":6,"__fulltext":"aurino/ahr","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4702"},"countries":["France"],"countryCodes":["FR"],"river":"Auvézère","gaugeCount":1,"sectionCount":1,"__fulltext":"auvezere","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4703"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Averser Rhein","gaugeCount":1,"sectionCount":9,"__fulltext":"averser rhein","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4704"},"countries":["Italy"],"countryCodes":["IT"],"river":"Aveto","gaugeCount":2,"sectionCount":2,"__fulltext":"aveto","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4705"},"countries":["France"],"countryCodes":["FR"],"river":"Aveyron","gaugeCount":2,"sectionCount":3,"__fulltext":"aveyron","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4706"},"countries":["Italy"],"countryCodes":["IT"],"river":"Avisio","gaugeCount":4,"sectionCount":5,"__fulltext":"avisio","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4707"},"countries":["France"],"countryCodes":["FR"],"river":"Ay","gaugeCount":2,"sectionCount":0,"__fulltext":"ay","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4708"},"countries":["Italy"],"countryCodes":["IT"],"river":"Ayasse","gaugeCount":2,"sectionCount":3,"__fulltext":"ayasse","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4709"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Badaševica","gaugeCount":1,"sectionCount":0,"__fulltext":"badasevica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b470a"},"countries":["Italy"],"countryCodes":["IT"],"river":"Baganza","gaugeCount":1,"sectionCount":1,"__fulltext":"baganza","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b470b"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bagnone","gaugeCount":1,"sectionCount":2,"__fulltext":"bagnone","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b470c"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bahra","gaugeCount":1,"sectionCount":1,"__fulltext":"bahra","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b470d"},"countries":["Germany"],"countryCodes":["DE"],"river":"Baierzer Rot","gaugeCount":1,"sectionCount":0,"__fulltext":"baierzer rot","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b470e"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bakovský potok","gaugeCount":2,"sectionCount":0,"__fulltext":"bakovsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b470f"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Balinka","gaugeCount":1,"sectionCount":0,"__fulltext":"balinka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4710"},"countries":["Italy"],"countryCodes":["IT"],"river":"Basento","gaugeCount":2,"sectionCount":3,"__fulltext":"basento","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4711"},"countries":["France"],"countryCodes":["FR"],"river":"Baume","gaugeCount":1,"sectionCount":3,"__fulltext":"baume","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4712"},"countries":["Germany"],"countryCodes":["DE"],"river":"Baunach","gaugeCount":2,"sectionCount":0,"__fulltext":"baunach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4713"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bayerische Schwarzach","gaugeCount":2,"sectionCount":0,"__fulltext":"bayerische schwarzach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4714"},"countries":["Spain"],"countryCodes":["ES"],"river":"Baztan","gaugeCount":1,"sectionCount":0,"__fulltext":"baztan","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4715"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Bača","gaugeCount":1,"sectionCount":0,"__fulltext":"baca","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4716"},"countries":["Germany"],"countryCodes":["DE"],"river":"Berchtesgadener Ache","gaugeCount":1,"sectionCount":0,"__fulltext":"berchtesgadener ache","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4717"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bernauer Ache","gaugeCount":1,"sectionCount":0,"__fulltext":"bernauer ache","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4718"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Berninabach","gaugeCount":1,"sectionCount":2,"__fulltext":"berninabach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4719"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Berounka","gaugeCount":10,"sectionCount":3,"__fulltext":"berounka","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b471a"},"countries":["Germany"],"countryCodes":["DE"],"river":"Beurerbach","gaugeCount":1,"sectionCount":0,"__fulltext":"beurerbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b471b"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bevera","gaugeCount":1,"sectionCount":1,"__fulltext":"bevera","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b471c"},"countries":["France"],"countryCodes":["FR"],"river":"Bez","gaugeCount":1,"sectionCount":0,"__fulltext":"bez","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b471d"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bezdrevský potok","gaugeCount":2,"sectionCount":0,"__fulltext":"bezdrevsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b471e"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bečva","gaugeCount":2,"sectionCount":0,"__fulltext":"becva","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b471f"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Biber","gaugeCount":1,"sectionCount":0,"__fulltext":"biber","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4720"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bibert","gaugeCount":2,"sectionCount":0,"__fulltext":"bibert","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4721"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bidente di Ridracoli","gaugeCount":1,"sectionCount":1,"__fulltext":"bidente di ridracoli","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4722"},"countries":["Germany"],"countryCodes":["DE"],"river":"Biela","gaugeCount":1,"sectionCount":2,"__fulltext":"biela","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4723"},"countries":["France"],"countryCodes":["FR"],"river":"Bienne","gaugeCount":2,"sectionCount":3,"__fulltext":"bienne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4724"},"countries":["Germany"],"countryCodes":["DE"],"river":"Billbach","gaugeCount":1,"sectionCount":0,"__fulltext":"billbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4725"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bina","gaugeCount":1,"sectionCount":0,"__fulltext":"bina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4726"},"countries":["Germany"],"countryCodes":["DE"],"river":"Binnengraben","gaugeCount":1,"sectionCount":0,"__fulltext":"binnengraben","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4727"},"countries":["Italy"],"countryCodes":["IT"],"river":"Biois","gaugeCount":1,"sectionCount":1,"__fulltext":"biois","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4728"},"countries":["Germany"],"countryCodes":["DE"],"river":"Birkenmoosgraben","gaugeCount":1,"sectionCount":0,"__fulltext":"birkenmoosgraben","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4729"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Birs","gaugeCount":2,"sectionCount":5,"__fulltext":"birs","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472a"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Birse","gaugeCount":2,"sectionCount":1,"__fulltext":"birse","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472b"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bisagno","gaugeCount":1,"sectionCount":0,"__fulltext":"bisagno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472c"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bischofswieser Ache","gaugeCount":2,"sectionCount":0,"__fulltext":"bischofswieser ache","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472d"},"countries":["Italy"],"countryCodes":["IT"],"river":"Biscubio","gaugeCount":1,"sectionCount":0,"__fulltext":"biscubio","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472e"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bisenzio","gaugeCount":1,"sectionCount":1,"__fulltext":"bisenzio","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b472f"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Bistra","gaugeCount":1,"sectionCount":0,"__fulltext":"bistra","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4730"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Bistrica","gaugeCount":5,"sectionCount":0,"__fulltext":"bistrica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4731"},"countries":["Austria"],"countryCodes":["AT"],"river":"Bizauerbach","gaugeCount":1,"sectionCount":0,"__fulltext":"bizauerbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4732"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blanice","gaugeCount":7,"sectionCount":2,"__fulltext":"blanice","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4733"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blanice (BN)","gaugeCount":2,"sectionCount":0,"__fulltext":"blanice (bn)","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4734"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blanice (PI)","gaugeCount":6,"sectionCount":0,"__fulltext":"blanice (pi)","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4735"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blata","gaugeCount":1,"sectionCount":0,"__fulltext":"blata","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4736"},"countries":["Germany"],"countryCodes":["DE"],"river":"Blau","gaugeCount":1,"sectionCount":0,"__fulltext":"blau","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4737"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blažejovický potok","gaugeCount":1,"sectionCount":0,"__fulltext":"blazejovicky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4738"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Blšanka","gaugeCount":4,"sectionCount":0,"__fulltext":"blsanka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4739"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Boberský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"bobersky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b473a"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bobrůvka","gaugeCount":2,"sectionCount":0,"__fulltext":"bobruvka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b473b"},"countries":["Germany"],"countryCodes":["DE"],"river":"Bodensee","gaugeCount":2,"sectionCount":0,"__fulltext":"bodensee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b473c"},"countries":["Italy"],"countryCodes":["IT"],"river":"Boite","gaugeCount":3,"sectionCount":3,"__fulltext":"boite","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b473d"},"countries":["Austria"],"countryCodes":["AT"],"river":"Bolgenach","gaugeCount":2,"sectionCount":4,"__fulltext":"bolgenach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b473e"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Bolska","gaugeCount":1,"sectionCount":0,"__fulltext":"bolska","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b473f"},"countries":["France"],"countryCodes":["FR"],"river":"Bonne","gaugeCount":1,"sectionCount":0,"__fulltext":"bonne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4740"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bormida","gaugeCount":1,"sectionCount":0,"__fulltext":"bormida","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4741"},"countries":["France"],"countryCodes":["FR"],"river":"Borne","gaugeCount":2,"sectionCount":3,"__fulltext":"borne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4742"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Borovniščica","gaugeCount":1,"sectionCount":0,"__fulltext":"borovniscica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4743"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Borovský potok","gaugeCount":2,"sectionCount":0,"__fulltext":"borovsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4744"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bosso","gaugeCount":1,"sectionCount":1,"__fulltext":"bosso","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4745"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Botič","gaugeCount":6,"sectionCount":1,"__fulltext":"botic","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4746"},"countries":["France"],"countryCodes":["FR"],"river":"Bourne","gaugeCount":1,"sectionCount":2,"__fulltext":"bourne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4747"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bouřlivec","gaugeCount":1,"sectionCount":1,"__fulltext":"bourlivec","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4748"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bradava","gaugeCount":1,"sectionCount":2,"__fulltext":"bradava","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4749"},"countries":["France"],"countryCodes":["FR"],"river":"Brame","gaugeCount":1,"sectionCount":1,"__fulltext":"brame","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b474a"},"countries":["Austria"],"countryCodes":["AT"],"river":"Brandenberger Ache","gaugeCount":1,"sectionCount":4,"__fulltext":"brandenberger ache","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b474b"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Branica","gaugeCount":1,"sectionCount":0,"__fulltext":"branica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b474c"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Branná","gaugeCount":1,"sectionCount":0,"__fulltext":"branna","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b474d"},"countries":["Austria"],"countryCodes":["AT"],"river":"Braunaubach","gaugeCount":1,"sectionCount":1,"__fulltext":"braunaubach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b474e"},"countries":["Germany"],"countryCodes":["DE"],"river":"Brautlach","gaugeCount":1,"sectionCount":0,"__fulltext":"brautlach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b474f"},"countries":["Germany"],"countryCodes":["DE"],"river":"Breg","gaugeCount":1,"sectionCount":1,"__fulltext":"breg","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4750"},"countries":["Austria"],"countryCodes":["AT"],"river":"Bregenzerach","gaugeCount":5,"sectionCount":7,"__fulltext":"bregenzerach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4751"},"countries":["Germany"],"countryCodes":["DE"],"river":"Breitach","gaugeCount":1,"sectionCount":5,"__fulltext":"breitach","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4752"},"countries":["Germany"],"countryCodes":["DE"],"river":"Breitbach","gaugeCount":1,"sectionCount":0,"__fulltext":"breitbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4753"},"countries":["Germany"],"countryCodes":["DE"],"river":"Breitenbach (Blatenský potok)","gaugeCount":1,"sectionCount":0,"__fulltext":"breitenbach (blatensky potok)","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4754"},"countries":["Italy"],"countryCodes":["IT"],"river":"Brembo","gaugeCount":1,"sectionCount":3,"__fulltext":"brembo","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4755"},"countries":["Germany"],"countryCodes":["DE"],"river":"Brend","gaugeCount":2,"sectionCount":0,"__fulltext":"brend","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4756"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Brenno","gaugeCount":1,"sectionCount":2,"__fulltext":"brenno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4757"},"countries":["Italy"],"countryCodes":["IT"],"river":"Brenta","gaugeCount":1,"sectionCount":4,"__fulltext":"brenta","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4758"},"countries":["Germany"],"countryCodes":["DE"],"river":"Brenz","gaugeCount":2,"sectionCount":0,"__fulltext":"brenz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4759"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Brodečka","gaugeCount":1,"sectionCount":0,"__fulltext":"brodecka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475a"},"countries":["Germany"],"countryCodes":["DE"],"river":"Brombachsee","gaugeCount":2,"sectionCount":0,"__fulltext":"brombachsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475b"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Broye","gaugeCount":1,"sectionCount":1,"__fulltext":"broye","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475c"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Brtnice","gaugeCount":1,"sectionCount":0,"__fulltext":"brtnice","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475d"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Brumovka","gaugeCount":1,"sectionCount":0,"__fulltext":"brumovka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475e"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Brzina","gaugeCount":1,"sectionCount":0,"__fulltext":"brzina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b475f"},"countries":["France"],"countryCodes":["FR"],"river":"Bréda","gaugeCount":1,"sectionCount":2,"__fulltext":"breda","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4760"},"countries":["Germany"],"countryCodes":["DE"],"river":"Buchbach","gaugeCount":1,"sectionCount":0,"__fulltext":"buchbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4761"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Budišovka","gaugeCount":1,"sectionCount":0,"__fulltext":"budisovka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4762"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bulovský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"bulovsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4763"},"countries":["France"],"countryCodes":["FR"],"river":"Burande","gaugeCount":2,"sectionCount":1,"__fulltext":"burande","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4764"},"countries":["Italy"],"countryCodes":["IT"],"river":"Burano","gaugeCount":1,"sectionCount":0,"__fulltext":"burano","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4765"},"countries":["Italy"],"countryCodes":["IT"],"river":"Bussento","gaugeCount":1,"sectionCount":1,"__fulltext":"bussento","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4766"},"countries":["Italy"],"countryCodes":["IT"],"river":"But","gaugeCount":1,"sectionCount":0,"__fulltext":"but","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4767"},"countries":["Italy"],"countryCodes":["IT"],"river":"Buthier","gaugeCount":1,"sectionCount":1,"__fulltext":"buthier","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4768"},"countries":["France"],"countryCodes":["FR"],"river":"Buëch","gaugeCount":1,"sectionCount":0,"__fulltext":"buech","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4769"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bystřice","gaugeCount":6,"sectionCount":2,"__fulltext":"bystrice","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b476a"},"countries":["France"],"countryCodes":["FR"],"river":"Bès","gaugeCount":1,"sectionCount":2,"__fulltext":"bes","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b476b"},"countries":["France"],"countryCodes":["FR"],"river":"Bévéra","gaugeCount":2,"sectionCount":0,"__fulltext":"bevera","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b476c"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bílina","gaugeCount":6,"sectionCount":0,"__fulltext":"bilina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b476d"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bílovka","gaugeCount":1,"sectionCount":0,"__fulltext":"bilovka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b476e"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bílá Smědá","gaugeCount":1,"sectionCount":0,"__fulltext":"bila smeda","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b476f"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bílý potok","gaugeCount":1,"sectionCount":0,"__fulltext":"bily potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4770"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bělokamenný potok","gaugeCount":1,"sectionCount":0,"__fulltext":"belokamenny potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4771"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bělá","gaugeCount":8,"sectionCount":1,"__fulltext":"bela","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4772"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Bělá (PE)","gaugeCount":1,"sectionCount":0,"__fulltext":"bela (pe)","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4773"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Březná","gaugeCount":1,"sectionCount":0,"__fulltext":"brezna","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4774"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Březový potok","gaugeCount":1,"sectionCount":0,"__fulltext":"brezovy potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4775"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Calancasca","gaugeCount":1,"sectionCount":2,"__fulltext":"calancasca","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4776"},"countries":["Italy"],"countryCodes":["IT"],"river":"Calore","gaugeCount":1,"sectionCount":0,"__fulltext":"calore","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4777"},"countries":["France"],"countryCodes":["FR"],"river":"Cance","gaugeCount":1,"sectionCount":1,"__fulltext":"cance","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4778"},"countries":["Italy"],"countryCodes":["IT"],"river":"Candigliano","gaugeCount":1,"sectionCount":2,"__fulltext":"candigliano","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4779"},"countries":["Italy"],"countryCodes":["IT"],"river":"Caorame","gaugeCount":1,"sectionCount":1,"__fulltext":"caorame","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477a"},"countries":["France"],"countryCodes":["FR"],"river":"Carol","gaugeCount":1,"sectionCount":0,"__fulltext":"carol","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477b"},"countries":["Italy"],"countryCodes":["IT"],"river":"Carza","gaugeCount":1,"sectionCount":2,"__fulltext":"carza","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477c"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Cassarate","gaugeCount":1,"sectionCount":1,"__fulltext":"cassarate","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477d"},"countries":["France"],"countryCodes":["FR"],"river":"Castellane","gaugeCount":1,"sectionCount":0,"__fulltext":"castellane","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477e"},"countries":["Germany"],"countryCodes":["DE"],"river":"Castellbach","gaugeCount":1,"sectionCount":0,"__fulltext":"castellbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b477f"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Castione","gaugeCount":1,"sectionCount":0,"__fulltext":"castione","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4780"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cecina","gaugeCount":1,"sectionCount":1,"__fulltext":"cecina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4781"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cedra","gaugeCount":1,"sectionCount":1,"__fulltext":"cedra","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4782"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cellina","gaugeCount":2,"sectionCount":3,"__fulltext":"cellina","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4783"},"countries":["Italy"],"countryCodes":["IT"],"river":"Ceno","gaugeCount":2,"sectionCount":1,"__fulltext":"ceno","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4784"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Cerknica","gaugeCount":1,"sectionCount":0,"__fulltext":"cerknica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4785"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Cerkniščica","gaugeCount":1,"sectionCount":0,"__fulltext":"cerkniscica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4786"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cervo","gaugeCount":1,"sectionCount":4,"__fulltext":"cervo","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4787"},"countries":["Germany"],"countryCodes":["DE"],"river":"Chamb","gaugeCount":6,"sectionCount":0,"__fulltext":"chamb","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4788"},"countries":["France"],"countryCodes":["FR"],"river":"Chapeauroux","gaugeCount":1,"sectionCount":2,"__fulltext":"chapeauroux","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4789"},"countries":["Germany"],"countryCodes":["DE"],"river":"Chemnitz","gaugeCount":2,"sectionCount":1,"__fulltext":"chemnitz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478a"},"countries":["Italy"],"countryCodes":["IT"],"river":"Chiarsò","gaugeCount":2,"sectionCount":1,"__fulltext":"chiarso","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478b"},"countries":["Germany"],"countryCodes":["DE"],"river":"Chiemsee","gaugeCount":1,"sectionCount":0,"__fulltext":"chiemsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478c"},"countries":["Italy"],"countryCodes":["IT"],"river":"Chiese","gaugeCount":1,"sectionCount":2,"__fulltext":"chiese","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478d"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Chirel","gaugeCount":2,"sectionCount":1,"__fulltext":"chirel","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478e"},"countries":["Italy"],"countryCodes":["IT"],"river":"Chisone","gaugeCount":1,"sectionCount":2,"__fulltext":"chisone","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b478f"},"countries":["Italy"],"countryCodes":["IT"],"river":"Chiusella","gaugeCount":1,"sectionCount":3,"__fulltext":"chiusella","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4790"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chodovský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"chodovsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4791"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chomutovka","gaugeCount":3,"sectionCount":1,"__fulltext":"chomutovka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4792"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chotovinský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"chotovinsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4793"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chotýšanka","gaugeCount":2,"sectionCount":0,"__fulltext":"chotysanka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4794"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chrudimka","gaugeCount":8,"sectionCount":1,"__fulltext":"chrudimka","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4795"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chvalšinský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"chvalsinsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4796"},"countries":["France"],"countryCodes":["FR"],"river":"Chéran","gaugeCount":2,"sectionCount":3,"__fulltext":"cheran","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4797"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Chřibská Kamenice","gaugeCount":2,"sectionCount":0,"__fulltext":"chribska kamenice","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4798"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Cidlina","gaugeCount":4,"sectionCount":0,"__fulltext":"cidlina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4799"},"countries":["Spain"],"countryCodes":["ES"],"river":"Cinca","gaugeCount":3,"sectionCount":3,"__fulltext":"cinca","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b479a"},"countries":["Spain"],"countryCodes":["ES"],"river":"Cinqueta","gaugeCount":1,"sectionCount":4,"__fulltext":"cinqueta","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b479b"},"countries":["Italy"],"countryCodes":["IT"],"river":"Ciufenna","gaugeCount":1,"sectionCount":0,"__fulltext":"ciufenna","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b479c"},"countries":["France"],"countryCodes":["FR"],"river":"Cleurie","gaugeCount":1,"sectionCount":1,"__fulltext":"cleurie","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b479d"},"countries":["France"],"countryCodes":["FR"],"river":"Coise","gaugeCount":1,"sectionCount":1,"__fulltext":"coise","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b479e"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cordevole","gaugeCount":4,"sectionCount":4,"__fulltext":"cordevole","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b479f"},"countries":["Italy"],"countryCodes":["IT"],"river":"Cornappo","gaugeCount":2,"sectionCount":1,"__fulltext":"cornappo","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a0"},"countries":["France"],"countryCodes":["FR"],"river":"Corrèze","gaugeCount":3,"sectionCount":7,"__fulltext":"correze","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a1"},"countries":["Italy"],"countryCodes":["IT"],"river":"Corsaglia","gaugeCount":1,"sectionCount":0,"__fulltext":"corsaglia","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a2"},"countries":["France"],"countryCodes":["FR"],"river":"Couze Chambon","gaugeCount":2,"sectionCount":0,"__fulltext":"couze chambon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a3"},"countries":["France"],"countryCodes":["FR"],"river":"Couze Pavin","gaugeCount":1,"sectionCount":1,"__fulltext":"couze pavin","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a4"},"countries":["Germany"],"countryCodes":["DE"],"river":"Creußen","gaugeCount":1,"sectionCount":0,"__fulltext":"creussen","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a5"},"countries":["France"],"countryCodes":["FR"],"river":"Cure","gaugeCount":1,"sectionCount":0,"__fulltext":"cure","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a6"},"countries":["France"],"countryCodes":["FR"],"river":"Cusancin","gaugeCount":2,"sectionCount":1,"__fulltext":"cusancin","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a7"},"countries":["France"],"countryCodes":["FR"],"river":"Cère","gaugeCount":1,"sectionCount":4,"__fulltext":"cere","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a8"},"countries":["France"],"countryCodes":["FR"],"river":"Céor","gaugeCount":1,"sectionCount":1,"__fulltext":"ceor","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47a9"},"countries":["France"],"countryCodes":["FR"],"river":"Dadou","gaugeCount":1,"sectionCount":1,"__fulltext":"dadou","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47aa"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dalejský potok","gaugeCount":1,"sectionCount":0,"__fulltext":"dalejsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ab"},"countries":["Germany"],"countryCodes":["DE"],"river":"Danglesbach","gaugeCount":1,"sectionCount":0,"__fulltext":"danglesbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ac"},"countries":["Italy"],"countryCodes":["IT"],"river":"Degano","gaugeCount":1,"sectionCount":1,"__fulltext":"degano","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ad"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Desná","gaugeCount":5,"sectionCount":0,"__fulltext":"desna","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ae"},"countries":["France"],"countryCodes":["FR"],"river":"Dessoubre","gaugeCount":3,"sectionCount":1,"__fulltext":"dessoubre","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47af"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Divoká Orlice","gaugeCount":5,"sectionCount":2,"__fulltext":"divoka orlice","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47b0"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dobřejovický potok","gaugeCount":1,"sectionCount":0,"__fulltext":"dobrejovicky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b1"},"countries":["Italy"],"countryCodes":["IT"],"river":"Dolo","gaugeCount":1,"sectionCount":2,"__fulltext":"dolo","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b2"},"countries":["Germany"],"countryCodes":["DE"],"river":"Donau","gaugeCount":29,"sectionCount":1,"__fulltext":"donau","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b3"},"countries":["Germany"],"countryCodes":["DE"],"river":"Donaumoos Ach","gaugeCount":3,"sectionCount":0,"__fulltext":"donaumoos ach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b4"},"countries":["Italy"],"countryCodes":["IT"],"river":"Dora Baltea","gaugeCount":4,"sectionCount":8,"__fulltext":"dora baltea","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47b5"},"countries":["Italy"],"countryCodes":["IT"],"river":"Dora Riparia","gaugeCount":1,"sectionCount":1,"__fulltext":"dora riparia","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b6"},"countries":["Italy"],"countryCodes":["IT"],"river":"Dora di La Thuile","gaugeCount":1,"sectionCount":0,"__fulltext":"dora di la thuile","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b7"},"countries":["France"],"countryCodes":["FR"],"river":"Dordogne","gaugeCount":3,"sectionCount":4,"__fulltext":"dordogne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b8"},"countries":["France"],"countryCodes":["FR"],"river":"Dore","gaugeCount":3,"sectionCount":1,"__fulltext":"dore","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47b9"},"countries":["Germany"],"countryCodes":["DE"],"river":"Dorfen","gaugeCount":1,"sectionCount":0,"__fulltext":"dorfen","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ba"},"countries":["France"],"countryCodes":["FR"],"river":"Doron de Termignon","gaugeCount":1,"sectionCount":1,"__fulltext":"doron de termignon","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47bb"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Doubrava","gaugeCount":5,"sectionCount":3,"__fulltext":"doubrava","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47bc"},"countries":["Switzerland","France"],"countryCodes":["CH","FR"],"river":"Doubs","gaugeCount":9,"sectionCount":9,"__fulltext":"doubs","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47bd"},"countries":["France"],"countryCodes":["FR"],"river":"Dourbie","gaugeCount":1,"sectionCount":2,"__fulltext":"dourbie","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47be"},"countries":["France"],"countryCodes":["FR"],"river":"Dourdou","gaugeCount":1,"sectionCount":1,"__fulltext":"dourdou","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47bf"},"countries":["France"],"countryCodes":["FR"],"river":"Doux","gaugeCount":5,"sectionCount":2,"__fulltext":"doux","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c0"},"countries":["France"],"countryCodes":["FR"],"river":"Drac","gaugeCount":1,"sectionCount":2,"__fulltext":"drac","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Drachensee","gaugeCount":1,"sectionCount":0,"__fulltext":"drachensee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c2"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Dragonja","gaugeCount":1,"sectionCount":0,"__fulltext":"dragonja","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c3"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Drance","gaugeCount":1,"sectionCount":0,"__fulltext":"drance","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c4"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Drance de Bagnes","gaugeCount":1,"sectionCount":0,"__fulltext":"drance de bagnes","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c5"},"countries":["France"],"countryCodes":["FR"],"river":"Dranse","gaugeCount":3,"sectionCount":3,"__fulltext":"dranse","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47c6"},"countries":["France"],"countryCodes":["FR"],"river":"Dranse d'Abondance","gaugeCount":1,"sectionCount":3,"__fulltext":"dranse d'abondance","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c7"},"countries":["France"],"countryCodes":["FR"],"river":"Dranse de Morzine","gaugeCount":2,"sectionCount":2,"__fulltext":"dranse de morzine","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47c8"},"countries":["Austria"],"countryCodes":["AT"],"river":"Drau","gaugeCount":3,"sectionCount":3,"__fulltext":"drau","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47c9"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Drava","gaugeCount":4,"sectionCount":0,"__fulltext":"drava","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ca"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Dravinja","gaugeCount":4,"sectionCount":0,"__fulltext":"dravinja","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47cb"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dračice","gaugeCount":1,"sectionCount":0,"__fulltext":"dracice","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47cc"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dračice (Reißbach)","gaugeCount":1,"sectionCount":0,"__fulltext":"dracice (reissbach)","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47cd"},"countries":["Germany"],"countryCodes":["DE"],"river":"Dreisam","gaugeCount":1,"sectionCount":2,"__fulltext":"dreisam","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ce"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Dreta","gaugeCount":1,"sectionCount":0,"__fulltext":"dreta","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47cf"},"countries":["Slovenia"],"countryCodes":["SI"],"river":"Drnica","gaugeCount":1,"sectionCount":0,"__fulltext":"drnica","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d0"},"countries":["France"],"countryCodes":["FR"],"river":"Drôme","gaugeCount":1,"sectionCount":5,"__fulltext":"drome","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d1"},"countries":["France"],"countryCodes":["FR"],"river":"Dunières","gaugeCount":1,"sectionCount":1,"__fulltext":"dunieres","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d2"},"countries":["Germany"],"countryCodes":["DE"],"river":"Durach","gaugeCount":1,"sectionCount":0,"__fulltext":"durach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d3"},"countries":["France"],"countryCodes":["FR"],"river":"Durance","gaugeCount":9,"sectionCount":16,"__fulltext":"durance","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47d4"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dyje","gaugeCount":8,"sectionCount":0,"__fulltext":"dyje","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d5"},"countries":["Germany"],"countryCodes":["DE"],"river":"Dürnach","gaugeCount":1,"sectionCount":0,"__fulltext":"durnach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d6"},"countries":["Germany"],"countryCodes":["DE"],"river":"Dürrach","gaugeCount":1,"sectionCount":1,"__fulltext":"durrach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d7"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dědina","gaugeCount":2,"sectionCount":0,"__fulltext":"dedina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d8"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Dřevnice","gaugeCount":3,"sectionCount":0,"__fulltext":"drevnice","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47d9"},"countries":["Austria"],"countryCodes":["AT"],"river":"Ebriachbach","gaugeCount":1,"sectionCount":0,"__fulltext":"ebriachbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47da"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ecknach","gaugeCount":1,"sectionCount":0,"__fulltext":"ecknach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47db"},"countries":["Germany"],"countryCodes":["DE"],"river":"Effelder","gaugeCount":1,"sectionCount":0,"__fulltext":"effelder","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47dc"},"countries":["Germany"],"countryCodes":["DE"],"river":"Egau","gaugeCount":1,"sectionCount":0,"__fulltext":"egau","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47dd"},"countries":["Germany"],"countryCodes":["DE"],"river":"Eger","gaugeCount":4,"sectionCount":0,"__fulltext":"eger","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47de"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ehenbach","gaugeCount":1,"sectionCount":0,"__fulltext":"ehenbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47df"},"countries":["Austria","Germany"],"countryCodes":["AT","DE"],"river":"Eisbach","gaugeCount":2,"sectionCount":0,"__fulltext":"eisbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e0"},"countries":["Germany"],"countryCodes":["DE"],"river":"Eixendorfer See","gaugeCount":1,"sectionCount":0,"__fulltext":"eixendorfer see","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ellbach","gaugeCount":1,"sectionCount":0,"__fulltext":"ellbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e2"},"countries":["Italy"],"countryCodes":["IT"],"river":"Ellero","gaugeCount":1,"sectionCount":1,"__fulltext":"ellero","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e3"},"countries":["Germany"],"countryCodes":["DE"],"river":"Ellertshäuser See","gaugeCount":1,"sectionCount":0,"__fulltext":"ellertshauser see","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e4"},"countries":["Germany"],"countryCodes":["DE"],"river":"Els","gaugeCount":1,"sectionCount":0,"__fulltext":"els","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e5"},"countries":["Italy"],"countryCodes":["IT"],"river":"Elsa","gaugeCount":1,"sectionCount":1,"__fulltext":"elsa","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e6"},"countries":["Germany"],"countryCodes":["DE"],"river":"Elsava","gaugeCount":2,"sectionCount":0,"__fulltext":"elsava","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e7"},"countries":["Germany"],"countryCodes":["DE"],"river":"Elz","gaugeCount":1,"sectionCount":4,"__fulltext":"elz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e8"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Emme","gaugeCount":1,"sectionCount":0,"__fulltext":"emme","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47e9"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Engelberger Aa","gaugeCount":1,"sectionCount":3,"__fulltext":"engelberger aa","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ea"},"countries":["Austria"],"countryCodes":["AT"],"river":"Enns","gaugeCount":5,"sectionCount":4,"__fulltext":"enns","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47eb"},"countries":["Italy"],"countryCodes":["IT"],"river":"Entella","gaugeCount":3,"sectionCount":1,"__fulltext":"entella","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ec"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Entschlige","gaugeCount":1,"sectionCount":2,"__fulltext":"entschlige","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b47ed"},"countries":["Italy"],"countryCodes":["IT"],"river":"Enza","gaugeCount":1,"sectionCount":3,"__fulltext":"enza","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ee"},"countries":["Germany"],"countryCodes":["DE"],"river":"Erf","gaugeCount":1,"sectionCount":0,"__fulltext":"erf","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ef"},"countries":["Germany"],"countryCodes":["DE"],"river":"Erfa","gaugeCount":1,"sectionCount":0,"__fulltext":"erfa","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f0"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Ergolz","gaugeCount":1,"sectionCount":0,"__fulltext":"ergolz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f1"},"countries":["Germany"],"countryCodes":["DE"],"river":"Erlau","gaugeCount":2,"sectionCount":2,"__fulltext":"erlau","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f2"},"countries":["Italy"],"countryCodes":["IT"],"river":"Erro","gaugeCount":1,"sectionCount":1,"__fulltext":"erro","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f3"},"countries":["Germany"],"countryCodes":["DE"],"river":"Eschach","gaugeCount":1,"sectionCount":0,"__fulltext":"eschach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f4"},"countries":["Germany"],"countryCodes":["DE"],"river":"Eschenlaine","gaugeCount":1,"sectionCount":0,"__fulltext":"eschenlaine","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f5"},"countries":["Spain"],"countryCodes":["ES"],"river":"Escá","gaugeCount":2,"sectionCount":0,"__fulltext":"esca","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f6"},"countries":["Spain"],"countryCodes":["ES"],"river":"Esera","gaugeCount":2,"sectionCount":4,"__fulltext":"esera","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f7"},"countries":["Italy"],"countryCodes":["IT"],"river":"Esino","gaugeCount":2,"sectionCount":1,"__fulltext":"esino","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f8"},"countries":["France"],"countryCodes":["FR"],"river":"Esteron","gaugeCount":5,"sectionCount":3,"__fulltext":"esteron","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47f9"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Etzgerbach","gaugeCount":1,"sectionCount":1,"__fulltext":"etzgerbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47fa"},"countries":["Germany"],"countryCodes":["DE"],"river":"Euzenauer Bach","gaugeCount":1,"sectionCount":0,"__fulltext":"euzenauer bach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47fb"},"countries":["Germany"],"countryCodes":["DE"],"river":"Eybach","gaugeCount":1,"sectionCount":0,"__fulltext":"eybach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47fc"},"countries":["France"],"countryCodes":["FR"],"river":"Eyrieux","gaugeCount":4,"sectionCount":7,"__fulltext":"eyrieux","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47fd"},"countries":["Spain"],"countryCodes":["ES"],"river":"Ezkurra","gaugeCount":1,"sectionCount":0,"__fulltext":"ezkurra","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47fe"},"countries":["France"],"countryCodes":["FR"],"river":"Fango","gaugeCount":1,"sectionCount":1,"__fulltext":"fango","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b47ff"},"countries":["Italy"],"countryCodes":["IT"],"river":"Farma","gaugeCount":1,"sectionCount":1,"__fulltext":"farma","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4800"},"countries":["Germany"],"countryCodes":["DE"],"river":"Farrnbach","gaugeCount":1,"sectionCount":0,"__fulltext":"farrnbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4801"},"countries":["France"],"countryCodes":["FR"],"river":"Fecht","gaugeCount":2,"sectionCount":1,"__fulltext":"fecht","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4802"},"countries":["Germany"],"countryCodes":["DE"],"river":"Felchbach","gaugeCount":1,"sectionCount":0,"__fulltext":"felchbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4803"},"countries":["Austria"],"countryCodes":["AT"],"river":"Feldaist","gaugeCount":1,"sectionCount":1,"__fulltext":"feldaist","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4804"},"countries":["Italy"],"countryCodes":["IT"],"river":"Fella","gaugeCount":3,"sectionCount":3,"__fulltext":"fella","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4805"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fensterbach","gaugeCount":1,"sectionCount":0,"__fulltext":"fensterbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4806"},"countries":["Italy"],"countryCodes":["IT"],"river":"Fersina","gaugeCount":1,"sectionCount":1,"__fulltext":"fersina","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4807"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fichtelnaab","gaugeCount":1,"sectionCount":0,"__fulltext":"fichtelnaab","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4808"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fichtenohe","gaugeCount":1,"sectionCount":0,"__fulltext":"fichtenohe","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4809"},"countries":["Austria"],"countryCodes":["AT"],"river":"Fieberbrunner Ache","gaugeCount":1,"sectionCount":1,"__fulltext":"fieberbrunner ache","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b480a"},"countries":["France"],"countryCodes":["FR"],"river":"Fier","gaugeCount":2,"sectionCount":1,"__fulltext":"fier","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b480b"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Fildrich","gaugeCount":1,"sectionCount":1,"__fulltext":"fildrich","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b480c"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fimbach","gaugeCount":1,"sectionCount":0,"__fulltext":"fimbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b480d"},"countries":["Italy"],"countryCodes":["IT"],"river":"Fiora","gaugeCount":2,"sectionCount":2,"__fulltext":"fiora","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b480e"},"countries":["Austria"],"countryCodes":["AT"],"river":"Fischach","gaugeCount":2,"sectionCount":0,"__fulltext":"fischach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b480f"},"countries":["Italy"],"countryCodes":["IT"],"river":"Fiumi Uniti Montone","gaugeCount":1,"sectionCount":0,"__fulltext":"fiumi uniti montone","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4810"},"countries":["Italy"],"countryCodes":["IT"],"river":"Fiumi Uniti Ronco","gaugeCount":1,"sectionCount":0,"__fulltext":"fiumi uniti ronco","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4811"},"countries":["Spain"],"countryCodes":["ES"],"river":"Flamisell","gaugeCount":1,"sectionCount":0,"__fulltext":"flamisell","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4812"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Flaz","gaugeCount":1,"sectionCount":1,"__fulltext":"flaz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4813"},"countries":["Germany"],"countryCodes":["DE"],"river":"Flossach","gaugeCount":1,"sectionCount":0,"__fulltext":"flossach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4814"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Flájský potok","gaugeCount":2,"sectionCount":0,"__fulltext":"flajsky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4815"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Flájský potok-HVT č. 152, 153, 163","gaugeCount":1,"sectionCount":0,"__fulltext":"flajsky potok-hvt c. 152, 153, 163","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4816"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Fojtka","gaugeCount":1,"sectionCount":0,"__fulltext":"fojtka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4817"},"countries":["Germany"],"countryCodes":["DE"],"river":"Forggensee","gaugeCount":2,"sectionCount":0,"__fulltext":"forggensee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4818"},"countries":["Germany"],"countryCodes":["DE"],"river":"Frankenohe","gaugeCount":1,"sectionCount":0,"__fulltext":"frankenohe","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4819"},"countries":["Germany"],"countryCodes":["DE"],"river":"Freybach","gaugeCount":1,"sectionCount":0,"__fulltext":"freybach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481a"},"countries":["Italy"],"countryCodes":["IT"],"river":"Frigido","gaugeCount":1,"sectionCount":1,"__fulltext":"frigido","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481b"},"countries":["Germany"],"countryCodes":["DE"],"river":"Froschgrundsee","gaugeCount":1,"sectionCount":0,"__fulltext":"froschgrundsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481c"},"countries":["Austria"],"countryCodes":["AT"],"river":"Frutz","gaugeCount":1,"sectionCount":4,"__fulltext":"frutz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481d"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Fryštácký potok","gaugeCount":1,"sectionCount":0,"__fulltext":"frystacky potok","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481e"},"countries":["Czechia"],"countryCodes":["CZ"],"river":"Fryšávka","gaugeCount":1,"sectionCount":0,"__fulltext":"frysavka","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b481f"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fränkische Rezat","gaugeCount":4,"sectionCount":0,"__fulltext":"frankische rezat","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4820"},"countries":["Germany"],"countryCodes":["DE"],"river":"Fränkische Saale","gaugeCount":5,"sectionCount":0,"__fulltext":"frankische saale","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4821"},"countries":["Austria"],"countryCodes":["AT"],"river":"Fuschlsee","gaugeCount":1,"sectionCount":0,"__fulltext":"fuschlsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4822"},"countries":["Germany"],"countryCodes":["DE"],"river":"Förmitz","gaugeCount":2,"sectionCount":0,"__fulltext":"formitz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4823"},"countries":["Germany"],"countryCodes":["DE"],"river":"Förmitztalsperre","gaugeCount":1,"sectionCount":0,"__fulltext":"formitztalsperre","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4824"},"countries":["Germany"],"countryCodes":["DE"],"river":"Füssener Achen","gaugeCount":1,"sectionCount":0,"__fulltext":"fussener achen","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4825"},"countries":["Italy"],"countryCodes":["IT"],"river":"Gadera/Gader","gaugeCount":1,"sectionCount":3,"__fulltext":"gadera/gader","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4826"},"countries":["Austria"],"countryCodes":["AT"],"river":"Gail","gaugeCount":2,"sectionCount":3,"__fulltext":"gail","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4827"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gailach","gaugeCount":1,"sectionCount":0,"__fulltext":"gailach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4828"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gaißa","gaugeCount":1,"sectionCount":0,"__fulltext":"gaissa","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4829"},"countries":["France"],"countryCodes":["FR"],"river":"Galaure","gaugeCount":2,"sectionCount":2,"__fulltext":"galaure","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482a"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gambach","gaugeCount":1,"sectionCount":0,"__fulltext":"gambach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482b"},"countries":["France"],"countryCodes":["FR"],"river":"Gard","gaugeCount":1,"sectionCount":0,"__fulltext":"gard","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482c"},"countries":["France"],"countryCodes":["FR"],"river":"Gardon de Saint-Jean","gaugeCount":3,"sectionCount":1,"__fulltext":"gardon de saint-jean","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482d"},"countries":["France"],"countryCodes":["FR"],"river":"Gardon de Sainte-Croix","gaugeCount":3,"sectionCount":0,"__fulltext":"gardon de sainte-croix","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482e"},"countries":["Spain"],"countryCodes":["ES"],"river":"Garona","gaugeCount":2,"sectionCount":0,"__fulltext":"garona","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b482f"},"countries":["France"],"countryCodes":["FR"],"river":"Garonne","gaugeCount":1,"sectionCount":0,"__fulltext":"garonne","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4830"},"countries":["Austria"],"countryCodes":["AT"],"river":"Gasteiner Ache","gaugeCount":1,"sectionCount":0,"__fulltext":"gasteiner ache","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4831"},"countries":["France"],"countryCodes":["FR"],"river":"Gave d'Aspe","gaugeCount":3,"sectionCount":2,"__fulltext":"gave d'aspe","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4832"},"countries":["France"],"countryCodes":["FR"],"river":"Gave d'Oloron","gaugeCount":1,"sectionCount":4,"__fulltext":"gave d'oloron","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4833"},"countries":["France"],"countryCodes":["FR"],"river":"Gave d'Oloron [Le Gave d'Ossau]","gaugeCount":2,"sectionCount":0,"__fulltext":"gave d'oloron [le gave d'ossau]","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4834"},"countries":["France"],"countryCodes":["FR"],"river":"Gave de Cauterets","gaugeCount":1,"sectionCount":3,"__fulltext":"gave de cauterets","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4835"},"countries":["France"],"countryCodes":["FR"],"river":"Gave de Pau","gaugeCount":6,"sectionCount":9,"__fulltext":"gave de pau","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4836"},"countries":["France"],"countryCodes":["FR"],"river":"Gazeille","gaugeCount":2,"sectionCount":1,"__fulltext":"gazeille","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4837"},"countries":["Germany"],"countryCodes":["DE"],"river":"Geisbach","gaugeCount":1,"sectionCount":0,"__fulltext":"geisbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4838"},"countries":["Germany"],"countryCodes":["DE"],"river":"Geltnach","gaugeCount":1,"sectionCount":0,"__fulltext":"geltnach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4839"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gennach","gaugeCount":1,"sectionCount":0,"__fulltext":"gennach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483a"},"countries":["Germany"],"countryCodes":["DE"],"river":"Georgenbach","gaugeCount":1,"sectionCount":0,"__fulltext":"georgenbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483b"},"countries":["France"],"countryCodes":["FR"],"river":"Ger","gaugeCount":1,"sectionCount":0,"__fulltext":"ger","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483c"},"countries":["Italy"],"countryCodes":["IT"],"river":"Germanasca","gaugeCount":1,"sectionCount":4,"__fulltext":"germanasca","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483d"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gerolsbach","gaugeCount":1,"sectionCount":0,"__fulltext":"gerolsbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483e"},"countries":["Austria"],"countryCodes":["AT"],"river":"Gersbach","gaugeCount":1,"sectionCount":0,"__fulltext":"gersbach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b483f"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gersprenz","gaugeCount":1,"sectionCount":0,"__fulltext":"gersprenz","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4840"},"countries":["Italy"],"countryCodes":["IT"],"river":"Gesso di Valletta","gaugeCount":1,"sectionCount":4,"__fulltext":"gesso di valletta","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4841"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gfällach","gaugeCount":1,"sectionCount":0,"__fulltext":"gfallach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4842"},"countries":["France"],"countryCodes":["FR"],"river":"Giessen","gaugeCount":1,"sectionCount":1,"__fulltext":"giessen","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4843"},"countries":["France"],"countryCodes":["FR"],"river":"Giffre","gaugeCount":3,"sectionCount":5,"__fulltext":"giffre","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4844"},"countries":["Austria"],"countryCodes":["AT"],"river":"Glan","gaugeCount":1,"sectionCount":0,"__fulltext":"glan","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4845"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Glatt","gaugeCount":2,"sectionCount":2,"__fulltext":"glatt","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4846"},"countries":["Switzerland"],"countryCodes":["CH"],"river":"Glenner","gaugeCount":5,"sectionCount":5,"__fulltext":"glenner","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b4847"},"countries":["Germany"],"countryCodes":["DE"],"river":"Glonn","gaugeCount":6,"sectionCount":0,"__fulltext":"glonn","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4848"},"countries":["France"],"countryCodes":["FR"],"river":"Glueyre","gaugeCount":2,"sectionCount":2,"__fulltext":"glueyre","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b4849"},"countries":["Switzerland","Germany"],"countryCodes":["CH","DE"],"river":"Goldach","gaugeCount":2,"sectionCount":2,"__fulltext":"goldach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b484a"},"countries":["Germany"],"countryCodes":["DE"],"river":"Goldbergsee","gaugeCount":1,"sectionCount":0,"__fulltext":"goldbergsee","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b484b"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gollach","gaugeCount":1,"sectionCount":0,"__fulltext":"gollach","diaryItemCount":0}
+{"_id":{"$oid":"679c75e222b74f001c4b484c"},"countries":["France"],"countryCodes":["FR"],"river":"Golo","gaugeCount":3,"sectionCount":11,"__fulltext":"golo","diaryItemCount":1}
+{"_id":{"$oid":"679c75e222b74f001c4b484d"},"countries":["Germany"],"countryCodes":["DE"],"river":"Gottleuba","gaugeCount":2,"sectionCount":2,"__fulltext":"gottleuba","diaryItemCount":1}

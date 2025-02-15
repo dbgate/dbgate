@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { currentDatabase, openedConnectionsWithTemporary, getCurrentConfig, getOpenedConnections } from '../stores';
 import { apiCall, getVolatileConnections, strmid } from './api';
 import hasPermission from '../utility/hasPermission';
+import { getConfig } from './metadataLoaders';
+import { onMount } from 'svelte';
 
 // const doServerPing = async value => {
 //   const connectionList = getConnectionList();
@@ -22,7 +24,7 @@ const doServerPing = value => {
   }
 
   apiCall('server-connections/ping', {
-    conidArray,
+    conidArray: _.compact(conidArray),
     strmid,
   });
 };
@@ -56,4 +58,20 @@ export function subscribeConnectionPingers() {
 export function callServerPing() {
   const connections = getOpenedConnections();
   doServerPing(connections);
+}
+
+export async function mountStorageConnectionPing() {
+  const config = getCurrentConfig();
+
+  onMount(() => {
+    const conid = '__storage';
+    const database = config.storageDatabase;
+    apiCall('database-connections/ping', { conid, database });
+    const handle = setInterval(() => {
+      if (conid && database) {
+        apiCall('database-connections/ping', { conid, database });
+      }
+    }, 20 * 1000);
+    return () => clearInterval(handle);
+  });
 }

@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const connectUtility = require('../utility/connectUtility');
+const { connectUtility } = require('../utility/connectUtility');
 const { getLogger, getLimitedQuery } = require('dbgate-tools');
 
 const logger = getLogger('execQuery');

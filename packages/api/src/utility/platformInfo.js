@@ -15,6 +15,7 @@ const isNpmDist = !!global['IS_NPM_DIST'];
 const isDbModel = !!global['IS_DB_MODEL'];
 const isForkedApi = processArgs.isForkedApi;
 const isAwsUbuntuLayout = fs.existsSync('/home/ubuntu/build/public');
+const isAzureUbuntuLayout = fs.existsSync('/home/azureuser/build/public');
 
 // function moduleAvailable(name) {
 //   try {
@@ -57,6 +58,7 @@ const platformInfo = {
   allowConnectionFromEnvVariables: !!isDbModel,
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
   isAwsUbuntuLayout,
+  isAzureUbuntuLayout,
 };
 
 module.exports = platformInfo;
