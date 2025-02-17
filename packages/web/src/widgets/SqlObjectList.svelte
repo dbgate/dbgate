@@ -138,7 +138,7 @@
       res.push({ label: 'Table/view/procedure name', switchValue: 'pureName' });
       res.push({ label: 'Schema', switchValue: 'schemaName' });
       res.push({ label: 'Column name', switchValue: 'columnName' });
-      res.push({ label: 'Column data type', switchValue: 'columnType' });
+      res.push({ label: 'Column data type', switchValue: 'columnDataType' });
       res.push({ label: 'Table comment', switchValue: 'tableComment' });
       res.push({ label: 'Column comment', switchValue: 'columnComment' });
       res.push({ label: 'View/procedure/trigger text', switchValue: 'sqlObjectText' });
