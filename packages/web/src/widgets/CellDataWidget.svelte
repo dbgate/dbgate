@@ -150,12 +150,17 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
   }
 
   .main {
     display: flex;
     flex: 1;
     flex-direction: column;
+    max-width: 100%;
+    max-height: calc(100% - var(--dim-statusbar-height));
   }
 
   .toolbar {
@@ -170,5 +175,8 @@
     display: flex;
     flex: 1;
     position: relative;
+    overflow: auto;
+    max-width: 100%;
+    max-height: 100%;
   }
 </style>
