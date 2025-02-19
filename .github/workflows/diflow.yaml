@@ -1,0 +1,30 @@
+# --------------------------------------------------------------------------------------------
+# This file is generated. Do not edit manually
+# --------------------------------------------------------------------------------------------
+name: Diflow merge
+'on':
+  push:
+    branches:
+      - master
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22.x
+      - name: Checkout dbgate/diflow
+        uses: actions/checkout@v2
+        with:
+          repository: dbgate/diflow
+          path: diflow
+      - name: Diflow install
+        run: |
+          cd diflow
+          npm install
+          npm run build
+      - name: Diflow run (don't push)
+        run: |
+          cd diflow
+          node dist/diflow.js https://github.com/dbgate/dbgate-diflow-config.git --no-push
