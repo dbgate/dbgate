@@ -37,13 +37,33 @@ async function extractAllTranslations(directories, extensions) {
   try {
     /** @type {Record<string, string>} */
     const allTranslations = {};
+    /** @type {Record<string, string[]>} */
+    const translationKeyToFiles = {};
 
     for (const dir of directories) {
       const files = await getFiles(dir, extensions);
 
       for (const file of files) {
         const fileTranslations = await extractTranslationsFromFile(file);
-        Object.assign(allTranslations, fileTranslations);
+
+        for (const key in fileTranslations) {
+          if (!translationKeyToFiles[key]) {
+            translationKeyToFiles[key] = [];
+          }
+
+          translationKeyToFiles[key].push(file);
+
+          if (allTranslations[key] && allTranslations[key] !== fileTranslations[key]) {
+            console.error(
+              `Different translations for the same key [${key}] found. ${file}: ${
+                fileTranslations[key]
+              }. Previous value: ${allTranslations[key]} was found in ${translationKeyToFiles[key].join(', ')}`
+            );
+            throw new Error(`Duplicate translation key found: ${key}`);
+          }
+
+          allTranslations[key] = fileTranslations[key];
+        }
       }
     }
 
