@@ -65,7 +65,8 @@
     "ts": "yarn ts:api && yarn ts:web",
     "postinstall": "yarn resetPackagedPlugins && yarn build:lib && patch-package && yarn build:plugins:frontend",
     "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js",
-    "workflows": "node common/processWorkflows.js"
+    "workflows": "node common/processWorkflows.js",
+    "translations:extract": "node common/translations-cli/index.js extract"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
