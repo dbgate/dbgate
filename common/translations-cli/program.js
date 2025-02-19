@@ -19,7 +19,7 @@ const { extractAllTranslations } = require('./extract');
 const defaultConfig = {
   extensions: ['.js', '.ts', '.svelte'],
   directories: ['app', 'packages/web'],
-  outputFile: './translations/en.json',
+  outputFile: './translations/en-US.json',
 };
 
 program.name('dbgate-translations-cli').description('CLI tool for managing translation').version('1.0.0');
@@ -86,4 +86,4 @@ program
     }
   });
 
-program.parse();
+module.exports = { program };
