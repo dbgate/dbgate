@@ -7,15 +7,18 @@ const {
   resolveFile,
   ensureFileDirExists,
   getTranslationChanges,
+  setLanguageTranslations,
+  getAllNonDefaultLanguages,
 } = require('./helpers');
 const { extractAllTranslations } = require('./extract');
+const { getMissingTranslations } = require('./addMissing');
 
 /**
- * @typedef {{ extensions: string[], directories: string[], outputFile: string}} Config
- * @typedef {Config & { verbose?: boolean }} Options
+ * @typedef {{ extensions: string[], directories: string[], outputFile: string}} ExtractConfig
+ * @typedef {ExtractConfig & { verbose?: boolean }} ExtractOptions
  */
 
-/** @type {Config} */
+/** @type {ExtractConfig} */
 const defaultConfig = {
   extensions: ['.js', '.ts', '.svelte'],
   directories: ['app', 'packages/web'],
@@ -31,7 +34,7 @@ program
   .option('-e, --extensions <extensions...>', 'file extensions to process', defaultConfig.extensions)
   .option('-o, --outputFile <file>', 'output file path', defaultConfig.outputFile)
   .option('-v, --verbose', 'verbose mode')
-  .action(async (/** @type {Options} */ options) => {
+  .action(async (/** @type {ExtractOptions} */ options) => {
     try {
       const { directories, extensions, outputFile, verbose } = options;
 
@@ -82,6 +85,44 @@ program
     } catch (error) {
       console.error(error);
       console.error('Error during extraction:', error.message);
+      process.exit(1);
+    }
+  });
+
+const ALL_LANGUAGES = 'all';
+
+/**
+ * @param {string} target
+ */
+function addMissingTranslations(target) {
+  console.log(`Adding missing keys for language: ${target}`);
+  const { result, stats } = getMissingTranslations(target);
+  console.log(`Added: ${stats.added}, Removed: ${stats.removed}, Total: ${stats.newLength}`);
+  setLanguageTranslations(target, result);
+  console.log(`New translations for ${target} were saved.`);
+}
+
+program
+  .command('add-missing')
+  .description('Add missing keys for a langauge to the translation file')
+  .option('-t, --target <target>', 'language to add missing translations to', ALL_LANGUAGES)
+  .action(options => {
+    try {
+      const { target } = options;
+      const languages = getAllNonDefaultLanguages();
+
+      if (target === ALL_LANGUAGES) {
+        console.log('Adding missing keys for all languages\n');
+        for (const language of languages) {
+          addMissingTranslations(language);
+          console.log();
+        }
+      } else {
+        addMissingTranslations(target);
+      }
+    } catch (error) {
+      console.error(error);
+      console.error('Error during add-missing:', error.message);
       process.exit(1);
     }
   });
