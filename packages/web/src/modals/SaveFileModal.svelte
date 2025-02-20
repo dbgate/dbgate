@@ -4,6 +4,7 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { _t } from '../translations';
   import { apiCall } from '../utility/api';
 
   import getElectron from '../utility/getElectron';
@@ -56,7 +57,7 @@
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
     <svelte:fragment slot="footer">
-      <FormSubmit value="Save" on:click={handleSubmit} />
+      <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />
       {#if electron}
         <FormStyledButton
           type="button"

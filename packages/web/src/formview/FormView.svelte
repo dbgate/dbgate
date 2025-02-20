@@ -15,7 +15,7 @@
   registerCommand({
     id: 'dataForm.refresh',
     category: 'Data form',
-    name: 'Refresh',
+    name: _t('common.refresh', { defaultMessage: 'Refresh' }),
     keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
@@ -197,6 +197,7 @@
   import resizeObserver from '../utility/resizeObserver';
   import openReferenceForm from './openReferenceForm';
   import { useSettings } from '../utility/metadataLoaders';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;

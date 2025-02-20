@@ -17,6 +17,7 @@
   import TextField from '../forms/TextField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import _ from 'lodash';
+  import { _t } from '../translations';
 
   export let constraintInfo;
   export let setTableInfo;
@@ -204,7 +205,7 @@
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value="Save"
+        value={_t('common.save', { defaultMessage: 'Save' })}
         disabled={isReadOnly}
         on:click={() => {
           closeCurrentModal();

@@ -11,6 +11,7 @@
 
   import hasPermission from '../utility/hasPermission';
   import { useFavorites } from '../utility/metadataLoaders';
+  import { _t } from '../translations';
 
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 

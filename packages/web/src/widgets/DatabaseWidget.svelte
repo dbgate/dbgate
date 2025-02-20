@@ -15,6 +15,7 @@
   import SingleConnectionDatabaseList from './SingleConnectionDatabaseList.svelte';
   import _ from 'lodash';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
+  import { _t } from '../translations';
 
   export let hidden = false;
   let domSqlObjectList = null;
@@ -29,16 +30,26 @@
 
 <WidgetColumnBar {hidden}>
   {#if $config?.singleConnection}
-    <WidgetColumnBarItem title="Databases" name="databases" height="35%" storageName="databasesWidget">
+    <WidgetColumnBarItem
+      title={_t('widget.databases', { defaultMessage: 'Databases' })}
+      name="databases"
+      height="35%"
+      storageName="databasesWidget"
+    >
       <SingleConnectionDatabaseList connection={$config?.singleConnection} />
     </WidgetColumnBarItem>
   {:else if !$config?.singleDbConnection}
-    <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
+    <WidgetColumnBarItem
+      title={_t('common.connections', { defaultMessage: 'Connections' })}
+      name="connections"
+      height="35%"
+      storageName="connectionsWidget"
+    >
       <ConnectionList passProps={{ onFocusSqlObjectList: () => domSqlObjectList.focus() }} />
     </WidgetColumnBarItem>
   {/if}
   <WidgetColumnBarItem
-    title="Pinned"
+    title={_t('widget.pinned', { defaultMessage: 'Pinned' })}
     name="pinned"
     height="15%"
     storageName="pinnedItemsWidget"
@@ -51,7 +62,7 @@
   <WidgetColumnBarItem
     title={driver?.databaseEngineTypes?.includes('document')
       ? (driver?.collectionPluralLabel ?? 'Collections/containers')
-      : 'Tables, views, functions'}
+      : _t('widget.tables_views_functions', { defaultMessage: 'Tables, views, functions' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(
@@ -64,7 +75,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title={'Keys'}
+    title={_t('widget.keys', { defaultMessage: 'Keys' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
@@ -73,7 +84,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title="Database content"
+    title={_t('widget.database_content', { defaultMessage: 'Database content' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={conid && (database || singleDatabase)}
@@ -86,7 +97,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title="Database content"
+    title={_t('widget.database_content', { defaultMessage: 'Database content' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(conid && (database || singleDatabase) && !driver)}
@@ -94,7 +105,9 @@
     <WidgetsInnerContainer>
       <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 
-      <ErrorInfo message="Invalid database connection, driver not found" />
+      <ErrorInfo
+        message={_t('error.driver_not_found', { defaultMessage: 'Invalid database connection, driver not found' })}
+      />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 </WidgetColumnBar>
