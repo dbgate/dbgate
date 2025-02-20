@@ -68,7 +68,8 @@
     "workflows": "node common/processWorkflows.js",
     "translations:extract": "node common/translations-cli/index.js extract",
     "translations:add-missing": "node common/translations-cli/index.js add-missing",
-    "translations:remove-unused": "node common/translations-cli/index.js remove-unused"
+    "translations:remove-unused": "node common/translations-cli/index.js remove-unused",
+    "translations:check": "node common/translations-cli/index.js check"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
