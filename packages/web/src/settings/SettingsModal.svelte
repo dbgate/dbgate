@@ -39,6 +39,8 @@
   import { derived } from 'svelte/store';
   import { safeFormatDate } from 'dbgate-tools';
   import FormDefaultActionField from './FormDefaultActionField.svelte';
+  import { _t } from '../translations';
+  import { internalRedirectTo } from '../clientAuth';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -120,6 +122,22 @@ ORDER BY
               </div>
             {/if}
           {/if}
+
+          <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
+          <FormSelectField
+            label="Language"
+            name="localization.language"
+            isNative
+            options={[
+              { value: 'en-US', label: 'English' },
+              { value: 'cs-CZ', label: 'Czech' },
+            ]}
+            on:change={() => {
+              setTimeout(() => {
+                internalRedirectTo('/');
+              }, 100);
+            }}
+          />
 
           <div class="heading">Data grid</div>
           <FormTextField
