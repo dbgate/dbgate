@@ -27,13 +27,18 @@ async function extractTranslationsFromFile(file) {
   return translations;
 }
 
+/** @typedef {{ ignoreDuplicates?: boolean }} ExtractOptions */
+
 /**
  * @param {string[]} directories
  * @param {string[]} extensions
+ * @param {ExtractOptions} options
  *
  * @returns {Promise<Record<string, string>>}
  */
-async function extractAllTranslations(directories, extensions) {
+async function extractAllTranslations(directories, extensions, options = {}) {
+  const { ignoreDuplicates } = options;
+
   try {
     /** @type {Record<string, string>} */
     const allTranslations = {};
@@ -53,7 +58,7 @@ async function extractAllTranslations(directories, extensions) {
 
           translationKeyToFiles[key].push(file);
 
-          if (allTranslations[key] && allTranslations[key] !== fileTranslations[key]) {
+          if (!ignoreDuplicates && allTranslations[key] && allTranslations[key] !== fileTranslations[key]) {
             console.error(
               `Different translations for the same key [${key}] found. ${file}: ${
                 fileTranslations[key]
