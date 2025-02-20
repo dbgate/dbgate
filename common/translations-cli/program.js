@@ -4,8 +4,6 @@ const { program } = require('commander');
 const {
   resolveDirs,
   resolveExtensions,
-  resolveFile,
-  ensureFileDirExists,
   getTranslationChanges,
   setLanguageTranslations,
   getAllNonDefaultLanguages,
@@ -14,26 +12,20 @@ const {
 } = require('./helpers');
 const { extractAllTranslations } = require('./extract');
 const { getMissingTranslations } = require('./addMissing');
-const { defaultLanguage } = require('./constants');
+const { defaultLanguage, defaultExtractConfig } = require('./constants');
+const { removeUnusedAllTranslations, removeUnusedForSignelLanguage } = require('./removeUnused');
 
 /**
- * @typedef {{ extensions: string[], directories: string[]}} ExtractConfig
- * @typedef {ExtractConfig & { verbose?: boolean, removeUnused?: boolean }} ExtractOptions
+ * @typedef {import('./constants').ExtractConfig & { verbose?: boolean, removeUnused?: boolean }} ExtractOptions
  */
-
-/** @type {ExtractConfig} */
-const defaultConfig = {
-  extensions: ['.js', '.ts', '.svelte'],
-  directories: ['app', 'packages/web'],
-};
 
 program.name('dbgate-translations-cli').description('CLI tool for managing translation').version('1.0.0');
 
 program
   .command('extract')
   .description('Extract translation keys from source files')
-  .option('-d, --directories <directories...>', 'directories to search', defaultConfig.directories)
-  .option('-e, --extensions <extensions...>', 'file extensions to process', defaultConfig.extensions)
+  .option('-d, --directories <directories...>', 'directories to search', defaultExtractConfig.directories)
+  .option('-e, --extensions <extensions...>', 'file extensions to process', defaultExtractConfig.extensions)
   .option('-r, --removeUnused', 'Remove unused keys from the output file')
   .option('-v, --verbose', 'verbose mode')
   .action(async (/** @type {ExtractOptions} */ options) => {
@@ -126,6 +118,26 @@ program
         }
       } else {
         addMissingTranslations(target);
+      }
+    } catch (error) {
+      console.error(error);
+      console.error('Error during add-missing:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('remove-unused')
+  .description('Remove unused keys from the translation files')
+  .option('-t, --target <target>', 'language to add missing translations to', ALL_LANGUAGES)
+  .action(async options => {
+    try {
+      const { target } = options;
+      if (target === ALL_LANGUAGES) {
+        console.log('Removing unused keys from all languages\n');
+        await removeUnusedAllTranslations();
+      } else {
+        await removeUnusedForSignelLanguage(target);
       }
     } catch (error) {
       console.error(error);

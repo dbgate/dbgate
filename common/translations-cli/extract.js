@@ -72,8 +72,6 @@ async function extractAllTranslations(directories, extensions, options = {}) {
       }
     }
 
-    console.log(`Total translations found: ${Object.keys(allTranslations).length}`);
-
     return allTranslations;
   } catch (error) {
     console.error('Error extracting translations:', error);
