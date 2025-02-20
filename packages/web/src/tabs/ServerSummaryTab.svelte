@@ -4,7 +4,7 @@
   registerCommand({
     id: 'serverSummary.refresh',
     category: 'Server sumnmary',
-    name: 'Refresh',
+    name: _t('common.refresh', { defaultMessage: 'Refresh' }),
     keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
@@ -22,6 +22,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
+  import { _t } from '../translations';
   import { apiCall } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import formatFileSize from '../utility/formatFileSize';
