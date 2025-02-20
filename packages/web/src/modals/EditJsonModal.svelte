@@ -9,6 +9,7 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let onSave;
   export let json;
@@ -43,7 +44,7 @@
 
     <div slot="footer">
       <FormStyledButton
-        value="Save"
+        value={_t('common.save', { defaultMessage: 'Save' })}
         data-testid="EditJsonModal_saveButton"
         on:click={() => {
           try {
