@@ -122,6 +122,46 @@ const getTranslationChanges = (existingTranslations, newTranslations) => {
   return { added, removed, updated };
 };
 
+const defaultLanguage = 'en-US';
+
+function getDefaultTranslations() {
+  return getLanguageTranslations(defaultLanguage);
+}
+
+/**
+ * @param {string} language
+ *
+ * @returns {Record<string, string>}
+ */
+function getLanguageTranslations(language) {
+  const file = resolveFile(`translations/${language}.json`);
+  const content = fs.readFileSync(file, 'utf-8');
+
+  return JSON.parse(content);
+}
+
+/**
+ * @param {string} language
+ * @param {Record<string, string>} translations
+ */
+function setLanguageTranslations(language, translations) {
+  const file = resolveFile(`translations/${language}.json`);
+  fs.writeFileSync(file, JSON.stringify(translations, null, 2));
+}
+
+function getAllLanguages() {
+  const dir = resolveFile('translations');
+
+  const files = fs.readdirSync(dir);
+  const languages = files.filter(file => file.endsWith('.json')).map(file => file.replace('.json', ''));
+
+  return languages;
+}
+
+function getAllNonDefaultLanguages() {
+  return getAllLanguages().filter(language => language !== defaultLanguage);
+}
+
 module.exports = {
   hasValidExtension,
   getFiles,
@@ -131,4 +171,9 @@ module.exports = {
   resolveExtensions,
   ensureFileDirExists,
   getTranslationChanges,
+  getDefaultTranslations,
+  getLanguageTranslations,
+  setLanguageTranslations,
+  getAllLanguages,
+  getAllNonDefaultLanguages,
 };
