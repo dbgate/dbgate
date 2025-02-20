@@ -9,20 +9,22 @@ const {
   getTranslationChanges,
   setLanguageTranslations,
   getAllNonDefaultLanguages,
+  updateLanguageTranslations,
+  getDefaultTranslations,
 } = require('./helpers');
 const { extractAllTranslations } = require('./extract');
 const { getMissingTranslations } = require('./addMissing');
+const { defaultLanguage } = require('./constants');
 
 /**
- * @typedef {{ extensions: string[], directories: string[], outputFile: string}} ExtractConfig
- * @typedef {ExtractConfig & { verbose?: boolean }} ExtractOptions
+ * @typedef {{ extensions: string[], directories: string[]}} ExtractConfig
+ * @typedef {ExtractConfig & { verbose?: boolean, removeUnused?: boolean }} ExtractOptions
  */
 
 /** @type {ExtractConfig} */
 const defaultConfig = {
   extensions: ['.js', '.ts', '.svelte'],
   directories: ['app', 'packages/web'],
-  outputFile: './translations/en-US.json',
 };
 
 program.name('dbgate-translations-cli').description('CLI tool for managing translation').version('1.0.0');
@@ -32,33 +34,25 @@ program
   .description('Extract translation keys from source files')
   .option('-d, --directories <directories...>', 'directories to search', defaultConfig.directories)
   .option('-e, --extensions <extensions...>', 'file extensions to process', defaultConfig.extensions)
-  .option('-o, --outputFile <file>', 'output file path', defaultConfig.outputFile)
+  .option('-r, --removeUnused', 'Remove unused keys from the output file')
   .option('-v, --verbose', 'verbose mode')
   .action(async (/** @type {ExtractOptions} */ options) => {
     try {
-      const { directories, extensions, outputFile, verbose } = options;
+      const { directories, extensions, verbose, removeUnused } = options;
 
       const resolvedRirectories = resolveDirs(directories);
       const resolvedExtensions = resolveExtensions(extensions);
 
-      const translations = await extractAllTranslations(resolvedRirectories, resolvedExtensions);
+      const extractedTranslations = await extractAllTranslations(resolvedRirectories, resolvedExtensions);
+      const defaultTranslations = getDefaultTranslations();
 
-      const resolvedOutputFile = resolveFile(outputFile);
-      ensureFileDirExists(resolvedOutputFile);
-
-      /** @type {Record<string, string>} */
-      let existingTranslations = {};
-      if (fs.existsSync(resolvedOutputFile)) {
-        existingTranslations = JSON.parse(fs.readFileSync(resolvedOutputFile, 'utf-8'));
-      }
-
-      const { added, removed, updated } = getTranslationChanges(existingTranslations, translations);
+      const { added, removed, updated } = getTranslationChanges(defaultTranslations, extractedTranslations);
 
       console.log('\nTranslation changes:');
       console.log(`- Added: ${added.length} keys`);
-      console.log(`- Removed: ${removed.length} keys`);
+      console.log(`- ${removeUnused ? 'Removed' : 'Unused'}: ${removed.length} keys`);
       console.log(`- Updated: ${updated.length} keys`);
-      console.log(`- Total: ${Object.keys(translations).length} keys`);
+      console.log(`- Total: ${Object.keys(extractedTranslations).length} keys`);
 
       if (verbose) {
         if (added.length > 0) {
@@ -75,13 +69,26 @@ program
           console.log('\nUpdated keys:');
           updated.forEach(key => {
             console.log(`  ~ ${key}`);
-            console.log(`    Old: ${existingTranslations[key]}`);
-            console.log(`    New: ${translations[key]}`);
+            console.log(`    Old: ${defaultLanguage[key]}`);
+            console.log(`    New: ${extractedTranslations[key]}`);
           });
         }
       }
 
-      fs.writeFileSync(resolvedOutputFile, JSON.stringify(translations, null, 2));
+      if (removeUnused) {
+        console.log('Unused keys were removed.\n');
+        setLanguageTranslations(defaultLanguage, extractedTranslations);
+      } else {
+        console.log('New translations were saved. Unused keys are kept.\n');
+        updateLanguageTranslations(defaultLanguage, extractedTranslations);
+
+        if (verbose) {
+          console.log('\nUnused keys:');
+          for (const key of removed) {
+            console.log(`${key}: "${defaultTranslations[key]}"`);
+          }
+        }
+      }
     } catch (error) {
       console.error(error);
       console.error('Error during extraction:', error.message);

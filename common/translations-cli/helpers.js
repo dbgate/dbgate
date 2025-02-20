@@ -1,6 +1,7 @@
 //@ts-check
 const path = require('path');
 const fs = require('fs');
+const { defaultLanguage } = require('./constants');
 
 /**
  * @param {string} file
@@ -122,8 +123,6 @@ const getTranslationChanges = (existingTranslations, newTranslations) => {
   return { added, removed, updated };
 };
 
-const defaultLanguage = 'en-US';
-
 function getDefaultTranslations() {
   return getLanguageTranslations(defaultLanguage);
 }
@@ -147,6 +146,17 @@ function getLanguageTranslations(language) {
 function setLanguageTranslations(language, translations) {
   const file = resolveFile(`translations/${language}.json`);
   fs.writeFileSync(file, JSON.stringify(translations, null, 2));
+}
+
+/**
+ * @param {string} language
+ * @param {Record<string, string>} newTranslations
+ */
+function updateLanguageTranslations(language, newTranslations) {
+  const translations = getLanguageTranslations(language);
+  const updatedTranslations = { ...translations, ...newTranslations };
+
+  setLanguageTranslations(language, updatedTranslations);
 }
 
 function getAllLanguages() {
@@ -174,6 +184,7 @@ module.exports = {
   getDefaultTranslations,
   getLanguageTranslations,
   setLanguageTranslations,
+  updateLanguageTranslations,
   getAllLanguages,
   getAllNonDefaultLanguages,
 };
