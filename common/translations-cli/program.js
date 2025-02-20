@@ -146,4 +146,17 @@ program
     }
   });
 
+program
+  .command('check')
+  .description('Check if there are multiple default values for the same key')
+  .action(async () => {
+    try {
+      await extractAllTranslations(defaultExtractConfig.directories, defaultExtractConfig.extensions);
+    } catch (error) {
+      console.error(error);
+      console.error('Error during check:', error.message);
+      process.exit(1);
+    }
+  });
+
 module.exports = { program };
