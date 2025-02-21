@@ -32,10 +32,10 @@ jobs:
           git config --global user.email "info@dbgate.io"
           git config --global user.name "Diflow"          
 
-      - name: Diflow run (don't push)
+      - name: Diflow run
         run: |
           cd diflow
-          node dist/diflow.js sync -r https://DIFLOW_GIT_SECRET@github.com/dbgate/dbgate-diflow-config.git -b master --skip-push
+          node dist/diflow.js sync -r https://DIFLOW_GIT_SECRET@github.com/dbgate/dbgate-diflow-config.git -b master
         env:
           DIFLOW_GIT_SECRET: '${{ secrets.DIFLOW_GIT_SECRET }}'
 
