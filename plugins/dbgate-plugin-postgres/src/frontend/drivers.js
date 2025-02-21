@@ -120,6 +120,7 @@ const dialect = {
 
 const postgresDriverBase = {
   ...driverBase,
+  supportsTransactions: true,
   dumperClass: Dumper,
   dialect,
   // showConnectionField: (field, values) =>

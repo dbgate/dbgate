@@ -65,7 +65,7 @@
     category: 'Query',
     name: 'Begin transaction',
     icon: 'icon transaction',
-    testEnabled: () => !!getCurrentEditor(),
+    testEnabled: () => getCurrentEditor()?.beginTransactionEnabled(),
     onClick: () => getCurrentEditor().beginTransaction(),
   });
   registerCommand({
@@ -74,7 +74,7 @@
     name: 'Commit transaction',
     toolbarName: 'Commit',
     icon: 'icon commit',
-    testEnabled: () => !!getCurrentEditor(),
+    testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().commitTransaction(),
   });
   registerCommand({
@@ -83,7 +83,7 @@
     name: 'Rollback transaction',
     toolbarName: 'Rollback',
     icon: 'icon rollback',
-    testEnabled: () => !!getCurrentEditor(),
+    testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().rollbackTransaction(),
   });
 
@@ -177,6 +177,7 @@
   let intervalId;
   let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
   let domAiAssistant;
+  let isInTransaction = false;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -219,6 +220,7 @@
   $: {
     busy;
     sessionId;
+    isInTransaction;
     invalidateCommands();
   }
 
@@ -348,6 +350,7 @@
       sesid: sessionId,
     });
     sessionId = null;
+    isInTransaction = false;
     busy = false;
     timerLabel.stop();
   }
@@ -401,6 +404,35 @@
         domEditor?.getEditor()?.focus();
       },
     });
+  }
+
+  export function beginTransaction() {
+    const dmp = driver.createDumper();
+    dmp.beginTransaction();
+    executeCore(dmp.s);
+    isInTransaction = true;
+  }
+
+  export function beginTransactionEnabled() {
+    return driver?.supportsTransactions && !isInTransaction && !busy;
+  }
+
+  export function endTransactionEnabled() {
+    return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy;
+  }
+
+  export function commitTransaction() {
+    const dmp = driver.createDumper();
+    dmp.commitTransaction();
+    executeCore(dmp.s);
+    isInTransaction = false;
+  }
+
+  export function rollbackTransaction() {
+    const dmp = driver.createDumper();
+    dmp.rollbackTransaction();
+    executeCore(dmp.s);
+    isInTransaction = false;
   }
 
   const handleMesageClick = message => {
@@ -628,9 +660,21 @@
     >
       AI Assistant
     </ToolStripCommandButton>
-    <ToolStripCommandButton command="query.beginTransaction" data-testid="QueryTab_beginTransactionButton" />
-    <ToolStripCommandButton command="query.commitTransaction" data-testid="QueryTab_commitTransactionButton" />
-    <ToolStripCommandButton command="query.rollbackTransaction" data-testid="QueryTab_rollbackTransactionButton" />
+    <ToolStripCommandButton
+      command="query.beginTransaction"
+      data-testid="QueryTab_beginTransactionButton"
+      hideDisabled
+    />
+    <ToolStripCommandButton
+      command="query.commitTransaction"
+      data-testid="QueryTab_commitTransactionButton"
+      hideDisabled
+    />
+    <ToolStripCommandButton
+      command="query.rollbackTransaction"
+      data-testid="QueryTab_rollbackTransactionButton"
+      hideDisabled
+    />
   </svelte:fragment>
 </ToolStripContainer>
 

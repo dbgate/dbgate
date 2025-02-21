@@ -24,4 +24,5 @@ export interface SqlDumper extends AlterProcessor {
   truncateTable(table: NamedObjectInfo);
   beginTransaction();
   commitTransaction();
+  rollbackTransaction();
 }
