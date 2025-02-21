@@ -67,7 +67,7 @@ class MsSqlDumper extends SqlDumper {
         break;
       case 'GROUP:DAY':
         this.put(
-          "^^convert(^varchar(100), ^datepart(^year, %c)) + '-' + ^right('0' + ^convert(^varchar(100), ^datepart(^month, %c)), 2)+'-' + ^right('0' + ^convert(^varchar(100), ^datepart(^day, %c)), 2)",
+          "^convert(^varchar(100), ^datepart(^year, %c)) + '-' + ^right('0' + ^convert(^varchar(100), ^datepart(^month, %c)), 2)+'-' + ^right('0' + ^convert(^varchar(100), ^datepart(^day, %c)), 2)",
           dumpExpr,
           dumpExpr,
           dumpExpr
