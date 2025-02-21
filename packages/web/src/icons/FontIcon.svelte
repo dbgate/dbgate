@@ -210,6 +210,10 @@
     'icon expand-all': 'mdi mdi-expand-all',
     'icon collapse-all': 'mdi mdi-collapse-all',
 
+    'icon transaction': 'mdi mdi-code-json',
+    'icon commit': 'mdi mdi-check-circle',
+    'icon rollback': 'mdi mdi-close-circle',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',

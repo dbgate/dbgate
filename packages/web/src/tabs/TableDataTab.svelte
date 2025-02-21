@@ -322,11 +322,13 @@
       buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
       commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
+      data-testid="TableDataTab_refreshGrid"
     />
     <ToolStripCommandSplitButton
       buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
       commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
+      data-testid="TableDataTab_refreshForm"
     />
 
     <!-- <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />

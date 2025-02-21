@@ -60,6 +60,32 @@
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
     onClick: () => getCurrentEditor().executeCurrent(),
   });
+  registerCommand({
+    id: 'query.beginTransaction',
+    category: 'Query',
+    name: 'Begin transaction',
+    icon: 'icon transaction',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().beginTransaction(),
+  });
+  registerCommand({
+    id: 'query.commitTransaction',
+    category: 'Query',
+    name: 'Commit transaction',
+    toolbarName: 'Commit',
+    icon: 'icon commit',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().commitTransaction(),
+  });
+  registerCommand({
+    id: 'query.rollbackTransaction',
+    category: 'Query',
+    name: 'Rollback transaction',
+    toolbarName: 'Rollback',
+    icon: 'icon rollback',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().rollbackTransaction(),
+  });
 
   export const allowSwitchDatabase = props => true;
 </script>
@@ -602,6 +628,9 @@
     >
       AI Assistant
     </ToolStripCommandButton>
+    <ToolStripCommandButton command="query.beginTransaction" data-testid="QueryTab_beginTransactionButton" />
+    <ToolStripCommandButton command="query.commitTransaction" data-testid="QueryTab_commitTransactionButton" />
+    <ToolStripCommandButton command="query.rollbackTransaction" data-testid="QueryTab_rollbackTransactionButton" />
   </svelte:fragment>
 </ToolStripContainer>
 
