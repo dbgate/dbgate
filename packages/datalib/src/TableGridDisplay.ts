@@ -275,7 +275,11 @@ export class TableGridDisplay extends GridDisplay {
       const refTableInfo = this.dbinfo.tables.find(
         x => x.schemaName == res.foreignKey.refSchemaName && x.pureName == res.foreignKey.refTableName
       );
-      if (refTableInfo && isTableColumnUnique(refTableInfo, res.foreignKey.columns[0].refColumnName)) {
+      if (
+        refTableInfo &&
+        res.foreignKey.columns.length == 1 &&
+        isTableColumnUnique(refTableInfo, res.foreignKey.columns[0].refColumnName)
+      ) {
         res.isForeignKeyUnique = true;
       }
     }
