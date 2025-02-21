@@ -32,5 +32,5 @@ jobs:
           cd diflow
           node dist/diflow.js sync -r https://${SECRET}@github.com/dbgate/dbgate-diflow-config.git -b master --skip-push
         env:
-          DIFLOW_GIT_SECRET: '${{ secrets.GH_TOKEN }}'
+          DIFLOW_GIT_SECRET: '${{ secrets.DIFLOW_GIT_SECRET }}'
 
