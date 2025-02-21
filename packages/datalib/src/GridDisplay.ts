@@ -369,7 +369,7 @@ export abstract class GridDisplay {
   }
 
   getColumns(columnFilter) {
-    return this.columns.filter(col => filterName(columnFilter, col.columnName));
+    return this.columns.filter(col => filterName(columnFilter, col.columnName?.toString()));
   }
 
   getGridColumns() {
@@ -715,7 +715,6 @@ export abstract class GridDisplay {
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }
-  
 
   getExportQuery(postprocessSelect = null) {
     const select = this.createSelect({ isExport: true });
