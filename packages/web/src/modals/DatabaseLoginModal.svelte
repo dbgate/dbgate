@@ -27,6 +27,7 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import { callServerPing } from '../utility/connectionsPinger';
   import { getConnectionLabel } from 'dbgate-tools';
+  import { openedConnections } from '../stores';
 
   export let conid;
   export let passwordMode;
@@ -74,7 +75,11 @@
 
   onDestroy(() => {
     currentModalConid = null;
-    if (onCancel && !closedWithOk) onCancel();
+
+    if (!closedWithOk) {
+      if (onCancel) onCancel();
+      openedConnections.update(x => _.without(x, conid));
+    }
   });
 
   function handleCancelTest() {
@@ -83,8 +88,9 @@
   }
 
   async function handleSubmit(ev) {
+    closedWithOk = true;
+
     if (onConnect) {
-      closedWithOk = true;
       onConnect({
         ...testedConnection,
         user: usedPasswordMode == 'askUser' ? $values['user'] : testedConnection.user,
