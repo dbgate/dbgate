@@ -27,6 +27,11 @@ jobs:
           npm install
           npm run build
 
+      - name: Git config
+        run: |
+          git config --global user.email "info@dbgate.io"
+          git config --global user.name "Diflow"          
+
       - name: Diflow run (don't push)
         run: |
           cd diflow
