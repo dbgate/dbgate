@@ -121,6 +121,8 @@ ORDER BY
             {/if}
           {/if}
 
+          <FormCheckboxField name="tabGroup.showServerName" label="Show server name alongside database name in title of the tab group" defaultValue={false} />
+
           <div class="heading">Data grid</div>
           <FormTextField
             name="dataGrid.pageSize"

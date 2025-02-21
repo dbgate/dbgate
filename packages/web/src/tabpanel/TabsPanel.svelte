@@ -196,6 +196,15 @@
     return '(no DB)';
   }
 
+  function getTabDbServer(tab, connectionList) {
+    if (tab.props && tab.props.conid && tab.props.database) {
+      const connection = connectionList?.find(x => x._id == tab.props.conid);
+      if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
+      return null;
+    }
+    return null;
+  }
+
   function getDbIcon(key) {
     if (key) {
       if (key.startsWith('database://')) return 'icon database';
@@ -330,7 +339,7 @@
   import { setSelectedTab, switchCurrentDatabase } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import { isElectronAvailable } from '../utility/getElectron';
-  import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
+  import { getConnectionInfo, useConnectionList, useSettings } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import TabCloseButton from '../elements/TabCloseButton.svelte';
@@ -338,6 +347,7 @@
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
   import { getConnectionLabel } from 'dbgate-tools';
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let multiTabIndex;
   export let shownTab;
@@ -357,6 +367,7 @@
     ...tab,
     tabDbName: getTabDbName(tab, $connectionList),
     tabDbKey: getTabDbKey(tab),
+    tabDbServer: getTabDbServer(tab, $connectionList),
   }));
 
   $: groupedTabs = groupTabs(tabsWithDb);
@@ -369,6 +380,8 @@
   $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x, $lockedDatabaseMode, $currentDatabase));
   $: allowSplitTab =
     _.uniq(filteredTabsFromAllParts.map(x => x.multiTabIndex || 0)).length == 1 && filteredTabsFromAllParts.length >= 2;
+
+  $: settings = useSettings();
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -595,6 +608,10 @@
             }}
           >
             <div class="db-name-inner">
+              {#if $settings?.['tabGroup.showServerName'] && tabGroup.tabDbServer}
+                <FontIcon icon="icon server" />
+                {tabGroup.tabDbServer}
+              {/if}
               <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
               {tabGroup.tabDbName}
               {#if $connectionList?.find(x => x._id == tabGroup.tabs[0]?.props?.conid)?.isReadOnly}
