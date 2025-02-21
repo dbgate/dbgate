@@ -30,6 +30,12 @@
     <script defer src="build/bundle.js"></script>
 
     <style>
+      @media (prefers-color-scheme: dark) {
+        .lds-ellipsis div {
+          background-color: white !important;
+        }
+      }
+
       .lds-ellipsis {
         display: inline-block;
         position: relative;

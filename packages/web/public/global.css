@@ -11,6 +11,13 @@ body {
   overflow: hidden;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #151515;
+    color: white;
+  }
+}
+
 .horizontal-split-handle {
   background-color: var(--theme-border);
   width: var(--dim-splitter-thickness);
