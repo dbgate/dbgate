@@ -30,4 +30,4 @@ jobs:
       - name: Diflow run (don't push)
         run: |
           cd diflow
-          node dist/diflow.js sync -r https://${SECRET}@github.com/dbgate/dbgate-diflow-config.git -b master --skip-push --secret ${{ secrets.GITHUB_TOKEN }}
+          node dist/diflow.js sync -r https://${SECRET}@github.com/dbgate/dbgate-diflow-config.git -b master --skip-push --secret "${{ secrets.GITHUB_TOKEN }}"
