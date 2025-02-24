@@ -84,7 +84,7 @@ async function run() {
         port: process.env.PORT_oracle,
         engine: 'oracle@dbgate-plugin-oracle',
       },
-      'DROP USER C##my_guitar_shop',
+      'DROP USER c##my_guitar_shop CASCADE',
       'CREATE USER c##my_guitar_shop IDENTIFIED BY my_guitar_shop DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA 10M ON users',
       'C##my_guitar_shop'
     );

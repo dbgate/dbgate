@@ -45,6 +45,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
       logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
       await driver.script(dbhan, dmp.s);
       structure = await driver.analyseSingleTable(dbhan, name);
+      writable.structure = structure;
+    }
+    if (!writable.structure) {
+      throw new Error(`Error importing table - ${fullNameQuoted} not found`);
     }
     if (options.truncate) {
       await driver.script(dbhan, `TRUNCATE TABLE ${fullNameQuoted}`);

@@ -63,6 +63,7 @@ export interface SqlDialect {
   requireFromDual?: boolean;
   userDatabaseNamePrefix?: string; // c## in Oracle
   upperCaseAllDbObjectNames?: boolean;
+  defaultValueBeforeNullability?: boolean;
 
   predefinedDataTypes: string[];
 
