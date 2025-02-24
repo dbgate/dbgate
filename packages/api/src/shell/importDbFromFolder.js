@@ -57,7 +57,7 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
       if (await fs.exists(fileName)) {
         const src = await jsonLinesReader({ fileName });
         const dst = await tableWriter({
-          connection,
+          systemConnection: dbhan,
           pureName: table.pureName,
         });
         await copyStream(src, dst);

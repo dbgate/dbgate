@@ -5,7 +5,7 @@ const tableWriter = require('dbgate-api/src/shell/tableWriter');
 const tableReader = require('dbgate-api/src/shell/tableReader');
 const copyStream = require('dbgate-api/src/shell/copyStream');
 const importDatabase = require('dbgate-api/src/shell/importDatabase');
-const fakeObjectReader = require('dbgate-api/src/shell/fakeObjectReader');
+const importDbFromFolder = require('dbgate-api/src/shell/importDbFromFolder');
 const { runQueryOnDriver, runCommandOnDriver } = require('dbgate-tools');
 
 function createImportStream() {
@@ -179,6 +179,20 @@ describe('DB Import/export', () => {
       }
 
       expect(result).toEqual(data);
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Import guitar shop - schema + data - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await importDbFromFolder({
+        systemConnection: conn,
+        driver,
+        folder: path.join(__dirname, '../../e2e-tests/data/my-guitar-shop'),
+      });
+
+      const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~categories`));
+      expect(res1.rows[0].cnt.toString()).toEqual('4');
     })
   );
 });
