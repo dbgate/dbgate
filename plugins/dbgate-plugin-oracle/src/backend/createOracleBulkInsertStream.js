@@ -23,7 +23,16 @@ function createOracleBulkInsertStream(driver, stream, dbhan, name, options) {
     dmp.putRaw(')\n VALUES (\n');
     dmp.put(
       '%,s',
-      writable.columnNames.map((c, i) => `:C${i}`)
+      writable.columnNames.map((c, i) => {
+        if (writable.columnDataTypes?.[c]?.toLowerCase() == 'timestamp') {
+          return `CASE WHEN :C${i} IS NULL THEN NULL ELSE TO_TIMESTAMP(:C${i}, 'YYYY-MM-DD"T"HH24:MI:SS') END`;
+        }
+        if (writable.columnDataTypes?.[c]?.toLowerCase() == 'date') {
+          return `CASE WHEN :C${i} IS NULL THEN NULL ELSE TO_DATE(:C${i}, 'YYYY-MM-DD"T"HH24:MI:SS') END`;
+        }
+
+        return `:C${i}`;
+      })
     );
     dmp.putRaw(')');
 

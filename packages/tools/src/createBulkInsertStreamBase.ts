@@ -100,8 +100,11 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         dmp.putRaw(')\n VALUES\n');
 
         dmp.putRaw('(');
-        dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
+        dmp.putCollection(',', writable.columnNames, col =>
+          dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+        );
         dmp.putRaw(')');
+        // console.log(dmp.s);
         await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     }
