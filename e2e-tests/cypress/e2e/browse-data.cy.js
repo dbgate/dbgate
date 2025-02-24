@@ -438,4 +438,13 @@ describe('Data browser data', () => {
     cy.testid ('TableDataTab_refreshGrid').click();
     cy.contains('No rows loaded')
   });
+
+  it('Drop table', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('_Customer').rightclick();
+    cy.contains('Drop table').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('_Customer').should('not.exist');
+  });
 });
