@@ -65,7 +65,8 @@
     "ts": "yarn ts:api && yarn ts:web",
     "postinstall": "yarn resetPackagedPlugins && yarn build:lib && patch-package && yarn build:plugins:frontend",
     "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js",
-    "workflows": "node common/processWorkflows.js"
+    "workflows": "node common/processWorkflows.js",
+    "cy:open": "cd e2e-tests && yarn cy:open"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
