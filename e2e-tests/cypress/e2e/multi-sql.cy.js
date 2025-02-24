@@ -12,9 +12,14 @@ beforeEach(() => {
   cy.viewport(1250, 900);
 });
 
-describe('Data browser data', () => {
-  it('Transaction', () => {
-    cy.contains('MySql-connection').click();
+function multiTest(testName, testDefinition) {
+  it(testName + ' MySQL', () => testDefinition('MySql-connection'));
+  it(testName + ' Postgres', () => testDefinition('Postgres-connection'));
+}
+
+describe('Mutli-sql tests', () => {
+  multiTest('Transactions', connectionName => {
+    cy.contains(connectionName).click();
     cy.contains('my_guitar_shop').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
     cy.wait(1000);
