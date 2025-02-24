@@ -109,3 +109,19 @@ jobs:
         image: redis
         ports:
           - 16011:6379
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        ports:
+          - 16012:1433
+        env:
+          - ACCEPT_EULA=Y
+          - SA_PASSWORD=Pwd2020Db
+          - MSSQL_PID=Express
+
+      oracle:
+        image: gvenzl/oracle-xe:21-slim
+        env:
+          ORACLE_PASSWORD: Pwd2020Db
+        ports:
+          - 16013:1521
