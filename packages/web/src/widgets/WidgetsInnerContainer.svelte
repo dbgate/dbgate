@@ -8,7 +8,7 @@
   }
 </script>
 
-<div on:drop bind:this={domDiv} class:hideContent><slot /></div>
+<div on:drop bind:this={domDiv} class:hideContent data-testid={$$props['data-testid']}><slot /></div>
 
 <style>
   div {

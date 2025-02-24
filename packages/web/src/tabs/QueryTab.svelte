@@ -309,6 +309,9 @@
     executeNumber++;
     visibleResultTabs = true;
 
+    busy = true;
+    timerLabel.start();
+
     let sesid = sessionId;
     if (!sesid) {
       const resp = await apiCall('sessions/create', {
@@ -318,8 +321,6 @@
       sesid = resp.sesid;
       sessionId = sesid;
     }
-    busy = true;
-    timerLabel.start();
     await apiCall('sessions/execute-query', {
       sesid,
       sql,

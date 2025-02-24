@@ -21,7 +21,7 @@ async function createDb(connection, dropDbSql, createDbSql) {
   await dbgateApi.importDbFromFolder({
     connection: {
       ...connection,
-      database: 'my_quitar_shop',
+      database: 'my_guitar_shop',
     },
     folder: path.resolve(path.join(__dirname, '../data/my-guitar-shop')),
   });
@@ -36,8 +36,8 @@ async function run() {
       port: process.env.PORT_postgres,
       engine: 'postgres@dbgate-plugin-postgres',
     },
-    'drop database if exists my_quitar_shop',
-    'create database my_quitar_shop'
+    'drop database if exists my_guitar_shop',
+    'create database my_guitar_shop'
   );
 
   await createDb(
@@ -48,8 +48,8 @@ async function run() {
       port: process.env.PORT_mysql,
       engine: 'mysql@dbgate-plugin-mysql',
     },
-    'drop database if exists my_quitar_shop',
-    'create database my_quitar_shop'
+    'drop database if exists my_guitar_shop',
+    'create database my_guitar_shop'
   );
 }
 
