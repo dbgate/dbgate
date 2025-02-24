@@ -69,6 +69,22 @@
     onClick: () => getCurrentEditor().beginTransaction(),
   });
   registerCommand({
+    id: 'query.autocommitOffSwitch',
+    category: 'Query',
+    name: 'Autocommit: OFF',
+    icon: 'icon transaction',
+    testEnabled: () => getCurrentEditor()?.autocommitOffSwitchEnabled(),
+    onClick: () => getCurrentEditor().autocommitOffSwitch(),
+  });
+  registerCommand({
+    id: 'query.autocommitOnSwitch',
+    category: 'Query',
+    name: 'Autocommit: ON',
+    icon: 'icon transaction',
+    testEnabled: () => getCurrentEditor()?.autocommitOnSwitchEnabled(),
+    onClick: () => getCurrentEditor().autocommitOnSwitch(),
+  });
+  registerCommand({
     id: 'query.commitTransaction',
     category: 'Query',
     name: 'Commit transaction',
@@ -178,6 +194,7 @@
   let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
   let domAiAssistant;
   let isInTransaction = false;
+  let isAutocommit = false;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -221,6 +238,7 @@
     busy;
     sessionId;
     isInTransaction;
+    isAutocommit;
     invalidateCommands();
   }
 
@@ -415,11 +433,27 @@
   }
 
   export function beginTransactionEnabled() {
-    return driver?.supportsTransactions && !isInTransaction && !busy;
+    return driver?.supportsTransactions && !driver?.implicitTransactions && !isInTransaction && !busy;
+  }
+
+  export function autocommitOffSwitchEnabled() {
+    return driver?.supportsTransactions && driver?.implicitTransactions && !isInTransaction && !busy && !isAutocommit;
+  }
+
+  export function autocommitOnSwitchEnabled() {
+    return driver?.supportsTransactions && driver?.implicitTransactions && !isInTransaction && !busy && isAutocommit;
   }
 
   export function endTransactionEnabled() {
     return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy;
+  }
+
+  export function autocommitOffSwitch() {
+    isAutocommit = true;
+  }
+
+  export function autocommitOnSwitch() {
+    isAutocommit = false;
   }
 
   export function commitTransaction() {
@@ -664,6 +698,12 @@
     <ToolStripCommandButton
       command="query.beginTransaction"
       data-testid="QueryTab_beginTransactionButton"
+      hideDisabled
+    />
+    <ToolStripCommandButton command="query.autocommitOnSwitch" data-testid="QueryTab_autocommitOnSwitch" hideDisabled />
+    <ToolStripCommandButton
+      command="query.autocommitOffSwitch"
+      data-testid="QueryTab_autocommitOffSwitch"
       hideDisabled
     />
     <ToolStripCommandButton

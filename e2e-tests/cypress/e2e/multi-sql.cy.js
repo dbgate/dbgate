@@ -25,14 +25,14 @@ function multiTest(testName, testDefinition) {
     it(testName + ' Mssql', () => testDefinition('Mssql-connection'));
   }
   if (localconfig.oracle) {
-    it(testName + ' Oracle', () => testDefinition('Oracle-connection'));
+    it(testName + ' Oracle', () => testDefinition('Oracle-connection', 'C##MY_GUITAR_SHOP'));
   }
 }
 
 describe('Mutli-sql tests', () => {
-  multiTest('Transactions', connectionName => {
+  multiTest('Transactions', (connectionName, databaseName = 'my_guitar_shop') => {
     cy.contains(connectionName).click();
-    cy.contains('my_guitar_shop').click();
+    cy.contains(databaseName).click();
     cy.testid('TabsPanel_buttonNewQuery').click();
     cy.wait(1000);
     cy.get('body').type("INSERT INTO categories (category_id, category_name) VALUES (5, 'test');");

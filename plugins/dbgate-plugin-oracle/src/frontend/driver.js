@@ -103,6 +103,7 @@ const oracleDriver = {
   getQuerySplitterOptions: () => oracleSplitterOptions,
   readOnlySessions: true,
   supportsTransactions: true,
+  implicitTransactions: true,
 
   databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
