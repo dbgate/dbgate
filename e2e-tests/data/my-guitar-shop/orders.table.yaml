@@ -1,0 +1,54 @@
+name: orders
+columns:
+  - name: order_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: customer_id
+    type: int
+    default: null
+    notNull: true
+    references: customers
+  - name: order_date
+    type: datetime
+    default: null
+    notNull: true
+  - name: ship_amount
+    type: decimal(10,2)
+    default: null
+    notNull: true
+  - name: tax_amount
+    type: decimal(10,2)
+    default: null
+    notNull: true
+  - name: ship_date
+    type: datetime
+    default: null
+  - name: ship_address_id
+    type: int
+    default: null
+    notNull: true
+  - name: card_type
+    type: varchar(50)
+    default: null
+    notNull: true
+  - name: card_number
+    type: char(16)
+    default: null
+    notNull: true
+  - name: card_expires
+    type: char(7)
+    default: null
+    notNull: true
+  - name: billing_address_id
+    type: int
+    default: null
+    notNull: true
+primaryKey:
+  - order_id
+indexes:
+  - name: orders_fk_customers
+    unique: false
+    columns:
+      - customer_id

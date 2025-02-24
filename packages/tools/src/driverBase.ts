@@ -233,8 +233,18 @@ export const driverBase = {
     return defaultCreator(changeSet, dbinfo);
   },
 
+  adaptDataType(dataType: string) {
+    return dataType;
+  },
+
   adaptTableInfo(table) {
-    return table;
+    return {
+      ...table,
+      columns: table.columns?.map(col => ({
+        ...col,
+        dataType: this.adaptDataType(col.dataType),
+      })),
+    };
   },
 
   async listSchemas(pool) {

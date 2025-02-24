@@ -1,0 +1,5 @@
+{"__isStreamHeader":true,"pureName":"categories","tableRowCount":"4","tableEngine":"InnoDB","objectComment":"","modifyDate":"2025-02-03 02:56:32","objectId":"categories","contentHash":"2025-02-03 02:56:32","columns":[{"notNull":true,"autoIncrement":true,"columnName":"category_id","columnComment":"","dataType":"int","defaultValue":null,"isUnsigned":false,"isZerofill":false},{"notNull":true,"autoIncrement":false,"columnName":"category_name","columnComment":"","dataType":"varchar(255)","defaultValue":null,"isUnsigned":false,"isZerofill":false}],"primaryKey":{"constraintName":"PRIMARY","pureName":"categories","constraintType":"primaryKey","columns":[{"columnName":"category_id"}]},"foreignKeys":[],"indexes":[],"uniques":[{"constraintName":"category_name","columns":[{"columnName":"category_name"}]}],"engine":"mysql@dbgate-plugin-mysql"}
+{"category_id":2,"category_name":"Basses"}
+{"category_id":3,"category_name":"Drums"}
+{"category_id":1,"category_name":"Guitars"}
+{"category_id":4,"category_name":"Keyboards"}

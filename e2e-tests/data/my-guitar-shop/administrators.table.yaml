@@ -1,0 +1,25 @@
+name: administrators
+columns:
+  - name: admin_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: email_address
+    type: varchar(255)
+    default: null
+    notNull: true
+  - name: password
+    type: varchar(255)
+    default: null
+    notNull: true
+  - name: first_name
+    type: varchar(255)
+    default: null
+    notNull: true
+  - name: last_name
+    type: varchar(255)
+    default: null
+    notNull: true
+primaryKey:
+  - admin_id

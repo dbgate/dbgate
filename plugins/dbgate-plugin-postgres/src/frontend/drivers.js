@@ -217,6 +217,11 @@ EXECUTE FUNCTION function_name();`,
   authTypeLabel: 'Connection mode',
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/postgresql',
+
+  adaptDataType(dataType) {
+    if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
+    return dataType;
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

@@ -92,11 +92,12 @@ const driver = {
       ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
       : mysqlSplitterOptions,
   adaptTableInfo(table) {
-    if (!table.primaryKey && !table.sortingKey) {
-      const hasIdColumn = table.columns.some((x) => x.columnName == 'id');
+    const baseAdapted = driverBase.adaptTableInfo(table);
+    if (!baseAdapted.primaryKey && !baseAdapted.sortingKey) {
+      const hasIdColumn = baseAdapted.columns.some((x) => x.columnName == 'id');
 
       return {
-        ...table,
+        ...baseAdapted,
         primaryKey: {
           columns: [
             {
@@ -113,11 +114,11 @@ const driver = {
                 },
               ]
             : []),
-          ...table.columns,
+          ...baseAdapted.columns,
         ],
       };
     }
-    return table;
+    return baseAdapted;
   },
 };
 

@@ -257,6 +257,8 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   ): any[];
   // adapts table info from different source (import, other database) to be suitable for this database
   adaptTableInfo(table: TableInfo): TableInfo;
+  // simple data type adapter
+  adaptDataType(dataType: string): string;
   listSchemas(dbhan: DatabaseHandle<TClient>): SchemaInfo[];
 
   analyserClass?: any;

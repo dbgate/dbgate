@@ -1,0 +1,13 @@
+name: categories
+columns:
+  - name: category_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: category_name
+    type: varchar(255)
+    default: null
+    notNull: true
+primaryKey:
+  - category_id

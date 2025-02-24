@@ -1,0 +1,46 @@
+name: addresses
+columns:
+  - name: address_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: customer_id
+    type: int
+    default: null
+    notNull: true
+    references: customers
+  - name: line1
+    type: varchar(60)
+    default: null
+    notNull: true
+  - name: line2
+    type: varchar(60)
+    default: null
+  - name: city
+    type: varchar(40)
+    default: null
+    notNull: true
+  - name: state
+    type: varchar(2)
+    default: null
+    notNull: true
+  - name: zip_code
+    type: varchar(10)
+    default: null
+    notNull: true
+  - name: phone
+    type: varchar(12)
+    default: null
+    notNull: true
+  - name: disabled
+    type: int
+    default: 0
+    notNull: true
+primaryKey:
+  - address_id
+indexes:
+  - name: addresses_fk_customers
+    unique: false
+    columns:
+      - customer_id

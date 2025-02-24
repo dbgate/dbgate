@@ -318,7 +318,7 @@ Builds:
 - FIXED: Creating SQLite autoincrement column
 - FIXED: Better error reporting from exports/import/dulicator
 - CHANGED: Optimalizede OracleDB analysing algorithm
-- ADDED: Mutli column filter for perspectives
+- ADDED: Multi column filter for perspectives
 - FIXED: Fixed some scenarios using tables from different DBs
 - FIXED: Sessions with long-running queries are not killed
 

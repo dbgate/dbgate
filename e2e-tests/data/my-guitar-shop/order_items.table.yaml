@@ -1,0 +1,40 @@
+name: order_items
+columns:
+  - name: item_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: order_id
+    type: int
+    default: null
+    notNull: true
+    references: orders
+  - name: product_id
+    type: int
+    default: null
+    notNull: true
+    references: products
+  - name: item_price
+    type: decimal(10,2)
+    default: null
+    notNull: true
+  - name: discount_amount
+    type: decimal(10,2)
+    default: null
+    notNull: true
+  - name: quantity
+    type: int
+    default: null
+    notNull: true
+primaryKey:
+  - item_id
+indexes:
+  - name: items_fk_orders
+    unique: false
+    columns:
+      - order_id
+  - name: items_fk_products
+    unique: false
+    columns:
+      - product_id

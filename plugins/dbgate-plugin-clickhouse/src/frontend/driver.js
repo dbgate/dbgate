@@ -192,13 +192,15 @@ const driver = {
   },
 
   adaptTableInfo(table) {
-    if (!table.primaryKey && !table.sortingKey) {
+    const baseAdapted = driverBase.adaptTableInfo(table);
+
+    if (!baseAdapted.primaryKey && !baseAdapted.sortingKey) {
       return {
-        ...table,
+        ...baseAdapted,
         tableEngine: 'Log',
       };
     }
-    return table;
+    return baseAdapted;
   },
 };
 

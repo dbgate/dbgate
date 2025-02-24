@@ -1,0 +1,42 @@
+name: products
+columns:
+  - name: product_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: category_id
+    type: int
+    default: null
+    notNull: true
+    references: categories
+  - name: product_code
+    type: varchar(10)
+    default: null
+    notNull: true
+  - name: product_name
+    type: varchar(255)
+    default: null
+    notNull: true
+  - name: description
+    type: text
+    default: null
+    notNull: true
+  - name: list_price
+    type: decimal(10,2)
+    default: null
+    notNull: true
+  - name: discount_percent
+    type: decimal(10,2)
+    default: '0.00'
+    notNull: true
+  - name: date_added
+    type: datetime
+    default: null
+primaryKey:
+  - product_id
+indexes:
+  - name: products_fk_categories
+    unique: false
+    columns:
+      - category_id

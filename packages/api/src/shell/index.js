@@ -35,6 +35,7 @@ const sqlTextReplacementTransform = require('./sqlTextReplacementTransform');
 const autoIndexForeignKeysTransform = require('./autoIndexForeignKeysTransform');
 const generateDeploySql = require('./generateDeploySql');
 const dropAllDbObjects = require('./dropAllDbObjects');
+const importDbFromFolder = require('./importDbFromFolder');
 
 const dbgateApi = {
   queryReader,
@@ -73,6 +74,7 @@ const dbgateApi = {
   autoIndexForeignKeysTransform,
   generateDeploySql,
   dropAllDbObjects,
+  importDbFromFolder,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);

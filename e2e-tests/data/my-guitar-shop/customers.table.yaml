@@ -1,0 +1,31 @@
+name: customers
+columns:
+  - name: customer_id
+    type: int
+    default: null
+    autoIncrement: true
+    notNull: true
+  - name: email_address
+    type: varchar(255)
+    default: null
+    notNull: true
+  - name: password
+    type: varchar(60)
+    default: null
+    notNull: true
+  - name: first_name
+    type: varchar(60)
+    default: null
+    notNull: true
+  - name: last_name
+    type: varchar(60)
+    default: null
+    notNull: true
+  - name: shipping_address_id
+    type: int
+    default: null
+  - name: billing_address_id
+    type: int
+    default: null
+primaryKey:
+  - customer_id
