@@ -417,7 +417,7 @@ describe('Data browser data', () => {
 
   // });
 
-  it.only('Backup table', () => {
+  it('Backup table', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Customer').rightclick();
@@ -426,7 +426,7 @@ describe('Data browser data', () => {
     cy.contains ('_Customer').should('be.visible');
   });
 
-  it.only('Truncate table', () => {
+  it('Truncate table', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('_Customer').click();
