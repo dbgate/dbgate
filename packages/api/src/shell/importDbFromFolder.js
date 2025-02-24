@@ -59,6 +59,8 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
         const dst = await tableWriter({
           systemConnection: dbhan,
           pureName: table.pureName,
+          driver,
+          targetTableStructure: table,
         });
         await copyStream(src, dst);
       }

@@ -40,6 +40,7 @@ export interface WriteTableOptions {
   truncate?: boolean;
   createIfNotExists?: boolean;
   commitAfterInsert?: boolean;
+  targetTableStructure?: TableInfo;
 }
 
 export interface EngineAuthType {

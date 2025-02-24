@@ -1,5 +1,6 @@
 const engines = require('../engines');
 const stream = require('stream');
+const path = require('path');
 const { testWrapper } = require('../tools');
 const tableWriter = require('dbgate-api/src/shell/tableWriter');
 const tableReader = require('dbgate-api/src/shell/tableReader');
@@ -108,7 +109,6 @@ describe('DB Import/export', () => {
       expect(res2.rows[0].cnt.toString()).toEqual('6');
     })
   );
-
   const enginesWithDumpFile = engines.filter(x => x.dumpFile);
   const hasEnginesWithDumpFile = enginesWithDumpFile.length > 0;
 

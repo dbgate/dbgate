@@ -15,6 +15,7 @@ const logger = getLogger('tableWriter');
  * @param {boolean} options.truncate - truncate table before insert
  * @param {boolean} options.createIfNotExists - create table if not exists
  * @param {boolean} options.commitAfterInsert - commit transaction after insert
+ * @param {any} options.targetTableStructure - target table structure (don't analyse if given)
  * @returns {Promise<writerType>} - writer object
  */
 async function tableWriter({ connection, schemaName, pureName, driver, systemConnection, ...options }) {

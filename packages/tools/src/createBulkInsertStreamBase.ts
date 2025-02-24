@@ -32,7 +32,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
   };
 
   writable.checkStructure = async () => {
-    let structure = await driver.analyseSingleTable(dbhan, name);
+    let structure = options.targetTableStructure ?? (await driver.analyseSingleTable(dbhan, name));
     if (structure) {
       writable.structure = structure;
     }
