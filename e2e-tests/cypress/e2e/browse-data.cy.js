@@ -403,4 +403,39 @@ describe('Data browser data', () => {
     cy.contains('Novak');
     cy.contains('Rows: 8');
   });
+
+    // it('Import', () => {
+  // TBC after Import FIX
+  //   cy.contains('MySql-connection').click();
+  //   cy.contains('MyChinook').click();
+  //   cy.contains('Customer').rightclickclick();
+  //   cy.contains('Import').click();
+  //   cy.get('input[type=file]').selectFile('cypress/fixtures/Customer_add.csv');
+  //   cy.get('table tbody tr').eq(1).within(() => {
+  //     cy.get('select').select('Append data');
+  //   });
+
+  // });
+
+  it.only('Backup table', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('backup').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains ('_Customer').should('be.visible');
+  });
+
+  it.only('Truncate table', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('_Customer').click();
+    cy.contains('Leonie').click();
+    cy.contains('_Customer').rightclick();
+    cy.contains('Truncate table').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('Leonie').click();
+    cy.testid ('TableDataTab_refreshGrid').click();
+    cy.contains('No rows loaded')
+  });
 });
