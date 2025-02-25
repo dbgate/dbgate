@@ -22,7 +22,7 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: |
-          yarn add js-yaml lodash
+          yarn add -W js-yaml lodash
       - name: Run workflow generation
         run: |
           yarn workflows
@@ -34,7 +34,7 @@ jobs:
         run: |
           # Only commit if there are changes
           if [[ -n "$(git status --porcelain)" ]]; then
-            git add .
+            git add .github/workflows
             git commit -m "chore: auto-update github workflows"
           else
             echo "No changes to commit"
