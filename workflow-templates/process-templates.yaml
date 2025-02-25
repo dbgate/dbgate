@@ -40,7 +40,7 @@ jobs:
           # Only commit if there are changes
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "chore: auto-update workflows"
+            git commit -m "chore: auto-update github workflows"
           else
             echo "No changes to commit"
           fi
