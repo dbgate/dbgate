@@ -9,19 +9,23 @@ const dbgatePluginPostgres = require('dbgate-plugin-postgres');
 dbgateApi.registerPlugins(dbgatePluginPostgres);
 
 async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop') {
-  try {
-    await dbgateApi.executeQuery({
-      connection,
-      sql: dropDbSql,
-    });
-  } catch (err) {
-    console.error('Failed to drop database', err);
+  if (dropDbSql) {
+    try {
+      await dbgateApi.executeQuery({
+        connection,
+        sql: dropDbSql,
+      });
+    } catch (err) {
+      console.error('Failed to drop database', err);
+    }
   }
 
-  await dbgateApi.executeQuery({
-    connection,
-    sql: createDbSql,
-  });
+  if (createDbSql) {
+    await dbgateApi.executeQuery({
+      connection,
+      sql: createDbSql,
+    });
+  }
 
   await dbgateApi.importDbFromFolder({
     connection: {
@@ -87,6 +91,18 @@ async function run() {
       'DROP USER c##my_guitar_shop CASCADE',
       'CREATE USER c##my_guitar_shop IDENTIFIED BY my_guitar_shop DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA 10M ON users',
       'C##my_guitar_shop'
+    );
+  }
+
+  if (localconfig.sqlite) {
+    await createDb(
+      {
+        databaseFile: process.env.FILE_sqlite,
+        singleDatabase: true,
+        engine: 'sqlite@dbgate-plugin-sqlite',
+      },
+      null,
+      null
     );
   }
 }

@@ -3,5 +3,5 @@ module.exports = {
   postgres: true,
   mssql: true,
   oracle: true,
-  // sqlite: true,
+  sqlite: true,
 };

@@ -1,6 +1,5 @@
 const { defineConfig } = require('cypress');
 const killPort = require('kill-port');
-const { clearTestingData } = require('./e2eTestTools');
 const waitOn = require('wait-on');
 const { exec } = require('child_process');
 const fs = require('fs');
@@ -14,7 +13,6 @@ module.exports = defineConfig({
       // implement node event listeners here
 
       on('before:spec', async details => {
-        await clearTestingData();
         // console.log('********************* DETAILS *********************', JSON.stringify(details));
 
         if (config.isInteractive) {
