@@ -39,11 +39,11 @@ describe('Mutli-sql tests', () => {
 
     // rollback
     cy.testid('QueryTab_beginTransactionButton').click();
-    cy.contains('Query execution finished');
+    cy.contains('Begin Transaction finished');
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Query execution finished');
     cy.testid('QueryTab_rollbackTransactionButton').click();
-    cy.contains('Query execution finished');
+    cy.contains('Rollback Transaction finished');
 
     // should contain 4 rows
     cy.testid('SqlObjectList_container').contains('categories').click();
@@ -54,11 +54,11 @@ describe('Mutli-sql tests', () => {
     // commit
     cy.contains('Query #1').click();
     cy.testid('QueryTab_beginTransactionButton').click();
-    cy.contains('Query execution finished');
+    cy.contains('Begin Transaction finished');
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Query execution finished');
     cy.testid('QueryTab_commitTransactionButton').click();
-    cy.contains('Query execution finished');
+    cy.contains('Commit Transaction finished');
 
     // should contain 5 rows
     cy.testid('SqlObjectList_container').contains('categories').click();
