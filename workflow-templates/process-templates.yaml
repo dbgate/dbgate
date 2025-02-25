@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
+          yarn add js-yaml lodash
 
       - name: Run workflow generation
         run: |
@@ -46,5 +46,7 @@ jobs:
           fi
 
       - name: Push changes
-        run: |
-          git push origin master      
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.DIFLOW_GIT_SECRET }}
+          branch: master

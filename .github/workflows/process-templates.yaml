@@ -22,7 +22,7 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: |
-          yarn install
+          yarn add js-yaml lodash
       - name: Run workflow generation
         run: |
           yarn workflows
@@ -35,10 +35,12 @@ jobs:
           # Only commit if there are changes
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "chore: auto-update workflows"
+            git commit -m "chore: auto-update github workflows"
           else
             echo "No changes to commit"
           fi
       - name: Push changes
-        run: |
-          git push origin master      
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: '${{ secrets.DIFLOW_GIT_SECRET }}'
+          branch: master
