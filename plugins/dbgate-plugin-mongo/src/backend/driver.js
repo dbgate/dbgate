@@ -260,14 +260,25 @@ const driver = {
       highWaterMark: 100,
     });
 
-    exprValue
-      .forEach((row) => pass.write(transformMongoData(row)))
-      .then(() => {
-        pass.end();
-        // pass.end(() => {
-        //   pass.emit('end');
-        // })
-      });
+    const cursorStream = exprValue.stream();
+
+    cursorStream.on('data', (row) => {
+      pass.write(transformMongoData(row));
+    });
+
+    // Called once the cursor is fully read
+    cursorStream.on('end', () => {
+      pass.emit('end');
+    });
+
+    // exprValue
+    //   .forEach((row) => pass.write(transformMongoData(row)))
+    //   .then(() => {
+    //     pass.end();
+    //     // pass.end(() => {
+    //     //   pass.emit('end');
+    //     // })
+    //   });
 
     return pass;
     // return directly stream without header row
