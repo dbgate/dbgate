@@ -213,6 +213,8 @@
     'icon transaction': 'mdi mdi-code-json',
     'icon commit': 'mdi mdi-check-circle',
     'icon rollback': 'mdi mdi-close-circle',
+    'icon autocommit-on': 'mdi mdi-check-circle',
+    'icon autocommit-off': 'mdi mdi-check-circle-outline',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',

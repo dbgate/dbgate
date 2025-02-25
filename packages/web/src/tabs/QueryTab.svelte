@@ -71,16 +71,16 @@
   registerCommand({
     id: 'query.autocommitOffSwitch',
     category: 'Query',
-    name: 'Autocommit: OFF',
-    icon: 'icon transaction',
+    name: 'Auto commit: OFF',
+    icon: 'icon autocommit-off',
     testEnabled: () => getCurrentEditor()?.autocommitOffSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOffSwitch(),
   });
   registerCommand({
     id: 'query.autocommitOnSwitch',
     category: 'Query',
-    name: 'Autocommit: ON',
-    icon: 'icon transaction',
+    name: 'Auto commit: ON',
+    icon: 'icon autocommit-on',
     testEnabled: () => getCurrentEditor()?.autocommitOnSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOnSwitch(),
   });
