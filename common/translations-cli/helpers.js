@@ -2,6 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 const { defaultLanguage } = require('./constants');
+const sortJsonKeysAlphabetically = require('../sortJsonKeysAlphabetically');
 
 /**
  * @param {string} file
@@ -145,7 +146,9 @@ function getLanguageTranslations(language) {
  */
 function setLanguageTranslations(language, translations) {
   const file = resolveFile(`translations/${language}.json`);
-  fs.writeFileSync(file, JSON.stringify(translations, null, 2));
+  const sorted = sortJsonKeysAlphabetically(translations);
+
+  fs.writeFileSync(file, JSON.stringify(sorted, null, 2));
 }
 
 /**
@@ -155,8 +158,9 @@ function setLanguageTranslations(language, translations) {
 function updateLanguageTranslations(language, newTranslations) {
   const translations = getLanguageTranslations(language);
   const updatedTranslations = { ...translations, ...newTranslations };
+  const sorted = sortJsonKeysAlphabetically(updatedTranslations);
 
-  setLanguageTranslations(language, updatedTranslations);
+  setLanguageTranslations(language, sorted);
 }
 
 function getAllLanguages() {
