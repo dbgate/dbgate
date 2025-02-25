@@ -7,7 +7,7 @@ name: Update Workflows
     branches:
       - master
     paths:
-      - workflows-templates/**
+      - workflow-templates/**
 jobs:
   update-workflows:
     runs-on: ubuntu-latest

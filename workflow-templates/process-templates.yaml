@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "workflows-templates/**"
+      - "workflow-templates/**"
 
 jobs:
   update-workflows:
