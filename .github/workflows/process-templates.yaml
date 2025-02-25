@@ -15,7 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
+          token: '${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}'
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
@@ -24,7 +24,7 @@ jobs:
         run: |
           rm package.json
           rm yarn.lock
-          yarn add -W js-yaml lodash
+          yarn add -W js-yaml@3.14.1 lodash
       - name: Run workflow generation
         run: |
           node common/processWorkflows.js
@@ -44,5 +44,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
+          github_token: '${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}'
           branch: master
