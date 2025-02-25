@@ -58,6 +58,7 @@
     "install:drivers:packer": "node common/defineVolatileDependencies.js packer/build",
     "prepare:docker": "yarn plugins:copydist && yarn build:web && yarn build:api && yarn copy:docker:build && yarn install:drivers:docker",
     "prepare:packer": "yarn plugins:copydist && yarn build:web && yarn build:api && yarn copy:packer:build",
+    "build:e2e": "yarn build:lib && yarn prepare:packer",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
     "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\" \"yarn start:tools\" \"yarn build:plugins:frontend:watch\"",
     "ts:api": "yarn workspace dbgate-api ts",

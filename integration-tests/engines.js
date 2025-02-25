@@ -650,7 +650,7 @@ const enginesOnCi = [
 
 const enginesOnLocal = [
   // all engines, which would be run on local test
-  cassandraEngine,
+  // cassandraEngine,
   // mysqlEngine,
   // mariaDbEngine,
   // postgreSqlEngine,
@@ -658,7 +658,7 @@ const enginesOnLocal = [
   // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
-  // oracleEngine,
+  oracleEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */

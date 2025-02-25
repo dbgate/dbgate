@@ -56,11 +56,18 @@ module.exports = {
   handle_done(sesid, props) {
     socket.emit(`session-done-${sesid}`);
     if (!props.skipFinishedMessage) {
-      this.dispatchMessage(sesid, 'Query execution finished');
+      if (props.controlCommand) {
+        this.dispatchMessage(sesid, `${_.startCase(props.controlCommand)} finished`);
+      } else {
+        this.dispatchMessage(sesid, 'Query execution finished');
+      }
     }
     const session = this.opened.find(x => x.sesid == sesid);
     if (session.loadingReader_jslid) {
       socket.emit(`session-jslid-done-${session.loadingReader_jslid}`);
+    }
+    if (props.autoCommit) {
+      this.executeControlCommand({ sesid, command: 'commitTransaction' });
     }
     if (session.killOnDone) {
       this.kill({ sesid });
@@ -131,7 +138,7 @@ module.exports = {
   },
 
   executeQuery_meta: true,
-  async executeQuery({ sesid, sql }) {
+  async executeQuery({ sesid, sql, autoCommit }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
@@ -139,7 +146,21 @@ module.exports = {
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
-    session.subprocess.send({ msgtype: 'executeQuery', sql });
+    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit });
+
+    return { state: 'ok' };
+  },
+
+  executeControlCommand_meta: true,
+  async executeControlCommand({ sesid, command }) {
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+
+    logger.info({ sesid, command }, 'Processing control command');
+    this.dispatchMessage(sesid, `${_.startCase(command)} started`);
+    session.subprocess.send({ msgtype: 'executeControlCommand', command });
 
     return { state: 'ok' };
   },

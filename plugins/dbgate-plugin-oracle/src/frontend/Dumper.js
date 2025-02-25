@@ -139,6 +139,16 @@ class Dumper extends SqlDumper {
   // putByteArrayValue(value) {
   //   this.putRaw(`e'\\\\x${arrayToHexString(value)}'`);
   // }
+
+  putValue(value, dataType) {
+    if (dataType?.toLowerCase() == 'timestamp') {
+      this.putRaw(`TO_TIMESTAMP('${value}', 'YYYY-MM-DD"T"HH24:MI:SS')`);
+    } else if (dataType?.toLowerCase() == 'date') {
+      this.putRaw(`TO_DATE('${value}', 'YYYY-MM-DD"T"HH24:MI:SS')`);
+    } else {
+      super.putValue(value);
+    }
+  }
 }
 
 module.exports = Dumper;

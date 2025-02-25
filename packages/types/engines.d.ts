@@ -40,6 +40,7 @@ export interface WriteTableOptions {
   truncate?: boolean;
   createIfNotExists?: boolean;
   commitAfterInsert?: boolean;
+  targetTableStructure?: TableInfo;
 }
 
 export interface EngineAuthType {
@@ -163,6 +164,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
   supportsTransactions?: boolean;
+  implicitTransactions?: boolean; // transaction is started with first SQL command, no BEGIN TRANSACTION is needed
 
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;

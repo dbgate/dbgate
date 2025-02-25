@@ -52,6 +52,23 @@ export default async function applyScriptTemplate(
       connectionInfo
     );
   }
+  if (scriptTemplate == 'INSERT') {
+    return generateTableSql(
+      extensions,
+      props,
+      (dmp, tableInfo) => {
+        dmp.put(
+          '^insert ^into %f (%,i) ^values (%,v)',
+          tableInfo,
+          tableInfo.columns.map(x => x.columnName),
+          tableInfo.columns.map(x => null)
+        );
+      },
+      true,
+      dbinfo,
+      connectionInfo
+    );
+  }
   if (scriptTemplate == 'CREATE OBJECT') {
     const objectInfo = dbinfo ? extractDbObjectInfo(dbinfo, props) : await getSqlObjectInfo(props);
     if (objectInfo) {
@@ -95,6 +112,7 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
       return [
         { label: 'CREATE TABLE', scriptTemplate: 'CREATE TABLE' },
         { label: 'SELECT', scriptTemplate: 'SELECT' },
+        { label: 'INSERT', scriptTemplate: 'INSERT' },
       ];
     case 'views':
       return [

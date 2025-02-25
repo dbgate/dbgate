@@ -69,6 +69,22 @@
     onClick: () => getCurrentEditor().beginTransaction(),
   });
   registerCommand({
+    id: 'query.autocommitOffSwitch',
+    category: 'Query',
+    name: 'Auto commit: OFF',
+    icon: 'icon autocommit-off',
+    testEnabled: () => getCurrentEditor()?.autocommitOffSwitchEnabled(),
+    onClick: () => getCurrentEditor().autocommitOffSwitch(),
+  });
+  registerCommand({
+    id: 'query.autocommitOnSwitch',
+    category: 'Query',
+    name: 'Auto commit: ON',
+    icon: 'icon autocommit-on',
+    testEnabled: () => getCurrentEditor()?.autocommitOnSwitchEnabled(),
+    onClick: () => getCurrentEditor().autocommitOnSwitch(),
+  });
+  registerCommand({
     id: 'query.commitTransaction',
     category: 'Query',
     name: 'Commit transaction',
@@ -178,6 +194,7 @@
   let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
   let domAiAssistant;
   let isInTransaction = false;
+  let isAutocommit = false;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -221,6 +238,7 @@
     busy;
     sessionId;
     isInTransaction;
+    isAutocommit;
     invalidateCommands();
   }
 
@@ -309,6 +327,9 @@
     executeNumber++;
     visibleResultTabs = true;
 
+    busy = true;
+    timerLabel.start();
+
     let sesid = sessionId;
     if (!sesid) {
       const resp = await apiCall('sessions/create', {
@@ -318,11 +339,13 @@
       sesid = resp.sesid;
       sessionId = sesid;
     }
-    busy = true;
-    timerLabel.start();
+    if (driver?.implicitTransactions) {
+      isInTransaction = true;
+    }
     await apiCall('sessions/execute-query', {
       sesid,
       sql,
+      autoCommit: driver?.implicitTransactions && isAutocommit,
     });
     await apiCall('query-history/write', {
       data: {
@@ -331,6 +354,26 @@
         database,
         date: new Date().getTime(),
       },
+    });
+  }
+
+  async function executeControlCommand(command) {
+    busy = true;
+    timerLabel.start();
+    visibleResultTabs = true;
+
+    let sesid = sessionId;
+    if (!sesid) {
+      const resp = await apiCall('sessions/create', {
+        conid,
+        database,
+      });
+      sesid = resp.sesid;
+      sessionId = sesid;
+    }
+    await apiCall('sessions/execute-control-command', {
+      sesid,
+      command,
     });
   }
 
@@ -407,32 +450,42 @@
   }
 
   export function beginTransaction() {
-    const dmp = driver.createDumper();
-    dmp.beginTransaction();
-    executeCore(dmp.s);
     isInTransaction = true;
+    executeControlCommand('beginTransaction');
   }
 
   export function beginTransactionEnabled() {
-    return driver?.supportsTransactions && !isInTransaction && !busy;
+    return driver?.supportsTransactions && !driver?.implicitTransactions && !isInTransaction && !busy;
+  }
+
+  export function autocommitOffSwitchEnabled() {
+    return driver?.supportsTransactions && driver?.implicitTransactions && !isInTransaction && !busy && !isAutocommit;
+  }
+
+  export function autocommitOnSwitchEnabled() {
+    return driver?.supportsTransactions && driver?.implicitTransactions && !isInTransaction && !busy && isAutocommit;
   }
 
   export function endTransactionEnabled() {
-    return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy;
+    return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy && !isAutocommit;
+  }
+
+  export function autocommitOffSwitch() {
+    isAutocommit = true;
+  }
+
+  export function autocommitOnSwitch() {
+    isAutocommit = false;
   }
 
   export function commitTransaction() {
-    const dmp = driver.createDumper();
-    dmp.commitTransaction();
-    executeCore(dmp.s);
     isInTransaction = false;
+    executeControlCommand('commitTransaction');
   }
 
   export function rollbackTransaction() {
-    const dmp = driver.createDumper();
-    dmp.rollbackTransaction();
-    executeCore(dmp.s);
     isInTransaction = false;
+    executeControlCommand('rollbackTransaction');
   }
 
   const handleMesageClick = message => {
@@ -444,6 +497,9 @@
 
   const handleSessionDone = () => {
     busy = false;
+    if (isAutocommit) {
+      isInTransaction = false;
+    }
     timerLabel.stop();
   };
 
@@ -663,6 +719,12 @@
     <ToolStripCommandButton
       command="query.beginTransaction"
       data-testid="QueryTab_beginTransactionButton"
+      hideDisabled
+    />
+    <ToolStripCommandButton command="query.autocommitOnSwitch" data-testid="QueryTab_autocommitOnSwitch" hideDisabled />
+    <ToolStripCommandButton
+      command="query.autocommitOffSwitch"
+      data-testid="QueryTab_autocommitOffSwitch"
       hideDisabled
     />
     <ToolStripCommandButton

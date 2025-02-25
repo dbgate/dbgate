@@ -36,7 +36,7 @@
     "test:team": "start-server-and-test start:team http://localhost:3000 cy:run:team",
     "test:multi-sql": "start-server-and-test start:multi-sql http://localhost:3000 cy:run:multi-sql",
 
-    "test": "yarn test:add-connection && yarn test:portal && yarn test:oauth && yarn test:browse-data && yarn test:team && yaran test:multi-sql",
+    "test": "yarn test:add-connection && yarn test:portal && yarn test:oauth && yarn test:browse-data && yarn test:team && yarn test:multi-sql",
     "test:ci": "yarn test"
   },
   "dependencies": {}

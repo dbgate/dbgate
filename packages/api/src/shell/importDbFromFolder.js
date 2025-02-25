@@ -52,13 +52,15 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
     // console.log('CREATING STRUCTURE:', sql);
     await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
 
-    for (const table of model.tables) {
+    for (const table of modelAdapted.tables) {
       const fileName = path.join(folder, `${table.pureName}.jsonl`);
       if (await fs.exists(fileName)) {
         const src = await jsonLinesReader({ fileName });
         const dst = await tableWriter({
-          connection,
+          systemConnection: dbhan,
           pureName: table.pureName,
+          driver,
+          targetTableStructure: table,
         });
         await copyStream(src, dst);
       }

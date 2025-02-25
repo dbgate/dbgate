@@ -74,9 +74,9 @@ services:
 #       - cockroachdb
 #     restart: on-failure
 
-# oracle:
-#   image: gvenzl/oracle-xe:21-slim
-#   environment:
-#     ORACLE_PASSWORD: Pwd2020Db
-#   ports:
-#     - 15006:1521
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    environment:
+      ORACLE_PASSWORD: Pwd2020Db
+    ports:
+      - 15006:1521

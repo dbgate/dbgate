@@ -227,7 +227,12 @@
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}
-    <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list" square>
+    <InlineButton
+      on:click={handleRefreshDatabase}
+      title="Refresh database connection and object list"
+      square
+      data-testid="SqlObjectList_refreshButton"
+    >
       <FontIcon icon="icon refresh" />
     </InlineButton>
   </SearchBoxWrapper>
@@ -245,7 +250,11 @@
     <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
   {/if}
 
-  <WidgetsInnerContainer bind:this={domContainer} hideContent={differentFocusedDb}>
+  <WidgetsInnerContainer
+    bind:this={domContainer}
+    hideContent={differentFocusedDb}
+    data-testid="SqlObjectList_container"
+  >
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}

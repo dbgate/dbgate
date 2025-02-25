@@ -1,5 +1,6 @@
 import { EngineDriver, WriteTableOptions } from 'dbgate-types';
 import _intersection from 'lodash/intersection';
+import _fromPairs from 'lodash/fromPairs';
 import { getLogger } from './getLogger';
 import { prepareTableForImport } from './tableTransforms';
 
@@ -18,6 +19,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
   writable.buffer = [];
   writable.structure = null;
   writable.columnNames = null;
+  writable.columnDataTypes = null;
   writable.requireFixedStructure = driver.databaseEngineTypes.includes('sql');
 
   writable.addRow = async row => {
@@ -30,7 +32,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
   };
 
   writable.checkStructure = async () => {
-    let structure = await driver.analyseSingleTable(dbhan, name);
+    let structure = options.targetTableStructure ?? (await driver.analyseSingleTable(dbhan, name));
     if (structure) {
       writable.structure = structure;
     }
@@ -45,6 +47,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
       logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
       await driver.script(dbhan, dmp.s);
       structure = await driver.analyseSingleTable(dbhan, name);
+      writable.structure = structure;
+    }
+    if (!writable.structure) {
+      throw new Error(`Error importing table - ${fullNameQuoted} not found`);
     }
     if (options.truncate) {
       await driver.script(dbhan, `TRUNCATE TABLE ${fullNameQuoted}`);
@@ -53,6 +59,12 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
     writable.columnNames = _intersection(
       structure.columns.map(x => x.columnName),
       writable.structure.columns.map(x => x.columnName)
+    );
+    writable.columnDataTypes = _fromPairs(
+      writable.columnNames.map(colName => [
+        colName,
+        writable.structure.columns.find(x => x.columnName == colName)?.dataType,
+      ])
     );
   };
 
@@ -70,7 +82,9 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
       for (const row of rows) {
         if (wasRow) dmp.putRaw(',\n');
         dmp.putRaw('(');
-        dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
+        dmp.putCollection(',', writable.columnNames, col =>
+          dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+        );
         dmp.putRaw(')');
         wasRow = true;
       }
@@ -86,8 +100,11 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         dmp.putRaw(')\n VALUES\n');
 
         dmp.putRaw('(');
-        dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
+        dmp.putCollection(',', writable.columnNames, col =>
+          dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+        );
         dmp.putRaw(')');
+        // console.log(dmp.s);
         await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     }

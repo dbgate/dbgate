@@ -23,6 +23,7 @@ const dialect = {
   userDatabaseNamePrefix: 'C##',
   upperCaseAllDbObjectNames: true,
   requireStandaloneSelectForScopeIdentity: true,
+  defaultValueBeforeNullability: true,
 
   createColumn: true,
   dropColumn: true,
@@ -102,6 +103,7 @@ const oracleDriver = {
   getQuerySplitterOptions: () => oracleSplitterOptions,
   readOnlySessions: true,
   supportsTransactions: true,
+  implicitTransactions: true,
 
   databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
@@ -176,6 +178,12 @@ END trigger_name;
       };
     }
     return dialect;
+  },
+
+  adaptDataType(dataType) {
+    if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
+    if (dataType?.toLowerCase() == 'text') return 'clob';
+    return dataType;
   },
 };
 
