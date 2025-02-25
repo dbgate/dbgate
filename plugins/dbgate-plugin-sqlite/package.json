@@ -40,6 +40,6 @@
     "dbgate-query-splitter": "^4.11.3"
   },
   "optionalDependencies": {
-    "better-sqlite3": "9.6.0"
+    "better-sqlite3": "11.8.1"
   }
 }
