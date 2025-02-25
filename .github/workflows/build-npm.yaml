@@ -5,11 +5,11 @@ name: NPM packages
 'on':
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+      - v[0-9]+.[0-9]+.[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+
 jobs:
   build:
-    runs-on: '${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Context
         env:
-          GITHUB_CONTEXT: '${{ toJson(github) }}'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
@@ -28,7 +28,7 @@ jobs:
           node-version: 18.x
       - name: Configure NPM token
         env:
-          NPM_TOKEN: '${{ secrets.NPM_TOKEN }}'
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
       - name: yarn install
@@ -41,7 +41,7 @@ jobs:
         run: |
           yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
+          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
       - name: Publish types
         working-directory: packages/types
         run: |

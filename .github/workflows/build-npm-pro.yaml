@@ -5,11 +5,11 @@ name: NPM packages PREMIUM
 'on':
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+      - v[0-9]+.[0-9]+.[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+
 jobs:
   build:
-    runs-on: '${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Context
         env:
-          GITHUB_CONTEXT: '${{ toJson(github) }}'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
@@ -30,9 +30,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: '${{ secrets.GH_TOKEN }}'
+          token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: 47dbf13a0e22955a8d6a1fb7063688a44c9c84c4
+          ref: 83c1c85eb2761a642c17b2f0f882970718e0afca
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -51,7 +51,7 @@ jobs:
           node adjustNpmPackageJsonPremium
       - name: Configure NPM token
         env:
-          NPM_TOKEN: '${{ secrets.NPM_TOKEN }}'
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd ..
           cd dbgate-merged
@@ -77,7 +77,7 @@ jobs:
           cd dbgate-merged
             yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
+          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
       - name: Publish dbgate-api-premium
         run: |
           cd ..
