@@ -285,7 +285,7 @@ async function handleExecuteControlCommand({ command }) {
   }
 }
 
-async function handleExecuteQuery({ sql }) {
+async function handleExecuteQuery({ sql, autoCommit }) {
   lastActivity = new Date().getTime();
 
   await waitConnected();
@@ -319,7 +319,7 @@ async function handleExecuteQuery({ sql }) {
       // handler.stream = stream;
       // resultIndex = handler.resultIndex;
     }
-    process.send({ msgtype: 'done' });
+    process.send({ msgtype: 'done', autoCommit });
   } finally {
     executingScripts--;
   }

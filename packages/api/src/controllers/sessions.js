@@ -66,6 +66,9 @@ module.exports = {
     if (session.loadingReader_jslid) {
       socket.emit(`session-jslid-done-${session.loadingReader_jslid}`);
     }
+    if (props.autoCommit) {
+      this.executeControlCommand({ sesid, command: 'commitTransaction' });
+    }
     if (session.killOnDone) {
       this.kill({ sesid });
     }
@@ -135,7 +138,7 @@ module.exports = {
   },
 
   executeQuery_meta: true,
-  async executeQuery({ sesid, sql }) {
+  async executeQuery({ sesid, sql, autoCommit }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
@@ -143,7 +146,7 @@ module.exports = {
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
-    session.subprocess.send({ msgtype: 'executeQuery', sql });
+    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit });
 
     return { state: 'ok' };
   },

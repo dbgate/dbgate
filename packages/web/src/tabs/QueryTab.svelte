@@ -339,9 +339,13 @@
       sesid = resp.sesid;
       sessionId = sesid;
     }
+    if (driver?.implicitTransactions) {
+      isInTransaction = true;
+    }
     await apiCall('sessions/execute-query', {
       sesid,
       sql,
+      autoCommit: driver?.implicitTransactions && isAutocommit,
     });
     await apiCall('query-history/write', {
       data: {
@@ -463,7 +467,7 @@
   }
 
   export function endTransactionEnabled() {
-    return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy;
+    return !!sessionId && driver?.supportsTransactions && isInTransaction && !busy && !isAutocommit;
   }
 
   export function autocommitOffSwitch() {
@@ -493,6 +497,9 @@
 
   const handleSessionDone = () => {
     busy = false;
+    if (isAutocommit) {
+      isInTransaction = false;
+    }
     timerLabel.stop();
   };
 
