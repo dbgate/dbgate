@@ -1,0 +1,44 @@
+# --------------------------------------------------------------------------------------------
+# This file is generated. Do not edit manually
+# --------------------------------------------------------------------------------------------
+name: Update Workflows
+'on':
+  push:
+    branches:
+      - master
+    paths:
+      - workflows-templates/**
+jobs:
+  update-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          token: '${{ secrets.DIFLOW_GIT_SECRET }}'
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: |
+          yarn install
+      - name: Run workflow generation
+        run: |
+          yarn workflows
+      - name: Git config
+        run: |
+          git config --global user.email "info@dbgate.io"
+          git config --global user.name "CI workflows"          
+      - name: Commit changes
+        run: |
+          # Only commit if there are changes
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "chore: auto-update workflows"
+          else
+            echo "No changes to commit"
+          fi
+      - name: Push changes
+        run: |
+          git push origin master      
