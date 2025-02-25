@@ -1,4 +1,18 @@
 const localconfig = require('../../.localconfig');
+const { formatQueryWithoutParams } = require('dbgate-tools');
+
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+};
+
+function requireEngineDriver(engine) {
+  const [shortName, packageName] = engine.split('@');
+  const plugin = require(`../../../plugins/${packageName}/src/frontend/index`);
+  if (plugin.drivers) {
+    return plugin.drivers.find(x => x.engine == engine);
+  }
+  throw new Error(`Could not find engine driver ${engine}`);
+}
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   // if the error message matches the one about WorkerGlobalScope importScripts
@@ -16,30 +30,43 @@ beforeEach(() => {
 
 function multiTest(testName, testDefinition) {
   if (localconfig.mysql) {
-    it(testName + ' MySQL', () => testDefinition('MySql-connection'));
+    it(testName + ' MySQL', () => testDefinition('MySql-connection', 'mysql@dbgate-plugin-mysql'));
   }
   if (localconfig.postgres) {
-    it(testName + ' Postgres', () => testDefinition('Postgres-connection'));
+    it(testName + ' Postgres', () => testDefinition('Postgres-connection', 'postgres@dbgate-plugin-postgres'));
   }
   if (localconfig.mssql) {
-    it(testName + ' Mssql', () => testDefinition('Mssql-connection'));
+    it(testName + ' Mssql', () => testDefinition('Mssql-connection', 'mssql@dbgate-plugin-mssql'));
   }
   if (localconfig.oracle) {
-    it(testName + ' Oracle', () => testDefinition('Oracle-connection', 'C##MY_GUITAR_SHOP'));
+    it(testName + ' Oracle', () =>
+      testDefinition('Oracle-connection', 'oracle@dbgate-plugin-oracle', {
+        databaseName: 'C##MY_GUITAR_SHOP',
+        implicitTransactions: true,
+      })
+    );
   }
 }
 
 describe('Mutli-sql tests', () => {
-  multiTest('Transactions', (connectionName, databaseName = 'my_guitar_shop') => {
+  multiTest('Transactions', (connectionName, engine, options = {}) => {
+    const driver = requireEngineDriver(engine);
+    const databaseName = options.databaseName ?? 'my_guitar_shop';
+    const implicitTransactions = options.implicitTransactions ?? false;
+
     cy.contains(connectionName).click();
     cy.contains(databaseName).click();
     cy.testid('TabsPanel_buttonNewQuery').click();
     cy.wait(1000);
-    cy.get('body').type("INSERT INTO categories (category_id, category_name) VALUES (5, 'test');");
+    cy.get('body').type(
+      formatQueryWithoutParams(driver, "INSERT INTO ~categories (~category_id, ~category_name) VALUES (5, 'test');")
+    );
 
     // rollback
-    cy.testid('QueryTab_beginTransactionButton').click();
-    cy.contains('Begin Transaction finished');
+    if (!implicitTransactions) {
+      cy.testid('QueryTab_beginTransactionButton').click();
+      cy.contains('Begin Transaction finished');
+    }
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Query execution finished');
     cy.testid('QueryTab_rollbackTransactionButton').click();
@@ -53,8 +80,10 @@ describe('Mutli-sql tests', () => {
 
     // commit
     cy.contains('Query #1').click();
-    cy.testid('QueryTab_beginTransactionButton').click();
-    cy.contains('Begin Transaction finished');
+    if (!implicitTransactions) {
+      cy.testid('QueryTab_beginTransactionButton').click();
+      cy.contains('Begin Transaction finished');
+    }
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Query execution finished');
     cy.testid('QueryTab_commitTransactionButton').click();
