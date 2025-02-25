@@ -353,6 +353,26 @@
     });
   }
 
+  async function executeControlCommand(command) {
+    busy = true;
+    timerLabel.start();
+    visibleResultTabs = true;
+
+    let sesid = sessionId;
+    if (!sesid) {
+      const resp = await apiCall('sessions/create', {
+        conid,
+        database,
+      });
+      sesid = resp.sesid;
+      sessionId = sesid;
+    }
+    await apiCall('sessions/execute-control-command', {
+      sesid,
+      command,
+    });
+  }
+
   export async function executeCurrent() {
     const cmd = domEditor.getCurrentCommandText();
     await executeCore(cmd.text, cmd.line);
@@ -426,10 +446,8 @@
   }
 
   export function beginTransaction() {
-    const dmp = driver.createDumper();
-    dmp.beginTransaction();
-    executeCore(dmp.s);
     isInTransaction = true;
+    executeControlCommand('beginTransaction');
   }
 
   export function beginTransactionEnabled() {
@@ -457,17 +475,13 @@
   }
 
   export function commitTransaction() {
-    const dmp = driver.createDumper();
-    dmp.commitTransaction();
-    executeCore(dmp.s);
     isInTransaction = false;
+    executeControlCommand('commitTransaction');
   }
 
   export function rollbackTransaction() {
-    const dmp = driver.createDumper();
-    dmp.rollbackTransaction();
-    executeCore(dmp.s);
     isInTransaction = false;
+    executeControlCommand('rollbackTransaction');
   }
 
   const handleMesageClick = message => {

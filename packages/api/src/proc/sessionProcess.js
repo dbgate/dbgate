@@ -245,6 +245,46 @@ async function handleStopProfiler({ jslid }) {
   currentProfiler = null;
 }
 
+async function handleExecuteControlCommand({ command }) {
+  lastActivity = new Date().getTime();
+
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+
+  if (command == 'commitTransaction' && !allowExecuteCustomScript(driver)) {
+    process.send({
+      msgtype: 'info',
+      info: {
+        message: 'Connection without read-only sessions is read only',
+        severity: 'error',
+      },
+    });
+    process.send({ msgtype: 'done', skipFinishedMessage: true });
+    return;
+    //process.send({ msgtype: 'error', error: e.message });
+  }
+
+  executingScripts++;
+  try {
+    const dmp = driver.createDumper();
+    switch (command) {
+      case 'commitTransaction':
+        await dmp.commitTransaction();
+        break;
+      case 'rollbackTransaction':
+        await dmp.rollbackTransaction();
+        break;
+      case 'beginTransaction':
+        await dmp.beginTransaction();
+        break;
+    }
+    await driver.query(dbhan, dmp.s, { discardResult: true });
+    process.send({ msgtype: 'done', controlCommand: command });
+  } finally {
+    executingScripts--;
+  }
+}
+
 async function handleExecuteQuery({ sql }) {
   lastActivity = new Date().getTime();
 
@@ -323,6 +363,7 @@ function handlePing() {
 const messageHandlers = {
   connect: handleConnect,
   executeQuery: handleExecuteQuery,
+  executeControlCommand: handleExecuteControlCommand,
   executeReader: handleExecuteReader,
   startProfiler: handleStartProfiler,
   stopProfiler: handleStopProfiler,
