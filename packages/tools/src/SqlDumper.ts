@@ -350,7 +350,9 @@ export class SqlDumper implements AlterProcessor {
   }
 
   createForeignKeyFore(fk: ForeignKeyInfo) {
-    if (fk.constraintName != null) this.put('^constraint %i ', fk.constraintName);
+    if (fk.constraintName != null && !this.dialect.anonymousForeignKey) {
+      this.put('^constraint %i ', fk.constraintName);
+    }
     this.put(
       '^foreign ^key (%,i) ^references %f (%,i)',
       fk.columns.map(x => x.columnName),
@@ -367,6 +369,7 @@ export class SqlDumper implements AlterProcessor {
 
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean) {}
   enableConstraints(table: NamedObjectInfo, enabled: boolean) {}
+  enableAllForeignKeys(enabled: boolean) {}
 
   comment(value: string) {
     if (!value) return;

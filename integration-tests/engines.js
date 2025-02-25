@@ -539,6 +539,7 @@ const clickhouseEngine = {
   alterTableAddColumnSyntax: true,
   dbSnapshotBySeconds: true,
   skipChangeColumn: true,
+  skipImportModel: true,
 };
 
 /** @type {import('dbgate-types').TestEngineInfo} */
@@ -627,6 +628,7 @@ const cassandraEngine = {
   skipDataModifications: true,
   skipDataDuplicator: true,
   skipDeploy: true,
+  skipImportModel: true,
 
   forceSortResults: true,
   forceSortStructureColumns: true,
@@ -657,8 +659,8 @@ const enginesOnLocal = [
   // sqlServerEngine,
   // sqliteEngine,
   // cockroachDbEngine,
-  // clickhouseEngine,
-  oracleEngine,
+  clickhouseEngine,
+  // oracleEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */

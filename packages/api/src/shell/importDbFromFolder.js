@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const executeQuery = require('./executeQuery');
 const { connectUtility } = require('../utility/connectUtility');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { getAlterDatabaseScript, DatabaseAnalyser } = require('dbgate-tools');
+const { getAlterDatabaseScript, DatabaseAnalyser, runCommandOnDriver } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const jsonLinesReader = require('./jsonLinesReader');
 const tableWriter = require('./tableWriter');
@@ -41,16 +41,37 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
       })),
     };
 
+    // const plan = createAlterDatabasePlan(
+    //   DatabaseAnalyser.createEmptyStructure(),
+    //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+    //   {},
+    //   DatabaseAnalyser.createEmptyStructure(),
+    //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+    //   driver
+    // );
+    // const dmp1 = driver.createDumper({ useHardSeparator: true });
+    // if (driver.dialect.enableAllForeignKeys) {
+    //   dmp1.enableAllForeignKeys(false);
+    // }
+    // plan.run(dmp1);
+    // if (driver.dialect.enableAllForeignKeys) {
+    //   dmp1.enableAllForeignKeys(true);
+    // }
+
     const { sql } = getAlterDatabaseScript(
       DatabaseAnalyser.createEmptyStructure(),
-      modelNoFk,
+      driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
       {},
       DatabaseAnalyser.createEmptyStructure(),
-      modelNoFk,
+      driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
       driver
     );
     // console.log('CREATING STRUCTURE:', sql);
     await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
+
+    if (driver.dialect.enableAllForeignKeys) {
+      await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(false));
+    }
 
     for (const table of modelAdapted.tables) {
       const fileName = path.join(folder, `${table.pureName}.jsonl`);
@@ -66,14 +87,19 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
       }
     }
 
-    const dmp = driver.createDumper();
-    for (const table of modelAdapted.tables) {
-      for (const fk of table.foreignKeys) {
-        dmp.createForeignKey(fk);
+    if (driver.dialect.enableAllForeignKeys) {
+      await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(true));
+    } else if (driver.dialect.createForeignKey) {
+      const dmp = driver.createDumper();
+      for (const table of modelAdapted.tables) {
+        for (const fk of table.foreignKeys) {
+          dmp.createForeignKey(fk);
+        }
       }
+
+      // create foreign keys
+      await executeQuery({ connection, systemConnection: dbhan, driver, sql: dmp.s, logScriptItems: true });
     }
-    // create foreign keys
-    await executeQuery({ connection, systemConnection: dbhan, driver, sql: dmp.s, logScriptItems: true });
   } finally {
     if (!systemConnection) {
       await driver.close(dbhan);

@@ -36,6 +36,10 @@ class Dumper extends SqlDumper {
     }
     super.createTablePrimaryKeyCore(table);
   }
+
+  enableAllForeignKeys(enabled) {
+    this.putCmd('^pragma ^foreign_keys = %s', enabled ? 'on' : 'off');
+  }
 }
 
 module.exports = Dumper;

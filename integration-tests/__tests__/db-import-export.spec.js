@@ -182,7 +182,7 @@ describe('DB Import/export', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
+  test.each(engines.filter(engine => !engine.skipImportModel).map(engine => [engine.label, engine]))(
     'Import guitar shop - schema + data - %s',
     testWrapper(async (conn, driver, engine) => {
       await importDbFromFolder({

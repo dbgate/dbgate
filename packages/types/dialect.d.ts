@@ -13,8 +13,10 @@ export interface SqlDialect {
   fallbackDataType?: string;
   explicitDropConstraint?: boolean;
   anonymousPrimaryKey?: boolean;
+  anonymousForeignKey?: boolean;
   defaultSchemaName?: string;
   enableConstraintsPerTable?: boolean;
+  enableAllForeignKeys?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
 

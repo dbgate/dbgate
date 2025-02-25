@@ -39,6 +39,7 @@ export type TestEngineInfo = {
   skipNonPkRename?: boolean;
   skipPkDrop?: boolean;
   skipOrderBy?: boolean;
+  skipImportModel?: boolean;
 
   forceSortResults?: boolean;
   forceSortStructureColumns?: boolean;

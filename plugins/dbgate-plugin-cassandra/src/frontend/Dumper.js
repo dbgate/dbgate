@@ -4,6 +4,7 @@
 const { SqlDumper } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const numericDataTypes = ['tinyint', 'smallint', 'int', 'bigint', 'varint', 'float', 'double', 'decimal'];
+const stringDataTypes = ['text', 'varchar'];
 
 class Dumper extends SqlDumper {
   /**
@@ -64,7 +65,12 @@ class Dumper extends SqlDumper {
     }
 
     if (numericDataTypes.includes(dataType?.toLowerCase()) && !Number.isNaN(parseFloat(value))) {
-      this.putRaw(value);
+      this.putRaw(parseFloat(value));
+      return;
+    }
+
+    if (stringDataTypes.includes(dataType?.toLowerCase())) {
+      super.putValue(value?.toString());
       return;
     }
 

@@ -30,11 +30,13 @@ const dialect = {
   createIndex: true,
   dropIndex: true,
   createForeignKey: false,
+  enableForeignKeyChecks: false,
   dropForeignKey: false,
   createPrimaryKey: false,
   dropPrimaryKey: false,
   dropReferencesWhenDropTable: false,
   filteredIndexes: true,
+  anonymousForeignKey: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
