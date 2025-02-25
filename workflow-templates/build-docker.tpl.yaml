@@ -126,9 +126,7 @@ jobs:
             _community: ./docker
             _premium: ../dbgate-merged/docker
           tags: ${{ steps.meta.outputs.tags }}
-          platforms: 
-            _community: linux/amd64,linux/arm64,linux/arm/v7
-            _premium: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
 
       - name: Build and push alpine
         uses: docker/build-push-action@v3
