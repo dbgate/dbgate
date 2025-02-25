@@ -90,6 +90,8 @@ jobs:
           cd dbgate-merged
 
           yarn run prepare:docker
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
