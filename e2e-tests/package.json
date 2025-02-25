@@ -22,12 +22,12 @@
     "cy:run:team": "cypress run --spec cypress/e2e/team.cy.js",
     "cy:run:multi-sql": "cypress run --spec cypress/e2e/multi-sql.cy.js",
 
-    "start:add-connection": "cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:portal": "cd .. && env-cmd -f e2e-tests/env/portal/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:oauth": "cd .. && env-cmd -f e2e-tests/env/oauth/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:browse-data": "cd .. && env-cmd -f e2e-tests/env/browse-data/.env node e2e-tests/init/browse-data.js && env-cmd -f e2e-tests/env/browse-data/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:team": "cd .. && env-cmd -f e2e-tests/env/team/.env node e2e-tests/init/team.js && env-cmd -f e2e-tests/env/team/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
-    "start:multi-sql": "cd .. && env-cmd -f e2e-tests/env/multi-sql/.env node e2e-tests/init/multi-sql.js && env-cmd -f e2e-tests/env/multi-sql/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:add-connection": "node clearTestingData && cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:portal": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/portal/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:oauth": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/oauth/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:browse-data": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/browse-data/.env node e2e-tests/init/browse-data.js && env-cmd -f e2e-tests/env/browse-data/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:team": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/team/.env node e2e-tests/init/team.js && env-cmd -f e2e-tests/env/team/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
+    "start:multi-sql": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/multi-sql/.env node e2e-tests/init/multi-sql.js && env-cmd -f e2e-tests/env/multi-sql/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
 
     "test:add-connection": "start-server-and-test start:add-connection http://localhost:3000 cy:run:add-connection",
     "test:portal": "start-server-and-test start:portal http://localhost:3000 cy:run:portal",

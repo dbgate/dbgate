@@ -46,6 +46,9 @@ function multiTest(testName, testDefinition) {
       })
     );
   }
+  if (localconfig.sqlite) {
+    it(testName + ' Sqlite', () => testDefinition('Sqlite-connection', 'sqlite@dbgate-plugin-sqlite'));
+  }
 }
 
 describe('Mutli-sql tests', () => {
