@@ -22,10 +22,12 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: |
+          rm package.json
+          rm yarn.lock
           yarn add -W js-yaml lodash
       - name: Run workflow generation
         run: |
-          yarn workflows
+          node common/processWorkflows.js
       - name: Git config
         run: |
           git config --global user.email "info@dbgate.io"

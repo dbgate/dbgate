@@ -24,11 +24,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          rm package.json
+          rm yarn.lock
           yarn add -W js-yaml lodash
 
       - name: Run workflow generation
         run: |
-          yarn workflows
+          node common/processWorkflows.js
 
       - name: Git config
         run: |
