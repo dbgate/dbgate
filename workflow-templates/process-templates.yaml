@@ -15,7 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.DIFLOW_GIT_SECRET }}
+          token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -50,5 +50,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.DIFLOW_GIT_SECRET }}
+          github_token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
           branch: master
