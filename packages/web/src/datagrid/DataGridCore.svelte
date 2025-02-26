@@ -1840,7 +1840,7 @@
     <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
     {#if onOpenQueryOnError ?? onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={onOpenQueryOnError ?? onOpenQuery} />
+      <FormStyledButton value="Open Query" on:click={() => (onOpenQueryOnError ?? onOpenQuery)()} />
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
@@ -1858,7 +1858,7 @@
       <FormStyledButton value="Add document" on:click={addJsonDocument} />
     {/if}
     {#if onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+      <FormStyledButton value="Open Query" on:click={() => onOpenQuery()} />
     {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
@@ -2041,7 +2041,7 @@
           <FormStyledButton value="Add row" on:click={insertNewRow} />
         {/if}
         {#if onOpenQuery}
-          <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+          <FormStyledButton value="Open Query" on:click={() => onOpenQuery()} />
         {/if}
       </div>
     {/if}
