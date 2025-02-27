@@ -1,0 +1,178 @@
+.hljs {
+  background: var(--token-base);
+  color: var(--token-text);
+}
+
+.hljs-subst {
+  color: var(--token-subst);
+}
+
+.hljs-formula {
+  color: var(--token-formula);
+}
+
+.hljs-attr {
+  color: var(--token-attr);
+}
+
+.hljs-property {
+  color: var(--token-property);
+}
+
+.hljs-params {
+  color: var(--token-params);
+}
+
+.hljs-comment {
+  color: var(--token-comment);
+}
+
+.hljs-tag {
+  color: var(--token-tag);
+}
+
+.hljs-punctuation {
+  color: var(--token-punctuation);
+}
+
+.hljs-tag .hljs-name {
+  color: var(--token-tag-name);
+}
+
+.hljs-tag .hljs-attr {
+  color: var(--token-tag-attr);
+}
+
+.hljs-keyword {
+  color: var(--token-keyword);
+}
+
+.hljs-attribute {
+  color: var(--token-attribute);
+}
+
+.hljs-selector-tag {
+  color: var(--token-selector-tag);
+}
+
+.hljs-meta .hljs-keyword {
+  color: var(--token-meta-keyword);
+}
+
+.hljs-doctag {
+  color: var(--token-doctag);
+}
+
+.hljs-name {
+  color: var(--token-name);
+}
+
+.hljs-type {
+  color: var(--token-type);
+}
+
+.hljs-string {
+  color: var(--token-string);
+}
+
+.hljs-number {
+  color: var(--token-number);
+}
+
+.hljs-selector-id {
+  color: var(--token-selector-id);
+}
+
+.hljs-selector-class {
+  color: var(--token-selector-class);
+}
+
+.hljs-quote {
+  color: var(--token-quote);
+}
+
+.hljs-template-tag {
+  color: var(--token-template-tag);
+}
+
+.hljs-deletion {
+  color: var(--token-deletion);
+}
+
+.hljs-title {
+  color: var(--token-title);
+}
+
+.hljs-section {
+  color: var(--token-section);
+}
+
+.hljs-regexp {
+  color: var(--token-regexp);
+}
+
+.hljs-symbol {
+  color: var(--token-symbol);
+}
+
+.hljs-variable {
+  color: var(--token-variable);
+}
+
+.hljs-template-variable {
+  color: var(--token-template-variable);
+}
+
+.hljs-link {
+  color: var(--token-link);
+}
+
+.hljs-selector-attr {
+  color: var(--token-selector-attr);
+}
+
+.hljs-operator {
+  color: var(--token-operator);
+}
+
+.hljs-selector-pseudo {
+  color: var(--token-selector-pseudo);
+}
+
+.hljs-literal {
+  color: var(--token-literal);
+}
+
+.hljs-built_in {
+  color: var(--token-built_in);
+}
+
+.hljs-bullet {
+  color: var(--token-bullet);
+}
+
+.hljs-code {
+  color: var(--token-code);
+}
+
+.hljs-addition {
+  color: var(--token-addition);
+}
+
+.hljs-meta {
+  color: var(--token-meta);
+}
+
+.hljs-meta .hljs-string {
+  color: var(--token-meta-string);
+}
+
+.hljs-emphasis {
+  color: var(--token-emphasis);
+  font-style: italic;
+}
+
+.hljs-strong {
+  color: var(--token-strong);
+  font-weight: bold;
+}

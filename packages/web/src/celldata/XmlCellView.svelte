@@ -14,6 +14,7 @@
   .wrapper {
     overflow: scroll;
     position: absolute;
+    background: var(--token-base);
     top: 0;
     left: 0;
     right: 0;

@@ -4,8 +4,6 @@
   import xmlFormat from 'xml-formatter';
   import { afterUpdate, onMount } from 'svelte';
 
-  import 'highlight.js/styles/vs.css';
-
   export let code = '';
 
   $: formattedCode = xmlFormat(code);
