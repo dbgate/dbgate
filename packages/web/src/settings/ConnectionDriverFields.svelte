@@ -93,7 +93,7 @@
     { label: '(select connection type)', value: '' },
     ..._.sortBy(
       $extensions.drivers
-        .filter(driver => !driver.isElectronOnly || electron)
+        // .filter(driver => !driver.isElectronOnly || electron)
         .map(driver => ({
           value: driver.engine,
           label: driver.title,
@@ -104,11 +104,19 @@
 />
 
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
-  <FormElectronFileSelector
-    label="Database file"
-    name="databaseFile"
-    disabled={isConnected || !electron || disabledFields.includes('databaseFile')}
-  />
+  {#if electron}
+    <FormElectronFileSelector
+      label="Database file"
+      name="databaseFile"
+      disabled={isConnected || disabledFields.includes('databaseFile')}
+    />
+  {:else}
+    <FormTextField
+      label="Database file (path on server)"
+      name="databaseFile"
+      disabled={isConnected || disabledFields.includes('databaseFile')}
+    />
+  {/if}
 {/if}
 
 {#if driver?.showConnectionField('useDatabaseUrl', $values, showConnectionFieldArgs)}

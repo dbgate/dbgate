@@ -64,7 +64,7 @@ const driver = {
       : sqliteSplitterOptions,
 
   // isFileDatabase: true,
-  isElectronOnly: true,
+  // isElectronOnly: true,
 
   predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
 };
