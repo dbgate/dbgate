@@ -58,6 +58,7 @@
     "uuid": "^3.4.0"
   },
   "dependencies": {
+    "@messageformat/core": "^3.4.0",
     "chartjs-plugin-zoom": "^1.2.0",
     "date-fns": "^4.1.0",
     "debug": "^4.3.4",
