@@ -694,7 +694,9 @@
         targetConnectionId: conid,
         targetDatabaseName: extractDbNameFromComposite(database),
         targetSchemaName: data.schemaName,
-        fixedTargetPureName: data.pureName,
+        sourceList: ['__TEMPLATE__'],
+        targetName___TEMPLATE__: data.pureName,
+        // fixedTargetPureName: data.pureName,
       });
       // showModal(ImportExportModal, {
       //   initialValues: {

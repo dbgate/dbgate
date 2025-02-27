@@ -25,14 +25,26 @@
         await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues, apiCall);
       }
     }
-    newValues['sourceList'] = [...(values.sourceList || []).filter(x => !newSources.includes(x)), ...newSources];
+    const templateTarget = values['targetName___TEMPLATE__'];
+    newValues['sourceList'] = [
+      ...(values.sourceList || []).filter(x => !newSources.includes(x) && x != '__TEMPLATE__'),
+      ...newSources,
+    ];
     if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
       newValues['sourceStorageType'] = preferedStorageType;
     }
-    valuesStore.set({
+    if (templateTarget) {
+      const source = newSources[0];
+      if (source) {
+        newValues[`targetName_${source}`] = templateTarget;
+      }
+    }
+    const newValuesAll = {
       ...values,
       ...newValues,
-    });
+    };
+    delete newValuesAll['targetName___TEMPLATE__'];
+    valuesStore.set(newValuesAll);
     if (setPreviewSource && newSources.length == 1) {
       setPreviewSource(newSources[0]);
     }
@@ -91,6 +103,8 @@
   $: sourceEngine = $sourceConnectionInfo?.engine;
   $: sourceList = $values.sourceList;
 
+  let targetEditKey = 0;
+
   const previewSource = writable(null);
 
   $: supportsPreview =
@@ -125,6 +139,7 @@
       previewSource.set
     );
     // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
+    targetEditKey += 1;
   }
 
   $: effectActiveTab = useEffect(() => {
@@ -138,30 +153,30 @@
     }
   });
 
-  const lastSourcesRef = createRef(null);
-  function setFixedTargetForNewSources(values, valuesStore) {
-    if (lastSourcesRef.get() && values.fixedTargetPureName) {
-      const newSources = values.sourceList.filter(x => !lastSourcesRef.get()?.includes(x));
-      const newValues = {};
-      for (const source of newSources) {
-        if (values.fixedTargetPureName) {
-          if (!values[`targetName_${source}`]) {
-            newValues[`targetName_${source}`] = values.fixedTargetPureName;
-          }
-          if (!values[`actionType_${source}`]) {
-            newValues[`actionType_${source}`] = 'appendData';
-          }
-        }
-      }
-      valuesStore.set({
-        ...values,
-        ...newValues,
-      });
-    }
-    lastSourcesRef.set(values.sourceList);
-  }
+  // const lastSourcesRef = createRef(null);
+  // function setFixedTargetForNewSources(values, valuesStore) {
+  //   if (lastSourcesRef.get() && values.fixedTargetPureName) {
+  //     const newSources = values.sourceList.filter(x => !lastSourcesRef.get()?.includes(x));
+  //     const newValues = {};
+  //     for (const source of newSources) {
+  //       if (values.fixedTargetPureName) {
+  //         if (!values[`targetName_${source}`]) {
+  //           newValues[`targetName_${source}`] = values.fixedTargetPureName;
+  //         }
+  //         if (!values[`actionType_${source}`]) {
+  //           newValues[`actionType_${source}`] = 'appendData';
+  //         }
+  //       }
+  //     }
+  //     valuesStore.set({
+  //       ...values,
+  //       ...newValues,
+  //     });
+  //   }
+  //   lastSourcesRef.set(values.sourceList);
+  // }
 
-  $: setFixedTargetForNewSources($values, values);
+  // $: setFixedTargetForNewSources($values, values);
 
   $effectActiveTab;
 </script>
@@ -195,89 +210,95 @@
   <div class="m-2">
     <div class="title"><FontIcon icon="icon tables" /> Map source tables/files</div>
 
-    <TableControl
-      rows={$values.sourceList || []}
-      columns={[
-        {
-          fieldName: 'source',
-          header: 'Source',
-          component: SourceName,
-          getProps: row => ({ name: row }),
-        },
-        {
-          fieldName: 'action',
-          header: 'Action',
-          component: SourceAction,
-          getProps: row => ({ name: row, targetDbinfo }),
-        },
-        {
-          fieldName: 'target',
-          header: 'Target',
-          slot: 1,
-        },
-        {
-          fieldName: 'preview',
-          header: 'Preview',
-          slot: 0,
-        },
-        {
-          fieldName: 'columns',
-          header: 'Columns',
-          slot: 2,
-        },
-      ]}
-    >
-      <svelte:fragment slot="0" let:row>
-        {#if supportsPreview}
-          <CheckboxField
-            checked={$previewSource == row}
-            on:change={e => {
-              // @ts-ignore
-              if (e.target.checked) $previewSource = row;
-              else $previewSource = null;
-            }}
-          />
-        {/if}
-      </svelte:fragment>
-      <svelte:fragment slot="1" let:row>
-        <div class="flex">
-          <TextField
-            value={getTargetName($extensions, row, $values)}
-            on:input={e =>
-              setFieldValue(
-                `targetName_${row}`,
+    {#key targetEditKey}
+      <TableControl
+        rows={$values.sourceList || []}
+        passProps={{ targetEditKeyValue: targetEditKey }}
+        columns={[
+          {
+            fieldName: 'source',
+            header: 'Source',
+            component: SourceName,
+            getProps: row => ({ name: row }),
+          },
+          {
+            fieldName: 'action',
+            header: 'Action',
+            component: SourceAction,
+            getProps: row => ({ name: row, targetDbinfo }),
+          },
+          {
+            fieldName: 'target',
+            header: 'Target',
+            slot: 1,
+          },
+          {
+            fieldName: 'preview',
+            header: 'Preview',
+            slot: 0,
+          },
+          {
+            fieldName: 'columns',
+            header: 'Columns',
+            slot: 2,
+          },
+        ]}
+      >
+        <svelte:fragment slot="0" let:row>
+          {#if supportsPreview}
+            <CheckboxField
+              checked={$previewSource == row}
+              on:change={e => {
                 // @ts-ignore
-                e.target.value
-              )}
-          />
-          {#if $targetDbinfo}
-            <DropDownButton
-              menu={() => {
-                return $targetDbinfo.tables.map(opt => ({
-                  text: opt.pureName,
-                  onClick: () => setFieldValue(`targetName_${row}`, opt.pureName),
-                }));
+                if (e.target.checked) $previewSource = row;
+                else $previewSource = null;
               }}
             />
           {/if}
-        </div>
-      </svelte:fragment>
-      <svelte:fragment slot="2" let:row>
-        {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
-        <Link
-          onClick={() => {
-            const targetNameLower = ($values[`targetName_${row}`] || row)?.toLowerCase();
-            showModal(ColumnMapModal, {
-              initialValue: $values[`columns_${row}`],
-              sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
-              targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
-              onConfirm: value => setFieldValue(`columns_${row}`, value),
-            });
-          }}
-          >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
-        </Link>
-      </svelte:fragment>
-    </TableControl>
+        </svelte:fragment>
+        <svelte:fragment slot="1" let:row>
+          <div class="flex">
+            <TextField
+              value={getTargetName($extensions, row, $values)}
+              on:input={e =>
+                setFieldValue(
+                  `targetName_${row}`,
+                  // @ts-ignore
+                  e.target.value
+                )}
+            />
+            {#if $targetDbinfo}
+              <DropDownButton
+                menu={() => {
+                  return $targetDbinfo.tables.map(opt => ({
+                    text: opt.pureName,
+                    onClick: () => {
+                      setFieldValue(`targetName_${row}`, opt.pureName);
+                      targetEditKey += 1;
+                    },
+                  }));
+                }}
+              />
+            {/if}
+          </div>
+        </svelte:fragment>
+        <svelte:fragment slot="2" let:row>
+          {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
+          <Link
+            onClick={() => {
+              const targetNameLower = ($values[`targetName_${row}`] || row)?.toLowerCase();
+              showModal(ColumnMapModal, {
+                initialValue: $values[`columns_${row}`],
+                sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
+                targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
+                onConfirm: value => setFieldValue(`columns_${row}`, value),
+              });
+            }}
+            >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
+          </Link>
+        </svelte:fragment>
+      </TableControl>
+    {/key}
   </div>
 </div>
 
