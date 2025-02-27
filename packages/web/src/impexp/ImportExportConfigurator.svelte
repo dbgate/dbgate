@@ -213,7 +213,6 @@
     {#key targetEditKey}
       <TableControl
         rows={$values.sourceList || []}
-        passProps={{ targetEditKeyValue: targetEditKey }}
         columns={[
           {
             fieldName: 'source',
