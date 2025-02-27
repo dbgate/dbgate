@@ -24,7 +24,7 @@
 </script>
 
 <div class="flex space-between">
-  <div>{name}</div>
+  <div>{name == '__TEMPLATE__' ? '(not selected)' : name}</div>
   <div class="flex">
     {#if obj && !!obj.isDownload}
       <div class="icon" on:click={handleChangeUrl} title={obj && obj.fileName}>

@@ -25,6 +25,7 @@
         await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues, apiCall);
       }
     }
+    const templateTarget = values['targetName___TEMPLATE__'];
     newValues['sourceList'] = [
       ...(values.sourceList || []).filter(x => !newSources.includes(x) && x != '__TEMPLATE__'),
       ...newSources,
@@ -32,10 +33,18 @@
     if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
       newValues['sourceStorageType'] = preferedStorageType;
     }
-    valuesStore.set({
+    if (templateTarget) {
+      const source = newSources[0];
+      if (source) {
+        newValues[`targetName_${source}`] = templateTarget;
+      }
+    }
+    const newValuesAll = {
       ...values,
       ...newValues,
-    });
+    };
+    delete newValuesAll['targetName___TEMPLATE__'];
+    valuesStore.set(newValuesAll);
     if (setPreviewSource && newSources.length == 1) {
       setPreviewSource(newSources[0]);
     }
