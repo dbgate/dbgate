@@ -24,19 +24,13 @@
 </script>
 
 {#key formattedCode}
-  <pre><code bind:this={codeBlock}>{formattedCode}</code></pre>
+  <pre bind:this={codeBlock}>{formattedCode}</pre>
 {/key}
 
 <style>
   pre {
     margin: 0;
     padding: 0;
-    width: 100%;
-  }
-
-  code {
-    display: block;
     padding: 0.5em;
-    overflow-x: auto;
   }
 </style>

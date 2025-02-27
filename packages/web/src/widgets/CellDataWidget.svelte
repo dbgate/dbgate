@@ -156,6 +156,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    position: relative;
   }
 
   .toolbar {
