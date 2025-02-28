@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.2.1
+- ADDED: Commit/rollback and autocommit in scripts #1039
+- FIXED: Doesn't import all the records from MongoDB #1044
+- ADDED: Show server name alongside database name in title of the tab group #1041
+- ADDED: Can't open Sqlite through web #956
+- FIXED: Crashed after text input at columns search #1049
+- FIXED: Incorrect autojoin for foreign keys with more columns #1051
+- FIXED: Scroll in XML cell view, XML view respect themes
+- REMOVED: armv7l build for Linux (because of problems with glibc compatibility)
+- CHANGED: Upgraded to node:22 for docker builds
+- CHANGED: Upgraded SQLite engine version (better-sqlite3@11.8.1)
+
 ### 6.2.0
 - ADDED: Query AI Assistant (Premium)
 - ADDED: Cassandra database support
