@@ -84,7 +84,7 @@ function connectionHasPermission(connection, req) {
   if (_.isString(connection)) {
     return hasPermission(`connections/${connection}`, req);
   } else {
-    return hasPermission(`connections/${connection._id}`, req);
+    return hasPermission(`connections/${connection._id}`, req) || hasPermission(`connections/${connection.displayName}`, req);
   }
 }
 
