@@ -42,6 +42,6 @@
   },
   "optionalDependencies": {
     "lodash": "^4.17.21",
-    "duckdb-async": "1.1.3"
+    "duckdb-async": "1.2.0"
   }
 }
