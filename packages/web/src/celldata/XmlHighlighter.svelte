@@ -6,7 +6,7 @@
 
   export let code = '';
 
-  $: formattedCode = xmlFormat(code);
+  $: formattedCode = xmlFormat(code, { indentation: '  ' });
 
   onMount(() => {
     hljs.registerLanguage('xml', xmlGrammar);
