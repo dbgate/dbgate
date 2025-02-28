@@ -72,5 +72,33 @@
 
     --theme-icon-inv-green: #8fd460;
     --theme-icon-inv-red: #e84749;
+
+    --token-base: #303030;
+    --token-text: #ddd;
+    --token-keyword: white;
+    --token-selector-tag: white;
+    --token-literal: white;
+    --token-section: white;
+    --token-link: white;
+    --token-subst: #ddd; /* default - using text color */
+    --token-string: #d88;
+    --token-title: #d88;
+    --token-name: #d88;
+    --token-type: #d88;
+    --token-attribute: #d88;
+    --token-symbol: #d88;
+    --token-bullet: #d88;
+    --token-built_in: #d88;
+    --token-addition: #d88;
+    --token-variable: #d88;
+    --token-template-tag: #d88;
+    --token-template-variable: #d88;
+    --token-comment: #979797;
+    --token-quote: #979797;
+    --token-deletion: #979797;
+    --token-meta: #979797;
+    --token-doctag: inherit; /* Inherits text color, but uses bold */
+    --token-strong: bold;
+    --token-emphasis: italic;
   }
 </style>

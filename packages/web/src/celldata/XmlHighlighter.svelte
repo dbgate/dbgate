@@ -1,14 +1,12 @@
 <script>
   import hljs from 'highlight.js/lib/core';
   import xmlGrammar from './xmlGrammar';
-  import formatXml from './formatXml';
+  import xmlFormat from 'xml-formatter';
   import { afterUpdate, onMount } from 'svelte';
-
-  import 'highlight.js/styles/vs.css';
 
   export let code = '';
 
-  $: formattedCode = formatXml(code);
+  $: formattedCode = xmlFormat(code, { indentation: '  ' });
 
   onMount(() => {
     hljs.registerLanguage('xml', xmlGrammar);

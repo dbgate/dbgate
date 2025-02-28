@@ -45,7 +45,6 @@
     --theme-bg-hover: #ccc;
     --theme-bg-selected: #91d5ff; /* blue-3 */
     --theme-bg-selected-point: #40a9ff; /* blue-5 */
-    
 
     --theme-bg-statusbar-inv: #0050b3;
     --theme-bg-statusbar-inv-hover: #096dd9;
@@ -67,5 +66,35 @@
     --theme-icon-inv-green: #8fd460;
     --theme-icon-inv-red: #e84749;
 
+    --token-base: white;
+    --token-text: black;
+    --token-comment: #008000;
+    --token-quote: #008000;
+    --token-variable: #008000;
+    --token-keyword: #00f;
+    --token-selector-tag: #00f;
+    --token-built_in: #00f;
+    --token-name: #00f;
+    --token-tag: #00f;
+    --token-string: #a31515;
+    --token-title: #a31515;
+    --token-section: #a31515;
+    --token-attribute: #a31515;
+    --token-literal: #a31515;
+    --token-template-tag: #a31515;
+    --token-template-variable: #a31515;
+    --token-type: #a31515;
+    --token-addition: #a31515;
+    --token-deletion: #2b91af;
+    --token-selector-attr: #2b91af;
+    --token-selector-pseudo: #2b91af;
+    --token-meta: #2b91af;
+    --token-doctag: #808080;
+    --token-attr: #f00;
+    --token-symbol: #00b0e8;
+    --token-bullet: #00b0e8;
+    --token-link: #00b0e8;
+    --token-emphasis: italic;
+    --token-strong: bold;
   }
 </style>

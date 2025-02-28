@@ -15,6 +15,7 @@
     <link rel="manifest" href="manifest.json" />
 
     <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="tokens.css" />
     <link rel="stylesheet" href="dimensions.css" />
     <link rel="stylesheet" href="bulma.css" />
     <link rel="stylesheet" href="icon-colors.css" />
