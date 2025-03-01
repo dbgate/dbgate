@@ -11,6 +11,7 @@
   import { closeCurrentModal } from '../modals/modalTools';
   import DataTypeEditor from './DataTypeEditor.svelte';
   import { editorAddColumn, editorDeleteColumn, editorModifyColumn, fillEditorColumnInfo } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   export let columnInfo;
   export let setTableInfo = null;
@@ -75,7 +76,7 @@
       {#if !columnInfo}
         <FormButton
           type="button"
-          value="Save"
+          value={_t('common.save', { defaultMessage: 'Save' })}
           disabled={isReadOnly}
           on:click={e => {
             closeCurrentModal();

@@ -5,6 +5,7 @@
   "exclude": ["node_modules/*", "public/*"],
 
   "compilerOptions": {
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -12,7 +13,7 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strict": false,
-    "target": "es6",
+    "target": "es6"
     // "allowJs": true,
     // "checkJs": true,
   }

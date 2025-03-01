@@ -6,6 +6,7 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import { currentArchive } from '../stores';
+  import { _t } from '../translations';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
@@ -28,7 +29,7 @@
     <FormTextField label="File name" name="file" />
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="Save" on:click={handleSubmit} />
+      <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

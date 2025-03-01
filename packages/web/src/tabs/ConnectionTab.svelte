@@ -35,6 +35,7 @@
   import { useConfig } from '../utility/metadataLoaders';
   import ConnectionAdvancedDriverFields from '../settings/ConnectionAdvancedDriverFields.svelte';
   import DatabaseLoginModal from '../modals/DatabaseLoginModal.svelte';
+  import { _t } from '../translations';
 
   export let connection;
   export let tabid;
@@ -289,7 +290,11 @@
             {:else}
               <FormButton value="Test" on:click={() => handleTest(false)} data-testid="ConnectionTab_buttonTest" />
             {/if}
-            <FormButton value="Save" on:click={handleSave} data-testid="ConnectionTab_buttonSave" />
+            <FormButton
+              value={_t('common.save', { defaultMessage: 'Save' })}
+              on:click={handleSave}
+              data-testid="ConnectionTab_buttonSave"
+            />
           {/if}
         </div>
         <div class="test-result">

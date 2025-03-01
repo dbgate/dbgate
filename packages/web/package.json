@@ -16,6 +16,7 @@
     "@ant-design/colors": "^5.0.0",
     "@mdi/font": "^7.1.96",
     "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.2.5",
@@ -57,6 +58,7 @@
     "uuid": "^3.4.0"
   },
   "dependencies": {
+    "@messageformat/core": "^3.4.0",
     "chartjs-plugin-zoom": "^1.2.0",
     "date-fns": "^4.1.0",
     "debug": "^4.3.4",
