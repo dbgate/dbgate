@@ -522,19 +522,22 @@
 
   async function handleKeyDown(event) {
     if (isProApp()) {
-      if (event.code == 'Space' && event.shiftKey && !isAiAssistantVisible) {
+      if (event.code == 'Space' && event.shiftKey && event.ctrlKey && !isAiAssistantVisible) {
         event.preventDefault();
+        event.stopPropagation();
         toggleAiAssistant();
         await sleep(100);
         if (domAiAssistant) {
           domAiAssistant.handleCompleteOnCursor();
           domEditor?.getEditor()?.focus();
         }
-      } else if (event.code == 'Space' && event.shiftKey && isAiAssistantVisible && domAiAssistant) {
+      } else if (event.code == 'Space' && event.shiftKey && event.ctrlKey && isAiAssistantVisible && domAiAssistant) {
         event.preventDefault();
+        event.stopPropagation();
         domAiAssistant.handleCompleteOnCursor();
       } else if (event.code?.startsWith('Digit') && event.altKey && isAiAssistantVisible && domAiAssistant) {
         event.preventDefault();
+        event.stopPropagation();
         domAiAssistant.insertCompletion(parseInt(event.code.substring(5)) - 1);
       }
     }
