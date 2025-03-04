@@ -152,6 +152,7 @@ program
   .action(async () => {
     try {
       await extractAllTranslations(defaultExtractConfig.directories, defaultExtractConfig.extensions);
+      console.log('No problems found while extracting translations.');
     } catch (error) {
       console.error(error);
       console.error('Error during check:', error.message);
