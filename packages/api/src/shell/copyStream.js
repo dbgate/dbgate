@@ -25,7 +25,6 @@ async function copyStream(input, output, options) {
   } catch (err) {
     process.send({
       msgtype: 'copyStreamError',
-      runid: this.runid,
       copyStreamError: {
         message: err.message,
         ...err,
