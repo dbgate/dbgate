@@ -100,15 +100,15 @@ module.exports = {
   },
 
   handle_copyStreamError(runid, { copyStreamError }) {
-    const { reject, exitOnStreamError } = this.requests[runid];
+    const { reject, exitOnStreamError } = this.requests[runid] || {};
     if (exitOnStreamError) {
       reject(copyStreamError);
       delete this.requests[runid];
     }
   },
 
-  handle_progress(runid, { progressName, status }) {
-    socket.emit(`runner-progress-${runid}`, { progressName, status });
+  handle_progress(runid, { progressName, status, errorMessage }) {
+    socket.emit(`runner-progress-${runid}`, { progressName, status, errorMessage });
   },
 
   rejectRequest(runid, error) {

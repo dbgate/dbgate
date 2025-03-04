@@ -76,6 +76,7 @@
   import { compositeDbNameIfNeeded } from 'dbgate-tools';
   import createRef from '../utility/createRef';
   import DropDownButton from '../buttons/DropDownButton.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
@@ -307,6 +308,14 @@
             <FontIcon icon="icon loading" /> Running
           {:else if progressHolder[row]?.status == 'error'}
             <FontIcon icon="img error" /> Error
+            {#if progressHolder[row]?.errorMessage}
+              <FontIcon
+                icon="img info"
+                title={progressHolder[row]?.errorMessage}
+                on:click={() => showModal(ErrorMessageModal, { message: progressHolder[row]?.errorMessage })}
+                style="cursor: pointer"
+              />
+            {/if}
           {:else if progressHolder[row]?.status == 'done'}
             <FontIcon icon="img ok" /> Done
           {:else}

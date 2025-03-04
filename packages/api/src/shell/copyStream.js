@@ -1,6 +1,8 @@
 const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
 const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
 const streamPipeline = require('../utility/streamPipeline');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const logger = getLogger('copyStream');
 
 /**
  * Copies reader to writer. Used for import, export tables and transfer data between tables
@@ -52,10 +54,12 @@ async function copyStream(input, output, options) {
         msgtype: 'progress',
         progressName,
         status: 'error',
+        errorMessage: err.message,
       });
     }
 
-    throw err;
+    logger.error(extractErrorLogData(err, { progressName }), 'Import/export job failed');
+    // throw err;
   }
 }
 
