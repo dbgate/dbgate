@@ -213,130 +213,132 @@
     <div class="title"><FontIcon icon="icon tables" /> Map source tables/files</div>
 
     {#key targetEditKey}
-      <TableControl
-        rows={$values.sourceList || []}
-        columns={[
-          {
-            fieldName: 'source',
-            header: 'Source',
-            component: SourceName,
-            getProps: row => ({ name: row }),
-          },
-          {
-            fieldName: 'action',
-            header: 'Action',
-            component: SourceAction,
-            getProps: row => ({ name: row, targetDbinfo }),
-          },
-          {
-            fieldName: 'target',
-            header: 'Target',
-            slot: 1,
-          },
-          supportsPreview && {
-            fieldName: 'preview',
-            header: 'Preview',
-            slot: 0,
-          },
-          !!progressHolder && {
-            fieldName: 'status',
-            header: 'Status',
-            slot: 3,
-          },
-          {
-            fieldName: 'columns',
-            header: 'Columns',
-            slot: 2,
-          },
-        ]}
-      >
-        <svelte:fragment slot="0" let:row>
-          {#if supportsPreview}
-            <CheckboxField
-              checked={$previewSource == row}
-              on:change={e => {
-                // @ts-ignore
-                if (e.target.checked) $previewSource = row;
-                else $previewSource = null;
-              }}
-            />
-          {/if}
-        </svelte:fragment>
-        <svelte:fragment slot="1" let:row>
-          <div class="flex">
-            <TextField
-              value={getTargetName($extensions, row, $values)}
-              on:input={e =>
-                setFieldValue(
-                  `targetName_${row}`,
+      {#key progressHolder}
+        <TableControl
+          rows={$values.sourceList || []}
+          columns={[
+            {
+              fieldName: 'source',
+              header: 'Source',
+              component: SourceName,
+              getProps: row => ({ name: row }),
+            },
+            {
+              fieldName: 'action',
+              header: 'Action',
+              component: SourceAction,
+              getProps: row => ({ name: row, targetDbinfo }),
+            },
+            {
+              fieldName: 'target',
+              header: 'Target',
+              slot: 1,
+            },
+            supportsPreview && {
+              fieldName: 'preview',
+              header: 'Preview',
+              slot: 0,
+            },
+            !!progressHolder && {
+              fieldName: 'status',
+              header: 'Status',
+              slot: 3,
+            },
+            {
+              fieldName: 'columns',
+              header: 'Columns',
+              slot: 2,
+            },
+          ]}
+        >
+          <svelte:fragment slot="0" let:row>
+            {#if supportsPreview}
+              <CheckboxField
+                checked={$previewSource == row}
+                on:change={e => {
                   // @ts-ignore
-                  e.target.value
-                )}
-            />
-            {#if $targetDbinfo}
-              <DropDownButton
-                menu={() => {
-                  return $targetDbinfo.tables.map(opt => ({
-                    text: opt.pureName,
-                    onClick: () => {
-                      setFieldValue(`targetName_${row}`, opt.pureName);
-                      targetEditKey += 1;
-                    },
-                  }));
+                  if (e.target.checked) $previewSource = row;
+                  else $previewSource = null;
                 }}
               />
             {/if}
-          </div>
-        </svelte:fragment>
-        <svelte:fragment slot="2" let:row>
-          {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
-          <Link
-            onClick={() => {
-              const targetNameLower = ($values[`targetName_${row}`] || row)?.toLowerCase();
-              showModal(ColumnMapModal, {
-                initialValue: $values[`columns_${row}`],
-                sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
-                targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
-                onConfirm: value => setFieldValue(`columns_${row}`, value),
-              });
-            }}
-            >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
-          </Link>
-        </svelte:fragment>
-        <svelte:fragment slot="3" let:row>
-          {#if progressHolder[row]?.status == 'running'}
-            <FontIcon icon="icon loading" />
-            {#if progressHolder[row]?.writtenRowCount}
-              {progressHolder[row]?.writtenRowCount} rows writtem
-            {:else if progressHolder[row]?.readRowCount}
-              {progressHolder[row]?.readRowCount} rows read
-            {:else}
-              Running
-            {/if}
-          {:else if progressHolder[row]?.status == 'error'}
-            <FontIcon icon="img error" /> Error
-            {#if progressHolder[row]?.errorMessage}
-              <FontIcon
-                icon="img info"
-                title={progressHolder[row]?.errorMessage}
-                on:click={() => showModal(ErrorMessageModal, { message: progressHolder[row]?.errorMessage })}
-                style="cursor: pointer"
+          </svelte:fragment>
+          <svelte:fragment slot="1" let:row>
+            <div class="flex">
+              <TextField
+                value={getTargetName($extensions, row, $values)}
+                on:input={e =>
+                  setFieldValue(
+                    `targetName_${row}`,
+                    // @ts-ignore
+                    e.target.value
+                  )}
               />
-            {/if}
-          {:else if progressHolder[row]?.status == 'done'}
-            <FontIcon icon="img ok" />
-            {#if progressHolder[row]?.writtenRowCount}
-              {progressHolder[row]?.writtenRowCount} rows written
-            {:else if progressHolder[row]?.readRowCount}
-              {progressHolder[row]?.readRowCount} rows written
+              {#if $targetDbinfo}
+                <DropDownButton
+                  menu={() => {
+                    return $targetDbinfo.tables.map(opt => ({
+                      text: opt.pureName,
+                      onClick: () => {
+                        setFieldValue(`targetName_${row}`, opt.pureName);
+                        targetEditKey += 1;
+                      },
+                    }));
+                  }}
+                />
+              {/if}
+            </div>
+          </svelte:fragment>
+          <svelte:fragment slot="2" let:row>
+            {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
+            <Link
+              onClick={() => {
+                const targetNameLower = ($values[`targetName_${row}`] || row)?.toLowerCase();
+                showModal(ColumnMapModal, {
+                  initialValue: $values[`columns_${row}`],
+                  sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
+                  targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
+                  onConfirm: value => setFieldValue(`columns_${row}`, value),
+                });
+              }}
+              >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
+            </Link>
+          </svelte:fragment>
+          <svelte:fragment slot="3" let:row>
+            {#if progressHolder[row]?.status == 'running'}
+              <FontIcon icon="icon loading" />
+              {#if progressHolder[row]?.writtenRowCount}
+                {progressHolder[row]?.writtenRowCount} rows writtem
+              {:else if progressHolder[row]?.readRowCount}
+                {progressHolder[row]?.readRowCount} rows read
+              {:else}
+                Running
+              {/if}
+            {:else if progressHolder[row]?.status == 'error'}
+              <FontIcon icon="img error" /> Error
+              {#if progressHolder[row]?.errorMessage}
+                <FontIcon
+                  icon="img info"
+                  title={progressHolder[row]?.errorMessage}
+                  on:click={() => showModal(ErrorMessageModal, { message: progressHolder[row]?.errorMessage })}
+                  style="cursor: pointer"
+                />
+              {/if}
+            {:else if progressHolder[row]?.status == 'done'}
+              <FontIcon icon="img ok" />
+              {#if progressHolder[row]?.writtenRowCount}
+                {progressHolder[row]?.writtenRowCount} rows written
+              {:else if progressHolder[row]?.readRowCount}
+                {progressHolder[row]?.readRowCount} rows written
+              {:else}
+                Done
+              {/if}
             {:else}
-              Done
+              <FontIcon icon="icon wait" /> Queued
             {/if}
-          {:else}
-            <FontIcon icon="icon wait" /> Queued
-          {/if}
-        </svelte:fragment>
-      </TableControl>
+          </svelte:fragment>
+        </TableControl>
+      {/key}
     {/key}
   </div>
 </div>
