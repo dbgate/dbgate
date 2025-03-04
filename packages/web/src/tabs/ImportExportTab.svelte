@@ -65,6 +65,7 @@
   export let savedFile;
   export let savedFilePath;
 
+  let progressHolder = null;
   const refreshArchiveFolderRef = createRef(null);
 
   const formValues = writable({});
@@ -179,6 +180,7 @@
 
   const handleExecute = async e => {
     if (busy) return;
+    progressHolder = {};
     const values = $formValues as any;
     busy = true;
     const script = await createImpExpScript($extensions, values);
@@ -228,6 +230,29 @@
       title: `${getSourceTargetTitle('source', values)}->${getSourceTargetTitle('target', values)}(${values.sourceList?.length || 0})`,
     }));
   }
+
+  const handleProgress = progress => {
+    progressHolder = {
+      ...progressHolder,
+      [progress.progressName]: {
+        ...progressHolder[progress.progressName],
+        ...progress,
+      },
+    };
+  };
+
+  $: progressEffect = useEffect(() => {
+    if (runnerId) {
+      const eventName = `runner-progress-${runnerId}`;
+      apiOn(eventName, handleProgress);
+      return () => {
+        apiOff(eventName, handleProgress);
+      };
+    }
+    return () => {};
+  });
+
+  $progressEffect;
 </script>
 
 <ToolStripContainer>
@@ -237,6 +262,7 @@
         <ImportExportConfigurator
           bind:this={domConfigurator}
           {previewReaderStore}
+          {progressHolder}
           isTabActive={tabid == $activeTabId}
         />
 

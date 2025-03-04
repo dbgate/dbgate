@@ -10,6 +10,7 @@
   export let autoClose = false;
   export let allowClose = false;
   export let buttons = [];
+  export let progressMessage = null;
 
   function handleClose() {
     openedSnackbars.update(x => x.filter(x => x.id != id));
@@ -25,6 +26,11 @@
     <FontIcon {icon} />
     {message}
   </div>
+  {#if progressMessage}
+    <div class="progress-message">
+      {progressMessage}
+    </div>
+  {/if}
 
   {#if allowClose}
     <div class="close" on:click={handleClose}>
@@ -82,5 +88,11 @@
 
   .button {
     margin: 5px;
+  }
+
+  .progress-message {
+    color: var(--theme-font-3);
+    margin: 10px;
+    margin-left: 30px;
   }
 </style>

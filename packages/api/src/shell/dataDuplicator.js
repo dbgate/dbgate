@@ -24,8 +24,6 @@ async function dataDuplicator({
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
   try {
-    logger.info(`Connected.`);
-
     if (!analysedStructure) {
       analysedStructure = await driver.analyseFull(dbhan);
     }

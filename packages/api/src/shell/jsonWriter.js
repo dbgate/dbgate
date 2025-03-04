@@ -99,9 +99,10 @@ async function jsonWriter({ fileName, jsonStyle, keyField = '_key', rootField, e
   logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ jsonStyle, keyField, rootField });
   const fileStream = fs.createWriteStream(fileName, encoding);
-  stringify.pipe(fileStream);
-  stringify['finisher'] = fileStream;
-  return stringify;
+  return [stringify, fileStream];
+  // stringify.pipe(fileStream);
+  // stringify['finisher'] = fileStream;
+  // return stringify;
 }
 
 module.exports = jsonWriter;

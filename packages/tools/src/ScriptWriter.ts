@@ -41,12 +41,13 @@ export class ScriptWriter {
     this.packageNames.push(packageName);
   }
 
-  copyStream(sourceVar, targetVar, colmapVar = null) {
-    if (colmapVar) {
-      this._put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, {columns: ${colmapVar}});`);
-    } else {
-      this._put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
-    }
+  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string) {
+    let opts = '{';
+    if (colmapVar) opts += `columns: ${colmapVar}, `;
+    if (progressName) opts += `progressName: "${progressName}", `;
+    opts += '}';
+
+    this._put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, ${opts});`);
   }
 
   dumpDatabase(options) {
@@ -117,12 +118,13 @@ export class ScriptWriterJson {
     });
   }
 
-  copyStream(sourceVar, targetVar, colmapVar = null) {
+  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string) {
     this.commands.push({
       type: 'copyStream',
       sourceVar,
       targetVar,
       colmapVar,
+      progressName,
     });
   }
 
@@ -183,7 +185,7 @@ export function jsonScriptToJavascript(json) {
         script.assignValue(cmd.variableName, cmd.jsonValue);
         break;
       case 'copyStream':
-        script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar);
+        script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar, cmd.progressName);
         break;
       case 'endLine':
         script.endLine();

@@ -25,3 +25,4 @@ export * from './detectSqlFilterBehaviour';
 export * from './filterBehaviours';
 export * from './schemaInfoTools';
 export * from './dbKeysLoader';
+export * from './rowProgressReporter';

@@ -1,6 +1,12 @@
 import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
-import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
+import {
+  showSnackbar,
+  showSnackbarInfo,
+  showSnackbarError,
+  closeSnackbar,
+  updateSnackbarProgressMessage,
+} from '../utility/snackbar';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
@@ -70,9 +76,17 @@ async function runImportExportScript({ script, runningMessage, canceledMessage, 
     ],
   });
 
+  function handleRunnerProgress(data) {
+    const rows = data.writtenRowsCount || data.readRowCount;
+    if (rows) {
+      updateSnackbarProgressMessage(snackId, `${rows} rows processed`);
+    }
+  }
+
   function handleRunnerDone() {
     closeSnackbar(snackId);
     apiOff(`runner-done-${runid}`, handleRunnerDone);
+    apiOff(`runner-progress-${runid}`, handleRunnerProgress);
     if (isCanceled) {
       showSnackbarError(canceledMessage);
     } else {
@@ -82,6 +96,7 @@ async function runImportExportScript({ script, runningMessage, canceledMessage, 
   }
 
   apiOn(`runner-done-${runid}`, handleRunnerDone);
+  apiOn(`runner-progress-${runid}`, handleRunnerProgress);
 }
 
 export async function saveExportedFile(filters, defaultPath, extension, dataName, getScript: (filaPath: string) => {}) {
@@ -141,7 +156,7 @@ function generateQuickExportScript(
     script.assignValue(colmapVar, colmap);
   }
 
-  script.copyStream(sourceVar, targetVar, colmapVar);
+  script.copyStream(sourceVar, targetVar, colmapVar, 'data');
   script.endLine();
 
   return script.getScript();

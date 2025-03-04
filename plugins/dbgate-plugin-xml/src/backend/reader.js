@@ -63,8 +63,10 @@ async function reader({ fileName, encoding = 'utf-8', itemElementName }) {
 
   const fileStream = fs.createReadStream(fileName, encoding);
   const parser = new ParseStream({ itemElementName });
-  fileStream.pipe(parser);
-  return parser;
+
+  return [fileStream, parser];
+  // fileStream.pipe(parser);
+  // return parser;
 }
 
 module.exports = reader;

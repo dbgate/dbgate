@@ -95,9 +95,10 @@ async function reader({ fileName, encoding = 'utf-8', header = true, delimiter, 
   });
   const fileStream = fs.createReadStream(downloadedFile, encoding);
   const csvPrepare = new CsvPrepareStream({ header });
-  fileStream.pipe(csvStream);
-  csvStream.pipe(csvPrepare);
-  return csvPrepare;
+  return [fileStream, csvStream, csvPrepare];
+  // fileStream.pipe(csvStream);
+  // csvStream.pipe(csvPrepare);
+  // return csvPrepare;
 }
 
 reader.initialize = (dbgateEnv) => {

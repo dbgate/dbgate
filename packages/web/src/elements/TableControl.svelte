@@ -20,7 +20,7 @@
   import { createEventDispatcher } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
-  export let columns: TableControlColumn[];
+  export let columns: (TableControlColumn | false)[];
   export let rows;
   export let focusOnCreate = false;
   export let selectable = false;

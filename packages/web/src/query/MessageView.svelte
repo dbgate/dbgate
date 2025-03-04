@@ -18,7 +18,7 @@
 
   // $: console.log('MESSAGE ROWS', items);
   const values = writable({
-    hideDebug: false,
+    hideDebug: true,
     hideInfo: false,
     hideError: false,
   });

@@ -164,6 +164,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
         pureName: getTargetName(extensions, sourceName, values),
         ...extractDriverApiParameters(values, 'target', targetDriver),
         ...getFlagsFroAction(values[`actionType_${sourceName}`]),
+        progressName: sourceName,
       },
     ];
   }
@@ -233,7 +234,7 @@ export default async function createImpExpScript(extensions, values, forceScript
       script.assignValue(colmapVar, colmap);
     }
 
-    script.copyStream(sourceVar, targetVar, colmapVar);
+    script.copyStream(sourceVar, targetVar, colmapVar, sourceName);
     script.endLine();
   }
   return script.getScript(values.schedule);

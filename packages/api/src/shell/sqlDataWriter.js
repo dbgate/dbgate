@@ -44,9 +44,10 @@ async function sqlDataWriter({ fileName, dataName, driver, encoding = 'utf-8' })
   logger.info(`Writing file ${fileName}`);
   const stringify = new SqlizeStream({ fileName, dataName });
   const fileStream = fs.createWriteStream(fileName, encoding);
-  stringify.pipe(fileStream);
-  stringify['finisher'] = fileStream;
-  return stringify;
+  return [stringify, fileStream];
+  // stringify.pipe(fileStream);
+  // stringify['finisher'] = fileStream;
+  // return stringify;
 }
 
 module.exports = sqlDataWriter;

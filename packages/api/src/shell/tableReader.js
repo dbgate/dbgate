@@ -18,7 +18,6 @@ async function tableReader({ connection, systemConnection, pureName, schemaName,
     driver = requireEngineDriver(connection);
   }
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
-  logger.info(`Connected.`);
 
   const fullName = { pureName, schemaName };
 

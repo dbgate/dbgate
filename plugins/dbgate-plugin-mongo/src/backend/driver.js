@@ -266,6 +266,11 @@ const driver = {
       pass.write(transformMongoData(row));
     });
 
+    // propagate error
+    cursorStream.on('error', (err) => {
+      pass.emit('error', err);
+    });
+
     // Called once the cursor is fully read
     cursorStream.on('end', () => {
       pass.emit('end');

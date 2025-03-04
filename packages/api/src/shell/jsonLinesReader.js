@@ -53,8 +53,7 @@ async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undef
   );
   const liner = byline(fileStream);
   const parser = new ParseStream({ limitRows });
-  liner.pipe(parser);
-  return parser;
+  return [liner, parser];
 }
 
 module.exports = jsonLinesReader;

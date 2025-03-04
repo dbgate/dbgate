@@ -5,6 +5,7 @@ const { splitQueryStream } = require('dbgate-query-splitter/lib/splitQueryStream
 const download = require('./download');
 const stream = require('stream');
 const { getLogger } = require('dbgate-tools');
+const streamPipeline = require('../utility/streamPipeline');
 
 const logger = getLogger('importDb');
 
@@ -43,25 +44,12 @@ class ImportStream extends stream.Transform {
   }
 }
 
-function awaitStreamEnd(stream) {
-  return new Promise((resolve, reject) => {
-    stream.once('end', () => {
-      resolve(true);
-    });
-    stream.once('error', err => {
-      reject(err);
-    });
-  });
-}
-
 async function importDatabase({ connection = undefined, systemConnection = undefined, driver = undefined, inputFile }) {
   logger.info(`Importing database`);
 
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
   try {
-    logger.info(`Connected.`);
-
     logger.info(`Input file: ${inputFile}`);
     const downloadedFile = await download(inputFile);
     logger.info(`Downloaded file: ${downloadedFile}`);
@@ -72,9 +60,8 @@ async function importDatabase({ connection = undefined, systemConnection = undef
       returnRichInfo: true,
     });
     const importStream = new ImportStream(dbhan, driver);
-    // @ts-ignore
-    splittedStream.pipe(importStream);
-    await awaitStreamEnd(importStream);
+
+    await streamPipeline(splittedStream, importStream);
   } finally {
     if (!systemConnection) {
       await driver.close(dbhan);
