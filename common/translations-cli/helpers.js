@@ -2,7 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 const { defaultLanguage } = require('./constants');
-const sortJsonKeysAlphabetically = require('../sortJsonKeysAlphabetically');
+const sortJsonKeysAlphabetically = require('./sortJsonKeysAlphabetically');
 
 /**
  * @param {string} file
