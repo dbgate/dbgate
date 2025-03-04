@@ -36,7 +36,7 @@ async function executeQuery({
   }
 
   try {
-    logger.info(`Connected.`);
+    logger.debug(`Running SQL query, length: ${sql.length}`);
 
     await driver.script(dbhan, sql, { logScriptItems });
   } finally {

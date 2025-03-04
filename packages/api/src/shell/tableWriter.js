@@ -26,7 +26,6 @@ async function tableWriter({ connection, schemaName, pureName, driver, systemCon
   }
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  logger.info(`Connected.`);
   return await driver.writeTable(dbhan, { schemaName, pureName }, options);
 }
 

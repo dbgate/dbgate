@@ -31,8 +31,6 @@ async function dumpDatabase({
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
 
   try {
-    logger.info(`Connected.`);
-
     const dumper = await driver.createBackupDumper(dbhan, {
       outputFile,
       databaseName,

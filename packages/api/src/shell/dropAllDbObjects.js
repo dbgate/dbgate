@@ -19,8 +19,6 @@ async function dropAllDbObjects({ connection, systemConnection, driver, analysed
 
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  logger.info(`Connected.`);
-
   if (!analysedStructure) {
     analysedStructure = await driver.analyseFull(dbhan);
   }

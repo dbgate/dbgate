@@ -50,8 +50,6 @@ async function importDatabase({ connection = undefined, systemConnection = undef
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
   try {
-    logger.info(`Connected.`);
-
     logger.info(`Input file: ${inputFile}`);
     const downloadedFile = await download(inputFile);
     logger.info(`Downloaded file: ${downloadedFile}`);

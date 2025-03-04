@@ -30,7 +30,6 @@ async function queryReader({
 
   const driver = requireEngineDriver(connection);
   const pool = await connectUtility(driver, connection, queryType == 'json' ? 'read' : 'script');
-  logger.info(`Connected.`);
   const reader =
     queryType == 'json' ? await driver.readJsonQuery(pool, query) : await driver.readQuery(pool, query || sql);
   return reader;
