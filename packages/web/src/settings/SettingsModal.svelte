@@ -130,8 +130,8 @@ ORDER BY
             name="localization.language"
             isNative
             options={[
-              { value: 'en-US', label: 'English' },
-              { value: 'cs-CZ', label: 'Czech' },
+              { value: 'en', label: 'English' },
+              { value: 'cs', label: 'Czech' },
             ]}
             on:change={() => {
               setTimeout(() => {

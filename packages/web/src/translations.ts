@@ -1,31 +1,34 @@
-import enUS from '../../../translations/en-US.json';
-import csCZ from '../../../translations/cs-CZ.json';
+import cs from '../../../translations/cs.json';
 
 import MessageFormat, { MessageFunction } from '@messageformat/core';
 import { getStringSettingsValue } from './settings/settingsTools';
 
 const translations = {
-  'en-US': enUS,
-  'cs-CZ': csCZ,
+  en: {},
+  cs,
 };
 const supportedLanguages = Object.keys(translations);
 
 const compiledMessages: Partial<Record<string, Record<string, MessageFunction<'string'>>>> = {};
 
+const defaultLanguage = 'en';
+
 export function getSelectedLanguage(): string {
   const borwserLanguage = getBrowserLanguage();
   const selectedLanguage = getStringSettingsValue('localization.language', borwserLanguage);
 
-  if (!supportedLanguages.includes(selectedLanguage)) return 'en-US';
+  if (!supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
 
   return selectedLanguage;
 }
 
 export function getBrowserLanguage(): string {
   if (typeof window !== 'undefined') {
-    return (navigator.languages && navigator.languages[0]) || navigator.language || 'en-US';
+    return (
+      (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
+    );
   }
-  return 'en-US';
+  return defaultLanguage;
 }
 
 type TranslateOptions = {
@@ -34,7 +37,7 @@ type TranslateOptions = {
 };
 
 function getTranslation(key: string, defaultMessage: string, language: string) {
-  const selectedTranslations = translations[language] ?? enUS;
+  const selectedTranslations = translations[language] ?? {};
   const translation = selectedTranslations[key];
 
   if (!translation) {
