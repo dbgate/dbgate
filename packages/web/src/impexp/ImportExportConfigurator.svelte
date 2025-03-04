@@ -307,7 +307,9 @@
           {#if progressHolder[row]?.status == 'running'}
             <FontIcon icon="icon loading" />
             {#if progressHolder[row]?.writtenRowCount}
-              {progressHolder[row]?.writtenRowCount} rows written
+              {progressHolder[row]?.writtenRowCount} rows writtem
+            {:else if progressHolder[row]?.readRowCount}
+              {progressHolder[row]?.readRowCount} rows read
             {:else}
               Running
             {/if}
@@ -325,6 +327,8 @@
             <FontIcon icon="img ok" />
             {#if progressHolder[row]?.writtenRowCount}
               {progressHolder[row]?.writtenRowCount} rows written
+            {:else if progressHolder[row]?.readRowCount}
+              {progressHolder[row]?.readRowCount} rows read
             {:else}
               Done
             {/if}

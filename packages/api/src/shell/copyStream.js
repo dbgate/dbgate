@@ -1,8 +1,25 @@
 const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
 const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
 const streamPipeline = require('../utility/streamPipeline');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, RowProgressReporter } = require('dbgate-tools');
 const logger = getLogger('copyStream');
+const stream = require('stream');
+
+class ReportingTransform extends stream.Transform {
+  constructor(reporter, options = {}) {
+    super({ ...options, objectMode: true });
+    this.reporter = reporter;
+  }
+  _transform(chunk, encoding, callback) {
+    this.reporter.add(1);
+    this.push(chunk);
+    callback();
+  }
+  _flush(callback) {
+    this.reporter.finish();
+    callback();
+  }
+}
 
 /**
  * Copies reader to writer. Used for import, export tables and transfer data between tables
@@ -23,6 +40,11 @@ async function copyStream(input, output, options) {
   }
 
   const transforms = [];
+
+  if (progressName) {
+    const reporter = new RowProgressReporter(progressName, 'readRowCount');
+    transforms.push(new ReportingTransform(reporter));
+  }
   if (columns) {
     transforms.push(new ColumnMapTransformStream(columns));
   }
