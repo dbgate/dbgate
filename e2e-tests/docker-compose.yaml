@@ -22,7 +22,7 @@ services:
     restart: always
     ports: 
       - 16005:3306
-      - "16014:22"
+      - "16015:22"
 
   mysql-ssh-keyfile:
     build: containers/mysql-ssh-keyfile
@@ -54,7 +54,7 @@ services:
     image: mcr.microsoft.com/mssql/server
     restart: always
     ports:
-      - 16012:1433
+      - 16014:1433
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Pwd2020Db
