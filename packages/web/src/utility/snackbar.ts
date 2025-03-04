@@ -8,6 +8,7 @@ export interface SnackbarButton {
 
 export interface SnackbarInfo {
   message: string;
+  progressMessage?: string;
   icon?: string;
   autoClose?: boolean;
   allowClose?: boolean;
@@ -59,6 +60,11 @@ export function showSnackbarError(message: string) {
 export function closeSnackbar(snackId: string) {
   openedSnackbars.update(x => x.filter(x => x.id != snackId));
 }
+
+export function updateSnackbarProgressMessage(snackId: string, progressMessage: string) {
+  openedSnackbars.update(x => x.map(x => (x.id === snackId ? { ...x, progressMessage } : x)));
+}
+
 //   showSnackbar({
 //     icon: 'img ok',
 //     message: 'Test snackbar',
