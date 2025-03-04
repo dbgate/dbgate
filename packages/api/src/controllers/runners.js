@@ -107,6 +107,10 @@ module.exports = {
     }
   },
 
+  handle_progress(runid, { progressName, status }) {
+    socket.emit(`runner-progress-${runid}`, { progressName, status });
+  },
+
   rejectRequest(runid, error) {
     if (this.requests[runid]) {
       const { reject } = this.requests[runid];

@@ -10,7 +10,15 @@ const streamPipeline = require('../utility/streamPipeline');
  * @returns {Promise}
  */
 async function copyStream(input, output, options) {
-  const { columns } = options || {};
+  const { columns, progressName } = options || {};
+
+  if (progressName) {
+    process.send({
+      msgtype: 'progress',
+      progressName,
+      status: 'running',
+    });
+  }
 
   const transforms = [];
   if (columns) {
@@ -22,6 +30,14 @@ async function copyStream(input, output, options) {
 
   try {
     await streamPipeline(input, transforms, output);
+
+    if (progressName) {
+      process.send({
+        msgtype: 'progress',
+        progressName,
+        status: 'done',
+      });
+    }
   } catch (err) {
     process.send({
       msgtype: 'copyStreamError',
@@ -30,6 +46,15 @@ async function copyStream(input, output, options) {
         ...err,
       },
     });
+
+    if (progressName) {
+      process.send({
+        msgtype: 'progress',
+        progressName,
+        status: 'error',
+      });
+    }
+
     throw err;
   }
 }

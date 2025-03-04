@@ -104,6 +104,7 @@
   $: sourceList = $values.sourceList;
 
   let targetEditKey = 0;
+  export let progressHolder = null;
 
   const previewSource = writable(null);
 
@@ -231,10 +232,15 @@
             header: 'Target',
             slot: 1,
           },
-          {
+          supportsPreview && {
             fieldName: 'preview',
             header: 'Preview',
             slot: 0,
+          },
+          !!progressHolder && {
+            fieldName: 'status',
+            header: 'Status',
+            slot: 3,
           },
           {
             fieldName: 'columns',
@@ -295,6 +301,17 @@
             }}
             >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
           </Link>
+        </svelte:fragment>
+        <svelte:fragment slot="3" let:row>
+          {#if progressHolder[row]?.status == 'running'}
+            <FontIcon icon="icon loading" /> Running
+          {:else if progressHolder[row]?.status == 'error'}
+            <FontIcon icon="img error" /> Error
+          {:else if progressHolder[row]?.status == 'done'}
+            <FontIcon icon="img ok" /> Done
+          {:else}
+            <FontIcon icon="icon wait" /> Queued
+          {/if}
         </svelte:fragment>
       </TableControl>
     {/key}

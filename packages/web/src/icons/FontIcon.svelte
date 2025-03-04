@@ -149,6 +149,7 @@
     'icon download': 'mdi mdi-download',
     'icon text': 'mdi mdi-text',
     'icon ai': 'mdi mdi-head-lightbulb',
+    'icon wait': 'mdi mdi-timer-sand',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

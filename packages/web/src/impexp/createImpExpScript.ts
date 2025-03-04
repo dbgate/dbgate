@@ -233,7 +233,7 @@ export default async function createImpExpScript(extensions, values, forceScript
       script.assignValue(colmapVar, colmap);
     }
 
-    script.copyStream(sourceVar, targetVar, colmapVar);
+    script.copyStream(sourceVar, targetVar, colmapVar, sourceName);
     script.endLine();
   }
   return script.getScript(values.schedule);
