@@ -328,7 +328,7 @@
             {#if progressHolder[row]?.writtenRowCount}
               {progressHolder[row]?.writtenRowCount} rows written
             {:else if progressHolder[row]?.readRowCount}
-              {progressHolder[row]?.readRowCount} rows read
+              {progressHolder[row]?.readRowCount} rows written
             {:else}
               Done
             {/if}
