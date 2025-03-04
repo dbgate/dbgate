@@ -164,6 +164,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
         pureName: getTargetName(extensions, sourceName, values),
         ...extractDriverApiParameters(values, 'target', targetDriver),
         ...getFlagsFroAction(values[`actionType_${sourceName}`]),
+        progressName: sourceName,
       },
     ];
   }

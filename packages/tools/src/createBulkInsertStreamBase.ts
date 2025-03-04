@@ -3,6 +3,7 @@ import _intersection from 'lodash/intersection';
 import _fromPairs from 'lodash/fromPairs';
 import { getLogger } from './getLogger';
 import { prepareTableForImport } from './tableTransforms';
+import { RowProgressReporter } from './rowProgressReporter';
 
 const logger = getLogger('bulkStreamBase');
 
@@ -21,6 +22,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
   writable.columnNames = null;
   writable.columnDataTypes = null;
   writable.requireFixedStructure = driver.databaseEngineTypes.includes('sql');
+  writable.rowsReporter = new RowProgressReporter(options.progressName);
 
   writable.addRow = async row => {
     if (writable.structure) {
@@ -92,6 +94,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
       // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
       // console.log(dmp.s);
       await driver.query(dbhan, dmp.s, { discardResult: true });
+      writable.rowsReporter.add(rows.length);
     } else {
       for (const row of rows) {
         const dmp = driver.createDumper();
@@ -106,6 +109,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         dmp.putRaw(')');
         // console.log(dmp.s);
         await driver.query(dbhan, dmp.s, { discardResult: true });
+        writable.rowsReporter.add(1);
       }
     }
     if (options.commitAfterInsert) {
@@ -129,6 +133,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
 
   writable._final = async callback => {
     await writable.send();
+    writable.rowsReporter.finish();
     callback();
   };
 

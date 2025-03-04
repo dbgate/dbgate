@@ -107,8 +107,8 @@ module.exports = {
     }
   },
 
-  handle_progress(runid, { progressName, status, errorMessage }) {
-    socket.emit(`runner-progress-${runid}`, { progressName, status, errorMessage });
+  handle_progress(runid, progressData) {
+    socket.emit(`runner-progress-${runid}`, progressData);
   },
 
   rejectRequest(runid, error) {

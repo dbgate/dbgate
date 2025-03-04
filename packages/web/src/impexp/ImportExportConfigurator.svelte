@@ -305,7 +305,12 @@
         </svelte:fragment>
         <svelte:fragment slot="3" let:row>
           {#if progressHolder[row]?.status == 'running'}
-            <FontIcon icon="icon loading" /> Running
+            <FontIcon icon="icon loading" />
+            {#if progressHolder[row]?.writtenRowCount}
+              {progressHolder[row]?.writtenRowCount} rows written
+            {:else}
+              Running
+            {/if}
           {:else if progressHolder[row]?.status == 'error'}
             <FontIcon icon="img error" /> Error
             {#if progressHolder[row]?.errorMessage}
@@ -317,7 +322,12 @@
               />
             {/if}
           {:else if progressHolder[row]?.status == 'done'}
-            <FontIcon icon="img ok" /> Done
+            <FontIcon icon="img ok" />
+            {#if progressHolder[row]?.writtenRowCount}
+              {progressHolder[row]?.writtenRowCount} rows written
+            {:else}
+              Done
+            {/if}
           {:else}
             <FontIcon icon="icon wait" /> Queued
           {/if}

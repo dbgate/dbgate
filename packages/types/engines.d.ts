@@ -41,6 +41,7 @@ export interface WriteTableOptions {
   createIfNotExists?: boolean;
   commitAfterInsert?: boolean;
   targetTableStructure?: TableInfo;
+  progressName?: string;
 }
 
 export interface EngineAuthType {
