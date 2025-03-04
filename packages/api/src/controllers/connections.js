@@ -77,6 +77,7 @@ function getPortalCollections() {
       allowedDatabasesRegex: process.env[`ALLOWED_DATABASES_REGEX_${id}`],
       parent: process.env[`PARENT_${id}`] || undefined,
       useSeparateSchemas: !!process.env[`USE_SEPARATE_SCHEMAS_${id}`],
+      localDataCenter: process.env[`LOCAL_DATA_CENTER_${id}`],
 
       // SSH tunnel
       useSshTunnel: process.env[`USE_SSH_${id}`],
