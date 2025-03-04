@@ -1,6 +1,6 @@
 const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
-const Stream = require('stream');
 const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
+const streamPipeline = require('../utility/streamPipeline');
 
 /**
  * Copies reader to writer. Used for import, export tables and transfer data between tables
@@ -9,7 +9,7 @@ const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
  * @param {object} options - options
  * @returns {Promise}
  */
-function copyStream(input, output, options) {
+async function copyStream(input, output, options) {
   const { columns } = options || {};
 
   const transforms = [];
@@ -20,49 +20,19 @@ function copyStream(input, output, options) {
     transforms.push(new EnsureStreamHeaderStream());
   }
 
-  // return new Promise((resolve, reject) => {
-  //   Stream.pipeline(input, ...transforms, output, err => {
-  //     if (err) {
-  //       reject(err);
-  //     } else {
-  //       resolve();
-  //     }
-  //   });
-  // });
-
-  return new Promise((resolve, reject) => {
-    const finisher = output['finisher'] || output;
-    finisher.on('finish', resolve);
-
-    input.on('error', err => {
-      // console.log('&&&&&&&&&&&&&&&&&&&&&&& CATCH ERROR IN COPY STREAM &&&&&&&&&&&&&&&&&&&&&&');
-      // console.log(err);
-      process.send({
-        msgtype: 'copyStreamError',
-        runid: this.runid,
-        copyStreamError: err,
-      });
+  try {
+    await streamPipeline(input, transforms, output);
+  } catch (err) {
+    process.send({
+      msgtype: 'copyStreamError',
+      runid: this.runid,
+      copyStreamError: {
+        message: err.message,
+        ...err,
+      },
     });
-
-    input.on('error', reject);
-
-    finisher.on('error', reject);
-
-    let lastStream = input;
-    for (const tran of transforms) {
-      lastStream.pipe(tran);
-      lastStream = tran;
-    }
-    lastStream.pipe(output);
-
-    //  if (output.requireFixedStructure) {
-    //   const ensureHeader = new EnsureStreamHeaderStream();
-    //   input.pipe(ensureHeader);
-    //   ensureHeader.pipe(output);
-    // } else {
-    //   input.pipe(output);
-    // }
-  });
+    throw err;
+  }
 }
 
 module.exports = copyStream;

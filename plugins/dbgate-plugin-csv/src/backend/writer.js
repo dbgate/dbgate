@@ -31,11 +31,13 @@ async function writer({ fileName, encoding = 'utf-8', header = true, delimiter, 
   const csvPrepare = new CsvPrepareStream({ header });
   const csvStream = csv.stringify({ delimiter, quoted });
   const fileStream = fs.createWriteStream(fileName, encoding);
-  csvPrepare.pipe(csvStream);
-  csvStream.pipe(fileStream);
-  csvPrepare['finisher'] = fileStream;
+  // csvPrepare.pipe(csvStream);
+  // csvStream.pipe(fileStream);
+  // csvPrepare['finisher'] = fileStream;
   csvPrepare.requireFixedStructure = true;
-  return csvPrepare;
+
+  return [csvPrepare, csvStream, fileStream];
+  // return csvPrepare;
 }
 
 module.exports = writer;

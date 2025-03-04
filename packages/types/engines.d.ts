@@ -144,6 +144,8 @@ export interface DatabaseHandle<TClient = any> {
   treeKeySeparator?: string;
 }
 
+export type StreamResult = stream.Readable | (stream.Readable | stream.Writable)[];
+
 export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   engine: string;
   title: string;
@@ -191,15 +193,11 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   close(dbhan: DatabaseHandle<TClient>): Promise<any>;
   query(dbhan: DatabaseHandle<TClient>, sql: string, options?: QueryOptions): Promise<QueryResult>;
   stream(dbhan: DatabaseHandle<TClient>, sql: string, options: StreamOptions);
-  readQuery(dbhan: DatabaseHandle<TClient>, sql: string, structure?: TableInfo): Promise<stream.Readable>;
-  readJsonQuery(dbhan: DatabaseHandle<TClient>, query: any, structure?: TableInfo): Promise<stream.Readable>;
+  readQuery(dbhan: DatabaseHandle<TClient>, sql: string, structure?: TableInfo): Promise<StreamResult>;
+  readJsonQuery(dbhan: DatabaseHandle<TClient>, query: any, structure?: TableInfo): Promise<StreamResult>;
   // eg. PostgreSQL COPY FROM stdin
-  writeQueryFromStream(dbhan: DatabaseHandle<TClient>, sql: string): Promise<stream.Writable>;
-  writeTable(
-    dbhan: DatabaseHandle<TClient>,
-    name: NamedObjectInfo,
-    options: WriteTableOptions
-  ): Promise<stream.Writable>;
+  writeQueryFromStream(dbhan: DatabaseHandle<TClient>, sql: string): Promise<StreamResult>;
+  writeTable(dbhan: DatabaseHandle<TClient>, name: NamedObjectInfo, options: WriteTableOptions): Promise<StreamResult>;
   analyseSingleObject(
     dbhan: DatabaseHandle<TClient>,
     name: NamedObjectInfo,

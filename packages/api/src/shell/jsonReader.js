@@ -10,7 +10,6 @@ const download = require('./download');
 
 const logger = getLogger('jsonReader');
 
-
 class ParseStream extends stream.Transform {
   constructor({ limitRows, jsonStyle, keyField }) {
     super({ objectMode: true });
@@ -72,8 +71,12 @@ async function jsonReader({
     // @ts-ignore
     encoding
   );
+
   const parseJsonStream = parser();
-  fileStream.pipe(parseJsonStream);
+
+  const resultPipe = [fileStream, parseJsonStream];
+
+  // fileStream.pipe(parseJsonStream);
 
   const parseStream = new ParseStream({ limitRows, jsonStyle, keyField });
 
@@ -81,15 +84,20 @@ async function jsonReader({
 
   if (rootField) {
     const filterStream = pick({ filter: rootField });
-    parseJsonStream.pipe(filterStream);
-    filterStream.pipe(tramsformer);
-  } else {
-    parseJsonStream.pipe(tramsformer);
+    resultPipe.push(filterStream);
+    // parseJsonStream.pipe(filterStream);
+    // filterStream.pipe(tramsformer);
   }
+  // else {
+  //   parseJsonStream.pipe(tramsformer);
+  // }
 
-  tramsformer.pipe(parseStream);
+  resultPipe.push(tramsformer);
+  resultPipe.push(parseStream);
 
-  return parseStream;
+  // tramsformer.pipe(parseStream);
+
+  return resultPipe;
 }
 
 module.exports = jsonReader;

@@ -141,8 +141,9 @@ async function modifyJsonLinesReader({
   );
   const liner = byline(fileStream);
   const parser = new ParseStream({ limitRows, changeSet, mergedRows, mergeKey, mergeMode });
-  liner.pipe(parser);
-  return parser;
+  return [liner, parser];
+  // liner.pipe(parser);
+  // return parser;
 }
 
 module.exports = modifyJsonLinesReader;
