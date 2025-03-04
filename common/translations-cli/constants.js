@@ -1,6 +1,8 @@
-const defaultLanguage = 'en-US';
+// @ts-check
+//
+const defaultLanguage = 'en';
 
-/** @typedef {{ extensions: string[], directories: string[]}} ExtractConfig
+/** @typedef {{ extensions: string[], directories: string[] }} ExtractConfig
 
 /** @type {ExtractConfig} */
 const defaultExtractConfig = {

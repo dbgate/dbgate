@@ -16,7 +16,7 @@ const { defaultLanguage, defaultExtractConfig } = require('./constants');
 const { removeUnusedAllTranslations, removeUnusedForSignelLanguage } = require('./removeUnused');
 
 /**
- * @typedef {import('./constants').ExtractConfig & { verbose?: boolean, removeUnused?: boolean }} ExtractOptions
+ * @typedef {import('./constants').ExtractConfig & { verbose?: boolean, ignoreUnused?: boolean }} ExtractOptions
  */
 
 program.name('dbgate-translations-cli').description('CLI tool for managing translation').version('1.0.0');
@@ -26,11 +26,11 @@ program
   .description('Extract translation keys from source files')
   .option('-d, --directories <directories...>', 'directories to search', defaultExtractConfig.directories)
   .option('-e, --extensions <extensions...>', 'file extensions to process', defaultExtractConfig.extensions)
-  .option('-r, --removeUnused', 'Remove unused keys from the output file')
+  .option('-r, --ignoreUnused', 'Ignore unused keys in the output file')
   .option('-v, --verbose', 'verbose mode')
   .action(async (/** @type {ExtractOptions} */ options) => {
     try {
-      const { directories, extensions, verbose, removeUnused } = options;
+      const { directories, extensions, verbose, ignoreUnused } = options;
 
       const resolvedRirectories = resolveDirs(directories);
       const resolvedExtensions = resolveExtensions(extensions);
@@ -42,7 +42,7 @@ program
 
       console.log('\nTranslation changes:');
       console.log(`- Added: ${added.length} keys`);
-      console.log(`- ${removeUnused ? 'Removed' : 'Unused'}: ${removed.length} keys`);
+      console.log(`- ${ignoreUnused ? 'Unused' : 'Removed'}: ${removed.length} keys`);
       console.log(`- Updated: ${updated.length} keys`);
       console.log(`- Total: ${Object.keys(extractedTranslations).length} keys`);
 
@@ -67,10 +67,7 @@ program
         }
       }
 
-      if (removeUnused) {
-        console.log('Unused keys were removed.\n');
-        setLanguageTranslations(defaultLanguage, extractedTranslations);
-      } else {
+      if (ignoreUnused) {
         console.log('New translations were saved. Unused keys are kept.\n');
         updateLanguageTranslations(defaultLanguage, extractedTranslations);
 
@@ -80,6 +77,9 @@ program
             console.log(`${key}: "${defaultTranslations[key]}"`);
           }
         }
+      } else {
+        console.log('Unused keys were removed.\n');
+        setLanguageTranslations(defaultLanguage, extractedTranslations);
       }
     } catch (error) {
       console.error(error);
