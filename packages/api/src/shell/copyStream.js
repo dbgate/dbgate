@@ -33,6 +33,19 @@ function copyStream(input, output, options) {
   return new Promise((resolve, reject) => {
     const finisher = output['finisher'] || output;
     finisher.on('finish', resolve);
+
+    input.on('error', err => {
+      // console.log('&&&&&&&&&&&&&&&&&&&&&&& CATCH ERROR IN COPY STREAM &&&&&&&&&&&&&&&&&&&&&&');
+      // console.log(err);
+      process.send({
+        msgtype: 'copyStreamError',
+        runid: this.runid,
+        copyStreamError: err,
+      });
+    });
+
+    input.on('error', reject);
+
     finisher.on('error', reject);
 
     let lastStream = input;
