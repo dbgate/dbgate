@@ -33,3 +33,4 @@ packages/api/src/packagedPluginsContent.js
 
 packages/web/public/*.html
 e2e-tests/screenshots/*.png
+my_guitar_shop.db
