@@ -88,6 +88,9 @@ function decryptConnection(connection) {
 }
 
 function pickSafeConnectionInfo(connection) {
+  if (process.env.LOG_CONNECTION_SENSITIVE_VALUES) {
+    return connection;
+  }
   return _.mapValues(connection, (v, k) => {
     if (k == 'engine' || k == 'port' || k == 'authType' || k == 'sshMode' || k == 'passwordMode') return v;
     if (v === null || v === true || v === false) return v;

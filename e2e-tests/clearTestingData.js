@@ -17,8 +17,8 @@ function clearTestingData() {
   if (fs.existsSync(path.join(baseDir, 'archive-e2etests'))) {
     fs.rmdirSync(path.join(baseDir, 'archive-e2etests'), { recursive: true });
   }
-  if (fs.existsSync(path.join(__dirname, '../my_guitar_shop.db'))) {
-    fs.unlinkSync(path.join(__dirname, '../my_guitar_shop.db'));
+  if (fs.existsSync(path.join(__dirname, 'tmpdata', 'my_guitar_shop.db'))) {
+    fs.unlinkSync(path.join(__dirname, 'tmpdata', 'my_guitar_shop.db'));
   }
 }
 

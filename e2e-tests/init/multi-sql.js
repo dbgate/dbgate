@@ -97,7 +97,10 @@ async function run() {
   if (localconfig.sqlite) {
     await createDb(
       {
-        databaseFile: process.env.FILE_sqlite,
+        databaseFile: process.env.FILE_sqlite.replace(
+          '%%E2E_TEST_DATA_DIRECTORY%%',
+          path.join(path.dirname(__dirname), 'tmpdata')
+        ),
         singleDatabase: true,
         engine: 'sqlite@dbgate-plugin-sqlite',
       },

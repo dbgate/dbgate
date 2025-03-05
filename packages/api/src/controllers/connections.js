@@ -62,7 +62,10 @@ function getPortalCollections() {
       port: process.env[`PORT_${id}`],
       databaseUrl: process.env[`URL_${id}`],
       useDatabaseUrl: !!process.env[`URL_${id}`],
-      databaseFile: process.env[`FILE_${id}`],
+      databaseFile: process.env[`FILE_${id}`]?.replace(
+        '%%E2E_TEST_DATA_DIRECTORY%%',
+        path.join(path.dirname(path.dirname(__dirname)), 'e2e-tests', 'tmpdata')
+      ),
       socketPath: process.env[`SOCKET_PATH_${id}`],
       serviceName: process.env[`SERVICE_NAME_${id}`],
       authType: process.env[`AUTH_TYPE_${id}`] || (process.env[`SOCKET_PATH_${id}`] ? 'socket' : undefined),
