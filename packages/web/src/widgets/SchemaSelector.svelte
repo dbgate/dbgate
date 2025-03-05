@@ -59,9 +59,9 @@
 
   function handleCreateSchema() {
     showModal(InputTextModal, {
-      header: _t('schema.create_schema', { defaultMessage: 'Create schema' }),
+      header: _t('schema.createSchema', { defaultMessage: 'Create schema' }),
       value: 'newschema',
-      label: _t('schema.schema_name', { defaultMessage: 'Schema name' }),
+      label: _t('schema.schemaName', { defaultMessage: 'Schema name' }),
       onConfirm: async name => {
         const dbid = { conid, database };
         await runOperationOnDatabase(
@@ -142,7 +142,7 @@
           selectedSchema = null;
           localStorage.removeItem(valueStorageKey);
         }}
-        title={_t('schema.reset_to_default', { defaultMessage: 'Reset to default' })}
+        title={_t('schema.resetToDefault', { defaultMessage: 'Reset to default' })}
       >
         <FontIcon icon="icon close" />
       </InlineButton>

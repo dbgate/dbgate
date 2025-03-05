@@ -100,7 +100,7 @@
             defaultMessage: `Loading plugin {plugin} ...`,
             values: { plugin: $loadingPluginStore.loadingPackageName },
           })
-        : _t('app.preparing_pluguns', { defaultMessage: 'Preparing plugins ...' })}
+        : _t('app.preparingPlugins', { defaultMessage: 'Preparing plugins ...' })}
     />
   {/if}
 {:else}

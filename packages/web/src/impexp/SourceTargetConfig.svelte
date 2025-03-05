@@ -141,7 +141,7 @@
         schemaName={schemaNameField}
         databaseName={databaseNameField}
         name={tablesField}
-        label={_t('source.tables_views_collections', { defaultMessage: 'Tables / views / collections' })}
+        label={_t('importExport.tablesViewsCollections', { defaultMessage: 'Tables / views / collections' })}
       />
     {/if}
   {/if}
@@ -166,7 +166,7 @@
 
   {#if storageType == 'archive' && direction == 'source'}
     <FormArchiveFilesSelect
-      label={_t('source.source_files', { defaultMessage: 'Source files' })}
+      label={_t('importExport.sourceFiles', { defaultMessage: 'Source files' })}
       folderName={$values[archiveFolderField]}
       name={tablesField}
     />

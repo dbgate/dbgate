@@ -62,7 +62,7 @@
   <WidgetColumnBarItem
     title={driver?.databaseEngineTypes?.includes('document')
       ? (driver?.collectionPluralLabel ?? 'Collections/containers')
-      : _t('widget.tables_views_functions', { defaultMessage: 'Tables, views, functions' })}
+      : _t('widget.tablesViewsFunctions', { defaultMessage: 'Tables, views, functions' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(
@@ -84,7 +84,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title={_t('widget.database_content', { defaultMessage: 'Database content' })}
+    title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={conid && (database || singleDatabase)}
@@ -97,7 +97,7 @@
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem
-    title={_t('widget.database_content', { defaultMessage: 'Database content' })}
+    title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
     name="dbObjects"
     storageName="dbObjectsWidget"
     skip={!(conid && (database || singleDatabase) && !driver)}
@@ -106,7 +106,7 @@
       <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 
       <ErrorInfo
-        message={_t('error.driver_not_found', { defaultMessage: 'Invalid database connection, driver not found' })}
+        message={_t('error.driverNotFound', { defaultMessage: 'Invalid database connection, driver not found' })}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
