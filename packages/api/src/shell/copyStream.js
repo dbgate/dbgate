@@ -11,7 +11,9 @@ class ReportingTransform extends stream.Transform {
     this.reporter = reporter;
   }
   _transform(chunk, encoding, callback) {
-    this.reporter.add(1);
+    if (!chunk?.__isStreamHeader) {
+      this.reporter.add(1);
+    }
     this.push(chunk);
     callback();
   }

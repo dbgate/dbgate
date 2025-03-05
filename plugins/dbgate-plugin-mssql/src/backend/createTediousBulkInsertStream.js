@@ -52,7 +52,7 @@ function runBulkInsertBatch(dbhan, tableName, writable, rows) {
 function createTediousBulkInsertStream(driver, stream, dbhan, name, options) {
   const writable = createBulkInsertStreamBase(driver, stream, dbhan, name, options);
 
-  const fullName = name.schemaName ? `[${name.schemaName}].[${name.pureName}]` : name.pureName;
+  const fullName = name.schemaName ? `[${name.schemaName}].[${name.pureName}]` : `[${name.pureName}]`;
 
   writable.send = async () => {
     if (!writable.templateColumns) {
