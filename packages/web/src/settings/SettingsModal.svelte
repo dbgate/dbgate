@@ -16,7 +16,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
-  import { closeCurrentModal } from '../modals/modalTools';
+  import { closeCurrentModal, showModal } from '../modals/modalTools';
   import { EDITOR_KEYBINDINGS_MODES, EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import {
@@ -41,6 +41,7 @@
   import FormDefaultActionField from './FormDefaultActionField.svelte';
   import { _t, getSelectedLanguage } from '../translations';
   import { internalRedirectTo } from '../clientAuth';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -139,9 +140,14 @@ ORDER BY
               { value: 'cs', label: 'Czech' },
             ]}
             on:change={() => {
-              setTimeout(() => {
-                internalRedirectTo('/');
-              }, 100);
+              showModal(ConfirmModal, {
+                message: 'Application will be reloaded to apply new language settings',
+                onConfirm: () => {
+                  setTimeout(() => {
+                    internalRedirectTo('/');
+                  }, 100);
+                },
+              });
             }}
           />
 
