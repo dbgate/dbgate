@@ -248,6 +248,7 @@
       handleDropOnGroup(data, '');
     }
   }}
+  data-testid="ConnectionList_container"
 >
   <AppObjectListHandler
     bind:this={domListHandler}

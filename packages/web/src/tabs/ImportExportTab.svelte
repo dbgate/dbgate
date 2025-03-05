@@ -298,11 +298,17 @@
   </FormProviderCore>
   <svelte:fragment slot="toolstrip">
     {#if busy}
-      <ToolStripButton icon="icon stop" on:click={handleCancel}>Stop</ToolStripButton>
+      <ToolStripButton icon="icon stop" on:click={handleCancel} data-testid="ImportExportTab_stopButton"
+        >Stop</ToolStripButton
+      >
     {:else}
-      <ToolStripButton on:click={handleExecute} icon="icon run">Run</ToolStripButton>
+      <ToolStripButton on:click={handleExecute} icon="icon run" data-testid="ImportExportTab_executeButton"
+        >Run</ToolStripButton
+      >
     {/if}
-    <ToolStripButton icon="img shell" on:click={handleGenerateScript}>Generate script</ToolStripButton>
+    <ToolStripButton icon="img shell" on:click={handleGenerateScript} data-testid="ImportExportTab_generateScriptButton"
+      >Generate script</ToolStripButton
+    >
     <ToolStripSaveButton idPrefix="job" />
   </svelte:fragment>
 </ToolStripContainer>

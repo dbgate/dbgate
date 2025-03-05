@@ -233,6 +233,7 @@ module.exports = {
   dispatchDatabaseChangedEvent_meta: true,
   dispatchDatabaseChangedEvent({ event, conid, database }) {
     socket.emitChanged(event, { conid, database });
+    return null;
   },
 
   loadKeys_meta: true,

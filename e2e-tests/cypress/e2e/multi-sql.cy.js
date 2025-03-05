@@ -30,35 +30,35 @@ beforeEach(() => {
 
 function multiTest(testName, testDefinition) {
   if (localconfig.mysql) {
-    it(testName + ' MySQL', () => testDefinition('MySql-connection', 'mysql@dbgate-plugin-mysql'));
+    it(testName + ' MySQL', () => testDefinition('MySql-connection', 'my_guitar_shop', 'mysql@dbgate-plugin-mysql'));
   }
   if (localconfig.postgres) {
-    it(testName + ' Postgres', () => testDefinition('Postgres-connection', 'postgres@dbgate-plugin-postgres'));
+    it(testName + ' Postgres', () =>
+      testDefinition('Postgres-connection', 'my_guitar_shop', 'postgres@dbgate-plugin-postgres')
+    );
   }
   if (localconfig.mssql) {
-    it(testName + ' Mssql', () => testDefinition('Mssql-connection', 'mssql@dbgate-plugin-mssql'));
+    it(testName + ' Mssql', () => testDefinition('Mssql-connection', 'my_guitar_shop', 'mssql@dbgate-plugin-mssql'));
   }
   if (localconfig.oracle) {
     it(testName + ' Oracle', () =>
-      testDefinition('Oracle-connection', 'oracle@dbgate-plugin-oracle', {
-        databaseName: 'C##MY_GUITAR_SHOP',
+      testDefinition('Oracle-connection', 'C##MY_GUITAR_SHOP', 'oracle@dbgate-plugin-oracle', {
         implicitTransactions: true,
       })
     );
   }
   if (localconfig.sqlite) {
-    it(testName + ' Sqlite', () => testDefinition('Sqlite-connection', 'sqlite@dbgate-plugin-sqlite'));
+    it(testName + ' Sqlite', () => testDefinition('Sqlite-connection', null, 'sqlite@dbgate-plugin-sqlite'));
   }
 }
 
 describe('Transactions', () => {
-  multiTest('Transactions', (connectionName, engine, options = {}) => {
+  multiTest('Transactions', (connectionName, databaseName, engine, options = {}) => {
     const driver = requireEngineDriver(engine);
-    const databaseName = options.databaseName ?? 'my_guitar_shop';
     const implicitTransactions = options.implicitTransactions ?? false;
 
     cy.contains(connectionName).click();
-    cy.contains(databaseName).click();
+    if (databaseName) cy.contains(databaseName).click();
     cy.testid('TabsPanel_buttonNewQuery').click();
     cy.wait(1000);
     cy.get('body').type(
@@ -101,11 +101,9 @@ describe('Transactions', () => {
 });
 
 describe('Backup table', () => {
-  multiTest('Backup table', (connectionName, engine, options = {}) => {
-    const databaseName = options.databaseName ?? 'my_guitar_shop';
-
+  multiTest('Backup table', (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
-    cy.contains(databaseName).click();
+    if (databaseName) cy.contains(databaseName).click();
     cy.contains('customers').rightclick();
     cy.contains('Create table backup').click();
     cy.testid('ConfirmSqlModal_okButton').click();
@@ -115,11 +113,9 @@ describe('Backup table', () => {
 });
 
 describe('Truncate table', () => {
-  multiTest('Truncate table', (connectionName, engine, options = {}) => {
-    const databaseName = options.databaseName ?? 'my_guitar_shop';
-
+  multiTest('Truncate table', (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
-    cy.contains(databaseName).click();
+    if (databaseName) cy.contains(databaseName).click();
     cy.contains('order_items').rightclick();
     cy.contains('Truncate table').click();
     cy.testid('ConfirmSqlModal_okButton').click();
@@ -129,14 +125,39 @@ describe('Truncate table', () => {
 });
 
 describe('Drop table', () => {
-  multiTest('Drop table', (connectionName, engine, options = {}) => {
-    const databaseName = options.databaseName ?? 'my_guitar_shop';
-
+  multiTest('Drop table', (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
-    cy.contains(databaseName).click();
+    if (databaseName) cy.contains(databaseName).click();
     cy.contains('order_items').rightclick();
     cy.contains('Drop table').click();
     cy.testid('ConfirmSqlModal_okButton').click();
     cy.contains('order_items').should('not.exist');
+  });
+});
+
+describe('Import CSV', () => {
+  multiTest('Import CSV', (connectionName, databaseName, engine, options = {}) => {
+    cy.contains(connectionName).click();
+    if (databaseName) cy.contains(databaseName).click();
+    cy.testid('ConnectionList_container')
+      .contains(databaseName ?? connectionName)
+      .rightclick();
+    cy.contains('Import').click();
+
+    cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
+    cy.contains('customers-20');
+
+    cy.testid('ImportExportTab_executeButton').click();
+    cy.contains('20 rows written').should('be.visible');
+
+    cy.testid('SqlObjectList_refreshButton').click();
+    cy.testid('SqlObjectList_container').contains('customers-20').click();
+    cy.contains('Rows: 20').should('be.visible');
+
+    // cy.get('table tbody tr')
+    //   .eq(1)
+    //   .within(() => {
+    //     cy.get('select').select('Append data');
+    //   });
   });
 });
