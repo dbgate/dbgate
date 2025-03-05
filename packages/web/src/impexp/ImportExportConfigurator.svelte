@@ -274,6 +274,7 @@
                     // @ts-ignore
                     e.target.value
                   )}
+                data-testid={`ImportExportConfigurator_targetName_${row}`}
               />
               {#if $targetDbinfo}
                 <DropDownButton

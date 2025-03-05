@@ -163,8 +163,8 @@ describe('Import CSV', () => {
   });
 });
 
-describe('Import CSV with error', () => {
-  multiTest('Import CSV with error', (connectionName, databaseName, engine, options = {}) => {
+describe('Import CSV - source error', () => {
+  multiTest('Import CSV - source error', (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.testid('ConnectionList_container')
@@ -180,5 +180,23 @@ describe('Import CSV with error', () => {
     cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err').click();
 
     cy.testid('ErrorMessageModal_message').contains('Invalid Closing Quote').should('be.visible');
+  });
+});
+
+describe('Import CSV - target error', () => {
+  multiTest('Import CSV - target error', (connectionName, databaseName, engine, options = {}) => {
+    cy.contains(connectionName).click();
+    if (databaseName) cy.contains(databaseName).click();
+    cy.testid('ConnectionList_container')
+      .contains(databaseName ?? connectionName)
+      .rightclick();
+    cy.contains('Import').click();
+
+    cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
+    cy.contains('customers-20');
+    cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('"]`');
+    cy.testid('ImportExportTab_executeButton').click();
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20').click();
+    cy.testid('ErrorMessageModal_message').should('be.visible');
   });
 });
