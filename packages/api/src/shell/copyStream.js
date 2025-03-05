@@ -1,7 +1,7 @@
 const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
 const ColumnMapTransformStream = require('../utility/ColumnMapTransformStream');
 const streamPipeline = require('../utility/streamPipeline');
-const { getLogger, extractErrorLogData, RowProgressReporter } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, RowProgressReporter, extractErrorMessage } = require('dbgate-tools');
 const logger = getLogger('copyStream');
 const stream = require('stream');
 
@@ -66,7 +66,7 @@ async function copyStream(input, output, options) {
     process.send({
       msgtype: 'copyStreamError',
       copyStreamError: {
-        message: err.message,
+        message: extractErrorMessage(err),
         ...err,
       },
     });
@@ -76,7 +76,7 @@ async function copyStream(input, output, options) {
         msgtype: 'progress',
         progressName,
         status: 'error',
-        errorMessage: err.message,
+        errorMessage: extractErrorMessage(err),
       });
     }
 

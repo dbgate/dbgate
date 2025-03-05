@@ -1,14 +1,15 @@
-const { createBulkInsertStreamBase } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { createBulkInsertStreamBase, getLogger, extractErrorLogData } = global.DBGATE_PACKAGES['dbgate-tools'];
 const tedious = require('tedious');
 const getConcreteType = require('./getConcreteType');
 const _ = require('lodash');
+const logger = getLogger('tediousBulkInsertStream');
 
 function runBulkInsertBatch(dbhan, tableName, writable, rows) {
   return new Promise((resolve, reject) => {
-    var options = { keepNulls: true };
+    const options = { keepNulls: true };
 
     // instantiate - provide the table where you'll be inserting to, options and a callback
-    var bulkLoad = dbhan.client.newBulkLoad(tableName, options, (error, rowCount) => {
+    const bulkLoad = dbhan.client.newBulkLoad(tableName, options, (error, rowCount) => {
       if (error) reject(error);
       else resolve();
     });
@@ -68,7 +69,13 @@ function createTediousBulkInsertStream(driver, stream, dbhan, name, options) {
     const rows = writable.buffer;
     writable.buffer = [];
 
-    await runBulkInsertBatch(dbhan, fullName, writable, rows);
+    try {
+      await runBulkInsertBatch(dbhan, fullName, writable, rows);
+    } catch (err) {
+      logger.error(extractErrorLogData(err), 'Error during bulk insert, insert stopped');
+      // writable.emit('error', err);
+      writable.destroy(err);
+    }
   };
 
   return writable;

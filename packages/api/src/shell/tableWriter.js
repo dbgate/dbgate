@@ -15,6 +15,7 @@ const logger = getLogger('tableWriter');
  * @param {boolean} options.truncate - truncate table before insert
  * @param {boolean} options.createIfNotExists - create table if not exists
  * @param {boolean} options.commitAfterInsert - commit transaction after insert
+ * @param {string} options.progressName - name for reporting progress
  * @param {any} options.targetTableStructure - target table structure (don't analyse if given)
  * @returns {Promise<writerType>} - writer object
  */
@@ -26,7 +27,20 @@ async function tableWriter({ connection, schemaName, pureName, driver, systemCon
   }
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
 
-  return await driver.writeTable(dbhan, { schemaName, pureName }, options);
+  try {
+    return await driver.writeTable(dbhan, { schemaName, pureName }, options);
+  } catch (err) {
+    if (options.progressName) {
+      process.send({
+        msgtype: 'progress',
+        progressName: options.progressName,
+        status: 'error',
+        errorMessage: err.message,
+      });
+    }
+
+    throw err;
+  }
 }
 
 module.exports = tableWriter;

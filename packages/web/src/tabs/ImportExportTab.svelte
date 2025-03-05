@@ -264,6 +264,7 @@
           {previewReaderStore}
           {progressHolder}
           isTabActive={tabid == $activeTabId}
+          isRunning={busy}
         />
 
         {#if busy}

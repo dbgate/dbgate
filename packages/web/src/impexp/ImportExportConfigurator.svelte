@@ -82,6 +82,7 @@
   // export let openedFile = undefined;
   export let previewReaderStore;
   export let isTabActive;
+  export let isRunning = false;
 
   const { values, setFieldValue } = getFormContext();
 
@@ -305,7 +306,7 @@
             </Link>
           </svelte:fragment>
           <svelte:fragment slot="3" let:row>
-            {#if progressHolder[row]?.status == 'running'}
+            {#if progressHolder[row]?.status == 'running' && isRunning}
               <FontIcon icon="icon loading" />
               {#if progressHolder[row]?.writtenRowCount}
                 {progressHolder[row]?.writtenRowCount} rows writtem
@@ -334,7 +335,14 @@
                 Done
               {/if}
             {:else}
-              <FontIcon icon="icon wait" /> Queued
+              <FontIcon icon="icon wait" />
+              {#if progressHolder[row]?.writtenRowCount}
+                {progressHolder[row]?.writtenRowCount} rows writtem
+              {:else if progressHolder[row]?.readRowCount}
+                {progressHolder[row]?.readRowCount} rows read
+              {:else}
+                Queued
+              {/if}
             {/if}
           </svelte:fragment>
         </TableControl>
