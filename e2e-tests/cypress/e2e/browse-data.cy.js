@@ -416,35 +416,4 @@ describe('Data browser data', () => {
   //   });
 
   // });
-
-  it('Backup table', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.contains('Customer').rightclick();
-    cy.contains('backup').click();
-    cy.testid('ConfirmSqlModal_okButton').click();
-    cy.contains ('_Customer').should('be.visible');
-  });
-
-  it('Truncate table', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.contains('_Customer').click();
-    cy.contains('Leonie').click();
-    cy.contains('_Customer').rightclick();
-    cy.contains('Truncate table').click();
-    cy.testid('ConfirmSqlModal_okButton').click();
-    cy.contains('Leonie').click();
-    cy.testid ('TableDataTab_refreshGrid').click();
-    cy.contains('No rows loaded')
-  });
-
-  it('Drop table', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.contains('_Customer').rightclick();
-    cy.contains('Drop table').click();
-    cy.testid('ConfirmSqlModal_okButton').click();
-    cy.contains('_Customer').should('not.exist');
-  });
 });

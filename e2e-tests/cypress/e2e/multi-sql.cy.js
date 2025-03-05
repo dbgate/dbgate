@@ -51,7 +51,7 @@ function multiTest(testName, testDefinition) {
   }
 }
 
-describe('Mutli-sql tests', () => {
+describe('Transactions', () => {
   multiTest('Transactions', (connectionName, engine, options = {}) => {
     const driver = requireEngineDriver(engine);
     const databaseName = options.databaseName ?? 'my_guitar_shop';
@@ -97,5 +97,46 @@ describe('Mutli-sql tests', () => {
     cy.contains('Guitars').click();
     cy.testid('TableDataTab_refreshGrid').click();
     cy.contains('Rows: 5');
+  });
+});
+
+describe('Backup table', () => {
+  multiTest('Backup table', (connectionName, engine, options = {}) => {
+    const databaseName = options.databaseName ?? 'my_guitar_shop';
+
+    cy.contains(connectionName).click();
+    cy.contains(databaseName).click();
+    cy.contains('customers').rightclick();
+    cy.contains('Create table backup').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('_customers').click();
+    cy.contains('Rows: 8').should('be.visible');
+  });
+});
+
+describe('Truncate table', () => {
+  multiTest('Truncate table', (connectionName, engine, options = {}) => {
+    const databaseName = options.databaseName ?? 'my_guitar_shop';
+
+    cy.contains(connectionName).click();
+    cy.contains(databaseName).click();
+    cy.contains('order_items').rightclick();
+    cy.contains('Truncate table').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('order_items').click();
+    cy.contains('No rows loaded').should('be.visible');
+  });
+});
+
+describe('Drop table', () => {
+  multiTest('Drop table', (connectionName, engine, options = {}) => {
+    const databaseName = options.databaseName ?? 'my_guitar_shop';
+
+    cy.contains(connectionName).click();
+    cy.contains(databaseName).click();
+    cy.contains('order_items').rightclick();
+    cy.contains('Drop table').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('order_items').should('not.exist');
   });
 });
