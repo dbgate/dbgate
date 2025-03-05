@@ -184,7 +184,7 @@ describe('Import CSV - source error', () => {
 });
 
 describe('Import CSV - target error', () => {
-  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
+  multiTest({}, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.testid('ConnectionList_container')
@@ -194,7 +194,7 @@ describe('Import CSV - target error', () => {
 
     cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
     cy.contains('customers-20');
-    cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('"]`');
+    cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('system."]`');
     cy.testid('ImportExportTab_executeButton').click();
     cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20').click();
     cy.testid('ErrorMessageModal_message').should('be.visible');
