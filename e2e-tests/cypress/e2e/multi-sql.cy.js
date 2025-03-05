@@ -28,32 +28,32 @@ beforeEach(() => {
   cy.viewport(1250, 900);
 });
 
-function multiTest(testName, testDefinition) {
+function multiTest(testProps, testDefinition) {
   if (localconfig.mysql) {
-    it(testName + ' MySQL', () => testDefinition('MySql-connection', 'my_guitar_shop', 'mysql@dbgate-plugin-mysql'));
+    it('MySQL', () => testDefinition('MySql-connection', 'my_guitar_shop', 'mysql@dbgate-plugin-mysql'));
   }
   if (localconfig.postgres) {
-    it(testName + ' Postgres', () =>
-      testDefinition('Postgres-connection', 'my_guitar_shop', 'postgres@dbgate-plugin-postgres')
-    );
+    it('Postgres', () => testDefinition('Postgres-connection', 'my_guitar_shop', 'postgres@dbgate-plugin-postgres'));
   }
   if (localconfig.mssql) {
-    it(testName + ' Mssql', () => testDefinition('Mssql-connection', 'my_guitar_shop', 'mssql@dbgate-plugin-mssql'));
+    it('Mssql', () => testDefinition('Mssql-connection', 'my_guitar_shop', 'mssql@dbgate-plugin-mssql'));
   }
   if (localconfig.oracle) {
-    it(testName + ' Oracle', () =>
+    it('Oracle', () =>
       testDefinition('Oracle-connection', 'C##MY_GUITAR_SHOP', 'oracle@dbgate-plugin-oracle', {
         implicitTransactions: true,
-      })
-    );
+      }));
   }
   if (localconfig.sqlite) {
-    it(testName + ' Sqlite', () => testDefinition('Sqlite-connection', null, 'sqlite@dbgate-plugin-sqlite'));
+    it('Sqlite', () => testDefinition('Sqlite-connection', null, 'sqlite@dbgate-plugin-sqlite'));
+  }
+  if (localconfig.mongo && !testProps.skipMongo) {
+    it('MongoDB', () => testDefinition('Mongo-connection', 'my_guitar_shop', 'mongo@dbgate-plugin-mongo'));
   }
 }
 
 describe('Transactions', () => {
-  multiTest('Transactions', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     const driver = requireEngineDriver(engine);
     const implicitTransactions = options.implicitTransactions ?? false;
 
@@ -101,7 +101,7 @@ describe('Transactions', () => {
 });
 
 describe('Backup table', () => {
-  multiTest('Backup table', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.contains('customers').rightclick();
@@ -113,7 +113,7 @@ describe('Backup table', () => {
 });
 
 describe('Truncate table', () => {
-  multiTest('Truncate table', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.contains('order_items').rightclick();
@@ -125,7 +125,7 @@ describe('Truncate table', () => {
 });
 
 describe('Drop table', () => {
-  multiTest('Drop table', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.contains('order_items').rightclick();
@@ -136,7 +136,7 @@ describe('Drop table', () => {
 });
 
 describe('Import CSV', () => {
-  multiTest('Import CSV', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({}, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.testid('ConnectionList_container')
@@ -146,7 +146,7 @@ describe('Import CSV', () => {
 
     cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
     cy.contains('customers-20');
-    cy.testid('ImportExportTab_preview').contains('Jessica').should('be.visible');
+    cy.testid('ImportExportTab_preview_content').contains('50ddd99fAdF48B3').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
     cy.contains('20 rows written').should('be.visible');
@@ -164,7 +164,7 @@ describe('Import CSV', () => {
 });
 
 describe('Import CSV - source error', () => {
-  multiTest('Import CSV - source error', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({}, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.testid('ConnectionList_container')
@@ -184,7 +184,7 @@ describe('Import CSV - source error', () => {
 });
 
 describe('Import CSV - target error', () => {
-  multiTest('Import CSV - target error', (connectionName, databaseName, engine, options = {}) => {
+  multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
     cy.testid('ConnectionList_container')

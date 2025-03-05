@@ -8,12 +8,13 @@ dbgateApi.registerPlugins(dbgatePluginMysql);
 const dbgatePluginPostgres = require('dbgate-plugin-postgres');
 dbgateApi.registerPlugins(dbgatePluginPostgres);
 
-async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop') {
+async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop', { dropDatabaseName }) {
   if (dropDbSql) {
     try {
       await dbgateApi.executeQuery({
         connection,
         sql: dropDbSql,
+        database: dropDatabaseName,
       });
     } catch (err) {
       console.error('Failed to drop database', err);
@@ -106,6 +107,22 @@ async function run() {
       },
       null,
       null
+    );
+  }
+
+  if (localconfig.mongo) {
+    await createDb(
+      {
+        server: process.env.SERVER_mongo,
+        user: process.env.USER_mongo,
+        password: process.env.PASSWORD_mongo,
+        port: process.env.PORT_mongo,
+        engine: 'mongo@dbgate-plugin-mongo',
+      },
+      'db.dropDatabase()',
+      null,
+      'my_guitar_shop',
+      { dropDatabaseName: 'my_guitar_shop' }
     );
   }
 }

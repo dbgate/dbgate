@@ -23,82 +23,97 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
 
   try {
-    const model = await importDbModel(folder);
+    if (driver?.databaseEngineTypes?.includes('sql')) {
+      const model = await importDbModel(folder);
 
-    let modelAdapted = {
-      ...model,
-      tables: model.tables.map(table => driver.adaptTableInfo(table)),
-    };
-    for (const transform of modelTransforms || []) {
-      modelAdapted = transform(modelAdapted);
-    }
-
-    const modelNoFk = {
-      ...modelAdapted,
-      tables: modelAdapted.tables.map(table => ({
-        ...table,
-        foreignKeys: [],
-      })),
-    };
-
-    // const plan = createAlterDatabasePlan(
-    //   DatabaseAnalyser.createEmptyStructure(),
-    //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
-    //   {},
-    //   DatabaseAnalyser.createEmptyStructure(),
-    //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
-    //   driver
-    // );
-    // const dmp1 = driver.createDumper({ useHardSeparator: true });
-    // if (driver.dialect.enableAllForeignKeys) {
-    //   dmp1.enableAllForeignKeys(false);
-    // }
-    // plan.run(dmp1);
-    // if (driver.dialect.enableAllForeignKeys) {
-    //   dmp1.enableAllForeignKeys(true);
-    // }
-
-    const { sql } = getAlterDatabaseScript(
-      DatabaseAnalyser.createEmptyStructure(),
-      driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
-      {},
-      DatabaseAnalyser.createEmptyStructure(),
-      driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
-      driver
-    );
-    // console.log('CREATING STRUCTURE:', sql);
-    await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
-
-    if (driver.dialect.enableAllForeignKeys) {
-      await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(false));
-    }
-
-    for (const table of modelAdapted.tables) {
-      const fileName = path.join(folder, `${table.pureName}.jsonl`);
-      if (await fs.exists(fileName)) {
-        const src = await jsonLinesReader({ fileName });
-        const dst = await tableWriter({
-          systemConnection: dbhan,
-          pureName: table.pureName,
-          driver,
-          targetTableStructure: table,
-        });
-        await copyStream(src, dst);
+      let modelAdapted = {
+        ...model,
+        tables: model.tables.map(table => driver.adaptTableInfo(table)),
+      };
+      for (const transform of modelTransforms || []) {
+        modelAdapted = transform(modelAdapted);
       }
-    }
 
-    if (driver.dialect.enableAllForeignKeys) {
-      await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(true));
-    } else if (driver.dialect.createForeignKey) {
-      const dmp = driver.createDumper();
+      const modelNoFk = {
+        ...modelAdapted,
+        tables: modelAdapted.tables.map(table => ({
+          ...table,
+          foreignKeys: [],
+        })),
+      };
+
+      // const plan = createAlterDatabasePlan(
+      //   DatabaseAnalyser.createEmptyStructure(),
+      //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+      //   {},
+      //   DatabaseAnalyser.createEmptyStructure(),
+      //   driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+      //   driver
+      // );
+      // const dmp1 = driver.createDumper({ useHardSeparator: true });
+      // if (driver.dialect.enableAllForeignKeys) {
+      //   dmp1.enableAllForeignKeys(false);
+      // }
+      // plan.run(dmp1);
+      // if (driver.dialect.enableAllForeignKeys) {
+      //   dmp1.enableAllForeignKeys(true);
+      // }
+
+      const { sql } = getAlterDatabaseScript(
+        DatabaseAnalyser.createEmptyStructure(),
+        driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+        {},
+        DatabaseAnalyser.createEmptyStructure(),
+        driver.dialect.enableAllForeignKeys ? modelAdapted : modelNoFk,
+        driver
+      );
+      // console.log('CREATING STRUCTURE:', sql);
+      await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
+
+      if (driver.dialect.enableAllForeignKeys) {
+        await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(false));
+      }
+
       for (const table of modelAdapted.tables) {
-        for (const fk of table.foreignKeys) {
-          dmp.createForeignKey(fk);
+        const fileName = path.join(folder, `${table.pureName}.jsonl`);
+        if (await fs.exists(fileName)) {
+          const src = await jsonLinesReader({ fileName });
+          const dst = await tableWriter({
+            systemConnection: dbhan,
+            pureName: table.pureName,
+            driver,
+            targetTableStructure: table,
+          });
+          await copyStream(src, dst);
         }
       }
 
-      // create foreign keys
-      await executeQuery({ connection, systemConnection: dbhan, driver, sql: dmp.s, logScriptItems: true });
+      if (driver.dialect.enableAllForeignKeys) {
+        await runCommandOnDriver(dbhan, driver, dmp => dmp.enableAllForeignKeys(true));
+      } else if (driver.dialect.createForeignKey) {
+        const dmp = driver.createDumper();
+        for (const table of modelAdapted.tables) {
+          for (const fk of table.foreignKeys) {
+            dmp.createForeignKey(fk);
+          }
+        }
+
+        // create foreign keys
+        await executeQuery({ connection, systemConnection: dbhan, driver, sql: dmp.s, logScriptItems: true });
+      }
+    } else if (driver?.databaseEngineTypes?.includes('document')) {
+      for (const file of fs.readdirSync(folder)) {
+        if (!file.endsWith('.jsonl')) continue;
+        const pureName = path.parse(file).name;
+        const src = await jsonLinesReader({ fileName: path.join(folder, file) });
+        const dst = await tableWriter({
+          systemConnection: dbhan,
+          pureName,
+          driver,
+          createIfNotExists: true,
+        });
+        await copyStream(src, dst);
+      }
     }
   } finally {
     if (!systemConnection) {
