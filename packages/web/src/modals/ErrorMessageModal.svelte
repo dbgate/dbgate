@@ -23,7 +23,7 @@
         <div class="icon">
           <FontIcon icon="img error" />
         </div>
-        <div>
+        <div data-testid="ErrorMessageModal_message">
           {message}
         </div>
       </div>

@@ -323,6 +323,7 @@
                   title={progressHolder[row]?.errorMessage}
                   on:click={() => showModal(ErrorMessageModal, { message: progressHolder[row]?.errorMessage })}
                   style="cursor: pointer"
+                  data-testid={`ImportExportConfigurator_errorInfoIcon_${row}`}
                 />
               {/if}
             {:else if progressHolder[row]?.status == 'done'}

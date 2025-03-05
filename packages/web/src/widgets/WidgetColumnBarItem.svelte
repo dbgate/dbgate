@@ -76,7 +76,11 @@
   >
 
   {#if visible}
-    <div class="wrapper" style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}>
+    <div
+      class="wrapper"
+      style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}
+      data-testid={$$props['data-testid'] ? `${$$props['data-testid']}_content` : undefined}
+    >
       <slot />
     </div>
 

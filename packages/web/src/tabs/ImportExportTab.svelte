@@ -274,7 +274,12 @@
 
       <svelte:fragment slot="2">
         <WidgetColumnBar>
-          <WidgetColumnBarItem title="Output files" name="output" height="20%">
+          <WidgetColumnBarItem
+            title="Output files"
+            name="output"
+            height="20%"
+            data-testid="ImportExportTab_outputFiles"
+          >
             <RunnerOutputFiles {runnerId} {executeNumber} />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem title="Messages" name="messages">
@@ -285,7 +290,12 @@
               showCaller
             />
           </WidgetColumnBarItem>
-          <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
+          <WidgetColumnBarItem
+            title="Preview"
+            name="preview"
+            skip={!$previewReaderStore}
+            data-testid="ImportExportTab_preview"
+          >
             <PreviewDataGrid reader={$previewReaderStore} />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>

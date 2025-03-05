@@ -146,6 +146,7 @@ describe('Import CSV', () => {
 
     cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
     cy.contains('customers-20');
+    cy.testid('ImportExportTab_preview').contains('Jessica').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
     cy.contains('20 rows written').should('be.visible');
@@ -159,5 +160,25 @@ describe('Import CSV', () => {
     //   .within(() => {
     //     cy.get('select').select('Append data');
     //   });
+  });
+});
+
+describe('Import CSV with error', () => {
+  multiTest('Import CSV with error', (connectionName, databaseName, engine, options = {}) => {
+    cy.contains(connectionName).click();
+    if (databaseName) cy.contains(databaseName).click();
+    cy.testid('ConnectionList_container')
+      .contains(databaseName ?? connectionName)
+      .rightclick();
+    cy.contains('Import').click();
+
+    cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20-err.csv', { force: true });
+    cy.contains('customers-20-err');
+    cy.testid('ImportExportTab_preview_content').contains('Invalid Closing Quote').should('be.visible');
+
+    cy.testid('ImportExportTab_executeButton').click();
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err').click();
+
+    cy.testid('ErrorMessageModal_message').contains('Invalid Closing Quote').should('be.visible');
   });
 });
