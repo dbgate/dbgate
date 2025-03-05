@@ -22,6 +22,7 @@
   import SettingsListener from './utility/SettingsListener.svelte';
   import { handleAuthOnStartup } from './clientAuth';
   import { initializeAppUpdates } from './utility/appUpdate';
+  import { _t } from './translations';
 
   export let isAdminPage = false;
 
@@ -95,10 +96,13 @@
   {:else}
     <AppStartInfo
       message={$loadingPluginStore.loadingPackageName
-        ? `Loading plugin ${$loadingPluginStore.loadingPackageName} ...`
-        : 'Preparing plugins ...'}
+        ? _t('app.loading_plugin', {
+            defaultMessage: `Loading plugin {plugin} ...`,
+            values: { plugin: $loadingPluginStore.loadingPackageName },
+          })
+        : _t('app.preparing_pluguns', { defaultMessage: 'Preparing plugins ...' })}
     />
   {/if}
 {:else}
-  <AppStartInfo message="Starting DbGate" />
+  <AppStartInfo message={_t('app.starting', { defaultMessage: 'Starting DbGate' })} />
 {/if}

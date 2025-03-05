@@ -39,6 +39,8 @@
   import { derived } from 'svelte/store';
   import { safeFormatDate } from 'dbgate-tools';
   import FormDefaultActionField from './FormDefaultActionField.svelte';
+  import { _t, getSelectedLanguage } from '../translations';
+  import { internalRedirectTo } from '../clientAuth';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -121,7 +123,27 @@ ORDER BY
             {/if}
           {/if}
 
-          <FormCheckboxField name="tabGroup.showServerName" label="Show server name alongside database name in title of the tab group" defaultValue={false} />
+          <FormCheckboxField
+            name="tabGroup.showServerName"
+            label="Show server name alongside database name in title of the tab group"
+            defaultValue={false}
+          />
+          <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
+          <FormSelectField
+            label="Language"
+            name="localization.language"
+            defaultValue={getSelectedLanguage()}
+            isNative
+            options={[
+              { value: 'en', label: 'English' },
+              { value: 'cs', label: 'Czech' },
+            ]}
+            on:change={() => {
+              setTimeout(() => {
+                internalRedirectTo('/');
+              }, 100);
+            }}
+          />
 
           <div class="heading">Data grid</div>
           <FormTextField

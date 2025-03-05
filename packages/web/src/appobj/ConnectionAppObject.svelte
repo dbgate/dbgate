@@ -137,6 +137,7 @@
   import hasPermission from '../utility/hasPermission';
   import { switchCurrentDatabase } from '../utility/common';
   import { getConnectionClickActionSetting } from '../settings/settingsTools';
+  import { _t } from '../translations';
 
   export let data;
   export let passProps;
@@ -324,7 +325,7 @@
         hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New Query (server)', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
-            text: 'Refresh',
+            text: _t('common.refresh', { defaultMessage: 'Refresh' }),
             onClick: handleRefresh,
           },
         hasPermission(`dbops/createdb`) &&

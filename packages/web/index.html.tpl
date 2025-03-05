@@ -115,7 +115,6 @@
           <div></div>
           <div></div>
         </div>
-        <div>Loading DbGate App</div>
       </div>
     </div>
   </body>

@@ -11,6 +11,7 @@
   import { appliedCurrentSchema, currentDatabase } from '../stores';
   import { switchCurrentDatabase } from '../utility/common';
   import { extractDbNameFromComposite, extractSchemaNameFromComposite, findDefaultSchema } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   export let schemaList;
   export let objectList;
@@ -58,9 +59,9 @@
 
   function handleCreateSchema() {
     showModal(InputTextModal, {
-      header: 'Create schema',
+      header: _t('schema.create_schema', { defaultMessage: 'Create schema' }),
       value: 'newschema',
-      label: 'Schema name',
+      label: _t('schema.schema_name', { defaultMessage: 'Schema name' }),
       onConfirm: async name => {
         const dbid = { conid, database };
         await runOperationOnDatabase(
@@ -105,13 +106,19 @@
 
 {#if realSchemaList.length > 0}
   <div class="wrapper" class:negativeMarginTop>
-    <div class="mr-1">Schema:</div>
+    <div class="mr-1">{_t('common.schema', { defaultMessage: 'Schema' })}:</div>
     <SelectField
       isNative
       options={connection?.useSeparateSchemas
         ? (schemaList?.map(x => ({ label: x.schemaName, value: x.schemaName })) ?? [])
         : [
-            { label: `All schemas (${objectList?.length ?? 0})`, value: '' },
+            {
+              label: _t('schema.all_schemas', {
+                defaultMessage: 'All schemas ({count})',
+                values: { count: objectList?.length ?? 0 },
+              }),
+              value: '',
+            },
             ...realSchemaList.map(x => ({ label: `${x} (${countBySchema[x] ?? 0})`, value: x })),
           ]}
       value={selectedSchema ?? $appliedCurrentSchema ?? ''}
@@ -135,15 +142,20 @@
           selectedSchema = null;
           localStorage.removeItem(valueStorageKey);
         }}
-        title="Reset to default"
+        title={_t('schema.reset_to_default', { defaultMessage: 'Reset to default' })}
       >
         <FontIcon icon="icon close" />
       </InlineButton>
     {/if}
-    <InlineButton on:click={handleCreateSchema} title="Add new schema" square>
+    <InlineButton on:click={handleCreateSchema} title={_t('schema.add', { defaultMessage: 'Add new schema' })} square>
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
-    <InlineButton on:click={handleDropSchema} title="Delete schema" square disabled={!$appliedCurrentSchema}>
+    <InlineButton
+      on:click={handleDropSchema}
+      title={_t('schema.delete', { defaultMessage: 'Delete schema' })}
+      square
+      disabled={!$appliedCurrentSchema}
+    >
       <FontIcon icon="icon minus-thick" />
     </InlineButton>
   </div>

@@ -7,6 +7,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import stableStringify from 'json-stable-stringify';
+  import { _t } from '../translations';
 
   export let title;
   export let fieldDefinitions;
@@ -42,7 +43,7 @@
         <FormSelectField
           isNative
           name="schemaName"
-          label="Schema"
+          label={_t('common.schema', { defaultMessage: 'Schema' })}
           options={schemaList.map(x => ({ label: x.schemaName, value: x.schemaName }))}
         />
       {/if}
