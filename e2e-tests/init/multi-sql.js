@@ -8,7 +8,7 @@ dbgateApi.registerPlugins(dbgatePluginMysql);
 const dbgatePluginPostgres = require('dbgate-plugin-postgres');
 dbgateApi.registerPlugins(dbgatePluginPostgres);
 
-async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop', { dropDatabaseName }) {
+async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop', { dropDatabaseName } = {}) {
   if (dropDbSql) {
     try {
       await dbgateApi.executeQuery({
