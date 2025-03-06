@@ -67,7 +67,10 @@
       const count = getOpenedTabs().filter(closeCondition).length;
       if (count > 0) {
         showModal(ConfirmModal, {
-          message: `Closing connection will close ${count} opened tabs, continue?`,
+          message: _t('connection.closeConfirm', {
+            defaultMessage: 'Closing connection will close {count} opened tabs, continue?',
+            values: { count },
+          }),
           onConfirm: () => disconnectServerConnection(conid, false),
         });
         return;
@@ -245,7 +248,10 @@
     };
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: `Really delete connection ${getConnectionLabel(data)}?`,
+        message: _t('connection.deleteConfirm', {
+          defaultMessage: 'Really delete connection {name}?',
+          values: { name: getConnectionLabel(data) },
+        }),
         onConfirm: () => apiCall('connections/delete', data),
       });
     };
@@ -258,9 +264,9 @@
     };
     const handleCreateDatabase = () => {
       showModal(InputTextModal, {
-        header: 'Create database',
+        header: _t('connection.createDatabase', { defaultMessage: 'Create database' }),
         value: 'newdb',
-        label: 'Database name',
+        label: _t('connection.databaseName', { defaultMessage: 'Database name' }),
         onConfirm: name =>
           apiCall('server-connections/create-database', {
             conid: data._id,
@@ -295,12 +301,12 @@
     return [
       !data.singleDatabase && [
         !$openedConnections.includes(data._id) && {
-          text: 'Connect',
+          text: _t('connection.connect', { defaultMessage: 'Connect' }),
           onClick: handleConnect,
           isBold: true,
         },
         $openedConnections.includes(data._id) && {
-          text: 'Disconnect',
+          text: _t('connection.disconnect', { defaultMessage: 'Disconnect' }),
           onClick: handleDisconnect,
         },
       ],
@@ -308,35 +314,41 @@
       config.runAsPortal == false &&
         !config.storageDatabase && [
           {
-            text: $openedConnections.includes(data._id) ? 'View details' : 'Edit',
+            text: $openedConnections.includes(data._id)
+              ? _t('connection.viewDetails', { defaultMessage: 'View details' })
+              : _t('connection.edit', { defaultMessage: 'Edit' }),
             onClick: handleOpenConnectionTab,
           },
           !$openedConnections.includes(data._id) && {
-            text: 'Delete',
+            text: _t('connection.delete', { defaultMessage: 'Delete' }),
             onClick: handleDelete,
           },
           {
-            text: 'Duplicate',
+            text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
             onClick: handleDuplicate,
           },
         ],
       { divider: true },
       !data.singleDatabase && [
-        hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New Query (server)', isNewQuery: true },
+        hasPermission(`dbops/query`) && {
+          onClick: handleNewQuery,
+          text: _t('connection.newQuery', { defaultMessage: 'New Query (server)' }),
+          isNewQuery: true,
+        },
         $openedConnections.includes(data._id) &&
           data.status && {
-            text: _t('common.refresh', { defaultMessage: 'Refresh' }),
+            text: _t('connection.refresh', { defaultMessage: 'Refresh' }),
             onClick: handleRefresh,
           },
         hasPermission(`dbops/createdb`) &&
           $openedConnections.includes(data._id) &&
           driver?.supportedCreateDatabase &&
           !data.isReadOnly && {
-            text: 'Create database',
+            text: _t('connection.createDatabase', { defaultMessage: 'Create database' }),
             onClick: handleCreateDatabase,
           },
         driver?.supportsServerSummary && {
-          text: 'Server summary',
+          text: _t('connection.serverSummary', { defaultMessage: 'Server summary' }),
           onClick: handleServerSummary,
         },
       ],
@@ -353,7 +365,10 @@
       ],
 
       driver?.databaseEngineTypes?.includes('sql') &&
-        !data.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
+        !data.isReadOnly && {
+          onClick: handleSqlRestore,
+          text: _t('connection.sqlRestore', { defaultMessage: 'Restore/import SQL dump' }),
+        },
     ];
   };
 
@@ -366,7 +381,11 @@
     } else {
       extInfo = data.engine;
       engineStatusIcon = 'img warn';
-      engineStatusTitle = `Engine driver ${data.engine} not found, review installed plugins and change engine in edit connection dialog`;
+      engineStatusTitle = _t('connection.engineDriverNotFound', {
+        defaultMessage:
+          'Engine driver {engine} not found, review installed plugins and change engine in edit connection dialog',
+        values: { engine: data.engine },
+      });
     }
   }
 
