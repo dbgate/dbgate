@@ -31,6 +31,9 @@ services:
     image: cassandra:5.0.2
     ports:
       - 15942:9042
+    environment:
+      - CASSANDRA_USER=root
+      - CASSANDRA_PASSWORD=password
 
   # clickhouse:
   #   image: bitnami/clickhouse:24.8.4

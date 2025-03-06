@@ -111,3 +111,6 @@ jobs:
         image: cassandra:5.0.2
         ports:
           - 15942:9042
+        env:
+          - CASSANDRA_USER=root
+          - CASSANDRA_PASSWORD=password
