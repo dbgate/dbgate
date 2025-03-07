@@ -30,6 +30,10 @@ async function getFiles(dir, extensions) {
       if (stats.isDirectory()) {
         return getFiles(filePath, extensions);
       } else if (stats.isFile() && hasValidExtension(file, extensions)) {
+        const slashPath = filePath.replace(/\\/g, '/');
+        if (slashPath.includes('/node_modules/') || slashPath.includes('/build/')) {
+          return null;
+        }
         return filePath;
       }
       return null;
