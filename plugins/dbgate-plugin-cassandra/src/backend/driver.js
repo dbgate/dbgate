@@ -44,9 +44,17 @@ const driver = {
   analyserClass: Analyser,
   // creating connection
   async connect({ server, user, password, database, localDataCenter, useDatabaseUrl, databaseUrl }) {
+    let credentials;
+    
+    if (user && password) {
+      credentials = {
+        username: user,
+        password,
+      }
+    } 
+
     const client = new cassandra.Client({
-      // user,
-      // password,
+      credentials,
       contactPoints: server.split(','),
       localDataCenter: localDataCenter ?? this.defaultLocalDataCenter,
       keyspace: database,
