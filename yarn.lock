@@ -1703,6 +1703,41 @@
   resolved "https://registry.yarnpkg.com/@kurkle/color/-/color-0.3.2.tgz#5acd38242e8bde4f9986e7913c8fdf49d3aa199f"
   integrity sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==
 
+"@libsql/darwin-arm64@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/darwin-arm64/-/darwin-arm64-0.5.0-pre.6.tgz#1afb2e55aa25bd5fed6b37cbc2cbe9cfcca2e61e"
+  integrity sha512-T99Ap/ui7xqFe9ZjWUWRbSCqh9Bo/uZ/wOFtVi9U/2YlBdG4Vv2A7Uz1USYnivJm0nvyYjcy2N9enaRl2cyKkQ==
+
+"@libsql/darwin-x64@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/darwin-x64/-/darwin-x64-0.5.0-pre.6.tgz#0c410db574310ab32d52ee73ce218c7049d818ea"
+  integrity sha512-09fTHmTrxltuQ4oyM7RCz4qRF1oiZS9uf0IIIOI7do6dQu8830a7rrqhpg33LKBs9eBfKWuzpC6n8SuuatSFOw==
+
+"@libsql/linux-arm64-gnu@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/linux-arm64-gnu/-/linux-arm64-gnu-0.5.0-pre.6.tgz#e220cc86924c8ef6b197033e0c161ef0fe327949"
+  integrity sha512-HDQH42ZxzhPMcFdcARV2I7oH7LK/jk2eqhODtIbnVn0kiklHY98F4wk1rbqFIzJljMuzq9HSycJtntUyubpnWg==
+
+"@libsql/linux-arm64-musl@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/linux-arm64-musl/-/linux-arm64-musl-0.5.0-pre.6.tgz#41ba6db61e1ff64f29602c520d8e61903d2c143a"
+  integrity sha512-v6NmFwkQutzud5ZWbo0BWhfIe4OyfQ1qXq/uihpcLOjPUFyWl5vHelOQn1hflJeQ2PcaYxFQ6XPQimSs1HsqMw==
+
+"@libsql/linux-x64-gnu@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/linux-x64-gnu/-/linux-x64-gnu-0.5.0-pre.6.tgz#2ce956c960eb54fa5a10d89856cf3d36bb9772b7"
+  integrity sha512-IOSlRJWNUoEdtL9Y2RrGJyNR4X9t2aWTcbVkYMRtKfDIqylYO8UXDtMLFdLLnjR4p5yZKnO9OqOkbMko8DKdOw==
+
+"@libsql/linux-x64-musl@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/linux-x64-musl/-/linux-x64-musl-0.5.0-pre.6.tgz#c5e58c067a52effd7ea119c58ca189596b28ae6e"
+  integrity sha512-BGICFHvEKIZtrD4UYjIg7SfGmak6zGRUAp/MVS+40FMe4eh7d6uvmQFs6JAaHErazLEKHLKbIKIYAXe1srHKVQ==
+
+"@libsql/win32-x64-msvc@0.5.0-pre.6":
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/@libsql/win32-x64-msvc/-/win32-x64-msvc-0.5.0-pre.6.tgz#0fe64844aaef3c5edb1c8e59f949c17ce6cad2ce"
+  integrity sha512-1RUqZ9wURWlHOXvafbnhRe2HGh+B7yfqvUQV3RWzS9c7oh1rJbeO7p0XDFFWyRjN8yYFbjlZDmRUcYr1Lo83qQ==
+
 "@mdi/font@^7.1.96":
   version "7.4.47"
   resolved "https://registry.yarnpkg.com/@mdi/font/-/font-7.4.47.tgz#2ae522867da3a5c88b738d54b403eb91471903af"
@@ -1758,6 +1793,11 @@
   dependencies:
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
+
+"@neon-rs/load@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@neon-rs/load/-/load-0.0.4.tgz#2a2a3292c6f1fef043f49886712d3c96a547532e"
+  integrity sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -4555,6 +4595,11 @@ detect-indent@^6.0.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-6.1.0.tgz#592485ebbbf6b3b1ab2be175c8393d04ca0d57e6"
   integrity sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==
+
+detect-libc@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-2.0.2.tgz#8ccf2ba9315350e1241b88d0ac3b0e1fbd99605d"
+  integrity sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==
 
 detect-libc@^2.0.0:
   version "2.0.3"
@@ -8275,6 +8320,22 @@ levn@^0.3.0, levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
+
+libsql@0.5.0-pre.6:
+  version "0.5.0-pre.6"
+  resolved "https://registry.yarnpkg.com/libsql/-/libsql-0.5.0-pre.6.tgz#23e2b89977738baad10900104d3551d33fccc5b0"
+  integrity sha512-TvugJnL32QiZCvpu6Eh/uh2RjpzsxprqVd2hWygHFUK5abcotaRWYrHmuygXFe43QmsJrmYjN0DAKLqoiy8d2w==
+  dependencies:
+    "@neon-rs/load" "^0.0.4"
+    detect-libc "2.0.2"
+  optionalDependencies:
+    "@libsql/darwin-arm64" "0.5.0-pre.6"
+    "@libsql/darwin-x64" "0.5.0-pre.6"
+    "@libsql/linux-arm64-gnu" "0.5.0-pre.6"
+    "@libsql/linux-arm64-musl" "0.5.0-pre.6"
+    "@libsql/linux-x64-gnu" "0.5.0-pre.6"
+    "@libsql/linux-x64-musl" "0.5.0-pre.6"
+    "@libsql/win32-x64-msvc" "0.5.0-pre.6"
 
 lie@3.1.1:
   version "3.1.1"

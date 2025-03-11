@@ -186,6 +186,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
   defaultAuthTypeName?: string;
+  authTypeFirst?: boolean;
   defaultLocalDataCenter?: string;
   defaultSocketPath?: string;
   authTypeLabel?: string;

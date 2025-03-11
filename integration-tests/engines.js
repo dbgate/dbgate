@@ -506,6 +506,14 @@ const sqliteEngine = {
   ],
 };
 
+const libsqlEngine = {
+  ...sqliteEngine,
+  label: 'LibSQL',
+  connection: {
+    engine: 'libsql@dbgate-plugin-sqlite',
+  },
+};
+
 /** @type {import('dbgate-types').TestEngineInfo} */
 const cockroachDbEngine = {
   label: 'CockroachDB',
@@ -644,6 +652,7 @@ const enginesOnCi = [
   postgreSqlEngine,
   sqlServerEngine,
   sqliteEngine,
+  libsqlEngine,
   // cockroachDbEngine,
   clickhouseEngine,
   oracleEngine,
