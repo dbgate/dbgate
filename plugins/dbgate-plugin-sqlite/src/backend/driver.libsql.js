@@ -97,7 +97,7 @@ const libsqlDriver = {
     options.done();
     // return stream;
   },
-  async script(dbhan, sql, { useTransaction }) {
+  async script(dbhan, sql, { useTransaction } = {}) {
     const runScript = () => {
       for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
         const stmt = dbhan.client.prepare(sqlItem);
