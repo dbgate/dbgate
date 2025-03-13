@@ -128,7 +128,7 @@ export class ScriptDrivedDeployer {
 
     logger.debug(`Running ${category} script ${file.name}`);
     try {
-      await this.driver.script(this.dbhan, file.text);
+      await this.driver.script(this.dbhan, file.text, { useTransaction: false });
       await this.saveToJournal(file, category, hash);
     } catch (err) {
       logger.error(extractErrorLogData(err), `Error running ${category} script ${file.name}`);
