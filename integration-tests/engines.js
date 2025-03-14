@@ -506,6 +506,23 @@ const sqliteEngine = {
   ],
 };
 
+const libsqlFileEngine = {
+  ...sqliteEngine,
+  label: 'LibSQL FILE',
+  connection: {
+    engine: 'libsql@dbgate-plugin-sqlite',
+  },
+};
+
+const libsqlWsEngine = {
+  ...sqliteEngine,
+  label: 'LibSQL WS',
+  connection: {
+    engine: 'libsql@dbgate-plugin-sqlite',
+    databaseUrl: 'ws://localhost:8080',
+  },
+};
+
 /** @type {import('dbgate-types').TestEngineInfo} */
 const cockroachDbEngine = {
   label: 'CockroachDB',
@@ -644,6 +661,8 @@ const enginesOnCi = [
   postgreSqlEngine,
   sqlServerEngine,
   sqliteEngine,
+  libsqlFileEngine,
+  libsqlWsEngine,
   // cockroachDbEngine,
   clickhouseEngine,
   oracleEngine,
@@ -659,7 +678,9 @@ const enginesOnLocal = [
   // sqlServerEngine,
   // sqliteEngine,
   // cockroachDbEngine,
-  clickhouseEngine,
+  // clickhouseEngine,
+  // libsqlFileEngine,
+  libsqlWsEngine,
   // oracleEngine,
 ];
 

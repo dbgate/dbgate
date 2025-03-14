@@ -17,6 +17,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
   import { getConnectionLabel } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   export let getDatabaseList;
   export let currentConnection;
@@ -150,6 +151,15 @@
     data-testid="ConnectionDriverFields_localDataCenter"
     placeholder={driver?.defaultLocalDataCenter}
     disabled={isConnected || disabledFields.includes('localDataCenter')}
+  />
+{/if}
+
+{#if driver?.showConnectionField('authToken', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={_t('authToken', { defaultMessage: 'Auth token' })}
+    name="authToken"
+    data-testid="ConnectionDriverFields_authToken"
+    disabled={isConnected || disabledFields.includes('authToken')}
   />
 {/if}
 

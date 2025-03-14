@@ -27,11 +27,11 @@ services:
   #     - MYSQL_ROOT_PASSWORD=Pwd2020Db
   #
 
-  cassandradb:
-    image: cassandra:5.0.2
-    ports:
-      - 15942:9042
-
+  # cassandradb:
+  #   image: cassandra:5.0.2
+  #   ports:
+  #     - 15942:9042
+  #
   # clickhouse:
   #   image: bitnami/clickhouse:24.8.4
   #   restart: always
@@ -55,28 +55,37 @@ services:
   #   ports:
   #     - 15003:26257
   #   command: start-single-node --insecure
-#   mongodb:
-#     image: mongo:4.0.12
-#     restart: always
-#     volumes:
-#       - mongo-data:/data/db
-#       - mongo-config:/data/configdb
-#     ports:
-#       - 27017:27017
+  #   mongodb:
+  #     image: mongo:4.0.12
+  #     restart: always
+  #     volumes:
+  #       - mongo-data:/data/db
+  #       - mongo-config:/data/configdb
+  #     ports:
+  #       - 27017:27017
 
-#   cockroachdb-init:
-#     image: cockroachdb/cockroach
-#     # build: cockroach
-#     # entrypoint: /cockroach/init.sh
-#     entrypoint: ./cockroach sql --insecure --host="cockroachdb" --execute="CREATE DATABASE IF NOT EXISTS test;"
+  #   cockroachdb-init:
+  #     image: cockroachdb/cockroach
+  #     # build: cockroach
+  #     # entrypoint: /cockroach/init.sh
+  #     entrypoint: ./cockroach sql --insecure --host="cockroachdb" --execute="CREATE DATABASE IF NOT EXISTS test;"
 
-#     depends_on:
-#       - cockroachdb
-#     restart: on-failure
+  #     depends_on:
+  #       - cockroachdb
+  #     restart: on-failure
 
-  oracle:
-    image: gvenzl/oracle-xe:21-slim
-    environment:
-      ORACLE_PASSWORD: Pwd2020Db
+  # oracle:
+  #   image: gvenzl/oracle-xe:21-slim
+  #   environment:
+  #     ORACLE_PASSWORD: Pwd2020Db
+  #   ports:
+  #     - 15006:1521
+
+  libsql:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    platform: linux/amd64
     ports:
-      - 15006:1521
+      - '8080:8080'
+      - '5002:5001'
+    volumes:
+      - ./data/libsql:/var/lib/sqld

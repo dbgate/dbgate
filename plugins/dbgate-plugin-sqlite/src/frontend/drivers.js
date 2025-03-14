@@ -1,3 +1,5 @@
+// @ts-check
+
 const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
 const { sqliteSplitterOptions, noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
@@ -69,4 +71,44 @@ const driver = {
   predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
 };
 
-module.exports = driver;
+/** @type {import('dbgate-types').EngineDriver} */
+const libsqlDriver = {
+  ...driverBase,
+  dumperClass: Dumper,
+  dialect,
+  engine: 'libsql@dbgate-plugin-sqlite',
+  title: 'LibSQL',
+  readOnlySessions: true,
+  supportsTransactions: true,
+
+  showConnectionField: (field, values) => {
+    if ((values?.authType ?? 'url') === 'url') {
+      return ['databaseUrl', 'authToken', 'isReadOnly', 'authType'].includes(field);
+    }
+    return ['databaseFile', 'isReadOnly', 'authType'].includes(field);
+  },
+
+  showConnectionTab: (field) => false,
+  defaultAuthTypeName: 'url',
+  authTypeFirst: true,
+
+  beforeConnectionSave: (connection) => ({
+    ...connection,
+    singleDatabase: true,
+    defaultDatabase: getDatabaseFileLabel(connection.databaseFile || connection.databaseUrl),
+  }),
+
+  getQuerySplitterOptions: (usage) =>
+    usage == 'editor'
+      ? { ...sqliteSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : usage == 'stream'
+      ? noSplitSplitterOptions
+      : sqliteSplitterOptions,
+
+  // isFileDatabase: true,
+  // isElectronOnly: true,
+
+  predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
+};
+
+module.exports = [driver, libsqlDriver];

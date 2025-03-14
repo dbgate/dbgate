@@ -1,9 +1,11 @@
+// @ts-check
 const _ = require('lodash');
 const stream = require('stream');
-const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
+const driverBases = require('../frontend/drivers');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { getLogger, createBulkInsertStreamBase, extractErrorLogData } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { runStreamItem, waitForDrain } = require('./helpers');
 
 const logger = getLogger('sqliteDriver');
 
@@ -15,50 +17,9 @@ function getBetterSqlite() {
   return betterSqliteValue;
 }
 
-async function waitForDrain(stream) {
-  return new Promise((resolve) => {
-    stream.once('drain', () => {
-      // console.log('CONTINUE DRAIN');
-      resolve();
-    });
-  });
-}
-
-function runStreamItem(dbhan, sql, options, rowCounter) {
-  const stmt = dbhan.client.prepare(sql);
-  if (stmt.reader) {
-    const columns = stmt.columns();
-    // const rows = stmt.all();
-
-    options.recordset(
-      columns.map((col) => ({
-        columnName: col.name,
-        dataType: col.type,
-      }))
-    );
-
-    for (const row of stmt.iterate()) {
-      options.row(row);
-    }
-  } else {
-    const info = stmt.run();
-    rowCounter.count += info.changes;
-    if (!rowCounter.date) rowCounter.date = new Date().getTime();
-    if (new Date().getTime() > rowCounter.date > 1000) {
-      options.info({
-        message: `${rowCounter.count} rows affected`,
-        time: new Date(),
-        severity: 'info',
-      });
-      rowCounter.count = 0;
-      rowCounter.date = null;
-    }
-  }
-}
-
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
-  ...driverBase,
+  ...driverBases[0],
   analyserClass: Analyser,
   async connect({ databaseFile, isReadOnly }) {
     const Database = getBetterSqlite();
@@ -185,7 +146,5 @@ const driver = {
     };
   },
 };
-
-driver.initialize = (dbgateEnv) => {};
 
 module.exports = driver;

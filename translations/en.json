@@ -1,6 +1,7 @@
 {
   "app.preparingPlugins": "Preparing plugins ...",
   "app.starting": "Starting DbGate",
+  "authToken": "Auth token",
   "command.datagrid.addNewColumn": "Add new column",
   "command.datagrid.addNewColumn.toolbar": "New column",
   "command.datagrid.cloneRows": "Clone rows",

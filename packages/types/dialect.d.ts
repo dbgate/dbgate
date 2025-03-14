@@ -17,6 +17,7 @@ export interface SqlDialect {
   defaultSchemaName?: string;
   enableConstraintsPerTable?: boolean;
   enableAllForeignKeys?: boolean;
+  enableForeignKeyChecks?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
 

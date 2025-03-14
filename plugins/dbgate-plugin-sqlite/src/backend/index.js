@@ -1,9 +1,9 @@
-const driver = require('./driver');
+const drivers = require('./drivers');
 
 module.exports = {
   packageName: 'dbgate-plugin-sqlite',
-  drivers: [driver],
+  drivers: drivers,
   initialize(dbgateEnv) {
-    driver.initialize(dbgateEnv);
+    drivers.initialize(dbgateEnv);
   },
 };
