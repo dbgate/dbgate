@@ -114,8 +114,5 @@ jobs:
 
       libsql:
         image: ghcr.io/tursodatabase/libsql-server:latest
-        platform: linux/amd64
         ports:
           - '8080:8080'
-        volumes:
-          - ./data/libsql:/var/lib/sqld
