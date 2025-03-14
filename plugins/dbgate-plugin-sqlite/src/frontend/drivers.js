@@ -42,21 +42,12 @@ const dialect = {
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const sqliteDriverBase = {
   ...driverBase,
   dumperClass: Dumper,
   dialect,
-  engine: 'sqlite@dbgate-plugin-sqlite',
-  title: 'SQLite',
   readOnlySessions: true,
   supportsTransactions: true,
-  showConnectionField: (field, values) => field == 'databaseFile' || field == 'isReadOnly',
-  showConnectionTab: (field) => false,
-  beforeConnectionSave: (connection) => ({
-    ...connection,
-    singleDatabase: true,
-    defaultDatabase: getDatabaseFileLabel(connection.databaseFile),
-  }),
 
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'
@@ -64,22 +55,32 @@ const driver = {
       : usage == 'stream'
       ? noSplitSplitterOptions
       : sqliteSplitterOptions,
-
-  // isFileDatabase: true,
-  // isElectronOnly: true,
+  showConnectionTab: (field) => false,
 
   predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
+const driver = {
+  ...sqliteDriverBase,
+  engine: 'sqlite@dbgate-plugin-sqlite',
+  title: 'SQLite',
+  showConnectionField: (field, values) => field == 'databaseFile' || field == 'isReadOnly',
+  beforeConnectionSave: (connection) => ({
+    ...connection,
+    singleDatabase: true,
+    defaultDatabase: getDatabaseFileLabel(connection.databaseFile),
+  }),
+
+  // isFileDatabase: true,
+  // isElectronOnly: true,
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
 const libsqlDriver = {
-  ...driverBase,
-  dumperClass: Dumper,
-  dialect,
+  ...sqliteDriverBase,
   engine: 'libsql@dbgate-plugin-sqlite',
   title: 'LibSQL',
-  readOnlySessions: true,
-  supportsTransactions: true,
 
   showConnectionField: (field, values) => {
     if ((values?.authType ?? 'url') === 'url') {
@@ -88,7 +89,6 @@ const libsqlDriver = {
     return ['databaseFile', 'isReadOnly', 'authType'].includes(field);
   },
 
-  showConnectionTab: (field) => false,
   defaultAuthTypeName: 'url',
   authTypeFirst: true,
 
@@ -98,17 +98,8 @@ const libsqlDriver = {
     defaultDatabase: getDatabaseFileLabel(connection.databaseFile || connection.databaseUrl),
   }),
 
-  getQuerySplitterOptions: (usage) =>
-    usage == 'editor'
-      ? { ...sqliteSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
-      : usage == 'stream'
-      ? noSplitSplitterOptions
-      : sqliteSplitterOptions,
-
   // isFileDatabase: true,
   // isElectronOnly: true,
-
-  predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
 };
 
 module.exports = [driver, libsqlDriver];
