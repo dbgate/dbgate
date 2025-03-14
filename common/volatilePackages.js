@@ -14,6 +14,7 @@ const volatilePackages = [
   'ioredis',
   'node-redis-dump2',
   'better-sqlite3',
+  'libsql',
   '@azure/cosmos',
   '@aws-sdk/rds-signer',
   'activedirectory2',
