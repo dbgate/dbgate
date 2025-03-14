@@ -10,6 +10,9 @@
   import { apiCall } from '../utility/api';
   import { useFiles } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
+  import getElectron from '../utility/getElectron';
+  import InlineButtonLabel from '../buttons/InlineButtonLabel.svelte';
+  import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
 
   let filter = '';
 
@@ -23,6 +26,8 @@
   const jobFiles = useFiles({ folder: 'jobs' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
+
+  const electron = getElectron();
 
   $: files = [
     ...($sqlFiles || []),
@@ -58,16 +63,67 @@
     if (folder == 'modtrans') return 'Model transforms';
     return _.startCase(folder);
   }
+
+  async function handleUploadedFile(e) {
+    const files = [...e.target.files];
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('name', file.name);
+      formData.append('data', file);
+
+      const fetchOptions = {
+        method: 'POST',
+        body: formData,
+        headers: resolveApiHeaders(),
+      };
+
+      const apiBase = resolveApi();
+      const resp = await fetch(`${apiBase}/uploads/upload-data-file`, fetchOptions);
+      const fileData = await resp.json();
+    }
+  }
+
+  async function handleOpenElectronFile() {
+    const filePaths = await electron.showOpenDialog({
+      filters: [
+        {
+          name: `All supported files`,
+          extensions: ['sql'],
+        },
+        { name: `SQL files`, extensions: ['sql'] },
+      ],
+      properties: ['showHiddenFiles', 'openFile'],
+    });
+    const filePath = filePaths && filePaths[0];
+    await apiCall('uploads/save-data-file', { filePath });
+  }
 </script>
 
 <WidgetsInnerContainer>
   <SearchBoxWrapper>
     <SearchInput placeholder="Search saved files" bind:value={filter} />
     <CloseSearchButton bind:filter />
-    <InlineButton on:click={handleRefreshFiles} title="Refresh files">
+    {#if electron}
+      <InlineButton on:click={handleOpenElectronFile} title="Add file" data-testid="SavedFileList_buttonAddFile">
+        <FontIcon icon="icon plus-thick" />
+      </InlineButton>
+    {:else}
+      <InlineButtonLabel
+        on:click={() => {}}
+        title="Add file"
+        data-testid="SavedFileList_buttonAddFile"
+        htmlFor="uploadSavedFileButton"
+      >
+        <FontIcon icon="icon plus-thick" />
+      </InlineButtonLabel>
+    {/if}
+    <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
       <FontIcon icon="icon refresh" />
     </InlineButton>
   </SearchBoxWrapper>
+
+  <input type="file" id="uploadSavedFileButton" hidden on:change={handleUploadedFile} />
 
   <AppObjectList list={files} module={savedFileAppObject} groupFunc={data => dataFolderTitle(data.folder)} {filter} />
 </WidgetsInnerContainer>

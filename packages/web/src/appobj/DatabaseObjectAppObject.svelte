@@ -1086,8 +1086,12 @@
   icon={databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
-  onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
-  onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
+  onPin={passProps?.ingorePin ? null : isPinned ? null : () => pinnedTables.update(list => [...list, data])}
+  onUnpin={passProps?.ingorePin
+    ? null
+    : isPinned
+      ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data)))
+      : null}
   extInfo={getExtInfo(data)}
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
   on:click={() => handleObjectClick(data, 'leftClick')}

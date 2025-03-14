@@ -132,7 +132,6 @@
   import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall, removeVolatileMapping } from '../utility/api';
-  import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';
   import { tick } from 'svelte';
@@ -141,6 +140,7 @@
   import { switchCurrentDatabase } from '../utility/common';
   import { getConnectionClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
+  import { isProApp } from '../utility/proTools';
 
   export let data;
   export let passProps;
@@ -231,9 +231,14 @@
     });
   };
 
-  const handleSqlRestore = () => {
-    showModal(ImportDatabaseDumpModal, {
-      connection: data,
+  const handleRestoreDatabase = () => {
+    openNewTab({
+      title: 'Restore #',
+      icon: 'img db-restore',
+      tabComponent: 'RestoreDatabaseTab',
+      props: {
+        conid: data._id,
+      },
     });
   };
 
@@ -364,11 +369,10 @@
         ),
       ],
 
-      driver?.databaseEngineTypes?.includes('sql') &&
-        !data.isReadOnly && {
-          onClick: handleSqlRestore,
-          text: _t('connection.sqlRestore', { defaultMessage: 'Restore/import SQL dump' }),
-        },
+      driver?.supportsDatabaseRestore &&
+        isProApp() &&
+        hasPermission(`dbops/sql-dump/import`) &&
+        !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
     ];
   };
 

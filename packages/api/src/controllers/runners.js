@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const byline = require('byline');
 const socket = require('../utility/socket');
-const { fork } = require('child_process');
+const { fork, spawn } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const {
   extractShellApiPlugins,
@@ -13,6 +13,8 @@ const {
   getLogger,
   safeJsonParse,
   pinoLogRecordToMessageRecord,
+  extractErrorMessage,
+  extractErrorLogData,
 } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
@@ -80,6 +82,7 @@ module.exports = {
           }
         : {
             message,
+            severity: 'info',
             time: new Date(),
           };
 
@@ -173,7 +176,7 @@ module.exports = {
       // console.log('... ERROR subprocess', error);
       this.rejectRequest(runid, { message: error && (error.message || error.toString()) });
       console.error('... ERROR subprocess', error);
-      this.dispatchMessage({
+      this.dispatchMessage(runid, {
         severity: 'error',
         message: error.toString(),
       });
@@ -189,6 +192,75 @@ module.exports = {
       if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](runid, message);
     });
+    return _.pick(newOpened, ['runid']);
+  },
+
+  nativeRunCore(runid, commandArgs) {
+    const { command, args, env, transformMessage, stdinFilePath, onFinished } = commandArgs;
+    const pipeDispatcher = severity => data => {
+      let messageObject = {
+        message: data.toString().trim(),
+        severity,
+      };
+      if (transformMessage) {
+        messageObject = transformMessage(messageObject);
+      }
+
+      if (messageObject) {
+        return this.dispatchMessage(runid, messageObject);
+      }
+    };
+
+    const subprocess = spawn(command, args, { env: { ...process.env, ...env } });
+
+    byline(subprocess.stdout).on('data', pipeDispatcher('info'));
+    byline(subprocess.stderr).on('data', pipeDispatcher('error'));
+
+    subprocess.on('exit', code => {
+      console.log('... EXITED', code);
+      logger.info({ code, pid: subprocess.pid }, 'Exited process');
+      this.dispatchMessage(runid, `Finished external process with code ${code}`);
+      socket.emit(`runner-done-${runid}`, code);
+      if (onFinished) {
+        onFinished();
+      }
+    });
+    subprocess.on('spawn', () => {
+      this.dispatchMessage(runid, `Started external process ${command}`);
+    });
+    subprocess.on('error', error => {
+      console.log('... ERROR subprocess', error);
+      this.dispatchMessage(runid, {
+        severity: 'error',
+        message: error.toString(),
+      });
+      if (error['code'] == 'ENOENT') {
+        this.dispatchMessage(runid, {
+          severity: 'error',
+          message: `Command ${command} not found, please install it and configure its location in DbGate settings, Settings/External tools, if ${command} is not in system PATH`,
+        });
+      }
+      socket.emit(`runner-done-${runid}`);
+    });
+
+    if (stdinFilePath) {
+      const inputStream = fs.createReadStream(stdinFilePath);
+      inputStream.pipe(subprocess.stdin);
+
+      subprocess.stdin.on('error', err => {
+        this.dispatchMessage(runid, {
+          severity: 'error',
+          message: extractErrorMessage(err),
+        });
+        logger.error(extractErrorLogData(err), 'Caught error on stdin');
+      });
+    }
+
+    const newOpened = {
+      runid,
+      subprocess,
+    };
+    this.opened.push(newOpened);
     return _.pick(newOpened, ['runid']);
   },
 

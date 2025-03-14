@@ -1,4 +1,5 @@
 const connections = require('./connections');
+const runners = require('./runners');
 const archive = require('./archive');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -612,5 +613,130 @@ module.exports = {
     }
 
     return res;
+  },
+
+  async getNativeOpCommandArgs(
+    command,
+    { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
+  ) {
+    const connection = await connections.getCore({ conid });
+    const driver = requireEngineDriver(connection);
+
+    const settingsValue = await config.getSettings();
+
+    const externalTools = {};
+    for (const pair of Object.entries(settingsValue || {})) {
+      const [name, value] = pair;
+      if (name.startsWith('externalTools.')) {
+        externalTools[name.substring('externalTools.'.length)] = value;
+      }
+    }
+
+    return {
+      ...(command == 'backup'
+        ? driver.backupDatabaseCommand(
+            connection,
+            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
+            // @ts-ignore
+            externalTools
+          )
+        : driver.restoreDatabaseCommand(
+            connection,
+            { inputFile, database, options, argsFormat },
+            // @ts-ignore
+            externalTools
+          )),
+      transformMessage: driver.transformNativeCommandMessage
+        ? message => driver.transformNativeCommandMessage(message, command)
+        : null,
+    };
+  },
+
+  commandArgsToCommandLine(commandArgs) {
+    const { command, args, stdinFilePath } = commandArgs;
+    let res = `${command} ${args.join(' ')}`;
+    if (stdinFilePath) {
+      res += ` < ${stdinFilePath}`;
+    }
+    return res;
+  },
+
+  nativeBackup_meta: true,
+  async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }) {
+    const commandArgs = await this.getNativeOpCommandArgs('backup', {
+      conid,
+      database,
+      inputFile: undefined,
+      outputFile,
+      options,
+      selectedTables,
+      skippedTables,
+      argsFormat: 'spawn',
+    });
+
+    return runners.nativeRunCore(runid, {
+      ...commandArgs,
+      onFinished: () => {
+        socket.emitChanged(`files-changed`, { folder: 'sql' });
+        socket.emitChanged(`all-files-changed`);
+      },
+    });
+  },
+
+  nativeBackupCommand_meta: true,
+  async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
+    const commandArgs = await this.getNativeOpCommandArgs('backup', {
+      conid,
+      database,
+      outputFile,
+      inputFile: undefined,
+      options,
+      selectedTables,
+      skippedTables,
+      argsFormat: 'shell',
+    });
+
+    return {
+      ...commandArgs,
+      transformMessage: null,
+      commandLine: this.commandArgsToCommandLine(commandArgs),
+    };
+  },
+
+  nativeRestore_meta: true,
+  async nativeRestore({ conid, database, inputFile, runid }) {
+    const commandArgs = await this.getNativeOpCommandArgs('restore', {
+      conid,
+      database,
+      inputFile,
+      outputFile: undefined,
+      options: undefined,
+      argsFormat: 'spawn',
+    });
+
+    return runners.nativeRunCore(runid, {
+      ...commandArgs,
+      onFinished: () => {
+        this.syncModel({ conid, database, isFullRefresh: true });
+      },
+    });
+  },
+
+  nativeRestoreCommand_meta: true,
+  async nativeRestoreCommand({ conid, database, inputFile }) {
+    const commandArgs = await this.getNativeOpCommandArgs('restore', {
+      conid,
+      database,
+      inputFile,
+      outputFile: undefined,
+      options: undefined,
+      argsFormat: 'shell',
+    });
+
+    return {
+      ...commandArgs,
+      transformMessage: null,
+      commandLine: this.commandArgsToCommandLine(commandArgs),
+    };
   },
 };

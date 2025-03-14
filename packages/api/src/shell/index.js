@@ -21,7 +21,6 @@ const executeQuery = require('./executeQuery');
 const loadFile = require('./loadFile');
 const deployDb = require('./deployDb');
 const initializeApiEnvironment = require('./initializeApiEnvironment');
-const dumpDatabase = require('./dumpDatabase');
 const importDatabase = require('./importDatabase');
 const loadDatabase = require('./loadDatabase');
 const generateModelSql = require('./generateModelSql');
@@ -61,7 +60,6 @@ const dbgateApi = {
   loadFile,
   deployDb,
   initializeApiEnvironment,
-  dumpDatabase,
   importDatabase,
   loadDatabase,
   generateModelSql,

@@ -306,6 +306,9 @@
     'img tip': 'mdi mdi-lightbulb-on color-icon-yellow',
 
     'img filter-active': 'mdi mdi-filter-cog color-icon-blue',
+
+    'img db-backup': 'mdi mdi-database-export color-icon-yellow',
+    'img db-restore': 'mdi mdi-database-import color-icon-red',
   };
 </script>
 

@@ -104,6 +104,7 @@ ORDER BY
           { label: 'Themes', slot: 3 },
           { label: 'Default Actions', slot: 4 },
           { label: 'Behaviour', slot: 5 },
+          { label: 'External tools', slot: 8 },
           { label: 'Other', slot: 6 },
         ]}
       >
@@ -479,6 +480,31 @@ ORDER BY
               {/if}
             </div>
           {/if}
+        </svelte:fragment>
+
+        <svelte:fragment slot="8">
+          <div class="heading">External tools</div>
+          <FormTextField
+            name="externalTools.mysqldump"
+            label="mysqldump (backup MySQL database)"
+            defaultValue="mysqldump"
+          />
+          <FormTextField name="externalTools.mysql" label="mysql (restore MySQL database)" defaultValue="mysql" />
+          <FormTextField
+            name="externalTools.mysqlPlugins"
+            label="Folder with mysql plugins (for example for authentication). Set only in case of problems"
+            defaultValue=""
+          />
+         <FormTextField
+            name="externalTools.pg_dump"
+            label="pg_dump (backup PostgreSQL database)"
+            defaultValue="pg_dump"
+          />
+          <FormTextField
+            name="externalTools.psql"
+            label="psql (restore PostgreSQL database)"
+            defaultValue="psql"
+          />
         </svelte:fragment>
       </TabControl>
     </FormValues>

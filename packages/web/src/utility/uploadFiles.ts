@@ -8,6 +8,7 @@ import { showModal } from '../modals/modalTools';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import openNewTab from './openNewTab';
 import { openImportExportTab } from './importExportTools';
+import { canOpenByWeb, openWebFileCore } from './openWebFile';
 
 let uploadListener;
 
@@ -25,6 +26,11 @@ export default function uploadFiles(files) {
   files.forEach(async file => {
     if (electron && canOpenByElectron(file.path, ext)) {
       openElectronFileCore(file.path, ext);
+      return;
+    }
+
+    if (!electron && canOpenByWeb(file.path, ext)) {
+      openWebFileCore(file, ext);
       return;
     }
 

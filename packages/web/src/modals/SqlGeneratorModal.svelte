@@ -160,6 +160,7 @@
               filter={objectsFilter}
               disableContextMenu
               {checkedObjectsStore}
+              passProps={{ ingorePin: true }}
             />
           </WidgetsInnerContainer>
         </div>

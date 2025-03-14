@@ -33,10 +33,13 @@
   let collapsed2 = false;
 
   export let size = 0;
+  export let onChangeSize = null;
   let clientWidth;
   let customRatio = null;
 
   $: size = computeSplitterSize(initialValue, clientWidth, customRatio, initialSizeRight);
+
+  $: if (onChangeSize) onChangeSize(size);
 </script>
 
 <div class="container" bind:clientWidth>

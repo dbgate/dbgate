@@ -7,6 +7,7 @@
   import getElectron from '../utility/getElectron';
   import { downloadFromApi } from '../utility/exportFileTools';
   import useEffect from '../utility/useEffect';
+  import Link from '../elements/Link.svelte';
 
   export let runnerId;
   export let executeNumber;
@@ -63,41 +64,38 @@
       },
     ]}
   >
-    <a
-      slot="0"
-      let:row
-      href="#"
-      on:click={() => {
-        downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
-      }}
-    >
-      download
-    </a>
+    <svelte:fragment slot="0" let:row>
+      <Link
+        onClick={() => {
+          downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
+        }}
+      >
+        download
+      </Link>
+    </svelte:fragment>
 
-    <a
-      slot="1"
-      let:row
-      href="#"
-      on:click={async () => {
-        const file = await electron.showSaveDialog({});
-        if (file) {
-          const fs = window.require('fs');
-          fs.copyFile(row.path, file, () => {});
-        }
-      }}
-    >
-      save
-    </a>
+    <svelte:fragment slot="1" let:row>
+      <Link
+        onClick={async () => {
+          const file = await electron.showSaveDialog({});
+          if (file) {
+            const fs = window.require('fs');
+            fs.copyFile(row.path, file, () => {});
+          }
+        }}
+      >
+        save
+      </Link>
+    </svelte:fragment>
 
-    <a
-      slot="2"
-      let:row
-      href="#"
-      on:click={() => {
-        electron.showItemInFolder(row.path);
-      }}
-    >
-      show
-    </a>
+    <svelte:fragment slot="2" let:row>
+      <Link
+        onClick={() => {
+          electron.showItemInFolder(row.path);
+        }}
+      >
+        show
+      </Link>
+    </svelte:fragment>
   </TableControl>
 {/if}

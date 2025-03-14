@@ -13,7 +13,7 @@
 
   $: name = `${namePrefix}${arg.name}`;
 
-  const { setFieldValue } = getFormContext();
+  const { setFieldValue, values } = getFormContext();
 </script>
 
 {#if arg.type == 'text'}
@@ -23,7 +23,7 @@
     defaultValue={arg.default}
     focused={arg.focused}
     placeholder={arg.placeholder}
-    disabled={arg.disabled}
+    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {:else if arg.type == 'stringlist'}
   <FormStringList label={arg.label} addButtonLabel={arg.addButtonLabel} {name} placeholder={arg.placeholder} />
@@ -35,9 +35,15 @@
     defaultValue={arg.default}
     focused={arg.focused}
     placeholder={arg.placeholder}
+    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {:else if arg.type == 'checkbox'}
-  <FormCheckboxField label={arg.label} {name} defaultValue={arg.default} />
+  <FormCheckboxField
+    label={arg.label}
+    {name}
+    defaultValue={arg.default}
+    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+  />
 {:else if arg.type == 'select'}
   <FormSelectField
     label={arg.label}
@@ -47,6 +53,7 @@
     options={arg.options.map(opt =>
       _.isString(opt) ? { label: opt, value: opt } : { label: opt.name, value: opt.value }
     )}
+    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {:else if arg.type == 'dropdowntext'}
   <FormDropDownTextField
@@ -59,5 +66,6 @@
         onClick: () => setFieldValue(name, _.isString(opt) ? opt : opt.value),
       }));
     }}
+    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {/if}

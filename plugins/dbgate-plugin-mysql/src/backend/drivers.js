@@ -5,7 +5,6 @@ const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErrorLogData } =
   global.DBGATE_PACKAGES['dbgate-tools'];
-const { MySqlDumper } = require('antares-mysql-dumper');
 
 const logger = getLogger('mysqlDriver');
 
@@ -202,15 +201,6 @@ const drivers = driverBases.map(driverBase => ({
   async writeTable(dbhan, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);
-  },
-  async createBackupDumper(dbhan, options) {
-    const { outputFile, databaseName, schemaName } = options;
-    const res = new MySqlDumper({
-      connection: dbhan.client,
-      schema: databaseName || schemaName,
-      outputFile,
-    });
-    return res;
   },
   getAuthTypes() {
     const res = [

@@ -30,7 +30,7 @@ const queryHistory = require('./controllers/queryHistory');
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
-const { rundir } = require('./utility/directories');
+const { rundir, filesdir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
@@ -133,6 +133,7 @@ function start() {
   // }
 
   app.use(getExpressPath('/runners/data'), express.static(rundir()));
+  app.use(getExpressPath('/files/data'), express.static(filesdir()));
 
   if (platformInfo.isDocker) {
     const port = process.env.PORT || 3000;

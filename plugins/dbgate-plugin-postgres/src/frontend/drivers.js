@@ -218,9 +218,134 @@ EXECUTE FUNCTION function_name();`,
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/postgresql',
 
+  supportsDatabaseBackup: true,
+  supportsDatabaseRestore: true,
+
   adaptDataType(dataType) {
     if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
     return dataType;
+  },
+
+  getCliConnectionArgs(connection) {
+    const args = [`--username=${connection.user}`, `--host=${connection.server}`];
+    if (connection.port) {
+      args.push(`--port=${connection.port}`);
+    }
+    return args;
+  },
+
+  getNativeOperationFormArgs(operation) {
+    if (operation == 'backup') {
+      return [
+        {
+          type: 'checkbox',
+          label: 'Dump only data (without structure)',
+          name: 'dataOnly',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Dump schema only (no data)',
+          name: 'schemaOnly',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Use SQL insert instead of COPY for rows',
+          name: 'insert',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Prevent dumping of access privileges (grant/revoke)',
+          name: 'noPrivileges',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Do not output commands to set ownership of objects ',
+          name: 'noOwner',
+          default: false,
+        },
+      ];
+    }
+    return null;
+  },
+
+  backupDatabaseCommand(connection, settings, externalTools) {
+    const { outputFile, database, selectedTables, skippedTables, options, argsFormat } = settings;
+    const command = externalTools.pg_dump || 'pg_dump';
+    const args = this.getCliConnectionArgs(connection, externalTools);
+    args.push(`--file=${outputFile}`);
+    args.push('--verbose');
+    args.push(database);
+
+    if (options.dataOnly) {
+      args.push(`--data-only`);
+    }
+    if (options.schemaOnly) {
+      args.push(`--schema-only`);
+    }
+    if (options.insert) {
+      args.push(`--insert`);
+    }
+    if (options.noPrivileges) {
+      args.push(`--no-privileges`);
+    }
+    if (options.noOwner) {
+      args.push(`--no-owner`);
+    }
+    if (skippedTables.length > 0) {
+      for (const table of selectedTables) {
+        args.push(
+          argsFormat == 'spawn'
+            ? `--table="${table.schemaName}"."${table.pureName}"`
+            : `--table='"${table.schemaName}"."${table.pureName}"'`
+        );
+      }
+    }
+
+    return {
+      command,
+      args,
+      env: { PGPASSWORD: connection.password },
+    };
+  },
+  restoreDatabaseCommand(connection, settings, externalTools) {
+    const { inputFile, database } = settings;
+    const command = externalTools.psql || 'psql';
+    const args = this.getCliConnectionArgs(connection, externalTools);
+    args.push(`--dbname=${database}`);
+    // args.push('--verbose');
+    args.push(`--file=${inputFile}`);
+    return {
+      command,
+      args,
+      env: { PGPASSWORD: connection.password },
+    };
+  },
+  transformNativeCommandMessage(message) {
+    if (message.message.startsWith('INSERT ') || message.message == 'SET') {
+      return null;
+    }
+    if (message.message.startsWith('pg_dump: processing data for table')) {
+      return {
+        ...message,
+        severity: 'info',
+        message: message.message.replace('pg_dump: processing data for table', 'Processing table'),
+      };
+    } else if (message.message.toLowerCase().includes('error:')) {
+      return {
+        ...message,
+        severity: 'error',
+      };
+    } else {
+      return {
+        ...message,
+        severity: 'debug',
+      };
+    }
+    return message;
   },
 };
 

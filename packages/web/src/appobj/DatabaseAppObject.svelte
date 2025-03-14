@@ -126,16 +126,27 @@
       });
     };
 
-    const handleSqlDump = () => {
-      showModal(ExportDatabaseDumpModal, {
-        connection: { ...connection, database: name },
+    const handleBackupDatabase = () => {
+      openNewTab({
+        title: 'Backup #',
+        icon: 'img db-backup',
+        tabComponent: 'BackupDatabaseTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
       });
-      // exportSqlDump(connection, name);
     };
 
-    const handleSqlRestore = () => {
-      showModal(ImportDatabaseDumpModal, {
-        connection: { ...connection, database: name },
+    const handleRestoreDatabase = () => {
+      openNewTab({
+        title: 'Restore #',
+        icon: 'img db-restore',
+        tabComponent: 'RestoreDatabaseTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
       });
     };
 
@@ -376,11 +387,13 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
         !connection.isReadOnly &&
         hasPermission(`dbops/import`) && { onClick: handleImport, text: 'Import' },
       isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: 'Export' },
-      driver?.databaseEngineTypes?.includes('sql') &&
+      driver?.supportsDatabaseRestore &&
+        isProApp() &&
         hasPermission(`dbops/sql-dump/import`) &&
-        !connection.isReadOnly && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
-      driver?.supportsDatabaseDump &&
-        hasPermission(`dbops/sql-dump/export`) && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
+        !connection.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
+      driver?.supportsDatabaseBackup &&
+        isProApp() &&
+        hasPermission(`dbops/sql-dump/export`) && { onClick: handleBackupDatabase, text: 'Create database backup' },
       isSqlOrDoc &&
         !connection.isReadOnly &&
         !connection.singleDatabase &&
@@ -491,8 +504,6 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
   import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { filterAppsForDatabase } from '../utility/appTools';
   import newQuery from '../query/newQuery';
-  import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
-  import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';

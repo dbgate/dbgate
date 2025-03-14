@@ -147,6 +147,29 @@ export interface DatabaseHandle<TClient = any> {
 
 export type StreamResult = stream.Readable | (stream.Readable | stream.Writable)[];
 
+export interface CommandLineDefinition {
+  command: string;
+  args: string[];
+  env?: { [key: string]: string };
+  stdinFilePath?: string;
+}
+
+interface BackupRestoreSettingsBase {
+  database: string;
+  options?: { [key: string]: string };
+  argsFormat: 'shell' | 'spawn';
+}
+
+export interface BackupDatabaseSettings extends BackupRestoreSettingsBase {
+  outputFile: string;
+  selectedTables?: { pureName: string; schemaName?: string }[];
+  skippedTables?: { pureName: string; schemaName?: string }[];
+}
+
+export interface RestoreDatabaseSettings extends BackupRestoreSettingsBase {
+  inputFile: string;
+}
+
 export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   engine: string;
   title: string;
@@ -157,7 +180,8 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   supportedKeyTypes: SupportedDbKeyType[];
   dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
-  supportsDatabaseDump?: boolean;
+  supportsDatabaseBackup?: boolean;
+  supportsDatabaseRestore?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   requiresDefaultSortCriteria?: boolean;
@@ -261,6 +285,24 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   // simple data type adapter
   adaptDataType(dataType: string): string;
   listSchemas(dbhan: DatabaseHandle<TClient>): SchemaInfo[];
+  backupDatabaseCommand(
+    connection: any,
+    settings: BackupDatabaseSettings,
+    externalTools: { [tool: string]: string }
+  ): CommandLineDefinition;
+  restoreDatabaseCommand(
+    connection: any,
+    settings: RestoreDatabaseSettings,
+    externalTools: { [tool: string]: string }
+  ): CommandLineDefinition;
+  transformNativeCommandMessage(
+    message: {
+      message: string;
+      severity: 'info' | 'error';
+    },
+    command: 'backup' | 'restore'
+  ): { message: string; severity: 'info' | 'error' | 'debug' } | null;
+  getNativeOperationFormArgs(operation: 'backup' | 'restore'): any[];
 
   analyserClass?: any;
   dumperClass?: any;

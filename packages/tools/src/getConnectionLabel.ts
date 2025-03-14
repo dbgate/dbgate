@@ -43,3 +43,11 @@ export function getConnectionLabel(connection, { allowExplicitDatabase = true, s
 
   return res;
 }
+
+export function getEngineLabel(connection) {
+  const match = (connection?.engine || '').match(/^([^@]*)@/);
+  if (match) {
+    return match[1];
+  }
+  return connection?.engine;
+}

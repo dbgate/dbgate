@@ -182,26 +182,6 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
   }
 }
 
-// export async function exportSqlDump(connection, databaseName) {
-//   await saveExportedFile(
-//     [{ name: 'SQL files', extensions: ['sql'] }],
-//     `${databaseName}.sql`,
-//     'sql',
-//     `${databaseName}-dump`,
-//     filePath => {
-//       const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
-
-//       script.dumpDatabase({
-//         connection,
-//         databaseName,
-//         outputFile: filePath,
-//       });
-
-//       return script.getScript();
-//     }
-//   );
-// }
-
 export async function saveFileToDisk(
   filePathFunc,
   options: any = { formatLabel: 'HTML page', formatExtension: 'html' }

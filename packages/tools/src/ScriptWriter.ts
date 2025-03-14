@@ -50,10 +50,6 @@ export class ScriptWriter {
     this._put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, ${opts});`);
   }
 
-  dumpDatabase(options) {
-    this._put(`await dbgateApi.dumpDatabase(${JSON.stringify(options)});`);
-  }
-
   importDatabase(options) {
     this._put(`await dbgateApi.importDatabase(${JSON.stringify(options)});`);
   }
@@ -135,13 +131,6 @@ export class ScriptWriterJson {
     });
   }
 
-  dumpDatabase(options) {
-    this.commands.push({
-      type: 'dumpDatabase',
-      options,
-    });
-  }
-
   importDatabase(options) {
     this.commands.push({
       type: 'importDatabase',
@@ -192,9 +181,6 @@ export function jsonScriptToJavascript(json) {
         break;
       case 'comment':
         script.comment(cmd.text);
-        break;
-      case 'dumpDatabase':
-        script.dumpDatabase(cmd.options);
         break;
       case 'importDatabase':
         script.importDatabase(cmd.options);

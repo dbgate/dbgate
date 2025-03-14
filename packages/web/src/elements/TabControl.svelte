@@ -52,6 +52,8 @@
           {:else if tab.slot == 5}<slot name="5" />
           {:else if tab.slot == 6}<slot name="6" />
           {:else if tab.slot == 7}<slot name="7" />
+          {:else if tab.slot == 8}<slot name="8" />
+          {:else if tab.slot == 9}<slot name="9" />
           {/if}
         {/if}
       </div>
