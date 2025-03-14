@@ -81,17 +81,19 @@ const libsqlDriver = {
   ...sqliteDriverBase,
   engine: 'libsql@dbgate-plugin-sqlite',
   title: 'LibSQL',
+  authTypeLabel: 'Target type',
+  authTypeFirst: true,
 
   showConnectionField: (field, values) => {
     if ((values?.authType ?? 'url') === 'url') {
       return ['databaseUrl', 'authToken', 'isReadOnly', 'authType'].includes(field);
     }
-    return ['databaseFile', 'isReadOnly', 'authType'].includes(field);
+    if (['databaseFile', 'isReadOnly'].includes(field)) return true;
+    if (field == 'authType') return true;
+    return false;
   },
 
   defaultAuthTypeName: 'url',
-  authTypeFirst: true,
-
   beforeConnectionSave: (connection) => ({
     ...connection,
     singleDatabase: true,

@@ -104,6 +104,23 @@
   ]}
 />
 
+{#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs) && driver?.authTypeFirst}
+  {#key $authTypes}
+    <FormSelectField
+      label={driver?.authTypeLabel ?? 'Authentication'}
+      data-testid="ConnectionDriverFields_authType"
+      name="authType"
+      isNative
+      disabled={isConnected}
+      defaultValue={driver?.defaultAuthTypeName}
+      options={$authTypes.map(auth => ({
+        value: auth.name,
+        label: auth.title,
+      }))}
+    />
+  {/key}
+{/if}
+
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
   {#if electron}
     <FormElectronFileSelector
@@ -163,7 +180,7 @@
   />
 {/if}
 
-{#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs)}
+{#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs) && !driver?.authTypeFirst}
   {#key $authTypes}
     <FormSelectField
       label={driver?.authTypeLabel ?? 'Authentication'}
