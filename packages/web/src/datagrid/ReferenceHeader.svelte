@@ -12,8 +12,8 @@
   <div class="header">
     <FontIcon icon="img reference" />
     <div class="ml-2">
-      {reference.pureName} [{reference.columns.map(x => x.refName).join(', ')}] = master [
-      {reference.columns.map(x => x.baseName).join(', ')}]
+      {reference.pureName} [{reference.columns.map(x => x.refName).join(', ')}]
+      = master [{reference.columns.map(x => x.baseName).join(', ')}]
     </div>
   </div>
   <ToolbarButton icon="icon close" on:click={() => dispatch('close')}>Close</ToolbarButton>
