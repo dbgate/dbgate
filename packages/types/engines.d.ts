@@ -192,6 +192,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   // isElectronOnly?: boolean;
   supportsTransactions?: boolean;
   implicitTransactions?: boolean; // transaction is started with first SQL command, no BEGIN TRANSACTION is needed
+  premiumOnly?: boolean;
 
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;

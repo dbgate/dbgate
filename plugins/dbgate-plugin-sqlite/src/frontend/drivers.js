@@ -83,6 +83,7 @@ const libsqlDriver = {
   title: 'LibSQL',
   authTypeLabel: 'Target type',
   authTypeFirst: true,
+  premiumOnly: true,
 
   showConnectionField: (field, values) => {
     if ((values?.authType ?? 'url') === 'url') {
