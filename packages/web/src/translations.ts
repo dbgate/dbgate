@@ -23,12 +23,13 @@ export function getSelectedLanguage(): string {
 }
 
 export function getBrowserLanguage(): string {
-  if (typeof window !== 'undefined') {
-    return (
-      (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
-    );
-  }
-  return defaultLanguage;
+  return 'en';
+  // if (typeof window !== 'undefined') {
+  //   return (
+  //     (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
+  //   );
+  // }
+  // return defaultLanguage;
 }
 
 type TranslateOptions = {
@@ -41,7 +42,7 @@ function getTranslation(key: string, defaultMessage: string, language: string) {
   const translation = selectedTranslations[key];
 
   if (!translation) {
-    console.warn(`Translation not found for key: ${key}. For language: ${language}`);
+    // console.warn(`Translation not found for key: ${key}. For language: ${language}`);
     return defaultMessage;
   }
 

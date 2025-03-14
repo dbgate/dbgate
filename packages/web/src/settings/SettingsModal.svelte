@@ -130,7 +130,7 @@ ORDER BY
             label="Show server name alongside database name in title of the tab group"
             defaultValue={false}
           />
-          <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
+          <!-- <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
           <FormSelectField
             label="Language"
             name="localization.language"
@@ -150,7 +150,7 @@ ORDER BY
                 },
               });
             }}
-          />
+          /> -->
 
           <div class="heading">Data grid</div>
           <FormTextField
