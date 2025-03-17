@@ -16,6 +16,7 @@ Builds:
 - FIXED: Many fixes in stream processing (imoprt/export), especialy for MongoDB
 - ADDED: Indicating progress of import/export tasks, better error reporting
 - CHANGED: #1060 - Changed shortcut for AI assistant
+- ADDED: /health endpoint with diagnostic info
 
 ### 6.2.1
 - ADDED: Commit/rollback and autocommit in scripts #1039
