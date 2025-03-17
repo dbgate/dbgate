@@ -171,6 +171,7 @@ module.exports = {
       this.rejectRequest(runid, { message: 'No data returned, maybe input data source is too big' });
       logger.info({ code, pid: subprocess.pid }, 'Exited process');
       socket.emit(`runner-done-${runid}`, code);
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('error', error => {
       // console.log('... ERROR subprocess', error);
@@ -180,6 +181,7 @@ module.exports = {
         severity: 'error',
         message: error.toString(),
       });
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     const newOpened = {
       runid,
@@ -224,6 +226,7 @@ module.exports = {
       if (onFinished) {
         onFinished();
       }
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('spawn', () => {
       this.dispatchMessage(runid, `Started external process ${command}`);
@@ -241,6 +244,7 @@ module.exports = {
         });
       }
       socket.emit(`runner-done-${runid}`);
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
 
     if (stdinFilePath) {
