@@ -38,6 +38,7 @@ const { getLogger } = require('dbgate-tools');
 const { getDefaultAuthProvider } = require('./auth/authProvider');
 const startCloudUpgradeTimer = require('./utility/cloudUpgrade');
 const { isProApp } = require('./utility/checkLicense');
+const getHealthStatus = require('./utility/healthStatus');
 
 const logger = getLogger('main');
 
@@ -115,6 +116,12 @@ function start() {
     onFinished(req, () => {
       socket.removeSseResponse(strmid);
     });
+  });
+
+  app.get(getExpressPath('/health'), async function (req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    const health = await getHealthStatus();
+    res.end(JSON.stringify(health, null, 2));
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
