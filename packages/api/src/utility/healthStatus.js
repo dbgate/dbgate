@@ -7,18 +7,20 @@ const runners = require('../controllers/runners');
 
 async function getHealthStatus() {
   const memory = process.memoryUsage();
+  const cpuUsage = process.cpuUsage();
 
   return {
     status: 'ok',
     databaseConnectionCount: databaseConnections.opened.length,
     serverConnectionCount: serverConnections.opened.length,
     sessionCount: sessions.opened.length,
+    runProcessCount: runners.opened.length,
     memory,
+    cpuUsage,
     systemMemory: {
       total: os.totalmem(),
       free: os.freemem(),
     },
-    runProcessCount: runners.opened.length,
   };
 }
 
