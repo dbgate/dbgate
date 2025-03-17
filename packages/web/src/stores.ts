@@ -26,6 +26,10 @@ export interface TabDefinition {
   focused?: boolean;
 }
 
+function getSystemTheme() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-light';
+}
+
 export function writableWithStorage<T>(defaultValue: T, storageName) {
   const init = localStorage.getItem(storageName);
   const res = writable<T>(init ? safeJsonParse(init, defaultValue, true) : defaultValue);
@@ -100,8 +104,8 @@ export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
 export const commands = writable({});
 export const currentTheme = getElectron()
-  ? writableSettingsValue('theme-light', 'currentTheme')
-  : writableWithStorage('theme-light', 'currentTheme');
+  ? writableSettingsValue(getSystemTheme(), 'currentTheme')
+  : writableWithStorage(getSystemTheme(), 'currentTheme');
 export const currentEditorTheme = getElectron()
   ? writableSettingsValue(null, 'currentEditorTheme')
   : writableWithStorage(null, 'currentEditorTheme');
@@ -194,8 +198,13 @@ export const connectionAppObjectSearchSettings = writableWithStorage(
 );
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
-  $extensions.themes.find(x => x.themeClassName == $currentTheme)
+  $extensions?.themes?.find(x => x.themeClassName == $currentTheme)
 );
+currentThemeDefinition.subscribe(value => {
+  if (value?.themeType) {
+    localStorage.setItem('currentThemeType', value?.themeType);
+  }
+});
 export const openedConnectionsWithTemporary = derived(
   [openedConnections, temporaryOpenedConnections, openedSingleDatabaseConnections],
   ([$openedConnections, $temporaryOpenedConnections, $openedSingleDatabaseConnections]) =>
