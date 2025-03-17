@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.3.0 - not released
+- ADDED: Support for libSQL and Turso (Premium)
+- ADDED: Native backup and restore database for MySQL and PostgreSQL (Premium)
+- REMOVED: DbGate internal dump export for MySQL (replaced with call of mysqldump)
+- REMOVED: Import SQL dump with internal DbGate capabilities (replaced by calling of mysql and psql utilities)
+- FIXED: Many fixes in stream processing (imoprt/export), especialy for MongoDB
+- ADDED: Indicating progress of import/export tasks, better error reporting
+- CHANGED: #1060 - Changed shortcut for AI assistant
+
 ### 6.2.1
 - ADDED: Commit/rollback and autocommit in scripts #1039
 - FIXED: Doesn't import all the records from MongoDB #1044
