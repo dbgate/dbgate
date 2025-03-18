@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 6.3.0 - not released
+### 6.3.0
 - ADDED: Support for libSQL and Turso (Premium)
 - ADDED: Native backup and restore database for MySQL and PostgreSQL (Premium)
 - REMOVED: DbGate internal dump export for MySQL (replaced with call of mysqldump)
