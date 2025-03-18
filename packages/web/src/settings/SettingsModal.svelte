@@ -403,6 +403,12 @@ ORDER BY
 
           <FormCheckboxField name="behaviour.useTabPreviewMode" label="Use tab preview mode" defaultValue={true} />
 
+          <FormCheckboxField
+            name="behaviour.jsonPreviewWrap"
+            label={_t('settings.behaviour.jsonPreviewWrap', { defaultMessage: 'Wrap json in preview' })}
+            defaultValue={false}
+          />
+
           <div class="tip">
             <FontIcon icon="img tip" /> When you single-click or select a file in the "Tables, Views, Functions" view, it
             is shown in a preview mode and reuses an existing tab (preview tab). This is useful if you are quickly browsing
