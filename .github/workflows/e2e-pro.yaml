@@ -69,6 +69,16 @@ jobs:
         with:
           name: screenshots
           path: screenshots
+      - name: Push E2E screenshots
+        run: |
+          git config --global user.email "info@dbgate.info"
+          git config --global user.name "GitHub Actions"
+          git clone https://${{ secrets.DIFLOW_GIT_SECRET }}@github.com/dbgate/dbgate-img.git
+          cp ../dbgate-merged/e2e-tests/screenshots/*.png dbgate-img/static/img
+          cd dbgate-img/static/img
+          git add .
+          git commit -m "E2E screenshots"
+          git push
     services:
       postgres-cypress:
         image: postgres
