@@ -141,6 +141,9 @@
         schemaName={schemaNameField}
         databaseName={databaseNameField}
         name={tablesField}
+        data-testid={direction == 'source'
+          ? 'SourceTargetConfig_tablesSelect_source'
+          : 'SourceTargetConfig_tablesSelect_target'}
         label={_t('importExport.tablesViewsCollections', { defaultMessage: 'Tables / views / collections' })}
       />
     {/if}
