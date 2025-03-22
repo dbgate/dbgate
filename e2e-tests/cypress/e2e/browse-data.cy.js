@@ -81,7 +81,7 @@ describe('Data browser data', () => {
     cy.contains('Aerosmith').should('not.exist');
   });
 
-  it.only('Data filter', () => {
+  it('Data filter', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Album').click();
@@ -369,7 +369,7 @@ describe('Data browser data', () => {
     cy.themeshot('comparesettings');
   });
 
-  it.skip('Query editor - AI assistant', () => {
+  it('Query editor - AI assistant', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
