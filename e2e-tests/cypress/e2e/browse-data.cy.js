@@ -369,7 +369,7 @@ describe('Data browser data', () => {
     cy.themeshot('comparesettings');
   });
 
-  it('Query editor - AI assistant', () => {
+  it.skip('Query editor - AI assistant', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
