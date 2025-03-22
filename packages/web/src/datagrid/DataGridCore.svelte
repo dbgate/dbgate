@@ -1946,7 +1946,11 @@
               style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
             >
               {#if display.filterCount > 0}
-                <InlineButton on:click={() => display.clearFilters()} square>
+                <InlineButton
+                  on:click={() => display.clearFilters()}
+                  square
+                  data-testid="DataGridCore_button_clearFilters"
+                >
                   <FontIcon icon="icon filter-off" />
                 </InlineButton>
               {/if}

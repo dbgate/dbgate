@@ -15,11 +15,16 @@ beforeEach(() => {
 describe('Data browser data', () => {
   it('Export window', () => {
     cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').rightclick();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').rightclick();
     cy.contains('Export').click();
+    cy.contains('Export advanced').click();
     cy.wait(1000);
     // cy.testid('SourceTargetConfig_buttonCurrentArchive_target').click();
-    cy.testid('FormTablesSelect_buttonAll_tables').click();
+    // cy.testid('FormTablesSelect_buttonAll_tables').click();
+    // cy.testid('SourceTargetConfig_tablesSelect_source').click();
+    // cy.find('.listContainer').contains('Album').click();
+    // cy.find('.listContainer').contains('Track').click();
     // cy.wait(4000);
     // cy.contains('All tables').click();
     cy.contains('Run').click();
@@ -74,6 +79,20 @@ describe('Data browser data', () => {
     cy.contains('Rows: 347').should('not.exist');
     cy.realPress(['Control', 'ArrowRight']);
     cy.contains('Aerosmith').should('not.exist');
+  });
+
+  it.only('Data filter', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('DataFilterControl_input_Title').type('Rock{enter}');
+    cy.contains('Rows: 7');
+    cy.testid('DataFilterControl_input_AlbumId').type('>10{enter}');
+    cy.contains('Rows: 5');
+    cy.testid('DataFilterControl_filtermenu_Title').click();
+    cy.themeshot('filter');
+    cy.testid('DataGridCore_button_clearFilters').click();
+    cy.contains('Rows: 347');
   });
 
   it('Data grid screenshots', () => {

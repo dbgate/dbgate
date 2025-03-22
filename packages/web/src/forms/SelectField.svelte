@@ -64,6 +64,7 @@
       {isMulti}
       bind:listOpen
       bind:isFocused
+      class={$$props['data-testid'] ? 'select-testid-' + $$props['data-testid'] : undefined}
     />
   </div>
 {/if}
