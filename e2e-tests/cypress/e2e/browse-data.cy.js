@@ -423,4 +423,22 @@ describe('Data browser data', () => {
     cy.contains('Novak');
     cy.contains('Rows: 8');
   });
+
+  it('Export menu', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('DataFilterControl_input_ArtistId').type('22{enter}');
+    // cy.contains('Presence').rightclick();
+    cy.contains('Export').click();
+    cy.themeshot('simpleexport');
+  });
+
+  it('MySQL native backup', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').rightclick();
+    cy.contains('Create database backup').click();
+    cy.contains('Customer');
+    cy.themeshot('mysqlbackup');
+  });
 });
