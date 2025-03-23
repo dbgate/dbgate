@@ -63,6 +63,7 @@ jobs:
           path: screenshots
 
       - name: Push E2E screenshots
+        if: ${{ github.ref_name == 'master' }}
         run: |
           git config --global user.email "info@dbgate.info"
           git config --global user.name "GitHub Actions"
