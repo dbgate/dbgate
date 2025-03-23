@@ -442,7 +442,7 @@ describe('Data browser data', () => {
     cy.themeshot('mysqlbackup');
   });
 
-  it.only('View table YAML model', () => {
+  it('View table YAML model', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').rightclick();
     cy.contains('Export DB model').click();
