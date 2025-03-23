@@ -77,8 +77,8 @@ jobs:
           cp ../dbgate-merged/e2e-tests/screenshots/*.png dbgate-img/static/img
           cd dbgate-img/static/img
           git add .
-          git commit -m "E2E screenshots"
-          git push
+          git commit --amend --no-edit
+          git push --force
     services:
       postgres-cypress:
         image: postgres
