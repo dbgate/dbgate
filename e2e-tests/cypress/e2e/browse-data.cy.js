@@ -441,4 +441,17 @@ describe('Data browser data', () => {
     cy.contains('Customer');
     cy.themeshot('mysqlbackup');
   });
+
+  it.only('View table YAML model', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').rightclick();
+    cy.contains('Export DB model').click();
+    cy.testid('ExportDbModelModal_archiveFolder').select('(Create new)');
+    cy.testid('InputTextModal_value').clear().type('test-model');
+    cy.testid('InputTextModal_ok').click();
+    cy.testid('ExportDbModelModal_exportButton').click();
+    cy.contains('Album').click();
+    cy.contains('autoIncrement');
+    cy.themeshot('tableyaml');
+  });
 });
