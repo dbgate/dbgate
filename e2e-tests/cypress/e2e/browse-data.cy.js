@@ -370,7 +370,7 @@ describe('Data browser data', () => {
     cy.themeshot('comparesettings');
   });
 
-  it.skip('Query editor - AI assistant', () => {
+  it('Query editor - AI assistant', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewQuery').click();
@@ -379,7 +379,7 @@ describe('Data browser data', () => {
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('QueryAiAssistant_promptInput').type('album names');
     cy.testid('QueryAiAssistant_queryFromQuestionButton').click();
-    cy.contains('Use this').click();
+    cy.contains('Use this', { timeout: 10000 }).click();
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Balls to the Wall');
     cy.themeshot('aiassistant');
