@@ -171,6 +171,7 @@ describe('Data browser data', () => {
     cy.contains('Customer').rightclick();
     cy.contains('SQL template').click();
     cy.contains('CREATE TABLE').click();
+    cy.wait(1000);
     cy.get('body').realPress('PageDown');
     cy.get('body').realType('select * from Album where Album.');
     // code completion
