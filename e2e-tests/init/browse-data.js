@@ -196,6 +196,11 @@ async function run() {
   );
 
   await copyFolder(
+    path.resolve(path.join(__dirname, '../data/chinook-jsonl')),
+    path.join(baseDir, 'archive-e2etests', 'chinook-archive')
+  );
+
+  await copyFolder(
     path.resolve(path.join(__dirname, '../data/files/query')),
     path.join(baseDir, 'files-e2etests', 'query')
   );

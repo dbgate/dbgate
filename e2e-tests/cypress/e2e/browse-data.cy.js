@@ -454,4 +454,16 @@ describe('Data browser data', () => {
     cy.contains('autoIncrement');
     cy.themeshot('tableyaml');
   });
+
+  it('Data duplicator', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('WidgetIconPanel_archive').click();
+    cy.contains('chinook-archive').rightclick();
+    cy.contains('Data duplicator').click();
+    cy.contains('Dry run').click();
+    cy.testid("DataDuplicatorTab_importIntoDb").click();
+    cy.contains('Duplicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
+    cy.themeshot('dataduplicator');
+  });
 });

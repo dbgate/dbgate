@@ -441,9 +441,9 @@
   </VerticalSplitter>
 
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="dataDuplicator.run" />
-    <ToolStripCommandButton command="dataDuplicator.kill" />
-    <ToolStripCommandButton command="dataDuplicator.generateScript" />
+    <ToolStripCommandButton command="dataDuplicator.run" data-testid="DataDuplicatorTab_importIntoDb" />
+    <ToolStripCommandButton command="dataDuplicator.kill" data-testid="DataDuplicatorTab_kill" />
+    <ToolStripCommandButton command="dataDuplicator.generateScript" data-testid="DataDuplicatorTab_generateScript" />
   </svelte:fragment>
 </ToolStripContainer>
 
