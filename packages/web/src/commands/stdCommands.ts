@@ -830,14 +830,14 @@ registerCommand({
   id: 'app.openDocs',
   category: 'Application',
   name: 'Documentation',
-  onClick: () => openWebLink('https://dbgate.org/docs/'),
+  onClick: () => openWebLink('https://docs.dbgate.io/'),
 });
 
 registerCommand({
   id: 'app.openWeb',
   category: 'Application',
   name: 'DbGate web',
-  onClick: () => openWebLink('https://dbgate.org'),
+  onClick: () => openWebLink('https://dbgate.io/'),
 });
 
 registerCommand({
