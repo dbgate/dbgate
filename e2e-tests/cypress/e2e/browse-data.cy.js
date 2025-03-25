@@ -90,7 +90,9 @@ describe('Data browser data', () => {
     cy.testid('DataFilterControl_input_AlbumId').type('>10xxx{enter}');
     cy.contains('Rows: 7');
     cy.testid('DataFilterControl_filtermenu_Title').click();
+    // hide what is not needed
     cy.testid('WidgetIconPanel_database').click();
+    cy.testid('DataGrid_itemReferences').click();
     cy.themeshot('filter');
     cy.testid('DataGridCore_button_clearFilters').click();
     cy.contains('Rows: 347');
