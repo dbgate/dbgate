@@ -47,6 +47,8 @@
 
   export let isRawMode = false;
 
+  const NESTED_REFERENCE_GRACE_TIME_MS = 1000;
+
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
@@ -132,7 +134,7 @@
       }));
       childCache.update(ca => ({
         ...ca,
-        refreshTime: new Date().getTime(),
+        refreshTime: new Date().getTime() + NESTED_REFERENCE_GRACE_TIME_MS,
       }));
     }
   };
