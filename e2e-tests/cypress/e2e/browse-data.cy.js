@@ -87,9 +87,10 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('DataFilterControl_input_Title').type('Rock{enter}');
     cy.contains('Rows: 7');
-    cy.testid('DataFilterControl_input_AlbumId').type('>10{enter}');
-    cy.contains('Rows: 5');
+    cy.testid('DataFilterControl_input_AlbumId').type('>10xxx{enter}');
+    cy.contains('Rows: 7');
     cy.testid('DataFilterControl_filtermenu_Title').click();
+    cy.testid('WidgetIconPanel_database').click();
     cy.themeshot('filter');
     cy.testid('DataGridCore_button_clearFilters').click();
     cy.contains('Rows: 347');
