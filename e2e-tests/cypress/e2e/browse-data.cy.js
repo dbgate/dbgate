@@ -433,7 +433,10 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('DataFilterControl_input_ArtistId').type('22{enter}');
     // cy.contains('Presence').rightclick();
+    // cy.contains('Coda').rightclick();
+    // cy.testid('DropDownMenu-container-0').contains('Export').click();
     cy.contains('Export').click();
+    // cy.wait(1000);
     cy.themeshot('data-browser-export-menu');
   });
 
