@@ -452,6 +452,7 @@ describe('Data browser data', () => {
     cy.testid('ExportDbModelModal_archiveFolder').select('(Create new)');
     cy.testid('InputTextModal_value').clear().type('test-model');
     cy.testid('InputTextModal_ok').click();
+    cy.testid('ModalBase_window').themeshot('export-database-model-window', { padding: 50 });
     cy.testid('ExportDbModelModal_exportButton').click();
     cy.contains('Album').click();
     cy.contains('autoIncrement');
@@ -465,7 +466,7 @@ describe('Data browser data', () => {
     cy.contains('chinook-archive').rightclick();
     cy.contains('Data duplicator').click();
     cy.contains('Dry run').click();
-    cy.testid("DataDuplicatorTab_importIntoDb").click();
+    cy.testid('DataDuplicatorTab_importIntoDb').click();
     cy.contains('Duplicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
     cy.themeshot('dataduplicator');
   });
