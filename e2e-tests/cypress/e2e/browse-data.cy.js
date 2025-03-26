@@ -352,7 +352,7 @@ describe('Data browser data', () => {
     cy.contains('Customer').rightclick();
     cy.contains('Open structure').click();
     cy.contains('varchar(40)');
-    cy.themeshot('structure');
+    cy.themeshot('table-structure-editor');
     cy.contains('EmployeeId').click();
     cy.contains('Ref column - Employee');
     cy.themeshot('foreign-key-editor');
