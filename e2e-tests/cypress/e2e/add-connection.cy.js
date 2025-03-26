@@ -20,8 +20,14 @@ describe('Add connection', () => {
     cy.get('[data-testid=ConnectionDriverFields_displayName]').clear().type('test-mysql-1');
 
     // test connection
-    cy.get('[data-testid=ConnectionTab_buttonTest]').click();
+    cy.testid('ConnectionTab_buttonTest').click();
     cy.contains('Connected:');
+
+    cy.testid('ConnectionTab_tabSshTunnel').click();
+    cy.testid('ConnectionTab_tabControlContent').themeshot('fragment-connection-sshtunnel', { padding: 50 });
+
+    cy.testid('ConnectionTab_tabSsl').click();
+    cy.testid('ConnectionTab_tabControlContent').themeshot('fragment-connection-ssl', { padding: 50 });
 
     // save and connect
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();
