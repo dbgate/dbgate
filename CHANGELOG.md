@@ -29,7 +29,7 @@ Builds:
 - FIXED: Scroll in XML cell view, XML view respect themes
 - REMOVED: armv7l build for Linux (because of problems with glibc compatibility)
 - CHANGED: Upgraded to node:22 for docker builds
-- CHANGED: Upgraded SQLite engine version (better-sqlite3@11.8.1)
+- CHANGED: Upgraded SQLite engine version
 
 ### 6.2.0
 - ADDED: Query AI Assistant (Premium)
