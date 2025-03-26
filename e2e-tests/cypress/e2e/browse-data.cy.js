@@ -367,7 +367,7 @@ describe('Data browser data', () => {
     cy.testid('CompareModelTab_gridObjects_Customer_Customer').click();
     cy.testid('WidgetIconPanel_database').click();
     cy.testid('CompareModelTab_tabDdl').click();
-    cy.themeshot('dbcompare');
+    cy.themeshot('compare-database-models');
     cy.contains('Settings').click();
     cy.testid('CompareModelTab_tabOperations').click();
     cy.themeshot('compare-database-settings');
