@@ -33,6 +33,7 @@ export interface QueryOptions {
   discardResult?: boolean;
   importSqlDump?: boolean;
   range?: { offset: number; limit: number };
+  readonly?: boolean;
 }
 
 export interface WriteTableOptions {

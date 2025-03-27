@@ -1,0 +1,45 @@
+{
+  "name": "dbgate-plugin-duckdb",
+  "main": "dist/backend.js",
+  "version": "6.0.0-alpha.1",
+  "homepage": "https://dbgate.org",
+  "description": "DuckDB connect plugin for DbGate",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate"
+  },
+  "author": "Jan Prochazka",
+  "license": "GPL-3.0",
+  "keywords": [
+    "dbgate",
+    "duckdb",
+    "dbgatebuiltin"
+  ],
+  "files": [
+    "dist",
+    "icon.svg"
+  ],
+  "scripts": {
+    "build:frontend": "webpack --config webpack-frontend.config",
+    "build:frontend:watch": "webpack --watch --config webpack-frontend.config",
+    "build:backend": "webpack --config webpack-backend.config.js",
+    "build": "yarn build:frontend && yarn build:backend",
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-duckdb",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-duckdb",
+    "plugout": "dbgate-plugout dbgate-plugin-duckdb",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "dbgate-plugin-tools": "^1.0.4",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "dbgate-tools": "^6.0.0-alpha.1",
+    "lodash": "^4.17.21",
+    "dbgate-query-splitter": "^4.11.3"
+  },
+  "optionalDependencies": {
+    "@duckdb/node-api": "^1.2.1-alpha.16"
+  }
+}
