@@ -14,6 +14,7 @@
     defaultValue=""
     name="filterColumns"
     label="Show columns"
+    data-testid="DiagramSettings_filterColumns"
     isNative
     options={[
       {
@@ -36,33 +37,13 @@
         value: 'keysAndNotNull',
         label: 'Keys And Not Null',
       },
-
-      //   {
-      //           text: 'All',
-      //           onClick: changeStyleFunc('filterColumns', ''),
-      //         },
-      //         {
-      //           text: 'Primary Key',
-      //           onClick: changeStyleFunc('filterColumns', 'primaryKey'),
-      //         },
-      //         {
-      //           text: 'All Keys',
-      //           onClick: changeStyleFunc('filterColumns', 'allKeys'),
-      //         },
-      //         {
-      //           text: 'Not Null',
-      //           onClick: changeStyleFunc('filterColumns', 'notNull'),
-      //         },
-      //         {
-      //           text: 'Keys And Not Null',
-      //           onClick: changeStyleFunc('filterColumns', 'keysAndNotNull'),
-      //         },
     ]}
   />
 
   <FormSelectField
     defaultValue="1"
     name="zoomKoef"
+    data-testid="DiagramSettings_zoomKoef"
     label="Zoom"
     isNative
     options={[
@@ -117,6 +98,6 @@
     ]}
   />
 
-  <FormCheckboxField name="showNullability" label="Show NULL/NOT NULL" />
-  <FormCheckboxField name="showDataType" label="Show data type" />
+  <FormCheckboxField name="showNullability" label="Show NULL/NOT NULL" data-testid="DiagramSettings_showNullability" />
+  <FormCheckboxField name="showDataType" label="Show data type" data-testid="DiagramSettings_showDataType" />
 </FormProviderCore>
