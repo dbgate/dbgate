@@ -745,6 +745,7 @@
       if (css) css += '\n';
       css += $currentThemeDefinition?.themeCss;
     }
+    css += ' body { overflow: scroll; }';
     saveFileToDisk(async filePath => {
       await apiCall('files/export-diagram', {
         filePath,
