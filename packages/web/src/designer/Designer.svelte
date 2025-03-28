@@ -67,7 +67,8 @@
   let canvasHeight = 3000;
   let dragStartPoint = null;
   let dragCurrentPoint = null;
-  let columnFilter;
+  export let columnFilter;
+  export let showColumnFilter = true;
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
@@ -972,7 +973,7 @@
       </svg>
     {/if}
   </div>
-  {#if tables?.length > 0}
+  {#if showColumnFilter && tables?.length > 0}
     <div class="panel">
       <DragColumnMemory {settings} {sourceDragColumn$} {targetDragColumn$} />
       <div class="searchbox">

@@ -100,4 +100,6 @@
 
   <FormCheckboxField name="showNullability" label="Show NULL/NOT NULL" data-testid="DiagramSettings_showNullability" />
   <FormCheckboxField name="showDataType" label="Show data type" data-testid="DiagramSettings_showDataType" />
+
+  <FormTextField name="columnFilter" label="Column filter" />
 </FormProviderCore>

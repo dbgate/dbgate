@@ -123,7 +123,14 @@
 <ToolStripContainer>
   <HorizontalSplitter isSplitter={$styleStore.settingsVisible ?? true} initialSizeRight={300}>
     <svelte:fragment slot="1">
-      <DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
+      <DiagramDesigner
+        value={$modelState.value || {}}
+        {conid}
+        {database}
+        onChange={handleChange}
+        menu={createMenu}
+        columnFilter={$styleStore.columnFilter}
+      />
     </svelte:fragment>
     <svelte:fragment slot="2">
       <WidgetColumnBar>
