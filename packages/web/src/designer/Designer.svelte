@@ -792,7 +792,7 @@
           submenu: [
             {
               text: 'All',
-              onClick: changeStyleFunc('filterColumns', null),
+              onClick: changeStyleFunc('filterColumns', ''),
             },
             {
               text: 'Primary Key',
@@ -817,51 +817,51 @@
           submenu: [
             {
               text: `10 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.1),
+              onClick: changeStyleFunc('zoomKoef', '0.1'),
             },
             {
               text: `15 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.15),
+              onClick: changeStyleFunc('zoomKoef', '0.15'),
             },
             {
               text: `20 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.2),
+              onClick: changeStyleFunc('zoomKoef', '0.2'),
             },
             {
               text: `40 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.4),
+              onClick: changeStyleFunc('zoomKoef', '0.4'),
             },
             {
               text: `60 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.6),
+              onClick: changeStyleFunc('zoomKoef', '0.6'),
             },
             {
               text: `80 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.8),
+              onClick: changeStyleFunc('zoomKoef', '0.8'),
             },
             {
               text: `100 %`,
-              onClick: changeStyleFunc('zoomKoef', 1),
+              onClick: changeStyleFunc('zoomKoef', '1'),
             },
             {
               text: `120 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.2),
+              onClick: changeStyleFunc('zoomKoef', '1.2'),
             },
             {
               text: `140 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.4),
+              onClick: changeStyleFunc('zoomKoef', '1.4'),
             },
             {
               text: `160 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.6),
+              onClick: changeStyleFunc('zoomKoef', '1.6'),
             },
             {
               text: `180 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.8),
+              onClick: changeStyleFunc('zoomKoef', '1.8'),
             },
             {
               text: `200 %`,
-              onClick: changeStyleFunc('zoomKoef', 2),
+              onClick: changeStyleFunc('zoomKoef', '2'),
             },
           ],
         },
