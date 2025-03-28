@@ -638,7 +638,7 @@
 
   function recomputeReferencePositions() {
     for (const ref of Object.values(referenceRefs) as any[]) {
-      if (ref) ref.recomputePosition();
+      if (ref) ref.recomputePosition(zoomKoef);
     }
   }
 
@@ -915,6 +915,7 @@
         onRemoveReference={removeReference}
         designer={value}
         {settings}
+        {zoomKoef}
       />
     {/each}
     <!-- 
