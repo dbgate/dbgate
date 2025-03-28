@@ -117,7 +117,6 @@
     ];
   }
 
-  $: console.log('$styleStore', $styleStore);
 </script>
 
 <ToolStripContainer>

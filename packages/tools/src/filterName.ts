@@ -6,6 +6,29 @@ import _startCase from 'lodash/startCase';
 //   childName: string;
 // }
 
+interface TokenFactor {
+  tokens: string[];
+}
+
+interface TokenTree {
+  factors: TokenFactor[];
+}
+
+function parseTokenTree(filter: string): TokenTree {
+  const factors = filter
+    .split(',')
+    .map(x => x.trim())
+    .filter(x => x.length > 0);
+  return {
+    factors: factors.map(x => ({
+      tokens: x
+        .split(' ')
+        .map(x => x.trim())
+        .filter(x => x.length > 0),
+    })),
+  };
+}
+
 function camelMatch(filter: string, text: string): boolean {
   if (!text) return false;
   if (!filter) return true;
@@ -24,31 +47,27 @@ export function filterName(filter: string, ...names: string[]) {
   if (!filter) return true;
 
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
-  const tokens = filter.split(' ').map(x => x.trim());
+  const tree = parseTokenTree(filter);
+
+  if (tree.factors.length == 0) return true;
 
   const namesCompacted = _compact(names);
 
-  for (const token of tokens) {
-    const found = namesCompacted.find(name => camelMatch(token, name));
-    if (!found) return false;
+  for (const factor of tree.factors) {
+    let factorOk = true;
+    for (const token of factor.tokens) {
+      const found = namesCompacted.find(name => camelMatch(token, name));
+      if (!found) factorOk = false;
+    }
+    if (factorOk) {
+      return true;
+    }
   }
 
-  return true;
+  return false;
 }
 
-export function filterNameCompoud(
-  filter: string,
-  namesMain: string[],
-  namesChild: string[]
-): 'main' | 'child' | 'both' | 'none' {
-  if (!filter) return 'both';
-
-  // const camelVariants = [name.replace(/[^A-Z]/g, '')]
-  const tokens = filter.split(' ').map(x => x.trim());
-
-  const namesCompactedMain = _compact(namesMain);
-  const namesCompactedChild = _compact(namesChild);
-
+function clasifyCompoudCategory(tokens: string[], namesCompactedMain: string[], namesCompactedChild: string[]) {
   let isMainOnly = true;
   let isChildOnly = true;
 
@@ -67,10 +86,39 @@ export function filterNameCompoud(
   return 'none';
 }
 
+export function filterNameCompoud(
+  filter: string,
+  namesMain: string[],
+  namesChild: string[]
+): 'main' | 'child' | 'both' | 'none' {
+  if (!filter) return 'both';
+
+  // const camelVariants = [name.replace(/[^A-Z]/g, '')]
+  const tree = parseTokenTree(filter);
+
+  const namesCompactedMain = _compact(namesMain);
+  const namesCompactedChild = _compact(namesChild);
+
+  if (tree.factors.length == 0) return 'both';
+
+  const factorRes = [];
+
+  for (const factor of tree.factors) {
+    const category = clasifyCompoudCategory(factor.tokens, namesCompactedMain, namesCompactedChild);
+    factorRes.push(category);
+  }
+
+  if (factorRes.includes('both')) return 'both';
+  if (factorRes.includes('main') && factorRes.includes('child')) return 'both';
+  if (factorRes.includes('main')) return 'main';
+  if (factorRes.includes('child')) return 'child';
+  return 'none';
+}
+
 export function tokenizeBySearchFilter(text: string, filter: string): { text: string; isMatch: boolean }[] {
   const camelTokens = [];
   const stdTokens = [];
-  for (const token of filter.split(' ').map(x => x.trim())) {
+  for (const token of filter.split(/ ,/).map(x => x.trim())) {
     if (token.replace(/[A-Z]/g, '').length == 0) {
       camelTokens.push(token);
     } else {
