@@ -118,7 +118,10 @@ export function filterNameCompoud(
 export function tokenizeBySearchFilter(text: string, filter: string): { text: string; isMatch: boolean }[] {
   const camelTokens = [];
   const stdTokens = [];
-  for (const token of filter.split(/ ,/).map(x => x.trim())) {
+  for (const token of filter
+    .split(/[ ,]/)
+    .map(x => x.trim())
+    .filter(x => x.length > 0)) {
     if (token.replace(/[A-Z]/g, '').length == 0) {
       camelTokens.push(token);
     } else {
