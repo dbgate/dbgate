@@ -53,6 +53,7 @@
   import DragColumnMemory from './DragColumnMemory.svelte';
   import createRef from '../utility/createRef';
   import { isProApp } from '../utility/proTools';
+  import dragScroll from '../utility/dragScroll';
 
   export let value;
   export let onChange;
@@ -65,6 +66,7 @@
   export const activator = createActivator('Designer', true);
 
   let domCanvas;
+  let domWrapper;
   let canvasWidth = 3000;
   let canvasHeight = 3000;
   let dragStartPoint = null;
@@ -901,9 +903,20 @@
       );
     }
   }
+
+  function handleDragScroll(x, y) {
+    domWrapper.scrollLeft -= x;
+    domWrapper.scrollTop -= y;
+  }
 </script>
 
-<div class="wrapper noselect" use:contextMenu={createMenu} on:wheel={handleWheel}>
+<div
+  class="wrapper noselect"
+  use:contextMenu={createMenu}
+  on:wheel={handleWheel}
+  bind:this={domWrapper}
+  use:dragScroll={handleDragScroll}
+>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
