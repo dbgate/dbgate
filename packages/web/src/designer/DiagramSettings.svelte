@@ -5,6 +5,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { isProApp } from '../utility/proTools';
 
   export let values;
 </script>
@@ -102,4 +103,8 @@
   <FormCheckboxField name="showDataType" label="Show data type" data-testid="DiagramSettings_showDataType" />
 
   <FormTextField name="columnFilter" label="Column filter" />
+
+  {#if isProApp()}
+    <FormTextField name="topTables" label="Only N most important tables" type="number" />
+  {/if}
 </FormProviderCore>

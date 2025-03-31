@@ -47,10 +47,11 @@
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
-  import { extendDatabaseInfoFromApps } from 'dbgate-tools';
+  import { chooseTopTables, extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import DragColumnMemory from './DragColumnMemory.svelte';
+  import createRef from '../utility/createRef';
 
   export let value;
   export let onChange;
@@ -76,14 +77,19 @@
   const dbInfo = settings?.updateFromDbInfo ? useDatabaseInfo({ conid, database }) : null;
   $: dbInfoExtended = $dbInfo ? extendDatabaseInfoFromApps($dbInfo, $apps) : null;
 
-  $: tables = value?.tables as any[];
-  $: references = value?.references as any[];
+  $: tables =
+    (value?.style?.topTables > 0 && value?.tables
+      ? chooseTopTables(value?.tables, value?.style?.topTables)
+      : value?.tables) || ([] as any[]);
+  $: references = (value?.references || [])?.filter(
+    ref => tables.find(x => x.designerId == ref.sourceId) && tables.find(x => x.designerId == ref.targetId)
+  ) as any[];
   $: zoomKoef = settings?.customizeStyle && value?.style?.zoomKoef ? value?.style?.zoomKoef : 1;
   $: apps = useUsedApps();
 
   $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
 
-  const tableRefs = {};
+  let tableRefs = {};
   const referenceRefs = {};
   let domTables;
   $: {
@@ -663,7 +669,7 @@
 
   export function arrange(skipUndoChain = false, arrangeAll = true, circleMiddle = { x: 0, y: 0 }) {
     const graph = new GraphDefinition();
-    for (const table of value?.tables || []) {
+    for (const table of tables || []) {
       const domTable = domTables[table.designerId] as any;
       if (!domTable) continue;
       const rect = domTable.getRect();
@@ -676,8 +682,8 @@
     }
 
     for (const reference of settings?.sortAutoLayoutReferences
-      ? settings?.sortAutoLayoutReferences(value?.references)
-      : value?.references) {
+      ? settings?.sortAutoLayoutReferences(references)
+      : references) {
       graph.addEdge(reference.sourceId, reference.targetId);
     }
 
@@ -876,6 +882,20 @@
       recomputeReferencePositions();
       recomputeDomTables();
     });
+  }
+
+  const oldTopTablesRef = createRef(value?.style?.topTables);
+  $: {
+    if (value?.style?.topTables > 0 && oldTopTablesRef.get() != value?.style?.topTables) {
+      oldTopTablesRef.set(value?.style?.topTables);
+      tick().then(() => {
+        arrange();
+        tick().then(() => {
+          recomputeReferencePositions();
+          recomputeDomTables();
+        });
+      });
+    }
   }
 </script>
 

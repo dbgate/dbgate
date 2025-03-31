@@ -26,3 +26,4 @@ export * from './filterBehaviours';
 export * from './schemaInfoTools';
 export * from './dbKeysLoader';
 export * from './rowProgressReporter';
+export * from './chooseTopTables';
