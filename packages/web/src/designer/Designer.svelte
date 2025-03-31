@@ -632,9 +632,15 @@
             const domTable = domTables[x.designerId] as any;
             if (domTable) {
               const rect = domTable.getRect();
+              const rectZoomed = {
+                left: rect.left / zoomKoef,
+                right: rect.right / zoomKoef,
+                top: rect.top / zoomKoef,
+                bottom: rect.bottom / zoomKoef,
+              };
               return {
                 ...x,
-                isSelectedTable: rectanglesHaveIntersection(rect, bounds),
+                isSelectedTable: rectanglesHaveIntersection(rectZoomed, bounds),
               };
             }
           }),
