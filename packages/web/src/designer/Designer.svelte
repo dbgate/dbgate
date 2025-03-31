@@ -908,6 +908,20 @@
     domWrapper.scrollLeft -= x;
     domWrapper.scrollTop -= y;
   }
+
+  const oldZoomKoefRef = createRef(value?.style?.zoomKoef || 1);
+  $: {
+    if (
+      domWrapper &&
+      value?.style?.zoomKoef != oldZoomKoefRef.get() &&
+      value?.style?.zoomKoef > 0 &&
+      oldZoomKoefRef.get() > 0
+    ) {
+      domWrapper.scrollLeft = Math.round((domWrapper.scrollLeft / oldZoomKoefRef.get()) * value?.style?.zoomKoef);
+      domWrapper.scrollTop = Math.round((domWrapper.scrollTop / oldZoomKoefRef.get()) * value?.style?.zoomKoef);
+    }
+    oldZoomKoefRef.set(value?.style?.zoomKoef);
+  }
 </script>
 
 <div
@@ -926,7 +940,7 @@
     bind:this={domCanvas}
     on:dragover={e => e.preventDefault()}
     on:drop={handleDrop}
-    style={`width:${canvasWidth}px;height:${canvasHeight}px;
+    style={`width:${canvasWidth / zoomKoef}px;height:${canvasHeight / zoomKoef}px;
       ${settings?.customizeStyle && value?.style?.zoomKoef ? `zoom:${value?.style?.zoomKoef};` : ''}
     `}
     on:mousedown={e => {
