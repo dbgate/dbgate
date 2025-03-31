@@ -47,7 +47,7 @@
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
-  import { chooseTopTables, extendDatabaseInfoFromApps } from 'dbgate-tools';
+  import { chooseTopTables, DIAGRAM_ZOOMS, extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import DragColumnMemory from './DragColumnMemory.svelte';
@@ -821,56 +821,10 @@
         },
         {
           text: `Zoom - ${(value?.style?.zoomKoef || 1) * 100}%`,
-          submenu: [
-            {
-              text: `10 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.1'),
-            },
-            {
-              text: `15 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.15'),
-            },
-            {
-              text: `20 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.2'),
-            },
-            {
-              text: `40 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.4'),
-            },
-            {
-              text: `60 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.6'),
-            },
-            {
-              text: `80 %`,
-              onClick: changeStyleFunc('zoomKoef', '0.8'),
-            },
-            {
-              text: `100 %`,
-              onClick: changeStyleFunc('zoomKoef', '1'),
-            },
-            {
-              text: `120 %`,
-              onClick: changeStyleFunc('zoomKoef', '1.2'),
-            },
-            {
-              text: `140 %`,
-              onClick: changeStyleFunc('zoomKoef', '1.4'),
-            },
-            {
-              text: `160 %`,
-              onClick: changeStyleFunc('zoomKoef', '1.6'),
-            },
-            {
-              text: `180 %`,
-              onClick: changeStyleFunc('zoomKoef', '1.8'),
-            },
-            {
-              text: `200 %`,
-              onClick: changeStyleFunc('zoomKoef', '2'),
-            },
-          ],
+          submenu: DIAGRAM_ZOOMS.map(koef => ({
+            text: `${koef * 100} %`,
+            onClick: changeStyleFunc('zoomKoef', koef.toString()),
+          })),
         },
       ],
     ];
@@ -897,9 +851,43 @@
       });
     }
   }
+
+  function handleWheel(event) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+      const zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
+      if (zoomIndex < 0) DIAGRAM_ZOOMS.findIndex(x => x == 1);
+
+      let newZoomIndex = zoomIndex;
+      if (event.deltaY < 0) {
+        newZoomIndex += 1;
+      }
+      if (event.deltaY > 0) {
+        newZoomIndex -= 1;
+      }
+      if (newZoomIndex < 0) {
+        newZoomIndex = 0;
+      }
+      if (newZoomIndex >= DIAGRAM_ZOOMS.length) {
+        newZoomIndex = DIAGRAM_ZOOMS.length - 1;
+      }
+      const newZoomKoef = DIAGRAM_ZOOMS[newZoomIndex];
+
+      callChange(
+        current => ({
+          ...current,
+          style: {
+            ...current?.style,
+            zoomKoef: newZoomKoef.toString(),
+          },
+        }),
+        true
+      );
+    }
+  }
 </script>
 
-<div class="wrapper noselect" use:contextMenu={createMenu}>
+<div class="wrapper noselect" use:contextMenu={createMenu} on:wheel={handleWheel}>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}

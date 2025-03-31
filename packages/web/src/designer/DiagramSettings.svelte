@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { DIAGRAM_ZOOMS } from 'dbgate-tools';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
@@ -47,56 +48,10 @@
     data-testid="DiagramSettings_zoomKoef"
     label="Zoom"
     isNative
-    options={[
-      {
-        value: '0.1',
-        label: '10 %',
-      },
-      {
-        value: '0.15',
-        label: '15 %',
-      },
-      {
-        value: '0.2',
-        label: '20 %',
-      },
-      {
-        value: '0.4',
-        label: '40 %',
-      },
-      {
-        value: '0.6',
-        label: '60 %',
-      },
-      {
-        value: '0.8',
-        label: '80 %',
-      },
-      {
-        value: '1',
-        label: '100 %',
-      },
-      {
-        value: '1.2',
-        label: '120 %',
-      },
-      {
-        value: '1.4',
-        label: '140 %',
-      },
-      {
-        value: '1.6',
-        label: '160 %',
-      },
-      {
-        value: '1.8',
-        label: '180 %',
-      },
-      {
-        value: '2',
-        label: '200 %',
-      },
-    ]}
+    options={DIAGRAM_ZOOMS.map(koef => ({
+      value: koef.toString(),
+      label: `${Math.round(koef * 100)} %`,
+    }))}
   />
 
   <FormCheckboxField name="showNullability" label="Show NULL/NOT NULL" data-testid="DiagramSettings_showNullability" />

@@ -39,3 +39,5 @@ export function chooseTopTables(tables: TableInfo[], count: number) {
 
   return sorted.slice(0, count);
 }
+
+export const DIAGRAM_ZOOMS = [0.1, 0.15, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2];
