@@ -31,6 +31,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
+  import { isProApp } from '../utility/proTools';
 
   export let tabid;
   export let conid;
@@ -116,11 +117,10 @@
       { command: 'diagram.redo' },
     ];
   }
-
 </script>
 
 <ToolStripContainer>
-  <HorizontalSplitter isSplitter={$styleStore.settingsVisible ?? true} initialSizeRight={300}>
+  <HorizontalSplitter isSplitter={isProApp() ? ($styleStore.settingsVisible ?? true) : false} initialSizeRight={300}>
     <svelte:fragment slot="1">
       <DiagramDesigner
         value={$modelState.value || {}}
@@ -155,11 +155,13 @@
     <ToolStripCommandButton command="diagram.export" />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />
-    <ToolStripButton
-      icon="icon settings"
-      on:click={() => {
-        styleStore.update(x => ({ ...x, settingsVisible: !x.settingsVisible }));
-      }}>Settings</ToolStripButton
-    >
+    {#if isProApp()}
+      <ToolStripButton
+        icon="icon settings"
+        on:click={() => {
+          styleStore.update(x => ({ ...x, settingsVisible: !x.settingsVisible }));
+        }}>Settings</ToolStripButton
+      >
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>

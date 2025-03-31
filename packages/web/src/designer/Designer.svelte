@@ -52,6 +52,7 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import DragColumnMemory from './DragColumnMemory.svelte';
   import createRef from '../utility/createRef';
+  import { isProApp } from '../utility/proTools';
 
   export let value;
   export let onChange;
@@ -781,7 +782,7 @@
       menu,
       settings?.customizeStyle && [
         { divider: true },
-        {
+        isProApp() && {
           text: 'Column properties',
           submenu: [
             {
@@ -794,7 +795,7 @@
             },
           ],
         },
-        {
+        isProApp() && {
           text: `Columns - ${_.startCase(value?.style?.filterColumns || 'all')}`,
           submenu: [
             {

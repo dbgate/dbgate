@@ -1,12 +1,10 @@
 <script lang="ts">
   import { DIAGRAM_ZOOMS } from 'dbgate-tools';
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import { isProApp } from '../utility/proTools';
 
   export let values;
 </script>
@@ -59,7 +57,5 @@
 
   <FormTextField name="columnFilter" label="Column filter" />
 
-  {#if isProApp()}
-    <FormTextField name="topTables" label="Only N most important tables" type="number" />
-  {/if}
+  <FormTextField name="topTables" label="Only N most important tables" type="number" />
 </FormProviderCore>
