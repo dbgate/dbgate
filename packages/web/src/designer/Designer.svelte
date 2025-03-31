@@ -140,12 +140,14 @@
     onChange(current => {
       let newTables = current.tables || [];
       for (const table of current.tables || []) {
-        const dbTable = (db.tables || []).find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+        const dbTable = (db.tables || []).find(
+          x => x?.pureName == table?.pureName && x?.schemaName == table?.schemaName
+        );
         if (
           stableStringify(_.pick(dbTable, ['columns', 'primaryKey', 'foreignKeys'])) !=
           stableStringify(_.pick(table, ['columns', 'primaryKey', 'foreignKeys']))
         ) {
-          newTables = newTables.map(x =>
+          newTables = _.compact(newTables).map(x =>
             x == table
               ? {
                   ...table,
@@ -628,11 +630,13 @@
           ...current,
           tables: (current.tables || []).map(x => {
             const domTable = domTables[x.designerId] as any;
-            const rect = domTable.getRect();
-            return {
-              ...x,
-              isSelectedTable: rectanglesHaveIntersection(rect, bounds),
-            };
+            if (domTable) {
+              const rect = domTable.getRect();
+              return {
+                ...x,
+                isSelectedTable: rectanglesHaveIntersection(rect, bounds),
+              };
+            }
           }),
         }),
         true
@@ -676,9 +680,14 @@
       const rect = domTable.getRect();
       graph.addNode(
         table.designerId,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        arrangeAll || table.needsArrange ? null : { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 }
+        (rect.right - rect.left) / zoomKoef,
+        (rect.bottom - rect.top) / zoomKoef,
+        arrangeAll || table.needsArrange
+          ? null
+          : {
+              x: (rect.left + rect.right) / 2 / zoomKoef,
+              y: (rect.top + rect.bottom) / 2 / zoomKoef,
+            }
       );
     }
 
@@ -718,7 +727,7 @@
       current => {
         return {
           ...current,
-          tables: (current?.tables || []).map(table => {
+          tables: _.compact(current?.tables || []).map(table => {
             const node = layout.nodes[table.designerId];
             // console.log('POSITION', position);
             return node
