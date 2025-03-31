@@ -164,7 +164,7 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading triggers' });
     const triggers = await this.analyserQuery('triggers');
 
-    this.feedback({ analysingMessage: 'Loading scehduler events' });
+    this.feedback({ analysingMessage: 'Loading scheduler events' });
     const schedulerEvents = await this.analyserQuery('schedulerEvents');
 
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
