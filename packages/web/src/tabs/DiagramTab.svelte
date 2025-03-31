@@ -37,6 +37,8 @@
   export let conid;
   export let database;
 
+  let tableCounts = {};
+
   export const activator = createActivator('DiagramTab', true);
 
   $: setEditorData($modelState.value);
@@ -129,6 +131,9 @@
         onChange={handleChange}
         menu={createMenu}
         columnFilter={$styleStore.columnFilter}
+        onReportCounts={counts => {
+          tableCounts = counts;
+        }}
       />
     </svelte:fragment>
     <svelte:fragment slot="2">
@@ -142,7 +147,7 @@
           }}
         >
           <WidgetsInnerContainer skipDefineWidth>
-            <DiagramSettings values={styleStore} />
+            <DiagramSettings values={styleStore} {tableCounts} />
           </WidgetsInnerContainer>
         </WidgetColumnBarItem>
       </WidgetColumnBar>

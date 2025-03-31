@@ -1,6 +1,7 @@
 import { DatabaseInfo, TableInfo } from 'dbgate-types';
 import { extendDatabaseInfo } from './structureTools';
 import _sortBy from 'lodash/sortBy';
+import { filterName } from './filterName';
 
 function tableWeight(table: TableInfo, maxRowcount?: number) {
   let weight = 0;
@@ -18,9 +19,23 @@ function tableWeight(table: TableInfo, maxRowcount?: number) {
   if (maxRowcount) return weight;
 }
 
-export function chooseTopTables(tables: TableInfo[], count: number) {
+export function chooseTopTables(tables: TableInfo[], count: number, tableFilter: string, omitTablesFilter: string) {
+  const filteredTables = tables.filter(table => {
+    if (tableFilter) {
+      if (!filterName(tableFilter, table?.pureName)) return false;
+    }
+    if (omitTablesFilter) {
+      if (filterName(omitTablesFilter, table?.pureName)) return false;
+    }
+    return true;
+  });
+
+  if (!(count > 0)) {
+    return filteredTables;
+  }
+
   const dbinfo: DatabaseInfo = {
-    tables,
+    tables: filteredTables,
   } as DatabaseInfo;
 
   const extended = extendDatabaseInfo(dbinfo);

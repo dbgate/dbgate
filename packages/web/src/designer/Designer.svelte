@@ -62,6 +62,7 @@
   export let menu;
   export let settings;
   export let referenceComponent;
+  export let onReportCounts = undefined;
 
   export const activator = createActivator('Designer', true);
 
@@ -81,8 +82,13 @@
   $: dbInfoExtended = $dbInfo ? extendDatabaseInfoFromApps($dbInfo, $apps) : null;
 
   $: tables =
-    (value?.style?.topTables > 0 && value?.tables
-      ? chooseTopTables(value?.tables, value?.style?.topTables)
+    (value?.tables
+      ? chooseTopTables(
+          value?.tables,
+          value?.style?.topTables,
+          value?.style?.tableFilter,
+          value?.style?.omitTablesFilter
+        )
       : value?.tables) || ([] as any[]);
   $: references = (value?.references || [])?.filter(
     ref => tables.find(x => x.designerId == ref.sourceId) && tables.find(x => x.designerId == ref.targetId)
@@ -164,7 +170,7 @@
       if (settings?.useDatabaseReferences) {
         references = [];
         for (const table of newTables) {
-          for (const fk of table.foreignKeys) {
+          for (const fk of table.foreignKeys || []) {
             const dst = newTables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
             if (!dst) continue;
             references.push({
@@ -922,6 +928,28 @@
     }
     oldZoomKoefRef.set(value?.style?.zoomKoef);
   }
+
+  // $: console.log('DESIGNER VALUE', value);
+
+  // $: console.log('TABLES ARRAY', tables);
+
+  // $: {
+  //   if (value?.tables?.find(x => !x)) {
+  //     console.log('**** INCORRECT DESIGNER VALUE**** ', value);
+  //   }
+  // }
+  // $: {
+  //   if (value?.tables?.length < 100) {
+  //     console.log('**** SMALL TABLES**** ', value);
+  //   }
+  // }
+
+  // $: if (onReportCounts) {
+  //   onReportCounts({
+  //     all: value?.tables?.length ?? 0,
+  //     filtered: tables?.length ?? 0,
+  //   });
+  // }
 </script>
 
 <div
