@@ -459,7 +459,7 @@
         setConfig(x => ({
           ...x,
           // @ts-ignore
-          formColumnFilterText: (x.formColumnFilterText || '') + event.key,
+          searchInColumns: (x.searchInColumns || '') + event.key,
         }));
       } else {
         // @ts-ignore
@@ -473,7 +473,7 @@
     if (event.keyCode == keycodes.escape) {
       setConfig(x => ({
         ...x,
-        formColumnFilterText: '',
+        searchInColumns: '',
       }));
     }
 
@@ -541,7 +541,7 @@
       columnIndex = incrementFunc(columnIndex);
       while (
         isInRange(columnIndex) &&
-        !filterName(display.config.formColumnFilterText, display.formColumns[columnIndex].columnName)
+        !filterName(display.config.searchInColumns, display.formColumns[columnIndex].columnName)
       ) {
         columnIndex = incrementFunc(columnIndex);
       }
@@ -549,7 +549,7 @@
         columnIndex = firstInRange;
         while (
           isInRange(columnIndex) &&
-          !filterName(display.config.formColumnFilterText, display.formColumns[columnIndex].columnName)
+          !filterName(display.config.searchInColumns, display.formColumns[columnIndex].columnName)
         ) {
           columnIndex = incrementFunc(columnIndex);
         }
@@ -572,7 +572,7 @@
       case keycodes.rightArrow:
         return moveCurrentCell(currentCell[0], currentCell[1] + 1);
       case keycodes.upArrow:
-        if (currentCell[1] % 2 == 0 && display.config.formColumnFilterText) {
+        if (currentCell[1] % 2 == 0 && display.config.searchInColumns) {
           return findFilteredColumn(
             x => x - 1,
             x => x >= 0,
@@ -583,7 +583,7 @@
 
         return moveCurrentCell(currentCell[0] - 1, currentCell[1]);
       case keycodes.downArrow:
-        if (currentCell[1] % 2 == 0 && display.config.formColumnFilterText) {
+        if (currentCell[1] % 2 == 0 && display.config.searchInColumns) {
           return findFilteredColumn(
             x => x + 1,
             x => x < display.formColumns.length,
@@ -631,8 +631,8 @@
               data-row={rowIndex}
               data-col={chunkIndex * 2}
               style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
-              class:columnFiltered={display.config.formColumnFilterText &&
-                filterName(display.config.formColumnFilterText, col.columnName)}
+              class:columnFiltered={display.config.searchInColumns &&
+                filterName(display.config.searchInColumns, col.columnName)}
               class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
               bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
             >
