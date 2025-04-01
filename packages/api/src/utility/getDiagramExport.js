@@ -1,4 +1,11 @@
-const getDiagramExport = (html, css, themeType, themeClassName) => {
+const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
+  const watermarkHtml = watermark
+    ? `
+        <div style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 12px; color: var(--theme-font-2); background-color: var(--theme-bg-2); border-top-left-radius: 5px; border: 1px solid var(--theme-border);">
+        ${watermark}
+      </div>
+  `
+    : '';
   return `<html>
   <meta charset='utf-8'>
   
@@ -17,6 +24,7 @@ const getDiagramExport = (html, css, themeType, themeClassName) => {
   
   <body class='${themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light'} ${themeClassName}'>
       ${html}
+      ${watermarkHtml}
   </body>
   
   </html>`;

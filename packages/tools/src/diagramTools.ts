@@ -59,3 +59,5 @@ export function chooseTopTables(tables: TableInfo[], count: number, tableFilter:
 }
 
 export const DIAGRAM_ZOOMS = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.25, 1.5, 1.75, 2];
+
+export const DIAGRAM_DEFAULT_WATERMARK = 'Powered by [dbgate.io](https://dbgate.io)';

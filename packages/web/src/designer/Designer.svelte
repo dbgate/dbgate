@@ -47,7 +47,7 @@
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
-  import { chooseTopTables, DIAGRAM_ZOOMS, extendDatabaseInfoFromApps } from 'dbgate-tools';
+  import { chooseTopTables, DIAGRAM_DEFAULT_WATERMARK, DIAGRAM_ZOOMS, extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import DragColumnMemory from './DragColumnMemory.svelte';
@@ -763,6 +763,16 @@
     );
   }
 
+  function getWatermarkHtml() {
+    const replaceLinks = text => text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>');
+
+    if (value?.style?.omitExportWatermark) return null;
+    if (value?.style?.exportWatermark) {
+      return replaceLinks(value?.style?.exportWatermark);
+    }
+    return replaceLinks(DIAGRAM_DEFAULT_WATERMARK);
+  }
+
   export async function exportDiagram() {
     const cssLinks = ['global.css', 'build/bundle.css'];
     let css = '';
@@ -784,6 +794,7 @@
         css,
         themeType: $currentThemeDefinition?.themeType,
         themeClassName: $currentThemeDefinition?.themeClassName,
+        watermark: getWatermarkHtml(),
       });
     });
   }
