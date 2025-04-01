@@ -22,17 +22,10 @@ const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
       <link rel="stylesheet" href='https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.css' />
 
       <script>
-      function dragScroll(node, onScroll) {
-  if (!onScroll) return;
-
   let lastX = null;
   let lastY = null;
 
-  let sumMoved = 0;
-
   const handleMoveDown = e => {
-    if (e.button != 2) return;
-
     lastX = e.clientX;
     lastY = e.clientY;
     document.addEventListener('mousemove', handleMoveMove, true);
@@ -42,8 +35,8 @@ const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
   const handleMoveMove = e => {
     e.preventDefault();
 
-    document.scrollLeft -= e.clientX - lastX;
-    document.scrollTop -= e.clientY - lastY;
+    document.body.scrollLeft -= e.clientX - lastX;
+    document.body.scrollTop -= e.clientY - lastY;
 
     lastX = e.clientX;
     lastY = e.clientY;
@@ -62,7 +55,7 @@ const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
       </script>
   </head>
   
-  <body class='${themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light'} ${themeClassName}'>
+  <body class='${themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light'} ${themeClassName}' style='user-select:none; cursor:pointer'>
       ${html}
       ${watermarkHtml}
   </body>
