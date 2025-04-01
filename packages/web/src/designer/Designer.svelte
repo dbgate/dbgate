@@ -944,12 +944,13 @@
   //   }
   // }
 
-  // $: if (onReportCounts) {
-  //   onReportCounts({
-  //     all: value?.tables?.length ?? 0,
-  //     filtered: tables?.length ?? 0,
-  //   });
-  // }
+  $: if (onReportCounts) {
+    // console.log('REPORTING COUNTS');
+    onReportCounts({
+      all: _.compact(value?.tables || []).length,
+      filtered: _.compact(tables || []).length,
+    });
+  }
 </script>
 
 <div

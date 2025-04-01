@@ -119,6 +119,10 @@
       { command: 'diagram.redo' },
     ];
   }
+
+  function handleReportCounts(counts) {
+    tableCounts = counts;
+  }
 </script>
 
 <ToolStripContainer>
@@ -131,9 +135,7 @@
         onChange={handleChange}
         menu={createMenu}
         columnFilter={$styleStore.columnFilter}
-        onReportCounts={counts => {
-          tableCounts = counts;
-        }}
+        onReportCounts={handleReportCounts}
       />
     </svelte:fragment>
     <svelte:fragment slot="2">

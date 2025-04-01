@@ -1,21 +1,24 @@
 import { DatabaseInfo, TableInfo } from 'dbgate-types';
 import { extendDatabaseInfo } from './structureTools';
 import _sortBy from 'lodash/sortBy';
+import _uniq from 'lodash/uniq';
 import { filterName } from './filterName';
 
 function tableWeight(table: TableInfo, maxRowcount?: number) {
   let weight = 0;
+  const tableDependenciesCount = _uniq(table.dependencies?.map(x => x.pureName) || []).length;
+  const tableFkCount = _uniq(table.foreignKeys?.map(x => x.refTableName) || []).length;
+
   if (table.primaryKey) weight += 1;
-  if (table.foreignKeys) weight += table.foreignKeys.length * 1;
+  if (tableFkCount) weight += tableFkCount * 1;
   if (maxRowcount && table.tableRowCount) {
     const rowcount = parseInt(table.tableRowCount as string);
     if (rowcount > 0)
-      weight +=
-        Math.log(rowcount) * table.columns.length * (table.dependencies.length || 1) * (table.dependencies.length || 1);
+      weight += Math.log(rowcount) * table.columns.length * (tableFkCount || 1) * (tableDependenciesCount || 1);
   } else {
     if (table.columns) weight += table.columns.length * 2;
   }
-  if (table.dependencies) weight += table.dependencies.length * 10;
+  if (table.dependencies) weight += tableDependenciesCount * 10;
   if (maxRowcount) return weight;
 }
 
