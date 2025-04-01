@@ -8,12 +8,17 @@
   $: searchValue = value || '';
   export let isDebounced = false;
   export let onFocusFilteredList = null;
+  export let onChange = null;
 
   let domInput;
 
   function handleKeyDown(e) {
     if (e.keyCode == keycodes.escape) {
-      value = '';
+      if (onChange) {
+        onChange('');
+      } else {
+        value = '';
+      }
     }
     if (e.keyCode == keycodes.downArrow || e.keyCode == keycodes.pageDown || e.keyCode == keycodes.enter) {
       onFocusFilteredList?.();
@@ -27,7 +32,11 @@
     domInput.focus();
     if (text) {
       domInput.value = text;
-      value = text;
+      if (onChange) {
+        onChange(text);
+      } else {
+        value = text;
+      }
     }
   }
 </script>
@@ -37,8 +46,12 @@
   {placeholder}
   value={searchValue}
   on:input={e => {
-    if (isDebounced) debouncedSet(domInput.value);
-    else value = domInput.value;
+    if (onChange) {
+      onChange(domInput.value);
+    } else {
+      if (isDebounced) debouncedSet(domInput.value);
+      else value = domInput.value;
+    }
   }}
   on:keydown={handleKeyDown}
   bind:this={domInput}
