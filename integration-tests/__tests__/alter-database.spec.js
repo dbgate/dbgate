@@ -36,6 +36,8 @@ async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
   if (createObject) await driver.query(conn, createObject);
 
   const structure1 = generateDbPairingId(extendDatabaseInfo(await driver.analyseFull(conn)));
+  console.log('str1');
+  console.dir(structure1, { depth: 10 });
   let structure2 = _.cloneDeep(structure1);
   mangle(structure2);
   structure2 = extendDatabaseInfo(structure2);

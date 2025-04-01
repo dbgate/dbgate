@@ -1100,6 +1100,49 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
+"@duckdb/node-api@^1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-api/-/node-api-1.2.1-alpha.16.tgz#4e0d8a17f227eed336ab4d50922bfc7be0b1024d"
+  integrity sha512-r2wkrqcDl3IsmFffpTj7xgSUEkjVaqi7wV0uypQWw4wTM5bIYk5ABc/Hxn2xlwV9UBRnxhk0Ls0EJypYS7g8ZQ==
+  dependencies:
+    "@duckdb/node-bindings" "1.2.1-alpha.16"
+
+"@duckdb/node-bindings-darwin-arm64@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings-darwin-arm64/-/node-bindings-darwin-arm64-1.2.1-alpha.16.tgz#a7061c8fc8d968bf9657211ccacd1139bfad96af"
+  integrity sha512-anfLXcxjo6S0Kx8Z+e6/ca7WayprJ8iI4cpTvzWQc9NT/vKFHcGjvhGAiosHvtjWGOvAYo+O/eyAcmzMzazlMg==
+
+"@duckdb/node-bindings-darwin-x64@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings-darwin-x64/-/node-bindings-darwin-x64-1.2.1-alpha.16.tgz#7d21558a50384115ba8eb8c41a84d689e2c797e9"
+  integrity sha512-IA2bQ/f0qFYb7Sd+leSjNg/JMBpWVVBoCmqp/1zzlw6fwhtT0BMSAT3FL4306t5StA8biOznlHz3rN3jovdVxg==
+
+"@duckdb/node-bindings-linux-arm64@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings-linux-arm64/-/node-bindings-linux-arm64-1.2.1-alpha.16.tgz#5915a71f3520b8a2cfbf63ad89d63198aec6db57"
+  integrity sha512-zy9jTrrhTXJAOrYRTbT/HtBLClAoyo8vNRAqojFHVBxXL1nr4o+5Je9AJwb9IfS1/e38zdykDWeGnY/gB3NpfA==
+
+"@duckdb/node-bindings-linux-x64@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings-linux-x64/-/node-bindings-linux-x64-1.2.1-alpha.16.tgz#8cff0e412d6201b57069c311775c375268cd5707"
+  integrity sha512-tdDAhUKenBhUQiTN+qvKj6nBshoooBLPbxVuLas8v64KmphjxOHd9zQ2KMzw1tN+fXhV9dqUTbCqiUN9A6ZFSQ==
+
+"@duckdb/node-bindings-win32-x64@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings-win32-x64/-/node-bindings-win32-x64-1.2.1-alpha.16.tgz#9fb46578f55d5b24524ea9a2d791f8fa6982e613"
+  integrity sha512-FE9bZV8+LIiy5jQIsLoEmwLFIyPPJD4SXjKNCaU48DNVf1q81ZkhnoT7PVgeyNJmkR6rG2+mq6LzTSmdCBX0ig==
+
+"@duckdb/node-bindings@1.2.1-alpha.16":
+  version "1.2.1-alpha.16"
+  resolved "https://registry.yarnpkg.com/@duckdb/node-bindings/-/node-bindings-1.2.1-alpha.16.tgz#700ce66c74772be7a870ae68dd91a968d736ed7b"
+  integrity sha512-6ITHy26o99zxUhCGOxwkQbfmi5I8VXNGanhnrOe3pqUYRDXvGAe6T2MmBymYwU+fMZB341UE8krw7hUkPLfIeA==
+  optionalDependencies:
+    "@duckdb/node-bindings-darwin-arm64" "1.2.1-alpha.16"
+    "@duckdb/node-bindings-darwin-x64" "1.2.1-alpha.16"
+    "@duckdb/node-bindings-linux-arm64" "1.2.1-alpha.16"
+    "@duckdb/node-bindings-linux-x64" "1.2.1-alpha.16"
+    "@duckdb/node-bindings-win32-x64" "1.2.1-alpha.16"
+
 "@gar/promisify@^1.0.1":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
