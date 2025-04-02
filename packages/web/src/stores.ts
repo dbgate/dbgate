@@ -26,15 +26,19 @@ export interface TabDefinition {
   focused?: boolean;
 }
 
-function getSystemTheme() {
+export function getSystemTheme() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-light';
 }
 
-export function writableWithStorage<T>(defaultValue: T, storageName) {
+export function writableWithStorage<T>(defaultValue: T, storageName, removeCondition?: (value: T) => boolean) {
   const init = localStorage.getItem(storageName);
   const res = writable<T>(init ? safeJsonParse(init, defaultValue, true) : defaultValue);
   res.subscribe(value => {
-    localStorage.setItem(storageName, JSON.stringify(value));
+    if (removeCondition && removeCondition(value)) {
+      localStorage.removeItem(storageName);
+    } else {
+      localStorage.setItem(storageName, JSON.stringify(value));
+    }
   });
   return res;
 }
@@ -104,8 +108,8 @@ export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
 export const commands = writable({});
 export const currentTheme = getElectron()
-  ? writableSettingsValue(getSystemTheme(), 'currentTheme')
-  : writableWithStorage(getSystemTheme(), 'currentTheme');
+  ? writableSettingsValue(null, 'currentTheme')
+  : writableWithStorage(null, 'currentTheme', x => x == null);
 export const currentEditorTheme = getElectron()
   ? writableSettingsValue(null, 'currentEditorTheme')
   : writableWithStorage(null, 'currentEditorTheme');
@@ -197,12 +201,21 @@ export const connectionAppObjectSearchSettings = writableWithStorage(
   'connectionAppObjectSearchSettings2'
 );
 
-export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
-  $extensions?.themes?.find(x => x.themeClassName == $currentTheme)
-);
+let currentThemeValue = null;
+currentTheme.subscribe(value => {
+  currentThemeValue = value;
+});
+export const getCurrentTheme = () => currentThemeValue;
+
+export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) => {
+  const usedTheme = $currentTheme ?? getSystemTheme();
+  return $extensions?.themes?.find(x => x.themeClassName == usedTheme);
+});
 currentThemeDefinition.subscribe(value => {
-  if (value?.themeType) {
+  if (value?.themeType && getCurrentTheme()) {
     localStorage.setItem('currentThemeType', value?.themeType);
+  } else {
+    localStorage.removeItem('currentThemeType');
   }
 });
 export const openedConnectionsWithTemporary = derived(

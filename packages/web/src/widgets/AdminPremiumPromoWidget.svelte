@@ -14,6 +14,7 @@
     <li>Compare database models</li>
     <li>Synchronize database structure</li>
     <li>Backup &amp; restore database</li>
+    <li>Advanced ER diagram settings</li>
     <li>Export database model</li>
     <li>AI assistant</li>
     <li>libSQL, Turso, CosmosDB, Redshift support</li>

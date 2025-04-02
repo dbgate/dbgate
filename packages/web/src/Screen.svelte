@@ -12,6 +12,7 @@
     visibleCommandPalette,
     visibleTitleBar,
     visibleToolbar,
+    getSystemTheme,
   } from './stores';
   import TabsPanel from './tabpanel/TabsPanel.svelte';
   import TabRegister from './tabpanel/TabRegister.svelte';
@@ -50,7 +51,7 @@
 </div>
 
 <div
-  class={`${$currentTheme} ${currentThemeType} root dbgate-screen`}
+  class={`${$currentTheme ?? getSystemTheme()} ${currentThemeType} root dbgate-screen`}
   class:isElectron
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}

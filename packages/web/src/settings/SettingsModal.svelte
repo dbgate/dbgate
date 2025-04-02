@@ -28,6 +28,8 @@
     selectedWidget,
     lockedDatabaseMode,
     visibleWidgetSideBar,
+    currentTheme,
+    getSystemTheme,
   } from '../stores';
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
@@ -280,6 +282,32 @@ ORDER BY
 
         <svelte:fragment slot="3">
           <div class="heading">Application theme</div>
+
+          <FormFieldTemplateLarge
+            label="Use system theme"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                if ($currentTheme) {
+                  $currentTheme = null;
+                } else {
+                  $currentTheme = getSystemTheme();
+                }
+              },
+            }}
+          >
+            <CheckboxField
+              checked={!$currentTheme}
+              on:change={e => {
+                if (e.target['checked']) {
+                  $currentTheme = null;
+                } else {
+                  $currentTheme = getSystemTheme();
+                }
+              }}
+            />
+          </FormFieldTemplateLarge>
+
           <div class="themes">
             {#each $extensions.themes as theme}
               <ThemeSkeleton {theme} />
@@ -495,16 +523,12 @@ ORDER BY
             label="Folder with mysql plugins (for example for authentication). Set only in case of problems"
             defaultValue=""
           />
-         <FormTextField
+          <FormTextField
             name="externalTools.pg_dump"
             label="pg_dump (backup PostgreSQL database)"
             defaultValue="pg_dump"
           />
-          <FormTextField
-            name="externalTools.psql"
-            label="psql (restore PostgreSQL database)"
-            defaultValue="psql"
-          />
+          <FormTextField name="externalTools.psql" label="psql (restore PostgreSQL database)" defaultValue="psql" />
         </svelte:fragment>
       </TabControl>
     </FormValues>
