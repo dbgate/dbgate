@@ -178,6 +178,7 @@
     placeholder="Search columns"
     value={currentFilter}
     onChange={value => display.setSearchInColumns(value)}
+    data-testid="ColumnManager_searchColumns"
   />
   <CloseSearchButton filter={currentFilter} onClearFilter={() => display.setSearchInColumns('')} />
   {#if isDynamicStructure && !isJsonView}

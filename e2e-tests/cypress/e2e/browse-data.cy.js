@@ -100,9 +100,6 @@ describe('Data browser data', () => {
 
   it('Data grid screenshots', () => {
     cy.contains('MySql-connection').click();
-    cy.window().then(win => {
-      win.__changeCurrentTheme('theme-dark');
-    });
 
     cy.contains('MyChinook').click();
 
@@ -127,6 +124,15 @@ describe('Data browser data', () => {
     cy.contains('Switch to form').click();
     cy.contains('Switch to table'); // test that we are in form view
     cy.themeshot('data-browser-form-view');
+  });
+
+  it.only('Column search', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').click();
+    cy.testid('ColumnManager_searchColumns').clear().type('name,id{enter}');
+    cy.contains('Company').should('not.exist');
+    cy.themeshot('data-browser-column-search');
   });
 
   it('SQL Gen', () => {
