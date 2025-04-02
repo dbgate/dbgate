@@ -38,6 +38,8 @@ function start() {
         detail: formatErrorDetail(e, connection),
       });
     }
+
+    process.exit(0);
   });
 }
 

@@ -300,7 +300,10 @@
                   initialValue: $values[`columns_${row}`],
                   sourceTableInfo: $sourceDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == row?.toLowerCase()),
                   targetTableInfo: $targetDbinfo?.tables?.find(x => x.pureName?.toLowerCase() == targetNameLower),
-                  onConfirm: value => setFieldValue(`columns_${row}`, value),
+                  onConfirm: value => {
+                    setFieldValue(`columns_${row}`, value);
+                    targetEditKey += 1;
+                  },
                 });
               }}
               >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}

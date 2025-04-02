@@ -1,6 +1,9 @@
 <script lang="ts">
   import Designer from './Designer.svelte';
   import DiagramDesignerReference from './DiagramDesignerReference.svelte';
+  // import QueryDesignerReference from './QueryDesignerReference.svelte';
+
+  export let columnFilter;
 </script>
 
 <Designer
@@ -18,4 +21,6 @@
     arrangeAlg: 'springy',
   }}
   referenceComponent={DiagramDesignerReference}
+  showColumnFilter={false}
+  {columnFilter}
 />

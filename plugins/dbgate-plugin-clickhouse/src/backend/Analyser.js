@@ -34,7 +34,10 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
     this.feedback({ analysingMessage: 'Loading views' });
-    const views = await this.analyserQuery('views', ['views']);
+    let views = await this.analyserQuery('views', ['views']);
+    if (views?.isError) {
+      views = await this.analyserQuery('viewsNoDefinition', ['views']);
+    }
 
     const res = {
       tables: tables.rows.map((table) => ({
@@ -64,7 +67,7 @@ class Analyser extends DatabaseAnalyser {
             ...col,
             ...extractDataType(col.dataType),
           })),
-        createSql: `CREATE VIEW "${view.pureName}"\nAS\n${view.viewDefinition}`,
+        createSql: view.viewDefinition ? `CREATE VIEW "${view.pureName}"\nAS\n${view.viewDefinition}` : '',
       })),
     };
     this.feedback({ analysingMessage: null });

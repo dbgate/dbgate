@@ -620,6 +620,24 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'app.loggedUserCommands',
+  category: 'App',
+  name: 'Logged user',
+  getSubCommands: () => {
+    const config = getCurrentConfig();
+    if (!config) return [];
+    return [
+      {
+        text: 'Logout',
+        onClick: () => {
+          doLogout();
+        },
+      },
+    ];
+  },
+});
+
+registerCommand({
   id: 'app.disconnect',
   category: 'App',
   name: 'Disconnect',

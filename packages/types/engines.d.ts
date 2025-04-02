@@ -306,6 +306,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
     command: 'backup' | 'restore'
   ): { message: string; severity: 'info' | 'error' | 'debug' } | null;
   getNativeOperationFormArgs(operation: 'backup' | 'restore'): any[];
+  getAdvancedConnectionFields(): any[];
 
   analyserClass?: any;
   dumperClass?: any;

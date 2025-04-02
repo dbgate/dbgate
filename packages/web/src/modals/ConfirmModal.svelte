@@ -8,15 +8,23 @@
 
   export let message;
   export let onConfirm;
+  export let confirmLabel = 'OK';
+  export let header = null;
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
+    <svelte:fragment slot="header">
+      {#if header}
+        {header}
+      {/if}
+    </svelte:fragment>
+
     {message}
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value="OK"
+        value={confirmLabel}
         on:click={() => {
           closeCurrentModal();
           onConfirm();

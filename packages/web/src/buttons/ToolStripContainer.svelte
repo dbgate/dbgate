@@ -16,7 +16,7 @@
 </script>
 
 <div class="wrapper">
-  <div class="content" class:scrollContent>
+  <div class="content" class:scrollContent class:isComponentActive>
     <slot />
   </div>
 
@@ -39,6 +39,10 @@
     flex: 1;
     position: relative;
     max-height: 100%;
+  }
+
+  .content.isComponentActive {
+    max-height: calc(100% - 30px);
   }
 
   .toolstrip {

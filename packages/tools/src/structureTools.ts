@@ -9,16 +9,17 @@ import type {
 import _flatten from 'lodash/flatten';
 import _uniq from 'lodash/uniq';
 import _keys from 'lodash/keys';
+import _compact from 'lodash/compact';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   if (!db.tables) {
     return db;
   }
 
-  const allForeignKeys = _flatten(db.tables.map(x => x.foreignKeys || []));
+  const allForeignKeys = _flatten(db.tables.map(x => x?.foreignKeys || []));
   return {
     ...db,
-    tables: db.tables.map(table => ({
+    tables: _compact(db.tables).map(table => ({
       ...table,
       dependencies: allForeignKeys.filter(x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName),
     })),

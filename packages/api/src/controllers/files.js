@@ -195,8 +195,8 @@ module.exports = {
   },
 
   exportDiagram_meta: true,
-  async exportDiagram({ filePath, html, css, themeType, themeClassName }) {
-    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName));
+  async exportDiagram({ filePath, html, css, themeType, themeClassName, watermark }) {
+    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName, watermark));
     return true;
   },
 

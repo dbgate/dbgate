@@ -1933,6 +1933,7 @@
                 setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
                 grouping={display.getGrouping(col.uniqueName)}
                 {allowDefineVirtualReferences}
+                seachInColumns={display.config?.searchInColumns}
               />
             </td>
           {/each}
