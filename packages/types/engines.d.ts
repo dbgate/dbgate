@@ -310,6 +310,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
 
   analyserClass?: any;
   dumperClass?: any;
+  singleConnectionOnly?: boolean;
 }
 
 export interface DatabaseModification {
