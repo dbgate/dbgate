@@ -981,7 +981,7 @@
     on:dragover={e => e.preventDefault()}
     on:drop={handleDrop}
     style={`width:${canvasWidth / zoomKoef}px;height:${canvasHeight / zoomKoef}px;
-      ${settings?.customizeStyle && value?.style?.zoomKoef ? `zoom:${value?.style?.zoomKoef};` : ''}
+      ${settings?.customizeStyle && value?.style?.zoomKoef ? `transform:scale(${value?.style?.zoomKoef});transform-origin: top left;` : ''}
     `}
     on:mousedown={e => {
       if (e.button == 0 && settings?.canSelectTables) {
