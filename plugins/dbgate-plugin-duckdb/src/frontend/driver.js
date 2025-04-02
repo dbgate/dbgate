@@ -53,6 +53,7 @@ const driver = {
   title: 'DuckDB',
   readOnlySessions: true,
   supportsTransactions: true,
+  singleConnectionOnly: true,
 
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'
