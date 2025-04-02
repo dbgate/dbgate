@@ -26,8 +26,18 @@ export interface TabDefinition {
   focused?: boolean;
 }
 
+const darkModeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+const systemThemeStore = writable(darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light');
+
+if (darkModeMediaQuery) {
+  darkModeMediaQuery.addEventListener('change', e => {
+    systemThemeStore.set(e.matches ? 'theme-dark' : 'theme-light');
+  });
+}
+
 export function getSystemTheme() {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-light';
+  return darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light';
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName, removeCondition?: (value: T) => boolean) {
@@ -207,10 +217,13 @@ currentTheme.subscribe(value => {
 });
 export const getCurrentTheme = () => currentThemeValue;
 
-export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) => {
-  const usedTheme = $currentTheme ?? getSystemTheme();
-  return $extensions?.themes?.find(x => x.themeClassName == usedTheme);
-});
+export const currentThemeDefinition = derived(
+  [currentTheme, extensions, systemThemeStore],
+  ([$currentTheme, $extensions, $systemTheme]) => {
+    const usedTheme = $currentTheme ?? $systemTheme;
+    return $extensions?.themes?.find(x => x.themeClassName == usedTheme);
+  }
+);
 currentThemeDefinition.subscribe(value => {
   if (value?.themeType && getCurrentTheme()) {
     localStorage.setItem('currentThemeType', value?.themeType);
