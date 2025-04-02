@@ -28,7 +28,7 @@ export interface TabDefinition {
 
 const darkModeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-const systemThemeStore = writable(darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light');
+export const systemThemeStore = writable(darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light');
 
 if (darkModeMediaQuery) {
   darkModeMediaQuery.addEventListener('change', e => {
