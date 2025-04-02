@@ -5,13 +5,18 @@
 
   export let filter;
   export let showDisabled = false;
+  export let onClearFilter = null;
 </script>
 
 {#if filter || showDisabled}
   <InlineButton
     on:click
     on:click={() => {
-      filter = '';
+      if (onClearFilter) {
+        onClearFilter();
+      } else {
+        filter = '';
+      }
     }}
     title="Clear filter"
     disabled={!filter}

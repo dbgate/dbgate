@@ -47,10 +47,13 @@
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
-  import { extendDatabaseInfoFromApps } from 'dbgate-tools';
+  import { chooseTopTables, DIAGRAM_DEFAULT_WATERMARK, DIAGRAM_ZOOMS, extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import DragColumnMemory from './DragColumnMemory.svelte';
+  import createRef from '../utility/createRef';
+  import { isProApp } from '../utility/proTools';
+  import dragScroll from '../utility/dragScroll';
 
   export let value;
   export let onChange;
@@ -59,15 +62,18 @@
   export let menu;
   export let settings;
   export let referenceComponent;
+  export let onReportCounts = undefined;
 
   export const activator = createActivator('Designer', true);
 
   let domCanvas;
+  let domWrapper;
   let canvasWidth = 3000;
   let canvasHeight = 3000;
   let dragStartPoint = null;
   let dragCurrentPoint = null;
-  let columnFilter;
+  export let columnFilter;
+  export let showColumnFilter = true;
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
@@ -75,14 +81,24 @@
   const dbInfo = settings?.updateFromDbInfo ? useDatabaseInfo({ conid, database }) : null;
   $: dbInfoExtended = $dbInfo ? extendDatabaseInfoFromApps($dbInfo, $apps) : null;
 
-  $: tables = value?.tables as any[];
-  $: references = value?.references as any[];
+  $: tables =
+    (value?.tables
+      ? chooseTopTables(
+          value?.tables,
+          value?.style?.topTables,
+          value?.style?.tableFilter,
+          value?.style?.omitTablesFilter
+        )
+      : value?.tables) || ([] as any[]);
+  $: references = (value?.references || [])?.filter(
+    ref => tables.find(x => x.designerId == ref.sourceId) && tables.find(x => x.designerId == ref.targetId)
+  ) as any[];
   $: zoomKoef = settings?.customizeStyle && value?.style?.zoomKoef ? value?.style?.zoomKoef : 1;
   $: apps = useUsedApps();
 
   $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
 
-  const tableRefs = {};
+  let tableRefs = {};
   const referenceRefs = {};
   let domTables;
   $: {
@@ -132,12 +148,14 @@
     onChange(current => {
       let newTables = current.tables || [];
       for (const table of current.tables || []) {
-        const dbTable = (db.tables || []).find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+        const dbTable = (db.tables || []).find(
+          x => x?.pureName == table?.pureName && x?.schemaName == table?.schemaName
+        );
         if (
           stableStringify(_.pick(dbTable, ['columns', 'primaryKey', 'foreignKeys'])) !=
           stableStringify(_.pick(table, ['columns', 'primaryKey', 'foreignKeys']))
         ) {
-          newTables = newTables.map(x =>
+          newTables = _.compact(newTables).map(x =>
             x == table
               ? {
                   ...table,
@@ -152,7 +170,7 @@
       if (settings?.useDatabaseReferences) {
         references = [];
         for (const table of newTables) {
-          for (const fk of table.foreignKeys) {
+          for (const fk of table.foreignKeys || []) {
             const dst = newTables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
             if (!dst) continue;
             references.push({
@@ -620,11 +638,19 @@
           ...current,
           tables: (current.tables || []).map(x => {
             const domTable = domTables[x.designerId] as any;
-            const rect = domTable.getRect();
-            return {
-              ...x,
-              isSelectedTable: rectanglesHaveIntersection(rect, bounds),
-            };
+            if (domTable) {
+              const rect = domTable.getRect();
+              const rectZoomed = {
+                left: rect.left / zoomKoef,
+                right: rect.right / zoomKoef,
+                top: rect.top / zoomKoef,
+                bottom: rect.bottom / zoomKoef,
+              };
+              return {
+                ...x,
+                isSelectedTable: rectanglesHaveIntersection(rectZoomed, bounds),
+              };
+            }
           }),
         }),
         true
@@ -637,7 +663,7 @@
 
   function recomputeReferencePositions() {
     for (const ref of Object.values(referenceRefs) as any[]) {
-      if (ref) ref.recomputePosition();
+      if (ref) ref.recomputePosition(zoomKoef);
     }
   }
 
@@ -662,21 +688,26 @@
 
   export function arrange(skipUndoChain = false, arrangeAll = true, circleMiddle = { x: 0, y: 0 }) {
     const graph = new GraphDefinition();
-    for (const table of value?.tables || []) {
+    for (const table of tables || []) {
       const domTable = domTables[table.designerId] as any;
       if (!domTable) continue;
       const rect = domTable.getRect();
       graph.addNode(
         table.designerId,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        arrangeAll || table.needsArrange ? null : { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 }
+        (rect.right - rect.left) / zoomKoef,
+        (rect.bottom - rect.top) / zoomKoef,
+        arrangeAll || table.needsArrange
+          ? null
+          : {
+              x: (rect.left + rect.right) / 2 / zoomKoef,
+              y: (rect.top + rect.bottom) / 2 / zoomKoef,
+            }
       );
     }
 
     for (const reference of settings?.sortAutoLayoutReferences
-      ? settings?.sortAutoLayoutReferences(value?.references)
-      : value?.references) {
+      ? settings?.sortAutoLayoutReferences(references)
+      : references) {
       graph.addEdge(reference.sourceId, reference.targetId);
     }
 
@@ -710,7 +741,7 @@
       current => {
         return {
           ...current,
-          tables: (current?.tables || []).map(table => {
+          tables: _.compact(current?.tables || []).map(table => {
             const node = layout.nodes[table.designerId];
             // console.log('POSITION', position);
             return node
@@ -732,6 +763,16 @@
     );
   }
 
+  function getWatermarkHtml() {
+    const replaceLinks = text => text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>');
+
+    if (value?.style?.omitExportWatermark) return null;
+    if (value?.style?.exportWatermark) {
+      return replaceLinks(value?.style?.exportWatermark);
+    }
+    return replaceLinks(DIAGRAM_DEFAULT_WATERMARK);
+  }
+
   export async function exportDiagram() {
     const cssLinks = ['global.css', 'build/bundle.css'];
     let css = '';
@@ -745,6 +786,7 @@
       if (css) css += '\n';
       css += $currentThemeDefinition?.themeCss;
     }
+    css += ' body { overflow: scroll; }';
     saveFileToDisk(async filePath => {
       await apiCall('files/export-diagram', {
         filePath,
@@ -752,6 +794,7 @@
         css,
         themeType: $currentThemeDefinition?.themeType,
         themeClassName: $currentThemeDefinition?.themeClassName,
+        watermark: getWatermarkHtml(),
       });
     });
   }
@@ -773,7 +816,7 @@
       menu,
       settings?.customizeStyle && [
         { divider: true },
-        {
+        isProApp() && {
           text: 'Column properties',
           submenu: [
             {
@@ -786,12 +829,12 @@
             },
           ],
         },
-        {
+        isProApp() && {
           text: `Columns - ${_.startCase(value?.style?.filterColumns || 'all')}`,
           submenu: [
             {
               text: 'All',
-              onClick: changeStyleFunc('filterColumns', null),
+              onClick: changeStyleFunc('filterColumns', ''),
             },
             {
               text: 'Primary Key',
@@ -813,56 +856,10 @@
         },
         {
           text: `Zoom - ${(value?.style?.zoomKoef || 1) * 100}%`,
-          submenu: [
-            {
-              text: `10 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.1),
-            },
-            {
-              text: `15 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.15),
-            },
-            {
-              text: `20 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.2),
-            },
-            {
-              text: `40 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.4),
-            },
-            {
-              text: `60 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.6),
-            },
-            {
-              text: `80 %`,
-              onClick: changeStyleFunc('zoomKoef', 0.8),
-            },
-            {
-              text: `100 %`,
-              onClick: changeStyleFunc('zoomKoef', 1),
-            },
-            {
-              text: `120 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.2),
-            },
-            {
-              text: `140 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.4),
-            },
-            {
-              text: `160 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.6),
-            },
-            {
-              text: `180 %`,
-              onClick: changeStyleFunc('zoomKoef', 1.8),
-            },
-            {
-              text: `200 %`,
-              onClick: changeStyleFunc('zoomKoef', 2),
-            },
-          ],
+          submenu: DIAGRAM_ZOOMS.map(koef => ({
+            text: `${koef * 100} %`,
+            onClick: changeStyleFunc('zoomKoef', koef.toString()),
+          })),
         },
       ],
     ];
@@ -875,9 +872,105 @@
       recomputeDomTables();
     });
   }
+
+  const oldTopTablesRef = createRef(value?.style?.topTables);
+  $: {
+    if (value?.style?.topTables > 0 && oldTopTablesRef.get() != value?.style?.topTables) {
+      oldTopTablesRef.set(value?.style?.topTables);
+      tick().then(() => {
+        arrange();
+        tick().then(() => {
+          recomputeReferencePositions();
+          recomputeDomTables();
+        });
+      });
+    }
+  }
+
+  function handleWheel(event) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+      const zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
+      if (zoomIndex < 0) DIAGRAM_ZOOMS.findIndex(x => x == 1);
+
+      let newZoomIndex = zoomIndex;
+      if (event.deltaY < 0) {
+        newZoomIndex += 1;
+      }
+      if (event.deltaY > 0) {
+        newZoomIndex -= 1;
+      }
+      if (newZoomIndex < 0) {
+        newZoomIndex = 0;
+      }
+      if (newZoomIndex >= DIAGRAM_ZOOMS.length) {
+        newZoomIndex = DIAGRAM_ZOOMS.length - 1;
+      }
+      const newZoomKoef = DIAGRAM_ZOOMS[newZoomIndex];
+
+      callChange(
+        current => ({
+          ...current,
+          style: {
+            ...current?.style,
+            zoomKoef: newZoomKoef.toString(),
+          },
+        }),
+        true
+      );
+    }
+  }
+
+  function handleDragScroll(x, y) {
+    domWrapper.scrollLeft -= x;
+    domWrapper.scrollTop -= y;
+  }
+
+  const oldZoomKoefRef = createRef(value?.style?.zoomKoef || 1);
+  $: {
+    if (
+      domWrapper &&
+      value?.style?.zoomKoef != oldZoomKoefRef.get() &&
+      value?.style?.zoomKoef > 0 &&
+      oldZoomKoefRef.get() > 0
+    ) {
+      domWrapper.scrollLeft = Math.round((domWrapper.scrollLeft / oldZoomKoefRef.get()) * value?.style?.zoomKoef);
+      domWrapper.scrollTop = Math.round((domWrapper.scrollTop / oldZoomKoefRef.get()) * value?.style?.zoomKoef);
+    }
+    oldZoomKoefRef.set(value?.style?.zoomKoef);
+  }
+
+  // $: console.log('DESIGNER VALUE', value);
+
+  // $: console.log('TABLES ARRAY', tables);
+
+  // $: {
+  //   if (value?.tables?.find(x => !x)) {
+  //     console.log('**** INCORRECT DESIGNER VALUE**** ', value);
+  //   }
+  // }
+  // $: {
+  //   if (value?.tables?.length < 100) {
+  //     console.log('**** SMALL TABLES**** ', value);
+  //   }
+  // }
+
+  $: if (onReportCounts) {
+    // console.log('REPORTING COUNTS');
+    onReportCounts({
+      all: _.compact(value?.tables || []).length,
+      filtered: _.compact(tables || []).length,
+    });
+  }
 </script>
 
-<div class="wrapper noselect" use:contextMenu={createMenu}>
+<div
+  class="wrapper noselect"
+  use:contextMenu={createMenu}
+  on:wheel={handleWheel}
+  bind:this={domWrapper}
+  use:dragScroll={handleDragScroll}
+>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
@@ -887,8 +980,8 @@
     bind:this={domCanvas}
     on:dragover={e => e.preventDefault()}
     on:drop={handleDrop}
-    style={`width:${canvasWidth}px;height:${canvasHeight}px;
-      ${settings?.customizeStyle && value?.style?.zoomKoef ? `zoom:${value?.style?.zoomKoef};` : ''}
+    style={`width:${canvasWidth / zoomKoef}px;height:${canvasHeight / zoomKoef}px;
+      ${settings?.customizeStyle && value?.style?.zoomKoef ? `transform:scale(${value?.style?.zoomKoef});transform-origin: top left;` : ''}
     `}
     on:mousedown={e => {
       if (e.button == 0 && settings?.canSelectTables) {
@@ -913,6 +1006,7 @@
         onRemoveReference={removeReference}
         designer={value}
         {settings}
+        {zoomKoef}
       />
     {/each}
     <!-- 
@@ -971,7 +1065,7 @@
       </svg>
     {/if}
   </div>
-  {#if tables?.length > 0}
+  {#if showColumnFilter && tables?.length > 0}
     <div class="panel">
       <DragColumnMemory {settings} {sourceDragColumn$} {targetDragColumn$} />
       <div class="searchbox">

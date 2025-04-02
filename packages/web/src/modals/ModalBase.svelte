@@ -39,7 +39,14 @@
 <!-- The Modal -->
 <div id="myModal" class="bglayer">
   <!-- Modal content -->
-  <div class="window" class:fullScreen class:simple use:clickOutside on:clickOutside={handleClickOutside}>
+  <div
+    class="window"
+    class:fullScreen
+    class:simple
+    use:clickOutside
+    on:clickOutside={handleClickOutside}
+    data-testid="ModalBase_window"
+  >
     {#if $$slots.header}
       <div class="header" class:fullScreen>
         <div><slot name="header" /></div>

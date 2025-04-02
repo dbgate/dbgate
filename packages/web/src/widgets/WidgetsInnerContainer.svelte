@@ -3,6 +3,7 @@
 
   export let hideContent = false;
   export let fixedWidth = 0;
+  export let skipDefineWidth = false;
 
   export function scrollTop() {
     domDiv.scrollTop = 0;
@@ -13,7 +14,7 @@
   on:drop
   bind:this={domDiv}
   class:hideContent
-  class:leftFixedWidth={!fixedWidth}
+  class:leftFixedWidth={!fixedWidth && !skipDefineWidth}
   data-testid={$$props['data-testid']}
   style:width={fixedWidth ? `${fixedWidth}px` : undefined}
 >

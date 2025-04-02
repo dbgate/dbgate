@@ -239,6 +239,7 @@
       isInline
       containerMaxWidth="800px"
       flex1={false}
+      contentTestId="ConnectionTab_tabControlContent"
       tabs={[
         {
           label: 'General',

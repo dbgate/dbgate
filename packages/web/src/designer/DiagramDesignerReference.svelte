@@ -9,6 +9,8 @@
   export let domTables;
   export let settings;
 
+  export let zoomKoef;
+
   let src = null;
   let dst = null;
 
@@ -19,7 +21,7 @@
   const arhi = 12;
   const arpad = 3;
 
-  export function recomputePosition() {
+  export function recomputePosition(zoomKoef) {
     const { designerId, sourceId, targetId, columns, joinType } = reference;
 
     /** @type {DomTableRef} */
@@ -30,6 +32,17 @@
     const sourceRect = sourceTable.getRect();
     const targetRect = targetTable.getRect();
     if (!sourceRect || !targetRect) return null;
+
+    if (zoomKoef > 0) {
+      sourceRect.left /= zoomKoef;
+      sourceRect.right /= zoomKoef;
+      sourceRect.top /= zoomKoef;
+      sourceRect.bottom /= zoomKoef;
+      targetRect.left /= zoomKoef;
+      targetRect.right /= zoomKoef;
+      targetRect.top /= zoomKoef;
+      targetRect.bottom /= zoomKoef;
+    }
 
     src = {
       x: (sourceRect.left + sourceRect.right) / 2,
@@ -47,7 +60,7 @@
 
   $: {
     domTables;
-    recomputePosition();
+    recomputePosition(zoomKoef);
   }
 </script>
 

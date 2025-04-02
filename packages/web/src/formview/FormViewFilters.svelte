@@ -39,12 +39,12 @@
     <div class="flex">
       <input
         type="text"
-        value={display?.config?.formColumnFilterText || ''}
+        value={display?.config?.searchInColumns || ''}
         on:keydown={e => {
           if (e.keyCode == keycodes.escape) {
             setConfig(x => ({
               ...x,
-              formColumnFilterText: '',
+              searchInColumns: '',
             }));
           }
         }}
@@ -52,7 +52,7 @@
           setConfig(x => ({
             ...x,
             // @ts-ignore
-            formColumnFilterText: e.target.value,
+            searchInColumns: e.target.value,
           }))}
       />
     </div>

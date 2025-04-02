@@ -82,6 +82,16 @@ const driver = {
     }
     return ['server', 'port', 'user', 'password', 'isReadOnly', 'treeKeySeparator'].includes(field);
   },
+
+  getAdvancedConnectionFields() {
+    return [
+      {
+        type: 'checkbox',
+        name: 'skipSetName',
+        label: 'Skip SETNAME instruction',
+      },
+    ];
+  },
 };
 
 module.exports = driver;

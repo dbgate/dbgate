@@ -24,16 +24,13 @@
         Build date: <span>{moment(buildTime).format('YYYY-MM-DD')}</span>
       </div>
       <div class="m-1">
-        Web: <Link href="https://dbgate.org">dbgate.org</Link>
+        Web: <Link href="https://dbgate.io">dbgate.io</Link>
       </div>
       <div class="m-1">
         Source codes: <Link href="https://github.com/dbgate/dbgate/">github</Link>
       </div>
       <div class="m-1">
         Docker container: <Link href="https://hub.docker.com/r/dbgate/dbgate">docker hub</Link>
-      </div>
-      <div class="m-1">
-        Online demo: <Link href="https://demo.dbgate.org">demo.dbgate.org</Link>
       </div>
       <div class="m-1">
         Search plugins: <Link href="https://www.npmjs.com/search?q=keywords:dbgateplugin">npmjs.com</Link>

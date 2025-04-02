@@ -13,15 +13,21 @@ describe('Add connection', () => {
   it('adds connection', () => {
     // cy.get('[data-testid=ConnectionList_buttonNewConnection]').click();
     cy.get('[data-testid=ConnectionDriverFields_connectionType]').select('MySQL');
-    cy.themeshot('connection');
+    cy.themeshot('new-connection');
     cy.get('[data-testid=ConnectionDriverFields_user]').clear().type('root');
     cy.get('[data-testid=ConnectionDriverFields_password]').clear().type('Pwd2020Db');
     cy.get('[data-testid=ConnectionDriverFields_port]').clear().type('16004');
     cy.get('[data-testid=ConnectionDriverFields_displayName]').clear().type('test-mysql-1');
 
     // test connection
-    cy.get('[data-testid=ConnectionTab_buttonTest]').click();
+    cy.testid('ConnectionTab_buttonTest').click();
     cy.contains('Connected:');
+
+    cy.testid('ConnectionTab_tabSshTunnel').click();
+    cy.testid('ConnectionTab_tabControlContent').themeshot('connection-sshtunnel-window', { padding: 50 });
+
+    cy.testid('ConnectionTab_tabSsl').click();
+    cy.testid('ConnectionTab_tabControlContent').themeshot('connection-ssl-window', { padding: 50 });
 
     // save and connect
     cy.get('[data-testid=ConnectionTab_buttonSave]').click();

@@ -5,15 +5,25 @@ import { runGroupCommand } from '../commands/runCommand';
 import { currentDropDownMenu, visibleCommandPalette } from '../stores';
 import getAsArray from './getAsArray';
 
+let isContextMenuSupressed = false;
+
 export function registerMenu(...items) {
   const parentMenu = getContext('componentContextMenu');
   setContext('componentContextMenu', [parentMenu, ...items]);
+}
+
+export function supressContextMenu() {
+  isContextMenuSupressed = true;
 }
 
 export default function contextMenu(node, items: any = []) {
   const handleContextMenu = async e => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (isContextMenuSupressed) {
+      return;
+    }
 
     await invalidateCommands();
 
@@ -24,13 +34,19 @@ export default function contextMenu(node, items: any = []) {
     }
   };
 
+  const handleMouseDown = () => {
+    isContextMenuSupressed = false;
+  };
+
   if (items == '__no_menu') return;
 
   node.addEventListener('contextmenu', handleContextMenu);
+  node.addEventListener('mousedown', handleMouseDown);
 
   return {
     destroy() {
       node.removeEventListener('contextmenu', handleContextMenu);
+      node.removeEventListener('mousedown', handleMouseDown);
     },
     update(value) {
       items = value;

@@ -23,6 +23,7 @@
   export let isSortDefined = false;
   export let allowDefineVirtualReferences = false;
   export let setGrouping;
+  export let seachInColumns = '';
 
   const openReferencedTable = () => {
     openDatabaseObjectDetail('TableDataTab', null, {
@@ -86,7 +87,7 @@
         {grouping == 'COUNT DISTINCT' ? 'distinct' : grouping.toLowerCase()}
       </span>
     {/if}
-    <ColumnLabel {...column} />
+    <ColumnLabel {...column} filter={seachInColumns} />
 
     {#if _.isString(column.displayedDataType || column.dataType) && !order}
       <span class="data-type" title={column.dataType}>

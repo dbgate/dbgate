@@ -354,6 +354,7 @@ export class DatabaseAnalyser {
       logger.error(extractErrorLogData(err, { template }), 'Error running analyser query');
       return {
         rows: [],
+        isError: true,
       };
     }
   }

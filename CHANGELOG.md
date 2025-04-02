@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 6.3.2
+- ADDED: "Use system theme" switch, use changed system theme without restart #1084
+- ADDED: "Skip SETNAME instruction" option for Redis #1077
+- FIXED: Clickhouse views are now available even for user with limited permissions #1076
+- ADDED: Multiple-token search delimited with comma (=OR) in structure search boxes
+- CHANGED: When filtering columns in data browser, data view shows only filtered columns
+- ADDED: Advanced settings for diagrams (Premium)
+- ADDED: Diagrams - zoom with Ctrl+mouse wheel
+- FIXED: Scrollable diagram exports + scroll by mouse drag
+- FIXED: Fixed many problems in diagrams when zoom is applied
+- FIXED: Correctly end connection process after succesful/unsuccesful connect
+
 ### 6.3.0
 - ADDED: Support for libSQL and Turso (Premium)
 - ADDED: Native backup and restore database for MySQL and PostgreSQL (Premium)
@@ -29,7 +41,7 @@ Builds:
 - FIXED: Scroll in XML cell view, XML view respect themes
 - REMOVED: armv7l build for Linux (because of problems with glibc compatibility)
 - CHANGED: Upgraded to node:22 for docker builds
-- CHANGED: Upgraded SQLite engine version (better-sqlite3@11.8.1)
+- CHANGED: Upgraded SQLite engine version
 
 ### 6.2.0
 - ADDED: Query AI Assistant (Premium)

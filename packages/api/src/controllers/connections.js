@@ -102,12 +102,21 @@ function getPortalCollections() {
       trustServerCertificate: process.env[`SSL_TRUST_CERTIFICATE_${id}`],
     }));
 
+    for(const conn of connections) {
+      for(const prop in process.env) {
+        if (prop.startsWith(`CONNECTION_${conn._id}_`)) {
+          const name = prop.substring(`CONNECTION_${conn._id}_`.length);
+          conn[name] = process.env[prop];
+        }
+      }
+    }
+
     logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'Using connections from ENV variables');
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       logger.warn(
         { connections: noengine.map(x => x._id) },
-        'Invalid CONNECTIONS configutation, missing ENGINE for connection ID'
+        'Invalid CONNECTIONS configuration, missing ENGINE for connection ID'
       );
     }
     return connections;

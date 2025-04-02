@@ -22,7 +22,7 @@
 
 <style>
   @media (prefers-color-scheme: dark) {
-    #starting-dbgate {
+    .starting-dbgate {
       background-color: #111;
       color: #e3e3e3;
     }

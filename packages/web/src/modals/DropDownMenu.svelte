@@ -7,29 +7,6 @@
     if (side == 'right') return { top: top, left: left + box.width };
     return { top: top, left: left };
   }
-
-  function fixPopupPlacement(element) {
-    const { width, height } = element.getBoundingClientRect();
-    let offset = getElementOffset(element);
-
-    let newLeft = null;
-    let newTop = null;
-
-    if (offset.left + width > window.innerWidth) {
-      newLeft = offset.left - width;
-
-      if (newLeft < 0) newLeft = 0;
-    }
-
-    if (offset.top + height > window.innerHeight) {
-      newTop = offset.top - height;
-
-      if (newTop < 0) newTop = 0;
-    }
-
-    if (newLeft != null) element.style.left = `${newLeft}px`;
-    if (newTop != null) element.style.top = `${newTop}px`;
-  }
 </script>
 
 <script>
@@ -43,11 +20,16 @@
 
   export let items;
   export let top;
+  export let bottom;
   export let left;
   export let onCloseParent;
   export let targetElement;
+  export let submenuLevel = 0;
 
   let element;
+
+  let newLeft = undefined;
+  let newTop = undefined;
 
   let hoverItem;
   let hoverOffset;
@@ -56,6 +38,8 @@
   let submenuOffset;
 
   let switchIndex = 0;
+
+  let submenuKey = 0;
 
   const dispatch = createEventDispatcher();
   let closeHandlers = [];
@@ -66,6 +50,25 @@
       handler();
     }
     closeHandlers = [];
+  }
+
+  function fixPopupPlacement(element) {
+    const { width, height } = element.getBoundingClientRect();
+    let offset = getElementOffset(element);
+
+    if (offset.left + width > window.innerWidth) {
+      newLeft = offset.left - width;
+
+      if (newLeft < 0) newLeft = 0;
+    }
+
+    if (offset.top < 0) {
+      newTop = 0;
+    } else if (offset.top + height > window.innerHeight) {
+      newTop = offset.top - height;
+
+      if (newTop < 0) newTop = 0;
+    }
   }
 
   function registerCloseHandler(handler) {
@@ -80,6 +83,7 @@
 
       submenuItem = item;
       submenuOffset = hoverOffset;
+      submenuKey += 1;
       return;
     }
     if (item.switchStore && item.switchValue) {
@@ -109,6 +113,7 @@
   const changeActiveSubmenu = _.throttle(() => {
     submenuItem = hoverItem;
     submenuOffset = hoverOffset;
+    submenuKey += 1;
   }, 500);
 
   $: preparedItems = prepareMenuItems(items, { targetElement, registerCloseHandler }, $commandsCustomized);
@@ -128,7 +133,14 @@
   });
 </script>
 
-<ul class="dropDownMenuMarker" style={`left: ${left}px; top: ${top}px`} bind:this={element}>
+<ul
+  class="dropDownMenuMarker"
+  style:top={(newTop ?? top) != null ? `${newTop ?? top}px` : undefined}
+  style:bottom={newTop == null && bottom != null ? `${bottom}px` : undefined}
+  style:left={(newLeft ?? left) != null ? `${newLeft ?? left}px` : undefined}
+  bind:this={element}
+  data-testid={`DropDownMenu-container-${submenuLevel}`}
+>
   {#each preparedItems as item}
     {#if item.divider}
       <li class="divider" />
@@ -172,14 +184,17 @@
   {/each}
 </ul>
 {#if submenuItem?.submenu}
-  <svelte:self
-    items={submenuItem?.submenu}
-    {...submenuOffset}
-    onCloseParent={() => {
-      if (onCloseParent) onCloseParent();
-      dispatchClose();
-    }}
-  />
+  {#key submenuKey}
+    <svelte:self
+      items={submenuItem?.submenu}
+      {...submenuOffset}
+      onCloseParent={() => {
+        if (onCloseParent) onCloseParent();
+        dispatchClose();
+      }}
+      submenuLevel={submenuLevel + 1}
+    />
+  {/key}
 {/if}
 
 <style>

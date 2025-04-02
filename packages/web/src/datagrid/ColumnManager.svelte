@@ -28,7 +28,6 @@
   export let changeSetState: { value: ChangeSet } = null;
   export let dispatchChangeSet = null;
 
-  let filter;
   let domFocusField;
 
   let selectedColumns = [];
@@ -36,7 +35,9 @@
   let dragStartColumnIndex = null;
   let shiftOriginColumnIndex = null;
 
-  $: items = display?.getColumns(filter)?.filter(column => filterName(filter, column.columnName)) || [];
+  $: currentFilter = display?.config?.searchInColumns;
+
+  $: items = display?.getColumns(currentFilter)?.filter(column => filterName(currentFilter, column.columnName)) || [];
 
   function selectColumnIndexCore(index, e) {
     const uniqueName = items[index].uniqueName;
@@ -173,8 +174,13 @@
   </div>
 {/if}
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search columns" bind:value={filter} />
-  <CloseSearchButton bind:filter />
+  <SearchInput
+    placeholder="Search columns"
+    value={currentFilter}
+    onChange={value => display.setSearchInColumns(value)}
+    data-testid="ColumnManager_searchColumns"
+  />
+  <CloseSearchButton filter={currentFilter} onClearFilter={() => display.setSearchInColumns('')} />
   {#if isDynamicStructure && !isJsonView}
     <InlineButton
       on:click={() => {
@@ -235,7 +241,7 @@
       {columnIndex}
       {allowChangeChangeSetStructure}
       isSelected={selectedColumns.includes(column.uniqueName) || currentColumnUniqueName == column.uniqueName}
-      {filter}
+      filter={currentFilter}
       on:click={() => {
         if (domFocusField) domFocusField.focus();
         selectedColumns = [column.uniqueName];

@@ -14,18 +14,18 @@ describe('Team edition tests', () => {
     cy.contains('New connection').click();
     cy.contains('New connection').click();
     cy.testid('ConnectionDriverFields_connectionType').select('PostgreSQL');
-    cy.themeshot('connadmin');
+    cy.themeshot('connection-administration');
 
     cy.testid('AdminMenuWidget_itemRoles').click();
     cy.contains('Permissions').click();
-    cy.themeshot('roleadmin');
+    cy.themeshot('role-administration');
 
     cy.testid('AdminMenuWidget_itemAuthentication').click();
     cy.contains('Add authentication').click();
     cy.contains('Use database login').click();
     cy.contains('Add authentication').click();
     cy.contains('OAuth 2.0').click();
-    cy.themeshot('authadmin');
+    cy.themeshot('authentication-administration');
   });
 
   it('OAuth authentication', () => {

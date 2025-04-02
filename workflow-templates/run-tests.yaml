@@ -43,6 +43,12 @@ jobs:
           cd packages/datalib
           yarn test:ci
 
+      - name: Tools tests
+        if: always()
+        run: |
+          cd packages/tools
+          yarn test:ci
+
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:

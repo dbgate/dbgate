@@ -217,6 +217,8 @@
     'icon autocommit-on': 'mdi mdi-check-circle',
     'icon autocommit-off': 'mdi mdi-check-circle-outline',
 
+    'icon premium': 'mdi mdi-star',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',

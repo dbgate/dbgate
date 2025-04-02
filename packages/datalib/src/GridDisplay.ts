@@ -196,9 +196,24 @@ export abstract class GridDisplay {
     }));
   }
 
+  setSearchInColumns(searchInColumns: string) {
+    this.setConfig(cfg => ({
+      ...cfg,
+      searchInColumns,
+    }));
+  }
+
   get hiddenColumnIndexes() {
     // console.log('GridDisplay.hiddenColumn', this.config.hiddenColumns);
-    return (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
+    const res = (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
+    if (this.config.searchInColumns) {
+      for (let i = 0; i < this.allColumns.length; i++) {
+        if (!filterName(this.config.searchInColumns, this.allColumns[i].columnName)) {
+          res.push(i);
+        }
+      }
+    }
+    return _.sortBy(_.uniq(res));
   }
 
   isColumnChecked(column: DisplayColumn) {

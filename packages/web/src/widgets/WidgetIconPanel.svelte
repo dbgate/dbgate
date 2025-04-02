@@ -12,6 +12,7 @@
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
+  import { isProApp } from '../utility/proTools';
 
   let domSettings;
   let domMainMenu;
@@ -61,6 +62,12 @@
       name: 'app',
       title: 'Application layers',
     },
+    {
+      icon: 'icon premium',
+      name: 'premium',
+      title: 'Premium promo',
+      isPremiumPromo: true,
+    },
     // {
     //   icon: 'icon settings',
     //   name: 'settings',
@@ -104,7 +111,9 @@
       <FontIcon icon="icon menu" />
     </div>
   {/if}
-  {#each widgets.filter(x => x && hasPermission(`widgets/${x.name}`)) as item}
+  {#each widgets
+    .filter(x => x && hasPermission(`widgets/${x.name}`))
+    .filter(x => !x.isPremiumPromo || !isProApp()) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
@@ -112,6 +121,9 @@
       on:click={() => handleChangeWidget(item.name)}
     >
       <FontIcon icon={item.icon} title={item.title} />
+      {#if item.isPremiumPromo}
+        <div class="premium-promo">Premium</div>
+      {/if}
     </div>
   {/each}
 
@@ -141,6 +153,7 @@
     align-items: center;
     justify-content: center;
     color: var(--theme-font-inv-2);
+    position: relative;
   }
   .wrapper:hover {
     color: var(--theme-font-inv-1);
@@ -153,5 +166,16 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+  }
+
+  .premium-promo {
+    position: absolute;
+    text-transform: uppercase;
+    font-size: 6pt;
+    background: var(--theme-bg-inv-3);
+    color: var(--theme-font-inv-2);
+    padding: 1px 3px;
+    border-radius: 3px;
+    bottom: 0;
   }
 </style>

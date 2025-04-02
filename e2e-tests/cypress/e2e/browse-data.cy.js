@@ -31,7 +31,7 @@ describe('Data browser data', () => {
     cy.contains('Finished job script');
     cy.contains('Album.csv');
     cy.testid('WidgetIconPanel_database').click();
-    cy.themeshot('exportcsv');
+    cy.themeshot('configure-export-csv');
   });
 
   it('Data archive editor - macros', () => {
@@ -42,7 +42,7 @@ describe('Data browser data', () => {
     cy.contains('Out Of Exile').click({ shiftKey: true });
     cy.contains('Change text case').click();
     cy.contains('AUDIOSLAVE');
-    cy.themeshot('freetable');
+    cy.themeshot('data-archive-macros');
   });
 
   it('Load table data', () => {
@@ -87,19 +87,19 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('DataFilterControl_input_Title').type('Rock{enter}');
     cy.contains('Rows: 7');
-    cy.testid('DataFilterControl_input_AlbumId').type('>10{enter}');
-    cy.contains('Rows: 5');
+    cy.testid('DataFilterControl_input_AlbumId').type('>10xxx{enter}');
+    cy.contains('Rows: 7');
     cy.testid('DataFilterControl_filtermenu_Title').click();
-    cy.themeshot('filter');
+    // hide what is not needed
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('DataGrid_itemReferences').click();
+    cy.themeshot('data-browser-filter');
     cy.testid('DataGridCore_button_clearFilters').click();
     cy.contains('Rows: 347');
   });
 
   it('Data grid screenshots', () => {
     cy.contains('MySql-connection').click();
-    cy.window().then(win => {
-      win.__changeCurrentTheme('theme-dark');
-    });
 
     cy.contains('MyChinook').click();
 
@@ -114,16 +114,25 @@ describe('Data browser data', () => {
     cy.contains('PgChinook').click();
     cy.contains('customer').click();
     cy.contains('Leonie').click();
-    cy.themeshot('datagrid');
+    cy.themeshot('common-data-browser');
 
     cy.contains('invoice').click();
     cy.contains('invoice_line (invoice_id)').click();
-    cy.themeshot('masterdetail');
+    cy.themeshot('data-browser-master-detail');
 
     cy.contains('9, Place Louis Barthou').click();
     cy.contains('Switch to form').click();
     cy.contains('Switch to table'); // test that we are in form view
-    cy.themeshot('formview');
+    cy.themeshot('data-browser-form-view');
+  });
+
+  it.only('Column search', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').click();
+    cy.testid('ColumnManager_searchColumns').clear().type('name,id{enter}');
+    cy.contains('Company').should('not.exist');
+    cy.themeshot('data-browser-column-search');
   });
 
   it('SQL Gen', () => {
@@ -131,7 +140,7 @@ describe('Data browser data', () => {
     cy.contains('PgChinook').rightclick();
     cy.contains('SQL Generator').click();
     cy.contains('Check all').click();
-    cy.themeshot('sqlgen');
+    cy.themeshot('sql-generator');
   });
 
   it('Macros in DB', () => {
@@ -146,7 +155,7 @@ describe('Data browser data', () => {
     cy.testid('DataGrid_itemMacros').click();
     cy.contains('Change text case').click();
     cy.contains('NIELSEN');
-    cy.themeshot('macros');
+    cy.themeshot('data-browser-macros');
   });
 
   it('Perspectives', () => {
@@ -162,7 +171,7 @@ describe('Data browser data', () => {
     // check track is loaded
     cy.contains('Put The Finger On You');
 
-    cy.themeshot('perspective1');
+    cy.themeshot('perspective-designer');
   });
 
   it('Query editor - code completion', () => {
@@ -176,7 +185,7 @@ describe('Data browser data', () => {
     cy.get('body').realType('select * from Album where Album.');
     // code completion
     cy.contains('ArtistId');
-    cy.themeshot('query');
+    cy.themeshot('query-editor-code-completion');
   });
 
   it('Query editor - join wizard', () => {
@@ -189,7 +198,7 @@ describe('Data browser data', () => {
     cy.get('body').realPress(['Control', 'j']);
     // JOIN wizard
     cy.contains('INNER JOIN Customer ON Invoice.CustomerId = Customer.CustomerId');
-    cy.themeshot('joinwizard');
+    cy.themeshot('query-editor-join-wizard');
   });
 
   it('Mongo JSON data view', () => {
@@ -206,7 +215,7 @@ describe('Data browser data', () => {
     cy.testid('WidgetIconPanel_cell-data').click();
     // test JSON view
     cy.contains('Country: "Brazil"');
-    cy.themeshot('mongoquery');
+    cy.themeshot('mongo-query-json-view');
   });
 
   it('SQL preview', () => {
@@ -216,7 +225,7 @@ describe('Data browser data', () => {
     cy.contains('Show SQL').click();
     // index should be part of create script
     cy.contains('CREATE INDEX `IFK_CustomerSupportRepId`');
-    cy.themeshot('sqlpreview');
+    cy.themeshot('sql-preview-create-index');
   });
 
   it('Query designer', () => {
@@ -225,7 +234,7 @@ describe('Data browser data', () => {
     cy.testid('WidgetIconPanel_file').click();
     cy.contains('customer').click();
     // cy.contains('left join').rightclick();
-    cy.themeshot('querydesigner');
+    cy.themeshot('query-designer');
   });
 
   it('Database diagram', () => {
@@ -236,7 +245,7 @@ describe('Data browser data', () => {
     cy.testid('WidgetIconPanel_file').click();
     // check diagram is shown
     cy.contains('MediaTypeId');
-    cy.themeshot('diagram');
+    cy.themeshot('database-diagram');
   });
 
   it('Charts', () => {
@@ -245,7 +254,7 @@ describe('Data browser data', () => {
     cy.contains('line-chart').click();
     cy.testid('TabsPanel_buttonSplit').click();
     cy.testid('WidgetIconPanel_file').click();
-    cy.themeshot('charts');
+    cy.themeshot('view-split-charts');
   });
 
   it('Keyboard configuration', () => {
@@ -253,7 +262,7 @@ describe('Data browser data', () => {
     cy.contains('Keyboard shortcuts').click();
     cy.contains('dataForm.refresh').click();
     cy.testid('CommandModal_keyboardButton').click();
-    cy.themeshot('keyboard');
+    cy.themeshot('keyboard-configuration');
   });
 
   it('Command palette', () => {
@@ -264,7 +273,7 @@ describe('Data browser data', () => {
     // cy.realPress('F1');
     cy.realPress('PageDown');
     cy.realPress('PageDown');
-    cy.testid('CommandPalette_main').themeshot('commandpalette', { padding: 50 });
+    cy.testid('CommandPalette_main').themeshot('command-palette', { padding: 50 });
   });
 
   it('Show map', () => {
@@ -277,7 +286,7 @@ describe('Data browser data', () => {
     cy.contains('13.9').click({ shiftKey: true });
     cy.testid('WidgetIconPanel_cell-data').click();
     cy.wait(2000);
-    cy.themeshot('map');
+    cy.themeshot('cell-map-view');
   });
 
   it('Search in connections', () => {
@@ -289,7 +298,7 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('SqlObjectList_searchMenuDropDown').click();
     cy.contains('Column name').click();
-    cy.themeshot('connsearch');
+    cy.themeshot('search-in-connections');
   });
 
   it('Plugin tab', () => {
@@ -299,7 +308,7 @@ describe('Data browser data', () => {
     cy.contains('Total white theme');
     // wait for load logos
     cy.wait(2000);
-    cy.themeshot('plugin');
+    cy.themeshot('view-plugin-tab');
   });
 
   it('Edit mongo data JSON', () => {
@@ -326,7 +335,7 @@ describe('Data browser data', () => {
     cy.contains('Helena').rightclick();
     cy.contains('Delete document').click();
     cy.contains('Save').click();
-    cy.themeshot('mongosave');
+    cy.themeshot('save-changes-mongodb');
   });
 
   it('Edit mongo data JSON', () => {
@@ -340,7 +349,7 @@ describe('Data browser data', () => {
     cy.testid('ColumnManagerRow_checkbox__id').click();
     cy.testid('DataFilterControl_input_countries.1').type('EXISTS{enter}');
     cy.testid('WidgetIconPanel_cell-data').click();
-    cy.themeshot('collection');
+    cy.themeshot('mongodb-json-cell-view');
   });
 
   it('Table structure editor', () => {
@@ -349,10 +358,10 @@ describe('Data browser data', () => {
     cy.contains('Customer').rightclick();
     cy.contains('Open structure').click();
     cy.contains('varchar(40)');
-    cy.themeshot('structure');
+    cy.themeshot('table-structure-editor');
     cy.contains('EmployeeId').click();
     cy.contains('Ref column - Employee');
-    cy.themeshot('fkeditor');
+    cy.themeshot('foreign-key-editor');
   });
 
   it('Compare database', () => {
@@ -364,10 +373,10 @@ describe('Data browser data', () => {
     cy.testid('CompareModelTab_gridObjects_Customer_Customer').click();
     cy.testid('WidgetIconPanel_database').click();
     cy.testid('CompareModelTab_tabDdl').click();
-    cy.themeshot('dbcompare');
+    cy.themeshot('compare-database-models');
     cy.contains('Settings').click();
     cy.testid('CompareModelTab_tabOperations').click();
-    cy.themeshot('comparesettings');
+    cy.themeshot('compare-database-settings');
   });
 
   it('Query editor - AI assistant', () => {
@@ -382,7 +391,7 @@ describe('Data browser data', () => {
     cy.contains('Use this', { timeout: 10000 }).click();
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Balls to the Wall');
-    cy.themeshot('aiassistant');
+    cy.themeshot('ai-assistant');
   });
 
   it('Modify data', () => {
@@ -408,7 +417,7 @@ describe('Data browser data', () => {
     cy.contains('INSERT INTO `Employee`');
     cy.contains("SET `FirstName`='Jane'");
     cy.contains('DELETE FROM `Employee`');
-    cy.themeshot('modifydata');
+    cy.themeshot('data-browser-save-changes');
 
     // cy.testid('ConfirmSqlModal_okButton').click();
     // cy.contains('Cannot delete or update a parent row')
@@ -430,8 +439,11 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('DataFilterControl_input_ArtistId').type('22{enter}');
     // cy.contains('Presence').rightclick();
+    // cy.contains('Coda').rightclick();
+    // cy.testid('DropDownMenu-container-0').contains('Export').click();
     cy.contains('Export').click();
-    cy.themeshot('simpleexport');
+    // cy.wait(1000);
+    cy.themeshot('data-browser-export-menu');
   });
 
   it('MySQL native backup', () => {
@@ -439,7 +451,7 @@ describe('Data browser data', () => {
     cy.contains('MyChinook').rightclick();
     cy.contains('Create database backup').click();
     cy.contains('Customer');
-    cy.themeshot('mysqlbackup');
+    cy.themeshot('mysql-backup-configuration');
   });
 
   it('View table YAML model', () => {
@@ -449,10 +461,11 @@ describe('Data browser data', () => {
     cy.testid('ExportDbModelModal_archiveFolder').select('(Create new)');
     cy.testid('InputTextModal_value').clear().type('test-model');
     cy.testid('InputTextModal_ok').click();
+    cy.testid('ModalBase_window').themeshot('export-database-model-window', { padding: 50 });
     cy.testid('ExportDbModelModal_exportButton').click();
     cy.contains('Album').click();
     cy.contains('autoIncrement');
-    cy.themeshot('tableyaml');
+    cy.themeshot('database-model-table-yaml');
   });
 
   it('Data duplicator', () => {
@@ -462,8 +475,8 @@ describe('Data browser data', () => {
     cy.contains('chinook-archive').rightclick();
     cy.contains('Data duplicator').click();
     cy.contains('Dry run').click();
-    cy.testid("DataDuplicatorTab_importIntoDb").click();
+    cy.testid('DataDuplicatorTab_importIntoDb').click();
     cy.contains('Duplicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
-    cy.themeshot('dataduplicator');
+    cy.themeshot('data-duplicator');
   });
 });

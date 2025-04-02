@@ -195,12 +195,12 @@
   {#if designer?.style?.showNullability || designer?.style?.showDataType}
     <div class="space" />
     {#if designer?.style?.showDataType && column?.dataType}
-      <div class="ml-2">
+      <div class="ml-2 data-type">
         {(column?.displayedDataType || column?.dataType).toLowerCase()}
       </div>
     {/if}
     {#if designer?.style?.showNullability}
-      <div class="ml-2">
+      <div class="ml-2 nullability">
         {column?.notNull ? 'NOT NULL' : 'NULL'}
       </div>
     {/if}
@@ -237,5 +237,13 @@
   .icon-button:hover {
     background: var(--theme-bg-2);
     color: var(--theme-font-hover);
+  }
+
+  .nullability {
+    color: var(--theme-font-4);
+  }
+
+  .data-type {
+    color: var(--theme-font-4);
   }
 </style>

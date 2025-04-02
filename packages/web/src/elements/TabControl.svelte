@@ -16,6 +16,7 @@
   export let isInline = false;
   export let containerMaxWidth = undefined;
   export let flex1 = true;
+  export let contentTestId = undefined;
 
   export function setValue(index) {
     value = index;
@@ -39,7 +40,7 @@
     {/if}
   </div>
 
-  <div class="content-container">
+  <div class="content-container" data-testid={contentTestId}>
     {#each _.compact(tabs) as tab, index}
       <div class="container" class:isInline class:tabVisible={index == value} style:max-width={containerMaxWidth}>
         <svelte:component this={tab.component} {...tab.props} tabControlHiddenTab={index != value} />
