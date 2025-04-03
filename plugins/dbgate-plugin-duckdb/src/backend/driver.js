@@ -1,8 +1,10 @@
+// @ts-check
+//
+const stream = require('stream');
 const Analyser = require('./Analyser');
-const Dumper = require('../frontend/Dumper');
 const driverBase = require('../frontend/driver');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
-const { getColumnsInfo, serializeRow, normalizeRow } = require('./helpers');
+const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
+const { getColumnsInfo, normalizeRow } = require('./helpers');
 
 const logger = getLogger('sqliteDriver');
 
@@ -142,11 +144,37 @@ const driver = {
     await dbhan.client.run(dmp2.s);
   },
 
-  async readQueryTask(stmt, pass) {
-    throw new Error('Not implemented');
-  },
   async readQuery(dbhan, sql, structure) {
-    throw new Error('Not implemented');
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    const res = await dbhan.client.runAndReadAll(sql);
+    const rowsObjects = res.getRowObjects();
+
+    const columnNames = res.columnNames();
+    const columnTypes = res.columnTypes();
+
+    const columns = getColumnsInfo(columnNames, columnTypes).map(normalizeRow);
+
+    const rows = rowsObjects.map(normalizeRow);
+
+    pass.write({
+      __isStreamHeader: true,
+      ...(structure || {
+        columns: columns.map((col) => ({
+          columnName: col.name,
+          dataType: col.type,
+        })),
+      }),
+    });
+
+    for (const row of rows) {
+      pass.write(row);
+    }
+
+    return pass;
   },
   async writeTable(dbhan, name, options) {
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);
