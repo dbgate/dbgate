@@ -669,6 +669,7 @@ const duckdbEngine = {
   skipTriggers: true,
   skipDataDuplicator: true,
   skipAutoIncrement: true,
+  skipDeploy: true,
   supportRenameSqlObject: true,
 };
 
