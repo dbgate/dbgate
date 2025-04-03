@@ -77,8 +77,6 @@ class Analyser extends DatabaseAnalyser {
   async _runAnalysis() {
     const structure = await this._getFastSnapshot();
     return structure;
-    throw new Error('Not implemented');
-    return this._getFastSnapshot();
   }
 }
 
