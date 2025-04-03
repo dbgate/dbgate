@@ -91,8 +91,8 @@
       <svelte:fragment slot="2" let:row let:index>
         <ColumnMapColumnDropdown
           value={row['dst']}
-          onChange={e =>
-            (value = (value || []).map((x, i) => (i == index ? { ...x, dst: e.target.value, ignore: false } : x)))}
+          onChange={column =>
+            (value = (value || []).map((x, i) => (i == index ? { ...x, dst: column, ignore: false } : x)))}
           tableInfo={targetTableInfo}
         />
       </svelte:fragment>
