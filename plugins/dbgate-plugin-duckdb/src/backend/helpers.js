@@ -8,7 +8,7 @@ function getColumnsInfo(columnNames, columnTypes) {
   for (let i = columnNames.length - 1; i >= 0; i--) {
     columns.push({
       columnName: columnNames[i],
-      // dataType: columnTypes[i],
+      dataType: columnTypes[i].toString(),
     });
   }
 
