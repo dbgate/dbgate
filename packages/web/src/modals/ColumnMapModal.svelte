@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DropDownButton from '../buttons/DropDownButton.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import ColumnMapColumnDropdown from '../elements/ColumnMapColumnDropdown.svelte';
   import Link from '../elements/Link.svelte';
@@ -8,8 +7,10 @@
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import _ from 'lodash';
 
   export let header = 'Configure columns';
   export let onConfirm;
@@ -34,6 +35,15 @@
         skip: false,
       }));
     }
+    if (sourceTableInfo && targetTableInfo) {
+      return sourceTableInfo.columns
+        .map(x => ({
+          src: x.columnName,
+          dst: targetTableInfo.columns.find(y => y.columnName == x.columnName)?.columnName,
+          skip: false,
+        }))
+        .filter(x => x.dst != null);
+    }
     return [];
   }
 
@@ -51,6 +61,32 @@
   $: differentFromReset = !equalValues(value, resetValue);
 
   let value = initialValue?.length > 0 ? initialValue : resetValue;
+
+  let validationError;
+
+  function validate() {
+    validationError = null;
+    if (!value) return;
+    if (value.length == 0) return;
+    if (value.some(x => !x.src || !x.dst)) {
+      validationError = 'Source and target columns must be defined';
+      return;
+    }
+    const duplicates = _.chain(value.map(x => x.dst))
+      .countBy()
+      .pickBy(count => count > 1)
+      .keys()
+      .value();
+    if (duplicates.length > 0) {
+      validationError = 'Target columns must be unique, duplicates found: ' + duplicates.join(', ');
+      return;
+    }
+  }
+
+  $: {
+    value;
+    validate();
+  }
 </script>
 
 <FormProvider>
@@ -105,9 +141,17 @@
       </svelte:fragment>
     </TableControl>
 
+    {#if validationError}
+      <div class="error-result">
+        <FontIcon icon="img error" />
+        {validationError}
+      </div>
+    {/if}
+
     <svelte:fragment slot="footer">
       <FormSubmit
         value="OK"
+        disabled={!!validationError}
         on:click={() => {
           closeCurrentModal();
           onConfirm(!value || value.length == 0 || !differentFromReset ? null : value);
@@ -132,3 +176,9 @@
     </svelte:fragment>
   </ModalBase>
 </FormProvider>
+
+<style>
+  .error-result {
+    margin: 10px;
+  }
+</style>
