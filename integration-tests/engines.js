@@ -686,6 +686,7 @@ const enginesOnCi = [
   clickhouseEngine,
   oracleEngine,
   cassandraEngine,
+  duckdbEngine,
 ];
 
 const enginesOnLocal = [
@@ -716,3 +717,6 @@ module.exports.cockroachDbEngine = cockroachDbEngine;
 module.exports.clickhouseEngine = clickhouseEngine;
 module.exports.oracleEngine = oracleEngine;
 module.exports.cassandraEngine = cassandraEngine;
+module.exports.libsqlFileEngine = libsqlFileEngine;
+module.exports.libsqlWsEngine = libsqlWsEngine;
+module.exports.duckdbEngine = duckdbEngine;
