@@ -5,12 +5,16 @@ const path = require('path');
 const _ = require('lodash');
 
 const { datadir } = require('./directories');
+const { encryptionKeyArg } = require('./processArgs');
 
 const defaultEncryptionKey = 'mQAUaXhavRGJDxDTXSCg7Ej0xMmGCrx6OKA07DIMBiDcYYkvkaXjTAzPUEHEHEf9';
 
 let _encryptionKey = null;
 
 function loadEncryptionKey() {
+  if (encryptionKeyArg) {
+    return encryptionKeyArg;
+  }
   if (_encryptionKey) {
     return _encryptionKey;
   }
@@ -131,6 +135,11 @@ function pickSafeConnectionInfo(connection) {
 function setEncryptionKey(encryptionKey) {
   _encryptionKey = encryptionKey;
   _encryptor = null;
+  global.ENCRYPTION_KEY = encryptionKey;
+}
+
+function getEncryptionKey() {
+  return _encryptionKey;
 }
 
 module.exports = {
@@ -142,4 +151,6 @@ module.exports = {
   maskConnection,
   pickSafeConnectionInfo,
   loadEncryptionKeyFromExternal,
+  getEncryptionKey,
+  setEncryptionKey,
 };
