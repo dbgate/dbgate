@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.3.3 - not released
+- CHANGED: New administration UI, redesigned administration of users, connections and roles
+- ADDED: Encrypting passwords in team-premium edition
+- ADDED: Show scale bar on map #1090
+- FIXED: Fixed native backup/restore for MySQL+PostgreSQL over SSH tunnel
+- CHANGED: Column mapping dialog - fixes and improvements for copying from one oxisting table into another
+
 ### 6.3.2
 - ADDED: "Use system theme" switch, use changed system theme without restart #1084
 - ADDED: "Skip SETNAME instruction" option for Redis #1077
