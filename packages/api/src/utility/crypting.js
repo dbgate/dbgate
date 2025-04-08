@@ -67,6 +67,20 @@ function getEncryptor() {
   return _encryptor;
 }
 
+function encryptPasswordString(password) {
+  if (password && !password.startsWith('crypt:')) {
+    return 'crypt:' + getEncryptor().encrypt(password);
+  }
+  return password;
+}
+
+function decryptPasswordString(password) {
+  if (password && password.startsWith('crypt:')) {
+    return getEncryptor().decrypt(password.substring('crypt:'.length));
+  }
+  return password;
+}
+
 function encryptObjectPasswordField(obj, field) {
   if (obj && obj[field] && !obj[field].startsWith('crypt:')) {
     return {
@@ -153,4 +167,6 @@ module.exports = {
   loadEncryptionKeyFromExternal,
   getEncryptionKey,
   setEncryptionKey,
+  encryptPasswordString,
+  decryptPasswordString,
 };
