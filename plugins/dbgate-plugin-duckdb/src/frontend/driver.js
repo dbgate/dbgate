@@ -32,6 +32,7 @@ const dialect = {
 
   createColumn: true,
   dropColumn: true,
+  multipleSchema: true,
   createIndex: true,
   dropIndex: true,
   createForeignKey: false,
