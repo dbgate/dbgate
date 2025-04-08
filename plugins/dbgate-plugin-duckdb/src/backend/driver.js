@@ -21,29 +21,16 @@ function getDuckDb() {
   return duckDb;
 }
 
-let fileToCon = {};
-async function getConnection(file) {
-  if (fileToCon[file]) {
-    fileToCon[file].close();
-  }
-
-  const duckDb = getDuckDb();
-  const instance = await duckDb.DuckDBInstance.create(file);
-  console.log('DuckDB instance created', instance);
-  const connection = await instance.connect();
-
-  fileToCon[file] = connection;
-
-  return fileToCon[file];
-}
-
 /** @type {import('dbgate-types').EngineDriver<import('@duckdb/node-api').DuckDBConnection>} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
   async connect({ databaseFile, isReadOnly }) {
+    const instance = await getDuckDb().DuckDBInstance.create(databaseFile);
+    const connection = await instance.connect();
+
     return {
-      client: await getConnection(databaseFile),
+      client: connection,
     };
   },
   async close(dbhan) {
