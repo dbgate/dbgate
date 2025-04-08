@@ -37,6 +37,8 @@ const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
+const { decryptConnection } = require('../utility/crypting');
+const { getSshTunnel } = require('../utility/sshTunnel');
 
 const logger = getLogger('databaseConnections');
 
@@ -619,8 +621,22 @@ module.exports = {
     command,
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
-    const connection = await connections.getCore({ conid });
+    const sourceConnection = await connections.getCore({ conid });
+    let connection = decryptConnection(sourceConnection);
     const driver = requireEngineDriver(connection);
+
+    if (connection.useSshTunnel) {
+      const tunnel = await getSshTunnel(connection);
+      if (tunnel.state == 'error') {
+        throw new Error(tunnel.message);
+      }
+
+      connection = {
+        ...connection,
+        server: tunnel.localHost,
+        port: tunnel.localPort,
+      }
+    }
 
     const settingsValue = await config.getSettings();
 
