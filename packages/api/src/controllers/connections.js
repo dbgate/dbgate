@@ -435,6 +435,22 @@ module.exports = {
     return res;
   },
 
+  newDuckdbDatabase_meta: true,
+  async newDuckdbDatabase({ file }) {
+    const duckdbDir = path.join(filesdir(), 'duckdb');
+    if (!(await fs.exists(duckdbDir))) {
+      await fs.mkdir(duckdbDir);
+    }
+    const databaseFile = path.join(duckdbDir, `${file}.duckdb`);
+    const res = await this.save({
+      engine: 'duckdb@dbgate-plugin-duckdb',
+      databaseFile,
+      singleDatabase: true,
+      defaultDatabase: `${file}.duckdb`,
+    });
+    return res;
+  },
+
   dbloginWeb_meta: {
     raw: true,
     method: 'get',
