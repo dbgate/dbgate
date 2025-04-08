@@ -15,9 +15,7 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">
-      {#if header}
-        {header}
-      {/if}
+      {header || 'Confirm'}
     </svelte:fragment>
 
     {message}
