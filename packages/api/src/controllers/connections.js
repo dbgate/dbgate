@@ -38,6 +38,11 @@ function getNamedArgs() {
         res.databaseFile = name;
         res.engine = 'sqlite@dbgate-plugin-sqlite';
       }
+
+      if (name.endsWith('.duckdb')) {
+        res.databaseFile = name;
+        res.engine = 'duckdb@dbgate-plugin-duckdb';
+      }
     }
   }
   return res;
