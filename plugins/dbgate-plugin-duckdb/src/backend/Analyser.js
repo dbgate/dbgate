@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { DatabaseAnalyser } = require('dbgate-tools');
 const sql = require('./sql');
 const {
