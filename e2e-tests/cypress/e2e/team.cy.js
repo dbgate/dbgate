@@ -18,6 +18,10 @@ describe('Team edition tests', () => {
     cy.contains('logged-user').click();
     cy.themeshot('role-administration');
 
+    cy.testid('AdminMenuWidget_itemUsers').click();
+    cy.contains('New user').click();
+    cy.themeshot('user-administration');
+
     cy.testid('AdminMenuWidget_itemAuthentication').click();
     cy.contains('Add authentication').click();
     cy.contains('Use database login').click();
