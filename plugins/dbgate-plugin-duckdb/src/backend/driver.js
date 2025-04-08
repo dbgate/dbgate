@@ -5,6 +5,8 @@ const Analyser = require('./Analyser');
 const driverBase = require('../frontend/driver');
 const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
 const { getColumnsInfo, normalizeRow } = require('./helpers');
+const sql = require('./sql');
+const { mapSchemaRowToSchemaInfo } = require('./Analyser.helpers');
 
 const logger = getLogger('sqliteDriver');
 
@@ -111,11 +113,13 @@ const driver = {
       options.done();
     }
   },
-  async script(dbhan, sql) {
-    const dmp1 = driver.createDumper();
-    dmp1.beginTransaction();
+  async script(dbhan, sql, { useTransaction } = { useTransaction: false }) {
+    if (useTransaction) {
+      const dmp1 = driver.createDumper();
+      dmp1.beginTransaction();
 
-    await dbhan.client.run(dmp1.s);
+      await dbhan.client.run(dmp1.s);
+    }
 
     const statements = await dbhan.client.extractStatements(sql);
     const count = statements.count;
@@ -125,10 +129,12 @@ const driver = {
       await stmt.run();
     }
 
-    const dmp2 = driver.createDumper();
-    dmp2.commitTransaction();
+    if (useTransaction) {
+      const dmp2 = driver.createDumper();
+      dmp2.commitTransaction();
 
-    await dbhan.client.run(dmp2.s);
+      await dbhan.client.run(dmp2.s);
+    }
   },
 
   async readQuery(dbhan, sql, structure) {
@@ -168,12 +174,19 @@ const driver = {
   },
   async getVersion(dbhan) {
     const { rows } = await this.query(dbhan, 'SELECT version() AS version;');
-    const { version } = rows[0];
+    const { version } = rows?.[0];
 
     return {
       version,
       versionText: `DuchDB ${version}`,
     };
+  },
+
+  async listSchemas(dbhan) {
+    const schemasResult = await this.query(dbhan, sql.schemas);
+    const schemas = schemasResult.rows?.map(mapSchemaRowToSchemaInfo);
+
+    return schemas ?? null;
   },
 };
 

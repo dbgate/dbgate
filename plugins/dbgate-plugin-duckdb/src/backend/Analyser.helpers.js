@@ -231,6 +231,7 @@ function mapConstraintRowToForeignKeyInfo(duckDbConstraintData) {
     constraintType: 'foreignKey',
     columns: columns,
     refTableName: duckDbConstraintData.referenced_table,
+    refSchemaName: duckDbConstraintData.schema_name,
   };
 
   if (duckDbConstraintData.constraint_name != null) {
@@ -363,6 +364,31 @@ function mapIndexRowToIndexInfo(duckDbIndexRow) {
   return /** @type {import("dbgate-types").IndexInfo} */ (indexInfo);
 }
 
+/**
+ * @typedef {object} DuckDbSchemaRow
+ * @property {string} oid
+ * @property {string} database_name
+ * @property {string} database_oid
+ * @property {string} schema_name
+ * @property {string | null} comment
+ * @property {{ [key: string]: string } | null} tags
+ * @property {boolean} internal
+ * @property {string | null} sql
+ */
+
+/**
+ * @param {DuckDbSchemaRow} duckDbSchemaRow
+ * @returns {import("dbgate-types").SchemaInfo}
+ */
+function mapSchemaRowToSchemaInfo(duckDbSchemaRow) {
+  const schemaInfo = {
+    schemaName: duckDbSchemaRow.schema_name,
+    objectId: duckDbSchemaRow.oid,
+  };
+
+  return /** @type {import("dbgate-types").SchemaInfo} */ (schemaInfo);
+}
+
 module.exports = {
   mapRawTableToTableInfo,
   mapRawColumnToColumnInfo,
@@ -371,4 +397,5 @@ module.exports = {
   mapConstraintRowToUniqueInfo,
   mapViewRowToViewInfo,
   mapIndexRowToIndexInfo,
+  mapSchemaRowToSchemaInfo,
 };
