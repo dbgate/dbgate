@@ -9,6 +9,8 @@
     slot?: number;
     isHighlighted?: Function;
     sortable?: boolean;
+    filterable?: boolean;
+    filteredExpression?: (row: any) => string;
   }
 </script>
 
@@ -19,6 +21,10 @@
   import keycodes from '../utility/keycodes';
   import { createEventDispatcher } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import DataFilterControl from '../datagrid/DataFilterControl.svelte';
+  import { evalFilterBehaviour } from 'dbgate-tools';
+  import { evaluateCondition } from 'dbgate-sqltree';
+  import { compileCompoudEvalCondition } from 'dbgate-filterparser';
 
   export let columns: (TableControlColumn | false)[];
   export let rows;
@@ -36,6 +42,7 @@
   export let checkedKeys = null;
   export let onSetCheckedKeys = null;
   export let extractCheckedKey = x => x.id;
+  export let filters = null;
 
   const dispatch = createEventDispatcher();
 
@@ -54,10 +61,28 @@
     }
   };
 
+  function filterRows(rows, filters) {
+    const condition = compileCompoudEvalCondition(filters);
+
+    if (!condition) return rows;
+
+    return rows.filter(row => {
+      const newrow = { ...row };
+      for (const col of columnList) {
+        if (col.filteredExpression) {
+          newrow[col.fieldName] = col.filteredExpression(row);
+        }
+      }
+      return evaluateCondition(condition, newrow);
+    });
+  }
+
   let sortedByField = null;
   let sortOrderIsDesc = false;
 
-  $: sortedRowsTmp = sortedByField ? _.sortBy(rows || [], sortedByField) : rows;
+  $: filteredRows = filters ? filterRows(rows, $filters) : rows;
+
+  $: sortedRowsTmp = sortedByField ? _.sortBy(filteredRows || [], sortedByField) : filteredRows;
   $: sortedRows = sortOrderIsDesc ? [...sortedRowsTmp].reverse() : sortedRowsTmp;
 </script>
 
@@ -101,6 +126,25 @@
         </th>
       {/each}
     </tr>
+    {#if filters}
+      <tr>
+        {#if checkedKeys}
+          <td></td>
+        {/if}
+        {#each columnList as col}
+          <td class="filter-cell" class:empty-cell={!col.filterable}>
+            {#if col.filterable}
+              <DataFilterControl
+                filterBehaviour={evalFilterBehaviour}
+                filter={$filters[col.fieldName]}
+                setFilter={value => filters.update(f => ({ ...f, [col.fieldName]: value }))}
+                placeholder="Data filter"
+              />
+            {/if}
+          </td>
+        {/each}
+      </tr>
+    {/if}
   </thead>
   <tbody>
     {#each sortedRows as row, index}
@@ -231,5 +275,16 @@
     border-spacing: 0;
     border-collapse: separate;
     border-left: 1px solid var(--theme-border);
+  }
+
+  .filter-cell {
+    text-align: left;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .empty-cell {
+    background-color: var(--theme-bg-1);
   }
 </style>

@@ -3,6 +3,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import Link from './Link.svelte';
   import TableControl from './TableControl.svelte';
+  import { writable } from 'svelte/store';
 
   export let title;
   export let collection;
@@ -12,6 +13,9 @@
   export let hideDisplayName = false;
   export let clickable = false;
   export let onAddNew = null;
+  export let displayNameFieldName = null;
+
+  export let filters = writable({});
 
   let collapsed = false;
 </script>
@@ -43,14 +47,16 @@
           rows={collection || []}
           columns={_.compact([
             !hideDisplayName && {
-              fieldName: 'displayName',
+              fieldName: displayNameFieldName || 'displayName',
               header: 'Name',
               slot: -1,
               sortable: true,
+              filterable: !!displayNameFieldName,
             },
             ...columns,
           ])}
           {clickable}
+          {filters}
           on:clickrow
         >
           <svelte:fragment slot="-1" let:row let:col>
