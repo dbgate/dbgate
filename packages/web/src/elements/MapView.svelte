@@ -69,6 +69,8 @@
       })
       .addTo(map);
 
+	leaflet.control.scale().addTo(map);
+
     addObjectToMap();
   });
 
