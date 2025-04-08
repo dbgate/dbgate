@@ -41,6 +41,7 @@
   export let tabid;
   export let conid;
   export let connectionStore = undefined;
+  export let inlineTabs = false;
 
   export let onlyTestButton;
 
@@ -237,6 +238,7 @@
   <div class="wrapper">
     <TabControl
       isInline
+      {inlineTabs}
       containerMaxWidth="800px"
       flex1={false}
       contentTestId="ConnectionTab_tabControlContent"

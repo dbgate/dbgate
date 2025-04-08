@@ -17,6 +17,7 @@
   export let containerMaxWidth = undefined;
   export let flex1 = true;
   export let contentTestId = undefined;
+  export let inlineTabs = false;
 
   export function setValue(index) {
     value = index;
@@ -27,7 +28,7 @@
 </script>
 
 <div class="main" class:flex1>
-  <div class="tabs">
+  <div class="tabs" class:inlineTabs>
     {#each _.compact(tabs) as tab, index}
       <div class="tab-item" class:selected={value == index} on:click={() => (value = index)} data-testid={tab.testid}>
         <span class="ml-2">
@@ -78,22 +79,36 @@
     height: var(--dim-tabs-height);
     min-height: var(--dim-tabs-height);
     right: 0;
-    background-color: var(--theme-bg-2);
     overflow-x: auto;
     max-width: 100%;
   }
 
+  .tabs:not(.inlineTabs) {
+    background-color: var(--theme-bg-2);
+  }
+
+  .tabs.inlineTabs {
+    border-bottom: 1px solid var(--theme-border);
+    text-transform: uppercase;
+  }
+
+  .tabs.inlineTabs .tab-item.selected {
+    border-bottom: 2px solid var(--theme-font-link);
+  }
   .tabs::-webkit-scrollbar {
     height: 7px;
   }
 
   .tab-item {
-    border-right: 1px solid var(--theme-border);
     padding-left: 15px;
     padding-right: 15px;
     display: flex;
     align-items: center;
     cursor: pointer;
+  }
+
+  .tabs:not(.inlineTabs) .tab-item {
+    border-right: 1px solid var(--theme-border);
   }
 
   /* .tab-item:hover {
@@ -124,4 +139,5 @@
   .container.isInline:not(.tabVisible) {
     display: none;
   }
+
 </style>

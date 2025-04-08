@@ -58,6 +58,24 @@ body {
 .relative {
   position: relative;
 }
+.scroll {
+  overflow: scroll;
+}
+.bg-0 {
+  background-color: var(--theme-bg-0);
+}
+.bg-1 {
+  background-color: var(--theme-bg-1);
+}
+.bg-2 {
+  background-color: var(--theme-bg-2);
+}
+.bg-3 {
+  background-color: var(--theme-bg-3);
+}
+.bg-4 {
+  background-color: var(--theme-bg-4);
+}
 
 .col-10 {
   flex-basis: 83.3333%;

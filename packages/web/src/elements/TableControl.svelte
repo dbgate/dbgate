@@ -31,6 +31,11 @@
   export let noCellPadding = false;
 
   export let domTable = undefined;
+  export let stickyHeader = false;
+
+  export let checkedKeys = null;
+  export let onSetCheckedKeys = null;
+  export let extractCheckedKey = x => x.id;
 
   const dispatch = createEventDispatcher();
 
@@ -63,11 +68,15 @@
   on:keydown
   tabindex={selectable ? -1 : undefined}
   on:keydown={handleKeyDown}
+  class:stickyHeader
 >
-  <thead>
+  <thead class:stickyHeader>
     <tr>
+      {#if checkedKeys}
+        <th></th>
+      {/if}
       {#each columnList as col}
-        <td
+        <th
           class:clickable={col.sortable}
           on:click={() => {
             if (col.sortable) {
@@ -89,7 +98,7 @@
           {#if sortedByField == col.fieldName}
             <FontIcon icon={sortOrderIsDesc ? 'img sort-desc' : 'img sort-asc'} padLeft />
           {/if}
-        </td>
+        </th>
       {/each}
     </tr>
   </thead>
@@ -108,6 +117,18 @@
           }
         }}
       >
+        {#if checkedKeys}
+          <td>
+            <input
+              type="checkbox"
+              checked={checkedKeys.includes(extractCheckedKey(row))}
+              on:change={e => {
+                if (e.target['checked']) onSetCheckedKeys(_.uniq([...checkedKeys, extractCheckedKey(row)]));
+                else onSetCheckedKeys(checkedKeys.filter(x => x != extractCheckedKey(row)));
+              }}
+            />
+          </td>
+        {/if}
         {#each columnList as col}
           {@const rowProps = { ...col.props, ...(col.getProps ? col.getProps(row) : null) }}
           <td class:isHighlighted={col.isHighlighted && col.isHighlighted(row)} class:noCellPadding>
@@ -164,7 +185,7 @@
     background: var(--theme-bg-hover);
   }
 
-  thead td {
+  thead th {
     border: 1px solid var(--theme-border);
     background-color: var(--theme-bg-1);
     padding: 5px;
@@ -183,5 +204,32 @@
 
   td.clickable {
     cursor: pointer;
+  }
+
+  thead.stickyHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-top: 1px solid var(--theme-border);
+  }
+
+  table.stickyHeader th {
+    border-left: none;
+  }
+
+  thead.stickyHeader :global(tr:first-child) :global(th) {
+    border-top: 1px solid var(--theme-border);
+  }
+
+  table.stickyHeader td {
+    border: 0px;
+    border-bottom: 1px solid var(--theme-border);
+    border-right: 1px solid var(--theme-border);
+  }
+
+  table.stickyHeader {
+    border-spacing: 0;
+    border-collapse: separate;
+    border-left: 1px solid var(--theme-border);
   }
 </style>
