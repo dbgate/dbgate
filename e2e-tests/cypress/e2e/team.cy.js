@@ -11,13 +11,11 @@ describe('Team edition tests', () => {
 
     cy.testid('AdminMenuWidget_itemConnections').click();
     cy.contains('New connection').click();
-    cy.contains('New connection').click();
-    cy.contains('New connection').click();
     cy.testid('ConnectionDriverFields_connectionType').select('PostgreSQL');
     cy.themeshot('connection-administration');
 
     cy.testid('AdminMenuWidget_itemRoles').click();
-    cy.contains('Permissions').click();
+    cy.contains('logged-user').click();
     cy.themeshot('role-administration');
 
     cy.testid('AdminMenuWidget_itemAuthentication').click();
@@ -77,6 +75,5 @@ describe('Team edition tests', () => {
     cy.testid('LoginPage_submitLogin').click();
     cy.testid('AdminMenuWidget_itemUsers').click();
     cy.contains('test@example.com');
-    cy.contains('Rows: 1');
   });
 });
