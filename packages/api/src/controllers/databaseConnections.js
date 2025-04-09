@@ -622,8 +622,14 @@ module.exports = {
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
     const sourceConnection = await connections.getCore({ conid });
-    let connection = decryptConnection(sourceConnection);
+    const connection = {
+      ...decryptConnection(sourceConnection),
+    };
     const driver = requireEngineDriver(connection);
+
+    if (!connection.port && driver.defaultPort) {
+      connection.port = driver.defaultPort.toString();
+    }
 
     if (connection.useSshTunnel) {
       const tunnel = await getSshTunnel(connection);
@@ -631,11 +637,8 @@ module.exports = {
         throw new Error(tunnel.message);
       }
 
-      connection = {
-        ...connection,
-        server: tunnel.localHost,
-        port: tunnel.localPort,
-      }
+      connection.server = tunnel.localHost;
+      connection.port = tunnel.localPort;
     }
 
     const settingsValue = await config.getSettings();
