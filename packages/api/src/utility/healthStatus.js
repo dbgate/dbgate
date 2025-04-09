@@ -24,4 +24,15 @@ async function getHealthStatus() {
   };
 }
 
-module.exports = getHealthStatus;
+async function getHealthStatusSprinx() {
+  return {
+    overallStatus: 'OK',
+    timeStamp: new Date().toISOString(),
+    timeStampUnix: Math.floor(Date.now() / 1000),
+  };
+}
+
+module.exports = {
+  getHealthStatus,
+  getHealthStatusSprinx,
+};

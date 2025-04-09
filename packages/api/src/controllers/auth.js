@@ -45,6 +45,7 @@ function authMiddleware(req, res, next) {
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
     '/health',
+    '/__health',
   ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
