@@ -142,6 +142,11 @@ module.exports = {
       if (newOpened.disconnected) return;
       this.close(conid, database, false);
     });
+    subprocess.on('error', err => {
+      logger.error(extractErrorLogData(err), 'Error in database connection subprocess');
+      if (newOpened.disconnected) return;
+      this.close(conid, database, false);
+    });
 
     subprocess.send({
       msgtype: 'connect',

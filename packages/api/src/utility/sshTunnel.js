@@ -57,10 +57,21 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       }
     });
     subprocess.on('exit', code => {
-      logger.info('SSH forward process exited');
+      logger.info(`SSH forward process exited with code ${code}`);
       delete sshTunnelCache[tunnelCacheKey];
       if (!promiseHandled) {
-        reject(new Error('SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'));
+        reject(
+          new Error(
+            'SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'
+          )
+        );
+      }
+    });
+    subprocess.on('error', error => {
+      logger.error(extractErrorLogData(error), 'SSH forward process error');
+      delete sshTunnelCache[tunnelCacheKey];
+      if (!promiseHandled) {
+        reject(error);
       }
     });
   });
