@@ -13,7 +13,8 @@ Builds:
 - ADDED: Encrypting passwords in team-premium edition
 - ADDED: Show scale bar on map #1090
 - FIXED: Fixed native backup/restore for MySQL+PostgreSQL over SSH tunnel
-- CHANGED: Column mapping dialog - fixes and improvements for copying from one oxisting table into another
+- CHANGED: Column mapping dialog - fixes and improvements for copying from one existing table into another
+- ADDED: Search in columns in table editor
 
 ### 6.3.2
 - ADDED: "Use system theme" switch, use changed system theme without restart #1084
