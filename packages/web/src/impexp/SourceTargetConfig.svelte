@@ -23,6 +23,8 @@
   import { findEngineDriver } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import { _t } from '../translations';
+  import { showModal } from '../modals/modalTools';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let direction;
   export let storageTypeField;
@@ -54,7 +56,7 @@
           { value: 'query', label: _t('common.query', { defaultMessage: 'Query' }), directions: ['source'] },
           {
             value: 'archive',
-            label: _t('common.archive', { defaultMessage: 'Archive' }),
+            label: _t('common.archive', { defaultMessage: 'Archive (JSONL)' }),
             directions: ['source', 'target'],
           },
         ];
@@ -108,11 +110,18 @@
       <FormStyledButton
         value="New archive"
         on:click={() => {
-          values.update(x => ({
-            ...x,
-            [storageTypeField]: 'archive',
-            [archiveFolderField]: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
-          }));
+          showModal(InputTextModal, {
+            header: 'Archive',
+            label: 'Name of new archive folder',
+            value: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
+            onConfirm: value => {
+              values.update(x => ({
+                ...x,
+                [storageTypeField]: 'archive',
+                [archiveFolderField]: value,
+              }));
+            },
+          });
         }}
       />
     {/if}
