@@ -73,7 +73,13 @@
   class:alignRight={_.isNumber(value) && !showHint}
   {style}
 >
-  <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
+  <CellValue
+    {rowData}
+    {value}
+    {jsonParsedValue}
+    {editorTypes}
+    rightMargin={_.isNumber(value) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
+  />
 
   {#if showHint}
     <span class="hint"
