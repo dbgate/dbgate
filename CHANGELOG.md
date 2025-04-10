@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.3.3 - not released
+## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles
 - ADDED: Encrypting passwords in team-premium edition
 - ADDED: Show scale bar on map #1090

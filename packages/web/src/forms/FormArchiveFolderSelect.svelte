@@ -43,7 +43,7 @@
     if (e.detail == '@create') {
       showModal(InputTextModal, {
         header: 'Archive',
-        label: 'Name of new folder',
+        label: 'Name of new archive folder',
         onConfirm: createOption,
       });
     }
