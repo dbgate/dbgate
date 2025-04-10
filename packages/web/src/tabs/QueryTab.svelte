@@ -143,6 +143,7 @@
   import { isProApp } from '../utility/proTools';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
+  import SimpleQueryResultTabs from '../query/SimpleQueryResultTabs.svelte';
 
   export let tabid;
   export let conid;
@@ -195,6 +196,8 @@
   let domAiAssistant;
   let isInTransaction = false;
   let isAutocommit = false;
+
+  let simpleQueryDataResult = null;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -320,6 +323,16 @@
   async function executeCoreWithParams(sql, startLine = 0) {
     if (!sql || !sql.trim()) {
       showSnackbarError('Skipped executing empty query');
+      return;
+    }
+
+    if (driver?.singleConnectionOnly) {
+      simpleQueryDataResult = await apiCall('database-connections/query-data', {
+        conid,
+        database,
+        sql,
+      });
+      visibleResultTabs = true;
       return;
     }
 
@@ -642,19 +655,23 @@
           {/if}
         </svelte:fragment>
         <svelte:fragment slot="2">
-          <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
-            <svelte:fragment slot="0">
-              <SocketMessageView
-                eventName={sessionId ? `session-info-${sessionId}` : null}
-                onMessageClick={handleMesageClick}
-                {executeNumber}
-                startLine={executeStartLine}
-                showProcedure
-                showLine
-                onChangeErrors={handleChangeErrors}
-              />
-            </svelte:fragment>
-          </ResultTabs>
+          {#if driver?.singleConnectionOnly}
+            <SimpleQueryResultTabs result={simpleQueryDataResult} />
+          {:else}
+            <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
+              <svelte:fragment slot="0">
+                <SocketMessageView
+                  eventName={sessionId ? `session-info-${sessionId}` : null}
+                  onMessageClick={handleMesageClick}
+                  {executeNumber}
+                  startLine={executeStartLine}
+                  showProcedure
+                  showLine
+                  onChangeErrors={handleChangeErrors}
+                />
+              </svelte:fragment>
+            </ResultTabs>
+          {/if}
         </svelte:fragment>
       </VerticalSplitter>
     </svelte:fragment>

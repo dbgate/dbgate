@@ -21,6 +21,7 @@ const volatilePackages = [
   'axios',
   'ssh2',
   'wkx',
+  '@duckdb/node-api',
 ];
 
 module.exports = volatilePackages;

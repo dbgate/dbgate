@@ -654,6 +654,25 @@ const cassandraEngine = {
   objects: [],
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
+const duckdbEngine = {
+  label: 'DuckDB',
+  generateDbFile: true,
+  connection: {
+    engine: 'duckdb@dbgate-plugin-duckdb',
+  },
+  objects: [views],
+  skipOnCI: false,
+  skipChangeColumn: true,
+  skipIndexes: true,
+  skipStringLength: true,
+  skipTriggers: true,
+  skipDataDuplicator: true,
+  skipAutoIncrement: true,
+  skipDeploy: true,
+  supportRenameSqlObject: true,
+};
+
 const enginesOnCi = [
   // all engines, which would be run on GitHub actions
   mysqlEngine,
@@ -667,6 +686,7 @@ const enginesOnCi = [
   clickhouseEngine,
   oracleEngine,
   cassandraEngine,
+  duckdbEngine,
 ];
 
 const enginesOnLocal = [
@@ -680,8 +700,9 @@ const enginesOnLocal = [
   // cockroachDbEngine,
   // clickhouseEngine,
   // libsqlFileEngine,
-  libsqlWsEngine,
+  // libsqlWsEngine,
   // oracleEngine,
+  duckdbEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */
@@ -696,3 +717,6 @@ module.exports.cockroachDbEngine = cockroachDbEngine;
 module.exports.clickhouseEngine = clickhouseEngine;
 module.exports.oracleEngine = oracleEngine;
 module.exports.cassandraEngine = cassandraEngine;
+module.exports.libsqlFileEngine = libsqlFileEngine;
+module.exports.libsqlWsEngine = libsqlWsEngine;
+module.exports.duckdbEngine = duckdbEngine;
