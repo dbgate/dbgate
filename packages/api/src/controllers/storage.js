@@ -4,6 +4,10 @@ module.exports = {
     return null;
   },
 
+  async connectionsToExport() {
+    return null;
+  },
+
   getConnection_meta: true,
   async getConnection({ conid }) {
     return null;
