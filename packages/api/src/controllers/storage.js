@@ -4,8 +4,8 @@ module.exports = {
     return null;
   },
 
-  async connectionsToExport() {
-    return null;
+  async getExportedDatabase() {
+    return {};
   },
 
   getConnection_meta: true,
