@@ -4,6 +4,7 @@ module.exports = ({ editMenu, isMac }) => [
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },
+      { command: 'new.duckdbDatabase', hideDisabled: true },
       { divider: true },
       { command: 'new.query', hideDisabled: true },
       { command: 'new.queryDesign', hideDisabled: true },

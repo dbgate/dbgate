@@ -7,6 +7,7 @@ export interface QueryResultColumn {
   columnName: string;
   notNull: boolean;
   autoIncrement?: boolean;
+  dataType?: string;
 }
 
 export interface QueryResult {

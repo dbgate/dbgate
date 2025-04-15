@@ -20,7 +20,11 @@ function flatSourceParameters() {
 }
 
 function flatSourceTriggers() {
-  return _.flatten(engines.map(engine => (engine.triggers || []).map(trigger => [engine.label, trigger, engine])));
+  return _.flatten(
+    engines
+      .filter(engine => !engine.skipTriggers)
+      .map(engine => (engine.triggers || []).map(trigger => [engine.label, trigger, engine]))
+  );
 }
 
 function flatSourceSchedulerEvents() {
