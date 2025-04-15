@@ -120,10 +120,15 @@ function setStatusName(name) {
 
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
-  const version = await driver.getVersion(dbhan);
-  logger.debug(`Got server version: ${version.version}`);
-  process.send({ msgtype: 'version', version });
-  serverVersion = version;
+  try {
+    const version = await driver.getVersion(dbhan);
+    logger.debug(`Got server version: ${version.version}`);
+    serverVersion = version;
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error getting DB server version');
+    serverVersion = { version: 'Unknown' };
+  }
+  process.send({ msgtype: 'version', version: serverVersion });
 }
 
 async function handleConnect({ connection, structure, globalSettings }) {
