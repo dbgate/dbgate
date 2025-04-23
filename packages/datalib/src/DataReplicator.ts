@@ -130,7 +130,8 @@ class ReplicatorItemHolder {
       const ref = this.refByColumn[key];
       if (ref) {
         // remap id
-        res[key] = ref.ref.idMap[res[key]];
+        const oldId = res[key];
+        res[key] = ref.ref.idMap[oldId];
         if (ref.isMandatory && res[key] == null) {
           // mandatory refertence not matched
           if (this.replicator.options.skipRowsWithUnresolvedRefs) {

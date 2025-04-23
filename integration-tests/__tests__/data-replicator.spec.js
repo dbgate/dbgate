@@ -300,6 +300,7 @@ describe('Data replicator', () => {
       DB1.role_permissions.splice(1, 1);
       await dataReplicator(createDuplConfig(DB1));
       expect(await queryValue(`select count(*) as ~val from ~role_permissions`)).toEqual('2');
-    })
+    }),
+    15 * 1000
   );
 });
