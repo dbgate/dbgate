@@ -126,7 +126,7 @@ describe('Data browser data', () => {
     cy.themeshot('data-browser-form-view');
   });
 
-  it.only('Column search', () => {
+  it('Column search', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Customer').click();

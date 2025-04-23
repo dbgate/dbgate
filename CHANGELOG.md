@@ -9,8 +9,10 @@ Builds:
  - win - application for Windows
 
 ## 6.4.0 - not released yet
-- REMOVED: Data duplicator
-- ADDED: Data deployer (Premium), compare data
+- ADDED: Data deployer (Premium)
+- ADDED: Compare data between JSON lines file in archive and database table
+- CHANGED: Data Duplicator => Data Replicator (suitable for update, create and delete data, much more customizable)
+- REMOVED: Data duplicator GUI (replaced with Data Deployer)
 - ADDED: Exporting to ZIP file
 - ADDED: Download SQL and SQLite files
 - ADDED: Upload SQLite files

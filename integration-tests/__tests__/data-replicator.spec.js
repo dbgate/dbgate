@@ -163,7 +163,7 @@ describe('Data replicator', () => {
         systemConnection: conn,
         driver,
         loadedDbModel: storageModel,
-        targetSchema: driver.defaultSchemaName,
+        targetSchema: engine.defaultSchemaName,
       });
 
       async function queryValue(sql) {
