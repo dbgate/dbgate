@@ -119,8 +119,6 @@
       fileName = resp.fileName;
     }
 
-    console.log('SELECTED PATH', filePath);
-
     if (!filePath) {
       return;
     }
