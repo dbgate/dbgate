@@ -192,6 +192,7 @@
           <input
             type="checkbox"
             checked={checkableFlatRowsShown.every(r => checkedKeys.includes(extractTableItemKey(r)))}
+            data-testid="TableControl_selectAllCheckBox"
             on:change={e => {
               if (e.target['checked']) onSetCheckedKeys(checkableFlatRowsShown.map(r => extractTableItemKey(r)));
               else onSetCheckedKeys([]);
@@ -286,6 +287,7 @@
                 dispatch('clickrow', row);
               }
             }}
+            data-testid={`TableControl_row_${index}`}
           >
             {#if checkedKeys}
               <td>
