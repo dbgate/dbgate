@@ -54,8 +54,8 @@ export class ScriptWriter {
     this._put(`await dbgateApi.importDatabase(${JSON.stringify(options)});`);
   }
 
-  dataDuplicator(options) {
-    this._put(`await dbgateApi.dataDuplicator(${JSON.stringify(options, null, 2)});`);
+  dataReplicator(options) {
+    this._put(`await dbgateApi.dataReplicator(${JSON.stringify(options, null, 2)});`);
   }
 
   comment(s) {
@@ -71,6 +71,10 @@ export class ScriptWriter {
     if (prefix) prefix += '\n';
 
     return prefix + this.s;
+  }
+
+  zipDirectory(inputDirectory, outputFile) {
+    this._put(`await dbgateApi.zipDirectory('${inputDirectory}', '${outputFile}');`);
   }
 }
 
@@ -138,10 +142,18 @@ export class ScriptWriterJson {
     });
   }
 
-  dataDuplicator(options) {
+  dataReplicator(options) {
     this.commands.push({
-      type: 'dataDuplicator',
+      type: 'dataReplicator',
       options,
+    });
+  }
+
+  zipDirectory(inputDirectory, outputFile) {
+    this.commands.push({
+      type: 'zipDirectory',
+      inputDirectory,
+      outputFile,
     });
   }
 
@@ -185,8 +197,11 @@ export function jsonScriptToJavascript(json) {
       case 'importDatabase':
         script.importDatabase(cmd.options);
         break;
-      case 'dataDuplicator':
-        script.dataDuplicator(cmd.options);
+      case 'dataReplicator':
+        script.dataReplicator(cmd.options);
+        break;
+      case 'zipDirectory':
+        script.zipDirectory(cmd.inputDirectory, cmd.outputFile);
         break;
     }
   }

@@ -11,16 +11,22 @@
 
   export let additionalFolders = [];
   export let name;
+  export let allowCreateNew = false;
+  export let zipFilesOnly = false;
+  export let skipZipFiles = false;
 
   const { setFieldValue } = getFormContext();
 
   const folders = useArchiveFolders();
 
   $: folderOptions = [
-    ...($folders || []).map(folder => ({
-      value: folder.name,
-      label: folder.name,
-    })),
+    ...($folders || [])
+      .filter(folder => (zipFilesOnly ? folder.name.endsWith('.zip') : true))
+      .filter(folder => (skipZipFiles ? !folder.name.endsWith('.zip') : true))
+      .map(folder => ({
+        value: folder.name,
+        label: folder.name,
+      })),
     ...additionalFolders
       .filter(x => x != '@create')
       .filter(x => !($folders || []).find(y => y.name == x))
@@ -28,7 +34,7 @@
         value: folder,
         label: folder,
       })),
-    {
+    allowCreateNew && {
       label: '(Create new)',
       value: '@create',
     },

@@ -10,9 +10,8 @@
   import { apiCall } from '../utility/api';
   import { useFiles } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import getElectron from '../utility/getElectron';
-  import InlineButtonLabel from '../buttons/InlineButtonLabel.svelte';
-  import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
+  import { isProApp } from '../utility/proTools';
+  import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
 
   let filter = '';
 
@@ -23,11 +22,11 @@
   const queryFiles = useFiles({ folder: 'query' });
   const sqliteFiles = useFiles({ folder: 'sqlite' });
   const diagramFiles = useFiles({ folder: 'diagrams' });
-  const jobFiles = useFiles({ folder: 'jobs' });
+  const importExportJobFiles = useFiles({ folder: 'impexp' });
+  const dataDeployJobFiles = useFiles({ folder: 'datadeploy' });
+  const dbCompareJobFiles = useFiles({ folder: 'dbcompare' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
-
-  const electron = getElectron();
 
   $: files = [
     ...($sqlFiles || []),
@@ -38,8 +37,10 @@
     ...($sqliteFiles || []),
     ...($diagramFiles || []),
     ...($perspectiveFiles || []),
-    ...($jobFiles || []),
+    ...($importExportJobFiles || []),
     ...($modelTransformFiles || []),
+    ...((isProApp() && $dataDeployJobFiles) || []),
+    ...((isProApp() && $dbCompareJobFiles) || []),
   ];
 
   function handleRefreshFiles() {
@@ -53,50 +54,23 @@
         'sqlite',
         'diagrams',
         'perspectives',
-        'jobs',
+        'impexp',
         'modtrans',
+        'datadeploy',
+        'dbcompare',
       ],
     });
   }
 
   function dataFolderTitle(folder) {
     if (folder == 'modtrans') return 'Model transforms';
+    if (folder == 'datadeploy') return 'Data deploy jobs';
+    if (folder == 'dbcompare') return 'Database compare jobs';
     return _.startCase(folder);
   }
 
-  async function handleUploadedFile(e) {
-    const files = [...e.target.files];
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('name', file.name);
-      formData.append('data', file);
-
-      const fetchOptions = {
-        method: 'POST',
-        body: formData,
-        headers: resolveApiHeaders(),
-      };
-
-      const apiBase = resolveApi();
-      const resp = await fetch(`${apiBase}/uploads/upload-data-file`, fetchOptions);
-      const fileData = await resp.json();
-    }
-  }
-
-  async function handleOpenElectronFile() {
-    const filePaths = await electron.showOpenDialog({
-      filters: [
-        {
-          name: `All supported files`,
-          extensions: ['sql'],
-        },
-        { name: `SQL files`, extensions: ['sql'] },
-      ],
-      properties: ['showHiddenFiles', 'openFile'],
-    });
-    const filePath = filePaths && filePaths[0];
-    await apiCall('uploads/save-data-file', { filePath });
+  async function handleUploadedFile(filePath, fileName) {
+    await apiCall('files/save-uploaded-file', { filePath, fileName });
   }
 </script>
 
@@ -104,26 +78,20 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search saved files" bind:value={filter} />
     <CloseSearchButton bind:filter />
-    {#if electron}
-      <InlineButton on:click={handleOpenElectronFile} title="Add file" data-testid="SavedFileList_buttonAddFile">
-        <FontIcon icon="icon plus-thick" />
-      </InlineButton>
-    {:else}
-      <InlineButtonLabel
-        on:click={() => {}}
-        title="Add file"
-        data-testid="SavedFileList_buttonAddFile"
-        htmlFor="uploadSavedFileButton"
-      >
-        <FontIcon icon="icon plus-thick" />
-      </InlineButtonLabel>
-    {/if}
+    <InlineUploadButton
+      filters={[
+        {
+          name: `All supported files`,
+          extensions: ['sql'],
+        },
+        { name: `SQL files`, extensions: ['sql'] },
+      ]}
+      onProcessFile={handleUploadedFile}
+    />
     <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
       <FontIcon icon="icon refresh" />
     </InlineButton>
   </SearchBoxWrapper>
-
-  <input type="file" id="uploadSavedFileButton" hidden on:change={handleUploadedFile} />
 
   <AppObjectList list={files} module={savedFileAppObject} groupFunc={data => dataFolderTitle(data.folder)} {filter} />
 </WidgetsInnerContainer>

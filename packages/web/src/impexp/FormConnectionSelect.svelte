@@ -5,7 +5,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
 
   export let allowChooseModel = false;
-  export let direction;
+  export let direction = 'source';
 
   $: connections = useConnectionList();
   $: connectionOptions = [

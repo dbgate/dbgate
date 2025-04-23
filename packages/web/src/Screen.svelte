@@ -157,6 +157,7 @@
   }
 
   .snackbar-container {
+    z-index: 1000;
     position: fixed;
     right: 0;
     bottom: var(--dim-statusbar-height);

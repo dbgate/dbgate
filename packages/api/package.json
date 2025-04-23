@@ -22,6 +22,7 @@
   "dependencies": {
     "@aws-sdk/rds-signer": "^3.665.0",
     "activedirectory2": "^2.1.0",
+    "archiver": "^7.0.1",
     "async-lock": "^1.2.6",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
@@ -62,7 +63,8 @@
     "simple-encryptor": "^4.0.0",
     "ssh2": "^1.16.0",
     "stream-json": "^1.8.0",
-    "tar": "^6.0.5"
+    "tar": "^6.0.5",
+    "yauzl": "^3.2.0"
   },
   "scripts": {
     "start": "env-cmd -f .env node src/index.js --listen-api",

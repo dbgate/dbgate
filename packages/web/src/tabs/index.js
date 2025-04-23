@@ -24,7 +24,6 @@ import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ProfilerTab from './ProfilerTab.svelte';
-import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
 import * as ImportExportTab from './ImportExportTab.svelte';
 import * as SqlObjectTab from './SqlObjectTab.svelte';
 
@@ -57,7 +56,6 @@ export default {
   MapTab,
   ServerSummaryTab,
   ProfilerTab,
-  DataDuplicatorTab,
   ImportExportTab,
   SqlObjectTab,
   ...protabs,

@@ -2,12 +2,12 @@
   const getCurrentEditor = () => getActiveComponent('ImportExportTab');
 
   registerFileCommands({
-    idPrefix: 'job',
-    category: 'Job',
+    idPrefix: 'impexp',
+    category: 'Impoirt & Export',
     getCurrentEditor,
-    folder: 'jobs',
+    folder: 'impexp',
     format: 'json',
-    fileExtension: 'job',
+    fileExtension: 'impexp',
 
     // undoRedo: true,
   });
@@ -319,7 +319,7 @@
     <ToolStripButton icon="img shell" on:click={handleGenerateScript} data-testid="ImportExportTab_generateScriptButton"
       >Generate script</ToolStripButton
     >
-    <ToolStripSaveButton idPrefix="job" />
+    <ToolStripSaveButton idPrefix="impexp" />
   </svelte:fragment>
 </ToolStripContainer>
 

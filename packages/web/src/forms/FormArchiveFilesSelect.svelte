@@ -10,14 +10,17 @@
 
   export let folderName;
   export let name;
+  export let filterExtension = null;
 
   const { setFieldValue, values } = getFormContext();
 
   $: files = useArchiveFiles({ folder: folderName });
-  $: filesOptions = ($files || []).map(x => ({
-    value: x.name,
-    label: x.name,
-  }));
+  $: filesOptions = ($files || [])
+    .filter(x => (filterExtension ? x.name.endsWith('.' + filterExtension) : true))
+    .map(x => ({
+      value: x.name,
+      label: x.name,
+    }));
 </script>
 
 <div class="wrapper">

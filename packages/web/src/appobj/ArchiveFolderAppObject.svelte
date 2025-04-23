@@ -20,6 +20,7 @@
   import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
   import { extractShellConnection } from '../impexp/createImpExpScript';
+  import { saveFileToDisk } from '../utility/exportFileTools';
 
   export let data;
 
@@ -100,7 +101,7 @@ await dbgateApi.deployDb(${JSON.stringify(
         props: {
           conid: $currentDatabase?.connection?._id,
           database: $currentDatabase?.name,
-        }
+        },
       },
       {
         editor: {
@@ -113,12 +114,12 @@ await dbgateApi.deployDb(${JSON.stringify(
     );
   };
 
-  const handleOpenDuplicatorTab = () => {
+  const handleOpenDataDeployTab = () => {
     openNewTab(
       {
         title: data.name,
-        icon: 'img duplicator',
-        tabComponent: 'DataDuplicatorTab',
+        icon: 'img data-deploy',
+        tabComponent: 'DataDeployTab',
         props: {
           conid: $currentDatabase?.connection?._id,
           database: $currentDatabase?.name,
@@ -127,7 +128,34 @@ await dbgateApi.deployDb(${JSON.stringify(
       {
         editor: {
           archiveFolder: data.name,
+          conid: $currentDatabase?.connection?._id,
+          database: $currentDatabase?.name,
         },
+      }
+    );
+  };
+
+  const handleZipUnzip = async method => {
+    await apiCall(method, {
+      folder: data.name,
+    });
+  };
+
+  const handleDownloadZip = async () => {
+    saveFileToDisk(
+      async filePath => {
+        const zipped = await apiCall('archive/get-zipped-path', {
+          folder: data.name,
+        });
+        await apiCall('files/simple-copy', {
+          sourceFilePath: zipped.filePath,
+          targetFilePath: filePath,
+        });
+      },
+      {
+        formatLabel: 'ZIP files',
+        formatExtension: 'zip',
+        defaultFileName: data.name?.endsWith('.zip') ? data.name : data.name + '.zip',
       }
     );
   };
@@ -138,10 +166,18 @@ await dbgateApi.deployDb(${JSON.stringify(
       data.name != 'default' && { text: 'Rename', onClick: handleRename },
       data.name != 'default' &&
         $currentDatabase && [
-          { text: 'Data duplicator', onClick: handleOpenDuplicatorTab },
+          isProApp() && { text: 'Data deployer', onClick: handleOpenDataDeployTab },
           { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
           { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
         ],
+      data.name != 'default' &&
+        isProApp() &&
+        data.name.endsWith('.zip') && { text: 'Unpack ZIP', onClick: () => handleZipUnzip('archive/unzip') },
+      data.name != 'default' &&
+        isProApp() &&
+        !data.name.endsWith('.zip') && { text: 'Pack (create ZIP)', onClick: () => handleZipUnzip('archive/zip') },
+
+      isProApp() && { text: 'Download ZIP', onClick: handleDownloadZip },
 
       data.name != 'default' &&
         hasPermission('dbops/model/compare') &&
@@ -158,7 +194,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   {...$$restProps}
   {data}
   title={data.name.endsWith('.link') ? data.name.slice(0, -5) : data.name}
-  icon={data.name.endsWith('.link') ? 'img link' : 'img archive-folder'}
+  icon={data.name.endsWith('.link') ? 'img link' : data.name.endsWith('.zip') ? 'img zipfile' : 'img archive-folder'}
   isBold={data.name == $currentArchive}
   on:click={() => ($currentArchive = data.name)}
   menu={createMenu}

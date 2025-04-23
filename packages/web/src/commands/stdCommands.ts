@@ -46,6 +46,7 @@ import { openImportExportTab } from '../utility/importExportTools';
 import newTable from '../tableeditor/newTable';
 import { isProApp } from '../utility/proTools';
 import { openWebLink } from '../utility/simpleTools';
+import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -506,6 +507,44 @@ registerCommand({
         }
       },
     });
+  },
+});
+
+registerCommand({
+  id: 'app.exportConnections',
+  category: 'Settings',
+  name: 'Export connections',
+  testEnabled: () => getElectron() != null,
+  onClick: () => {
+    showModal(ExportImportConnectionsModal, {
+      mode: 'export',
+    });
+  },
+});
+
+registerCommand({
+  id: 'app.importConnections',
+  category: 'Settings',
+  name: 'Import connections',
+  testEnabled: () => getElectron() != null,
+  onClick: async () => {
+    const files = await electron.showOpenDialog({
+      properties: ['showHiddenFiles', 'openFile'],
+      filters: [
+        {
+          name: `All supported files`,
+          extensions: ['zip'],
+        },
+        { name: `ZIP files`, extensions: ['zip'] },
+      ],
+    });
+
+    if (files?.length > 0) {
+      showModal(ExportImportConnectionsModal, {
+        mode: 'import',
+        uploadedFilePath: files[0],
+      });
+    }
   },
 });
 

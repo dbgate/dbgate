@@ -39,52 +39,6 @@ module.exports = {
     });
   },
 
-  uploadDataFile_meta: {
-    method: 'post',
-    raw: true,
-  },
-  uploadDataFile(req, res) {
-    const { data } = req.files || {};
-
-    if (!data) {
-      res.json(null);
-      return;
-    }
-
-    if (data.name.toLowerCase().endsWith('.sql')) {
-      logger.info(`Uploading SQL file ${data.name}, size=${data.size}`);
-      data.mv(path.join(filesdir(), 'sql', data.name), () => {
-        res.json({
-          name: data.name,
-          folder: 'sql',
-        });
-
-        socket.emitChanged(`files-changed`, { folder: 'sql' });
-        socket.emitChanged(`all-files-changed`);
-      });
-      return;
-    }
-
-    res.json(null);
-  },
-
-  saveDataFile_meta: true,
-  async saveDataFile({ filePath }) {
-    if (filePath.toLowerCase().endsWith('.sql')) {
-      logger.info(`Saving SQL file ${filePath}`);
-      await fs.copyFile(filePath, path.join(filesdir(), 'sql', path.basename(filePath)));
-
-      socket.emitChanged(`files-changed`, { folder: 'sql' });
-      socket.emitChanged(`all-files-changed`);
-      return {
-        name: path.basename(filePath),
-        folder: 'sql',
-      };
-    }
-
-    return null;
-  },
-
   get_meta: {
     method: 'get',
     raw: true,

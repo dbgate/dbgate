@@ -96,9 +96,9 @@ module.exports = {
 
   handle_ping() {},
 
-  handle_freeData(runid, { freeData }) {
+  handle_dataResult(runid, { dataResult }) {
     const { resolve } = this.requests[runid];
-    resolve(freeData);
+    resolve(dataResult);
     delete this.requests[runid];
   },
 
@@ -325,6 +325,26 @@ module.exports = {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
       this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid));
+    });
+    return promise;
+  },
+
+  scriptResult_meta: true,
+  async scriptResult({ script }) {
+    if (script.type != 'json') {
+      return { errorMessage: 'Only JSON scripts are allowed' };
+    }
+
+    const promise = new Promise((resolve, reject) => {
+      const runid = crypto.randomUUID();
+      this.requests[runid] = { resolve, reject, exitOnStreamError: true };
+      const cloned = _.cloneDeepWith(script, node => {
+        if (node?.$replace == 'runid') {
+          return runid;
+        }
+      });
+      const js = jsonScriptToJavascript(cloned);
+      this.startCore(runid, scriptTemplate(js, false));
     });
     return promise;
   },
