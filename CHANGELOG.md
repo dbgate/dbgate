@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.4.0 - not released yet
+- REMOVED: Data duplicator
+- ADDED: Data deployer (Premium), compare data
+- ADDED: Exporting to ZIP file
+- ADDED: Download SQL and SQLite files
+- ADDED: Upload SQLite files
+- ADDED: Upload archive as ZIP folder (Premium)
+- ADDED: Compress, uncompress archive folder (Premium)
+
 ## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles
 - ADDED: Encrypting passwords in team-premium edition
