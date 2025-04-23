@@ -282,48 +282,59 @@
     testEnabled: () => getCurrentDataGrid()?.editCellValueEnabled(),
     onClick: () => getCurrentDataGrid().editCellValue(),
   });
-  registerCommand({
-    id: 'dataGrid.mergeSelectedCellsIntoMirror',
-    category: 'Data grid',
-    name: 'Merge selected cells',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: false }),
-  });
-  registerCommand({
-    id: 'dataGrid.mergeSelectedRowsIntoMirror',
-    category: 'Data grid',
-    name: 'Merge selected rows',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: true }),
-  });
-  registerCommand({
-    id: 'dataGrid.appendSelectedCellsIntoMirror',
-    category: 'Data grid',
-    name: 'Append selected cells',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: false }),
-  });
-  registerCommand({
-    id: 'dataGrid.appendSelectedRowsIntoMirror',
-    category: 'Data grid',
-    name: 'Append selected rows',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: true }),
-  });
-  registerCommand({
-    id: 'dataGrid.replaceSelectedCellsIntoMirror',
-    category: 'Data grid',
-    name: 'Replace with selected cells',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: false }),
-  });
-  registerCommand({
-    id: 'dataGrid.replaceSelectedRowsIntoMirror',
-    category: 'Data grid',
-    name: 'Replace with selected rows',
-    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
-    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: true }),
-  });
+
+  if (isProApp()) {
+    registerCommand({
+      id: 'dataGrid.sendToDataDeploy',
+      category: 'Data grid',
+      name: 'Send to data deployer',
+      testEnabled: () => getCurrentDataGrid()?.sendToDataDeployEnabled(),
+      onClick: () => getCurrentDataGrid().sendToDataDeploy(),
+    });
+  }
+
+  // registerCommand({
+  //   id: 'dataGrid.mergeSelectedCellsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Merge selected cells',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: false }),
+  // });
+  // registerCommand({
+  //   id: 'dataGrid.mergeSelectedRowsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Merge selected rows',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: true }),
+  // });
+  // registerCommand({
+  //   id: 'dataGrid.appendSelectedCellsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Append selected cells',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: false }),
+  // });
+  // registerCommand({
+  //   id: 'dataGrid.appendSelectedRowsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Append selected rows',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: true }),
+  // });
+  // registerCommand({
+  //   id: 'dataGrid.replaceSelectedCellsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Replace with selected cells',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: false }),
+  // });
+  // registerCommand({
+  //   id: 'dataGrid.replaceSelectedRowsIntoMirror',
+  //   category: 'Data grid',
+  //   name: 'Replace with selected rows',
+  //   testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+  //   onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: true }),
+  // });
 
   function getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
@@ -418,6 +429,8 @@
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { _t } from '../translations';
+  import { isProApp } from '../utility/proTools';
+  import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -454,6 +467,8 @@
   export let jslid;
   // export let generalAllowSave = false;
   export let hideGridLeftColumn = false;
+  export let overlayDefinition = null;
+  export let onGetSelectionMenu = null;
 
   export const activator = createActivator('DataGridCore', false);
 
@@ -482,6 +497,7 @@
   const domFilterControlsRef = createRef({});
 
   let isGridFocused = false;
+  let selectionMenu = null;
 
   const tabid = getContext('tabid');
 
@@ -1003,11 +1019,11 @@
     });
   }
 
-  export function mirrorWriteEnabled(requireKey) {
-    return requireKey ? !!display.baseTable?.primaryKey || !!display.baseCollection : !!display.baseTableOrSimilar;
+  export function sendToDataDeployEnabled() {
+    return !!display.baseTable?.primaryKey || !!display.baseCollection;
   }
 
-  export async function mergeSelectionIntoMirror({ fullRows, mergeMode = 'merge' }) {
+  export async function sendToDataDeploy() {
     const file = display.baseTableOrSimilar?.pureName;
     const mergeKey = display.baseCollection
       ? display.baseCollection?.uniqueKey?.map(x => x.columnName)
@@ -1019,19 +1035,76 @@
     const rows = rowIndexes.map(rowIndex => grider.getRowData(rowIndex));
     // @ts-ignore
     const columns = colIndexes.map(col => realColumnUniqueNames[col]);
-    const mergedRows = fullRows ? rows : rows.map(x => _.pick(x, _.uniq([...columns, ...mergeKey])));
 
-    const res = await apiCall('archive/modify-file', {
+    const mergedRows = rows.map(x => _.pick(x, _.uniq([...columns, ...mergeKey])));
+
+    showModal(SaveArchiveModal, {
       folder: $currentArchive,
       file,
-      mergedRows,
-      mergeKey,
-      mergeMode,
+      fileIsReadOnly: true,
+      onSave: async folder => {
+        const res = await apiCall('archive/modify-file', {
+          folder,
+          file,
+          mergedRows,
+          mergeKey,
+          mergeMode: 'merge',
+        });
+        if (res) {
+          showSnackbarSuccess(`Merged ${mergedRows.length} rows into ${file} in archive ${folder}`);
+
+          openNewTab(
+            {
+              title: folder,
+              icon: 'img data-deploy',
+              tabComponent: 'DataDeployTab',
+              props: {
+                conid,
+                database,
+              },
+            },
+            {
+              editor: {
+                archiveFolder: folder,
+                conid,
+                database,
+              },
+            }
+          );
+        }
+      },
     });
-    if (res) {
-      showSnackbarSuccess(`Merged ${mergedRows.length} rows into ${file} in archive ${$currentArchive}`);
-    }
   }
+
+  // export function mirrorWriteEnabled(requireKey) {
+  //   return requireKey ? !!display.baseTable?.primaryKey || !!display.baseCollection : !!display.baseTableOrSimilar;
+  // }
+
+  // export async function mergeSelectionIntoMirror({ fullRows, mergeMode = 'merge' }) {
+  //   const file = display.baseTableOrSimilar?.pureName;
+  //   const mergeKey = display.baseCollection
+  //     ? display.baseCollection?.uniqueKey?.map(x => x.columnName)
+  //     : display.baseTable?.primaryKey.columns.map(x => x.columnName);
+
+  //   const cells = cellsToRegularCells(selectedCells);
+  //   const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
+  //   const colIndexes = _.sortBy(_.uniq(cells.map(x => x[1])));
+  //   const rows = rowIndexes.map(rowIndex => grider.getRowData(rowIndex));
+  //   // @ts-ignore
+  //   const columns = colIndexes.map(col => realColumnUniqueNames[col]);
+  //   const mergedRows = fullRows ? rows : rows.map(x => _.pick(x, _.uniq([...columns, ...mergeKey])));
+
+  //   const res = await apiCall('archive/modify-file', {
+  //     folder: $currentArchive,
+  //     file,
+  //     mergedRows,
+  //     mergeKey,
+  //     mergeMode,
+  //   });
+  //   if (res) {
+  //     showSnackbarSuccess(`Merged ${mergedRows.length} rows into ${file} in archive ${$currentArchive}`);
+  //   }
+  // }
 
   export function canShowLeftPanel() {
     return !hideGridLeftColumn;
@@ -1152,8 +1225,16 @@
             onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
           }
 
+          let publishedCells = null;
+
           if (onPublishedCellsChanged) {
-            onPublishedCellsChanged(getCellsPublished(selectedCells));
+            if (!publishedCells) publishedCells = getCellsPublished(selectedCells);
+            onPublishedCellsChanged(publishedCells);
+          }
+
+          if (onGetSelectionMenu) {
+            if (!publishedCells) publishedCells = getCellsPublished(selectedCells);
+            selectionMenu = onGetSelectionMenu(publishedCells);
           }
         }
       });
@@ -1192,6 +1273,7 @@
           engine: display?.driver,
           condition: display?.getChangeSetCondition(rowData),
           insertedRowIndex: grider?.getInsertedRowIndex(row),
+          rowStatus: grider.getRowStatus(row),
         };
       })
       .filter(x => x.column);
@@ -1747,14 +1829,14 @@
     { placeTag: 'save' },
     { command: 'dataGrid.revertRowChanges', hideDisabled: true },
     { command: 'dataGrid.revertAllChanges', hideDisabled: true },
-    { command: 'dataGrid.deleteSelectedRows' },
-    { command: 'dataGrid.insertNewRow' },
-    { command: 'dataGrid.cloneRows' },
+    { command: 'dataGrid.deleteSelectedRows', hideDisabled: true },
+    { command: 'dataGrid.insertNewRow', hideDisabled: true },
+    { command: 'dataGrid.cloneRows', hideDisabled: true },
     { command: 'dataGrid.setNull', hideDisabled: true },
     { command: 'dataGrid.removeField', hideDisabled: true },
     { placeTag: 'edit' },
     { divider: true },
-    { command: 'dataGrid.findColumn' },
+    { command: 'dataGrid.findColumn', hideDisabled: true },
     { command: 'dataGrid.hideColumn', hideDisabled: true },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
@@ -1773,17 +1855,18 @@
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
-    {
-      label: 'Save to current archive',
-      submenu: [
-        { command: 'dataGrid.mergeSelectedCellsIntoMirror' },
-        { command: 'dataGrid.mergeSelectedRowsIntoMirror' },
-        { command: 'dataGrid.appendSelectedCellsIntoMirror' },
-        { command: 'dataGrid.appendSelectedRowsIntoMirror' },
-        { command: 'dataGrid.replaceSelectedCellsIntoMirror' },
-        { command: 'dataGrid.replaceSelectedRowsIntoMirror' },
-      ],
-    },
+    // {
+    //   label: 'Save to current archive',
+    //   submenu: [
+    //     { command: 'dataGrid.mergeSelectedCellsIntoMirror' },
+    //     { command: 'dataGrid.mergeSelectedRowsIntoMirror' },
+    //     { command: 'dataGrid.appendSelectedCellsIntoMirror' },
+    //     { command: 'dataGrid.appendSelectedRowsIntoMirror' },
+    //     { command: 'dataGrid.replaceSelectedCellsIntoMirror' },
+    //     { command: 'dataGrid.replaceSelectedRowsIntoMirror' },
+    //   ],
+    // },
+    isProApp() && { command: 'dataGrid.sendToDataDeploy' },
     { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
@@ -2017,6 +2100,7 @@
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
             {dataEditorTypesBehaviourOverride}
             {gridColoringMode}
+            {overlayDefinition}
           />
         {/each}
       </tbody>
@@ -2053,7 +2137,19 @@
       on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
       bind:this={domVerticalScroll}
     />
-    {#if selectedCellsInfo}
+    {#if selectionMenu}
+      <div class="selection-menu">
+        {#each selectionMenu as item}
+          <InlineButton
+            on:click={() => {
+              item.onClick();
+            }}
+          >
+            {item.text}
+          </InlineButton>
+        {/each}
+      </div>
+    {:else if selectedCellsInfo}
       <div class="row-count-label">
         {selectedCellsInfo}
       </div>
@@ -2112,6 +2208,13 @@
     top: -1000px;
   }
   .row-count-label {
+    position: absolute;
+    background-color: var(--theme-bg-2);
+    right: 40px;
+    bottom: 20px;
+  }
+
+  .selection-menu {
     position: absolute;
     background-color: var(--theme-bg-2);
     right: 40px;

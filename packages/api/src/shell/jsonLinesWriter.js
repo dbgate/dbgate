@@ -36,9 +36,10 @@ async function jsonLinesWriter({ fileName, encoding = 'utf-8', header = true }) 
   logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ header });
   const fileStream = fs.createWriteStream(fileName, encoding);
-  stringify.pipe(fileStream);
-  stringify['finisher'] = fileStream;
-  return stringify;
+  return [stringify, fileStream];
+  // stringify.pipe(fileStream);
+  // stringify['finisher'] = fileStream;
+  // return stringify;
 }
 
 module.exports = jsonLinesWriter;

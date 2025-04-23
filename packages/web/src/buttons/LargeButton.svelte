@@ -13,7 +13,7 @@
   }
 </script>
 
-<div class="button" on:click={handleClick} class:disabled class:fillHorizontal>
+<div class="button" on:click={handleClick} class:disabled class:fillHorizontal data-testid={$$props['data-testid']}>
   <div class="icon">
     <FontIcon {icon} />
   </div>

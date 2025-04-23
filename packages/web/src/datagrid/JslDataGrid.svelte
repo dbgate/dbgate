@@ -20,7 +20,7 @@
   export let allowChangeChangeSetStructure = false;
   export let infoLoadCounter = 0;
 
-  export let driver;
+  export let driver = null;
 
   let loadedRows;
   let infoCounter = 0;

@@ -15,9 +15,9 @@ class CollectorWriterStream extends stream.Writable {
 
   _final(callback) {
     process.send({
-      msgtype: 'freeData',
+      msgtype: 'dataResult',
       runid: this.runid,
-      freeData: { rows: this.rows, structure: this.structure },
+      dataResult: { rows: this.rows, structure: this.structure },
     });
     callback();
   }

@@ -468,15 +468,15 @@ describe('Data browser data', () => {
     cy.themeshot('database-model-table-yaml');
   });
 
-  it('Data duplicator', () => {
+  it('Data replicator', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('WidgetIconPanel_archive').click();
     cy.contains('chinook-archive').rightclick();
-    cy.contains('Data duplicator').click();
+    cy.contains('Data replicator').click();
     cy.contains('Dry run').click();
-    cy.testid('DataDuplicatorTab_importIntoDb').click();
-    cy.contains('Duplicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
-    cy.themeshot('data-duplicator');
+    cy.testid('DataReplicatorTab_importIntoDb').click();
+    cy.contains('Replicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
+    cy.themeshot('data-replicator');
   });
 });

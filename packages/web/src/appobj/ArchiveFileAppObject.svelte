@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  function openArchive(fileName, folderName) {
+  async function openArchive(fileName, folderName) {
     openNewTab({
       title: fileName,
       icon: 'img archive',
@@ -10,17 +10,21 @@
         archiveFolder: folderName,
       },
     });
+    // }
   }
 
   async function openTextFile(fileName, fileType, folderName, tabComponent, icon) {
     const connProps: any = {};
     let tooltip = undefined;
+    const isZipped = folderName.endsWith('.zip');
 
-    const resp = await apiCall('files/load', {
-      folder: 'archive:' + folderName,
-      file: fileName + '.' + fileType,
-      format: 'text',
-    });
+    const resp = isZipped
+      ? await apiCall('files/download-text', { uri: `zip://archive:${folderName}//${fileName}.jsonl` })
+      : await apiCall('files/load', {
+          folder: 'archive:' + folderName,
+          file: fileName + '.' + fileType,
+          format: 'text',
+        });
 
     openNewTab(
       {
@@ -58,7 +62,7 @@
     if (data.fileType == 'jsonl') {
       return 'img archive';
     }
-    return ARCHIVE_ICONS[data.fileType];
+    return ARCHIVE_ICONS[data.fileType] ?? 'img anyfile';
   }
 </script>
 
@@ -79,6 +83,7 @@
   import { openImportExportTab } from '../utility/importExportTools';
 
   export let data;
+  $: isZipped = data.folderName?.endsWith('.zip');
 
   const handleRename = () => {
     showModal(InputTextModal, {
@@ -112,6 +117,9 @@
     openArchive(data.fileName, data.folderName);
   };
   const handleClick = () => {
+    if (!data.fileType) {
+      return;
+    }
     if (data.fileType == 'jsonl') {
       handleOpenArchive();
     }
@@ -133,11 +141,15 @@
   };
 
   function createMenu() {
+    if (!data.fileType) {
+      return [];
+    }
+
     return [
       data.fileType == 'jsonl' && { text: 'Open', onClick: handleOpenArchive },
       data.fileType == 'jsonl' && { text: 'Open in text editor', onClick: handleOpenJsonLinesText },
-      { text: 'Delete', onClick: handleDelete },
-      { text: 'Rename', onClick: handleRename },
+      !isZipped && { text: 'Delete', onClick: handleDelete },
+      !isZipped && { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
         createQuickExportMenu(
           fmt => async () => {
@@ -174,29 +186,30 @@
         ),
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
       data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
-      data.fileType == 'jsonl' && {
-        text: 'Open in profiler',
-        submenu: getExtensions()
-          .drivers.filter(eng => eng.profilerFormatterFunction)
-          .map(eng => ({
-            text: eng.title,
-            onClick: () => {
-              openNewTab({
-                title: 'Profiler',
-                icon: 'img profiler',
-                tabComponent: 'ProfilerTab',
-                props: {
-                  jslidLoad: `archive://${data.folderName}/${data.fileName}`,
-                  engine: eng.engine,
-                  // profilerFormatterFunction: eng.profilerFormatterFunction,
-                  // profilerTimestampFunction: eng.profilerTimestampFunction,
-                  // profilerChartAggregateFunction: eng.profilerChartAggregateFunction,
-                  // profilerChartMeasures: eng.profilerChartMeasures,
-                },
-              });
-            },
-          })),
-      },
+      !isZipped &&
+        data.fileType == 'jsonl' && {
+          text: 'Open in profiler',
+          submenu: getExtensions()
+            .drivers.filter(eng => eng.profilerFormatterFunction)
+            .map(eng => ({
+              text: eng.title,
+              onClick: () => {
+                openNewTab({
+                  title: 'Profiler',
+                  icon: 'img profiler',
+                  tabComponent: 'ProfilerTab',
+                  props: {
+                    jslidLoad: `archive://${data.folderName}/${data.fileName}`,
+                    engine: eng.engine,
+                    // profilerFormatterFunction: eng.profilerFormatterFunction,
+                    // profilerTimestampFunction: eng.profilerTimestampFunction,
+                    // profilerChartAggregateFunction: eng.profilerChartAggregateFunction,
+                    // profilerChartMeasures: eng.profilerChartMeasures,
+                  },
+                });
+              },
+            })),
+        },
     ];
   }
 </script>

@@ -102,8 +102,8 @@ function getPortalCollections() {
       trustServerCertificate: process.env[`SSL_TRUST_CERTIFICATE_${id}`],
     }));
 
-    for(const conn of connections) {
-      for(const prop in process.env) {
+    for (const conn of connections) {
+      for (const prop in process.env) {
         if (prop.startsWith(`CONNECTION_${conn._id}_`)) {
           const name = prop.substring(`CONNECTION_${conn._id}_`.length);
           conn[name] = process.env[prop];
@@ -314,6 +314,18 @@ module.exports = {
     //   socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
     // }
     return res;
+  },
+
+  importFromArray(list) {
+    this.datastore.transformAll(connections => {
+      const mapped = connections.map(x => {
+        const found = list.find(y => y._id == x._id);
+        if (found) return found;
+        return x;
+      });
+      return [...mapped, ...list.filter(x => !connections.find(y => y._id == x._id))];
+    });
+    socket.emitChanged('connection-list-changed');
   },
 
   async checkUnsavedConnectionsLimit() {

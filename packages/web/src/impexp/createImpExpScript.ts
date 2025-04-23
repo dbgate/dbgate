@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
@@ -93,7 +94,13 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
       return [
         format.readerFunc,
         {
-          ..._.omit(sourceFile, ['isDownload']),
+          ...(sourceFile
+            ? _.omit(sourceFile, ['isDownload'])
+            : {
+                fileName: values.importFromZipFile
+                  ? `zip://archive:${values.sourceArchiveFolder}//${sourceName}`
+                  : sourceName,
+              }),
           ...extractFormatApiParameters(values, 'source', format),
         },
       ];
@@ -237,6 +244,13 @@ export default async function createImpExpScript(extensions, values, forceScript
     script.copyStream(sourceVar, targetVar, colmapVar, sourceName);
     script.endLine();
   }
+
+  if (values.exportToZipFile) {
+    let zipFileName = values.exportToZipFileName || `zip-archive-${moment().format('YYYY-MM-DD-HH-mm-ss')}.zip`;
+    if (!zipFileName.endsWith('.zip')) zipFileName += '.zip';
+    script.zipDirectory('.', values.createZipFileInArchive ? 'archive:' + zipFileName : zipFileName);
+  }
+
   return script.getScript(values.schedule);
 }
 

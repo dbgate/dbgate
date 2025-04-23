@@ -87,6 +87,9 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'folder.showData', hideDisabled: true },
       { command: 'new.gist', hideDisabled: true },
       { command: 'app.resetSettings', hideDisabled: true },
+      { divider: true },
+      { command: 'app.exportConnections', hideDisabled: true },
+      { command: 'app.importConnections', hideDisabled: true },
     ],
   },
   ...(isMac
