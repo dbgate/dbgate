@@ -658,6 +658,7 @@ const cassandraEngine = {
 const duckdbEngine = {
   label: 'DuckDB',
   generateDbFile: true,
+  defaultSchemaName: 'main',
   connection: {
     engine: 'duckdb@dbgate-plugin-duckdb',
   },
@@ -671,6 +672,7 @@ const duckdbEngine = {
   skipAutoIncrement: true,
   skipDeploy: true,
   supportRenameSqlObject: true,
+  skipIncrementalAnalysis: true,
 };
 
 const enginesOnCi = [

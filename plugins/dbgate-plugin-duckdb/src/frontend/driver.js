@@ -18,6 +18,7 @@ function getDatabaseFileLabel(databaseFile) {
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
+  defaultSchemaName: 'main',
   offsetFetchRangeSyntax: false,
   explicitDropConstraint: true,
   stringEscapeChar: "'",
