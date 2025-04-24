@@ -667,7 +667,7 @@ const duckdbEngine = {
   skipIndexes: true,
   skipStringLength: true,
   skipTriggers: true,
-  skipDataDuplicator: true,
+  skipDataReplicator: true,
   skipAutoIncrement: true,
   skipDeploy: true,
   supportRenameSqlObject: true,
@@ -693,7 +693,7 @@ const enginesOnLocal = [
   // all engines, which would be run on local test
   // cassandraEngine,
   // mysqlEngine,
-  mariaDbEngine,
+  // mariaDbEngine,
   // postgreSqlEngine,
   // sqlServerEngine,
   // sqliteEngine,
