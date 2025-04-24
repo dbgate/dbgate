@@ -50,6 +50,8 @@
   import { registerFileCommands } from '../commands/stdCommands';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import uuidv1 from 'uuid/v1';
+  import { tick } from 'svelte';
 
   let busy = false;
   let executeNumber = 0;
@@ -183,12 +185,24 @@
     progressHolder = {};
     const values = $formValues as any;
     busy = true;
-    const script = await createImpExpScript($extensions, values, 'json');
+    const script = await createImpExpScript($extensions, values, 'json', true);
     executeNumber += 1;
-    let runid = runnerId;
-    const resp = await apiCall('runners/start', { script });
-    runid = resp.runid;
-    runnerId = runid;
+
+    if (script.hostConnection) {
+      runnerId = uuidv1();
+      await tick();
+      await apiCall('database-connections/eval-json-script', {
+        runid: runnerId,
+        conid: script.hostConnection.conid,
+        database: script.hostConnection.database,
+        script,
+      });
+    } else {
+      let runid = runnerId;
+      const resp = await apiCall('runners/start', { script });
+      runid = resp.runid;
+      runnerId = runid;
+    }
 
     if (values.targetStorageType == 'archive') {
       refreshArchiveFolderRef.set(values.targetArchiveFolder);

@@ -125,6 +125,12 @@ module.exports = {
     socket.emit(`session-initialize-file-${jslid}`);
   },
 
+  // eval event handler
+  handle_runnerDone(conid, database, props) {
+    const { runid } = props;
+    socket.emit(`runner-done-${runid}`);
+  },
+
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
@@ -794,13 +800,23 @@ module.exports = {
   },
 
   executeSessionQuery_meta: true,
-  async executeSessionQuery({ sesid, conid, database, sql }) {
+  async executeSessionQuery({ sesid, conid, database, sql }, req) {
+    testConnectionPermission(conid, req);
     logger.info({ sesid, sql }, 'Processing query');
     sessions.dispatchMessage(sesid, 'Query execution started');
 
     const opened = await this.ensureOpened(conid, database);
     opened.subprocess.send({ msgtype: 'executeSessionQuery', sql, sesid });
 
+    return { state: 'ok' };
+  },
+
+  evalJsonScript_meta: true,
+  async evalJsonScript({ conid, database, script, runid }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid, database);
+
+    opened.subprocess.send({ msgtype: 'evalJsonScript', script, runid });
     return { state: 'ok' };
   },
 };

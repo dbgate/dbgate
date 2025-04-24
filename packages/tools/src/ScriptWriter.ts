@@ -1,4 +1,5 @@
 import _uniq from 'lodash/uniq';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
 import { evalShellApiFunctionName, extractShellApiFunctionName, extractShellApiPlugins } from './packageTools';
 
 export interface ScriptWriterGeneric {
@@ -43,7 +44,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   assign(variableName, functionName, props) {
-    this.assignCore(variableName, extractShellApiFunctionName(functionName), props);
+    this.assignCore(variableName, extractShellApiFunctionName(functionName, true), props);
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
@@ -117,7 +118,7 @@ export class ScriptWriterJson implements ScriptWriterGeneric {
     this.commands.push({
       type: 'assign',
       variableName,
-      functionName: extractShellApiFunctionName(functionName),
+      functionName: extractShellApiFunctionName(functionName, false),
       props,
     });
 
@@ -192,11 +193,13 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
   dbgateApi: any;
   requirePlugin: (name: string) => any;
   variables: { [name: string]: any } = {};
+  hostConnection: any;
 
-  constructor(dbgateApi, requirePlugin, varCount = '0') {
+  constructor(dbgateApi, requirePlugin, hostConnection, varCount = '0') {
     this.varCount = parseInt(varCount) || 0;
     this.dbgateApi = dbgateApi;
     this.requirePlugin = requirePlugin;
+    this.hostConnection = hostConnection;
   }
 
   allocVariable(prefix = 'var') {
@@ -210,7 +213,14 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
 
   async assign(variableName, functionName, props) {
     const func = evalShellApiFunctionName(functionName, this.dbgateApi, this.requirePlugin);
-    this.variables[variableName] = await func(props);
+
+    this.variables[variableName] = await func(
+      _cloneDeepWith(props, node => {
+        if (node?.$hostConnection) {
+          return this.hostConnection;
+        }
+      })
+    );
   }
 
   assignValue(variableName, jsonValue) {
@@ -243,32 +253,32 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
   }
 }
 
-export function playJsonScriptWriter(json, script) {
+export async function playJsonScriptWriter(json, script: ScriptWriterGeneric) {
   for (const cmd of json.commands) {
     switch (cmd.type) {
       case 'assign':
-        script.assignCore(cmd.variableName, cmd.functionName, cmd.props);
+        await script.assign(cmd.variableName, cmd.functionName, cmd.props);
         break;
       case 'assignValue':
-        script.assignValue(cmd.variableName, cmd.jsonValue);
+        await script.assignValue(cmd.variableName, cmd.jsonValue);
         break;
       case 'copyStream':
-        script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar, cmd.progressName);
+        await script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar, cmd.progressName);
         break;
       case 'endLine':
-        script.endLine();
+        await script.endLine();
         break;
       case 'comment':
-        script.comment(cmd.text);
+        await script.comment(cmd.text);
         break;
       case 'importDatabase':
-        script.importDatabase(cmd.options);
+        await script.importDatabase(cmd.options);
         break;
       case 'dataReplicator':
-        script.dataReplicator(cmd.options);
+        await script.dataReplicator(cmd.options);
         break;
       case 'zipDirectory':
-        script.zipDirectory(cmd.inputDirectory, cmd.outputFile);
+        await script.zipDirectory(cmd.inputDirectory, cmd.outputFile);
         break;
     }
   }

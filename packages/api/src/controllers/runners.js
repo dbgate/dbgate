@@ -58,7 +58,7 @@ dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});
+const reader=await ${extractShellApiFunctionName(functionName, true)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }

@@ -9,14 +9,18 @@ const {
   dbNameLogCategory,
   extractErrorMessage,
   extractErrorLogData,
+  ScriptWriterEval,
+  SqlGenerator,
+  playJsonScriptWriter,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { dumpSqlSelect } = require('dbgate-sqltree');
 const { allowExecuteCustomScript, handleQueryStream } = require('../utility/handleQueryStream');
+const dbgateApi = require('../shell');
+const requirePlugin = require('../shell/requirePlugin');
 
 const logger = getLogger('dbconnProcess');
 
@@ -406,6 +410,12 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
   process.send({ msgtype: 'done', sesid });
 }
 
+async function handleEvalJsonScript({ script, runid }) {
+  const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan);
+  await playJsonScriptWriter(script, evalWriter);
+  process.send({ msgtype: 'runnerDone', runid });
+}
+
 // async function handleRunCommand({ msgid, sql }) {
 //   await waitConnected();
 //   const driver = engines(storedConnection);
@@ -437,6 +447,7 @@ const messageHandlers = {
   exportKeys: handleExportKeys,
   schemaList: handleSchemaList,
   executeSessionQuery: handleExecuteSessionQuery,
+  evalJsonScript: handleEvalJsonScript,
   // runCommand: handleRunCommand,
 };
 
