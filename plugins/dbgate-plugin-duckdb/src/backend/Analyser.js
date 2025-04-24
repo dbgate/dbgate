@@ -20,7 +20,7 @@ class Analyser extends DatabaseAnalyser {
     this.singleObjectId = pureName;
   }
 
-  async _getFastSnapshot() {
+  async _runAnalysis() {
     const tablesResult = await this.driver.query(this.dbhan, sql.tables);
     const columnsResult = await this.driver.query(this.dbhan, sql.columns);
     const foreignKeysResult = await this.driver.query(this.dbhan, sql.foreignKeys);
@@ -71,11 +71,6 @@ class Analyser extends DatabaseAnalyser {
       tables: tablesExtended,
       views: viewsExtended,
     };
-  }
-
-  async _runAnalysis() {
-    const structure = await this._getFastSnapshot();
-    return structure;
   }
 }
 
