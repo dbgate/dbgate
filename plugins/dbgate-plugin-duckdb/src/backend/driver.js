@@ -56,10 +56,11 @@ const driver = {
   },
   async stream(dbhan, sql, options) {
     const duckdb = getDuckDb();
-    const statements = await dbhan.client.extractStatements(sql);
-    const count = statements.count;
 
     try {
+      const statements = await dbhan.client.extractStatements(sql);
+      const count = statements.count;
+
       for (let i = 0; i < count; i++) {
         let hasSentColumns = false;
         const stmt = await statements.prepare(i);
@@ -77,11 +78,11 @@ const driver = {
           continue;
         }
 
-        options.info({
-          message: JSON.stringify(res),
-          time: new Date(),
-          severity: 'info',
-        });
+        // options.info({
+        //   message: JSON.stringify(res),
+        //   time: new Date(),
+        //   severity: 'info',
+        // });
 
         if (!hasSentColumns) {
           const columnNames = res.columnNames();
