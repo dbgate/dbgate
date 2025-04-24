@@ -167,7 +167,7 @@
 
   const handleGenerateScript = async e => {
     const values = $formValues as any;
-    const code = await createImpExpScript($extensions, values, true);
+    const code = await createImpExpScript($extensions, values, 'script');
     openNewTab(
       {
         title: 'Shell #',
@@ -183,7 +183,7 @@
     progressHolder = {};
     const values = $formValues as any;
     busy = true;
-    const script = await createImpExpScript($extensions, values);
+    const script = await createImpExpScript($extensions, values, 'json');
     executeNumber += 1;
     let runid = runnerId;
     const resp = await apiCall('runners/start', { script });

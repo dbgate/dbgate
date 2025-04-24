@@ -35,6 +35,14 @@ export function extractShellApiFunctionName(functionName) {
   return `dbgateApi.${functionName}`;
 }
 
+export function evalShellApiFunctionName(functionName, dbgateApi, requirePlugin) {
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
+  if (nsMatch) {
+    return requirePlugin(nsMatch[2]).shellApi[nsMatch[1]];
+  }
+  return dbgateApi[functionName];
+}
+
 export function findEngineDriver(connection, extensions: ExtensionsDirectory): EngineDriver {
   if (!extensions) {
     return null;

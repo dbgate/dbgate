@@ -1,7 +1,21 @@
 import _uniq from 'lodash/uniq';
-import { extractShellApiFunctionName, extractShellApiPlugins } from './packageTools';
+import { evalShellApiFunctionName, extractShellApiFunctionName, extractShellApiPlugins } from './packageTools';
 
-export class ScriptWriterJavaScript {
+export interface ScriptWriterGeneric {
+  allocVariable(prefix?: string);
+  endLine();
+  assign(variableName: string, functionName: string, props: any);
+  assignValue(variableName: string, jsonValue: any);
+  requirePackage(packageName: string);
+  copyStream(sourceVar: string, targetVar: string, colmapVar?: string, progressName?: string);
+  importDatabase(options: any);
+  dataReplicator(options: any);
+  comment(s: string);
+  zipDirectory(inputDirectory: string, outputFile: string);
+  getScript(schedule?: any): any;
+}
+
+export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   s = '';
   packageNames: string[] = [];
   varCount = 0;
@@ -78,7 +92,7 @@ export class ScriptWriterJavaScript {
   }
 }
 
-export class ScriptWriterJson {
+export class ScriptWriterJson implements ScriptWriterGeneric {
   s = '';
   packageNames: string[] = [];
   varCount = 0;
@@ -108,6 +122,10 @@ export class ScriptWriterJson {
     });
 
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
+  }
+
+  requirePackage(packageName) {
+    this.packageNames.push(packageName);
   }
 
   assignValue(variableName, jsonValue) {
@@ -167,17 +185,66 @@ export class ScriptWriterJson {
   }
 }
 
-export function jsonScriptToJavascript(json) {
-  const { schedule, commands, packageNames } = json;
-  const script = new ScriptWriterJavaScript();
-  for (const packageName of packageNames) {
-    if (!/^dbgate-plugin-.*$/.test(packageName)) {
-      throw new Error('Unallowed package name:' + packageName);
-    }
-    script.packageNames.push(packageName);
+export class ScriptWriterEval implements ScriptWriterGeneric {
+  s = '';
+  varCount = 0;
+  commands = [];
+  dbgateApi: any;
+  requirePlugin: (name: string) => any;
+  variables: { [name: string]: any } = {};
+
+  constructor(dbgateApi, requirePlugin, varCount = '0') {
+    this.varCount = parseInt(varCount) || 0;
+    this.dbgateApi = dbgateApi;
+    this.requirePlugin = requirePlugin;
   }
 
-  for (const cmd of commands) {
+  allocVariable(prefix = 'var') {
+    this.varCount += 1;
+    return `${prefix}${this.varCount}`;
+  }
+
+  endLine() {}
+
+  requirePackage(packageName) {}
+
+  async assign(variableName, functionName, props) {
+    const func = evalShellApiFunctionName(functionName, this.dbgateApi, this.requirePlugin);
+    this.variables[variableName] = await func(props);
+  }
+
+  assignValue(variableName, jsonValue) {
+    this.variables[variableName] = jsonValue;
+  }
+
+  async copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string) {
+    await this.dbgateApi.copyStream(this.variables[sourceVar], this.variables[targetVar], {
+      progressName,
+      columns: colmapVar ? this.variables[colmapVar] : null,
+    });
+  }
+
+  comment(text) {}
+
+  async importDatabase(options) {
+    await this.dbgateApi.importDatabase(options);
+  }
+
+  async dataReplicator(options) {
+    await this.dbgateApi.dataReplicator(options);
+  }
+
+  async zipDirectory(inputDirectory, outputFile) {
+    await this.dbgateApi.zipDirectory(inputDirectory, outputFile);
+  }
+
+  getScript(schedule?: any) {
+    throw new Error('Not implemented');
+  }
+}
+
+export function playJsonScriptWriter(json, script) {
+  for (const cmd of json.commands) {
     switch (cmd.type) {
       case 'assign':
         script.assignCore(cmd.variableName, cmd.functionName, cmd.props);
@@ -205,6 +272,19 @@ export function jsonScriptToJavascript(json) {
         break;
     }
   }
+}
+
+export function jsonScriptToJavascript(json) {
+  const { schedule, packageNames } = json;
+  const script = new ScriptWriterJavaScript();
+  for (const packageName of packageNames) {
+    if (!/^dbgate-plugin-.*$/.test(packageName)) {
+      throw new Error('Unallowed package name:' + packageName);
+    }
+    script.packageNames.push(packageName);
+  }
+
+  playJsonScriptWriter(json, script);
 
   return script.getScript(schedule);
 }

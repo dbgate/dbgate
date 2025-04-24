@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterGeneric, ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
@@ -203,12 +203,12 @@ export function normalizeExportColumnMap(colmap) {
   return null;
 }
 
-export default async function createImpExpScript(extensions, values, forceScript = false) {
+export default async function createImpExpScript(extensions, values, format = undefined) {
   const config = getCurrentConfig();
-  const script =
-    config.allowShellScripting || forceScript
-      ? new ScriptWriterJavaScript(values.startVariableIndex || 0)
-      : new ScriptWriterJson(values.startVariableIndex || 0);
+  let script: ScriptWriterGeneric = new ScriptWriterJson(values.startVariableIndex || 0);
+  if (format == 'script' && config.allowShellScripting) {
+    script = new ScriptWriterJavaScript(values.startVariableIndex || 0);
+  }
 
   const [sourceConnection, sourceDriver] = await getConnection(
     extensions,
