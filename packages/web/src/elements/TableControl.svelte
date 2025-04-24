@@ -299,6 +299,7 @@
                       if (e.target['checked']) onSetCheckedKeys(_.uniq([...checkedKeys, extractTableItemKey(row)]));
                       else onSetCheckedKeys(checkedKeys.filter(x => x != extractTableItemKey(row)));
                     }}
+                    data-testid={`TableControl_row_${index}_checkbox`}
                   />
                 {/if}
               </td>
