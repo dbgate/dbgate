@@ -6,6 +6,10 @@ class Dumper extends SqlDumper {
   renameSqlObject(obj, newname) {
     this.putCmd('^alter %k %f ^rename ^to %i', this.getSqlObjectSqlName(obj.objectTypeField), obj, newname);
   }
+
+  renameTable(obj, newname) {
+    this.putCmd('^alter ^table %f ^rename ^to %i', obj, newname);
+  }
 }
 
 module.exports = Dumper;
