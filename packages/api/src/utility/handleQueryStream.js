@@ -6,10 +6,11 @@ const _ = require('lodash');
 const { jsldir } = require('../utility/directories');
 
 class QueryStreamTableWriter {
-  constructor() {
+  constructor(sesid = undefined) {
     this.currentRowCount = 0;
     this.currentChangeIndex = 1;
     this.initializedFile = false;
+    this.sesid = sesid;
   }
 
   initializeFromQuery(structure, resultIndex) {
@@ -26,7 +27,7 @@ class QueryStreamTableWriter {
     this.writeCurrentStats(false, false);
     this.resultIndex = resultIndex;
     this.initializedFile = true;
-    process.send({ msgtype: 'recordset', jslid: this.jslid, resultIndex });
+    process.send({ msgtype: 'recordset', jslid: this.jslid, resultIndex, sesid: this.sesid });
   }
 
   initializeFromReader(jslid) {
@@ -52,7 +53,7 @@ class QueryStreamTableWriter {
 
   rowFromReader(row) {
     if (!this.initializedFile) {
-      process.send({ msgtype: 'initializeFile', jslid: this.jslid });
+      process.send({ msgtype: 'initializeFile', jslid: this.jslid, sesid: this.sesid });
       this.initializedFile = true;
 
       fs.writeFileSync(this.currentFile, JSON.stringify(row) + '\n');
@@ -75,7 +76,7 @@ class QueryStreamTableWriter {
     fs.writeFileSync(`${this.currentFile}.stats`, JSON.stringify(stats));
     this.currentChangeIndex += 1;
     if (emitEvent) {
-      process.send({ msgtype: 'stats', ...stats });
+      process.send({ msgtype: 'stats', sesid: this.sesid, ...stats });
     }
   }
 
@@ -90,9 +91,10 @@ class QueryStreamTableWriter {
 }
 
 class StreamHandler {
-  constructor(resultIndexHolder, resolve, startLine) {
+  constructor(resultIndexHolder, resolve, startLine, sesid = undefined) {
     this.recordset = this.recordset.bind(this);
     this.startLine = startLine;
+    this.sesid = sesid;
     this.row = this.row.bind(this);
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
@@ -116,7 +118,7 @@ class StreamHandler {
 
   recordset(columns) {
     this.closeCurrentWriter();
-    this.currentWriter = new QueryStreamTableWriter();
+    this.currentWriter = new QueryStreamTableWriter(this.sesid);
     this.currentWriter.initializeFromQuery(
       Array.isArray(columns) ? { columns } : columns,
       this.resultIndexHolder.value
@@ -133,7 +135,7 @@ class StreamHandler {
   }
   row(row) {
     if (this.currentWriter) this.currentWriter.row(row);
-    else if (row.message) process.send({ msgtype: 'info', info: { message: row.message } });
+    else if (row.message) process.send({ msgtype: 'info', info: { message: row.message }, sesid: this.sesid });
     // this.onRow(this.jslid);
   }
   // error(error) {
@@ -151,19 +153,31 @@ class StreamHandler {
         line: this.startLine + info.line,
       };
     }
-    process.send({ msgtype: 'info', info });
+    process.send({ msgtype: 'info', info, sesid: this.sesid });
   }
 }
 
-function handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem) {
+function handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem, sesid = undefined) {
   return new Promise((resolve, reject) => {
     const start = sqlItem.trimStart || sqlItem.start;
-    const handler = new StreamHandler(resultIndexHolder, resolve, start && start.line);
+    const handler = new StreamHandler(resultIndexHolder, resolve, start && start.line, sesid);
     driver.stream(dbhan, sqlItem.text, handler);
   });
+}
+
+function allowExecuteCustomScript(storedConnection, driver) {
+  if (driver.readOnlySessions) {
+    return true;
+  }
+  if (storedConnection.isReadOnly) {
+    return false;
+    // throw new Error('Connection is read only');
+  }
+  return true;
 }
 
 module.exports = {
   handleQueryStream,
   QueryStreamTableWriter,
+  allowExecuteCustomScript,
 };

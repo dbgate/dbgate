@@ -39,6 +39,8 @@ const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 const { decryptConnection } = require('../utility/crypting');
 const { getSshTunnel } = require('../utility/sshTunnel');
+const sessions = require('./sessions');
+const jsldata = require('./jsldata');
 
 const logger = getLogger('databaseConnections');
 
@@ -95,6 +97,33 @@ module.exports = {
   },
 
   handle_ping() {},
+
+  // session event handlers
+
+  handle_info(conid, database, props) {
+    const { sesid, info } = props;
+    sessions.dispatchMessage(sesid, info);
+  },
+
+  handle_done(conid, database, props) {
+    const { sesid } = props;
+    socket.emit(`session-done-${sesid}`);
+    sessions.dispatchMessage(sesid, 'Query execution finished');
+  },
+
+  handle_recordset(conid, database, props) {
+    const { jslid, resultIndex } = props;
+    socket.emit(`session-recordset-${props.sesid}`, { jslid, resultIndex });
+  },
+
+  handle_stats(conid, database, stats) {
+    jsldata.notifyChangedStats(stats);
+  },
+
+  handle_initializeFile(conid, database, props) {
+    const { jslid } = props;
+    socket.emit(`session-initialize-file-${jslid}`);
+  },
 
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
@@ -762,5 +791,16 @@ module.exports = {
       transformMessage: null,
       commandLine: this.commandArgsToCommandLine(commandArgs),
     };
+  },
+
+  executeSessionQuery_meta: true,
+  async executeSessionQuery({ sesid, conid, database, sql }) {
+    logger.info({ sesid, sql }, 'Processing query');
+    sessions.dispatchMessage(sesid, 'Query execution started');
+
+    const opened = await this.ensureOpened(conid, database);
+    opened.subprocess.send({ msgtype: 'executeSessionQuery', sql, sesid });
+
+    return { state: 'ok' };
   },
 };

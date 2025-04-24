@@ -107,7 +107,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext, onDestroy, onMount } from 'svelte';
+  import { getContext, onDestroy, onMount, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -143,7 +143,7 @@
   import { isProApp } from '../utility/proTools';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
-  import SimpleQueryResultTabs from '../query/SimpleQueryResultTabs.svelte';
+  import uuidv1 from 'uuid/v1';
 
   export let tabid;
   export let conid;
@@ -197,11 +197,9 @@
   let isInTransaction = false;
   let isAutocommit = false;
 
-  let simpleQueryDataResult = null;
-
   onMount(() => {
     intervalId = setInterval(() => {
-      if (sessionId) {
+      if (!driver?.singleConnectionOnly && sessionId) {
         apiCall('sessions/ping', {
           sesid: sessionId,
         });
@@ -326,16 +324,6 @@
       return;
     }
 
-    if (driver?.singleConnectionOnly) {
-      simpleQueryDataResult = await apiCall('database-connections/query-data', {
-        conid,
-        database,
-        sql,
-      });
-      visibleResultTabs = true;
-      return;
-    }
-
     executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
@@ -343,23 +331,34 @@
     busy = true;
     timerLabel.start();
 
-    let sesid = sessionId;
-    if (!sesid) {
-      const resp = await apiCall('sessions/create', {
+    if (driver?.singleConnectionOnly) {
+      sessionId = uuidv1();
+      await tick();
+      await apiCall('database-connections/execute-session-query', {
+        sesid: sessionId,
         conid,
         database,
+        sql,
       });
-      sesid = resp.sesid;
-      sessionId = sesid;
+    } else {
+      let sesid = sessionId;
+      if (!sesid) {
+        const resp = await apiCall('sessions/create', {
+          conid,
+          database,
+        });
+        sesid = resp.sesid;
+        sessionId = sesid;
+      }
+      if (driver?.implicitTransactions) {
+        isInTransaction = true;
+      }
+      await apiCall('sessions/execute-query', {
+        sesid,
+        sql,
+        autoCommit: driver?.implicitTransactions && isAutocommit,
+      });
     }
-    if (driver?.implicitTransactions) {
-      isInTransaction = true;
-    }
-    await apiCall('sessions/execute-query', {
-      sesid,
-      sql,
-      autoCommit: driver?.implicitTransactions && isAutocommit,
-    });
     await apiCall('query-history/write', {
       data: {
         sql,
@@ -655,23 +654,19 @@
           {/if}
         </svelte:fragment>
         <svelte:fragment slot="2">
-          {#if driver?.singleConnectionOnly}
-            <SimpleQueryResultTabs result={simpleQueryDataResult} />
-          {:else}
-            <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
-              <svelte:fragment slot="0">
-                <SocketMessageView
-                  eventName={sessionId ? `session-info-${sessionId}` : null}
-                  onMessageClick={handleMesageClick}
-                  {executeNumber}
-                  startLine={executeStartLine}
-                  showProcedure
-                  showLine
-                  onChangeErrors={handleChangeErrors}
-                />
-              </svelte:fragment>
-            </ResultTabs>
-          {/if}
+          <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
+            <svelte:fragment slot="0">
+              <SocketMessageView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
+                onMessageClick={handleMesageClick}
+                {executeNumber}
+                startLine={executeStartLine}
+                showProcedure
+                showLine
+                onChangeErrors={handleChangeErrors}
+              />
+            </svelte:fragment>
+          </ResultTabs>
         </svelte:fragment>
       </VerticalSplitter>
     </svelte:fragment>

@@ -11,7 +11,7 @@ const { decryptConnection } = require('../utility/crypting');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { getLogger, extractIntSettingsValue, extractBoolSettingsValue } = require('dbgate-tools');
-const { handleQueryStream, QueryStreamTableWriter } = require('../utility/handleQueryStream');
+const { handleQueryStream, QueryStreamTableWriter, allowExecuteCustomScript } = require('../utility/handleQueryStream');
 
 const logger = getLogger('sessionProcess');
 
@@ -23,17 +23,6 @@ let lastPing = null;
 let lastActivity = null;
 let currentProfiler = null;
 let executingScripts = 0;
-
-function allowExecuteCustomScript(driver) {
-  if (driver.readOnlySessions) {
-    return true;
-  }
-  if (storedConnection.isReadOnly) {
-    return false;
-    // throw new Error('Connection is read only');
-  }
-  return true;
-}
 
 async function handleConnect(connection) {
   storedConnection = connection;
@@ -65,7 +54,7 @@ async function handleStartProfiler({ jslid }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
-  if (!allowExecuteCustomScript(driver)) {
+  if (!allowExecuteCustomScript(storedConnection, driver)) {
     process.send({ msgtype: 'done' });
     return;
   }
@@ -94,7 +83,7 @@ async function handleExecuteControlCommand({ command }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
-  if (command == 'commitTransaction' && !allowExecuteCustomScript(driver)) {
+  if (command == 'commitTransaction' && !allowExecuteCustomScript(storedConnection, driver)) {
     process.send({
       msgtype: 'info',
       info: {
@@ -134,7 +123,7 @@ async function handleExecuteQuery({ sql, autoCommit }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
-  if (!allowExecuteCustomScript(driver)) {
+  if (!allowExecuteCustomScript(storedConnection, driver)) {
     process.send({
       msgtype: 'info',
       info: {
@@ -178,7 +167,7 @@ async function handleExecuteReader({ jslid, sql, fileName }) {
   if (fileName) {
     sql = fs.readFileSync(fileName, 'utf-8');
   } else {
-    if (!allowExecuteCustomScript(driver)) {
+    if (!allowExecuteCustomScript(storedConnection, driver)) {
       process.send({ msgtype: 'done' });
       return;
     }
