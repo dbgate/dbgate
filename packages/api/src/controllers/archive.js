@@ -2,14 +2,20 @@ const fs = require('fs-extra');
 const readline = require('readline');
 const crypto = require('crypto');
 const path = require('path');
-const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
+const { archivedir, clearArchiveLinksCache, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, jsonLinesParse } = require('dbgate-tools');
 const dbgateApi = require('../shell');
 const jsldata = require('./jsldata');
 const platformInfo = require('../utility/platformInfo');
+const { isProApp } = require('../utility/checkLicense');
+const listZipEntries = require('../utility/listZipEntries');
+const unzipJsonLinesFile = require('../shell/unzipJsonLinesFile');
+const { zip } = require('lodash');
+const zipDirectory = require('../shell/zipDirectory');
+const unzipDirectory = require('../shell/unzipDirectory');
 
 const logger = getLogger('archive');
 
@@ -47,9 +53,31 @@ module.exports = {
     return folder;
   },
 
+  async getZipFiles({ file }) {
+    const entries = await listZipEntries(path.join(archivedir(), file));
+    const files = entries.map(entry => {
+      let name = entry.fileName;
+      if (isProApp() && entry.fileName.endsWith('.jsonl')) {
+        name = entry.fileName.slice(0, -6);
+      }
+      return {
+        name: name,
+        label: name,
+        type: isProApp() && entry.fileName.endsWith('.jsonl') ? 'jsonl' : 'other',
+      };
+    });
+    return files;
+  },
+
   files_meta: true,
   async files({ folder }) {
     try {
+      if (folder.endsWith('.zip')) {
+        if (await fs.exists(path.join(archivedir(), folder))) {
+          return this.getZipFiles({ file: folder });
+        }
+        return [];
+      }
       const dir = resolveArchiveFolder(folder);
       if (!(await fs.exists(dir))) return [];
       const files = await loadFilesRecursive(dir); // fs.readdir(dir);
@@ -88,6 +116,16 @@ module.exports = {
   refreshFolders_meta: true,
   async refreshFolders() {
     socket.emitChanged(`archive-folders-changed`);
+    return true;
+  },
+
+  createFile_meta: true,
+  async createFile({ folder, file, fileType, tableInfo }) {
+    await fs.writeFile(
+      path.join(resolveArchiveFolder(folder), `${file}.${fileType}`),
+      tableInfo ? JSON.stringify({ __isStreamHeader: true, tableInfo }) : ''
+    );
+    socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
 
@@ -158,7 +196,7 @@ module.exports = {
   deleteFolder_meta: true,
   async deleteFolder({ folder }) {
     if (!folder) throw new Error('Missing folder parameter');
-    if (folder.endsWith('.link')) {
+    if (folder.endsWith('.link') || folder.endsWith('.zip')) {
       await fs.unlink(path.join(archivedir(), folder));
     } else {
       await fs.rmdir(path.join(archivedir(), folder), { recursive: true });
@@ -204,14 +242,69 @@ module.exports = {
   },
 
   async getNewArchiveFolder({ database }) {
-    const isLink = database.endsWith(database);
-    const name = isLink ? database.slice(0, -5) : database;
-    const suffix = isLink ? '.link' : '';
+    const isLink = database.endsWith('.link');
+    const isZip = database.endsWith('.zip');
+    const name = isLink ? database.slice(0, -5) : isZip ? database.slice(0, -4) : database;
+    const suffix = isLink ? '.link' : isZip ? '.zip' : '';
     if (!(await fs.exists(path.join(archivedir(), database)))) return database;
     let index = 2;
     while (await fs.exists(path.join(archivedir(), `${name}${index}${suffix}`))) {
       index += 1;
     }
     return `${name}${index}${suffix}`;
+  },
+
+  getArchiveData_meta: true,
+  async getArchiveData({ folder, file }) {
+    let rows;
+    if (folder.endsWith('.zip')) {
+      rows = await unzipJsonLinesFile(path.join(archivedir(), folder), `${file}.jsonl`);
+    } else {
+      rows = jsonLinesParse(await fs.readFile(path.join(archivedir(), folder, `${file}.jsonl`), { encoding: 'utf8' }));
+    }
+    return rows.filter(x => !x.__isStreamHeader);
+  },
+
+  saveUploadedZip_meta: true,
+  async saveUploadedZip({ filePath, fileName }) {
+    if (!fileName?.endsWith('.zip')) {
+      throw new Error(`${fileName} is not a ZIP file`);
+    }
+
+    const folder = await this.getNewArchiveFolder({ database: fileName });
+    await fs.copyFile(filePath, path.join(archivedir(), folder));
+    socket.emitChanged(`archive-folders-changed`);
+
+    return null;
+  },
+
+  zip_meta: true,
+  async zip({ folder }) {
+    const newFolder = await this.getNewArchiveFolder({ database: folder + '.zip' });
+    await zipDirectory(path.join(archivedir(), folder), path.join(archivedir(), newFolder));
+    socket.emitChanged(`archive-folders-changed`);
+
+    return null;
+  },
+
+  unzip_meta: true,
+  async unzip({ folder }) {
+    const newFolder = await this.getNewArchiveFolder({ database: folder.slice(0, -4) });
+    await unzipDirectory(path.join(archivedir(), folder), path.join(archivedir(), newFolder));
+    socket.emitChanged(`archive-folders-changed`);
+
+    return null;
+  },
+
+  getZippedPath_meta: true,
+  async getZippedPath({ folder }) {
+    if (folder.endsWith('.zip')) {
+      return { filePath: path.join(archivedir(), folder) };
+    }
+
+    const uploadName = crypto.randomUUID();
+    const filePath = path.join(uploadsdir(), uploadName);
+    await zipDirectory(path.join(archivedir(), folder), filePath);
+    return { filePath };
   },
 };

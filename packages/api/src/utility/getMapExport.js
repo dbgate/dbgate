@@ -22,6 +22,8 @@ const getMapExport = (geoJson) => {
       })
       .addTo(map);
       
+	  leaflet.control.scale().addTo(map);
+	  
       const geoJsonObj = leaflet
       .geoJSON(${JSON.stringify(geoJson)}, {
         style: function () {

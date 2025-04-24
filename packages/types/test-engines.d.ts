@@ -31,7 +31,7 @@ export type TestEngineInfo = {
   skipUnique?: boolean;
   skipAutoIncrement?: boolean;
   skipPkColumnTesting?: boolean;
-  skipDataDuplicator?: boolean;
+  skipDataReplicator?: boolean;
   skipDeploy?: boolean;
   skipStringLength?: boolean;
   skipChangeColumn?: boolean;

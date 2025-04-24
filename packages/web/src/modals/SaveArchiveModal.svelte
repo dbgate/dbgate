@@ -13,6 +13,7 @@
   export let file = 'new-table';
   export let folder = $currentArchive;
   export let onSave;
+  export let fileIsReadOnly = false;
 
   const handleSubmit = async e => {
     const { file, folder } = e.detail;
@@ -25,8 +26,8 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save to archive</svelte:fragment>
 
-    <FormArchiveFolderSelect label="Folder" name="folder" isNative />
-    <FormTextField label="File name" name="file" />
+    <FormArchiveFolderSelect label="Folder" name="folder" isNative allowCreateNew skipZipFiles />
+    <FormTextField label="File name" name="file" disabled={fileIsReadOnly} />
 
     <svelte:fragment slot="footer">
       <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />

@@ -433,7 +433,7 @@ ORDER BY
 
           <FormCheckboxField
             name="behaviour.jsonPreviewWrap"
-            label={_t('settings.behaviour.jsonPreviewWrap', { defaultMessage: 'Wrap json in preview' })}
+            label={_t('settings.behaviour.jsonPreviewWrap', { defaultMessage: 'Wrap JSON in preview' })}
             defaultValue={false}
           />
 

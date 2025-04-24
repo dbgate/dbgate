@@ -47,6 +47,8 @@
 
   export let isRawMode = false;
 
+  export let forceReadOnly = false;
+
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
@@ -73,7 +75,7 @@
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          $connection?.isReadOnly,
+          forceReadOnly || $connection?.isReadOnly,
           isRawMode
         )
       : null;
@@ -161,7 +163,7 @@
       formViewComponent={SqlFormView}
       {display}
       showReferences
-      showMacros={!$connection?.isReadOnly}
+      showMacros={!forceReadOnly && !$connection?.isReadOnly}
       hasMultiColumnFilter
       onRunMacro={handleRunMacro}
       macroCondition={macro => macro.type == 'transformValue'}

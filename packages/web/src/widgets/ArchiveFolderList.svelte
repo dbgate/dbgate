@@ -14,6 +14,8 @@
   import { apiCall } from '../utility/api';
   import { useArchiveFolders } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
+  import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
+  import { isProApp } from '../utility/proTools';
 
   let filter = '';
 
@@ -22,11 +24,47 @@
   const handleRefreshFolders = () => {
     apiCall('archive/refresh-folders');
   };
+
+  async function handleUploadedFile(filePath, fileName) {
+    await apiCall('archive/save-uploaded-zip', { filePath, fileName });
+  }
 </script>
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search archive folders" bind:value={filter} />
   <CloseSearchButton bind:filter />
+
+  {#if isProApp()}
+    <InlineUploadButton
+      icon="icon upload"
+      filters={[
+        {
+          name: `All supported files`,
+          extensions: ['zip'],
+        },
+        { name: `ZIP files`, extensions: ['zip'] },
+      ]}
+      onProcessFile={handleUploadedFile}
+    />
+  {/if}
+
+  <!-- {#if electron}
+    <InlineButton on:click={handleOpenElectronFile} title="Add file" data-testid="ArchiveFolderList_uploadZipFile">
+      <FontIcon icon="icon plus-thick" />
+    </InlineButton>
+  {:else}
+    <InlineButtonLabel
+      on:click={() => {}}
+      title="Add file"
+      data-testid="ArchiveFolderList_uploadZipFile"
+      htmlFor="uploadZipFileButton"
+    >
+      <FontIcon icon="icon plus-thick" />
+    </InlineButtonLabel>
+  {/if}
+
+  <input type="file" id="uploadZipFileButton" hidden on:change={handleUploadedFile} /> -->
+
   <InlineButton on:click={() => runCommand('new.archiveFolder')} title="Add new archive folder">
     <FontIcon icon="icon plus-thick" />
   </InlineButton>

@@ -8,6 +8,26 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.4.0 - not released yet
+- ADDED: Data deployer (Premium)
+- ADDED: Compare data between JSON lines file in archive and database table
+- CHANGED: Data Duplicator => Data Replicator (suitable for update, create and delete data, much more customizable)
+- REMOVED: Data duplicator GUI (replaced with Data Deployer)
+- ADDED: Exporting to ZIP file
+- ADDED: Download SQL and SQLite files
+- ADDED: Upload SQLite files
+- ADDED: Upload archive as ZIP folder (Premium)
+- ADDED: Compress, uncompress archive folder (Premium)
+
+## 6.3.3
+- CHANGED: New administration UI, redesigned administration of users, connections and roles
+- ADDED: Encrypting passwords in team-premium edition
+- ADDED: Show scale bar on map #1090
+- FIXED: Fixed native backup/restore for MySQL+PostgreSQL over SSH tunnel #1092
+- CHANGED: Column mapping dialog - fixes and improvements for copying from one existing table into another
+- ADDED: Search in columns in table editor
+- ADDED: Line Wrap for JSON viewer #768
+
 ### 6.3.2
 - ADDED: "Use system theme" switch, use changed system theme without restart #1084
 - ADDED: "Skip SETNAME instruction" option for Redis #1077

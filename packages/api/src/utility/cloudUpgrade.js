@@ -4,11 +4,20 @@ const fsp = require('fs/promises');
 const semver = require('semver');
 const currentVersion = require('../currentVersion');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { storageReadConfig } = require('../controllers/storageDb');
 
 const logger = getLogger('cloudUpgrade');
 
 async function checkCloudUpgrade() {
   try {
+    if (process.env.STORAGE_DATABASE) {
+      const settings = await storageReadConfig('settings');
+      if (settings['cloud.useAutoUpgrade'] != 1) {
+        // auto-upgrade not allowed
+        return;
+      }
+    }
+
     const resp = await axios.default.get('https://api.github.com/repos/dbgate/dbgate/releases/latest');
     const json = resp.data;
     const version = json.name.substring(1);
@@ -43,7 +52,11 @@ async function checkCloudUpgrade() {
 
       logger.info(`Downloaded new version from ${zipUrl}`);
     } else {
-      logger.info(`Checked version ${version} is not newer than ${cloudDownloadedVersion ?? currentVersion.version}, upgrade skippped`);
+      logger.info(
+        `Checked version ${version} is not newer than ${
+          cloudDownloadedVersion ?? currentVersion.version
+        }, upgrade skippped`
+      );
     }
   } catch (err) {
     logger.error(extractErrorLogData(err), 'Error checking cloud upgrade');

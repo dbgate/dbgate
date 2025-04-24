@@ -7,6 +7,8 @@
     tabComponent: string;
     folder: string;
     currentConnection: boolean;
+    extension: string;
+    label: string;
   }
 
   const sql: FileTypeHandler = {
@@ -15,6 +17,8 @@
     tabComponent: 'QueryTab',
     folder: 'sql',
     currentConnection: true,
+    extension: 'sql',
+    label: 'SQL file',
   };
 
   const shell: FileTypeHandler = {
@@ -23,6 +27,8 @@
     tabComponent: 'ShellTab',
     folder: 'shell',
     currentConnection: false,
+    extension: 'js',
+    label: 'JavaScript Shell script',
   };
 
   const markdown: FileTypeHandler = {
@@ -31,6 +37,8 @@
     tabComponent: 'MarkdownEditorTab',
     folder: 'markdown',
     currentConnection: false,
+    extension: 'md',
+    label: 'Markdown file',
   };
 
   const charts: FileTypeHandler = {
@@ -39,6 +47,8 @@
     tabComponent: 'ChartTab',
     folder: 'charts',
     currentConnection: true,
+    extension: 'json',
+    label: 'Chart file',
   };
 
   const query: FileTypeHandler = {
@@ -47,6 +57,8 @@
     tabComponent: 'QueryDesignTab',
     folder: 'query',
     currentConnection: true,
+    extension: 'json',
+    label: 'Query design file',
   };
 
   const sqlite: FileTypeHandler = {
@@ -55,6 +67,8 @@
     tabComponent: null,
     folder: 'sqlite',
     currentConnection: true,
+    extension: 'sqlite',
+    label: 'SQLite database',
   };
 
   const diagrams: FileTypeHandler = {
@@ -63,15 +77,43 @@
     tabComponent: 'DiagramTab',
     folder: 'diagrams',
     currentConnection: true,
+    extension: 'json',
+    label: 'Diagram file',
   };
 
-  const jobs: FileTypeHandler = {
+  const impexp: FileTypeHandler = {
     icon: 'img export',
     format: 'json',
     tabComponent: 'ImportExportTab',
-    folder: 'jobs',
+    folder: 'impexp',
     currentConnection: false,
+    extension: 'json',
+    label: 'Import/Export file',
   };
+
+  const datadeploy: FileTypeHandler = isProApp()
+    ? {
+        icon: 'img data-deploy',
+        format: 'json',
+        tabComponent: 'DataDeployTab',
+        folder: 'datadeploy',
+        currentConnection: false,
+        extension: 'json',
+        label: 'Data deploy file',
+      }
+    : undefined;
+
+  const dbcompare: FileTypeHandler = isProApp()
+    ? {
+        icon: 'img compare',
+        format: 'json',
+        tabComponent: 'CompareModelTab',
+        folder: 'dbcompare',
+        currentConnection: false,
+        extension: 'json',
+        label: 'Database compare file',
+      }
+    : undefined;
 
   const perspectives: FileTypeHandler = {
     icon: 'img perspective',
@@ -79,6 +121,8 @@
     tabComponent: 'PerspectiveTab',
     folder: 'pesrpectives',
     currentConnection: true,
+    extension: 'json',
+    label: 'Perspective file',
   };
 
   const modtrans: FileTypeHandler = {
@@ -87,6 +131,8 @@
     tabComponent: 'ModelTransformTab',
     folder: 'modtrans',
     currentConnection: false,
+    extension: 'json',
+    label: 'Model transform file',
   };
 
   export const SAVED_FILE_HANDLERS = {
@@ -98,8 +144,10 @@
     sqlite,
     diagrams,
     perspectives,
-    jobs,
+    impexp,
     modtrans,
+    datadeploy,
+    dbcompare,
   };
 
   export const extractKey = data => data.file;
@@ -122,6 +170,8 @@
   import openNewTab from '../utility/openNewTab';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { isProApp } from '../utility/proTools';
+  import { saveFileToDisk } from '../utility/exportFileTools';
 
   export let data;
 
@@ -148,6 +198,7 @@
       hasPermission(`files/${data.folder}/write`) && { text: 'Create copy', onClick: handleCopy },
       hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
       folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
+      { text: 'Download', onClick: handleDownload },
     ];
   }
 
@@ -180,6 +231,19 @@
         apiCall('files/copy', { ...data, newFile });
       },
     });
+  };
+
+  const handleDownload = () => {
+    saveFileToDisk(
+      async filePath => {
+        await apiCall('files/export-file', {
+          folder,
+          file: data.file,
+          filePath,
+        });
+      },
+      { formatLabel: handler.label, formatExtension: handler.format, defaultFileName: data.file }
+    );
   };
 
   async function openTab() {

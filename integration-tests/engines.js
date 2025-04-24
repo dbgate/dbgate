@@ -551,7 +551,7 @@ const clickhouseEngine = {
   skipUnique: true,
   skipAutoIncrement: true,
   skipPkColumnTesting: true,
-  skipDataDuplicator: true,
+  skipDataReplicator: true,
   skipStringLength: true,
   alterTableAddColumnSyntax: true,
   dbSnapshotBySeconds: true,
@@ -643,7 +643,7 @@ const cassandraEngine = {
   skipOrderBy: true,
   skipAutoIncrement: true,
   skipDataModifications: true,
-  skipDataDuplicator: true,
+  skipDataReplicator: true,
   skipDeploy: true,
   skipImportModel: true,
 
@@ -693,7 +693,7 @@ const enginesOnLocal = [
   // all engines, which would be run on local test
   // cassandraEngine,
   // mysqlEngine,
-  // mariaDbEngine,
+  mariaDbEngine,
   // postgreSqlEngine,
   // sqlServerEngine,
   // sqliteEngine,

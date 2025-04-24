@@ -100,7 +100,9 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         dmp.putRaw(';');
         // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
         // console.log(dmp.s);
-        await driver.query(dbhan, dmp.s, { discardResult: true });
+        if (rows.length > 0) {
+          await driver.query(dbhan, dmp.s, { discardResult: true });
+        }
         writable.rowsReporter.add(rows.length);
       } else {
         for (const row of rows) {

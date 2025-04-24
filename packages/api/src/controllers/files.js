@@ -9,6 +9,9 @@ const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');
 const apps = require('./apps');
 const getMapExport = require('../utility/getMapExport');
+const dbgateApi = require('../shell');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger('files');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -218,5 +221,61 @@ module.exports = {
       }
       return path.join(dir, file);
     }
+  },
+
+  createZipFromJsons_meta: true,
+  async createZipFromJsons({ db, filePath }) {
+    logger.info(`Creating zip file from JSONS ${filePath}`);
+    await dbgateApi.zipJsonLinesData(db, filePath);
+    return true;
+  },
+
+  getJsonsFromZip_meta: true,
+  async getJsonsFromZip({ filePath }) {
+    const res = await dbgateApi.unzipJsonLinesData(filePath);
+    return res;
+  },
+
+  downloadText_meta: true,
+  async downloadText({ uri }, req) {
+    if (!uri) return null;
+    const filePath = await dbgateApi.download(uri);
+    const text = await fs.readFile(filePath, {
+      encoding: 'utf-8',
+    });
+    return text;
+  },
+
+  saveUploadedFile_meta: true,
+  async saveUploadedFile({ filePath, fileName }) {
+    const FOLDERS = ['sql', 'sqlite'];
+    for (const folder of FOLDERS) {
+      if (fileName.toLowerCase().endsWith('.' + folder)) {
+        logger.info(`Saving ${folder} file ${fileName}`);
+        await fs.copyFile(filePath, path.join(filesdir(), folder, fileName));
+
+        socket.emitChanged(`files-changed`, { folder: folder });
+        socket.emitChanged(`all-files-changed`);
+        return {
+          name: path.basename(filePath),
+          folder: folder,
+        };
+      }
+    }
+
+    throw new Error(`${fileName} doesn't have one of supported extensions: ${FOLDERS.join(', ')}`);
+  },
+
+  exportFile_meta: true,
+  async exportFile({ folder, file, filePath }, req) {
+    if (!hasPermission(`files/${folder}/read`, req)) return false;
+    await fs.copyFile(path.join(filesdir(), folder, file), filePath);
+    return true;
+  },
+
+  simpleCopy_meta: true,
+  async simpleCopy({ sourceFilePath, targetFilePath }, req) {
+    await fs.copyFile(sourceFilePath, targetFilePath);
+    return true;
   },
 };

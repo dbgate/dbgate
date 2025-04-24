@@ -549,3 +549,20 @@ export function pinoLogRecordToMessageRecord(logRecord, defaultSeverity = 'info'
     severity: levelToSeverity[level] ?? defaultSeverity,
   };
 }
+
+export function jsonLinesStringify(jsonArray: any[]): string {
+  return jsonArray.map(json => JSON.stringify(json)).join('\n');
+}
+export function jsonLinesParse(jsonLines: string): any[] {
+  return jsonLines
+    .split('\n')
+    .filter(x => x.trim())
+    .map(line => {
+      try {
+        return JSON.parse(line);
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter(x => x);
+}

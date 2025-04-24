@@ -572,6 +572,27 @@ export function changeSetInsertDocuments(
   };
 }
 
+export function createMergedRowsChangeSet(
+  table: TableInfo,
+  updatedRows: any[],
+  insertedRows: any[],
+  mergeKey: string[]
+): ChangeSet {
+  const res = createChangeSet();
+  res.updates = updatedRows.map(row => ({
+    pureName: table.pureName,
+    schemaName: table.schemaName,
+    fields: _.omit(row, mergeKey),
+    condition: _.pick(row, mergeKey),
+  }));
+  res.inserts = insertedRows.map(row => ({
+    pureName: table.pureName,
+    schemaName: table.schemaName,
+    fields: row,
+  }));
+  return res;
+}
+
 export function changeSetContainsChanges(changeSet: ChangeSet) {
   if (!changeSet) return false;
   return (

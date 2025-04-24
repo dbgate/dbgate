@@ -46,7 +46,13 @@ async function handleRefresh() {
 
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
-  const version = await driver.getVersion(dbhan);
+  let version;
+  try {
+    version = await driver.getVersion(dbhan);
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error getting DB server version');
+    version = { version: 'Unknown' };
+  }
   process.send({ msgtype: 'version', version });
 }
 

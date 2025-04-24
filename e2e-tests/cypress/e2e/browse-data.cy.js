@@ -126,7 +126,7 @@ describe('Data browser data', () => {
     cy.themeshot('data-browser-form-view');
   });
 
-  it.only('Column search', () => {
+  it('Column search', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Customer').click();
@@ -468,15 +468,24 @@ describe('Data browser data', () => {
     cy.themeshot('database-model-table-yaml');
   });
 
-  it('Data duplicator', () => {
+  it('Data replicator', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('WidgetIconPanel_archive').click();
     cy.contains('chinook-archive').rightclick();
-    cy.contains('Data duplicator').click();
+    cy.contains('Data deployer').click();
     cy.contains('Dry run').click();
-    cy.testid('DataDuplicatorTab_importIntoDb').click();
-    cy.contains('Duplicated Album, inserted 347 rows, mapped 0 rows, missing 0 rows, skipped 0 rows');
-    cy.themeshot('data-duplicator');
+    cy.testid('TableControl_row_2_checkbox').click();
+    cy.testid('TableControl_row_2').click();
+    cy.testid('DataDeploySettings_find_checkbox').click();
+    cy.testid('DataDeploySettings_create_checkbox').click();
+    cy.testid('WidgetIconPanel_archive').click();
+    cy.themeshot('data-deployer');
+    cy.testid('DataDeployTab_importIntoDb').click();
+    cy.testid('ConfirmDataDeployModal_okButton').click();
+    cy.contains('Replicated Customer, inserted 59 rows');
+    cy.contains('Finished job script');
+    cy.testid('DataDeployTab_importIntoDb').click();
+    cy.themeshot('data-replicator');
   });
 });

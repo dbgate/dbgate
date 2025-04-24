@@ -190,7 +190,7 @@ describe('Query', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipDataDuplicator).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipDataReplicator).map(engine => [engine.label, engine]))(
     'Select scope identity - %s',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp =>

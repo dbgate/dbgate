@@ -42,60 +42,63 @@
 {#if !files || files.length == 0}
   <ErrorInfo message="No output files" icon="img alert" />
 {:else}
-  <TableControl
-    rows={files}
-    columns={[
-      { fieldName: 'name', header: 'Name' },
-      { fieldName: 'size', header: 'Size', formatter: row => formatFileSize(row.size) },
-      !electron && {
-        fieldName: 'download',
-        header: 'Download',
-        slot: 0,
-      },
-      electron && {
-        fieldName: 'copy',
-        header: 'Copy',
-        slot: 1,
-      },
-      electron && {
-        fieldName: 'show',
-        header: 'Show',
-        slot: 2,
-      },
-    ]}
-  >
-    <svelte:fragment slot="0" let:row>
-      <Link
-        onClick={() => {
-          downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
-        }}
-      >
-        download
-      </Link>
-    </svelte:fragment>
+  <div class="flex1 scroll">
+    <TableControl
+      rows={files}
+      stickyHeader
+      columns={[
+        { fieldName: 'name', header: 'Name' },
+        { fieldName: 'size', header: 'Size', formatter: row => formatFileSize(row.size) },
+        !electron && {
+          fieldName: 'download',
+          header: 'Download',
+          slot: 0,
+        },
+        electron && {
+          fieldName: 'copy',
+          header: 'Copy',
+          slot: 1,
+        },
+        electron && {
+          fieldName: 'show',
+          header: 'Show',
+          slot: 2,
+        },
+      ]}
+    >
+      <svelte:fragment slot="0" let:row>
+        <Link
+          onClick={() => {
+            downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
+          }}
+        >
+          download
+        </Link>
+      </svelte:fragment>
 
-    <svelte:fragment slot="1" let:row>
-      <Link
-        onClick={async () => {
-          const file = await electron.showSaveDialog({});
-          if (file) {
-            const fs = window.require('fs');
-            fs.copyFile(row.path, file, () => {});
-          }
-        }}
-      >
-        save
-      </Link>
-    </svelte:fragment>
+      <svelte:fragment slot="1" let:row>
+        <Link
+          onClick={async () => {
+            const file = await electron.showSaveDialog({});
+            if (file) {
+              const fs = window.require('fs');
+              fs.copyFile(row.path, file, () => {});
+            }
+          }}
+        >
+          save
+        </Link>
+      </svelte:fragment>
 
-    <svelte:fragment slot="2" let:row>
-      <Link
-        onClick={() => {
-          electron.showItemInFolder(row.path);
-        }}
-      >
-        show
-      </Link>
-    </svelte:fragment>
-  </TableControl>
+      <svelte:fragment slot="2" let:row>
+        <Link
+          onClick={() => {
+            electron.showItemInFolder(row.path);
+          }}
+        >
+          show
+        </Link>
+      </svelte:fragment>
+    </TableControl>
+  </div>
 {/if}

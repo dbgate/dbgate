@@ -17,6 +17,7 @@ const processDisplayName = getNamedArg('--process-display-name');
 const listenApi = process.argv.includes('--listen-api');
 const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
 const runE2eTests = process.argv.includes('--run-e2e-tests');
+const encryptionKeyArg = getNamedArg('--encryption-key');
 
 function getPassArgs() {
   const res = [];
@@ -30,6 +31,9 @@ function getPassArgs() {
   }
   if (runE2eTests) {
     res.push('--run-e2e-tests');
+  }
+  if (global['ENCRYPTION_KEY']) {
+    res.push('--encryption-key', global['ENCRYPTION_KEY']);
   }
   return res;
 }
@@ -45,4 +49,5 @@ module.exports = {
   listenApiChild,
   processDisplayName,
   runE2eTests,
+  encryptionKeyArg,
 };

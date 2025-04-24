@@ -1,6 +1,9 @@
-import { arrayToHexString, isTypeDateTime } from 'dbgate-tools';
+import { arrayToHexString, evalFilterBehaviour, isTypeDateTime } from 'dbgate-tools';
 import { format, toDate } from 'date-fns';
 import _isString from 'lodash/isString';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
+import { Condition, Expression } from 'dbgate-sqltree';
+import { parseFilter } from './parseFilter';
 
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
 
@@ -60,4 +63,30 @@ export function createMultiLineFilter(mode: FilterMultipleValuesMode, text: stri
     }
   }
   return res;
+}
+
+export function compileCompoudEvalCondition(filters: { [column: string]: string }): Condition {
+  if (!filters) return null;
+  const conditions = [];
+  for (const name in filters) {
+    try {
+      const condition = parseFilter(filters[name], evalFilterBehaviour);
+      const replaced = _cloneDeepWith(condition, (expr: Expression) => {
+        if (expr.exprType == 'placeholder')
+          return {
+            exprType: 'column',
+            columnName: name,
+          };
+      });
+      conditions.push(replaced);
+    } catch (err) {
+      // filter parse error - ignore filter
+    }
+  }
+
+  if (conditions.length == 0) return null;
+  return {
+    conditionType: 'and',
+    conditions,
+  };
 }

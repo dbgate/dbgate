@@ -5,12 +5,16 @@ const path = require('path');
 const _ = require('lodash');
 
 const { datadir } = require('./directories');
+const { encryptionKeyArg } = require('./processArgs');
 
 const defaultEncryptionKey = 'mQAUaXhavRGJDxDTXSCg7Ej0xMmGCrx6OKA07DIMBiDcYYkvkaXjTAzPUEHEHEf9';
 
 let _encryptionKey = null;
 
 function loadEncryptionKey() {
+  if (encryptionKeyArg) {
+    return encryptionKeyArg;
+  }
   if (_encryptionKey) {
     return _encryptionKey;
   }
@@ -55,7 +59,7 @@ async function loadEncryptionKeyFromExternal(storedValue, setStoredValue) {
 
 let _encryptor = null;
 
-function getEncryptor() {
+function getInternalEncryptor() {
   if (_encryptor) {
     return _encryptor;
   }
@@ -63,11 +67,25 @@ function getEncryptor() {
   return _encryptor;
 }
 
+function encryptPasswordString(password) {
+  if (password && !password.startsWith('crypt:')) {
+    return 'crypt:' + getInternalEncryptor().encrypt(password);
+  }
+  return password;
+}
+
+function decryptPasswordString(password) {
+  if (password && password.startsWith('crypt:')) {
+    return getInternalEncryptor().decrypt(password.substring('crypt:'.length));
+  }
+  return password;
+}
+
 function encryptObjectPasswordField(obj, field) {
   if (obj && obj[field] && !obj[field].startsWith('crypt:')) {
     return {
       ...obj,
-      [field]: 'crypt:' + getEncryptor().encrypt(obj[field]),
+      [field]: 'crypt:' + getInternalEncryptor().encrypt(obj[field]),
     };
   }
   return obj;
@@ -77,7 +95,7 @@ function decryptObjectPasswordField(obj, field) {
   if (obj && obj[field] && obj[field].startsWith('crypt:')) {
     return {
       ...obj,
-      [field]: getEncryptor().decrypt(obj[field].substring('crypt:'.length)),
+      [field]: getInternalEncryptor().decrypt(obj[field].substring('crypt:'.length)),
     };
   }
   return obj;
@@ -131,6 +149,54 @@ function pickSafeConnectionInfo(connection) {
 function setEncryptionKey(encryptionKey) {
   _encryptionKey = encryptionKey;
   _encryptor = null;
+  global.ENCRYPTION_KEY = encryptionKey;
+}
+
+function getEncryptionKey() {
+  return _encryptionKey;
+}
+
+function generateTransportEncryptionKey() {
+  const encryptor = simpleEncryptor.createEncryptor(defaultEncryptionKey);
+  const result = {
+    encryptionKey: crypto.randomBytes(32).toString('hex'),
+  };
+  return encryptor.encrypt(result);
+}
+
+function createTransportEncryptor(encryptionData) {
+  const encryptor = simpleEncryptor.createEncryptor(defaultEncryptionKey);
+  const data = encryptor.decrypt(encryptionData);
+  const res = simpleEncryptor.createEncryptor(data['encryptionKey']);
+  return res;
+}
+
+function recryptObjectPasswordField(obj, field, decryptEncryptor, encryptEncryptor) {
+  if (obj && obj[field] && obj[field].startsWith('crypt:')) {
+    return {
+      ...obj,
+      [field]: 'crypt:' + encryptEncryptor.encrypt(decryptEncryptor.decrypt(obj[field].substring('crypt:'.length))),
+    };
+  }
+  return obj;
+}
+
+function recryptObjectPasswordFieldInPlace(obj, field, decryptEncryptor, encryptEncryptor) {
+  if (obj && obj[field] && obj[field].startsWith('crypt:')) {
+    obj[field] = 'crypt:' + encryptEncryptor.encrypt(decryptEncryptor.decrypt(obj[field].substring('crypt:'.length)));
+  }
+}
+
+function recryptConnection(connection, decryptEncryptor, encryptEncryptor) {
+  connection = recryptObjectPasswordField(connection, 'password', decryptEncryptor, encryptEncryptor);
+  connection = recryptObjectPasswordField(connection, 'sshPassword', decryptEncryptor, encryptEncryptor);
+  connection = recryptObjectPasswordField(connection, 'sshKeyfilePassword', decryptEncryptor, encryptEncryptor);
+  return connection;
+}
+
+function recryptUser(user, decryptEncryptor, encryptEncryptor) {
+  user = recryptObjectPasswordField(user, 'password', decryptEncryptor, encryptEncryptor);
+  return user;
 }
 
 module.exports = {
@@ -142,4 +208,16 @@ module.exports = {
   maskConnection,
   pickSafeConnectionInfo,
   loadEncryptionKeyFromExternal,
+  getEncryptionKey,
+  setEncryptionKey,
+  encryptPasswordString,
+  decryptPasswordString,
+
+  getInternalEncryptor,
+  recryptConnection,
+  recryptUser,
+  generateTransportEncryptionKey,
+  createTransportEncryptor,
+  recryptObjectPasswordField,
+  recryptObjectPasswordFieldInPlace,
 };

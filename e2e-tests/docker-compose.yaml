@@ -21,8 +21,8 @@ services:
     build: containers/mysql-ssh-login
     restart: always
     ports: 
-      - 16005:3306
-      - "16015:22"
+      - 16017:3306
+      - "16012:22"
 
   mysql-ssh-keyfile:
     build: containers/mysql-ssh-keyfile

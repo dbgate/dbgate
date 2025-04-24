@@ -267,6 +267,11 @@ EXECUTE FUNCTION function_name();`,
           name: 'noOwner',
           default: false,
         },
+        {
+          type: 'text',
+          label: 'Custom arguments',
+          name: 'customArgs',
+        },
       ];
     }
     return null;
@@ -303,6 +308,10 @@ EXECUTE FUNCTION function_name();`,
             : `--table='"${table.schemaName}"."${table.pureName}"'`
         );
       }
+    }
+    if (options.customArgs?.trim()) {
+      const customArgs = options.customArgs.split(/\s+/).filter(arg => arg.trim() != '');
+      args.push(...customArgs);
     }
 
     return {

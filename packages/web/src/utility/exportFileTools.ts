@@ -184,7 +184,7 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
 
 export async function saveFileToDisk(
   filePathFunc,
-  options: any = { formatLabel: 'HTML page', formatExtension: 'html' }
+  options: any = { formatLabel: 'HTML page', formatExtension: 'html', defaultFileName: null }
 ) {
   const { formatLabel, formatExtension } = options;
   const electron = getElectron();
@@ -193,7 +193,7 @@ export async function saveFileToDisk(
     const filters = [{ name: formatLabel, extensions: [formatExtension] }];
     const filePath = await electron.showSaveDialog({
       filters,
-      defaultPath: `file.${formatExtension}`,
+      defaultPath: options.defaultFileName ?? `file.${formatExtension}`,
       properties: ['showOverwriteConfirmation'],
     });
     if (!filePath) return;
@@ -202,7 +202,7 @@ export async function saveFileToDisk(
   } else {
     const resp = await apiCall('files/generate-uploads-file');
     await filePathFunc(resp.filePath);
-    await downloadFromApi(`uploads/get?file=${resp.fileName}`, `file.${formatExtension}`);
+    await downloadFromApi(`uploads/get?file=${resp.fileName}`, options.defaultFileName ?? `file.${formatExtension}`);
   }
 }
 

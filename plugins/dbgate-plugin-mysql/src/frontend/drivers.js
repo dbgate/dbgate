@@ -240,6 +240,19 @@ const mysqlDriverBase = {
     if (options.force) {
       args.push('--force');
     }
+    if (options.lockTables) {
+      args.push('--lock-tables');
+    }
+    if (options.skipLockTables) {
+      args.push('--skip-lock-tables');
+    }
+    if (options.singleTransaction) {
+      args.push('--single-transaction');
+    }
+    if (options.customArgs?.trim()) {
+      const customArgs = options.customArgs.split(/\s+/).filter(arg => arg.trim() != '');
+      args.push(...customArgs);
+    }
     args.push(database);
     return { command, args };
   },
@@ -311,6 +324,32 @@ const mysqlDriverBase = {
           name: 'includeTriggers',
           default: true,
           disabledFn: values => values.noStructure,
+        },
+        {
+          type: 'checkbox',
+          label: 'Lock tables',
+          name: 'lockTables',
+          default: false,
+          disabledFn: values => values.skipLockTables || values.singleTransaction,
+        },
+        {
+          type: 'checkbox',
+          label: 'Skip lock tables',
+          name: 'skipLockTables',
+          default: false,
+          disabledFn: values => values.lockTables || values.singleTransaction,
+        },
+        {
+          type: 'checkbox',
+          label: 'Single transaction',
+          name: 'singleTransaction',
+          default: false,
+          disabledFn: values => values.lockTables || values.skipLockTables,
+        },
+        {
+          type: 'text',
+          label: 'Custom arguments',
+          name: 'customArgs',
         },
       ];
     }

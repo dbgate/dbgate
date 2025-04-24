@@ -21,6 +21,7 @@
   export let isModifiedCell = false;
   export let isInserted = false;
   export let isDeleted = false;
+  export let isMissing = false;
   export let isAutofillSelected = false;
   export let isFocusedColumn = false;
   export let domCell = undefined;
@@ -33,6 +34,9 @@
   export let onSetValue;
   export let editorTypes = null;
   export let isReadonly;
+  export let hasOverlayValue = false;
+  export let overlayValue = null;
+  export let isMissingOverlayField = false;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 
@@ -68,69 +72,88 @@
   class:isModifiedCell
   class:isInserted
   class:isDeleted
+  class:isMissing
   class:isAutofillSelected
   class:isFocusedColumn
+  class:hasOverlayValue
+  class:isMissingOverlayField
   class:alignRight={_.isNumber(value) && !showHint}
   {style}
 >
-  <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
-
-  {#if showHint}
-    <span class="hint"
-      >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
-    >
-  {/if}
-
-  {#if editorTypes?.explicitDataType}
-    {#if value !== undefined}
-      <ShowFormDropDownButton
-        icon={detectTypeIcon(value)}
-        menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
-      />
+  {#if hasOverlayValue}
+    <div class="flex1 flex">
+      <div class="replacedValue overlayCell overlayCell1">
+        <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
+      </div>
+      <div class="overlayCell overlayCell2">
+        <CellValue {rowData} value={overlayValue} {editorTypes} />
+      </div>
+    </div>
+  {:else}
+    <CellValue
+      {rowData}
+      {value}
+      {jsonParsedValue}
+      {editorTypes}
+      rightMargin={_.isNumber(value) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
+    />
+    {#if showHint}
+      <span class="hint"
+        >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
+      >
     {/if}
-    {#if _.isPlainObject(value)}
-      <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
-    {/if}
-    {#if _.isArray(value)}
+
+    {#if editorTypes?.explicitDataType}
+      {#if value !== undefined}
+        <ShowFormDropDownButton
+          icon={detectTypeIcon(value)}
+          menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
+        />
+      {/if}
+      {#if _.isPlainObject(value)}
+        <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+      {/if}
+      {#if _.isArray(value)}
+        <ShowFormButton
+          secondary
+          icon="icon open-in-new"
+          on:click={() => {
+            if (_.every(value, x => _.isPlainObject(x))) {
+              openJsonLinesData(value);
+            } else {
+              openJsonDocument(value, undefined, true);
+            }
+          }}
+        />
+      {/if}
+    {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
+      <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
+    {:else if col.foreignKey && isCurrentCell && onDictionaryLookup && !isReadonly}
+      <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
+    {:else if isJson}
+      <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+    {:else if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
+      <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
+    {:else if _.isArray(jsonParsedValue || value)}
       <ShowFormButton
-        secondary
         icon="icon open-in-new"
         on:click={() => {
-          if (_.every(value, x => _.isPlainObject(x))) {
-            openJsonLinesData(value);
+          if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
+            openJsonLinesData(jsonParsedValue || value);
           } else {
-            openJsonDocument(value, undefined, true);
+            openJsonDocument(jsonParsedValue || value, undefined, true);
           }
         }}
       />
     {/if}
-  {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
-    <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
-  {:else if col.foreignKey && isCurrentCell && onDictionaryLookup && !isReadonly}
-    <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
-  {:else if isJson}
-    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
-  {:else if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
-    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
-  {:else if _.isArray(jsonParsedValue || value)}
-    <ShowFormButton
-      icon="icon open-in-new"
-      on:click={() => {
-        if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
-          openJsonLinesData(jsonParsedValue || value);
-        } else {
-          openJsonDocument(jsonParsedValue || value, undefined, true);
-        }
-      }}
-    />
-  {/if}
 
-  {#if isAutoFillMarker}
-    <div class="autoFillMarker autofillHandleMarker" />
-  {/if}
+    {#if isAutoFillMarker}
+      <div class="autoFillMarker autofillHandleMarker" />
+    {/if}
 
-  {#if showSlot}
-    <slot />
+    {#if showSlot}
+      <slot />
+    {/if}
   {/if}
 </td>
 
@@ -175,6 +198,9 @@
   td.isDeleted {
     background: var(--theme-bg-volcano);
   }
+  td.isMissing {
+    background: var(--theme-bg-volcano);
+  }
   td.isSelected {
     background: var(--theme-bg-3);
   }
@@ -182,9 +208,9 @@
     background: var(--theme-bg-selected);
   }
   td.isDeleted {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
-    background-repeat: repeat-x;
-    background-position: 50% 50%;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==') !important;
+    background-repeat: repeat-x !important;
+    background-position: 50% 50% !important;
   }
 
   .hint {
@@ -206,5 +232,32 @@
   .alignRight {
     color: var(--theme-icon-green);
     text-align: var(--data-grid-numbers-align);
+  }
+
+  .hasOverlayValue .overlayCell {
+    width: 50%;
+    overflow: hidden;
+  }
+
+  .hasOverlayValue .overlayCell1 {
+    margin-right: 5px;
+  }
+
+  .hasOverlayValue .overlayCell2 {
+    margin-left: 5px;
+  }
+
+  .replacedValue {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
+  }
+
+  td.isMissingOverlayField {
+    background: var(--theme-bg-orange);
+
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
   }
 </style>

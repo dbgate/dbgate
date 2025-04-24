@@ -19,6 +19,14 @@ const storage = require('./storage');
 const { getAuthProxyUrl } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
+const {
+  generateTransportEncryptionKey,
+  createTransportEncryptor,
+  recryptConnection,
+  getInternalEncryptor,
+  recryptUser,
+  recryptObjectPasswordFieldInPlace,
+} = require('../utility/crypting');
 
 const lock = new AsyncLock();
 
@@ -107,6 +115,7 @@ module.exports = {
         datadir(),
         processArgs.runE2eTests ? 'connections-e2etests.jsonl' : 'connections.jsonl'
       ),
+      supportCloudAutoUpgrade: !!process.env.CLOUD_UPGRADE_FILE,
       ...currentVersion,
     };
 
@@ -144,7 +153,7 @@ module.exports = {
     const res = {
       ...value,
     };
-    if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
+    if (platformInfo.isElectron && value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
       // res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
       res['app.useNativeMenu'] = false;
     }
@@ -161,14 +170,19 @@ module.exports = {
 
   async loadSettings() {
     try {
-      const settingsText = await fs.readFile(
-        path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
-        { encoding: 'utf-8' }
-      );
-      return {
-        ...this.fillMissingSettings(JSON.parse(settingsText)),
-        'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
-      };
+      if (process.env.STORAGE_DATABASE) {
+        const settings = await storage.readConfig({ group: 'settings' });
+        return this.fillMissingSettings(settings);
+      } else {
+        const settingsText = await fs.readFile(
+          path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
+          { encoding: 'utf-8' }
+        );
+        return {
+          ...this.fillMissingSettings(JSON.parse(settingsText)),
+          'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
+        };
+      }
     } catch (err) {
       return this.fillMissingSettings({});
     }
@@ -246,19 +260,31 @@ module.exports = {
     const res = await lock.acquire('settings', async () => {
       const currentValue = await this.loadSettings();
       try {
-        const updated = {
-          ...currentValue,
-          ..._.omit(values, ['other.licenseKey']),
-        };
-        await fs.writeFile(
-          path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
-          JSON.stringify(updated, undefined, 2)
-        );
-        // this.settingsValue = updated;
+        let updated = currentValue;
+        if (process.env.STORAGE_DATABASE) {
+          updated = {
+            ...currentValue,
+            ...values,
+          };
+          await storage.writeConfig({
+            group: 'settings',
+            config: updated,
+          });
+        } else {
+          updated = {
+            ...currentValue,
+            ..._.omit(values, ['other.licenseKey']),
+          };
+          await fs.writeFile(
+            path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'),
+            JSON.stringify(updated, undefined, 2)
+          );
+          // this.settingsValue = updated;
 
-        if (currentValue['other.licenseKey'] != values['other.licenseKey']) {
-          await this.saveLicenseKey({ licenseKey: values['other.licenseKey'] });
-          socket.emitChanged(`config-changed`);
+          if (currentValue['other.licenseKey'] != values['other.licenseKey']) {
+            await this.saveLicenseKey({ licenseKey: values['other.licenseKey'] });
+            socket.emitChanged(`config-changed`);
+          }
         }
 
         socket.emitChanged(`settings-changed`);
@@ -280,5 +306,92 @@ module.exports = {
   async checkLicense({ licenseKey }) {
     const resp = await checkLicenseKey(licenseKey);
     return resp;
+  },
+
+  recryptDatabaseForExport(db) {
+    const encryptionKey = generateTransportEncryptionKey();
+    const transportEncryptor = createTransportEncryptor(encryptionKey);
+
+    const config = _.cloneDeep([
+      ...(db.config?.filter(c => !(c.group == 'admin' && c.key == 'encryptionKey')) || []),
+      { group: 'admin', key: 'encryptionKey', value: encryptionKey },
+    ]);
+    const adminPassword = config.find(c => c.group == 'admin' && c.key == 'adminPassword');
+    recryptObjectPasswordFieldInPlace(adminPassword, 'value', getInternalEncryptor(), transportEncryptor);
+
+    return {
+      ...db,
+      connections: db.connections?.map(conn => recryptConnection(conn, getInternalEncryptor(), transportEncryptor)),
+      users: db.users?.map(conn => recryptUser(conn, getInternalEncryptor(), transportEncryptor)),
+      config,
+    };
+  },
+
+  recryptDatabaseFromImport(db) {
+    const encryptionKey = db.config?.find(c => c.group == 'admin' && c.key == 'encryptionKey')?.value;
+    if (!encryptionKey) {
+      throw new Error('Missing encryption key in the database');
+    }
+    const config = _.cloneDeep(db.config || []).filter(c => !(c.group == 'admin' && c.key == 'encryptionKey'));
+    const transportEncryptor = createTransportEncryptor(encryptionKey);
+
+    const adminPassword = config.find(c => c.group == 'admin' && c.key == 'adminPassword');
+    recryptObjectPasswordFieldInPlace(adminPassword, 'value', transportEncryptor, getInternalEncryptor());
+
+    return {
+      ...db,
+      connections: db.connections?.map(conn => recryptConnection(conn, transportEncryptor, getInternalEncryptor())),
+      users: db.users?.map(conn => recryptUser(conn, transportEncryptor, getInternalEncryptor())),
+      config,
+    };
+  },
+
+  exportConnectionsAndSettings_meta: true,
+  async exportConnectionsAndSettings(_params, req) {
+    if (!hasPermission(`admin/config`, req)) {
+      throw new Error('Permission denied: admin/config');
+    }
+
+    if (connections.portalConnections) {
+      throw new Error('Not allowed');
+    }
+
+    if (process.env.STORAGE_DATABASE) {
+      const db = await storage.getExportedDatabase();
+      return this.recryptDatabaseForExport(db);
+    }
+
+    return this.recryptDatabaseForExport({
+      connections: (await connections.list(null, req)).map((conn, index) => ({
+        ..._.omit(conn, ['_id']),
+        id: index + 1,
+        conid: conn._id,
+      })),
+    });
+  },
+
+  importConnectionsAndSettings_meta: true,
+  async importConnectionsAndSettings({ db }, req) {
+    if (!hasPermission(`admin/config`, req)) {
+      throw new Error('Permission denied: admin/config');
+    }
+
+    if (connections.portalConnections) {
+      throw new Error('Not allowed');
+    }
+
+    const recryptedDb = this.recryptDatabaseFromImport(db);
+    if (process.env.STORAGE_DATABASE) {
+      await storage.replicateImportedDatabase(recryptedDb);
+    } else {
+      await connections.importFromArray(
+        recryptedDb.connections.map(conn => ({
+          ..._.omit(conn, ['conid', 'id']),
+          _id: conn.conid,
+        }))
+      );
+    }
+
+    return true;
   },
 };

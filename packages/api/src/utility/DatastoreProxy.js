@@ -60,6 +60,10 @@ class DatastoreProxy {
         // if (this.disconnected) return;
         this.subprocess = null;
       });
+      this.subprocess.on('error', err => {
+        logger.error(extractErrorLogData(err), 'Error in data store subprocess');
+        this.subprocess = null;
+      });
       this.subprocess.send({ msgtype: 'open', file: this.file });
     }
     return this.subprocess;

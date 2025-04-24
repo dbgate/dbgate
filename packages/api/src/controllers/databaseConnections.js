@@ -37,6 +37,8 @@ const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
+const { decryptConnection } = require('../utility/crypting');
+const { getSshTunnel } = require('../utility/sshTunnel');
 
 const logger = getLogger('databaseConnections');
 
@@ -137,6 +139,11 @@ module.exports = {
       this[`handle_${msgtype}`](conid, database, message);
     });
     subprocess.on('exit', () => {
+      if (newOpened.disconnected) return;
+      this.close(conid, database, false);
+    });
+    subprocess.on('error', err => {
+      logger.error(extractErrorLogData(err), 'Error in database connection subprocess');
       if (newOpened.disconnected) return;
       this.close(conid, database, false);
     });
@@ -619,8 +626,25 @@ module.exports = {
     command,
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
-    const connection = await connections.getCore({ conid });
+    const sourceConnection = await connections.getCore({ conid });
+    const connection = {
+      ...decryptConnection(sourceConnection),
+    };
     const driver = requireEngineDriver(connection);
+
+    if (!connection.port && driver.defaultPort) {
+      connection.port = driver.defaultPort.toString();
+    }
+
+    if (connection.useSshTunnel) {
+      const tunnel = await getSshTunnel(connection);
+      if (tunnel.state == 'error') {
+        throw new Error(tunnel.message);
+      }
+
+      connection.server = tunnel.localHost;
+      connection.port = tunnel.localPort;
+    }
 
     const settingsValue = await config.getSettings();
 
