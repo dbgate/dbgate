@@ -1,4 +1,4 @@
-import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
 import {
   showSnackbar,
@@ -11,49 +11,47 @@ import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { getCurrentConfig } from '../stores';
-import { showModal } from '../modals/modalTools';
-import RunScriptModal from '../modals/RunScriptModal.svelte';
 import { QuickExportDefinition } from 'dbgate-types';
 
-export async function importSqlDump(inputFile, connection) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+// export async function importSqlDump(inputFile, connection) {
+//   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
 
-  script.importDatabase({
-    inputFile,
-    connection,
-  });
+//   script.importDatabase({
+//     inputFile,
+//     connection,
+//   });
 
-  showModal(RunScriptModal, { script: script.getScript(), header: 'Importing database' });
+//   showModal(RunScriptModal, { script: script.getScript(), header: 'Importing database' });
 
-  // await runImportExportScript({
-  //   script: script.getScript(),
-  //   runningMessage: 'Importing database',
-  //   canceledMessage: 'Database import canceled',
-  //   finishedMessage: 'Database import finished',
-  // });
-}
+//   // await runImportExportScript({
+//   //   script: script.getScript(),
+//   //   runningMessage: 'Importing database',
+//   //   canceledMessage: 'Database import canceled',
+//   //   finishedMessage: 'Database import finished',
+//   // });
+// }
 
-export async function exportSqlDump(outputFile, connection, databaseName, pureFileName) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+// export async function exportSqlDump(outputFile, connection, databaseName, pureFileName) {
+//   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
 
-  script.dumpDatabase({
-    connection,
-    databaseName,
-    outputFile,
-  });
+//   script.dumpDatabase({
+//     connection,
+//     databaseName,
+//     outputFile,
+//   });
 
-  showModal(RunScriptModal, {
-    script: script.getScript(),
-    header: 'Exporting database',
-    onOpenResult:
-      pureFileName && !getElectron()
-        ? () => {
-            downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
-          }
-        : null,
-    openResultLabel: 'Download SQL file',
-  });
-}
+//   showModal(RunScriptModal, {
+//     script: script.getScript(),
+//     header: 'Exporting database',
+//     onOpenResult:
+//       pureFileName && !getElectron()
+//         ? () => {
+//             downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
+//           }
+//         : null,
+//     openResultLabel: 'Download SQL file',
+//   });
+// }
 
 async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
   const electron = getElectron();
@@ -140,7 +138,7 @@ function generateQuickExportScript(
   dataName: string,
   columnMap
 ) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+  const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
 
   const sourceVar = script.allocVariable();
   script.assign(sourceVar, reader.functionName, reader.props);

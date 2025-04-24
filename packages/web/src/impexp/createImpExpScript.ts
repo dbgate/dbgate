@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
@@ -207,7 +207,7 @@ export default async function createImpExpScript(extensions, values, forceScript
   const config = getCurrentConfig();
   const script =
     config.allowShellScripting || forceScript
-      ? new ScriptWriter(values.startVariableIndex || 0)
+      ? new ScriptWriterJavaScript(values.startVariableIndex || 0)
       : new ScriptWriterJson(values.startVariableIndex || 0);
 
   const [sourceConnection, sourceDriver] = await getConnection(

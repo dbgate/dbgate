@@ -1,7 +1,7 @@
 import _uniq from 'lodash/uniq';
 import { extractShellApiFunctionName, extractShellApiPlugins } from './packageTools';
 
-export class ScriptWriter {
+export class ScriptWriterJavaScript {
   s = '';
   packageNames: string[] = [];
   varCount = 0;
@@ -169,7 +169,7 @@ export class ScriptWriterJson {
 
 export function jsonScriptToJavascript(json) {
   const { schedule, commands, packageNames } = json;
-  const script = new ScriptWriter();
+  const script = new ScriptWriterJavaScript();
   for (const packageName of packageNames) {
     if (!/^dbgate-plugin-.*$/.test(packageName)) {
       throw new Error('Unallowed package name:' + packageName);
