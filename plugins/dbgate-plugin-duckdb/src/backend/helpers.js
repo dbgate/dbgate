@@ -21,7 +21,7 @@ function _normalizeValue(value) {
   }
 
   if (typeof value === 'bigint') {
-    return `${value}n`;
+    return parseInt(value);
   }
 
   if (Array.isArray(value)) {

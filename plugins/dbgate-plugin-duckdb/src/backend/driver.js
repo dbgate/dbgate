@@ -178,7 +178,7 @@ const driver = {
 
     return {
       version,
-      versionText: `DuchDB ${version}`,
+      versionText: `DuckDB ${version}`,
     };
   },
 
