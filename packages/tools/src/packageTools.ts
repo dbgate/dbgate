@@ -27,15 +27,12 @@ export function extractPackageName(name): string {
   return null;
 }
 
-export function extractShellApiFunctionName(functionName, usePrefixForDbGateApi) {
+export function compileShellApiFunctionName(functionName) {
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
   if (nsMatch) {
     return `${_camelCase(nsMatch[2])}.shellApi.${nsMatch[1]}`;
   }
-  if (usePrefixForDbGateApi) {
-    return `dbgateApi.${functionName}`;
-  }
-  return functionName;
+  return `dbgateApi.${functionName}`;
 }
 
 export function evalShellApiFunctionName(functionName, dbgateApi, requirePlugin) {

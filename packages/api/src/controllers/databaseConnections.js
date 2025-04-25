@@ -131,6 +131,12 @@ module.exports = {
     socket.emit(`runner-done-${runid}`);
   },
 
+  handle_progress(conid, database, progressData) {
+    const { progressName } = progressData;
+    const { name, runid } = progressName;
+    socket.emit(`runner-progress-${runid}`, { ...progressData, progressName: name });
+  },
+
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;

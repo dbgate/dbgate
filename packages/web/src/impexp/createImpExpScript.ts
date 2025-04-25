@@ -69,6 +69,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
     sourceDriver?.singleConnectionOnly && hostConnection
       ? {
           systemConnection: { $hostConnection: true },
+          connection: sourceDriver?.engine,
         }
       : {
           connection: sourceConnection,
@@ -159,6 +160,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
     targetDriver?.singleConnectionOnly && hostConnection
       ? {
           systemConnection: { $hostConnection: true },
+          connection: targetDriver?.engine,
         }
       : {
           connection: targetConnection,
@@ -281,7 +283,12 @@ export default async function createImpExpScript(extensions, values, format = un
       script.assignValue(colmapVar, colmap);
     }
 
-    script.copyStream(sourceVar, targetVar, colmapVar, sourceName);
+    script.copyStream(
+      sourceVar,
+      targetVar,
+      colmapVar,
+      hostConnection ? { name: sourceName, runid: { $runid: true } } : sourceName
+    );
     script.endLine();
   }
 

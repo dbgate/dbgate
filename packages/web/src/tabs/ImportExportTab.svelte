@@ -169,7 +169,7 @@
 
   const handleGenerateScript = async e => {
     const values = $formValues as any;
-    const code = await createImpExpScript($extensions, values, 'script');
+    const code = await createImpExpScript($extensions, values, 'script', true);
     openNewTab(
       {
         title: 'Shell #',

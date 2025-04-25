@@ -168,6 +168,8 @@ const driver = {
       pass.write(row);
     }
 
+    pass.end();
+
     return pass;
   },
   async writeTable(dbhan, name, options) {

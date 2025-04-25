@@ -8,7 +8,7 @@ const { fork, spawn } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const {
   extractShellApiPlugins,
-  extractShellApiFunctionName,
+  compileShellApiFunctionName,
   jsonScriptToJavascript,
   getLogger,
   safeJsonParse,
@@ -58,7 +58,7 @@ dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-const reader=await ${extractShellApiFunctionName(functionName, true)}(${JSON.stringify(props)});
+const reader=await ${compileShellApiFunctionName(functionName)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }
@@ -273,7 +273,7 @@ module.exports = {
     const runid = crypto.randomUUID();
 
     if (script.type == 'json') {
-      const js = jsonScriptToJavascript(script);
+      const js = await jsonScriptToJavascript(script);
       return this.startCore(runid, scriptTemplate(js, false));
     }
 
@@ -335,7 +335,7 @@ module.exports = {
       return { errorMessage: 'Only JSON scripts are allowed' };
     }
 
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise(async (resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
       const cloned = _.cloneDeepWith(script, node => {
@@ -343,7 +343,7 @@ module.exports = {
           return runid;
         }
       });
-      const js = jsonScriptToJavascript(cloned);
+      const js = await jsonScriptToJavascript(cloned);
       this.startCore(runid, scriptTemplate(js, false));
     });
     return promise;

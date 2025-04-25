@@ -21,6 +21,9 @@ const { dumpSqlSelect } = require('dbgate-sqltree');
 const { allowExecuteCustomScript, handleQueryStream } = require('../utility/handleQueryStream');
 const dbgateApi = require('../shell');
 const requirePlugin = require('../shell/requirePlugin');
+const path = require('path');
+const { rundir } = require('../utility/directories');
+const fs = require('fs-extra');
 
 const logger = getLogger('dbconnProcess');
 
@@ -411,9 +414,19 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
 }
 
 async function handleEvalJsonScript({ script, runid }) {
-  const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan);
-  await playJsonScriptWriter(script, evalWriter);
-  process.send({ msgtype: 'runnerDone', runid });
+  const directory = path.join(rundir(), runid);
+  fs.mkdirSync(directory);
+  const originalCwd = process.cwd();
+
+  try {
+    process.chdir(directory);
+
+    const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
+    await playJsonScriptWriter(script, evalWriter);
+    process.send({ msgtype: 'runnerDone', runid });
+  } finally {
+    process.chdir(originalCwd);
+  }
 }
 
 // async function handleRunCommand({ msgid, sql }) {
