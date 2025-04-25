@@ -1,4 +1,4 @@
-import { ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
 import {
   showSnackbar,
@@ -10,7 +10,6 @@ import {
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
-import { getCurrentConfig } from '../stores';
 import { QuickExportDefinition } from 'dbgate-types';
 
 // export async function importSqlDump(inputFile, connection) {
@@ -138,7 +137,7 @@ function generateQuickExportScript(
   dataName: string,
   columnMap
 ) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
+  const script = new ScriptWriterJson();
 
   const sourceVar = script.allocVariable();
   script.assign(sourceVar, reader.functionName, reader.props);
