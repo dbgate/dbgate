@@ -677,6 +677,7 @@ const duckdbEngine = {
   supportRenameSqlObject: true,
   skipIncrementalAnalysis: true,
   skipDefaultValue: true,
+  skipDropReferences: true,
 };
 
 const enginesOnCi = [
