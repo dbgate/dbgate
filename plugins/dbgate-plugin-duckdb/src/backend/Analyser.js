@@ -16,18 +16,23 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _computeSingleObjectId() {
-    const { pureName } = this.singleObjectFilter;
-    this.singleObjectId = pureName;
+    const { schemaName, pureName } = this.singleObjectFilter;
+    this.singleObjectId = `${schemaName || 'main'}.${pureName}`;
+  }
+
+  createQuery(resFileName, typeFields) {
+    if (!sql[resFileName]) throw new Error(`Missing analyse file ${resFileName}`);
+    return super.createQuery(sql[resFileName], typeFields);
   }
 
   async _runAnalysis() {
-    const tablesResult = await this.driver.query(this.dbhan, sql.tables);
-    const columnsResult = await this.driver.query(this.dbhan, sql.columns);
-    const foreignKeysResult = await this.driver.query(this.dbhan, sql.foreignKeys);
-    const primaryKeysResult = await this.driver.query(this.dbhan, sql.primaryKeys);
-    const uniquesResults = await this.driver.query(this.dbhan, sql.uniques);
-    const indexesResult = await this.driver.query(this.dbhan, sql.indexes);
-    const viewsResult = await this.driver.query(this.dbhan, sql.views);
+    const tablesResult = await this.analyserQuery('tables', ['tables']);
+    const columnsResult = await this.analyserQuery('columns', ['tables']);
+    const foreignKeysResult = await this.analyserQuery('foreignKeys', ['tables']);
+    const primaryKeysResult = await this.analyserQuery('primaryKeys', ['tables']);
+    const uniquesResults = await this.analyserQuery('uniques', ['tables']);
+    const indexesResult = await this.analyserQuery('uniques', ['indexes']);
+    const viewsResult = await this.analyserQuery('views', ['views']);
 
     /**
      * @type {import('dbgate-types').ForeignKeyInfo[]}

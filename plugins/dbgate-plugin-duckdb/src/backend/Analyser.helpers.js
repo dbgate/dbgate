@@ -94,7 +94,7 @@ function mapViewRowToViewInfo(duckDbViewRow) {
     pureName: duckDbViewRow.view_name,
     schemaName: duckDbViewRow.schema_name,
     objectId: duckDbViewRow.view_oid,
-    objectTypeField: 'view',
+    objectTypeField: 'views',
     columns: [],
   };
 
@@ -116,7 +116,7 @@ function mapRawTableToTableInfo(rawTableData) {
   const pureName = rawTableData.table_name;
   const schemaName = rawTableData.schema_name;
   const objectId = rawTableData.table_oid;
-  const objectTypeField = 'table';
+  const objectTypeField = 'tables';
   const objectComment = rawTableData.comment;
 
   return {
@@ -156,7 +156,6 @@ function extractDataType(columnInfo) {
 
     case 'VARCHAR':
     case 'CHAR':
-      console.log('this', maxLength);
       if (typeof maxLength === 'number' && maxLength > 0) {
         return `${baseType}(${maxLength})`;
       }
