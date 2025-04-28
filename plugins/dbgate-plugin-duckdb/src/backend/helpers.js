@@ -9,7 +9,7 @@ const {
   DuckDBUUIDValue,
 } = require('@duckdb/node-api');
 /**
- * @param {string[} columnNames
+ * @param {string[]} columnNames
  * @param {import('@duckdb/node-api').DuckDBType[]} columnTypes
  */
 function getColumnsInfo(columnNames, columnTypes) {
