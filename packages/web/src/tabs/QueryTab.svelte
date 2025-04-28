@@ -290,7 +290,12 @@
       return null;
     }
 
-    return { ...driver.getQuerySplitterOptions('editor'), queryParameterStyle, allowDollarDollarString: false };
+    return {
+      ...driver.getQuerySplitterOptions('editor'),
+      queryParameterStyle,
+      allowDollarDollarString: false,
+      splitByEmptyLine: true,
+    };
   }
 
   async function executeCore(sql, startLine = 0) {
@@ -608,7 +613,7 @@
               engine={$connection && $connection.engine}
               {conid}
               {database}
-              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
               options={{
                 wrap: enableWrap,
               }}
@@ -638,7 +643,7 @@
             <AceEditor
               mode={driver?.editorMode || 'sql'}
               value={$editorState.value || ''}
-              splitterOptions={driver?.getQuerySplitterOptions('editor')}
+              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
               options={{
                 wrap: enableWrap,
               }}
