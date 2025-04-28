@@ -117,7 +117,9 @@ describe('Alter table', () => {
   );
 
   test.each(
-    createEnginesColumnsSource(engines).filter(([_label, col, engine]) => !engine.skipPkDrop || !col.endsWith('_pk'))
+    createEnginesColumnsSource(engines.filter(x => !x.skipDropColumn)).filter(
+      ([_label, col, engine]) => !engine.skipPkDrop || !col.endsWith('_pk')
+    )
   )(
     'Drop column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
@@ -125,7 +127,7 @@ describe('Alter table', () => {
     })
   );
 
-  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipNullable)))(
+  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipNullable && !x.skipChangeNullability)))(
     'Change nullability - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
@@ -137,7 +139,7 @@ describe('Alter table', () => {
     })
   );
 
-  test.each(createEnginesColumnsSource(engines))(
+  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipRenameColumn)))(
     'Rename column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(

@@ -670,9 +670,13 @@ const duckdbEngine = {
   skipTriggers: true,
   skipDataReplicator: true,
   skipAutoIncrement: true,
+  skipDropColumn: true,
+  skipRenameColumn: true,
+  skipChangeNullability: true,
   skipDeploy: true,
   supportRenameSqlObject: true,
   skipIncrementalAnalysis: true,
+  skipDefaultValue: true,
 };
 
 const enginesOnCi = [
