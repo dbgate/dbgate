@@ -7,6 +7,7 @@ const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('
 const { getColumnsInfo, normalizeRow } = require('./helpers');
 const sql = require('./sql');
 const { mapSchemaRowToSchemaInfo } = require('./Analyser.helpers');
+const { zipObject } = require('lodash');
 
 const logger = getLogger('sqliteDriver');
 
@@ -62,11 +63,9 @@ const driver = {
       const count = statements.count;
 
       for (let i = 0; i < count; i++) {
-        let hasSentColumns = false;
         const stmt = await statements.prepare(i);
-        const res = await stmt.runAndReadAll();
 
-        const returningStatemetes = [
+        const returningStatementTypes = [
           duckdb.StatementType.SELECT,
           duckdb.StatementType.EXPLAIN,
           duckdb.StatementType.EXECUTE,
@@ -74,29 +73,35 @@ const driver = {
           duckdb.StatementType.LOGICAL_PLAN,
         ];
 
-        if (!returningStatemetes.includes(stmt.statementType)) {
+        if (!returningStatementTypes.includes(stmt.statementType)) {
           continue;
         }
 
-        // options.info({
-        //   message: JSON.stringify(res),
-        //   time: new Date(),
-        //   severity: 'info',
-        // });
+        const result = await stmt.stream();
+        let hasSentColumns = false;
 
-        if (!hasSentColumns) {
-          const columnNames = res.columnNames();
-          const columnTypes = res.columnTypes();
-          const columns = getColumnsInfo(columnNames, columnTypes);
+        while (true) {
+          const chunk = await result.fetchChunk();
 
-          options.recordset(columns);
-          hasSentColumns = true;
-        }
+          if (!chunk || chunk.rowCount === 0) {
+            break;
+          }
 
-        const rows = res.getRowObjects();
+          if (!hasSentColumns) {
+            const columnNames = result.columnNames();
+            const columnTypes = result.columnTypes();
+            const columns = getColumnsInfo(columnNames, columnTypes);
+            options.recordset(columns);
+            hasSentColumns = true;
+          }
 
-        for (const row of rows) {
-          options.row(normalizeRow(row));
+          const rows = chunk.getRows();
+          const columnNames = result.columnNames();
+
+          for (const row of rows) {
+            const zipped = zipObject(columnNames, row);
+            options.row(normalizeRow(zipped));
+          }
         }
       }
 
