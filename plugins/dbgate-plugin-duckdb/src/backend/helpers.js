@@ -1,3 +1,13 @@
+const {
+  DuckDBTimestampValue,
+  DuckDBDecimalValue,
+  DuckDBDateValue,
+  DuckDBTimeValue,
+  DuckDBIntervalValue,
+  DuckDBBlobValue,
+  DuckDBBitValue,
+  DuckDBUUIDValue,
+} = require('@duckdb/node-api');
 /**
  * @param {string[} columnNames
  * @param {import('@duckdb/node-api').DuckDBType[]} columnTypes
@@ -22,6 +32,68 @@ function _normalizeValue(value) {
 
   if (typeof value === 'bigint') {
     return parseInt(value);
+  }
+
+  if (value instanceof DuckDBTimestampValue) {
+    const date = new Date(Number(value.micros / 1000n));
+    return date.toISOString();
+  }
+
+  if (value instanceof DuckDBDecimalValue) {
+    return value.toDouble();
+  }
+
+  if (value instanceof DuckDBTimestampValue) {
+    const date = new Date(Number(value.micros / 1000n));
+    return date.toISOString();
+  }
+
+  if (value instanceof DuckDBDateValue) {
+    const year = value.year;
+    const month = String(value.month).padStart(2, '0');
+    const day = String(value.day).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  if (value instanceof DuckDBTimeValue) {
+    const hour = String(value.hour).padStart(2, '0');
+    const minute = String(value.min).padStart(2, '0');
+    const second = String(value.sec).padStart(2, '0');
+    const micros = String(value.micros).padStart(6, '0').substring(0, 3);
+    return `${hour}:${minute}:${second}.${micros}`;
+  }
+
+  if (value instanceof DuckDBBlobValue) {
+    return value.toString();
+  }
+
+  if (value instanceof DuckDBBitValue) {
+    return value.toString();
+  }
+
+  if (value instanceof DuckDBUUIDValue) {
+    return value.toString();
+  }
+
+  if (value instanceof DuckDBIntervalValue) {
+    let result = '';
+    if (value.months !== 0) {
+      const years = Math.floor(value.months / 12);
+      const remainingMonths = value.months % 12;
+      if (years !== 0) result += `${years}y `;
+      if (remainingMonths !== 0) result += `${remainingMonths}m `;
+    }
+    if (value.days !== 0) {
+      result += `${value.days}d `;
+    }
+    if (value.micros !== 0n) {
+      const microseconds = Number(value.micros);
+      const seconds = Math.floor(microseconds / 1000000);
+      const remainingMicros = microseconds % 1000000;
+      if (seconds !== 0) result += `${seconds}s `;
+      if (remainingMicros !== 0) result += `${remainingMicros}μs `;
+    }
+    return result.trim() || '0';
   }
 
   if (Array.isArray(value)) {
