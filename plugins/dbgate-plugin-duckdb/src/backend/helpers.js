@@ -43,11 +43,6 @@ function _normalizeValue(value) {
     return value.toDouble();
   }
 
-  if (value instanceof DuckDBTimestampValue) {
-    const date = new Date(Number(value.micros / 1000n));
-    return date.toISOString();
-  }
-
   if (value instanceof DuckDBDateValue) {
     const year = value.year;
     const month = String(value.month).padStart(2, '0');
