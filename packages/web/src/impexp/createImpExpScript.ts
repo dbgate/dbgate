@@ -5,7 +5,7 @@ import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../plugins/fileformats';
-import { getCurrentConfig } from '../stores';
+import { getCurrentConfig, getExtensions } from '../stores';
 
 export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
@@ -51,6 +51,32 @@ export function extractShellConnection(connection, database) {
         engine: connection.engine,
         database,
       };
+}
+
+export function extractShellConnectionHostable(connection, database) {
+  const driver = findEngineDriver(connection, getExtensions());
+  if (driver?.singleConnectionOnly) {
+    return {
+      systemConnection: { $hostConnection: true },
+      connection: driver.engine,
+    };
+  }
+
+  return {
+    connection: extractShellConnection(connection, database),
+  };
+}
+
+export function extractShellHostConnection(connection, database) {
+  const driver = findEngineDriver(connection, getExtensions());
+  if (driver?.singleConnectionOnly) {
+    return {
+      conid: connection._id,
+      database,
+    };
+  }
+
+  return undefined;
 }
 
 async function getConnection(extensions, storageType, conid, database) {

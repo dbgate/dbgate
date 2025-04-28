@@ -11,6 +11,7 @@ import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { QuickExportDefinition } from 'dbgate-types';
+import uuidv1 from 'uuid/v1';
 
 // export async function importSqlDump(inputFile, connection) {
 //   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
@@ -52,12 +53,31 @@ import { QuickExportDefinition } from 'dbgate-types';
 //   });
 // }
 
-async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
+async function runImportExportScript({
+  script,
+  runningMessage,
+  canceledMessage,
+  finishedMessage,
+  afterFinish = null,
+  hostConnection = null,
+}) {
   const electron = getElectron();
 
-  const resp = await apiCall('runners/start', { script });
-  const runid = resp.runid;
+  let runid;
   let isCanceled = false;
+
+  if (hostConnection) {
+    runid = uuidv1();
+    await apiCall('database-connections/eval-json-script', {
+      runid,
+      conid: hostConnection.conid,
+      database: hostConnection.database,
+      script,
+    });
+  } else {
+    const resp = await apiCall('runners/start', { script });
+    runid = resp.runid;
+  }
 
   const snackId = showSnackbar({
     message: runningMessage,
@@ -96,7 +116,14 @@ async function runImportExportScript({ script, runningMessage, canceledMessage, 
   apiOn(`runner-progress-${runid}`, handleRunnerProgress);
 }
 
-export async function saveExportedFile(filters, defaultPath, extension, dataName, getScript: (filaPath: string) => {}) {
+export async function saveExportedFile(
+  filters,
+  defaultPath,
+  extension,
+  dataName,
+  getScript: (filaPath: string) => {},
+  hostConnection = null
+) {
   const electron = getElectron();
 
   let filePath;
@@ -127,6 +154,7 @@ export async function saveExportedFile(filters, defaultPath, extension, dataName
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
       }
     },
+    hostConnection,
   });
 }
 
@@ -167,6 +195,7 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       runningMessage: `Exporting ${dataName}`,
       canceledMessage: `Export ${dataName} canceled`,
       finishedMessage: `Export ${dataName} finished`,
+      hostConnection: reader.hostConnection,
     });
   } else {
     await saveExportedFile(
@@ -174,7 +203,8 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       `${dataName}.${format.extension}`,
       format.extension,
       dataName,
-      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap)
+      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap),
+      reader.hostConnection
     );
   }
 }

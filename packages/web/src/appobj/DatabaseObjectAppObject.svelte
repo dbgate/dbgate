@@ -893,9 +893,10 @@
             {
               functionName: menu.functionName,
               props: {
-                connection: extractShellConnection(coninfo, data.database),
+                ...extractShellConnectionHostable(coninfo, data.database),
                 ..._.pick(data, ['pureName', 'schemaName']),
               },
+              hostConnection: extractShellHostConnection(coninfo, data.database),
             },
             fmt
           );
@@ -1031,7 +1032,7 @@
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { extractShellConnection } from '../impexp/createImpExpScript';
+  import { extractShellConnectionHostable, extractShellHostConnection } from '../impexp/createImpExpScript';
   import { format as dateFormat } from 'date-fns';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import hasPermission from '../utility/hasPermission';
