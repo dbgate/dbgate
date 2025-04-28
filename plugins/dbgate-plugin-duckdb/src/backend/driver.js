@@ -73,15 +73,15 @@ const driver = {
           duckdb.StatementType.LOGICAL_PLAN,
         ];
 
-        if (!returningStatementTypes.includes(stmt.statementType)) {
-          continue;
-        }
-
         const result = await stmt.stream();
         let hasSentColumns = false;
 
         while (true) {
           const chunk = await result.fetchChunk();
+
+          if (!returningStatementTypes.includes(stmt.statementType)) {
+            break;
+          }
 
           if (!chunk || chunk.rowCount === 0) {
             break;
