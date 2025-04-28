@@ -395,8 +395,8 @@ registerCommand({
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
-      label: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
-      header: _t('command.new.sqliteDatabase.header', { defaultMessage: 'Create SQLite database' }),
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
       onConfirm: async file => {
         const resp = await apiCall('connections/new-sqlite-database', { file });
         const connection = resp;
@@ -415,8 +415,8 @@ registerCommand({
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
-      label: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
-      header: _t('command.new.duckdbDatabase.header', { defaultMessage: 'Create DuckDB database' }),
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
       onConfirm: async file => {
         const resp = await apiCall('connections/new-duckdb-database', { file });
         const connection = resp;

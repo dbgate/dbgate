@@ -147,8 +147,6 @@ describe('Query', () => {
           engine.skipOrderBy ? '' : 'ORDER BY ~id'
         }; `
       );
-      console.log('res');
-      console.dir(results, { depth: 10 });
       expect(results.length).toEqual(1);
 
       const res1 = results[0];
