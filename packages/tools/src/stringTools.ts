@@ -150,7 +150,13 @@ function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
 
 export function stringifyCellValue(
   value,
-  intent: 'gridCellIntent' | 'inlineEditorIntent' | 'multilineEditorIntent' | 'stringConversionIntent' | 'exportIntent',
+  intent:
+    | 'gridCellIntent'
+    | 'inlineEditorIntent'
+    | 'multilineEditorIntent'
+    | 'stringConversionIntent'
+    | 'exportIntent'
+    | 'clipboardIntent',
   editorTypes?: DataEditorTypesBehaviour,
   gridFormattingOptions?: { useThousandsSeparator?: boolean },
   jsonParsedValue?: any
@@ -209,6 +215,7 @@ export function stringifyCellValue(
       switch (intent) {
         case 'exportIntent':
         case 'stringConversionIntent':
+        case 'clipboardIntent':
           return { value: dateString };
         default:
           const m = dateString.match(dateTimeStorageRegex);

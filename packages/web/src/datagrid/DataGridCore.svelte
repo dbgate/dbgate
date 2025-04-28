@@ -673,6 +673,7 @@
       keyColumns: display?.baseTable?.primaryKey?.columns?.map(col => col.columnName) || [
         display?.columns ? display?.columns[0].columnName : columns[0],
       ],
+      editorTypes: getEditorTypes(),
     });
     if (domFocusField) domFocusField.focus();
   }

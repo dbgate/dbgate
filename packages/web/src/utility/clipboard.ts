@@ -75,20 +75,20 @@ export async function getClipboardText() {
 export function extractRowCopiedValue(row, col, editorTypes?: DataEditorTypesBehaviour) {
   let value = row[col];
   if (value === undefined) value = _.get(row, col);
-  return stringifyCellValue(value, 'exportIntent', editorTypes).value;
+  return stringifyCellValue(value, 'clipboardIntent', editorTypes).value;
 }
 
 const clipboardHeadersFormatter = delimiter => columns => {
   return columns.join(delimiter);
 };
 
-const clipboardTextFormatter = (delimiter, headers) => (columns, rows) => {
+const clipboardTextFormatter = (delimiter, headers) => (columns, rows, options) => {
   const lines = [];
   if (headers) lines.push(columns.join(delimiter));
   lines.push(
     ...rows.map(row => {
       if (!row) return '';
-      const line = columns.map(col => extractRowCopiedValue(row, col)).join(delimiter);
+      const line = columns.map(col => extractRowCopiedValue(row, col, options?.editorTypes)).join(delimiter);
       return line;
     })
   );
