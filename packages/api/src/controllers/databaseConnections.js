@@ -137,6 +137,13 @@ module.exports = {
     socket.emit(`runner-progress-${runid}`, { ...progressData, progressName: name });
   },
 
+  handle_copyStreamError(conid, database, { copyStreamError }) {
+    const { progressName } = copyStreamError;
+    const { runid } = progressName;
+    logger.error(`Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
+    socket.emit(`runner-done-${runid}`);
+  },
+
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
@@ -177,7 +184,13 @@ module.exports = {
       const { msgtype } = message;
       if (handleProcessCommunication(message, subprocess)) return;
       if (newOpened.disconnected) return;
-      this[`handle_${msgtype}`](conid, database, message);
+      const funcName = `handle_${msgtype}`;
+      if (!this[funcName]) {
+        logger.error(`Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
+        return;
+      }
+
+      this[funcName](conid, database, message);
     });
     subprocess.on('exit', () => {
       if (newOpened.disconnected) return;
