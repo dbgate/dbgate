@@ -261,7 +261,7 @@
     id: 'tabs.closeTab',
     category: 'Tabs',
     name: _t('command.tabs.closeTab', { defaultMessage: 'Close tab' }),
-    keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : 'CtrlOrCommand+Shift+W',
+    keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : 'Alt+W',
     testEnabled: () => {
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
       const hasAnyModalOpen = getOpenedModals().length > 0;

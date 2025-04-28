@@ -2,15 +2,10 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
-  import { isMac, resolveKeyText } from '../utility/common';
+  import { getKeyTextFromEvent, isMac, resolveKeyText } from '../utility/common';
 
   export function handleCommandKeyDown(e) {
-    let keyText = '';
-    if (e.ctrlKey) keyText += 'Ctrl+';
-    if (e.metaKey) keyText += 'Command+';
-    if (e.shiftKey) keyText += 'Shift+';
-    if (e.altKey) keyText += 'Alt+';
-    keyText += e.key;
+    const keyText = getKeyTextFromEvent(e);
 
     // console.log('keyText', keyText);
 

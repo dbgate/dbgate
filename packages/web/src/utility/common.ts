@@ -134,3 +134,13 @@ export async function switchCurrentDatabase(data) {
     currentDatabase.set(data);
   }
 }
+
+export function getKeyTextFromEvent(e) {
+  let keyText = '';
+  if (e.ctrlKey) keyText += 'Ctrl+';
+  if (e.metaKey) keyText += 'Command+';
+  if (e.shiftKey) keyText += 'Shift+';
+  if (e.altKey) keyText += 'Alt+';
+  keyText += e.key;
+  return keyText;
+}
