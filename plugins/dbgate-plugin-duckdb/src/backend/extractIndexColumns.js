@@ -56,6 +56,7 @@ function clean(segment) {
 }
 
 function extractIndexColumns(sql) {
+  if (!sql) return [];
   const sqlText = sql // your variable
     .replace(/\s+/g, ' ') // collapse whitespace
     .replace(/--.*?$/gm, '') // strip line comments

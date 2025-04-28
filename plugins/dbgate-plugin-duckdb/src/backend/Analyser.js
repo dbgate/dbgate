@@ -31,7 +31,7 @@ class Analyser extends DatabaseAnalyser {
     const foreignKeysResult = await this.analyserQuery('foreignKeys', ['tables']);
     const primaryKeysResult = await this.analyserQuery('primaryKeys', ['tables']);
     const uniquesResults = await this.analyserQuery('uniques', ['tables']);
-    const indexesResult = await this.analyserQuery('uniques', ['indexes']);
+    const indexesResult = await this.analyserQuery('indexes', ['tables']);
     const viewsResult = await this.analyserQuery('views', ['views']);
 
     /**
