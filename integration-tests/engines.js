@@ -665,7 +665,7 @@ const duckdbEngine = {
   objects: [views],
   skipOnCI: false,
   skipChangeColumn: true,
-  skipIndexes: true,
+  // skipIndexes: true,
   skipStringLength: true,
   skipTriggers: true,
   skipDataReplicator: true,
