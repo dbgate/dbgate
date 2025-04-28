@@ -27,12 +27,20 @@ export function extractPackageName(name): string {
   return null;
 }
 
-export function extractShellApiFunctionName(functionName) {
+export function compileShellApiFunctionName(functionName) {
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
   if (nsMatch) {
     return `${_camelCase(nsMatch[2])}.shellApi.${nsMatch[1]}`;
   }
   return `dbgateApi.${functionName}`;
+}
+
+export function evalShellApiFunctionName(functionName, dbgateApi, requirePlugin) {
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
+  if (nsMatch) {
+    return requirePlugin(nsMatch[2]).shellApi[nsMatch[1]];
+  }
+  return dbgateApi[functionName];
 }
 
 export function findEngineDriver(connection, extensions: ExtensionsDirectory): EngineDriver {

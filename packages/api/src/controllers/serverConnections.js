@@ -54,6 +54,9 @@ module.exports = {
       if (!connection) {
         throw new Error(`Connection with conid="${conid}" not found`);
       }
+      if (connection.singleDatabase) {
+        return null;
+      }
       if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
         throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
       }
@@ -142,14 +145,14 @@ module.exports = {
     if (conid == '__model') return [];
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
-    return opened.databases;
+    return opened?.databases ?? [];
   },
 
   version_meta: true,
   async version({ conid }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
-    return opened.version;
+    return opened?.version ?? null;
   },
 
   serverStatus_meta: true,
@@ -170,6 +173,9 @@ module.exports = {
         }
         this.lastPinged[conid] = new Date().getTime();
         const opened = await this.ensureOpened(conid);
+        if (!opened) {
+          return Promise.resolve();
+        }
         try {
           opened.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
@@ -194,6 +200,9 @@ module.exports = {
   async sendDatabaseOp({ conid, msgtype, name }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
     if (opened.connection.isReadOnly) return false;
     const res = await this.sendRequest(opened, { msgtype, name });
     if (res.errorMessage) {
@@ -233,6 +242,9 @@ module.exports = {
   async loadDataCore(msgtype, { conid, ...args }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
     const res = await this.sendRequest(opened, { msgtype, ...args });
     if (res.errorMessage) {
       console.error(res.errorMessage);
@@ -254,6 +266,9 @@ module.exports = {
   async summaryCommand({ conid, command, row }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
     if (opened.connection.isReadOnly) return false;
     return this.loadDataCore('summaryCommand', { conid, command, row });
   },

@@ -1,4 +1,4 @@
-import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
 import {
   showSnackbar,
@@ -10,57 +10,74 @@ import {
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
-import { getCurrentConfig } from '../stores';
-import { showModal } from '../modals/modalTools';
-import RunScriptModal from '../modals/RunScriptModal.svelte';
 import { QuickExportDefinition } from 'dbgate-types';
+import uuidv1 from 'uuid/v1';
 
-export async function importSqlDump(inputFile, connection) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+// export async function importSqlDump(inputFile, connection) {
+//   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
 
-  script.importDatabase({
-    inputFile,
-    connection,
-  });
+//   script.importDatabase({
+//     inputFile,
+//     connection,
+//   });
 
-  showModal(RunScriptModal, { script: script.getScript(), header: 'Importing database' });
+//   showModal(RunScriptModal, { script: script.getScript(), header: 'Importing database' });
 
-  // await runImportExportScript({
-  //   script: script.getScript(),
-  //   runningMessage: 'Importing database',
-  //   canceledMessage: 'Database import canceled',
-  //   finishedMessage: 'Database import finished',
-  // });
-}
+//   // await runImportExportScript({
+//   //   script: script.getScript(),
+//   //   runningMessage: 'Importing database',
+//   //   canceledMessage: 'Database import canceled',
+//   //   finishedMessage: 'Database import finished',
+//   // });
+// }
 
-export async function exportSqlDump(outputFile, connection, databaseName, pureFileName) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+// export async function exportSqlDump(outputFile, connection, databaseName, pureFileName) {
+//   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
 
-  script.dumpDatabase({
-    connection,
-    databaseName,
-    outputFile,
-  });
+//   script.dumpDatabase({
+//     connection,
+//     databaseName,
+//     outputFile,
+//   });
 
-  showModal(RunScriptModal, {
-    script: script.getScript(),
-    header: 'Exporting database',
-    onOpenResult:
-      pureFileName && !getElectron()
-        ? () => {
-            downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
-          }
-        : null,
-    openResultLabel: 'Download SQL file',
-  });
-}
+//   showModal(RunScriptModal, {
+//     script: script.getScript(),
+//     header: 'Exporting database',
+//     onOpenResult:
+//       pureFileName && !getElectron()
+//         ? () => {
+//             downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
+//           }
+//         : null,
+//     openResultLabel: 'Download SQL file',
+//   });
+// }
 
-async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
+async function runImportExportScript({
+  script,
+  runningMessage,
+  canceledMessage,
+  finishedMessage,
+  afterFinish = null,
+  hostConnection = null,
+}) {
   const electron = getElectron();
 
-  const resp = await apiCall('runners/start', { script });
-  const runid = resp.runid;
+  let runid;
   let isCanceled = false;
+
+  if (hostConnection) {
+    runid = uuidv1();
+    await apiCall('database-connections/eval-json-script', {
+      runid,
+      conid: hostConnection.conid,
+      database: hostConnection.database,
+      script,
+    });
+  } else {
+    const resp = await apiCall('runners/start', { script });
+    runid = resp.runid;
+  }
 
   const snackId = showSnackbar({
     message: runningMessage,
@@ -99,7 +116,14 @@ async function runImportExportScript({ script, runningMessage, canceledMessage, 
   apiOn(`runner-progress-${runid}`, handleRunnerProgress);
 }
 
-export async function saveExportedFile(filters, defaultPath, extension, dataName, getScript: (filaPath: string) => {}) {
+export async function saveExportedFile(
+  filters,
+  defaultPath,
+  extension,
+  dataName,
+  getScript: (filaPath: string) => {},
+  hostConnection = null
+) {
   const electron = getElectron();
 
   let filePath;
@@ -130,6 +154,7 @@ export async function saveExportedFile(filters, defaultPath, extension, dataName
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
       }
     },
+    hostConnection,
   });
 }
 
@@ -140,7 +165,7 @@ function generateQuickExportScript(
   dataName: string,
   columnMap
 ) {
-  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+  const script = new ScriptWriterJson();
 
   const sourceVar = script.allocVariable();
   script.assign(sourceVar, reader.functionName, reader.props);
@@ -170,6 +195,7 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       runningMessage: `Exporting ${dataName}`,
       canceledMessage: `Export ${dataName} canceled`,
       finishedMessage: `Export ${dataName} finished`,
+      hostConnection: reader.hostConnection,
     });
   } else {
     await saveExportedFile(
@@ -177,7 +203,8 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       `${dataName}.${format.extension}`,
       format.extension,
       dataName,
-      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap)
+      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap),
+      reader.hostConnection
     );
   }
 }

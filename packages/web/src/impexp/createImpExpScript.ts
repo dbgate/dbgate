@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
+import { ScriptWriterGeneric, ScriptWriterJavaScript, ScriptWriterJson } from 'dbgate-tools';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../plugins/fileformats';
-import { getCurrentConfig } from '../stores';
+import { getCurrentConfig, getExtensions } from '../stores';
 
 export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
@@ -53,6 +53,32 @@ export function extractShellConnection(connection, database) {
       };
 }
 
+export function extractShellConnectionHostable(connection, database) {
+  const driver = findEngineDriver(connection, getExtensions());
+  if (driver?.singleConnectionOnly) {
+    return {
+      systemConnection: { $hostConnection: true },
+      connection: driver.engine,
+    };
+  }
+
+  return {
+    connection: extractShellConnection(connection, database),
+  };
+}
+
+export function extractShellHostConnection(connection, database) {
+  const driver = findEngineDriver(connection, getExtensions());
+  if (driver?.singleConnectionOnly) {
+    return {
+      conid: connection._id,
+      database,
+    };
+  }
+
+  return undefined;
+}
+
 async function getConnection(extensions, storageType, conid, database) {
   if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
@@ -63,14 +89,23 @@ async function getConnection(extensions, storageType, conid, database) {
   return [null, null];
 }
 
-function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver) {
+function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver, hostConnection) {
   const { sourceStorageType } = values;
+  const connectionParams =
+    sourceDriver?.singleConnectionOnly && hostConnection
+      ? {
+          systemConnection: { $hostConnection: true },
+          connection: sourceDriver?.engine,
+        }
+      : {
+          connection: sourceConnection,
+        };
   if (sourceStorageType == 'database') {
     const fullName = { schemaName: values.sourceSchemaName, pureName: sourceName };
     return [
       'tableReader',
       {
-        connection: sourceConnection,
+        ...connectionParams,
         ...extractDriverApiParameters(values, 'source', sourceDriver),
         ...fullName,
       },
@@ -80,7 +115,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
     return [
       'queryReader',
       {
-        connection: sourceConnection,
+        ...connectionParams,
         ...extractDriverApiParameters(values, 'source', sourceDriver),
         queryType: values.sourceQueryType,
         query: values.sourceQueryType == 'json' ? JSON.parse(values.sourceQuery) : values.sourceQuery,
@@ -145,8 +180,17 @@ function getFlagsFroAction(action) {
   };
 }
 
-function getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver) {
+function getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver, hostConnection) {
   const { targetStorageType } = values;
+  const connectionParams =
+    targetDriver?.singleConnectionOnly && hostConnection
+      ? {
+          systemConnection: { $hostConnection: true },
+          connection: targetDriver?.engine,
+        }
+      : {
+          connection: targetConnection,
+        };
   const format = findFileFormat(extensions, targetStorageType);
   if (format && format.writerFunc) {
     const outputParams = format.getOutputParams && format.getOutputParams(sourceName, values);
@@ -166,7 +210,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
     return [
       'tableWriter',
       {
-        connection: targetConnection,
+        ...connectionParams,
         schemaName: values.targetSchemaName,
         pureName: getTargetName(extensions, sourceName, values),
         ...extractDriverApiParameters(values, 'target', targetDriver),
@@ -203,12 +247,12 @@ export function normalizeExportColumnMap(colmap) {
   return null;
 }
 
-export default async function createImpExpScript(extensions, values, forceScript = false) {
+export default async function createImpExpScript(extensions, values, format = undefined, detectHostConnection = false) {
   const config = getCurrentConfig();
-  const script =
-    config.allowShellScripting || forceScript
-      ? new ScriptWriter(values.startVariableIndex || 0)
-      : new ScriptWriterJson(values.startVariableIndex || 0);
+  let script: ScriptWriterGeneric = new ScriptWriterJson(values.startVariableIndex || 0);
+  if (format == 'script' && config.allowShellScripting) {
+    script = new ScriptWriterJavaScript(values.startVariableIndex || 0);
+  }
 
   const [sourceConnection, sourceDriver] = await getConnection(
     extensions,
@@ -223,15 +267,39 @@ export default async function createImpExpScript(extensions, values, forceScript
     values.targetDatabaseName
   );
 
+  let hostConnection = null;
+  if (detectHostConnection) {
+    // @ts-ignore
+    if (sourceDriver?.singleConnectionOnly) {
+      hostConnection = { conid: values.sourceConnectionId, database: values.sourceDatabaseName };
+    }
+    // @ts-ignore
+    if (targetDriver?.singleConnectionOnly) {
+      if (
+        hostConnection &&
+        (hostConnection.conid != values.targetConnectionId || hostConnection.database != values.targetDatabaseName)
+      ) {
+        throw new Error('Cannot use two different single-connections in the same script');
+      }
+      hostConnection = { conid: values.targetConnectionId, database: values.targetDatabaseName };
+    }
+  }
+
   const sourceList = getAsArray(values.sourceList);
   for (const sourceName of sourceList) {
     const sourceVar = script.allocVariable();
-    // @ts-ignore
-    script.assign(sourceVar, ...getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver));
+    script.assign(
+      sourceVar,
+      // @ts-ignore
+      ...getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver, hostConnection)
+    );
 
     const targetVar = script.allocVariable();
-    // @ts-ignore
-    script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
+    script.assign(
+      targetVar,
+      // @ts-ignore
+      ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver, hostConnection)
+    );
 
     const colmap = normalizeExportColumnMap(values[`columns_${sourceName}`]);
 
@@ -241,7 +309,12 @@ export default async function createImpExpScript(extensions, values, forceScript
       script.assignValue(colmapVar, colmap);
     }
 
-    script.copyStream(sourceVar, targetVar, colmapVar, sourceName);
+    script.copyStream(
+      sourceVar,
+      targetVar,
+      colmapVar,
+      hostConnection ? { name: sourceName, runid: { $runid: true } } : sourceName
+    );
     script.endLine();
   }
 
@@ -251,7 +324,11 @@ export default async function createImpExpScript(extensions, values, forceScript
     script.zipDirectory('.', values.createZipFileInArchive ? 'archive:' + zipFileName : zipFileName);
   }
 
-  return script.getScript(values.schedule);
+  const res = script.getScript(values.schedule);
+  if (format == 'json') {
+    res.hostConnection = hostConnection;
+  }
+  return res;
 }
 
 export function getActionOptions(extensions, source, values, targetDbinfo) {
@@ -289,7 +366,7 @@ export async function createPreviewReader(extensions, values, sourceName) {
     values.sourceConnectionId,
     values.sourceDatabaseName
   );
-  const [functionName, props] = getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver);
+  const [functionName, props] = getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver, null);
   return {
     functionName,
     props: {

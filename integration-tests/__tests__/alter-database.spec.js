@@ -52,7 +52,7 @@ async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
 }
 
 describe('Alter database', () => {
-  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(x => !x.skipReferences && !x.skipDropReferences).map(engine => [engine.label, engine]))(
     'Drop referenced table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDiff(conn, driver, db => {

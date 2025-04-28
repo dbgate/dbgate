@@ -51,7 +51,8 @@ describe('DB Import/export', () => {
       await copyStream(reader, writer);
 
       const res = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
-      expect(res.rows[0].cnt.toString()).toEqual('6');
+      const cnt = parseInt(res.rows[0].cnt.toString());
+      expect(cnt).toEqual(6);
     })
   );
 
@@ -75,7 +76,8 @@ describe('DB Import/export', () => {
       await copyStream(reader, writer);
 
       const res = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
-      expect(res.rows[0].cnt.toString()).toEqual('6');
+      const cnt = parseInt(res.rows[0].cnt.toString());
+      expect(cnt).toEqual(6);
     })
   );
 
@@ -103,10 +105,12 @@ describe('DB Import/export', () => {
       await copyStream(reader2, writer2);
 
       const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t1`));
-      expect(res1.rows[0].cnt.toString()).toEqual('6');
+      const cnt = parseInt(res1.rows[0].cnt.toString());
+      expect(cnt).toEqual(6);
 
       const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~t2`));
-      expect(res2.rows[0].cnt.toString()).toEqual('6');
+      const cnt2 = parseInt(res2.rows[0].cnt.toString());
+      expect(cnt2).toEqual(6);
     })
   );
   const enginesWithDumpFile = engines.filter(x => x.dumpFile);
@@ -192,7 +196,8 @@ describe('DB Import/export', () => {
       });
 
       const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~categories`));
-      expect(res1.rows[0].cnt.toString()).toEqual('4');
+      const cnt1 = parseInt(res1.rows[0].cnt.toString());
+      expect(cnt1).toEqual(4);
     })
   );
 });

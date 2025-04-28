@@ -9,13 +9,21 @@ const {
   dbNameLogCategory,
   extractErrorMessage,
   extractErrorLogData,
+  ScriptWriterEval,
+  SqlGenerator,
+  playJsonScriptWriter,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { dumpSqlSelect } = require('dbgate-sqltree');
+const { allowExecuteCustomScript, handleQueryStream } = require('../utility/handleQueryStream');
+const dbgateApi = require('../shell');
+const requirePlugin = require('../shell/requirePlugin');
+const path = require('path');
+const { rundir } = require('../utility/directories');
+const fs = require('fs-extra');
 
 const logger = getLogger('dbconnProcess');
 
@@ -375,6 +383,52 @@ async function handleGenerateDeploySql({ msgid, modelFolder }) {
   }
 }
 
+async function handleExecuteSessionQuery({ sesid, sql }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+
+  if (!allowExecuteCustomScript(storedConnection, driver)) {
+    process.send({
+      msgtype: 'info',
+      info: {
+        message: 'Connection without read-only sessions is read only',
+        severity: 'error',
+      },
+      sesid,
+    });
+    process.send({ msgtype: 'done', sesid, skipFinishedMessage: true });
+    return;
+    //process.send({ msgtype: 'error', error: e.message });
+  }
+
+  const resultIndexHolder = {
+    value: 0,
+  };
+  for (const sqlItem of splitQuery(sql, {
+    ...driver.getQuerySplitterOptions('stream'),
+    returnRichInfo: true,
+  })) {
+    await handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem, sesid);
+  }
+  process.send({ msgtype: 'done', sesid });
+}
+
+async function handleEvalJsonScript({ script, runid }) {
+  const directory = path.join(rundir(), runid);
+  fs.mkdirSync(directory);
+  const originalCwd = process.cwd();
+
+  try {
+    process.chdir(directory);
+
+    const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
+    await playJsonScriptWriter(script, evalWriter);
+    process.send({ msgtype: 'runnerDone', runid });
+  } finally {
+    process.chdir(originalCwd);
+  }
+}
+
 // async function handleRunCommand({ msgid, sql }) {
 //   await waitConnected();
 //   const driver = engines(storedConnection);
@@ -405,6 +459,8 @@ const messageHandlers = {
   sqlSelect: handleSqlSelect,
   exportKeys: handleExportKeys,
   schemaList: handleSchemaList,
+  executeSessionQuery: handleExecuteSessionQuery,
+  evalJsonScript: handleEvalJsonScript,
   // runCommand: handleRunCommand,
 };
 

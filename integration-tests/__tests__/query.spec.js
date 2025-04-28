@@ -183,8 +183,8 @@ describe('Query', () => {
         { discardResult: true }
       );
       const res = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT COUNT(*) AS ~cnt FROM ~t1'));
-      // console.log(res);
-      expect(res.rows[0].cnt == 3).toBeTruthy();
+      const cnt = parseInt(res.rows[0].cnt);
+      expect(cnt).toEqual(3);
     })
   );
 

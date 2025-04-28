@@ -1,7 +1,6 @@
 // @ts-check
 const _ = require('lodash');
 const stream = require('stream');
-const sqliteDriver = require('./driver.sqlite');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
@@ -30,7 +29,6 @@ const libsqlDriver = {
   ...driverBases[1],
   analyserClass: Analyser,
   async connect({ databaseFile, isReadOnly, authToken, databaseUrl, ...rest }) {
-    console.log('connect', databaseFile, isReadOnly, authToken, databaseUrl, rest);
     const Database = getLibsql();
     const client = databaseFile
       ? new Database(databaseFile, { readonly: !!isReadOnly })

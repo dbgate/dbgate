@@ -1,7 +1,22 @@
 import _uniq from 'lodash/uniq';
-import { extractShellApiFunctionName, extractShellApiPlugins } from './packageTools';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
+import { evalShellApiFunctionName, compileShellApiFunctionName, extractShellApiPlugins } from './packageTools';
 
-export class ScriptWriter {
+export interface ScriptWriterGeneric {
+  allocVariable(prefix?: string);
+  endLine();
+  assign(variableName: string, functionName: string, props: any);
+  assignValue(variableName: string, jsonValue: any);
+  requirePackage(packageName: string);
+  copyStream(sourceVar: string, targetVar: string, colmapVar?: string, progressName?: string);
+  importDatabase(options: any);
+  dataReplicator(options: any);
+  comment(s: string);
+  zipDirectory(inputDirectory: string, outputFile: string);
+  getScript(schedule?: any): any;
+}
+
+export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   s = '';
   packageNames: string[] = [];
   varCount = 0;
@@ -29,7 +44,7 @@ export class ScriptWriter {
   }
 
   assign(variableName, functionName, props) {
-    this.assignCore(variableName, extractShellApiFunctionName(functionName), props);
+    this.assignCore(variableName, compileShellApiFunctionName(functionName), props);
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
@@ -41,10 +56,10 @@ export class ScriptWriter {
     this.packageNames.push(packageName);
   }
 
-  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string) {
+  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
     let opts = '{';
     if (colmapVar) opts += `columns: ${colmapVar}, `;
-    if (progressName) opts += `progressName: "${progressName}", `;
+    if (progressName) opts += `progressName: ${JSON.stringify(progressName)}, `;
     opts += '}';
 
     this._put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, ${opts});`);
@@ -78,7 +93,7 @@ export class ScriptWriter {
   }
 }
 
-export class ScriptWriterJson {
+export class ScriptWriterJson implements ScriptWriterGeneric {
   s = '';
   packageNames: string[] = [];
   varCount = 0;
@@ -103,11 +118,15 @@ export class ScriptWriterJson {
     this.commands.push({
       type: 'assign',
       variableName,
-      functionName: extractShellApiFunctionName(functionName),
+      functionName,
       props,
     });
 
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
+  }
+
+  requirePackage(packageName) {
+    this.packageNames.push(packageName);
   }
 
   assignValue(variableName, jsonValue) {
@@ -118,7 +137,7 @@ export class ScriptWriterJson {
     });
   }
 
-  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string) {
+  copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
     this.commands.push({
       type: 'copyStream',
       sourceVar,
@@ -167,9 +186,119 @@ export class ScriptWriterJson {
   }
 }
 
-export function jsonScriptToJavascript(json) {
-  const { schedule, commands, packageNames } = json;
-  const script = new ScriptWriter();
+export class ScriptWriterEval implements ScriptWriterGeneric {
+  s = '';
+  varCount = 0;
+  commands = [];
+  dbgateApi: any;
+  requirePlugin: (name: string) => any;
+  variables: { [name: string]: any } = {};
+  hostConnection: any;
+  runid: string;
+
+  constructor(dbgateApi, requirePlugin, hostConnection, runid, varCount = '0') {
+    this.varCount = parseInt(varCount) || 0;
+    this.dbgateApi = dbgateApi;
+    this.requirePlugin = requirePlugin;
+    this.hostConnection = hostConnection;
+    this.runid = runid;
+  }
+
+  allocVariable(prefix = 'var') {
+    this.varCount += 1;
+    return `${prefix}${this.varCount}`;
+  }
+
+  endLine() {}
+
+  requirePackage(packageName) {}
+
+  async assign(variableName, functionName, props) {
+    const func = evalShellApiFunctionName(functionName, this.dbgateApi, this.requirePlugin);
+
+    this.variables[variableName] = await func(
+      _cloneDeepWith(props, node => {
+        if (node?.$hostConnection) {
+          return this.hostConnection;
+        }
+      })
+    );
+  }
+
+  assignValue(variableName, jsonValue) {
+    this.variables[variableName] = jsonValue;
+  }
+
+  async copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
+    await this.dbgateApi.copyStream(this.variables[sourceVar], this.variables[targetVar], {
+      progressName: _cloneDeepWith(progressName, node => {
+        if (node?.$runid) {
+          if (node?.$runid) {
+            return this.runid;
+          }
+        }
+      }),
+      columns: colmapVar ? this.variables[colmapVar] : null,
+    });
+  }
+
+  comment(text) {}
+
+  async importDatabase(options) {
+    await this.dbgateApi.importDatabase(options);
+  }
+
+  async dataReplicator(options) {
+    await this.dbgateApi.dataReplicator(options);
+  }
+
+  async zipDirectory(inputDirectory, outputFile) {
+    await this.dbgateApi.zipDirectory(inputDirectory, outputFile);
+  }
+
+  getScript(schedule?: any) {
+    throw new Error('Not implemented');
+  }
+}
+
+async function playJsonCommand(cmd, script: ScriptWriterGeneric) {
+  switch (cmd.type) {
+    case 'assign':
+      await script.assign(cmd.variableName, cmd.functionName, cmd.props);
+      break;
+    case 'assignValue':
+      await script.assignValue(cmd.variableName, cmd.jsonValue);
+      break;
+    case 'copyStream':
+      await script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar, cmd.progressName);
+      break;
+    case 'endLine':
+      await script.endLine();
+      break;
+    case 'comment':
+      await script.comment(cmd.text);
+      break;
+    case 'importDatabase':
+      await script.importDatabase(cmd.options);
+      break;
+    case 'dataReplicator':
+      await script.dataReplicator(cmd.options);
+      break;
+    case 'zipDirectory':
+      await script.zipDirectory(cmd.inputDirectory, cmd.outputFile);
+      break;
+  }
+}
+
+export async function playJsonScriptWriter(json, script: ScriptWriterGeneric) {
+  for (const cmd of json.commands) {
+    await playJsonCommand(cmd, script);
+  }
+}
+
+export async function jsonScriptToJavascript(json) {
+  const { schedule, packageNames } = json;
+  const script = new ScriptWriterJavaScript();
   for (const packageName of packageNames) {
     if (!/^dbgate-plugin-.*$/.test(packageName)) {
       throw new Error('Unallowed package name:' + packageName);
@@ -177,34 +306,7 @@ export function jsonScriptToJavascript(json) {
     script.packageNames.push(packageName);
   }
 
-  for (const cmd of commands) {
-    switch (cmd.type) {
-      case 'assign':
-        script.assignCore(cmd.variableName, cmd.functionName, cmd.props);
-        break;
-      case 'assignValue':
-        script.assignValue(cmd.variableName, cmd.jsonValue);
-        break;
-      case 'copyStream':
-        script.copyStream(cmd.sourceVar, cmd.targetVar, cmd.colmapVar, cmd.progressName);
-        break;
-      case 'endLine':
-        script.endLine();
-        break;
-      case 'comment':
-        script.comment(cmd.text);
-        break;
-      case 'importDatabase':
-        script.importDatabase(cmd.options);
-        break;
-      case 'dataReplicator':
-        script.dataReplicator(cmd.options);
-        break;
-      case 'zipDirectory':
-        script.zipDirectory(cmd.inputDirectory, cmd.outputFile);
-        break;
-    }
-  }
+  await playJsonScriptWriter(json, script);
 
   return script.getScript(schedule);
 }

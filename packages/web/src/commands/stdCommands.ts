@@ -46,6 +46,7 @@ import { openImportExportTab } from '../utility/importExportTools';
 import newTable from '../tableeditor/newTable';
 import { isProApp } from '../utility/proTools';
 import { openWebLink } from '../utility/simpleTools';
+import { _t } from '../translations';
 import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
@@ -390,16 +391,36 @@ registerCommand({
   category: 'New',
   icon: 'img sqlite-database',
   name: 'SQLite database',
-  menuName: 'New SQLite database',
+  menuName: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
-      label: 'New database name',
-      header: 'Create SQLite database',
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
       onConfirm: async file => {
         const resp = await apiCall('connections/new-sqlite-database', { file });
         const connection = resp;
         switchCurrentDatabase({ connection, name: `${file}.sqlite` });
+      },
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.duckdbDatabase',
+  category: 'New',
+  icon: 'img sqlite-database',
+  name: 'DuckDB database',
+  menuName: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: 'newdb',
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
+      onConfirm: async file => {
+        const resp = await apiCall('connections/new-duckdb-database', { file });
+        const connection = resp;
+        switchCurrentDatabase({ connection, name: `${file}.duckdb` });
       },
     });
   },

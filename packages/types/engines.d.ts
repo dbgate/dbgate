@@ -33,6 +33,7 @@ export interface QueryOptions {
   discardResult?: boolean;
   importSqlDump?: boolean;
   range?: { offset: number; limit: number };
+  readonly?: boolean;
 }
 
 export interface WriteTableOptions {
@@ -286,7 +287,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   adaptTableInfo(table: TableInfo): TableInfo;
   // simple data type adapter
   adaptDataType(dataType: string): string;
-  listSchemas(dbhan: DatabaseHandle<TClient>): SchemaInfo[];
+  listSchemas(dbhan: DatabaseHandle<TClient>): Promise<SchemaInfo[] | null>;
   backupDatabaseCommand(
     connection: any,
     settings: BackupDatabaseSettings,
@@ -309,6 +310,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
 
   analyserClass?: any;
   dumperClass?: any;
+  singleConnectionOnly?: boolean;
 }
 
 export interface DatabaseModification {

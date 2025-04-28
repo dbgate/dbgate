@@ -38,6 +38,11 @@ function getNamedArgs() {
         res.databaseFile = name;
         res.engine = 'sqlite@dbgate-plugin-sqlite';
       }
+
+      if (name.endsWith('.duckdb')) {
+        res.databaseFile = name;
+        res.engine = 'duckdb@dbgate-plugin-duckdb';
+      }
     }
   }
   return res;
@@ -443,6 +448,22 @@ module.exports = {
       databaseFile,
       singleDatabase: true,
       defaultDatabase: `${file}.sqlite`,
+    });
+    return res;
+  },
+
+  newDuckdbDatabase_meta: true,
+  async newDuckdbDatabase({ file }) {
+    const duckdbDir = path.join(filesdir(), 'duckdb');
+    if (!(await fs.exists(duckdbDir))) {
+      await fs.mkdir(duckdbDir);
+    }
+    const databaseFile = path.join(duckdbDir, `${file}.duckdb`);
+    const res = await this.save({
+      engine: 'duckdb@dbgate-plugin-duckdb',
+      databaseFile,
+      singleDatabase: true,
+      defaultDatabase: `${file}.duckdb`,
     });
     return res;
   },

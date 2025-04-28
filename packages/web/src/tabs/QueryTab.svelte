@@ -107,7 +107,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext, onDestroy, onMount } from 'svelte';
+  import { getContext, onDestroy, onMount, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -143,6 +143,7 @@
   import { isProApp } from '../utility/proTools';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
+  import uuidv1 from 'uuid/v1';
 
   export let tabid;
   export let conid;
@@ -198,7 +199,7 @@
 
   onMount(() => {
     intervalId = setInterval(() => {
-      if (sessionId) {
+      if (!driver?.singleConnectionOnly && sessionId) {
         apiCall('sessions/ping', {
           sesid: sessionId,
         });
@@ -330,23 +331,34 @@
     busy = true;
     timerLabel.start();
 
-    let sesid = sessionId;
-    if (!sesid) {
-      const resp = await apiCall('sessions/create', {
+    if (driver?.singleConnectionOnly) {
+      sessionId = uuidv1();
+      await tick();
+      await apiCall('database-connections/execute-session-query', {
+        sesid: sessionId,
         conid,
         database,
+        sql,
       });
-      sesid = resp.sesid;
-      sessionId = sesid;
+    } else {
+      let sesid = sessionId;
+      if (!sesid) {
+        const resp = await apiCall('sessions/create', {
+          conid,
+          database,
+        });
+        sesid = resp.sesid;
+        sessionId = sesid;
+      }
+      if (driver?.implicitTransactions) {
+        isInTransaction = true;
+      }
+      await apiCall('sessions/execute-query', {
+        sesid,
+        sql,
+        autoCommit: driver?.implicitTransactions && isAutocommit,
+      });
     }
-    if (driver?.implicitTransactions) {
-      isInTransaction = true;
-    }
-    await apiCall('sessions/execute-query', {
-      sesid,
-      sql,
-      autoCommit: driver?.implicitTransactions && isAutocommit,
-    });
     await apiCall('query-history/write', {
       data: {
         sql,
