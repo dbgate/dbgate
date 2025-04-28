@@ -3,6 +3,8 @@
  * @property {string[]} items
  */
 
+const extractIndexColumns = require('./extractIndexColumns');
+
 /**
  * @typedef {object} DuckDbColumnRow
  * @property {number | null} numeric_scale
@@ -353,7 +355,7 @@ function mapIndexRowToIndexInfo(duckDbIndexRow) {
     pureName: duckDbIndexRow.table_name,
     schemaName: duckDbIndexRow.schema_name,
     constraintType: 'index',
-    columns: [],
+    columns: extractIndexColumns(duckDbIndexRow.sql).map((columnName) => ({ columnName })),
     isUnique: duckDbIndexRow.is_unique,
   };
 
