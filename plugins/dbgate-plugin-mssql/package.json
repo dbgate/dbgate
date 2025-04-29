@@ -41,7 +41,7 @@
     "dbgate-query-splitter": "^4.11.4",
     "dbgate-tools": "^6.0.0-alpha.1",
     "lodash": "^4.17.21",
-    "tedious": "^18.2.0"
+    "tedious": "^18.6.1"
   },
   "optionalDependencies": {
     "msnodesqlv8": "^4.2.1"
