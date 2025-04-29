@@ -350,7 +350,7 @@ export function shouldOpenMultilineDialog(value) {
 }
 
 export function isJsonLikeLongString(value) {
-  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/);
+  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
 }
 
 export function getIconForRedisType(type) {
