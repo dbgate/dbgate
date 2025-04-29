@@ -9,7 +9,7 @@ const sql = require('./sql');
 const { mapSchemaRowToSchemaInfo } = require('./Analyser.helpers');
 const { zipObject } = require('lodash');
 
-const logger = getLogger('sqliteDriver');
+const logger = getLogger('duckdbDriver');
 
 /**
  * @type {import('@duckdb/node-api')}
