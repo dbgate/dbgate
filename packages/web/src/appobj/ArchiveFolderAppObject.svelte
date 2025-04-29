@@ -164,12 +164,11 @@ await dbgateApi.deployDb(${JSON.stringify(
     return [
       data.name != 'default' && { text: 'Delete', onClick: handleDelete },
       data.name != 'default' && { text: 'Rename', onClick: handleRename },
-      data.name != 'default' &&
-        $currentDatabase && [
-          isProApp() && { text: 'Data deployer', onClick: handleOpenDataDeployTab },
-          { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
-          { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
-        ],
+      isProApp() && { text: 'Data deployer', onClick: handleOpenDataDeployTab },
+      $currentDatabase && [
+        { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
+        { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
+      ],
       data.name != 'default' &&
         isProApp() &&
         data.name.endsWith('.zip') && { text: 'Unpack ZIP', onClick: () => handleZipUnzip('archive/unzip') },
