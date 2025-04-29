@@ -1382,6 +1382,7 @@
     if (!rowData) return null;
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
     if (shouldOpenMultilineDialog(cellData)) {
+      dragStartCell = null;
       showModal(EditCellDataModal, {
         dataEditorTypesBehaviour: getEditorTypes(),
         value: cellData,
