@@ -56,7 +56,7 @@ const driver = {
   dialect,
   engine: 'duckdb@dbgate-plugin-duckdb',
   title: 'DuckDB',
-  readOnlySessions: true,
+  readOnlySessions: false,
   supportsTransactions: true,
   singleConnectionOnly: true,
 
