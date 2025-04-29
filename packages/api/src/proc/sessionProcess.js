@@ -138,18 +138,23 @@ async function handleExecuteQuery({ sql, autoCommit }) {
 
   executingScripts++;
   try {
-    const resultIndexHolder = {
-      value: 0,
+    const queryStreamInfoHolder = {
+      resultIndex: 0,
+      canceled: false,
     };
     for (const sqlItem of splitQuery(sql, {
       ...driver.getQuerySplitterOptions('stream'),
       returnRichInfo: true,
     })) {
-      await handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem);
+      await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem);
       // const handler = new StreamHandler(resultIndex);
       // const stream = await driver.stream(systemConnection, sqlItem, handler);
       // handler.stream = stream;
       // resultIndex = handler.resultIndex;
+
+      if (queryStreamInfoHolder.canceled) {
+        break;
+      }
     }
     process.send({ msgtype: 'done', autoCommit });
   } finally {

@@ -401,14 +401,18 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
     //process.send({ msgtype: 'error', error: e.message });
   }
 
-  const resultIndexHolder = {
-    value: 0,
+  const queryStreamInfoHolder = {
+    resultIndex: 0,
+    canceled: false,
   };
   for (const sqlItem of splitQuery(sql, {
     ...driver.getQuerySplitterOptions('stream'),
     returnRichInfo: true,
   })) {
-    await handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem, sesid);
+    await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, sesid);
+    if (queryStreamInfoHolder.canceled) {
+      break;
+    }
   }
   process.send({ msgtype: 'done', sesid });
 }

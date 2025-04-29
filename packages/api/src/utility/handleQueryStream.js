@@ -91,7 +91,7 @@ class QueryStreamTableWriter {
 }
 
 class StreamHandler {
-  constructor(resultIndexHolder, resolve, startLine, sesid = undefined) {
+  constructor(queryStreamInfoHolder, resolve, startLine, sesid = undefined) {
     this.recordset = this.recordset.bind(this);
     this.startLine = startLine;
     this.sesid = sesid;
@@ -104,7 +104,7 @@ class StreamHandler {
     // this.stream = null;
 
     this.plannedStats = false;
-    this.resultIndexHolder = resultIndexHolder;
+    this.queryStreamInfoHolder = queryStreamInfoHolder;
     this.resolve = resolve;
     // currentHandlers = [...currentHandlers, this];
   }
@@ -121,9 +121,9 @@ class StreamHandler {
     this.currentWriter = new QueryStreamTableWriter(this.sesid);
     this.currentWriter.initializeFromQuery(
       Array.isArray(columns) ? { columns } : columns,
-      this.resultIndexHolder.value
+      this.queryStreamInfoHolder.resultIndex
     );
-    this.resultIndexHolder.value += 1;
+    this.queryStreamInfoHolder.resultIndex += 1;
 
     // this.writeCurrentStats();
 
@@ -153,14 +153,17 @@ class StreamHandler {
         line: this.startLine + info.line,
       };
     }
+    if (info.severity == 'error') {
+      this.queryStreamInfoHolder.canceled = true;
+    }
     process.send({ msgtype: 'info', info, sesid: this.sesid });
   }
 }
 
-function handleQueryStream(dbhan, driver, resultIndexHolder, sqlItem, sesid = undefined) {
+function handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, sesid = undefined) {
   return new Promise((resolve, reject) => {
     const start = sqlItem.trimStart || sqlItem.start;
-    const handler = new StreamHandler(resultIndexHolder, resolve, start && start.line, sesid);
+    const handler = new StreamHandler(queryStreamInfoHolder, resolve, start && start.line, sesid);
     driver.stream(dbhan, sqlItem.text, handler);
   });
 }
