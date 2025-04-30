@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.4.0 - not released yet
+## 6.4.0
 - ADDED: DuckDB support
 - ADDED: Data deployer (Premium)
 - ADDED: Compare data between JSON lines file in archive and database table
@@ -26,7 +26,7 @@ Builds:
 - CHANGED: When running multiple commands in script, stop execution after first error #1070
 - FIXED: Selection rectangle remains visible after closing JSONB edit cell value form #1031
 - FIXED: Diplaying numeric FK column with right alignement #1021
-
+- ADDED: Additional arguments for MySQL and PostgreSQL backup #1092
 
 ## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles
