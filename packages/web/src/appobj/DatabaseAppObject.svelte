@@ -338,7 +338,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
             {
               title: archiveFolder,
               icon: 'img replicator',
-              tabComponent: 'DataDeployerTab',
+              tabComponent: 'DataDeployTab',
               props: {
                 conid: connection?._id,
                 database: name,
@@ -347,6 +347,8 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
             {
               editor: {
                 archiveFolder,
+                conid: connection?._id,
+                database: name,
               },
             }
           );
