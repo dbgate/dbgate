@@ -52,6 +52,18 @@ const binaryCondition =
     };
   };
 
+const simpleEqualCondition = () => value => ({
+  conditionType: 'binary',
+  operator: '=',
+  left: {
+    exprType: 'placeholder',
+  },
+  right: {
+    exprType: 'value',
+    value,
+  },
+});
+
 const likeCondition = (conditionType, likeString) => value => ({
   conditionType,
   left: {
@@ -348,6 +360,8 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
 
     objectid: () => token(P.regexp(/ObjectId\(['"]?[0-9a-f]{24}['"]?\)/)).desc('ObjectId'),
 
+    objectidstr: () => token(P.regexp(/[0-9a-f]{24}/)).desc('ObjectId string'),
+
     hexstring: () =>
       token(P.regexp(/0x(([0-9a-fA-F][0-9a-fA-F])+)/, 1))
         .map(x => ({
@@ -366,6 +380,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
     hexTestEq: r => r.hexstring.map(binaryCondition('=')),
+    valueTestObjectIdStr: r => r.objectidstr.map(simpleEqualCondition()),
     valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
     valueTestNum: r => r.number.map(numberTestCondition()),
     valueTestObjectId: r => r.objectid.map(objectIdTestCondition()),
@@ -546,12 +561,13 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     }
   }
 
-  if (filterBehaviour.allowNumberDualTesting) {
-    allowedElements.push('valueTestNum');
+  if (filterBehaviour.allowObjectIdTesting) {
+    allowedElements.push('valueTestObjectIdStr');
+    allowedElements.push('valueTestObjectId');
   }
 
-  if (filterBehaviour.allowObjectIdTesting) {
-    allowedElements.push('valueTestObjectId');
+  if (filterBehaviour.allowNumberDualTesting) {
+    allowedElements.push('valueTestNum');
   }
 
   // must be last
