@@ -9,6 +9,7 @@ Builds:
  - win - application for Windows
 
 ## 6.4.0 - not released yet
+- ADDED: DuckDB support
 - ADDED: Data deployer (Premium)
 - ADDED: Compare data between JSON lines file in archive and database table
 - CHANGED: Data Duplicator => Data Replicator (suitable for update, create and delete data, much more customizable)
@@ -18,6 +19,14 @@ Builds:
 - ADDED: Upload SQLite files
 - ADDED: Upload archive as ZIP folder (Premium)
 - ADDED: Compress, uncompress archive folder (Premium)
+- ADDED: Export connections and settings #357
+- ADDED: Filtering by MongoDB ObjectId works now also without ObjectId(...) wrapper
+- ADDED: Split queries using blank lines #1089
+- FIXED: JSON-to-Grid only works if there is no newline #1085
+- CHANGED: When running multiple commands in script, stop execution after first error #1070
+- FIXED: Selection rectangle remains visible after closing JSONB edit cell value form #1031
+- FIXED: Diplaying numeric FK column with right alignement #1021
+
 
 ## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles
