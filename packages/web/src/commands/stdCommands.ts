@@ -535,7 +535,7 @@ registerCommand({
   id: 'app.exportConnections',
   category: 'Settings',
   name: 'Export connections',
-  testEnabled: () => getElectron() != null,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     showModal(ExportImportConnectionsModal, {
       mode: 'export',
@@ -547,7 +547,7 @@ registerCommand({
   id: 'app.importConnections',
   category: 'Settings',
   name: 'Import connections',
-  testEnabled: () => getElectron() != null,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: async () => {
     const files = await electron.showOpenDialog({
       properties: ['showHiddenFiles', 'openFile'],

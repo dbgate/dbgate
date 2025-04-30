@@ -112,4 +112,11 @@ describe('Add connection', () => {
 
     cy.contains('performance_schema');
   });
+
+  it('export connections', () => {
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Tools').click();
+    cy.contains('Export connections').click();
+    cy.themeshot('export-connections');
+  });
 });

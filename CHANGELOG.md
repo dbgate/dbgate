@@ -27,6 +27,7 @@ Builds:
 - FIXED: Selection rectangle remains visible after closing JSONB edit cell value form #1031
 - FIXED: Diplaying numeric FK column with right alignement #1021
 - ADDED: Additional arguments for MySQL and PostgreSQL backup #1092
+- CHANGED: Amazon and Azure instalations are not auto-upgraded by default
 
 ## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles
