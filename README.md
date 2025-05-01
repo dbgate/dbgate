@@ -35,6 +35,8 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * CosmosDB (Premium)
 * ClickHouse
 * Apache Cassandra
+* libSQL/Turso (Premium)
+* DuckDB
 
 
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
