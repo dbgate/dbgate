@@ -298,8 +298,12 @@ module.exports = {
 
   changelog_meta: true,
   async changelog() {
-    const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
-    return resp.data;
+    try {
+      const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
+      return resp.data;
+    } catch (err) {
+      return ''
+    }
   },
 
   checkLicense_meta: true,
