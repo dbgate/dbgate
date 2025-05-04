@@ -47,6 +47,11 @@ changePackageFile('packages/serve', json.version);
 changePackageFile('packages/filterparser', json.version);
 changePackageFile('packages/dbmodel', json.version);
 
+if (fs.existsSync('packer/azure-ubuntu.pkr.hcl')) {
+  const text = fs.readFileSync('packer/azure-ubuntu.pkr.hcl', { encoding: 'utf-8' });
+  fs.writeFileSync('packer/azure-ubuntu.pkr.hcl', text.replace(/image_version\s*=\s*"[^"]+"/, `image_version = "${json.version}"`), { encoding: 'utf-8' });
+}
+
 for (const package of fs.readdirSync('plugins')) {
   if (!package.startsWith('dbgate-plugin-')) continue;
 

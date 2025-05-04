@@ -25,7 +25,7 @@ const importDatabase = require('./importDatabase');
 const loadDatabase = require('./loadDatabase');
 const generateModelSql = require('./generateModelSql');
 const modifyJsonLinesReader = require('./modifyJsonLinesReader');
-const dataDuplicator = require('./dataDuplicator');
+const dataReplicator = require('./dataReplicator');
 const dbModelToJson = require('./dbModelToJson');
 const jsonToDbModel = require('./jsonToDbModel');
 const jsonReader = require('./jsonReader');
@@ -35,6 +35,11 @@ const autoIndexForeignKeysTransform = require('./autoIndexForeignKeysTransform')
 const generateDeploySql = require('./generateDeploySql');
 const dropAllDbObjects = require('./dropAllDbObjects');
 const importDbFromFolder = require('./importDbFromFolder');
+const zipDirectory = require('./zipDirectory');
+const unzipDirectory = require('./unzipDirectory');
+const zipJsonLinesData = require('./zipJsonLinesData');
+const unzipJsonLinesData = require('./unzipJsonLinesData');
+const unzipJsonLinesFile = require('./unzipJsonLinesFile');
 
 const dbgateApi = {
   queryReader,
@@ -64,7 +69,7 @@ const dbgateApi = {
   loadDatabase,
   generateModelSql,
   modifyJsonLinesReader,
-  dataDuplicator,
+  dataReplicator,
   dbModelToJson,
   jsonToDbModel,
   dataTypeMapperTransform,
@@ -73,6 +78,11 @@ const dbgateApi = {
   generateDeploySql,
   dropAllDbObjects,
   importDbFromFolder,
+  zipDirectory,
+  unzipDirectory,
+  zipJsonLinesData,
+  unzipJsonLinesData,
+  unzipJsonLinesFile,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);

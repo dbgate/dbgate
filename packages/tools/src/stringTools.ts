@@ -150,7 +150,13 @@ function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
 
 export function stringifyCellValue(
   value,
-  intent: 'gridCellIntent' | 'inlineEditorIntent' | 'multilineEditorIntent' | 'stringConversionIntent' | 'exportIntent',
+  intent:
+    | 'gridCellIntent'
+    | 'inlineEditorIntent'
+    | 'multilineEditorIntent'
+    | 'stringConversionIntent'
+    | 'exportIntent'
+    | 'clipboardIntent',
   editorTypes?: DataEditorTypesBehaviour,
   gridFormattingOptions?: { useThousandsSeparator?: boolean },
   jsonParsedValue?: any
@@ -209,6 +215,7 @@ export function stringifyCellValue(
       switch (intent) {
         case 'exportIntent':
         case 'stringConversionIntent':
+        case 'clipboardIntent':
           return { value: dateString };
         default:
           const m = dateString.match(dateTimeStorageRegex);
@@ -343,7 +350,7 @@ export function shouldOpenMultilineDialog(value) {
 }
 
 export function isJsonLikeLongString(value) {
-  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/);
+  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
 }
 
 export function getIconForRedisType(type) {
@@ -548,4 +555,21 @@ export function pinoLogRecordToMessageRecord(logRecord, defaultSeverity = 'info'
     message: msg,
     severity: levelToSeverity[level] ?? defaultSeverity,
   };
+}
+
+export function jsonLinesStringify(jsonArray: any[]): string {
+  return jsonArray.map(json => JSON.stringify(json)).join('\n');
+}
+export function jsonLinesParse(jsonLines: string): any[] {
+  return jsonLines
+    .split('\n')
+    .filter(x => x.trim())
+    .map(line => {
+      try {
+        return JSON.parse(line);
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter(x => x);
 }

@@ -12,6 +12,7 @@ const {
   getAuthProviderById,
 } = require('../auth/authProvider');
 const storage = require('./storage');
+const { decryptPasswordString } = require('../utility/crypting');
 
 const logger = getLogger('auth');
 
@@ -43,6 +44,8 @@ function authMiddleware(req, res, next) {
     '/connections/dblogin-app',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
+    '/health',
+    '/__health',
   ];
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
@@ -94,7 +97,7 @@ module.exports = {
       let adminPassword = process.env.ADMIN_PASSWORD;
       if (!adminPassword) {
         const adminConfig = await storage.readConfig({ group: 'admin' });
-        adminPassword = adminConfig?.adminPassword;
+        adminPassword = decryptPasswordString(adminConfig?.adminPassword);
       }
       if (adminPassword && adminPassword == password) {
         return {

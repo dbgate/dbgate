@@ -8,7 +8,7 @@ const { fork, spawn } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const {
   extractShellApiPlugins,
-  extractShellApiFunctionName,
+  compileShellApiFunctionName,
   jsonScriptToJavascript,
   getLogger,
   safeJsonParse,
@@ -58,7 +58,7 @@ dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});
+const reader=await ${compileShellApiFunctionName(functionName)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }
@@ -96,9 +96,9 @@ module.exports = {
 
   handle_ping() {},
 
-  handle_freeData(runid, { freeData }) {
+  handle_dataResult(runid, { dataResult }) {
     const { resolve } = this.requests[runid];
-    resolve(freeData);
+    resolve(dataResult);
     delete this.requests[runid];
   },
 
@@ -171,6 +171,7 @@ module.exports = {
       this.rejectRequest(runid, { message: 'No data returned, maybe input data source is too big' });
       logger.info({ code, pid: subprocess.pid }, 'Exited process');
       socket.emit(`runner-done-${runid}`, code);
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('error', error => {
       // console.log('... ERROR subprocess', error);
@@ -180,6 +181,7 @@ module.exports = {
         severity: 'error',
         message: error.toString(),
       });
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     const newOpened = {
       runid,
@@ -224,6 +226,7 @@ module.exports = {
       if (onFinished) {
         onFinished();
       }
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('spawn', () => {
       this.dispatchMessage(runid, `Started external process ${command}`);
@@ -241,6 +244,7 @@ module.exports = {
         });
       }
       socket.emit(`runner-done-${runid}`);
+      this.opened = this.opened.filter(x => x.runid != runid);
     });
 
     if (stdinFilePath) {
@@ -269,7 +273,7 @@ module.exports = {
     const runid = crypto.randomUUID();
 
     if (script.type == 'json') {
-      const js = jsonScriptToJavascript(script);
+      const js = await jsonScriptToJavascript(script);
       return this.startCore(runid, scriptTemplate(js, false));
     }
 
@@ -321,6 +325,26 @@ module.exports = {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
       this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid));
+    });
+    return promise;
+  },
+
+  scriptResult_meta: true,
+  async scriptResult({ script }) {
+    if (script.type != 'json') {
+      return { errorMessage: 'Only JSON scripts are allowed' };
+    }
+
+    const promise = new Promise(async (resolve, reject) => {
+      const runid = crypto.randomUUID();
+      this.requests[runid] = { resolve, reject, exitOnStreamError: true };
+      const cloned = _.cloneDeepWith(script, node => {
+        if (node?.$replace == 'runid') {
+          return runid;
+        }
+      });
+      const js = await jsonScriptToJavascript(cloned);
+      this.startCore(runid, scriptTemplate(js, false));
     });
     return promise;
   },

@@ -17,7 +17,7 @@
 
     <div>{message}</div>
 
-    <FormArchiveFolderSelect label="Archive folder" name="archiveFolder" isNative />
+    <FormArchiveFolderSelect label="Archive folder" name="archiveFolder" isNative allowCreateNew />
 
     <svelte:fragment slot="footer">
       <FormSubmit

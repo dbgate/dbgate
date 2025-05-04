@@ -69,6 +69,7 @@ async function copyStream(input, output, options) {
       msgtype: 'copyStreamError',
       copyStreamError: {
         message: extractErrorMessage(err),
+        progressName,
         ...err,
       },
     });

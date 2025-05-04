@@ -12,6 +12,7 @@
     visibleCommandPalette,
     visibleTitleBar,
     visibleToolbar,
+    systemThemeStore,
   } from './stores';
   import TabsPanel from './tabpanel/TabsPanel.svelte';
   import TabRegister from './tabpanel/TabRegister.svelte';
@@ -50,7 +51,7 @@
 </div>
 
 <div
-  class={`${$currentTheme} ${currentThemeType} root dbgate-screen`}
+  class={`${$currentTheme ?? $systemThemeStore} ${currentThemeType} root dbgate-screen`}
   class:isElectron
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
@@ -156,6 +157,7 @@
   }
 
   .snackbar-container {
+    z-index: 1000;
     position: fixed;
     right: 0;
     bottom: var(--dim-statusbar-height);

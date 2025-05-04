@@ -68,7 +68,11 @@
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
 
   import registerCommand from '../commands/registerCommand';
-  import { extractShellConnection } from '../impexp/createImpExpScript';
+  import {
+    extractShellConnection,
+    extractShellConnectionHostable,
+    extractShellHostConnection,
+  } from '../impexp/createImpExpScript';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
@@ -83,6 +87,7 @@
   import hasPermission from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import { getIntSettingsValue } from '../settings/settingsTools';
+  import OverlayDiffGrider from './OverlayDiffGrider';
 
   export let conid;
   export let display;
@@ -92,6 +97,7 @@
   export let config;
   export let changeSetState;
   export let dispatchChangeSet;
+  export let overlayDefinition = null;
 
   export let macroPreview;
   export let macroValues;
@@ -110,7 +116,7 @@
   // $: console.log('loadedRows BIND', loadedRows);
 
   $: {
-    if (macroPreview) {
+    if (!overlayDefinition && macroPreview) {
       grider = new ChangeSetGrider(
         loadedRows,
         changeSetState,
@@ -124,12 +130,24 @@
   }
   // prevent recreate grider, if no macro is selected, so there is no need to selectedcells in macro
   $: {
-    if (!macroPreview) {
+    if (!overlayDefinition && !macroPreview) {
       grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
     }
   }
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
+
+  $: {
+    if (overlayDefinition) {
+      grider = new OverlayDiffGrider(
+        loadedRows,
+        display,
+        overlayDefinition.matchColumns,
+        overlayDefinition.overlayData,
+        overlayDefinition.matchedDbKeys
+      );
+    }
+  }
 
   export async function exportGrid() {
     const coninfo = await getConnectionInfo({ conid });
@@ -201,10 +219,11 @@
       {
         functionName: 'queryReader',
         props: {
-          connection: extractShellConnection(coninfo, database),
+          ...extractShellConnectionHostable(coninfo, database),
           queryType: coninfo.isReadOnly ? 'json' : 'native',
           query: coninfo.isReadOnly ? display.getExportQueryJson() : display.getExportQuery(),
         },
+        hostConnection: extractShellHostConnection(coninfo, database),
       },
       fmt,
       display.getExportColumnMap()

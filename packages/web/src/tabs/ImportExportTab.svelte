@@ -2,12 +2,12 @@
   const getCurrentEditor = () => getActiveComponent('ImportExportTab');
 
   registerFileCommands({
-    idPrefix: 'job',
-    category: 'Job',
+    idPrefix: 'impexp',
+    category: 'Impoirt & Export',
     getCurrentEditor,
-    folder: 'jobs',
+    folder: 'impexp',
     format: 'json',
-    fileExtension: 'job',
+    fileExtension: 'impexp',
 
     // undoRedo: true,
   });
@@ -50,6 +50,8 @@
   import { registerFileCommands } from '../commands/stdCommands';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import uuidv1 from 'uuid/v1';
+  import { tick } from 'svelte';
 
   let busy = false;
   let executeNumber = 0;
@@ -167,7 +169,7 @@
 
   const handleGenerateScript = async e => {
     const values = $formValues as any;
-    const code = await createImpExpScript($extensions, values, true);
+    const code = await createImpExpScript($extensions, values, 'script', false);
     openNewTab(
       {
         title: 'Shell #',
@@ -183,12 +185,24 @@
     progressHolder = {};
     const values = $formValues as any;
     busy = true;
-    const script = await createImpExpScript($extensions, values);
+    const script = await createImpExpScript($extensions, values, 'json', true);
     executeNumber += 1;
-    let runid = runnerId;
-    const resp = await apiCall('runners/start', { script });
-    runid = resp.runid;
-    runnerId = runid;
+
+    if (script.hostConnection) {
+      runnerId = uuidv1();
+      await tick();
+      await apiCall('database-connections/eval-json-script', {
+        runid: runnerId,
+        conid: script.hostConnection.conid,
+        database: script.hostConnection.database,
+        script,
+      });
+    } else {
+      let runid = runnerId;
+      const resp = await apiCall('runners/start', { script });
+      runid = resp.runid;
+      runnerId = runid;
+    }
 
     if (values.targetStorageType == 'archive') {
       refreshArchiveFolderRef.set(values.targetArchiveFolder);
@@ -319,7 +333,7 @@
     <ToolStripButton icon="img shell" on:click={handleGenerateScript} data-testid="ImportExportTab_generateScriptButton"
       >Generate script</ToolStripButton
     >
-    <ToolStripSaveButton idPrefix="job" />
+    <ToolStripSaveButton idPrefix="impexp" />
   </svelte:fragment>
 </ToolStripContainer>
 

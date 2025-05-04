@@ -7,6 +7,7 @@
   export let value;
   export let jsonParsedValue = undefined;
   export let editorTypes;
+  export let rightMargin = false;
 
   $: stringified = stringifyCellValue(
     value,
@@ -20,7 +21,7 @@
 {#if rowData == null}
   <span class="null">(No row)</span>
 {:else}
-  <span class={stringified.gridStyle} title={stringified.gridTitle}>{stringified.value}</span>
+  <span class={stringified.gridStyle} title={stringified.gridTitle} class:rightMargin>{stringified.value}</span>
 {/if}
 
 <style>
@@ -30,5 +31,9 @@
   }
   .valueCellStyle {
     color: var(--theme-icon-green);
+  }
+
+  .rightMargin {
+    margin-right: 16px;
   }
 </style>

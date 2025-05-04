@@ -22,7 +22,7 @@
     ? { disabled: true }
     : {
         onClick: () => {
-          setFieldValue(name, !$values[name]);
+          setFieldValue(name, $values?.[name] == 0 ? true : $values?.[name] == 1 ? false : !$values?.[name]);
           dispatch('change');
         },
       }}

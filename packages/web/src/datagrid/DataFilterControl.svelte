@@ -296,11 +296,21 @@
   {/if}
   {#if conid && database && driver}
     {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
-      <InlineButton on:click={handleShowDictionary} narrow square>
+      <InlineButton
+        on:click={handleShowDictionary}
+        narrow
+        square
+        data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
+      >
         <FontIcon icon="icon dots-horizontal" />
       </InlineButton>
     {:else if (pureName && columnName) || (pureName && uniqueName && driver?.databaseEngineTypes?.includes('document'))}
-      <InlineButton on:click={handleShowValuesModal} narrow square>
+      <InlineButton
+        on:click={handleShowValuesModal}
+        narrow
+        square
+        data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
+      >
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     {/if}
@@ -309,7 +319,12 @@
       <FontIcon icon="icon dots-vertical" />
     </InlineButton>
   {/if}
-  <DropDownButton icon="icon filter" menu={createMenu} narrow />
+  <DropDownButton
+    icon="icon filter"
+    menu={createMenu}
+    narrow
+    data-testid={`DataFilterControl_filtermenu_${uniqueName}`}
+  />
   {#if showResizeSplitter}
     <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
   {/if}

@@ -46,6 +46,8 @@ import { openImportExportTab } from '../utility/importExportTools';
 import newTable from '../tableeditor/newTable';
 import { isProApp } from '../utility/proTools';
 import { openWebLink } from '../utility/simpleTools';
+import { _t } from '../translations';
+import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -389,16 +391,36 @@ registerCommand({
   category: 'New',
   icon: 'img sqlite-database',
   name: 'SQLite database',
-  menuName: 'New SQLite database',
+  menuName: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
-      label: 'New database name',
-      header: 'Create SQLite database',
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
       onConfirm: async file => {
         const resp = await apiCall('connections/new-sqlite-database', { file });
         const connection = resp;
         switchCurrentDatabase({ connection, name: `${file}.sqlite` });
+      },
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.duckdbDatabase',
+  category: 'New',
+  icon: 'img sqlite-database',
+  name: 'DuckDB database',
+  menuName: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: 'newdb',
+      label: _t('app.databaseName', { defaultMessage: 'Database name' }),
+      header: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
+      onConfirm: async file => {
+        const resp = await apiCall('connections/new-duckdb-database', { file });
+        const connection = resp;
+        switchCurrentDatabase({ connection, name: `${file}.duckdb` });
       },
     });
   },
@@ -510,6 +532,44 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'app.exportConnections',
+  category: 'Settings',
+  name: 'Export connections',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
+  onClick: () => {
+    showModal(ExportImportConnectionsModal, {
+      mode: 'export',
+    });
+  },
+});
+
+registerCommand({
+  id: 'app.importConnections',
+  category: 'Settings',
+  name: 'Import connections',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
+  onClick: async () => {
+    const files = await electron.showOpenDialog({
+      properties: ['showHiddenFiles', 'openFile'],
+      filters: [
+        {
+          name: `All supported files`,
+          extensions: ['zip'],
+        },
+        { name: `ZIP files`, extensions: ['zip'] },
+      ],
+    });
+
+    if (files?.length > 0) {
+      showModal(ExportImportConnectionsModal, {
+        mode: 'import',
+        uploadedFilePath: files[0],
+      });
+    }
+  },
+});
+
+registerCommand({
   id: 'file.import',
   category: 'File',
   name: 'Import data',
@@ -617,6 +677,24 @@ registerCommand({
   name: 'Logout',
   testEnabled: () => getCurrentConfig()?.isUserLoggedIn,
   onClick: doLogout,
+});
+
+registerCommand({
+  id: 'app.loggedUserCommands',
+  category: 'App',
+  name: 'Logged user',
+  getSubCommands: () => {
+    const config = getCurrentConfig();
+    if (!config) return [];
+    return [
+      {
+        text: 'Logout',
+        onClick: () => {
+          doLogout();
+        },
+      },
+    ];
+  },
 });
 
 registerCommand({
@@ -830,14 +908,14 @@ registerCommand({
   id: 'app.openDocs',
   category: 'Application',
   name: 'Documentation',
-  onClick: () => openWebLink('https://dbgate.org/docs/'),
+  onClick: () => openWebLink('https://docs.dbgate.io/'),
 });
 
 registerCommand({
   id: 'app.openWeb',
   category: 'Application',
   name: 'DbGate web',
-  onClick: () => openWebLink('https://dbgate.org'),
+  onClick: () => openWebLink('https://dbgate.io/'),
 });
 
 registerCommand({

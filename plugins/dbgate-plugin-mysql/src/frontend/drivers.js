@@ -240,7 +240,27 @@ const mysqlDriverBase = {
     if (options.force) {
       args.push('--force');
     }
-    args.push(database);
+    if (options.lockTables) {
+      args.push('--lock-tables');
+    }
+    if (options.skipLockTables) {
+      args.push('--skip-lock-tables');
+    }
+    if (options.singleTransaction) {
+      args.push('--single-transaction');
+    }
+    if (options.customArgs?.trim()) {
+      const customArgs = options.customArgs.split(/\s+/).filter(arg => arg.trim() != '');
+      args.push(...customArgs);
+    }
+    if (options.createDatabase) {
+      args.push('--databases', database);
+      if (options.dropDatabase) {
+        args.push('--add-drop-database');
+      }
+    } else {
+      args.push(database);
+    }
     return { command, args };
   },
   restoreDatabaseCommand(connection, settings, externalTools) {
@@ -311,6 +331,45 @@ const mysqlDriverBase = {
           name: 'includeTriggers',
           default: true,
           disabledFn: values => values.noStructure,
+        },
+        {
+          type: 'checkbox',
+          label: 'Lock tables',
+          name: 'lockTables',
+          default: false,
+          disabledFn: values => values.skipLockTables || values.singleTransaction,
+        },
+        {
+          type: 'checkbox',
+          label: 'Skip lock tables',
+          name: 'skipLockTables',
+          default: false,
+          disabledFn: values => values.lockTables || values.singleTransaction,
+        },
+        {
+          type: 'checkbox',
+          label: 'Single transaction',
+          name: 'singleTransaction',
+          default: false,
+          disabledFn: values => values.lockTables || values.skipLockTables,
+        },
+        {
+          type: 'checkbox',
+          label: 'Create database',
+          name: 'createDatabase',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Drop database before import',
+          name: 'dropDatabase',
+          default: false,
+          disabledFn: values => !values.createDatabase,
+        },
+        {
+          type: 'text',
+          label: 'Custom arguments',
+          name: 'customArgs',
         },
       ];
     }

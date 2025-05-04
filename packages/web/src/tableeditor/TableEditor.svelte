@@ -192,6 +192,7 @@
     clickable
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={isWritable ? addColumn : null}
+    displayNameFieldName="columnName"
     columns={[
       !driver?.dialect?.specificNullabilityImplementation && {
         fieldName: 'notNull',
@@ -203,11 +204,13 @@
         fieldName: 'dataType',
         header: 'Data Type',
         sortable: true,
+        filterable: true,
       },
       {
         fieldName: 'defaultValue',
         header: 'Default value',
         sortable: true,
+        filterable: true,
       },
       driver?.dialect?.columnProperties?.isSparse && {
         fieldName: 'isSparse',
@@ -219,6 +222,7 @@
         fieldName: 'computedExpression',
         header: 'Computed Expression',
         sortable: true,
+        filterable: true,
       },
       driver?.dialect?.columnProperties?.isPersisted && {
         fieldName: 'isPersisted',
@@ -242,10 +246,12 @@
         fieldName: 'columnComment',
         header: 'Comment',
         sortable: true,
+        filterable: true,
       },
       isWritable
         ? {
             fieldName: 'actions',
+            filterable: false,
             slot: 3,
           }
         : null,

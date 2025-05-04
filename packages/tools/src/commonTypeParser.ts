@@ -7,7 +7,7 @@ export function isTypeNumeric(dataType) {
 }
 
 export function isTypeFloat(dataType) {
-  return dataType && /float|single|double/i.test(dataType);
+  return dataType && /float|single|double|number/i.test(dataType);
 }
 
 export function isTypeNumber(dataType) {

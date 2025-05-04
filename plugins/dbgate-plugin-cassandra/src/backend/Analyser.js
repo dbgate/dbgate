@@ -41,9 +41,9 @@ class Analyser extends DatabaseAnalyser {
     return res;
   }
 
-  async singleObjectAnalysis(dbhan, typeField) {
-    const structure = await this._runAnalysis(dbhan, typeField);
-    const item = structure[typeField]?.find((i) => i.pureName === dbhan.pureName);
+  async singleObjectAnalysis(name, typeField) {
+    const structure = await this._runAnalysis(name, typeField);
+    const item = structure[typeField]?.find((i) => i.pureName === name.pureName);
     return item;
   }
 

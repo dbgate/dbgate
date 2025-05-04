@@ -8,27 +8,26 @@
   } from 'dbgate-datalib';
   import { getFilterValueExpression } from 'dbgate-filterparser';
   import { extendDatabaseInfoFromApps, findEngineDriver } from 'dbgate-tools';
+  import stableStringify from 'json-stable-stringify';
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import { extensions } from '../stores';
-  import stableStringify from 'json-stable-stringify';
 
   import {
     useConnectionInfo,
     useConnectionList,
     useDatabaseInfo,
     useDatabaseServerVersion,
-    useServerVersion,
-    useUsedApps,
+    useUsedApps
   } from '../utility/metadataLoaders';
 
-  import DataGrid from './DataGrid.svelte';
-  import ReferenceHeader from './ReferenceHeader.svelte';
-  import SqlDataGridCore from './SqlDataGridCore.svelte';
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
+  import DataGrid from './DataGrid.svelte';
+  import ReferenceHeader from './ReferenceHeader.svelte';
+  import SqlDataGridCore from './SqlDataGridCore.svelte';
 
   export let conid;
   export let database;
@@ -46,6 +45,8 @@
   export let multipleGridsOnTab = false;
 
   export let isRawMode = false;
+
+  export let forceReadOnly = false;
 
   const NESTED_REFERENCE_GRACE_TIME_MS = 1000;
 
@@ -75,7 +76,7 @@
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          $connection?.isReadOnly,
+          forceReadOnly || $connection?.isReadOnly,
           isRawMode
         )
       : null;
@@ -163,7 +164,7 @@
       formViewComponent={SqlFormView}
       {display}
       showReferences
-      showMacros={!$connection?.isReadOnly}
+      showMacros={!forceReadOnly && !$connection?.isReadOnly}
       hasMultiColumnFilter
       onRunMacro={handleRunMacro}
       macroCondition={macro => macro.type == 'transformValue'}

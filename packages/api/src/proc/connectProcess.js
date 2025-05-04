@@ -4,6 +4,8 @@ const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { pickSafeConnectionInfo } = require('../utility/crypting');
 const _ = require('lodash');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const logger = getLogger('connectProcess');
 
 const formatErrorDetail = (e, connection) => `${e.stack}
 
@@ -23,12 +25,22 @@ function start() {
     try {
       const driver = requireEngineDriver(connection);
       const dbhan = await connectUtility(driver, connection, 'app');
-      const res = await driver.getVersion(dbhan);
+      let version = {
+        version: 'Unknown',
+      };
+      try {
+        version = await driver.getVersion(dbhan);
+      } catch (err) {
+        logger.error(extractErrorLogData(err), 'Error getting DB server version');
+        version = {
+          version: 'Unknown',
+        };
+      }
       let databases = undefined;
       if (requestDbList) {
         databases = await driver.listDatabases(dbhan);
       }
-      process.send({ msgtype: 'connected', ...res, databases });
+      process.send({ msgtype: 'connected', ...version, databases });
       await driver.close(dbhan);
     } catch (e) {
       console.error(e);
@@ -38,6 +50,8 @@ function start() {
         detail: formatErrorDetail(e, connection),
       });
     }
+
+    process.exit(0);
   });
 }
 

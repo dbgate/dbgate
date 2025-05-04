@@ -2,7 +2,7 @@ import { showModal } from '../modals/modalTools';
 import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
 import getElectron from './getElectron';
-import { currentDatabase, extensions, getCurrentDatabase } from '../stores';
+import { extensions, getCurrentDatabase } from '../stores';
 import { getUploadListener } from './uploadFiles';
 import { getConnectionLabel, getDatabaseFileLabel } from 'dbgate-tools';
 import { apiCall } from './api';
@@ -13,6 +13,7 @@ import _ from 'lodash';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import { openImportExportTab } from './importExportTools';
 import { switchCurrentDatabase } from './common';
+import { _t } from '../translations';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -22,7 +23,13 @@ export function canOpenByElectron(file, extensions) {
   if (nameLower.endsWith('.qdesign')) return true;
   if (nameLower.endsWith('.perspective')) return true;
   if (nameLower.endsWith('.json')) return true;
-  if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
+  if (
+    nameLower.endsWith('.db') ||
+    nameLower.endsWith('.sqlite') ||
+    nameLower.endsWith('.sqlite3') ||
+    nameLower.endsWith('.duckdb')
+  )
+    return true;
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) return true;
     if (format.extensions?.find(ext => nameLower.endsWith(`.${ext}`))) return true;
@@ -30,12 +37,12 @@ export function canOpenByElectron(file, extensions) {
   return false;
 }
 
-export async function openSqliteFile(filePath) {
+export async function openDatabaseFile(filePath, engine) {
   const defaultDatabase = getDatabaseFileLabel(filePath);
   const resp = await apiCall('connections/save', {
     _id: undefined,
     databaseFile: filePath,
-    engine: 'sqlite@dbgate-plugin-sqlite',
+    engine,
     singleDatabase: true,
     defaultDatabase,
   });
@@ -136,7 +143,11 @@ export function openElectronFileCore(filePath, extensions) {
     return;
   }
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite')) {
-    openSqliteFile(filePath);
+    openDatabaseFile(filePath, 'sqlite@dbgate-plugin-sqlite');
+    return;
+  }
+  if (nameLower.endsWith('.duckdb')) {
+    openDatabaseFile(filePath, 'duckdb@dbgate-plugin-duckdb');
     return;
   }
   if (nameLower.endsWith('.jsonl') || nameLower.endsWith('.ndjson')) {
@@ -225,7 +236,7 @@ export async function openElectronFile() {
   const filePaths = await electron.showOpenDialog({
     filters: [
       {
-        name: `All supported files`,
+        name: _t('file.allSupported', { defaultMessage: 'All supported files' }),
         extensions: [
           'sql',
           'sqlite',
@@ -235,15 +246,20 @@ export async function openElectronFile() {
           'qdesign',
           'perspective',
           'json',
+          'duckdb',
           ...getFileFormatExtensions(ext),
         ],
       },
-      { name: `SQL files`, extensions: ['sql'] },
-      { name: `JSON files`, extensions: ['json'] },
-      { name: `Diagram files`, extensions: ['diagram'] },
-      { name: `Query designer files`, extensions: ['qdesign'] },
-      { name: `Perspective files`, extensions: ['perspective'] },
-      { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
+      { name: _t('file.sqlFiles', { defaultMessage: 'SQL files' }), extensions: ['sql'] },
+      { name: _t('file.jsonFiles', { defaultMessage: 'JSON files' }), extensions: ['json'] },
+      { name: _t('file.diagramFiles', { defaultMessage: 'Diagram files' }), extensions: ['diagram'] },
+      { name: _t('file.queryDesignerFiles', { defaultMessage: 'Query designer files' }), extensions: ['qdesign'] },
+      { name: _t('file.perspectiveFiles', { defaultMessage: 'Perspective files' }), extensions: ['perspective'] },
+      {
+        name: _t('file.sqliteDatabase', { defaultMessage: 'SQLite database' }),
+        extensions: ['sqlite', 'db', 'sqlite3'],
+      },
+      { name: _t('file.duckdb', { defaultMessage: 'DuckDB database' }), extensions: ['duckdb', 'db'] },
       ...getFileFormatFilters(ext),
     ],
     properties: ['showHiddenFiles', 'openFile'],

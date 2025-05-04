@@ -96,7 +96,9 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
     ...decryptConnection(connectionLoaded),
   };
 
-  if (!connection.port && driver.defaultPort) connection.port = driver.defaultPort.toString();
+  if (!connection.port && driver.defaultPort) {
+    connection.port = driver.defaultPort.toString();
+  }
 
   if (connection.useSshTunnel) {
     const tunnel = await getSshTunnelProxy(connection);

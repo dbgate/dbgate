@@ -8,6 +8,59 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.4.0
+- ADDED: DuckDB support
+- ADDED: Data deployer (Premium)
+- ADDED: Compare data between JSON lines file in archive and database table
+- CHANGED: Data Duplicator => Data Replicator (suitable for update, create and delete data, much more customizable)
+- REMOVED: Data duplicator GUI (replaced with Data Deployer)
+- ADDED: Exporting to ZIP file
+- ADDED: Download SQL and SQLite files
+- ADDED: Upload SQLite files
+- ADDED: Upload archive as ZIP folder (Premium)
+- ADDED: Compress, uncompress archive folder (Premium)
+- ADDED: Export connections and settings #357
+- ADDED: Filtering by MongoDB ObjectId works now also without ObjectId(...) wrapper
+- ADDED: Split queries using blank lines #1089
+- FIXED: JSON-to-Grid only works if there is no newline #1085
+- CHANGED: When running multiple commands in script, stop execution after first error #1070
+- FIXED: Selection rectangle remains visible after closing JSONB edit cell value form #1031
+- FIXED: Diplaying numeric FK column with right alignement #1021
+- ADDED: Additional arguments for MySQL and PostgreSQL backup #1092
+- CHANGED: Amazon and Azure instalations are not auto-upgraded by default
+
+## 6.3.3
+- CHANGED: New administration UI, redesigned administration of users, connections and roles
+- ADDED: Encrypting passwords in team-premium edition
+- ADDED: Show scale bar on map #1090
+- FIXED: Fixed native backup/restore for MySQL+PostgreSQL over SSH tunnel #1092
+- CHANGED: Column mapping dialog - fixes and improvements for copying from one existing table into another
+- ADDED: Search in columns in table editor
+- ADDED: Line Wrap for JSON viewer #768
+
+### 6.3.2
+- ADDED: "Use system theme" switch, use changed system theme without restart #1084
+- ADDED: "Skip SETNAME instruction" option for Redis #1077
+- FIXED: Clickhouse views are now available even for user with limited permissions #1076
+- ADDED: Multiple-token search delimited with comma (=OR) in structure search boxes
+- CHANGED: When filtering columns in data browser, data view shows only filtered columns
+- ADDED: Advanced settings for diagrams (Premium)
+- ADDED: Diagrams - zoom with Ctrl+mouse wheel
+- FIXED: Scrollable diagram exports + scroll by mouse drag
+- FIXED: Fixed many problems in diagrams when zoom is applied
+- FIXED: Correctly end connection process after succesful/unsuccesful connect
+
+### 6.3.0
+- ADDED: Support for libSQL and Turso (Premium)
+- ADDED: Native backup and restore database for MySQL and PostgreSQL (Premium)
+- REMOVED: DbGate internal dump export for MySQL (replaced with call of mysqldump)
+- REMOVED: Import SQL dump with internal DbGate capabilities (replaced by calling of mysql and psql utilities)
+- FIXED: Many fixes in stream processing (imoprt/export), especialy for MongoDB
+- ADDED: Indicating progress of import/export tasks, better error reporting
+- CHANGED: #1060 - Changed shortcut for AI assistant
+- ADDED: /health endpoint with diagnostic info
+- FIXED: Linux Appimage crash => A JavaScript error occurred in the main process #1065 , #1067
+
 ### 6.2.1
 - ADDED: Commit/rollback and autocommit in scripts #1039
 - FIXED: Doesn't import all the records from MongoDB #1044
@@ -18,7 +71,7 @@ Builds:
 - FIXED: Scroll in XML cell view, XML view respect themes
 - REMOVED: armv7l build for Linux (because of problems with glibc compatibility)
 - CHANGED: Upgraded to node:22 for docker builds
-- CHANGED: Upgraded SQLite engine version (better-sqlite3@11.8.1)
+- CHANGED: Upgraded SQLite engine version
 
 ### 6.2.0
 - ADDED: Query AI Assistant (Premium)

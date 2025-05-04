@@ -28,6 +28,8 @@
     selectedWidget,
     lockedDatabaseMode,
     visibleWidgetSideBar,
+    currentTheme,
+    getSystemTheme,
   } from '../stores';
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
@@ -280,6 +282,32 @@ ORDER BY
 
         <svelte:fragment slot="3">
           <div class="heading">Application theme</div>
+
+          <FormFieldTemplateLarge
+            label="Use system theme"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                if ($currentTheme) {
+                  $currentTheme = null;
+                } else {
+                  $currentTheme = getSystemTheme();
+                }
+              },
+            }}
+          >
+            <CheckboxField
+              checked={!$currentTheme}
+              on:change={e => {
+                if (e.target['checked']) {
+                  $currentTheme = null;
+                } else {
+                  $currentTheme = getSystemTheme();
+                }
+              }}
+            />
+          </FormFieldTemplateLarge>
+
           <div class="themes">
             {#each $extensions.themes as theme}
               <ThemeSkeleton {theme} />
@@ -403,6 +431,12 @@ ORDER BY
 
           <FormCheckboxField name="behaviour.useTabPreviewMode" label="Use tab preview mode" defaultValue={true} />
 
+          <FormCheckboxField
+            name="behaviour.jsonPreviewWrap"
+            label={_t('settings.behaviour.jsonPreviewWrap', { defaultMessage: 'Wrap JSON in preview' })}
+            defaultValue={false}
+          />
+
           <div class="tip">
             <FontIcon icon="img tip" /> When you single-click or select a file in the "Tables, Views, Functions" view, it
             is shown in a preview mode and reuses an existing tab (preview tab). This is useful if you are quickly browsing
@@ -495,16 +529,12 @@ ORDER BY
             label="Folder with mysql plugins (for example for authentication). Set only in case of problems"
             defaultValue=""
           />
-         <FormTextField
+          <FormTextField
             name="externalTools.pg_dump"
             label="pg_dump (backup PostgreSQL database)"
             defaultValue="pg_dump"
           />
-          <FormTextField
-            name="externalTools.psql"
-            label="psql (restore PostgreSQL database)"
-            defaultValue="psql"
-          />
+          <FormTextField name="externalTools.psql" label="psql (restore PostgreSQL database)" defaultValue="psql" />
         </svelte:fragment>
       </TabControl>
     </FormValues>

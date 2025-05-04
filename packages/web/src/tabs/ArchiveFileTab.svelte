@@ -57,8 +57,10 @@
   export let jslid = undefined;
 
   export let tabid;
+
   let infoLoadCounter = 0;
   let jslidChecked = false;
+  let extractedJslId = null;
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
 
@@ -155,6 +157,14 @@
         }
       }
     }
+
+    if (archiveFolder?.endsWith('.zip')) {
+      const resp = await apiCall('jsldata/download-jsl-data', {
+        uri: `zip://archive:${archiveFolder}//${archiveFile}.jsonl`,
+      });
+      extractedJslId = resp.jslid;
+    }
+
     jslidChecked = true;
   }
 
@@ -166,7 +176,7 @@
 <ToolStripContainer>
   {#if jslidChecked || !jslid}
     <JslDataGrid
-      jslid={jslid || `archive://${archiveFolder}/${archiveFile}`}
+      jslid={extractedJslId || jslid || `archive://${archiveFolder}/${archiveFile}`}
       supportsReload
       allowChangeChangeSetStructure
       changeSetState={$changeSetStore}

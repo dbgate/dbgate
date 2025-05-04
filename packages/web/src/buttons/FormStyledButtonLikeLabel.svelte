@@ -17,6 +17,7 @@
     border-radius: 2px;
     position: relative;
     top: 3px;
+    font-size: 10pt;
   }
 
   label:hover:not(.disabled) {

@@ -17,8 +17,9 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc --watch",
+    "prepublishOnly": "yarn build",
     "test": "jest",
-    "prepublishOnly": "yarn build"
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults"
   },
   "files": [
     "lib"
@@ -26,12 +27,12 @@
   "devDependencies": {
     "@types/node": "^13.7.0",
     "dbgate-types": "^6.0.0-alpha.1",
-    "jest": "^24.9.0",
-    "ts-jest": "^25.2.1",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.7",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "dbgate-query-splitter": "^4.11.3",
+    "dbgate-query-splitter": "^4.11.4",
     "dbgate-sqltree": "^6.0.0-alpha.1",
     "debug": "^4.3.4",
     "json-stable-stringify": "^1.0.1",

@@ -31,7 +31,7 @@ export type TestEngineInfo = {
   skipUnique?: boolean;
   skipAutoIncrement?: boolean;
   skipPkColumnTesting?: boolean;
-  skipDataDuplicator?: boolean;
+  skipDataReplicator?: boolean;
   skipDeploy?: boolean;
   skipStringLength?: boolean;
   skipChangeColumn?: boolean;
@@ -40,6 +40,11 @@ export type TestEngineInfo = {
   skipPkDrop?: boolean;
   skipOrderBy?: boolean;
   skipImportModel?: boolean;
+  skipTriggers?: boolean;
+  skipDropColumn?: boolean;
+  skipChangeNullability?: boolean;
+  skipRenameColumn?: boolean;
+  skipDropReferences?: boolean;
 
   forceSortResults?: boolean;
   forceSortStructureColumns?: boolean;

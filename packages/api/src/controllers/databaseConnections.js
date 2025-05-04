@@ -37,6 +37,10 @@ const loadModelTransform = require('../utility/loadModelTransform');
 const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
+const { decryptConnection } = require('../utility/crypting');
+const { getSshTunnel } = require('../utility/sshTunnel');
+const sessions = require('./sessions');
+const jsldata = require('./jsldata');
 
 const logger = getLogger('databaseConnections');
 
@@ -94,6 +98,52 @@ module.exports = {
 
   handle_ping() {},
 
+  // session event handlers
+
+  handle_info(conid, database, props) {
+    const { sesid, info } = props;
+    sessions.dispatchMessage(sesid, info);
+  },
+
+  handle_done(conid, database, props) {
+    const { sesid } = props;
+    socket.emit(`session-done-${sesid}`);
+    sessions.dispatchMessage(sesid, 'Query execution finished');
+  },
+
+  handle_recordset(conid, database, props) {
+    const { jslid, resultIndex } = props;
+    socket.emit(`session-recordset-${props.sesid}`, { jslid, resultIndex });
+  },
+
+  handle_stats(conid, database, stats) {
+    jsldata.notifyChangedStats(stats);
+  },
+
+  handle_initializeFile(conid, database, props) {
+    const { jslid } = props;
+    socket.emit(`session-initialize-file-${jslid}`);
+  },
+
+  // eval event handler
+  handle_runnerDone(conid, database, props) {
+    const { runid } = props;
+    socket.emit(`runner-done-${runid}`);
+  },
+
+  handle_progress(conid, database, progressData) {
+    const { progressName } = progressData;
+    const { name, runid } = progressName;
+    socket.emit(`runner-progress-${runid}`, { ...progressData, progressName: name });
+  },
+
+  handle_copyStreamError(conid, database, { copyStreamError }) {
+    const { progressName } = copyStreamError;
+    const { runid } = progressName;
+    logger.error(`Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
+    socket.emit(`runner-done-${runid}`);
+  },
+
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
@@ -134,9 +184,20 @@ module.exports = {
       const { msgtype } = message;
       if (handleProcessCommunication(message, subprocess)) return;
       if (newOpened.disconnected) return;
-      this[`handle_${msgtype}`](conid, database, message);
+      const funcName = `handle_${msgtype}`;
+      if (!this[funcName]) {
+        logger.error(`Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
+        return;
+      }
+
+      this[funcName](conid, database, message);
     });
     subprocess.on('exit', () => {
+      if (newOpened.disconnected) return;
+      this.close(conid, database, false);
+    });
+    subprocess.on('error', err => {
+      logger.error(extractErrorLogData(err), 'Error in database connection subprocess');
       if (newOpened.disconnected) return;
       this.close(conid, database, false);
     });
@@ -619,8 +680,25 @@ module.exports = {
     command,
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
-    const connection = await connections.getCore({ conid });
+    const sourceConnection = await connections.getCore({ conid });
+    const connection = {
+      ...decryptConnection(sourceConnection),
+    };
     const driver = requireEngineDriver(connection);
+
+    if (!connection.port && driver.defaultPort) {
+      connection.port = driver.defaultPort.toString();
+    }
+
+    if (connection.useSshTunnel) {
+      const tunnel = await getSshTunnel(connection);
+      if (tunnel.state == 'error') {
+        throw new Error(tunnel.message);
+      }
+
+      connection.server = tunnel.localHost;
+      connection.port = tunnel.localPort;
+    }
 
     const settingsValue = await config.getSettings();
 
@@ -738,5 +816,26 @@ module.exports = {
       transformMessage: null,
       commandLine: this.commandArgsToCommandLine(commandArgs),
     };
+  },
+
+  executeSessionQuery_meta: true,
+  async executeSessionQuery({ sesid, conid, database, sql }, req) {
+    testConnectionPermission(conid, req);
+    logger.info({ sesid, sql }, 'Processing query');
+    sessions.dispatchMessage(sesid, 'Query execution started');
+
+    const opened = await this.ensureOpened(conid, database);
+    opened.subprocess.send({ msgtype: 'executeSessionQuery', sql, sesid });
+
+    return { state: 'ok' };
+  },
+
+  evalJsonScript_meta: true,
+  async evalJsonScript({ conid, database, script, runid }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid, database);
+
+    opened.subprocess.send({ msgtype: 'evalJsonScript', script, runid });
+    return { state: 'ok' };
   },
 };

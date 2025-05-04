@@ -92,10 +92,10 @@ export class DatabaseAnalyser {
     this.singleObjectFilter = { ...name, typeField };
     await this._computeSingleObjectId();
     const res = this.addEngineField(await this._runAnalysis());
-    // console.log('SINGLE OBJECT RES', res);
+    // console.log('SINGLE OBJECT RES', JSON.stringify(res, null, 2));
     const obj =
       res[typeField]?.length == 1
-        ? res[typeField][0]
+        ? res[typeField]?.find(x => x.pureName.toLowerCase() == name.pureName.toLowerCase())
         : res[typeField]?.find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
     // console.log('SINGLE OBJECT', obj);
     return obj;
@@ -354,6 +354,7 @@ export class DatabaseAnalyser {
       logger.error(extractErrorLogData(err, { template }), 'Error running analyser query');
       return {
         rows: [],
+        isError: true,
       };
     }
   }

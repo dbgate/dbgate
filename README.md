@@ -15,9 +15,10 @@ But there are also many advanced features like schema compare, visual query desi
 DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
-* **Download** application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
+* **Download** application for Windows, Linux or Mac from [dbgate.io](https://dbgate.io/download/)
+* Looking for DbGate Community? **Download** from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate-serve) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
-* Use nodeJs [scripting interface](https://dbgate.org/docs/scripting) ([API documentation](https://dbgate.org/docs/apidoc))
+* Use nodeJs [scripting interface](https://docs.dbgate.io/scripting) ([API documentation](https://docs.dbgate.io/apidoc))
 * [Recommend DbGate](https://testimonial.to/dbgate) | [Rate on G2](https://www.g2.com/products/dbgate/reviews)
 
 ## Supported databases
@@ -34,8 +35,8 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * CosmosDB (Premium)
 * ClickHouse
 * Apache Cassandra
-
-<!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
+* libSQL/Turso (Premium)
+* DuckDB
 
 
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
@@ -90,7 +91,7 @@ Any contributions are welcome. If you want to contribute without coding, conside
 * Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues
 * Create some tutorial video on [youtube](https://www.youtube.com/playlist?list=PLCo7KjCVXhr0RfUSjM9wJMsp_ShL1q61A)
 * Become a backer on [GitHub sponsors](https://github.com/sponsors/dbgate) or [Open collective](https://opencollective.com/dbgate)
-* Where a small coding is acceptable for you, you could [create plugin](https://dbgate.org/docs/plugin-development). Plugins for new themes can be created actually without JS coding
+* Where a small coding is acceptable for you, you could [create plugin](https://docs.dbgate.io/plugin-development). Plugins for new themes can be created actually without JS coding
 
 Thank you!
 

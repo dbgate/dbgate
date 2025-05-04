@@ -1,5 +1,19 @@
+<script lang="ts" context="module">
+  const OVERLAY_STATUS_ICONS = {
+    regular: 'icon equal',
+    updated: 'icon not-equal',
+    missing: 'img table',
+    inserted: 'img archive',
+  };
+  const OVERLAY_STATUS_TOOLTIPS = {
+    regular: 'Row is the same in database and archive',
+    updated: 'Row is different in database and archive',
+    missing: 'Row is only in database',
+    inserted: 'Row is only in archive',
+  };
+</script>
+
 <script lang="ts">
-  import openReferenceForm from '../formview/openReferenceForm';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import { showModal } from '../modals/modalTools';
 
@@ -27,6 +41,7 @@
   export let database;
   export let driver;
   export let gridColoringMode = '36';
+  export let overlayDefinition = null;
 
   export let dataEditorTypesBehaviourOverride = null;
 
@@ -51,10 +66,17 @@
       onConfirm: value => grider.setCellValue(rowIndex, col.uniqueName, value),
     });
   }
+
+  // $: console.log('rowStatus', rowStatus);
 </script>
 
 <tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode}`}>
-  <RowHeaderCell {rowIndex} onShowForm={onSetFormView ? () => onSetFormView(rowData, null) : null} />
+  <RowHeaderCell
+    {rowIndex}
+    onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
+    extraIcon={overlayDefinition ? OVERLAY_STATUS_ICONS[rowStatus.status] : null}
+    extraIconTooltip={overlayDefinition ? OVERLAY_STATUS_TOOLTIPS[rowStatus.status] : null}
+  />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
       <InplaceEditor
@@ -83,11 +105,15 @@
         isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
         isFocusedColumn={focusedColumns?.includes(col.uniqueName)}
         isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+        overlayValue={rowStatus.overlayFields?.[col.uniqueName]}
+        hasOverlayValue={rowStatus.overlayFields && col.uniqueName in rowStatus.overlayFields}
+        isMissingOverlayField={rowStatus.missingOverlayFields && rowStatus.missingOverlayFields.has(col.uniqueName)}
         isModifiedRow={rowStatus.status == 'updated'}
         isInserted={rowStatus.status == 'inserted' ||
           (rowStatus.insertedFields && rowStatus.insertedFields.has(col.uniqueName))}
         isDeleted={rowStatus.status == 'deleted' ||
           (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))}
+        isMissing={rowStatus.status == 'missing'}
         {onSetFormView}
         {isDynamicStructure}
         isAutoFillMarker={autofillMarkerCell &&

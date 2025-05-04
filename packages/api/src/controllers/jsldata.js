@@ -8,6 +8,8 @@ const getJslFileName = require('../utility/getJslFileName');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const requirePluginFunction = require('../utility/requirePluginFunction');
 const socket = require('../utility/socket');
+const crypto = require('crypto');
+const dbgateApi = require('../shell');
 
 function readFirstLine(file) {
   return new Promise((resolve, reject) => {
@@ -292,5 +294,12 @@ module.exports = {
         data: data.map(d => d[m.field] || 0),
       })),
     };
+  },
+
+  downloadJslData_meta: true,
+  async downloadJslData({ uri }) {
+    const jslid = crypto.randomUUID();
+    await dbgateApi.download(uri, { targetFile: getJslFileName(jslid) });
+    return { jslid };
   },
 };

@@ -18,7 +18,7 @@ export * from './processPerspectiveDefaultColunns';
 export * from './PerspectiveDataPattern';
 export * from './PerspectiveDataLoader';
 export * from './perspectiveTools';
-export * from './DataDuplicator';
+export * from './DataReplicator';
 export * from './FreeTableGridDisplay';
 export * from './FreeTableModel';
 export * from './CustomGridDisplay';

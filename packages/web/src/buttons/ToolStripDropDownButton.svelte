@@ -14,8 +14,9 @@
   function handleClick(e) {
     const rect = e.detail.target.getBoundingClientRect();
     const left = rect.left;
-    const top = rect.bottom;
-    currentDropDownMenu.set({ left, top, items: menu });
+    const top = rect.top;
+    // const top = rect.bottom;
+    currentDropDownMenu.set({ left, bottom: window.innerHeight - top, items: menu });
   }
 </script>
 

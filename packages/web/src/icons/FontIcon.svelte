@@ -110,6 +110,7 @@
     'icon history': 'mdi mdi-history',
     'icon structure': 'mdi mdi-tools',
     'icon square': 'mdi mdi-square',
+    'icon data-deploy': 'mdi mdi-database-settings',
 
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
@@ -206,6 +207,8 @@
     'icon type-objectid': 'mdi mdi-alpha-i-box',
     'icon type-null': 'mdi mdi-code-equal',
     'icon type-unknown': 'mdi mdi-help-box',
+    'icon equal': 'mdi mdi-equal',
+    'icon not-equal': 'mdi mdi-not-equal-variant',
 
     'icon at': 'mdi mdi-at',
     'icon expand-all': 'mdi mdi-expand-all',
@@ -216,6 +219,9 @@
     'icon rollback': 'mdi mdi-close-circle',
     'icon autocommit-on': 'mdi mdi-check-circle',
     'icon autocommit-off': 'mdi mdi-check-circle-outline',
+
+    'icon premium': 'mdi mdi-star',
+    'icon upload': 'mdi mdi-upload',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
@@ -230,12 +236,14 @@
 
     'img archive': 'mdi mdi-table color-icon-gold',
     'img archive-folder': 'mdi mdi-database-outline color-icon-green',
+    'img zipfile': 'mdi mdi-zip-box color-icon-gold',
     'img autoincrement': 'mdi mdi-numeric-1-box-multiple-outline',
     'img column': 'mdi mdi-table-column',
     'img server': 'mdi mdi-server color-icon-blue',
     'img primary-key': 'mdi mdi-key-star color-icon-yellow',
     'img foreign-key': 'mdi mdi-key-link',
     'img sql-file': 'mdi mdi-file',
+    'img anyfile': 'mdi mdi-file-question color-icon-red',
     'img shell': 'mdi mdi-flash color-icon-blue',
     'img chart': 'mdi mdi-chart-bar color-icon-magenta',
     'img markdown': 'mdi mdi-application color-icon-red',
@@ -299,7 +307,7 @@
     'img type-rejson': 'mdi mdi-color-json color-icon-blue',
     'img keydb': 'mdi mdi-key color-icon-blue',
 
-    'img duplicator': 'mdi mdi-content-duplicate color-icon-green',
+    'img replicator': 'mdi mdi-content-duplicate color-icon-green',
     'img import': 'mdi mdi-database-import color-icon-green',
     'img export': 'mdi mdi-database-export color-icon-green',
     'img transform': 'mdi mdi-rotate-orbit color-icon-blue',
@@ -309,6 +317,8 @@
 
     'img db-backup': 'mdi mdi-database-export color-icon-yellow',
     'img db-restore': 'mdi mdi-database-import color-icon-red',
+    'img settings': 'mdi mdi-cog color-icon-blue',
+    'img data-deploy': 'mdi mdi-database-settings color-icon-green',
   };
 </script>
 

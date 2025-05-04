@@ -26,7 +26,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: 32bb976b7a07547641d1e8517c86e7c4d70bd088
+          ref: 55cf42d58b843c4f1ffd6ab9b808f5f971bc3c8b
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -69,6 +69,17 @@ jobs:
         with:
           name: screenshots
           path: screenshots
+      - name: Push E2E screenshots
+        if: ${{ github.ref_name == 'master' }}
+        run: |
+          git config --global user.email "info@dbgate.info"
+          git config --global user.name "GitHub Actions"
+          git clone https://${{ secrets.DIFLOW_GIT_SECRET }}@github.com/dbgate/dbgate-img.git
+          cp ../dbgate-merged/e2e-tests/screenshots/*.png dbgate-img/static/img
+          cd dbgate-img/static/img
+          git add .
+          git commit --amend --no-edit
+          git push --force
     services:
       postgres-cypress:
         image: postgres

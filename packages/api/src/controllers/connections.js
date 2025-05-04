@@ -38,6 +38,11 @@ function getNamedArgs() {
         res.databaseFile = name;
         res.engine = 'sqlite@dbgate-plugin-sqlite';
       }
+
+      if (name.endsWith('.duckdb')) {
+        res.databaseFile = name;
+        res.engine = 'duckdb@dbgate-plugin-duckdb';
+      }
     }
   }
   return res;
@@ -102,12 +107,21 @@ function getPortalCollections() {
       trustServerCertificate: process.env[`SSL_TRUST_CERTIFICATE_${id}`],
     }));
 
+    for (const conn of connections) {
+      for (const prop in process.env) {
+        if (prop.startsWith(`CONNECTION_${conn._id}_`)) {
+          const name = prop.substring(`CONNECTION_${conn._id}_`.length);
+          conn[name] = process.env[prop];
+        }
+      }
+    }
+
     logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'Using connections from ENV variables');
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       logger.warn(
         { connections: noengine.map(x => x._id) },
-        'Invalid CONNECTIONS configutation, missing ENGINE for connection ID'
+        'Invalid CONNECTIONS configuration, missing ENGINE for connection ID'
       );
     }
     return connections;
@@ -307,6 +321,18 @@ module.exports = {
     return res;
   },
 
+  importFromArray(list) {
+    this.datastore.transformAll(connections => {
+      const mapped = connections.map(x => {
+        const found = list.find(y => y._id == x._id);
+        if (found) return found;
+        return x;
+      });
+      return [...mapped, ...list.filter(x => !connections.find(y => y._id == x._id))];
+    });
+    socket.emitChanged('connection-list-changed');
+  },
+
   async checkUnsavedConnectionsLimit() {
     if (!this.datastore) {
       return;
@@ -422,6 +448,22 @@ module.exports = {
       databaseFile,
       singleDatabase: true,
       defaultDatabase: `${file}.sqlite`,
+    });
+    return res;
+  },
+
+  newDuckdbDatabase_meta: true,
+  async newDuckdbDatabase({ file }) {
+    const duckdbDir = path.join(filesdir(), 'duckdb');
+    if (!(await fs.exists(duckdbDir))) {
+      await fs.mkdir(duckdbDir);
+    }
+    const databaseFile = path.join(duckdbDir, `${file}.duckdb`);
+    const res = await this.save({
+      engine: 'duckdb@dbgate-plugin-duckdb',
+      databaseFile,
+      singleDatabase: true,
+      defaultDatabase: `${file}.duckdb`,
     });
     return res;
   },

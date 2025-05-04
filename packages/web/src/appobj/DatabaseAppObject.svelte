@@ -330,15 +330,15 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
       });
     };
 
-    const handleImportWithDbDuplicator = () => {
+    const handleShowDataDeployer = () => {
       showModal(ChooseArchiveFolderModal, {
-        message: 'Choose archive folder for import from',
+        message: 'Choose archive folder for data deployer',
         onConfirm: archiveFolder => {
           openNewTab(
             {
               title: archiveFolder,
-              icon: 'img duplicator',
-              tabComponent: 'DataDuplicatorTab',
+              icon: 'img replicator',
+              tabComponent: 'DataDeployTab',
               props: {
                 conid: connection?._id,
                 database: name,
@@ -347,6 +347,8 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
             {
               editor: {
                 archiveFolder,
+                conid: connection?._id,
+                database: name,
               },
             }
           );
@@ -439,8 +441,8 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
 
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/import`) && {
-          onClick: handleImportWithDbDuplicator,
-          text: 'Import with DB duplicator',
+          onClick: handleShowDataDeployer,
+          text: 'Data deployer',
         },
 
       { divider: true },

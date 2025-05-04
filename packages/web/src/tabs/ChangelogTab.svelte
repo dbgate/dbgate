@@ -7,9 +7,10 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { apiCall } from '../utility/api';
+  import _ from 'lodash';
 
   let isLoading = false;
-  let text = null;
+  let text = '';
 
   const handleLoad = async () => {
     isLoading = true;
@@ -27,7 +28,7 @@
   <LoadingInfo message="Loading changelog" />
 {:else}
   <div>
-    <Markdown source={text || ''} />
+    <Markdown source={_.isString(text) ? text: ''} />
   </div>
 {/if}
 

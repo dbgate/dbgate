@@ -357,6 +357,7 @@ function createWindow() {
     title: isProApp() ? 'DbGate Premium' : 'DbGate',
     frame: useNativeMenu,
     titleBarStyle: useNativeMenu ? undefined : 'hidden',
+    backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#111111' : undefined,
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     partition: isProApp() ? 'persist:dbgate-premium' : 'persist:dbgate',

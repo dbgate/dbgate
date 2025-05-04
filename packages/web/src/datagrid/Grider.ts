@@ -1,8 +1,10 @@
 export interface GriderRowStatus {
-  status: 'regular' | 'updated' | 'deleted' | 'inserted';
+  status: 'regular' | 'updated' | 'deleted' | 'inserted' | 'missing';
   modifiedFields?: Set<string>;
   insertedFields?: Set<string>;
   deletedFields?: Set<string>;
+  overlayFields?: { [field: string]: string };
+  missingOverlayFields?: Set<string>;
 }
 
 export default abstract class Grider {
@@ -60,5 +62,8 @@ export default abstract class Grider {
     for (const key of Object.keys(changeObject)) {
       this.setCellValue(index, key, changeObject[key]);
     }
+  }
+  getInsertedRowIndex(index) {
+    return null;
   }
 }
