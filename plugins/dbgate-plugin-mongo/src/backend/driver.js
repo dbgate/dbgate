@@ -5,6 +5,7 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { MongoClient, ObjectId, AbstractCursor } = require('mongodb');
 const { EJSON } = require('bson');
+const { serializeJsTypesForJsonStringify } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -13,7 +14,9 @@ const {
 } = require('../frontend/convertToMongoCondition');
 
 function transformMongoData(row) {
-  return EJSON.serialize(row);
+  // TODO process LONG type
+  // console.log('ROW', row);
+  return EJSON.serialize(serializeJsTypesForJsonStringify(row));
 }
 
 async function readCursor(cursor, options) {

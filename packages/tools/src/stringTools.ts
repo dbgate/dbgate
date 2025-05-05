@@ -81,7 +81,7 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
 
   if (editorTypes?.parseNumber) {
     if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(value)) {
-      return parseFloat(value);
+      return parseNumberSafe(value);
     }
   }
 
@@ -212,6 +212,12 @@ export function stringifyCellValue(
   if (value?.$bigint) {
     return {
       value: value.$bigint,
+      gridStyle: 'valueCellStyle',
+    };
+  }
+  if (typeof value === 'bigint') {
+    return {
+      value: value.toString(),
       gridStyle: 'valueCellStyle',
     };
   }

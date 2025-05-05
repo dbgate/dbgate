@@ -5,11 +5,17 @@ const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const _pickBy = require('lodash/pickBy');
 const _fromPairs = require('lodash/fromPairs');
 
+function mongoReplacer(key, value) {
+  if (typeof value === 'bigint') {
+    return { $bigint: value.toString() };
+  }
+  return value;
+}
+
 function jsonStringifyWithObjectId(obj) {
-  return JSON.stringify(obj, undefined, 2).replace(
-    /\{\s*\"\$oid\"\s*\:\s*\"([0-9a-f]+)\"\s*\}/g,
-    (m, id) => `ObjectId("${id}")`
-  );
+  return JSON.stringify(obj, mongoReplacer, 2)
+    .replace(/\{\s*\"\$oid\"\s*\:\s*\"([0-9a-f]+)\"\s*\}/g, (m, id) => `ObjectId("${id}")`)
+    .replace(/\{\s*\"\$bigint\"\s*\:\s*\"([0-9]+)\"\s*\}/g, (m, num) => `${num}n`);
 }
 
 /** @type {import('dbgate-types').SqlDialect} */

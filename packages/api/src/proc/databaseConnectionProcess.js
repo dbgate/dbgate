@@ -255,7 +255,7 @@ async function handleDriverDataCore(msgid, callMethod, { logName }) {
   const driver = requireEngineDriver(storedConnection);
   try {
     const result = await callMethod(driver);
-    process.send({ msgtype: 'response', msgid, result });
+    process.send({ msgtype: 'response', msgid, result: serializeJsTypesForJsonStringify(result) });
   } catch (err) {
     logger.error(extractErrorLogData(err, { logName }), `Error when handling message ${logName}`);
     process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error executing DB data') });
