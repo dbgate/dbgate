@@ -13,6 +13,7 @@ import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 import { openWebLink } from './simpleTools';
+import { serializeJsTypesReplacer } from 'dbgate-tools';
 
 export const strmid = uuidv1();
 
@@ -177,7 +178,7 @@ export async function apiCall(
         'Content-Type': 'application/json',
         ...resolveApiHeaders(),
       },
-      body: JSON.stringify(args),
+      body: JSON.stringify(args, serializeJsTypesReplacer),
     });
 
     if (resp.status == 401 && !apiDisabled) {

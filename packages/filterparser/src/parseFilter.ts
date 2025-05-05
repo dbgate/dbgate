@@ -2,14 +2,18 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
-import { hexStringToArray } from 'dbgate-tools';
+import { hexStringToArray, parseNumberSafe } from 'dbgate-tools';
 import { FilterBehaviour, TransformType } from 'dbgate-types';
 
 const binaryCondition =
   (operator, numberDualTesting = false) =>
   value => {
-    const numValue = parseFloat(value);
-    if (numberDualTesting && !isNaN(numValue)) {
+    const numValue = parseNumberSafe(value);
+    if (
+      numberDualTesting &&
+      // @ts-ignore
+      !isNaN(numValue)
+    ) {
       return {
         conditionType: 'or',
         conditions: [
@@ -345,17 +349,17 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
 
     string1Num: () =>
       token(P.regexp(/"-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?"/, 1))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('numer quoted'),
 
     string2Num: () =>
       token(P.regexp(/'-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?'/, 1))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('numer quoted'),
 
     number: () =>
       token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('number'),
 
     objectid: () => token(P.regexp(/ObjectId\(['"]?[0-9a-f]{24}['"]?\)/)).desc('ObjectId'),

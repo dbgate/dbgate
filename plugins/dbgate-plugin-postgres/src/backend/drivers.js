@@ -21,6 +21,11 @@ const logger = getLogger('postreDriver');
 pg.types.setTypeParser(1082, 'text', val => val); // date
 pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
 pg.types.setTypeParser(1184, 'text', val => val); // timestamp
+pg.types.setTypeParser(20, 'text', val => {
+  const parsed = parseInt(val);
+  if (Number.isSafeInteger(parsed)) return parsed;
+  return BigInt(val);
+}); // timestamp
 
 function extractGeographyDate(value) {
   try {

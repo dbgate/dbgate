@@ -4,6 +4,7 @@ const fs = require('fs');
 const _ = require('lodash');
 
 const { jsldir } = require('../utility/directories');
+const { serializeJsTypesReplacer } = require('dbgate-tools');
 
 class QueryStreamTableWriter {
   constructor(sesid = undefined) {
@@ -38,7 +39,7 @@ class QueryStreamTableWriter {
 
   row(row) {
     // console.log('ACCEPT ROW', row);
-    this.currentStream.write(JSON.stringify(row) + '\n');
+    this.currentStream.write(JSON.stringify(row, serializeJsTypesReplacer) + '\n');
     this.currentRowCount += 1;
 
     if (!this.plannedStats) {

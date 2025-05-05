@@ -12,6 +12,7 @@ const {
   ScriptWriterEval,
   SqlGenerator,
   playJsonScriptWriter,
+  serializeJsTypesForJsonStringify,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
@@ -232,7 +233,7 @@ async function handleQueryData({ msgid, sql, range }, skipReadonlyCheck = false)
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     const res = await driver.query(dbhan, sql, { range });
-    process.send({ msgtype: 'response', msgid, ...res });
+    process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(res) });
   } catch (err) {
     process.send({
       msgtype: 'response',
