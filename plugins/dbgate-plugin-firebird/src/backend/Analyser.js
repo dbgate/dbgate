@@ -38,7 +38,9 @@ class Analyser extends DatabaseAnalyser {
     return {
       tables: tables.map(table => ({
         ...table,
-        columns: columns.filter(column => column.tableName === table.pureName),
+        columns: columns.filter(
+          column => column.tableName === table.pureName && column.schemaName === table.schemaName
+        ),
       })),
     };
   }
