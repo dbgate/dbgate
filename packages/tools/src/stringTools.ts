@@ -590,10 +590,13 @@ export function jsonLinesParse(jsonLines: string): any[] {
     .filter(x => x);
 }
 
-export function serializeJsTypesForJsonStringify(obj) {
+export function serializeJsTypesForJsonStringify(obj, replacer = null) {
   return _cloneDeepWith(obj, value => {
     if (typeof value === 'bigint') {
       return { $bigint: value.toString() };
+    }
+    if (replacer) {
+      return replacer(value);
     }
   });
 }

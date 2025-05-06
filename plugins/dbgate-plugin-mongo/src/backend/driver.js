@@ -3,9 +3,9 @@ const stream = require('stream');
 const isPromise = require('is-promise');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const { MongoClient, ObjectId, AbstractCursor } = require('mongodb');
+const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
 const { EJSON } = require('bson');
-const { serializeJsTypesForJsonStringify } = require('dbgate-tools');
+const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -13,21 +13,30 @@ const {
   convertToMongoSort,
 } = require('../frontend/convertToMongoCondition');
 
-function transformMongoData(row) {
-  // TODO process LONG type
-  // console.log('ROW', row);
-  return EJSON.serialize(serializeJsTypesForJsonStringify(row));
+function serializeMongoData(row) {
+  return EJSON.serialize(
+    serializeJsTypesForJsonStringify(row, (value) => {
+      if (value instanceof Long) {
+        if (Number.isSafeInteger(value.toNumber())) {
+          return value.toNumber();
+        }
+        return {
+          $bigint: value.toString(),
+        };
+      }
+    })
+  );
 }
 
 async function readCursor(cursor, options) {
   options.recordset({ __isDynamicStructure: true });
   await cursor.forEach((row) => {
-    options.row(transformMongoData(row));
+    options.row(serializeMongoData(row));
   });
 }
 
-function convertObjectId(condition) {
-  return EJSON.deserialize(condition);
+function deserializeMongoData(value) {
+  return deserializeJsTypesFromJsonParse(EJSON.deserialize(value));
 }
 
 function findArrayResult(resValue) {
@@ -266,7 +275,7 @@ const driver = {
     const cursorStream = exprValue.stream();
 
     cursorStream.on('data', (row) => {
-      pass.write(transformMongoData(row));
+      pass.write(serializeMongoData(row));
     });
 
     // propagate error
@@ -320,26 +329,26 @@ const driver = {
 
       const collection = dbhan.getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(convertObjectId(mongoCondition) || {});
+        const count = await collection.countDocuments(deserializeMongoData(mongoCondition) || {});
         return { count };
       } else if (options.aggregate) {
-        let cursor = await collection.aggregate(convertObjectId(convertToMongoAggregate(options.aggregate)));
+        let cursor = await collection.aggregate(deserializeMongoData(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(transformMongoData).map((x) => ({
+          rows: rows.map(serializeMongoData).map((x) => ({
             ...x._id,
             ..._.omit(x, ['_id']),
           })),
         };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
-        let cursor = await collection.find(convertObjectId(mongoCondition) || {});
+        let cursor = await collection.find(deserializeMongoData(mongoCondition) || {});
         if (options.sort) cursor = cursor.sort(convertToMongoSort(options.sort));
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(transformMongoData),
+          rows: rows.map(serializeMongoData),
         };
       }
     } catch (err) {
@@ -361,7 +370,7 @@ const driver = {
           ...insert.document,
           ...insert.fields,
         };
-        const resdoc = await collection.insertOne(convertObjectId(document));
+        const resdoc = await collection.insertOne(deserializeMongoData(document));
         res.inserted.push(resdoc._id);
       }
       for (const update of changeSet.updates) {
@@ -371,16 +380,16 @@ const driver = {
             ...update.document,
             ...update.fields,
           };
-          const doc = await collection.findOne(convertObjectId(update.condition));
+          const doc = await collection.findOne(deserializeMongoData(update.condition));
           if (doc) {
-            const resdoc = await collection.replaceOne(convertObjectId(update.condition), {
-              ...convertObjectId(document),
+            const resdoc = await collection.replaceOne(deserializeMongoData(update.condition), {
+              ...deserializeMongoData(document),
               _id: doc._id,
             });
             res.replaced.push(resdoc._id);
           }
         } else {
-          const set = convertObjectId(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$));
+          const set = deserializeMongoData(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$));
           const unset = _.fromPairs(
             Object.keys(update.fields)
               .filter((k) => update.fields[k]?.$$undefined$$)
@@ -390,13 +399,13 @@ const driver = {
           if (!_.isEmpty(set)) updates.$set = set;
           if (!_.isEmpty(unset)) updates.$unset = unset;
 
-          const resdoc = await collection.updateOne(convertObjectId(update.condition), updates);
+          const resdoc = await collection.updateOne(deserializeMongoData(update.condition), updates);
           res.updated.push(resdoc._id);
         }
       }
       for (const del of changeSet.deletes) {
         const collection = db.collection(del.pureName);
-        const resdoc = await collection.deleteOne(convertObjectId(del.condition));
+        const resdoc = await collection.deleteOne(deserializeMongoData(del.condition));
         res.deleted.push(resdoc._id);
       }
       return res;
@@ -452,7 +461,7 @@ const driver = {
       ]);
       const rows = await cursor.toArray();
       return _.uniqBy(
-        rows.map(transformMongoData).map(({ _id }) => {
+        rows.map(serializeMongoData).map(({ _id }) => {
           if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
           return { value: _id };
         }),
