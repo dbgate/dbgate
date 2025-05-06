@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const sql = require('./sql');
-const { getDataTypeString } = require('./helpers');
+const { getDataTypeString, getTriggerTiming, getTriggerEventType } = require('./helpers');
 
 const { DatabaseAnalyser } = require('dbgate-tools');
 
@@ -12,6 +12,7 @@ class Analyser extends DatabaseAnalyser {
   async _runAnalysis() {
     const tablesResult = await this.driver.query(this.dbhan, sql.tables);
     const columnsResult = await this.driver.query(this.dbhan, sql.columns);
+    const triggersResult = await this.driver.query(this.dbhan, sql.triggers);
 
     const columns = columnsResult.rows.map(i => ({
       tableName: i.TABLENAME,
@@ -28,11 +29,20 @@ class Analyser extends DatabaseAnalyser {
       pureName: i.PURENAME,
       schemaName: i.SCHEMANAME,
     }));
+
     const tables = tablesResult.rows.map(i => ({
       pureName: i.PURENAME,
       objectId: i.OBJECTID,
       schemaName: i.SCHEMANAME,
       objectComment: i.OBJECTCOMMENT,
+    }));
+
+    const triggers = triggersResult.rows.map(i => ({
+      pureName: i.PURENAME,
+      tableName: i.TABLENAME,
+      shcemaName: i.SCHEMANAME,
+      eventType: getTriggerEventType(i.TRIGGERTYPE),
+      triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
     }));
 
     return {
@@ -42,6 +52,7 @@ class Analyser extends DatabaseAnalyser {
           column => column.tableName === table.pureName && column.schemaName === table.schemaName
         ),
       })),
+      triggers,
     };
   }
 
