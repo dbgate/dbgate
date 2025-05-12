@@ -171,6 +171,7 @@ const drivers = driverBases.map(driverBase => ({
         procedure: where,
         time: new Date(),
         severity: 'info',
+        detail: notice,
       });
     };
 
