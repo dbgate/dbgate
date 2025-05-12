@@ -17,11 +17,24 @@
   export let model: DbKeysTreeModel;
   export let changeModel: DbKeysChangeModelFunction;
 
+  export let parentRoots = [];
+
   $: items = model.childrenByKey[root] ?? [];
 </script>
 
 {#each items as item}
-  <DbKeysTreeNode {conid} {database} {root} {connection} {item} {filter} {indentLevel} {model} {changeModel} />
+  <DbKeysTreeNode
+    {conid}
+    {database}
+    {root}
+    {connection}
+    {item}
+    {filter}
+    {indentLevel}
+    {model}
+    {changeModel}
+    parentRoots={[...parentRoots, root]}
+  />
 {/each}
 
 {#if model.dirsByKey[root]?.shouldLoadNext}

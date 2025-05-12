@@ -31,6 +31,7 @@
   export let item;
   export let indentLevel = 0;
   export let filter;
+  export let parentRoots = [];
 
   export let model: DbKeysTreeModel;
   export let changeModel: DbKeysChangeModelFunction;
@@ -179,7 +180,7 @@
   {item.text}
 </div> -->
 
-{#if isExpanded}
+{#if isExpanded && !parentRoots.includes(item.root)}
   <DbKeysSubTree
     {conid}
     {database}
@@ -189,5 +190,6 @@
     {filter}
     {model}
     {changeModel}
+    {parentRoots}
   />
 {/if}

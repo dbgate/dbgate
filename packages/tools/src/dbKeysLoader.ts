@@ -176,7 +176,7 @@ export function dbKeys_reloadFolder(tree: DbKeysTreeModel, root: string): DbKeys
   };
 }
 
-function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[]) {
+function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[], visitedRoots: string[] = []) {
   const item = tree.dirsByKey[root];
   if (!item.isExpanded) {
     return false;
@@ -185,7 +185,11 @@ function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[
   for (const child of children) {
     res.push(child);
     if (child.type == 'dir') {
-      addFlatItems(tree, child.root, res);
+      if (visitedRoots.includes(child.root)) {
+        console.warn('Redis: preventing infinite loop for root', child.root);
+        return false;
+      }
+      addFlatItems(tree, child.root, res, [...visitedRoots, root]);
     }
   }
 }

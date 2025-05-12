@@ -260,7 +260,7 @@ const driver = {
 
   extractKeysFromLevel(dbhan, root, keys) {
     const prefix = root ? `${root}${dbhan.treeKeySeparator}` : '';
-    const rootSplit = _.compact(root.split(dbhan.treeKeySeparator));
+    const rootSplit = root == '' ? [] : root.split(dbhan.treeKeySeparator);
     const res = {};
     for (const key of keys) {
       if (!key.startsWith(prefix)) continue;
