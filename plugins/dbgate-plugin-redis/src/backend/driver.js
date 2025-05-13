@@ -201,6 +201,18 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
+  async scanKeys(dbhan, pattern, cursor = 0, count) {
+    const [nextCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', pattern || '*', 'COUNT', count);
+    const keysMapped = keys.map((key) => ({
+      key,
+    }));
+    await this.enrichKeyInfo(dbhan, keysMapped);
+    return {
+      nextCursor,
+      keys: keysMapped,
+    };
+  },
+
   async loadKeys(dbhan, root = '', filter = null, limit = null) {
     const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
@@ -310,9 +322,9 @@ const driver = {
     item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
   },
 
-  async enrichKeyInfo(dbhan, levelInfo) {
+  async enrichKeyInfo(dbhan, keyObjects) {
     await async.eachLimit(
-      levelInfo.filter((x) => x.key),
+      keyObjects.filter((x) => x.key),
       10,
       async (item) => await this.enrichOneKeyInfo(dbhan, item)
     );

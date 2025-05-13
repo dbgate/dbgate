@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     dbKeys_getFlatList,
-    dbKeys_loadMissing,
+    dbKeys_loadNext,
     dbKeys_markNodeExpanded,
     dbKeys_refreshAll,
     findEngineDriver,
@@ -36,6 +36,7 @@
 
   export let conid;
   export let database;
+  export let treeKeySeparator = ':';
 
   let domListHandler;
   let domContainer = null;
@@ -43,10 +44,10 @@
 
   let filter;
 
-  let model = dbKeys_refreshAll();
+  let model = dbKeys_refreshAll(treeKeySeparator);
 
   function handleRefreshDatabase() {
-    changeModel(model => dbKeys_refreshAll(model));
+    changeModel(model => dbKeys_refreshAll(treeKeySeparator, model));
   }
 
   function handleAddKey() {
@@ -80,22 +81,26 @@
 
   $: connection = useConnectionInfo({ conid });
 
-  async function changeModel(modelUpdate) {
+  function changeModel(modelUpdate) {
     model = modelUpdate(model);
-    model = await dbKeys_loadMissing(model, async (root, limit) => {
-      const result = await apiCall('database-connections/load-keys', {
+  }
+
+  async function loadNextPage() {
+    model = await dbKeys_loadNext(model, async (cursor, count) => {
+      const result = await apiCall('database-connections/scan-keys', {
         conid,
         database,
-        root,
-        filter,
-        limit,
+        pattern: filter,
+        cursor,
+        count,
       });
       return result;
     });
   }
 
   function reloadModel() {
-    changeModel(model => dbKeys_refreshAll(model));
+    changeModel(model => dbKeys_refreshAll(treeKeySeparator, model));
+    loadNextPage();
   }
 
   $: {
@@ -104,11 +109,13 @@
     filter;
     reloadModel();
   }
+
+  $: console.log('DbKeysTree MODEL', model);
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper noMargin>
   <SearchInput
-    placeholder="Search keys"
+    placeholder="Redis pattern or key part"
     bind:value={filter}
     isDebounced
     bind:this={domFilter}
@@ -124,6 +131,12 @@
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
+<div class="space-between align-items-center ml-1">
+  <div>Scanned 10/20 keys</div>
+  <InlineButton on:click={loadNextPage} title="Scan more keys">
+    <FontIcon icon="icon more" /> Scan more
+  </InlineButton>
+</div>
 {#if differentFocusedDb}
   <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 {/if}

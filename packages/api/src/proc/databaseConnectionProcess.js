@@ -275,6 +275,10 @@ async function handleLoadKeys({ msgid, root, filter, limit }) {
   return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter, limit), { logName: 'loadKeys' });
 }
 
+async function handleScanKeys({ msgid, pattern, cursor, count }) {
+  return handleDriverDataCore(msgid, driver => driver.scanKeys(dbhan, pattern, cursor, count), { logName: 'scanKeys' });
+}
+
 async function handleExportKeys({ msgid, options }) {
   return handleDriverDataCore(msgid, driver => driver.exportKeys(dbhan, options), { logName: 'exportKeys' });
 }
@@ -453,6 +457,7 @@ const messageHandlers = {
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,
+  scanKeys: handleScanKeys,
   loadKeyInfo: handleLoadKeyInfo,
   callMethod: handleCallMethod,
   loadKeyTableRange: handleLoadKeyTableRange,

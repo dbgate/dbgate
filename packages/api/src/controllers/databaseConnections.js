@@ -304,6 +304,12 @@ module.exports = {
     return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
   },
 
+  scanKeys_meta: true,
+  async scanKeys({ conid, database, root, pattern, cursor, count }, req) {
+    testConnectionPermission(conid, req);
+    return this.loadDataCore('scanKeys', { conid, database, root, pattern, cursor, count });
+  },
+
   exportKeys_meta: true,
   async exportKeys({ conid, database, options }, req) {
     testConnectionPermission(conid, req);

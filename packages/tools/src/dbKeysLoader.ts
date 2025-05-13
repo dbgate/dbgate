@@ -4,35 +4,51 @@ const SHOW_INCREMENT = 100;
 
 export interface DbKeysNodeModelBase {
   text?: string;
+  key: string;
   count?: number;
   level: number;
+  keyPath: string[];
+  parentKey: string;
 }
 
 export interface DbKeysLeafNodeModel extends DbKeysNodeModelBase {
-  key: string;
-
   type: 'string' | 'hash' | 'set' | 'list' | 'zset' | 'stream' | 'binary' | 'ReJSON-RL';
 }
 
 export interface DbKeysFolderNodeModel extends DbKeysNodeModelBase {
-  root: string;
+  // root: string;
   type: 'dir';
-  maxShowCount?: number;
+  visibleCount?: number;
   isExpanded?: boolean;
-  shouldLoadNext?: boolean;
-  hasNext?: boolean;
 }
 
 export interface DbKeysTreeModel {
+  treeKeySeparator: string;
   root: DbKeysFolderNodeModel;
   dirsByKey: { [key: string]: DbKeysFolderNodeModel };
   childrenByKey: { [key: string]: DbKeysNodeModel[] };
-  refreshAll?: boolean;
+  keyObjectsByKey: { [key: string]: DbKeysNodeModel };
+  scannedKeys: number;
+  cursor: string;
+  loadedAll: false;
+  // refreshAll?: boolean;
 }
 
 export type DbKeysNodeModel = DbKeysLeafNodeModel | DbKeysFolderNodeModel;
 
-export type DbKeysLoadFunction = (root: string, limit: number) => Promise<DbKeysNodeModel[]>;
+export interface DbKeyLoadedModel {
+  key: string;
+
+  type: 'string' | 'hash' | 'set' | 'list' | 'zset' | 'stream' | 'binary' | 'ReJSON-RL';
+  count?: number;
+}
+
+export interface DbKeysLoadResult {
+  nextCursor: string;
+  keys: DbKeyLoadedModel[];
+}
+
+export type DbKeysLoadFunction = (root: string, limit: number) => Promise<DbKeysLoadResult>;
 
 export type DbKeysChangeModelFunction = (func: (model: DbKeysTreeModel) => DbKeysTreeModel) => void;
 
@@ -73,54 +89,129 @@ export type DbKeysChangeModelFunction = (func: (model: DbKeysTreeModel) => DbKey
 //   };
 // }
 
-export async function dbKeys_loadMissing(tree: DbKeysTreeModel, loader: DbKeysLoadFunction): Promise<DbKeysTreeModel> {
-  const childrenByKey = { ...tree.childrenByKey };
-  const dirsByKey = { ...tree.dirsByKey };
+// export async function dbKeys_loadMissing(tree: DbKeysTreeModel, loader: DbKeysLoadFunction): Promise<DbKeysTreeModel> {
+//   const childrenByKey = { ...tree.childrenByKey };
+//   const dirsByKey = { ...tree.dirsByKey };
 
-  for (const root in tree.dirsByKey) {
-    const dir = tree.dirsByKey[root];
+//   for (const root in tree.dirsByKey) {
+//     const dir = tree.dirsByKey[root];
 
-    if (dir.isExpanded && dir.shouldLoadNext) {
-      if (!tree.childrenByKey[root] || dir.hasNext) {
-        const loadCount = dir.maxShowCount && dir.shouldLoadNext ? dir.maxShowCount + SHOW_INCREMENT : SHOW_INCREMENT;
-        const items = await loader(root, loadCount + 1);
+//     if (dir.isExpanded && dir.shouldLoadNext) {
+//       if (!tree.childrenByKey[root] || dir.hasNext) {
+//         const loadCount = dir.maxShowCount && dir.shouldLoadNext ? dir.maxShowCount + SHOW_INCREMENT : SHOW_INCREMENT;
+//         const items = await loader(root, loadCount + 1);
 
-        childrenByKey[root] = items.slice(0, loadCount);
-        dirsByKey[root] = {
-          ...dir,
-          shouldLoadNext: false,
-          maxShowCount: loadCount,
-          hasNext: items.length > loadCount,
-        };
+//         childrenByKey[root] = items.slice(0, loadCount);
+//         dirsByKey[root] = {
+//           ...dir,
+//           shouldLoadNext: false,
+//           maxShowCount: loadCount,
+//           hasNext: items.length > loadCount,
+//         };
 
-        for (const child of items.slice(0, loadCount)) {
-          if (child.type == 'dir' && !dirsByKey[child.root]) {
-            dirsByKey[child.root] = {
-              shouldLoadNext: false,
-              maxShowCount: null,
-              hasNext: false,
-              isExpanded: false,
-              type: 'dir',
-              level: dir.level + 1,
-              root: child.root,
-              text: child.text,
-            };
-          }
-        }
-      } else {
-        dirsByKey[root] = {
-          ...dir,
-          shouldLoadNext: false,
+//         for (const child of items.slice(0, loadCount)) {
+//           if (child.type == 'dir' && !dirsByKey[child.root]) {
+//             dirsByKey[child.root] = {
+//               shouldLoadNext: false,
+//               maxShowCount: null,
+//               hasNext: false,
+//               isExpanded: false,
+//               type: 'dir',
+//               level: dir.level + 1,
+//               root: child.root,
+//               text: child.text,
+//             };
+//           }
+//         }
+//       } else {
+//         dirsByKey[root] = {
+//           ...dir,
+//           shouldLoadNext: false,
+//         };
+//       }
+//     }
+//   }
+
+//   return {
+//     ...tree,
+//     dirsByKey,
+//     childrenByKey,
+//     refreshAll: false,
+//   };
+// }
+
+export async function dbKeys_loadNext(tree: DbKeysTreeModel, loader: DbKeysLoadFunction): Promise<DbKeysTreeModel> {
+  const count = 2000;
+  const keyObjectsByKey = { ...tree.keyObjectsByKey };
+
+  const loaded = await loader(tree.cursor, count);
+
+  for (const keyObj of loaded.keys) {
+    const keyPath = keyObj.key.split(tree.treeKeySeparator);
+    keyObjectsByKey[keyObj.key] = {
+      ...keyObj,
+      level: keyPath.length,
+      text: keyPath[keyPath.length - 1],
+      keyPath,
+      parentKey: keyPath.slice(0, -1).join(tree.treeKeySeparator),
+    };
+  }
+
+  const dirsByKey: { [key: string]: DbKeysFolderNodeModel } = {};
+  const childrenByKey: { [key: string]: DbKeysNodeModel[] } = {};
+
+  dirsByKey[''] = tree.root;
+
+  for (const keyObj of Object.values(keyObjectsByKey)) {
+    const dirPath = keyObj.keyPath.slice(0, -1);
+    const dirKey = dirPath.join(tree.treeKeySeparator);
+
+    let dirDepth = keyObj.keyPath.length - 1;
+
+    while (dirDepth > 0) {
+      const newDirPath = keyObj.keyPath.slice(0, dirDepth);
+      const newDirKey = newDirPath.join(tree.treeKeySeparator);
+      if (!dirsByKey[newDirKey]) {
+        dirsByKey[newDirKey] = {
+          isExpanded: tree.dirsByKey[newDirKey]?.isExpanded ?? false,
+          level: keyObj.level - 1,
+          keyPath: newDirPath,
+          parentKey: newDirPath.slice(0, -1).join(tree.treeKeySeparator),
+          type: 'dir',
+          key: newDirKey,
+          visibleCount: tree.dirsByKey[newDirKey]?.visibleCount ?? SHOW_INCREMENT,
+          text: `${newDirPath[newDirPath.length - 1]}${tree.treeKeySeparator}*`,
         };
       }
+
+      dirDepth -= 1;
     }
+
+    if (!childrenByKey[dirKey]) {
+      childrenByKey[dirKey] = [];
+    }
+
+    childrenByKey[dirKey].push(keyObj);
+  }
+
+  for (const dirObj of Object.values(dirsByKey)) {
+    if (dirObj.key == '') {
+      continue;
+    }
+    
+    if (!childrenByKey[dirObj.parentKey]) {
+      childrenByKey[dirObj.parentKey] = [];
+    }
+    childrenByKey[dirObj.parentKey].push(dirObj);
   }
 
   return {
     ...tree,
+    cursor: loaded.nextCursor,
     dirsByKey,
     childrenByKey,
-    refreshAll: false,
+    keyObjectsByKey,
+    scannedKeys: tree.scannedKeys + count,
   };
 }
 
@@ -136,45 +227,50 @@ export function dbKeys_markNodeExpanded(tree: DbKeysTreeModel, root: string, isE
       [root]: {
         ...node,
         isExpanded,
-        shouldLoadNext: isExpanded,
       },
     },
   };
 }
 
-export function dbKeys_refreshAll(tree?: DbKeysTreeModel): DbKeysTreeModel {
+export function dbKeys_refreshAll(treeKeySeparator: string, tree?: DbKeysTreeModel): DbKeysTreeModel {
   const root: DbKeysFolderNodeModel = {
     isExpanded: true,
     level: 0,
-    root: '',
     type: 'dir',
-    shouldLoadNext: true,
+    keyPath: [],
+    parentKey: '',
+    key: '',
+    visibleCount: SHOW_INCREMENT,
   };
   return {
     ...tree,
+    treeKeySeparator,
     childrenByKey: {},
+    keyObjectsByKey: {},
     dirsByKey: {
       '': root,
     },
-    refreshAll: true,
+    scannedKeys: 0,
+    cursor: '0',
     root,
+    loadedAll: false,
   };
 }
 
-export function dbKeys_reloadFolder(tree: DbKeysTreeModel, root: string): DbKeysTreeModel {
-  return {
-    ...tree,
-    childrenByKey: _omit(tree.childrenByKey, root),
-    dirsByKey: {
-      ...tree.dirsByKey,
-      [root]: {
-        ...tree.dirsByKey[root],
-        shouldLoadNext: true,
-        hasNext: undefined,
-      },
-    },
-  };
-}
+// export function dbKeys_reloadFolder(tree: DbKeysTreeModel, root: string): DbKeysTreeModel {
+//   return {
+//     ...tree,
+//     childrenByKey: _omit(tree.childrenByKey, root),
+//     dirsByKey: {
+//       ...tree.dirsByKey,
+//       [root]: {
+//         ...tree.dirsByKey[root],
+//         shouldLoadNext: true,
+//         hasNext: undefined,
+//       },
+//     },
+//   };
+// }
 
 function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[], visitedRoots: string[] = []) {
   const item = tree.dirsByKey[root];
@@ -185,11 +281,11 @@ function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[
   for (const child of children) {
     res.push(child);
     if (child.type == 'dir') {
-      if (visitedRoots.includes(child.root)) {
-        console.warn('Redis: preventing infinite loop for root', child.root);
+      if (visitedRoots.includes(child.key)) {
+        console.warn('Redis: preventing infinite loop for root', child.key);
         return false;
       }
-      addFlatItems(tree, child.root, res, [...visitedRoots, root]);
+      addFlatItems(tree, child.key, res, [...visitedRoots, root]);
     }
   }
 }
