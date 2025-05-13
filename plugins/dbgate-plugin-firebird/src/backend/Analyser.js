@@ -55,10 +55,6 @@ class Analyser extends DatabaseAnalyser {
       triggers,
     };
   }
-
-  async _getFastSnapshot() {
-    return this._runAnalysis();
-  }
 }
 
 module.exports = Analyser;
