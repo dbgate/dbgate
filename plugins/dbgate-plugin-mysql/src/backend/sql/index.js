@@ -14,6 +14,7 @@ const parameters = require('./parameters');
 const triggers = require('./triggers');
 const triggersModifications = require('./triggersModifications');
 const schedulerEvents = require('./schedulerEvents.js');
+const schedulerEventsModifications = require('./schedulerEventsModifications.js');
 
 module.exports = {
   columns,
@@ -32,4 +33,5 @@ module.exports = {
   triggers,
   triggersModifications,
   schedulerEvents,
+  schedulerEventsModifications,
 };

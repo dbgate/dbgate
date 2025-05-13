@@ -277,7 +277,7 @@ class Analyser extends DatabaseAnalyser {
     const tableModificationsQueryData = await this.analyserQuery('tableModifications');
     const procedureModificationsQueryData = await this.analyserQuery('procedureModifications');
     const functionModificationsQueryData = await this.analyserQuery('functionModifications');
-    const schedulerEvents = await this.analyserQuery('schedulerEvents');
+    const schedulerEvents = await this.analyserQuery('schedulerEventsModifications');
     const triggers = await this.analyserQuery('triggersModifications');
 
     return {
