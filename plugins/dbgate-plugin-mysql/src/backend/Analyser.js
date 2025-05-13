@@ -245,6 +245,7 @@ class Analyser extends DatabaseAnalyser {
           parameters: functionNameToParameters[x.pureName],
         })),
       triggers: triggers.rows.map(row => ({
+        objectId: 'triggers:' + row.triggerName,
         contentHash: row.modifyDate,
         pureName: row.triggerName,
         eventType: row.eventType,
@@ -277,6 +278,7 @@ class Analyser extends DatabaseAnalyser {
     const procedureModificationsQueryData = await this.analyserQuery('procedureModifications');
     const functionModificationsQueryData = await this.analyserQuery('functionModifications');
     const schedulerEvents = await this.analyserQuery('schedulerEvents');
+    const triggers = await this.analyserQuery('triggers');
 
     return {
       tables: tableModificationsQueryData.rows
@@ -307,17 +309,13 @@ class Analyser extends DatabaseAnalyser {
       schedulerEvents: schedulerEvents.rows.map(row => ({
         contentHash: _.isDate(row.LAST_ALTERED) ? row.LAST_ALTERED.toISOString() : row.LAST_ALTERED,
         pureName: row.EVENT_NAME,
-        createSql: row.CREATE_SQL,
         objectId: row.EVENT_NAME,
-        intervalValue: row.INTERVAL_VALUE,
-        intervalField: row.INTERVAL_FIELD,
-        starts: row.STARTS,
-        status: row.STATUS,
-        executeAt: row.EXECUTE_AT,
-        lastExecuted: row.LAST_EXECUTED,
-        eventType: row.EVENT_TYPE,
-        definer: row.DEFINER,
-        objectTypeField: 'schedulerEvents',
+      })),
+      triggers: triggers.rows.map(row => ({
+        contentHash: row.modifyDate,
+        objectId: 'triggers:' + row.triggerName,
+        pureName: row.triggerName,
+        tableName: row.tableName,
       })),
     };
   }
