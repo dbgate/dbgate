@@ -222,6 +222,7 @@
 
     'icon premium': 'mdi mdi-star',
     'icon upload': 'mdi mdi-upload',
+    'icon limit': 'mdi mdi-car-speed-limiter',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',

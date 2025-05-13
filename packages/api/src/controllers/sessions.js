@@ -141,7 +141,7 @@ module.exports = {
   },
 
   executeQuery_meta: true,
-  async executeQuery({ sesid, sql, autoCommit }) {
+  async executeQuery({ sesid, sql, autoCommit, limitRows }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
@@ -149,7 +149,7 @@ module.exports = {
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
-    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit });
+    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit, limitRows });
 
     return { state: 'ok' };
   },

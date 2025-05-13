@@ -164,6 +164,17 @@ const drivers = driverBases.map(driverBase => ({
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
   stream(dbhan, sql, options) {
+    const handleNotice = notice => {
+      const { message, where } = notice;
+      options.info({
+        message,
+        procedure: where,
+        time: new Date(),
+        severity: 'info',
+        detail: notice,
+      });
+    };
+
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -171,6 +182,7 @@ const drivers = driverBases.map(driverBase => ({
 
     let wasHeader = false;
     let columnsToTransform = null;
+    dbhan.client.on('notice', handleNotice);
 
     query.on('row', row => {
       if (!wasHeader) {
@@ -211,6 +223,7 @@ const drivers = driverBases.map(driverBase => ({
         wasHeader = true;
       }
 
+      dbhan.client.off('notice', handleNotice);
       options.done();
     });
 
@@ -228,6 +241,7 @@ const drivers = driverBases.map(driverBase => ({
         time: new Date(),
         severity: 'error',
       });
+      dbhan.client.off('notice', handleNotice);
       options.done();
     });
 

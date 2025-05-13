@@ -144,6 +144,9 @@
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import QueryAiAssistant from '../query/QueryAiAssistant.svelte';
   import uuidv1 from 'uuid/v1';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import { getIntSettingsValue } from '../settings/settingsTools';
+  import RowsLimitModal from '../modals/RowsLimitModal.svelte';
 
   export let tabid;
   export let conid;
@@ -196,6 +199,21 @@
   let domAiAssistant;
   let isInTransaction = false;
   let isAutocommit = false;
+
+  const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
+  function getInitialRowsLimit() {
+    const storageValue = localStorage.getItem(queryRowsLimitLocalStorageKey);
+    if (storageValue == 'nolimit') {
+      return null;
+    }
+    if (storageValue) {
+      return parseInt(storageValue) ?? null;
+    }
+    return getIntSettingsValue('sqlEditor.limitRows', null, 1);
+  }
+
+  let queryRowsLimit = getInitialRowsLimit();
+  $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -362,6 +380,7 @@
         sesid,
         sql,
         autoCommit: driver?.implicitTransactions && isAutocommit,
+        limitRows: queryRowsLimit ? queryRowsLimit : undefined,
       });
     }
     await apiCall('query-history/write', {
@@ -713,6 +732,20 @@
     <ToolStripCommandButton command="query.kill" data-testid="QueryTab_killButton" />
     <ToolStripSaveButton idPrefix="query" />
     <ToolStripCommandButton command="query.formatCode" />
+    {#if !driver?.singleConnectionOnly}
+      <ToolStripButton
+        icon="icon limit"
+        on:click={() =>
+          showModal(RowsLimitModal, {
+            value: queryRowsLimit,
+            onConfirm: value => {
+              queryRowsLimit = value;
+            },
+          })}
+      >
+        {queryRowsLimit ? `Limit ${queryRowsLimit} rows` : 'Unlimited rows'}</ToolStripButton
+      >
+    {/if}
     {#if resultCount == 1}
       <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
     {/if}
