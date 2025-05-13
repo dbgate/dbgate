@@ -13,31 +13,19 @@ class Analyser extends DatabaseAnalyser {
     const tablesResult = await this.driver.query(this.dbhan, sql.tables);
     const columnsResult = await this.driver.query(this.dbhan, sql.columns);
     const triggersResult = await this.driver.query(this.dbhan, sql.triggers);
+    const primaryKeysResult = await this.driver.query(this.dbhan, sql.primaryKeys);
+    const foreignKeysResult = await this.driver.query(this.dbhan, sql.foreignKeys);
+    const functionsResults = await this.driver.query(this.dbhan, sql.functions);
+    const functionParametersResults = await this.driver.query(this.dbhan, sql.functionParameters);
+    const proceduresResults = await this.driver.query(this.dbhan, sql.procedures);
+    const procedureParametersResults = await this.driver.query(this.dbhan, sql.procedureParameters);
 
-    const columns = columnsResult.rows.map(i => ({
-      tableName: i.TABLENAME,
-      columnName: i.COLUMNNAME,
-      notNull: i.NOTNULL,
-      isPrimaryKey: i.ISPRIMARYKEY,
-      dataType: getDataTypeString(i),
-      precision: i.NUMBERPRECISION,
-      scale: i.SCALE,
-      length: i.LENGTH,
-      defaultValue: i.DEFAULTVALUE,
-      columnComment: i.COLUMNCOMMENT,
-      isUnsigned: i.ISUNSIGNED,
-      pureName: i.PURENAME,
-      schemaName: i.SCHEMANAME,
+    const columns = columnsResult.rows?.map(column => ({
+      ...column,
+      dataType: getDataTypeString(column),
     }));
 
-    const tables = tablesResult.rows.map(i => ({
-      pureName: i.PURENAME,
-      objectId: i.OBJECTID,
-      schemaName: i.SCHEMANAME,
-      objectComment: i.OBJECTCOMMENT,
-    }));
-
-    const triggers = triggersResult.rows.map(i => ({
+    const triggers = triggersResult.rows?.map(i => ({
       pureName: i.PURENAME,
       tableName: i.TABLENAME,
       shcemaName: i.SCHEMANAME,
@@ -45,14 +33,48 @@ class Analyser extends DatabaseAnalyser {
       triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
     }));
 
-    return {
-      tables: tables.map(table => ({
+    const primaryKeys = primaryKeysResult.rows ?? [];
+
+    const foreignKeys = foreignKeysResult.rows ?? [];
+
+    const functions = functionsResults.rows?.map(func => ({
+      ...func,
+      returnType: functionParametersResults.rows?.filter(
+        param => param.owningObjectName === func.pureName && param.parameterMode === 'RETURN'
+      )?.dataType,
+      parameters: functionParametersResults.rows
+        ?.filter(param => param.owningObjectName === func.pureName)
+        .map(param => ({
+          ...param,
+          dataType: getDataTypeString(param),
+        })),
+    }));
+
+    const procedures = proceduresResults.rows.map(proc => ({
+      ...proc,
+      parameters: procedureParametersResults.rows
+        ?.filter(param => param.owningObjectName === proc.pureName)
+        .map(param => ({
+          ...param,
+          dataType: getDataTypeString(param),
+        })),
+    }));
+
+    const tables =
+      tablesResult.rows?.map(table => ({
         ...table,
         columns: columns.filter(
           column => column.tableName === table.pureName && column.schemaName === table.schemaName
         ),
-      })),
+        primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, primaryKeys),
+        foreignKeys: DatabaseAnalyser.extractForeignKeys(table, foreignKeys),
+      })) ?? [];
+
+    return {
+      tables,
       triggers,
+      functions,
+      procedures,
     };
   }
 }

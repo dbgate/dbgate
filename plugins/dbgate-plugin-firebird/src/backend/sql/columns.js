@@ -1,8 +1,8 @@
 module.exports = `
 SELECT DISTINCT
-    CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255)) AS tableName,
-    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS columnName,
-    CASE rf.rdb$null_flag WHEN 1 THEN FALSE ELSE TRUE END AS notNull,
+    CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255)) AS "tableName",
+    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "columnName",
+    CASE rf.rdb$null_flag WHEN 1 THEN FALSE ELSE TRUE END AS "notNull",
     CASE
         WHEN EXISTS (
             SELECT 1
@@ -13,19 +13,19 @@ SELECT DISTINCT
               AND rc.rdb$constraint_type = 'PRIMARY KEY'
         ) THEN TRUE
         ELSE FALSE
-    END AS isPrimaryKey,
-    f.rdb$field_type AS dataTypeCode,
-    f.rdb$field_precision AS numberprecision,
-    f.rdb$field_scale AS scale,
-    f.rdb$field_length AS length,
-    CAST(TRIM(rf.rdb$default_value) AS VARCHAR(255)) AS defaultValue,
-    CAST(TRIM(rf.rdb$description) AS VARCHAR(255)) AS columnComment,
+    END AS "isPrimaryKey",
+    f.rdb$field_type AS "dataTypeCode",
+    f.rdb$field_precision AS "precision",
+    f.rdb$field_scale AS "scale",
+    f.rdb$field_length AS "length",
+    CAST(TRIM(rf.rdb$default_value) AS VARCHAR(255)) AS "defaultValue",
+    CAST(TRIM(rf.rdb$description) AS VARCHAR(255)) AS "columnComment",
     CASE
         WHEN f.rdb$field_type IN (8, 9, 16) AND f.rdb$field_scale < 0 THEN TRUE
         ELSE FALSE
-    END AS isUnsigned,
-    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS pureName,
-    CAST(TRIM(r.rdb$owner_name) AS VARCHAR(255)) AS schemaName
+    END AS "isUnsigned",
+    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "pureName",
+    CAST(TRIM(r.rdb$owner_name) AS VARCHAR(255)) AS "schemaName"
 FROM
     rdb$relation_fields rf
 JOIN
@@ -39,5 +39,5 @@ LEFT JOIN
 WHERE
     r.rdb$system_flag = 0
 ORDER BY
-    tableName, rf.rdb$field_position;
+    "tableName", rf.rdb$field_position;
 `;

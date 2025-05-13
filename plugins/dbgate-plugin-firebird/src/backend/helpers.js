@@ -1,10 +1,5 @@
-function getDataTypeString(column) {
-  if (!column) {
-    return null;
-  }
-  const { DATATYPECODE, SCALE, LENGTH, NUMBERPRECISION } = column;
-
-  switch (DATATYPECODE) {
+function getDataTypeString({ dataTypeCode, scale, length, precision }) {
+  switch (dataTypeCode) {
     case 7:
       return 'SMALLINT';
 
@@ -27,10 +22,10 @@ function getDataTypeString(column) {
       return 'TIME';
 
     case 14:
-      return `CHAR(${LENGTH})`;
+      return `CHAR(${length})`;
 
     case 16:
-      return `DECIMAL(${NUMBERPRECISION}, ${SCALE})`;
+      return `DECIMAL(${precision}, ${scale})`;
 
     case 27:
       return 'DOUBLE PRECISION';
@@ -39,13 +34,14 @@ function getDataTypeString(column) {
       return 'BLOB';
 
     case 37:
-      return `VARCHAR(${LENGTH})`;
+      return `VARCHAR(${length})`;
 
     case 261:
       return 'CSTRING';
 
     default:
-      return `UNKNOWN (${DATATYPECODE})`;
+      if (dataTypeCode === null || dataTypeCode === undefined) return 'UNKNOWN';
+      return `UNKNOWN (${dataTypeCode})`;
   }
 }
 
