@@ -46,7 +46,7 @@
     icon="icon dots-horizontal"
     expandIcon="icon invisible-box"
     on:click={() => {
-      changeModel(model => dbKeys_markNodeExpanded(model, key, true));
+      changeModel(model => dbKeys_markNodeExpanded(model, key, true), false);
     }}
   />
 {/if}

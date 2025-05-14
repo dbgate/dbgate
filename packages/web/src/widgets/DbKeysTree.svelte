@@ -1,9 +1,10 @@
 <script lang="ts">
   import {
+    dbKeys_clearLoadedData,
+    dbKeys_createNewModel,
     dbKeys_getFlatList,
     dbKeys_markNodeExpanded,
     dbKeys_mergeNextPage,
-    dbKeys_refreshAll,
     findEngineDriver,
   } from 'dbgate-tools';
 
@@ -32,7 +33,6 @@
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import openNewTab from '../utility/openNewTab';
-  import clickOutside from '../utility/clickOutside';
 
   export let conid;
   export let database;
@@ -43,12 +43,9 @@
   let domFilter = null;
 
   let filter;
+  let isLoading = false;
 
-  let model = dbKeys_refreshAll(treeKeySeparator);
-
-  function handleRefreshDatabase() {
-    changeModel(model => dbKeys_refreshAll(treeKeySeparator, model));
-  }
+  let model = dbKeys_createNewModel(treeKeySeparator);
 
   function handleAddKey() {
     const connection = $currentDatabase?.connection;
@@ -69,7 +66,7 @@
           args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
         });
 
-        handleRefreshDatabase();
+        reloadModel();
       },
     });
   }
@@ -81,11 +78,13 @@
 
   $: connection = useConnectionInfo({ conid });
 
-  function changeModel(modelUpdate) {
-    model = modelUpdate(model);
+  function changeModel(modelUpdate, loadNext) {
+    if (modelUpdate) model = modelUpdate(model);
+    if (loadNext) loadNextPage();
   }
 
   async function loadNextPage() {
+    isLoading = true;
     const nextScan = await apiCall('database-connections/scan-keys', {
       conid,
       database,
@@ -95,11 +94,11 @@
     });
 
     model = dbKeys_mergeNextPage(model, nextScan);
+    isLoading = false;
   }
 
   function reloadModel() {
-    changeModel(model => dbKeys_refreshAll(treeKeySeparator, model));
-    loadNextPage();
+    changeModel(model => dbKeys_clearLoadedData(model), true);
   }
 
   $: {
@@ -109,7 +108,7 @@
     reloadModel();
   }
 
-  $: console.log('DbKeysTree MODEL', model);
+  // $: console.log('DbKeysTree MODEL', model);
 </script>
 
 <SearchBoxWrapper noMargin>
@@ -126,20 +125,32 @@
   <InlineButton on:click={handleAddKey} title="Add new key">
     <FontIcon icon="icon plus-thick" />
   </InlineButton>
-  <InlineButton on:click={handleRefreshDatabase} title="Refresh key list">
+  <InlineButton on:click={reloadModel} title="Refresh key list">
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
-<div class="space-between align-items-center ml-1">
-  {#if model}
-    <div>
-      Scanned {Math.min(model?.scannedKeys, model?.dbsize) ?? '???'}/{model?.dbsize ?? '???'}
-    </div>
-  {/if}
-  <InlineButton on:click={loadNextPage} title="Scan more keys">
-    <FontIcon icon="icon more" /> Scan more
-  </InlineButton>
-</div>
+{#if !model?.loadedAll}
+  <div class="space-between align-items-center ml-1">
+    {#if model}
+      <div>
+        {#if isLoading}
+          Loading...
+        {:else}
+          Scanned {Math.min(model?.scannedKeys, model?.dbsize) ?? '???'}/{model?.dbsize ?? '???'}
+        {/if}
+      </div>
+    {/if}
+    {#if isLoading}
+      <div style="margin: 3px; margin-bottom: 2px">
+        <FontIcon icon="icon loading" />
+      </div>
+    {:else}
+      <InlineButton on:click={loadNextPage} title="Scan more keys">
+        <FontIcon icon="icon more" /> Scan more
+      </InlineButton>
+    {/if}
+  </div>
+{/if}
 {#if differentFocusedDb}
   <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 {/if}
@@ -172,11 +183,11 @@
         };
       }
       if (data.key && clickAction == 'keyEnter') {
-        changeModel(model => dbKeys_markNodeExpanded(model, data.key, !model.dirsByKey[data.key]?.isExpanded));
+        changeModel(model => dbKeys_markNodeExpanded(model, data.key, !model.dirsByKey[data.key]?.isExpanded), false);
       }
     }}
     handleExpansion={(data, value) => {
-      changeModel(model => dbKeys_markNodeExpanded(model, data.key, value));
+      changeModel(model => dbKeys_markNodeExpanded(model, data.key, value), false);
     }}
     onScrollTop={() => {
       domContainer?.scrollTop();

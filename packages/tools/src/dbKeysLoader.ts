@@ -19,6 +19,12 @@ export interface DbKeysLeafNodeModel extends DbKeysNodeModelBase {
 export interface DbKeysFolderNodeModel extends DbKeysNodeModelBase {
   // root: string;
   type: 'dir';
+  // visibleCount?: number;
+  // isExpanded?: boolean;
+}
+
+export interface DbKeysFolderStateMode {
+  key: string;
   visibleCount?: number;
   isExpanded?: boolean;
 }
@@ -27,6 +33,7 @@ export interface DbKeysTreeModel {
   treeKeySeparator: string;
   root: DbKeysFolderNodeModel;
   dirsByKey: { [key: string]: DbKeysFolderNodeModel };
+  dirStateByKey: { [key: string]: DbKeysFolderStateMode };
   childrenByKey: { [key: string]: DbKeysNodeModel[] };
   keyObjectsByKey: { [key: string]: DbKeysNodeModel };
   scannedKeys: number;
@@ -54,7 +61,10 @@ export interface DbKeysLoadResult {
 
 // export type DbKeysLoadFunction = (root: string, limit: number) => Promise<DbKeysLoadResult>;
 
-export type DbKeysChangeModelFunction = (func: (model: DbKeysTreeModel) => DbKeysTreeModel) => void;
+export type DbKeysChangeModelFunction = (
+  func: (model: DbKeysTreeModel) => DbKeysTreeModel,
+  loadNextPage: boolean
+) => void;
 
 // function dbKeys_findFolderNode(node: DbKeysNodeModel, root: string) {
 //   if (node.type != 'dir') {
@@ -174,13 +184,11 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
       const newDirKey = newDirPath.join(tree.treeKeySeparator);
       if (!dirsByKey[newDirKey]) {
         dirsByKey[newDirKey] = {
-          isExpanded: tree.dirsByKey[newDirKey]?.isExpanded ?? false,
           level: keyObj.level - 1,
           keyPath: newDirPath,
           parentKey: newDirPath.slice(0, -1).join(tree.treeKeySeparator),
           type: 'dir',
           key: newDirKey,
-          visibleCount: tree.dirsByKey[newDirKey]?.visibleCount ?? SHOW_INCREMENT,
           text: `${newDirPath[newDirPath.length - 1]}${tree.treeKeySeparator}*`,
         };
       }
@@ -204,6 +212,9 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
       childrenByKey[dirObj.parentKey] = [];
     }
     childrenByKey[dirObj.parentKey].push(dirObj);
+
+    // set key count
+    dirsByKey[dirObj.key].count = childrenByKey[dirObj.key].length;
   }
 
   for (const key in childrenByKey) {
@@ -223,14 +234,11 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
 }
 
 export function dbKeys_markNodeExpanded(tree: DbKeysTreeModel, root: string, isExpanded: boolean): DbKeysTreeModel {
-  const node = tree.dirsByKey[root];
-  if (!node) {
-    return tree;
-  }
+  const node = tree.dirStateByKey[root];
   return {
     ...tree,
-    dirsByKey: {
-      ...tree.dirsByKey,
+    dirStateByKey: {
+      ...tree.dirStateByKey,
       [root]: {
         ...node,
         isExpanded,
@@ -239,29 +247,48 @@ export function dbKeys_markNodeExpanded(tree: DbKeysTreeModel, root: string, isE
   };
 }
 
-export function dbKeys_refreshAll(treeKeySeparator: string, tree?: DbKeysTreeModel): DbKeysTreeModel {
+export function dbKeys_createNewModel(treeKeySeparator: string): DbKeysTreeModel {
   const root: DbKeysFolderNodeModel = {
-    isExpanded: true,
     level: 0,
     type: 'dir',
     keyPath: [],
     parentKey: '',
     key: '',
-    visibleCount: SHOW_INCREMENT,
   };
   return {
-    ...tree,
     treeKeySeparator,
     childrenByKey: {},
     keyObjectsByKey: {},
     dirsByKey: {
       '': root,
     },
+    dirStateByKey: {
+      '': {
+        key: '',
+        visibleCount: SHOW_INCREMENT,
+        isExpanded: true,
+      },
+    },
     scannedKeys: 0,
     dbsize: 0,
     loadCount: 2000,
     cursor: '0',
     root,
+    loadedAll: false,
+  };
+}
+
+export function dbKeys_clearLoadedData(tree: DbKeysTreeModel): DbKeysTreeModel {
+  return {
+    ...tree,
+    childrenByKey: {},
+    keyObjectsByKey: {},
+    dirsByKey: {
+      '': tree.root,
+    },
+    scannedKeys: 0,
+    dbsize: 0,
+    cursor: '0',
     loadedAll: false,
   };
 }
@@ -282,8 +309,8 @@ export function dbKeys_refreshAll(treeKeySeparator: string, tree?: DbKeysTreeMod
 // }
 
 function addFlatItems(tree: DbKeysTreeModel, root: string, res: DbKeysNodeModel[], visitedRoots: string[] = []) {
-  const item = tree.dirsByKey[root];
-  if (!item.isExpanded) {
+  const item = tree.dirStateByKey[root];
+  if (!item?.isExpanded) {
     return false;
   }
   const children = tree.childrenByKey[root] || [];
