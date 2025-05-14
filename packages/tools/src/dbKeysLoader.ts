@@ -1,4 +1,5 @@
 import _omit from 'lodash/omit';
+import _sortBy from 'lodash/sortBy';
 
 const SHOW_INCREMENT = 100;
 
@@ -29,8 +30,10 @@ export interface DbKeysTreeModel {
   childrenByKey: { [key: string]: DbKeysNodeModel[] };
   keyObjectsByKey: { [key: string]: DbKeysNodeModel };
   scannedKeys: number;
+  loadCount: number;
+  dbsize: number;
   cursor: string;
-  loadedAll: false;
+  loadedAll: boolean;
   // refreshAll?: boolean;
 }
 
@@ -46,9 +49,10 @@ export interface DbKeyLoadedModel {
 export interface DbKeysLoadResult {
   nextCursor: string;
   keys: DbKeyLoadedModel[];
+  dbsize: number;
 }
 
-export type DbKeysLoadFunction = (root: string, limit: number) => Promise<DbKeysLoadResult>;
+// export type DbKeysLoadFunction = (root: string, limit: number) => Promise<DbKeysLoadResult>;
 
 export type DbKeysChangeModelFunction = (func: (model: DbKeysTreeModel) => DbKeysTreeModel) => void;
 
@@ -140,13 +144,10 @@ export type DbKeysChangeModelFunction = (func: (model: DbKeysTreeModel) => DbKey
 //   };
 // }
 
-export async function dbKeys_loadNext(tree: DbKeysTreeModel, loader: DbKeysLoadFunction): Promise<DbKeysTreeModel> {
-  const count = 2000;
+export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoadResult): DbKeysTreeModel {
   const keyObjectsByKey = { ...tree.keyObjectsByKey };
 
-  const loaded = await loader(tree.cursor, count);
-
-  for (const keyObj of loaded.keys) {
+  for (const keyObj of nextPage.keys) {
     const keyPath = keyObj.key.split(tree.treeKeySeparator);
     keyObjectsByKey[keyObj.key] = {
       ...keyObj,
@@ -198,20 +199,26 @@ export async function dbKeys_loadNext(tree: DbKeysTreeModel, loader: DbKeysLoadF
     if (dirObj.key == '') {
       continue;
     }
-    
+
     if (!childrenByKey[dirObj.parentKey]) {
       childrenByKey[dirObj.parentKey] = [];
     }
     childrenByKey[dirObj.parentKey].push(dirObj);
   }
 
+  for (const key in childrenByKey) {
+    childrenByKey[key] = _sortBy(childrenByKey[key], 'text');
+  }
+
   return {
     ...tree,
-    cursor: loaded.nextCursor,
+    cursor: nextPage.nextCursor,
     dirsByKey,
     childrenByKey,
     keyObjectsByKey,
-    scannedKeys: tree.scannedKeys + count,
+    scannedKeys: tree.scannedKeys + tree.loadCount,
+    loadedAll: nextPage.nextCursor == '0',
+    dbsize: nextPage.dbsize,
   };
 }
 
@@ -251,6 +258,8 @@ export function dbKeys_refreshAll(treeKeySeparator: string, tree?: DbKeysTreeMod
       '': root,
     },
     scannedKeys: 0,
+    dbsize: 0,
+    loadCount: 2000,
     cursor: '0',
     root,
     loadedAll: false,

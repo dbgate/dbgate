@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
     dbKeys_getFlatList,
-    dbKeys_loadNext,
     dbKeys_markNodeExpanded,
+    dbKeys_mergeNextPage,
     dbKeys_refreshAll,
     findEngineDriver,
   } from 'dbgate-tools';
@@ -86,16 +86,15 @@
   }
 
   async function loadNextPage() {
-    model = await dbKeys_loadNext(model, async (cursor, count) => {
-      const result = await apiCall('database-connections/scan-keys', {
-        conid,
-        database,
-        pattern: filter,
-        cursor,
-        count,
-      });
-      return result;
+    const nextScan = await apiCall('database-connections/scan-keys', {
+      conid,
+      database,
+      pattern: filter,
+      cursor: model.cursor,
+      count: model.loadCount,
     });
+
+    model = dbKeys_mergeNextPage(model, nextScan);
   }
 
   function reloadModel() {
@@ -132,7 +131,11 @@
   </InlineButton>
 </SearchBoxWrapper>
 <div class="space-between align-items-center ml-1">
-  <div>Scanned 10/20 keys</div>
+  {#if model}
+    <div>
+      Scanned {Math.min(model?.scannedKeys, model?.dbsize) ?? '???'}/{model?.dbsize ?? '???'}
+    </div>
+  {/if}
   <InlineButton on:click={loadNextPage} title="Scan more keys">
     <FontIcon icon="icon more" /> Scan more
   </InlineButton>
@@ -146,7 +149,7 @@
     list={dbKeys_getFlatList(model)}
     selectedObjectStore={focusedTreeDbKey}
     getSelectedObject={getFocusedTreeDbKey}
-    selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type && o1?.root == o2?.root}
+    selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type}
     handleObjectClick={(data, clickAction) => {
       focusedTreeDbKey.set(data);
 
@@ -168,12 +171,12 @@
           [`${conid}:${database}`]: data.key,
         };
       }
-      if (data.root && clickAction == 'keyEnter') {
-        changeModel(model => dbKeys_markNodeExpanded(model, data.root, !model.dirsByKey[data.root]?.isExpanded));
+      if (data.key && clickAction == 'keyEnter') {
+        changeModel(model => dbKeys_markNodeExpanded(model, data.key, !model.dirsByKey[data.key]?.isExpanded));
       }
     }}
     handleExpansion={(data, value) => {
-      changeModel(model => dbKeys_markNodeExpanded(model, data.root, value));
+      changeModel(model => dbKeys_markNodeExpanded(model, data.key, value));
     }}
     onScrollTop={() => {
       domContainer?.scrollTop();
@@ -182,6 +185,6 @@
       domFilter?.focus(text);
     }}
   >
-    <DbKeysSubTree root="" {filter} {model} {changeModel} {conid} {database} {connection} />
+    <DbKeysSubTree key="" {filter} {model} {changeModel} {conid} {database} {connection} />
   </AppObjectListHandler>
 </WidgetsInnerContainer>

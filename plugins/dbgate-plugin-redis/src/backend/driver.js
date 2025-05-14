@@ -203,6 +203,7 @@ const driver = {
 
   async scanKeys(dbhan, pattern, cursor = 0, count) {
     const [nextCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', pattern || '*', 'COUNT', count);
+    const dbsize = await dbhan.client.dbsize();
     const keysMapped = keys.map((key) => ({
       key,
     }));
@@ -210,6 +211,7 @@ const driver = {
     return {
       nextCursor,
       keys: keysMapped,
+      dbsize,
     };
   },
 

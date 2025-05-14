@@ -6,7 +6,7 @@
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
   import { dbKeys_markNodeExpanded, DbKeysChangeModelFunction, DbKeysTreeModel } from 'dbgate-tools';
 
-  export let root;
+  export let key;
   export let connection;
   export let database;
   export let conid;
@@ -19,34 +19,34 @@
 
   export let parentRoots = [];
 
-  $: items = model.childrenByKey[root] ?? [];
+  $: items = model.childrenByKey[key] ?? [];
 </script>
 
 {#each items as item}
   <DbKeysTreeNode
     {conid}
     {database}
-    {root}
+    {key}
     {connection}
     {item}
     {filter}
     {indentLevel}
     {model}
     {changeModel}
-    parentRoots={[...parentRoots, root]}
+    parentRoots={[...parentRoots, key]}
   />
 {/each}
 
-{#if model.dirsByKey[root]?.shouldLoadNext}
+{#if model.dirsByKey[key]?.shouldLoadNext}
   <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
-{:else if model.dirsByKey[root]?.hasNext}
+{:else if model.dirsByKey[key]?.hasNext}
   <AppObjectCore
     {indentLevel}
     title="Show more..."
     icon="icon dots-horizontal"
     expandIcon="icon invisible-box"
     on:click={() => {
-      changeModel(model => dbKeys_markNodeExpanded(model, root, true));
+      changeModel(model => dbKeys_markNodeExpanded(model, key, true));
     }}
   />
 {/if}
