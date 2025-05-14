@@ -80,7 +80,7 @@
     storageName="dbObjectsWidget"
     skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
   >
-    <DbKeysTree {conid} {database} />
+    <DbKeysTree {conid} {database} treeKeySeparator={$connection?.treeKeySeparator || ':'} />
   </WidgetColumnBarItem>
 
   <WidgetColumnBarItem

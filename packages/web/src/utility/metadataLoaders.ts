@@ -83,12 +83,6 @@ const databaseListLoader = ({ conid }) => ({
   errorValue: [],
 });
 
-// const databaseKeysLoader = ({ conid, database, root }) => ({
-//   url: 'database-connections/load-keys',
-//   params: { conid, database, root },
-//   reloadTrigger: `database-keys-changed-${conid}-${database}`,
-// });
-
 const serverVersionLoader = ({ conid }) => ({
   url: 'server-connections/version',
   params: { conid },
