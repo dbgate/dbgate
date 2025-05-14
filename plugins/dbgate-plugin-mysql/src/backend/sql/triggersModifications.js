@@ -1,0 +1,9 @@
+module.exports = `
+SELECT 
+    TRIGGER_NAME AS triggerName,
+    EVENT_OBJECT_TABLE AS tableName,
+    CREATED as modifyDate
+FROM 
+    INFORMATION_SCHEMA.TRIGGERS
+    WHERE EVENT_OBJECT_SCHEMA = '#DATABASE#'
+`;
