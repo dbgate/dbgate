@@ -320,17 +320,56 @@ const driver = {
     }
   },
 
-  async enrichOneKeyInfo(dbhan, item) {
-    item.type = await dbhan.client.type(item.key);
-    item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
-  },
+  // async enrichOneKeyInfo(dbhan, item) {
+  //   item.type = await dbhan.client.type(item.key);
+  //   item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
+  // },
 
   async enrichKeyInfo(dbhan, keyObjects) {
-    await async.eachLimit(
-      keyObjects.filter((x) => x.key),
-      10,
-      async (item) => await this.enrichOneKeyInfo(dbhan, item)
-    );
+    // 1. get type
+    const typePipeline = dbhan.client.pipeline();
+    for (const item of keyObjects) {
+      typePipeline.type(item.key);
+    }
+    const resultType = await typePipeline.exec();
+    for (let i = 0; i < resultType.length; i++) {
+      if (resultType[i][0] == null) {
+        keyObjects[i].type = resultType[i][1];
+      }
+    }
+
+    // 2. get cardinality
+    const cardinalityPipeline = dbhan.client.pipeline();
+    for (const item of keyObjects) {
+      switch (item.type) {
+        case 'list':
+          cardinalityPipeline.llen(item.key);
+        case 'set':
+          cardinalityPipeline.scard(item.key);
+        case 'zset':
+          cardinalityPipeline.zcard(item.key);
+        case 'stream':
+          cardinalityPipeline.xlen(item.key);
+        case 'hash':
+          cardinalityPipeline.hlen(item.key);
+      }
+    }
+    const resultCardinality = await cardinalityPipeline.exec();
+    let resIndex = 0;
+    for (const item of keyObjects) {
+      if (
+        item.type == 'list' ||
+        item.type == 'set' ||
+        item.type == 'zset' ||
+        item.type == 'stream' ||
+        item.type == 'hash'
+      ) {
+        if (resultCardinality[resIndex][0] == null) {
+          item.count = resultCardinality[resIndex][1];
+          resIndex++;
+        }
+      }
+    }
   },
 
   async loadKeyInfo(dbhan, key) {
