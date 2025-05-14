@@ -5,6 +5,7 @@ export const DB_KEYS_SHOW_INCREMENT = 100;
 
 export interface DbKeysNodeModelBase {
   text?: string;
+  sortKey: string;
   key: string;
   count?: number;
   level: number;
@@ -163,6 +164,7 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
       ...keyObj,
       level: keyPath.length,
       text: keyPath[keyPath.length - 1],
+      sortKey: keyPath[keyPath.length - 1],
       keyPath,
       parentKey: keyPath.slice(0, -1).join(tree.treeKeySeparator),
     };
@@ -190,6 +192,7 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
           type: 'dir',
           key: newDirKey,
           text: `${newDirPath[newDirPath.length - 1]}${tree.treeKeySeparator}*`,
+          sortKey: newDirPath[newDirPath.length - 1],
         };
       }
 
@@ -218,7 +221,7 @@ export function dbKeys_mergeNextPage(tree: DbKeysTreeModel, nextPage: DbKeysLoad
   }
 
   for (const key in childrenByKey) {
-    childrenByKey[key] = _sortBy(childrenByKey[key], 'text');
+    childrenByKey[key] = _sortBy(childrenByKey[key], 'sortKey');
   }
 
   return {
