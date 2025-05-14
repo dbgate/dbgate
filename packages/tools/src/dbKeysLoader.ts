@@ -271,6 +271,7 @@ export function dbKeys_createNewModel(treeKeySeparator: string): DbKeysTreeModel
     keyPath: [],
     parentKey: '',
     key: '',
+    sortKey: '',
   };
   return {
     treeKeySeparator,
