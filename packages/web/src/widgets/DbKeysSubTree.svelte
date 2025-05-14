@@ -4,7 +4,12 @@
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
 
   import DbKeysTreeNode from './DbKeysTreeNode.svelte';
-  import { dbKeys_markNodeExpanded, DbKeysChangeModelFunction, DbKeysTreeModel } from 'dbgate-tools';
+  import {
+    DB_KEYS_SHOW_INCREMENT,
+    dbKeys_showNextItems,
+    DbKeysChangeModelFunction,
+    DbKeysTreeModel,
+  } from 'dbgate-tools';
 
   export let key;
   export let connection;
@@ -20,9 +25,10 @@
   export let parentRoots = [];
 
   $: items = model.childrenByKey[key] ?? [];
+  $: visibleCount = model.dirStateByKey[key]?.visibleCount ?? DB_KEYS_SHOW_INCREMENT;
 </script>
 
-{#each items as item}
+{#each items.slice(0, visibleCount) as item}
   <DbKeysTreeNode
     {conid}
     {database}
@@ -37,16 +43,14 @@
   />
 {/each}
 
-{#if model.dirsByKey[key]?.shouldLoadNext}
-  <AppObjectCore {indentLevel} title="Loading keys..." icon="icon loading" expandIcon="icon invisible-box" />
-{:else if model.dirsByKey[key]?.hasNext}
+{#if model.childrenByKey[key]?.length > visibleCount}
   <AppObjectCore
     {indentLevel}
     title="Show more..."
     icon="icon dots-horizontal"
     expandIcon="icon invisible-box"
     on:click={() => {
-      changeModel(model => dbKeys_markNodeExpanded(model, key, true), false);
+      changeModel(model => dbKeys_showNextItems(model, key), false);
     }}
   />
 {/if}

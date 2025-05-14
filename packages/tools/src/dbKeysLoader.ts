@@ -1,7 +1,7 @@
 import _omit from 'lodash/omit';
 import _sortBy from 'lodash/sortBy';
 
-const SHOW_INCREMENT = 100;
+export const DB_KEYS_SHOW_INCREMENT = 100;
 
 export interface DbKeysNodeModelBase {
   text?: string;
@@ -247,6 +247,20 @@ export function dbKeys_markNodeExpanded(tree: DbKeysTreeModel, root: string, isE
   };
 }
 
+export function dbKeys_showNextItems(tree: DbKeysTreeModel, root: string): DbKeysTreeModel {
+  const node = tree.dirStateByKey[root];
+  return {
+    ...tree,
+    dirStateByKey: {
+      ...tree.dirStateByKey,
+      [root]: {
+        ...node,
+        visibleCount: (node?.visibleCount ?? DB_KEYS_SHOW_INCREMENT) + DB_KEYS_SHOW_INCREMENT,
+      },
+    },
+  };
+}
+
 export function dbKeys_createNewModel(treeKeySeparator: string): DbKeysTreeModel {
   const root: DbKeysFolderNodeModel = {
     level: 0,
@@ -265,7 +279,7 @@ export function dbKeys_createNewModel(treeKeySeparator: string): DbKeysTreeModel
     dirStateByKey: {
       '': {
         key: '',
-        visibleCount: SHOW_INCREMENT,
+        visibleCount: DB_KEYS_SHOW_INCREMENT,
         isExpanded: true,
       },
     },
