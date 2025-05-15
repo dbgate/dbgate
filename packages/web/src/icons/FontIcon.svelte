@@ -112,6 +112,9 @@
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
 
+    'icon cloud-account': 'mdi mdi-account-remove-outline',
+    'icon cloud-account-connected': 'mdi mdi-account-check-outline',
+
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
     'icon arrow-up': 'mdi mdi-arrow-up',

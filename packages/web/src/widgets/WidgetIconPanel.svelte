@@ -13,6 +13,9 @@
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
+  import { openWebLink } from '../utility/simpleTools';
+  import { apiCall } from '../utility/api';
+  import getElectron from '../utility/getElectron';
 
   let domSettings;
   let domMainMenu;
@@ -103,6 +106,11 @@
     const items = mainMenuDefinition({ editMenu: false });
     currentDropDownMenu.set({ left, top, items });
   }
+
+  async function handleOpenCloudLogin() {
+    const { url, sid } = await apiCall('auth/create-cloud-login-session', { client: getElectron() ? 'app' : 'web' });
+    openWebLink(url);
+  }
 </script>
 
 <div class="main">
@@ -129,7 +137,7 @@
 
   <div class="flex1">&nbsp;</div>
 
-  <div
+  <!-- <div
     class="wrapper"
     title={`Toggle whether tabs from all databases are visible. Currently - ${$lockedDatabaseMode ? 'NO' : 'YES'}`}
     on:click={() => {
@@ -138,6 +146,10 @@
     data-testid="WidgetIconPanel_lockDb"
   >
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
+  </div> -->
+
+  <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
+    <FontIcon icon="icon cloud-account" />
   </div>
 
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">

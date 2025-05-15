@@ -13,6 +13,7 @@ const {
 } = require('../auth/authProvider');
 const storage = require('./storage');
 const { decryptPasswordString } = require('../utility/crypting');
+const { createDbGateIdentitySession, getIdentitySigninUrl } = require('../utility/cloudIntf');
 
 const logger = getLogger('auth');
 
@@ -133,6 +134,14 @@ module.exports = {
   async redirect(params) {
     const { amoid } = params;
     return getAuthProviderById(amoid).redirect(params);
+  },
+
+  createCloudLoginSession_meta: true,
+  async createCloudLoginSession({ client }) {
+    const sid = await createDbGateIdentitySession(client);
+    return {
+      url: getIdentitySigninUrl(sid),
+    };
   },
 
   authMiddleware,
