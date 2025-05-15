@@ -1,7 +1,6 @@
 module.exports = `
 SELECT
     TRIM(F.RDB$FUNCTION_NAME) AS "pureName",
-    TRIM(F.RDB$OWNER_NAME) AS "schemaName",
     TRIM(F.RDB$FUNCTION_NAME) AS "objectId",
     TRIM('FUNCTION') AS "objectTypeField",
     TRIM(F.RDB$DESCRIPTION) AS "objectComment",
@@ -12,5 +11,5 @@ FROM
 WHERE
     COALESCE(F.RDB$SYSTEM_FLAG, 0) = 0 -- User-defined functions
 ORDER BY
-    "schemaName", "pureName";
+    "pureName";
 `;

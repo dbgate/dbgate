@@ -5,13 +5,15 @@ const Dumper = require('./Dumper');
 const dialect = {
   rangeSelect: true,
   ilike: true,
-  defaultSchemaName: 'public',
-  multipleSchema: true,
+  multipleSchema: false,
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   stringAgg: true,
+  quoteIdentifier(s) {
+    return `"${s}"`;
+  },
 
   createColumn: true,
   dropColumn: true,

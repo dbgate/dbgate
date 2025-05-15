@@ -26,9 +26,7 @@ class Analyser extends DatabaseAnalyser {
     }));
 
     const triggers = triggersResult.rows?.map(i => ({
-      pureName: i.PURENAME,
-      tableName: i.TABLENAME,
-      shcemaName: i.SCHEMANAME,
+      ...i,
       eventType: getTriggerEventType(i.TRIGGERTYPE),
       triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
     }));
@@ -63,9 +61,7 @@ class Analyser extends DatabaseAnalyser {
     const tables =
       tablesResult.rows?.map(table => ({
         ...table,
-        columns: columns.filter(
-          column => column.tableName === table.pureName && column.schemaName === table.schemaName
-        ),
+        columns: columns.filter(column => column.tableName === table.pureName),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, primaryKeys),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, foreignKeys),
       })) ?? [];

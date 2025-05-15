@@ -1,6 +1,5 @@
 module.exports = `
 SELECT
-    TRIM(rel.RDB$OWNER_NAME) AS "schemaName",
     TRIM(rc_fk.RDB$RELATION_NAME) AS "pureName",
     TRIM(rc_fk.RDB$CONSTRAINT_NAME) AS "constraintName",
     TRIM(iseg_fk.RDB$FIELD_NAME) AS "columnName",

@@ -1,6 +1,5 @@
 module.exports = `
 SELECT
-    TRIM(P.RDB$OWNER_NAME) AS "owningObjectSchemaName", -- Schema of the procedure this parameter belongs to
     TRIM(PP.RDB$PROCEDURE_NAME) AS "owningObjectName",  -- Name of the procedure this parameter belongs to
     TRIM(PP.RDB$PARAMETER_NAME) AS "parameterName",      -- ParameterInfo.parameterName
     FFLDS.RDB$FIELD_TYPE AS "dataTypeCode",                  -- SQL data type code from RDB$FIELDS
@@ -16,8 +15,7 @@ SELECT
     PP.RDB$PARAMETER_NUMBER AS "position", -- 0-based for IN params, then 0-based for OUT params
 
     -- Fields for ParameterInfo.NamedObjectInfo
-    TRIM(PP.RDB$PARAMETER_NAME) AS "pureName", -- NamedObjectInfo.pureName for the parameter
-    TRIM(P.RDB$OWNER_NAME) AS "schemaName"     -- NamedObjectInfo.schemaName (owner of the procedure)
+    TRIM(PP.RDB$PARAMETER_NAME) AS "pureName" -- NamedObjectInfo.pureName for the parameter
 
 FROM
     RDB$PROCEDURE_PARAMETERS PP
@@ -28,5 +26,5 @@ JOIN
 WHERE
     COALESCE(P.RDB$SYSTEM_FLAG, 0) = 0 -- Filter for user-defined procedures
 ORDER BY
-    "owningObjectSchemaName", "owningObjectName", PP.RDB$PARAMETER_TYPE, "position"; -- Order by IN(0)/OUT(1) then by position
+    "owningObjectName", PP.RDB$PARAMETER_TYPE, "position"; -- Order by IN(0)/OUT(1) then by position
 `;

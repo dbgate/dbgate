@@ -1,6 +1,5 @@
 module.exports = `
 SELECT
-    TRIM(rel.RDB$OWNER_NAME) AS "schemaName",
     TRIM(rc.RDB$RELATION_NAME) AS "pureName",
     TRIM(rc.RDB$CONSTRAINT_NAME) AS "constraintName",
     TRIM(iseg.RDB$FIELD_NAME) AS "columnName",
@@ -22,7 +21,6 @@ WHERE
     rc.RDB$CONSTRAINT_TYPE = 'PRIMARY KEY'
     AND COALESCE(rel.RDB$SYSTEM_FLAG, 0) = 0 -- Typically, you only want user-defined tables
 ORDER BY
-    "schemaName",
     "pureName",
     "constraintName",
     iseg.RDB$FIELD_POSITION;
