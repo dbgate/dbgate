@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Firebird = require('node-firebird');
@@ -22,7 +23,7 @@ const driver = {
 
     /**@type {Firebird.Database} */
     const db = await new Promise((resolve, reject) => {
-      Firebird.attach(options, (err, db) => {
+      Firebird.attachOrCreate(options, (err, db) => {
         if (err) {
           reject(err);
           return;
@@ -47,16 +48,12 @@ const driver = {
         resolve(result);
       });
     });
-    const columns = res[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
+    const columns = res?.[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
 
     return {
-      rows: res,
+      rows: res ?? [],
       columns,
     };
-  },
-
-  async script(dbhan, sql) {
-    throw new Error('Not implemented');
   },
 
   async stream(dbhan, sql, options) {
@@ -101,7 +98,36 @@ const driver = {
   },
 
   async readQuery(dbhan, sql, structure) {
-    throw new Error('Not implemented');
+    console.log('readQuery from SQL:', sql);
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+    let hasSentColumns = false;
+
+    dbhan.client.sequentially(
+      sql,
+      [],
+      (row, index) => {
+        if (!hasSentColumns) {
+          hasSentColumns = true;
+
+          const columns = Object.keys(row).map(i => ({ columnName: i }));
+
+          pass.write({
+            __isStreamHeader: true,
+            ...(structure || { columns }),
+          });
+        }
+
+        pass.write(row);
+      },
+      err => {
+        pass.end();
+      }
+    );
+
+    return pass;
   },
 
   async writeTable(dbhan, name, options) {
@@ -125,10 +151,6 @@ const driver = {
       },
     ];
   },
-
-  async createDatabase(dbhan, name) {},
-
-  async dropDatabase(dbhan, name) {},
 
   async close(dbhan) {
     return new Promise((resolve, reject) => {

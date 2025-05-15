@@ -5,7 +5,12 @@ const crypto = require('crypto');
 function randomDbName(dialect) {
   const generatedKey = crypto.randomBytes(6);
   const newKey = generatedKey.toString('hex');
-  const res = `db${newKey}`;
+  let res = `db${newKey}`;
+
+  if (dialect.dbFileExtension) {
+    res += dialect.dbFileExtension;
+  }
+
   if (dialect.upperCaseAllDbObjectNames) return res.toUpperCase();
   return res;
 }
@@ -17,7 +22,7 @@ async function connect(engine, database) {
   if (engine.generateDbFile) {
     const conn = await driver.connect({
       ...connection,
-      databaseFile: `dbtemp/${database}`,
+      databaseFile: (engine.databaseFileLocationOnServer ?? 'dbtemp/') + database,
     });
     return conn;
   } else {

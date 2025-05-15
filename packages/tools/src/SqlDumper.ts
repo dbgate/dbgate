@@ -265,11 +265,11 @@ export class SqlDumper implements AlterProcessor {
         this.columnDefault(column);
       }
       if (includeNullable && !this.dialect?.specificNullabilityImplementation) {
-        this.put(column.notNull ? '^not ^null' : '^null');
+        this.put(column.notNull ? '^not ^null' : this.dialect.implicitNullDeclaration ? '^null' : '');
       }
     } else {
       if (includeNullable && !this.dialect?.specificNullabilityImplementation) {
-        this.put(column.notNull ? '^not ^null' : '^null');
+        this.put(column.notNull ? '^not ^null' : this.dialect.implicitNullDeclaration ? '^null' : '');
       }
       if (includeDefault && column.defaultValue?.toString()?.trim()) {
         this.columnDefault(column);

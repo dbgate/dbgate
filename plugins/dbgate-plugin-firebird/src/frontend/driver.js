@@ -17,6 +17,8 @@ const dialect = {
     return `"${s}"`;
   },
 
+  dbFileExtension: '.fdb',
+
   createColumn: true,
   dropColumn: true,
   changeColumn: true,
