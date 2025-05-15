@@ -19,6 +19,7 @@ const dialect = {
 
   dbFileExtension: '.fdb',
 
+  implicitNullDeclaration: true,
   createColumn: true,
   dropColumn: true,
   changeColumn: true,
