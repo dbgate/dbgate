@@ -702,7 +702,12 @@ registerCommand({
   category: 'App',
   name: 'Disconnect',
   testEnabled: () => getCurrentConfig()?.singleConnection != null && !getCurrentConfig()?.isUserLoggedIn,
-  onClick: () => disconnectServerConnection(getCurrentConfig()?.singleConnection?._id),
+  onClick: () => {
+    const config = getCurrentConfig();
+    if (config?.singleConnection?._id) {
+      disconnectServerConnection(config.singleConnection._id);
+    }
+  },
 });
 
 registerCommand({
