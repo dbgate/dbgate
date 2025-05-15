@@ -680,6 +680,38 @@ const duckdbEngine = {
   skipDropReferences: true,
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
+const firebirdEngine = {
+  label: 'Firebird',
+  generateDbFile: true,
+  databaseFileLocationOnServer: '/var/lib/firebird/data/',
+  defaultSchemaName: 'main',
+  connection: {
+    engine: 'firebird@dbgate-plugin-firebird',
+    server: 'localhost',
+    port: 3050,
+    // databaseUrl: '/var/lib/firebird/data/mydatabase.fdb',
+    // databaseFile: '/var/lib/firebird/data/mydatabase.fdb',
+    user: 'SYSDBA',
+    password: 'masterkey',
+  },
+  skipOnCI: false,
+  // skipChangeColumn: true,
+  // skipIndexes: true,
+  // skipStringLength: true,
+  // skipTriggers: true,
+  skipDataReplicator: true,
+  // skipAutoIncrement: true,
+  // skipDropColumn: true,
+  // skipRenameColumn: true,
+  // skipChangeNullability: true,
+  // skipDeploy: true,
+  // supportRenameSqlObject: true,
+  // skipIncrementalAnalysis: true,
+  // skipDefaultValue: true,
+  // skipDropReferences: true,
+};
+
 const enginesOnCi = [
   // all engines, which would be run on GitHub actions
   mysqlEngine,
@@ -694,6 +726,7 @@ const enginesOnCi = [
   oracleEngine,
   cassandraEngine,
   duckdbEngine,
+  firebirdEngine,
 ];
 
 const enginesOnLocal = [
@@ -709,7 +742,8 @@ const enginesOnLocal = [
   // libsqlFileEngine,
   // libsqlWsEngine,
   // oracleEngine,
-  duckdbEngine,
+  // duckdbEngine,
+  firebirdEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */
@@ -727,3 +761,4 @@ module.exports.cassandraEngine = cassandraEngine;
 module.exports.libsqlFileEngine = libsqlFileEngine;
 module.exports.libsqlWsEngine = libsqlWsEngine;
 module.exports.duckdbEngine = duckdbEngine;
+module.exports.firebirdEngine = firebirdEngine;
