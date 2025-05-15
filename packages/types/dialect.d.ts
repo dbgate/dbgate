@@ -8,6 +8,7 @@ export interface SqlDialect {
   topRecords?: boolean;
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
+  offsetFirstSkipSyntax?: boolean;
   offsetNotSupported?: boolean;
   quoteIdentifier(s: string): string;
   fallbackDataType?: string;

@@ -11,6 +11,8 @@ const dialect = {
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   stringAgg: true,
+  offsetFirstSkipSyntax: true,
+
   quoteIdentifier(s) {
     return `"${s}"`;
   },
