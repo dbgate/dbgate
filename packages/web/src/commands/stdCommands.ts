@@ -1,4 +1,5 @@
 import {
+  cloudSigninToken,
   currentDatabase,
   currentTheme,
   emptyConnectionGroupNames,
@@ -661,6 +662,15 @@ if (hasPermission('settings/change')) {
     onClick: () => showModal(SettingsModal),
   });
 }
+
+registerCommand({
+  id: 'cloud.logout',
+  category: 'Cloud',
+  name: 'Logout',
+  onClick: () => {
+    cloudSigninToken.set(null);
+  },
+});
 
 registerCommand({
   id: 'file.exit',

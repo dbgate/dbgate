@@ -14,7 +14,7 @@
   // import { shouldWaitForElectronInitialize } from './utility/getElectron';
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
-  import { apiCall, installNewVolatileConnectionListener } from './utility/api';
+  import { apiCall, installNewCloudTokenListener, installNewVolatileConnectionListener } from './utility/api';
   import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
@@ -51,6 +51,7 @@
         subscribeConnectionPingers();
         subscribePermissionCompiler();
         installNewVolatileConnectionListener();
+        installNewCloudTokenListener();
         initializeAppUpdates();
       }
 

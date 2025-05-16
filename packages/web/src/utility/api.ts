@@ -14,6 +14,7 @@ import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 import { openWebLink } from './simpleTools';
 import { serializeJsTypesReplacer } from 'dbgate-tools';
+import { cloudSigninToken } from '../stores';
 
 export const strmid = uuidv1();
 
@@ -276,6 +277,12 @@ export function installNewVolatileConnectionListener() {
     await callServerPing();
     dispatchCacheChange({ key: `server-status-changed` });
     batchDispatchCacheTriggers(x => x.conid == savedConId);
+  });
+}
+
+export function installNewCloudTokenListener() {
+  apiOn('got-cloud-token', async ({ token }) => {
+    cloudSigninToken.set(token);
   });
 }
 

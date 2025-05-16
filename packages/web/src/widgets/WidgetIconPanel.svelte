@@ -9,6 +9,7 @@
     visibleHamburgerMenuWidget,
     lockedDatabaseMode,
     getCurrentConfig,
+    cloudSigninToken,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -18,6 +19,7 @@
   import getElectron from '../utility/getElectron';
 
   let domSettings;
+  let domCloudAccount;
   let domMainMenu;
 
   const widgets = [
@@ -61,9 +63,10 @@
       title: 'Selected cell data detail view',
     },
     {
-      icon: 'icon app',
-      name: 'app',
-      title: 'Application layers',
+      icon: 'icon cloud',
+      name: 'cloud',
+      title: 'DbGate Cloud',
+      isCloud: true,
     },
     {
       icon: 'icon premium',
@@ -95,7 +98,26 @@
     const rect = domSettings.getBoundingClientRect();
     const left = rect.right;
     const top = rect.bottom;
-    const items = [{ command: 'settings.show' }, { command: 'theme.changeTheme' }, { command: 'settings.commands' }];
+    const items = [
+      { command: 'settings.show' },
+      { command: 'theme.changeTheme' },
+      { command: 'settings.commands' },
+      {
+        text: 'View applications',
+        onClick: () => {
+          $selectedWidget = 'app';
+          $visibleWidgetSideBar = true;
+        },
+      },
+    ];
+    currentDropDownMenu.set({ left, top, items });
+  }
+
+  function handleCloudAccountMenu() {
+    const rect = domCloudAccount.getBoundingClientRect();
+    const left = rect.right;
+    const top = rect.bottom;
+    const items = [{ command: 'cloud.logout' }];
     currentDropDownMenu.set({ left, top, items });
   }
 
@@ -121,6 +143,7 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
+    .filter(x => !x.isCloud || $cloudSigninToken)
     .filter(x => !x.isPremiumPromo || !isProApp()) as item}
     <div
       class="wrapper"
@@ -148,9 +171,20 @@
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div> -->
 
-  <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
-    <FontIcon icon="icon cloud-account" />
-  </div>
+  {#if $cloudSigninToken}
+    <div
+      class="wrapper"
+      on:click={handleCloudAccountMenu}
+      bind:this={domCloudAccount}
+      data-testid="WidgetIconPanel_cloudAccount"
+    >
+      <FontIcon icon="icon cloud-account-connected" />
+    </div>
+  {:else}
+    <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
+      <FontIcon icon="icon cloud-account" />
+    </div>
+  {/if}
 
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">
     <FontIcon icon="icon settings" />
