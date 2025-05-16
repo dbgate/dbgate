@@ -131,7 +131,7 @@
 
   async function handleOpenCloudLogin() {
     const { url, sid } = await apiCall('auth/create-cloud-login-session', { client: getElectron() ? 'app' : 'web' });
-    openWebLink(url);
+    openWebLink(url, true);
   }
 </script>
 
