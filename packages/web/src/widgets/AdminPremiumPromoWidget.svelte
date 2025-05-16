@@ -45,7 +45,7 @@
   <p>Your feedback is very valuable for us. It helps us to improve DbGate and make it more useful for you.</p>
 
   <div class="center">
-    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/survey')} value="Fill out the survey" skipWidth />
+    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/feedback')} value="Give us feedback" skipWidth />
   </div>
 </WidgetsInnerContainer>
 
