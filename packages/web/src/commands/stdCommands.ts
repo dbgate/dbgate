@@ -929,7 +929,15 @@ registerCommand({
   id: 'app.openSponsoring',
   category: 'Application',
   name: 'Become sponsor',
+  testEnabled: () => !isProApp(),
   onClick: () => openWebLink('https://opencollective.com/dbgate'),
+});
+
+registerCommand({
+  id: 'app.giveFeedback',
+  category: 'Application',
+  name: 'Give us feedback',
+  onClick: () => openWebLink('https://dbgate.org/feedback'),
 });
 
 registerCommand({

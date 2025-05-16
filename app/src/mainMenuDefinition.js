@@ -108,6 +108,7 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'app.openWeb', hideDisabled: true },
       { command: 'app.openIssue', hideDisabled: true },
       { command: 'app.openSponsoring', hideDisabled: true },
+      { command: 'app.giveFeedback', hideDisabled: true },
       { divider: true },
       { command: 'settings.commands', hideDisabled: true },
       { command: 'tabs.changelog', hideDisabled: true },
