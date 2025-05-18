@@ -1,13 +1,26 @@
-const path = require('path');
+var webpack = require("webpack");
+var path = require("path");
 
-module.exports = {
+var config = {
   context: __dirname + "/src/frontend",
-  mode: 'production',
-  entry: './index.js',
-  output: {
-    filename: 'frontend.js',
-    path: path.resolve(__dirname, 'dist'),
+
+  entry: {
+    app: "./index.js",
   },
+  target: "web",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "frontend.js",
+    libraryTarget: "var",
+    library: 'plugin',
+  },
+
+  plugins: [
+    new webpack.DefinePlugin({
+      'global.DBGATE_PACKAGES': 'window.DBGATE_PACKAGES',
+    }),
+  ],
+
   module: {
     rules: [
       {
@@ -20,7 +33,6 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  externals: {
-    'dbgate-types': 'dbgate-types',
-  },
-}; 
+};
+
+module.exports = config;

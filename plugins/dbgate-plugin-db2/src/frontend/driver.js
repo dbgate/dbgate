@@ -5,6 +5,13 @@ module.exports = {
   defaultDatabase: 'SAMPLE',
   dialect: 'db2',
   showConnectionTab: field => field == 'sshTunnel',
+  showConnectionField: (field, values, { config }) => {
+    if (field == 'useDatabaseUrl') return true;
+    if (values.useDatabaseUrl) {
+      return ['databaseUrl', 'isReadOnly'].includes(field);
+    }
+    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
+  },
   connectionFields: [
     { field: 'server', type: 'string', label: 'Server', required: true },
     { field: 'port', type: 'number', label: 'Port', required: true, defaultValue: 50000 },
@@ -47,5 +54,8 @@ module.exports = {
   description: 'IBM DB2 Database',
   category: 'database',
   isBuiltin: true,
-  sortOrder: -1
+  sortOrder: -1,
+  databaseUrlPlaceholder: 'e.g. DATABASE=SAMPLE;HOSTNAME=localhost;PORT=50000;PROTOCOL=TCPIP;UID=user;PWD=password;',
+  supportsTransactions: true,
+  readOnlySessions: true
 };

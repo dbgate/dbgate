@@ -1,14 +1,23 @@
-const path = require('path');
+var webpack = require('webpack');
+var path = require('path');
 
-module.exports = {
-  context: __dirname + "/src/backend",
-  mode: 'production',
-  target: 'node',
-  entry: './src/backend/index.js',
-  output: {
-    filename: 'backend.js',
-    path: path.resolve(__dirname, 'dist'),
+const packageJson = require('./package.json');
+const buildPluginExternals = require('../../common/buildPluginExternals');
+const externals = buildPluginExternals(packageJson);
+
+var config = {
+  context: __dirname + '/src/backend',
+
+  entry: {
+    app: './index.js',
   },
+  target: 'node',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'backend.js',
+    libraryTarget: 'commonjs2',
+  },
+  
   module: {
     rules: [
       {
@@ -21,8 +30,8 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  externals: {
-    'dbgate-tools': 'dbgate-tools',
-    'dbgate-types': 'dbgate-types',
-  },
-}; 
+
+  externals,
+};
+
+module.exports = config;
