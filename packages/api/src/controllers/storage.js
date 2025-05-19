@@ -32,4 +32,8 @@ module.exports = {
   },
 
   startRefreshLicense() {},
+
+  async getUsedEngines() {
+    return null;
+  },
 };

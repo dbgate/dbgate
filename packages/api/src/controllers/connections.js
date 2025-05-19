@@ -239,6 +239,19 @@ module.exports = {
     return (await this.datastore.find()).filter(x => connectionHasPermission(x, req));
   },
 
+  async getUsedEngines() {
+    const storage = require('./storage');
+
+    const storageEngines = await storage.getUsedEngines();
+    if (storageEngines) {
+      return storageEngines;
+    }
+    if (portalConnections) {
+      return _.uniq(_.compact(portalConnections.map(x => x.engine)));
+    }
+    return _.uniq((await this.datastore.find()).map(x => x.engine));
+  },
+
   test_meta: true,
   test({ connection, requestDbList = false }) {
     const subprocess = fork(
