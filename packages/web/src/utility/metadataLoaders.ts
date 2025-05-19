@@ -166,6 +166,12 @@ const authTypesLoader = ({ engine }) => ({
   errorValue: null,
 });
 
+const publicCloudFilesLoader = () => ({
+  url: 'cloud/public-files',
+  params: {},
+  reloadTrigger: { key: `public-cloud-changed` },
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform, onLoaded, errorValue } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -455,4 +461,11 @@ export function getSchemaList(args) {
 }
 export function useSchemaList(args) {
   return useCore(schemaListLoader, args);
+}
+
+export function getPublicCloudFiles(args) {
+  return getCore(publicCloudFilesLoader, args);
+}
+export function usePublicCloudFiles(args = {}) {
+  return useCore(publicCloudFilesLoader, args);
 }

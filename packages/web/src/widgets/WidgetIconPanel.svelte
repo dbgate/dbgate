@@ -67,6 +67,8 @@
       name: 'cloud',
       title: 'DbGate Cloud',
       isCloud: true,
+      iconSignedIn: 'icon cloud-logged',
+      iconPublic: 'icon cloud-public',
     },
     {
       icon: 'icon premium',
@@ -143,8 +145,8 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isCloud || $cloudSigninToken)
-    .filter(x => !x.isPremiumPromo || !isProApp()) as item}
+    .filter(x => !x.isPremiumPromo || !isProApp())
+    .map(x => (x.isCloud ? { ...x, icon: $cloudSigninToken ? x.iconSignedIn : x.iconPublic } : x)) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}

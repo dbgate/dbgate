@@ -36,11 +36,13 @@ async function callRefactorSqlQueryApi(query, task, structure, dialect) {
   return null;
 }
 
-function getExternalParamsWithLicense() {
+function getExternalParamsWithLicense(isPost = false) {
   return {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: isPost
+      ? {
+          'Content-Type': 'application/json',
+        }
+      : {},
   };
 }
 

@@ -27,6 +27,7 @@ const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
+const cloud = require('./controllers/cloud');
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
@@ -223,6 +224,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/query-history', queryHistory);
   useController(app, electron, '/apps', apps);
   useController(app, electron, '/auth', auth);
+  useController(app, electron, '/cloud', cloud);
 }
 
 function setElectronSender(electronSender) {

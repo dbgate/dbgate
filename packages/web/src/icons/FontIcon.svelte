@@ -40,6 +40,8 @@
     'icon invisible-box': 'mdi mdi-minus-box-outline icon-invisible',
     'icon cloud-upload': 'mdi mdi-cloud-upload',
     'icon cloud': 'mdi mdi-cloud',
+    'icon cloud-public': 'mdi mdi-cloud-search',
+    'icon cloud-logged': 'mdi mdi-cloud-key',
     'icon import': 'mdi mdi-application-import',
     'icon export': 'mdi mdi-application-export',
     'icon new-connection': 'mdi mdi-database-plus',

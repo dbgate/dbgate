@@ -8,8 +8,10 @@ const { datadir } = require('./directories');
 const platformInfo = require('./platformInfo');
 const connections = require('../controllers/connections');
 const { isProApp } = require('./checkLicense');
+const socket = require('./socket');
 
 const logger = getLogger('cloudIntf');
+
 let cloudFiles = null;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
@@ -30,7 +32,7 @@ async function createDbGateIdentitySession(client) {
     {
       client,
     },
-    getExternalParamsWithLicense()
+    getExternalParamsWithLicense(true)
   );
   return {
     sid: resp.data.sid,
@@ -49,7 +51,7 @@ function startCloudTokenChecking(sid, callback) {
     try {
       const resp = await axios.default.get(
         `${DBGATE_IDENTITY_URL}/api/get-token/${sid}`,
-        getExternalParamsWithLicense()
+        getExternalParamsWithLicense(false)
       );
 
       if (resp.data.status == 'ok') {
@@ -110,52 +112,58 @@ async function collectCloudFilesSearchTags() {
 async function updateCloudFiles() {
   let lastCloudFilesTags;
   try {
-    const fileContent = await fs.readFile(path.join(datadir(), 'cloud-files-tags.json'), 'utf-8');
-    cloudFiles = JSON.parse(fileContent);
+    lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');
   } catch (err) {
-    lastCloudFilesTags = [];
+    lastCloudFilesTags = '';
   }
 
+  const tags = (await collectCloudFilesSearchTags()).join(',');
   let lastCheckedTm = 0;
-  if (_.isEqual(cloudFiles, lastCloudFilesTags) && cloudFiles.length > 0) {
-    lastCheckedTm = _.max(cloudFiles.map(x => x.modifiedTm));
+  if (tags == lastCloudFilesTags && cloudFiles.length > 0) {
+    lastCheckedTm = _.max(cloudFiles.map(x => parseInt(x.modifiedTm)));
   }
-  const tags = await collectCloudFilesSearchTags();
 
-  const resp = await axios.default.post(
-    `${DBGATE_CLOUD_URL}/public-cloud-updates`,
-    {
-      lastCheckedTm,
-      tags,
-    },
-    getExternalParamsWithLicense()
+  logger.info({ tags, lastCheckedTm }, 'Downloading cloud files');
+
+  const resp = await axios.default.get(
+    `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}`,
+    getExternalParamsWithLicense(false)
   );
 
+  logger.info(`Downloaded ${resp.data.length} cloud files`);
+
   const filesByPath = _.keyBy(cloudFiles, 'path');
-  for(const file of resp.data) {
+  for (const file of resp.data) {
     filesByPath[file.path] = file;
   }
 
   cloudFiles = Object.values(filesByPath);
 
-  await fs.writeFile(
-    path.join(datadir(), 'cloud-files.jsonl'),
-    cloudFiles.map(x => JSON.stringify(x)).join('\n')
-  );
+  await fs.writeFile(path.join(datadir(), 'cloud-files.jsonl'), cloudFiles.map(x => JSON.stringify(x)).join('\n'));
+  await fs.writeFile(path.join(datadir(), 'cloud-files-tags.txt'), tags);
 
-  await fs.writeFile(
-    path.join(datadir(), 'cloud-files-tags.json'),
-    JSON.stringify(tags)
-  );
+  socket.emitChanged(`public-cloud-changed`);
 }
 
 async function startCloudFiles() {
   await loadCloudFiles();
-  await updateCloudFiles();
+  try {
+    await updateCloudFiles();
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error updating cloud files');
+  }
+}
+
+async function getPublicCloudFiles() {
+  if (!loadCloudFiles) {
+    await loadCloudFiles();
+  }
+  return cloudFiles;
 }
 
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
   startCloudFiles,
+  getPublicCloudFiles,
 };

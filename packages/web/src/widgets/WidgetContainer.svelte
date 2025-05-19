@@ -9,6 +9,7 @@
   import AppWidget from './AppWidget.svelte';
   import AdminMenuWidget from './AdminMenuWidget.svelte';
   import AdminPremiumPromoWidget from './AdminPremiumPromoWidget.svelte';
+  import CloudItemsWidget from './CloudItemsWidget.svelte';
 </script>
 
 <DatabaseWidget hidden={$visibleSelectedWidget != 'database'} />
@@ -36,4 +37,7 @@
 {/if}
 {#if $visibleSelectedWidget == 'premium'}
   <AdminPremiumPromoWidget />
+{/if}
+{#if $visibleSelectedWidget == 'cloud'}
+  <CloudItemsWidget />
 {/if}
