@@ -5,25 +5,43 @@
 </script>
 
 <script lang="ts">
-  import openNewTab from '../utility/openNewTab';
-  import { copyTextToClipboard } from '../utility/clipboard';
-  import { showModal } from '../modals/modalTools';
-  import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import getElectron from '../utility/getElectron';
-  import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { apiCall } from '../utility/api';
+  import newQuery from '../query/newQuery';
 
   export let data;
 
+  async function handleOpenSqlFile() {
+    const fileData = await apiCall('cloud/public-file-data', { path: data.path });
+    newQuery({
+      initialData: fileData.text,
+    });
+  }
+
   function createMenu() {
-    return [];
-    //   return [
-    //     { text: 'Delete', onClick: handleDelete },
-    //     { text: 'Edit', onClick: editFavorite },
-    //     { text: 'Edit JSON definition', onClick: editFavoriteJson },
-    //     !electron && data.urlPath && { text: 'Copy link', onClick: copyLink },
-    //   ];
+    return [{ text: 'Open', onClick: handleOpenSqlFile }];
   }
 </script>
 
-<AppObjectCore {...$$restProps} {data} icon={'img sql-file'} title={data.title} menu={createMenu} />
+<AppObjectCore
+  {...$$restProps}
+  {data}
+  icon={'img sql-file'}
+  title={data.title}
+  menu={createMenu}
+  on:click={handleOpenSqlFile}
+>
+  {#if data.description}
+    <div class="info">
+      {data.description}
+    </div>
+  {/if}
+</AppObjectCore>
+
+<style>
+  .info {
+    margin-left: 30px;
+    margin-right: 5px;
+    color: var(--theme-font-3);
+    white-space: nowrap;
+  }
+</style>

@@ -161,9 +161,15 @@ async function getPublicCloudFiles() {
   return cloudFiles;
 }
 
+async function getPublicFileData(path) {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/public/${path}`, getExternalParamsWithLicense(false));
+  return resp.data;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
   startCloudFiles,
   getPublicCloudFiles,
+  getPublicFileData,
 };

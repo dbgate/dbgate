@@ -17,7 +17,11 @@
 <WidgetColumnBar>
   <WidgetColumnBarItem title="Public cloud" name="cloud" height="70%" storageName="publicCloudItems">
     <WidgetsInnerContainer>
-      <AppObjectList list={$publicFiles || []} module={cloudFileAppObject} groupFunc={data => data.folder} />
+      <AppObjectList
+        list={$publicFiles || []}
+        module={cloudFileAppObject}
+        groupFunc={data => data.folder || undefined}
+      />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 
