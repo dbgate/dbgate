@@ -16,6 +16,7 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
+  import { cloudSigninToken } from '../stores';
 
   let filter = '';
 
@@ -27,10 +28,14 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Public cloud" name="cloud" height="70%" storageName="publicCloudItems">
+  <WidgetColumnBarItem title="DbGate Cloud" name="privateCloud" height="50%" storageName="privateCloudItems" skip={!$cloudSigninToken}>
+    XXX
+  </WidgetColumnBarItem>
+
+  <WidgetColumnBarItem title="Public Knowledge Base" name="publicCloud"  storageName="publicCloudItems">
     <WidgetsInnerContainer>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search cloud files" bind:value={filter} />
+        <SearchInput placeholder="Search public files" bind:value={filter} />
         <CloseSearchButton bind:filter />
         <InlineButton on:click={handleRefreshPublic} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
           <FontIcon icon="icon refresh" />
@@ -45,6 +50,4 @@
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
-
-  <WidgetColumnBarItem title="Favorites" name="favorites" storageName="favoritesWidget"></WidgetColumnBarItem>
 </WidgetColumnBar>
