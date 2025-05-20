@@ -2,13 +2,14 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const _ = require('lodash');
 const path = require('path');
-const { getExternalParamsWithLicense } = require('./authProxy');
+const { getLicenseHttpHeaders } = require('./authProxy');
 const { getLogger, extractErrorLogData, jsonLinesParse } = require('dbgate-tools');
 const { datadir } = require('./directories');
 const platformInfo = require('./platformInfo');
 const connections = require('../controllers/connections');
 const { isProApp } = require('./checkLicense');
 const socket = require('./socket');
+const config = require('../controllers/config');
 
 const logger = getLogger('cloudIntf');
 
@@ -32,7 +33,12 @@ async function createDbGateIdentitySession(client) {
     {
       client,
     },
-    getExternalParamsWithLicense(true)
+    {
+      headers: {
+        ...getLicenseHttpHeaders(),
+        'Content-Type': 'application/json',
+      },
+    }
   );
   return {
     sid: resp.data.sid,
@@ -49,10 +55,11 @@ function startCloudTokenChecking(sid, callback) {
     }
 
     try {
-      const resp = await axios.default.get(
-        `${DBGATE_IDENTITY_URL}/api/get-token/${sid}`,
-        getExternalParamsWithLicense(false)
-      );
+      const resp = await axios.default.get(`${DBGATE_IDENTITY_URL}/api/get-token/${sid}`, {
+        headers: {
+          ...getLicenseHttpHeaders(),
+        },
+      });
 
       if (resp.data.status == 'ok') {
         clearInterval(interval);
@@ -68,7 +75,7 @@ async function loadCloudFiles() {
   try {
     const fileContent = await fs.readFile(path.join(datadir(), 'cloud-files.jsonl'), 'utf-8');
     const parsedJson = jsonLinesParse(fileContent);
-    cloudFiles = parsedJson;
+    cloudFiles = _.sortBy(parsedJson, x => `${x.folder}/${x.title}`);
   } catch (err) {
     cloudFiles = [];
   }
@@ -99,6 +106,12 @@ async function collectCloudFilesSearchTags() {
   if (platformInfo.isSnap) {
     res.push('snap');
   }
+  if (platformInfo.isDocker) {
+    res.push('docker');
+  }
+  if (platformInfo.isNpmDist) {
+    res.push('npm');
+  }
   const engines = await connections.getUsedEngines();
   const engineTags = engines.map(engine => engine.split('@')[0]);
   res.push(...engineTags);
@@ -107,6 +120,17 @@ async function collectCloudFilesSearchTags() {
   res.push(isProApp() ? 'premium' : 'community');
 
   return res;
+}
+
+async function getCloudSigninHeaders() {
+  const settingsValue = await config.getSettings();
+  const value = settingsValue['cloudSigninToken'];
+  if (value) {
+    return {
+      'x-cloud-login': value,
+    };
+  }
+  return {};
 }
 
 async function updateCloudFiles() {
@@ -127,14 +151,23 @@ async function updateCloudFiles() {
 
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}`,
-    getExternalParamsWithLicense(false)
+    {
+      headers: {
+        ...getLicenseHttpHeaders(),
+        ...(await getCloudSigninHeaders()),
+      },
+    }
   );
 
   logger.info(`Downloaded ${resp.data.length} cloud files`);
 
-  const filesByPath = _.keyBy(cloudFiles, 'path');
+  const filesByPath = lastCheckedTm == 0 ? {} : _.keyBy(cloudFiles, 'path');
   for (const file of resp.data) {
-    filesByPath[file.path] = file;
+    if (file.isDeleted) {
+      delete filesByPath[file.path];
+    } else {
+      filesByPath[file.path] = file;
+    }
   }
 
   cloudFiles = Object.values(filesByPath);
@@ -146,12 +179,7 @@ async function updateCloudFiles() {
 }
 
 async function startCloudFiles() {
-  await loadCloudFiles();
-  try {
-    await updateCloudFiles();
-  } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error updating cloud files');
-  }
+  refreshPublicFiles();
 }
 
 async function getPublicCloudFiles() {
@@ -162,8 +190,23 @@ async function getPublicCloudFiles() {
 }
 
 async function getPublicFileData(path) {
-  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/public/${path}`, getExternalParamsWithLicense(false));
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/public/${path}`, {
+    headers: {
+      ...getLicenseHttpHeaders(),
+    },
+  });
   return resp.data;
+}
+
+async function refreshPublicFiles() {
+  if (!cloudFiles) {
+    await loadCloudFiles();
+  }
+  try {
+    await updateCloudFiles();
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error updating cloud files');
+  }
 }
 
 module.exports = {
@@ -172,4 +215,5 @@ module.exports = {
   startCloudFiles,
   getPublicCloudFiles,
   getPublicFileData,
+  refreshPublicFiles,
 };

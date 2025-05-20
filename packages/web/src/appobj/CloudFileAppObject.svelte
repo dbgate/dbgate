@@ -2,11 +2,16 @@
   import AppObjectCore from './AppObjectCore.svelte';
 
   export const extractKey = data => data.path;
+  export const createMatcher =
+    filter =>
+    ({ title, description }) =>
+      filterName(filter, title, description);
 </script>
 
 <script lang="ts">
   import { apiCall } from '../utility/api';
   import newQuery from '../query/newQuery';
+  import { filterName } from 'dbgate-tools';
 
   export let data;
 

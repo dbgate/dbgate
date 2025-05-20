@@ -1,4 +1,4 @@
-const { getPublicCloudFiles, getPublicFileData } = require('../utility/cloudIntf');
+const { getPublicCloudFiles, getPublicFileData, refreshPublicFiles } = require('../utility/cloudIntf');
 
 module.exports = {
   publicFiles_meta: true,
@@ -11,5 +11,13 @@ module.exports = {
   async publicFileData({ path }) {
     const res = getPublicFileData(path);
     return res;
+  },
+
+  refreshPublicFiles_meta: true,
+  async refreshPublicFiles() {
+    await refreshPublicFiles();
+    return {
+      status: 'ok',
+    };
   },
 };

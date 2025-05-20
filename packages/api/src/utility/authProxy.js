@@ -36,14 +36,8 @@ async function callRefactorSqlQueryApi(query, task, structure, dialect) {
   return null;
 }
 
-function getExternalParamsWithLicense(isPost = false) {
-  return {
-    headers: isPost
-      ? {
-          'Content-Type': 'application/json',
-        }
-      : {},
-  };
+function getLicenseHttpHeaders() {
+  return {};
 }
 
 module.exports = {
@@ -57,5 +51,5 @@ module.exports = {
   callTextToSqlApi,
   callCompleteOnCursorApi,
   callRefactorSqlQueryApi,
-  getExternalParamsWithLicense,
+  getLicenseHttpHeaders,
 };
