@@ -22,7 +22,7 @@ const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   : 'https://identity.dbgate.io';
 
 const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
-  ? 'http://localhost:3109'
+  ? 'http://localhost:3110'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://cloud.dbgate.udolni.net'
   : 'https://cloud.dbgate.io';
@@ -130,7 +130,7 @@ async function getCloudSigninHeaders() {
       'x-cloud-login': value,
     };
   }
-  return {};
+  return null;
 }
 
 async function updateCloudFiles() {
@@ -209,6 +209,36 @@ async function refreshPublicFiles() {
   }
 }
 
+async function callCloudApiGet(endpoint) {
+  const signinHeaders = await getCloudSigninHeaders();
+  if (!signinHeaders) {
+    return null;
+  }
+
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/${endpoint}`, {
+    headers: {
+      ...getLicenseHttpHeaders(),
+      ...signinHeaders,
+    },
+  });
+  return resp.data;
+}
+
+async function callCloudApiPost(endpoint, body) {
+  const signinHeaders = await getCloudSigninHeaders();
+  if (!signinHeaders) {
+    return null;
+  }
+
+  const resp = await axios.default.post(`${DBGATE_CLOUD_URL}/${endpoint}`, body, {
+    headers: {
+      ...getLicenseHttpHeaders(),
+      ...signinHeaders,
+    },
+  });
+  return resp.data;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -216,4 +246,6 @@ module.exports = {
   getPublicCloudFiles,
   getPublicFileData,
   refreshPublicFiles,
+  callCloudApiGet,
+  callCloudApiPost,
 };

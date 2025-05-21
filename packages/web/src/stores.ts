@@ -182,9 +182,12 @@ export const focusedConnectionOrDatabase = writable<{ conid: string; database?: 
 
 export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
-export const cloudSigninToken = getElectron()
-  ? writableSettingsValue(null, 'cloudSigninToken')
-  : writableWithStorage(null, 'cloudSigninToken');
+export const cloudSigninToken = writableSettingsValue(null, 'cloudSigninToken');
+export const cloudEncryptKeysByFolder = writableSettingsValue({}, 'cloudEncryptKeysByFolder');
+
+// export const cloudSigninToken = getElectron()
+//   ? writableSettingsValue(null, 'cloudSigninToken')
+//   : writableWithStorage(null, 'cloudSigninToken');
 
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
