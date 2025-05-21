@@ -108,6 +108,7 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import {
+    cloudSigninToken,
     currentDatabase,
     DEFAULT_CONNECTION_SEARCH_SETTINGS,
     expandedConnections,
@@ -332,6 +333,17 @@
             text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
             onClick: handleDuplicate,
           },
+          !$openedConnections.includes(data._id) &&
+            $cloudSigninToken &&
+            passProps?.cloudContentList?.length > 0 && {
+              text: _t('connection.moveToCloudFolder', { defaultMessage: 'Move to cloud folder' }),
+              submenu: passProps?.cloudContentList?.map(fld => ({
+                text: fld.name,
+                onClick: () => {
+                  apiCall('cloud/move-connection-cloud', { conid: data._id, folid: fld.folid });
+                },
+              })),
+            },
         ],
       { divider: true },
       !data.singleDatabase && [

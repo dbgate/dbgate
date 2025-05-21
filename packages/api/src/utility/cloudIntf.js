@@ -10,6 +10,7 @@ const connections = require('../controllers/connections');
 const { isProApp } = require('./checkLicense');
 const socket = require('./socket');
 const config = require('../controllers/config');
+const simpleEncryptor = require('simple-encryptor');
 
 const logger = getLogger('cloudIntf');
 
@@ -239,6 +240,14 @@ async function callCloudApiPost(endpoint, body) {
   return resp.data;
 }
 
+async function getCloudFolderEncryptor(folid) {
+  const { encryptionKey } = await callCloudApiGet(`folder-key/${folid}`);
+  if (!encryptionKey) {
+    throw new Error('No encryption key');
+  }
+  return simpleEncryptor.createEncryptor(encryptionKey);
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -248,4 +257,5 @@ module.exports = {
   refreshPublicFiles,
   callCloudApiGet,
   callCloudApiPost,
+  getCloudFolderEncryptor,
 };

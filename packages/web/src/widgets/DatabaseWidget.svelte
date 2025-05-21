@@ -1,7 +1,7 @@
 <script lang="ts">
   import { findEngineDriver } from 'dbgate-tools';
   import { currentDatabase, extensions, pinnedDatabases, pinnedTables } from '../stores';
-  import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
+  import { useCloudContentList, useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
   import ConnectionList from './ConnectionList.svelte';
   import PinnedObjectsList from './PinnedObjectsList.svelte';
@@ -26,6 +26,7 @@
   $: config = useConfig();
   $: singleDatabase = $currentDatabase?.connection?.singleDatabase;
   $: database = $currentDatabase?.name;
+  $: cloudContentList = useCloudContentList();
 </script>
 
 <WidgetColumnBar {hidden}>
@@ -45,7 +46,12 @@
       height="35%"
       storageName="connectionsWidget"
     >
-      <ConnectionList passProps={{ onFocusSqlObjectList: () => domSqlObjectList.focus() }} />
+      <ConnectionList
+        passProps={{
+          onFocusSqlObjectList: () => domSqlObjectList.focus(),
+          cloudContentList: $cloudContentList,
+        }}
+      />
     </WidgetColumnBarItem>
   {/if}
   <WidgetColumnBarItem

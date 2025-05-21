@@ -4,8 +4,13 @@ const {
   refreshPublicFiles,
   callCloudApiGet,
   callCloudApiPost,
+  getCloudFolderEncryptor,
 } = require('../utility/cloudIntf');
+const connections = require('./connections');
 const socket = require('../utility/socket');
+const { decryptConnection, recryptConnection, getInternalEncryptor } = require('../utility/crypting');
+const { getConnectionLabel, getLogger, extractErrorLogData } = require('dbgate-tools');
+const logger = getLogger('cloud');
 
 module.exports = {
   publicFiles_meta: true,
@@ -30,9 +35,14 @@ module.exports = {
 
   contentList_meta: true,
   async contentList() {
-    const resp = callCloudApiGet('content-list');
-    console.log('contentList', resp);
-    return resp;
+    try {
+      const resp = await callCloudApiGet('content-list');
+      return resp;
+    } catch (err) {
+      logger.error(extractErrorLogData(err), 'Error getting cloud content list');
+
+      return [];
+    }
   },
 
   getContent_meta: true,
@@ -75,6 +85,23 @@ module.exports = {
   refreshContent_meta: true,
   async refreshContent() {
     socket.emitChanged('cloud-content-changed');
+    return {
+      status: 'ok',
+    };
+  },
+
+  moveConnectionCloud_meta: true,
+  async moveConnectionCloud({ conid, folid }) {
+    const conn = await connections.getCore({ conid });
+    const folderEncryptor = getCloudFolderEncryptor(folid);
+    const recryptedConn = recryptConnection(conn, getInternalEncryptor(), folderEncryptor);
+    await this.putContent({
+      folid,
+      cntid: conid,
+      content: JSON.stringify(recryptedConn),
+      name: getConnectionLabel(conn),
+      type: 'connection',
+    });
     return {
       status: 'ok',
     };

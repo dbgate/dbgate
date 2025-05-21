@@ -5,7 +5,8 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
-  import * as cloudFileAppObject from '../appobj/CloudFileAppObject.svelte';
+  import * as publicCloudFileAppObject from '../appobj/PublicCloudFileAppObject.svelte';
+  import * as cloudContentAppObject from '../appobj/CloudContentAppObject.svelte';
   import { useCloudContentList, usePublicCloudFiles } from '../utility/metadataLoaders';
   import { _t } from '../translations';
 
@@ -26,7 +27,7 @@
   $: cloudContentList = useCloudContentList();
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
-  $: cloudContentFlat = ($cloudContentList || []).flatMap(fld => fld.items ?? []).map(x => x.folid);
+  $: cloudContentFlat = ($cloudContentList || []).flatMap(fld => fld.items ?? []);
   $: contentGroupTitleMap = _.fromPairs(($cloudContentList || []).map(x => [x.folid, x.name]));
 
   async function handleRefreshPublic() {
@@ -61,7 +62,7 @@
 
       <AppObjectList
         list={cloudContentFlat || []}
-        module={cloudFileAppObject}
+        module={cloudContentAppObject}
         emptyGroupNames={emptyCloudContent}
         groupFunc={data => data.folid}
         mapGroupTitle={folid => contentGroupTitleMap[folid]}
@@ -86,7 +87,7 @@
 
       <AppObjectList
         list={$publicFiles || []}
-        module={cloudFileAppObject}
+        module={publicCloudFileAppObject}
         groupFunc={data => data.folder || undefined}
         filter={publicFilter}
       />
