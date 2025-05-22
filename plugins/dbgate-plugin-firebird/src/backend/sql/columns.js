@@ -24,8 +24,7 @@ SELECT DISTINCT
         WHEN f.rdb$field_type IN (8, 9, 16) AND f.rdb$field_scale < 0 THEN TRUE
         ELSE FALSE
     END AS "isUnsigned",
-    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "pureName",
-    CAST(TRIM(r.rdb$owner_name) AS VARCHAR(255)) AS "schemaName"
+    CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "pureName"
 FROM
     rdb$relation_fields rf
 JOIN
