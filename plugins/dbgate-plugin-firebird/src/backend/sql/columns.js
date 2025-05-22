@@ -2,7 +2,7 @@ module.exports = `
 SELECT DISTINCT
     CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255)) AS "tableName",
     CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "columnName",
-    CASE rf.rdb$null_flag WHEN 1 THEN FALSE ELSE TRUE END AS "notNull",
+    CASE rf.rdb$null_flag WHEN 1 THEN TRUE ELSE FALSE END AS "notNull",
     CASE
         WHEN EXISTS (
             SELECT 1
