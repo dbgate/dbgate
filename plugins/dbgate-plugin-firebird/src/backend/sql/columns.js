@@ -18,7 +18,7 @@ SELECT DISTINCT
     f.rdb$field_precision AS "precision",
     f.rdb$field_scale AS "scale",
     f.rdb$field_length AS "length",
-    CAST(TRIM(rf.rdb$default_value) AS VARCHAR(255)) AS "defaultValue",
+    CAST(TRIM(rf.RDB$DEFAULT_SOURCE) AS VARCHAR(255)) AS "defaultValue",
     CAST(TRIM(rf.rdb$description) AS VARCHAR(255)) AS "columnComment",
     CASE
         WHEN f.rdb$field_type IN (8, 9, 16) AND f.rdb$field_scale < 0 THEN TRUE

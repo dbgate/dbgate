@@ -75,8 +75,15 @@ function getTriggerTiming(triggerType) {
   return eventMap[triggerType]?.triggerTiming || null;
 }
 
+function getFormattedDefaultValue(defaultValue) {
+  if (defaultValue === null) return null;
+
+  return defaultValue.replace(/^default\s*/i, '');
+}
+
 module.exports = {
   getDataTypeString,
   getTriggerEventType,
   getTriggerTiming,
+  getFormattedDefaultValue,
 };

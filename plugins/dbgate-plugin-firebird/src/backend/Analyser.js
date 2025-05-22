@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const sql = require('./sql');
-const { getDataTypeString, getTriggerTiming, getTriggerEventType } = require('./helpers');
+const { getDataTypeString, getTriggerTiming, getTriggerEventType, getFormattedDefaultValue } = require('./helpers');
 
 const { DatabaseAnalyser } = require('dbgate-tools');
 
@@ -23,6 +23,7 @@ class Analyser extends DatabaseAnalyser {
     const columns = columnsResult.rows?.map(column => ({
       ...column,
       dataType: getDataTypeString(column),
+      defaultValue: getFormattedDefaultValue(column.defaultValue),
     }));
 
     const triggers = triggersResult.rows?.map(i => ({
