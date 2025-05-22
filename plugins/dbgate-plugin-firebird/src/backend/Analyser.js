@@ -1,6 +1,12 @@
 const _ = require('lodash');
 const sql = require('./sql');
-const { getDataTypeString, getTriggerTiming, getTriggerEventType, getFormattedDefaultValue } = require('./helpers');
+const {
+  getDataTypeString,
+  getTriggerTiming,
+  getTriggerEventType,
+  getFormattedDefaultValue,
+  getTriggerCreateSql,
+} = require('./helpers');
 
 const { DatabaseAnalyser } = require('dbgate-tools');
 
@@ -30,6 +36,7 @@ class Analyser extends DatabaseAnalyser {
       ...i,
       eventType: getTriggerEventType(i.TRIGGERTYPE),
       triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
+      createSql: getTriggerCreateSql(i),
     }));
 
     const primaryKeys = primaryKeysResult.rows ?? [];

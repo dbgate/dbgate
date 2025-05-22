@@ -71,6 +71,15 @@ function getTriggerEventType(triggerType) {
   return eventMap[triggerType]?.eventType || null;
 }
 
+function getTriggerCreateSql(triggerResult) {
+  const eventType = getTriggerEventType(triggerResult.TRIGGERTYPE);
+  const triggerTiming = getTriggerTiming(triggerResult.TRIGGERTYPE);
+  const body = triggerResult.TRIGGER_BODY_SQL;
+
+  const createSql = `CREATE OR ALTER TRIGGER "${triggerResult.pureName}" ${triggerTiming} ${eventType} ON "${triggerResult.tableName}" ${body};`;
+  return createSql;
+}
+
 function getTriggerTiming(triggerType) {
   return eventMap[triggerType]?.triggerTiming || null;
 }
@@ -86,4 +95,5 @@ module.exports = {
   getTriggerEventType,
   getTriggerTiming,
   getFormattedDefaultValue,
+  getTriggerCreateSql,
 };
