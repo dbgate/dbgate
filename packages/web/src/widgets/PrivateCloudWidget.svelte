@@ -1,11 +1,8 @@
 <script lang="ts">
-  import SavedFilesList from './SavedFilesList.svelte';
-
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
-  import * as publicCloudFileAppObject from '../appobj/PublicCloudFileAppObject.svelte';
   import * as cloudContentAppObject from '../appobj/CloudContentAppObject.svelte';
   import { useCloudContentList, usePublicCloudFiles, useServerStatus } from '../utility/metadataLoaders';
   import { _t } from '../translations';
@@ -19,7 +16,6 @@
   import { apiCall } from '../utility/api';
   import { cloudConnectionsStore, cloudSigninToken, expandedConnections, openedConnections } from '../stores';
   import _ from 'lodash';
-  import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import { volatileConnectionMapStore } from '../utility/api';
   import SubCloudItemsList from '../appobj/SubCloudItemsList.svelte';
@@ -27,7 +23,6 @@
   let publicFilter = '';
   let cloudFilter = '';
 
-  const publicFiles = usePublicCloudFiles();
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
 
@@ -51,10 +46,6 @@
   $: contentGroupTitleMap = _.fromPairs(($cloudContentList || []).map(x => [x.folid, x.name]));
 
   $: console.log('cloudContentFlat', cloudContentFlat);
-
-  async function handleRefreshPublic() {
-    await apiCall('cloud/refresh-public-files');
-  }
 
   async function handleRefreshContent() {
     await apiCall('cloud/refresh-content');
@@ -100,29 +91,6 @@
         setIsExpanded={(data, value) => {
           expandedConnections.update(old => (value ? [...old, data.conid] : old.filter(x => x != data.conid)));
         }}
-      />
-    </WidgetsInnerContainer>
-  </WidgetColumnBarItem>
-
-  <WidgetColumnBarItem title="Public Knowledge Base" name="publicCloud" storageName="publicCloudItems">
-    <WidgetsInnerContainer>
-      <SearchBoxWrapper>
-        <SearchInput placeholder="Search public files" bind:value={publicFilter} />
-        <CloseSearchButton bind:filter={publicFilter} />
-        <InlineButton
-          on:click={handleRefreshPublic}
-          title="Refresh files"
-          data-testid="CloudItemsWidget_buttonRefreshPublic"
-        >
-          <FontIcon icon="icon refresh" />
-        </InlineButton>
-      </SearchBoxWrapper>
-
-      <AppObjectList
-        list={$publicFiles || []}
-        module={publicCloudFileAppObject}
-        groupFunc={data => data.folder || undefined}
-        filter={publicFilter}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>

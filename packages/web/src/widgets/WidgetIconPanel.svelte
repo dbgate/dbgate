@@ -33,6 +33,12 @@
       name: 'database',
       title: 'Database connections',
     },
+    {
+      name: 'cloud-private',
+      title: 'DbGate Cloud',
+      icon: 'icon cloud-private',
+    },
+
     // {
     //   icon: 'fa-table',
     //   name: 'table',
@@ -63,12 +69,9 @@
       title: 'Selected cell data detail view',
     },
     {
-      icon: 'icon cloud',
-      name: 'cloud',
+      name: 'cloud-public',
       title: 'DbGate Cloud',
-      isCloud: true,
-      iconSignedIn: 'icon cloud-logged',
-      iconPublic: 'icon cloud-public',
+      icon: 'icon cloud-public',
     },
     {
       icon: 'icon premium',
@@ -146,7 +149,7 @@
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
     .filter(x => !x.isPremiumPromo || !isProApp())
-    .map(x => (x.isCloud ? { ...x, icon: $cloudSigninToken ? x.iconSignedIn : x.iconPublic } : x)) as item}
+    .filter(x => x.name != 'cloud-private' || $cloudSigninToken) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
