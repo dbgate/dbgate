@@ -19,9 +19,11 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import { volatileConnectionMapStore } from '../utility/api';
   import SubCloudItemsList from '../appobj/SubCloudItemsList.svelte';
+  import DatabaseWidgetDetailContent from './DatabaseWidgetDetailContent.svelte';
 
   let publicFilter = '';
   let cloudFilter = '';
+  let domSqlObjectList = null;
 
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
@@ -91,7 +93,12 @@
         setIsExpanded={(data, value) => {
           expandedConnections.update(old => (value ? [...old, data.conid] : old.filter(x => x != data.conid)));
         }}
+        passProps={{
+          onFocusSqlObjectList: () => domSqlObjectList.focus(),
+        }}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
+
+  <DatabaseWidgetDetailContent bind:domSqlObjectList />
 </WidgetColumnBar>
