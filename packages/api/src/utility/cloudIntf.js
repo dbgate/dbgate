@@ -248,6 +248,24 @@ async function getCloudFolderEncryptor(folid) {
   return simpleEncryptor.createEncryptor(encryptionKey);
 }
 
+async function getCloudContent(folid, cntid) {
+  const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`);
+  return { content, name, type };
+}
+
+const cloudConnectionCache = {};
+async function loadCachedCloudConnection(folid, cntid) {
+  const cacheKey = `${folid}|${cntid}`;
+  if (!cloudConnectionCache[cacheKey]) {
+    const { content } = await getCloudContent(folid, cntid);
+    cloudConnectionCache[cacheKey] = {
+      ...JSON.parse(content),
+      _id: `cloud://${folid}/${cntid}`,
+    };
+  }
+  return cloudConnectionCache[cacheKey];
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -258,4 +276,6 @@ module.exports = {
   callCloudApiGet,
   callCloudApiPost,
   getCloudFolderEncryptor,
+  getCloudContent,
+  loadCachedCloudConnection,
 };

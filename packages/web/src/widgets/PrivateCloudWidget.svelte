@@ -47,7 +47,7 @@
     });
   $: contentGroupTitleMap = _.fromPairs(($cloudContentList || []).map(x => [x.folid, x.name]));
 
-  $: console.log('cloudContentFlat', cloudContentFlat);
+  // $: console.log('cloudContentFlat', cloudContentFlat);
 
   async function handleRefreshContent() {
     await apiCall('cloud/refresh-content');
@@ -64,7 +64,7 @@
   >
     <WidgetsInnerContainer>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search cloud items" bind:value={cloudFilter} />
+        <SearchInput placeholder="Search cloud connections and files" bind:value={cloudFilter} />
         <CloseSearchButton bind:filter={cloudFilter} />
         <InlineButton
           on:click={handleRefreshContent}

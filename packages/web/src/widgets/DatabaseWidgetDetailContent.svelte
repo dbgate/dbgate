@@ -1,7 +1,7 @@
 <script lang="ts">
   import { findEngineDriver } from 'dbgate-tools';
   import { currentDatabase, extensions, pinnedDatabases, pinnedTables } from '../stores';
-  import { useCloudContentList, useConfig, useConnectionInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
 
   import PinnedObjectsList from './PinnedObjectsList.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';

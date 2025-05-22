@@ -5,6 +5,7 @@ const {
   callCloudApiGet,
   callCloudApiPost,
   getCloudFolderEncryptor,
+  getCloudContent,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -48,8 +49,8 @@ module.exports = {
 
   getContent_meta: true,
   async getContent({ folid, cntid }) {
-    const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`);
-    return { content, name, type };
+    const resp = await getCloudContent(folid, cntid);
+    return resp;
   },
 
   putContent_meta: true,

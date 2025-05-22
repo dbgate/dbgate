@@ -425,12 +425,9 @@ module.exports = {
 
     const cloudMatch = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
     if (cloudMatch) {
-      const cloud = require('./cloud');
-      const { content } = await cloud.getContent({ folid: cloudMatch[1], cntid: cloudMatch[2] });
-      return {
-        ...JSON.parse(content),
-        _id: conid,
-      };
+      const { loadCachedCloudConnection } = require('../utility/cloudIntf');
+      const conn = await loadCachedCloudConnection(cloudMatch[1], cloudMatch[2]);
+      return conn;
     }
 
     const storage = require('./storage');
