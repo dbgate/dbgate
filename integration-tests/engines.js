@@ -701,7 +701,7 @@ const firebirdEngine = {
   // skipStringLength: true,
   // skipTriggers: true,
   skipDataReplicator: true,
-  // skipAutoIncrement: true,
+  skipAutoIncrement: true,
   // skipDropColumn: true,
   // skipRenameColumn: true,
   // skipChangeNullability: true,
