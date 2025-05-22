@@ -81,13 +81,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 15000:5432          
+          - 15000:5432
 
       mysql-integr:
         image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
-        ports: 
+        ports:
           - 15001:3306
 
       mssql-integr:
@@ -96,14 +96,14 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
-        ports: 
+        ports:
           - 15002:1433
 
       clickhouse-integr:
         image: bitnami/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
-        ports: 
+        ports:
           - 15005:8123
 
       oracle-integr:
@@ -122,3 +122,16 @@ jobs:
         image: ghcr.io/tursodatabase/libsql-server:latest
         ports:
           - '8080:8080'
+
+      firebird:
+        image: firebirdsql/firebird:latest
+        container_name: firebird-db
+        env:
+          - FIREBIRD_DATABASE=mydatabase.fdb
+          - FIREBIRD_USER=dbuser
+          - FIREBIRD_PASSWORD=dbpassword
+          - ISC_PASSWORD=masterkey
+          - FIREBIRD_TRACE=false
+          - FIREBIRD_USE_LEGACY_AUTH=true
+        ports:
+          - '3050:3050'
