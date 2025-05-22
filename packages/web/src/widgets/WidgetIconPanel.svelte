@@ -195,8 +195,8 @@
 
 <style>
   .wrapper {
-    font-size: 23pt;
-    height: 60px;
+    font-size: 20pt;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
