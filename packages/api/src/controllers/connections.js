@@ -423,6 +423,16 @@ module.exports = {
       return volatile;
     }
 
+    const cloudMatch = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
+    if (cloudMatch) {
+      const cloud = require('./cloud');
+      const { content } = await cloud.getContent({ folid: cloudMatch[1], cntid: cloudMatch[2] });
+      return {
+        ...JSON.parse(content),
+        _id: conid,
+      };
+    }
+
     const storage = require('./storage');
 
     const storageConnection = await storage.getConnection({ conid });

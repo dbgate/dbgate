@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { cloudConnectionsStore } from '../stores';
+  import { apiCall } from '../utility/api';
   import AppObjectCore from './AppObjectCore.svelte';
 
   export const extractKey = data => data.cntid;
@@ -10,15 +12,44 @@
 
 <script lang="ts">
   import { filterName } from 'dbgate-tools';
+  import ConnectionAppObject, { openConnection } from './ConnectionAppObject.svelte';
 
   export let data;
+  export let passProps;
 
   function createMenu() {
     return [];
   }
+
+  async function handleOpenContent() {
+    switch (data.type) {
+      case 'connection':
+        const conn = await apiCall('connections/get', { conid: data.conid });
+        $cloudConnectionsStore[data.conid] = conn;
+        openConnection(conn);
+        break;
+    }
+  }
 </script>
 
-<AppObjectCore {...$$restProps} {data} icon={'img connection'} title={data.name} menu={createMenu}></AppObjectCore>
+{#if data.conid && $cloudConnectionsStore[data.conid]}
+  <ConnectionAppObject
+    {passProps}
+    data={{
+      ...$cloudConnectionsStore[data.conid],
+      status: data.status,
+    }}
+  />
+{:else}
+  <AppObjectCore
+    {...$$restProps}
+    {data}
+    icon={'img connection'}
+    title={data.name}
+    menu={createMenu}
+    on:click={handleOpenContent}
+  ></AppObjectCore>
+{/if}
 
 <style>
   .info {

@@ -8,9 +8,10 @@ const {
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
-const { decryptConnection, recryptConnection, getInternalEncryptor } = require('../utility/crypting');
+const { recryptConnection, getInternalEncryptor } = require('../utility/crypting');
 const { getConnectionLabel, getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('cloud');
+const _ = require('lodash');
 
 module.exports = {
   publicFiles_meta: true,
@@ -47,8 +48,8 @@ module.exports = {
 
   getContent_meta: true,
   async getContent({ folid, cntid }) {
-    const resp = await callCloudApiGet(`content/${folid}/${cntid}`);
-    return resp;
+    const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`);
+    return { content, name, type };
   },
 
   putContent_meta: true,
@@ -95,10 +96,11 @@ module.exports = {
     const conn = await connections.getCore({ conid });
     const folderEncryptor = getCloudFolderEncryptor(folid);
     const recryptedConn = recryptConnection(conn, getInternalEncryptor(), folderEncryptor);
+    const connToSend = _.omit(recryptedConn, ['_id']);
     await this.putContent({
       folid,
-      cntid: conid,
-      content: JSON.stringify(recryptedConn),
+      cntid: undefined,
+      content: JSON.stringify(connToSend),
       name: getConnectionLabel(conn),
       type: 'connection',
     });

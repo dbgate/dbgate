@@ -184,6 +184,8 @@ export const focusedTreeDbKey = writable<{ key: string; root: string; type: stri
 
 export const cloudSigninToken = writableSettingsValue(null, 'cloudSigninToken');
 
+export const cloudConnectionsStore = writable({});
+
 // export const cloudSigninToken = getElectron()
 //   ? writableSettingsValue(null, 'cloudSigninToken')
 //   : writableWithStorage(null, 'cloudSigninToken');

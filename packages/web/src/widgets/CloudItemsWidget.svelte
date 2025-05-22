@@ -7,7 +7,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as publicCloudFileAppObject from '../appobj/PublicCloudFileAppObject.svelte';
   import * as cloudContentAppObject from '../appobj/CloudContentAppObject.svelte';
-  import { useCloudContentList, usePublicCloudFiles } from '../utility/metadataLoaders';
+  import { useCloudContentList, usePublicCloudFiles, useServerStatus } from '../utility/metadataLoaders';
   import { _t } from '../translations';
 
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -17,18 +17,40 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
-  import { cloudSigninToken } from '../stores';
+  import { cloudConnectionsStore, cloudSigninToken, expandedConnections, openedConnections } from '../stores';
   import _ from 'lodash';
+  import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
+  import { volatileConnectionMapStore } from '../utility/api';
+  import SubCloudItemsList from '../appobj/SubCloudItemsList.svelte';
 
   let publicFilter = '';
   let cloudFilter = '';
 
-  $: publicFiles = usePublicCloudFiles();
-  $: cloudContentList = useCloudContentList();
+  const publicFiles = usePublicCloudFiles();
+  const cloudContentList = useCloudContentList();
+  const serverStatus = useServerStatus();
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
-  $: cloudContentFlat = ($cloudContentList || []).flatMap(fld => fld.items ?? []);
+  $: cloudContentFlat = ($cloudContentList || [])
+    .flatMap(fld => fld.items ?? [])
+    .map(data => {
+      if (data.type == 'connection') {
+        const conid = `cloud://${data.folid}/${data.cntid}`;
+        const status = $serverStatus ? $serverStatus[$volatileConnectionMapStore[conid] || conid] : undefined;
+
+        return {
+          ...data,
+          conid,
+          status,
+        };
+      }
+
+      return data;
+    });
   $: contentGroupTitleMap = _.fromPairs(($cloudContentList || []).map(x => [x.folid, x.name]));
+
+  $: console.log('cloudContentFlat', cloudContentFlat);
 
   async function handleRefreshPublic() {
     await apiCall('cloud/refresh-public-files');
@@ -67,6 +89,17 @@
         groupFunc={data => data.folid}
         mapGroupTitle={folid => contentGroupTitleMap[folid]}
         filter={publicFilter}
+        subItemsComponent={() => SubCloudItemsList}
+        expandIconFunc={plusExpandIcon}
+        isExpandable={data =>
+          data.conid &&
+          $cloudConnectionsStore[data.conid] &&
+          !$cloudConnectionsStore[data.conid].singleDatabase &&
+          $openedConnections.includes(data.conid)}
+        getIsExpanded={data => $expandedConnections.includes(data.conid) && !data.singleDatabase}
+        setIsExpanded={(data, value) => {
+          expandedConnections.update(old => (value ? [...old, data.conid] : old.filter(x => x != data.conid)));
+        }}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
