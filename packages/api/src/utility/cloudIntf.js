@@ -237,7 +237,12 @@ async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders 
       ...signinHeaders,
       ...additionalHeaders,
     },
+    validateStatus: status => status < 500,
   });
+  const { errorMessage } = resp.data;
+  if (errorMessage) {
+    return { apiErrorMessage: errorMessage };
+  }
   return resp.data;
 }
 
@@ -255,7 +260,12 @@ async function callCloudApiPost(endpoint, body, signinHolder = null) {
       ...getLicenseHttpHeaders(),
       ...signinHeaders,
     },
+    validateStatus: status => status < 500,
   });
+  const { errorMessage } = resp.data;
+  if (errorMessage) {
+    return { apiErrorMessage: errorMessage };
+  }
   return resp.data;
 }
 
@@ -275,9 +285,13 @@ async function getCloudContent(folid, cntid) {
 
   const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
 
-  const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`, signinHolder, {
+  const { content, name, type, apiErrorMessage } = await callCloudApiGet(`content/${folid}/${cntid}`, signinHolder, {
     'x-kehid': signinHolder.kehid,
   });
+
+  if (apiErrorMessage) {
+    return { apiErrorMessage };
+  }
 
   return {
     content: encryptor.decrypt(content),
@@ -294,7 +308,7 @@ async function putCloudContent(folid, cntid, content, name, type) {
 
   const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
 
-  await callCloudApiPost(
+  const resp = await callCloudApiPost(
     `put-content`,
     {
       folid,
@@ -307,6 +321,7 @@ async function putCloudContent(folid, cntid, content, name, type) {
     signinHolder
   );
   socket.emitChanged('cloud-content-changed');
+  return resp;
 }
 
 const cloudConnectionCache = {};

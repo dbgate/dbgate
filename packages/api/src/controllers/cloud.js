@@ -56,20 +56,16 @@ module.exports = {
 
   putContent_meta: true,
   async putContent({ folid, cntid, content, name, type }) {
-    putCloudContent(folid, cntid, content, name, type);
+    const resp = await putCloudContent(folid, cntid, content, name, type);
     socket.emitChanged('cloud-content-changed');
-    return {
-      status: 'ok',
-    };
+    return resp;
   },
 
   createFolder_meta: true,
   async createFolder({ name }) {
-    await callCloudApiPost(`folders/create`, { name });
+    const resp = await callCloudApiPost(`folders/create`, { name });
     socket.emitChanged('cloud-content-changed');
-    return {
-      status: 'ok',
-    };
+    return resp;
   },
 
   grantFolder_meta: true,
@@ -78,29 +74,23 @@ module.exports = {
     const invite = m[1];
     const mode = m[2];
 
-    await callCloudApiPost(`folders/grant/${mode}`, { invite });
+    const resp = await callCloudApiPost(`folders/grant/${mode}`, { invite });
     socket.emitChanged('cloud-content-changed');
-    return {
-      status: 'ok',
-    };
+    return resp;
   },
 
   renameFolder_meta: true,
   async renameFolder({ folid, name }) {
-    await callCloudApiPost(`folders/rename`, { folid, name });
+    const resp = await callCloudApiPost(`folders/rename`, { folid, name });
     socket.emitChanged('cloud-content-changed');
-    return {
-      status: 'ok',
-    };
+    return resp;
   },
 
   deleteFolder_meta: true,
   async deleteFolder({ folid }) {
-    await callCloudApiPost(`folders/delete`, { folid });
+    const resp = await callCloudApiPost(`folders/delete`, { folid });
     socket.emitChanged('cloud-content-changed');
-    return {
-      status: 'ok',
-    };
+    return resp;
   },
 
   refreshContent_meta: true,
@@ -117,15 +107,13 @@ module.exports = {
     const folderEncryptor = getCloudFolderEncryptor(folid);
     const recryptedConn = recryptConnection(conn, getInternalEncryptor(), folderEncryptor);
     const connToSend = _.omit(recryptedConn, ['_id']);
-    await this.putContent({
+    const resp = await putCloudContent(
       folid,
-      cntid: undefined,
-      content: JSON.stringify(connToSend),
-      name: getConnectionLabel(conn),
-      type: 'connection',
-    });
-    return {
-      status: 'ok',
-    };
+      undefined,
+      JSON.stringify(connToSend),
+      getConnectionLabel(conn),
+      'connection'
+    );
+    return resp;
   },
 };
