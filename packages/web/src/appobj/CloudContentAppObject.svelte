@@ -25,7 +25,10 @@
     switch (data.type) {
       case 'connection':
         const conn = await apiCall('connections/get', { conid: data.conid });
-        $cloudConnectionsStore[data.conid] = conn;
+        $cloudConnectionsStore = {
+          ...$cloudConnectionsStore,
+          [data.conid]: conn,
+        };
         openConnection(conn);
         break;
     }
@@ -34,6 +37,7 @@
 
 {#if data.conid && $cloudConnectionsStore[data.conid]}
   <ConnectionAppObject
+    {...$$restProps}
     {passProps}
     data={{
       ...$cloudConnectionsStore[data.conid],

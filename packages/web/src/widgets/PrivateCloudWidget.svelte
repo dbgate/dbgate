@@ -14,12 +14,19 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
-  import { cloudConnectionsStore, cloudSigninToken, expandedConnections, openedConnections } from '../stores';
+  import {
+    cloudConnectionsStore,
+    cloudSigninToken,
+    currentDatabase,
+    expandedConnections,
+    openedConnections,
+  } from '../stores';
   import _ from 'lodash';
   import { plusExpandIcon } from '../icons/expandIcons';
   import { volatileConnectionMapStore } from '../utility/api';
   import SubCloudItemsList from '../appobj/SubCloudItemsList.svelte';
   import DatabaseWidgetDetailContent from './DatabaseWidgetDetailContent.svelte';
+  import { onMount } from 'svelte';
 
   let publicFilter = '';
   let cloudFilter = '';
@@ -52,6 +59,21 @@
   async function handleRefreshContent() {
     await apiCall('cloud/refresh-content');
   }
+
+  async function loadCloudConnection(conid) {
+    const conn = await apiCall('connections/get', { conid });
+    $cloudConnectionsStore = {
+      ...$cloudConnectionsStore,
+      [conid]: conn,
+    };
+  }
+
+  onMount(() => {
+    const currentConid = $currentDatabase?.connection?._id;
+    if (currentConid?.startsWith('cloud://') && !$cloudConnectionsStore[currentConid]) {
+      loadCloudConnection(currentConid);
+    }
+  });
 </script>
 
 <WidgetColumnBar>
