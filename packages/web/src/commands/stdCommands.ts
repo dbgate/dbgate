@@ -1,5 +1,5 @@
 import {
-  cloudSigninToken,
+  cloudSigninTokenHolder,
   currentDatabase,
   currentTheme,
   emptyConnectionGroupNames,
@@ -668,7 +668,7 @@ registerCommand({
   category: 'Cloud',
   name: 'Logout',
   onClick: () => {
-    cloudSigninToken.set(null);
+    cloudSigninTokenHolder.set(null);
   },
 });
 

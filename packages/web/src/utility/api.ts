@@ -14,7 +14,7 @@ import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 import { openWebLink } from './simpleTools';
 import { serializeJsTypesReplacer } from 'dbgate-tools';
-import { cloudSigninToken } from '../stores';
+import { cloudSigninTokenHolder } from '../stores';
 
 export const strmid = uuidv1();
 
@@ -281,8 +281,9 @@ export function installNewVolatileConnectionListener() {
 }
 
 export function installNewCloudTokenListener() {
-  apiOn('got-cloud-token', async ({ token }) => {
-    cloudSigninToken.set(token);
+  apiOn('got-cloud-token', async tokenHolder => {
+    console.log('HOLDER', tokenHolder);
+    cloudSigninTokenHolder.set(tokenHolder);
   });
 }
 

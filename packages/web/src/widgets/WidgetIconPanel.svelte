@@ -9,7 +9,7 @@
     visibleHamburgerMenuWidget,
     lockedDatabaseMode,
     getCurrentConfig,
-    cloudSigninToken,
+    cloudSigninTokenHolder,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -149,7 +149,7 @@
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
     .filter(x => !x.isPremiumPromo || !isProApp())
-    .filter(x => x.name != 'cloud-private' || $cloudSigninToken) as item}
+    .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
@@ -176,7 +176,7 @@
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div> -->
 
-  {#if $cloudSigninToken}
+  {#if $cloudSigninTokenHolder}
     <div
       class="wrapper"
       on:click={handleCloudAccountMenu}

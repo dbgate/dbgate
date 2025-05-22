@@ -16,7 +16,7 @@
   import { apiCall } from '../utility/api';
   import {
     cloudConnectionsStore,
-    cloudSigninToken,
+    cloudSigninTokenHolder,
     currentDatabase,
     expandedConnections,
     openedConnections,
@@ -82,7 +82,7 @@
     name="privateCloud"
     height="50%"
     storageName="privateCloudItems"
-    skip={!$cloudSigninToken}
+    skip={!$cloudSigninTokenHolder}
   >
     <WidgetsInnerContainer>
       <SearchBoxWrapper>

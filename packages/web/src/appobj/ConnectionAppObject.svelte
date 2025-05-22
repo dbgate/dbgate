@@ -108,7 +108,7 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import {
-    cloudSigninToken,
+    cloudSigninTokenHolder,
     currentDatabase,
     DEFAULT_CONNECTION_SEARCH_SETTINGS,
     expandedConnections,
@@ -334,7 +334,7 @@
             onClick: handleDuplicate,
           },
           !$openedConnections.includes(data._id) &&
-            $cloudSigninToken &&
+            $cloudSigninTokenHolder &&
             passProps?.cloudContentList?.length > 0 && {
               text: _t('connection.moveToCloudFolder', { defaultMessage: 'Move to cloud folder' }),
               submenu: passProps?.cloudContentList?.map(fld => ({

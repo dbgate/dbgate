@@ -140,8 +140,8 @@ module.exports = {
   createCloudLoginSession_meta: true,
   async createCloudLoginSession({ client }) {
     const res = await createDbGateIdentitySession(client);
-    startCloudTokenChecking(res.sid, token => {
-      socket.emit('got-cloud-token', { token });
+    startCloudTokenChecking(res.sid, tokenHolder => {
+      socket.emit('got-cloud-token', tokenHolder);
     });
     return res;
   },

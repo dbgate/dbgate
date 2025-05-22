@@ -6,6 +6,7 @@ const {
   callCloudApiPost,
   getCloudFolderEncryptor,
   getCloudContent,
+  putCloudContent,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -55,7 +56,7 @@ module.exports = {
 
   putContent_meta: true,
   async putContent({ folid, cntid, content, name, type }) {
-    await callCloudApiPost(`put-content`, { folid, cntid, content, name, type });
+    putCloudContent(folid, cntid, content, name, type);
     socket.emitChanged('cloud-content-changed');
     return {
       status: 'ok',

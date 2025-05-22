@@ -64,7 +64,7 @@ function startCloudTokenChecking(sid, callback) {
 
       if (resp.data.status == 'ok') {
         clearInterval(interval);
-        callback(resp.data.token);
+        callback(resp.data);
       }
     } catch (err) {
       logger.error(extractErrorLogData(err), 'Error checking cloud token');
@@ -123,16 +123,25 @@ async function collectCloudFilesSearchTags() {
   return res;
 }
 
-async function getCloudSigninHeaders() {
+async function getCloudSigninHolder() {
   const settingsValue = await config.getSettings();
-  const value = settingsValue['cloudSigninToken'];
-  if (value) {
+  const holder = settingsValue['cloudSigninTokenHolder'];
+  return holder;
+}
+
+async function getCloudSigninHeaders(holder = null) {
+  if (!holder) {
+    holder = await getCloudSigninHolder();
+  }
+  if (holder) {
     return {
-      'x-cloud-login': value,
+      'x-cloud-login': holder.token,
     };
   }
   return null;
 }
+
+let cloudFilesWereUpdated = false;
 
 async function updateCloudFiles() {
   let lastCloudFilesTags;
@@ -151,7 +160,9 @@ async function updateCloudFiles() {
   logger.info({ tags, lastCheckedTm }, 'Downloading cloud files');
 
   const resp = await axios.default.get(
-    `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}`,
+    `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
+      cloudFilesWereUpdated ? 1 : 0
+    }`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
@@ -159,6 +170,7 @@ async function updateCloudFiles() {
       },
     }
   );
+  cloudFilesWereUpdated = true;
 
   logger.info(`Downloaded ${resp.data.length} cloud files`);
 
@@ -210,26 +222,33 @@ async function refreshPublicFiles() {
   }
 }
 
-async function callCloudApiGet(endpoint) {
-  const signinHeaders = await getCloudSigninHeaders();
-  if (!signinHeaders) {
+async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders = {}) {
+  if (!signinHolder) {
+    signinHolder = await getCloudSigninHolder();
+  }
+  if (!signinHolder) {
     return null;
   }
+  const signinHeaders = await getCloudSigninHeaders(signinHolder);
 
   const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/${endpoint}`, {
     headers: {
       ...getLicenseHttpHeaders(),
       ...signinHeaders,
+      ...additionalHeaders,
     },
   });
   return resp.data;
 }
 
-async function callCloudApiPost(endpoint, body) {
-  const signinHeaders = await getCloudSigninHeaders();
-  if (!signinHeaders) {
+async function callCloudApiPost(endpoint, body, signinHolder = null) {
+  if (!signinHolder) {
+    signinHolder = await getCloudSigninHolder();
+  }
+  if (!signinHolder) {
     return null;
   }
+  const signinHeaders = await getCloudSigninHeaders(signinHolder);
 
   const resp = await axios.default.post(`${DBGATE_CLOUD_URL}/${endpoint}`, body, {
     headers: {
@@ -249,8 +268,45 @@ async function getCloudFolderEncryptor(folid) {
 }
 
 async function getCloudContent(folid, cntid) {
-  const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`);
-  return { content, name, type };
+  const signinHolder = await getCloudSigninHolder();
+  if (!signinHolder) {
+    throw new Error('No signed in');
+  }
+
+  const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
+
+  const { content, name, type } = await callCloudApiGet(`content/${folid}/${cntid}`, signinHolder, {
+    'x-kehid': signinHolder.kehid,
+  });
+
+  return {
+    content: encryptor.decrypt(content),
+    name,
+    type,
+  };
+}
+
+async function putCloudContent(folid, cntid, content, name, type) {
+  const signinHolder = await getCloudSigninHolder();
+  if (!signinHolder) {
+    throw new Error('No signed in');
+  }
+
+  const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
+
+  await callCloudApiPost(
+    `put-content`,
+    {
+      folid,
+      cntid,
+      name,
+      type,
+      kehid: signinHolder.kehid,
+      content: encryptor.encrypt(content),
+    },
+    signinHolder
+  );
+  socket.emitChanged('cloud-content-changed');
 }
 
 const cloudConnectionCache = {};
@@ -278,4 +334,5 @@ module.exports = {
   getCloudFolderEncryptor,
   getCloudContent,
   loadCachedCloudConnection,
+  putCloudContent,
 };
