@@ -27,6 +27,10 @@
   import SubCloudItemsList from '../appobj/SubCloudItemsList.svelte';
   import DatabaseWidgetDetailContent from './DatabaseWidgetDetailContent.svelte';
   import { onMount } from 'svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
+  import { showModal } from '../modals/modalTools';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   let publicFilter = '';
   let cloudFilter = '';
@@ -74,6 +78,72 @@
       loadCloudConnection(currentConid);
     }
   });
+
+  function createAddMenu() {
+    return [
+      {
+        text: 'New shared folder',
+        onClick: () => {
+          showModal(InputTextModal, {
+            label: 'New folder name',
+            header: 'New shared folder',
+            onConfirm: async newFolder => {
+              apiCall('cloud/create-folder', {
+                name: newFolder,
+              });
+            },
+          });
+        },
+      },
+      {
+        text: 'Add existing shared folder',
+        onClick: () => {
+          showModal(InputTextModal, {
+            label: 'Your invite link (in form dbgate://folder/xxx)',
+            header: 'Add existing shared folder',
+            onConfirm: async newFolder => {
+              apiCall('cloud/grant-folder', {
+                inviteLink: newFolder,
+              });
+            },
+          });
+        },
+      },
+    ];
+  }
+
+  function createGroupContextMenu(folder) {
+    const handleRename = () => {
+      showModal(InputTextModal, {
+        value: contentGroupTitleMap[folder],
+        label: 'New folder name',
+        header: 'Rename folder',
+        onConfirm: async name => {
+          apiCall('cloud/rename-folder', {
+            folid: folder,
+            name,
+          });
+        },
+      });
+    };
+
+    const handleDelete = () => {
+      showModal(ConfirmModal, {
+        message: `Really delete folder ${contentGroupTitleMap[folder]}? All folder content will be deleted!`,
+        header: 'Delete folder',
+        onConfirm: () => {
+          apiCall('cloud/delete-folder', {
+            folid: folder,
+          });
+        },
+      });
+    };
+
+    return [
+      { text: 'Rename', onClick: handleRename },
+      { text: 'Delete', onClick: handleDelete },
+    ];
+  }
 </script>
 
 <WidgetColumnBar>
@@ -88,6 +158,7 @@
       <SearchBoxWrapper>
         <SearchInput placeholder="Search cloud connections and files" bind:value={cloudFilter} />
         <CloseSearchButton bind:filter={cloudFilter} />
+        <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
         <InlineButton
           on:click={handleRefreshContent}
           title="Refresh files"
@@ -118,6 +189,7 @@
         passProps={{
           onFocusSqlObjectList: () => domSqlObjectList.focus(),
         }}
+        groupContextMenu={createGroupContextMenu}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>

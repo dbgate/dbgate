@@ -85,6 +85,24 @@ module.exports = {
     };
   },
 
+  renameFolder_meta: true,
+  async renameFolder({ folid, name }) {
+    await callCloudApiPost(`folders/rename`, { folid, name });
+    socket.emitChanged('cloud-content-changed');
+    return {
+      status: 'ok',
+    };
+  },
+
+  deleteFolder_meta: true,
+  async deleteFolder({ folid }) {
+    await callCloudApiPost(`folders/delete`, { folid });
+    socket.emitChanged('cloud-content-changed');
+    return {
+      status: 'ok',
+    };
+  },
+
   refreshContent_meta: true,
   async refreshContent() {
     socket.emitChanged('cloud-content-changed');
