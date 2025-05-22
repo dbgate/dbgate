@@ -695,6 +695,21 @@ const firebirdEngine = {
     user: 'SYSDBA',
     password: 'masterkey',
   },
+  objects: [],
+  triggers: [
+    {
+      testName: 'triggers after each row',
+      create: `CREATE OR ALTER TRIGGER ~obj1 AFTER INSERT ON ~t1 AS BEGIN END;`,
+      drop: 'DROP TRIGGER ~obj1;',
+      objectTypeField: 'triggers',
+      expected: {
+        pureName: 'obj1',
+        tableName: 't1',
+        eventType: 'INSERT',
+        triggerTiming: 'AFTER',
+      },
+    },
+  ],
   skipOnCI: false,
   // skipChangeColumn: true,
   // skipIndexes: true,
