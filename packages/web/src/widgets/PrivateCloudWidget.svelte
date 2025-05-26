@@ -216,7 +216,7 @@
           $cloudConnectionsStore[data.conid] &&
           !$cloudConnectionsStore[data.conid].singleDatabase &&
           $openedConnections.includes(data.conid)}
-        getIsExpanded={data => $expandedConnections.includes(data.conid) && !data.singleDatabase}
+        getIsExpanded={data => $expandedConnections.includes(data.conid)}
         setIsExpanded={(data, value) => {
           expandedConnections.update(old => (value ? [...old, data.conid] : old.filter(x => x != data.conid)));
         }}
