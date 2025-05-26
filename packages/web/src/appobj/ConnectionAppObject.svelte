@@ -161,7 +161,7 @@
   const handleOpenConnectionTab = () => {
     openNewTab({
       title: getConnectionLabel(data),
-      icon: 'img connection',
+      icon: data._id.startsWith('cloud://') ? 'img cloud-connection' : 'img connection',
       tabComponent: 'ConnectionTab',
       props: {
         conid: data._id,
@@ -430,7 +430,7 @@
   {...$$restProps}
   {data}
   title={getConnectionLabel(data, { showUnsaved: true })}
-  icon={data.singleDatabase ? 'img database' : 'img server'}
+  icon={data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
     ? $currentDatabase?.connection?._id == data._id && $currentDatabase?.name == data.defaultDatabase
     : $currentDatabase?.connection?._id == data._id}

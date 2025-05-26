@@ -172,4 +172,22 @@ module.exports = {
       _id: `cloud://${folid}/${cntid}`,
     };
   },
+
+  duplicateConnection_meta: true,
+  async duplicateConnection({ conid }) {
+    const m = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
+    if (!m) {
+      throw new Error('Invalid cloud connection ID format');
+    }
+    const folid = m[1];
+    const cntid = m[2];
+    const respGet = await getCloudContent(folid, cntid);
+    const conn = JSON.parse(respGet.content);
+    const conn2 = {
+      ...conn,
+      displayName: getConnectionLabel(conn) + ' - copy',
+    };
+    const respPut = await putCloudContent(folid, undefined, JSON.stringify(conn2), conn2.displayName, 'connection');
+    return respPut;
+  },
 };

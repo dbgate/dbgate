@@ -32,7 +32,10 @@ async function loadCloudConnection(conid) {
 
 function ensureCloudConnectionsLoaded(...conids) {
   const conns = getCloudConnectionsStore();
-  _.uniq(conids).forEach(conid => {
+
+  cloudConnectionsStore.update(store => _.pick(store, conids));
+
+  conids.forEach(conid => {
     if (!conns[conid]) {
       loadCloudConnection(conid);
     }

@@ -13,23 +13,47 @@
 <script lang="ts">
   import { filterName } from 'dbgate-tools';
   import ConnectionAppObject, { openConnection } from './ConnectionAppObject.svelte';
+  import { _t } from '../translations';
 
   export let data;
   export let passProps;
 
   function createMenu() {
-    return [];
+    const res = [];
+    switch (data.type) {
+      case 'connection':
+        res.push({
+          text: _t('connection.connect', { defaultMessage: 'Connect' }),
+          onClick: handleConnect,
+          isBold: true,
+        });
+        res.push({ divider: true });
+        res.push({
+          text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
+          onClick: handleDuplicateConnection,
+        });
+    }
+
+    return res;
+  }
+
+  async function handleDuplicateConnection() {
+    await apiCall('cloud/duplicate-connection', { conid: data.conid });
+  }
+
+  async function handleConnect() {
+    const conn = await apiCall('connections/get', { conid: data.conid });
+    $cloudConnectionsStore = {
+      ...$cloudConnectionsStore,
+      [data.conid]: conn,
+    };
+    openConnection(conn);
   }
 
   async function handleOpenContent() {
     switch (data.type) {
       case 'connection':
-        const conn = await apiCall('connections/get', { conid: data.conid });
-        $cloudConnectionsStore = {
-          ...$cloudConnectionsStore,
-          [data.conid]: conn,
-        };
-        openConnection(conn);
+        await handleConnect();
         break;
     }
   }
