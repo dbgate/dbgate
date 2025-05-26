@@ -31,6 +31,7 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { showSnackbarInfo } from '../utility/snackbar';
 
   let publicFilter = '';
   let cloudFilter = '';
@@ -56,9 +57,10 @@
 
       return data;
     });
-  $: contentGroupTitleMap = _.fromPairs(($cloudContentList || []).map(x => [x.folid, x.name]));
+  $: contentGroupMap = _.keyBy($cloudContentList || [], x => x.folid);
 
   // $: console.log('cloudContentFlat', cloudContentFlat);
+  // $: console.log('contentGroupMap', contentGroupMap);
 
   async function handleRefreshContent() {
     await apiCall('cloud/refresh-content');
@@ -115,7 +117,7 @@
   function createGroupContextMenu(folder) {
     const handleRename = () => {
       showModal(InputTextModal, {
-        value: contentGroupTitleMap[folder],
+        value: contentGroupMap[folder]?.name,
         label: 'New folder name',
         header: 'Rename folder',
         onConfirm: async name => {
@@ -129,7 +131,7 @@
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: `Really delete folder ${contentGroupTitleMap[folder]}? All folder content will be deleted!`,
+        message: `Really delete folder ${contentGroupMap[folder]?.name}? All folder content will be deleted!`,
         header: 'Delete folder',
         onConfirm: () => {
           apiCall('cloud/delete-folder', {
@@ -139,9 +141,39 @@
       });
     };
 
+    const handleCopyInviteLink = async role => {
+      const { inviteToken } = await apiCall(`cloud/get-invite-token`, {
+        folid: folder,
+        role,
+      });
+      const inviteLink = `dbgate://folder/v1/${inviteToken}?mode=${role}`;
+      navigator.clipboard.writeText(inviteLink);
+      showSnackbarInfo(`Invite link (${role}) copied to clipboard`);
+    };
+
     return [
-      { text: 'Rename', onClick: handleRename },
-      { text: 'Delete', onClick: handleDelete },
+      contentGroupMap[folder]?.role == 'admin' && [
+        { text: 'Rename', onClick: handleRename },
+        { text: 'Delete', onClick: handleDelete },
+      ],
+      contentGroupMap[folder]?.role == 'admin' &&
+        !contentGroupMap[folder]?.isPrivate && {
+          text: 'Copy invite link',
+          submenu: [
+            {
+              text: 'Admin',
+              onClick: () => handleCopyInviteLink('admin'),
+            },
+            {
+              text: 'Write',
+              onClick: () => handleCopyInviteLink('write'),
+            },
+            {
+              text: 'Read',
+              onClick: () => handleCopyInviteLink('read'),
+            },
+          ],
+        },
     ];
   }
 </script>
@@ -172,7 +204,7 @@
         module={cloudContentAppObject}
         emptyGroupNames={emptyCloudContent}
         groupFunc={data => data.folid}
-        mapGroupTitle={folid => contentGroupTitleMap[folid]}
+        mapGroupTitle={folid => contentGroupMap[folid]?.name}
         filter={publicFilter}
         subItemsComponent={() => SubCloudItemsList}
         expandIconFunc={plusExpandIcon}

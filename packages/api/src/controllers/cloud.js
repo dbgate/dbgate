@@ -70,7 +70,10 @@ module.exports = {
 
   grantFolder_meta: true,
   async grantFolder({ inviteLink }) {
-    const m = inviteLink.match(/^dbgate\:\/\/folder\/v1\/([a-zA-Z]+)\?mode=(read|write|admin)$/);
+    const m = inviteLink.match(/^dbgate\:\/\/folder\/v1\/([a-zA-Z0-9]+)\?mode=(read|write|admin)$/);
+    if (!m) {
+      throw new Error('Invalid invite link format');
+    }
     const invite = m[1];
     const mode = m[2];
 
@@ -90,6 +93,12 @@ module.exports = {
   async deleteFolder({ folid }) {
     const resp = await callCloudApiPost(`folders/delete`, { folid });
     socket.emitChanged('cloud-content-changed');
+    return resp;
+  },
+
+  getInviteToken_meta: true,
+  async getInviteToken({ folid, role }) {
+    const resp = await callCloudApiGet(`invite-token/${folid}/${role}`);
     return resp;
   },
 

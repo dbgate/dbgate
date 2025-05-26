@@ -56,13 +56,15 @@ function startCloudTokenChecking(sid, callback) {
     }
 
     try {
+      // console.log(`Checking cloud token for session: ${DBGATE_IDENTITY_URL}/api/get-token/${sid}`);
       const resp = await axios.default.get(`${DBGATE_IDENTITY_URL}/api/get-token/${sid}`, {
         headers: {
           ...getLicenseHttpHeaders(),
         },
       });
+      // console.log('CHECK RESP:', resp.data);
 
-      if (resp.data.status == 'ok') {
+      if (resp.data.email) {
         clearInterval(interval);
         callback(resp.data);
       }
