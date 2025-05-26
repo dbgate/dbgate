@@ -10,7 +10,7 @@ const {
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
-const { recryptConnection, getInternalEncryptor } = require('../utility/crypting');
+const { recryptConnection, getInternalEncryptor, encryptConnection } = require('../utility/crypting');
 const { getConnectionLabel, getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('cloud');
 const _ = require('lodash');
@@ -113,7 +113,7 @@ module.exports = {
   moveConnectionCloud_meta: true,
   async moveConnectionCloud({ conid, folid }) {
     const conn = await connections.getCore({ conid });
-    const folderEncryptor = getCloudFolderEncryptor(folid);
+    const folderEncryptor = await getCloudFolderEncryptor(folid);
     const recryptedConn = recryptConnection(conn, getInternalEncryptor(), folderEncryptor);
     const connToSend = _.omit(recryptedConn, ['_id']);
     const resp = await putCloudContent(
@@ -124,5 +124,25 @@ module.exports = {
       'connection'
     );
     return resp;
+  },
+
+  saveConnection_meta: true,
+  async saveConnection({ folid, connection }) {
+    const folderEncryptor = await getCloudFolderEncryptor(folid);
+    const recryptedConn = encryptConnection(connection, folderEncryptor);
+    const resp = await putCloudContent(
+      folid,
+      undefined,
+      JSON.stringify(recryptedConn),
+      getConnectionLabel(recryptedConn),
+      'connection'
+    );
+
+    const { cntid } = resp;
+    socket.emitChanged('cloud-content-changed');
+    return {
+      ...recryptedConn,
+      _id: `cloud://${folid}/${cntid}`,
+    };
   },
 };

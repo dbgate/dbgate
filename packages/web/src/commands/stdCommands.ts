@@ -125,6 +125,27 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.connectionOnCloud',
+  toolbar: true,
+  icon: 'img cloud-connection',
+  toolbarName: 'Add connection on cloud',
+  category: 'New',
+  toolbarOrder: 1,
+  name: 'Connection on Cloud',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
+  onClick: () => {
+    openNewTab({
+      title: 'New Connection on Cloud',
+      icon: 'img cloud-connection',
+      tabComponent: 'ConnectionTab',
+      props: {
+        saveOnCloud: true,
+      },
+    });
+  },
+});
+
+registerCommand({
   id: 'new.connection.folder',
   toolbar: true,
   icon: 'icon add-folder',

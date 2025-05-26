@@ -48,7 +48,7 @@
   <AppObjectCore
     {...$$restProps}
     {data}
-    icon={'img connection'}
+    icon={'img cloud-connection'}
     title={data.name}
     menu={createMenu}
     on:click={handleOpenContent}

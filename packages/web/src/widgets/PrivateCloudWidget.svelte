@@ -111,6 +111,9 @@
           });
         },
       },
+      {
+        command: 'new.connectionOnCloud',
+      },
     ];
   }
 
