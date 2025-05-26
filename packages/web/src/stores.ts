@@ -457,4 +457,10 @@ focusedTreeDbKey.subscribe(value => {
 });
 export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
 
+let cloudConnectionsStoreValue = {};
+cloudConnectionsStore.subscribe(value => {
+  cloudConnectionsStoreValue = value;
+});
+export const getCloudConnectionsStore = () => cloudConnectionsStoreValue;
+
 window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

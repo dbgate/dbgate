@@ -59,6 +59,7 @@ module.exports = {
   async putContent({ folid, cntid, content, name, type }) {
     const resp = await putCloudContent(folid, cntid, content, name, type);
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return resp;
   },
 
@@ -66,6 +67,7 @@ module.exports = {
   async createFolder({ name }) {
     const resp = await callCloudApiPost(`folders/create`, { name });
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return resp;
   },
 
@@ -80,6 +82,7 @@ module.exports = {
 
     const resp = await callCloudApiPost(`folders/grant/${mode}`, { invite });
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return resp;
   },
 
@@ -87,6 +90,7 @@ module.exports = {
   async renameFolder({ folid, name }) {
     const resp = await callCloudApiPost(`folders/rename`, { folid, name });
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return resp;
   },
 
@@ -94,6 +98,7 @@ module.exports = {
   async deleteFolder({ folid }) {
     const resp = await callCloudApiPost(`folders/delete`, { folid });
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return resp;
   },
 
@@ -106,6 +111,7 @@ module.exports = {
   refreshContent_meta: true,
   async refreshContent() {
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return {
       status: 'ok',
     };
@@ -156,6 +162,7 @@ module.exports = {
     removeCloudCachedConnection(folid, resp.cntid);
     cntid = resp.cntid;
     socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
     return {
       ...recryptedConn,
       _id: `cloud://${folid}/${cntid}`,

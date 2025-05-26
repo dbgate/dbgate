@@ -28,6 +28,7 @@
   import { handleAuthOnStartup } from './clientAuth';
   import { initializeAppUpdates } from './utility/appUpdate';
   import { _t } from './translations';
+  import { installCloudListeners } from './utility/cloudListeners';
 
   export let isAdminPage = false;
 
@@ -58,6 +59,7 @@
         installNewVolatileConnectionListener();
         installNewCloudTokenListener();
         initializeAppUpdates();
+        installCloudListeners();
       }
 
       refreshPublicCloudFiles();

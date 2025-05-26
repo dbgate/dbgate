@@ -67,27 +67,27 @@
     await apiCall('cloud/refresh-content');
   }
 
-  async function loadCloudConnection(conid) {
-    const conn = await apiCall('connections/get', { conid });
-    $cloudConnectionsStore = {
-      ...$cloudConnectionsStore,
-      [conid]: conn,
-    };
-  }
+  // async function loadCloudConnection(conid) {
+  //   const conn = await apiCall('connections/get', { conid });
+  //   $cloudConnectionsStore = {
+  //     ...$cloudConnectionsStore,
+  //     [conid]: conn,
+  //   };
+  // }
 
-  function ensureCloudConnectionsLoaded(...conids) {
-    _.uniq(conids).forEach(conid => {
-      if (conid?.startsWith('cloud://') && !$cloudConnectionsStore[conid]) {
-        loadCloudConnection(conid);
-      }
-    });
-  }
+  // function ensureCloudConnectionsLoaded(...conids) {
+  //   _.uniq(conids).forEach(conid => {
+  //     if (conid?.startsWith('cloud://') && !$cloudConnectionsStore[conid]) {
+  //       loadCloudConnection(conid);
+  //     }
+  //   });
+  // }
 
-  $: ensureCloudConnectionsLoaded(
-    $currentDatabase?.connection?._id,
-    ...$openedSingleDatabaseConnections,
-    ...$openedConnections
-  );
+  // $: ensureCloudConnectionsLoaded(
+  //   $currentDatabase?.connection?._id,
+  //   ...$openedSingleDatabaseConnections,
+  //   ...$openedConnections
+  // );
 
   // onMount(() => {
   //   const currentConid = $currentDatabase?.connection?._id;

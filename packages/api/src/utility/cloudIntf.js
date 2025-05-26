@@ -320,6 +320,7 @@ async function putCloudContent(folid, cntid, content, name, type) {
     signinHolder
   );
   socket.emitChanged('cloud-content-changed');
+  socket.emit('cloud-content-updated');
   return resp;
 }
 
