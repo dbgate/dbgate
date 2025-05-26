@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const { rspack } = require('@rspack/core');
 var path = require('path');
 
 const packageJson = require('./package.json');
@@ -24,9 +24,9 @@ var config = {
   //   },
 
   plugins: [
-    new webpack.IgnorePlugin({
+    new rspack.IgnorePlugin({
       checkResource(resource) {
-        const lazyImports = ['pg-native', 'uws'];
+        const lazyImports = ['uws'];
         if (!lazyImports.includes(resource)) {
           return false;
         }

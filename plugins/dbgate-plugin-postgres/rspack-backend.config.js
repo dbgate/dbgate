@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const { rspack } = require('@rspack/core');
 var path = require('path');
 
 const packageJson = require('./package.json');
@@ -18,12 +18,29 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
-  externals,
-
   // uncomment for disable minimalization
-  // optimization: {
-  //   minimize: false,
-  // },
+  //   optimization: {
+  //     minimize: false,
+  //   },
+
+  plugins: [
+    new rspack.IgnorePlugin({
+      checkResource(resource) {
+        const lazyImports = ['pg-native', 'uws'];
+        if (!lazyImports.includes(resource)) {
+          return false;
+        }
+        try {
+          require.resolve(resource);
+        } catch (err) {
+          return true;
+        }
+        return false;
+      },
+    }),
+  ],
+
+  externals,
 };
 
 module.exports = config;
