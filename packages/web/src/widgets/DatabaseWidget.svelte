@@ -43,5 +43,5 @@
     </WidgetColumnBarItem>
   {/if}
 
-  <DatabaseWidgetDetailContent bind:domSqlObjectList />
+  <DatabaseWidgetDetailContent bind:domSqlObjectList showCloudConnection={false} />
 </WidgetColumnBar>

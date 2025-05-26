@@ -225,5 +225,5 @@
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 
-  <DatabaseWidgetDetailContent bind:domSqlObjectList />
+  <DatabaseWidgetDetailContent bind:domSqlObjectList showCloudConnection={true} />
 </WidgetColumnBar>
