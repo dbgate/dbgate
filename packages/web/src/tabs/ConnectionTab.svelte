@@ -159,7 +159,7 @@
   $: currentConnection = getCurrentConnectionCore($values, driver);
 
   async function handleSave() {
-    if (saveOnCloud) {
+    if (saveOnCloud && !getCurrentConnection()?._id) {
       showModal(ChooseCloudFolderModal, {
         requiredRoleVariants: ['write', 'admin'],
         message: 'Choose cloud folder to saved connection',
@@ -184,6 +184,17 @@
           }
         },
       });
+    } else if (
+      // @ts-ignore
+      getCurrentConnection()?._id?.startsWith('cloud://')
+    ) {
+      let connection = getCurrentConnection();
+      await apiCall('cloud/save-connection', { connection });
+      showSnackbarSuccess('Connection saved');
+      changeTab(tabid, tab => ({
+        ...tab,
+        title: getConnectionLabel(connection),
+      }));
     } else {
       let connection = getCurrentConnection();
       connection = {
@@ -210,19 +221,32 @@
 
   async function handleConnect() {
     let connection = getCurrentConnection();
-    if (!connection._id) {
-      connection = {
-        ...connection,
-        unsaved: true,
+
+    if (
+      // @ts-ignore
+      connection?._id?.startsWith('cloud://')
+    ) {
+      const saved = await apiCall('cloud/save-connection', { connection });
+      changeTab(tabid, tab => ({
+        ...tab,
+        title: getConnectionLabel(connection),
+      }));
+      openConnection(saved);
+    } else {
+      if (!connection._id) {
+        connection = {
+          ...connection,
+          unsaved: true,
+        };
+      }
+      const saved = await apiCall('connections/save', connection);
+      $values = {
+        ...$values,
+        unsaved: connection.unsaved,
+        _id: saved._id,
       };
+      openConnection(saved);
     }
-    const saved = await apiCall('connections/save', connection);
-    $values = {
-      ...$values,
-      unsaved: connection.unsaved,
-      _id: saved._id,
-    };
-    openConnection(saved);
     // closeMultipleTabs(x => x.tabid == tabid, true);
   }
 

@@ -7,6 +7,7 @@ const {
   getCloudFolderEncryptor,
   getCloudContent,
   putCloudContent,
+  removeCloudCachedConnection,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -128,17 +129,32 @@ module.exports = {
 
   saveConnection_meta: true,
   async saveConnection({ folid, connection }) {
+    let cntid = undefined;
+    if (connection._id) {
+      const m = connection._id.match(/^cloud\:\/\/(.+)\/(.+)$/);
+      if (!m) {
+        throw new Error('Invalid cloud connection ID format');
+      }
+      folid = m[1];
+      cntid = m[2];
+    }
+
+    if (!folid) {
+      throw new Error('Missing cloud folder ID');
+    }
+
     const folderEncryptor = await getCloudFolderEncryptor(folid);
     const recryptedConn = encryptConnection(connection, folderEncryptor);
     const resp = await putCloudContent(
       folid,
-      undefined,
+      cntid,
       JSON.stringify(recryptedConn),
       getConnectionLabel(recryptedConn),
       'connection'
     );
 
-    const { cntid } = resp;
+    removeCloudCachedConnection(folid, resp.cntid);
+    cntid = resp.cntid;
     socket.emitChanged('cloud-content-changed');
     return {
       ...recryptedConn,

@@ -20,6 +20,7 @@
     currentDatabase,
     expandedConnections,
     openedConnections,
+    openedSingleDatabaseConnections,
   } from '../stores';
   import _ from 'lodash';
   import { plusExpandIcon } from '../icons/expandIcons';
@@ -74,12 +75,26 @@
     };
   }
 
-  onMount(() => {
-    const currentConid = $currentDatabase?.connection?._id;
-    if (currentConid?.startsWith('cloud://') && !$cloudConnectionsStore[currentConid]) {
-      loadCloudConnection(currentConid);
-    }
-  });
+  function ensureCloudConnectionsLoaded(...conids) {
+    _.uniq(conids).forEach(conid => {
+      if (conid?.startsWith('cloud://') && !$cloudConnectionsStore[conid]) {
+        loadCloudConnection(conid);
+      }
+    });
+  }
+
+  $: ensureCloudConnectionsLoaded(
+    $currentDatabase?.connection?._id,
+    ...$openedSingleDatabaseConnections,
+    ...$openedConnections
+  );
+
+  // onMount(() => {
+  //   const currentConid = $currentDatabase?.connection?._id;
+  //   if (currentConid?.startsWith('cloud://') && !$cloudConnectionsStore[currentConid]) {
+  //     loadCloudConnection(currentConid);
+  //   }
+  // });
 
   function createAddMenu() {
     return [

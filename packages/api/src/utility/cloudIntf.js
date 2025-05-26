@@ -271,7 +271,7 @@ async function callCloudApiPost(endpoint, body, signinHolder = null) {
 async function getCloudFolderEncryptor(folid) {
   const { encryptionKey } = await callCloudApiGet(`folder-key/${folid}`);
   if (!encryptionKey) {
-    throw new Error('No encryption key');
+    throw new Error('No encryption key for folder: ' + folid);
   }
   return simpleEncryptor.createEncryptor(encryptionKey);
 }
@@ -336,6 +336,11 @@ async function loadCachedCloudConnection(folid, cntid) {
   return cloudConnectionCache[cacheKey];
 }
 
+function removeCloudCachedConnection(folid, cntid) {
+  const cacheKey = `${folid}|${cntid}`;
+  delete cloudConnectionCache[cacheKey];
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -349,4 +354,5 @@ module.exports = {
   getCloudContent,
   loadCachedCloudConnection,
   putCloudContent,
+  removeCloudCachedConnection,
 };
