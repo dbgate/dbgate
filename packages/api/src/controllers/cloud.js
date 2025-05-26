@@ -110,8 +110,8 @@ module.exports = {
     };
   },
 
-  moveConnectionCloud_meta: true,
-  async moveConnectionCloud({ conid, folid }) {
+  copyConnectionCloud_meta: true,
+  async copyConnectionCloud({ conid, folid }) {
     const conn = await connections.getCore({ conid });
     const folderEncryptor = await getCloudFolderEncryptor(folid);
     const recryptedConn = recryptConnection(conn, getInternalEncryptor(), folderEncryptor);

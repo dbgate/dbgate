@@ -336,13 +336,13 @@
           !$openedConnections.includes(data._id) &&
             $cloudSigninTokenHolder &&
             passProps?.cloudContentList?.length > 0 && {
-              text: _t('connection.moveToCloudFolder', { defaultMessage: 'Move to cloud folder' }),
+              text: _t('connection.copyToCloudFolder', { defaultMessage: 'Copy to cloud folder' }),
               submenu: passProps?.cloudContentList
                 ?.filter(x => x.role == 'write' || x.role == 'admin')
                 ?.map(fld => ({
                   text: fld.name,
                   onClick: () => {
-                    apiCall('cloud/move-connection-cloud', { conid: data._id, folid: fld.folid });
+                    apiCall('cloud/copy-connection-cloud', { conid: data._id, folid: fld.folid });
                   },
                 })),
             },
