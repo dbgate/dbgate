@@ -154,20 +154,19 @@
     storageName="privateCloudItems"
     skip={!$cloudSigninTokenHolder}
   >
+    <SearchBoxWrapper>
+      <SearchInput placeholder="Search cloud connections and files" bind:value={cloudFilter} />
+      <CloseSearchButton bind:filter={cloudFilter} />
+      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+      <InlineButton
+        on:click={handleRefreshContent}
+        title="Refresh files"
+        data-testid="CloudItemsWidget_buttonRefreshContent"
+      >
+        <FontIcon icon="icon refresh" />
+      </InlineButton>
+    </SearchBoxWrapper>
     <WidgetsInnerContainer>
-      <SearchBoxWrapper>
-        <SearchInput placeholder="Search cloud connections and files" bind:value={cloudFilter} />
-        <CloseSearchButton bind:filter={cloudFilter} />
-        <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
-        <InlineButton
-          on:click={handleRefreshContent}
-          title="Refresh files"
-          data-testid="CloudItemsWidget_buttonRefreshContent"
-        >
-          <FontIcon icon="icon refresh" />
-        </InlineButton>
-      </SearchBoxWrapper>
-
       <AppObjectList
         list={cloudContentFlat || []}
         module={cloudContentAppObject}
