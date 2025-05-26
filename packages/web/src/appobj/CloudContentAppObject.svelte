@@ -43,6 +43,8 @@
       ...$cloudConnectionsStore[data.conid],
       status: data.status,
     }}
+    on:dblclick
+    on:expand
   />
 {:else}
   <AppObjectCore
@@ -52,6 +54,8 @@
     title={data.name}
     menu={createMenu}
     on:click={handleOpenContent}
+    on:dblclick
+    on:expand
   ></AppObjectCore>
 {/if}
 
