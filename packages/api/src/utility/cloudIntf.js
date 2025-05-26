@@ -143,9 +143,7 @@ async function getCloudSigninHeaders(holder = null) {
   return null;
 }
 
-let cloudFilesWereUpdated = false;
-
-async function updateCloudFiles() {
+async function updateCloudFiles(isRefresh) {
   let lastCloudFilesTags;
   try {
     lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');
@@ -163,7 +161,7 @@ async function updateCloudFiles() {
 
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
-      cloudFilesWereUpdated ? 1 : 0
+      isRefresh ? 1 : 0
     }`,
     {
       headers: {
@@ -172,7 +170,6 @@ async function updateCloudFiles() {
       },
     }
   );
-  cloudFilesWereUpdated = true;
 
   logger.info(`Downloaded ${resp.data.length} cloud files`);
 
@@ -194,7 +191,7 @@ async function updateCloudFiles() {
 }
 
 async function startCloudFiles() {
-  refreshPublicFiles();
+  loadCloudFiles();
 }
 
 async function getPublicCloudFiles() {
@@ -213,12 +210,12 @@ async function getPublicFileData(path) {
   return resp.data;
 }
 
-async function refreshPublicFiles() {
+async function refreshPublicFiles(isRefresh) {
   if (!cloudFiles) {
     await loadCloudFiles();
   }
   try {
-    await updateCloudFiles();
+    await updateCloudFiles(isRefresh);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'Error updating cloud files');
   }

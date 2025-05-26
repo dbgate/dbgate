@@ -29,8 +29,8 @@ module.exports = {
   },
 
   refreshPublicFiles_meta: true,
-  async refreshPublicFiles() {
-    await refreshPublicFiles();
+  async refreshPublicFiles({ isRefresh }) {
+    await refreshPublicFiles(isRefresh);
     return {
       status: 'ok',
     };

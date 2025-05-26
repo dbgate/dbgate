@@ -23,7 +23,7 @@
   const publicFiles = usePublicCloudFiles();
 
   async function handleRefreshPublic() {
-    await apiCall('cloud/refresh-public-files');
+    await apiCall('cloud/refresh-public-files?isRefresh=1');
   }
 </script>
 

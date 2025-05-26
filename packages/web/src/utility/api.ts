@@ -300,6 +300,15 @@ export function getAuthCategory(config) {
   return 'token';
 }
 
+export function refreshPublicCloudFiles() {
+  if (sessionStorage.getItem('publicCloudFilesLoaded')) {
+    return;
+  }
+
+  apiCall('cloud/refresh-public-files');
+  sessionStorage.setItem('publicCloudFilesLoaded', 'true');
+}
+
 function enableApiLog() {
   apiLogging = true;
   console.log('API loggin enabled');
