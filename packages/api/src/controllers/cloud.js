@@ -159,6 +159,10 @@ module.exports = {
       'connection'
     );
 
+    if (resp.apiErrorMessage) {
+      return resp;
+    }
+
     removeCloudCachedConnection(folid, resp.cntid);
     cntid = resp.cntid;
     socket.emitChanged('cloud-content-changed');

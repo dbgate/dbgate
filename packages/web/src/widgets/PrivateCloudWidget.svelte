@@ -222,7 +222,7 @@
         module={cloudContentAppObject}
         emptyGroupNames={emptyCloudContent}
         groupFunc={data => data.folid}
-        mapGroupTitle={folid => contentGroupMap[folid]?.name}
+        mapGroupTitle={folid => `${contentGroupMap[folid]?.name} - ${contentGroupMap[folid]?.role}`}
         filter={publicFilter}
         subItemsComponent={() => SubCloudItemsList}
         expandIconFunc={plusExpandIcon}

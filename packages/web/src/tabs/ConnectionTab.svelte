@@ -189,12 +189,14 @@
       getCurrentConnection()?._id?.startsWith('cloud://')
     ) {
       let connection = getCurrentConnection();
-      await apiCall('cloud/save-connection', { connection });
-      showSnackbarSuccess('Connection saved');
-      changeTab(tabid, tab => ({
-        ...tab,
-        title: getConnectionLabel(connection),
-      }));
+      const resp = await apiCall('cloud/save-connection', { connection });
+      if (resp?._id) {
+        showSnackbarSuccess('Connection saved');
+        changeTab(tabid, tab => ({
+          ...tab,
+          title: getConnectionLabel(connection),
+        }));
+      }
     } else {
       let connection = getCurrentConnection();
       connection = {
