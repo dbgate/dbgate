@@ -127,11 +127,11 @@ jobs:
         image: firebirdsql/firebird:latest
         container_name: firebird-db
         env:
-          - FIREBIRD_DATABASE=mydatabase.fdb
-          - FIREBIRD_USER=dbuser
-          - FIREBIRD_PASSWORD=dbpassword
-          - ISC_PASSWORD=masterkey
-          - FIREBIRD_TRACE=false
-          - FIREBIRD_USE_LEGACY_AUTH=true
+          FIREBIRD_DATABASE: mydatabase.fdb
+          FIREBIRD_USER: dbuser
+          FIREBIRD_PASSWORD: dbpassword
+          ISC_PASSWORD: masterkey
+          FIREBIRD_TRACE: false
+          FIREBIRD_USE_LEGACY_AUTH: true
         ports:
           - '3050:3050'
