@@ -11,11 +11,21 @@ function normalizeRow(row) {
   
   // Ensure all properties exist in both upper and lowercase
   Object.keys(row).forEach(key => {
-    const upperKey = key.toUpperCase();
-    const lowerKey = key.toLowerCase();
-    
-    normalizedRow[upperKey] = row[key];
-    normalizedRow[lowerKey] = row[key];
+    if (typeof key === 'string') {
+      const upperKey = key.toUpperCase();
+      const lowerKey = key.toLowerCase();
+      
+      normalizedRow[upperKey] = row[key];
+      normalizedRow[lowerKey] = row[key];
+      
+      // Also handle special cases like "CURRENT SCHEMA" with spaces
+      if (key.includes(' ')) {
+        const noSpaceKey = key.replace(/\s+/g, '');
+        normalizedRow[noSpaceKey] = row[key];
+        normalizedRow[noSpaceKey.toUpperCase()] = row[key];
+        normalizedRow[noSpaceKey.toLowerCase()] = row[key];
+      }
+    }
   });
   
   return normalizedRow;
@@ -26,7 +36,7 @@ function getPropertyValue(row, ...possibleNames) {
   if (!row) return null;
   
   for (const name of possibleNames) {
-    // Try exact match
+    // Try exact match first
     if (row[name] !== undefined) {
       return row[name];
     }
@@ -39,6 +49,20 @@ function getPropertyValue(row, ...possibleNames) {
     // Try lowercase
     if (row[name.toLowerCase()] !== undefined) {
       return row[name.toLowerCase()];
+    }
+    
+    // Try without spaces
+    if (name.includes(' ')) {
+      const noSpaceName = name.replace(/\s+/g, '');
+      if (row[noSpaceName] !== undefined) {
+        return row[noSpaceName];
+      }
+      if (row[noSpaceName.toLowerCase()] !== undefined) {
+        return row[noSpaceName.toLowerCase()];
+      }
+      if (row[noSpaceName.toUpperCase()] !== undefined) {
+        return row[noSpaceName.toUpperCase()];
+      }
     }
   }
   

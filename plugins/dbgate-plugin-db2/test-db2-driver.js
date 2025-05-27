@@ -8,10 +8,9 @@ async function testDB2Connection() {
   // Replace with your connection details
   const connectionConfig = {
     server: 'localhost',  // replace with your server
-    port: 25000,          // replace with your port
-    user: 'db2inst1',     // replace with your username
+    port: 25000,          // replace with your port    user: 'db2inst1',     // replace with your username
     password: 'password', // replace with your password
-    database: 'SAMPLE',   // replace with your database
+    database: process.env.DB2_DATABASE || 'testdb',   // replace with your database
     ssl: false,
     isReadOnly: false,
     useDatabaseUrl: false,
@@ -32,10 +31,9 @@ async function testDB2Connection() {
     if (schemas.length > 0) {
       console.log('Sample schemas:', schemas.slice(0, 3));
     }
-    
-    // Test function retrieval with RETURN_TYPE handling
+      // Test function retrieval with RETURN_TYPE handling
     console.log('\nTesting function retrieval...');
-    const testSchema = schemas[0]?.name || 'DB2INST1';
+    const testSchema = schemas[0]?.name || conn.user;
     console.log(`Using schema: ${testSchema}`);
     
     try {

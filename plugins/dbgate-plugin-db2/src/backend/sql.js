@@ -1,9 +1,9 @@
-module.exports = {
-  // fetch all schema names
+module.exports = {  // fetch all schema names
   schemas: `
     SELECT SCHEMANAME AS name
       FROM SYSCAT.SCHEMATA
       WHERE SCHEMANAME NOT LIKE 'SYS%'
+        AND SCHEMANAME NOT IN ('SYSCAT', 'SYSIBM', 'SYSSTAT', 'SYSPROC', 'SYSTOOLS', 'SYSFUN', 'SYSIBMADM', 'NULLID', 'SQLJ')
   `,
 
   // fetch all tables per schema

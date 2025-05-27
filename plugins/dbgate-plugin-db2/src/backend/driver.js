@@ -1,956 +1,25 @@
 const ibmdb = require('ibm_db');
-const { DatabaseAnalyser, getLogger, createBulkInsertStreamBase, extractErrorLogData } = require('dbgate-tools');
+const _ = require('lodash');
+
+const Analyser = require('./Analyser');
 const connectHelper = require('./connect-fixed');
-const { normalizeRow, getPropertyValue, normalizeQueryResult } = require('./case-helpers');
-const { getStructure: enhancedGetStructure } = require('./fixed-structure');
+const driverBase = require('../frontend/driver');
+const { createBulkInsertStreamBase, makeUniqueColumnNames } =
+global.DBGATE_PACKAGES['dbgate-tools'];
 
-class Analyser extends DatabaseAnalyser {
-  constructor(connection, driver) {
-    super(connection, driver);
-    this.connection = connection;
-    this.driver = driver;
-  }
 
-  async getSchemas() {
-    try {
-      console.log('[DB2] Fetching schemas');
-      
-      // First try: Get current schema
-      try {
-        const currentRes = await this.driver.query(this.connection, `
-          SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-        `);
-        
-        const currentSchema = currentRes.rows[0]?.SCHEMANAME || 
-                            currentRes.rows[0]?.schemaName || 
-                            currentRes.rows[0]?.['CURRENT SCHEMA'];
-                            
-        if (currentSchema) {
-          console.log(`[DB2] Using current schema: ${currentSchema}`);
-          return [currentSchema];
-        }
-      } catch (currentErr) {
-        console.error(`[DB2] Error getting current schema: ${currentErr.message}`);
-      }
+function extractdb2Columns(row) {
+  if (!row) return [];
 
-      // Second try: Get from SYSCAT.SCHEMATA
-      try {
-        const res = await this.driver.query(this.connection, `
-          SELECT DISTINCT SCHEMANAME
-          FROM SYSCAT.SCHEMATA
-          WHERE SCHEMANAME NOT IN ('SYSIBM', 'SYSTOOLS', 'SYSPROC', 'SYSSTAT', 'NULLID', 'SQLJ', 'SYSCAT', 'SYSFUN', 'SYSIBMADM')
-          ORDER BY SCHEMANAME
-        `);
+  const columns = row.__columns.map((column) => ({ columnName: column.name }));
+  makeUniqueColumnNames(columns);
 
-        if (res.rows && res.rows.length > 0) {
-          const schemas = res.rows.map(row => row.SCHEMANAME || row.schemaName);
-          console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.SCHEMATA`);
-          return schemas;
-        }
-      } catch (err) {
-        console.error(`[DB2] Error querying SYSCAT.SCHEMATA: ${err.message}`);
-      }
-
-      // Last try: Get from SYSCAT.TABLES
-      try {
-        const res = await this.driver.query(this.connection, `
-          SELECT DISTINCT TABSCHEMA
-          FROM SYSCAT.TABLES
-          WHERE TABSCHEMA NOT IN ('SYSIBM', 'SYSTOOLS', 'SYSPROC', 'SYSSTAT', 'NULLID', 'SQLJ', 'SYSCAT', 'SYSFUN', 'SYSIBMADM')
-          ORDER BY TABSCHEMA
-        `);
-
-        if (res.rows && res.rows.length > 0) {
-          const schemas = res.rows.map(row => row.TABSCHEMA);
-          console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.TABLES`);
-          return schemas;
-        }
-      } catch (err) {
-        console.error(`[DB2] Error querying SYSCAT.TABLES: ${err.message}`);
-      }
-
-      // If all else fails, return DB2INST1 as default
-      console.log('[DB2] Using default schema DB2INST1');
-      return ['DB2INST1'];
-    } catch (err) {
-      console.error(`[DB2] Schema retrieval failed: ${err.message}`);
-      return ['DB2INST1']; // Default fallback
-    }
-  }
-  async getTables(schemaName) {
-    try {
-      console.log(`[DB2] Getting tables for schema: ${schemaName}`);
-      
-      if (!schemaName) {
-        console.warn('[DB2] No schema name provided for getTables, attempting to use current schema');
-        try {
-          const currentSchemaResult = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          
-          if (currentSchemaResult?.rows?.length > 0) {
-            schemaName = currentSchemaResult.rows[0]?.SCHEMANAME || 
-                         currentSchemaResult.rows[0]?.schemaName || 
-                         currentSchemaResult.rows[0]?.['CURRENT SCHEMA'];
-                         
-            console.log(`[DB2] Using current schema for getTables: ${schemaName}`);
-          }
-        } catch (err) {
-          console.error('[DB2] Error determining current schema for getTables:', err);
-          return []; // Return empty if we can't determine schema
-        }
-      }
-      
-      // First try SYSCAT.TABLES with more detailed logging
-      const query = `
-        SELECT 
-          t.TABSCHEMA as "schemaName",
-          t.TABNAME as "tableName",
-          t.REMARKS as "description",
-          t.TYPE as "tableType",
-          t.CREATE_TIME as "createTime",
-          t.ALTER_TIME as "alterTime",
-          (SELECT COUNT(*) FROM SYSCAT.COLUMNS c 
-           WHERE c.TABSCHEMA = t.TABSCHEMA AND c.TABNAME = t.TABNAME) as "columnCount"
-        FROM SYSCAT.TABLES t
-        WHERE t.TABSCHEMA = ?
-        AND t.TYPE = 'T'
-        ORDER BY t.TABSCHEMA, t.TABNAME
-      `;
-      
-      console.log(`[DB2] Executing table query for schema ${schemaName}`);
-      const res = await this.driver.query(this.connection, query, [schemaName]);
-      console.log(`[DB2] Raw table query results:`, JSON.stringify(res.rows?.slice(0, 2) || [], null, 2)); // Log only first 2 rows to avoid excessive logging
-
-      // If no results, try without TYPE filter
-      if (!res.rows || res.rows.length === 0) {
-        console.log(`[DB2] No results with TYPE filter, trying without filter`);
-        const noTypeQuery = `
-          SELECT 
-            t.TABSCHEMA as "schemaName",
-            t.TABNAME as "tableName",
-            t.REMARKS as "description",
-            t.TYPE as "tableType",
-            t.CREATE_TIME as "createTime",
-            t.ALTER_TIME as "alterTime",
-            (SELECT COUNT(*) FROM SYSCAT.COLUMNS c 
-             WHERE c.TABSCHEMA = t.TABSCHEMA AND c.TABNAME = t.TABNAME) as "columnCount"
-          FROM SYSCAT.TABLES t
-          WHERE t.TABSCHEMA = ?
-          ORDER BY t.TABSCHEMA, t.TABNAME
-        `;
-        
-        const noTypeRes = await this.driver.query(this.connection, noTypeQuery, [schemaName]);
-        console.log(`[DB2] Raw no-type filter results:`, JSON.stringify(noTypeRes.rows, null, 2));
-        
-        if (noTypeRes.rows && noTypeRes.rows.length > 0) {
-          res.rows = noTypeRes.rows;
-        }
-      }
-
-      // If still no results, try SYSIBM.SYSTABLES
-      if (!res.rows || res.rows.length === 0) {
-        console.log(`[DB2] No results from SYSCAT.TABLES, trying SYSIBM.SYSTABLES`);
-        const fallbackQuery = `
-          SELECT 
-            CREATOR as "schemaName",
-            NAME as "tableName",
-            REMARKS as "description",
-            TYPE as "tableType",
-            CREATE_TIME as "createTime",
-            ALTER_TIME as "alterTime",
-            (SELECT COUNT(*) FROM SYSIBM.SYSCOLUMNS c 
-             WHERE c.TBCREATOR = t.CREATOR AND c.TBNAME = t.NAME) as "columnCount"
-          FROM SYSIBM.SYSTABLES t
-          WHERE t.CREATOR = ?
-          ORDER BY t.CREATOR, t.NAME
-        `;
-        
-        const fallbackRes = await this.driver.query(this.connection, fallbackQuery, [schemaName]);
-        console.log(`[DB2] Raw SYSIBM.SYSTABLES results:`, JSON.stringify(fallbackRes.rows, null, 2));
-        
-        if (fallbackRes.rows && fallbackRes.rows.length > 0) {
-          res.rows = fallbackRes.rows;
-        }
-      }
-
-      // If still no results, try to get tables from columns
-      if (!res.rows || res.rows.length === 0) {
-        console.log(`[DB2] No results from catalog views, checking SYSCAT.COLUMNS`);
-        const columnsQuery = `
-          SELECT DISTINCT 
-            TABSCHEMA as "schemaName",
-            TABNAME as "tableName",
-            (SELECT COUNT(*) FROM SYSCAT.COLUMNS c2 
-             WHERE c2.TABSCHEMA = c.TABSCHEMA AND c2.TABNAME = c.TABNAME) as "columnCount"
-          FROM SYSCAT.COLUMNS c
-          WHERE TABSCHEMA = ?
-          ORDER BY TABSCHEMA, TABNAME
-        `;
-        
-        const columnsRes = await this.driver.query(this.connection, columnsQuery, [schemaName]);
-        console.log(`[DB2] Raw SYSCAT.COLUMNS results:`, JSON.stringify(columnsRes.rows, null, 2));
-        
-        if (columnsRes.rows && columnsRes.rows.length > 0) {
-          res.rows = columnsRes.rows.map(row => ({
-            ...row,
-            tableType: 'T',
-            description: null,
-            createTime: null,
-            alterTime: null
-          }));
-        }
-      }
-
-      // If still no results, try to get any tables the user has access to
-      if (!res.rows || res.rows.length === 0) {
-        console.log(`[DB2] No results from any catalog views, trying to list all accessible tables`);
-        const allTablesQuery = `
-          SELECT DISTINCT 
-            TABSCHEMA as "schemaName",
-            TABNAME as "tableName",
-            TYPE as "tableType",
-            REMARKS as "description",
-            CREATE_TIME as "createTime",
-            ALTER_TIME as "alterTime",
-            (SELECT COUNT(*) FROM SYSCAT.COLUMNS c 
-             WHERE c.TABSCHEMA = t.TABSCHEMA AND c.TABNAME = t.TABNAME) as "columnCount"
-          FROM SYSCAT.TABLES t
-          ORDER BY TABSCHEMA, TABNAME
-        `;
-        
-        const allTablesRes = await this.driver.query(this.connection, allTablesQuery);
-        console.log(`[DB2] Raw all tables results:`, JSON.stringify(allTablesRes.rows, null, 2));
-        
-        if (allTablesRes.rows && allTablesRes.rows.length > 0) {
-          res.rows = allTablesRes.rows;
-        }
-      }
-
-      console.log(`[DB2] Found ${res.rows?.length || 0} tables in schema ${schemaName}`);
-      
-      return (res.rows || []).map(row => {
-        const table = {
-          pureName: row.tableName,
-          schemaName: row.schemaName,
-          objectType: 'table',
-          objectId: `${row.schemaName}.${row.tableName}`,
-          tableType: row.tableType || 'T',
-          createTime: row.createTime,
-          alterTime: row.alterTime,
-          description: row.description,
-          columnCount: row.columnCount,
-          contentHash: row.alterTime?.toISOString() || row.createTime?.toISOString() || `${row.schemaName}.${row.tableName}`,
-          modifyDate: row.alterTime || row.createTime,
-          isView: false,
-          isTable: true,
-          displayName: row.tableName
-        };
-        console.log(`[DB2] Mapped table object:`, table);
-        return table;
-      });
-    } catch (err) {
-      console.error(`[DB2] Error getting tables: ${err.message}`);
-      return [];
-    }
-  }
-  async incrementalAnalysis(structure) {
-    console.log('[DB2] Starting incremental analysis');
-    
-    try {
-      // Get all schemas
-      const schemas = await this.getSchemas();
-      if (!schemas || schemas.length === 0) {
-        console.error('[DB2] No schemas found, analysis cannot continue');
-        return {
-          schemas: [],
-          tables: [],
-          views: [],
-          functions: [],
-          procedures: [],
-          triggers: []
-        };
-      }
-
-      console.log(`[DB2] Found schemas: ${JSON.stringify(schemas)}`);
-
-      const result = {
-        schemas: schemas,
-        tables: [],
-        views: [],
-        functions: [],
-        procedures: [],
-        triggers: []
-      };
-
-      // Use the getStructure method to get database objects for each schema
-      for (const schema of schemas) {
-        console.log(`[DB2] Analyzing schema: ${schema}`);
-
-        try {
-          // Use the driver's getStructure method which is already well-implemented
-          const structureData = await this.driver.getStructure(this.connection, schema);
-          console.log(`[DB2] Got structure data for schema ${schema}:`, {
-            tables: structureData.tables.length,
-            views: structureData.views.length,
-            functions: structureData.functions.length,
-            procedures: structureData.procedures.length
-          });
-          
-          // Mapping tables from getStructure format to incrementalAnalysis format
-          const tables = structureData.tables.map(table => ({
-            pureName: table.pureName,
-            schemaName: table.schemaName,
-            objectType: 'table',
-            objectId: `${table.schemaName}.${table.pureName}`,
-            tableType: table.tableType || 'T',
-            createTime: table.createTime,
-            alterTime: table.alterTime,
-            description: table.description,
-            contentHash: table.contentHash,
-            modifyDate: table.alterTime || table.createTime,
-            isView: false,
-            isTable: true,
-            displayName: table.pureName
-          }));
-          result.tables = result.tables.concat(tables);
-
-          // Mapping views
-          const views = structureData.views.map(view => ({
-            pureName: view.pureName,
-            schemaName: view.schemaName,
-            objectType: 'view',
-            objectId: `${view.schemaName}.${view.pureName}`,
-            description: view.description,
-            createTime: view.createTime,
-            alterTime: view.alterTime,
-            definition: view.definition,
-            contentHash: view.contentHash,
-            isView: true,
-            isTable: false,
-            displayName: view.pureName
-          }));
-          result.views = result.views.concat(views);
-
-          // Mapping functions
-          const functions = structureData.functions.map(func => ({
-            pureName: func.pureName,
-            schemaName: func.schemaName,
-            objectType: 'function',
-            objectId: `${func.schemaName}.${func.pureName}`,
-            description: func.description,
-            createTime: func.createTime,
-            alterTime: func.alterTime,
-            definition: func.definition,
-            contentHash: func.contentHash,
-            displayName: func.pureName
-          }));
-          result.functions = result.functions.concat(functions);
-
-          // Mapping procedures
-          const procedures = structureData.procedures.map(proc => ({
-            pureName: proc.pureName,
-            schemaName: proc.schemaName,
-            objectType: 'procedure',
-            objectId: `${proc.schemaName}.${proc.pureName}`,
-            description: proc.description,
-            createTime: proc.createTime,
-            alterTime: proc.alterTime,
-            definition: proc.definition,
-            contentHash: proc.contentHash,
-            displayName: proc.pureName
-          }));
-          result.procedures = result.procedures.concat(procedures);
-        } catch (schemaErr) {
-          console.error(`[DB2] Error analyzing schema ${schema}: ${schemaErr.message}`);
-          console.error(schemaErr);
-
-          // Fallback to original methods if getStructure fails
-          try {
-            console.log(`[DB2] Falling back to original methods for schema ${schema}`);
-            
-            // Get tables
-            const tables = await this.getTables(schema);
-            console.log(`[DB2] Found ${tables.length} tables in schema ${schema}`);
-            result.tables = result.tables.concat(tables);
-
-            // Get views
-            const views = await this.getViews(schema);
-            console.log(`[DB2] Found ${views.length} views in schema ${schema}`);
-            result.views = result.views.concat(views);
-
-            // Get functions
-            const functions = await this.getFunctions(schema);
-            console.log(`[DB2] Found ${functions.length} functions in schema ${schema}`);
-            result.functions = result.functions.concat(functions);
-
-            // Get procedures
-            const procedures = await this.getProcedures(schema);
-            console.log(`[DB2] Found ${procedures.length} procedures in schema ${schema}`);
-            result.procedures = result.procedures.concat(procedures);
-          } catch (fallbackErr) {
-            console.error(`[DB2] Fallback methods also failed for schema ${schema}: ${fallbackErr.message}`);
-            // Continue with next schema
-          }
-        }
-      }
-
-      // Debug output
-      console.log('[DB2] Analysis complete. Final counts:');
-      console.log(`Schemas (${result.schemas.length}):`, result.schemas);
-      console.log(`Tables (${result.tables.length}):`, result.tables.map(t => `${t.schemaName}.${t.pureName}`).slice(0, 5)); // Limit output to first 5
-      console.log(`Views (${result.views.length}):`, result.views.map(v => `${v.schemaName}.${v.pureName}`).slice(0, 5));
-      console.log(`Functions (${result.functions.length}):`, result.functions.map(f => `${f.schemaName}.${f.pureName}`).slice(0, 5));
-      console.log(`Procedures (${result.procedures.length}):`, result.procedures.map(p => `${p.schemaName}.${p.pureName}`).slice(0, 5));
-
-      return result;
-    } catch (err) {
-      console.error(`[DB2] Analysis error: ${err.message}`);
-      // Create a basic structure if analysis fails
-      console.log('[DB2] Creating fallback structure for UI');
-      
-      // Try to get at least the current schema
-      let schemaName = 'SAMPLE';
-      try {
-        const schemaResult = await this.query(this.connection, `SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1`);
-        if (schemaResult?.rows?.length > 0) {
-          schemaName = schemaResult.rows[0].SCHEMANAME || schemaResult.rows[0].schemaName || 'SAMPLE';
-        }
-      } catch (schemaErr) {
-        console.error(`[DB2] Error getting schema: ${schemaErr.message}`);
-      }
-      
-      return {
-        objectTypeField: 'objectType',
-        objectIdField: 'objectId',
-        schemaField: 'schemaName',
-        pureNameField: 'pureName',
-        contentHashField: 'contentHash',
-        schemas: [{ 
-          schemaName,
-          objectType: 'schema',
-          pureName: schemaName,
-          objectId: schemaName, 
-          contentHash: schemaName 
-        }],
-        tables: [{
-          objectType: 'table',
-          pureName: 'EMPLOYEES', 
-          schemaName: schemaName,
-          objectId: `${schemaName}.EMPLOYEES`,
-          contentHash: `${schemaName}.EMPLOYEES`,
-          isView: false,
-          isTable: true,
-          displayName: 'EMPLOYEES',
-          columns: [
-            { columnName: 'ID', dataType: 'INTEGER' },
-            { columnName: 'NAME', dataType: 'VARCHAR' },
-            { columnName: 'EMAIL', dataType: 'VARCHAR' },
-            { columnName: 'HIRE_DATE', dataType: 'DATE' },
-            { columnName: 'SALARY', dataType: 'DECIMAL' },
-            { columnName: 'POSITION', dataType: 'VARCHAR' }
-          ]
-        }],
-        views: [],
-        functions: [],
-        procedures: []
-      };
-    }
-  }
-
-  async getColumns(table) {
-    try {
-      console.log(`[DB2] Getting columns for ${table.schemaName}.${table.tableName}`);
-      
-      // First try SYSCAT.COLUMNS (LUW DB2)
-      try {
-        const res = await this.driver.query(this.connection, `
-          SELECT 
-            COLNAME as columnName,
-            TYPENAME as dataType,
-            LENGTH as length,
-            SCALE as scale,
-            NULLS as isNullable,
-            REMARKS as description,
-            DEFAULT as defaultValue,
-            COLNO as ordinalPosition
-          FROM SYSCAT.COLUMNS 
-          WHERE TABSCHEMA = ? AND TABNAME = ?
-          ORDER BY COLNO
-        `, [table.schemaName, table.tableName]);
-        
-        console.log(`[DB2] Found ${res.rows.length} columns using SYSCAT.COLUMNS`);
-        
-        // Process the rows to normalize case sensitivity
-        return res.rows.map(row => {
-          const normalizedRow = {};
-          for (const key in row) {
-            normalizedRow[key] = row[key];
-            normalizedRow[key.toLowerCase()] = row[key];
-            
-            // Map specific fields
-            if (key.toUpperCase() === 'COLNAME') normalizedRow.columnName = row[key];
-            if (key.toUpperCase() === 'TYPENAME') normalizedRow.dataType = row[key];
-          }
-          return normalizedRow;
-        });
-      } catch (err) {
-        console.error(`[DB2] SYSCAT.COLUMNS error: ${err.message}`);
-        
-        // Try SYSIBM.SYSCOLUMNS (z/OS)
-        try {
-          console.log('[DB2] Trying SYSIBM.SYSCOLUMNS...');
-          const res = await this.driver.query(this.connection, `
-            SELECT 
-              NAME as columnName,
-              COLTYPE as dataType,
-              LENGTH as length,
-              SCALE as scale,
-              NULLS as isNullable,
-              DEFAULT as defaultValue,
-              COLNO as ordinalPosition
-            FROM SYSIBM.SYSCOLUMNS 
-            WHERE TBCREATOR = ? AND TBNAME = ?
-            ORDER BY COLNO
-          `, [table.schemaName, table.tableName]);
-          
-          console.log(`[DB2] Found ${res.rows.length} columns using SYSIBM.SYSCOLUMNS`);
-          
-          // Process the rows to normalize case sensitivity
-          return res.rows.map(row => {
-            const normalizedRow = {};
-            for (const key in row) {
-              normalizedRow[key] = row[key];
-              normalizedRow[key.toLowerCase()] = row[key];
-              
-              // Map specific fields
-              if (key.toUpperCase() === 'NAME') normalizedRow.columnName = row[key];
-              if (key.toUpperCase() === 'COLTYPE') normalizedRow.dataType = row[key];
-            }
-            return normalizedRow;
-          });
-        } catch (fallbackErr) {
-          console.error(`[DB2] SYSIBM.SYSCOLUMNS error: ${fallbackErr.message}`);
-          
-          // Last resort - try using INFORMATION_SCHEMA
-          try {
-            console.log('[DB2] Trying INFORMATION_SCHEMA.COLUMNS...');
-            const res = await this.driver.query(this.connection, `
-              SELECT 
-                COLUMN_NAME as columnName,
-                DATA_TYPE as dataType,
-                CHARACTER_MAXIMUM_LENGTH as length,
-                NUMERIC_SCALE as scale,
-                IS_NULLABLE as isNullable,
-                COLUMN_DEFAULT as defaultValue,
-                ORDINAL_POSITION as ordinalPosition
-              FROM INFORMATION_SCHEMA.COLUMNS 
-              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
-              ORDER BY ORDINAL_POSITION
-            `, [table.schemaName, table.tableName]);
-            
-            console.log(`[DB2] Found ${res.rows.length} columns using INFORMATION_SCHEMA.COLUMNS`);
-            return res.rows;
-          } catch (lastResortErr) {
-            console.error(`[DB2] INFORMATION_SCHEMA.COLUMNS error: ${lastResortErr.message}`);
-            return [];
-          }
-        }
-      }
-    } catch (err) {
-      console.error(`[DB2] Fatal error getting columns: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getPrimaryKeys(table) {
-    try {
-      console.log(`[DB2] Getting primary keys for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          COLNAME as columnName,
-          CONSTNAME as constraintName
-        FROM SYSCAT.KEYCOLUSE
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        AND CONSTNAME IN (
-          SELECT CONSTNAME 
-          FROM SYSCAT.TABCONST 
-          WHERE TABSCHEMA = ? 
-          AND TABNAME = ? 
-          AND TYPE = 'P'
-        )
-        ORDER BY COLSEQ
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [
-        table.schemaName, 
-        table.tableName,
-        table.schemaName,
-        table.tableName
-      ]);
-      console.log(`[DB2] Found ${res.rows.length} primary key columns`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'PRIMARY KEY'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting primary keys: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getForeignKeys(table) {
-    try {
-      console.log(`[DB2] Getting foreign keys for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          FK_COLNAMES as columnNames,
-          PK_COLNAMES as refColumnNames,
-          PK_TABSCHEMA as refSchemaName,
-          PK_TABNAME as refTableName,
-          CONSTNAME as constraintName,
-          DELETERULE as deleteRule,
-          UPDATERULE as updateRule
-        FROM SYSCAT.REFERENCES
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        ORDER BY CONSTNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} foreign keys`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'FOREIGN KEY',
-        onDelete: row.deleteRule,
-        onUpdate: row.updateRule
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting foreign keys: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getIndexes(table) {
-    try {
-      console.log(`[DB2] Getting indexes for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          INDNAME as indexName,
-          UNIQUERULE as isUnique,
-          COLNAMES as columnNames,
-          INDEXTYPE as indexType,
-          REMARKS as description
-        FROM SYSCAT.INDEXES
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        ORDER BY INDNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} indexes`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        isUnique: row.isUnique === 'U',
-        isPrimary: row.isUnique === 'P',
-        isClustered: row.indexType === 'CLUSTER'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting indexes: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getViews(schemaName) {
-    try {
-      console.log(`[DB2] Getting views for schema: ${schemaName || 'current schema'}`);
-      
-      // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
-        try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      const query = `
-        SELECT 
-          TABSCHEMA as schemaName,
-          TABNAME as viewName,
-          REMARKS as description,
-          TEXT as definition,
-          CREATE_TIME as createTime,
-          ALTER_TIME as alterTime
-        FROM SYSCAT.VIEWS 
-        WHERE TABSCHEMA = ?
-        ORDER BY TABSCHEMA, TABNAME
-      `;
-      
-      console.log(`[DB2] Executing view query for schema: ${effectiveSchema}`);
-      const res = await this.driver.query(this.connection, query, [effectiveSchema]);
-      console.log(`[DB2] Found ${res.rows.length} views`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        objectType: 'view',
-        objectId: `${row.schemaName}.${row.viewName}`,
-        pureName: row.viewName,
-        schemaName: row.schemaName,
-        displayName: row.viewName,
-        contentHash: row.definition || row.alterTime?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.schemaName}.${row.viewName}`
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting views: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getProcedures(schemaName) {
-    try {
-      console.log(`[DB2] Getting procedures for schema: ${schemaName || 'current schema'}`);
-      
-      // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
-        try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      const query = `
-        SELECT 
-          ROUTINESCHEMA as schemaName,
-          ROUTINENAME as procedureName,
-          REMARKS as description,
-          TEXT as definition,
-          PARAMETER_STYLE as parameterStyle,
-          LANGUAGE as language,
-          CREATE_TIME as createTime,
-          ALTER_TIME as alterTime
-        FROM SYSCAT.ROUTINES 
-        WHERE ROUTINETYPE = 'P'
-        AND ROUTINESCHEMA = ?
-        ORDER BY ROUTINESCHEMA, ROUTINENAME
-      `;
-      
-      console.log(`[DB2] Executing procedure query for schema: ${effectiveSchema}`);
-      const res = await this.driver.query(this.connection, query, [effectiveSchema]);
-      console.log(`[DB2] Found ${res.rows.length} procedures`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        objectType: 'procedure',
-        objectId: `${row.schemaName}.${row.procedureName}`,
-        pureName: row.procedureName,
-        schemaName: row.schemaName,
-        displayName: row.procedureName,
-        contentHash: row.definition || row.alterTime?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.schemaName}.${row.procedureName}`
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting procedures: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getFunctions(schemaName) {
-    try {
-      console.log(`[DB2] Getting functions for schema: ${schemaName || 'current schema'}`);
-      
-      // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
-        try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      // Get functions
-      let functions = [];
-      try {
-        // First try with RETURN_TYPE
-        try {
-          console.log(`[DB2] Trying to get functions with RETURN_TYPE column`);
-          const functionsRes = await this.driver.query(this.connection, `
-            SELECT 
-              ROUTINESCHEMA as schemaName,
-              ROUTINENAME as functionName,
-              REMARKS as description,
-              TEXT as definition,
-              PARAMETER_STYLE as parameterStyle,
-              LANGUAGE as language,
-              RETURN_TYPE as returnType,
-              CREATE_TIME as createTime,
-              ALTER_TIME as alterTime
-            FROM SYSCAT.ROUTINES 
-            WHERE ROUTINETYPE = 'F'
-            AND ROUTINESCHEMA = ?
-            ORDER BY ROUTINENAME
-          `, [effectiveSchema]);
-
-          functions = functionsRes.rows.map(row => ({
-            schemaName: row.SCHEMANAME || row.schemaName,
-            pureName: row.FUNCTIONNAME || row.functionName,
-            objectType: 'function',
-            objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-            description: row.REMARKS || row.description,
-            definition: row.TEXT || row.definition,
-            parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
-            language: row.LANGUAGE || row.language,
-            returnType: row.RETURN_TYPE || row.returnType || 'unknown',
-            createTime: row.CREATETIME || row.createTime,
-            alterTime: row.ALTERTIME || row.alterTime,
-            contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-            displayName: row.FUNCTIONNAME || row.functionName
-          }));
-          console.log(`[DB2] Successfully retrieved ${functions.length} functions using RETURN_TYPE`);
-        } catch (err) {
-          console.error('[DB2] Error getting functions with RETURN_TYPE:', err);
-          
-          // Try second approach without the RETURN_TYPE column
-          try {
-            console.log(`[DB2] Trying to get functions without RETURN_TYPE column`);
-            const functionsRes2 = await this.driver.query(this.connection, `
-              SELECT 
-                ROUTINESCHEMA as schemaName,
-                ROUTINENAME as functionName,
-                REMARKS as description,
-                TEXT as definition,
-                PARAMETER_STYLE as parameterStyle,
-                LANGUAGE as language,
-                CREATE_TIME as createTime,
-                ALTER_TIME as alterTime
-              FROM SYSCAT.ROUTINES 
-              WHERE ROUTINETYPE = 'F'
-              AND ROUTINESCHEMA = ?
-              ORDER BY ROUTINENAME
-            `, [effectiveSchema]);
-
-            functions = functionsRes2.rows.map(row => ({
-              schemaName: row.SCHEMANAME || row.schemaName,
-              pureName: row.FUNCTIONNAME || row.functionName,
-              objectType: 'function',
-              objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-              description: row.REMARKS || row.description,
-              definition: row.TEXT || row.definition,
-              parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
-              language: row.LANGUAGE || row.language,
-              returnType: 'unknown', // Since we couldn't get the return type
-              createTime: row.CREATETIME || row.createTime,
-              alterTime: row.ALTERTIME || row.alterTime,
-              contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-              displayName: row.FUNCTIONNAME || row.functionName
-            }));
-            console.log(`[DB2] Successfully retrieved ${functions.length} functions without RETURN_TYPE column`);
-          } catch (err2) {
-            console.error('[DB2] Error getting functions without RETURN_TYPE column:', err2);
-            
-            // Try third approach with minimal columns
-            try {
-              console.log(`[DB2] Trying to get functions with minimal columns`);
-              const functionsRes3 = await this.driver.query(this.connection, `
-                SELECT 
-                  ROUTINESCHEMA as schemaName,
-                  ROUTINENAME as functionName,
-                  LANGUAGE as language
-                FROM SYSCAT.ROUTINES 
-                WHERE ROUTINETYPE = 'F'
-                AND ROUTINESCHEMA = ?
-                ORDER BY ROUTINENAME
-              `, [effectiveSchema]);
-
-              functions = functionsRes3.rows.map(row => ({
-                schemaName: row.SCHEMANAME || row.schemaName,
-                pureName: row.FUNCTIONNAME || row.functionName,
-                objectType: 'function',
-                objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-                language: row.LANGUAGE || row.language,
-                returnType: 'unknown',
-                contentHash: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-                displayName: row.FUNCTIONNAME || row.functionName
-              }));
-              console.log(`[DB2] Successfully retrieved ${functions.length} functions with minimal columns`);
-            } catch (err3) {
-              console.error('[DB2] Error getting functions with minimal columns:', err3);
-              // We'll return an empty array if all approaches fail
-            }
-          }
-        }
-      } catch (err) {
-        console.error('[DB2] Error getting functions:', err);
-      }
-
-      return functions;
-    } catch (err) {
-      console.error(`[DB2] Error getting functions: ${err.message}`);
-      return [];
-    }
-  }
-
-  async getUniqueConstraints(table) {
-    try {
-      console.log(`[DB2] Getting unique constraints for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          CONSTNAME as constraintName,
-          COLNAMES as columnNames
-        FROM SYSCAT.TABCONST 
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ? 
-        AND TYPE = 'U'
-        ORDER BY CONSTNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} unique constraints`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'UNIQUE'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting unique constraints: ${err.message}`);
-      return [];
-    }
-  }
+  return columns;
 }
 
+/** @type {import('dbgate-types').EngineDriver<db2.db2>} */
 const driver = {
+  ...driverBase,
   id: 'db2',
   name: 'db2',
   engine: 'db2@dbgate-plugin-db2',
@@ -958,6 +27,7 @@ const driver = {
   supportsPrivileges: true,
   supportsGrants: true,
   analyserClass: Analyser,
+
 
   initialize(dbgateEnv) {
     console.log('[DB2] Initializing driver with engine ID:', this.id);
@@ -971,6 +41,16 @@ const driver = {
     this.engine = 'db2@dbgate-plugin-db2';
     this.id = 'db2';
     this.name = 'db2';
+    
+    // Configure object types
+    this.supportedObjectTypes = ['tables', 'views', 'procedures', 'functions', 'schemas'];
+    this.schemaFields = {
+      objectTypeField: 'objectType',
+      schemaField: 'schemaName',
+      pureNameField: 'pureName',
+      objectIdField: 'objectId',
+      contentHashField: 'contentHash'
+    };
     
     // Log the driver configuration
     console.log('[DB2] Driver configuration:', {
@@ -1045,31 +125,47 @@ const driver = {
         }));
   
         // Process rows to ensure consistent case handling
-        // Create a normalized mapping of column names
+        // Create a normalized mapping of column names with improved handling
         const normalizedRows = result.map(row => {
           const normalizedRow = {};
           // For each column in our result
           for (const key in row) {
-            // Store value in both original case and lowercase
+            // Store value in both original case, lowercase and uppercase
             const value = row[key];
             normalizedRow[key] = value;
-            normalizedRow[key.toLowerCase()] = value;
             
-            // Extract column name from SQL if it uses "as columnName" syntax
-            if (typeof sql === 'string' && sql.toLowerCase().includes(key.toLowerCase() + ' as ')) {
-              const match = new RegExp(key + ' as ([a-zA-Z0-9_]+)', 'i').exec(sql);
-              if (match && match[1]) {
-                normalizedRow[match[1]] = value;
-                normalizedRow[match[1].toLowerCase()] = value;
-              }
+            // Always add lowercase and uppercase versions for case-insensitive access
+            if (typeof key === 'string') {
+              normalizedRow[key.toLowerCase()] = value;
+              normalizedRow[key.toUpperCase()] = value;
             }
             
-            // If we have "as alias" in the query, add the aliased version too
+            // Special handling for "CURRENT SCHEMA" type columns with spaces
+            if (typeof key === 'string' && key.includes(' ')) {
+              // Remove spaces and add those versions too
+              const noSpaceKey = key.replace(/\s+/g, '');
+              normalizedRow[noSpaceKey] = value;
+              normalizedRow[noSpaceKey.toLowerCase()] = value;
+              normalizedRow[noSpaceKey.toUpperCase()] = value;
+            }
+            
+            // Handle SQL aliases better
             if (typeof sql === 'string') {
-              const asMatch = new RegExp(key + '\\s+as\\s+([a-zA-Z0-9_]+)', 'i').exec(sql);
-              if (asMatch && asMatch[1]) {
-                normalizedRow[asMatch[1]] = value;
-                normalizedRow[asMatch[1].toLowerCase()] = value;
+              // Look for "as alias" patterns in SQL
+              const lowerSql = sql.toLowerCase();
+              const lowerKey = key.toLowerCase();
+              
+              // Check for column AS alias pattern
+              if (lowerSql.includes(lowerKey + ' as ') || lowerSql.includes(lowerKey + ' as"') || 
+                  lowerSql.includes(lowerKey + ' as\'') || lowerSql.includes(lowerKey + ' as`')) {
+                const regex = new RegExp(lowerKey + '\\s+as\\s+["\']?([a-zA-Z0-9_]+)["\']?', 'i');
+                const match = regex.exec(sql);
+                if (match && match[1]) {
+                  const alias = match[1];
+                  normalizedRow[alias] = value;
+                  normalizedRow[alias.toLowerCase()] = value;
+                  normalizedRow[alias.toUpperCase()] = value;
+                }
               }
             }
           }
@@ -1238,15 +334,10 @@ const driver = {
 
   async getVersion(dbhan) {
     try {
-      // Try multiple approaches to get DB2 version
       const versionQueries = [
-        // Approach 1: Using SYSIBMADM.ENV_INST_INFO
         `SELECT SERVICE_LEVEL as version, FIXPACK_NUM as fixpack FROM TABLE (sysproc.env_get_inst_info())`,
-        // Approach 2: Using SYSIBMADM.ENV_INST_INFO directly
         `SELECT SERVICE_LEVEL as version, FIXPACK_NUM as fixpack FROM SYSIBMADM.ENV_INST_INFO`,
-        // Approach 3: Using GETVARIABLE
         `SELECT GETVARIABLE('SYSIBM.VERSION') as version FROM SYSIBM.SYSDUMMY1`,
-        // Approach 4: Using CURRENT_SERVER
         `SELECT CURRENT_SERVER as version FROM SYSIBM.SYSDUMMY1`
       ];
 
@@ -1320,10 +411,8 @@ const driver = {
     try {
       console.log('[DB2] ====== Starting listDatabases API call ======');
       
-      // Try multiple approaches to get database list
       let databases = [];
       
-      // Approach 1: Using SYSPROC.ADMIN_GET_DB_MEMBERSHIP
       try {
         const result = await this.query(dbhan, `
           SELECT 
@@ -1348,28 +437,47 @@ const driver = {
         console.error('[DB2] Error getting databases from ADMIN_GET_DB_MEMBERSHIP:', err);
       }
 
-      // Approach 2: Using SYSCAT.DATABASE
+      // Approach 2: Using SYSCAT.DBAUTH to get databases the user has access to
       if (databases.length === 0) {
         try {
           const result = await this.query(dbhan, `
             SELECT 
-              DBNAME as databaseName,
-              DB_PATH as databasePath,
-              DB_STATUS as status
-            FROM SYSCAT.DATABASE
+              DISTINCT DBNAME as databaseName
+            FROM SYSCAT.DBAUTH
+            WHERE GRANTEE = CURRENT USER
           `);
           
           if (result.rows && result.rows.length > 0) {
             databases = result.rows.map(db => ({
               name: db.DATABASENAME || db.databaseName,
-              path: db.DATABASEPATH || db.databasePath,
-              status: db.STATUS || db.status
+              status: 'available'
             }));
           }
         } catch (err) {
-          console.error('[DB2] Error getting databases from SYSCAT.DATABASE:', err);
+          console.error('[DB2] Error getting databases from SYSCAT.DBAUTH:', err);
         }
-      }      // If still no results, try to get current database
+      }      // Approach 3: Try SYSIBMADM.SNAPDB which is available in some DB2 environments
+      if (databases.length === 0) {
+        try {
+          const result = await this.query(dbhan, `
+            SELECT 
+              DB_NAME as databaseName,
+              DB_STATUS as status
+            FROM SYSIBMADM.SNAPDB
+          `);
+          
+          if (result.rows && result.rows.length > 0) {
+            databases = result.rows.map(db => ({
+              name: db.DATABASENAME || db.databaseName,
+              status: db.STATUS || db.status || 'available'
+            }));
+          }
+        } catch (err) {
+          console.error('[DB2] Error getting databases from SYSIBMADM.SNAPDB:', err);
+        }
+      }
+
+      // If still no results, try to get current database
       if (databases.length === 0) {
         try {
           const result = await this.query(dbhan, `
@@ -1397,12 +505,13 @@ const driver = {
           const result = await this.query(dbhan, `
             SELECT DISTINCT TABSCHEMA as schemaName
             FROM SYSCAT.TABLES
-            WHERE TABSCHEMA NOT IN ('SYSIBM', 'SYSTOOLS', 'SYSPROC', 'SYSSTAT', 'NULLID', 'SQLJ', 'SYSCAT', 'SYSFUN', 'SYSIBMADM')
+            WHERE TABSCHEMA NOT LIKE 'SYS%'
+              AND TABSCHEMA NOT IN ('SYSIBM', 'SYSTOOLS', 'SYSPROC', 'SYSSTAT', 'NULLID', 'SQLJ', 'SYSCAT', 'SYSFUN', 'SYSIBMADM')
           `);
           
           if (result.rows && result.rows.length > 0) {
             databases = [{
-              name: dbhan.database || 'SAMPLE',
+              name: dbhan.database || dbhan.user || 'Unknown',
               status: 'active',
               schemas: result.rows.map(row => row.SCHEMANAME || row.schemaName)
             }];
@@ -1441,9 +550,10 @@ const driver = {
     return this.name;
   },
 
-  getEngineVersion() {
-    return null;
-  },
+   async getEngineVersion() {
+        const result = await dbhan.client.execute('SELECT release_version from system.local');
+    return { version: result.rows[0].release_version };
+   },
 
   getDefaultDatabase() {
     return this.defaultDatabase;
@@ -1456,244 +566,30 @@ const driver = {
       preventSingleLineSplit: true
     };
   },
-
-  async analyseFull(dbhan) {
-    console.log('[DB2] Starting full database analysis');
-    
+  
+  async close(dbhan) {
     try {
-      const analyser = new this.analyserClass(dbhan, this);
-      const analysis = await analyser.incrementalAnalysis();      // Debug log the raw analysis results
-      console.log('[DB2] Raw analysis results:', {
-        schemas: analysis.schemas,
-        tables: analysis.tables?.length,
-        views: analysis.views?.length,
-        functions: analysis.functions?.length,
-        procedures: analysis.procedures?.length
-      });
-
-      // If no schemas were found, try to get the current schema and add it
-      if (!analysis.schemas || analysis.schemas.length === 0) {
-        console.log('[DB2] No schemas found in analysis, attempting to get current schema');
-        try {
-          const currentSchemaResult = await this.query(dbhan, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          
-          if (currentSchemaResult?.rows?.length > 0) {
-            const currentSchema = currentSchemaResult.rows[0]?.SCHEMANAME || 
-                               currentSchemaResult.rows[0]?.schemaName || 
-                               currentSchemaResult.rows[0]?.['CURRENT SCHEMA'] ||
-                               'SAMPLE';
-            
-            console.log(`[DB2] Adding current schema to analysis: ${currentSchema}`);
-            analysis.schemas = [currentSchema];
-          } else {
-            // If we can't determine the current schema, use SAMPLE as default
-            console.log('[DB2] Adding default SAMPLE schema to analysis');
-            analysis.schemas = ['SAMPLE'];
-          }
-        } catch (err) {
-          console.error('[DB2] Error getting current schema:', err);
-          // Add default schema
-          analysis.schemas = ['SAMPLE'];
-        }
-      }
-
-      // Check for invalid table objects
-      if (analysis.tables && analysis.tables.length > 0) {
-        const invalidTables = analysis.tables.filter(table => !table.schemaName || !(table.tableName || table.pureName));
-        if (invalidTables.length > 0) {
-          console.warn(`[DB2] Found ${invalidTables.length} invalid table objects with missing schema or table names:`, invalidTables);
-        }
-      }
-
-      // If we don't have any database objects, try to use getStructure directly
-      if ((analysis.tables?.length === 0 && analysis.views?.length === 0 && analysis.functions?.length === 0) && analysis.schemas?.length > 0) {
-        console.log('[DB2] No database objects found in analysis, trying direct getStructure method');
-        
-        try {
-          let allTables = [];
-          let allViews = [];
-          let allFunctions = [];
-          let allProcedures = [];
-          
-          // Use getStructure directly for each schema
-          for (const schema of analysis.schemas) {
-            console.log(`[DB2] Getting structure directly for schema ${schema}`);
-            const structureData = await this.getStructure(dbhan, schema);
-            
-            if (structureData.tables?.length > 0) allTables = [...allTables, ...structureData.tables];
-            if (structureData.views?.length > 0) allViews = [...allViews, ...structureData.views];
-            if (structureData.functions?.length > 0) allFunctions = [...allFunctions, ...structureData.functions];
-            if (structureData.procedures?.length > 0) allProcedures = [...allProcedures, ...structureData.procedures];
-            
-            console.log(`[DB2] Direct getStructure for ${schema} found: tables=${structureData.tables?.length}, views=${structureData.views?.length}, functions=${structureData.functions?.length}, procedures=${structureData.procedures?.length}`);
-          }
-          
-          // Update analysis with direct getStructure results
-          if (allTables.length > 0) analysis.tables = allTables;
-          if (allViews.length > 0) analysis.views = allViews;
-          if (allFunctions.length > 0) analysis.functions = allFunctions;
-          if (allProcedures.length > 0) analysis.procedures = allProcedures;
-          
-          console.log('[DB2] Updated analysis with direct getStructure results:', {
-            tables: analysis.tables?.length,
-            views: analysis.views?.length,
-            functions: analysis.functions?.length,
-            procedures: analysis.procedures?.length
-          });
-        } catch (directErr) {
-          console.error(`[DB2] Error using direct getStructure: ${directErr.message}`);
-        }
-      }
-
-      // Ensure proper structure for dbGate UI
-      const result = {
-        objectTypeField: 'objectType',
-        objectIdField: 'objectId',
-        schemaField: 'schemaName',
-        pureNameField: 'pureName',
-        contentHashField: 'contentHash',
-        schemas: analysis.schemas.map(schema => ({
-          schemaName: schema,
-          objectType: 'schema',
-          pureName: schema,
-          objectId: schema,
-          contentHash: schema
-        })),        tables: (analysis.tables || [])
-          .filter(table => table.schemaName && (table.tableName || table.pureName))
-          .map(table => ({
-            ...table,
-            objectType: 'table',
-            pureName: table.tableName || table.pureName,
-            schemaName: table.schemaName,
-            objectId: `${table.schemaName}.${table.tableName || table.pureName}`,
-            contentHash: table.contentHash || table.alterTime?.toISOString() || table.createTime?.toISOString() || `${table.schemaName}.${table.tableName || table.pureName}`,
-            isView: false,
-            isTable: true,
-            displayName: table.tableName || table.pureName
-          })),        views: (analysis.views || [])
-          .filter(view => view.schemaName && (view.viewName || view.pureName))
-          .map(view => ({
-            ...view,
-            objectType: 'view',
-            pureName: view.viewName || view.pureName,
-            schemaName: view.schemaName,
-            objectId: `${view.schemaName}.${view.viewName || view.pureName}`,
-            contentHash: view.contentHash || view.definition || view.alterTime?.toISOString() || view.createTime?.toISOString(),
-            isView: true,
-            isTable: false,
-            displayName: view.viewName || view.pureName
-          })),        functions: (analysis.functions || [])
-          .filter(func => func.schemaName && (func.functionName || func.pureName))
-          .map(func => ({
-            ...func,
-            objectType: 'function',
-            pureName: func.functionName || func.pureName,
-            schemaName: func.schemaName,
-            objectId: `${func.schemaName}.${func.functionName || func.pureName}`,
-            contentHash: func.contentHash || func.definition || func.alterTime?.toISOString() || func.createTime?.toISOString(),
-            displayName: func.functionName || func.pureName
-          })),        procedures: (analysis.procedures || [])
-          .filter(proc => proc.schemaName && (proc.procedureName || proc.pureName))
-          .map(proc => ({
-            ...proc,
-            objectType: 'procedure',
-            pureName: proc.procedureName || proc.pureName,
-            schemaName: proc.schemaName,
-            objectId: `${proc.schemaName}.${proc.procedureName || proc.pureName}`,
-            contentHash: proc.contentHash || proc.definition || proc.alterTime?.toISOString() || proc.createTime?.toISOString(),
-            displayName: proc.procedureName || proc.pureName
-          }))
-      };      // If no tables were found but we have schemas, add sample table for UI display
-      if (result.tables.length === 0 && result.schemas.length > 0) {
-        console.log('[DB2] No tables found, adding a sample EMPLOYEES table for UI display');
-        const schema = result.schemas[0].schemaName;
-        result.tables.push({
-          objectType: 'table',
-          pureName: 'EMPLOYEES', 
-          schemaName: schema,
-          objectId: `${schema}.EMPLOYEES`,
-          contentHash: `${schema}.EMPLOYEES`,
-          isView: false,
-          isTable: true,
-          displayName: 'EMPLOYEES',
-          columns: [
-            { columnName: 'ID', dataType: 'INTEGER' },
-            { columnName: 'NAME', dataType: 'VARCHAR' },
-            { columnName: 'EMAIL', dataType: 'VARCHAR' },
-            { columnName: 'HIRE_DATE', dataType: 'DATE' },
-            { columnName: 'SALARY', dataType: 'DECIMAL' },
-            { columnName: 'POSITION', dataType: 'VARCHAR' }
-          ]
+      console.log('[DB2] Closing database connection');
+      if (dbhan && dbhan.client) {
+        await dbhan.client.close().catch(err => {
+          // Just log without throwing to prevent process exit
+          console.error('[DB2] Warning during connection close:', err.message);
         });
+        console.log('[DB2] Database connection closed successfully');
       }
-
-      // Debug log the final structure
-      console.log('[DB2] Final analysis structure:', {
-        schemaCount: result.schemas.length,
-        tableCount: result.tables.length,
-        viewCount: result.views.length,
-        functionCount: result.functions.length,
-        procedureCount: result.procedures.length
-      });
-
-      // Log sample objects for debugging
-      if (result.tables.length > 0) {
-        console.log('[DB2] Sample table object:', result.tables[0]);
-      }
-      if (result.views.length > 0) {
-        console.log('[DB2] Sample view object:', result.views[0]);
-      }
-      if (result.functions.length > 0) {
-        console.log('[DB2] Sample function object:', result.functions[0]);
-      }
-      if (result.procedures.length > 0) {
-        console.log('[DB2] Sample procedure object:', result.procedures[0]);
-      }
-
-      return result;
     } catch (err) {
-      console.error(`[DB2] Analysis error: ${err.message}`);
-      throw err;
+      // Don't throw, just log the error
+      console.error('[DB2] Error closing database connection:', err.message);
     }
   },
-
-  async analyseIncremental(dbhan, structure) {
-    console.log('[DB2] Starting incremental analysis with existing structure');
-    
-    // Use the full analysis but preserve existing structure if no new data is returned
-    try {
-      const newStructure = await this.analyseFull(dbhan);
-      
-      // Only update if we got some data
-      if (newStructure && 
-          (newStructure.tables?.length > 0 || 
-           newStructure.views?.length > 0 || 
-           newStructure.functions?.length > 0 || 
-           newStructure.procedures?.length > 0)) {
-        console.log('[DB2] Incremental analysis found new structure data, returning it');
-        return newStructure;
-      }
-      
-      console.log('[DB2] No new structure data found, preserving existing structure');
-      // Return existing structure if new one didn't contain objects
-      return structure || newStructure;
-    } catch (err) {
-      console.error(`[DB2] Error in incremental analysis: ${err.message}`);
-      // If error occurs, return existing structure
-      return structure;
-    }
-  },
-
   async checkCatalogAccess(dbhan) {
     console.log('[DB2] Running catalog access diagnostics');
     
     const catalogViews = [
       { name: 'SYSIBM.SYSDUMMY1', required: true },
-      { name: 'SYSCAT.TABLES', required: false },
-      { name: 'SYSCAT.COLUMNS', required: false },
-      { name: 'SYSCAT.SCHEMATA', required: false },
+      { name: 'SYSCAT.TABLES', required: true },
+      { name: 'SYSCAT.COLUMNS', required: true },
+      { name: 'SYSCAT.SCHEMATA', required: true }, // Required for schema filtering
       { name: 'SYSIBM.SYSTABLES', required: false }
     ];
     
@@ -1725,7 +621,7 @@ const driver = {
       serverInfo: {
         server,
         port,
-        database: database || 'SAMPLE',
+        database: database || user || 'Unknown',
         user
       },
       networkChecks: {},
@@ -1764,7 +660,7 @@ const driver = {
         
         // Build connection string with current timeout settings
         const connStr = [
-          `DATABASE=${database || 'SAMPLE'}`,
+          `DATABASE=${database || user}`,
           `HOSTNAME=${server}`,
           `PORT=${port}`,
           `PROTOCOL=TCPIP`,
@@ -1950,7 +846,7 @@ const driver = {
 
   async listSchemas(dbhan, conid, database) {
     try {
-      console.log('[DB2] ====== Starting listSchemas API call ======');
+      console.log('[DB2] ====== Starting listSchemas API call for /database-connections/schema-list endpoint ======');
       console.log('[DB2] Connection ID:', conid);
       console.log('[DB2] Database:', database);
 
@@ -1966,35 +862,67 @@ const driver = {
         console.error('[DB2] Error getting current schema:', err);
       }
 
-      // Get schemas from SYSCAT.SCHEMATA
+      // Get schemas from SYSCAT.SCHEMATA with improved query
       let schemas = [];
       try {
+        // Using double quotes for field aliases to ensure proper case sensitivity
         const schemasResult = await this.query(dbhan, `
           SELECT 
-            SCHEMANAME as schemaName,
-            OWNER as owner,
-            CREATE_TIME as createTime,
-            REMARKS as description,
-            (SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = SCHEMANAME AND TYPE = 'T') as tableCount,
-            (SELECT COUNT(*) FROM SYSCAT.VIEWS WHERE VIEWSCHEMA = SCHEMANAME) as viewCount,
-            (SELECT COUNT(*) FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = SCHEMANAME) as routineCount
-          FROM SYSCAT.SCHEMATA
-          WHERE SCHEMANAME NOT LIKE 'SYS%'
-          ORDER BY SCHEMANAME
+            s.SCHEMANAME as "schemaName",
+            s.OWNER as "owner",
+            s.CREATE_TIME as "createTime",
+            s.REMARKS as "description",
+            (SELECT COUNT(*) FROM SYSCAT.TABLES t WHERE t.TABSCHEMA = s.SCHEMANAME AND t.TYPE IN ('T', 'P')) as "tableCount",
+            (SELECT COUNT(*) FROM SYSCAT.VIEWS v WHERE v.VIEWSCHEMA = s.SCHEMANAME) as "viewCount",
+            (SELECT COUNT(*) FROM SYSCAT.ROUTINES r WHERE r.ROUTINESCHEMA = s.SCHEMANAME) as "routineCount"
+          FROM SYSCAT.SCHEMATA s
+          WHERE s.SCHEMANAME NOT LIKE 'SYS%'
+            AND s.SCHEMANAME NOT IN ('SYSCAT', 'SYSIBM', 'SYSSTAT', 'SYSPROC', 'SYSTOOLS', 'SYSFUN', 'SYSIBMADM')
+          ORDER BY s.SCHEMANAME
         `);
 
-        schemas = (schemasResult.rows || []).map(row => ({
-          name: row.schemaName,
-          owner: row.owner,
-          createTime: row.createTime,
-          description: row.description,
-          tableCount: row.tableCount || 0,
-          viewCount: row.viewCount || 0,
-          routineCount: row.routineCount || 0,
-          isDefault: row.schemaName === currentSchema
-        }));
-
-        console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.SCHEMATA`);
+        if (schemasResult.rows && schemasResult.rows.length > 0) {
+          // Debug the first schema row to see actual field names
+          console.log(`[DB2] First schema row:`, JSON.stringify(schemasResult.rows[0]));
+          
+          schemas = schemasResult.rows.map((row, index) => {
+            // Use case-insensitive access to fields
+            const getValue = (fieldName) => {
+              if (row[fieldName] !== undefined) return row[fieldName];
+              if (row[fieldName.toUpperCase()] !== undefined) return row[fieldName.toUpperCase()];
+              if (row[fieldName.toLowerCase()] !== undefined) return row[fieldName.toLowerCase()];
+              return null;
+            };
+            
+            const schemaName = getValue("schemaName") || '';
+            
+            // Debug schema table counts
+            console.log(`[DB2] Schema ${schemaName} has:`, {
+              tableCount: getValue("tableCount") || 0,
+              viewCount: getValue("viewCount") || 0,
+              routineCount: getValue("routineCount") || 0
+            });
+            
+            return {
+              name: schemaName,
+              schemaName: schemaName,
+              pureName: schemaName, 
+              fullName: schemaName,
+              objectSchema: schemaName,
+              owner: getValue("owner"),
+              createTime: getValue("createTime"),
+              description: getValue("description"),
+              tableCount: parseInt(getValue("tableCount") || 0),
+              viewCount: parseInt(getValue("viewCount") || 0),
+              routineCount: parseInt(getValue("routineCount") || 0),
+              isDefault: schemaName === currentSchema,
+              id: `schema_${schemaName || index}`,
+              objectType: 'schema',
+              objectTypeField: 'objectType',
+              modifyDate: getValue("createTime") || new Date()
+            };
+          });
+        }
       } catch (err) {
         console.error('[DB2] Error getting schemas from SYSCAT.SCHEMATA:', err);
         
@@ -2004,15 +932,25 @@ const driver = {
             SELECT DISTINCT TABSCHEMA as schemaName
             FROM SYSCAT.TABLES
             WHERE TABSCHEMA NOT LIKE 'SYS%'
+              AND TABSCHEMA NOT IN ('SYSCAT', 'SYSIBM', 'SYSSTAT', 'SYSPROC', 'SYSTOOLS', 'SYSFUN', 'SYSIBMADM')
             ORDER BY TABSCHEMA
           `);
           
-          schemas = (tablesResult.rows || []).map(row => ({
-            name: row.schemaName,
-            isDefault: row.schemaName === currentSchema
-          }));
-          
-          console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.TABLES fallback`);
+          if (tablesResult.rows && tablesResult.rows.length > 0) {
+            schemas = tablesResult.rows.map(row => ({
+              name: row.schemaName,
+              schemaName: row.schemaName,
+              pureName: row.schemaName,
+              fullName: row.schemaName,
+              objectSchema: row.schemaName,
+              isDefault: row.schemaName === currentSchema,
+              id: `schema_${row.schemaName}`,
+              objectType: 'schema',
+              tableCount: 0,
+              viewCount: 0,
+              routineCount: 0
+            }));
+          }
         } catch (fallbackErr) {
           console.error('[DB2] Error in fallback schema query:', fallbackErr);
         }
@@ -2021,26 +959,64 @@ const driver = {
       // Ensure we have at least one schema
       if (schemas.length === 0) {
         console.log('[DB2] No schemas found, adding default schema');
-        const defaultSchema = currentSchema || 'DB2INST1' || 'SAMPLE';
+        const defaultSchema = currentSchema || dbhan.database || dbhan.user;
         schemas = [{
           name: defaultSchema,
-          isDefault: true
+          schemaName: defaultSchema,
+          pureName: defaultSchema,
+          fullName: defaultSchema,
+          objectSchema: defaultSchema,
+          isDefault: true,
+          id: `schema_${defaultSchema}`,
+          objectType: 'schema',
+          tableCount: 0,
+          viewCount: 0,
+          routineCount: 0
         }];
       }
 
-      console.log('[DB2] Final schema list:', schemas);
-      console.log('[DB2] ====== Completed listSchemas API call ======');
-      
-      // Trigger schema list changed event
-      if (conid && database) {
-        try {
-          await this.query(dbhan, `
-            CALL SYSPROC.ADMIN_TASK_REMOVE('schema-list-changed-${conid}-${database}')
-          `);
-        } catch (err) {
-          console.log('[DB2] Error triggering schema list changed event:', err);
+      // Make sure at least one schema is marked as default
+      const hasDefaultSchema = schemas.some(schema => schema.isDefault);
+      if (!hasDefaultSchema && schemas.length > 0) {
+        console.log('[DB2] No schema marked as default, marking current schema as default');
+        // First try to use current schema from connection
+        const currentSchemaObj = schemas.find(schema => schema.name === currentSchema);
+        if (currentSchemaObj) {
+          console.log(`[DB2] Setting current schema ${currentSchemaObj.name} as default`);
+          currentSchemaObj.isDefault = true;
+        } else {
+          // If current schema wasn't found in the list, use first schema
+          console.log(`[DB2] Setting first schema ${schemas[0].name} as default`);
+          schemas[0].isDefault = true;
         }
       }
+      
+      // Ensure all required fields are present in all schema objects for proper filtering
+      schemas = schemas.map(schema => {
+        const schemaObj = {
+          ...schema,
+          isDefault: schema.isDefault || false,
+          // Make sure all required fields for schema selection are present
+          fullName: schema.fullName || schema.name,
+          objectSchema: schema.objectSchema || schema.name,
+          schemaName: schema.schemaName || schema.name,
+          pureName: schema.pureName || schema.name,
+          name: schema.name, // schema display name
+          objectType: 'schema', // Required for object type filtering
+          id: schema.id || `schema_${schema.name}`,
+        };
+        
+        // Make sure tableCount is present and a number
+        if (typeof schemaObj.tableCount !== 'number' || isNaN(schemaObj.tableCount)) {
+          console.log(`[DB2] Fixed invalid tableCount for schema ${schemaObj.name}`);
+          schemaObj.tableCount = parseInt(schemaObj.tableCount) || 0;
+        }
+        
+        return schemaObj;
+      });
+
+      console.log('[DB2] Final schema list:', schemas);
+      console.log('[DB2] ====== Completed listSchemas API call ======');
       
       return schemas;
     } catch (err) {
@@ -2049,219 +1025,17 @@ const driver = {
     }
   },
 
-  async getStructure(dbhan, schemaName) {
-    try {
-      console.log('[DB2] ====== Starting getStructure API call ======');
-      console.log('[DB2] Getting structure for schema:', schemaName);
 
-      if (!schemaName) {
-        console.warn('[DB2] No schema name provided, attempting to get current schema');
-        try {
-          const currentSchemaResult = await this.query(dbhan, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          schemaName = currentSchemaResult.rows?.[0]?.schemaName;
-          console.log('[DB2] Using current schema:', schemaName);
-        } catch (err) {
-          console.error('[DB2] Error getting current schema:', err);
-          return { tables: [], views: [], functions: [], procedures: [] };
-        }
-      }
-
-      // Get schema info
-      let schemaInfo = null;
-      try {
-        const schemaResult = await this.query(dbhan, `
-          SELECT 
-            SCHEMANAME as schemaName,
-            OWNER as owner,
-            CREATE_TIME as createTime,
-            REMARKS as description
-          FROM SYSCAT.SCHEMATA
-          WHERE SCHEMANAME = ?
-        `, [schemaName]);
-        
-        if (schemaResult.rows?.length > 0) {
-          schemaInfo = {
-            name: schemaResult.rows[0].schemaName,
-            owner: schemaResult.rows[0].owner,
-            createTime: schemaResult.rows[0].createTime,
-            description: schemaResult.rows[0].description
-          };
-          console.log('[DB2] Found schema info:', schemaInfo);
-        }
-      } catch (err) {
-        console.error('[DB2] Error getting schema info:', err);
-      }
-
-      // Get tables
-      let tables = [];
-      try {
-        const tablesResult = await this.query(dbhan, `
-          SELECT 
-            t.TABSCHEMA as schemaName,
-            t.TABNAME as tableName,
-            t.TYPE as tableType,
-            t.CREATE_TIME as createTime,
-            t.ALTER_TIME as alterTime,
-            t.REMARKS as description,
-            (SELECT COUNT(*) FROM SYSCAT.COLUMNS WHERE TABSCHEMA = t.TABSCHEMA AND TABNAME = t.TABNAME) as columnCount
-          FROM SYSCAT.TABLES t
-          WHERE t.TABSCHEMA = ?
-          AND t.TYPE = 'T'
-          ORDER BY t.TABNAME
-        `, [schemaName]);
-
-        console.log(`[DB2] Found ${tablesResult.rows?.length || 0} tables`);
-        
-        tables = (tablesResult.rows || []).map(row => {
-          const table = {
-            schemaName: row.schemaName,
-            pureName: row.tableName,
-            objectType: 'table',
-            objectId: `${row.schemaName}.${row.tableName}`,
-            description: row.description,
-            tableType: row.tableType || 'T',
-            createTime: row.createTime,
-            alterTime: row.alterTime,
-            columnCount: row.columnCount,
-            contentHash: row.alterTime?.toISOString() || row.createTime?.toISOString() || `${row.schemaName}.${row.tableName}`,
-            displayName: row.tableName
-          };
-          console.log(`[DB2] Mapped table: ${table.schemaName}.${table.pureName}`);
-          return table;
-        });
-      } catch (err) {
-        console.error('[DB2] Error getting tables:', err);
-      }
-
-      // Get views
-      let views = [];
-      try {
-        const viewsResult = await this.query(dbhan, `
-          SELECT 
-            v.VIEWSCHEMA as schemaName,
-            v.VIEWNAME as viewName,
-          v.CREATE_TIME as createTime,
-          v.ALTER_TIME as alterTime,
-          v.REMARKS as description,
-          v.TEXT as viewDefinition
-        FROM SYSCAT.VIEWS v
-        WHERE v.VIEWSCHEMA = ?
-        ORDER BY v.VIEWNAME
-      `, [schemaName]);
-
-        console.log(`[DB2] Found ${viewsResult.rows?.length || 0} views`);
-        
-        views = (viewsResult.rows || []).map(row => {
-          const view = {
-            schemaName: row.schemaName,
-            pureName: row.viewName,
-            objectType: 'view',
-            objectId: `${row.schemaName}.${row.viewName}`,
-            description: row.description,
-            createTime: row.createTime,
-            alterTime: row.alterTime,
-            contentHash: row.alterTime?.toISOString() || row.createTime?.toISOString() || `${row.schemaName}.${row.viewName}`,
-            displayName: row.viewName,
-            viewDefinition: row.viewDefinition
-          };
-          console.log(`[DB2] Mapped view: ${view.schemaName}.${view.pureName}`);
-          return view;
-        });
-      } catch (err) {
-        console.error('[DB2] Error getting views:', err);
-      }
-
-      // Get functions and procedures
-      let functions = [];
-      let procedures = [];
-      try {
-        const routinesResult = await this.query(dbhan, `
-          SELECT 
-            r.ROUTINESCHEMA as schemaName,
-            r.ROUTINENAME as routineName,
-            r.ROUTINETYPE as routineType,
-            r.CREATE_TIME as createTime,
-            r.ALTER_TIME as alterTime,
-            r.REMARKS as description,
-            r.TEXT as routineDefinition
-          FROM SYSCAT.ROUTINES r
-          WHERE r.ROUTINESCHEMA = ?
-          ORDER BY r.ROUTINENAME
-        `, [schemaName]);
-
-        console.log(`[DB2] Found ${routinesResult.rows?.length || 0} routines`);
-        
-        routinesResult.rows?.forEach(row => {
-          const routine = {
-            schemaName: row.schemaName,
-            pureName: row.routineName,
-            objectType: row.routineType === 'F' ? 'function' : 'procedure',
-            objectId: `${row.schemaName}.${row.routineName}`,
-            description: row.description,
-            createTime: row.createTime,
-            alterTime: row.alterTime,
-            contentHash: row.alterTime?.toISOString() || row.createTime?.toISOString() || `${row.schemaName}.${row.routineName}`,
-            displayName: row.routineName,
-            routineDefinition: row.routineDefinition
-          };
-          
-          if (row.routineType === 'F') {
-            functions.push(routine);
-            console.log(`[DB2] Mapped function: ${routine.schemaName}.${routine.pureName}`);
-          } else {
-            procedures.push(routine);
-            console.log(`[DB2] Mapped procedure: ${routine.schemaName}.${routine.pureName}`);
-          }
-        });
-      } catch (err) {
-        console.error('[DB2] Error getting routines:', err);
-      }
-
-      const structure = {
-        schemaInfo,
-        tables,
-        views,
-        functions,
-        procedures
-      };
-
-      console.log('[DB2] Structure analysis results:', {
-        hasSchemaInfo: !!schemaInfo,
-        tableCount: tables.length,
-        viewCount: views.length,
-        functionCount: functions.length,
-        procedureCount: procedures.length
-      });
-
-      console.log('[DB2] ====== Completed getStructure API call ======');
+  async getColumnsForAllTables(dbhan, tables) {
+    console.log('[DB2] Fetching columns for all tables');
+    const result = [];
+    
+    for (const table of tables) {
+      console.log(`[DB2] Getting columns for table ${table.schemaName}.${table.pureName}`);
       
-      // Trigger structure changed event
-      if (dbhan.conid && dbhan.database) {
-        try {
-          await this.query(dbhan, `
-            CALL SYSPROC.ADMIN_TASK_REMOVE('database-structure-changed-${dbhan.conid}-${dbhan.database}')
-          `);
-        } catch (err) {
-          console.log('[DB2] Error triggering structure changed event:', err);
-        }
-      }
-      
-      return structure;
-    } catch (err) {
-      console.error('[DB2] Error in getStructure:', err);
-      return { tables: [], views: [], functions: [], procedures: [] };
-    }
-  },
-
-  async getColumns(table) {
-    try {
-      console.log(`[DB2] Getting columns for ${table.schemaName}.${table.tableName}`);
-      
-      // First try SYSCAT.COLUMNS (LUW DB2)
       try {
-        const res = await this.driver.query(this.connection, `
+        // Try SYSCAT.COLUMNS (LUW DB2)
+        const columnsQuery = `
           SELECT 
             COLNAME as columnName,
             TYPENAME as dataType,
@@ -2270,481 +1044,996 @@ const driver = {
             NULLS as isNullable,
             REMARKS as description,
             DEFAULT as defaultValue,
-            COLNO as ordinalPosition
+            COLNO as ordinalPosition,
+            CODEPAGE as codePage,
+            COLCARD as columnCardinality,
+            HIGH2KEY as highValue,
+            LOW2KEY as lowValue
           FROM SYSCAT.COLUMNS 
           WHERE TABSCHEMA = ? AND TABNAME = ?
           ORDER BY COLNO
-        `, [table.schemaName, table.tableName]);
+        `;
         
-        console.log(`[DB2] Found ${res.rows.length} columns using SYSCAT.COLUMNS`);
+        const res = await this.query(dbhan, columnsQuery, [table.schemaName, table.pureName]);
         
-        // Process the rows to normalize case sensitivity
-        return res.rows.map(row => {
-          const normalizedRow = {};
-          for (const key in row) {
-            normalizedRow[key] = row[key];
-            normalizedRow[key.toLowerCase()] = row[key];
-            
-            // Map specific fields
-            if (key.toUpperCase() === 'COLNAME') normalizedRow.columnName = row[key];
-            if (key.toUpperCase() === 'TYPENAME') normalizedRow.dataType = row[key];
-          }
-          return normalizedRow;
-        });
-      } catch (err) {
-        console.error(`[DB2] SYSCAT.COLUMNS error: ${err.message}`);
-        
-        // Try SYSIBM.SYSCOLUMNS (z/OS)
-        try {
-          console.log('[DB2] Trying SYSIBM.SYSCOLUMNS...');
-          const res = await this.driver.query(this.connection, `
-            SELECT 
-              NAME as columnName,
-              COLTYPE as dataType,
-              LENGTH as length,
-              SCALE as scale,
-              NULLS as isNullable,
-              DEFAULT as defaultValue,
-              COLNO as ordinalPosition
-            FROM SYSIBM.SYSCOLUMNS 
-            WHERE TBCREATOR = ? AND TBNAME = ?
-            ORDER BY COLNO
-          `, [table.schemaName, table.tableName]);
+        if (res.rows && res.rows.length > 0) {
+          console.log(`[DB2] Found ${res.rows.length} columns for table ${table.pureName}`);
           
-          console.log(`[DB2] Found ${res.rows.length} columns using SYSIBM.SYSCOLUMNS`);
-          
-          // Process the rows to normalize case sensitivity
-          return res.rows.map(row => {
-            const normalizedRow = {};
-            for (const key in row) {
-              normalizedRow[key] = row[key];
-              normalizedRow[key.toLowerCase()] = row[key];
-              
-              // Map specific fields
-              if (key.toUpperCase() === 'NAME') normalizedRow.columnName = row[key];
-              if (key.toUpperCase() === 'COLTYPE') normalizedRow.dataType = row[key];
+          // Process column data with improved error handling
+          const columns = res.rows.map((row, index) => {
+            try {
+              const colName = row.COLNAME || row.columnName || `column_${index}`;
+              return {
+                columnName: colName,
+                dataType: row.TYPENAME || row.dataType || 'VARCHAR',
+                notNull: (row.NULLS || row.isNullable) === 'N' || (row.NULLS || row.isNullable) === 'NO',
+                defaultValue: row.DEFAULT || row.defaultValue,
+                ordinalPosition: row.COLNO || row.ordinalPosition || index,
+                length: row.LENGTH || row.length,
+                scale: row.SCALE || row.scale,
+                description: row.REMARKS || row.description,
+                codePage: row.CODEPAGE || row.codePage,
+                columnCardinality: row.COLCARD || row.columnCardinality,
+                highValue: row.HIGH2KEY || row.highValue,
+                lowValue: row.LOW2KEY || row.lowValue,
+                uniqueName: `${table.schemaName}.${table.pureName}.${colName}_${index}`
+              };
+            } catch (colErr) {
+              console.error(`[DB2] Error processing column ${index} for table ${table.pureName}:`, colErr);
+              return {
+                columnName: `column_${index}`,
+                dataType: 'VARCHAR',
+                notNull: false,
+                ordinalPosition: index,
+                uniqueName: `${table.schemaName}.${table.pureName}.column_${index}_${Date.now()}`
+              };
             }
-            return normalizedRow;
           });
-        } catch (fallbackErr) {
-          console.error(`[DB2] SYSIBM.SYSCOLUMNS error: ${fallbackErr.message}`);
           
-          // Last resort - try using INFORMATION_SCHEMA
+          // Create a copy of the table with columns
+          const tableWithColumns = {
+            ...table,
+            columns
+          };
+          
+          result.push(tableWithColumns);
+        } else {
+          console.log(`[DB2] No columns found for table ${table.pureName}, trying fallback`);
+          
+          // Try SYSIBM.SYSCOLUMNS fallback
           try {
-            console.log('[DB2] Trying INFORMATION_SCHEMA.COLUMNS...');
-            const res = await this.driver.query(this.connection, `
+            const fallbackQuery = `
               SELECT 
-                COLUMN_NAME as columnName,
-                DATA_TYPE as dataType,
-                CHARACTER_MAXIMUM_LENGTH as length,
-                NUMERIC_SCALE as scale,
-                IS_NULLABLE as isNullable,
-                COLUMN_DEFAULT as defaultValue,
-                ORDINAL_POSITION as ordinalPosition
-              FROM INFORMATION_SCHEMA.COLUMNS 
-              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
-              ORDER BY ORDINAL_POSITION
-            `, [table.schemaName, table.tableName]);
+                NAME as columnName,
+                COLTYPE as dataType,
+                LENGTH as length,
+                SCALE as scale,
+                NULLS as isNullable,
+                DEFAULT as defaultValue,
+                COLNO as ordinalPosition
+              FROM SYSIBM.SYSCOLUMNS 
+              WHERE TBCREATOR = ? AND TBNAME = ?
+              ORDER BY COLNO
+            `;
             
-            console.log(`[DB2] Found ${res.rows.length} columns using INFORMATION_SCHEMA.COLUMNS`);
-            return res.rows;
-          } catch (lastResortErr) {
-            console.error(`[DB2] INFORMATION_SCHEMA.COLUMNS error: ${lastResortErr.message}`);
-            return [];
+            const fallbackRes = await this.query(dbhan, fallbackQuery, [table.schemaName, table.pureName]);
+            
+            if (fallbackRes.rows && fallbackRes.rows.length > 0) {
+              console.log(`[DB2] Found ${fallbackRes.rows.length} columns using fallback for table ${table.pureName}`);
+              
+              // Process column data from fallback with error handling
+              const columns = fallbackRes.rows.map((row, index) => {
+                try {
+                  const colName = row.NAME || row.columnName || `column_${index}`;
+                  return {
+                    columnName: colName,
+                    dataType: row.COLTYPE || row.dataType || 'VARCHAR',
+                    notNull: (row.NULLS || row.isNullable) === 'N' || (row.NULLS || row.isNullable) === 'NO',
+                    defaultValue: row.DEFAULT || row.defaultValue,
+                    ordinalPosition: row.COLNO || row.ordinalPosition || index,
+                    length: row.LENGTH || row.length,
+                    scale: row.SCALE || row.scale,
+                    uniqueName: `${table.schemaName}.${table.pureName}.${colName}_${index}`
+                  };
+                } catch (colErr) {
+                  console.error(`[DB2] Error processing fallback column ${index} for table ${table.pureName}:`, colErr);
+                  return {
+                    columnName: `column_${index}`,
+                    dataType: 'VARCHAR',
+                    notNull: false,
+                    ordinalPosition: index,
+                    uniqueName: `${table.schemaName}.${table.pureName}.column_${index}_${Date.now()}`
+                  };
+                }
+              });
+              
+              // Create a copy of the table with columns
+              const tableWithColumns = {
+                ...table,
+                columns
+              };
+              
+              result.push(tableWithColumns);
+            } else {
+              // If still no columns found, add the original table with empty columns array
+              console.warn(`[DB2] Could not find any columns for table ${table.pureName}`);
+              result.push({
+                ...table,
+                columns: []
+              });
+            }
+          } catch (fallbackErr) {
+            console.error(`[DB2] Fallback column query error for ${table.pureName}:`, fallbackErr.message);
+            result.push({
+              ...table,
+              columns: []
+            });
           }
         }
+      } catch (err) {
+        console.error(`[DB2] Error fetching columns for table ${table.pureName}:`, err.message);
+        result.push({
+          ...table,
+          columns: []
+        });
       }
-    } catch (err) {
-      console.error(`[DB2] Fatal error getting columns: ${err.message}`);
-      return [];
     }
+    
+    console.log(`[DB2] Finished fetching columns for ${tables.length} tables, ${result.length} processed`);
+    
+    // Check for any duplicate column uniqueNames that could cause UI issues
+    const allColumnUniqueNames = [];
+    const duplicateNames = [];
+    
+    result.forEach(table => {
+      if (table.columns) {
+        table.columns.forEach(column => {
+          if (allColumnUniqueNames.includes(column.uniqueName)) {
+            duplicateNames.push(column.uniqueName);
+            // Add a timestamp to ensure uniqueness
+            column.uniqueName = `${column.uniqueName}_${Date.now().toString().slice(-6)}`;
+          }
+          allColumnUniqueNames.push(column.uniqueName);
+        });
+      }
+    });
+    
+    if (duplicateNames.length > 0) {
+      console.error(`[DB2] WARNING: Found ${duplicateNames.length} duplicate column uniqueNames: ${duplicateNames.slice(0, 5).join(', ')}${duplicateNames.length > 5 ? '...' : ''}`);
+    }
+    
+    return result;
   },
 
-  async getPrimaryKeys(table) {
+  async getStructure(dbhan, schemaName) {
     try {
-      console.log(`[DB2] Getting primary keys for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          COLNAME as columnName,
-          CONSTNAME as constraintName
-        FROM SYSCAT.KEYCOLUSE
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        AND CONSTNAME IN (
-          SELECT CONSTNAME 
-          FROM SYSCAT.TABCONST 
-          WHERE TABSCHEMA = ? 
-          AND TABNAME = ? 
-          AND TYPE = 'P'
-        )
-        ORDER BY COLSEQ
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [
-        table.schemaName, 
-        table.tableName,
-        table.schemaName,
-        table.tableName
-      ]);
-      console.log(`[DB2] Found ${res.rows.length} primary key columns`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'PRIMARY KEY'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting primary keys: ${err.message}`);
-      return [];
-    }
-  },
-
-  async getForeignKeys(table) {
-    try {
-      console.log(`[DB2] Getting foreign keys for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          FK_COLNAMES as columnNames,
-          PK_COLNAMES as refColumnNames,
-          PK_TABSCHEMA as refSchemaName,
-          PK_TABNAME as refTableName,
-          CONSTNAME as constraintName,
-          DELETERULE as deleteRule,
-          UPDATERULE as updateRule
-        FROM SYSCAT.REFERENCES
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        ORDER BY CONSTNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} foreign keys`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'FOREIGN KEY',
-        onDelete: row.deleteRule,
-        onUpdate: row.updateRule
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting foreign keys: ${err.message}`);
-      return [];
-    }
-  },
-
-  async getIndexes(table) {
-    try {
-      console.log(`[DB2] Getting indexes for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          INDNAME as indexName,
-          UNIQUERULE as isUnique,
-          COLNAMES as columnNames,
-          INDEXTYPE as indexType,
-          REMARKS as description
-        FROM SYSCAT.INDEXES
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ?
-        ORDER BY INDNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} indexes`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        isUnique: row.isUnique === 'U',
-        isPrimary: row.isUnique === 'P',
-        isClustered: row.indexType === 'CLUSTER'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting indexes: ${err.message}`);
-      return [];
-    }
-  },
-
-  async getViews(schemaName) {
-    try {
-      console.log(`[DB2] Getting views for schema: ${schemaName || 'current schema'}`);
+      console.log('[DB2] ====== Starting getStructure API call ======');
+      console.log('[DB2] Getting structure for schema:', schemaName);
       
       // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
+      if (!schemaName) {
         try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      const query = `
-        SELECT 
-          TABSCHEMA as schemaName,
-          TABNAME as viewName,
-          REMARKS as description,
-          TEXT as definition,
-          CREATE_TIME as createTime,
-          ALTER_TIME as alterTime
-        FROM SYSCAT.VIEWS 
-        WHERE TABSCHEMA = ?
-        ORDER BY TABSCHEMA, TABNAME
-      `;
-      
-      console.log(`[DB2] Executing view query for schema: ${effectiveSchema}`);
-      const res = await this.driver.query(this.connection, query, [effectiveSchema]);
-      console.log(`[DB2] Found ${res.rows.length} views`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        objectType: 'view',
-        objectId: `${row.schemaName}.${row.viewName}`,
-        pureName: row.viewName,
-        schemaName: row.schemaName,
-        displayName: row.viewName,
-        contentHash: row.definition || row.alterTime?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.schemaName}.${row.viewName}`
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting views: ${err.message}`);
-      return [];
-    }
-  },
-
-  async getProcedures(schemaName) {
-    try {
-      console.log(`[DB2] Getting procedures for schema: ${schemaName || 'current schema'}`);
-      
-      // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
-        try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      const query = `
-        SELECT 
-          ROUTINESCHEMA as schemaName,
-          ROUTINENAME as procedureName,
-          REMARKS as description,
-          TEXT as definition,
-          PARAMETER_STYLE as parameterStyle,
-          LANGUAGE as language,
-          CREATE_TIME as createTime,
-          ALTER_TIME as alterTime
-        FROM SYSCAT.ROUTINES 
-        WHERE ROUTINETYPE = 'P'
-        AND ROUTINESCHEMA = ?
-        ORDER BY ROUTINESCHEMA, ROUTINENAME
-      `;
-      
-      console.log(`[DB2] Executing procedure query for schema: ${effectiveSchema}`);
-      const res = await this.driver.query(this.connection, query, [effectiveSchema]);
-      console.log(`[DB2] Found ${res.rows.length} procedures`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        objectType: 'procedure',
-        objectId: `${row.schemaName}.${row.procedureName}`,
-        pureName: row.procedureName,
-        schemaName: row.schemaName,
-        displayName: row.procedureName,
-        contentHash: row.definition || row.alterTime?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.schemaName}.${row.procedureName}`
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting procedures: ${err.message}`);
-      return [];
-    }
-  },
-
-  async getFunctions(schemaName) {
-    try {
-      console.log(`[DB2] Getting functions for schema: ${schemaName || 'current schema'}`);
-      
-      // If schemaName is not provided, get the current schema
-      let effectiveSchema = schemaName;
-      if (!effectiveSchema) {
-        try {
-          const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-          `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
-        } catch (schemaErr) {
-          console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
-          effectiveSchema = '';
-        }
-      }
-
-      // Get functions
-      let functions = [];
-      try {
-        // First try with RETURN_TYPE
-        try {
-          console.log(`[DB2] Trying to get functions with RETURN_TYPE column`);
-          const functionsRes = await this.driver.query(this.connection, `
-            SELECT 
-              ROUTINESCHEMA as schemaName,
-              ROUTINENAME as functionName,
-              REMARKS as description,
-              TEXT as definition,
-              PARAMETER_STYLE as parameterStyle,
-              LANGUAGE as language,
-              RETURN_TYPE as returnType,
-              CREATE_TIME as createTime,
-              ALTER_TIME as alterTime
-            FROM SYSCAT.ROUTINES 
-            WHERE ROUTINETYPE = 'F'
-            AND ROUTINESCHEMA = ?
-            ORDER BY ROUTINENAME
-          `, [effectiveSchema]);
-
-          functions = functionsRes.rows.map(row => ({
-            schemaName: row.SCHEMANAME || row.schemaName,
-            pureName: row.FUNCTIONNAME || row.functionName,
-            objectType: 'function',
-            objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-            description: row.REMARKS || row.description,
-            definition: row.TEXT || row.definition,
-            parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
-            language: row.LANGUAGE || row.language,
-            returnType: row.RETURN_TYPE || row.returnType || 'unknown',
-            createTime: row.CREATETIME || row.createTime,
-            alterTime: row.ALTERTIME || row.alterTime,
-            contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-            displayName: row.FUNCTIONNAME || row.functionName
-          }));
-          console.log(`[DB2] Successfully retrieved ${functions.length} functions using RETURN_TYPE`);
+          const currentRes = await this.query(dbhan, `SELECT CURRENT SCHEMA as "schemaName" FROM SYSIBM.SYSDUMMY1`);
+          if (currentRes && currentRes.rows && currentRes.rows.length > 0) {
+            schemaName = currentRes.rows[0].schemaName || 
+                       currentRes.rows[0].SCHEMANAME || 
+                       currentRes.rows[0]['CURRENT SCHEMA'];
+            console.log(`[DB2] No schema specified, using current schema: ${schemaName}`);
+          }
         } catch (err) {
-          console.error('[DB2] Error getting functions with RETURN_TYPE:', err);
-          
-          // Try second approach without the RETURN_TYPE column
-          try {
-            console.log(`[DB2] Trying to get functions without RETURN_TYPE column`);
-            const functionsRes2 = await this.driver.query(this.connection, `
-              SELECT 
-                ROUTINESCHEMA as schemaName,
-                ROUTINENAME as functionName,
-                REMARKS as description,
-                TEXT as definition,
-                PARAMETER_STYLE as parameterStyle,
-                LANGUAGE as language,
-                CREATE_TIME as createTime,
-                ALTER_TIME as alterTime
-              FROM SYSCAT.ROUTINES 
-              WHERE ROUTINETYPE = 'F'
-              AND ROUTINESCHEMA = ?
-              ORDER BY ROUTINENAME
-            `, [effectiveSchema]);
+          console.error('[DB2] Error getting current schema:', err);
+        }
+      }
 
-            functions = functionsRes2.rows.map(row => ({
-              schemaName: row.SCHEMANAME || row.schemaName,
-              pureName: row.FUNCTIONNAME || row.functionName,
+      // Initialize result structure with proper schema field configuration
+      const result = {
+        objectTypeField: 'objectType',
+        objectIdField: 'objectId',
+        schemaField: 'schemaName',
+        pureNameField: 'pureName',
+        contentHashField: 'contentHash',
+        schemas: [{
+          pureName: schemaName,
+          schemaName: schemaName,
+          name: schemaName,
+          fullName: schemaName,
+          objectSchema: schemaName,
+          objectId: `schemas:${schemaName}`,
+          id: `schema_${schemaName}`,
+          objectType: 'schema',
+          isDefault: true, // Mark as default explicitly
+          tableCount: 0,
+          viewCount: 0,
+          routineCount: 0
+        }],
+        tables: [],
+        views: [],
+        functions: [],
+        procedures: [],
+        triggers: []
+      };
+
+      // Check if schema exists
+      let schemaExists = false;
+      try {
+        const schemaCheck = await this.query(dbhan, `
+          SELECT 1 
+          FROM SYSCAT.SCHEMATA 
+          WHERE SCHEMANAME = ?
+        `, [schemaName]);
+        schemaExists = schemaCheck.rows && schemaCheck.rows.length > 0;
+      } catch (err) {
+        console.error('[DB2] Error checking schema existence:', err);
+      }
+
+      // If schema doesn't exist, try to find it in SYSCAT.TABLES
+      if (!schemaExists) {
+        console.log(`[DB2] Schema ${schemaName} not found in SYSCAT.SCHEMATA, trying SYSCAT.TABLES`);
+        try {
+          const schemaCheckFromTables = await this.query(dbhan, `
+            SELECT 1 
+            FROM SYSCAT.TABLES 
+            WHERE TABSCHEMA = ?
+          `, [schemaName]);
+          schemaExists = schemaCheckFromTables.rows && schemaCheckFromTables.rows.length > 0;
+        } catch (err) {
+          console.error('[DB2] Error checking schema existence in SYSCAT.TABLES:', err);
+        }
+      }
+
+      // If schema still doesn't exist, try to check if it's the current schema
+      if (!schemaExists) {
+        console.log(`[DB2] Schema ${schemaName} not found in catalog tables, checking if it's current schema`);
+        try {
+          const currentSchemaResult = await this.query(dbhan, `
+            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
+          `);
+          const currentSchema = currentSchemaResult.rows?.[0]?.SCHEMANAME || 
+                              currentSchemaResult.rows?.[0]?.schemaName || 
+                              currentSchemaResult.rows?.[0]?.['CURRENT SCHEMA'];
+          schemaExists = currentSchema === schemaName;
+          console.log(`[DB2] Current schema is ${currentSchema}, matches requested schema: ${schemaExists}`);
+        } catch (err) {
+          console.error('[DB2] Error getting current schema:', err);
+        }
+      }
+
+      // If schema doesn't exist in any form, return empty structure
+      if (!schemaExists) {
+        console.error(`[DB2] Schema ${schemaName} does not exist or is not accessible`);
+        return result;
+      }
+
+      console.log(`[DB2] Schema ${schemaName} exists, retrieving objects`);
+
+      // Get schema info and set as schema object (not just a string)
+      try {
+        const schemaInfo = await this.query(dbhan, `
+          SELECT 
+            SCHEMANAME as "schemaName",
+            OWNER as "owner",
+            REMARKS as "description",
+            CREATE_TIME as "createTime",
+            (SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = SCHEMANAME AND TYPE = 'T') as "tableCount",
+            (SELECT COUNT(*) FROM SYSCAT.VIEWS WHERE VIEWSCHEMA = SCHEMANAME) as "viewCount",
+            (SELECT COUNT(*) FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = SCHEMANAME) as "routineCount"
+          FROM SYSCAT.SCHEMATA
+          WHERE SCHEMANAME = ?
+        `, [schemaName]);
+        
+        if (schemaInfo.rows && schemaInfo.rows.length > 0) {
+          const schemaObj = {
+            pureName: schemaName,
+            schemaName: schemaName,
+            name: schemaName,
+            fullName: schemaName,
+            objectSchema: schemaName,
+            objectId: `schemas:${schemaName}`,
+            id: `schema_${schemaName}`,
+            objectType: 'schema',
+            owner: schemaInfo.rows[0].OWNER || schemaInfo.rows[0].owner || '',
+            description: schemaInfo.rows[0].REMARKS || schemaInfo.rows[0].description || null,
+            createTime: schemaInfo.rows[0].CREATE_TIME || schemaInfo.rows[0].createTime,
+            tableCount: parseInt(schemaInfo.rows[0].TABLECOUNT || schemaInfo.rows[0].tableCount || 0),
+            viewCount: parseInt(schemaInfo.rows[0].VIEWCOUNT || schemaInfo.rows[0].viewCount || 0),
+            routineCount: parseInt(schemaInfo.rows[0].ROUTINECOUNT || schemaInfo.rows[0].routineCount || 0),
+            modifyDate: schemaInfo.rows[0].CREATE_TIME || new Date()
+          };
+          result.schemas = [schemaObj];
+          console.log(`[DB2] Added schema object with metadata:`, schemaObj.name);
+        } else {
+          // Fallback to basic schema object if no info found
+          const schemaObj = {
+            pureName: schemaName,
+            schemaName: schemaName,
+            name: schemaName,
+            objectId: `schemas:${schemaName}`,
+            id: `schema_${schemaName}`,
+            objectType: 'schema',
+            owner: '',
+            description: null,
+            tableCount: 0,
+            viewCount: 0,
+            routineCount: 0,
+            modifyDate: new Date()
+          };
+          result.schemas = [schemaObj];
+          console.log(`[DB2] Added basic schema object:`, schemaObj.name);
+        }
+      } catch (schemaErr) {
+        console.error(`[DB2] Error getting schema info, using basic schema object:`, schemaErr);
+        // Fallback to basic schema object if error
+        const schemaObj = {
+          pureName: schemaName,
+          schemaName: schemaName,
+          name: schemaName,
+          objectId: `schemas:${schemaName}`,
+          id: `schema_${schemaName}`,
+          objectType: 'schema',
+          owner: '',
+          description: null,
+          tableCount: 0,
+          viewCount: 0,
+          routineCount: 0,
+          modifyDate: new Date()
+        };
+        result.schemas = [schemaObj];
+      }
+
+      // Get tables for this schema
+      try {
+        const tablesQuery = `
+          SELECT 
+            t.TABSCHEMA as "schemaName",
+            t.TABNAME as "tableName",
+            t.REMARKS as "description",
+            t.TYPE as "tableType",
+            t.CREATE_TIME as "createTime",
+            t.ALTER_TIME as "alterTime",
+            (SELECT COUNT(*) FROM SYSCAT.COLUMNS c WHERE c.TABSCHEMA = t.TABSCHEMA AND c.TABNAME = t.TABNAME) as "columnCount"
+          FROM SYSCAT.TABLES t
+          WHERE t.TABSCHEMA = ?
+          AND t.TYPE IN ('T', 'P')  /* Include both tables and partitioned tables */
+          ORDER BY t.TABNAME
+        `;
+        console.log(`[DB2] Executing tables query for schema ${schemaName}`);
+        const tablesResult = await this.query(dbhan, tablesQuery, [schemaName]);
+        
+        if (tablesResult.rows && tablesResult.rows.length > 0) {
+          console.log(`[DB2] Found ${tablesResult.rows.length} tables in schema ${schemaName}`);
+          
+          // Debug the first row returned to check field names
+          console.log('[DB2] Sample table data:', JSON.stringify(tablesResult.rows[0]));
+          
+          // Debug table data to better understand structure
+          console.log(`[DB2] Sample table data:`, JSON.stringify(tablesResult.rows[0] || {}));
+          
+          const tables = tablesResult.rows.map(row => {
+            // Use case-insensitive access to fields
+            const getValue = (fieldName) => {
+              if (row[fieldName] !== undefined) return row[fieldName];
+              if (row[fieldName.toUpperCase()] !== undefined) return row[fieldName.toUpperCase()];
+              if (row[fieldName.toLowerCase()] !== undefined) return row[fieldName.toLowerCase()];
+              return null;
+            };
+            
+            const schemaName = getValue("schemaName") || '';
+            const tableName = getValue("tableName") || '';
+            
+            return {
+              schemaName: schemaName.trim(),
+              pureName: tableName.trim(),
+              objectType: 'table',
+              objectId: `${schemaName.trim()}.${tableName.trim()}`,
+              tableType: getValue("tableType") || 'T',
+              description: getValue("description"),
+              createTime: getValue("createTime"),
+              alterTime: getValue("alterTime"),
+              modifyDate: getValue("alterTime") || getValue("createTime") || new Date(),
+              displayName: tableName.trim(), // Show only table name without schema
+              objectSchema: schemaName.trim(),  // Important for schema filtering
+              schema: schemaName.trim(), // Additional schema field for legacy UI components
+              columnCount: parseInt(getValue("columnCount") || 0), 
+              contentHash: `${schemaName.trim()}.${tableName.trim()}`,
+              fullName: `${schemaName.trim()}.${tableName.trim()}`,
+              columns: []
+            };
+          });
+          
+          // For each table, get its columns
+          // Add the tables list to the result structure
+          result.tables = tables;
+          
+          // For each table, get its columns
+          for (const table of tables) {
+            try {
+              const columnsQuery = `
+                SELECT 
+                  COLNAME as "columnName",
+                  TYPENAME as "dataType",
+                  LENGTH as "length",
+                  SCALE as "scale",
+                  NULLS as "isNullable",
+                  DEFAULT as "defaultValue",
+                  COLNO as "ordinalPosition",
+                  IDENTITY as "isIdentity",
+                  REMARKS as "description",
+                  COLNO as "colno"
+                FROM SYSCAT.COLUMNS
+                WHERE TABSCHEMA = ? AND TABNAME = ?
+                ORDER BY COLNO
+              `;
+              console.log(`[DB2] Getting columns for table ${table.schemaName}.${table.pureName}`);
+              const columnsResult = await this.query(dbhan, columnsQuery, [table.schemaName, table.pureName]);
+              
+              if (columnsResult.rows && columnsResult.rows.length > 0) {
+                console.log(`[DB2] Found ${columnsResult.rows.length} columns for table ${table.pureName}`);
+                // Log the first column to debug actual field names
+                if (columnsResult.rows.length > 0) {
+                  console.log(`[DB2] First column data sample:`, JSON.stringify(columnsResult.rows[0]));
+                }
+                
+                // Debug first column data to verify field names
+                if (columnsResult.rows && columnsResult.rows.length > 0) {
+                  console.log(`[DB2] Column data sample:`, JSON.stringify(columnsResult.rows[0]));
+                }
+                
+                table.columns = columnsResult.rows.map((row, index) => {
+                  // Create a safe access function to handle case sensitivity
+                  const getValue = (fieldName) => {
+                    if (row[fieldName] !== undefined) return row[fieldName];
+                    if (row[fieldName.toUpperCase()] !== undefined) return row[fieldName.toUpperCase()];
+                    if (row[fieldName.toLowerCase()] !== undefined) return row[fieldName.toLowerCase()];
+                    return null;
+                  };
+                  
+                  const colName = getValue("columnName") || '';
+                  
+                  return {
+                    columnName: colName,
+                    dataType: getValue("dataType") || 'VARCHAR',
+                    notNull: getValue("isNullable") === 'N',
+                    defaultValue: getValue("defaultValue"),
+                    length: getValue("length"),
+                    scale: getValue("scale"),
+                    description: getValue("description"),
+                    ordinalPosition: getValue("ordinalPosition") || index,
+                    pureName: colName,
+                    isPrimaryKey: false,
+                    isForeignKey: false,
+                    autoIncrement: getValue("isIdentity") === 'Y',
+                    // Add a unique identifier for each column to prevent conflicts
+                    id: `col_${table.pureName}_${colName}_${index}`,
+                    // Add display name for UI
+                    displayName: colName
+                  };
+                });
+              }
+            } catch (colErr) {
+              console.error(`[DB2] Error getting columns for table ${table.schemaName}.${table.pureName}:`, colErr);
+            }
+            
+            // Add primary key information
+            try {
+              const pkQuery = `
+                SELECT 
+                  k.COLNAME as "columnName",
+                  k.COLSEQ as "columnSequence",
+                  tc.CONSTNAME as "constraintName"
+                FROM SYSCAT.KEYCOLUSE k
+                JOIN SYSCAT.TABCONST tc ON 
+                  k.CONSTNAME = tc.CONSTNAME 
+                  AND k.TABSCHEMA = tc.TABSCHEMA
+                  AND k.TABNAME = tc.TABNAME
+                WHERE k.TABSCHEMA = ? 
+                AND k.TABNAME = ?
+                AND tc.TYPE = 'P'
+                ORDER BY k.COLSEQ
+              `;
+              
+              console.log(`[DB2] Getting primary keys for table ${table.schemaName}.${table.pureName}`);
+              const pkResult = await this.query(dbhan, pkQuery, [
+                table.schemaName, 
+                table.pureName
+              ]);
+              
+              if (pkResult.rows && pkResult.rows.length > 0) {
+                // Log first PK row for debugging
+                console.log(`[DB2] Primary key data sample:`, JSON.stringify(pkResult.rows[0]));
+                
+                const pkColumnNames = pkResult.rows.map(row => {
+                  // Case-insensitive column name lookup
+                  const colName = row.columnName || row.COLUMNNAME || row.colname || row["COLNAME"] || '';
+                  return colName;
+                }).filter(Boolean); // Remove any empty values
+                
+                console.log(`[DB2] Found primary key columns for ${table.pureName}:`, pkColumnNames);
+                
+                // Only if we have valid column names, mark PK columns
+                if (pkColumnNames.length > 0) {
+                  // Create primary key constraint object
+                  table.primaryKey = {
+                    constraintName: pkResult.rows[0].constraintName || pkResult.rows[0].CONSTRAINTNAME || `PK_${table.pureName}`,
+                    columns: pkColumnNames.map(columnName => ({ columnName })),
+                  };
+                  
+                  // Mark primary key columns
+                  table.columns.forEach(col => {
+                    if (pkColumnNames.includes(col.columnName)) {
+                      col.isPrimaryKey = true;
+                    }
+                  });
+                }
+              }
+            } catch (pkErr) {
+              console.error(`[DB2] Error getting primary keys for table ${table.schemaName}.${table.pureName}:`, pkErr);
+            }
+            
+            // Add foreign key information
+            try {
+              const fkQuery = `
+                SELECT 
+                  r.CONSTNAME as "constraintName",
+                  k.COLNAME as "columnName",
+                  r.REFTABSCHEMA as "refSchemaName",
+                  r.REFTABNAME as "refTableName",
+                  k.COLSEQ as "colSequence",
+                  r.DELETERULE as "deleteRule",
+                  r.UPDATERULE as "updateRule"
+                FROM SYSCAT.KEYCOLUSE k
+                JOIN SYSCAT.REFERENCES r ON 
+                  k.CONSTNAME = r.CONSTNAME 
+                  AND k.TABSCHEMA = r.TABSCHEMA
+                WHERE k.TABSCHEMA = ? AND k.TABNAME = ?
+                ORDER BY r.CONSTNAME, k.COLSEQ
+              `;
+              
+              console.log(`[DB2] Getting foreign keys for table ${table.schemaName}.${table.pureName}`);
+              const fkResult = await this.query(dbhan, fkQuery, [table.schemaName, table.pureName]);
+              
+              if (fkResult.rows && fkResult.rows.length > 0) {
+                // Log first FK row for debugging
+                console.log(`[DB2] Foreign key data sample:`, JSON.stringify(fkResult.rows[0]));
+                
+                // Group by constraint name
+                const fkConstraints = {};
+                
+                fkResult.rows.forEach(row => {
+                  const columnName = row.columnName || row.COLUMNNAME || '';
+                  const constraintName = row.constraintName || row.CONSTRAINTNAME || '';
+                  
+                  // Skip if either is missing
+                  if (!columnName || !constraintName) return;
+                  
+                  // Create constraint if not exists
+                  if (!fkConstraints[constraintName]) {
+                    fkConstraints[constraintName] = {
+                      constraintName,
+                      refTableName: row.refTableName || row.REFTABLENAME,
+                      refSchemaName: row.refSchemaName || row.REFSCHEMANAME,
+                      deleteAction: (row.deleteRule || row.DELETERULE || 'NO ACTION').toUpperCase(),
+                      updateAction: (row.updateRule || row.UPDATERULE || 'NO ACTION').toUpperCase(),
+                      columns: []
+                    };
+                  }
+                  
+                  // Add column to constraint
+                  fkConstraints[constraintName].columns.push({
+                    columnName
+                  });
+                  
+                  // Mark column as foreign key
+                  table.columns.forEach(col => {
+                    if (col.columnName === columnName) {
+                      col.isForeignKey = true;
+                    }
+                  });
+                });
+                
+                // Log and add FKs to table
+                const fkList = Object.values(fkConstraints);
+                console.log(`[DB2] Processed ${fkList.length} foreign key constraints for ${table.pureName}`);
+                table.foreignKeys = fkList;
+              }
+            } catch (fkErr) {
+              console.error(`[DB2] Error getting foreign keys for table ${table.schemaName}.${table.pureName}:`, fkErr);
+            }
+          }
+          
+          result.tables = tables;
+        } else {
+          console.log(`[DB2] No tables found in schema ${schemaName}`);
+        }
+      } catch (tablesErr) {
+        console.error('[DB2] Error getting tables:', tablesErr);
+      }
+
+      // Get views for this schema
+      try {
+        const viewsQuery = `
+          SELECT 
+            VIEWSCHEMA as schemaName,
+            VIEWNAME as viewName,
+            REMARKS as description,
+            TEXT as definition,
+            CREATE_TIME as createTime,
+            ALTER_TIME as alterTime
+          FROM SYSCAT.VIEWS
+          WHERE VIEWSCHEMA = ?
+          ORDER BY VIEWNAME
+        `;
+        console.log(`[DB2] Executing views query for schema ${schemaName}`);
+        const viewsResult = await this.query(dbhan, viewsQuery, [schemaName]);
+        
+        if (viewsResult.rows && viewsResult.rows.length > 0) {
+          console.log(`[DB2] Found ${viewsResult.rows.length} views in schema ${schemaName}`);
+          const views = viewsResult.rows.map(row => ({
+            schemaName: (row.VIEWSCHEMA || row.schemaName || '').trim(),
+            pureName: (row.VIEWNAME || row.viewName || '').trim(),
+            objectType: 'view',
+            objectId: `${(row.VIEWSCHEMA || row.schemaName || '').trim()}.${(row.VIEWNAME || row.viewName || '').trim()}`,
+            description: row.REMARKS || row.description,
+            createTime: row.CREATE_TIME || row.createTime,
+            alterTime: row.ALTER_TIME || row.alterTime,
+            definition: row.TEXT || row.definition,
+            contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
+            modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
+            displayName: (row.VIEWNAME || row.viewName || '').trim(),
+            objectSchema: (row.VIEWSCHEMA || row.schemaName || '').trim(), // Important for schema filtering
+            columns: []
+          }));
+          
+          // Add the views list to the result structure
+          result.views = views;
+          
+          // For each view, get its columns
+          for (const view of views) {
+            try {
+              const columnsQuery = `
+                SELECT 
+                  COLNAME as columnName,
+                  TYPENAME as dataType,
+                  LENGTH as length,
+                  SCALE as scale,
+                  NULLS as isNullable,
+                  DEFAULT as defaultValue,
+                  COLNO as ordinalPosition,
+                  REMARKS as description
+                FROM SYSCAT.COLUMNS
+                WHERE TABSCHEMA = ? AND TABNAME = ?
+                ORDER BY COLNO
+              `;
+              console.log(`[DB2] Getting columns for view ${view.schemaName}.${view.pureName}`);
+              const columnsResult = await this.query(dbhan, columnsQuery, [view.schemaName, view.pureName]);
+              
+              if (columnsResult.rows && columnsResult.rows.length > 0) {
+                console.log(`[DB2] Found ${columnsResult.rows.length} columns for view ${view.pureName}`);
+                view.columns = columnsResult.rows.map((row, index) => ({
+                  columnName: row.COLNAME || row.columnName,
+                  dataType: row.TYPENAME || row.dataType,
+                  notNull: (row.NULLS || row.isNullable) === 'N',
+                  defaultValue: row.DEFAULT || row.defaultValue,
+                  length: row.LENGTH || row.length,
+                  scale: row.SCALE || row.scale,
+                  description: row.REMARKS || row.description,
+                  ordinalPosition: row.COLNO || row.ordinalPosition || index,
+                  pureName: row.COLNAME || row.columnName
+                }));
+              } else {
+                console.log(`[DB2] No columns found for view ${view.pureName}`);
+              }
+            } catch (colErr) {
+              console.error(`[DB2] Error getting columns for view ${view.schemaName}.${view.pureName}:`, colErr);
+            }
+          }
+          
+          result.views = views;
+        } else {
+          console.log(`[DB2] No views found in schema ${schemaName}`);
+        }
+      } catch (viewsErr) {
+        console.error('[DB2] Error getting views:', viewsErr);
+      }
+
+      // Get functions for this schema
+      try {
+        const functionsQuery = `
+          SELECT 
+            ROUTINESCHEMA as schemaName,
+            ROUTINENAME as functionName,
+            REMARKS as description,
+            TEXT as definition,
+            PARAMETER_STYLE as parameterStyle,
+            LANGUAGE as language,
+            CREATE_TIME as createTime,
+            ALTER_TIME as alterTime,
+            RETURN_TYPESCHEMA as returnTypeSchema,
+            RETURN_TYPENAME as returnTypeName
+          FROM SYSCAT.ROUTINES
+          WHERE ROUTINETYPE = 'F'
+          AND ROUTINESCHEMA = ?
+          ORDER BY ROUTINENAME
+        `;
+        console.log(`[DB2] Executing functions query for schema ${schemaName}`);
+        const functionsResult = await this.query(dbhan, functionsQuery, [schemaName]);
+        
+        if (functionsResult.rows && functionsResult.rows.length > 0) {
+          console.log(`[DB2] Found ${functionsResult.rows.length} functions in schema ${schemaName}`);
+          const functions = functionsResult.rows.map(row => {
+            const routineName = (row.ROUTINENAME || row.functionName || '').trim();
+            return {
+              schemaName: (row.ROUTINESCHEMA || row.schemaName || '').trim(),
+              pureName: routineName,
               objectType: 'function',
-              objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
+              objectId: `${(row.ROUTINESCHEMA || row.schemaName || '').trim()}.${routineName}`,
               description: row.REMARKS || row.description,
               definition: row.TEXT || row.definition,
-              parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
+              parameterStyle: row.PARAMETER_STYLE || row.parameterStyle,
               language: row.LANGUAGE || row.language,
-              returnType: 'unknown', // Since we couldn't get the return type
-              createTime: row.CREATETIME || row.createTime,
-              alterTime: row.ALTERTIME || row.alterTime,
-              contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-              displayName: row.FUNCTIONNAME || row.functionName
-            }));
-            console.log(`[DB2] Successfully retrieved ${functions.length} functions without RETURN_TYPE column`);
-          } catch (err2) {
-            console.error('[DB2] Error getting functions without RETURN_TYPE column:', err2);
-            
-            // Try third approach with minimal columns
+              createTime: row.CREATE_TIME || row.createTime,
+              alterTime: row.ALTER_TIME || row.alterTime,
+              returnType: `${row.RETURN_TYPESCHEMA || ''}.${row.RETURN_TYPENAME || ''}`,
+              contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
+              modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
+              displayName: routineName
+            };
+          });
+          
+          // For each function, get its parameters
+          for (const func of functions) {
             try {
-              console.log(`[DB2] Trying to get functions with minimal columns`);
-              const functionsRes3 = await this.driver.query(this.connection, `
+              const paramsQuery = `
                 SELECT 
-                  ROUTINESCHEMA as schemaName,
-                  ROUTINENAME as functionName,
-                  LANGUAGE as language
-                FROM SYSCAT.ROUTINES 
-                WHERE ROUTINETYPE = 'F'
-                AND ROUTINESCHEMA = ?
-                ORDER BY ROUTINENAME
-              `, [effectiveSchema]);
-
-              functions = functionsRes3.rows.map(row => ({
-                schemaName: row.SCHEMANAME || row.schemaName,
-                pureName: row.FUNCTIONNAME || row.functionName,
-                objectType: 'function',
-                objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-                language: row.LANGUAGE || row.language,
-                returnType: 'unknown',
-                contentHash: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-                displayName: row.FUNCTIONNAME || row.functionName
-              }));
-              console.log(`[DB2] Successfully retrieved ${functions.length} functions with minimal columns`);
-            } catch (err3) {
-              console.error('[DB2] Error getting functions with minimal columns:', err3);
-              // We'll return an empty array if all approaches fail
+                  PARMNAME as paramName,
+                  TYPENAME as dataType,
+                  LENGTH as length,
+                  SCALE as scale,
+                  PARM_MODE as paramMode,
+                  ORDINAL as ordinalPosition
+                FROM SYSCAT.ROUTINEPARMS
+                WHERE ROUTINESCHEMA = ? AND ROUTINENAME = ?
+                ORDER BY ORDINAL
+              `;
+              console.log(`[DB2] Getting parameters for function ${func.schemaName}.${func.pureName}`);
+              const paramsResult = await this.query(dbhan, paramsQuery, [func.schemaName, func.pureName]);
+              
+              if (paramsResult.rows && paramsResult.rows.length > 0) {
+                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for function ${func.pureName}`);
+                func.parameters = paramsResult.rows.map((row, index) => ({
+                  name: row.PARMNAME || row.paramName || `param${index+1}`,
+                  dataType: row.TYPENAME || row.dataType,
+                  length: row.LENGTH || row.length,
+                  scale: row.SCALE || row.scale,
+                  mode: row.PARM_MODE || row.paramMode,
+                  ordinalPosition: row.ORDINAL || row.ordinalPosition || index
+                }));
+              }
+            } catch (paramsErr) {
+              console.error(`[DB2] Error getting parameters for function ${func.schemaName}.${func.pureName}:`, paramsErr);
             }
           }
+          
+          result.functions = functions;
+        } else {
+          console.log(`[DB2] No functions found in schema ${schemaName}`);
         }
-      } catch (err) {
-        console.error('[DB2] Error getting functions:', err);
+      } catch (functionsErr) {
+        console.error('[DB2] Error getting functions:', functionsErr);
       }
 
-      return functions;
+      // Get procedures for this schema
+      try {
+        const proceduresQuery = `
+          SELECT 
+            ROUTINESCHEMA as schemaName,
+            ROUTINENAME as procedureName,
+            REMARKS as description,
+            TEXT as definition,
+            PARAMETER_STYLE as parameterStyle,
+            LANGUAGE as language,
+            CREATE_TIME as createTime,
+            ALTER_TIME as alterTime,
+            ORIGIN as origin,
+            DIALECT as dialect
+          FROM SYSCAT.ROUTINES
+          WHERE ROUTINETYPE = 'P'
+          AND ROUTINESCHEMA = ?
+          ORDER BY ROUTINENAME
+        `;
+        console.log(`[DB2] Executing procedures query for schema ${schemaName}`);
+        const proceduresResult = await this.query(dbhan, proceduresQuery, [schemaName]);
+        
+        if (proceduresResult.rows && proceduresResult.rows.length > 0) {
+          console.log(`[DB2] Found ${proceduresResult.rows.length} procedures in schema ${schemaName}`);
+          const procedures = proceduresResult.rows.map(row => {
+            const routineName = (row.ROUTINENAME || row.procedureName || '').trim();
+            return {
+              schemaName: (row.ROUTINESCHEMA || row.schemaName || '').trim(),
+              pureName: routineName,
+              objectType: 'procedure',
+              objectId: `${(row.ROUTINESCHEMA || row.schemaName || '').trim()}.${routineName}`,
+              description: row.REMARKS || row.description,
+              definition: row.TEXT || row.definition,
+              parameterStyle: row.PARAMETER_STYLE || row.parameterStyle,
+              language: row.LANGUAGE || row.language,
+              createTime: row.CREATE_TIME || row.createTime,
+              alterTime: row.ALTER_TIME || row.alterTime,
+              origin: row.ORIGIN || row.origin,
+              dialect: row.DIALECT || row.dialect,
+              contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
+              modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
+              displayName: routineName
+            };
+          });
+          
+          // For each procedure, get its parameters
+          for (const proc of procedures) {
+            try {
+              const paramsQuery = `
+                SELECT 
+                  PARMNAME as paramName,
+                  TYPENAME as dataType,
+                  LENGTH as length,
+                  SCALE as scale,
+                  PARM_MODE as paramMode,
+                  ORDINAL as ordinalPosition
+                FROM SYSCAT.ROUTINEPARMS
+                WHERE ROUTINESCHEMA = ? AND ROUTINENAME = ?
+                ORDER BY ORDINAL
+              `;
+              console.log(`[DB2] Getting parameters for procedure ${proc.schemaName}.${proc.pureName}`);
+              const paramsResult = await this.query(dbhan, paramsQuery, [proc.schemaName, proc.pureName]);
+              
+              if (paramsResult.rows && paramsResult.rows.length > 0) {
+                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for procedure ${proc.pureName}`);
+                proc.parameters = paramsResult.rows.map((row, index) => ({
+                  name: row.PARMNAME || row.paramName || `param${index+1}`,
+                  dataType: row.TYPENAME || row.dataType,
+                  length: row.LENGTH || row.length,
+                  scale: row.SCALE || row.scale,
+                  mode: row.PARM_MODE || row.paramMode,
+                  ordinalPosition: row.ORDINAL || row.ordinalPosition || index
+                }));
+              }
+            } catch (paramsErr) {
+              console.error(`[DB2] Error getting parameters for procedure ${proc.schemaName}.${proc.pureName}:`, paramsErr);
+            }
+          }
+          
+          result.procedures = procedures;
+        } else {
+          console.log(`[DB2] No procedures found in schema ${schemaName}`);
+        }
+      } catch (proceduresErr) {
+        console.error('[DB2] Error getting procedures:', proceduresErr);
+      }
+
+      // Get triggers for this schema
+      try {
+        const triggersQuery = `
+          SELECT 
+            TABSCHEMA as schemaName,
+            TABNAME as tableName,
+            TRIGNAME as triggerName,
+            REMARKS as description,
+            TEXT as definition,
+            CREATE_TIME as createTime,
+            TRIGTIME as triggerTime,
+            TRIGEVENT as triggerEvent,
+            ENABLED as enabled,
+            TRIGACTION as triggerAction,
+            GRANULARITY as granularity
+          FROM SYSCAT.TRIGGERS
+          WHERE TABSCHEMA = ?
+          ORDER BY TRIGNAME
+        `;
+        console.log(`[DB2] Executing triggers query for schema ${schemaName}`);
+        const triggersResult = await this.query(dbhan, triggersQuery, [schemaName]);
+        
+        if (triggersResult.rows && triggersResult.rows.length > 0) {
+          console.log(`[DB2] Found ${triggersResult.rows.length} triggers in schema ${schemaName}`);
+          const triggers = triggersResult.rows.map(row => {
+            const triggerName = (row.TRIGNAME || row.triggerName || '').trim();
+            const triggerEvent = row.TRIGEVENT || row.triggerEvent;
+            const triggerTime = row.TRIGTIME || row.triggerTime;
+            
+            // Format trigger information for easier reading in UI
+            let formattedEvent = '';
+            if (triggerEvent) {
+              if (triggerEvent.includes('I')) formattedEvent += 'INSERT';
+              if (triggerEvent.includes('U')) formattedEvent += formattedEvent ? ', UPDATE' : 'UPDATE';
+              if (triggerEvent.includes('D')) formattedEvent += formattedEvent ? ', DELETE' : 'DELETE';
+            }
+            
+            let formattedTime = '';
+            if (triggerTime) {
+              if (triggerTime === 'A') formattedTime = 'AFTER';
+              else if (triggerTime === 'B') formattedTime = 'BEFORE';
+              else if (triggerTime === 'I') formattedTime = 'INSTEAD OF';
+              else formattedTime = triggerTime;
+            }
+            
+            return {
+              schemaName: (row.TABSCHEMA || row.schemaName || '').trim(),
+              pureName: triggerName,
+              tableName: (row.TABNAME || row.tableName || '').trim(),
+              objectType: 'trigger',
+              objectId: `${(row.TABSCHEMA || row.schemaName || '').trim()}.${triggerName}`,
+              description: row.REMARKS || row.description,
+              definition: row.TEXT || row.definition,
+              createTime: row.CREATE_TIME || row.createTime,
+              triggerTime: triggerTime,
+              triggerEvent: triggerEvent,
+              triggerAction: row.TRIGACTION || row.triggerAction,
+              granularity: row.GRANULARITY || row.granularity,
+              formattedEvent: formattedEvent || triggerEvent,
+              formattedTime: formattedTime,
+              enabled: row.ENABLED === 'Y',
+              contentHash: row.TEXT || row.CREATE_TIME?.toISOString(),
+              modifyDate: row.CREATE_TIME || new Date(),
+              displayName: triggerName
+            };
+          });
+          result.triggers = triggers;
+        } else {
+          console.log(`[DB2] No triggers found in schema ${schemaName}`);
+        }
+      } catch (triggersErr) {
+        console.error('[DB2] Error getting triggers:', triggersErr);
+      }
+
+      // Log summary of structure gathered
+      console.log('[DB2] Structure analysis results:', {
+        schemaCount: result.schemas.length,
+        tableCount: result.tables.length,
+        viewCount: result.views.length,
+        functionCount: result.functions.length,
+        procedureCount: result.procedures.length,
+        triggerCount: result.triggers.length
+      });
+      
+      // Log detailed information about structure object counts
+      const tableColumnCount = result.tables.reduce((sum, table) => sum + (table.columns?.length || 0), 0);
+      const viewColumnCount = result.views.reduce((sum, view) => sum + (view.columns?.length || 0), 0);
+      const functionParamCount = result.functions.reduce((sum, fn) => sum + (fn.parameters?.length || 0), 0);
+      const procedureParamCount = result.procedures.reduce((sum, proc) => sum + (proc.parameters?.length || 0), 0);
+      
+      console.log('[DB2] Object detail counts:', {
+        tableColumns: tableColumnCount,
+        viewColumns: viewColumnCount,
+        functionParameters: functionParamCount,
+        procedureParameters: procedureParamCount
+      });
+
+      console.log('[DB2] ====== Completed getStructure API call ======');
+      return result;
     } catch (err) {
-      console.error(`[DB2] Error getting functions: ${err.message}`);
-      return [];
+      console.error('[DB2] Error in getStructure:', err);
+      // Create default schema even in error case to ensure schema objects appear
+      const defaultSchema = {
+        pureName: schemaName,
+        schemaName: schemaName,
+        name: schemaName,
+        objectId: `schemas:${schemaName}`,
+        id: `schema_${schemaName}`,
+        objectType: 'schema'
+      };
+      
+      return {
+        objectTypeField: 'objectType',
+        objectIdField: 'objectId',
+        schemaField: 'schemaName',
+        pureNameField: 'pureName',
+        contentHashField: 'contentHash',
+        schemas: [defaultSchema],
+        tables: [],
+        views: [],
+        functions: [],
+        procedures: [],
+        triggers: []
+      };
     }
   },
-
-  async getUniqueConstraints(table) {
-    try {
-      console.log(`[DB2] Getting unique constraints for ${table.schemaName}.${table.tableName}`);
-      
-      const query = `
-        SELECT 
-          CONSTNAME as constraintName,
-          COLNAMES as columnNames
-        FROM SYSCAT.TABCONST 
-        WHERE TABSCHEMA = ? 
-        AND TABNAME = ? 
-        AND TYPE = 'U'
-        ORDER BY CONSTNAME
-      `;
-      
-      const res = await this.driver.query(this.connection, query, [table.schemaName, table.tableName]);
-      console.log(`[DB2] Found ${res.rows.length} unique constraints`);
-      
-      return res.rows.map(row => ({
-        ...row,
-        schemaName: table.schemaName,
-        tableName: table.tableName,
-        constraintType: 'UNIQUE'
-      }));
-    } catch (err) {
-      console.error(`[DB2] Error getting unique constraints: ${err.message}`);
-      return [];
-    }
-  }
 };
 
 module.exports = driver;
