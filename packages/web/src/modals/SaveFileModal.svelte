@@ -1,15 +1,19 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
-  import FormProvider from '../forms/FormProvider.svelte';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { cloudSigninTokenHolder } from '../stores';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
+  import { writable } from 'svelte/store';
 
   import getElectron from '../utility/getElectron';
+  import ChooseCloudFolderModal from './ChooseCloudFolderModal.svelte';
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal } from './modalTools';
+  import { closeCurrentModal, showModal } from './modalTools';
+  import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
 
   export let data;
   export let name;
@@ -18,6 +22,8 @@
   export let fileExtension;
   export let filePath;
   export let onSave = undefined;
+
+  const values = writable({ name });
 
   const electron = getElectron();
 
@@ -50,12 +56,43 @@
       });
     }
   };
+
+  const handleSaveToCloud = async folid => {
+    const resp = await apiCall('cloud/save-file', {
+      folid,
+      fileName: $values.name,
+      data,
+      contentFolder: folder,
+      format,
+    });
+    if (resp.cntid) {
+      closeCurrentModal();
+      if (onSave) {
+        onSave(name, {
+          savedFile: name,
+          savedFolder: folder,
+          savedFilePath: null,
+          savedCloudFolderId: folid,
+          savedCloudContentId: resp.cntid,
+        });
+      }
+    }
+  };
 </script>
 
-<FormProvider initialValues={{ name }}>
+<FormProviderCore {values}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
+    {#if $cloudSigninTokenHolder}
+      <FormCloudFolderSelect
+        label="Choose local or cloud folder"
+        name="cloudFolder"
+        isNative
+        requiredRoleVariants={['write', 'admin']}
+      />
+    {/if}
+
     <svelte:fragment slot="footer">
       <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />
       {#if electron}
@@ -79,4 +116,4 @@
       {/if}
     </svelte:fragment>
   </ModalBase>
-</FormProvider>
+</FormProviderCore>

@@ -11,9 +11,12 @@
 </script>
 
 <script lang="ts">
-  import { filterName } from 'dbgate-tools';
+  import { filterName, getConnectionLabel } from 'dbgate-tools';
   import ConnectionAppObject, { openConnection } from './ConnectionAppObject.svelte';
   import { _t } from '../translations';
+  import openNewTab from '../utility/openNewTab';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let data;
   export let passProps;
@@ -29,12 +32,41 @@
         });
         res.push({ divider: true });
         res.push({
+          text: _t('connection.edit', { defaultMessage: 'Edit' }),
+          onClick: handleEditConnection,
+        });
+        res.push({
+          text: _t('connection.delete', { defaultMessage: 'Delete' }),
+          onClick: handleDeleteConnection,
+        });
+        res.push({
           text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
           onClick: handleDuplicateConnection,
         });
+        break;
     }
 
     return res;
+  }
+
+  function handleEditConnection() {
+    openNewTab({
+      title: data.name,
+      icon: 'img cloud-connection',
+      tabComponent: 'ConnectionTab',
+      props: {
+        conid: data.conid,
+      },
+    });
+  }
+
+  async function handleDeleteConnection() {
+    showModal(ConfirmModal, {
+      message: `Really delete connection ${data.name}?`,
+      onConfirm: () => {
+        apiCall('cloud/delete-connection', { conid: data.conid });
+      },
+    });
   }
 
   async function handleDuplicateConnection() {

@@ -190,4 +190,21 @@ module.exports = {
     const respPut = await putCloudContent(folid, undefined, JSON.stringify(conn2), conn2.displayName, 'connection');
     return respPut;
   },
+
+  deleteConnection_meta: true,
+  async deleteConnection({ conid }) {
+    const m = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
+    if (!m) {
+      throw new Error('Invalid cloud connection ID format');
+    }
+    const folid = m[1];
+    const cntid = m[2];
+    const resp = await callCloudApiPost(`content/delete/${folid}/${cntid}`);
+    socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
+    return resp;
+  },
+
+  // saveFile_meta: true,
+  // async saveFile({folid, file, data, folder, format})
 };
