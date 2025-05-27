@@ -25,6 +25,7 @@ class Analyser extends DatabaseAnalyser {
     const functionParametersResults = await this.analyserQuery(sql.functionParameters, ['functions']);
     const proceduresResults = await this.analyserQuery(sql.procedures, ['procedures']);
     const procedureParametersResults = await this.analyserQuery(sql.procedureParameters, ['procedures']);
+    const viewsResults = await this.analyserQuery(sql.views, ['views']);
 
     const columns = columnsResult.rows?.map(column => ({
       ...column,
@@ -87,7 +88,15 @@ class Analyser extends DatabaseAnalyser {
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, foreignKeys),
       })) ?? [];
 
+    const views =
+      viewsResults.rows?.map(view => ({
+        ...view,
+        objectId: `views:${view.pureName}`,
+        columns: columns.filter(column => column.tableName === view.pureName),
+      })) ?? [];
+
     return {
+      views,
       tables,
       triggers,
       functions,

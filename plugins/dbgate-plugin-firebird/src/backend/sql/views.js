@@ -7,7 +7,7 @@ FROM
 WHERE
     RDB$SYSTEM_FLAG = 0 -- only user-defined tables
 AND
-    RDB$RELATION_TYPE = 0 -- only tables (not views, etc.)
+    RDB$RELATION_TYPE = 1 -- only views (not tables, etc.)
 AND
     ('tables:' || TRIM(RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
 ORDER BY

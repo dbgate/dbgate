@@ -8,10 +8,12 @@ const functions = require('./functions');
 const functionParameters = require('./functionParameters');
 const procedures = require('./procedures');
 const procedureParameters = require('./procedureParameters');
+const views = require('./views');
 
 module.exports = {
   version,
   columns,
+  views,
   tables,
   triggers,
   primaryKeys,
