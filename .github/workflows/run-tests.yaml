@@ -104,7 +104,6 @@ jobs:
           - '8080:8080'
       firebird:
         image: 'firebirdsql/firebird:latest'
-        container_name: firebird-db
         env:
           FIREBIRD_DATABASE: mydatabase.fdb
           FIREBIRD_USER: dbuser
