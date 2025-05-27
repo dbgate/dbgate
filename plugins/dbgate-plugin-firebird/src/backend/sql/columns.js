@@ -37,6 +37,8 @@ LEFT JOIN
     rdb$collations co ON f.rdb$collation_id = co.rdb$collation_id
 WHERE
     r.rdb$system_flag = 0
+AND
+    ('columns:' || CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255))) =OBJECT_ID_CONDITION
 ORDER BY
     "tableName", rf.rdb$field_position;
 `;

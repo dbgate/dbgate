@@ -27,6 +27,8 @@ JOIN
                                AND iseg_fk.RDB$FIELD_POSITION = iseg_pk.RDB$FIELD_POSITION -- Critical for matching columns in composite keys
 WHERE
     rc_fk.RDB$CONSTRAINT_TYPE = 'FOREIGN KEY'
+AND
+    ('tables:' || TRIM(rc_fk.RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
 ORDER BY
     "pureName",
     "constraintName",

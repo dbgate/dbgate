@@ -20,6 +20,7 @@ JOIN
 WHERE
     rc.RDB$CONSTRAINT_TYPE = 'PRIMARY KEY'
     AND COALESCE(rel.RDB$SYSTEM_FLAG, 0) = 0 -- Typically, you only want user-defined tables
+    AND ('tables:' || TRIM(rc.RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
 ORDER BY
     "pureName",
     "constraintName",

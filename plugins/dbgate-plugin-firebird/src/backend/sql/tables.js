@@ -1,9 +1,12 @@
-module.exports = `
-SELECT
+module.exports = `SELECT
     TRIM(RDB$RELATION_NAME) AS "pureName",
     RDB$DESCRIPTION AS "objectComment",
     RDB$FORMAT AS "objectTypeField"
-FROM RDB$RELATIONS
-WHERE RDB$SYSTEM_FLAG = 0 -- only user-defined tables
-ORDER BY "pureName";
-`;
+FROM
+    RDB$RELATIONS
+WHERE
+    RDB$SYSTEM_FLAG = 0 -- only user-defined tables
+AND
+    ('tables:' || TRIM(RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
+ORDER BY
+    "pureName";`;
