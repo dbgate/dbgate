@@ -17,6 +17,7 @@
   import openNewTab from '../utility/openNewTab';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import SavedFileAppObject from './SavedFileAppObject.svelte';
 
   export let data;
   export let passProps;
@@ -98,6 +99,19 @@
     data={{
       ...$cloudConnectionsStore[data.conid],
       status: data.status,
+    }}
+    on:dblclick
+    on:expand
+  />
+{:else if data.type == 'file'}
+  <SavedFileAppObject
+    {...$$restProps}
+    {passProps}
+    data={{
+      file: data.name,
+      folder: data.contentFolder,
+      folid: data.folid,
+      cntid: data.cntid,
     }}
     on:dblclick
     on:expand

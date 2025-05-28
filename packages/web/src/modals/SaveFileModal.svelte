@@ -23,20 +23,42 @@
   export let filePath;
   export let onSave = undefined;
 
-  const values = writable({ name });
+  const values = writable({ name, cloudFolder: '__local' });
 
   const electron = getElectron();
 
   const handleSubmit = async e => {
-    const { name } = e.detail;
-    await apiCall('files/save', { folder, file: name, data, format });
-    closeCurrentModal();
-    if (onSave) {
-      onSave(name, {
-        savedFile: name,
-        savedFolder: folder,
-        savedFilePath: null,
+    const { name, cloudFolder } = e.detail;
+    if (cloudFolder === '__local') {
+      await apiCall('files/save', { folder, file: name, data, format });
+      closeCurrentModal();
+      if (onSave) {
+        onSave(name, {
+          savedFile: name,
+          savedFolder: folder,
+          savedFilePath: null,
+        });
+      }
+    } else {
+      const resp = await apiCall('cloud/save-file', {
+        folid: cloudFolder,
+        fileName: name,
+        data,
+        contentFolder: folder,
+        format,
       });
+      if (resp.cntid) {
+        closeCurrentModal();
+        if (onSave) {
+          onSave(name, {
+            savedFile: name,
+            savedFolder: folder,
+            savedFilePath: null,
+            savedCloudFolderId: cloudFolder,
+            savedCloudContentId: resp.cntid,
+          });
+        }
+      }
     }
   };
 
@@ -56,28 +78,6 @@
       });
     }
   };
-
-  const handleSaveToCloud = async folid => {
-    const resp = await apiCall('cloud/save-file', {
-      folid,
-      fileName: $values.name,
-      data,
-      contentFolder: folder,
-      format,
-    });
-    if (resp.cntid) {
-      closeCurrentModal();
-      if (onSave) {
-        onSave(name, {
-          savedFile: name,
-          savedFolder: folder,
-          savedFilePath: null,
-          savedCloudFolderId: folid,
-          savedCloudContentId: resp.cntid,
-        });
-      }
-    }
-  };
 </script>
 
 <FormProviderCore {values}>
@@ -86,10 +86,16 @@
     <FormTextField label="File name" name="name" focused />
     {#if $cloudSigninTokenHolder}
       <FormCloudFolderSelect
-        label="Choose local or cloud folder"
+        label="Choose cloud folder"
         name="cloudFolder"
         isNative
         requiredRoleVariants={['write', 'admin']}
+        prependFolders={[
+          {
+            folid: '__local',
+            name: "Local folder (don't store on cloud)",
+          },
+        ]}
       />
     {/if}
 

@@ -247,10 +247,19 @@
   };
 
   async function openTab() {
-    const resp = await apiCall('files/load', { folder, file: data.file, format: handler.format });
+    let dataContent;
+    if (data.folid && data.cntid) {
+      const resp = await apiCall('cloud/get-content', {
+        folid: data.folid,
+        cntid: data.cntid,
+      });
+      dataContent = resp.content;
+    } else {
+      dataContent = await apiCall('files/load', { folder, file: data.file, format: handler.format });
+    }
 
-    const connProps: any = {};
     let tooltip = undefined;
+    const connProps: any = {};
 
     if (handler.currentConnection) {
       const connection = _.get($currentDatabase, 'connection') || {};
@@ -270,10 +279,12 @@
           savedFile: data.file,
           savedFolder: handler.folder,
           savedFormat: handler.format,
+          savedCloudFolderId: data.folid,
+          savedCloudContentId: data.cntid,
           ...connProps,
         },
       },
-      { editor: resp }
+      { editor: dataContent }
     );
   }
 </script>

@@ -34,8 +34,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showSnackbarInfo } from '../utility/snackbar';
 
-  let publicFilter = '';
-  let cloudFilter = '';
+  let filter = '';
   let domSqlObjectList = null;
 
   const cloudContentList = useCloudContentList();
@@ -205,8 +204,8 @@
     skip={!$cloudSigninTokenHolder}
   >
     <SearchBoxWrapper>
-      <SearchInput placeholder="Search cloud connections and files" bind:value={cloudFilter} />
-      <CloseSearchButton bind:filter={cloudFilter} />
+      <SearchInput placeholder="Search cloud connections and files" bind:value={filter} />
+      <CloseSearchButton bind:filter />
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
       <InlineButton
         on:click={handleRefreshContent}
@@ -223,7 +222,7 @@
         emptyGroupNames={emptyCloudContent}
         groupFunc={data => data.folid}
         mapGroupTitle={folid => `${contentGroupMap[folid]?.name} - ${contentGroupMap[folid]?.role}`}
-        filter={publicFilter}
+        {filter}
         subItemsComponent={() => SubCloudItemsList}
         expandIconFunc={plusExpandIcon}
         isExpandable={data =>

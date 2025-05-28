@@ -18,7 +18,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
   import _ from 'lodash';
-  let publicFilter = '';
+  let filter = '';
 
   const publicFiles = usePublicCloudFiles();
 
@@ -31,8 +31,8 @@
   <WidgetColumnBarItem title="Public Knowledge Base" name="publicCloud" storageName="publicCloudItems">
     <WidgetsInnerContainer>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search public files" bind:value={publicFilter} />
-        <CloseSearchButton bind:filter={publicFilter} />
+        <SearchInput placeholder="Search public files" bind:value={filter} />
+        <CloseSearchButton bind:filter />
         <InlineButton
           on:click={handleRefreshPublic}
           title="Refresh files"
@@ -46,7 +46,7 @@
         list={$publicFiles || []}
         module={publicCloudFileAppObject}
         groupFunc={data => data.folder || undefined}
-        filter={publicFilter}
+        {filter}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>

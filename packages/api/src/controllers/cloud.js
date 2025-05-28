@@ -205,6 +205,11 @@ module.exports = {
     return resp;
   },
 
-  // saveFile_meta: true,
-  // async saveFile({folid, file, data, folder, format})
+  saveFile_meta: true,
+  async saveFile({ folid, cntid, fileName, data, contentFolder, format }) {
+    const resp = await putCloudContent(folid, cntid, data, fileName, 'file', contentFolder, format);
+    socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
+    return resp;
+  },
 };

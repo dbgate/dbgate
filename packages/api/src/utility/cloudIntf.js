@@ -284,9 +284,13 @@ async function getCloudContent(folid, cntid) {
 
   const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
 
-  const { content, name, type, apiErrorMessage } = await callCloudApiGet(`content/${folid}/${cntid}`, signinHolder, {
-    'x-kehid': signinHolder.kehid,
-  });
+  const { content, name, type, contentFolder, contentType, apiErrorMessage } = await callCloudApiGet(
+    `content/${folid}/${cntid}`,
+    signinHolder,
+    {
+      'x-kehid': signinHolder.kehid,
+    }
+  );
 
   if (apiErrorMessage) {
     return { apiErrorMessage };
@@ -296,10 +300,16 @@ async function getCloudContent(folid, cntid) {
     content: encryptor.decrypt(content),
     name,
     type,
+    contentFolder,
+    contentType,
   };
 }
 
-async function putCloudContent(folid, cntid, content, name, type) {
+/**
+ *
+ * @returns Promise<{ cntid: string } | { apiErrorMessage: string }>
+ */
+async function putCloudContent(folid, cntid, content, name, type, contentFolder = null, contentType = null) {
   const signinHolder = await getCloudSigninHolder();
   if (!signinHolder) {
     throw new Error('No signed in');
@@ -316,6 +326,8 @@ async function putCloudContent(folid, cntid, content, name, type) {
       type,
       kehid: signinHolder.kehid,
       content: encryptor.encrypt(content),
+      contentFolder,
+      contentType,
     },
     signinHolder
   );
