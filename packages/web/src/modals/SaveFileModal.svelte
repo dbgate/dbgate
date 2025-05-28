@@ -10,7 +10,6 @@
   import { writable } from 'svelte/store';
 
   import getElectron from '../utility/getElectron';
-  import ChooseCloudFolderModal from './ChooseCloudFolderModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
@@ -22,8 +21,10 @@
   export let fileExtension;
   export let filePath;
   export let onSave = undefined;
+  export let folid;
+  // export let cntid;
 
-  const values = writable({ name, cloudFolder: '__local' });
+  const values = writable({ name, cloudFolder: folid ?? '__local' });
 
   const electron = getElectron();
 
@@ -37,6 +38,8 @@
           savedFile: name,
           savedFolder: folder,
           savedFilePath: null,
+          savedCloudFolderId: null,
+          savedCloudContentId: null,
         });
       }
     } else {
@@ -46,6 +49,7 @@
         data,
         contentFolder: folder,
         format,
+        // cntid,
       });
       if (resp.cntid) {
         closeCurrentModal();
@@ -55,7 +59,7 @@
             savedFolder: folder,
             savedFilePath: null,
             savedCloudFolderId: cloudFolder,
-            savedCloudContentId: resp.cntid,
+            // savedCloudContentId: resp.cntid,
           });
         }
       }
@@ -75,6 +79,8 @@
         savedFile: null,
         savedFolder: null,
         savedFilePath: filePath,
+        savedCloudFolderId: null,
+        savedCloudContentId: null,
       });
     }
   };

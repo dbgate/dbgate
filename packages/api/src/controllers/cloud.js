@@ -15,6 +15,7 @@ const { recryptConnection, getInternalEncryptor, encryptConnection } = require('
 const { getConnectionLabel, getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('cloud');
 const _ = require('lodash');
+const fs = require('fs-extra');
 
 module.exports = {
   publicFiles_meta: true,
@@ -205,11 +206,45 @@ module.exports = {
     return resp;
   },
 
+  deleteContent_meta: true,
+  async deleteContent({ folid, cntid }) {
+    const resp = await callCloudApiPost(`content/delete/${folid}/${cntid}`);
+    socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
+    return resp;
+  },
+
+  renameContent_meta: true,
+  async renameContent({ folid, cntid, name }) {
+    const resp = await callCloudApiPost(`content/rename/${folid}/${cntid}`, { name });
+    socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
+    return resp;
+  },
+
   saveFile_meta: true,
   async saveFile({ folid, cntid, fileName, data, contentFolder, format }) {
     const resp = await putCloudContent(folid, cntid, data, fileName, 'file', contentFolder, format);
     socket.emitChanged('cloud-content-changed');
     socket.emit('cloud-content-updated');
     return resp;
+  },
+
+  copyFile_meta: true,
+  async copyFile({ folid, cntid, name }) {
+    const resp = await callCloudApiPost(`content/duplicate/${folid}/${cntid}`, { name });
+    socket.emitChanged('cloud-content-changed');
+    socket.emit('cloud-content-updated');
+    return resp;
+  },
+
+  exportFile_meta: true,
+  async exportFile({ folid, cntid, filePath }, req) {
+    const { content } = await getCloudContent(folid, cntid);
+    if (!content) {
+      throw new Error('File not found');
+    }
+    await fs.writeFile(filePath, content);
+    return true;
   },
 };

@@ -41,22 +41,25 @@
   const serverStatus = useServerStatus();
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
-  $: cloudContentFlat = ($cloudContentList || [])
-    .flatMap(fld => fld.items ?? [])
-    .map(data => {
-      if (data.type == 'connection') {
-        const conid = `cloud://${data.folid}/${data.cntid}`;
-        const status = $serverStatus ? $serverStatus[$volatileConnectionMapStore[conid] || conid] : undefined;
+  $: cloudContentFlat = _.sortBy(
+    ($cloudContentList || [])
+      .flatMap(fld => fld.items ?? [])
+      .map(data => {
+        if (data.type == 'connection') {
+          const conid = `cloud://${data.folid}/${data.cntid}`;
+          const status = $serverStatus ? $serverStatus[$volatileConnectionMapStore[conid] || conid] : undefined;
 
-        return {
-          ...data,
-          conid,
-          status,
-        };
-      }
+          return {
+            ...data,
+            conid,
+            status,
+          };
+        }
 
-      return data;
-    });
+        return data;
+      }),
+    'name'
+  );
   $: contentGroupMap = _.keyBy($cloudContentList || [], x => x.folid);
 
   // $: console.log('cloudContentFlat', cloudContentFlat);

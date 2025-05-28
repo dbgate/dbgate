@@ -262,11 +262,15 @@
       });
     };
     const handleDuplicate = () => {
-      apiCall('connections/save', {
-        ...data,
-        _id: undefined,
-        displayName: `${getConnectionLabel(data)} - copy`,
-      });
+      if (data._id.startsWith('cloud://')) {
+        apiCall('cloud/duplicate-connection', { conid: data._id });
+      } else {
+        apiCall('connections/save', {
+          ...data,
+          _id: undefined,
+          displayName: `${getConnectionLabel(data)} - copy`,
+        });
+      }
     };
     const handleCreateDatabase = () => {
       showModal(InputTextModal, {

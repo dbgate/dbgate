@@ -47,5 +47,11 @@ export function installCloudListeners() {
     ensureCloudConnectionsLoaded(...conids);
   });
 
-  apiOn('cloud-content-updated', () => cloudConnectionsStore.set({}));
+  apiOn('cloud-content-updated', () => {
+    const conids = Object.keys(getCloudConnectionsStore());
+    cloudConnectionsStore.set({});
+    for (const conn of conids) {
+      loadCloudConnection(conn);
+    }
+  });
 }
