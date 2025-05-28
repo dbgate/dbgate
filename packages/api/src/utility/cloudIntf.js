@@ -11,6 +11,8 @@ const { isProApp } = require('./checkLicense');
 const socket = require('./socket');
 const config = require('../controllers/config');
 const simpleEncryptor = require('simple-encryptor');
+const currentVersion = require('../currentVersion');
+const { getPublicIpInfo } = require('./hardwareFingerprint');
 
 const logger = getLogger('cloudIntf');
 
@@ -151,6 +153,8 @@ async function updateCloudFiles(isRefresh) {
     lastCloudFilesTags = '';
   }
 
+  const ipInfo = await getPublicIpInfo();
+
   const tags = (await collectCloudFilesSearchTags()).join(',');
   let lastCheckedTm = 0;
   if (tags == lastCloudFilesTags && cloudFiles.length > 0) {
@@ -162,11 +166,12 @@ async function updateCloudFiles(isRefresh) {
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
       isRefresh ? 1 : 0
-    }`,
+    }&country=${ipInfo?.country || ''}`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
         ...(await getCloudSigninHeaders()),
+        'x-app-version': currentVersion.version,
       },
     }
   );

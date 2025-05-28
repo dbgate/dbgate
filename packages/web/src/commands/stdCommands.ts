@@ -132,7 +132,7 @@ registerCommand({
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection on Cloud',
-  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && isProApp(),
   onClick: () => {
     openNewTab({
       title: 'New Connection on Cloud',
