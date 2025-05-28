@@ -21,13 +21,13 @@ let cloudFiles = null;
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
   : process.env.DEVWEB || process.env.DEVMODE
-  ? 'https://identity.dbgate.udolni.net'
+  ? 'https://identity.dbgate.io' // 'https://identity.dbgate.udolni.net'
   : 'https://identity.dbgate.io';
 
 const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   ? 'http://localhost:3110'
   : process.env.DEVWEB || process.env.DEVMODE
-  ? 'https://cloud.dbgate.udolni.net'
+  ? 'https://cloud.dbgate.io' // 'https://cloud.dbgate.udolni.net'
   : 'https://cloud.dbgate.io';
 
 async function createDbGateIdentitySession(client) {
