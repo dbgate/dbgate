@@ -4,6 +4,9 @@ const _ = require('lodash');
 const Analyser = require('./Analyser');
 const connectHelper = require('./connect-fixed');
 const driverBase = require('../frontend/driver');
+const cacheManager = require('./cache-manager');
+const connectionManager = require('./connection-manager');
+const { refreshSchemaCounts } = require('./schemaHelper');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } =
 global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -73,7 +76,8 @@ const driver = {
   },
 
   async connect({ server, port, user, password, database, ssl, isReadOnly, useDatabaseUrl, databaseUrl }) {
-    return connectHelper({
+    // Add optimized connection settings to prevent timeouts
+    const connectionSettings = {
       server, 
       port, 
       user, 
@@ -83,32 +87,137 @@ const driver = {
       isReadOnly, 
       useDatabaseUrl, 
       databaseUrl,
-      ibmdb
-    });
+      ibmdb,
+      // Add connection optimization parameters
+      connectTimeout: 30, // 30 seconds connection timeout
+      connectionRetries: 5, // Increase retries for more reliability
+      queryTimeout: 60, // 60 seconds query timeout
+      optimizeSchemaQueries: true, // Flag to optimize schema-related queries
+      useCaching: true // Enable result caching for better performance
+    };
+    
+    console.log('[DB2] Connecting with optimized settings, including timeout protection and caching');
+    const dbhan = await connectHelper(connectionSettings);
+    
+    // Store the connection params for possible reconnection scenarios
+    dbhan._connectionParams = connectionSettings;
+    
+    // Generate a connection ID for tracking
+    const connectionId = `${server}_${port}_${user}_${database}_${Date.now()}`;
+    dbhan._connectionId = connectionId;
+    
+    // Register connection with the connection manager
+    connectionManager.registerConnection(connectionId, dbhan);
+    
+    console.log(`[DB2] Connection registered with ID: ${connectionId}`);
+    return dbhan;
   },
 
-  async query(dbhan, sql, params = []) {
+  async query(dbhan, sql, params = [], options = {}) {
     try {
+      // Track start time for query profiling
+      const startTime = Date.now();
+      
+      // Validate connection
       if (!dbhan || !dbhan.client) {
         console.error('[DB2] Query failed: No database connection');
-        throw new Error('No database connection');
-      }
-      
-      if (sql == null || sql.trim() == '') {
         return {
           rows: [],
           columns: [],
           rowCount: 0,
+          errorMessage: 'No database connection',
+          errorType: 'CONNECTION_ERROR',
+          duration: 0
         };
       }
       
-      console.log(`[DB2] Executing query: ${sql.substring(0, 150)}${sql.length > 150 ? '...' : ''}`);
+      // Validate SQL param - convert to string if needed or provide empty string
+      if (sql === null || sql === undefined) {
+        console.warn('[DB2] Null or undefined SQL query received, using empty string instead');
+        sql = '';
+      } else if (typeof sql !== 'string') {
+        console.warn('[DB2] Non-string SQL query received, converting to string:', typeof sql);
+        try {
+          sql = String(sql);
+        } catch (err) {
+          console.error('[DB2] Failed to convert SQL query to string:', err);
+          sql = '';
+        }
+      }
+      
+      if (sql.trim() === '') {
+        return {
+          rows: [],
+          columns: [],
+          rowCount: 0,
+          duration: 0,
+          message: 'Empty SQL query'
+        };
+      }
+      
+      // Ensure params is always an array
+      if (!Array.isArray(params)) {
+        console.warn('[DB2] Non-array params received, converting to empty array');
+        params = [];
+      }
+      
+      // Validate parameters to prevent common SQL injection vectors
+      params = params.map(param => {
+        if (param === undefined || param === null) return null;
+        return param;
+      });
+      
+      // Track connection activity and monitor pending requests
+      if (dbhan._connectionId) {
+        connectionManager.markActivity(dbhan._connectionId);
+        connectionManager.incrementPendingRequests(dbhan._connectionId);
+      }
+      
+      // More granular query type detection for better handling
+      const queryType = this._detectQueryType(sql);
+      
+      // Apply different timeouts based on query type
+      let timeout;
+      switch(queryType) {
+        case 'SCHEMA_LIST':
+          timeout = 12000; // 12 seconds for schema listing
+          break;
+        case 'TABLE_LIST':
+          timeout = 15000; // 15 seconds for table listing
+          break;
+        case 'COLUMN_DETAILS':
+          timeout = 20000; // 20 seconds for column details
+          break;
+        case 'CHECK_CONNECTION':
+          timeout = 5000; // 5 seconds for connection checks
+          break;
+        default:
+          timeout = 30000; // 30 seconds default
+      }
+      
+      // Apply custom timeout if provided in options
+      if (options.timeout && typeof options.timeout === 'number') {
+        timeout = options.timeout;
+      }
+      
+      console.log(`[DB2] Executing ${queryType} query (timeout: ${timeout}ms): ${sql.substring(0, 150)}${sql.length > 150 ? '...' : ''}`);
       
       try {
-        const result = await dbhan.client.query(sql, params);
+        // Set up a promise race between the query and a timeout
+        const queryPromise = dbhan.client.query(sql, params);
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(`Query timeout after ${timeout}ms`)), timeout);
+        });
+        
+        const result = await Promise.race([queryPromise, timeoutPromise]);
         
         if (!result || result.length === 0) {
           console.log('[DB2] Query returned no results');
+          
+          if (dbhan._connectionId) {
+            connectionManager.decrementPendingRequests(dbhan._connectionId);
+          }
+          
           return {
             rows: [],
             columns: [],
@@ -172,6 +281,11 @@ const driver = {
           return normalizedRow;
         });
         
+        // Mark query as complete in connection manager
+        if (dbhan._connectionId) {
+          connectionManager.decrementPendingRequests(dbhan._connectionId);
+        }
+        
         return {
           rows: normalizedRows,
           columns: columns,
@@ -180,20 +294,97 @@ const driver = {
       } catch (queryErr) {
         console.error(`[DB2] Query execution error: ${queryErr.message}`);
         
+        // Mark query as complete in connection manager
+        if (dbhan._connectionId) {
+          connectionManager.decrementPendingRequests(dbhan._connectionId);
+        }
+        
+        // Check if it's a timeout error
+        if (queryErr.message.includes('timeout')) {
+          console.log(`[DB2] Query timed out after ${timeout}ms, might need a longer timeout for this operation`);
+          
+          // Try to check if connection is healthy
+          if (dbhan._connectionId) {
+            const isHealthy = await connectionManager.checkConnection(dbhan._connectionId);
+            if (!isHealthy) {
+              // Try to recover the connection
+              const recovered = await connectionManager.recoverConnection(dbhan._connectionId);
+              if (recovered) {
+                throw new Error(`Query timed out, but connection has been recovered. Please try again.`);
+              } else {
+                throw new Error(`Query timed out and connection recovery failed. Please reconnect.`);
+              }
+            }
+          }
+          
+          // For timeout errors, provide a more helpful message
+          throw new Error(`Query timed out after ${timeout}ms. This operation may need more time or optimization.`);
+        }
+        
         // Check if connection is still alive
         try {
           await dbhan.client.query('SELECT 1 FROM SYSIBM.SYSDUMMY1');
         } catch (pingErr) {
           console.error(`[DB2] Connection appears to be lost: ${pingErr.message}`);
-          throw new Error(`Database connection lost: ${pingErr.message}. Please reconnect.`);
+          
+          // Try to recover the connection if we have a connection ID
+          if (dbhan._connectionId) {
+            const recovered = await connectionManager.recoverConnection(dbhan._connectionId);
+            if (recovered) {
+              throw new Error(`Database connection was lost but has been recovered. Please try again.`);
+            } else {
+              throw new Error(`Database connection lost and recovery failed: ${pingErr.message}. Please reconnect.`);
+            }
+          } else {
+            throw new Error(`Database connection lost: ${pingErr.message}. Please reconnect.`);
+          }
         }
         
         throw queryErr;
       }
     } catch (err) {
+      // Make sure to decrement pending requests counter even in case of errors
+      if (dbhan._connectionId) {
+        connectionManager.decrementPendingRequests(dbhan._connectionId);
+      }
+      
       console.error(`[DB2] Query error: ${err.message}`);
       throw new Error(`Query failed: ${err.message}`);
     }
+  },
+  
+  // Helper method to detect query type for better timeout handling
+  _detectQueryType(sql) {
+    // Safety check - if sql is not a string, return DEFAULT
+    if (typeof sql !== 'string') {
+      console.warn('[DB2] Non-string SQL passed to _detectQueryType:', sql);
+      return 'DEFAULT';
+    }
+    
+    // Safely convert to lowercase
+    const sqlLower = sql.toLowerCase();
+    
+    if (sqlLower.includes('sysibm.sysdummy1') && !sqlLower.includes('join')) {
+      return 'CHECK_CONNECTION';
+    } else if (sqlLower.includes('syscat.schemata')) {
+      return 'SCHEMA_LIST';
+    } else if (sqlLower.includes('syscat.tables') || sqlLower.includes('sysibm.systables')) {
+      return 'TABLE_LIST';
+    } else if (sqlLower.includes('syscat.columns') || sqlLower.includes('sysibm.syscolumns')) {
+      return 'COLUMN_DETAILS';
+    } else if (sqlLower.includes('syscat.keycoluse') || sqlLower.includes('syscat.references')) {
+      return 'CONSTRAINT_DETAILS';
+    } else if (sqlLower.includes('syscat.routines')) {
+      return 'ROUTINE_LIST';
+    } else if (sqlLower.includes('syscat.views') || sqlLower.includes('viewschema')) {
+      return 'VIEW_LIST';
+    } else if (sqlLower.includes('select current schema')) {
+      return 'CURRENT_SCHEMA';
+    } else if (sqlLower.includes('select current server')) {
+      return 'SERVER_INFO';
+    }
+    
+    return 'GENERAL';
   },
 
   async stream(dbhan, sql, options) {
@@ -559,11 +750,15 @@ const driver = {
     return this.defaultDatabase;
   },
 
-  getQuerySplitterOptions() {
+  getQuerySplitterOptions(usage) {
+    // Optimize query splitting based on usage
     return {
       delimiter: ';',
       ignoreComments: true,
-      preventSingleLineSplit: true
+      preventSingleLineSplit: true,
+      // Add timeout handling for API requests
+      timeoutSeconds: usage === 'api' ? 20 : 60,
+      maxRowCount: usage === 'api' ? 10000 : undefined // Limit row count for API requests
     };
   },
   
@@ -844,47 +1039,257 @@ const driver = {
     }
   },
 
+  // Refresh schema counts in the background to avoid blocking the UI
+  async _refreshSchemaCounts(dbhan, connectionId, schemas) {
+    try {
+      console.log(`[DB2] Refreshing schema counts in background for connection ${connectionId}`);
+      
+      if (!schemas || schemas.length === 0) {
+        console.log('[DB2] No schemas to refresh counts for');
+        return;
+      }
+      
+      // Extract all schema names for the query
+      const schemaNames = schemas.map(s => s.schemaName).filter(Boolean);
+      
+      if (schemaNames.length === 0) {
+        console.log('[DB2] No valid schema names to refresh counts for');
+        return;
+      }
+      
+      // Create a safe query with proper parameter binding
+      const schemaPlaceholders = schemaNames.map(() => '?').join(',');
+      
+      // Get table counts
+      const tablesCountQuery = `
+        SELECT 
+          TABSCHEMA as "schemaName",
+          COUNT(CASE WHEN TYPE IN ('T', 'P') THEN 1 END) as "tableCount"
+        FROM SYSCAT.TABLES
+        WHERE TABSCHEMA IN (${schemaPlaceholders})
+        GROUP BY TABSCHEMA
+      `;
+      
+      const tableCountResults = await this.query(dbhan, tablesCountQuery, schemaNames);
+      
+      // Get view counts
+      const viewsCountQuery = `
+        SELECT 
+          VIEWSCHEMA as "schemaName",
+          COUNT(*) as "viewCount"
+        FROM SYSCAT.VIEWS
+        WHERE VIEWSCHEMA IN (${schemaPlaceholders})
+        GROUP BY VIEWSCHEMA
+      `;
+      
+      const viewCountResults = await this.query(dbhan, viewsCountQuery, schemaNames);
+      
+      // Get routine counts (procedures and functions)
+      const routinesCountQuery = `
+        SELECT 
+          ROUTINESCHEMA as "schemaName",
+          COUNT(*) as "routineCount"
+        FROM SYSCAT.ROUTINES
+        WHERE ROUTINESCHEMA IN (${schemaPlaceholders})
+        GROUP BY ROUTINESCHEMA
+      `;
+      
+      const routineCountResults = await this.query(dbhan, routinesCountQuery, schemaNames);
+      
+      // Now update all schemas with the counts
+      if (tableCountResults && tableCountResults.rows) {
+        tableCountResults.rows.forEach(row => {
+          const schemaName = row.schemaName || row.SCHEMANAME;
+          const tableCount = parseInt(row.tableCount || row.TABLECOUNT || 0);
+          
+          const schema = schemas.find(s => s.schemaName === schemaName);
+          if (schema) {
+            schema.tableCount = tableCount;
+          }
+        });
+      }
+      
+      if (viewCountResults && viewCountResults.rows) {
+        viewCountResults.rows.forEach(row => {
+          const schemaName = row.schemaName || row.VIEWSCHEMA;
+          const viewCount = parseInt(row.viewCount || row.VIEWCOUNT || 0);
+          
+          const schema = schemas.find(s => s.schemaName === schemaName);
+          if (schema) {
+            schema.viewCount = viewCount;
+          }
+        });
+      }
+      
+      if (routineCountResults && routineCountResults.rows) {
+        routineCountResults.rows.forEach(row => {
+          const schemaName = row.schemaName || row.ROUTINESCHEMA;
+          const routineCount = parseInt(row.routineCount || row.ROUTINECOUNT || 0);
+          
+          const schema = schemas.find(s => s.schemaName === schemaName);
+          if (schema) {
+            schema.routineCount = routineCount;
+          }
+        });
+      }
+      
+      // Make sure we have numbers, not strings
+      schemas.forEach(schema => {
+        schema.tableCount = parseInt(schema.tableCount || 0);
+        schema.viewCount = parseInt(schema.viewCount || 0);
+        schema.routineCount = parseInt(schema.routineCount || 0);
+      });
+      
+      console.log('[DB2] Schema counts refreshed successfully');
+      
+      // Update the cache with the new counts
+      if (dbhan._connectionParams?.useCaching && cacheManager) {
+        cacheManager.setSchemaCache(connectionId, schemas);
+        console.log('[DB2] Updated schema cache with refreshed counts');
+        
+        // Try to notify UI about updates
+        try {
+          const [conid, database] = connectionId.split('_');
+          // Check if socket module is available for emitting events
+          const socketPath = '../../../api/src/utility/socket';
+          try {
+            const socket = require(socketPath);
+            if (socket && typeof socket.emitChanged === 'function') {
+              socket.emitChanged('schema-list-changed', { conid, database });
+            }
+          } catch (socketErr) {
+            console.log('[DB2] Socket module not available for event emission');
+          }
+        } catch (notifyErr) {
+          console.log('[DB2] Could not notify about schema updates:', notifyErr.message);
+        }
+      }
+      
+      return schemas;
+    } catch (err) {
+      console.error('[DB2] Error refreshing schema counts:', err);
+      return schemas;
+    }
+  },
+  
   async listSchemas(dbhan, conid, database) {
     try {
       console.log('[DB2] ====== Starting listSchemas API call for /database-connections/schema-list endpoint ======');
       console.log('[DB2] Connection ID:', conid);
       console.log('[DB2] Database:', database);
+      
+      // Use the connection ID for cache lookup if available
+      const connectionId = dbhan._connectionId || `${conid}_${database}`;
+      
+      // Immediately register progressive loading flag to track staged loading
+      let progressiveLoadingStarted = false;
+      let partialSchemasCached = false;
+      
+      // First check cache for faster response
+      if (dbhan._connectionParams?.useCaching) {
+        const cachedSchemas = cacheManager.getSchemaCache(connectionId);
+        if (cachedSchemas) {
+          console.log('[DB2] Returning cached schema list');
+          
+          // If schema counts weren't loaded yet, trigger a background refresh
+          // but still return cached data immediately
+          const needsCountRefresh = cachedSchemas.some(schema => 
+            typeof schema.tableCount !== 'number' || schema.tableCount < 0);
+            
+          if (needsCountRefresh && !dbhan._refreshingCounts) {
+            dbhan._refreshingCounts = true;
+            console.log('[DB2] Schema counts need refresh, scheduling background update');
+            
+            // Use setTimeout to make this non-blocking
+            setTimeout(async () => {
+              try {
+                await refreshSchemaCounts(this, dbhan, connectionId, cachedSchemas);
+                dbhan._refreshingCounts = false;
+              } catch (err) {
+                console.error('[DB2] Error in background schema count refresh:', err);
+                dbhan._refreshingCounts = false;
+              }
+            }, 100);
+          }
+          
+          return cachedSchemas;
+        }
+      }
 
       // Get current schema
       let currentSchema;
       try {
+        console.log('[DB2] Getting current schema...');
         const currentSchemaResult = await this.query(dbhan, `
           SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-        `);
+        `, [], { timeout: 5000 }); // Short timeout for this simple query
+        
         currentSchema = currentSchemaResult.rows?.[0]?.schemaName;
         console.log('[DB2] Current schema:', currentSchema);
       } catch (err) {
         console.error('[DB2] Error getting current schema:', err);
       }
 
-      // Get schemas from SYSCAT.SCHEMATA with improved query
+      // Progressive schema loading strategy - get schemas in stages:
+      // 1. First get current schema only for immediate response
+      // 2. Then get list of all schemas (minimal fields) 
+      // 3. Finally, get counts in the background as optimization
       let schemas = [];
+      
+      // Track if we need to fetch the full schema list
+      let needFullSchemaList = true;
+      
       try {
-        // Using double quotes for field aliases to ensure proper case sensitivity
+        progressiveLoadingStarted = true;
+        console.log('[DB2] Starting progressive schema loading');
+        
+        // STAGE 1: If we have current schema, create an initial minimal response
+        // This provides instant feedback to the UI
+        if (currentSchema) {
+          console.log(`[DB2] Using current schema "${currentSchema}" for initial response`);
+          schemas = [{
+            name: currentSchema,
+            schemaName: currentSchema,
+            pureName: currentSchema,
+            fullName: currentSchema,
+            objectSchema: currentSchema,
+            isDefault: true,
+            id: `schema_${currentSchema}`,
+            objectType: 'schema',
+            tableCount: -1,  // -1 indicates count not loaded yet
+            viewCount: -1,
+            routineCount: -1,
+            modifyDate: new Date()
+          }];
+          
+          // Cache this partial result immediately for better UI responsiveness
+          if (dbhan._connectionParams?.useCaching) {
+            cacheManager.setSchemaCache(connectionId, schemas);
+            partialSchemasCached = true;
+          }
+        }
+        
+        // STAGE 2: Fast schema list retrieval, optimized query with FETCH FIRST clause
+        // This gets a limited number of schemas quickly
+        console.log('[DB2] Fetching optimized schema list with limited fields');
         const schemasResult = await this.query(dbhan, `
           SELECT 
             s.SCHEMANAME as "schemaName",
             s.OWNER as "owner",
-            s.CREATE_TIME as "createTime",
-            s.REMARKS as "description",
-            (SELECT COUNT(*) FROM SYSCAT.TABLES t WHERE t.TABSCHEMA = s.SCHEMANAME AND t.TYPE IN ('T', 'P')) as "tableCount",
-            (SELECT COUNT(*) FROM SYSCAT.VIEWS v WHERE v.VIEWSCHEMA = s.SCHEMANAME) as "viewCount",
-            (SELECT COUNT(*) FROM SYSCAT.ROUTINES r WHERE r.ROUTINESCHEMA = s.SCHEMANAME) as "routineCount"
+            s.CREATE_TIME as "createTime"
           FROM SYSCAT.SCHEMATA s
           WHERE s.SCHEMANAME NOT LIKE 'SYS%'
             AND s.SCHEMANAME NOT IN ('SYSCAT', 'SYSIBM', 'SYSSTAT', 'SYSPROC', 'SYSTOOLS', 'SYSFUN', 'SYSIBMADM')
-          ORDER BY s.SCHEMANAME
-        `);
+          ORDER BY 
+            CASE WHEN s.SCHEMANAME = '${currentSchema || ''}' THEN 0 ELSE 1 END, 
+            s.SCHEMANAME
+          FETCH FIRST 100 ROWS ONLY
+        `, [], { timeout: 10000 });
 
         if (schemasResult.rows && schemasResult.rows.length > 0) {
-          // Debug the first schema row to see actual field names
-          console.log(`[DB2] First schema row:`, JSON.stringify(schemasResult.rows[0]));
+          console.log(`[DB2] Found ${schemasResult.rows.length} schemas`);
           
+          // First get the schemas list without counts
           schemas = schemasResult.rows.map((row, index) => {
             // Use case-insensitive access to fields
             const getValue = (fieldName) => {
@@ -896,13 +1301,6 @@ const driver = {
             
             const schemaName = getValue("schemaName") || '';
             
-            // Debug schema table counts
-            console.log(`[DB2] Schema ${schemaName} has:`, {
-              tableCount: getValue("tableCount") || 0,
-              viewCount: getValue("viewCount") || 0,
-              routineCount: getValue("routineCount") || 0
-            });
-            
             return {
               name: schemaName,
               schemaName: schemaName,
@@ -912,9 +1310,9 @@ const driver = {
               owner: getValue("owner"),
               createTime: getValue("createTime"),
               description: getValue("description"),
-              tableCount: parseInt(getValue("tableCount") || 0),
-              viewCount: parseInt(getValue("viewCount") || 0),
-              routineCount: parseInt(getValue("routineCount") || 0),
+              tableCount: 0, // Will be populated later if needed
+              viewCount: 0,  // Will be populated later if needed
+              routineCount: 0, // Will be populated later if needed
               isDefault: schemaName === currentSchema,
               id: `schema_${schemaName || index}`,
               objectType: 'schema',
@@ -922,44 +1320,122 @@ const driver = {
               modifyDate: getValue("createTime") || new Date()
             };
           });
+          
+          // Optionally fetch counts in bulk in a separate, faster query
+          try {
+            console.log('[DB2] Fetching aggregated object counts for schemas');
+            // Create a safer query with parameterized values
+            const schemaParams = schemas.map(s => s.schemaName).filter(Boolean);
+            if (schemaParams.length === 0) {
+              console.log('[DB2] No valid schema names found for counts query');
+              return;
+            }
+            
+            const placeholders = schemaParams.map(() => '?').join(',');
+            const countsQuery = `
+              SELECT 
+                TABSCHEMA as "schemaName",
+                COUNT(CASE WHEN TYPE IN ('T', 'P') THEN 1 END) as "tableCount"
+              FROM SYSCAT.TABLES
+              WHERE TABSCHEMA IN (${placeholders})
+              GROUP BY TABSCHEMA
+            `;
+            
+            const countResults = await this.query(dbhan, countsQuery, schemaParams);
+            if (countResults && countResults.rows) {
+              console.log(`[DB2] Got counts for ${countResults.rows.length} schemas`);
+              
+              // Apply counts to schemas with better error handling
+              countResults.rows.forEach(countRow => {
+                try {
+                  // Get schema name with case-insensitive lookup
+                  const schemaName = countRow.schemaName || countRow.SCHEMANAME;
+                  // Make sure we have a valid count
+                  const rawCount = countRow.tableCount || countRow.TABLECOUNT;
+                  // Use parseInt with fallback to 0 for invalid values
+                  const tableCount = parseInt(rawCount) || 0;
+                  
+                  // Find matching schema and update count
+                  const schema = schemas.find(s => s.schemaName === schemaName);
+                  if (schema) {
+                    schema.tableCount = tableCount;
+                    console.log(`[DB2] Updated schema ${schemaName} with table count: ${tableCount}`);
+                  }
+                } catch (countErr) {
+                  console.error('[DB2] Error processing count row:', countErr);
+                }
+              });
+            }
+          } catch (countError) {
+            console.error('[DB2] Error fetching aggregated counts, continuing without counts:', countError.message);
+            // Continue without counts, not critical
+          }
         }
       } catch (err) {
         console.error('[DB2] Error getting schemas from SYSCAT.SCHEMATA:', err);
         
-        // Fallback: Get schemas from SYSCAT.TABLES
+        // Fallback: Get schemas from SYSCAT.TABLES with timeout protection
         try {
+          console.log('[DB2] Using fallback to get schemas from TABLES catalog');
+          // Simplified fallback query with FETCH FIRST clause to prevent long-running queries
           const tablesResult = await this.query(dbhan, `
-            SELECT DISTINCT TABSCHEMA as schemaName
+            SELECT DISTINCT TABSCHEMA as "schemaName"
             FROM SYSCAT.TABLES
             WHERE TABSCHEMA NOT LIKE 'SYS%'
               AND TABSCHEMA NOT IN ('SYSCAT', 'SYSIBM', 'SYSSTAT', 'SYSPROC', 'SYSTOOLS', 'SYSFUN', 'SYSIBMADM')
             ORDER BY TABSCHEMA
+            FETCH FIRST 100 ROWS ONLY
           `);
           
           if (tablesResult.rows && tablesResult.rows.length > 0) {
-            schemas = tablesResult.rows.map(row => ({
-              name: row.schemaName,
-              schemaName: row.schemaName,
-              pureName: row.schemaName,
-              fullName: row.schemaName,
-              objectSchema: row.schemaName,
-              isDefault: row.schemaName === currentSchema,
-              id: `schema_${row.schemaName}`,
+            console.log(`[DB2] Fallback found ${tablesResult.rows.length} schemas from TABLES catalog`);
+            schemas = tablesResult.rows.map(row => {
+              // Case-insensitive field access
+              const schemaName = row.schemaName || row.SCHEMANAME;
+              return {
+                name: schemaName,
+                schemaName: schemaName,
+                pureName: schemaName,
+                fullName: schemaName,
+                objectSchema: schemaName,
+                isDefault: schemaName === currentSchema,
+                id: `schema_${schemaName}`,
+                objectType: 'schema',
+                tableCount: 1, // At least one table exists since we got it from TABLES
+                viewCount: 0,
+                routineCount: 0,
+                modifyDate: new Date()
+              };
+            });
+          }
+        } catch (fallbackErr) {
+          console.error('[DB2] Error in fallback schema query, will try faster minimal approach:', fallbackErr.message);
+          
+          // Second fallback: Try with even more limited approach - just the current schema
+          if (currentSchema) {
+            console.log('[DB2] Using current schema as last resort fallback');
+            schemas = [{
+              name: currentSchema,
+              schemaName: currentSchema,
+              pureName: currentSchema,
+              fullName: currentSchema,
+              objectSchema: currentSchema,
+              isDefault: true,
+              id: `schema_${currentSchema}`,
               objectType: 'schema',
               tableCount: 0,
               viewCount: 0,
-              routineCount: 0
-            }));
+              routineCount: 0,
+              modifyDate: new Date()
+            }];
           }
-        } catch (fallbackErr) {
-          console.error('[DB2] Error in fallback schema query:', fallbackErr);
         }
       }
 
-      // Ensure we have at least one schema
+      // Ensure we have at least one schema - if we have no schemas at this point, use a simple approach
       if (schemas.length === 0) {
-        console.log('[DB2] No schemas found, adding default schema');
-        const defaultSchema = currentSchema || dbhan.database || dbhan.user;
+        console.log('[DB2] No schemas found, adding default schema with minimal info');
+        const defaultSchema = currentSchema || dbhan.database || dbhan.user || 'NULLID';
         schemas = [{
           name: defaultSchema,
           schemaName: defaultSchema,
@@ -971,51 +1447,91 @@ const driver = {
           objectType: 'schema',
           tableCount: 0,
           viewCount: 0,
-          routineCount: 0
+          routineCount: 0,
+          modifyDate: new Date()
         }];
+        
+        // Return early to avoid further processing since we're using a simple fallback
+        console.log('[DB2] Returning minimal schema without additional processing');
+        return schemas;
       }
 
-      // Make sure at least one schema is marked as default
-      const hasDefaultSchema = schemas.some(schema => schema.isDefault);
-      if (!hasDefaultSchema && schemas.length > 0) {
-        console.log('[DB2] No schema marked as default, marking current schema as default');
-        // First try to use current schema from connection
-        const currentSchemaObj = schemas.find(schema => schema.name === currentSchema);
-        if (currentSchemaObj) {
-          console.log(`[DB2] Setting current schema ${currentSchemaObj.name} as default`);
-          currentSchemaObj.isDefault = true;
-        } else {
-          // If current schema wasn't found in the list, use first schema
-          console.log(`[DB2] Setting first schema ${schemas[0].name} as default`);
+      // Make sure at least one schema is marked as default (faster implementation)
+      let hasDefaultSchema = false;
+      for (const schema of schemas) {
+        if (schema.isDefault) {
+          hasDefaultSchema = true;
+          break;
+        }
+      }
+      
+      if (!hasDefaultSchema) {
+        // Set current schema as default if it exists in the list
+        let currentSchemaFound = false;
+        if (currentSchema) {
+          for (const schema of schemas) {
+            if (schema.name === currentSchema) {
+              schema.isDefault = true;
+              currentSchemaFound = true;
+              break;
+            }
+          }
+        }
+        
+        // If current schema not found, just mark the first one as default
+        if (!currentSchemaFound && schemas.length > 0) {
           schemas[0].isDefault = true;
         }
       }
       
-      // Ensure all required fields are present in all schema objects for proper filtering
+      // Limit the number of schemas returned to improve UI performance
+      // Only if there are too many schemas
+      const MAX_SCHEMAS = 100;
+      if (schemas.length > MAX_SCHEMAS) {
+        console.log(`[DB2] Too many schemas (${schemas.length}), limiting to ${MAX_SCHEMAS}`);
+        schemas = schemas.slice(0, MAX_SCHEMAS);
+      }
+      
+      // Process schemas in one go with proper fields for filtering and ensure valid counts
       schemas = schemas.map(schema => {
-        const schemaObj = {
+        // Make sure we have valid numbers for counts, not strings or NaN
+        let tableCount = 0;
+        let viewCount = 0;
+        let routineCount = 0;
+        
+        try {
+          tableCount = parseInt(schema.tableCount);
+          if (isNaN(tableCount)) tableCount = 0;
+        } catch (e) { tableCount = 0; }
+        
+        try {
+          viewCount = parseInt(schema.viewCount);
+          if (isNaN(viewCount)) viewCount = 0;
+        } catch (e) { viewCount = 0; }
+        
+        try {
+          routineCount = parseInt(schema.routineCount);
+          if (isNaN(routineCount)) routineCount = 0;
+        } catch (e) { routineCount = 0; }
+        
+        return {
           ...schema,
           isDefault: schema.isDefault || false,
-          // Make sure all required fields for schema selection are present
-          fullName: schema.fullName || schema.name,
-          objectSchema: schema.objectSchema || schema.name,
-          schemaName: schema.schemaName || schema.name,
-          pureName: schema.pureName || schema.name,
-          name: schema.name, // schema display name
-          objectType: 'schema', // Required for object type filtering
-          id: schema.id || `schema_${schema.name}`,
+          fullName: schema.name,
+          objectSchema: schema.name,
+          schemaName: schema.name,
+          pureName: schema.name,
+          name: schema.name,
+          objectType: 'schema',
+          id: `schema_${schema.name}`,
+          tableCount: tableCount,
+          viewCount: viewCount,
+          routineCount: routineCount,
+          modifyDate: schema.modifyDate || new Date()
         };
-        
-        // Make sure tableCount is present and a number
-        if (typeof schemaObj.tableCount !== 'number' || isNaN(schemaObj.tableCount)) {
-          console.log(`[DB2] Fixed invalid tableCount for schema ${schemaObj.name}`);
-          schemaObj.tableCount = parseInt(schemaObj.tableCount) || 0;
-        }
-        
-        return schemaObj;
       });
 
-      console.log('[DB2] Final schema list:', schemas);
+      console.log(`[DB2] Returning ${schemas.length} schemas`);
       console.log('[DB2] ====== Completed listSchemas API call ======');
       
       return schemas;

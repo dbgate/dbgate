@@ -15,6 +15,7 @@ const dialect = {
   fallbackDataType: 'varchar(250)',
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
+  timeoutSeconds: 30, // Add global timeout for all operations
   // Enhanced column properties for better column display
   columnProperties: {
     setColumnListReferences: true,

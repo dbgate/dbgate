@@ -1,5 +1,21 @@
 // Helper function for DB2 connections
-module.exports = async function connect({ server, port, user, password, database, ssl, isReadOnly, useDatabaseUrl, databaseUrl, ibmdb }) {
+module.exports = async function connect({ 
+  server, 
+  port, 
+  user, 
+  password, 
+  database, 
+  ssl, 
+  isReadOnly, 
+  useDatabaseUrl, 
+  databaseUrl, 
+  ibmdb,
+  // Add new connection optimization parameters with defaults
+  connectTimeout = 30,
+  connectionRetries = 3,
+  queryTimeout = 60,
+  optimizeSchemaQueries = true
+}) {
   try {
     console.log('[DB2] ====== Starting connection ======');
     
@@ -44,9 +60,15 @@ module.exports = async function connect({ server, port, user, password, database
     if (useDatabaseUrl && databaseUrl) {
       console.log(`[DB2] Using custom connection string`);
       connStr = databaseUrl;
-    } else {
-      // Add SSL configuration if specified
+    } else {      // Add SSL configuration if specified
       const sslConfig = ssl ? 'SECURITY=SSL' : '';
+      
+      console.log(`[DB2] Using connection optimization settings: 
+        Connect timeout: ${connectTimeout}s
+        Connection retries: ${connectionRetries}
+        Query timeout: ${queryTimeout}s
+        Optimize schema queries: ${optimizeSchemaQueries ? 'yes' : 'no'}
+      `);
       
       // Escape special characters in connection parameters
       const escapedUser = user ? user.replace(/[;=]/g, c => encodeURIComponent(c)) : '';

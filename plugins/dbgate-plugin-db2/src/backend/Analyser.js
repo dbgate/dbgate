@@ -100,6 +100,19 @@ class Analyser extends DatabaseAnalyser {
         try {
           // Use the driver's getStructure method which is already well-implemented
           const structureData = await this.driver.getStructure(this.connection, schemaName);
+          
+          // Validate structureData to prevent null reference errors
+          if (!structureData) {
+            console.error(`[DB2] No structure data returned for schema ${schema.name}`);
+            continue;
+          }
+          
+          // Ensure each property exists to avoid 'length' of undefined errors
+          structureData.tables = structureData.tables || [];
+          structureData.views = structureData.views || [];
+          structureData.functions = structureData.functions || [];
+          structureData.procedures = structureData.procedures || [];
+          
           console.log(`[DB2] Got structure data for schema ${schemaName}:`, {
             tables: structureData.tables?.length || 0,
             views: structureData.views?.length || 0,
@@ -191,20 +204,19 @@ class Analyser extends DatabaseAnalyser {
         triggers: []
       };
     }
-  }
-  async getSchemas() {
+  }  async getSchemas() {
     try {
-      console.log('[DB2] Fetching schemas');
+      console.log('[DB2] Fetching schemas with timeout protection');
       
       let currentSchema = null;
-      // First try: Get current schema
+      // First try: Get current schema with a simple query
       try {
         const currentRes = await this.driver.query(this.connection, `
-          SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
-        `);
+          SELECT CURRENT SCHEMA as "schemaName" FROM SYSIBM.SYSDUMMY1
+        `, [], { timeout: 5000 }); // 5-second timeout for this simple query
         
-        currentSchema = currentRes.rows[0]?.SCHEMANAME || 
-                      currentRes.rows[0]?.schemaName || 
+        currentSchema = currentRes.rows[0]?.schemaName || 
+                      currentRes.rows[0]?.SCHEMANAME || 
                       currentRes.rows[0]?.['CURRENT SCHEMA'];
                             
         console.log(`[DB2] Current schema: ${currentSchema}`);
@@ -214,39 +226,43 @@ class Analyser extends DatabaseAnalyser {
 
       // Try to get detailed schema info from SYSCAT.SCHEMATA including owners and statistics
       try {
+        // Use faster query with no sub-queries for better performance
         const res = await this.driver.query(this.connection, `
           SELECT 
-            SCHEMANAME as schemaName,
-            OWNER as owner,
-            REMARKS as description,
-            CREATE_TIME as createTime,
-            (SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABSCHEMA = SCHEMANAME AND TYPE = 'T') as tableCount,
-            (SELECT COUNT(*) FROM SYSCAT.VIEWS WHERE VIEWSCHEMA = SCHEMANAME) as viewCount,
-            (SELECT COUNT(*) FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = SCHEMANAME) as routineCount
+            SCHEMANAME as "schemaName",
+            OWNER as "owner",
+            REMARKS as "description",
+            CREATE_TIME as "createTime"
           FROM SYSCAT.SCHEMATA
           WHERE SCHEMANAME NOT IN ('SYSIBM', 'SYSTOOLS', 'SYSPROC', 'SYSSTAT', 'SQLJ', 'SYSCAT', 'SYSFUN', 'SYSIBMADM')
           OR SCHEMANAME IN ('NULLID', 'SQLJ')
           ORDER BY SCHEMANAME
-        `);
+          FETCH FIRST 100 ROWS ONLY
+        `, [], { timeout: 10000 }); // 10-second timeout
 
         if (res.rows && res.rows.length > 0) {
           const schemas = res.rows.map(row => {
-            const schemaName = row.SCHEMANAME || row.schemaName;
+            // Better field access helper
+            const getValue = (field) => {
+              return row[field] ?? row[field.toUpperCase()] ?? row[field.toLowerCase()] ?? null;
+            };
+            
+            const schemaName = getValue('schemaName');
             return {
               name: schemaName,
               objectType: 'schema',
-              owner: row.OWNER || row.owner || 'SYSIBM',
-              description: row.REMARKS || row.description || null,
-              createTime: row.CREATE_TIME || row.createTime,
-              tableCount: parseInt(row.TABLECOUNT || row.tableCount || 0),
-              viewCount: parseInt(row.VIEWCOUNT || row.viewCount || 0),
-              routineCount: parseInt(row.ROUTINECOUNT || row.routineCount || 0),
+              owner: getValue('owner') || 'SYSIBM',
+              description: getValue('description') || null,
+              createTime: getValue('createTime'),
+              tableCount: 0, // Skip complex counting queries
+              viewCount: 0,
+              routineCount: 0,
               isDefault: schemaName === currentSchema,
               id: `schema_${schemaName}`,
-              modifyDate: row.CREATE_TIME || new Date()
+              modifyDate: getValue('createTime') || new Date()
             };
           });
-          console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.SCHEMATA`);
+          console.log(`[DB2] Found ${schemas.length} schemas from SYSCAT.SCHEMATA (fast query)`);
           return schemas;
         }
       } catch (err) {
@@ -560,9 +576,23 @@ class Analyser extends DatabaseAnalyser {
       // Use the getStructure method to get database objects for each schema
       for (const schema of schemas) {
         console.log(`[DB2] Analyzing schema: ${schema.name}`);
-
+        
         try {
-          // Use the driver's getStructure method which is already well-implemented          const structureData = await this.driver.getStructure(this.connection, schema.name);
+          // Use the driver's getStructure method which is already well-implemented
+          const structureData = await this.driver.getStructure(this.connection, schema.name);
+          
+          // Validate structureData to prevent null reference errors
+          if (!structureData) {
+            console.error(`[DB2] No structure data returned for schema ${schema.name}`);
+            continue;
+          }
+          
+          // Ensure each property exists to avoid 'length' of undefined errors
+          structureData.tables = structureData.tables || [];
+          structureData.views = structureData.views || [];
+          structureData.functions = structureData.functions || [];
+          structureData.procedures = structureData.procedures || [];
+          
           console.log(`[DB2] Got structure data for schema ${schema.name}:`, {
             tables: structureData.tables.length,
             views: structureData.views.length,

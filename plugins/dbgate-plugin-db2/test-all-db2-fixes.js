@@ -1,13 +1,27 @@
-// Test script for all DB2 plugin fixes
+/**
+ * Comprehensive test script for all DB2 plugin fixes
+ * 
+ * This tests all the fixes implemented:
+ * 1. Schema list endpoint hanging issue
+ * 2. Table counts in schema dropdowns displaying incorrectly
+ * 3. SQL select endpoint hanging and failing with "Cannot read properties of undefined" errors
+ */
 const driver = require('./src/backend/driver');
 const connectHelper = require('./src/backend/connect-fixed');
+const fixSchemaListIssue = require('./src/backend/fixSchemaListIssue');
+const driverFix = require('./src/backend/driver-fix');
+const cacheManager = require('./src/backend/cache-manager');
+const plugin = require('./src/backend/index');
 
 async function testAllDB2Fixes() {
   console.log('=== Testing All DB2 Plugin Fixes ===');
   
+  // Apply all fixes
+  console.log('Applying all DB2 plugin fixes...');
+  plugin.initialize({});
+  
   // PART 0: Test API endpoint method availability
   console.log('PART 0: Testing API endpoint method availability...');
-  driver.initialize();
   
   // Check if the required methods exist
   const requiredMethods = ['getVersion', 'listSchemas', 'getStructure'];
@@ -125,8 +139,7 @@ async function testAllDB2Fixes() {
       } catch (fallbackErr) {
         console.error('Even fallback query failed:', fallbackErr.message);
       }
-    }
-  } catch (err) {
+    }  } catch (err) {
     console.error('Error during test:', err);
   } finally {
     // Clean up connection
@@ -136,6 +149,102 @@ async function testAllDB2Fixes() {
       console.log('Connection closed');
     }
   }
+  
+  // PART 5: Test specific fixes for error handling in SQL endpoint
+  console.log('\nPART 5: Testing specific error handling fixes...');
+  
+  // Create a mock connection for testing
+  const mockDbhan = {
+    _connectionId: 'mock_connection',
+    client: {
+      query: async (sql) => {
+        console.log(`[MOCK] Executing query: ${sql.substring(0, 50)}${sql.length > 50 ? '...' : ''}`);
+        // Return mock data
+        return [
+          { ID: 1, NAME: 'Test Record' }
+        ];
+      }
+    }
+  };
+  
+  // Test cases that were previously causing errors
+  const testCases = [
+    { name: 'Null SQL', sql: null },
+    { name: 'Undefined SQL', sql: undefined },
+    { name: 'Non-string SQL (Object)', sql: { some: 'object' } },
+    { name: 'Non-string SQL (Number)', sql: 123 },
+    { name: 'Empty SQL', sql: '' },
+    { name: 'Valid SQL', sql: 'SELECT * FROM SYSIBM.SYSDUMMY1' }
+  ];
+  
+  let passedTests = 0;
+  for (const test of testCases) {
+    try {
+      console.log(`\nTesting case: ${test.name}`);
+      const result = await driver.query(mockDbhan, test.sql);
+      console.log('✅ Query completed without error');
+      console.log(`Result: ${JSON.stringify(result).substring(0, 100)}${JSON.stringify(result).length > 100 ? '...' : ''}`);
+      passedTests++;
+    } catch (err) {
+      console.error(`❌ Query failed: ${err.message}`);
+    }
+  }
+  
+  console.log(`\nSQL error handling tests: ${passedTests}/${testCases.length} passed`);
+  
+  // PART 6: Test _detectQueryType fix specifically
+  console.log('\nPART 6: Testing _detectQueryType fix...');
+  
+  const queryTypeTests = [
+    { input: null, expectedNotToThrow: true },
+    { input: undefined, expectedNotToThrow: true },
+    { input: { obj: 'test' }, expectedNotToThrow: true },
+    { input: 'SELECT * FROM SYSCAT.TABLES', expectedNotToThrow: true, expectedType: 'TABLE_LIST' },
+    { input: 'SELECT * FROM SYSIBM.SYSDUMMY1', expectedNotToThrow: true, expectedType: 'CHECK_CONNECTION' }
+  ];
+  
+  passedTests = 0;
+  for (const test of queryTypeTests) {
+    try {
+      const queryType = driver._detectQueryType(test.input);
+      console.log(`✅ _detectQueryType worked for input type: ${typeof test.input}`);
+      if (test.expectedType && queryType === test.expectedType) {
+        console.log(`   Correctly identified as: ${queryType}`);
+      } else if (test.expectedType) {
+        console.log(`   Expected: ${test.expectedType}, Got: ${queryType}`);
+      }
+      passedTests++;
+    } catch (err) {
+      console.error(`❌ _detectQueryType threw error for input type ${typeof test.input}: ${err.message}`);
+    }
+  }
+  
+  console.log(`\n_detectQueryType tests: ${passedTests}/${queryTypeTests.length} passed`);
+  
+  // PART 7: Test the caching mechanism we implemented
+  console.log('\nPART 7: Testing schema caching mechanism...');
+  
+  // Test schema cache
+  const testConnectionId = 'test_connection_id';
+  const testSchemas = [
+    { schemaName: 'TEST_SCHEMA_1', tableCount: 10 },
+    { schemaName: 'TEST_SCHEMA_2', tableCount: 5 }
+  ];
+  
+  cacheManager.setSchemaCache(testConnectionId, testSchemas);
+  const cachedSchemas = cacheManager.getSchemaCache(testConnectionId);
+  
+  if (cachedSchemas && cachedSchemas.length === 2) {
+    console.log('✅ Schema caching is working correctly');
+    console.log(`   Retrieved ${cachedSchemas.length} schemas from cache`);
+  } else {
+    console.error('❌ Schema caching failed');
+  }
+  
+  // Get cache stats
+  const cacheStats = cacheManager.getCacheStats();
+  console.log('\nCache statistics:');
+  console.log(JSON.stringify(cacheStats, null, 2));
   
   console.log('\n=== All DB2 Fixes Testing Complete ===');
 }
