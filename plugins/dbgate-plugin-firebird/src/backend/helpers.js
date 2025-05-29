@@ -1,47 +1,47 @@
 function getDataTypeString({ dataTypeCode, scale, length, precision }) {
   switch (dataTypeCode) {
     case 7:
-      return 'SMALLINT';
+      return 'smallint';
 
     case 8:
-      return 'INTEGER';
+      return 'integer';
 
     case 9:
-      return 'BIGINT';
+      return 'bigint';
 
     case 10:
-      return 'FLOAT';
+      return 'float';
 
     case 11:
-      return 'DOUBLE PRECISION';
+      return 'DOUBLE precision';
 
     case 12:
-      return 'DATE';
+      return 'date';
 
     case 13:
-      return 'TIME';
+      return 'time';
 
     case 14:
-      return `CHAR(${length})`;
+      return `char(${length})`;
 
     case 16:
-      return `DECIMAL(${precision}, ${scale})`;
+      return `decimal(${precision}, ${scale})`;
 
     case 27:
-      return 'DOUBLE PRECISION';
+      return 'double precision';
 
     case 35:
-      return 'BLOB';
+      return 'blob';
 
     case 37:
-      return `VARCHAR(${length})`;
+      return `varchar(${length})`;
 
     case 261:
-      return 'CSTRING';
+      return 'cstring';
 
     default:
       if (dataTypeCode === null || dataTypeCode === undefined) return 'UNKNOWN';
-      return `UNKNOWN (${dataTypeCode})`;
+      return `unknown (${dataTypeCode})`;
   }
 }
 
