@@ -711,6 +711,7 @@ const firebirdEngine = {
     },
   ],
   skipOnCI: false,
+  runDeployInTransaction: true,
   // skipChangeColumn: true,
   // skipIndexes: true,
   // skipStringLength: true,

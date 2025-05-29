@@ -20,6 +20,7 @@ const crypto = require('crypto');
  * @param {string} options.ignoreNameRegex - regex for ignoring objects by name
  * @param {string} options.targetSchema - target schema for deployment
  * @param {number} options.maxMissingTablesRatio - maximum ratio of missing tables in database. Safety check, if missing ratio is highe, deploy is stopped (preventing accidental drop of all tables)
+ * @param {boolean} options.useTransaction - run deploy in transaction. If not provided, it will be set to true if driver supports transactions
  */
 async function deployDb({
   connection,
@@ -33,6 +34,7 @@ async function deployDb({
   ignoreNameRegex = '',
   targetSchema = null,
   maxMissingTablesRatio = undefined,
+  useTransaction,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
@@ -60,7 +62,14 @@ async function deployDb({
       maxMissingTablesRatio,
     });
     // console.log('RUNNING DEPLOY SCRIPT:', sql);
-    await executeQuery({ connection, systemConnection: dbhan, driver, sql, logScriptItems: true });
+    await executeQuery({
+      connection,
+      systemConnection: dbhan,
+      driver,
+      sql,
+      logScriptItems: true,
+      useTransaction,
+    });
 
     await scriptDeployer.runPost();
   } finally {

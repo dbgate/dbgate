@@ -51,6 +51,7 @@ export type TestEngineInfo = {
   alterTableAddColumnSyntax?: boolean;
   dbSnapshotBySeconds?: boolean;
   setNullDefaultInsteadOfDrop?: boolean;
+  runDeployInTransaction?: boolean;
 
   useTextTypeForStrings?: boolean;
 

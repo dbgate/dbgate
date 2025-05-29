@@ -131,6 +131,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         driver,
         loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
+        useTransaction: engine.runDeployInTransaction,
       });
     }
 

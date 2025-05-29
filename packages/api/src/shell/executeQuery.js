@@ -14,6 +14,7 @@ const logger = getLogger('execQuery');
  * @param {string} [options.sql] - SQL query
  * @param {string} [options.sqlFile] - SQL file
  * @param {boolean} [options.logScriptItems] - whether to log script items instead of whole script
+ * @param {boolean} [options.useTransaction] - run query in transaction
  */
 async function executeQuery({
   connection = undefined,
@@ -22,6 +23,7 @@ async function executeQuery({
   sql,
   sqlFile = undefined,
   logScriptItems = false,
+  useTransaction,
 }) {
   if (!logScriptItems) {
     logger.info({ sql: getLimitedQuery(sql) }, `Execute query`);
@@ -38,7 +40,7 @@ async function executeQuery({
   try {
     logger.debug(`Running SQL query, length: ${sql.length}`);
 
-    await driver.script(dbhan, sql, { logScriptItems });
+    await driver.script(dbhan, sql, { logScriptItems, useTransaction });
   } finally {
     if (!systemConnection) {
       await driver.close(dbhan);
