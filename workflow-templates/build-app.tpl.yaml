@@ -79,7 +79,7 @@ on:
       - _community_beta: 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
         _premium_beta: 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
         _stable: 'v[0-9]+.[0-9]+.[0-9]+'
-        _community_check: 'check-[0-9]+-[0-9]+-[0-9]+-[0-9]+'
+        _community_check: 'check-[0-9]+-[0-9]+-[0-9]+.[0-9]+'
       # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
     # branches:
