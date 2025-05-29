@@ -5,6 +5,7 @@ _templates:
       - _community
       - _beta
       - _channel
+      - _publish
     string-replace:
       "<<cd_merged>>": ''
       "<<adjust>>": '--community'
@@ -16,12 +17,22 @@ _templates:
     defs:
       - _community
       - _stable
+      - _publish
     string-replace:
       "<<cd_merged>>": ''
       "<<adjust>>": '--community'
       "<<artifact-root>>": 'app/dist'
       "<<suffix>>": 'latest'
-
+  _community_check:
+    file: build-app-check.yaml
+    defs:
+      - _community
+      - _beta
+    string-replace:
+      "<<cd_merged>>": ''
+      "<<adjust>>": '--community'
+      "<<artifact-root>>": 'app/dist'
+      "<<suffix>>": 'check'
 
   _premium_beta:
     file: build-app-pro-beta.yaml
@@ -29,6 +40,7 @@ _templates:
       - _premium
       - _beta
       - _channel
+      - _publish
     string-replace:
       "<<cd_merged>>": |
         cd ..
@@ -37,12 +49,14 @@ _templates:
       "<<artifact-root>>": '../dbgate-merged/app/dist'
       "<<channel>>": 'premium-beta'
       "<<suffix>>": 'premium-beta'
+
   _premium_stable:
     file: build-app-pro.yaml
     defs:
       - _premium
       - _stable
       - _channel
+      - _publish
     string-replace:
       "<<cd_merged>>": |
         cd ..
@@ -57,6 +71,7 @@ name:
   _community_stable: Electron app
   _premium_beta: Electron app PREMIUM BETA
   _premium_stable: Electron app PREMIUM
+  _community_check: Electron app check build
 
 on:
   push:
@@ -64,6 +79,7 @@ on:
       - _community_beta: 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
         _premium_beta: 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
         _stable: 'v[0-9]+.[0-9]+.[0-9]+'
+        _community_check: 'check-[0-9]+-[0-9]+-[0-9]+-[0-9]+'
       # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
     # branches:
@@ -197,12 +213,14 @@ jobs:
           mv app/dist/dbgate-pad.xml artifacts/ || true
 
       - name: Upload artifacts
+        _if: _publish
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
           path: artifacts
 
       - name: Release
+        _if: _publish
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
