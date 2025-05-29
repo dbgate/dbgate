@@ -47,7 +47,7 @@ async function prepareConnection(engine, database) {
   if (engine.generateDbFile) {
     return {
       ...connection,
-      databaseFile: `dbtemp/${database}`,
+      databaseFile: (engine.databaseFileLocationOnServer ?? 'dbtemp/') + database,
       isPreparedOnly: true,
     };
   } else {
