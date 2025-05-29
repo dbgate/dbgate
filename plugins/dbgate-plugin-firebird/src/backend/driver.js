@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { splitQuery } = require('dbgate-query-splitter');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
@@ -97,8 +98,15 @@ const driver = {
     }
   },
 
+  async script(dbhan, sql, { useTransaction } = {}) {
+    if (useTransaction) {
+      return this.runSqlInTransaction(dbhan, sql);
+    }
+
+    return this.query(dbhan, sql);
+  },
+
   async readQuery(dbhan, sql, structure) {
-    console.log('readQuery from SQL:', sql);
     const pass = new stream.PassThrough({
       objectMode: true,
       highWaterMark: 100,
@@ -154,6 +162,49 @@ const driver = {
         resolve();
       });
     });
+  },
+
+  async runSqlInTransaction() {
+    let transactionPromise;
+    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+
+    try {
+      transactionPromise = await new Promise((resolve, reject) => {
+        dbhan.db.transaction(Firebird.ISOLATION_SNAPSHOT, function (err, currentTransaction) {
+          if (err) return reject(err);
+          resolve(currentTransaction);
+        });
+      });
+
+      for (let i = 0; i < sqlItems.length; i++) {
+        const currentSql = sqlItems[i];
+
+        await new Promise((resolve, reject) => {
+          transaction.query(currentSql, function (err, result) {
+            if (err) return reject(err);
+            resolve(result);
+          });
+        });
+      }
+
+      await new Promise((resolve, reject) => {
+        transaction.commit(function (err) {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+    } catch (error) {
+      if (transactionPromise) {
+        await new Promise((resolve, reject) => {
+          transactionPromise.rollback(function (rollbackErr) {
+            if (rollbackErr) {
+              return reject(rollbackErr); // Re-reject the rollback error
+            }
+            resolve();
+          });
+        });
+      }
+    }
   },
 };
 
