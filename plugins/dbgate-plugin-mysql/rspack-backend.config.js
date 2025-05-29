@@ -1,4 +1,5 @@
 const { rspack } = require('@rspack/core');
+const path = require('path');
 
 const packageJson = require('./package.json');
 const buildPluginExternals = require('../../common/buildPluginExternals');
