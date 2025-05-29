@@ -1,4 +1,5 @@
 import {
+  cloudSigninTokenHolder,
   currentDatabase,
   currentTheme,
   emptyConnectionGroupNames,
@@ -119,6 +120,27 @@ registerCommand({
       title: 'New Connection',
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.connectionOnCloud',
+  toolbar: true,
+  icon: 'img cloud-connection',
+  toolbarName: 'Add connection on cloud',
+  category: 'New',
+  toolbarOrder: 1,
+  name: 'Connection on Cloud',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && isProApp(),
+  onClick: () => {
+    openNewTab({
+      title: 'New Connection on Cloud',
+      icon: 'img cloud-connection',
+      tabComponent: 'ConnectionTab',
+      props: {
+        saveOnCloud: true,
+      },
     });
   },
 });
@@ -661,6 +683,15 @@ if (hasPermission('settings/change')) {
     onClick: () => showModal(SettingsModal),
   });
 }
+
+registerCommand({
+  id: 'cloud.logout',
+  category: 'Cloud',
+  name: 'Logout',
+  onClick: () => {
+    cloudSigninTokenHolder.set(null);
+  },
+});
 
 registerCommand({
   id: 'file.exit',

@@ -87,4 +87,5 @@ module.exports = {
   getHardwareFingerprint,
   getHardwareFingerprintHash,
   getPublicHardwareFingerprint,
+  getPublicIpInfo,
 };

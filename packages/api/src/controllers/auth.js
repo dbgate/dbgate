@@ -13,6 +13,8 @@ const {
 } = require('../auth/authProvider');
 const storage = require('./storage');
 const { decryptPasswordString } = require('../utility/crypting');
+const { createDbGateIdentitySession, startCloudTokenChecking } = require('../utility/cloudIntf');
+const socket = require('../utility/socket');
 
 const logger = getLogger('auth');
 
@@ -133,6 +135,15 @@ module.exports = {
   async redirect(params) {
     const { amoid } = params;
     return getAuthProviderById(amoid).redirect(params);
+  },
+
+  createCloudLoginSession_meta: true,
+  async createCloudLoginSession({ client }) {
+    const res = await createDbGateIdentitySession(client);
+    startCloudTokenChecking(res.sid, tokenHolder => {
+      socket.emit('got-cloud-token', tokenHolder);
+    });
+    return res;
   },
 
   authMiddleware,

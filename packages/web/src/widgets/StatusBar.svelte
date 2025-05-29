@@ -9,6 +9,7 @@
   import {
     activeTabId,
     appUpdateStatus,
+    cloudSigninTokenHolder,
     currentArchive,
     currentDatabase,
     currentThemeDefinition,
@@ -154,7 +155,7 @@
         </div>
       </div>
     {/if}
-    {#if $currentArchive}
+    {#if $currentArchive && $currentArchive != 'default'}
       <div
         class="item flex clickable"
         title="Current archive"
@@ -181,6 +182,13 @@
       <div class="item clickable" on:click={() => visibleCommandPalette.set(findCommand('app.loggedUserCommands'))}>
         <FontIcon icon="icon users" padRight />
         {$config?.login}
+      </div>
+    {/if}
+
+    {#if $cloudSigninTokenHolder?.email}
+      <div class="item">
+        <FontIcon icon="icon cloud" padRight />
+        {$cloudSigninTokenHolder?.email}
       </div>
     {/if}
 
