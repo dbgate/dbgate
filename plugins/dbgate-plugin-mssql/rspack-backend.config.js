@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const { rspack } = require('@rspack/core');
 var path = require('path');
 
 const packageJson = require('./package.json');
@@ -18,10 +18,9 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
-  // uncomment for disable minimalization
-  //   optimization: {
-  //     minimize: false,
-  //   },
+  // optimization: {
+  //   minimize: false,
+  // },
 
   externals,
 };

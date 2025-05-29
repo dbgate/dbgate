@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const { rspack } = require('@rspack/core');
 var path = require('path');
 
 const packageJson = require('./package.json');
@@ -22,23 +22,6 @@ var config = {
   //   optimization: {
   //     minimize: false,
   //   },
-
-  plugins: [
-    new webpack.IgnorePlugin({
-      checkResource(resource) {
-        const lazyImports = ['uws'];
-        if (!lazyImports.includes(resource)) {
-          return false;
-        }
-        try {
-          require.resolve(resource);
-        } catch (err) {
-          return true;
-        }
-        return false;
-      },
-    }),
-  ],
 
   externals,
 };

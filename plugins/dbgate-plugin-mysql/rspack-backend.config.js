@@ -1,5 +1,4 @@
-var webpack = require('webpack');
-var path = require('path');
+const { rspack } = require('@rspack/core');
 
 const packageJson = require('./package.json');
 const buildPluginExternals = require('../../common/buildPluginExternals');
@@ -18,11 +17,12 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
-  // uncomment for disable minimalization
-  //   optimization: {
-  //     minimize: false,
-  //   },
   externals,
+
+  // uncomment for disable minimalization
+  // optimization: {
+  //   minimize: false,
+  // },
 };
 
 module.exports = config;

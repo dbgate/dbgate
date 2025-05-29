@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const { rspack } = require('@rspack/core');
 var path = require('path');
 
 var config = {
@@ -11,12 +11,16 @@ var config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'frontend.js',
-    libraryTarget: 'var',
-    library: 'plugin',
+    library: {
+      name: 'plugin',
+      type: 'var',
+      export: 'default',
+    },
+    module: true,
   },
 
   plugins: [
-    new webpack.DefinePlugin({
+    new rspack.DefinePlugin({
       'global.DBGATE_PACKAGES': 'window.DBGATE_PACKAGES',
     }),
   ],

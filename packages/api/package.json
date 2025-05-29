@@ -79,10 +79,12 @@
     "start:azure": "env-cmd -f env/azure/.env node src/index.js --listen-api",
     "start:e2e:team": "cross-env DEVWEB=1 DEVMODE=1 env-cmd -f ../../e2e-tests/env/team/.env node src/index.js --listen-api",
     "ts": "tsc",
-    "build": "webpack",
+    "build": "rspack",
     "build:doc": "jsdoc2md --template doctpl.hbs  ./src/shell/* > ../../../dbgate.github.io/_docs/apidoc.md"
   },
   "devDependencies": {
+    "@rspack/cli": "^1.3.11",
+    "@rspack/core": "^1.3.11",
     "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.149",
     "dbgate-types": "^6.0.0-alpha.1",
@@ -90,8 +92,6 @@
     "jsdoc-to-markdown": "^9.0.5",
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
-    "typescript": "^4.4.3",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^4.4.3"
   }
 }
