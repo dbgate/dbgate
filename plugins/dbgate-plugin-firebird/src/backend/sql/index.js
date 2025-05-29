@@ -9,6 +9,7 @@ const functionParameters = require('./functionParameters');
 const procedures = require('./procedures');
 const procedureParameters = require('./procedureParameters');
 const views = require('./views');
+const uniques = require('./uniques');
 
 module.exports = {
   version,
@@ -22,4 +23,5 @@ module.exports = {
   functionParameters,
   procedures,
   procedureParameters,
+  uniques,
 };

@@ -26,21 +26,24 @@ class Analyser extends DatabaseAnalyser {
     const proceduresResults = await this.analyserQuery(sql.procedures, ['procedures']);
     const procedureParametersResults = await this.analyserQuery(sql.procedureParameters, ['procedures']);
     const viewsResults = await this.analyserQuery(sql.views, ['views']);
+    const unqiuesResults = await this.analyserQuery(sql.uniques, ['tables']);
 
-    const columns = columnsResult.rows?.map(column => ({
-      ...column,
-      objectId: `tables:${column.columnName}`,
-      dataType: getDataTypeString(column),
-      defaultValue: getFormattedDefaultValue(column.defaultValue),
-    }));
+    const columns =
+      columnsResult.rows?.map(column => ({
+        ...column,
+        objectId: `tables:${column.columnName}`,
+        dataType: getDataTypeString(column),
+        defaultValue: getFormattedDefaultValue(column.defaultValue),
+      })) ?? [];
 
-    const triggers = triggersResult.rows?.map(i => ({
-      ...i,
-      objectId: `triggers:${i.pureName}`,
-      eventType: getTriggerEventType(i.TRIGGERTYPE),
-      triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
-      createSql: getTriggerCreateSql(i),
-    }));
+    const triggers =
+      triggersResult.rows?.map(i => ({
+        ...i,
+        objectId: `triggers:${i.pureName}`,
+        eventType: getTriggerEventType(i.TRIGGERTYPE),
+        triggerTiming: getTriggerTiming(i.TRIGGERTYPE),
+        createSql: getTriggerCreateSql(i),
+      })) ?? [];
 
     const primaryKeys =
       primaryKeysResult.rows?.map(primaryKey => ({
@@ -54,30 +57,45 @@ class Analyser extends DatabaseAnalyser {
         objectId: `tables:${foreignKey.pureName}`,
       })) ?? [];
 
-    const functions = functionsResults.rows?.map(func => ({
-      ...func,
-      objectId: `functions:${func.pureName}`,
-      returnType: functionParametersResults.rows?.filter(
-        param => param.owningObjectName === func.pureName && param.parameterMode === 'RETURN'
-      )?.dataType,
-      parameters: functionParametersResults.rows
-        ?.filter(param => param.owningObjectName === func.pureName)
-        .map(param => ({
-          ...param,
-          dataType: getDataTypeString(param),
-        })),
-    }));
+    const functions =
+      functionsResults.rows?.map(func => ({
+        ...func,
+        objectId: `functions:${func.pureName}`,
+        returnType: functionParametersResults.rows?.filter(
+          param => param.owningObjectName === func.pureName && param.parameterMode === 'RETURN'
+        )?.dataType,
+        parameters: functionParametersResults.rows
+          ?.filter(param => param.owningObjectName === func.pureName)
+          .map(param => ({
+            ...param,
+            dataType: getDataTypeString(param),
+          })),
+      })) ?? [];
 
-    const procedures = proceduresResults.rows.map(proc => ({
-      ...proc,
-      objectId: `procedures:${proc.pureName}`,
-      parameters: procedureParametersResults.rows
-        ?.filter(param => param.owningObjectName === proc.pureName)
-        .map(param => ({
-          ...param,
-          dataType: getDataTypeString(param),
-        })),
-    }));
+    const uniques =
+      unqiuesResults.rows?.map(unique => ({
+        pureName: unique.pureName,
+        constraintName: unique.constraintName,
+        constraintType: unique.constraintType,
+        columns: [
+          {
+            columnName: unique.columnName,
+            isDescending: unique.isDescending,
+          },
+        ],
+      })) ?? [];
+
+    const procedures =
+      proceduresResults.rows?.map(proc => ({
+        ...proc,
+        objectId: `procedures:${proc.pureName}`,
+        parameters: procedureParametersResults.rows
+          ?.filter(param => param.owningObjectName === proc.pureName)
+          .map(param => ({
+            ...param,
+            dataType: getDataTypeString(param),
+          })),
+      })) ?? [];
 
     const tables =
       tablesResult.rows?.map(table => ({
@@ -86,7 +104,9 @@ class Analyser extends DatabaseAnalyser {
         columns: columns.filter(column => column.tableName === table.pureName),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, primaryKeys),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, foreignKeys),
+        uniques: uniques.filter(unique => unique.pureName === table.pureName),
       })) ?? [];
+    console.log(uniques);
 
     const views =
       viewsResults.rows?.map(view => ({
