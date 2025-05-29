@@ -13,6 +13,7 @@ const dialect = {
   stringAgg: true,
   offsetFirstSkipSyntax: true,
   dropColumnDependencies: ['dependencies', 'foreignKeys', 'indexes', 'uniques'],
+  changeColumnDependencies: ['dependencies', 'indexes', 'uniques'],
 
   quoteIdentifier(s) {
     return `"${s}"`;
