@@ -219,7 +219,7 @@ jobs:
           path: artifacts
 
       - name: Release
-        _if: _publish
+        _if: _release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
