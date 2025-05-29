@@ -75,13 +75,14 @@ const firebirdDriverBase = {
   defaultPort: 3050,
   showConnectionField: field => ['port', 'user', 'password', 'server', 'databaseFile'].includes(field),
   getQuerySplitterOptions: () => firebirdSplitterOptions,
-  // beforeConnectionSave: connection => {
-  //   const { databaseFile } = connection;
-  //   return {
-  //     singleDatabase: true,
-  //     defaultDatabase: databaseFile,
-  //   };
-  // },
+  beforeConnectionSave: connection => {
+    const { databaseFile } = connection;
+    return {
+      ...connection,
+      singleDatabase: true,
+      defaultDatabase: databaseFile,
+    };
+  },
   engine: 'firebird@dbgate-plugin-firebird',
   title: 'Firebird',
   supportsTransactions: true,

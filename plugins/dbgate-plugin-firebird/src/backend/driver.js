@@ -144,14 +144,6 @@ const driver = {
     };
   },
 
-  async listDatabases(dbhan) {
-    return [
-      {
-        name: 'default',
-      },
-    ];
-  },
-
   async close(dbhan) {
     return new Promise((resolve, reject) => {
       dbhan.client.detach(err => {
