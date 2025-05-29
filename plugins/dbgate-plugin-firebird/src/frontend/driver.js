@@ -12,6 +12,7 @@ const dialect = {
   enableConstraintsPerTable: true,
   stringAgg: true,
   offsetFirstSkipSyntax: true,
+  dropColumnDependencies: ['dependencies', 'foreignKeys', 'indexes', 'uniques'],
 
   quoteIdentifier(s) {
     return `"${s}"`;
