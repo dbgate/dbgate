@@ -20,4 +20,6 @@ JOIN
 WHERE
     rc.RDB$CONSTRAINT_TYPE = 'UNIQUE'             -- Filter for UNIQUE constraints
     AND COALESCE(i.RDB$SYSTEM_FLAG, 0) = 0      -- Typically, backing indexes for user UQ constraints are user-related.
+    AND
+        ('tables:' || TRIM(rc.RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
 `;
