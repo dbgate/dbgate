@@ -60,6 +60,8 @@ export type TestEngineInfo = {
   defaultSchemaName?: string;
 
   generateDbFile?: boolean;
+  generateDbFileOnServer?: boolean;
+  databaseFileLocationOnServer?: string;
   dbSnapshotBySeconds?: boolean;
   dumpFile?: string;
   dumpChecks?: Array<{ sql: string; res: string }>;

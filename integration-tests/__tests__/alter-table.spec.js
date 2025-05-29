@@ -60,7 +60,9 @@ async function testTableDiff(engine, conn, driver, mangle) {
   if (!engine.skipReferences) {
     const query = formatQueryWithoutParams(
       driver,
-      `create table ~t2 (~id int not null primary key, ~fkval int null references ~t1(~col_ref))`
+      `create table ~t2 (~id int not null primary key, ~fkval int ${
+        driver.dialect.implicitNullDeclaration ? '' : 'null'
+      } references ~t1(~col_ref))`
     );
 
     await driver.query(conn, transformSqlForEngine(engine, query));

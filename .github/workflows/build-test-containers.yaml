@@ -30,8 +30,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: '${{ github.actor }}'
+          password: '${{ secrets.GITHUB_TOKEN }}'
       - name: Push mysql-ssh-login to GHCR
         run: |
           docker tag dbgate/mysql-ssh-login:latest ghcr.io/dbgate/mysql-ssh-login:latest

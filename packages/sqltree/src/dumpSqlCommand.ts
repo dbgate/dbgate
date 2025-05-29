@@ -12,6 +12,9 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   if (cmd.topRecords) {
     if (!dmp.dialect.rangeSelect || dmp.dialect.offsetFetchRangeSyntax) dmp.put('^top %s ', cmd.topRecords);
   }
+  if (cmd.range && dmp.dialect.offsetFirstSkipSyntax) {
+    dmp.put('^first %s ^skip %s ', cmd.range.limit, cmd.range.offset);
+  }
   if (cmd.selectAll) {
     dmp.put('* ');
   }
@@ -52,6 +55,8 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   if (cmd.range) {
     if (dmp.dialect.offsetFetchRangeSyntax) {
       dmp.put('^offset %s ^rows ^fetch ^next %s ^rows ^only', cmd.range.offset, cmd.range.limit);
+    } else if (dmp.dialect.offsetFirstSkipSyntax) {
+      //
     } else if (dmp.dialect.offsetNotSupported) {
       dmp.put('^limit %s', cmd.range.limit + cmd.range.offset);
     } else {
