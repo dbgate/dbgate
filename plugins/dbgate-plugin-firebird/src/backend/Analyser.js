@@ -27,6 +27,7 @@ class Analyser extends DatabaseAnalyser {
     const procedureParametersResults = await this.analyserQuery(sql.procedureParameters, ['procedures']);
     const viewsResults = await this.analyserQuery(sql.views, ['views']);
     const unqiuesResults = await this.analyserQuery(sql.uniques, ['tables']);
+    const indexesResults = await this.analyserQuery(sql.indexes, ['tables']);
 
     const columns =
       columnsResult.rows?.map(column => ({
@@ -85,6 +86,19 @@ class Analyser extends DatabaseAnalyser {
         ],
       })) ?? [];
 
+    const indexes =
+      indexesResults.rows?.map(index => ({
+        pureName: index.pureName,
+        constraintName: index.constraintName,
+        constraintType: index.constraintType,
+        columns: [
+          {
+            columnName: index.columnName,
+            isDescending: index.isDescending,
+          },
+        ],
+      })) ?? [];
+
     const procedures =
       proceduresResults.rows?.map(proc => ({
         ...proc,
@@ -105,6 +119,7 @@ class Analyser extends DatabaseAnalyser {
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, primaryKeys),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, foreignKeys),
         uniques: uniques.filter(unique => unique.pureName === table.pureName),
+        indexes: indexes.filter(index => index.pureName === table.pureName),
       })) ?? [];
     console.log(uniques);
 
