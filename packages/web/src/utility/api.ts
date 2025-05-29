@@ -125,6 +125,7 @@ async function processApiResponse(route, args, resp) {
     if (resp?.apiErrorIsLicenseLimit) {
       showModal(LicenseLimitMessageModal, {
         message: resp.apiErrorMessage,
+        licenseLimits: resp.apiErrorLimitedLicenseLimits,
       });
     } else {
       showSnackbarError('API error:' + resp?.apiErrorMessage);

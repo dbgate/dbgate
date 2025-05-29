@@ -3,17 +3,14 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { isProApp } from '../utility/proTools';
   import { openWebLink } from '../utility/simpleTools';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
   export let message;
-
-  function handlePurchase() {
-    closeCurrentModal();
-    openWebLink('https://dbgate.io/purchase/premium/', '_blank');
-  }
+  export let licenseLimits;
 </script>
 
 <FormProvider>
@@ -31,20 +28,32 @@
         </p>
 
         <p>
-          This is a limitation of the free version of DbGate. To continue using cloud operations, please purchase DbGate
-          Premium.
+          This is a limitation of the free version of DbGate. To continue using cloud operations, please {#if !isProApp()}download
+            and{/if} purchase DbGate Premium.
         </p>
         <p>Free version limit:</p>
         <ul>
-          <li>max 5 connections</li>
-          <li>plus max 5 files</li>
+          {#each licenseLimits || [] as limit}
+            <li>{limit}</li>
+          {/each}
         </ul>
       </div>
     </div>
 
     <div slot="footer">
       <FormSubmit value="Close" on:click={closeCurrentModal} data-testid="LicenseLimitMessageModal_closeButton" />
-      <FormStyledButton value="Purchase DbGate Premium" on:click={handlePurchase} skipWidth />
+      {#if !isProApp()}
+        <FormStyledButton
+          value="Download DbGate Premium"
+          on:click={() => openWebLink('https://dbgate.io/download/')}
+          skipWidth
+        />
+      {/if}
+      <FormStyledButton
+        value="Purchase DbGate Premium"
+        on:click={() => openWebLink('https://dbgate.io/purchase/premium/')}
+        skipWidth
+      />
     </div>
   </ModalBase>
 </FormProvider>

@@ -266,9 +266,13 @@ async function callCloudApiPost(endpoint, body, signinHolder = null) {
     },
     validateStatus: status => status < 500,
   });
-  const { errorMessage, isLicenseLimit } = resp.data;
+  const { errorMessage, isLicenseLimit, limitedLicenseLimits } = resp.data;
   if (errorMessage) {
-    return { apiErrorMessage: errorMessage, apiErrorIsLicenseLimit: isLicenseLimit };
+    return {
+      apiErrorMessage: errorMessage,
+      apiErrorIsLicenseLimit: isLicenseLimit,
+      apiErrorLimitedLicenseLimits: limitedLicenseLimits,
+    };
   }
   return resp.data;
 }
