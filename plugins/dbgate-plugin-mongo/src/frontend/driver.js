@@ -42,7 +42,8 @@ const driver = {
   defaultPort: 27017,
   supportsDatabaseUrl: true,
   supportsServerSummary: true,
-  supportsDatabaseProfiler: true,
+  // temporatily disable MongoDB profiler support
+  supportsDatabaseProfiler: false,
   profilerFormatterFunction: 'formatProfilerEntry@dbgate-plugin-mongo',
   profilerTimestampFunction: 'extractProfileTimestamp@dbgate-plugin-mongo',
   profilerChartAggregateFunction: 'aggregateProfileChartEntry@dbgate-plugin-mongo',

@@ -430,6 +430,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       driver?.supportsDatabaseProfiler &&
+        isProApp() &&
         hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
       // isSqlOrDoc &&
       //   isSqlOrDoc &&
