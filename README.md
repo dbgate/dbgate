@@ -20,6 +20,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate-serve) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 * Use nodeJs [scripting interface](https://docs.dbgate.io/scripting) ([API documentation](https://docs.dbgate.io/apidoc))
 * [Recommend DbGate](https://testimonial.to/dbgate) | [Rate on G2](https://www.g2.com/products/dbgate/reviews)
+* [Give us feedback](https://dbgate.org/feedback) - it will help us to decide, how to improve DbGate in future
 
 ## Supported databases
 * MySQL
