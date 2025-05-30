@@ -17,15 +17,16 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=Pwd2020Db
 
-  # db2:
-  #   image: icr.io/db2_community/db2:11.5.8.0
-  #   ports:
-  #     - "50000:50000"
-  #   environment:
-  #     - LICENSE=accept
-  #     - DB2INST1_PASSWORD=Pwd2020Db
-  #     - DBNAME=testdb
-
+  db2:
+    image: icr.io/db2_community/db2:11.5.8.0
+    privileged: true
+    ports:
+      - "15055:50000"
+    environment:
+      LICENSE: accept
+      DB2INST1_PASSWORD: Pwd2020Db
+      DBNAME: testdb
+      DB2INSTANCE: db2inst1
 
   # mysql:
   #   image: mysql:8.0.18
