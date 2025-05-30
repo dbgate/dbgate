@@ -12,6 +12,7 @@ const {
   ScriptWriterEval,
   SqlGenerator,
   playJsonScriptWriter,
+  serializeJsTypesForJsonStringify,
 } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
@@ -232,7 +233,7 @@ async function handleQueryData({ msgid, sql, range }, skipReadonlyCheck = false)
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     const res = await driver.query(dbhan, sql, { range });
-    process.send({ msgtype: 'response', msgid, ...res });
+    process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(res) });
   } catch (err) {
     process.send({
       msgtype: 'response',
@@ -254,7 +255,7 @@ async function handleDriverDataCore(msgid, callMethod, { logName }) {
   const driver = requireEngineDriver(storedConnection);
   try {
     const result = await callMethod(driver);
-    process.send({ msgtype: 'response', msgid, result });
+    process.send({ msgtype: 'response', msgid, result: serializeJsTypesForJsonStringify(result) });
   } catch (err) {
     logger.error(extractErrorLogData(err, { logName }), `Error when handling message ${logName}`);
     process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error executing DB data') });
@@ -272,6 +273,10 @@ async function handleCollectionData({ msgid, options }) {
 
 async function handleLoadKeys({ msgid, root, filter, limit }) {
   return handleDriverDataCore(msgid, driver => driver.loadKeys(dbhan, root, filter, limit), { logName: 'loadKeys' });
+}
+
+async function handleScanKeys({ msgid, pattern, cursor, count }) {
+  return handleDriverDataCore(msgid, driver => driver.scanKeys(dbhan, pattern, cursor, count), { logName: 'scanKeys' });
 }
 
 async function handleExportKeys({ msgid, options }) {
@@ -452,6 +457,7 @@ const messageHandlers = {
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,
+  scanKeys: handleScanKeys,
   loadKeyInfo: handleLoadKeyInfo,
   callMethod: handleCallMethod,
   loadKeyTableRange: handleLoadKeyTableRange,

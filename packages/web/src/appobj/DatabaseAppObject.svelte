@@ -330,6 +330,29 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
       });
     };
 
+    const handleGenerateRunScript = () => {
+      openNewTab(
+        {
+          title: 'Shell #',
+          icon: 'img shell',
+          tabComponent: 'ShellTab',
+        },
+        {
+          editor: `// @require ${extractPackageName(connection.engine)}
+
+await dbgateApi.executeQuery(${JSON.stringify(
+            {
+              connection: extractShellConnection(connection, name),
+              sql: 'your script here',
+            },
+            undefined,
+            2
+          )});
+`,
+        }
+      );
+    };
+
     const handleShowDataDeployer = () => {
       showModal(ChooseArchiveFolderModal, {
         message: 'Choose archive folder for data deployer',
@@ -407,6 +430,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       driver?.supportsDatabaseProfiler &&
+        isProApp() &&
         hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
       // isSqlOrDoc &&
       //   isSqlOrDoc &&
@@ -438,6 +462,11 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
           onClick: handleGenerateDropAllObjectsScript,
           text: 'Shell: Drop all objects',
         },
+
+      {
+        onClick: handleGenerateRunScript,
+        text: 'Shell: Run script',
+      },
 
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/import`) && {

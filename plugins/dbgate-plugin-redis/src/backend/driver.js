@@ -201,6 +201,21 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
+  async scanKeys(dbhan, pattern, cursor = 0, count) {
+    const match = pattern?.match(/[\?\[\{]/) ? pattern : pattern ? `*${pattern}*` : '*';
+    const [nextCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', match, 'COUNT', count);
+    const dbsize = await dbhan.client.dbsize();
+    const keysMapped = keys.map((key) => ({
+      key,
+    }));
+    await this.enrichKeyInfo(dbhan, keysMapped);
+    return {
+      nextCursor,
+      keys: keysMapped,
+      dbsize,
+    };
+  },
+
   async loadKeys(dbhan, root = '', filter = null, limit = null) {
     const keys = await this.getKeys(dbhan, root ? `${root}${dbhan.treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
@@ -260,7 +275,7 @@ const driver = {
 
   extractKeysFromLevel(dbhan, root, keys) {
     const prefix = root ? `${root}${dbhan.treeKeySeparator}` : '';
-    const rootSplit = _.compact(root.split(dbhan.treeKeySeparator));
+    const rootSplit = root == '' ? [] : root.split(dbhan.treeKeySeparator);
     const res = {};
     for (const key of keys) {
       if (!key.startsWith(prefix)) continue;
@@ -305,17 +320,56 @@ const driver = {
     }
   },
 
-  async enrichOneKeyInfo(dbhan, item) {
-    item.type = await dbhan.client.type(item.key);
-    item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
-  },
+  // async enrichOneKeyInfo(dbhan, item) {
+  //   item.type = await dbhan.client.type(item.key);
+  //   item.count = await this.getKeyCardinality(dbhan, item.key, item.type);
+  // },
 
-  async enrichKeyInfo(dbhan, levelInfo) {
-    await async.eachLimit(
-      levelInfo.filter((x) => x.key),
-      10,
-      async (item) => await this.enrichOneKeyInfo(dbhan, item)
-    );
+  async enrichKeyInfo(dbhan, keyObjects) {
+    // 1. get type
+    const typePipeline = dbhan.client.pipeline();
+    for (const item of keyObjects) {
+      typePipeline.type(item.key);
+    }
+    const resultType = await typePipeline.exec();
+    for (let i = 0; i < resultType.length; i++) {
+      if (resultType[i][0] == null) {
+        keyObjects[i].type = resultType[i][1];
+      }
+    }
+
+    // 2. get cardinality
+    const cardinalityPipeline = dbhan.client.pipeline();
+    for (const item of keyObjects) {
+      switch (item.type) {
+        case 'list':
+          cardinalityPipeline.llen(item.key);
+        case 'set':
+          cardinalityPipeline.scard(item.key);
+        case 'zset':
+          cardinalityPipeline.zcard(item.key);
+        case 'stream':
+          cardinalityPipeline.xlen(item.key);
+        case 'hash':
+          cardinalityPipeline.hlen(item.key);
+      }
+    }
+    const resultCardinality = await cardinalityPipeline.exec();
+    let resIndex = 0;
+    for (const item of keyObjects) {
+      if (
+        item.type == 'list' ||
+        item.type == 'set' ||
+        item.type == 'zset' ||
+        item.type == 'stream' ||
+        item.type == 'hash'
+      ) {
+        if (resultCardinality[resIndex][0] == null) {
+          item.count = resultCardinality[resIndex][1];
+          resIndex++;
+        }
+      }
+    }
   },
 
   async loadKeyInfo(dbhan, key) {

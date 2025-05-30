@@ -81,11 +81,11 @@ function decryptPasswordString(password) {
   return password;
 }
 
-function encryptObjectPasswordField(obj, field) {
+function encryptObjectPasswordField(obj, field, encryptor = null) {
   if (obj && obj[field] && !obj[field].startsWith('crypt:')) {
     return {
       ...obj,
-      [field]: 'crypt:' + getInternalEncryptor().encrypt(obj[field]),
+      [field]: 'crypt:' + (encryptor || getInternalEncryptor()).encrypt(obj[field]),
     };
   }
   return obj;
@@ -101,11 +101,11 @@ function decryptObjectPasswordField(obj, field) {
   return obj;
 }
 
-function encryptConnection(connection) {
+function encryptConnection(connection, encryptor = null) {
   if (connection.passwordMode != 'saveRaw') {
-    connection = encryptObjectPasswordField(connection, 'password');
-    connection = encryptObjectPasswordField(connection, 'sshPassword');
-    connection = encryptObjectPasswordField(connection, 'sshKeyfilePassword');
+    connection = encryptObjectPasswordField(connection, 'password', encryptor);
+    connection = encryptObjectPasswordField(connection, 'sshPassword', encryptor);
+    connection = encryptObjectPasswordField(connection, 'sshKeyfilePassword', encryptor);
   }
   return connection;
 }

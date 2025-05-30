@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
+    dbKeys_clearLoadedData,
     dbKeys_markNodeExpanded,
-    dbKeys_reloadFolder,
     DbKeysChangeModelFunction,
     DbKeysTreeModel,
     getIconForRedisType,
@@ -26,16 +26,17 @@
   export let database;
   export let connection;
 
-  export let root;
+  export let key;
 
   export let item;
   export let indentLevel = 0;
   export let filter;
+  export let parentRoots = [];
 
   export let model: DbKeysTreeModel;
   export let changeModel: DbKeysChangeModelFunction;
 
-  $: isExpanded = model.dirsByKey[item.root]?.isExpanded;
+  $: isExpanded = model.dirStateByKey[item.key]?.isExpanded;
 
   // $: console.log(item.text, indentLevel);
   function createMenu() {
@@ -54,7 +55,7 @@
                   args: [item.key],
                 });
 
-                changeModel(m => dbKeys_reloadFolder(m, root));
+                changeModel(m => dbKeys_clearLoadedData(m), true);
               },
             });
           },
@@ -75,23 +76,23 @@
                   args: [item.key, newName],
                 });
 
-                changeModel(m => dbKeys_reloadFolder(m, root));
+                changeModel(m => dbKeys_clearLoadedData(m), true);
               },
             });
           },
         },
-      item.type == 'dir' &&
-        !connection?.isReadOnly && {
-          label: 'Reload',
-          onClick: () => {
-            changeModel(m => dbKeys_reloadFolder(m, root));
-          },
-        },
+      // item.type == 'dir' &&
+      //   !connection?.isReadOnly && {
+      //     label: 'Reload',
+      //     onClick: () => {
+      //       changeModel(m => dbKeys_clearLoadedData(m), true);
+      //     },
+      //   },
       item.type == 'dir' &&
         !connection?.isReadOnly && {
           label: 'Delete branch',
           onClick: () => {
-            const branch = `${item.root}:*`;
+            const branch = `${item.key}:*`;
             showModal(ConfirmModal, {
               message: `Really delete branch ${branch} with all keys?`,
               onConfirm: async () => {
@@ -102,7 +103,7 @@
                   args: [branch],
                 });
 
-                changeModel(m => dbKeys_reloadFolder(m, root));
+                changeModel(m => dbKeys_clearLoadedData(m), true);
               },
             });
           },
@@ -140,12 +141,12 @@
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
     if (item.type == 'dir') {
-      changeModel(tree => dbKeys_markNodeExpanded(tree, item.root, !isExpanded));
+      changeModel(tree => dbKeys_markNodeExpanded(tree, item.key, !isExpanded), false);
     }
   }}
   on:click={() => {
     if (item.type == 'dir') {
-      changeModel(tree => dbKeys_markNodeExpanded(tree, item.root, !isExpanded));
+      changeModel(tree => dbKeys_markNodeExpanded(tree, item.key, !isExpanded), false);
     } else {
       openNewTab({
         tabComponent: 'DbKeyDetailTab',
@@ -179,15 +180,16 @@
   {item.text}
 </div> -->
 
-{#if isExpanded}
+{#if isExpanded && !parentRoots.includes(item.root)}
   <DbKeysSubTree
     {conid}
     {database}
-    root={item.root}
+    key={item.key}
     indentLevel={indentLevel + 1}
     {connection}
     {filter}
     {model}
     {changeModel}
+    {parentRoots}
   />
 {/if}

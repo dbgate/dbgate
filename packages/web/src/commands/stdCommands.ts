@@ -1,4 +1,5 @@
 import {
+  cloudSigninTokenHolder,
   currentDatabase,
   currentTheme,
   emptyConnectionGroupNames,
@@ -119,6 +120,27 @@ registerCommand({
       title: 'New Connection',
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.connectionOnCloud',
+  toolbar: true,
+  icon: 'img cloud-connection',
+  toolbarName: 'Add connection on cloud',
+  category: 'New',
+  toolbarOrder: 1,
+  name: 'Connection on Cloud',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && isProApp(),
+  onClick: () => {
+    openNewTab({
+      title: 'New Connection on Cloud',
+      icon: 'img cloud-connection',
+      tabComponent: 'ConnectionTab',
+      props: {
+        saveOnCloud: true,
+      },
     });
   },
 });
@@ -663,6 +685,15 @@ if (hasPermission('settings/change')) {
 }
 
 registerCommand({
+  id: 'cloud.logout',
+  category: 'Cloud',
+  name: 'Logout',
+  onClick: () => {
+    cloudSigninTokenHolder.set(null);
+  },
+});
+
+registerCommand({
   id: 'file.exit',
   category: 'File',
   name: isMac() ? 'Quit' : 'Exit',
@@ -929,7 +960,15 @@ registerCommand({
   id: 'app.openSponsoring',
   category: 'Application',
   name: 'Become sponsor',
+  testEnabled: () => !isProApp(),
   onClick: () => openWebLink('https://opencollective.com/dbgate'),
+});
+
+registerCommand({
+  id: 'app.giveFeedback',
+  category: 'Application',
+  name: 'Give us feedback',
+  onClick: () => openWebLink('https://dbgate.org/feedback'),
 });
 
 registerCommand({

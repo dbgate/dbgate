@@ -12,6 +12,7 @@
   export let groupFunc;
   export let items;
   export let groupIconFunc = plusExpandIcon;
+  export let mapGroupTitle = undefined;
   export let module;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
@@ -63,7 +64,7 @@
     <FontIcon icon={groupIconFunc(isExpanded)} />
   </span>
 
-  {group}
+  {mapGroupTitle ? mapGroupTitle(group) : group}
   {items && `(${countText})`}
 </div>
 

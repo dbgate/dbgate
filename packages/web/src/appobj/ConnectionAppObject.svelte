@@ -108,6 +108,7 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import {
+    cloudSigninTokenHolder,
     currentDatabase,
     DEFAULT_CONNECTION_SEARCH_SETTINGS,
     expandedConnections,
@@ -160,7 +161,7 @@
   const handleOpenConnectionTab = () => {
     openNewTab({
       title: getConnectionLabel(data),
-      icon: 'img connection',
+      icon: data._id.startsWith('cloud://') ? 'img cloud-connection' : 'img connection',
       tabComponent: 'ConnectionTab',
       props: {
         conid: data._id,
@@ -261,11 +262,15 @@
       });
     };
     const handleDuplicate = () => {
-      apiCall('connections/save', {
-        ...data,
-        _id: undefined,
-        displayName: `${getConnectionLabel(data)} - copy`,
-      });
+      if (data._id.startsWith('cloud://')) {
+        apiCall('cloud/duplicate-connection', { conid: data._id });
+      } else {
+        apiCall('connections/save', {
+          ...data,
+          _id: undefined,
+          displayName: `${getConnectionLabel(data)} - copy`,
+        });
+      }
     };
     const handleCreateDatabase = () => {
       showModal(InputTextModal, {
@@ -332,6 +337,19 @@
             text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
             onClick: handleDuplicate,
           },
+          !$openedConnections.includes(data._id) &&
+            $cloudSigninTokenHolder &&
+            passProps?.cloudContentList?.length > 0 && {
+              text: _t('connection.copyToCloudFolder', { defaultMessage: 'Copy to cloud folder' }),
+              submenu: passProps?.cloudContentList
+                ?.filter(x => x.role == 'write' || x.role == 'admin')
+                ?.map(fld => ({
+                  text: fld.name,
+                  onClick: () => {
+                    apiCall('cloud/copy-connection-cloud', { conid: data._id, folid: fld.folid });
+                  },
+                })),
+            },
         ],
       { divider: true },
       !data.singleDatabase && [
@@ -416,7 +434,7 @@
   {...$$restProps}
   {data}
   title={getConnectionLabel(data, { showUnsaved: true })}
-  icon={data.singleDatabase ? 'img database' : 'img server'}
+  icon={data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
     ? $currentDatabase?.connection?._id == data._id && $currentDatabase?.name == data.defaultDatabase
     : $currentDatabase?.connection?._id == data._id}

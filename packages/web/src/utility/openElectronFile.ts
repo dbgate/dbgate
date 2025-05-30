@@ -111,6 +111,8 @@ async function openSavedElectronFile(filePath, parsed, folder) {
       props: {
         savedFile: null,
         savedFolder: null,
+        savedCloudFolderId: null,
+        savedCloudContentId: null,
         savedFilePath: filePath,
         savedFormat: handler.format,
         ...connProps,

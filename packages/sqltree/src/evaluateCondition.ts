@@ -16,11 +16,17 @@ function isLike(value, test) {
   return res;
 }
 
+function extractRawValue(value) {
+  if (value?.$bigint) return value.$bigint;
+  if (value?.$oid) return value.$oid;
+  return value;
+}
+
 export function evaluateCondition(condition: Condition, values) {
   switch (condition.conditionType) {
     case 'binary':
-      const left = evaluateExpression(condition.left, values);
-      const right = evaluateExpression(condition.right, values);
+      const left = extractRawValue(evaluateExpression(condition.left, values));
+      const right = extractRawValue(evaluateExpression(condition.right, values));
       switch (condition.operator) {
         case '=':
           return left == right;
@@ -50,10 +56,15 @@ export function evaluateCondition(condition: Condition, values) {
     case 'or':
       return condition.conditions.some(cond => evaluateCondition(cond, values));
     case 'like':
-      return isLike(evaluateExpression(condition.left, values), evaluateExpression(condition.right, values));
-      break;
+      return isLike(
+        extractRawValue(evaluateExpression(condition.left, values)),
+        extractRawValue(evaluateExpression(condition.right, values))
+      );
     case 'notLike':
-      return !isLike(evaluateExpression(condition.left, values), evaluateExpression(condition.right, values));
+      return !isLike(
+        extractRawValue(evaluateExpression(condition.left, values)),
+        extractRawValue(evaluateExpression(condition.right, values))
+      );
     case 'not':
       return !evaluateCondition(condition.condition, values);
     case 'anyColumnPass':

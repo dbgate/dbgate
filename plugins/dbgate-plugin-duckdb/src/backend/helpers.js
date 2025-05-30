@@ -31,7 +31,14 @@ function _normalizeValue(value) {
   }
 
   if (typeof value === 'bigint') {
-    return parseInt(value);
+    const parsed = parseInt(value);
+    if (Number.isSafeInteger(parsed)) {
+      return parsed;
+    } else {
+      return {
+        $bigint: value.toString(),
+      };
+    }
   }
 
   if (value instanceof DuckDBTimestampValue) {

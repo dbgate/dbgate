@@ -40,6 +40,13 @@
   <div class="center">
     <FormStyledButton on:click={() => openWebLink('https://dbgate.io/purchase/premium')} value="Purchase" />
   </div>
+
+  <h2>Give us feedback</h2>
+  <p>Your feedback is very valuable for us. It helps us to improve DbGate and make it more useful for you.</p>
+
+  <div class="center">
+    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/feedback')} value="Give us feedback" skipWidth />
+  </div>
 </WidgetsInnerContainer>
 
 <style>

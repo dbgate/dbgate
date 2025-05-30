@@ -52,7 +52,10 @@ async function generateDeploySql({
     dbdiffOptionsExtra?.['schemaMode'] !== 'ignore' &&
     dbdiffOptionsExtra?.['schemaMode'] !== 'ignoreImplicit'
   ) {
-    throw new Error('targetSchema is required for databases with multiple schemas');
+    if (!driver?.dialect?.defaultSchemaName) {
+      throw new Error('targetSchema is required for databases with multiple schemas');
+    }
+    targetSchema = driver.dialect.defaultSchemaName;
   }
 
   try {

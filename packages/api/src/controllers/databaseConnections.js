@@ -148,6 +148,9 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
     const connection = await connections.getCore({ conid });
+    if (!connection) {
+      throw new Error(`databaseConnections: Connection with conid="${conid}" not found`);
+    }
     if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
       throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
     }
@@ -302,6 +305,12 @@ module.exports = {
   async loadKeys({ conid, database, root, filter, limit }, req) {
     testConnectionPermission(conid, req);
     return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
+  },
+
+  scanKeys_meta: true,
+  async scanKeys({ conid, database, root, pattern, cursor, count }, req) {
+    testConnectionPermission(conid, req);
+    return this.loadDataCore('scanKeys', { conid, database, root, pattern, cursor, count });
   },
 
   exportKeys_meta: true,

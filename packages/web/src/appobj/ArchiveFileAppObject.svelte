@@ -81,6 +81,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
   import { openImportExportTab } from '../utility/importExportTools';
+  import { isProApp } from '../utility/proTools';
 
   export let data;
   $: isZipped = data.folderName?.endsWith('.zip');
@@ -187,6 +188,7 @@
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
       data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
       !isZipped &&
+        isProApp() &&
         data.fileType == 'jsonl' && {
           text: 'Open in profiler',
           submenu: getExtensions()

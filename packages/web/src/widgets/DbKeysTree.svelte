@@ -1,9 +1,10 @@
 <script lang="ts">
   import {
+    dbKeys_clearLoadedData,
+    dbKeys_createNewModel,
     dbKeys_getFlatList,
-    dbKeys_loadMissing,
     dbKeys_markNodeExpanded,
-    dbKeys_refreshAll,
+    dbKeys_mergeNextPage,
     findEngineDriver,
   } from 'dbgate-tools';
 
@@ -32,22 +33,19 @@
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import openNewTab from '../utility/openNewTab';
-  import clickOutside from '../utility/clickOutside';
 
   export let conid;
   export let database;
+  export let treeKeySeparator = ':';
 
   let domListHandler;
   let domContainer = null;
   let domFilter = null;
 
   let filter;
+  let isLoading = false;
 
-  let model = dbKeys_refreshAll();
-
-  function handleRefreshDatabase() {
-    changeModel(model => dbKeys_refreshAll(model));
-  }
+  let model = dbKeys_createNewModel(treeKeySeparator);
 
   function handleAddKey() {
     const connection = $currentDatabase?.connection;
@@ -68,7 +66,7 @@
           args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
         });
 
-        handleRefreshDatabase();
+        reloadModel();
       },
     });
   }
@@ -80,22 +78,27 @@
 
   $: connection = useConnectionInfo({ conid });
 
-  async function changeModel(modelUpdate) {
-    model = modelUpdate(model);
-    model = await dbKeys_loadMissing(model, async (root, limit) => {
-      const result = await apiCall('database-connections/load-keys', {
-        conid,
-        database,
-        root,
-        filter,
-        limit,
-      });
-      return result;
+  function changeModel(modelUpdate, loadNext) {
+    if (modelUpdate) model = modelUpdate(model);
+    if (loadNext) loadNextPage();
+  }
+
+  async function loadNextPage() {
+    isLoading = true;
+    const nextScan = await apiCall('database-connections/scan-keys', {
+      conid,
+      database,
+      pattern: filter,
+      cursor: model.cursor,
+      count: model.loadCount,
     });
+
+    model = dbKeys_mergeNextPage(model, nextScan);
+    isLoading = false;
   }
 
   function reloadModel() {
-    changeModel(model => dbKeys_refreshAll(model));
+    changeModel(model => dbKeys_clearLoadedData(model), true);
   }
 
   $: {
@@ -104,11 +107,13 @@
     filter;
     reloadModel();
   }
+
+  // $: console.log('DbKeysTree MODEL', model);
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper noMargin>
   <SearchInput
-    placeholder="Search keys"
+    placeholder="Redis pattern or key part"
     bind:value={filter}
     isDebounced
     bind:this={domFilter}
@@ -120,10 +125,32 @@
   <InlineButton on:click={handleAddKey} title="Add new key">
     <FontIcon icon="icon plus-thick" />
   </InlineButton>
-  <InlineButton on:click={handleRefreshDatabase} title="Refresh key list">
+  <InlineButton on:click={reloadModel} title="Refresh key list">
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
+{#if !model?.loadedAll}
+  <div class="space-between align-items-center ml-1">
+    {#if model}
+      <div>
+        {#if isLoading}
+          Loading...
+        {:else}
+          Scanned {Math.min(model?.scannedKeys, model?.dbsize) ?? '???'}/{model?.dbsize ?? '???'}
+        {/if}
+      </div>
+    {/if}
+    {#if isLoading}
+      <div style="margin: 3px; margin-bottom: 2px">
+        <FontIcon icon="icon loading" />
+      </div>
+    {:else}
+      <InlineButton on:click={loadNextPage} title="Scan more keys">
+        <FontIcon icon="icon more" /> Scan more
+      </InlineButton>
+    {/if}
+  </div>
+{/if}
 {#if differentFocusedDb}
   <FocusedConnectionInfoWidget {conid} {database} connection={$connection} />
 {/if}
@@ -133,7 +160,7 @@
     list={dbKeys_getFlatList(model)}
     selectedObjectStore={focusedTreeDbKey}
     getSelectedObject={getFocusedTreeDbKey}
-    selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type && o1?.root == o2?.root}
+    selectedObjectMatcher={(o1, o2) => o1?.key == o2?.key && o1?.type == o2?.type}
     handleObjectClick={(data, clickAction) => {
       focusedTreeDbKey.set(data);
 
@@ -155,12 +182,12 @@
           [`${conid}:${database}`]: data.key,
         };
       }
-      if (data.root && clickAction == 'keyEnter') {
-        changeModel(model => dbKeys_markNodeExpanded(model, data.root, !model.dirsByKey[data.root]?.isExpanded));
+      if (data.key && clickAction == 'keyEnter') {
+        changeModel(model => dbKeys_markNodeExpanded(model, data.key, !model.dirsByKey[data.key]?.isExpanded), false);
       }
     }}
     handleExpansion={(data, value) => {
-      changeModel(model => dbKeys_markNodeExpanded(model, data.root, value));
+      changeModel(model => dbKeys_markNodeExpanded(model, data.key, value), false);
     }}
     onScrollTop={() => {
       domContainer?.scrollTop();
@@ -169,6 +196,6 @@
       domFilter?.focus(text);
     }}
   >
-    <DbKeysSubTree root="" {filter} {model} {changeModel} {conid} {database} {connection} />
+    <DbKeysSubTree key="" {filter} {model} {changeModel} {conid} {database} {connection} />
   </AppObjectListHandler>
 </WidgetsInnerContainer>

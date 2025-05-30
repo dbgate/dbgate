@@ -29,7 +29,7 @@
     const visibleItemsCount = defs.filter(x => !x.collapsed && !x.skip).length;
     for (let index = 0; index < defs.length; index++) {
       const definition = defs[index];
-      const splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
+      const splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip && x.positiveCondition);
       dynamicPropsCollection[index].set({ splitterVisible, visibleItemsCount });
     }
   }

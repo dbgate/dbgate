@@ -9,12 +9,17 @@
     visibleHamburgerMenuWidget,
     lockedDatabaseMode,
     getCurrentConfig,
+    cloudSigninTokenHolder,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
+  import { openWebLink } from '../utility/simpleTools';
+  import { apiCall } from '../utility/api';
+  import getElectron from '../utility/getElectron';
 
   let domSettings;
+  let domCloudAccount;
   let domMainMenu;
 
   const widgets = [
@@ -28,6 +33,12 @@
       name: 'database',
       title: 'Database connections',
     },
+    {
+      name: 'cloud-private',
+      title: 'DbGate Cloud',
+      icon: 'icon cloud-private',
+    },
+
     // {
     //   icon: 'fa-table',
     //   name: 'table',
@@ -58,9 +69,9 @@
       title: 'Selected cell data detail view',
     },
     {
-      icon: 'icon app',
-      name: 'app',
-      title: 'Application layers',
+      name: 'cloud-public',
+      title: 'DbGate Cloud',
+      icon: 'icon cloud-public',
     },
     {
       icon: 'icon premium',
@@ -92,7 +103,26 @@
     const rect = domSettings.getBoundingClientRect();
     const left = rect.right;
     const top = rect.bottom;
-    const items = [{ command: 'settings.show' }, { command: 'theme.changeTheme' }, { command: 'settings.commands' }];
+    const items = [
+      { command: 'settings.show' },
+      { command: 'theme.changeTheme' },
+      { command: 'settings.commands' },
+      {
+        text: 'View applications',
+        onClick: () => {
+          $selectedWidget = 'app';
+          $visibleWidgetSideBar = true;
+        },
+      },
+    ];
+    currentDropDownMenu.set({ left, top, items });
+  }
+
+  function handleCloudAccountMenu() {
+    const rect = domCloudAccount.getBoundingClientRect();
+    const left = rect.right;
+    const top = rect.bottom;
+    const items = [{ command: 'cloud.logout' }];
     currentDropDownMenu.set({ left, top, items });
   }
 
@@ -102,6 +132,11 @@
     const top = rect.top;
     const items = mainMenuDefinition({ editMenu: false });
     currentDropDownMenu.set({ left, top, items });
+  }
+
+  async function handleOpenCloudLogin() {
+    const { url, sid } = await apiCall('auth/create-cloud-login-session', { client: getElectron() ? 'app' : 'web' });
+    openWebLink(url, true);
   }
 </script>
 
@@ -113,7 +148,8 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isPremiumPromo || !isProApp()) as item}
+    .filter(x => !x.isPremiumPromo || !isProApp())
+    .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
       class="wrapper"
       class:selected={item.name == $visibleSelectedWidget}
@@ -129,7 +165,7 @@
 
   <div class="flex1">&nbsp;</div>
 
-  <div
+  <!-- <div
     class="wrapper"
     title={`Toggle whether tabs from all databases are visible. Currently - ${$lockedDatabaseMode ? 'NO' : 'YES'}`}
     on:click={() => {
@@ -138,7 +174,22 @@
     data-testid="WidgetIconPanel_lockDb"
   >
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
-  </div>
+  </div> -->
+
+  {#if $cloudSigninTokenHolder}
+    <div
+      class="wrapper"
+      on:click={handleCloudAccountMenu}
+      bind:this={domCloudAccount}
+      data-testid="WidgetIconPanel_cloudAccount"
+    >
+      <FontIcon icon="icon cloud-account-connected" />
+    </div>
+  {:else}
+    <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
+      <FontIcon icon="icon cloud-account" />
+    </div>
+  {/if}
 
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">
     <FontIcon icon="icon settings" />
@@ -147,8 +198,8 @@
 
 <style>
   .wrapper {
-    font-size: 23pt;
-    height: 60px;
+    font-size: 20pt;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;

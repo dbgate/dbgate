@@ -4,6 +4,7 @@ import _isDate from 'lodash/isDate';
 import _isNumber from 'lodash/isNumber';
 import _isPlainObject from 'lodash/isPlainObject';
 import _pad from 'lodash/pad';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
 
 export type EditorDataType =
@@ -80,7 +81,7 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
 
   if (editorTypes?.parseNumber) {
     if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(value)) {
-      return parseFloat(value);
+      return parseNumberSafe(value);
     }
   }
 
@@ -207,6 +208,18 @@ export function stringifyCellValue(
           return { value: `ObjectId("${value.$oid}")`, gridStyle: 'valueCellStyle' };
       }
     }
+  }
+  if (value?.$bigint) {
+    return {
+      value: value.$bigint,
+      gridStyle: 'valueCellStyle',
+    };
+  }
+  if (typeof value === 'bigint') {
+    return {
+      value: value.toString(),
+      gridStyle: 'valueCellStyle',
+    };
   }
 
   if (editorTypes?.parseDateAsDollar) {
@@ -341,6 +354,9 @@ export function shouldOpenMultilineDialog(value) {
     return false;
   }
   if (value?.$date) {
+    return false;
+  }
+  if (value?.$bigint) {
     return false;
   }
   if (_isPlainObject(value) || _isArray(value)) {
@@ -572,4 +588,48 @@ export function jsonLinesParse(jsonLines: string): any[] {
       }
     })
     .filter(x => x);
+}
+
+export function serializeJsTypesForJsonStringify(obj, replacer = null) {
+  return _cloneDeepWith(obj, value => {
+    if (typeof value === 'bigint') {
+      return { $bigint: value.toString() };
+    }
+    if (replacer) {
+      return replacer(value);
+    }
+  });
+}
+
+export function deserializeJsTypesFromJsonParse(obj) {
+  return _cloneDeepWith(obj, value => {
+    if (value?.$bigint) {
+      return BigInt(value.$bigint);
+    }
+  });
+}
+
+export function serializeJsTypesReplacer(key, value) {
+  if (typeof value === 'bigint') {
+    return { $bigint: value.toString() };
+  }
+  return value;
+}
+
+export function deserializeJsTypesReviver(key, value) {
+  if (value?.$bigint) {
+    return BigInt(value.$bigint);
+  }
+  return value;
+}
+
+export function parseNumberSafe(value) {
+  if (/^-?[0-9]+$/.test(value)) {
+    const parsed = parseInt(value);
+    if (Number.isSafeInteger(parsed)) {
+      return parsed;
+    }
+    return BigInt(value);
+  }
+  return parseFloat(value);
 }

@@ -14,7 +14,12 @@
   // import { shouldWaitForElectronInitialize } from './utility/getElectron';
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
-  import { apiCall, installNewVolatileConnectionListener } from './utility/api';
+  import {
+    apiCall,
+    installNewCloudTokenListener,
+    installNewVolatileConnectionListener,
+    refreshPublicCloudFiles,
+  } from './utility/api';
   import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
@@ -23,6 +28,7 @@
   import { handleAuthOnStartup } from './clientAuth';
   import { initializeAppUpdates } from './utility/appUpdate';
   import { _t } from './translations';
+  import { installCloudListeners } from './utility/cloudListeners';
 
   export let isAdminPage = false;
 
@@ -51,8 +57,12 @@
         subscribeConnectionPingers();
         subscribePermissionCompiler();
         installNewVolatileConnectionListener();
+        installNewCloudTokenListener();
         initializeAppUpdates();
+        installCloudListeners();
       }
+
+      refreshPublicCloudFiles();
 
       loadedApi = loadedApiValue;
 
