@@ -15,8 +15,7 @@ module.exports = async function connect({
   connectionRetries = 3,
   queryTimeout = 60,
   optimizeSchemaQueries = true
-}) {
-  try {
+}) {  try {
     console.log('[DB2] ====== Starting connection ======');
     
     // Validate required connection parameters
@@ -30,17 +29,19 @@ module.exports = async function connect({
         console.error('[DB2] Server address is required');
         throw new Error('Server address is required');
       }
+      // Don't require port - use default if not provided
       if (!port) {
-        console.error('[DB2] Port number is required');
-        throw new Error('Port number is required');
+        port = 50000; // Default DB2 port
+        console.log('[DB2] Port not specified, using default port 50000');
       }
       if (!user) {
         console.error('[DB2] Username is required');
         throw new Error('Username is required');
       }
+      // Don't require password - some DB2 systems allow empty passwords
       if (!password) {
-        console.error('[DB2] Password is required');
-        throw new Error('Password is required');
+        password = ''; // Use empty password
+        console.log('[DB2] Password not specified, using empty password');
       }
     }
 
@@ -74,18 +75,8 @@ module.exports = async function connect({
       const escapedUser = user ? user.replace(/[;=]/g, c => encodeURIComponent(c)) : '';
       const escapedPassword = password ? password.replace(/[;=]/g, c => encodeURIComponent(c)) : '';
       const escapedServer = server ? server.replace(/[;=]/g, c => encodeURIComponent(c)) : '';
-      const escapedDbName = dbName ? dbName.replace(/[;=]/g, c => encodeURIComponent(c)) : '';      // Build connection string with ultra-enhanced parameters specifically for 
-      // connection code 10060 (connection timeout) and extremely intermittent connectivity
-      
-      // Check if this is the known problematic server (45.241.60.18)
-      const isProblematicServer = server === '45.241.60.18';
-      
-      // Use even more aggressive timeouts if connecting to the problematic server
-      const connectTimeout = isProblematicServer ? 300 : 180;  // 5 minutes for problematic server
-      const commTimeout = isProblematicServer ? 300 : 180;     // 5 minutes for problematic server
-      const socketTimeout = isProblematicServer ? 300 : 180;   // 5 minutes for problematic server
-      const retryCount = isProblematicServer ? 25 : 15;        // More retries for problematic server
-      const retryInterval = isProblematicServer ? 20 : 12;     // Longer interval for problematic server
+      const escapedDbName = dbName ? dbName.replace(/[;=]/g, c => encodeURIComponent(c)) : '';      // Build a simpler connection string with minimal parameters that are most compatible
+      // with standard DB2 servers to avoid any incompatibilities
       
       const connectionParams = [
         `DATABASE=${escapedDbName}`,
@@ -95,51 +86,25 @@ module.exports = async function connect({
         `UID=${escapedUser}`,
         `PWD=${escapedPassword}`,
         sslConfig,
-        `CONNECTTIMEOUT=${connectTimeout}`,   // Significantly increased for extremely slow networks
-        `COMMTIMEOUT=${commTimeout}`,         // Matched to connect timeout
-        `RETRIES=${retryCount}`,              // Dramatically increased for very unreliable connections
-        `RETRYINTERVAL=${retryInterval}`,     // Increased interval for slower networks
-        `SOCKETTIMEOUT=${socketTimeout}`,     // Increased to match connection timeout
-        'TCPIPKEEPALIVE=1',                   // Keep TCP keepalive enabled
-        'TCPIPKEEPALIVETIME=120',             // Doubled keepalive time (from 60s)
-        'TCPIPKEEPALIVECNT=15',               // More keepalive attempts (from 10)
-        'TCPIPKEEPALIVEINTVL=15',             // Longer keepalive interval (from 10s)
-        'LOGINRETRIES=12',                    // Increased login retries (from 8)
-        'LOGINRETRYINTERVAL=15',              // Longer retry interval (from 12s)
-        'LONGTIMEOUT=60',                     // Doubled for long operations (from 30s)
-        'QUERYTIMEOUT=90',                    // Increased query timeout (from 60s)
-        'AUTOCOMMIT=1',                       // Keep autocommit enabled
-        'CURRENTSCHEMA=CURRENT USER',         // Try to set current schema to current user
-        `DB2TCP_CLIENT_CONTIMEOUT=${connectTimeout}`, // Client connection timeout
-        `DB2TCP_CLIENT_RCVTIMEOUT=${connectTimeout}`, // Client receive timeout
-        // Add specific parameters for problematic server
-        isProblematicServer ? 'POOL_RECYCLE_INT=120' : null, // Pool recycle interval for problematic server
-        isProblematicServer ? 'MAX_IDLE_TIME=30' : null,     // Max idle time for connections
-        isProblematicServer ? 'COMM_TYPE=2' : null,          // Try different comm type for problematic server
+        'CONNECTTIMEOUT=60',        // Use a reasonable default timeout
+        'AUTOCOMMIT=1'              // Keep autocommit enabled
       ].filter(Boolean);
       
-      connStr = connectionParams.join(';');    console.log(`[DB2] Using enhanced connection string format: DATABASE=xxx;HOSTNAME=xxx;PORT=xxx;...`);
-    }  // Try to establish connection with extremely enhanced retry logic for intermittent connectivity
-    let client = null;
-    let retryCount = 0;
-    // Significantly increased retry count for critical error 10060 (connection timeout)
-    const maxRetries = 20; // Increased from 15 to 20 for persistent retrying
-    
-    // Store connection attempt data for diagnostics
-    const connectionAttempts = [];
-    // Track success rate to adapt our strategy
-    let lastSuccessTime = null;
-    
-    // Check if we're trying to connect to a known problematic server (45.241.60.18)
-    const isKnownProblematicServer = server === '45.241.60.18' || 
-                                     connStr.includes('45.241.60.18');
-    
-    if (isKnownProblematicServer) {
-      console.log('[DB2] Detected connection to known problematic server (45.241.60.18).');
-      console.log('[DB2] Applying special connection parameters for this server.');
-    }
-    
-    while (retryCount < maxRetries) {
+      connStr = connectionParams.join(';');console.log(`[DB2] Using enhanced connection string format: DATABASE=xxx;HOSTNAME=xxx;PORT=xxx;...`);
+    }  // Try to establish connection with simple retry logic
+  let client = null;
+  let retryCount = 0;
+  // Use a moderate retry count that won't cause excessive waiting for the user
+  const maxRetries = 3;
+  
+  // Track success rate for diagnostics
+  let lastSuccessTime = null;
+  const connectionAttempts = [];
+  
+  // Check if this is a known problematic server
+  const isKnownProblematicServer = server === '45.241.60.18';
+  
+  while (retryCount < maxRetries) {
       try {
         const attemptStart = Date.now();
         console.log(`[DB2] Connection attempt ${retryCount + 1}/${maxRetries} to ${server || 'custom URL'}:${port || 'custom port'}`);

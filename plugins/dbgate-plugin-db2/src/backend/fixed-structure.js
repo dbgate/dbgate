@@ -143,6 +143,83 @@ async function getStructure(driver, dbhan, schemaName) {
       if (tables.length > 0) {
         console.log(`[DB2] First mapped table:`, tables[0]);
       }
+      
+      // FETCH COLUMN INFORMATION FOR TABLES
+      console.log(`[DB2] Fetching column information for ${tables.length} tables`);
+      
+      // Create columns map to store column info for each table
+      const tableColumns = {};
+      
+      // Query to get all columns for all tables in the schema in one go (more efficient)
+      const columnsQuery = `
+        SELECT 
+          c.TABSCHEMA as schemaName, 
+          c.TABNAME as tableName, 
+          c.COLNAME as columnName, 
+          c.TYPENAME as dataType,
+          c.LENGTH as length,
+          c.SCALE as scale,
+          c.DEFAULT as defaultValue,
+          c.REMARKS as description,
+          c.NULLS as isNullable,
+          c.COLNO as columnNo,
+          c.IDENTITY as isIdentity,
+          c.KEYSEQ as primaryKey
+        FROM SYSCAT.COLUMNS c
+        WHERE c.TABSCHEMA = ?
+        ORDER BY c.TABNAME, c.COLNO
+      `;
+      
+      try {
+        const columnsRes = await driver.query(dbhan, columnsQuery, [schemaName]);
+        console.log(`[DB2] Retrieved ${columnsRes.rows?.length || 0} total columns`);
+        
+        // Process columns and organize by table
+        (columnsRes.rows || []).forEach(row => {
+          const normalizedRow = normalizeRow(row);
+          
+          const tableSchema = getPropertyValue(normalizedRow, 'schemaName', 'TABSCHEMA', 'tabschema');
+          const tableName = getPropertyValue(normalizedRow, 'tableName', 'TABNAME', 'tabname');
+          const columnName = getPropertyValue(normalizedRow, 'columnName', 'COLNAME', 'colname');
+          const tableKey = `${tableSchema}.${tableName}`;
+          
+          // Initialize array for this table if not exists
+          if (!tableColumns[tableKey]) {
+            tableColumns[tableKey] = [];
+          }
+          
+          // Add column information
+          tableColumns[tableKey].push({
+            pureName: columnName,
+            columnName: columnName,
+            dataType: getPropertyValue(normalizedRow, 'dataType', 'TYPENAME', 'typename'),
+            length: getPropertyValue(normalizedRow, 'length', 'LENGTH', 'length'),
+            precision: getPropertyValue(normalizedRow, 'length', 'LENGTH', 'length'),
+            scale: getPropertyValue(normalizedRow, 'scale', 'SCALE', 'scale'),
+            notNull: getPropertyValue(normalizedRow, 'isNullable', 'NULLS', 'nulls') === 'N',
+            autoIncrement: getPropertyValue(normalizedRow, 'isIdentity', 'IDENTITY', 'identity') === 'Y',
+            defaultValue: getPropertyValue(normalizedRow, 'defaultValue', 'DEFAULT', 'default'),
+            isPrimaryKey: !!getPropertyValue(normalizedRow, 'primaryKey', 'KEYSEQ', 'keyseq'),
+            ordinalPosition: getPropertyValue(normalizedRow, 'columnNo', 'COLNO', 'colno'),
+            description: getPropertyValue(normalizedRow, 'description', 'REMARKS', 'remarks')
+          });
+        });
+        
+        // Add column information to each table
+        tables = tables.map(table => {
+          const tableKey = `${table.schemaName}.${table.pureName}`;
+          const columns = tableColumns[tableKey] || [];
+          return {
+            ...table,
+            columns
+          };
+        });
+        
+        console.log(`[DB2] Added column information to tables. First table now has ${tables[0]?.columns?.length || 0} columns`);
+      } catch (columnsErr) {
+        console.error(`[DB2] Error getting column information: ${columnsErr.message}`);
+        console.error(columnsErr);
+      }
     } catch (tableErr) {
       console.error(`[DB2] Error getting tables: ${tableErr.message}`);
       console.error(tableErr);
@@ -193,6 +270,82 @@ async function getStructure(driver, dbhan, schemaName) {
       });
       
       console.log(`[DB2] Found ${views.length} views in schema ${schemaName}`);
+      
+      // FETCH COLUMNS FOR VIEWS
+      if (views.length > 0) {
+        console.log(`[DB2] Fetching column information for ${views.length} views`);
+        
+        // Create columns map to store column info for each view
+        const viewColumns = {};
+        
+        // Query to get all columns for all views in the schema
+        const viewColumnsQuery = `
+          SELECT 
+            c.TABSCHEMA as schemaName, 
+            c.TABNAME as viewName, 
+            c.COLNAME as columnName, 
+            c.TYPENAME as dataType,
+            c.LENGTH as length,
+            c.SCALE as scale,
+            c.DEFAULT as defaultValue,
+            c.REMARKS as description,
+            c.NULLS as isNullable,
+            c.COLNO as columnNo
+          FROM SYSCAT.COLUMNS c
+          JOIN SYSCAT.VIEWS v ON c.TABSCHEMA = v.VIEWSCHEMA AND c.TABNAME = v.VIEWNAME
+          WHERE c.TABSCHEMA = ?
+          ORDER BY c.TABNAME, c.COLNO
+        `;
+        
+        try {
+          const viewColumnsRes = await driver.query(dbhan, viewColumnsQuery, [schemaName]);
+          console.log(`[DB2] Retrieved ${viewColumnsRes.rows?.length || 0} total view columns`);
+          
+          // Process columns and organize by view
+          (viewColumnsRes.rows || []).forEach(row => {
+            const normalizedRow = normalizeRow(row);
+            
+            const viewSchema = getPropertyValue(normalizedRow, 'schemaName', 'TABSCHEMA', 'tabschema');
+            const viewName = getPropertyValue(normalizedRow, 'viewName', 'TABNAME', 'tabname', 'viewname');
+            const columnName = getPropertyValue(normalizedRow, 'columnName', 'COLNAME', 'colname');
+            const viewKey = `${viewSchema}.${viewName}`;
+            
+            // Initialize array for this view if not exists
+            if (!viewColumns[viewKey]) {
+              viewColumns[viewKey] = [];
+            }
+            
+            // Add column information
+            viewColumns[viewKey].push({
+              pureName: columnName,
+              columnName: columnName,
+              dataType: getPropertyValue(normalizedRow, 'dataType', 'TYPENAME', 'typename'),
+              length: getPropertyValue(normalizedRow, 'length', 'LENGTH', 'length'),
+              precision: getPropertyValue(normalizedRow, 'length', 'LENGTH', 'length'),
+              scale: getPropertyValue(normalizedRow, 'scale', 'SCALE', 'scale'),
+              notNull: getPropertyValue(normalizedRow, 'isNullable', 'NULLS', 'nulls') === 'N',
+              defaultValue: getPropertyValue(normalizedRow, 'defaultValue', 'DEFAULT', 'default'),
+              ordinalPosition: getPropertyValue(normalizedRow, 'columnNo', 'COLNO', 'colno'),
+              description: getPropertyValue(normalizedRow, 'description', 'REMARKS', 'remarks')
+            });
+          });
+          
+          // Add column information to each view
+          views = views.map(view => {
+            const viewKey = `${view.schemaName}.${view.pureName}`;
+            const columns = viewColumns[viewKey] || [];
+            return {
+              ...view,
+              columns
+            };
+          });
+          
+          console.log(`[DB2] Added column information to views. First view now has ${views[0]?.columns?.length || 0} columns`);
+        } catch (viewColumnsErr) {
+          console.error(`[DB2] Error getting view column information: ${viewColumnsErr.message}`);
+          console.error(viewColumnsErr);
+        }
+      }
     } catch (viewErr) {
       console.error(`[DB2] Error getting views: ${viewErr.message}`);
     }
@@ -321,7 +474,9 @@ async function getStructure(driver, dbhan, schemaName) {
       tableCount: tables.length,
       viewCount: views.length,
       functionCount: functions.length,
-      procedureCount: procedures.length
+      procedureCount: procedures.length,
+      tableColumnsCount: tables.reduce((total, table) => total + (table.columns?.length || 0), 0),
+      viewColumnsCount: views.reduce((total, view) => total + (view.columns?.length || 0), 0)
     });
 
     console.log('[DB2] ====== Completed enhanced getStructure API call ======');
