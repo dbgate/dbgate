@@ -73,9 +73,13 @@ const driver = {
         console.error(`[DB2] ❌ ${method} method is missing!`);
       }
     }
-  },
-
-  async connect({ server, port, user, password, database, ssl, isReadOnly, useDatabaseUrl, databaseUrl }) {
+  },  async connect({ server, port, user, password, database, ssl, isReadOnly, useDatabaseUrl, databaseUrl }) {
+    // Ensure ibmdb module is available
+    if (!ibmdb) {
+      console.error('[DB2] IBM_DB module not found. Make sure it is properly installed.');
+      throw new Error('DB2 driver module (ibm_db) not available. Please check installation.');
+    }
+  
     // Add optimized connection settings to prevent timeouts
     const connectionSettings = {
       server, 
@@ -87,11 +91,11 @@ const driver = {
       isReadOnly, 
       useDatabaseUrl, 
       databaseUrl,
-      ibmdb,
-      // Add connection optimization parameters
-      connectTimeout: 30, // 30 seconds connection timeout
-      connectionRetries: 5, // Increase retries for more reliability
-      queryTimeout: 60, // 60 seconds query timeout
+      ibmdb, // Pass the ibmdb module directly
+      // Add enhanced connection optimization parameters
+      connectTimeout: 60, // 60 seconds connection timeout
+      connectionRetries: 7, // Increased retries for more reliability
+      queryTimeout: 90, // 90 seconds query timeout
       optimizeSchemaQueries: true, // Flag to optimize schema-related queries
       useCaching: true // Enable result caching for better performance
     };
@@ -2272,23 +2276,21 @@ const driver = {
         `;
         console.log(`[DB2] Executing functions query for schema ${schemaName}`);
         const functionsResult = await this.query(dbhan, functionsQuery, [schemaName]);
-        
-        if (functionsResult.rows && functionsResult.rows.length > 0) {
+          if (functionsResult.rows && functionsResult.rows.length > 0) {
           console.log(`[DB2] Found ${functionsResult.rows.length} functions in schema ${schemaName}`);
           const functions = functionsResult.rows.map(row => {
-            const routineName = (row.ROUTINENAME || row.functionName || '').trim();
+            const routineName = (row.ROUTINENAME || '').trim();
             return {
-              schemaName: (row.ROUTINESCHEMA || row.schemaName || '').trim(),
+              schemaName: (row.ROUTINESCHEMA || '').trim(),
               pureName: routineName,
               objectType: 'function',
-              objectId: `${(row.ROUTINESCHEMA || row.schemaName || '').trim()}.${routineName}`,
-              description: row.REMARKS || row.description,
-              definition: row.TEXT || row.definition,
-              parameterStyle: row.PARAMETER_STYLE || row.parameterStyle,
-              language: row.LANGUAGE || row.language,
-              createTime: row.CREATE_TIME || row.createTime,
-              alterTime: row.ALTER_TIME || row.alterTime,
-              returnType: `${row.RETURN_TYPESCHEMA || ''}.${row.RETURN_TYPENAME || ''}`,
+              objectId: `${(row.ROUTINESCHEMA || '').trim()}.${routineName}`,              description: row.REMARKS,
+              definition: row.TEXT,
+              parameterStyle: row.PARAMETER_STYLE,
+              language: row.LANGUAGE,
+              createTime: row.CREATE_TIME,
+              alterTime: row.ALTER_TIME,
+              returnType: `${row.RETURN_TYPESCHEMA || ''}.${row.RETURN_TYPENAME || ''}`.replace(/^\./, '').replace(/\.$/, ''),
               contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
               modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
               displayName: routineName
@@ -2314,14 +2316,13 @@ const driver = {
               const paramsResult = await this.query(dbhan, paramsQuery, [func.schemaName, func.pureName]);
               
               if (paramsResult.rows && paramsResult.rows.length > 0) {
-                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for function ${func.pureName}`);
-                func.parameters = paramsResult.rows.map((row, index) => ({
-                  name: row.PARMNAME || row.paramName || `param${index+1}`,
-                  dataType: row.TYPENAME || row.dataType,
-                  length: row.LENGTH || row.length,
-                  scale: row.SCALE || row.scale,
-                  mode: row.PARM_MODE || row.paramMode,
-                  ordinalPosition: row.ORDINAL || row.ordinalPosition || index
+                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for function ${func.pureName}`);                func.parameters = paramsResult.rows.map((row, index) => ({
+                  name: row.PARMNAME || `param${index+1}`,
+                  dataType: row.TYPENAME,
+                  length: row.LENGTH,
+                  scale: row.SCALE,
+                  mode: row.PARM_MODE,
+                  ordinalPosition: row.ORDINAL || index
                 }));
               }
             } catch (paramsErr) {
@@ -2358,24 +2359,21 @@ const driver = {
         `;
         console.log(`[DB2] Executing procedures query for schema ${schemaName}`);
         const proceduresResult = await this.query(dbhan, proceduresQuery, [schemaName]);
-        
-        if (proceduresResult.rows && proceduresResult.rows.length > 0) {
+          if (proceduresResult.rows && proceduresResult.rows.length > 0) {
           console.log(`[DB2] Found ${proceduresResult.rows.length} procedures in schema ${schemaName}`);
           const procedures = proceduresResult.rows.map(row => {
-            const routineName = (row.ROUTINENAME || row.procedureName || '').trim();
-            return {
-              schemaName: (row.ROUTINESCHEMA || row.schemaName || '').trim(),
+            const routineName = (row.ROUTINENAME || '').trim();            return {
+              schemaName: (row.ROUTINESCHEMA || '').trim(),
               pureName: routineName,
               objectType: 'procedure',
-              objectId: `${(row.ROUTINESCHEMA || row.schemaName || '').trim()}.${routineName}`,
-              description: row.REMARKS || row.description,
-              definition: row.TEXT || row.definition,
-              parameterStyle: row.PARAMETER_STYLE || row.parameterStyle,
-              language: row.LANGUAGE || row.language,
-              createTime: row.CREATE_TIME || row.createTime,
-              alterTime: row.ALTER_TIME || row.alterTime,
-              origin: row.ORIGIN || row.origin,
-              dialect: row.DIALECT || row.dialect,
+              objectId: `${(row.ROUTINESCHEMA || '').trim()}.${routineName}`,              description: row.REMARKS,
+              definition: row.TEXT,
+              parameterStyle: row.PARAMETER_STYLE,
+              language: row.LANGUAGE,
+              createTime: row.CREATE_TIME,
+              alterTime: row.ALTER_TIME,
+              origin: row.ORIGIN,
+              dialect: row.DIALECT,
               contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
               modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
               displayName: routineName
@@ -2401,14 +2399,13 @@ const driver = {
               const paramsResult = await this.query(dbhan, paramsQuery, [proc.schemaName, proc.pureName]);
               
               if (paramsResult.rows && paramsResult.rows.length > 0) {
-                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for procedure ${proc.pureName}`);
-                proc.parameters = paramsResult.rows.map((row, index) => ({
-                  name: row.PARMNAME || row.paramName || `param${index+1}`,
-                  dataType: row.TYPENAME || row.dataType,
-                  length: row.LENGTH || row.length,
-                  scale: row.SCALE || row.scale,
-                  mode: row.PARM_MODE || row.paramMode,
-                  ordinalPosition: row.ORDINAL || row.ordinalPosition || index
+                console.log(`[DB2] Found ${paramsResult.rows.length} parameters for procedure ${proc.pureName}`);                proc.parameters = paramsResult.rows.map((row, index) => ({
+                  name: row.PARMNAME || `param${index+1}`,
+                  dataType: row.TYPENAME,
+                  length: row.LENGTH,
+                  scale: row.SCALE,
+                  mode: row.PARM_MODE,
+                  ordinalPosition: row.ORDINAL || index
                 }));
               }
             } catch (paramsErr) {

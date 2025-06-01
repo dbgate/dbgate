@@ -545,205 +545,7 @@ class Analyser extends DatabaseAnalyser {
       console.error(`[DB2] Error getting tables: ${err.message}`);
       return [];
     }
-  }
-  async incrementalAnalysis(structure) {
-    console.log('[DB2] Starting incremental analysis');
-    
-    try {
-      // Get all schemas
-      const schemas = await this.getSchemas();
-      if (!schemas || schemas.length === 0) {
-        console.error('[DB2] No schemas found, analysis cannot continue');
-        return {
-          schemas: [],
-          tables: [],
-          views: [],
-          functions: [],
-          procedures: [],
-          triggers: []
-        };
-      }      console.log(`[DB2] Found schemas: ${JSON.stringify(schemas)}`);
-
-      const result = {
-        schemas: schemas,
-        tables: [],
-        views: [],
-        functions: [],
-        procedures: [],
-        triggers: []
-      };
-
-      // Use the getStructure method to get database objects for each schema
-      for (const schema of schemas) {
-        console.log(`[DB2] Analyzing schema: ${schema.name}`);
-        
-        try {
-          // Use the driver's getStructure method which is already well-implemented
-          const structureData = await this.driver.getStructure(this.connection, schema.name);
-          
-          // Validate structureData to prevent null reference errors
-          if (!structureData) {
-            console.error(`[DB2] No structure data returned for schema ${schema.name}`);
-            continue;
-          }
-          
-          // Ensure each property exists to avoid 'length' of undefined errors
-          structureData.tables = structureData.tables || [];
-          structureData.views = structureData.views || [];
-          structureData.functions = structureData.functions || [];
-          structureData.procedures = structureData.procedures || [];
-          
-          console.log(`[DB2] Got structure data for schema ${schema.name}:`, {
-            tables: structureData.tables.length,
-            views: structureData.views.length,
-            functions: structureData.functions.length,
-            procedures: structureData.procedures.length
-          });
-          
-          // Mapping tables from getStructure format to incrementalAnalysis format
-          const tables = structureData.tables.map(table => ({
-            pureName: table.pureName,
-            schemaName: table.schemaName,
-            objectType: 'table',
-            objectId: `${table.schemaName}.${table.pureName}`,
-            tableType: table.tableType || 'T',
-            createTime: table.createTime,
-            alterTime: table.alterTime,
-            description: table.description,
-            contentHash: table.contentHash,
-            modifyDate: table.alterTime || table.createTime,
-            isView: false,
-            isTable: true,
-            displayName: table.pureName
-          }));
-          result.tables = result.tables.concat(tables);
-
-          // Mapping views
-          const views = structureData.views.map(view => ({
-            pureName: view.pureName,
-            schemaName: view.schemaName,
-            objectType: 'view',
-            objectId: `${view.schemaName}.${view.pureName}`,
-            description: view.description,
-            createTime: view.createTime,
-            alterTime: view.alterTime,
-            definition: view.definition,
-            contentHash: view.contentHash,
-            isView: true,
-            isTable: false,
-            displayName: view.pureName
-          }));
-          result.views = result.views.concat(views);
-
-          // Mapping functions
-          const functions = structureData.functions.map(func => ({
-            pureName: func.pureName,
-            schemaName: func.schemaName,
-            objectType: 'function',
-            objectId: `${func.schemaName}.${func.pureName}`,
-            description: func.description,
-            createTime: func.createTime,
-            alterTime: func.alterTime,
-            definition: func.definition,
-            contentHash: func.contentHash,
-            displayName: func.pureName
-          }));
-          result.functions = result.functions.concat(functions);
-
-          // Mapping procedures
-          const procedures = structureData.procedures.map(proc => ({
-            pureName: proc.pureName,
-            schemaName: proc.schemaName,
-            objectType: 'procedure',
-            objectId: `${proc.schemaName}.${proc.pureName}`,
-            description: proc.description,
-            createTime: proc.createTime,
-            alterTime: proc.alterTime,
-            definition: proc.definition,
-            contentHash: proc.contentHash,
-            displayName: proc.pureName
-          }));
-          result.procedures = result.procedures.concat(procedures);
-        } catch (schemaErr) {
-          console.error(`[DB2] Error analyzing schema ${schema}: ${schemaErr.message}`);
-          console.error(schemaErr);
-
-          // Fallback to original methods if getStructure fails
-          try {
-            console.log(`[DB2] Falling back to original methods for schema ${schema}`);
-            
-            // Get tables
-            const tables = await this.getTables(schema);
-            // Filter out invalid tables with missing schema or table names
-            const validTables = tables.filter(table => table.schemaName && table.pureName);
-            console.log(`[DB2] Found ${tables.length} tables in schema ${schema}, ${validTables.length} valid`);
-            result.tables = result.tables.concat(validTables);
-
-            // Get views
-            const views = await this.getViews(schema);
-            console.log(`[DB2] Found ${views.length} views in schema ${schema}`);
-            result.views = result.views.concat(views);
-
-            // Get functions
-            const functions = await this.getFunctions(schema);
-            console.log(`[DB2] Found ${functions.length} functions in schema ${schema}`);
-            result.functions = result.functions.concat(functions);
-
-            // Get procedures
-            const procedures = await this.getProcedures(schema);
-            console.log(`[DB2] Found ${procedures.length} procedures in schema ${schema}`);
-            result.procedures = result.procedures.concat(procedures);
-          } catch (fallbackErr) {
-            console.error(`[DB2] Fallback methods also failed for schema ${schema}: ${fallbackErr.message}`);
-            // Continue with next schema
-          }
-        }
-      }
-
-      // Debug output
-      console.log('[DB2] Analysis complete. Final counts:');
-      console.log(`Schemas (${result.schemas.length}):`, result.schemas);
-      console.log(`Tables (${result.tables.length}):`, result.tables.map(t => `${t.schemaName}.${t.pureName}`).slice(0, 5)); // Limit output to first 5
-      console.log(`Views (${result.views.length}):`, result.views.map(v => `${v.schemaName}.${v.pureName}`).slice(0, 5));
-      console.log(`Functions (${result.functions.length}):`, result.functions.map(f => `${f.schemaName}.${f.pureName}`).slice(0, 5));
-      console.log(`Procedures (${result.procedures.length}):`, result.procedures.map(p => `${p.schemaName}.${p.pureName}`).slice(0, 5));
-
-      return result;
-    } catch (err) {
-      console.error(`[DB2] Analysis error: ${err.message}`);
-      // Create a basic structure if analysis fails
-      console.log('[DB2] Creating fallback structure for UI');
-        // Try to get at least the current schema
-      let schemaName = this.connection.database || this.connection.user || '';
-      try {
-        const schemaResult = await this.query(this.connection, `SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1`);
-        if (schemaResult?.rows?.length > 0) {
-          schemaName = schemaResult.rows[0].SCHEMANAME || schemaResult.rows[0].schemaName || this.connection.database || this.connection.user || '';
-        }
-      } catch (schemaErr) {
-        console.error(`[DB2] Error getting schema: ${schemaErr.message}`);
-      }
-      
-      return {
-        objectTypeField: 'objectType',
-        objectIdField: 'objectId',
-        schemaField: 'schemaName',
-        pureNameField: 'pureName',
-        contentHashField: 'contentHash',
-        schemas: [{ 
-          schemaName,
-          objectType: 'schema',
-          pureName: schemaName,
-          objectId: schemaName, 
-          contentHash: schemaName 
-        }],
-        tables: [],
-        views: [],
-        functions: [],
-        procedures: []
-      };
-    }
-  }  async getColumns(table) {
+  }async getColumns(table) {
     try {
       console.log(`[DB2] Getting columns for ${table.schemaName}.${table.tableName || table.pureName}`);
       
@@ -1075,16 +877,15 @@ class Analyser extends DatabaseAnalyser {
       console.log(`[DB2] Executing procedure query for schema: ${effectiveSchema}`);
       const res = await this.driver.query(this.connection, query, [effectiveSchema]);
       console.log(`[DB2] Found ${res.rows.length} procedures`);
-      
-      return res.rows.map(row => ({
+        return res.rows.map(row => ({
         ...row,
         objectType: 'procedure',
-        objectId: `${row.schemaName}.${row.procedureName}`,
-        pureName: row.procedureName,
-        schemaName: row.schemaName,
-        displayName: row.procedureName,
-        contentHash: row.definition || row.alterTime?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.schemaName}.${row.procedureName}`
+        objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.procedureName}`,
+        pureName: row.ROUTINENAME || row.procedureName,
+        schemaName: row.ROUTINESCHEMA || row.schemaName,
+        displayName: row.ROUTINENAME || row.procedureName,
+        contentHash: row.TEXT || row.definition || row.ALTER_TIME?.toISOString() || row.alterTime?.toISOString() || row.CREATE_TIME?.toISOString() || row.createTime?.toISOString(),
+        name: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.procedureName}`
       }));
     } catch (err) {
       console.error(`[DB2] Error getting procedures: ${err.message}`);
@@ -1131,22 +932,19 @@ class Analyser extends DatabaseAnalyser {
             WHERE ROUTINETYPE = 'F'
             AND ROUTINESCHEMA = ?
             ORDER BY ROUTINENAME
-          `, [effectiveSchema]);
-
-          functions = functionsRes.rows.map(row => ({
-            schemaName: row.SCHEMANAME || row.schemaName,
-            pureName: row.FUNCTIONNAME || row.functionName,
+          `, [effectiveSchema]);          functions = functionsRes.rows.map(row => ({
+            schemaName: row.ROUTINESCHEMA || row.schemaName,
+            pureName: row.ROUTINENAME || row.functionName,
             objectType: 'function',
-            objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
+            objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.functionName}`,
             description: row.REMARKS || row.description,
             definition: row.TEXT || row.definition,
             parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
-            language: row.LANGUAGE || row.language,
-            returnType: row.RETURN_TYPE || row.returnType || 'unknown',
+            language: row.LANGUAGE || row.language,            returnType: row.RETURN_TYPE || row.returnType || 'unknown',
             createTime: row.CREATETIME || row.createTime,
             alterTime: row.ALTERTIME || row.alterTime,
             contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-            displayName: row.FUNCTIONNAME || row.functionName
+            displayName: row.ROUTINENAME || row.functionName
           }));
           console.log(`[DB2] Successfully retrieved ${functions.length} functions using RETURN_TYPE`);
         } catch (err) {
@@ -1169,22 +967,19 @@ class Analyser extends DatabaseAnalyser {
               WHERE ROUTINETYPE = 'F'
               AND ROUTINESCHEMA = ?
               ORDER BY ROUTINENAME
-            `, [effectiveSchema]);
-
-            functions = functionsRes2.rows.map(row => ({
-              schemaName: row.SCHEMANAME || row.schemaName,
-              pureName: row.FUNCTIONNAME || row.functionName,
+            `, [effectiveSchema]);            functions = functionsRes2.rows.map(row => ({
+              schemaName: row.ROUTINESCHEMA || row.schemaName,
+              pureName: row.ROUTINENAME || row.functionName,
               objectType: 'function',
-              objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
+              objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.functionName}`,
               description: row.REMARKS || row.description,
               definition: row.TEXT || row.definition,
               parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
               language: row.LANGUAGE || row.language,
-              returnType: 'unknown', // Since we couldn't get the return type
-              createTime: row.CREATETIME || row.createTime,
+              returnType: 'unknown', // Since we couldn't get the return type              createTime: row.CREATETIME || row.createTime,
               alterTime: row.ALTERTIME || row.alterTime,
               contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-              displayName: row.FUNCTIONNAME || row.functionName
+              displayName: row.ROUTINENAME || row.functionName
             }));
             console.log(`[DB2] Successfully retrieved ${functions.length} functions without RETURN_TYPE column`);
           } catch (err2) {
@@ -1202,17 +997,15 @@ class Analyser extends DatabaseAnalyser {
                 WHERE ROUTINETYPE = 'F'
                 AND ROUTINESCHEMA = ?
                 ORDER BY ROUTINENAME
-              `, [effectiveSchema]);
-
-              functions = functionsRes3.rows.map(row => ({
-                schemaName: row.SCHEMANAME || row.schemaName,
-                pureName: row.FUNCTIONNAME || row.functionName,
+              `, [effectiveSchema]);              functions = functionsRes3.rows.map(row => ({
+                schemaName: row.ROUTINESCHEMA || row.schemaName,
+                pureName: row.ROUTINENAME || row.functionName,
                 objectType: 'function',
-                objectId: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
+                objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.functionName}`,
                 language: row.LANGUAGE || row.language,
                 returnType: 'unknown',
-                contentHash: `${row.SCHEMANAME || row.schemaName}.${row.FUNCTIONNAME || row.functionName}`,
-                displayName: row.FUNCTIONNAME || row.functionName
+                contentHash: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.functionName}`,
+                displayName: row.ROUTINENAME || row.functionName
               }));
               console.log(`[DB2] Successfully retrieved ${functions.length} functions with minimal columns`);
             } catch (err3) {

@@ -1,45 +1,100 @@
 // Connection state manager for DB2 plugin
-// This class manages connection health checks and recovery
+// Enhanced to handle problematic server connections and improve reliability
 
-class ConnectionManager {
+const EventEmitter = require('events');
+const serverHealthMonitor = require('./server-health');
+const networkDiagnostics = require('./network-diagnostics');
+
+class ConnectionManager extends EventEmitter {
   constructor() {
+    super();
     this.connections = new Map(); // Map of connectionId -> connectionState
     this.recoveryAttempts = new Map(); // Track recovery attempts
-    this.maxRecoveryAttempts = 3;
+    this.statistics = new Map(); // Connection statistics
+    this.maxRecoveryAttempts = 5; // Increased from 3
     this.CHECK_INTERVAL = 60000; // Check every minute
+    this.EXTENDED_CHECK_INTERVAL = 300000; // 5 minutes for detailed health checks
     this.healthCheckTimer = null;
+    this.detailedHealthCheckTimer = null;
     
     // Start periodic health checks
     this.startHealthChecks();
     
-    console.log('[DB2] Connection manager initialized');
+    console.log('[DB2] Enhanced connection manager initialized');
   }
   
   registerConnection(connectionId, dbhan) {
+    // Get server details for monitoring
+    const server = dbhan._connectionParams?.server;
+    const port = dbhan._connectionParams?.port;
+    
     this.connections.set(connectionId, {
       dbhan,
       lastActivity: Date.now(),
       lastHealthCheck: Date.now(),
       isHealthy: true,
-      pendingRequests: 0
+      pendingRequests: 0,
+      server,
+      port,
+      queryCount: 0,
+      diagnostics: {
+        lastDiagTime: null,
+        networkStats: null,
+        queryLatencies: []
+      },
+      // Store original connection parameters for reconnection if needed
+      connectionParams: dbhan._connectionParams
     });
     
     // Reset recovery attempts counter
     this.recoveryAttempts.set(connectionId, 0);
     
-    console.log(`[DB2] Registered connection ${connectionId}`);
+    // Initialize statistics
+    this.statistics.set(connectionId, {
+      connectionId,
+      server: server || 'unknown',
+      port: port || 'unknown',
+      connectTime: Date.now(),
+      disconnectTime: null,
+      queryCount: 0,
+      errors: [],
+      reconnectionCount: 0,
+      totalQueryTime: 0,
+      avgQueryTime: 0
+    });
+    
+    console.log(`[DB2] Registered connection ${connectionId} to ${server}:${port}`);
+    // Emit event
+    this.emit('connection-registered', connectionId, { server, port });
   }
   
   unregisterConnection(connectionId) {
-    this.connections.delete(connectionId);
-    this.recoveryAttempts.delete(connectionId);
-    console.log(`[DB2] Unregistered connection ${connectionId}`);
+    if (this.connections.has(connectionId)) {
+      // Update statistics before removing
+      const stats = this.statistics.get(connectionId);
+      if (stats) {
+        stats.disconnectTime = Date.now();
+      }
+      
+      this.connections.delete(connectionId);
+      this.recoveryAttempts.delete(connectionId);
+      console.log(`[DB2] Unregistered connection ${connectionId}`);
+      // Emit event
+      this.emit('connection-unregistered', connectionId);
+    }
   }
   
   markActivity(connectionId) {
     const conn = this.connections.get(connectionId);
     if (conn) {
       conn.lastActivity = Date.now();
+      conn.queryCount++;
+      
+      // Update statistics
+      const stats = this.statistics.get(connectionId);
+      if (stats) {
+        stats.queryCount++;
+      }
     }
   }
   
