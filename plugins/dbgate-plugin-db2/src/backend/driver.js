@@ -7,6 +7,7 @@ const driverBase = require('../frontend/driver');
 const cacheManager = require('./cache-manager');
 const connectionManager = require('./connection-manager');
 const { refreshSchemaCounts } = require('./schemaHelper');
+const { mapFunctionFields, mapProcedureFields } = require('./db2-ui-fix');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } =
 global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -2253,22 +2254,20 @@ const driver = {
         }
       } catch (viewsErr) {
         console.error('[DB2] Error getting views:', viewsErr);
-      }
-
-      // Get functions for this schema
+      }      // Get functions for this schema
       try {
         const functionsQuery = `
           SELECT 
-            ROUTINESCHEMA as schemaName,
-            ROUTINENAME as functionName,
-            REMARKS as description,
-            TEXT as definition,
-            PARAMETER_STYLE as parameterStyle,
-            LANGUAGE as language,
-            CREATE_TIME as createTime,
-            ALTER_TIME as alterTime,
-            RETURN_TYPESCHEMA as returnTypeSchema,
-            RETURN_TYPENAME as returnTypeName
+            ROUTINESCHEMA as "schemaName",
+            ROUTINENAME as "functionName",
+            REMARKS as "description",
+            TEXT as "definition",
+            PARAMETER_STYLE as "parameterStyle",
+            LANGUAGE as "language",
+            CREATE_TIME as "createTime",
+            ALTER_TIME as "alterTime",
+            RETURN_TYPESCHEMA as "returnTypeSchema",
+            RETURN_TYPENAME as "returnTypeName"
           FROM SYSCAT.ROUTINES
           WHERE ROUTINETYPE = 'F'
           AND ROUTINESCHEMA = ?
@@ -2278,23 +2277,16 @@ const driver = {
         const functionsResult = await this.query(dbhan, functionsQuery, [schemaName]);
           if (functionsResult.rows && functionsResult.rows.length > 0) {
           console.log(`[DB2] Found ${functionsResult.rows.length} functions in schema ${schemaName}`);
-          const functions = functionsResult.rows.map(row => {
-            const routineName = (row.ROUTINENAME || '').trim();
-            return {
-              schemaName: (row.ROUTINESCHEMA || '').trim(),
-              pureName: routineName,
-              objectType: 'function',
-              objectId: `${(row.ROUTINESCHEMA || '').trim()}.${routineName}`,              description: row.REMARKS,
-              definition: row.TEXT,
-              parameterStyle: row.PARAMETER_STYLE,
-              language: row.LANGUAGE,
-              createTime: row.CREATE_TIME,
-              alterTime: row.ALTER_TIME,
-              returnType: `${row.RETURN_TYPESCHEMA || ''}.${row.RETURN_TYPENAME || ''}`.replace(/^\./, '').replace(/\.$/, ''),
-              contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
-              modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
-              displayName: routineName
-            };
+          // Debug the first row to see actual field names and case
+          if (functionsResult.rows.length > 0) {
+            console.log(`[DB2] Function data sample:`, JSON.stringify(functionsResult.rows[0]));
+          }
+            const functions = functionsResult.rows.map(row => {
+            // Debug the raw row data to ensure we have correct field names
+            console.log(`[DB2] Raw function row data:`, Object.keys(row).join(', '));
+            
+            // Use the mapFunctionFields helper to properly map all required fields for UI display
+            return mapFunctionFields(row);
           });
           
           // For each function, get its parameters
@@ -2336,22 +2328,20 @@ const driver = {
         }
       } catch (functionsErr) {
         console.error('[DB2] Error getting functions:', functionsErr);
-      }
-
-      // Get procedures for this schema
+      }      // Get procedures for this schema
       try {
         const proceduresQuery = `
           SELECT 
-            ROUTINESCHEMA as schemaName,
-            ROUTINENAME as procedureName,
-            REMARKS as description,
-            TEXT as definition,
-            PARAMETER_STYLE as parameterStyle,
-            LANGUAGE as language,
-            CREATE_TIME as createTime,
-            ALTER_TIME as alterTime,
-            ORIGIN as origin,
-            DIALECT as dialect
+            ROUTINESCHEMA as "schemaName",
+            ROUTINENAME as "procedureName",
+            REMARKS as "description",
+            TEXT as "definition",
+            PARAMETER_STYLE as "parameterStyle",
+            LANGUAGE as "language",
+            CREATE_TIME as "createTime",
+            ALTER_TIME as "alterTime",
+            ORIGIN as "origin",
+            DIALECT as "dialect"
           FROM SYSCAT.ROUTINES
           WHERE ROUTINETYPE = 'P'
           AND ROUTINESCHEMA = ?
@@ -2361,23 +2351,16 @@ const driver = {
         const proceduresResult = await this.query(dbhan, proceduresQuery, [schemaName]);
           if (proceduresResult.rows && proceduresResult.rows.length > 0) {
           console.log(`[DB2] Found ${proceduresResult.rows.length} procedures in schema ${schemaName}`);
-          const procedures = proceduresResult.rows.map(row => {
-            const routineName = (row.ROUTINENAME || '').trim();            return {
-              schemaName: (row.ROUTINESCHEMA || '').trim(),
-              pureName: routineName,
-              objectType: 'procedure',
-              objectId: `${(row.ROUTINESCHEMA || '').trim()}.${routineName}`,              description: row.REMARKS,
-              definition: row.TEXT,
-              parameterStyle: row.PARAMETER_STYLE,
-              language: row.LANGUAGE,
-              createTime: row.CREATE_TIME,
-              alterTime: row.ALTER_TIME,
-              origin: row.ORIGIN,
-              dialect: row.DIALECT,
-              contentHash: row.TEXT || row.ALTER_TIME?.toISOString() || row.CREATE_TIME?.toISOString(),
-              modifyDate: row.ALTER_TIME || row.CREATE_TIME || new Date(),
-              displayName: routineName
-            };
+          // Debug the first row to see actual field names and case
+          if (proceduresResult.rows.length > 0) {
+            console.log(`[DB2] Procedure data sample:`, JSON.stringify(proceduresResult.rows[0]));
+          }
+            const procedures = proceduresResult.rows.map(row => {
+            // Debug the raw row data to ensure we have correct field names
+            console.log(`[DB2] Raw procedure row data:`, Object.keys(row).join(', '));
+            
+            // Use the mapProcedureFields helper to properly map all required fields for UI display
+            return mapProcedureFields(row);
           });
           
           // For each procedure, get its parameters

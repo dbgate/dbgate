@@ -839,7 +839,6 @@ class Analyser extends DatabaseAnalyser {
       return [];
     }
   }
-
   async getProcedures(schemaName) {
     try {
       console.log(`[DB2] Getting procedures for schema: ${schemaName || 'current schema'}`);
@@ -849,9 +848,12 @@ class Analyser extends DatabaseAnalyser {
       if (!effectiveSchema) {
         try {
           const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
+            SELECT CURRENT SCHEMA as "schemaName" FROM SYSIBM.SYSDUMMY1
           `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
+          effectiveSchema = currentSchema.rows[0]?.schemaName || '';
+          if (!effectiveSchema && currentSchema.rows[0]?.SCHEMANAME) {
+            effectiveSchema = currentSchema.rows[0].SCHEMANAME;
+          }
         } catch (schemaErr) {
           console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
           effectiveSchema = '';
@@ -860,14 +862,14 @@ class Analyser extends DatabaseAnalyser {
 
       const query = `
         SELECT 
-          ROUTINESCHEMA as schemaName,
-          ROUTINENAME as procedureName,
-          REMARKS as description,
-          TEXT as definition,
-          PARAMETER_STYLE as parameterStyle,
-          LANGUAGE as language,
-          CREATE_TIME as createTime,
-          ALTER_TIME as alterTime
+          ROUTINESCHEMA as "schemaName",
+          ROUTINENAME as "procedureName",
+          REMARKS as "description",
+          TEXT as "definition",
+          PARAMETER_STYLE as "parameterStyle",
+          LANGUAGE as "language",
+          CREATE_TIME as "createTime",
+          ALTER_TIME as "alterTime"
         FROM SYSCAT.ROUTINES 
         WHERE ROUTINETYPE = 'P'
         AND ROUTINESCHEMA = ?
@@ -877,22 +879,46 @@ class Analyser extends DatabaseAnalyser {
       console.log(`[DB2] Executing procedure query for schema: ${effectiveSchema}`);
       const res = await this.driver.query(this.connection, query, [effectiveSchema]);
       console.log(`[DB2] Found ${res.rows.length} procedures`);
-        return res.rows.map(row => ({
-        ...row,
-        objectType: 'procedure',
-        objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.procedureName}`,
-        pureName: row.ROUTINENAME || row.procedureName,
-        schemaName: row.ROUTINESCHEMA || row.schemaName,
-        displayName: row.ROUTINENAME || row.procedureName,
-        contentHash: row.TEXT || row.definition || row.ALTER_TIME?.toISOString() || row.alterTime?.toISOString() || row.CREATE_TIME?.toISOString() || row.createTime?.toISOString(),
-        name: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.procedureName}`
-      }));
+      
+      // Debug the first row to see actual field names and case
+      if (res.rows && res.rows.length > 0) {
+        console.log(`[DB2] Procedure data sample:`, JSON.stringify(res.rows[0]));
+      }
+      
+      return res.rows.map(row => {
+        // Create a safe access function to handle case sensitivity
+        const getValue = (fieldName) => {
+          if (row[fieldName] !== undefined) return row[fieldName];
+          if (row[fieldName.toUpperCase()] !== undefined) return row[fieldName.toUpperCase()];
+          if (row[fieldName.toLowerCase()] !== undefined) return row[fieldName.toLowerCase()];
+          return null;
+        };
+        
+        const procedureName = getValue("procedureName") || '';
+        const schemaName = getValue("schemaName") || '';
+        
+        return {
+          schemaName: schemaName,
+          pureName: procedureName,
+          procedureName: procedureName, // Add this field explicitly for UI display
+          name: procedureName, // Add this field explicitly for UI display
+          objectType: 'procedure',
+          objectId: `${schemaName}.${procedureName}`,
+          displayName: procedureName,
+          description: getValue("description"),
+          definition: getValue("definition"),
+          parameterStyle: getValue("parameterStyle"),
+          language: getValue("language"),
+          createTime: getValue("createTime"),
+          alterTime: getValue("alterTime"),
+          contentHash: getValue("definition") || getValue("alterTime")?.toISOString() || getValue("createTime")?.toISOString(),
+        };
+      });
     } catch (err) {
       console.error(`[DB2] Error getting procedures: ${err.message}`);
       return [];
     }
   }
-
   async getFunctions(schemaName) {
     try {
       console.log(`[DB2] Getting functions for schema: ${schemaName || 'current schema'}`);
@@ -902,9 +928,12 @@ class Analyser extends DatabaseAnalyser {
       if (!effectiveSchema) {
         try {
           const currentSchema = await this.driver.query(this.connection, `
-            SELECT CURRENT SCHEMA as schemaName FROM SYSIBM.SYSDUMMY1
+            SELECT CURRENT SCHEMA as "schemaName" FROM SYSIBM.SYSDUMMY1
           `);
-          effectiveSchema = currentSchema.rows[0]?.SCHEMANAME || currentSchema.rows[0]?.schemaName || '';
+          effectiveSchema = currentSchema.rows[0]?.schemaName || '';
+          if (!effectiveSchema && currentSchema.rows[0]?.SCHEMANAME) {
+            effectiveSchema = currentSchema.rows[0].SCHEMANAME;
+          }
         } catch (schemaErr) {
           console.error(`[DB2] Error getting current schema: ${schemaErr.message}`);
           effectiveSchema = '';
@@ -919,33 +948,55 @@ class Analyser extends DatabaseAnalyser {
           console.log(`[DB2] Trying to get functions with RETURN_TYPE column`);
           const functionsRes = await this.driver.query(this.connection, `
             SELECT 
-              ROUTINESCHEMA as schemaName,
-              ROUTINENAME as functionName,
-              REMARKS as description,
-              TEXT as definition,
-              PARAMETER_STYLE as parameterStyle,
-              LANGUAGE as language,
-              RETURN_TYPE as returnType,
-              CREATE_TIME as createTime,
-              ALTER_TIME as alterTime
+              ROUTINESCHEMA as "schemaName",
+              ROUTINENAME as "functionName",
+              REMARKS as "description",
+              TEXT as "definition",
+              PARAMETER_STYLE as "parameterStyle",
+              LANGUAGE as "language",
+              RETURN_TYPE as "returnType",
+              CREATE_TIME as "createTime",
+              ALTER_TIME as "alterTime"
             FROM SYSCAT.ROUTINES 
             WHERE ROUTINETYPE = 'F'
             AND ROUTINESCHEMA = ?
             ORDER BY ROUTINENAME
-          `, [effectiveSchema]);          functions = functionsRes.rows.map(row => ({
-            schemaName: row.ROUTINESCHEMA || row.schemaName,
-            pureName: row.ROUTINENAME || row.functionName,
-            objectType: 'function',
-            objectId: `${row.ROUTINESCHEMA || row.schemaName}.${row.ROUTINENAME || row.functionName}`,
-            description: row.REMARKS || row.description,
-            definition: row.TEXT || row.definition,
-            parameterStyle: row.PARAMETERSTYLE || row.parameterStyle,
-            language: row.LANGUAGE || row.language,            returnType: row.RETURN_TYPE || row.returnType || 'unknown',
-            createTime: row.CREATETIME || row.createTime,
-            alterTime: row.ALTERTIME || row.alterTime,
-            contentHash: row.TEXT || row.ALTERTIME?.toISOString() || row.CREATETIME?.toISOString(),
-            displayName: row.ROUTINENAME || row.functionName
-          }));
+          `, [effectiveSchema]);
+          
+          // Debug the first row to see actual field names and case
+          if (functionsRes.rows && functionsRes.rows.length > 0) {
+            console.log(`[DB2] Function data sample:`, JSON.stringify(functionsRes.rows[0]));
+          }
+          
+          functions = functionsRes.rows.map(row => {
+            // Create a safe access function to handle case sensitivity
+            const getValue = (fieldName) => {
+              if (row[fieldName] !== undefined) return row[fieldName];
+              if (row[fieldName.toUpperCase()] !== undefined) return row[fieldName.toUpperCase()];
+              if (row[fieldName.toLowerCase()] !== undefined) return row[fieldName.toLowerCase()];
+              return null;
+            };
+            
+            const functionName = getValue("functionName") || '';
+            const schemaName = getValue("schemaName") || '';
+            
+            return {
+              schemaName: schemaName,
+              pureName: functionName,
+              functionName: functionName, // Add this field explicitly for UI display
+              name: functionName, // Add this field explicitly for UI display
+              objectType: 'function',
+              objectId: `${schemaName}.${functionName}`,
+              description: getValue("description"),
+              definition: getValue("definition"),
+              parameterStyle: getValue("parameterStyle"),
+              language: getValue("language"),
+              returnType: getValue("returnType") || 'unknown',
+              createTime: getValue("createTime"),
+              alterTime: getValue("alterTime"),
+              contentHash: getValue("definition") || getValue("alterTime")?.toISOString() || getValue("createTime")?.toISOString(),
+              displayName: functionName
+            }});
           console.log(`[DB2] Successfully retrieved ${functions.length} functions using RETURN_TYPE`);
         } catch (err) {
           console.error('[DB2] Error getting functions with RETURN_TYPE:', err);

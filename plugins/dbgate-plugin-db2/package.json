@@ -24,12 +24,14 @@
     "build:frontend": "webpack --config webpack-frontend.config.js",
     "build:frontend:watch": "webpack --config webpack-frontend.config.js --watch",
     "build:backend": "webpack --config webpack-backend.config.js",
-    "watch": "yarn watch:frontend & yarn watch:backend",    "watch:frontend": "webpack --config webpack-frontend.config.js --watch",
+    "watch": "yarn watch:frontend & yarn watch:backend",    
+    "watch:frontend": "webpack --config webpack-frontend.config.js --watch",
     "watch:backend": "webpack --config webpack-backend.config.js --watch",
     "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-db2",
-    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-db2",
-    "prepublishOnly": "yarn build",
-    "test": "jest"
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-db2",    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "test:ui": "node ui-field-mapping-test.js",
+    "test:procedure-function": "node test-procedure-function-display-fix.js"
   },
   "dependencies": {
     "ibm_db": "^3.1.0",
