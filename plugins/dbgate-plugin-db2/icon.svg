@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#054ADA" x="0" y="0" width="32" height="32" rx="4"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="white">DB2</text>
+        <path d="M6,22 L26,22" stroke="white" stroke-width="2"/>
+        <path d="M6,10 L26,10" stroke="white" stroke-width="2"/>
+    </g>
+</svg>
