@@ -52,7 +52,7 @@ module.exports = {
       if (existing) return existing;
       const connection = await connections.getCore({ conid });
       if (!connection) {
-        throw new Error(`Connection with conid="${conid}" not found`);
+        throw new Error(`serverConnections: Connection with conid="${conid}" not found`);
       }
       if (connection.singleDatabase) {
         return null;

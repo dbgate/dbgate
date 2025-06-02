@@ -39,6 +39,9 @@
     'icon minus-thick': 'mdi mdi-minus-thick',
     'icon invisible-box': 'mdi mdi-minus-box-outline icon-invisible',
     'icon cloud-upload': 'mdi mdi-cloud-upload',
+    'icon cloud': 'mdi mdi-cloud',
+    'icon cloud-public': 'mdi mdi-cloud-search',
+    'icon cloud-private': 'mdi mdi-cloud-key',
     'icon import': 'mdi mdi-application-import',
     'icon export': 'mdi mdi-application-export',
     'icon new-connection': 'mdi mdi-database-plus',
@@ -111,6 +114,9 @@
     'icon structure': 'mdi mdi-tools',
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
+
+    'icon cloud-account': 'mdi mdi-account-remove-outline',
+    'icon cloud-account-connected': 'mdi mdi-account-check-outline',
 
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
@@ -264,6 +270,7 @@
     'img role': 'mdi mdi-account-group color-icon-blue',
     'img admin': 'mdi mdi-security color-icon-blue',
     'img auth': 'mdi mdi-account-key color-icon-blue',
+    'img cloud-connection': 'mdi mdi-cloud-lock color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

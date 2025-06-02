@@ -14,6 +14,8 @@ import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 import { openWebLink } from './simpleTools';
 import { serializeJsTypesReplacer } from 'dbgate-tools';
+import { cloudSigninTokenHolder } from '../stores';
+import LicenseLimitMessageModal from '../modals/LicenseLimitMessageModal.svelte';
 
 export const strmid = uuidv1();
 
@@ -120,7 +122,14 @@ async function processApiResponse(route, args, resp) {
     //   missingCredentials: true,
     // };
   } else if (resp?.apiErrorMessage) {
-    showSnackbarError('API error:' + resp?.apiErrorMessage);
+    if (resp?.apiErrorIsLicenseLimit) {
+      showModal(LicenseLimitMessageModal, {
+        message: resp.apiErrorMessage,
+        licenseLimits: resp.apiErrorLimitedLicenseLimits,
+      });
+    } else {
+      showSnackbarError('API error:' + resp?.apiErrorMessage);
+    }
     return {
       errorMessage: resp.apiErrorMessage,
     };
@@ -279,6 +288,13 @@ export function installNewVolatileConnectionListener() {
   });
 }
 
+export function installNewCloudTokenListener() {
+  apiOn('got-cloud-token', async tokenHolder => {
+    console.log('HOLDER', tokenHolder);
+    cloudSigninTokenHolder.set(tokenHolder);
+  });
+}
+
 export function getAuthCategory(config) {
   if (config.isBasicAuth) {
     return 'basic';
@@ -290,6 +306,15 @@ export function getAuthCategory(config) {
     return 'electron';
   }
   return 'token';
+}
+
+export function refreshPublicCloudFiles() {
+  if (sessionStorage.getItem('publicCloudFilesLoaded')) {
+    return;
+  }
+
+  apiCall('cloud/refresh-public-files');
+  sessionStorage.setItem('publicCloudFilesLoaded', 'true');
 }
 
 function enableApiLog() {

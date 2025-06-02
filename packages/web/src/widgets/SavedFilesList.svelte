@@ -74,24 +74,24 @@
   }
 </script>
 
-<WidgetsInnerContainer>
-  <SearchBoxWrapper>
-    <SearchInput placeholder="Search saved files" bind:value={filter} />
-    <CloseSearchButton bind:filter />
-    <InlineUploadButton
-      filters={[
-        {
-          name: `All supported files`,
-          extensions: ['sql'],
-        },
-        { name: `SQL files`, extensions: ['sql'] },
-      ]}
-      onProcessFile={handleUploadedFile}
-    />
-    <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
-      <FontIcon icon="icon refresh" />
-    </InlineButton>
-  </SearchBoxWrapper>
+<SearchBoxWrapper>
+  <SearchInput placeholder="Search saved files" bind:value={filter} />
+  <CloseSearchButton bind:filter />
+  <InlineUploadButton
+    filters={[
+      {
+        name: `All supported files`,
+        extensions: ['sql'],
+      },
+      { name: `SQL files`, extensions: ['sql'] },
+    ]}
+    onProcessFile={handleUploadedFile}
+  />
+  <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
+    <FontIcon icon="icon refresh" />
+  </InlineButton>
+</SearchBoxWrapper>
 
+<WidgetsInnerContainer>
   <AppObjectList list={files} module={savedFileAppObject} groupFunc={data => dataFolderTitle(data.folder)} {filter} />
 </WidgetsInnerContainer>

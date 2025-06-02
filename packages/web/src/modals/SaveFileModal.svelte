@@ -1,15 +1,18 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
-  import FormProvider from '../forms/FormProvider.svelte';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { cloudSigninTokenHolder } from '../stores';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
+  import { writable } from 'svelte/store';
 
   import getElectron from '../utility/getElectron';
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal } from './modalTools';
+  import { closeCurrentModal, showModal } from './modalTools';
+  import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
 
   export let data;
   export let name;
@@ -18,19 +21,48 @@
   export let fileExtension;
   export let filePath;
   export let onSave = undefined;
+  export let folid;
+  // export let cntid;
+
+  const values = writable({ name, cloudFolder: folid ?? '__local' });
 
   const electron = getElectron();
 
   const handleSubmit = async e => {
-    const { name } = e.detail;
-    await apiCall('files/save', { folder, file: name, data, format });
-    closeCurrentModal();
-    if (onSave) {
-      onSave(name, {
-        savedFile: name,
-        savedFolder: folder,
-        savedFilePath: null,
+    const { name, cloudFolder } = e.detail;
+    if (cloudFolder === '__local') {
+      await apiCall('files/save', { folder, file: name, data, format });
+      closeCurrentModal();
+      if (onSave) {
+        onSave(name, {
+          savedFile: name,
+          savedFolder: folder,
+          savedFilePath: null,
+          savedCloudFolderId: null,
+          savedCloudContentId: null,
+        });
+      }
+    } else {
+      const resp = await apiCall('cloud/save-file', {
+        folid: cloudFolder,
+        fileName: name,
+        data,
+        contentFolder: folder,
+        format,
+        // cntid,
       });
+      if (resp.cntid) {
+        closeCurrentModal();
+        if (onSave) {
+          onSave(name, {
+            savedFile: name,
+            savedFolder: folder,
+            savedFilePath: null,
+            savedCloudFolderId: cloudFolder,
+            // savedCloudContentId: resp.cntid,
+          });
+        }
+      }
     }
   };
 
@@ -47,15 +79,32 @@
         savedFile: null,
         savedFolder: null,
         savedFilePath: filePath,
+        savedCloudFolderId: null,
+        savedCloudContentId: null,
       });
     }
   };
 </script>
 
-<FormProvider initialValues={{ name }}>
+<FormProviderCore {values}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
+    {#if $cloudSigninTokenHolder}
+      <FormCloudFolderSelect
+        label="Choose cloud folder"
+        name="cloudFolder"
+        isNative
+        requiredRoleVariants={['write', 'admin']}
+        prependFolders={[
+          {
+            folid: '__local',
+            name: "Local folder (don't store on cloud)",
+          },
+        ]}
+      />
+    {/if}
+
     <svelte:fragment slot="footer">
       <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />
       {#if electron}
@@ -79,4 +128,4 @@
       {/if}
     </svelte:fragment>
   </ModalBase>
-</FormProvider>
+</FormProviderCore>

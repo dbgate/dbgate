@@ -26,6 +26,7 @@
 
   export let groupIconFunc = plusExpandIcon;
   export let groupFunc = undefined;
+  export let mapGroupTitle = undefined;
   export let onDropOnGroup = undefined;
   export let emptyGroupNames = [];
   export let isExpandedBySearch = false;
@@ -127,6 +128,7 @@
       {subItemsComponent}
       {checkedObjectsStore}
       {groupFunc}
+      {mapGroupTitle}
       {disableContextMenu}
       {filter}
       {passProps}
