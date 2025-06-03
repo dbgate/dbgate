@@ -43,6 +43,8 @@ const driver = {
       dbhan.client.query(sql, (err, result) => {
         if (err) {
           reject(err);
+          console.error(err);
+          console.error('Executing query:', sql);
           return;
         }
 
@@ -98,6 +100,9 @@ const driver = {
     }
   },
 
+  async writeTable(dbhan, name, options) {
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
+  },
 
   async script(dbhan, sql, { useTransaction } = {}) {
     if (useTransaction) return this.runSqlInTransaction(dbhan, sql);
@@ -137,7 +142,7 @@ const driver = {
   },
 
   async writeTable(dbhan, name, options) {
-    return createBulkInsertStream(this, stream, dbhan, name, options);
+    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
 
   async getVersion(dbhan) {
@@ -186,6 +191,7 @@ const driver = {
           transactionPromise.query(currentSql, function (err, result) {
             if (err) {
               logger.error(extractErrorLogData(err), 'Error executing SQL in transaction');
+              logger.error({ sql: currentSql }, 'SQL that caused the error');
               return reject(err);
             }
             resolve(result);
