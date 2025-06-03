@@ -114,7 +114,11 @@ const driver = {
 
   async script(dbhan, sql, { useTransaction } = {}) {
     if (useTransaction) return this.runSqlInTransaction(dbhan, sql);
-    return this.query(dbhan, sql);
+
+    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+    for (const sqlItem of sqlItems) {
+      await this.query(dbhan, sqlItem, { discardResult: true });
+    }
   },
 
   async readQuery(dbhan, sql, structure) {
