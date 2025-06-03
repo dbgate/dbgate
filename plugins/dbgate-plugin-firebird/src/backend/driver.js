@@ -164,7 +164,7 @@ const driver = {
     });
   },
 
-  async runSqlInTransaction() {
+  async runSqlInTransaction(dbhan, sql) {
     let transactionPromise;
     const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
 
