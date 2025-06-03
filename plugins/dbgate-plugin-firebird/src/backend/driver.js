@@ -98,11 +98,9 @@ const driver = {
     }
   },
 
-  async script(dbhan, sql, { useTransaction } = {}) {
-    if (useTransaction) {
-      return this.runSqlInTransaction(dbhan, sql);
-    }
 
+  async script(dbhan, sql, { useTransaction } = {}) {
+    if (useTransaction) return this.runSqlInTransaction(dbhan, sql);
     return this.query(dbhan, sql);
   },
 
@@ -164,13 +162,18 @@ const driver = {
     });
   },
 
+  /**
+   * @param {import('dbgate-types').DatabaseHandle<Firebird.Database>} dbhan
+   * @param {string} sql
+   */
   async runSqlInTransaction(dbhan, sql) {
+    /** @type {Firebird.Transaction} */
     let transactionPromise;
     const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
 
     try {
       transactionPromise = await new Promise((resolve, reject) => {
-        dbhan.db.transaction(Firebird.ISOLATION_SNAPSHOT, function (err, currentTransaction) {
+        dbhan.client.transaction(Firebird.ISOLATION_SNAPSHOT, function (err, currentTransaction) {
           if (err) return reject(err);
           resolve(currentTransaction);
         });
@@ -180,24 +183,32 @@ const driver = {
         const currentSql = sqlItems[i];
 
         await new Promise((resolve, reject) => {
-          transaction.query(currentSql, function (err, result) {
-            if (err) return reject(err);
+          transactionPromise.query(currentSql, function (err, result) {
+            if (err) {
+              logger.error(extractErrorLogData(err), 'Error executing SQL in transaction');
+              return reject(err);
+            }
             resolve(result);
           });
         });
       }
 
       await new Promise((resolve, reject) => {
-        transaction.commit(function (err) {
-          if (err) return reject(err);
+        transactionPromise.commit(function (err) {
+          if (err) {
+            logger.error(extractErrorLogData(err), 'Error committing transaction');
+            return reject(err);
+          }
           resolve();
         });
       });
     } catch (error) {
+      logger.error(extractErrorLogData(error), 'Transaction error');
       if (transactionPromise) {
         await new Promise((resolve, reject) => {
           transactionPromise.rollback(function (rollbackErr) {
             if (rollbackErr) {
+              logger.error(extractErrorLogData(rollbackErr), 'Error rolling back transaction');
               return reject(rollbackErr); // Re-reject the rollback error
             }
             resolve();
@@ -205,6 +216,8 @@ const driver = {
         });
       }
     }
+
+    return transactionPromise;
   },
 };
 
