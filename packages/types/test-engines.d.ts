@@ -45,6 +45,7 @@ export type TestEngineInfo = {
   skipChangeNullability?: boolean;
   skipRenameColumn?: boolean;
   skipDropReferences?: boolean;
+  skipRenameTable?: boolean;
 
   forceSortResults?: boolean;
   forceSortStructureColumns?: boolean;

@@ -725,6 +725,7 @@ const firebirdEngine = {
   // skipDeploy: true,
   // supportRenameSqlObject: true,
   skipIncrementalAnalysis: true,
+  skipRenameTable: true,
   // skipDefaultValue: true,
   // skipDropReferences: true,
 };

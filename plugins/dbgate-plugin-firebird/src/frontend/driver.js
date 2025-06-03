@@ -38,6 +38,7 @@ const dialect = {
   allowMultipleValuesInsert: true,
   renameSqlObject: true,
   filteredIndexes: true,
+  disableRenameTable: true,
 };
 
 const firebirdSplitterOptions = {
