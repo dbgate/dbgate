@@ -39,6 +39,10 @@ class Dumper extends SqlDumper {
       }
     }
   }
+
+  beginTransaction() {
+    this.putCmd('^set ^transaction');
+  }
 }
 
 module.exports = Dumper;
