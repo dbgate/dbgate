@@ -43,6 +43,27 @@ class Dumper extends SqlDumper {
   beginTransaction() {
     this.putCmd('^set ^transaction');
   }
+
+  createIndex(ix) {
+    const firstCol = ix.columns[0];
+    this.put('^create');
+    if (ix.isUnique) this.put(' ^unique');
+    this.put(
+      ' %k ^index %i &n^on %f (&>&n',
+      firstCol.isDescending == true ? 'DESCENDING' : 'ASCENDING',
+      ix.constraintName,
+      ix
+    );
+
+    this.putCollection(',&n', ix.columns, col => {
+      this.put('%i', col.columnName);
+    });
+    this.put('&<&n)');
+    if (ix.filterDefinition && this.dialect.filteredIndexes) {
+      this.put('&n^where %s', ix.filterDefinition);
+    }
+    this.endCommand();
+  }
 }
 
 module.exports = Dumper;
