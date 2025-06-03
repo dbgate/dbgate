@@ -106,7 +106,9 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
 
   for (const loadedDbModel of dbModelsYaml) {
     if (_.isString(loadedDbModel)) {
-      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel));
+      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel), {
+        useTransaction: engine.runDeployInTransaction,
+      });
     } else {
       const { sql, isEmpty } = await generateDeploySql({
         systemConnection: conn.isPreparedOnly ? undefined : conn,
