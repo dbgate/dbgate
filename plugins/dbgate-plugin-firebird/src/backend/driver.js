@@ -38,7 +38,7 @@ const driver = {
     };
   },
 
-  async query(dbhan, sql) {
+  async query(dbhan, sql, { discardResult } = {}) {
     const res = await new Promise((resolve, reject) => {
       dbhan.client.query(sql, (err, result) => {
         if (err) {
@@ -51,6 +51,14 @@ const driver = {
         resolve(result);
       });
     });
+
+    if (discardResult) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
+
     const columns = res?.[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
 
     return {
