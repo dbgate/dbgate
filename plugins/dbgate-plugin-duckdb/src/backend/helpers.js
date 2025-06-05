@@ -55,10 +55,11 @@ function _normalizeValue(value) {
   }
 
   if (value instanceof DuckDBTimeValue) {
-    const hour = String(value.hour).padStart(2, '0');
-    const minute = String(value.min).padStart(2, '0');
-    const second = String(value.sec).padStart(2, '0');
-    const micros = String(value.micros).padStart(6, '0').substring(0, 3);
+    const parts = value.toParts();
+    const hour = String(parts.hour).padStart(2, '0');
+    const minute = String(parts.min).padStart(2, '0');
+    const second = String(parts.sec).padStart(2, '0');
+    const micros = String(parts.micros).padStart(6, '0').substring(0, 3);
     return `${hour}:${minute}:${second}.${micros}`;
   }
 
