@@ -17,7 +17,7 @@ SELECT DISTINCT
     f.rdb$field_type AS "dataTypeCode",
     f.rdb$field_precision AS "precision",
     f.rdb$field_scale AS "scale",
-    f.rdb$field_length AS "length",
+    f.rdb$field_length / 4 AS "length",
     CAST(TRIM(rf.RDB$DEFAULT_SOURCE) AS VARCHAR(255)) AS "defaultValue",
     CAST(TRIM(rf.rdb$description) AS VARCHAR(255)) AS "columnComment",
     CASE
