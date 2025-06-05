@@ -609,7 +609,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(i => !i.skipDeploy || !i.skipRenameTable).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy && !i.skipRenameTable).map(engine => [engine.label, engine]))(
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [], []], {
