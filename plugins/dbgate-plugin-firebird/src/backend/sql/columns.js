@@ -38,7 +38,7 @@ LEFT JOIN
 WHERE
     r.rdb$system_flag = 0
 AND
-    ('columns:' || CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255))) =OBJECT_ID_CONDITION
+    ('tables:' || CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255))) =OBJECT_ID_CONDITION
 ORDER BY
     "tableName", rf.rdb$field_position;
 `;
