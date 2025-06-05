@@ -86,18 +86,16 @@ class Analyser extends DatabaseAnalyser {
         ],
       })) ?? [];
 
-    const indexes =
-      indexesResults.rows?.map(index => ({
-        pureName: index.pureName,
-        constraintName: index.constraintName,
-        constraintType: index.constraintType,
-        columns: [
-          {
-            columnName: index.columnName,
-            isDescending: index.isDescending,
-          },
-        ],
-      })) ?? [];
+    const indexesGrouped = _.groupBy(indexesResults.rows, 'constraintName');
+    const indexes = Object.values(indexesGrouped).map(indexGroup => ({
+      pureName: indexGroup[0].pureName,
+      constraintName: indexGroup[0].constraintName,
+      constraintType: indexGroup[0].constraintType,
+      columns: indexGroup.map(index => ({
+        columnName: index.columnName,
+        isDescending: index.isDescending,
+      })),
+    }));
 
     const procedures =
       proceduresResults.rows?.map(proc => ({
