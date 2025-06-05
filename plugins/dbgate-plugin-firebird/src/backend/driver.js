@@ -4,6 +4,7 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Firebird = require('node-firebird');
+const { normalizeRow } = require('./helpers');
 const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
 const sql = require('./sql');
 
@@ -62,7 +63,7 @@ const driver = {
     const columns = res?.[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
 
     return {
-      rows: res ?? [],
+      rows: res ? await Promise.all(res.map(normalizeRow)) : [],
       columns,
     };
   },
@@ -106,10 +107,6 @@ const driver = {
       });
       options.done();
     }
-  },
-
-  async writeTable(dbhan, name, options) {
-    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
 
   async script(dbhan, sql, { useTransaction } = {}) {

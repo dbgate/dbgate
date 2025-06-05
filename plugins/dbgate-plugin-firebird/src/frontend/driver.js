@@ -7,7 +7,7 @@ const dialect = {
   ilike: true,
   multipleSchema: false,
   stringEscapeChar: "'",
-  fallbackDataType: 'varchar',
+  fallbackDataType: 'varchar(256)',
   anonymousPrimaryKey: false,
   enableConstraintsPerTable: true,
   stringAgg: true,
@@ -15,6 +15,7 @@ const dialect = {
   dropColumnDependencies: ['dependencies', 'primaryKeys', 'foreignKeys', 'indexes', 'uniques'],
   changeColumnDependencies: ['dependencies', 'primaryKeys', 'indexes', 'uniques'],
   renameColumnDependencies: ['dependencies', 'foreignKeys', 'uniques'],
+  defaultValueBeforeNullability: true,
 
   quoteIdentifier(s) {
     return `"${s}"`;
@@ -36,7 +37,7 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
-  allowMultipleValuesInsert: true,
+  allowMultipleValuesInsert: false,
   renameSqlObject: true,
   filteredIndexes: true,
   disableRenameTable: true,
@@ -87,6 +88,13 @@ const firebirdDriverBase = {
       defaultDatabase: databaseFile,
     };
   },
+
+  adaptDataType(dataType) {
+    if (dataType?.toLowerCase() == 'datetime') return 'TIMESTAMP';
+    if (dataType?.toLowerCase() == 'text') return 'BLOB SUB_TYPE 1 CHARACTER SET UTF8';
+    return dataType;
+  },
+
   engine: 'firebird@dbgate-plugin-firebird',
   title: 'Firebird',
   supportsTransactions: true,
