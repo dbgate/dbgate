@@ -51,10 +51,7 @@ function _normalizeValue(value) {
   }
 
   if (value instanceof DuckDBDateValue) {
-    const year = value.year;
-    const month = String(value.month).padStart(2, '0');
-    const day = String(value.day).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return value.toString();
   }
 
   if (value instanceof DuckDBTimeValue) {
