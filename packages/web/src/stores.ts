@@ -182,6 +182,10 @@ export const focusedConnectionOrDatabase = writable<{ conid: string; database?: 
 
 export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
+export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
+
+export const cloudConnectionsStore = writable({});
+
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
   schemaName: false,
@@ -452,5 +456,11 @@ focusedTreeDbKey.subscribe(value => {
   focusedTreeDbKeyValue = value;
 });
 export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
+
+let cloudConnectionsStoreValue = {};
+cloudConnectionsStore.subscribe(value => {
+  cloudConnectionsStoreValue = value;
+});
+export const getCloudConnectionsStore = () => cloudConnectionsStoreValue;
 
 window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

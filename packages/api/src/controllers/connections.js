@@ -239,6 +239,19 @@ module.exports = {
     return (await this.datastore.find()).filter(x => connectionHasPermission(x, req));
   },
 
+  async getUsedEngines() {
+    const storage = require('./storage');
+
+    const storageEngines = await storage.getUsedEngines();
+    if (storageEngines) {
+      return storageEngines;
+    }
+    if (portalConnections) {
+      return _.uniq(_.compact(portalConnections.map(x => x.engine)));
+    }
+    return _.uniq((await this.datastore.find()).map(x => x.engine));
+  },
+
   test_meta: true,
   test({ connection, requestDbList = false }) {
     const subprocess = fork(
@@ -408,6 +421,13 @@ module.exports = {
     const volatile = volatileConnections[conid];
     if (volatile) {
       return volatile;
+    }
+
+    const cloudMatch = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
+    if (cloudMatch) {
+      const { loadCachedCloudConnection } = require('../utility/cloudIntf');
+      const conn = await loadCachedCloudConnection(cloudMatch[1], cloudMatch[2]);
+      return conn;
     }
 
     const storage = require('./storage');

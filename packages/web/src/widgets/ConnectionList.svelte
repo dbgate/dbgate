@@ -351,6 +351,7 @@
       isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
       {filter}
       passProps={{
+        ...passProps,
         connectionColorFactory: $connectionColorFactory,
         showPinnedInsteadOfUnpin: true,
         searchSettings: $connectionAppObjectSearchSettings,

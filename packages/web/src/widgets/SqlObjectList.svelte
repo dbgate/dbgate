@@ -163,6 +163,8 @@
     ($focusedConnectionOrDatabase.conid != conid ||
       ($focusedConnectionOrDatabase?.database &&
         $focusedConnectionOrDatabase?.database != extractDbNameFromComposite(database)));
+
+  // $: console.log('STATUS', $status);
 </script>
 
 {#if $status && $status.name == 'error'}
