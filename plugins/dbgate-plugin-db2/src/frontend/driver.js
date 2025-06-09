@@ -74,7 +74,7 @@ function adaptTableInfo(table) {
 }  const driver = {
   ...driverBase,
   engine: 'db2@dbgate-plugin-db2',
-  title: 'IBM DB2',
+  title: 'IBM DB2 - experimental',
   defaultPort: 50000, // Corrected DB2 default port (should be 50000, not 25000)
   defaultDatabase: '',
   dialect: 'db2',
