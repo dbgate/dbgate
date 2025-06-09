@@ -51,17 +51,15 @@ function _normalizeValue(value) {
   }
 
   if (value instanceof DuckDBDateValue) {
-    const year = value.year;
-    const month = String(value.month).padStart(2, '0');
-    const day = String(value.day).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return value.toString();
   }
 
   if (value instanceof DuckDBTimeValue) {
-    const hour = String(value.hour).padStart(2, '0');
-    const minute = String(value.min).padStart(2, '0');
-    const second = String(value.sec).padStart(2, '0');
-    const micros = String(value.micros).padStart(6, '0').substring(0, 3);
+    const parts = value.toParts();
+    const hour = String(parts.hour).padStart(2, '0');
+    const minute = String(parts.min).padStart(2, '0');
+    const second = String(parts.sec).padStart(2, '0');
+    const micros = String(parts.micros).padStart(6, '0').substring(0, 3);
     return `${hour}:${minute}:${second}.${micros}`;
   }
 
