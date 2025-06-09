@@ -9,6 +9,8 @@
   import AppWidget from './AppWidget.svelte';
   import AdminMenuWidget from './AdminMenuWidget.svelte';
   import AdminPremiumPromoWidget from './AdminPremiumPromoWidget.svelte';
+  import PublicCloudWidget from './PublicCloudWidget.svelte';
+  import PrivateCloudWidget from './PrivateCloudWidget.svelte';
 </script>
 
 <DatabaseWidget hidden={$visibleSelectedWidget != 'database'} />
@@ -36,4 +38,10 @@
 {/if}
 {#if $visibleSelectedWidget == 'premium'}
   <AdminPremiumPromoWidget />
+{/if}
+{#if $visibleSelectedWidget == 'cloud-public'}
+  <PublicCloudWidget />
+{/if}
+{#if $visibleSelectedWidget == 'cloud-private'}
+  <PrivateCloudWidget />
 {/if}

@@ -28,14 +28,7 @@ function start() {
       let version = {
         version: 'Unknown',
       };
-      try {
-        version = await driver.getVersion(dbhan);
-      } catch (err) {
-        logger.error(extractErrorLogData(err), 'Error getting DB server version');
-        version = {
-          version: 'Unknown',
-        };
-      }
+      version = await driver.getVersion(dbhan);
       let databases = undefined;
       if (requestDbList) {
         databases = await driver.listDatabases(dbhan);

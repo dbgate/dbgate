@@ -36,6 +36,10 @@ async function callRefactorSqlQueryApi(query, task, structure, dialect) {
   return null;
 }
 
+function getLicenseHttpHeaders() {
+  return {};
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -47,4 +51,5 @@ module.exports = {
   callTextToSqlApi,
   callCompleteOnCursorApi,
   callRefactorSqlQueryApi,
+  getLicenseHttpHeaders,
 };
