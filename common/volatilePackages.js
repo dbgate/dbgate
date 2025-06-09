@@ -22,6 +22,7 @@ const volatilePackages = [
   'ssh2',
   'wkx',
   '@duckdb/node-api',
+  "ibm_db"
 ];
 
 module.exports = volatilePackages;
