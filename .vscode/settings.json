@@ -2,5 +2,15 @@
     "jestrunner.jestCommand": "node_modules/.bin/cross-env DEVMODE=1 LOCALTEST=1 node_modules/.bin/jest",
     "cSpell.words": [
         "dbgate"
+    ],
+    "boost-test-adapter-robaho.tests": [
+        {
+            "testExecutables": [
+                {
+                    "glob": "**/*{_test,_test.exe}"
+                }
+            ],
+            "debugConfig": "Test Config"
+        }
     ]
 }
