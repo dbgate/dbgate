@@ -637,7 +637,7 @@ export function parseNumberSafe(value) {
   return parseFloat(value);
 }
 
-const frontMatterRe = /^--\ >>>[ \t]*\n(.*)\n-- <<<[ \t]*\n/s;
+const frontMatterRe = /^--\ >>>[ \t\r]*\n(.*)\n-- <<<[ \t\r]*\n/s;
 
 export function getSqlFrontMatter(text: string, yamlModule) {
   const match = text.match(frontMatterRe);

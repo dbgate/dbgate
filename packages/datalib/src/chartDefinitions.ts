@@ -49,6 +49,8 @@ export interface ChartDefinition {
 
   xdef: ChartXFieldDefinition;
   ydefs: ChartYFieldDefinition[];
+
+  useDataLabels?: boolean;
 }
 
 export interface ChartDateParsed {
