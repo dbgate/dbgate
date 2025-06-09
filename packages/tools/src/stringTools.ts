@@ -5,7 +5,10 @@ import _isNumber from 'lodash/isNumber';
 import _isPlainObject from 'lodash/isPlainObject';
 import _pad from 'lodash/pad';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
+import _isEmpty from 'lodash/isEmpty';
+import _omitBy from 'lodash/omitBy';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
+import isPlainObject from 'lodash/isPlainObject';
 
 export type EditorDataType =
   | 'null'
@@ -632,4 +635,39 @@ export function parseNumberSafe(value) {
     return BigInt(value);
   }
   return parseFloat(value);
+}
+
+const frontMatterRe = /^--\ >>>[ \t]*\n(.*)\n-- <<<[ \t]*\n/s;
+
+export function getSqlFrontMatter(text: string, yamlModule) {
+  const match = text.match(frontMatterRe);
+  if (!match) return null;
+  const yamlContentMapped = match[1].replace(/^--[ ]?/gm, '');
+  return yamlModule.load(yamlContentMapped);
+}
+
+export function removeSqlFrontMatter(text: string) {
+  return text.replace(frontMatterRe, '');
+}
+
+export function setSqlFrontMatter(text: string, data: { [key: string]: any }, yamlModule) {
+  const textClean = removeSqlFrontMatter(text);
+
+  if (!isPlainObject(data)) {
+    return textClean;
+  }
+
+  const dataClean = _omitBy(data, v => v === undefined);
+
+  if (_isEmpty(dataClean)) {
+    return textClean;
+  }
+  const yamlContent = yamlModule.dump(dataClean);
+  const yamlContentMapped = yamlContent
+    .trimRight()
+    .split('\n')
+    .map(line => '-- ' + line)
+    .join('\n');
+  const frontMatterContent = `-- >>>\n${yamlContentMapped}\n-- <<<\n`;
+  return frontMatterContent + textClean;
 }

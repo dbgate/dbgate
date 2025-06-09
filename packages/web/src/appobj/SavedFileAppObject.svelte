@@ -41,16 +41,6 @@
     label: 'Markdown file',
   };
 
-  const charts: FileTypeHandler = {
-    icon: 'img chart',
-    format: 'json',
-    tabComponent: 'ChartTab',
-    folder: 'charts',
-    currentConnection: true,
-    extension: 'json',
-    label: 'Chart file',
-  };
-
   const query: FileTypeHandler = {
     icon: 'img query-design',
     format: 'json',
@@ -139,7 +129,6 @@
     sql,
     shell,
     markdown,
-    charts,
     query,
     sqlite,
     diagrams,

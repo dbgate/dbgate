@@ -71,6 +71,7 @@
     'icon trigger': 'mdi mdi-lightning-bolt',
     'icon scheduler-event': 'mdi mdi-calendar-blank',
     'icon arrow-link': 'mdi mdi-arrow-top-right-thick',
+    'icon reset': 'mdi mdi-cancel',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',

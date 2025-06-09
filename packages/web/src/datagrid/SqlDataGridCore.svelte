@@ -2,14 +2,6 @@
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
-    id: 'sqlDataGrid.openActiveChart',
-    category: 'Data grid',
-    name: 'Open active chart',
-    testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/charts'),
-    onClick: () => getCurrentEditor().openActiveChart(),
-  });
-
-  registerCommand({
     id: 'sqlDataGrid.openQuery',
     category: 'Data grid',
     name: 'Open query',
@@ -188,28 +180,6 @@
 
   function openQueryOnError() {
     openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)));
-  }
-
-  export function openActiveChart() {
-    openNewTab(
-      {
-        title: 'Chart #',
-        icon: 'img chart',
-        tabComponent: 'ChartTab',
-        props: {
-          conid,
-          database,
-        },
-      },
-      {
-        editor: {
-          config: { chartType: 'bar' },
-          sql: display.getExportQuery(select => {
-            select.orderBy = null;
-          }),
-        },
-      }
-    );
   }
 
   const quickExportHandler = fmt => async () => {

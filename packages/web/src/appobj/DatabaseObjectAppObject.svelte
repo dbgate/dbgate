@@ -185,10 +185,6 @@
             isImport: true,
             requiresWriteAccess: true,
           },
-          hasPermission('dbops/charts') && {
-            label: 'Open active chart',
-            isActiveChart: true,
-          },
         ];
       case 'views':
         return [
@@ -245,10 +241,6 @@
             isExport: true,
             functionName: 'tableReader',
           },
-          {
-            label: 'Open active chart',
-            isActiveChart: true,
-          },
         ];
       case 'matviews':
         return [
@@ -298,10 +290,6 @@
             label: 'Export',
             isExport: true,
             functionName: 'tableReader',
-          },
-          {
-            label: 'Open active chart',
-            isActiveChart: true,
           },
         ];
       case 'queries':
@@ -472,28 +460,7 @@
       return driver;
     };
 
-    if (menu.isActiveChart) {
-      const driver = await getDriver();
-      const dmp = driver.createDumper();
-      dmp.put('^select * from %f', data);
-      openNewTab(
-        {
-          title: data.pureName,
-          icon: 'img chart',
-          tabComponent: 'ChartTab',
-          props: {
-            conid: data.conid,
-            database: data.database,
-          },
-        },
-        {
-          editor: {
-            config: { chartType: 'bar' },
-            sql: dmp.s,
-          },
-        }
-      );
-    } else if (menu.isQueryDesigner) {
+    if (menu.isQueryDesigner) {
       openNewTab(
         {
           title: 'Query #',

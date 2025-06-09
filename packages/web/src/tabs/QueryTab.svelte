@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import registerCommand from '../commands/registerCommand';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import yaml from 'js-yaml';
 
   const getCurrentEditor = () => getActiveComponent('QueryTab');
 
@@ -59,6 +60,13 @@
     testEnabled: () =>
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
     onClick: () => getCurrentEditor().executeCurrent(),
+  });
+  registerCommand({
+    id: 'query.toggleAutoExecute',
+    category: 'Query',
+    name: 'Toggle auto execute',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().toggleAutoExecute(),
   });
   registerCommand({
     id: 'query.beginTransaction',
@@ -126,7 +134,7 @@
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { findEngineDriver, safeJsonParse } from 'dbgate-tools';
+  import { findEngineDriver, getSqlFrontMatter, safeJsonParse, setSqlFrontMatter } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
@@ -147,6 +155,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getIntSettingsValue } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
+  import _ from 'lodash';
 
   export let tabid;
   export let conid;
@@ -199,6 +208,7 @@
   let domAiAssistant;
   let isInTransaction = false;
   let isAutocommit = false;
+  let splitterInitialValue = undefined;
 
   const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
   function getInitialRowsLimit() {
@@ -350,6 +360,7 @@
     executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
+    const frontMatter = getSqlFrontMatter($editorValue, yaml);
 
     busy = true;
     timerLabel.start();
@@ -381,6 +392,7 @@
         sql,
         autoCommit: driver?.implicitTransactions && isAutocommit,
         limitRows: queryRowsLimit ? queryRowsLimit : undefined,
+        frontMatter,
       });
     }
     await apiCall('query-history/write', {
@@ -550,10 +562,45 @@
       initialArgs && initialArgs.scriptTemplate
         ? () => applyScriptTemplate(initialArgs.scriptTemplate, $extensions, $$props)
         : null,
+
+    onInitialData: value => {
+      const frontMatter = getSqlFrontMatter(value, yaml);
+      if (frontMatter?.autoExecute) {
+        executeCore(value, 0);
+      }
+      if (frontMatter?.splitterInitialValue) {
+        splitterInitialValue = frontMatter.splitterInitialValue;
+      }
+    },
   });
 
   function handleChangeErrors(errors) {
     errorMessages = errors;
+  }
+
+  function handleSetFrontMatterField(field, value) {
+    const text = $editorValue;
+    setEditorData(
+      setSqlFrontMatter(
+        text,
+        {
+          ...getSqlFrontMatter(text, yaml),
+          [field]: value,
+        },
+        yaml
+      )
+    );
+  }
+
+  export function toggleAutoExecute() {
+    const frontMatter = getSqlFrontMatter($editorValue, yaml);
+    setEditorData(
+      setSqlFrontMatter(
+        $editorValue,
+        { ...frontMatter, autoExecute: frontMatter?.autoExecute ? undefined : true },
+        yaml
+      )
+    );
   }
 
   async function handleKeyDown(event) {
@@ -584,6 +631,7 @@
       { command: 'query.execute' },
       { command: 'query.executeCurrent' },
       { command: 'query.kill' },
+      { command: 'query.toggleAutoExecute' },
       { divider: true },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },
@@ -625,7 +673,7 @@
 <ToolStripContainer bind:this={domToolStrip}>
   <HorizontalSplitter isSplitter={isAiAssistantVisible} initialSizeRight={300}>
     <svelte:fragment slot="1">
-      <VerticalSplitter isSplitter={visibleResultTabs}>
+      <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue}>
         <svelte:fragment slot="1">
           {#if driver?.databaseEngineTypes?.includes('sql')}
             <SqlEditor
@@ -678,7 +726,15 @@
           {/if}
         </svelte:fragment>
         <svelte:fragment slot="2">
-          <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount {driver}>
+          <ResultTabs
+            tabs={[{ label: 'Messages', slot: 0 }]}
+            {sessionId}
+            {executeNumber}
+            bind:resultCount
+            {driver}
+            onSetFrontMatterField={handleSetFrontMatterField}
+            onGetFrontMatter={() => getSqlFrontMatter($editorValue, yaml)}
+          >
             <svelte:fragment slot="0">
               <SocketMessageView
                 eventName={sessionId ? `session-info-${sessionId}` : null}
