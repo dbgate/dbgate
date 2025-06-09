@@ -7,6 +7,7 @@ export type ChartXTransformFunction =
   | 'date:month'
   | 'date:year';
 export type ChartYAggregateFunction = 'sum' | 'first' | 'last' | 'min' | 'max' | 'count' | 'avg';
+export type ChartDataLabelFormatter = 'number' | 'size:bytes' | 'size:kb' | 'size:mb' | 'size:gb';
 
 export const ChartConstDefaults = {
   sortOrder: ' asc',
@@ -51,6 +52,7 @@ export interface ChartDefinition {
   ydefs: ChartYFieldDefinition[];
 
   useDataLabels?: boolean;
+  dataLabelFormatter?: ChartDataLabelFormatter;
 }
 
 export interface ChartDateParsed {
