@@ -720,7 +720,7 @@ const firebirdEngine = {
   skipDataReplicator: true,
   skipAutoIncrement: true,
   // skipDropColumn: true,
-  // skipRenameColumn: true,
+  skipRenameColumn: true,
   // skipChangeNullability: true,
   // skipDeploy: true,
   // supportRenameSqlObject: true,
@@ -737,7 +737,7 @@ const firebirdEngine = {
     );
   },
   // skipDefaultValue: true,
-  // skipDropReferences: true,
+  skipDropReferences: true,
 };
 
 const enginesOnCi = [
