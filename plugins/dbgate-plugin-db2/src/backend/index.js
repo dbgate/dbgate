@@ -1,9 +1,14 @@
-   const driver = require('./driver');
+   // Ensure global packages are initialized first
+const { ensureGlobalPackages } = require('./ensure-globals');
+ensureGlobalPackages();
+
+const driver = require('./driver');
 // Import the fixes
 const fixSchemaListIssue = require('./fixSchemaListIssue');
 const driverFix = require('./driver-fix');
 const connectionDiagnostics = require('./connection-diagnostics');
 const serverHealthMonitor = require('./server-health');
+const { applyConnectionPatches } = require('./connection-patches');
    
 module.exports = {
   packageName: 'dbgate-plugin-db2',
@@ -25,9 +30,11 @@ module.exports = {
     console.log("[DB2] Resetting server health data");
     return connectionDiagnostics.resetServerHealth();
   },
-  
   initialize(dbgateEnv) {
     console.log("[DB2] Initializing DB2 plugin with enhanced connection handling...");
+    
+    // Ensure global packages are initialized
+    ensureGlobalPackages();
     
     // Initialize the driver with dbgateEnv
     driver.initialize && driver.initialize(dbgateEnv);
@@ -35,6 +42,7 @@ module.exports = {
     // Apply all fixes
     fixSchemaListIssue.applyFixes(driver);
     driverFix.fixDriverIssues(driver);
+    applyConnectionPatches(driver);
     
     // Initialize server health monitoring
     if (serverHealthMonitor.initialize) {

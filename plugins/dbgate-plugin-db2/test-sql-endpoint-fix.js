@@ -5,6 +5,12 @@
  * and the "Cannot read properties of undefined" errors have been fixed.
  */
 
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 const driver = require('./src/backend/driver');
 const driverFix = require('./src/backend/driver-fix');
 

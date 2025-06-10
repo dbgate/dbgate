@@ -4,6 +4,13 @@
  * This script can be used to verify that the fixes for the schema list endpoint
  * have been applied correctly.
  */
+
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 const plugin = require('./src/backend/index');
 const driver = plugin.drivers[0];
 const fixSchemaListIssue = require('./src/backend/fixSchemaListIssue');

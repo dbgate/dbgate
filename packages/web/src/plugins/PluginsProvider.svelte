@@ -1,4 +1,11 @@
 <script lang="ts" context="module">
+  import * as dbgateTools from 'dbgate-tools';
+  import * as sqlTree from 'dbgate-sqltree';
+  import _ from 'lodash';
+  import { loadingPluginStore } from '../stores';
+  import { apiCall } from '../utility/api';
+  import { isProApp } from '../utility/proTools';
+
   async function loadPlugins(pluginsDict, installedPlugins) {
     window['DBGATE_PACKAGES'] = {
       'dbgate-tools': dbgateTools,
@@ -10,7 +17,7 @@
 
     const newPlugins = {};
     for (const installed of installedPlugins || []) {
-      if (!_.keys(pluginsDict).includes(installed.name)) {
+      if (_.keys(pluginsDict).indexOf(installed.name) === -1) {
         console.log('Loading module', installed.name);
         loadingPluginStore.set({
           loaded: false,
@@ -58,16 +65,10 @@
   }
 </script>
 
-<script lang="ts">
-  import _ from 'lodash';
-  import { extensions, loadingPluginStore } from '../stores';
+<script lang="ts">  import { extensions } from '../stores';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
-  import * as dbgateTools from 'dbgate-tools';
-  import * as sqlTree from 'dbgate-sqltree';
-  import { apiCall } from '../utility/api';
-  import { isProApp } from '../utility/proTools';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();

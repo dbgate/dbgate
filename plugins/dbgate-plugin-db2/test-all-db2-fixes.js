@@ -6,6 +6,14 @@
  * 2. Table counts in schema dropdowns displaying incorrectly
  * 3. SQL select endpoint hanging and failing with "Cannot read properties of undefined" errors
  */
+
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
+// Import plugin modules after setting up the global packages
 const driver = require('./src/backend/driver');
 const connectHelper = require('./src/backend/connect-fixed');
 const fixSchemaListIssue = require('./src/backend/fixSchemaListIssue');

@@ -1,3 +1,7 @@
+// Ensure global packages are initialized first
+const { ensureGlobalPackages } = require('./ensure-globals');
+ensureGlobalPackages();
+
 const ibmdb = require('ibm_db');
 const _ = require('lodash');
 

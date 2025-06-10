@@ -4,6 +4,12 @@
 
 console.log("=== DB2 API Endpoints Verification ===");
 
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 // Try to load the driver
 let driver;
 try {

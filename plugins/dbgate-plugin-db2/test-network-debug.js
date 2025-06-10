@@ -1,4 +1,11 @@
 // Debug network requests for dbGate DB2 plugin
+
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 const driver = require('./src/backend/driver');
 const connectHelper = require('./src/backend/connect-fixed');
 

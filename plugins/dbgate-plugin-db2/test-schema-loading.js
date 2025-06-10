@@ -1,4 +1,11 @@
 // Test script for DB2 schema loading
+
+// Initialize the required global packages first
+global.DBGATE_PACKAGES = {
+  'dbgate-tools': require('dbgate-tools'),
+  'dbgate-sqltree': require('dbgate-sqltree'),
+};
+
 const driver = require('./src/backend/driver');
 const connectHelper = require('./src/backend/connect-fixed');
 

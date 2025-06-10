@@ -117,10 +117,9 @@ export default [
         browser: true,
         dedupe: ['svelte'],
       }),
-      commonjs(),
-      typescript({
+      commonjs(),      typescript({
         sourceMap: !production,
-        inlineSources: !production,
+        inlineSources: !production
       }),
       json(),
 
