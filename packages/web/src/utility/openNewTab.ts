@@ -30,7 +30,8 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
     };
   }
 
-  const { savedFile, savedFolder, savedFilePath, conid, database } = newTab.props || {};
+  const { savedFile, savedFolder, savedFilePath, savedCloudFolderId, savedCloudContentId, conid, database } =
+    newTab.props || {};
 
   if (conid && database) {
     const connection = await getConnectionInfo({ conid });
@@ -49,7 +50,9 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
         x.closedTime == null &&
         x.props.savedFile == savedFile &&
         x.props.savedFolder == savedFolder &&
-        x.props.savedFilePath == savedFilePath
+        x.props.savedFilePath == savedFilePath &&
+        x.props.savedCloudFolderId == savedCloudFolderId &&
+        x.props.savedCloudContentId == savedCloudContentId
     );
   }
 

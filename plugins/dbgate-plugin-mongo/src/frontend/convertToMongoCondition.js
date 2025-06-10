@@ -11,6 +11,21 @@ function convertRightOperandToMongoValue(right) {
   throw new Error(`Unknown right operand type ${right.exprType}`);
 }
 
+function convertRightEqualOperandToMongoCondition(right) {
+  if (right.exprType != 'value') {
+    throw new Error(`Unknown right operand type ${right.exprType}`);
+  }
+  const { value } = right;
+  if (/^[0-9a-fA-F]{24}$/.test(value)) {
+    return {
+      $in: [value, { $oid: value }],
+    };
+  }
+  return {
+    $eq: value,
+  };
+}
+
 function convertToMongoCondition(filter) {
   if (!filter) {
     return null;
@@ -28,9 +43,7 @@ function convertToMongoCondition(filter) {
       switch (filter.operator) {
         case '=':
           return {
-            [convertLeftOperandToMongoColumn(filter.left)]: {
-              $eq: convertRightOperandToMongoValue(filter.right),
-            },
+            [convertLeftOperandToMongoColumn(filter.left)]: convertRightEqualOperandToMongoCondition(filter.right),
           };
         case '!=':
         case '<>':

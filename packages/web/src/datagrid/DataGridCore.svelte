@@ -262,13 +262,6 @@
     onClick: () => getCurrentDataGrid().openFreeTable(),
   });
   registerCommand({
-    id: 'dataGrid.openChartFromSelection',
-    category: 'Data grid',
-    name: 'Open chart from selection',
-    testEnabled: () => getCurrentDataGrid() != null,
-    onClick: () => getCurrentDataGrid().openChartFromSelection(),
-  });
-  registerCommand({
     id: 'dataGrid.newJson',
     category: 'Data grid',
     name: 'Add JSON document',
@@ -469,6 +462,7 @@
   export let hideGridLeftColumn = false;
   export let overlayDefinition = null;
   export let onGetSelectionMenu = null;
+  export let onOpenChart = null;
 
   export const activator = createActivator('DataGridCore', false);
 
@@ -713,23 +707,6 @@
 
   export function openFreeTable() {
     openJsonLinesData(getSelectedFreeDataRows());
-  }
-
-  export function openChartFromSelection() {
-    openNewTab(
-      {
-        title: 'Chart #',
-        icon: 'img chart',
-        tabComponent: 'ChartTab',
-        props: {},
-      },
-      {
-        editor: {
-          data: getSelectedFreeData(),
-          config: { chartType: 'bar' },
-        },
-      }
-    );
   }
 
   export function viewJsonDocumentEnabled() {
@@ -1869,9 +1846,13 @@
     //   ],
     // },
     isProApp() && { command: 'dataGrid.sendToDataDeploy' },
+    isProApp() &&
+      onOpenChart && {
+        text: 'Open chart',
+        onClick: () => onOpenChart(),
+      },
     { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
-    { command: 'dataGrid.openChartFromSelection' },
     { command: 'dataGrid.openSelectionInMap', hideDisabled: true },
     { placeTag: 'chart' }
   );

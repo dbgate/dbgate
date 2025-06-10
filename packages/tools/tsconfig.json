@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
+    "target": "ES2018",
     "module": "commonjs",
     "declaration": true,
     "skipLibCheck": true,

@@ -21,6 +21,11 @@ const logger = getLogger('postreDriver');
 pg.types.setTypeParser(1082, 'text', val => val); // date
 pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
 pg.types.setTypeParser(1184, 'text', val => val); // timestamp
+pg.types.setTypeParser(20, 'text', val => {
+  const parsed = parseInt(val);
+  if (Number.isSafeInteger(parsed)) return parsed;
+  return BigInt(val);
+}); // timestamp
 
 function extractGeographyDate(value) {
   try {
@@ -159,6 +164,17 @@ const drivers = driverBases.map(driverBase => ({
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
   stream(dbhan, sql, options) {
+    const handleNotice = notice => {
+      const { message, where } = notice;
+      options.info({
+        message,
+        procedure: where,
+        time: new Date(),
+        severity: 'info',
+        detail: notice,
+      });
+    };
+
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -166,6 +182,7 @@ const drivers = driverBases.map(driverBase => ({
 
     let wasHeader = false;
     let columnsToTransform = null;
+    dbhan.client.on('notice', handleNotice);
 
     query.on('row', row => {
       if (!wasHeader) {
@@ -206,6 +223,7 @@ const drivers = driverBases.map(driverBase => ({
         wasHeader = true;
       }
 
+      dbhan.client.off('notice', handleNotice);
       options.done();
     });
 
@@ -223,6 +241,7 @@ const drivers = driverBases.map(driverBase => ({
         time: new Date(),
         severity: 'error',
       });
+      dbhan.client.off('notice', handleNotice);
       options.done();
     });
 

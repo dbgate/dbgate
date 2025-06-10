@@ -39,6 +39,9 @@
     'icon minus-thick': 'mdi mdi-minus-thick',
     'icon invisible-box': 'mdi mdi-minus-box-outline icon-invisible',
     'icon cloud-upload': 'mdi mdi-cloud-upload',
+    'icon cloud': 'mdi mdi-cloud',
+    'icon cloud-public': 'mdi mdi-cloud-search',
+    'icon cloud-private': 'mdi mdi-cloud-key',
     'icon import': 'mdi mdi-application-import',
     'icon export': 'mdi mdi-application-export',
     'icon new-connection': 'mdi mdi-database-plus',
@@ -68,6 +71,7 @@
     'icon trigger': 'mdi mdi-lightning-bolt',
     'icon scheduler-event': 'mdi mdi-calendar-blank',
     'icon arrow-link': 'mdi mdi-arrow-top-right-thick',
+    'icon reset': 'mdi mdi-cancel',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',
@@ -112,6 +116,9 @@
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
 
+    'icon cloud-account': 'mdi mdi-account-remove-outline',
+    'icon cloud-account-connected': 'mdi mdi-account-check-outline',
+
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
     'icon arrow-up': 'mdi mdi-arrow-up',
@@ -151,6 +158,7 @@
     'icon text': 'mdi mdi-text',
     'icon ai': 'mdi mdi-head-lightbulb',
     'icon wait': 'mdi mdi-timer-sand',
+    'icon more': 'mdi mdi-more',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
@@ -222,6 +230,7 @@
 
     'icon premium': 'mdi mdi-star',
     'icon upload': 'mdi mdi-upload',
+    'icon limit': 'mdi mdi-car-speed-limiter',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
@@ -262,6 +271,7 @@
     'img role': 'mdi mdi-account-group color-icon-blue',
     'img admin': 'mdi mdi-security color-icon-blue',
     'img auth': 'mdi mdi-account-key color-icon-blue',
+    'img cloud-connection': 'mdi mdi-cloud-lock color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

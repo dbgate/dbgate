@@ -117,7 +117,7 @@ async function handleExecuteControlCommand({ command }) {
   }
 }
 
-async function handleExecuteQuery({ sql, autoCommit }) {
+async function handleExecuteQuery({ sql, autoCommit, limitRows, frontMatter }) {
   lastActivity = new Date().getTime();
 
   await waitConnected();
@@ -146,7 +146,7 @@ async function handleExecuteQuery({ sql, autoCommit }) {
       ...driver.getQuerySplitterOptions('stream'),
       returnRichInfo: true,
     })) {
-      await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem);
+      await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, undefined, limitRows, frontMatter);
       // const handler = new StreamHandler(resultIndex);
       // const stream = await driver.stream(systemConnection, sqlItem, handler);
       // handler.stream = stream;

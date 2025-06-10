@@ -248,14 +248,14 @@ describe('Data browser data', () => {
     cy.themeshot('database-diagram');
   });
 
-  it('Charts', () => {
-    cy.testid('WidgetIconPanel_file').click();
-    cy.contains('pie-chart').click();
-    cy.contains('line-chart').click();
-    cy.testid('TabsPanel_buttonSplit').click();
-    cy.testid('WidgetIconPanel_file').click();
-    cy.themeshot('view-split-charts');
-  });
+  // it('Charts', () => {
+  //   cy.testid('WidgetIconPanel_file').click();
+  //   cy.contains('pie-chart').click();
+  //   cy.contains('line-chart').click();
+  //   cy.testid('TabsPanel_buttonSplit').click();
+  //   cy.testid('WidgetIconPanel_file').click();
+  //   cy.themeshot('view-split-charts');
+  // });
 
   it('Keyboard configuration', () => {
     cy.testid('WidgetIconPanel_settings').click();

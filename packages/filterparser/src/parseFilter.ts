@@ -2,14 +2,18 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
-import { hexStringToArray } from 'dbgate-tools';
+import { hexStringToArray, parseNumberSafe } from 'dbgate-tools';
 import { FilterBehaviour, TransformType } from 'dbgate-types';
 
 const binaryCondition =
   (operator, numberDualTesting = false) =>
   value => {
-    const numValue = parseFloat(value);
-    if (numberDualTesting && !isNaN(numValue)) {
+    const numValue = parseNumberSafe(value);
+    if (
+      numberDualTesting &&
+      // @ts-ignore
+      !isNaN(numValue)
+    ) {
       return {
         conditionType: 'or',
         conditions: [
@@ -51,6 +55,18 @@ const binaryCondition =
       },
     };
   };
+
+const simpleEqualCondition = () => value => ({
+  conditionType: 'binary',
+  operator: '=',
+  left: {
+    exprType: 'placeholder',
+  },
+  right: {
+    exprType: 'value',
+    value,
+  },
+});
 
 const likeCondition = (conditionType, likeString) => value => ({
   conditionType,
@@ -333,20 +349,22 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
 
     string1Num: () =>
       token(P.regexp(/"-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?"/, 1))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('numer quoted'),
 
     string2Num: () =>
       token(P.regexp(/'-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?'/, 1))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('numer quoted'),
 
     number: () =>
       token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
-        .map(Number)
+        .map(parseNumberSafe)
         .desc('number'),
 
     objectid: () => token(P.regexp(/ObjectId\(['"]?[0-9a-f]{24}['"]?\)/)).desc('ObjectId'),
+
+    objectidstr: () => token(P.regexp(/[0-9a-f]{24}/)).desc('ObjectId string'),
 
     hexstring: () =>
       token(P.regexp(/0x(([0-9a-fA-F][0-9a-fA-F])+)/, 1))
@@ -366,6 +384,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
     hexTestEq: r => r.hexstring.map(binaryCondition('=')),
+    valueTestObjectIdStr: r => r.objectidstr.map(simpleEqualCondition()),
     valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
     valueTestNum: r => r.number.map(numberTestCondition()),
     valueTestObjectId: r => r.objectid.map(objectIdTestCondition()),
@@ -546,12 +565,13 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
     }
   }
 
-  if (filterBehaviour.allowNumberDualTesting) {
-    allowedElements.push('valueTestNum');
+  if (filterBehaviour.allowObjectIdTesting) {
+    allowedElements.push('valueTestObjectIdStr');
+    allowedElements.push('valueTestObjectId');
   }
 
-  if (filterBehaviour.allowObjectIdTesting) {
-    allowedElements.push('valueTestObjectId');
+  if (filterBehaviour.allowNumberDualTesting) {
+    allowedElements.push('valueTestNum');
   }
 
   // must be last

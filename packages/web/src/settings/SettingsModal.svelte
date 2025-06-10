@@ -227,6 +227,12 @@ ORDER BY
               </FormFieldTemplateLarge>
             </div>
           </div>
+
+          <FormTextField
+            name="sqlEditor.limitRows"
+            label="Return only N rows from query"
+            placeholder="(No rows limit)"
+          />
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Connection</div>

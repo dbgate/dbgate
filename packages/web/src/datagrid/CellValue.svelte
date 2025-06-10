@@ -16,6 +16,8 @@
     { useThousandsSeparator: getBoolSettingsValue('dataGrid.thousandsSeparator', false) },
     jsonParsedValue
   );
+
+  // $: console.log('CellValue', value, stringified);
 </script>
 
 {#if rowData == null}

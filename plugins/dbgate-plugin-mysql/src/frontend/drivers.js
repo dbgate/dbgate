@@ -253,7 +253,14 @@ const mysqlDriverBase = {
       const customArgs = options.customArgs.split(/\s+/).filter(arg => arg.trim() != '');
       args.push(...customArgs);
     }
-    args.push(database);
+    if (options.createDatabase) {
+      args.push('--databases', database);
+      if (options.dropDatabase) {
+        args.push('--add-drop-database');
+      }
+    } else {
+      args.push(database);
+    }
     return { command, args };
   },
   restoreDatabaseCommand(connection, settings, externalTools) {
@@ -345,6 +352,19 @@ const mysqlDriverBase = {
           name: 'singleTransaction',
           default: false,
           disabledFn: values => values.lockTables || values.skipLockTables,
+        },
+        {
+          type: 'checkbox',
+          label: 'Create database',
+          name: 'createDatabase',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: 'Drop database before import',
+          name: 'dropDatabase',
+          default: false,
+          disabledFn: values => !values.createDatabase,
         },
         {
           type: 'text',

@@ -1,4 +1,5 @@
 import {
+  cloudSigninTokenHolder,
   currentDatabase,
   currentTheme,
   emptyConnectionGroupNames,
@@ -119,6 +120,27 @@ registerCommand({
       title: 'New Connection',
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.connectionOnCloud',
+  toolbar: true,
+  icon: 'img cloud-connection',
+  toolbarName: 'Add connection on cloud',
+  category: 'New',
+  toolbarOrder: 1,
+  name: 'Connection on Cloud',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && isProApp(),
+  onClick: () => {
+    openNewTab({
+      title: 'New Connection on Cloud',
+      icon: 'img cloud-connection',
+      tabComponent: 'ConnectionTab',
+      props: {
+        saveOnCloud: true,
+      },
     });
   },
 });
@@ -535,7 +557,7 @@ registerCommand({
   id: 'app.exportConnections',
   category: 'Settings',
   name: 'Export connections',
-  testEnabled: () => getElectron() != null,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     showModal(ExportImportConnectionsModal, {
       mode: 'export',
@@ -547,7 +569,7 @@ registerCommand({
   id: 'app.importConnections',
   category: 'Settings',
   name: 'Import connections',
-  testEnabled: () => getElectron() != null,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: async () => {
     const files = await electron.showOpenDialog({
       properties: ['showHiddenFiles', 'openFile'],
@@ -661,6 +683,15 @@ if (hasPermission('settings/change')) {
     onClick: () => showModal(SettingsModal),
   });
 }
+
+registerCommand({
+  id: 'cloud.logout',
+  category: 'Cloud',
+  name: 'Logout',
+  onClick: () => {
+    cloudSigninTokenHolder.set(null);
+  },
+});
 
 registerCommand({
   id: 'file.exit',
@@ -929,7 +960,15 @@ registerCommand({
   id: 'app.openSponsoring',
   category: 'Application',
   name: 'Become sponsor',
+  testEnabled: () => !isProApp(),
   onClick: () => openWebLink('https://opencollective.com/dbgate'),
+});
+
+registerCommand({
+  id: 'app.giveFeedback',
+  category: 'Application',
+  name: 'Give us feedback',
+  onClick: () => openWebLink('https://dbgate.org/feedback'),
 });
 
 registerCommand({

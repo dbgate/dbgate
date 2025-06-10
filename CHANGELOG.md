@@ -8,7 +8,19 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.4.0 - not released yet
+## 6.4.2
+
+- ADDED: Source label to docker container #1105 
+- FIXED: DbGate restart needed to take effect after trigger is created/deleted on mariadb #1112
+- ADDED: View PostgreSQL query console output #1108
+- FIXED: Single quote generete MySql error #1107
+- ADDED: Ability to limit query result count #1098
+- CHANGED: Correct processing of bigint columns #1087 #1055 #583
+- CHANGED: Improved and optimalized algorithm of loading redis keys #1062, #1034
+- FIXED: Fixed loading Redis keys with :: in key name
+
+## 6.4.0
+- ADDED: DuckDB support
 - ADDED: Data deployer (Premium)
 - ADDED: Compare data between JSON lines file in archive and database table
 - CHANGED: Data Duplicator => Data Replicator (suitable for update, create and delete data, much more customizable)
@@ -18,6 +30,15 @@ Builds:
 - ADDED: Upload SQLite files
 - ADDED: Upload archive as ZIP folder (Premium)
 - ADDED: Compress, uncompress archive folder (Premium)
+- ADDED: Export connections and settings #357
+- ADDED: Filtering by MongoDB ObjectId works now also without ObjectId(...) wrapper
+- ADDED: Split queries using blank lines #1089
+- FIXED: JSON-to-Grid only works if there is no newline #1085
+- CHANGED: When running multiple commands in script, stop execution after first error #1070
+- FIXED: Selection rectangle remains visible after closing JSONB edit cell value form #1031
+- FIXED: Diplaying numeric FK column with right alignement #1021
+- ADDED: Additional arguments for MySQL and PostgreSQL backup #1092
+- CHANGED: Amazon and Azure instalations are not auto-upgraded by default
 
 ## 6.3.3
 - CHANGED: New administration UI, redesigned administration of users, connections and roles

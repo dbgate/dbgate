@@ -83,6 +83,11 @@ module.exports = {
     jsldata.notifyChangedStats(stats);
   },
 
+  handle_charts(sesid, props) {
+    const { jslid, charts, resultIndex } = props;
+    socket.emit(`session-charts-${sesid}`, { jslid, resultIndex, charts });
+  },
+
   handle_initializeFile(sesid, props) {
     const { jslid } = props;
     socket.emit(`session-initialize-file-${jslid}`);
@@ -141,7 +146,7 @@ module.exports = {
   },
 
   executeQuery_meta: true,
-  async executeQuery({ sesid, sql, autoCommit }) {
+  async executeQuery({ sesid, sql, autoCommit, limitRows, frontMatter }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
@@ -149,7 +154,7 @@ module.exports = {
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
-    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit });
+    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit, limitRows, frontMatter });
 
     return { state: 'ok' };
   },

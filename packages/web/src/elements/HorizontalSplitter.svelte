@@ -39,7 +39,7 @@
 
   $: size = computeSplitterSize(initialValue, clientWidth, customRatio, initialSizeRight);
 
-  $: if (onChangeSize) onChangeSize(size);
+  $: if (onChangeSize) onChangeSize(size, clientWidth - size);
 </script>
 
 <div class="container" bind:clientWidth>

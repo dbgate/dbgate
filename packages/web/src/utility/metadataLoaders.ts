@@ -83,12 +83,6 @@ const databaseListLoader = ({ conid }) => ({
   errorValue: [],
 });
 
-// const databaseKeysLoader = ({ conid, database, root }) => ({
-//   url: 'database-connections/load-keys',
-//   params: { conid, database, root },
-//   reloadTrigger: `database-keys-changed-${conid}-${database}`,
-// });
-
 const serverVersionLoader = ({ conid }) => ({
   url: 'server-connections/version',
   params: { conid },
@@ -170,6 +164,17 @@ const authTypesLoader = ({ engine }) => ({
   params: { engine },
   reloadTrigger: { key: `installed-plugins-changed` },
   errorValue: null,
+});
+
+const publicCloudFilesLoader = () => ({
+  url: 'cloud/public-files',
+  params: {},
+  reloadTrigger: { key: `public-cloud-changed` },
+});
+const cloudContentListLoader = () => ({
+  url: 'cloud/content-list',
+  params: {},
+  reloadTrigger: { key: `cloud-content-changed` },
 });
 
 async function getCore(loader, args) {
@@ -461,4 +466,18 @@ export function getSchemaList(args) {
 }
 export function useSchemaList(args) {
   return useCore(schemaListLoader, args);
+}
+
+export function getPublicCloudFiles(args) {
+  return getCore(publicCloudFilesLoader, args);
+}
+export function usePublicCloudFiles(args = {}) {
+  return useCore(publicCloudFilesLoader, args);
+}
+
+export function getCloudContentList(args) {
+  return getCore(cloudContentListLoader, args);
+}
+export function useCloudContentList(args = {}) {
+  return useCore(cloudContentListLoader, args);
 }

@@ -18,6 +18,7 @@
   export let flex1 = true;
   export let contentTestId = undefined;
   export let inlineTabs = false;
+  export let onUserChange = null;
 
   export function setValue(index) {
     value = index;
@@ -30,8 +31,16 @@
 <div class="main" class:flex1>
   <div class="tabs" class:inlineTabs>
     {#each _.compact(tabs) as tab, index}
-      <div class="tab-item" class:selected={value == index} on:click={() => (value = index)} data-testid={tab.testid}>
-        <span class="ml-2">
+      <div
+        class="tab-item"
+        class:selected={value == index}
+        on:click={() => {
+          value = index;
+          onUserChange?.(index);
+        }}
+        data-testid={tab.testid}
+      >
+        <span class="ml-2 noselect">
           {tab.label}
         </span>
       </div>
@@ -139,5 +148,4 @@
   .container.isInline:not(.tabVisible) {
     display: none;
   }
-
 </style>

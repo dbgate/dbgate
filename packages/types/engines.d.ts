@@ -239,6 +239,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
     }[]
   >;
   loadKeys(dbhan: DatabaseHandle<TClient>, root: string, filter?: string): Promise;
+  scanKeys(dbhan: DatabaseHandle<TClient>, root: string, pattern: string, cursor: string, count: number): Promise;
   exportKeys(dbhan: DatabaseHandle<TClient>, options: {}): Promise;
   loadKeyInfo(dbhan: DatabaseHandle<TClient>, key): Promise;
   loadKeyTableRange(dbhan: DatabaseHandle<TClient>, key, cursor, count): Promise;

@@ -72,6 +72,7 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
       let text = value;
       if (_.isArray(value)) text = `[${value.length} items]`;
       else if (value?.$oid) text = `ObjectId("${value.$oid}")`;
+      else if (value?.$bigint) text = value.$bigint;
       else if (isJsonLikeLongString(value) && safeJsonParse(value)) text = '(JSON)';
       const width = context.measureText(text).width + 8;
       // console.log('colName', colName, text, width);

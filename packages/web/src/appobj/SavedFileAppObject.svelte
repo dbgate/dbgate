@@ -41,16 +41,6 @@
     label: 'Markdown file',
   };
 
-  const charts: FileTypeHandler = {
-    icon: 'img chart',
-    format: 'json',
-    tabComponent: 'ChartTab',
-    folder: 'charts',
-    currentConnection: true,
-    extension: 'json',
-    label: 'Chart file',
-  };
-
   const query: FileTypeHandler = {
     icon: 'img query-design',
     format: 'json',
@@ -139,7 +129,6 @@
     sql,
     shell,
     markdown,
-    charts,
     query,
     sqlite,
     diagrams,
@@ -206,7 +195,14 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.file}?`,
       onConfirm: () => {
-        apiCall('files/delete', data);
+        if (data.folid && data.cntid) {
+          apiCall('cloud/delete-content', {
+            folid: data.folid,
+            cntid: data.cntid,
+          });
+        } else {
+          apiCall('files/delete', data);
+        }
       },
     });
   };
@@ -217,7 +213,15 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        apiCall('files/rename', { ...data, newFile });
+        if (data.folid && data.cntid) {
+          apiCall('cloud/rename-content', {
+            folid: data.folid,
+            cntid: data.cntid,
+            name: newFile,
+          });
+        } else {
+          apiCall('files/rename', { ...data, newFile });
+        }
       },
     });
   };
@@ -226,9 +230,17 @@
     showModal(InputTextModal, {
       value: data.file,
       label: 'New file name',
-      header: 'Rename file',
+      header: 'Copy file',
       onConfirm: newFile => {
-        apiCall('files/copy', { ...data, newFile });
+        if (data.folid && data.cntid) {
+          apiCall('cloud/copy-file', {
+            folid: data.folid,
+            cntid: data.cntid,
+            name: newFile,
+          });
+        } else {
+          apiCall('files/copy', { ...data, newFile });
+        }
       },
     });
   };
@@ -236,21 +248,38 @@
   const handleDownload = () => {
     saveFileToDisk(
       async filePath => {
-        await apiCall('files/export-file', {
-          folder,
-          file: data.file,
-          filePath,
-        });
+        if (data.folid && data.cntid) {
+          await apiCall('cloud/export-file', {
+            folid: data.folid,
+            cntid: data.cntid,
+            filePath,
+          });
+        } else {
+          await apiCall('files/export-file', {
+            folder,
+            file: data.file,
+            filePath,
+          });
+        }
       },
       { formatLabel: handler.label, formatExtension: handler.format, defaultFileName: data.file }
     );
   };
 
   async function openTab() {
-    const resp = await apiCall('files/load', { folder, file: data.file, format: handler.format });
+    let dataContent;
+    if (data.folid && data.cntid) {
+      const resp = await apiCall('cloud/get-content', {
+        folid: data.folid,
+        cntid: data.cntid,
+      });
+      dataContent = resp.content;
+    } else {
+      dataContent = await apiCall('files/load', { folder, file: data.file, format: handler.format });
+    }
 
-    const connProps: any = {};
     let tooltip = undefined;
+    const connProps: any = {};
 
     if (handler.currentConnection) {
       const connection = _.get($currentDatabase, 'connection') || {};
@@ -270,10 +299,12 @@
           savedFile: data.file,
           savedFolder: handler.folder,
           savedFormat: handler.format,
+          savedCloudFolderId: data.folid,
+          savedCloudContentId: data.cntid,
           ...connProps,
         },
       },
-      { editor: resp }
+      { editor: dataContent }
     );
   }
 </script>

@@ -36,6 +36,7 @@
   import ConnectionAdvancedDriverFields from '../settings/ConnectionAdvancedDriverFields.svelte';
   import DatabaseLoginModal from '../modals/DatabaseLoginModal.svelte';
   import { _t } from '../translations';
+  import ChooseCloudFolderModal from '../modals/ChooseCloudFolderModal.svelte';
 
   export let connection;
   export let tabid;
@@ -44,6 +45,7 @@
   export let inlineTabs = false;
 
   export let onlyTestButton;
+  export let saveOnCloud = false;
 
   let isTesting;
   let sqlConnectResult;
@@ -157,43 +159,96 @@
   $: currentConnection = getCurrentConnectionCore($values, driver);
 
   async function handleSave() {
-    let connection = getCurrentConnection();
-    connection = {
-      ...connection,
-      unsaved: false,
-    };
-    const saved = await apiCall('connections/save', connection);
-    $values = {
-      ...$values,
-      _id: saved._id,
-      unsaved: false,
-    };
-    changeTab(tabid, tab => ({
-      ...tab,
-      title: getConnectionLabel(saved),
-      props: {
-        ...tab.props,
-        conid: saved._id,
-      },
-    }));
-    showSnackbarSuccess('Connection saved');
+    if (saveOnCloud && !getCurrentConnection()?._id) {
+      showModal(ChooseCloudFolderModal, {
+        requiredRoleVariants: ['write', 'admin'],
+        message: 'Choose cloud folder to saved connection',
+        onConfirm: async folid => {
+          let connection = getCurrentConnection();
+          const saved = await apiCall('cloud/save-connection', { folid, connection });
+          if (saved?._id) {
+            $values = {
+              ...$values,
+              _id: saved._id,
+              unsaved: false,
+            };
+            changeTab(tabid, tab => ({
+              ...tab,
+              title: getConnectionLabel(saved),
+              props: {
+                ...tab.props,
+                conid: saved._id,
+              },
+            }));
+            showSnackbarSuccess('Connection saved');
+          }
+        },
+      });
+    } else if (
+      // @ts-ignore
+      getCurrentConnection()?._id?.startsWith('cloud://')
+    ) {
+      let connection = getCurrentConnection();
+      const resp = await apiCall('cloud/save-connection', { connection });
+      if (resp?._id) {
+        showSnackbarSuccess('Connection saved');
+        changeTab(tabid, tab => ({
+          ...tab,
+          title: getConnectionLabel(connection),
+        }));
+      }
+    } else {
+      let connection = getCurrentConnection();
+      connection = {
+        ...connection,
+        unsaved: false,
+      };
+      const saved = await apiCall('connections/save', connection);
+      $values = {
+        ...$values,
+        _id: saved._id,
+        unsaved: false,
+      };
+      changeTab(tabid, tab => ({
+        ...tab,
+        title: getConnectionLabel(saved),
+        props: {
+          ...tab.props,
+          conid: saved._id,
+        },
+      }));
+      showSnackbarSuccess('Connection saved');
+    }
   }
 
   async function handleConnect() {
     let connection = getCurrentConnection();
-    if (!connection._id) {
-      connection = {
-        ...connection,
-        unsaved: true,
+
+    if (
+      // @ts-ignore
+      connection?._id?.startsWith('cloud://')
+    ) {
+      const saved = await apiCall('cloud/save-connection', { connection });
+      changeTab(tabid, tab => ({
+        ...tab,
+        title: getConnectionLabel(connection),
+      }));
+      openConnection(saved);
+    } else {
+      if (!connection._id) {
+        connection = {
+          ...connection,
+          unsaved: true,
+        };
+      }
+      const saved = await apiCall('connections/save', connection);
+      $values = {
+        ...$values,
+        unsaved: connection.unsaved,
+        _id: saved._id,
       };
+      openConnection(saved);
     }
-    const saved = await apiCall('connections/save', connection);
-    $values = {
-      ...$values,
-      unsaved: connection.unsaved,
-      _id: saved._id,
-    };
-    openConnection(saved);
     // closeMultipleTabs(x => x.tabid == tabid, true);
   }
 
@@ -287,7 +342,9 @@
           {:else if isConnected}
             <FormButton value="Disconnect" on:click={handleDisconnect} data-testid="ConnectionTab_buttonDisconnect" />
           {:else}
-            <FormButton value="Connect" on:click={handleConnect} data-testid="ConnectionTab_buttonConnect" />
+            {#if $values._id || !saveOnCloud}
+              <FormButton value="Connect" on:click={handleConnect} data-testid="ConnectionTab_buttonConnect" />
+            {/if}
             {#if isTesting}
               <FormButton value="Cancel test" on:click={handleCancelTest} />
             {:else}

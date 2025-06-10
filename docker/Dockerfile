@@ -1,5 +1,7 @@
 FROM node:22
 
+LABEL org.opencontainers.image.source="https://github.com/dbgate/dbgate"
+
 RUN apt-get update && apt-get install -y \
     iputils-ping \
     iproute2 \
