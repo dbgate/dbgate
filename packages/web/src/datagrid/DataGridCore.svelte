@@ -615,6 +615,7 @@
           if (column.uniquePath.length > 1) continue;
           if (column.autoIncrement) continue;
           if (column.isClusterKey) continue;
+          if (column.hasAutoValue) continue;
 
           grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
         }

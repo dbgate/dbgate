@@ -28,6 +28,7 @@ export interface DisplayColumn {
   notNull?: boolean;
   autoIncrement?: boolean;
   isPrimaryKey?: boolean;
+  hasAutoValue?: boolean;
 
   // NoSQL specific
   isPartitionKey?: boolean;

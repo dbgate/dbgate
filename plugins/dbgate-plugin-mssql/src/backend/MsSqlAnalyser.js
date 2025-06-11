@@ -78,6 +78,7 @@ function getColumnInfo({
     defaultValue,
     defaultConstraint,
     computedExpression: simplifyComutedExpression(computedExpression),
+    hasAutoValue: !!(dataType == 'timestamp' || dataType == 'rowversion' || computedExpression),
   };
 }
 

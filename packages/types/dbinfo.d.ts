@@ -66,6 +66,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   options?: [];
   canSelectMultipleOptions?: boolean;
   undropColumnName?: string;
+  hasAutoValue?: boolean;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {

@@ -266,6 +266,7 @@ export class TableGridDisplay extends GridDisplay {
       uniqueName,
       uniquePath,
       isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
+      hasAutoValue: col.hasAutoValue,
       foreignKey:
         table.foreignKeys &&
         table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
