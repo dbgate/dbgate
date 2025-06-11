@@ -192,7 +192,11 @@ ORDER BY
             ]}
           />
 
-          <FormCheckboxField name="dataGrid.showAllColumnsWhenSearch" label="Show all columns when searching" defaultValue={false} />
+          <FormCheckboxField
+            name="dataGrid.showAllColumnsWhenSearch"
+            label="Show all columns when searching"
+            defaultValue={false}
+          />
 
           <div class="heading">SQL editor</div>
 
@@ -234,6 +238,12 @@ ORDER BY
             name="sqlEditor.limitRows"
             label="Return only N rows from query"
             placeholder="(No rows limit)"
+          />
+
+          <FormCheckboxField
+            name="sqlEditor.showTableAliasesInCodeCompletion"
+            label="Show table aliases in code completion"
+            defaultValue={false}
           />
         </svelte:fragment>
         <svelte:fragment slot="2">

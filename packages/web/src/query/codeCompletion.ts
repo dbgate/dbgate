@@ -26,7 +26,13 @@ const COMMON_KEYWORDS = [
   'go',
 ];
 
-function createTableLikeList(schemaList, dbinfo, schemaCondition) {
+function createTableShortcut(name) {
+  return (_.upperFirst(_.camelCase(name)).match(/[A-Z]/g) || []).join('').toLowerCase();
+}
+
+function createTableLikeList(schemaList, dbinfo, schemaCondition, getSettings) {
+  const settings = getSettings();
+  const useAliases = settings?.['sqlEditor.showTableAliasesInCodeCompletion'];
   return [
     ...(schemaList?.map(x => ({
       name: x.schemaName,
@@ -37,22 +43,22 @@ function createTableLikeList(schemaList, dbinfo, schemaCondition) {
     })) || []),
     ...dbinfo.tables.filter(schemaCondition).map(x => ({
       name: x.pureName,
-      value: x.pureName,
-      caption: x.pureName,
+      value: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
+      caption: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
       meta: 'table',
       score: 1000,
     })),
     ...dbinfo.views.filter(schemaCondition).map(x => ({
       name: x.pureName,
-      value: x.pureName,
-      caption: x.pureName,
+      value: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
+      caption: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
       meta: 'view',
       score: 1000,
     })),
     ...dbinfo.matviews.filter(schemaCondition).map(x => ({
       name: x.pureName,
-      value: x.pureName,
-      caption: x.pureName,
+      value: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
+      caption: useAliases ? `${x.pureName} ${createTableShortcut(x.pureName)}` : x.pureName,
       meta: 'matview',
       score: 1000,
     })),
@@ -73,7 +79,7 @@ function createTableLikeList(schemaList, dbinfo, schemaCondition) {
   ];
 }
 
-export function mountCodeCompletion({ conid, database, editor, getText }) {
+export function mountCodeCompletion({ conid, database, editor, getText, getSettings }) {
   setCompleters([]);
   addCompleter({
     getCompletions: async function (editor, session, pos, prefix, callback) {
@@ -155,7 +161,7 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
           } else {
             const schema = (schemaList || []).find(x => x.schemaName == colMatch[1]);
             if (schema) {
-              list = createTableLikeList(schemaList, dbinfo, x => x.schemaName == schema.schemaName);
+              list = createTableLikeList(schemaList, dbinfo, x => x.schemaName == schema.schemaName, getSettings);
             }
           }
         } else {
@@ -173,7 +179,12 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
           } else {
             list = [
               ...(onlyTables ? [] : list),
-              ...createTableLikeList(schemaList, dbinfo, x => !defaultSchema || defaultSchema == x.schemaName),
+              ...createTableLikeList(
+                schemaList,
+                dbinfo,
+                x => !defaultSchema || defaultSchema == x.schemaName,
+                getSettings
+              ),
 
               ...(onlyTables
                 ? []
