@@ -45,7 +45,7 @@
       <AppObjectList
         list={$publicFiles || []}
         module={publicCloudFileAppObject}
-        groupFunc={data => data.folder || undefined}
+        groupFunc={data => data.folder || "Not defined"}
         {filter}
       />
     </WidgetsInnerContainer>
