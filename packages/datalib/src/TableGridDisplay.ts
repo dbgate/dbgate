@@ -38,9 +38,10 @@ export class TableGridDisplay extends GridDisplay {
     serverVersion,
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
     isReadOnly = false,
-    public isRawMode = false
+    public isRawMode = false,
+    public currentSettings = null
   ) {
-    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
+    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
 
     this.table = this.findTable(tableName);
     if (!this.table) {

@@ -192,6 +192,8 @@ ORDER BY
             ]}
           />
 
+          <FormCheckboxField name="dataGrid.showAllColumnsWhenSearch" label="Show all columns when searching" defaultValue={false} />
+
           <div class="heading">SQL editor</div>
 
           <div class="flex">

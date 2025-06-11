@@ -71,7 +71,8 @@ export abstract class GridDisplay {
     protected setCache: ChangeCacheFunc,
     public driver?: EngineDriver,
     public dbinfo: DatabaseInfo = null,
-    public serverVersion = null
+    public serverVersion = null,
+    public currentSettings = null
   ) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(serverVersion)) || driver?.dialect;
   }
@@ -206,7 +207,7 @@ export abstract class GridDisplay {
   get hiddenColumnIndexes() {
     // console.log('GridDisplay.hiddenColumn', this.config.hiddenColumns);
     const res = (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
-    if (this.config.searchInColumns) {
+    if (this.config.searchInColumns && !this.currentSettings?.['dataGrid.showAllColumnsWhenSearch']) {
       for (let i = 0; i < this.allColumns.length; i++) {
         if (!filterName(this.config.searchInColumns, this.allColumns[i].columnName)) {
           res.push(i);

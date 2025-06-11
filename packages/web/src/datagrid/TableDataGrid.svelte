@@ -20,6 +20,7 @@
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
+    useSettings,
     useUsedApps,
   } from '../utility/metadataLoaders';
 
@@ -55,6 +56,7 @@
   $: apps = useUsedApps();
   $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
   $: connections = useConnectionList();
+  const settingsValue = useSettings();
 
   // $: console.log('serverVersion', $serverVersion);
 
@@ -76,7 +78,8 @@
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
           forceReadOnly || $connection?.isReadOnly,
-          isRawMode
+          isRawMode,
+          $settingsValue
         )
       : null;
 
