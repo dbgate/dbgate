@@ -1,6 +1,8 @@
 {
   "private": true,
-  "version": "6.4.3-premium-beta.4",
+  "version": "4.6.2-beta.4",
+ // "version": "6.4.3-alpha.1",
+ // "version": "6.4.3-premium-beta.4",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -76,12 +78,15 @@
   },
   "dependencies": {
     "concurrently": "^5.1.0",
+    "dbgate-plugin-db2": "^6.0.0-alpha.1",
     "patch-package": "^6.2.1",
     "pino-pretty": "^9.1.1"
   },
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "prettier": "^2.2.1",
+    "typescript": "^5.8.3",
     "workspaces-run": "^1.0.1"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
