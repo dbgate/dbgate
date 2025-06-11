@@ -3,7 +3,7 @@ import { SeriesSizes } from './SeriesSizes';
 import type { CellAddress } from './selection';
 import type { GridDisplay } from 'dbgate-datalib';
 import type Grider from './Grider';
-import { isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
+import { isJsonLikeLongString, MAX_GRID_TEXT_LENGTH, safeJsonParse } from 'dbgate-tools';
 
 export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {
   // console.log('COUNT SIZES');
@@ -74,7 +74,7 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
       else if (value?.$oid) text = `ObjectId("${value.$oid}")`;
       else if (value?.$bigint) text = value.$bigint;
       else if (isJsonLikeLongString(value) && safeJsonParse(value)) text = '(JSON)';
-      const width = context.measureText(text).width + 8;
+      const width = context.measureText(typeof text == 'string' ? text.slice(0, MAX_GRID_TEXT_LENGTH) : text).width + 8;
       // console.log('colName', colName, text, width);
       columnSizes.putSizeOverride(colIndex, width);
       // let colName = this.columns[colIndex].uniquePath;

@@ -10,6 +10,8 @@ import _omitBy from 'lodash/omitBy';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
 import isPlainObject from 'lodash/isPlainObject';
 
+export const MAX_GRID_TEXT_LENGTH = 1000; // maximum length of text in grid cell, longer text is truncated
+
 export type EditorDataType =
   | 'null'
   | 'objectid'
@@ -297,7 +299,9 @@ export function stringifyCellValue(
               };
             }
           }
-          return { value: highlightSpecialCharacters(value), gridStyle: 'textCellStyle' };
+          const valueLimited =
+            value.length > MAX_GRID_TEXT_LENGTH ? value.substring(0, MAX_GRID_TEXT_LENGTH) + '...' : value;
+          return { value: highlightSpecialCharacters(valueLimited), gridStyle: 'textCellStyle' };
         }
       default:
         return { value: value };
