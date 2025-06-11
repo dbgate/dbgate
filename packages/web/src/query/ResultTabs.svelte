@@ -10,6 +10,7 @@
   import useEffect from '../utility/useEffect';
   import AllResultsTab from './AllResultsTab.svelte';
   import JslChart from '../charts/JslChart.svelte';
+  import { isProApp } from '../utility/proTools';
 
   export let tabs = [];
   export let sessionId;
@@ -40,6 +41,9 @@
   };
 
   const handleCharts = async props => {
+    if (!isProApp()) {
+      return;
+    }
     charts = [
       ...charts,
       {
