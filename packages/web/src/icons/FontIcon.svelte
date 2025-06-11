@@ -159,6 +159,7 @@
     'icon ai': 'mdi mdi-head-lightbulb',
     'icon wait': 'mdi mdi-timer-sand',
     'icon more': 'mdi mdi-more',
+    'icon copy': 'mdi mdi-content-copy',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

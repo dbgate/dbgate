@@ -39,6 +39,9 @@
   export let disableFocusOutline = false;
   export let emptyMessage = null;
   export let noCellPadding = false;
+  export let allowMultiSelect = false;
+  export let selectedIndexes = [];
+  export let onChangeMultipleSelection = null;
 
   export let domTable = undefined;
   export let stickyHeader = false;
@@ -52,6 +55,9 @@
   export let selectionMode: 'index' | 'key' = 'index';
 
   const dispatch = createEventDispatcher();
+
+  let dragStartIndex = null;
+  let dragCurrentIndex = null;
 
   $: columnList = _.compact(_.flatten(columns));
 
@@ -174,6 +180,15 @@
   $: checkableFlatRowsShown = flatRowsShown.filter(x => itemSupportsCheckbox(x));
 
   // $: groupedRows = computeGroupedRows(sortedRows);
+
+  $: if (onChangeMultipleSelection && flatRowsShown) {
+    onChangeMultipleSelection(selectedIndexes.map(index => flatRowsShown[index]));
+  }
+
+  $: if (flatRowsShown) {
+    // reset selection on items changed
+    selectedIndexes = [];
+  }
 </script>
 
 <table
@@ -270,8 +285,9 @@
         {#each gitem.rows as row}
           {@const index = _.indexOf(flatRowsShown, row)}
           <tr
-            class:selected={selectable &&
-              (selectionMode == 'index' ? selectedIndex == index : selectedKey == extractTableItemKey(row))}
+            class:selected={(selectable &&
+              (selectionMode == 'index' ? selectedIndex == index : selectedKey == extractTableItemKey(row))) ||
+              (allowMultiSelect && selectedIndexes.includes(index))}
             class:clickable
             bind:this={domRows[index]}
             on:click={() => {
@@ -286,6 +302,30 @@
               if (clickable) {
                 dispatch('clickrow', row);
               }
+            }}
+            on:mousedown={event => {
+              if (allowMultiSelect && !event.ctrlKey && !event.metaKey) {
+                selectedIndexes = [];
+                dragStartIndex = index;
+              }
+            }}
+            on:mousemove={() => {
+              if (dragStartIndex != null && allowMultiSelect) {
+                dragCurrentIndex = index;
+                if (dragCurrentIndex != dragStartIndex || selectedIndexes.length > 0) {
+                  if (dragCurrentIndex < dragStartIndex) {
+                    selectedIndexes = _.range(dragCurrentIndex, dragStartIndex + 1);
+                  } else {
+                    selectedIndexes = _.range(dragStartIndex, dragCurrentIndex + 1);
+                  }
+                } else if (selectedIndexes.length > 0) {
+                  selectedIndexes = [dragCurrentIndex];
+                }
+              }
+            }}
+            on:mouseup={event => {
+              dragCurrentIndex = null;
+              dragStartIndex = null;
             }}
             data-testid={`TableControl_row_${index}`}
           >

@@ -193,6 +193,36 @@
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={isWritable ? addColumn : null}
     displayNameFieldName="columnName"
+    multipleItemsActions={[
+      {
+        text: 'Remove',
+        icon: 'icon delete',
+        onClick: selected => {
+          setTableInfo(tbl => {
+            const newColumns = tbl.columns.filter(x => !selected.find(y => y.columnName === x.columnName));
+            return { ...tbl, columns: newColumns };
+          });
+        },
+      },
+      {
+        text: 'Copy names',
+        icon: 'icon copy',
+        onClick: selected => {
+          const names = selected.map(x => x.columnName).join('\n');
+          navigator.clipboard.writeText(names);
+        },
+      },
+      {
+        text: 'Copy definitions',
+        icon: 'icon copy',
+        onClick: selected => {
+          const names = selected
+            .map(x => `${x.columnName} ${x.dataType}${x.notNull ? ' NOT NULL' : ''}`)
+            .join(',\n');
+          navigator.clipboard.writeText(names);
+        },
+      },
+    ]}
     columns={[
       !driver?.dialect?.specificNullabilityImplementation && {
         fieldName: 'notNull',
