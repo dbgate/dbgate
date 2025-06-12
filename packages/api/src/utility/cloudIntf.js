@@ -86,6 +86,16 @@ async function loadCloudFiles() {
   }
 }
 
+async function getCloudUsedEngines() {
+  try {
+    const resp = await callCloudApiGet('content-engines');
+    return resp || [];
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error getting cloud content list');
+    return [];
+  }
+}
+
 async function collectCloudFilesSearchTags() {
   const res = [];
   if (platformInfo.isElectron) {
@@ -120,11 +130,14 @@ async function collectCloudFilesSearchTags() {
   const engines = await connections.getUsedEngines();
   const engineTags = engines.map(engine => engine.split('@')[0]);
   res.push(...engineTags);
+  const cloudEngines = await getCloudUsedEngines();
+  const cloudEngineTags = cloudEngines.map(engine => engine.split('@')[0]);
+  res.push(...cloudEngineTags);
 
   // team-premium and trials will return the same cloud files as premium - no need to check
   res.push(isProApp() ? 'premium' : 'community');
 
-  return res;
+  return _.uniq(res);
 }
 
 async function getCloudSigninHolder() {
@@ -293,7 +306,7 @@ async function getCloudContent(folid, cntid) {
 
   const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
 
-  const { content, name, type, contentFolder, contentType, apiErrorMessage } = await callCloudApiGet(
+  const { content, name, type, contentAttributes, apiErrorMessage } = await callCloudApiGet(
     `content/${folid}/${cntid}`,
     signinHolder,
     {
@@ -309,8 +322,7 @@ async function getCloudContent(folid, cntid) {
     content: encryptor.decrypt(content),
     name,
     type,
-    contentFolder,
-    contentType,
+    contentAttributes,
   };
 }
 
@@ -318,7 +330,7 @@ async function getCloudContent(folid, cntid) {
  *
  * @returns Promise<{ cntid: string } | { apiErrorMessage: string }>
  */
-async function putCloudContent(folid, cntid, content, name, type, contentFolder = null, contentType = null) {
+async function putCloudContent(folid, cntid, content, name, type, contentAttributes) {
   const signinHolder = await getCloudSigninHolder();
   if (!signinHolder) {
     throw new Error('No signed in');
@@ -335,8 +347,7 @@ async function putCloudContent(folid, cntid, content, name, type, contentFolder 
       type,
       kehid: signinHolder.kehid,
       content: encryptor.encrypt(content),
-      contentFolder,
-      contentType,
+      contentAttributes,
     },
     signinHolder
   );

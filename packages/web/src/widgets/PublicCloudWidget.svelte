@@ -15,6 +15,8 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { refreshPublicCloudFiles } from '../utility/api';
   import _ from 'lodash';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
   let filter = '';
 
   const publicFiles = usePublicCloudFiles();
@@ -45,6 +47,26 @@
         groupFunc={data => data.folder || 'Not defined'}
         {filter}
       />
+
+      {#if !$publicFiles?.length}
+        <ErrorInfo message="No files found for your configuration" />
+        <div class="error-info">
+          <div class="m-1">
+            Only files relevant for your connections, platform and DbGate edition are listed. Please define connections at first.
+          </div>
+          <FormStyledButton value={`Refresh list`} skipWidth on:click={handleRefreshPublic} />
+        </div>
+      {/if}
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 </WidgetColumnBar>
+
+<style>
+  .error-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px;
+  }
+</style>

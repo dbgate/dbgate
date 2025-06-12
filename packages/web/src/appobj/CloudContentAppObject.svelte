@@ -92,7 +92,7 @@
   }
 </script>
 
-{#if data.conid && $cloudConnectionsStore[data.conid]}
+{#if data.conid && $cloudConnectionsStore[data.conid] && $cloudConnectionsStore[data.conid]?._id}
   <ConnectionAppObject
     {...$$restProps}
     {passProps}
@@ -109,7 +109,7 @@
     {passProps}
     data={{
       file: data.name,
-      folder: data.contentFolder,
+      folder: data.contentAttributes?.contentFolder,
       folid: data.folid,
       cntid: data.cntid,
     }}

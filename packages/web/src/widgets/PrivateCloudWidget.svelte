@@ -33,6 +33,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showSnackbarInfo } from '../utility/snackbar';
+  import { isProApp } from '../utility/proTools';
 
   let filter = '';
   let domSqlObjectList = null;
@@ -100,7 +101,7 @@
 
   function createAddMenu() {
     return [
-      {
+      isProApp() && {
         text: 'New shared folder',
         onClick: () => {
           showModal(InputTextModal, {
@@ -114,7 +115,7 @@
           });
         },
       },
-      {
+      isProApp() && {
         text: 'Add existing shared folder',
         onClick: () => {
           showModal(InputTextModal, {
