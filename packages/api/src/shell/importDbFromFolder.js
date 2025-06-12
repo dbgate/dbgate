@@ -17,9 +17,8 @@ const copyStream = require('./copyStream');
  * @param {object} options.driver - driver object. If not provided, it will be loaded from connection
  * @param {string} options.folder - folder with model files (YAML files for tables, SQL files for views, procedures, ...)
  * @param {function[]} options.modelTransforms - array of functions for transforming model
- * @param {((row: Record<string, any>) => Record<string, any>) | undefined} options.transformRow - function to transform each row
  */
-async function importDbFromFolder({ connection, systemConnection, driver, folder, modelTransforms, transformRow }) {
+async function importDbFromFolder({ connection, systemConnection, driver, folder, modelTransforms }) {
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'read'));
 
@@ -78,7 +77,7 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
       for (const table of modelAdapted.tables) {
         const fileName = path.join(folder, `${table.pureName}.jsonl`);
         if (await fs.exists(fileName)) {
-          const src = await jsonLinesReader({ fileName, transformRow });
+          const src = await jsonLinesReader({ fileName });
           const dst = await tableWriter({
             systemConnection: dbhan,
             pureName: table.pureName,
@@ -106,7 +105,7 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
       for (const file of fs.readdirSync(folder)) {
         if (!file.endsWith('.jsonl')) continue;
         const pureName = path.parse(file).name;
-        const src = await jsonLinesReader({ fileName: path.join(folder, file), transformRow });
+        const src = await jsonLinesReader({ fileName: path.join(folder, file) });
         const dst = await tableWriter({
           systemConnection: dbhan,
           pureName,

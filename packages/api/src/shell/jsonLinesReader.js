@@ -6,11 +6,10 @@ const download = require('./download');
 const logger = getLogger('jsonLinesReader');
 
 class ParseStream extends stream.Transform {
-  constructor({ limitRows, transformRow }) {
+  constructor({ limitRows }) {
     super({ objectMode: true });
     this.wasHeader = false;
     this.limitRows = limitRows;
-    this.transformRow = transformRow;
     this.rowsWritten = 0;
   }
   _transform(chunk, encoding, done) {
@@ -27,11 +26,7 @@ class ParseStream extends stream.Transform {
       this.wasHeader = true;
     }
     if (!this.limitRows || this.rowsWritten < this.limitRows) {
-      if (this.transformRow) {
-        this.push(this.transformRow(obj));
-      } else {
-        this.push(obj);
-      }
+      this.push(obj);
       this.rowsWritten += 1;
     }
     done();
@@ -44,10 +39,9 @@ class ParseStream extends stream.Transform {
  * @param {string} options.fileName - file name or URL
  * @param {string} options.encoding - encoding of the file
  * @param {number} options.limitRows - maximum number of rows to read
- * @param {((row: Record<string, any>) => Record<string, any>) | undefined} options.transformRow - function to transform each row
  * @returns {Promise<readerType>} - reader object
  */
-async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined, transformRow }) {
+async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined }) {
   logger.info(`Reading file ${fileName}`);
 
   const downloadedFile = await download(fileName);
@@ -58,7 +52,7 @@ async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undef
     encoding
   );
   const liner = byline(fileStream);
-  const parser = new ParseStream({ limitRows, transformRow });
+  const parser = new ParseStream({ limitRows });
   return [liner, parser];
 }
 
