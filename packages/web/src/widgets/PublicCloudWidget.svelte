@@ -1,13 +1,10 @@
 <script lang="ts">
-  import SavedFilesList from './SavedFilesList.svelte';
-
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as publicCloudFileAppObject from '../appobj/PublicCloudFileAppObject.svelte';
-  import * as cloudContentAppObject from '../appobj/CloudContentAppObject.svelte';
-  import { useCloudContentList, usePublicCloudFiles, useServerStatus } from '../utility/metadataLoaders';
+  import { usePublicCloudFiles } from '../utility/metadataLoaders';
   import { _t } from '../translations';
 
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -16,14 +13,14 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { apiCall } from '../utility/api';
+  import { refreshPublicCloudFiles } from '../utility/api';
   import _ from 'lodash';
   let filter = '';
 
   const publicFiles = usePublicCloudFiles();
 
-  async function handleRefreshPublic() {
-    await apiCall('cloud/refresh-public-files', { isRefresh: true });
+  function handleRefreshPublic() {
+    refreshPublicCloudFiles(true);
   }
 </script>
 

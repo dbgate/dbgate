@@ -308,12 +308,12 @@ export function getAuthCategory(config) {
   return 'token';
 }
 
-export function refreshPublicCloudFiles() {
-  if (sessionStorage.getItem('publicCloudFilesLoaded')) {
+export function refreshPublicCloudFiles(force = false) {
+  if (sessionStorage.getItem('publicCloudFilesLoaded') && !force) {
     return;
   }
 
-  apiCall('cloud/refresh-public-files');
+  apiCall('cloud/refresh-public-files', { isRefresh: !!sessionStorage.getItem('publicCloudFilesLoaded') });
   sessionStorage.setItem('publicCloudFilesLoaded', 'true');
 }
 
