@@ -12,7 +12,7 @@ const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
 const { getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureFilePaths, checkSecureDirectories } = require('../utility/security');
+const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
 const logger = getLogger('files');
 
 function serialize(format, data) {
@@ -53,7 +53,7 @@ module.exports = {
   delete_meta: true,
   async delete({ folder, file }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
-    if (!checkSecureFilePaths(folder, file)) {
+    if (!checkSecureFilePathsWithoutDirectory(folder, file)) {
       return false;
     }
     await fs.unlink(path.join(filesdir(), folder, file));
@@ -65,7 +65,7 @@ module.exports = {
   rename_meta: true,
   async rename({ folder, file, newFile }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
-    if (!checkSecureFilePaths(folder, file, newFile)) {
+    if (!checkSecureFilePathsWithoutDirectory(folder, file, newFile)) {
       return false;
     }
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
@@ -85,7 +85,7 @@ module.exports = {
 
   copy_meta: true,
   async copy({ folder, file, newFile }, req) {
-    if (!checkSecureFilePaths(folder, file, newFile)) {
+    if (!checkSecureFilePathsWithoutDirectory(folder, file, newFile)) {
       return false;
     }
     if (!hasPermission(`files/${folder}/write`, req)) return false;
@@ -97,7 +97,7 @@ module.exports = {
 
   load_meta: true,
   async load({ folder, file, format }, req) {
-    if (!checkSecureFilePaths(folder, file)) {
+    if (!checkSecureFilePathsWithoutDirectory(folder, file)) {
       return false;
     }
 
@@ -130,7 +130,7 @@ module.exports = {
 
   save_meta: true,
   async save({ folder, file, data, format }, req) {
-    if (!checkSecureFilePaths(folder, file)) {
+    if (!checkSecureFilePathsWithoutDirectory(folder, file)) {
       return false;
     }
 

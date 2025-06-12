@@ -1,7 +1,7 @@
 const path = require('path');
 const { filesdir, archivedir, uploadsdir, appdir } = require('../utility/directories');
 
-function checkSecureFilePaths(...filePaths) {
+function checkSecureFilePathsWithoutDirectory(...filePaths) {
   for (const filePath of filePaths) {
     if (filePath.includes('..') || filePath.includes('/') || filePath.includes('\\')) {
       return false;
@@ -47,6 +47,6 @@ function checkSecureDirectoriesInScript(script) {
 
 module.exports = {
   checkSecureDirectories,
-  checkSecureFilePaths,
+  checkSecureFilePathsWithoutDirectory,
   checkSecureDirectoriesInScript,
 };
