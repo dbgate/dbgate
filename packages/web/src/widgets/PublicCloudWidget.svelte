@@ -23,7 +23,7 @@
   const publicFiles = usePublicCloudFiles();
 
   async function handleRefreshPublic() {
-    await apiCall('cloud/refresh-public-files?isRefresh=1');
+    await apiCall('cloud/refresh-public-files', { isRefresh: true });
   }
 </script>
 
@@ -45,7 +45,7 @@
       <AppObjectList
         list={$publicFiles || []}
         module={publicCloudFileAppObject}
-        groupFunc={data => data.folder || "Not defined"}
+        groupFunc={data => data.folder || 'Not defined'}
         {filter}
       />
     </WidgetsInnerContainer>
