@@ -11,6 +11,7 @@ const apps = require('./apps');
 const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
 const { getLogger } = require('dbgate-tools');
+const platformInfo = require('../utility/platformInfo');
 const logger = getLogger('files');
 
 function serialize(format, data) {
@@ -23,6 +24,25 @@ function deserialize(format, text) {
   if (format == 'text') return text;
   if (format == 'json') return JSON.parse(text);
   throw new Error(`Invalid format: ${format}`);
+}
+
+function checkSecureFilePaths(...filePaths) {
+  for (const filePath of filePaths) {
+    if (filePath.includes('..') || filePath.includes('/') || filePath.includes('\\')) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function checkSecureDirectories(...filePaths) {
+  for (const filePath of filePaths) {
+    const directory = path.dirname(filePath);
+    if (directory != filesdir() && directory != uploadsdir() && directory != archivedir() && directory != appdir()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 module.exports = {
@@ -51,6 +71,9 @@ module.exports = {
   delete_meta: true,
   async delete({ folder, file }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
+    if (!checkSecureFilePaths(folder, file)) {
+      return false;
+    }
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
@@ -60,6 +83,9 @@ module.exports = {
   rename_meta: true,
   async rename({ folder, file, newFile }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
+    if (!checkSecureFilePaths(folder, file, newFile)) {
+      return false;
+    }
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
@@ -77,6 +103,9 @@ module.exports = {
 
   copy_meta: true,
   async copy({ folder, file, newFile }, req) {
+    if (!checkSecureFilePaths(folder, file, newFile)) {
+      return false;
+    }
     if (!hasPermission(`files/${folder}/write`, req)) return false;
     await fs.copyFile(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed`, { folder });
@@ -86,6 +115,10 @@ module.exports = {
 
   load_meta: true,
   async load({ folder, file, format }, req) {
+    if (!checkSecureFilePaths(folder, file)) {
+      return false;
+    }
+
     if (folder.startsWith('archive:')) {
       const text = await fs.readFile(path.join(resolveArchiveFolder(folder.substring('archive:'.length)), file), {
         encoding: 'utf-8',
@@ -105,12 +138,20 @@ module.exports = {
 
   loadFrom_meta: true,
   async loadFrom({ filePath, format }, req) {
+    if (!platformInfo.isElectron) {
+      // this is available only in electron app
+      return false;
+    }
     const text = await fs.readFile(filePath, { encoding: 'utf-8' });
     return deserialize(format, text);
   },
 
   save_meta: true,
   async save({ folder, file, data, format }, req) {
+    if (!checkSecureFilePaths(folder, file)) {
+      return false;
+    }
+
     if (folder.startsWith('archive:')) {
       if (!hasPermission(`archive/write`, req)) return false;
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
@@ -143,6 +184,11 @@ module.exports = {
 
   saveAs_meta: true,
   async saveAs({ filePath, data, format }) {
+    if (!platformInfo.isElectron) {
+      // this is available only in electron app
+      return false;
+    }
+
     await fs.writeFile(filePath, serialize(format, data));
   },
 
@@ -275,6 +321,11 @@ module.exports = {
 
   simpleCopy_meta: true,
   async simpleCopy({ sourceFilePath, targetFilePath }, req) {
+    if (!platformInfo.isElectron) {
+      if (!checkSecureDirectories(sourceFilePath, targetFilePath)) {
+        return false;
+      }
+    }
     await fs.copyFile(sourceFilePath, targetFilePath);
     return true;
   },
