@@ -44,6 +44,10 @@ module.exports = {
     raw: true,
   },
   get(req, res) {
+    if (req.query.file.includes('..') || req.query.file.includes('/') || req.query.file.includes('\\')) {
+      res.status(400).send('Invalid file path');
+      return;
+    }
     res.sendFile(path.join(uploadsdir(), req.query.file));
   },
 
