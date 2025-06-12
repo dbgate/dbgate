@@ -52,6 +52,7 @@
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
   import uuidv1 from 'uuid/v1';
   import { tick } from 'svelte';
+  import { showSnackbarError } from '../utility/snackbar';
 
   let busy = false;
   let executeNumber = 0;
@@ -200,6 +201,11 @@
     } else {
       let runid = runnerId;
       const resp = await apiCall('runners/start', { script });
+      if (resp.errorMessage) {
+        busy = false;
+        showSnackbarError(resp.errorMessage);
+        return;
+      }
       runid = resp.runid;
       runnerId = runid;
     }

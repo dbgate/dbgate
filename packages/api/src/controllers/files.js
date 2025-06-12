@@ -12,6 +12,7 @@ const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
 const { getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
+const { checkSecureFilePaths, checkSecureDirectories } = require('../utility/security');
 const logger = getLogger('files');
 
 function serialize(format, data) {
@@ -24,25 +25,6 @@ function deserialize(format, text) {
   if (format == 'text') return text;
   if (format == 'json') return JSON.parse(text);
   throw new Error(`Invalid format: ${format}`);
-}
-
-function checkSecureFilePaths(...filePaths) {
-  for (const filePath of filePaths) {
-    if (filePath.includes('..') || filePath.includes('/') || filePath.includes('\\')) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function checkSecureDirectories(...filePaths) {
-  for (const filePath of filePaths) {
-    const directory = path.dirname(filePath);
-    if (directory != filesdir() && directory != uploadsdir() && directory != archivedir() && directory != appdir()) {
-      return false;
-    }
-  }
-  return true;
 }
 
 module.exports = {
