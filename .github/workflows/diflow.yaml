@@ -33,4 +33,4 @@ jobs:
           cd diflow
           node dist/diflow.js sync -r https://DIFLOW_GIT_SECRET@github.com/dbgate/dbgate-diflow-config.git -b master
         env:
-          DIFLOW_GIT_SECRET: '${{ secrets.DIFLOW_GIT_SECRET }}'
+          DIFLOW_GIT_SECRET: ${{ secrets.DIFLOW_GIT_SECRET }}

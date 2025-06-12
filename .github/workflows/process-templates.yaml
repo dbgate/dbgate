@@ -15,7 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          token: '${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}'
+          token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
       - name: git pull
         run: |
           git pull
@@ -47,5 +47,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: '${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}'
+          github_token: ${{ secrets.WORKFLOW_CHANGE_ACCESS_TOKEN }}
           branch: master
