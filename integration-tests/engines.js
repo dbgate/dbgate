@@ -726,16 +726,6 @@ const firebirdEngine = {
   // supportRenameSqlObject: true,
   skipIncrementalAnalysis: true,
   skipRenameTable: true,
-  transformModelRow: row => {
-    return Object.fromEntries(
-      Object.entries(row).map(([key, value]) => {
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value)) {
-          return [key, value.replace('T', ' ')];
-        }
-        return [key, value];
-      })
-    );
-  },
   // skipDefaultValue: true,
   skipDropReferences: true,
 };

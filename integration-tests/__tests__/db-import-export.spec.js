@@ -193,7 +193,6 @@ describe('DB Import/export', () => {
         systemConnection: conn,
         driver,
         folder: path.join(__dirname, '../../e2e-tests/data/my-guitar-shop'),
-        transformRow: engine.transformModelRow,
       });
 
       const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select count(*) as ~cnt from ~categories`));

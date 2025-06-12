@@ -93,6 +93,4 @@ export type TestEngineInfo = {
   }>;
 
   objects?: Array<TestObjectInfo>;
-
-  transformModelRow?: (row: Record<string, any>) => Record<string, any>;
 };
