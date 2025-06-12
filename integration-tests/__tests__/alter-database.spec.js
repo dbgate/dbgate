@@ -29,7 +29,7 @@ async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
     driver,
     `create table ~t2 (
     ~id int not null primary key, 
-    ~t1_id int null references ~t1(~id)
+    ~t1_id int ${driver.dialect.implicitNullDeclaration ? '' : 'null'} references ~t1(~id)
   )`
   );
 

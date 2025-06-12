@@ -102,3 +102,14 @@ jobs:
         image: ghcr.io/tursodatabase/libsql-server:latest
         ports:
           - '8080:8080'
+      firebird:
+        image: firebirdsql/firebird:latest
+        env:
+          FIREBIRD_DATABASE: mydatabase.fdb
+          FIREBIRD_USER: dbuser
+          FIREBIRD_PASSWORD: dbpassword
+          ISC_PASSWORD: masterkey
+          FIREBIRD_TRACE: false
+          FIREBIRD_USE_LEGACY_AUTH: true
+        ports:
+          - '3050:3050'
