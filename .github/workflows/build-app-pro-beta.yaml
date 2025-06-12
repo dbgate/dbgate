@@ -5,10 +5,10 @@ name: Electron app PREMIUM BETA
 'on':
   push:
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+
+      - 'v[0-9]+.[0-9]+.[0-9]+-premium-beta.[0-9]+'
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: '${{ matrix.os }}'
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +24,7 @@ jobs:
           echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
       - name: Context
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_CONTEXT: '${{ toJson(github) }}'
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: ${{ secrets.GH_TOKEN }}
+          token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
           ref: ecea1eef17c69c56b0633317e24a68c5220a4810
       - name: Merge dbgate/dbgate-pro
@@ -88,7 +88,7 @@ jobs:
 
           yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
+          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
       - name: fillPackagedPlugins
         run: |
           cd ..
@@ -102,16 +102,16 @@ jobs:
 
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
-          CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
-          CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
+          GH_TOKEN: '${{ secrets.GH_TOKEN }}'
+          WIN_CSC_LINK: '${{ secrets.WINCERT_2025 }}'
+          WIN_CSC_KEY_PASSWORD: '${{ secrets.WINCERT_2025_PASSWORD }}'
+          CSC_LINK: '${{ secrets.APPLECERT_CERTIFICATE }}'
+          CSC_KEY_PASSWORD: '${{ secrets.APPLECERT_PASSWORD }}'
+          APPLE_ID: '${{ secrets.APPLE_ID }}'
+          APPLE_TEAM_ID: '${{ secrets.APPLE_TEAM_ID }}'
+          APPLE_ID_PASSWORD: '${{ secrets.APPLE_ID_PASSWORD }}'
+          SNAPCRAFT_STORE_CREDENTIALS: '${{secrets.SNAPCRAFT_LOGIN}}'
+          APPLE_APP_SPECIFIC_PASSWORD: '${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}'
       - name: Copy artifacts
         run: |
           mkdir artifacts          
@@ -142,16 +142,16 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}
+          name: '${{ matrix.os }}'
           path: artifacts
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: 'startsWith(github.ref, ''refs/tags/'')'
         with:
           files: artifacts/**
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - name: Print content of notarization-error.log
         if: failure() && matrix.os == 'macos-14'
         run: |

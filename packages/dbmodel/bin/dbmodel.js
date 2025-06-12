@@ -41,13 +41,14 @@ program
     'regex, which table data will be loaded and stored in model (in load command)'
   )
   .option('-e, --engine <engine>', 'engine name, eg. mysql@dbgate-plugin-mysql')
-  .option('--commonjs', 'Creates CommonJS module');
+  .option('--commonjs', 'Creates CommonJS module')
+  .option('--transaction', 'Run deploy query in transaction');
 
 program
   .command('deploy <modelFolder>')
   .description('Deploys model to database')
   .action(modelFolder => {
-    const { engine, server, user, password, database } = program.opts();
+    const { engine, server, user, password, database, transaction } = program.opts();
     // const hooks = [];
     // if (program.autoIndexForeignKeys) hooks.push(dbmodel.hooks.autoIndexForeignKeys);
 
@@ -61,6 +62,7 @@ program
           database,
         },
         modelFolder,
+        useTransaction: transaction,
       })
     );
   });
