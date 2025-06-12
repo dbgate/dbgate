@@ -4,7 +4,7 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Firebird = require('node-firebird');
-const { normalizeRow } = require('./helpers');
+const { normalizeRow, createFirebirdInsertStream } = require('./helpers');
 const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
 const sql = require('./sql');
 
@@ -151,7 +151,7 @@ const driver = {
   },
 
   async writeTable(dbhan, name, options) {
-    return createBulkInsertStreamBase(this, stream, dbhan, name, options);
+    return createFirebirdInsertStream(this, stream, dbhan, name, options);
   },
 
   async getVersion(dbhan) {

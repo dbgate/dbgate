@@ -1,3 +1,5 @@
+const { createBulkInsertStreamBase } = require('dbgate-tools');
+
 function getDataTypeString({ dataTypeCode, scale, length, precision }) {
   switch (dataTypeCode) {
     case 7:
@@ -127,6 +129,34 @@ async function normalizeRow(row) {
   return Object.fromEntries(entries);
 }
 
+function transformRow(row) {
+  return Object.fromEntries(
+    Object.entries(row).map(([key, value]) => {
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value)) {
+        return [key, value.replace('T', ' ')];
+      }
+      return [key, value];
+    })
+  );
+}
+
+function createFirebirdInsertStream(driver, stream, dbhan, name, options) {
+  const writable = createBulkInsertStreamBase(driver, stream, dbhan, name, options);
+
+  writable.addRow = async row => {
+    const transformedRow = transformRow(row);
+
+    if (writable.structure) {
+      writable.buffer.push(transformedRow);
+    } else {
+      writable.structure = transformedRow;
+      await writable.checkStructure();
+    }
+  };
+
+  return writable;
+}
+
 module.exports = {
   getDataTypeString,
   getTriggerEventType,
@@ -135,4 +165,5 @@ module.exports = {
   getTriggerCreateSql,
   blobStreamToString,
   normalizeRow,
+  createFirebirdInsertStream,
 };
