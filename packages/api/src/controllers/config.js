@@ -116,6 +116,7 @@ module.exports = {
         processArgs.runE2eTests ? 'connections-e2etests.jsonl' : 'connections.jsonl'
       ),
       supportCloudAutoUpgrade: !!process.env.CLOUD_UPGRADE_FILE,
+      allowPrivateCloud: platformInfo.isElectron || !!process.env.ALLOW_DBGATE_PRIVATE_CLOUD,
       ...currentVersion,
     };
 

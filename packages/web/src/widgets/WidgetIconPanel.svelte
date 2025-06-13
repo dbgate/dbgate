@@ -33,7 +33,7 @@
       name: 'database',
       title: 'Database connections',
     },
-    {
+    getCurrentConfig().allowPrivateCloud && {
       name: 'cloud-private',
       title: 'DbGate Cloud',
       icon: 'icon cloud-private',
@@ -176,19 +176,21 @@
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div> -->
 
-  {#if $cloudSigninTokenHolder}
-    <div
-      class="wrapper"
-      on:click={handleCloudAccountMenu}
-      bind:this={domCloudAccount}
-      data-testid="WidgetIconPanel_cloudAccount"
-    >
-      <FontIcon icon="icon cloud-account-connected" />
-    </div>
-  {:else}
-    <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
-      <FontIcon icon="icon cloud-account" />
-    </div>
+  {#if getCurrentConfig().allowPrivateCloud}
+    {#if $cloudSigninTokenHolder}
+      <div
+        class="wrapper"
+        on:click={handleCloudAccountMenu}
+        bind:this={domCloudAccount}
+        data-testid="WidgetIconPanel_cloudAccount"
+      >
+        <FontIcon icon="icon cloud-account-connected" />
+      </div>
+    {:else}
+      <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
+        <FontIcon icon="icon cloud-account" />
+      </div>
+    {/if}
   {/if}
 
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">
