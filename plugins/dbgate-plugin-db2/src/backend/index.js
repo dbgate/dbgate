@@ -2,6 +2,9 @@
 const { ensureGlobalPackages } = require('./ensure-globals');
 ensureGlobalPackages();
 
+// Import Electron helpers
+const electronHelpers = require('./electron-helpers');
+
 const driver = require('./driver');
 // Import the fixes
 const fixSchemaListIssue = require('./fixSchemaListIssue');
@@ -10,10 +13,26 @@ const connectionDiagnostics = require('./connection-diagnostics');
 const serverHealthMonitor = require('./server-health');
 const { applyConnectionPatches } = require('./connection-patches');
    
+// Import electron diagnostic tools
+const electronDiagnostic = require('./electron-diagnostic');
+
 module.exports = {
   packageName: 'dbgate-plugin-db2',
   // Export as an array for consistency with other plugins
   drivers: [driver],
+  
+  // Add commands for diagnostic functionality
+  commands: {
+    runElectronDiagnostics: async () => {
+      console.log("[DB2] Running Electron diagnostics...");
+      const diagnosticsPath = await electronDiagnostic.runDiagnostics();
+      return { 
+        status: 'success', 
+        message: 'Diagnostics completed successfully', 
+        diagnosticsPath 
+      };
+    }
+  },
   
   // Expose script handlers for connection diagnostics
   async testConnectivity(params) {
@@ -29,9 +48,15 @@ module.exports = {
   async resetServerHealth() {
     console.log("[DB2] Resetting server health data");
     return connectionDiagnostics.resetServerHealth();
-  },
-  initialize(dbgateEnv) {
+  },  initialize(dbgateEnv) {
     console.log("[DB2] Initializing DB2 plugin with enhanced connection handling...");
+    
+    // Check if running in Electron and handle accordingly
+    const isElectron = electronHelpers.isElectronEnvironment();
+    if (isElectron) {
+      console.log("[DB2] Running in Electron environment - applying special initialization");
+      electronHelpers.setupDb2ForElectron();
+    }
     
     // Ensure global packages are initialized
     ensureGlobalPackages();

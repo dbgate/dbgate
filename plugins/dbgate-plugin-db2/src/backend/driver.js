@@ -2,7 +2,40 @@
 const { ensureGlobalPackages } = require('./ensure-globals');
 ensureGlobalPackages();
 
-const ibmdb = require('ibm_db');
+// Import electron helpers
+const electronHelpers = require('./electron-helpers');
+
+// Import custom ibm_db loader for Electron
+const loadIbmDbForElectron = require('./electron-ibmdb-loader');
+
+// Load ibm_db with special handling for Electron
+let ibmdb;
+try {
+  // Check if we're in Electron environment
+  if (global.DB2_IN_ELECTRON) {
+    console.log('[DB2] Loading ibm_db with Electron-specific approach');
+    // Use our specialized loader for Electron
+    ibmdb = loadIbmDbForElectron();
+    if (!ibmdb) {
+      throw new Error('Failed to load ibm_db module in Electron environment');
+    }
+  } else {
+    // Standard loading for non-Electron environments
+    ibmdb = require('ibm_db');
+  }
+} catch (err) {
+  console.error('[DB2] Failed to load ibm_db module:', err.message);
+  // Create a proxy object to prevent immediate crashes
+  // This will throw more specific errors when methods are actually called
+  ibmdb = new Proxy({}, {
+    get: function(target, prop) {
+      return function() {
+        throw new Error(`Cannot use DB2: ibm_db module failed to load. Original error: ${err.message}`);
+      };
+    }
+  });
+}
+
 const _ = require('lodash');
 
 const Analyser = require('./Analyser');

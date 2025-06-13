@@ -3,6 +3,7 @@
 console.log("=== DB2 Plugin API Debugging Tool ===");
 
 // This script should be pasted into the browser console to monitor API calls
+// Now includes enhanced Electron diagnostics for DB2 plugin
 
 const monitorScript = `
 // DB2 Plugin API monitoring script for browser console
@@ -248,3 +249,79 @@ These aren't separate HTTP requests but are either:
 
 The monitoring script will help identify if these endpoints are being called at all.
 `);
+
+// Add Electron-specific diagnostics
+console.log("\n=== Electron-Specific DB2 Diagnostics ===");
+console.log(`
+To diagnose DB2 plugin issues in Electron:
+
+1. Check if running in Electron:
+   - Look for process.versions.electron in the console
+   - This script will show "Running in Electron environment" if detected
+
+2. Diagnostic Button:
+   - A "DB2 Electron Diagnostics" button will appear in the sidebar
+   - Click it to run diagnostics that will check native module loading
+
+3. Common Electron/Native Module Issues:
+   - Native modules (.node files) not being unpacked from asar
+   - Module path resolution issues in packaged app
+   - Version incompatibility between ibm_db and Electron
+   - Missing dependencies for ibm_db native binding
+
+4. If you're seeing driver issues, check logs for:
+   - "Failed to load ibm_db module" messages
+   - Native module errors containing ".node" references
+   - Path resolution issues
+`);
+
+// Inject diagnostic button into the DOM when in Electron
+if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+  console.log("Detected Electron environment - Version:", process.versions.electron);
+  
+  // Add diagnostic button when DOM is loaded
+  setTimeout(() => {
+    try {
+      const sidebar = document.querySelector('.app-sidebar');
+      if (sidebar) {
+        const diagButton = document.createElement('button');
+        diagButton.innerText = 'DB2 Electron Diagnostics';
+        diagButton.style.margin = '10px';
+        diagButton.style.padding = '8px';
+        diagButton.style.backgroundColor = '#3498db';
+        diagButton.style.color = 'white';
+        diagButton.style.border = 'none';
+        diagButton.style.borderRadius = '4px';
+        diagButton.style.cursor = 'pointer';
+        
+        diagButton.onclick = async () => {
+          console.log("Running DB2 Electron diagnostics...");
+          
+          // Run diagnostics via API
+          try {
+            const response = await fetch('/plugins/command', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                packageName: 'dbgate-plugin-db2', 
+                command: 'runElectronDiagnostics' 
+              })
+            });
+            
+            const result = await response.json();
+            console.log("Electron diagnostics completed:", result);
+            alert(`DB2 Electron diagnostics complete. Check the console and ${result.diagnosticsPath}`);
+          } catch (err) {
+            console.error("Error running diagnostics:", err);
+            alert(`Error running DB2 diagnostics: ${err.message}`);
+          }
+        };
+        
+        sidebar.appendChild(diagButton);
+        console.log("Diagnostic button added to sidebar");
+      }
+    } catch (err) {
+      console.error("Error adding diagnostic button:", err);
+    }
+  }, 2000);
+}
