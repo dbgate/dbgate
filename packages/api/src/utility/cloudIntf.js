@@ -20,6 +20,8 @@ let cloudFiles = null;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
+  : process.env.PROD_DBGATE_IDENTITY
+  ? 'https://identity.dbgate.io'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://identity.dbgate.udolni.net'
   : 'https://identity.dbgate.io';
