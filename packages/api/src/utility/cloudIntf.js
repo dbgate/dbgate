@@ -26,6 +26,8 @@ const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
 
 const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   ? 'http://localhost:3110'
+  : process.env.PROD_DBGATE_CLOUD
+  ? 'https://cloud.dbgate.io'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://cloud.dbgate.udolni.net'
   : 'https://cloud.dbgate.io';
