@@ -48,9 +48,10 @@ export function useConnectionColor(
   useConnectionFallback = true
 ) {
   const connections = useConnectionList();
-  return derived([connections, currentThemeDefinition], ([$connections, $themeDef]) =>
+  return derived([connections, currentThemeDefinition, cloudConnectionsStore], ([$connections, $themeDef, $cloudConnectionsStore]) =>
     getConnectionColor(
       $connections,
+      $cloudConnectionsStore,
       dbid,
       themeType ?? $themeDef?.themeType,
       colorIndex,
