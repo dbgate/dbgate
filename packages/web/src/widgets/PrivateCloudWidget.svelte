@@ -34,12 +34,15 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showSnackbarInfo } from '../utility/snackbar';
   import { isProApp } from '../utility/proTools';
+  import { useCloudContentColorFactory, useConnectionColorFactory } from '../utility/useConnectionColor';
 
   let filter = '';
   let domSqlObjectList = null;
 
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
+  const cloudContentColorFactory = useCloudContentColorFactory(3);
+  const connectionColorFactory = useConnectionColorFactory(3);
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
   $: cloudContentFlat = _.sortBy(
@@ -240,6 +243,8 @@
         }}
         passProps={{
           onFocusSqlObjectList: () => domSqlObjectList.focus(),
+          cloudContentColorFactory: $cloudContentColorFactory,
+          connectionColorFactory: $connectionColorFactory,
         }}
         groupContextMenu={createGroupContextMenu}
       />

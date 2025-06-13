@@ -123,6 +123,8 @@
     icon={'img cloud-connection'}
     title={data.name}
     menu={createMenu}
+    colorMark={passProps?.cloudContentColorFactory &&
+      passProps?.cloudContentColorFactory({ cntid: data.cntid, folid: data.folid })}
     on:click={handleOpenContent}
     on:dblclick
     on:expand
