@@ -15,6 +15,7 @@
   export let module = null;
 
   export let isBold = false;
+  export let isGrayed = false;
   export let isChoosed = false;
   export let isBusy = false;
   export let statusIcon = undefined;
@@ -93,6 +94,7 @@
 <div
   class="main"
   class:isBold
+  class:isGrayed
   class:isChoosed
   class:disableHover
   draggable={true}
@@ -209,6 +211,10 @@
   .isBold {
     font-weight: bold;
   }
+    .isGrayed {
+    color: var(--theme-font-3);
+  }
+
   .isChoosed {
     background-color: var(--theme-bg-3);
   }

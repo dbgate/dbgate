@@ -12,6 +12,8 @@
   import { apiCall } from '../utility/api';
   import newQuery from '../query/newQuery';
   import { filterName } from 'dbgate-tools';
+  import { currentActiveCloudTags } from '../stores';
+  import _ from 'lodash';
 
   export let data;
 
@@ -34,6 +36,7 @@
   title={data.title}
   menu={createMenu}
   on:click={handleOpenSqlFile}
+  isGrayed={_.intersection($currentActiveCloudTags, data.tags || []).length == 0}
 >
   {#if data.description}
     <div class="info">
