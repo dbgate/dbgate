@@ -200,7 +200,7 @@ module.exports = {
 
   saveLicenseKey_meta: true,
   async saveLicenseKey({ licenseKey }) {
-    const decoded = jwt.decode(licenseKey);
+    const decoded = jwt.decode(licenseKey?.trim());
     if (!decoded) {
       return {
         status: 'error',
