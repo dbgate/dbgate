@@ -498,7 +498,7 @@ describe('Data browser data', () => {
     cy.themeshot('public-knowledge-base-tables-sizes');
   });
 
-  it.only('Private cloud - sign in', () => {
+  it('Private cloud - sign in', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Invoice').rightclick();
