@@ -498,7 +498,7 @@ describe('Data browser data', () => {
     cy.themeshot('public-knowledge-base-tables-sizes');
   });
 
-  it('Private cloud - sign in', () => {
+  it.only('Private cloud - sign in', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Invoice').rightclick();
@@ -507,6 +507,8 @@ describe('Data browser data', () => {
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Chart 1').click();
     cy.testid('JslChart_customizeButton').click();
+    cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Bar');
+    cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Line');
     cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
     cy.themeshot('query-result-chart');
   });
