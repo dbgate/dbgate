@@ -565,7 +565,7 @@
 
     onInitialData: value => {
       const frontMatter = getSqlFrontMatter(value, yaml);
-      if (frontMatter?.autoExecute) {
+      if (frontMatter?.autoExecute && hasConnection() && !isBusy()) {
         executeCore(value, 0);
       }
       if (frontMatter?.splitterInitialValue) {
