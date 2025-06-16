@@ -29,6 +29,7 @@
     }
     newQuery({
       initialData: queryText,
+      icon: data.icon,
     });
   }
 
