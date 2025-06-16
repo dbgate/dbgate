@@ -8,6 +8,25 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.5.0
+- ADDED: DbGate cloud - online storage for connections, SQL scripts and other objects
+- ADDED: Public knowledge base - common SQL scripts for specific DB engines (table sizes, index stats etc.)
+- ADDED: Query results could be visualised in charts (Premium)
+- REMOVED: Chart from selection, active charts - replaced by query result charts
+- ADDED: FirebirdSQL support
+- ADDED: SQL front matter - properties of SQL script
+- ADDED: Auto-execute SQL script on open (saved in SQL front matter)
+- CHANGED: Smaller widget icon panel
+- CHANGED: Applications and Single-connection mode removed from widget icon panel
+- CHANGED: Temporarily disabled MongoDB profiler support
+- FIXED: Pie chart distorted if settings change #838
+- FIXED: SQL server generated insert statement should exclude computed and timestamp columns #1111
+- ADDED: Added option "Show all columns when searching" #1118
+- ADDED: Copy cells/rows (e.g. column names) from Structure view #1119
+- ADDED: Setting "Show table aliases in code completion" #1122
+- FIXED: Vulnerability - check file paths in web version
+- FIXED: Very slow render of tables with very log cells
+
 ## 6.4.2
 
 - ADDED: Source label to docker container #1105 
