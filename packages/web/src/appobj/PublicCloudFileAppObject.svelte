@@ -37,6 +37,7 @@
   menu={createMenu}
   on:click={handleOpenSqlFile}
   isGrayed={_.intersection($currentActiveCloudTags, data.tags || []).length == 0}
+  data-testid={`public-cloud-file-${data.path}`}
 >
   {#if data.description}
     <div class="info">

@@ -113,6 +113,7 @@
   on:drop
   bind:this={domDiv}
   {...divProps}
+  data-testid={$$props['data-testid']}
 >
   {#if checkedObjectsStore}
     <CheckboxField
@@ -211,7 +212,7 @@
   .isBold {
     font-weight: bold;
   }
-    .isGrayed {
+  .isGrayed {
     color: var(--theme-font-3);
   }
 
