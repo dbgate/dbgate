@@ -498,8 +498,16 @@ describe('Data browser data', () => {
     cy.themeshot('public-knowledge-base-tables-sizes');
   });
 
-  // it('Private cloud - sign in', () => {
-  //   cy.testid('WidgetIconPanel_cloudAccount').click();
-  //   cy.themeshot('private-cloud-sign-in');
-  // });
+  it('Private cloud - sign in', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Invoice').rightclick();
+    cy.contains('SQL template').click();
+    cy.contains('SELECT').click();
+    cy.testid('QueryTab_executeButton').click();
+    cy.contains('Chart 1').click();
+    cy.testid('JslChart_customizeButton').click();
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('query-result-chart');
+  });
 });
