@@ -260,9 +260,13 @@ async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders 
     },
     validateStatus: status => status < 500,
   });
-  const { errorMessage } = resp.data;
+  const { errorMessage, isLicenseLimit, limitedLicenseLimits } = resp.data;
   if (errorMessage) {
-    return { apiErrorMessage: errorMessage };
+    return {
+      apiErrorMessage: errorMessage,
+      apiErrorIsLicenseLimit: isLicenseLimit,
+      apiErrorLimitedLicenseLimits: limitedLicenseLimits,
+    };
   }
   return resp.data;
 }

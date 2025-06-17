@@ -170,9 +170,11 @@
         folid: folder,
         role,
       });
-      const inviteLink = `dbgate://folder/v1/${inviteToken}?mode=${role}`;
-      navigator.clipboard.writeText(inviteLink);
-      showSnackbarInfo(`Invite link (${role}) copied to clipboard`);
+      if (inviteToken) {
+        const inviteLink = `dbgate://folder/v1/${inviteToken}?mode=${role}`;
+        navigator.clipboard.writeText(inviteLink);
+        showSnackbarInfo(`Invite link (${role}) copied to clipboard`);
+      }
     };
 
     return [
