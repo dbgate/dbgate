@@ -14,9 +14,10 @@ class QueryStreamTableWriter {
     this.currentChangeIndex = 1;
     this.initializedFile = false;
     this.sesid = sesid;
-    if (isProApp()) {
-      this.chartProcessor = new ChartProcessor();
-    }
+    // if (isProApp()) {
+    //   this.chartProcessor = new ChartProcessor();
+    // }
+    this.chartProcessor = new ChartProcessor();
   }
 
   initializeFromQuery(structure, resultIndex, chartDefinition) {
@@ -107,7 +108,7 @@ class QueryStreamTableWriter {
           if (this.chartProcessor) {
             try {
               this.chartProcessor.finalize();
-              if (this.chartProcessor.charts.length > 0) {
+              if (isProApp() && this.chartProcessor.charts.length > 0) {
                 process.send({
                   msgtype: 'charts',
                   sesid: this.sesid,
