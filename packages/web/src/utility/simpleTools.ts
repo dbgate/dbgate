@@ -3,7 +3,7 @@ import getElectron from './getElectron';
 export function openWebLink(href, usePopup = false) {
   const electron = getElectron();
 
-  if (electron && !usePopup) {
+  if (electron) {
     electron.send('open-link', href);
   } else {
     if (usePopup) {
