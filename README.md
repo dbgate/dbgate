@@ -38,6 +38,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Apache Cassandra
 * libSQL/Turso (Premium)
 * DuckDB
+* Firebird
 
 
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
@@ -88,10 +89,12 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 Any contributions are welcome. If you want to contribute without coding, consider following:
 
 * Tell your friends about DbGate or share on social networks - when more people will use DbGate, it will grow to be better
+* Purchase a [DbGate Premium](https://dbgate.io/purchase/premium/) liocense
 * Write review on [Slant.co](https://www.slant.co/improve/options/41086/~dbgate-review) or [G2](https://www.g2.com/products/dbgate/reviews) 
 * Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues
 * Create some tutorial video on [youtube](https://www.youtube.com/playlist?list=PLCo7KjCVXhr0RfUSjM9wJMsp_ShL1q61A)
 * Become a backer on [GitHub sponsors](https://github.com/sponsors/dbgate) or [Open collective](https://opencollective.com/dbgate)
+* Add a SQL script to [Public Knowledge Base](https://github.com/dbgate/dbgate-knowledge-base)
 * Where a small coding is acceptable for you, you could [create plugin](https://docs.dbgate.io/plugin-development). Plugins for new themes can be created actually without JS coding
 
 Thank you!
