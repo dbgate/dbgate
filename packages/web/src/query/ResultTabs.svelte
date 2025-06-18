@@ -91,6 +91,12 @@
       props: {
         jslid: info.jslid,
         initialCharts: info.charts,
+        onCloseChart: () => {
+          charts = charts.filter(x => x.resultIndex !== info.resultIndex);
+          onSetFrontMatterField?.(`chart-${info.resultIndex + 1}`, undefined);
+          const value = _.findIndex(allTabs, x => x.isResult && x.resultIndex === info.resultIndex);
+          domTabs.setValue(value >= 0 ? value : 0);
+        },
         onEditDefinition: definition => {
           onSetFrontMatterField?.(`chart-${info.resultIndex + 1}`, definition ?? undefined);
         },
@@ -148,14 +154,14 @@
 
   export function openCurrentChart() {
     const currentIndex = domTabs.getValue();
-    console.log('Current index:', currentIndex);
+    // console.log('Current index:', currentIndex);
     const currentTab = allTabs[currentIndex];
-    console.log('Current tab:', currentTab);
+    // console.log('Current tab:', currentTab);
     if (currentTab?.isChart) {
       return;
     }
     const resultIndex = currentTab?.resultIndex;
-    console.log('Result index:', resultIndex);
+    // console.log('Result index:', resultIndex);
     if (resultIndex != null) {
       handleOpenChart(resultIndex);
     }

@@ -154,7 +154,14 @@ module.exports = {
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
-    session.subprocess.send({ msgtype: 'executeQuery', sql, autoCommit, autoDetectCharts, limitRows, frontMatter });
+    session.subprocess.send({
+      msgtype: 'executeQuery',
+      sql,
+      autoCommit,
+      autoDetectCharts: autoDetectCharts || !!frontMatter?.['selected-chart'],
+      limitRows,
+      frontMatter,
+    });
 
     return { state: 'ok' };
   },
