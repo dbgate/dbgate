@@ -14,13 +14,9 @@ class QueryStreamTableWriter {
     this.currentChangeIndex = 1;
     this.initializedFile = false;
     this.sesid = sesid;
-    // if (isProApp()) {
-    //   this.chartProcessor = new ChartProcessor();
-    // }
-    this.chartProcessor = new ChartProcessor();
   }
 
-  initializeFromQuery(structure, resultIndex, chartDefinition) {
+  initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false) {
     this.jslid = crypto.randomUUID();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     fs.writeFileSync(
@@ -34,8 +30,8 @@ class QueryStreamTableWriter {
     this.writeCurrentStats(false, false);
     this.resultIndex = resultIndex;
     this.initializedFile = true;
-    if (isProApp() && chartDefinition) {
-      this.chartProcessor = new ChartProcessor([chartDefinition]);
+    if (isProApp() && (chartDefinition || autoDetectCharts)) {
+      this.chartProcessor = chartDefinition ? new ChartProcessor([chartDefinition]) : new ChartProcessor();
     }
     process.send({ msgtype: 'recordset', jslid: this.jslid, resultIndex, sesid: this.sesid });
   }
@@ -138,12 +134,14 @@ class StreamHandler {
     startLine,
     sesid = undefined,
     limitRows = undefined,
-    frontMatter = undefined
+    frontMatter = undefined,
+    autoDetectCharts = false
   ) {
     this.recordset = this.recordset.bind(this);
     this.startLine = startLine;
     this.sesid = sesid;
     this.frontMatter = frontMatter;
+    this.autoDetectCharts = autoDetectCharts;
     this.limitRows = limitRows;
     this.rowsLimitOverflow = false;
     this.row = this.row.bind(this);
@@ -177,7 +175,8 @@ class StreamHandler {
     this.currentWriter.initializeFromQuery(
       Array.isArray(columns) ? { columns } : columns,
       this.queryStreamInfoHolder.resultIndex,
-      this.frontMatter?.[`chart-${this.queryStreamInfoHolder.resultIndex + 1}`]
+      this.frontMatter?.[`chart-${this.queryStreamInfoHolder.resultIndex + 1}`],
+      this.autoDetectCharts
     );
     this.queryStreamInfoHolder.resultIndex += 1;
     this.rowCounter = 0;
@@ -252,7 +251,8 @@ function handleQueryStream(
   sqlItem,
   sesid = undefined,
   limitRows = undefined,
-  frontMatter = undefined
+  frontMatter = undefined,
+  autoDetectCharts = false
 ) {
   return new Promise((resolve, reject) => {
     const start = sqlItem.trimStart || sqlItem.start;
@@ -262,7 +262,8 @@ function handleQueryStream(
       start && start.line,
       sesid,
       limitRows,
-      frontMatter
+      frontMatter,
+      autoDetectCharts
     );
     driver.stream(dbhan, sqlItem.text, handler);
   });

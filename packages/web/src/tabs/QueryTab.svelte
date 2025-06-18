@@ -156,6 +156,7 @@
   import { getIntSettingsValue } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
   import _ from 'lodash';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let tabid;
   export let conid;
@@ -209,6 +210,8 @@
   let isInTransaction = false;
   let isAutocommit = false;
   let splitterInitialValue = undefined;
+  let autoDetectCharts = false;
+  let domResultTabs;
 
   const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
   function getInitialRowsLimit() {
@@ -393,6 +396,7 @@
         autoCommit: driver?.implicitTransactions && isAutocommit,
         limitRows: queryRowsLimit ? queryRowsLimit : undefined,
         frontMatter,
+        autoDetectCharts,
       });
     }
     await apiCall('query-history/write', {
@@ -727,6 +731,7 @@
         </svelte:fragment>
         <svelte:fragment slot="2">
           <ResultTabs
+            bind:this={domResultTabs}
             tabs={[{ label: 'Messages', slot: 0 }]}
             {sessionId}
             {executeNumber}
@@ -846,6 +851,30 @@
       data-testid="QueryTab_rollbackTransactionButton"
       hideDisabled
     />
+
+    {#if isProApp() && visibleResultTabs && !busy}
+      <ToolStripButton
+        icon="icon chart"
+        on:click={() => {
+          domResultTabs?.openCurrentChart();
+        }}
+      >
+        Open chart</ToolStripButton
+      >
+    {/if}
+    {#if isProApp() && !visibleResultTabs}
+      <ToolStripButton
+        icon="icon chart"
+        on:click={() => {
+          autoDetectCharts = !autoDetectCharts;
+        }}
+      >
+        Detect chart<FontIcon
+          icon={autoDetectCharts ? 'icon checkbox-marked' : 'icon checkbox-blank'}
+          padLeft
+        /></ToolStripButton
+      >
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>
 

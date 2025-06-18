@@ -233,6 +233,8 @@
     'icon upload': 'mdi mdi-upload',
     'icon limit': 'mdi mdi-car-speed-limiter',
 
+    'icon chart': 'mdi mdi-chart-bar',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',

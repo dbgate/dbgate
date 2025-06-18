@@ -80,6 +80,7 @@
           label: `Result ${index + 1}`,
           isResult: true,
           component: JslDataGrid,
+          resultIndex: info.resultIndex,
           props: { jslid: info.jslid, driver, onOpenChart: () => handleOpenChart(info.resultIndex) },
         }))),
     ...charts.map((info, index) => ({
@@ -143,6 +144,21 @@
       domTabs.setValue(_.findIndex(allTabs, x => x.isChart && x.resultIndex === resultIndex));
     }
     onSetFrontMatterField?.('selected-chart', resultIndex + 1);
+  }
+
+  export function openCurrentChart() {
+    const currentIndex = domTabs.getValue();
+    console.log('Current index:', currentIndex);
+    const currentTab = allTabs[currentIndex];
+    console.log('Current tab:', currentTab);
+    if (currentTab?.isChart) {
+      return;
+    }
+    const resultIndex = currentTab?.resultIndex;
+    console.log('Result index:', resultIndex);
+    if (resultIndex != null) {
+      handleOpenChart(resultIndex);
+    }
   }
 </script>
 
