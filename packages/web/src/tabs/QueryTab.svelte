@@ -855,6 +855,7 @@
     {#if isProApp() && visibleResultTabs && !busy}
       <ToolStripButton
         icon="icon chart"
+        data-testid="QueryTab_openChartButton"
         on:click={() => {
           domResultTabs?.openCurrentChart();
         }}
@@ -865,6 +866,7 @@
     {#if isProApp() && !visibleResultTabs}
       <ToolStripButton
         icon="icon chart"
+        data-testid="QueryTab_detectChartButton"
         on:click={() => {
           autoDetectCharts = !autoDetectCharts;
         }}

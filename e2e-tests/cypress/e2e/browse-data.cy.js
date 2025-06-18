@@ -498,12 +498,13 @@ describe('Data browser data', () => {
     cy.themeshot('public-knowledge-base-tables-sizes');
   });
 
-  it('Private cloud - sign in', () => {
+  it('Auto detect chart', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Invoice').rightclick();
     cy.contains('SQL template').click();
     cy.contains('SELECT').click();
+    cy.testid('QueryTab_detectChartButton').click();
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Chart 1').click();
     cy.testid('JslChart_customizeButton').click();
