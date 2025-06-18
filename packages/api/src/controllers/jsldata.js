@@ -313,19 +313,9 @@ module.exports = {
       return true;
     });
     processor.finalize();
-    return processor.charts;
-  },
-
-  detectChartColumns_meta: true,
-  async detectChartColumns({ jslid }) {
-    const datastore = new JsonLinesDatastore(getJslFileName(jslid));
-    const processor = new ChartProcessor();
-    processor.autoDetectCharts = false;
-    await datastore.enumRows(row => {
-      processor.addRow(row);
-      return true;
-    });
-    processor.finalize();
-    return processor.availableColumns;
+    return {
+      charts: processor.charts,
+      columns: processor.availableColumns,
+    };
   },
 };
