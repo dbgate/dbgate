@@ -94,6 +94,7 @@
         onCloseChart: () => {
           charts = charts.filter(x => x.resultIndex !== info.resultIndex);
           onSetFrontMatterField?.(`chart-${info.resultIndex + 1}`, undefined);
+          onSetFrontMatterField?.(`selected-chart`, undefined);
           const value = _.findIndex(allTabs, x => x.isResult && x.resultIndex === info.resultIndex);
           domTabs.setValue(value >= 0 ? value : 0);
         },
