@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.5.2
+- CHANGED: Autodetecting charts is disabled by default #1145
+- CHANGED: Improved chart displaying workflow
+- ADDED: Ability to close chart
+
+## 6.5.1
+- FIXED: DbGate Cloud e-mail sign-in method for desktop clients
+
 ## 6.5.0
 - ADDED: DbGate cloud - online storage for connections, SQL scripts and other objects
 - ADDED: Public knowledge base - common SQL scripts for specific DB engines (table sizes, index stats etc.)
