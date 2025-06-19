@@ -527,6 +527,7 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
   const transform = chart.definition.xdef.transformFunction;
 
   let currentParsed = fromParsed;
+  let count = 0;
   while (compareChartDatesParsed(currentParsed, toParsed, transform) <= 0) {
     const bucketKey = stringifyChartDate(currentParsed, transform);
     if (!chart.buckets[bucketKey]) {
@@ -534,6 +535,11 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
       chart.bucketKeyDateParsed[bucketKey] = currentParsed;
     }
     currentParsed = incrementChartDate(currentParsed, transform);
+    count++;
+    if (count > ChartLimits.CHART_FILL_LIMIT) {
+      chart.errorMessage = `Too many buckets to fill in chart, limit is ${ChartLimits.CHART_FILL_LIMIT}`;
+      return;
+    }
   }
 }
 

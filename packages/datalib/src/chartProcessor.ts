@@ -24,6 +24,7 @@ export class ChartProcessor {
   availableColumns: ChartAvailableColumn[] = [];
   autoDetectCharts = false;
   rowsAdded = 0;
+  errorMessage?: string;
 
   constructor(public givenDefinitions: ChartDefinition[] = []) {
     for (const definition of givenDefinitions) {
@@ -163,6 +164,10 @@ export class ChartProcessor {
 
     // apply on all charts with this date column
     for (const chart of this.chartsProcessing) {
+      if (chart.errorMessage) {
+        continue; // skip charts with errors
+      }
+
       this.applyRawData(
         chart,
         row,
@@ -170,9 +175,16 @@ export class ChartProcessor {
         chart.isGivenDefinition ? numericColumns : numericColumnsForAutodetect,
         stringColumns
       );
+
+      if (Object.keys(chart.buckets).length > ChartLimits.CHART_FILL_LIMIT) {
+        chart.errorMessage = `Chart has too many buckets, limit is ${ChartLimits.CHART_FILL_LIMIT}.`;
+      }
     }
 
     for (let i = 0; i < this.chartsProcessing.length; i++) {
+      if (this.chartsProcessing[i].errorMessage) {
+        continue; // skip charts with errors
+      }
       this.chartsProcessing[i] = autoAggregateCompactTimelineChart(this.chartsProcessing[i]);
     }
 
@@ -214,6 +226,10 @@ export class ChartProcessor {
     this.applyLimitsOnCharts();
     this.availableColumns = Object.values(this.availableColumnsDict);
     for (const chart of this.chartsProcessing) {
+      if (chart.errorMessage) {
+        this.charts.push(chart);
+        continue;
+      }
       let addedChart: ProcessedChart = chart;
       if (chart.rowsAdded == 0) {
         continue; // skip empty charts
@@ -221,9 +237,14 @@ export class ChartProcessor {
       const sortOrder = chart.definition.xdef.sortOrder ?? 'ascKeys';
       if (sortOrder != 'natural') {
         if (sortOrder == 'ascKeys' || sortOrder == 'descKeys') {
-          if (chart.definition.xdef.transformFunction.startsWith('date:')) {
+          if (chart.definition.chartType == 'line' && chart.definition.xdef.transformFunction.startsWith('date:')) {
             addedChart = autoAggregateCompactTimelineChart(addedChart);
             fillChartTimelineBuckets(addedChart);
+          }
+
+          if (addedChart.errorMessage) {
+            this.charts.push(addedChart);
+            continue;
           }
 
           addedChart.bucketKeysOrdered = _sortBy(Object.keys(addedChart.buckets));

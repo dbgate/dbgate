@@ -24,6 +24,7 @@ export const ChartLimits = {
   VALID_VALUE_RATIO_LIMIT: 0.5, // limit for valid value ratio, y defs below this will not be used in auto-detect
   PIE_RATIO_LIMIT: 0.05, // limit for other values in pie chart, if the value is below this, it will be grouped into "Other"
   PIE_COUNT_LIMIT: 10, // limit for number of pie chart slices, if the number of slices is above this, it will be grouped into "Other"
+  CHART_FILL_LIMIT: 10000, // limit for filled charts (time intervals), to avoid too many points
 };
 
 export interface ChartXFieldDefinition {
@@ -83,6 +84,7 @@ export interface ProcessedChart {
 
   topDistinctValues: { [key: string]: Set<any> }; // key is the field, value is the set of distinct values
   availableColumns: ChartAvailableColumn[];
+  errorMessage?: string; // error message if there was an error processing the chart
 
   definition: ChartDefinition;
 }
