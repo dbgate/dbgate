@@ -373,4 +373,34 @@ describe('Chart processor', () => {
       expect(chart.buckets).toEqual(expectedBuckets);
     }
   );
+
+  test.only('Incorrect chart definition', () => {
+    const processor = new ChartProcessor([
+      {
+        chartType: 'bar',
+        xdef: {
+          field: 'category',
+          transformFunction: 'date:day',
+        },
+        ydefs: [],
+      },
+    ]);
+    processor.addRows(...DS1.slice(0, 3));
+    processor.finalize();
+
+    expect(processor.charts.length).toEqual(1);
+    const chart = processor.charts[0];
+    expect(chart.definition.xdef.transformFunction).toEqual('date:day');
+
+    // console.log(getChartDebugPrint(processor.charts[0]));
+    
+    
+    // expect(chart.definition.xdef.transformFunction).toEqual('date:day');
+    // expect(chart.definition.ydefs).toEqual([
+    //   expect.objectContaining({
+    //     field: 'value',
+    //   }),
+    // ]);
+    // expect(chart.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+  });
 });

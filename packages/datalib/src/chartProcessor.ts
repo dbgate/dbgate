@@ -231,7 +231,7 @@ export class ChartProcessor {
         continue;
       }
       let addedChart: ProcessedChart = chart;
-      if (chart.rowsAdded == 0) {
+      if (chart.rowsAdded == 0 && !chart.isGivenDefinition) {
         continue; // skip empty charts
       }
       const sortOrder = chart.definition.xdef.sortOrder ?? 'ascKeys';
@@ -275,6 +275,13 @@ export class ChartProcessor {
             ),
           },
         };
+      }
+
+      if (
+        addedChart.definition.trimXCountLimit != null &&
+        addedChart.bucketKeysOrdered.length > addedChart.definition.trimXCountLimit
+      ) {
+        addedChart.bucketKeysOrdered = addedChart.bucketKeysOrdered.slice(0, addedChart.definition.trimXCountLimit);
       }
 
       if (addedChart) {

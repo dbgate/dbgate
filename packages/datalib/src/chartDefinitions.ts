@@ -48,6 +48,7 @@ export interface ChartDefinition {
   title?: string;
   pieRatioLimit?: number; // limit for pie chart, if the value is below this, it will be grouped into "Other"
   pieCountLimit?: number; // limit for number of pie chart slices, if the number of slices is above this, it will be grouped into "Other"
+  trimXCountLimit?: number; // limit for number of x values, if the number of x values is above this, it will be trimmed
 
   xdef: ChartXFieldDefinition;
   ydefs: ChartYFieldDefinition[];
