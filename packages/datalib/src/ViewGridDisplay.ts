@@ -12,9 +12,10 @@ export class ViewGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
-    serverVersion
+    serverVersion,
+    currentSettings
   ) {
-    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
+    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
     this.columns = this.getDisplayColumns(view);
     this.formColumns = this.columns;
     this.filterable = true;

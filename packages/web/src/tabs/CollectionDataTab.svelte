@@ -36,7 +36,7 @@
   import createUndoReducer from '../utility/createUndoReducer';
   import invalidateCommands from '../commands/invalidateCommands';
   import CollectionDataGridCore from '../datagrid/CollectionDataGridCore.svelte';
-  import { useCollectionInfo, useConnectionInfo } from '../utility/metadataLoaders';
+  import { useCollectionInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
   import CollectionJsonView from '../formview/CollectionJsonView.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -69,6 +69,7 @@
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
+  const settingsValue = useSettings();
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
@@ -112,7 +113,8 @@
           cache.update,
           loadedRows,
           $changeSetStore?.value,
-          $connection?.isReadOnly
+          $connection?.isReadOnly,
+          $settingsValue
         )
       : null;
   // $: console.log('LOADED ROWS MONGO', loadedRows);

@@ -22,6 +22,7 @@
     useConnectionInfo,
     useDatabaseInfo,
     useDatabaseServerVersion,
+    useSettings,
     useViewInfo,
   } from '../utility/metadataLoaders';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
@@ -44,6 +45,7 @@
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
+  const settingsValue = useSettings();
 
   $: display =
     $viewInfo && $connection && $serverVersion
@@ -56,7 +58,8 @@
           $cache,
           cache.update,
           $dbinfo,
-          $serverVersion
+          $serverVersion,
+          $settingsValue
         )
       : null;
 
