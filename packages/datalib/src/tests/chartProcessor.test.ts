@@ -374,7 +374,7 @@ describe('Chart processor', () => {
     }
   );
 
-  test.only('Incorrect chart definition', () => {
+  test('Incorrect chart definition', () => {
     const processor = new ChartProcessor([
       {
         chartType: 'bar',
