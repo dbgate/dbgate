@@ -6,6 +6,8 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
   import Link from '../elements/Link.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import { isProApp } from '../utility/proTools';
 
   const config = useConfig();
   $: version = $config?.version;
@@ -16,24 +18,51 @@
   <svelte:fragment slot="header">About DbGate</svelte:fragment>
   <div class="flex">
     <img src="logo192.png" />
-    <div>
-      <div class="m-1">
+    <div class="ml-4">
+      <div>
         Version: <span>{version}</span>
       </div>
-      <div class="m-1">
+      <div>
         Build date: <span>{moment(buildTime).format('YYYY-MM-DD')}</span>
       </div>
-      <div class="m-1">
-        Web: <Link href="https://dbgate.io">dbgate.io</Link>
+      <div>
+        License type: <span
+          >{$config?.checkedLicense ? ($config?.checkedLicense?.licenseTypeObj?.name ?? 'Unknown') : 'Community'}</span
+        >
       </div>
-      <div class="m-1">
-        Source codes: <Link href="https://github.com/dbgate/dbgate/">github</Link>
+
+      <div class="mt-2">
+        <FontIcon icon="mdi mdi-web color-icon-blue" /> Web: <Link href="https://dbgate.io">dbgate.io</Link>
       </div>
-      <div class="m-1">
-        Docker container: <Link href="https://hub.docker.com/r/dbgate/dbgate">docker hub</Link>
+      {#if isProApp()}
+        <div>
+          <FontIcon icon="mdi mdi-email color-icon-red" /> Support: <Link href="mailto:support@dbgate.io"
+            >support@dbgate.io</Link
+          >
+        </div>
+      {/if}
+      <div>
+        <FontIcon icon="mdi mdi-lightbulb color-icon-yellow" /> Give us feedback: <Link
+          href="https://dbgate.io/feedback">dbgate.io/feedback</Link
+        >
       </div>
-      <div class="m-1">
+
+      <div class="mt-2">
+        Source codes: <Link href="https://github.com/dbgate/dbgate/">GitHub</Link>
+      </div>
+      <div>
+        Docker container: <Link
+          href={isProApp()
+            ? 'https://hub.docker.com/r/dbgate/dbgate-premium'
+            : 'https://hub.docker.com/r/dbgate/dbgate'}>Docker Hub</Link
+        >
+      </div>
+      <!-- <div>
         Search plugins: <Link href="https://www.npmjs.com/search?q=keywords:dbgateplugin">npmjs.com</Link>
+      </div> -->
+
+      <div class="mt-2">
+        Produced by: <span>Sprinx System a.s.</span>
       </div>
     </div>
   </div>
