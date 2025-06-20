@@ -142,6 +142,8 @@ module.exports = {
     const res = await createDbGateIdentitySession(client);
     startCloudTokenChecking(res.sid, tokenHolder => {
       socket.emit('got-cloud-token', tokenHolder);
+      socket.emitChanged('cloud-content-changed');
+      socket.emit('cloud-content-updated');
     });
     return res;
   },
