@@ -8,6 +8,12 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.5.3
+- CHANGED: Improved DbGate Cloud sign-in workflow
+- FIXED: Some fixes and error handling in new charts engine
+- ADDED: Charts - ability to choose aggregate function
+- CHANGED: Improved About window
+
 ## 6.5.2
 - CHANGED: Autodetecting charts is disabled by default #1145
 - CHANGED: Improved chart displaying workflow
