@@ -27,7 +27,9 @@
       </div>
       <div>
         License type: <span
-          >{$config?.checkedLicense ? ($config?.checkedLicense?.licenseTypeObj?.name ?? 'Unknown') : 'Community'}</span
+          >{$config?.checkedLicense && $config?.checkedLicense?.type != 'community'
+            ? ($config?.checkedLicense?.licenseTypeObj?.name ?? 'Unknown')
+            : 'Community'}</span
         >
       </div>
 
