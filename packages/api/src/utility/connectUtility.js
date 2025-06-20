@@ -4,7 +4,6 @@ const { getSshTunnelProxy } = require('./sshTunnelProxy');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const _ = require('lodash');
-const { getCloudFolderEncryptor } = require('./cloudIntf');
 
 async function loadConnection(driver, storedConnection, connectionMode) {
   const { allowShellConnection, allowConnectionFromEnvVariables } = platformInfo;
@@ -90,6 +89,8 @@ async function extractConnectionSslParams(connection) {
 }
 
 async function decryptCloudConnection(connection) {
+  const { getCloudFolderEncryptor } = require('./cloudIntf');
+
   const m = connection?._id?.match(/^cloud\:\/\/(.+)\/(.+)$/);
   if (!m) {
     throw new Error('Invalid cloud connection ID format');
