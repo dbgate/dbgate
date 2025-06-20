@@ -35,6 +35,9 @@
   import { showSnackbarInfo } from '../utility/snackbar';
   import { isProApp } from '../utility/proTools';
   import { useCloudContentColorFactory, useConnectionColorFactory } from '../utility/useConnectionColor';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import runCommand from '../commands/runCommand';
 
   let filter = '';
   let domSqlObjectList = null;
@@ -250,8 +253,32 @@
         }}
         groupContextMenu={createGroupContextMenu}
       />
+
+      {#if !cloudContentFlat?.length}
+        <ErrorInfo message="You have no content on DbGate cloud" icon="img info" />
+        <div class="error-info">
+          <div class="m-1"></div>
+          <FormStyledButton
+            value="Create connection on DbGate Cloud"
+            skipWidth
+            on:click={() => {
+              runCommand('new.connectionOnCloud');
+            }}
+          />
+        </div>
+      {/if}
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 
   <DatabaseWidgetDetailContent bind:domSqlObjectList showCloudConnection={true} />
 </WidgetColumnBar>
+
+<style>
+  .error-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px;
+  }
+</style>
