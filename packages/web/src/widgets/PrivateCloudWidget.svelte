@@ -40,6 +40,7 @@
   import runCommand from '../commands/runCommand';
   import SaveFileModal from '../modals/SaveFileModal.svelte';
   import newQuery from '../query/newQuery';
+  import ConfigureSharedFolderModal from '../modals/ConfigureSharedFolderModal.svelte';
 
   let filter = '';
   let domSqlObjectList = null;
@@ -201,41 +202,40 @@
       });
     };
 
-    const handleCopyInviteLink = async role => {
-      const { inviteToken } = await apiCall(`cloud/get-invite-token`, {
-        folid: folder,
-        role,
-      });
-      if (inviteToken) {
-        const inviteLink = `dbgate://folder/v1/${inviteToken}?mode=${role}`;
-        navigator.clipboard.writeText(inviteLink);
-        showSnackbarInfo(`Invite link (${role}) copied to clipboard`);
-      }
-    };
-
     return [
       contentGroupMap[folder]?.role == 'admin' && [
         { text: 'Rename', onClick: handleRename },
         { text: 'Delete', onClick: handleDelete },
       ],
-      contentGroupMap[folder]?.role == 'admin' &&
+      isProApp() &&
+        contentGroupMap[folder]?.role == 'admin' &&
         !contentGroupMap[folder]?.isPrivate && {
-          text: 'Copy invite link',
-          submenu: [
-            {
-              text: 'Admin',
-              onClick: () => handleCopyInviteLink('admin'),
-            },
-            {
-              text: 'Write',
-              onClick: () => handleCopyInviteLink('write'),
-            },
-            {
-              text: 'Read',
-              onClick: () => handleCopyInviteLink('read'),
-            },
-          ],
+          text: 'Administrate access',
+          onClick: () => {
+            showModal(ConfigureSharedFolderModal, {
+              folid: folder,
+              name: contentGroupMap[folder]?.name,
+            });
+          },
         },
+      // contentGroupMap[folder]?.role == 'admin' &&
+      //   !contentGroupMap[folder]?.isPrivate && {
+      //     text: 'Copy invite link',
+      //     submenu: [
+      //       {
+      //         text: 'Admin',
+      //         onClick: () => handleCopyInviteLink('admin'),
+      //       },
+      //       {
+      //         text: 'Write',
+      //         onClick: () => handleCopyInviteLink('write'),
+      //       },
+      //       {
+      //         text: 'Read',
+      //         onClick: () => handleCopyInviteLink('read'),
+      //       },
+      //     ],
+      //   },
     ];
   }
 </script>

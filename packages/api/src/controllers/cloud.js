@@ -258,4 +258,22 @@ module.exports = {
     await fs.writeFile(filePath, content);
     return true;
   },
+
+  folderUsers_meta: true,
+  async folderUsers({ folid }) {
+    const resp = await callCloudApiGet(`content-folders/users/${folid}`);
+    return resp;
+  },
+
+  setFolderUserRole_meta: true,
+  async setFolderUserRole({ folid, email, role }) {
+    const resp = await callCloudApiPost(`content-folders/set-user-role/${folid}`, { email, role });
+    return resp;
+  },
+
+  removeFolderUser_meta: true,
+  async removeFolderUser({ folid, email }) {
+    const resp = await callCloudApiPost(`content-folders/remove-user/${folid}`, { email });
+    return resp;
+  },
 };
