@@ -69,6 +69,13 @@
     onClick: () => getCurrentEditor().toggleAutoExecute(),
   });
   registerCommand({
+    id: 'query.toggleFixedConnection',
+    category: 'Query',
+    name: 'Toggle fixed connection',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().toggleFixedConnection(),
+  });
+  registerCommand({
     id: 'query.beginTransaction',
     category: 'Query',
     name: 'Begin transaction',
@@ -121,7 +128,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { currentEditorWrapEnabled, extensions } from '../stores';
+  import { currentEditorWrapEnabled, extensions, getCurrentDatabase } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved, sleep } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
@@ -607,6 +614,24 @@
     );
   }
 
+  export function toggleFixedConnection() {
+    const frontMatter = getSqlFrontMatter($editorValue, yaml);
+    const currentDatabase = getCurrentDatabase();
+    setEditorData(
+      setSqlFrontMatter(
+        $editorValue,
+        frontMatter?.connectionId &&
+          frontMatter?.connectionId == currentDatabase?.connection?._id &&
+          frontMatter?.databaseName == currentDatabase?.name
+          ? { ...frontMatter, connectionId: undefined, databaseName: undefined }
+          : currentDatabase?.connection?._id
+            ? { ...frontMatter, connectionId: currentDatabase.connection._id, databaseName: currentDatabase.name }
+            : { ...frontMatter, connectionId: undefined, databaseName: undefined },
+        yaml
+      )
+    );
+  }
+
   async function handleKeyDown(event) {
     if (isProApp()) {
       if (event.code == 'Space' && event.shiftKey && event.ctrlKey && !isAiAssistantVisible) {
@@ -636,6 +661,7 @@
       { command: 'query.executeCurrent' },
       { command: 'query.kill' },
       { command: 'query.toggleAutoExecute' },
+      { command: 'query.toggleFixedConnection' },
       { divider: true },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },

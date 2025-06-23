@@ -644,6 +644,7 @@ export function parseNumberSafe(value) {
 const frontMatterRe = /^--\ >>>[ \t\r]*\n(.*)\n-- <<<[ \t\r]*\n/s;
 
 export function getSqlFrontMatter(text: string, yamlModule) {
+  if (!text || !_isString(text)) return null;
   const match = text.match(frontMatterRe);
   if (!match) return null;
   const yamlContentMapped = match[1].replace(/^--[ ]?/gm, '');
@@ -651,6 +652,7 @@ export function getSqlFrontMatter(text: string, yamlModule) {
 }
 
 export function removeSqlFrontMatter(text: string) {
+  if (!text || !_isString(text)) return null;
   return text.replace(frontMatterRe, '');
 }
 
@@ -673,5 +675,5 @@ export function setSqlFrontMatter(text: string, data: { [key: string]: any }, ya
     .map(line => '-- ' + line)
     .join('\n');
   const frontMatterContent = `-- >>>\n${yamlContentMapped}\n-- <<<\n`;
-  return frontMatterContent + textClean;
+  return frontMatterContent + (textClean || '');
 }

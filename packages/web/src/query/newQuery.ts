@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { getCurrentDatabase } from '../stores';
-import { getConnectionLabel } from 'dbgate-tools';
+import { getConnectionLabel, getSqlFrontMatter, setSqlFrontMatter } from 'dbgate-tools';
+import yaml from 'js-yaml';
 import openNewTab from '../utility/openNewTab';
 
 export default function newQuery({
@@ -9,6 +10,7 @@ export default function newQuery({
   title = undefined,
   initialData = undefined,
   multiTabIndex = undefined,
+  fixCurrentConnection = false,
   ...props
 } = {}) {
   const currentDb = getCurrentDatabase();
@@ -16,6 +18,16 @@ export default function newQuery({
   const database = currentDb?.name;
 
   const tooltip = `${getConnectionLabel(connection)}\n${database}`;
+
+  if (fixCurrentConnection && !_.isEmpty(connection)) {
+    const frontMatter = getSqlFrontMatter(initialData, yaml);
+    const newFrontMatter = {
+      ...frontMatter,
+      connectionId: connection._id,
+      databaseName: database,
+    };
+    initialData = setSqlFrontMatter(initialData, newFrontMatter, yaml);
+  }
 
   openNewTab(
     {

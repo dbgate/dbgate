@@ -40,7 +40,7 @@
   import runCommand from '../commands/runCommand';
   import SaveFileModal from '../modals/SaveFileModal.svelte';
   import newQuery from '../query/newQuery';
-  
+
   let filter = '';
   let domSqlObjectList = null;
 
@@ -130,6 +130,9 @@
                 savedFile,
                 savedCloudFolderId,
                 savedCloudContentId,
+
+                fixCurrentConnection: true,
+                title: savedFile,
               });
             },
           });
