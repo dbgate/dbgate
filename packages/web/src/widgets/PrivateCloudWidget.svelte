@@ -105,10 +105,18 @@
   //   }
   // });
 
-  function createAddMenu() {
+  function createAddItemMenu() {
+    return [
+      {
+        command: 'new.connectionOnCloud',
+      },
+    ];
+  }
+
+  function createAddFolderMenu() {
     return [
       isProApp() && {
-        text: 'New shared folder',
+        text: 'Create shared folder',
         onClick: () => {
           showModal(InputTextModal, {
             label: 'New folder name',
@@ -122,7 +130,7 @@
         },
       },
       isProApp() && {
-        text: 'Add existing shared folder',
+        text: 'Add existing folder (from link)',
         onClick: () => {
           showModal(InputTextModal, {
             label: 'Your invite link (in form dbgate://folder/xxx)',
@@ -134,9 +142,6 @@
             },
           });
         },
-      },
-      {
-        command: 'new.connectionOnCloud',
       },
     ];
   }
@@ -218,7 +223,10 @@
     <SearchBoxWrapper>
       <SearchInput placeholder="Search cloud connections and files" bind:value={filter} />
       <CloseSearchButton bind:filter />
-      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+      <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title="Add new connection or file" />
+      {#if isProApp()}
+        <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title="Add new folder" />
+      {/if}
       <InlineButton
         on:click={handleRefreshContent}
         title="Refresh files"

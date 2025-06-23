@@ -128,7 +128,7 @@ registerCommand({
   id: 'new.connectionOnCloud',
   toolbar: true,
   icon: 'img cloud-connection',
-  toolbarName: 'Add connection on cloud',
+  toolbarName: 'Add connection',
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection on Cloud',
