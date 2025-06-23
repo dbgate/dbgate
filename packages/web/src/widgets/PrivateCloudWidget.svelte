@@ -40,8 +40,7 @@
   import runCommand from '../commands/runCommand';
   import SaveFileModal from '../modals/SaveFileModal.svelte';
   import newQuery from '../query/newQuery';
-  import openNewTab from '../utility/openNewTab';
-
+  
   let filter = '';
   let domSqlObjectList = null;
 
@@ -115,7 +114,7 @@
         command: 'new.connectionOnCloud',
       },
       {
-        text: 'New SQL file',
+        text: 'New SQL script',
         onClick: () => {
           const data = '';
           showModal(SaveFileModal, {
@@ -124,21 +123,14 @@
             folid: privateFolderId,
             folder: 'sql',
             onSave: (name, { savedFile, savedFolder, savedFilePath, savedCloudFolderId, savedCloudContentId }) => {
-              openNewTab(
-                {
-                  title: name,
-                  icon: 'img sql-file',
-                  tabComponent: 'QueryTab',
-                  props: {
-                    savedFolder: 'sql',
-                    savedFormat: 'text',
-                    savedFile,
-                    savedCloudFolderId,
-                    savedCloudContentId,
-                  },
-                },
-                { editor: data }
-              );
+              newQuery({
+                // @ts-ignore
+                savedFolder: 'sql',
+                savedFormat: 'text',
+                savedFile,
+                savedCloudFolderId,
+                savedCloudContentId,
+              });
             },
           });
         },
