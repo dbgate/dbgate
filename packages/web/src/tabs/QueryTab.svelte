@@ -616,16 +616,13 @@
 
   export function toggleFixedConnection() {
     const frontMatter = getSqlFrontMatter($editorValue, yaml);
-    const currentDatabase = getCurrentDatabase();
     setEditorData(
       setSqlFrontMatter(
         $editorValue,
-        frontMatter?.connectionId &&
-          frontMatter?.connectionId == currentDatabase?.connection?._id &&
-          frontMatter?.databaseName == currentDatabase?.name
+        frontMatter?.connectionId && frontMatter?.connectionId == conid && frontMatter?.databaseName == database
           ? { ...frontMatter, connectionId: undefined, databaseName: undefined }
-          : currentDatabase?.connection?._id
-            ? { ...frontMatter, connectionId: currentDatabase.connection._id, databaseName: currentDatabase.name }
+          : conid
+            ? { ...frontMatter, connectionId: conid, databaseName: database }
             : { ...frontMatter, connectionId: undefined, databaseName: undefined },
         yaml
       )
