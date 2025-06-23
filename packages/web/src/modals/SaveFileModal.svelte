@@ -22,6 +22,7 @@
   export let filePath;
   export let onSave = undefined;
   export let folid;
+  export let skipLocal = false;
   // export let cntid;
 
   const values = writable({ name, cloudFolder: folid ?? '__local' });
@@ -59,7 +60,7 @@
             savedFolder: folder,
             savedFilePath: null,
             savedCloudFolderId: cloudFolder,
-            // savedCloudContentId: resp.cntid,
+            savedCloudContentId: resp.cntid,
           });
         }
       }
@@ -96,12 +97,14 @@
         name="cloudFolder"
         isNative
         requiredRoleVariants={['write', 'admin']}
-        prependFolders={[
-          {
-            folid: '__local',
-            name: "Local folder (don't store on cloud)",
-          },
-        ]}
+        prependFolders={skipLocal
+          ? []
+          : [
+              {
+                folid: '__local',
+                name: "Local folder (don't store on cloud)",
+              },
+            ]}
       />
     {/if}
 

@@ -11,6 +11,7 @@
   export let narrow = false;
   export let square = true;
   export let disabled = false;
+  export let title = undefined;
 
   let domButton;
   let isLoading = false;
@@ -40,6 +41,7 @@
   bind:this={domButton}
   {disabled}
   data-testid={$$props['data-testid']}
+  {title}
 >
   <FontIcon icon={isLoading ? 'icon loading' : icon} />
 </InlineButton>

@@ -38,6 +38,9 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import runCommand from '../commands/runCommand';
+  import SaveFileModal from '../modals/SaveFileModal.svelte';
+  import newQuery from '../query/newQuery';
+  import openNewTab from '../utility/openNewTab';
 
   let filter = '';
   let domSqlObjectList = null;
@@ -68,6 +71,7 @@
     'name'
   );
   $: contentGroupMap = _.keyBy($cloudContentList || [], x => x.folid);
+  $: privateFolderId = $cloudContentList?.find(x => x.isPrivate)?.folid;
 
   // $: console.log('cloudContentFlat', cloudContentFlat);
   // $: console.log('contentGroupMap', contentGroupMap);
@@ -109,6 +113,35 @@
     return [
       {
         command: 'new.connectionOnCloud',
+      },
+      {
+        text: 'New SQL file',
+        onClick: () => {
+          const data = '';
+          showModal(SaveFileModal, {
+            data,
+            skipLocal: true,
+            folid: privateFolderId,
+            folder: 'sql',
+            onSave: (name, { savedFile, savedFolder, savedFilePath, savedCloudFolderId, savedCloudContentId }) => {
+              openNewTab(
+                {
+                  title: name,
+                  icon: 'img sql-file',
+                  tabComponent: 'QueryTab',
+                  props: {
+                    savedFolder: 'sql',
+                    savedFormat: 'text',
+                    savedFile,
+                    savedCloudFolderId,
+                    savedCloudContentId,
+                  },
+                },
+                { editor: data }
+              );
+            },
+          });
+        },
       },
     ];
   }
