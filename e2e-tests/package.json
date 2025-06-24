@@ -21,6 +21,7 @@
     "cy:run:browse-data": "cypress run --spec cypress/e2e/browse-data.cy.js",
     "cy:run:team": "cypress run --spec cypress/e2e/team.cy.js",
     "cy:run:multi-sql": "cypress run --spec cypress/e2e/multi-sql.cy.js",
+    "cy:run:cloud": "cypress run --spec cypress/e2e/cloud.cy.js",
 
     "start:add-connection": "node clearTestingData && cd .. && node packer/build/bundle.js --listen-api --run-e2e-tests",
     "start:portal": "node clearTestingData && cd .. && env-cmd -f e2e-tests/env/portal/.env node e2e-tests/init/portal.js && env-cmd -f e2e-tests/env/portal/.env node packer/build/bundle.js --listen-api --run-e2e-tests",
