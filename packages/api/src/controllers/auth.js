@@ -13,7 +13,7 @@ const {
 } = require('../auth/authProvider');
 const storage = require('./storage');
 const { decryptPasswordString } = require('../utility/crypting');
-const { createDbGateIdentitySession, startCloudTokenChecking } = require('../utility/cloudIntf');
+const { createDbGateIdentitySession, startCloudTokenChecking, readCloudTokenHolder } = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
 
 const logger = getLogger('auth');
@@ -138,14 +138,20 @@ module.exports = {
   },
 
   createCloudLoginSession_meta: true,
-  async createCloudLoginSession({ client }) {
-    const res = await createDbGateIdentitySession(client);
+  async createCloudLoginSession({ client, redirectUri }) {
+    const res = await createDbGateIdentitySession(client, redirectUri);
     startCloudTokenChecking(res.sid, tokenHolder => {
       socket.emit('got-cloud-token', tokenHolder);
       socket.emitChanged('cloud-content-changed');
       socket.emit('cloud-content-updated');
     });
     return res;
+  },
+
+  cloudLoginRedirected_meta: true,
+  async cloudLoginRedirected({ sid }) {
+    const tokenHolder = await readCloudTokenHolder(sid);
+    return tokenHolder;
   },
 
   authMiddleware,

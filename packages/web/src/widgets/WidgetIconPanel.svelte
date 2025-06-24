@@ -135,8 +135,16 @@
   }
 
   async function handleOpenCloudLogin() {
-    const { url, sid } = await apiCall('auth/create-cloud-login-session', { client: getElectron() ? 'app' : 'web' });
-    openWebLink(url, true);
+    const useRedirect = getCurrentConfig()?.redirectToDbGateCloudLogin;
+    const { url, sid } = await apiCall('auth/create-cloud-login-session', {
+      client: getElectron() ? 'app' : 'web',
+      redirectUri: useRedirect ? location.origin + location.pathname : undefined,
+    });
+    if (useRedirect) {
+      location.href = url;
+    } else {
+      openWebLink(url, true);
+    }
   }
 </script>
 

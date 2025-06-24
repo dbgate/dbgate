@@ -118,6 +118,7 @@ module.exports = {
       supportCloudAutoUpgrade: !!process.env.CLOUD_UPGRADE_FILE,
       allowPrivateCloud: platformInfo.isElectron || !!process.env.ALLOW_DBGATE_PRIVATE_CLOUD,
       ...currentVersion,
+      redirectToDbGateCloudLogin: !!process.env.REDIRECT_TO_DBGATE_CLOUD_LOGIN,
     };
 
     return configResult;

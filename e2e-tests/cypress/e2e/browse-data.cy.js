@@ -514,8 +514,8 @@ describe('Data browser data', () => {
     cy.themeshot('query-result-chart');
   });
 
-  // it.only('Private cloud', () => {
-  //   cy.testid('WidgetIconPanel_cloudAccount').click();
-  //   cy.contains('Sign in with Google').click();
-  // });
+  it.only('Private cloud', () => {
+    cy.testid('WidgetIconPanel_cloudAccount').click();
+    cy.contains('Sign in with Google').click();
+  });
 });

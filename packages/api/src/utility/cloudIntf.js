@@ -34,11 +34,12 @@ const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   ? 'https://cloud.dbgate.udolni.net'
   : 'https://cloud.dbgate.io';
 
-async function createDbGateIdentitySession(client) {
+async function createDbGateIdentitySession(client, redirectUri) {
   const resp = await axios.default.post(
     `${DBGATE_IDENTITY_URL}/api/create-session`,
     {
       client,
+      redirectUri,
     },
     {
       headers: {
@@ -70,7 +71,7 @@ function startCloudTokenChecking(sid, callback) {
       });
       // console.log('CHECK RESP:', resp.data);
 
-      if (resp.data.email) {
+      if (resp.data?.email) {
         clearInterval(interval);
         callback(resp.data);
       }
@@ -78,6 +79,18 @@ function startCloudTokenChecking(sid, callback) {
       logger.error(extractErrorLogData(err), 'Error checking cloud token');
     }
   }, 500);
+}
+
+async function readCloudTokenHolder(sid) {
+  const resp = await axios.default.get(`${DBGATE_IDENTITY_URL}/api/get-token/${sid}`, {
+    headers: {
+      ...getLicenseHttpHeaders(),
+    },
+  });
+  if (resp.data?.email) {
+    return resp.data;
+  }
+  return null;
 }
 
 async function loadCloudFiles() {
@@ -396,4 +409,5 @@ module.exports = {
   loadCachedCloudConnection,
   putCloudContent,
   removeCloudCachedConnection,
+  readCloudTokenHolder,
 };

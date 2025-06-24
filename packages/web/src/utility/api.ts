@@ -289,8 +289,8 @@ export function installNewVolatileConnectionListener() {
 }
 
 export function installNewCloudTokenListener() {
+  // console.log('HOLDER', tokenHolder);
   apiOn('got-cloud-token', async tokenHolder => {
-    // console.log('HOLDER', tokenHolder);
     cloudSigninTokenHolder.set(tokenHolder);
     selectedWidget.set('cloud-private');
   });
