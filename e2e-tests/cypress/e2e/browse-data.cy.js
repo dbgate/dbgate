@@ -513,9 +513,4 @@ describe('Data browser data', () => {
     cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
     cy.themeshot('query-result-chart');
   });
-
-  it.only('Private cloud', () => {
-    cy.testid('WidgetIconPanel_cloudAccount').click();
-    cy.contains('Sign in with Google').click();
-  });
 });

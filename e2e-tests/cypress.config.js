@@ -40,6 +40,9 @@ module.exports = defineConfig({
             case 'multi-sql':
               serverProcess = exec('yarn start:multi-sql');
               break;
+            case 'cloud':
+              serverProcess = exec('yarn start:cloud');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });
