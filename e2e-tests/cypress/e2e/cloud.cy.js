@@ -26,11 +26,25 @@ describe('Cloud tests', () => {
       cy.get('input[type="submit"]').click();
     });
 
+    cy.location('origin').then(origin => {
+      if (origin === 'https://github.com') {
+        // Still on github.com → an authorization step is waiting
+        cy.origin('https://github.com', () => {
+          // Try once, don't wait the full default timeout
+          cy.get('button[data-octo-click="oauth_application_authorization"]', { timeout: 500, log: false }).click(); // if the button exists it will be clicked
+          // if not, the short timeout elapses and we drop out
+        });
+      } else {
+        // Already back on localhost – nothing to authorize
+        cy.log('OAuth redirect skipped the Authorize screen');
+      }
+    });
+
     cy.themeshot('private-cloud-login');
 
-    // cy.contains('Testing Connections').rightclick();
-    // cy.contains('Administrate access').click();
-    // cy.contains('User email');
-    // cy.themeshot('administer-shared-folder');
+    cy.contains('Testing Connections').rightclick();
+    cy.contains('Administrate access').click();
+    cy.contains('User email');
+    cy.themeshot('administer-shared-folder');
   });
 });
