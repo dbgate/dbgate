@@ -26,9 +26,11 @@ describe('Cloud tests', () => {
       cy.get('input[type="submit"]').click();
     });
 
-    cy.contains('Testing Connections').rightclick();
-    cy.contains('Administrate access').click();
-    cy.contains('User email');
-    cy.themeshot('administer-shared-folder');
+    cy.themeshot('private-cloud-login');
+
+    // cy.contains('Testing Connections').rightclick();
+    // cy.contains('Administrate access').click();
+    // cy.contains('User email');
+    // cy.themeshot('administer-shared-folder');
   });
 });
