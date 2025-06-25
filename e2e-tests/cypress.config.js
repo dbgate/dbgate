@@ -7,7 +7,7 @@ const path = require('path');
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:3000',
+    // baseUrl: 'http://localhost:3000',
     // trashAssetsBeforeRuns: false,
 
     setupNodeEvents(on, config) {
