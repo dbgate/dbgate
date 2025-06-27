@@ -26,6 +26,8 @@ describe('Cloud tests', () => {
       cy.get('input[type="submit"]').click();
     });
 
+    cy.wait(3000);
+
     cy.location('origin').then(origin => {
       if (origin === 'https://github.com') {
         // Still on github.com → an authorization step is waiting
