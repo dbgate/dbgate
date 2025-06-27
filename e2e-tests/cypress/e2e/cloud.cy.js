@@ -14,9 +14,11 @@ beforeEach(() => {
 
 describe('Cloud tests', () => {
   it('Private cloud', () => {
+    cy.testid('WidgetIconPanel_cloudAccount');
     cy.window().then(win => {
       win.__loginToCloudTest('dbgate.test@gmail.com');
     });
+    cy.contains('dbgate.test@gmail.com');
 
     // cy.testid('WidgetIconPanel_cloudAccount').click();
 
