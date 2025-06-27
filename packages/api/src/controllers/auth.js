@@ -13,7 +13,12 @@ const {
 } = require('../auth/authProvider');
 const storage = require('./storage');
 const { decryptPasswordString } = require('../utility/crypting');
-const { createDbGateIdentitySession, startCloudTokenChecking, readCloudTokenHolder } = require('../utility/cloudIntf');
+const {
+  createDbGateIdentitySession,
+  startCloudTokenChecking,
+  readCloudTokenHolder,
+  readCloudTestTokenHolder,
+} = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
 
 const logger = getLogger('auth');
@@ -151,6 +156,12 @@ module.exports = {
   cloudLoginRedirected_meta: true,
   async cloudLoginRedirected({ sid }) {
     const tokenHolder = await readCloudTokenHolder(sid);
+    return tokenHolder;
+  },
+
+  cloudTestLogin_meta: true,
+  async cloudTestLogin({ email }) {
+    const tokenHolder = await readCloudTestTokenHolder(email);
     return tokenHolder;
   },
 

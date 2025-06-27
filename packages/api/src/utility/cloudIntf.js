@@ -93,6 +93,22 @@ async function readCloudTokenHolder(sid) {
   return null;
 }
 
+async function readCloudTestTokenHolder(email) {
+  const resp = await axios.default.post(
+    `${DBGATE_IDENTITY_URL}/api/test-token`,
+    { email },
+    {
+      headers: {
+        ...getLicenseHttpHeaders(),
+      },
+    }
+  );
+  if (resp.data?.email) {
+    return resp.data;
+  }
+  return null;
+}
+
 async function loadCloudFiles() {
   try {
     const fileContent = await fs.readFile(path.join(datadir(), 'cloud-files.jsonl'), 'utf-8');
@@ -410,4 +426,5 @@ module.exports = {
   putCloudContent,
   removeCloudCachedConnection,
   readCloudTokenHolder,
+  readCloudTestTokenHolder,
 };

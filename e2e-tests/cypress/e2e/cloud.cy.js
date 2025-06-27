@@ -14,35 +14,37 @@ beforeEach(() => {
 
 describe('Cloud tests', () => {
   it('Private cloud', () => {
-    cy.testid('WidgetIconPanel_cloudAccount').click();
-
-    cy.origin('https://identity.dbgate.io', () => {
-      cy.contains('Sign in with GitHub').click();
+    cy.window().then(win => {
+      win.__loginToCloudTest('dbgate.test@gmail.com');
     });
 
-    cy.origin('https://github.com', () => {
-      cy.get('#login_field').type('dbgatetest');
-      cy.get('#password').type('Pwd2020Db');
-      cy.get('input[type="submit"]').click();
-    });
+    // cy.testid('WidgetIconPanel_cloudAccount').click();
 
-    cy.wait(3000);
+    // cy.origin('https://identity.dbgate.io', () => {
+    //   cy.contains('Sign in with GitHub').click();
+    // });
 
-    cy.location('origin').then(origin => {
-      if (origin === 'https://github.com') {
-        // Still on github.com → an authorization step is waiting
-        cy.origin('https://github.com', () => {
-          // Try once, don't wait the full default timeout
-          cy.get('button[data-octo-click="oauth_application_authorization"]', { timeout: 500, log: false }).click(); // if the button exists it will be clicked
-          // if not, the short timeout elapses and we drop out
-        });
-      } else {
-        // Already back on localhost – nothing to authorize
-        cy.log('OAuth redirect skipped the Authorize screen');
-      }
-    });
+    // cy.origin('https://github.com', () => {
+    //   cy.get('#login_field').type('dbgatetest');
+    //   cy.get('#password').type('Pwd2020Db');
+    //   cy.get('input[type="submit"]').click();
+    // });
 
-    cy.themeshot('private-cloud-login');
+    // cy.wait(3000);
+
+    // cy.location('origin').then(origin => {
+    //   if (origin === 'https://github.com') {
+    //     // Still on github.com → an authorization step is waiting
+    //     cy.origin('https://github.com', () => {
+    //       // Try once, don't wait the full default timeout
+    //       cy.get('button[data-octo-click="oauth_application_authorization"]', { timeout: 500, log: false }).click(); // if the button exists it will be clicked
+    //       // if not, the short timeout elapses and we drop out
+    //     });
+    //   } else {
+    //     // Already back on localhost – nothing to authorize
+    //     cy.log('OAuth redirect skipped the Authorize screen');
+    //   }
+    // });
 
     cy.contains('Testing Connections').rightclick();
     cy.contains('Administrate access').click();

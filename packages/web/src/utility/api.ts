@@ -329,3 +329,14 @@ function disableApiLog() {
 
 window['enableApiLog'] = enableApiLog;
 window['disableApiLog'] = disableApiLog;
+
+window['__loginToCloudTest'] = async email => {
+  const tokenHolder = await apiCall('auth/cloud-test-login', { email });
+
+  if (tokenHolder) {
+    cloudSigninTokenHolder.set(tokenHolder);
+    selectedWidget.set('cloud-private');
+  } else {
+    showSnackbarError('Login failed');
+  }
+};
