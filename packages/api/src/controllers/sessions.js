@@ -11,6 +11,7 @@ const { appdir } = require('../utility/directories');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
+const { sendToAuditLog } = require('../utility/auditlog');
 
 const logger = getLogger('sessions');
 
@@ -146,11 +147,23 @@ module.exports = {
   },
 
   executeQuery_meta: true,
-  async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }) {
+  async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }
+
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'SessionController',
+      action: 'executeQuery',
+      event: 'query.execute',
+      severity: 'info',
+      detail: sql,
+      conid: session.conid,
+      database: session.database,
+      message: 'Executing query',
+    });
 
     logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');

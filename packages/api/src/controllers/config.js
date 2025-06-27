@@ -29,6 +29,7 @@ const {
 } = require('../utility/crypting');
 
 const lock = new AsyncLock();
+let cachedSettingsValue = null;
 
 module.exports = {
   // settingsValue: {},
@@ -145,6 +146,13 @@ module.exports = {
     return res;
   },
 
+  async getCachedSettings() {
+    if (!cachedSettingsValue) {
+      cachedSettingsValue = await this.loadSettings();
+    }
+    return cachedSettingsValue;
+  },
+
   deleteSettings_meta: true,
   async deleteSettings() {
     await fs.unlink(path.join(datadir(), processArgs.runE2eTests ? 'settings-e2etests.json' : 'settings.json'));
@@ -258,6 +266,7 @@ module.exports = {
   updateSettings_meta: true,
   async updateSettings(values, req) {
     if (!hasPermission(`settings/change`, req)) return false;
+    cachedSettingsValue = null;
 
     const res = await lock.acquire('settings', async () => {
       const currentValue = await this.loadSettings();
@@ -304,7 +313,7 @@ module.exports = {
       const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
       return resp.data;
     } catch (err) {
-      return ''
+      return '';
     }
   },
 

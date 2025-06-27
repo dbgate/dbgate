@@ -20,6 +20,7 @@ const {
   readCloudTestTokenHolder,
 } = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
+const { sendToAuditLog } = require('../utility/auditlog');
 
 const logger = getLogger('auth');
 
@@ -92,12 +93,12 @@ function authMiddleware(req, res, next) {
 
 module.exports = {
   oauthToken_meta: true,
-  async oauthToken(params) {
+  async oauthToken(params, req) {
     const { amoid } = params;
-    return getAuthProviderById(amoid).oauthToken(params);
+    return getAuthProviderById(amoid).oauthToken(params, req);
   },
   login_meta: true,
-  async login(params) {
+  async login(params, req) {
     const { amoid, login, password, isAdminPage } = params;
 
     if (isAdminPage) {
@@ -107,6 +108,15 @@ module.exports = {
         adminPassword = decryptPasswordString(adminConfig?.adminPassword);
       }
       if (adminPassword && adminPassword == password) {
+        sendToAuditLog(req, {
+          category: 'auth',
+          component: 'AuthController',
+          action: 'login',
+          event: 'login.admin',
+          severity: 'info',
+          message: 'Administration login successful',
+        });
+
         return {
           accessToken: jwt.sign(
             {
@@ -122,10 +132,19 @@ module.exports = {
         };
       }
 
+      sendToAuditLog(req, {
+        category: 'auth',
+        component: 'AuthController',
+        action: 'loginFail',
+        event: 'login.adminFailed',
+        severity: 'warn',
+        message: 'Administraton login failed',
+      });
+
       return { error: 'Login failed' };
     }
 
-    return getAuthProviderById(amoid).login(login, password);
+    return getAuthProviderById(amoid).login(login, password, undefined, req);
   },
 
   getProviders_meta: true,

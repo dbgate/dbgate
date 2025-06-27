@@ -106,6 +106,7 @@ export class PerspectiveDataLoader {
       conid: props.databaseConfig.conid,
       database: props.databaseConfig.database,
       select,
+      auditLogSessionGroup: 'perspective',
     });
 
     if (response.errorMessage) return response;
@@ -227,6 +228,7 @@ export class PerspectiveDataLoader {
       conid: props.databaseConfig.conid,
       database: props.databaseConfig.database,
       select,
+      auditLogSessionGroup: 'perspective',
     });
 
     if (response.errorMessage) return response;
@@ -330,6 +332,7 @@ export class PerspectiveDataLoader {
       conid: props.databaseConfig.conid,
       database: props.databaseConfig.database,
       select,
+      auditLogSessionGroup: 'perspective',
     });
 
     if (response.errorMessage) return response;

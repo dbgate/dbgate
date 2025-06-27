@@ -11,7 +11,7 @@ const logger = getLogger('authProvider');
 class AuthProviderBase {
   amoid = 'none';
 
-  async login(login, password, options = undefined) {
+  async login(login, password, options = undefined, req = undefined) {
     return {
       accessToken: jwt.sign(
         {
@@ -23,7 +23,7 @@ class AuthProviderBase {
     };
   }
 
-  oauthToken(params) {
+  oauthToken(params, req) {
     return {};
   }
 

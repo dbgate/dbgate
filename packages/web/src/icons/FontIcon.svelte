@@ -143,6 +143,7 @@
     'icon markdown': 'mdi mdi-application',
     'icon preview': 'mdi mdi-file-find',
     'icon eye': 'mdi mdi-eye',
+    'icon auditlog': 'mdi mdi-eye',
     'icon check-all': 'mdi mdi-check-all',
     'icon checkbox-blank': 'mdi mdi-checkbox-blank-outline',
     'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
@@ -307,6 +308,7 @@
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
     'img perspective': 'mdi mdi-eye color-icon-yellow',
+    'img auditlog': 'mdi mdi-eye color-icon-blue',
     'img parent-filter': 'mdi mdi-home-alert color-icon-yellow',
 
     'img folder': 'mdi mdi-folder color-icon-yellow',

@@ -104,7 +104,8 @@
     const response = await apiCall('database-connections/sql-select', {
       conid,
       database,
-      select
+      select,
+      auditLogSessionGroup: 'lookup',
     });
 
     rows = response.rows;

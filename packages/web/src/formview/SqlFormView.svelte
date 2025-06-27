@@ -8,6 +8,7 @@
       conid,
       database,
       select,
+      auditLogSessionGroup: 'data-form',
     });
 
     if (response.errorMessage) return response;

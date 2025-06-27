@@ -185,6 +185,7 @@ export async function apiCall(
       cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-session-id': getApiSessionId(),
         ...resolveApiHeaders(),
       },
       body: JSON.stringify(args, serializeJsTypesReplacer),
@@ -316,6 +317,20 @@ export function refreshPublicCloudFiles(force = false) {
 
   apiCall('cloud/refresh-public-files', { isRefresh: !!sessionStorage.getItem('publicCloudFilesLoaded') });
   sessionStorage.setItem('publicCloudFilesLoaded', 'true');
+}
+
+let apiSessionIdValue = null;
+function getApiSessionId() {
+  if (!apiSessionIdValue) {
+    apiSessionIdValue = uuidv1();
+  }
+  return apiSessionIdValue;
+
+  // if (!sessionStorage.getItem('apiSessionId')) {
+  //   const sessionId = uuidv1();
+  //   sessionStorage.setItem('apiSessionId', sessionId);
+  // }
+  // return sessionStorage.getItem('apiSessionId');
 }
 
 function enableApiLog() {

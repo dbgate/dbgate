@@ -18,41 +18,6 @@
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/export'),
     onClick: () => getCurrentEditor().exportGrid(),
   });
-
-  async function loadDataPage(props, offset, limit) {
-    const { display, conid, database } = props;
-
-    const select = display.getPageQuery(offset, limit);
-
-    const response = await apiCall('database-connections/sql-select', {
-      conid,
-      database,
-      select,
-    });
-
-    if (response.errorMessage) return response;
-    return response.rows;
-  }
-
-  function dataPageAvailable(props) {
-    const { display } = props;
-    const select = display.getPageQuery(0, 1);
-    return !!select;
-  }
-
-  async function loadRowCount(props) {
-    const { display, conid, database } = props;
-
-    const select = display.getCountQuery();
-
-    const response = await apiCall('database-connections/sql-select', {
-      conid,
-      database,
-      select,
-    });
-
-    return parseInt(response.rows[0].count);
-  }
 </script>
 
 <script lang="ts">
@@ -216,6 +181,42 @@
 
   function handleSetLoadedRows(rows) {
     loadedRows = rows;
+  }
+
+  async function loadDataPage(props, offset, limit) {
+    const { display, conid, database } = props;
+
+    const select = display.getPageQuery(offset, limit);
+
+    const response = await apiCall('database-connections/sql-select', {
+      conid,
+      database,
+      select,
+      auditLogSessionGroup: 'data-grid',
+    });
+
+    if (response.errorMessage) return response;
+    return response.rows;
+  }
+
+  function dataPageAvailable(props) {
+    const { display } = props;
+    const select = display.getPageQuery(0, 1);
+    return !!select;
+  }
+
+  async function loadRowCount(props) {
+    const { display, conid, database } = props;
+
+    const select = display.getCountQuery();
+
+    const response = await apiCall('database-connections/sql-select', {
+      conid,
+      database,
+      select,
+    });
+
+    return parseInt(response.rows[0].count);
   }
 </script>
 
