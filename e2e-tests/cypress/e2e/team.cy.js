@@ -80,4 +80,19 @@ describe('Team edition tests', () => {
     cy.testid('AdminMenuWidget_itemUsers').click();
     cy.contains('test@example.com');
   });
+
+  it.only('Audit logging', () => {
+    cy.testid('LoginPage_linkAdmin').click();
+    cy.testid('LoginPage_password').type('adminpwd');
+    cy.testid('LoginPage_submitLogin').click();
+
+    cy.testid('AdminMenuWidget_itemAuditLog').click();
+    cy.contains('Audit log is not enabled');
+    cy.testid('AdminMenuWidget_itemSettings').click();
+    cy.testid('AdminSettingsTab_auditLogCheckbox').click();
+    cy.testid('AdminMenuWidget_itemAuditLog').click();
+    cy.contains('No data for selected date');
+
+    cy.themeshot('auditlog');
+  });
 });

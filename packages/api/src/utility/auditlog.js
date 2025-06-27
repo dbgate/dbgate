@@ -162,12 +162,29 @@ async function sendToAuditLog(
   }
 }
 
-function maskPasswords(script) {
+function maskLogFields(script) {
   return _.cloneDeepWith(script, (value, key) => {
     if (_.isString(key) && key.toLowerCase().includes('password')) {
       return '****';
     }
+    if (key == 'query') {
+      return '****';
+    }
   });
+}
+
+function extractConnectionId(connection) {
+  if (
+    connection?.server == process.env.STORAGE_SERVER &&
+    connection?.database == process.env.STORAGE_DATABASE &&
+    connection?.port == process.env.STORAGE_PORT
+  ) {
+    return '__storage';
+  }
+  if (connection?.conid) {
+    return connection.conid;
+  }
+  return null;
 }
 
 function analyseJsonRunnerScript(script) {
@@ -190,15 +207,15 @@ function analyseJsonRunnerScript(script) {
       return {
         category: 'import',
         component: 'RunnersController',
-        event: 'import.data',
+        event: 'import.table',
         action: 'import',
         severity: 'info',
-        message: 'Importing data',
+        message: `Importing table ${pureName}`,
         pureName: pureName,
-        conid: connection?.conid,
+        conid: extractConnectionId(connection),
         database: connection?.database,
         schemaName: schemaName,
-        detail: maskPasswords(script),
+        detail: maskLogFields(script),
       };
     }
     return null;
@@ -212,15 +229,33 @@ function analyseJsonRunnerScript(script) {
       return {
         category: 'export',
         component: 'RunnersController',
-        event: 'export.data',
+        event: 'export.table',
         action: 'export',
         severity: 'info',
-        message: 'Exporting data',
+        message: `Exporting table ${pureName}`,
         pureName: pureName,
-        conid: connection?.conid,
+        conid: extractConnectionId(connection),
         database: connection?.database,
         schemaName: schemaName,
-        detail: maskPasswords(script),
+        detail: maskLogFields(script),
+      };
+    }
+    return null;
+  }
+
+  if (assignSource?.functionName == 'queryReader') {
+    const connection = assignSource?.props?.connection;
+    if (connection) {
+      return {
+        category: 'export',
+        component: 'RunnersController',
+        event: 'export.query',
+        action: 'export',
+        severity: 'info',
+        message: 'Exporting query',
+        conid: extractConnectionId(connection),
+        database: connection?.database,
+        detail: maskLogFields(script),
       };
     }
     return null;
@@ -241,7 +276,7 @@ function logJsonRunnerScript(req, script) {
       event: 'script.run.json',
       action: 'script',
       severity: 'info',
-      detail: maskPasswords(script),
+      detail: maskLogFields(script),
       message: 'Running JSON script',
     });
   }
