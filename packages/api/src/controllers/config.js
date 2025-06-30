@@ -275,7 +275,11 @@ module.exports = {
         if (process.env.STORAGE_DATABASE) {
           updated = {
             ...currentValue,
-            ...values,
+            ..._.mapValues(values, v => {
+              if (v === true) return 'true';
+              if (v === false) return 'false';
+              return v;
+            }),
           };
           await storage.writeConfig({
             group: 'settings',

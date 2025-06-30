@@ -13,7 +13,11 @@
 
 <CheckboxField
   {...$$restProps}
-  checked={$values?.[name] == 0 ? false : $values?.[name] == '1' ? true : ($values?.[name] ?? defaultValue)}
+  checked={$values?.[name] == 0 || $values?.[name] == 'false'
+    ? false
+    : $values?.[name] == '1' || $values?.[name] == 'true'
+      ? true
+      : ($values?.[name] ?? defaultValue)}
   on:change={handleChange}
   on:change
 />

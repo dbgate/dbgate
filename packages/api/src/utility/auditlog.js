@@ -126,7 +126,7 @@ async function sendToAuditLog(
   }
   const config = require('../controllers/config');
   const settings = await config.getCachedSettings();
-  if (settings?.['storage.useAuditLog'] != 1) {
+  if (settings?.['storage.useAuditLog'] != 'true') {
     return;
   }
 
