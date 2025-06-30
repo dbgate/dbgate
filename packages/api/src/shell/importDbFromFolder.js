@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const executeQuery = require('./executeQuery');
 const { connectUtility } = require('../utility/connectUtility');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { getAlterDatabaseScript, DatabaseAnalyser, runCommandOnDriver } = require('dbgate-tools');
+const { getAlterDatabaseScript, DatabaseAnalyser, runCommandOnDriver, adaptDatabaseInfo } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const jsonLinesReader = require('./jsonLinesReader');
 const tableWriter = require('./tableWriter');
@@ -26,10 +26,7 @@ async function importDbFromFolder({ connection, systemConnection, driver, folder
     if (driver?.databaseEngineTypes?.includes('sql')) {
       const model = await importDbModel(folder);
 
-      let modelAdapted = {
-        ...model,
-        tables: model.tables.map(table => driver.adaptTableInfo(table)),
-      };
+      let modelAdapted = adaptDatabaseInfo(model, driver);
       for (const transform of modelTransforms || []) {
         modelAdapted = transform(modelAdapted);
       }

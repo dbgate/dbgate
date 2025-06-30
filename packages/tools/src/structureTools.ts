@@ -5,6 +5,7 @@ import type {
   ViewInfo,
   CollectionInfo,
   NamedObjectInfo,
+  EngineDriver,
 } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
 import _uniq from 'lodash/uniq';
@@ -303,4 +304,12 @@ export function skipDbGateInternalObjects(db: DatabaseInfo) {
     ...db,
     tables: (db.tables || []).filter(tbl => tbl.pureName != 'dbgate_deploy_journal'),
   };
+}
+
+export function adaptDatabaseInfo(db: DatabaseInfo, driver: EngineDriver): DatabaseInfo {
+  const modelAdapted = {
+    ...db,
+    tables: db.tables.map(table => driver.adaptTableInfo(table)),
+  };
+  return modelAdapted;
 }

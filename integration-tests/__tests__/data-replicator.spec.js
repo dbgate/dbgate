@@ -4,7 +4,7 @@ const { testWrapper } = require('../tools');
 const dataReplicator = require('dbgate-api/src/shell/dataReplicator');
 const deployDb = require('dbgate-api/src/shell/deployDb');
 const storageModel = require('dbgate-api/src/storageModel');
-const { runCommandOnDriver, runQueryOnDriver } = require('dbgate-tools');
+const { runCommandOnDriver, runQueryOnDriver, adaptDatabaseInfo } = require('dbgate-tools');
 
 describe('Data replicator', () => {
   test.each(engines.filter(x => !x.skipDataReplicator).map(engine => [engine.label, engine]))(
@@ -162,7 +162,7 @@ describe('Data replicator', () => {
       await deployDb({
         systemConnection: conn,
         driver,
-        loadedDbModel: storageModel,
+        loadedDbModel: adaptDatabaseInfo(storageModel, driver),
         targetSchema: engine.defaultSchemaName,
       });
 
