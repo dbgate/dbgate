@@ -203,10 +203,10 @@ module.exports = {
   },
 
   exportChart_meta: true,
-  async exportChart({ filePath, title, config, image }) {
+  async exportChart({ filePath, title, config, image, plugins }) {
     const fileName = path.parse(filePath).base;
     const imageFile = fileName.replace('.html', '-preview.png');
-    const html = getChartExport(title, config, imageFile);
+    const html = getChartExport(title, config, imageFile, plugins);
     await fs.writeFile(filePath, html);
     if (image) {
       const index = image.indexOf('base64,');
