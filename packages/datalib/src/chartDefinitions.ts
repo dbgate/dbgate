@@ -25,6 +25,7 @@ export const ChartLimits = {
   PIE_RATIO_LIMIT: 0.05, // limit for other values in pie chart, if the value is below this, it will be grouped into "Other"
   PIE_COUNT_LIMIT: 10, // limit for number of pie chart slices, if the number of slices is above this, it will be grouped into "Other"
   CHART_FILL_LIMIT: 10000, // limit for filled charts (time intervals), to avoid too many points
+  CHART_GROUP_LIMIT: 32, // limit for number of groups in a chart
 };
 
 export interface ChartXFieldDefinition {
@@ -52,6 +53,8 @@ export interface ChartDefinition {
 
   xdef: ChartXFieldDefinition;
   ydefs: ChartYFieldDefinition[];
+  groupingField?: string;
+  groupTransformFunction?: ChartXTransformFunction;
 
   useDataLabels?: boolean;
   dataLabelFormatter?: ChartDataLabelFormatter;
@@ -77,11 +80,14 @@ export interface ProcessedChart {
   rowsAdded: number;
   buckets: { [key: string]: any }; // key is the bucket key, value is aggregated data
   bucketKeysOrdered: string[];
+  bucketKeysSet: Set<string>;
   bucketKeyDateParsed: { [key: string]: ChartDateParsed }; // key is the bucket key, value is parsed date
   isGivenDefinition: boolean; // true if the chart was created with a given definition, false if it was created from raw data
   invalidXRows: number;
   invalidYRows: { [key: string]: number }; // key is the y field, value is the count of invalid rows
   validYRows: { [key: string]: number }; // key is the field, value is the count of valid rows
+  groups: string[];
+  groupSet: Set<string>;
 
   topDistinctValues: { [key: string]: Set<any> }; // key is the field, value is the set of distinct values
   availableColumns: ChartAvailableColumn[];

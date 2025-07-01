@@ -133,6 +133,33 @@ export function incrementChartDate(value: ChartDateParsed, transform: ChartXTran
   }
 }
 
+export function runTransformFunction(value: string, transformFunction: ChartXTransformFunction): string {
+  const dateParsed = tryParseChartDate(value);
+  switch (transformFunction) {
+    case 'date:year':
+      return dateParsed ? `${dateParsed.year}` : null;
+    case 'date:month':
+      return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}` : null;
+    case 'date:day':
+      return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)}` : null;
+    case 'date:hour':
+      return dateParsed
+        ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)} ${pad2Digits(
+            dateParsed.hour
+          )}`
+        : null;
+    case 'date:minute':
+      return dateParsed
+        ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)} ${pad2Digits(
+            dateParsed.hour
+          )}:${pad2Digits(dateParsed.minute)}`
+        : null;
+    case 'identity':
+    default:
+      return value;
+  }
+}
+
 export function computeChartBucketKey(
   dateParsed: ChartDateParsed,
   chart: ProcessedChart,
@@ -268,7 +295,19 @@ export function compareChartDatesParsed(
   }
 }
 
-function getParentDateBucketKey(bucketKey: string, transform: ChartXTransformFunction): string | null {
+function getParentDateBucketKey(
+  bucketKey: string,
+  transform: ChartXTransformFunction,
+  isGrouped: boolean
+): string | null {
+  if (isGrouped) {
+    const [group, key] = bucketKey.split('::', 2);
+    if (!key) {
+      return null; // no parent for grouped bucket
+    }
+    return `${group}::${getParentDateBucketKey(key, transform, false)}`;
+  }
+
   switch (transform) {
     case 'date:year':
       return null; // no parent for year
@@ -345,10 +384,21 @@ function createParentChartAggregation(chart: ProcessedChart): ProcessedChart | n
     validYRows: { ...chart.validYRows }, // copy valid Y rows
     topDistinctValues: { ...chart.topDistinctValues }, // copy top distinct values
     availableColumns: chart.availableColumns,
+    groups: [...chart.groups], // copy groups
+    groupSet: new Set(chart.groups), // create a set from the groups
+    bucketKeysSet: new Set<string>(), // initialize empty set for bucket keys
   };
 
+  for (const bucketKey of chart.bucketKeysSet) {
+    res.bucketKeysSet.add(getParentDateBucketKey(bucketKey, chart.definition.xdef.transformFunction, false));
+  }
+
   for (const [bucketKey, bucketValues] of Object.entries(chart.buckets)) {
-    const parentKey = getParentDateBucketKey(bucketKey, chart.definition.xdef.transformFunction);
+    const parentKey = getParentDateBucketKey(
+      bucketKey,
+      chart.definition.xdef.transformFunction,
+      !!chart.definition.groupingField
+    );
     if (!parentKey) {
       // skip if the bucket is already a parent
       continue;
@@ -532,8 +582,11 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
     const bucketKey = stringifyChartDate(currentParsed, transform);
     if (!chart.buckets[bucketKey]) {
       chart.buckets[bucketKey] = {};
+    }
+    if (!chart.bucketKeyDateParsed[bucketKey]) {
       chart.bucketKeyDateParsed[bucketKey] = currentParsed;
     }
+    chart.bucketKeysSet.add(bucketKey);
     currentParsed = incrementChartDate(currentParsed, transform);
     count++;
     if (count > ChartLimits.CHART_FILL_LIMIT) {
@@ -544,5 +597,5 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
 }
 
 export function computeChartBucketCardinality(bucket: { [key: string]: any }): number {
-  return _sumBy(Object.keys(bucket), field => bucket[field]);
+  return _sumBy(Object.keys(bucket ?? {}), field => bucket[field]);
 }

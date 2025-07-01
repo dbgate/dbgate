@@ -13,6 +13,7 @@ import {
   computeChartBucketCardinality,
   computeChartBucketKey,
   fillChartTimelineBuckets,
+  runTransformFunction,
   tryParseChartDate,
 } from './chartTools';
 import { getChartScore, getChartYFieldScore } from './chartScoring';
@@ -40,6 +41,9 @@ export class ChartProcessor {
         availableColumns: [],
         validYRows: {},
         topDistinctValues: {},
+        groups: [],
+        groupSet: new Set<string>(),
+        bucketKeysSet: new Set<string>(),
       });
     }
     this.autoDetectCharts = this.givenDefinitions.length == 0;
@@ -132,6 +136,7 @@ export class ChartProcessor {
             rowsAdded: 0,
             bucketKeysOrdered: [],
             buckets: {},
+            groups: [],
             bucketKeyDateParsed: {},
             isGivenDefinition: false,
             invalidXRows: 0,
@@ -139,6 +144,8 @@ export class ChartProcessor {
             availableColumns: [],
             validYRows: {},
             topDistinctValues: {},
+            groupSet: new Set<string>(),
+            bucketKeysSet: new Set<string>(),
           };
           this.chartsProcessing.push(usedChart);
         }
@@ -247,14 +254,14 @@ export class ChartProcessor {
             continue;
           }
 
-          addedChart.bucketKeysOrdered = _sortBy(Object.keys(addedChart.buckets));
+          addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet]);
           if (sortOrder == 'descKeys') {
             addedChart.bucketKeysOrdered.reverse();
           }
         }
 
         if (sortOrder == 'ascValues' || sortOrder == 'descValues') {
-          addedChart.bucketKeysOrdered = _sortBy(Object.keys(addedChart.buckets), key =>
+          addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet], key =>
             computeChartBucketCardinality(addedChart.buckets[key])
           );
           if (sortOrder == 'descValues') {
@@ -290,6 +297,10 @@ export class ChartProcessor {
       }
 
       this.groupPieOtherBuckets(addedChart);
+
+      addedChart.groups = [...addedChart.groupSet];
+      addedChart.bucketKeysSet = undefined;
+      addedChart.groupSet = undefined;
     }
 
     this.charts = [
@@ -373,6 +384,15 @@ export class ChartProcessor {
     }
 
     const [bucketKey, bucketKeyParsed] = computeChartBucketKey(dateParsed, chart, row);
+    const bucketGroup = chart.definition.groupingField
+      ? runTransformFunction(row[chart.definition.groupingField], chart.definition.groupTransformFunction)
+      : null;
+    if (bucketGroup) {
+      chart.groupSet.add(bucketGroup);
+    }
+    if (chart.groupSet.size > ChartLimits.CHART_GROUP_LIMIT) {
+      chart.errorMessage = `Chart has too many groups, limit is ${ChartLimits.CHART_GROUP_LIMIT}.`;
+    }
 
     if (!bucketKey) {
       return; // skip if no bucket key
@@ -389,14 +409,19 @@ export class ChartProcessor {
       chart.maxX = bucketKey;
     }
 
-    if (!chart.buckets[bucketKey]) {
-      chart.buckets[bucketKey] = {};
+    const groupedBucketKey = chart.definition.groupingField ? `${bucketGroup ?? ''}::${bucketKey}` : bucketKey;
+    if (!chart.buckets[groupedBucketKey]) {
+      chart.buckets[groupedBucketKey] = {};
+    }
+
+    if (!chart.bucketKeysSet.has(bucketKey)) {
+      chart.bucketKeysSet.add(bucketKey);
       if (chart.definition.xdef.sortOrder == 'natural') {
         chart.bucketKeysOrdered.push(bucketKey);
       }
     }
 
-    aggregateChartNumericValuesFromSource(chart, bucketKey, numericColumns, row);
+    aggregateChartNumericValuesFromSource(chart, groupedBucketKey, numericColumns, row);
     chart.rowsAdded += 1;
   }
 }
