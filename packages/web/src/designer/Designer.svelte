@@ -764,7 +764,11 @@
   }
 
   function getWatermarkHtml() {
-    const replaceLinks = text => text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>');
+    const replaceLinks = text =>
+      text.replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>'
+      );
 
     if (value?.style?.omitExportWatermark) return null;
     if (value?.style?.exportWatermark) {
@@ -890,8 +894,8 @@
   function handleWheel(event) {
     if (event.ctrlKey) {
       event.preventDefault();
-      const zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
-      if (zoomIndex < 0) DIAGRAM_ZOOMS.findIndex(x => x == 1);
+      let zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
+      if (zoomIndex < 0) zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == 1);
 
       let newZoomIndex = zoomIndex;
       if (event.deltaY < 0) {
