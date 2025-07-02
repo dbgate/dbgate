@@ -126,7 +126,7 @@ export class ChartProcessor {
         ) {
           usedChart = {
             definition: {
-              chartType: 'line',
+              chartType: 'timeline',
               xdef: {
                 field: datecol,
                 transformFunction: 'date:day',
@@ -192,6 +192,9 @@ export class ChartProcessor {
       if (this.chartsProcessing[i].errorMessage) {
         continue; // skip charts with errors
       }
+      if (this.chartsProcessing[i].definition.chartType != 'timeline') {
+        continue; // skip non-timeline charts
+      }
       this.chartsProcessing[i] = autoAggregateCompactTimelineChart(this.chartsProcessing[i]);
     }
 
@@ -244,7 +247,7 @@ export class ChartProcessor {
       const sortOrder = chart.definition.xdef.sortOrder ?? 'ascKeys';
       if (sortOrder != 'natural') {
         if (sortOrder == 'ascKeys' || sortOrder == 'descKeys') {
-          if (chart.definition.chartType == 'line' && chart.definition.xdef.transformFunction.startsWith('date:')) {
+          if (chart.definition.chartType == 'timeline' && chart.definition.xdef.transformFunction.startsWith('date:')) {
             addedChart = autoAggregateCompactTimelineChart(addedChart);
             fillChartTimelineBuckets(addedChart);
           }
@@ -253,7 +256,7 @@ export class ChartProcessor {
             this.charts.push(addedChart);
             continue;
           }
-
+''
           addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet]);
           if (sortOrder == 'descKeys') {
             addedChart.bucketKeysOrdered.reverse();

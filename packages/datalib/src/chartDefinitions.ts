@@ -1,4 +1,4 @@
-export type ChartTypeEnum = 'bar' | 'line' | 'pie' | 'polarArea';
+export type ChartTypeEnum = 'bar' | 'line' | 'timeline' | 'pie' | 'polarArea';
 export type ChartXTransformFunction =
   | 'identity'
   | 'date:minute'
