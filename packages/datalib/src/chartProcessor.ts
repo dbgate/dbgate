@@ -8,12 +8,17 @@ import {
 } from './chartDefinitions';
 import _sortBy from 'lodash/sortBy';
 import _sum from 'lodash/sum';
+import _zipObject from 'lodash/zipObject';
+import _mapValues from 'lodash/mapValues';
+import _pick from 'lodash/pick';
 import {
   aggregateChartNumericValuesFromSource,
   autoAggregateCompactTimelineChart,
+  chartsHaveSimilarRange,
   computeChartBucketCardinality,
   computeChartBucketKey,
   fillChartTimelineBuckets,
+  getChartYRange,
   runTransformFunction,
   tryParseChartDate,
 } from './chartTools';
@@ -105,7 +110,12 @@ export class ChartProcessor {
                   field: xcol,
                   transformFunction,
                 },
-                ydefs: [],
+                ydefs: [
+                  {
+                    field: '__count',
+                    aggregateFunction: 'count',
+                  },
+                ],
                 groupingField,
               },
               rowsAdded: 0,
@@ -123,6 +133,10 @@ export class ChartProcessor {
               bucketKeysSet: new Set<string>(),
             };
             this.chartsProcessing.push(usedChart);
+          }
+
+          if (!usedChart) {
+            continue; // chart not created - probably too many charts already
           }
 
           for (const [key, value] of Object.entries(numericColumnsForAutodetect)) {
@@ -270,7 +284,48 @@ export class ChartProcessor {
     }
   }
 
+  splitChartsByYDefs() {
+    const newCharts: ProcessedChart[] = [];
+
+    for (const chart of this.chartsProcessing) {
+      if (chart.isGivenDefinition) {
+        newCharts.push(chart);
+        continue;
+      }
+      const yRanges = chart.definition.ydefs.map(ydef => getChartYRange(chart, ydef).max);
+      const yRangeByField = _zipObject(
+        chart.definition.ydefs.map(ydef => ydef.field),
+        yRanges
+      );
+      let ydefsToAssign = chart.definition.ydefs.map(ydef => ydef.field);
+      while (ydefsToAssign.length > 0) {
+        const first = ydefsToAssign.shift();
+        const additionals = [];
+        for (const candidate of ydefsToAssign) {
+          if (chartsHaveSimilarRange(yRangeByField[first], yRangeByField[candidate])) {
+            additionals.push(candidate);
+          }
+        }
+
+        const ydefsCurrent = [first, ...additionals];
+        const partialChart: ProcessedChart = {
+          ...chart,
+          definition: {
+            ...chart.definition,
+            ydefs: ydefsCurrent.map(y => chart.definition.ydefs.find(yd => yd.field === y) as ChartYFieldDefinition),
+          },
+          buckets: _mapValues(chart.buckets, bucket => _pick(bucket, ydefsCurrent)),
+        };
+
+        newCharts.push(partialChart);
+        ydefsToAssign = ydefsToAssign.filter(y => !additionals.includes(y));
+      }
+    }
+    this.chartsProcessing = newCharts;
+  }
+
   finalize() {
+    this.splitChartsByYDefs();
     this.applyLimitsOnCharts();
     this.availableColumns = Object.values(this.availableColumnsDict);
     for (const chart of this.chartsProcessing) {
@@ -294,7 +349,6 @@ export class ChartProcessor {
             this.charts.push(addedChart);
             continue;
           }
-          ('');
           addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet]);
           if (sortOrder == 'descKeys') {
             addedChart.bucketKeysOrdered.reverse();
@@ -347,7 +401,7 @@ export class ChartProcessor {
     this.charts = [
       ...this.charts.filter(x => x.isGivenDefinition),
       ..._sortBy(
-        this.charts.filter(x => !x.isGivenDefinition),
+        this.charts.filter(x => !x.isGivenDefinition && !x.errorMessage && x.definition.ydefs.length > 0),
         chart => -getChartScore(chart)
       ),
     ];

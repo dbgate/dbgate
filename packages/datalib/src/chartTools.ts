@@ -6,13 +6,16 @@ import {
   ChartDefinition,
   ChartLimits,
   ChartXTransformFunction,
+  ChartYFieldDefinition,
   ProcessedChart,
 } from './chartDefinitions';
 import { addMinutes, addHours, addDays, addMonths, addYears } from 'date-fns';
 
 export function getChartDebugPrint(chart: ProcessedChart) {
   let res = '';
-  res += `Chart: ${chart.definition.chartType} (${chart.definition.xdef.transformFunction})\n`;
+  res += `Chart: ${chart.definition.chartType} (${chart.definition.xdef.transformFunction}): (${chart.definition.ydefs
+    .map(yd => yd.field)
+    .join(', ')})\n`;
   for (const key of chart.bucketKeysOrdered) {
     res += `${key}: ${_toPairs(chart.buckets[key])
       .map(([k, v]) => `${k}=${v}`)
@@ -490,7 +493,7 @@ export function aggregateChartNumericValuesFromSource(
   row: any
 ) {
   for (const ydef of chart.definition.ydefs) {
-    if (numericColumns[ydef.field] == null) {
+    if (numericColumns[ydef.field] == null && ydef.field != '__count') {
       if (row[ydef.field]) {
         chart.invalidYRows[ydef.field] = (chart.invalidYRows[ydef.field] || 0) + 1; // increment invalid row count if the field is not numeric
       }
@@ -638,4 +641,33 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
 
 export function computeChartBucketCardinality(bucket: { [key: string]: any }): number {
   return _sumBy(Object.keys(bucket ?? {}), field => bucket[field]);
+}
+
+export function getChartYRange(chart: ProcessedChart, ydef: ChartYFieldDefinition) {
+  let min = null;
+  let max = null;
+
+  for (const obj of Object.values(chart.buckets)) {
+    const value = obj[ydef.field];
+    if (value != null) {
+      if (min === null || value < min) {
+        min = value;
+      }
+      if (max === null || value > max) {
+        max = value;
+      }
+    }
+  }
+
+  return { min, max };
+}
+
+export function chartsHaveSimilarRange(range1: number, range2: number) {
+  if (range1 < 0 && range2 < 0) {
+    return Math.abs(range1 - range2) / Math.abs(range1) < 0.5;
+  }
+  if (range1 > 0 && range2 > 0) {
+    return Math.abs(range1 - range2) / Math.abs(range1) < 0.5;
+  }
+  return false;
 }
