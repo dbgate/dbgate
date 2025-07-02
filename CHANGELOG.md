@@ -14,6 +14,7 @@ Builds:
 - ADDED: Chart grouping (more measure determined from data)
 - CHANGED: Improved chart autodetection - string X axis (with bar type), COUNT as measure, split different measures
 - ADDED: Added chart data type detection
+- FIXED: Fixed chart displaying problems
 - FIXED: Fixed exporting chart to HTML
 - CHANGED: Choose COUNT measure without selecting underlying ID field (use virtual __count)
 

@@ -45,6 +45,9 @@ module.exports = defineConfig({
             case 'cloud':
               serverProcess = exec('yarn start:cloud');
               break;
+            case 'charts':
+              serverProcess = exec('yarn start:charts');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });

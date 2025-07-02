@@ -375,6 +375,11 @@ const mysqlDriverBase = {
     }
     return null;
   },
+
+  adaptDataType(dataType) {
+    if (dataType?.toLowerCase() == 'money') return 'decimal(15,2)';
+    return dataType;
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

@@ -1,0 +1,21 @@
+{"__isStreamHeader":true,"pureName":"employees","schemaName":"dbo","objectId":1237579447,"createDate":"2025-06-12T10:30:34.113Z","modifyDate":"2025-06-12T12:35:22.140Z","contentHash":"2025-06-12T12:35:22.140Z","columns":[{"columnName":"id","dataType":"int","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"name","dataType":"varchar(100)","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"email","dataType":"varchar(100)","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"hire_date","dataType":"date","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"department_id","dataType":"int","notNull":false,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false}],"primaryKey":{"constraintName":"PK__employee__3213E83FE576E55A","schemaName":"dbo","pureName":"employees","constraintType":"primaryKey","columns":[{"columnName":"id"}]},"foreignKeys":[{"constraintName":"FK__employees__depar__4CA06362","constraintType":"foreignKey","schemaName":"dbo","pureName":"employees","refSchemaName":"dbo","refTableName":"departments","updateAction":"NO ACTION","deleteAction":"NO ACTION","columns":[{"columnName":"department_id","refColumnName":"id"}]}],"indexes":[],"uniques":[{"constraintName":"UQ__employee__AB6E6164E18D883F","columns":[{"columnName":"email"}]}],"engine":"mssql@dbgate-plugin-mssql"}
+{"id":1,"name":"John Smith","email":"john.smith@example.com","hire_date":"2018-07-09T00:00:00.000Z","department_id":2}
+{"id":2,"name":"Jane Garcia","email":"jane.garcia@example.com","hire_date":"2019-10-13T00:00:00.000Z","department_id":5}
+{"id":3,"name":"Grace Smith","email":"grace.smith@example.com","hire_date":"2019-03-16T00:00:00.000Z","department_id":1}
+{"id":4,"name":"Charlie Williams","email":"charlie.williams@example.com","hire_date":"2020-10-18T00:00:00.000Z","department_id":2}
+{"id":5,"name":"Eve Brown","email":"eve.brown@example.com","hire_date":"2018-04-12T00:00:00.000Z","department_id":4}
+{"id":6,"name":"Alice Moore","email":"alice.moore@example.com","hire_date":"2019-04-20T00:00:00.000Z","department_id":2}
+{"id":7,"name":"Eve Williams","email":"eve.williams@example.com","hire_date":"2020-04-26T00:00:00.000Z","department_id":4}
+{"id":8,"name":"Eve Jones","email":"eve.jones@example.com","hire_date":"2022-10-04T00:00:00.000Z","department_id":3}
+{"id":9,"name":"Diana Miller","email":"diana.miller@example.com","hire_date":"2021-03-28T00:00:00.000Z","department_id":1}
+{"id":10,"name":"Diana Smith","email":"diana.smith@example.com","hire_date":"2018-04-12T00:00:00.000Z","department_id":2}
+{"id":11,"name":"Hank Johnson","email":"hank.johnson@example.com","hire_date":"2020-09-16T00:00:00.000Z","department_id":2}
+{"id":12,"name":"Frank Miller","email":"frank.miller@example.com","hire_date":"2023-01-12T00:00:00.000Z","department_id":4}
+{"id":13,"name":"Jane Brown","email":"jane.brown@example.com","hire_date":"2023-05-07T00:00:00.000Z","department_id":3}
+{"id":14,"name":"Grace Davis","email":"grace.davis@example.com","hire_date":"2019-08-22T00:00:00.000Z","department_id":3}
+{"id":15,"name":"Jane Black","email":"jane.black@example.com","hire_date":"2019-04-28T00:00:00.000Z","department_id":2}
+{"id":16,"name":"Charlie Smith","email":"charlie.smith@example.com","hire_date":"2019-06-12T00:00:00.000Z","department_id":5}
+{"id":17,"name":"Eve Johnson","email":"eve.johnson@example.com","hire_date":"2020-11-07T00:00:00.000Z","department_id":5}
+{"id":18,"name":"Jane Johnson","email":"jane.johnson@example.com","hire_date":"2020-04-06T00:00:00.000Z","department_id":2}
+{"id":19,"name":"Hank Brown","email":"hank.brown@example.com","hire_date":"2023-05-10T00:00:00.000Z","department_id":2}
+{"id":20,"name":"Frank Jones","email":"frank.jones@example.com","hire_date":"2020-10-26T00:00:00.000Z","department_id":1}
