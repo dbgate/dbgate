@@ -81,9 +81,14 @@ export class ChartProcessor {
 
     for (const [key, value] of Object.entries(row)) {
       const number: number = typeof value == 'string' ? Number(value) : typeof value == 'number' ? value : NaN;
-      this.availableColumnsDict[key] = {
-        field: key,
-      };
+      let availableColumn = this.availableColumnsDict[key];
+      if (!availableColumn) {
+        availableColumn = {
+          field: key,
+          dataType: 'none',
+        };
+        this.availableColumnsDict[key] = availableColumn;
+      }
 
       const keyLower = key.toLowerCase();
       const keyIsId = keyLower.endsWith('_id') || keyLower == 'id' || key.endsWith('Id');
@@ -91,6 +96,12 @@ export class ChartProcessor {
       const parsedDate = tryParseChartDate(value);
       if (parsedDate) {
         dateColumns[key] = parsedDate;
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'date';
+        }
+        if (availableColumn.dataType != 'date') {
+          availableColumn.dataType = 'mixed';
+        }
         continue;
       }
 
@@ -99,11 +110,23 @@ export class ChartProcessor {
         if (!keyIsId) {
           numericColumnsForAutodetect[key] = number; // for auto-detecting charts
         }
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'number';
+        }
+        if (availableColumn.dataType != 'number') {
+          availableColumn.dataType = 'mixed';
+        }
         continue;
       }
 
       if (typeof value === 'string' && isNaN(number) && value.length < 100) {
         stringColumns[key] = value;
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'string';
+        }
+        if (availableColumn.dataType != 'string') {
+          availableColumn.dataType = 'mixed';
+        }
       }
     }
 
@@ -256,7 +279,7 @@ export class ChartProcessor {
             this.charts.push(addedChart);
             continue;
           }
-''
+          ('');
           addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet]);
           if (sortOrder == 'descKeys') {
             addedChart.bucketKeysOrdered.reverse();

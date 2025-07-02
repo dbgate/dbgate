@@ -72,6 +72,7 @@ export interface ChartDateParsed {
 
 export interface ChartAvailableColumn {
   field: string;
+  dataType: 'none' | 'string' | 'number' | 'date' | 'mixed';
 }
 
 export interface ProcessedChart {
