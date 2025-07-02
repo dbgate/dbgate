@@ -17,7 +17,8 @@ export const ChartConstDefaults = {
 };
 
 export const ChartLimits = {
-  AUTODETECT_CHART_LIMIT: 10, // limit for auto-detecting charts, to avoid too many charts
+  AUTODETECT_CHART_LIMIT: 10, // limit for auto-detecting charts, to avoid too many charts (after APPLY_LIMIT_AFTER_ROWS rows)
+  AUTODETECT_CHART_TOTAL_LIMIT: 32, // limit for auto-detecting charts, to avoid too many charts (for first APPLY_LIMIT_AFTER_ROWS rows)
   AUTODETECT_MEASURES_LIMIT: 10, // limit for auto-detecting measures, to avoid too many measures
   APPLY_LIMIT_AFTER_ROWS: 100,
   MAX_DISTINCT_VALUES: 10, // max number of distinct values to keep in topDistinctValues
