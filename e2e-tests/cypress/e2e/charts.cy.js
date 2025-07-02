@@ -21,6 +21,7 @@ describe('Charts', () => {
     cy.contains('department_name');
     // cy.testid('QueryTab_executeButton').click();
     // cy.testid('QueryTab_openChartButton').click();
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
     cy.themeshot('choose-detected-chart');
   });
 });
