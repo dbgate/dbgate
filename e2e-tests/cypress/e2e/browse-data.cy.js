@@ -507,6 +507,7 @@ describe('Data browser data', () => {
     cy.testid('QueryTab_detectChartButton').click();
     cy.testid('QueryTab_executeButton').click();
     cy.contains('Chart 1').click();
+    cy.testid('ChartSelector_chart_0').click();
     cy.testid('JslChart_customizeButton').click();
     cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Bar');
     cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Line');
