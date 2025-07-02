@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.5.5 - not released
+- ADDED: Audit log (for Team Premium edition)
+- ADDED: Added new timeline chart type (line chart with time axis)
+- ADDED: Chart grouping (more measure determined from data)
+- CHANGED: Improved chart autodetection - string X axis (with bar type), COUNT as measure, split different measures
+- ADDED: Added chart data type detection
+- FIXED: Fixed exporting chart to HTML
+- CHANGED: Choose COUNT measure without selecting underlying ID field (use virtual __count)
+
 ## 6.5.3
 - CHANGED: Improved DbGate Cloud sign-in workflow
 - FIXED: Some fixes and error handling in new charts engine
