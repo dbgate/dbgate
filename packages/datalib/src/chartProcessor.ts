@@ -3,6 +3,7 @@ import {
   ChartDateParsed,
   ChartDefinition,
   ChartLimits,
+  ChartYFieldDefinition,
   ProcessedChart,
 } from './chartDefinitions';
 import _sortBy from 'lodash/sortBy';
@@ -72,6 +73,65 @@ export class ChartProcessor {
   //   this.chartsBySignature[signature] = chart;
   //   return chart;
   // }
+  runAutoDetectCharts(row, dateColumns: { [key: string]: ChartDateParsed }) {
+    // create charts from data, if there are no given definitions
+    for (const datecol in dateColumns) {
+      let usedChart = this.chartsProcessing.find(
+        chart =>
+          !chart.isGivenDefinition &&
+          chart.definition.xdef.field === datecol &&
+          chart.definition.xdef.transformFunction?.startsWith('date:')
+      );
+
+      if (
+        !usedChart &&
+        (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
+          this.chartsProcessing.length < ChartLimits.AUTODETECT_CHART_LIMIT)
+      ) {
+        usedChart = {
+          definition: {
+            chartType: 'timeline',
+            xdef: {
+              field: datecol,
+              transformFunction: 'date:day',
+            },
+            ydefs: [],
+          },
+          rowsAdded: 0,
+          bucketKeysOrdered: [],
+          buckets: {},
+          groups: [],
+          bucketKeyDateParsed: {},
+          isGivenDefinition: false,
+          invalidXRows: 0,
+          invalidYRows: {},
+          availableColumns: [],
+          validYRows: {},
+          topDistinctValues: {},
+          groupSet: new Set<string>(),
+          bucketKeysSet: new Set<string>(),
+        };
+        this.chartsProcessing.push(usedChart);
+      }
+
+      for (const [key, value] of Object.entries(row)) {
+        if (value == null) continue;
+        if (key == datecol) continue; // skip date column itself
+        const existingYDef = usedChart.definition.ydefs.find(y => y.field === key);
+        if (
+          !existingYDef &&
+          (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
+            usedChart.definition.ydefs.length < ChartLimits.AUTODETECT_MEASURES_LIMIT)
+        ) {
+          const newYDef: ChartYFieldDefinition = {
+            field: key,
+            aggregateFunction: 'sum',
+          };
+          usedChart.definition.ydefs.push(newYDef);
+        }
+      }
+    }
+  }
 
   addRow(row: any) {
     const dateColumns: { [key: string]: ChartDateParsed } = {};
@@ -133,63 +193,7 @@ export class ChartProcessor {
     // const sortedNumericColumnns = Object.keys(numericColumns).sort();
 
     if (this.autoDetectCharts) {
-      // create charts from data, if there are no given definitions
-      for (const datecol in dateColumns) {
-        let usedChart = this.chartsProcessing.find(
-          chart =>
-            !chart.isGivenDefinition &&
-            chart.definition.xdef.field === datecol &&
-            chart.definition.xdef.transformFunction?.startsWith('date:')
-        );
-
-        if (
-          !usedChart &&
-          (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
-            this.chartsProcessing.length < ChartLimits.AUTODETECT_CHART_LIMIT)
-        ) {
-          usedChart = {
-            definition: {
-              chartType: 'timeline',
-              xdef: {
-                field: datecol,
-                transformFunction: 'date:day',
-              },
-              ydefs: [],
-            },
-            rowsAdded: 0,
-            bucketKeysOrdered: [],
-            buckets: {},
-            groups: [],
-            bucketKeyDateParsed: {},
-            isGivenDefinition: false,
-            invalidXRows: 0,
-            invalidYRows: {},
-            availableColumns: [],
-            validYRows: {},
-            topDistinctValues: {},
-            groupSet: new Set<string>(),
-            bucketKeysSet: new Set<string>(),
-          };
-          this.chartsProcessing.push(usedChart);
-        }
-
-        for (const [key, value] of Object.entries(row)) {
-          if (value == null) continue;
-          if (key == datecol) continue; // skip date column itself
-          let existingYDef = usedChart.definition.ydefs.find(y => y.field === key);
-          if (
-            !existingYDef &&
-            (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
-              usedChart.definition.ydefs.length < ChartLimits.AUTODETECT_MEASURES_LIMIT)
-          ) {
-            existingYDef = {
-              field: key,
-              aggregateFunction: 'sum',
-            };
-            usedChart.definition.ydefs.push(existingYDef);
-          }
-        }
-      }
+      this.runAutoDetectCharts(row, dateColumns);
     }
 
     // apply on all charts with this date column
