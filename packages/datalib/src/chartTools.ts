@@ -3,6 +3,7 @@ import _sumBy from 'lodash/sumBy';
 import {
   ChartConstDefaults,
   ChartDateParsed,
+  ChartDefinition,
   ChartLimits,
   ChartXTransformFunction,
   ProcessedChart,
@@ -326,6 +327,14 @@ export function compareChartDatesParsed(
   }
 }
 
+function extractBucketKeyWithoutGroup(bucketKey: string, definition: ChartDefinition): string {
+  if (definition.groupingField) {
+    const [_group, key] = bucketKey.split('::', 2);
+    return key || bucketKey;
+  }
+  return bucketKey;
+}
+
 function getParentDateBucketKey(
   bucketKey: string,
   transform: ChartXTransformFunction,
@@ -424,21 +433,21 @@ function createParentChartAggregation(chart: ProcessedChart): ProcessedChart | n
     res.bucketKeysSet.add(getParentDateBucketKey(bucketKey, chart.definition.xdef.transformFunction, false));
   }
 
-  for (const [bucketKey, bucketValues] of Object.entries(chart.buckets)) {
-    const parentKey = getParentDateBucketKey(
-      bucketKey,
+  for (const [groupedBucketKey, bucketValues] of Object.entries(chart.buckets)) {
+    const groupedParentKey = getParentDateBucketKey(
+      groupedBucketKey,
       chart.definition.xdef.transformFunction,
       !!chart.definition.groupingField
     );
-    if (!parentKey) {
+    if (!groupedParentKey) {
       // skip if the bucket is already a parent
       continue;
     }
-    res.bucketKeyDateParsed[parentKey] = getParentKeyParsed(
-      chart.bucketKeyDateParsed[bucketKey],
+    res.bucketKeyDateParsed[extractBucketKeyWithoutGroup(groupedParentKey, chart.definition)] = getParentKeyParsed(
+      chart.bucketKeyDateParsed[extractBucketKeyWithoutGroup(groupedBucketKey, chart.definition)],
       chart.definition.xdef.transformFunction
     );
-    aggregateChartNumericValuesFromChild(res, parentKey, bucketValues);
+    aggregateChartNumericValuesFromChild(res, groupedParentKey, bucketValues);
   }
 
   const bucketKeys = Object.keys(res.buckets).sort();

@@ -116,8 +116,8 @@ describe('Chart processor', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS1.slice(0, 3));
     processor.finalize();
-    expect(processor.charts.length).toEqual(1);
-    const chart = processor.charts[0];
+    expect(processor.charts.length).toEqual(2);
+    const chart = processor.charts.find(x => !x.definition.groupingField);
     expect(chart.definition.xdef.transformFunction).toEqual('date:day');
     expect(chart.definition.ydefs).toEqual([
       expect.objectContaining({
@@ -130,8 +130,8 @@ describe('Chart processor', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS1.slice(0, 4));
     processor.finalize();
-    expect(processor.charts.length).toEqual(1);
-    const chart = processor.charts[0];
+    expect(processor.charts.length).toEqual(2);
+    const chart = processor.charts.find(x => !x.definition.groupingField);
     expect(chart.definition.xdef.transformFunction).toEqual('date:month');
     expect(chart.bucketKeysOrdered).toEqual([
       '2023-10',
@@ -393,8 +393,7 @@ describe('Chart processor', () => {
     expect(chart.definition.xdef.transformFunction).toEqual('date:day');
 
     // console.log(getChartDebugPrint(processor.charts[0]));
-    
-    
+
     // expect(chart.definition.xdef.transformFunction).toEqual('date:day');
     // expect(chart.definition.ydefs).toEqual([
     //   expect.objectContaining({

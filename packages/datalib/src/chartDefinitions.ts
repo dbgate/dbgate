@@ -82,7 +82,7 @@ export interface ProcessedChart {
   buckets: { [key: string]: any }; // key is the bucket key, value is aggregated data
   bucketKeysOrdered: string[];
   bucketKeysSet: Set<string>;
-  bucketKeyDateParsed: { [key: string]: ChartDateParsed }; // key is the bucket key, value is parsed date
+  bucketKeyDateParsed: { [key: string]: ChartDateParsed }; // key is the bucket key (without group::), value is parsed date
   isGivenDefinition: boolean; // true if the chart was created with a given definition, false if it was created from raw data
   invalidXRows: number;
   invalidYRows: { [key: string]: number }; // key is the y field, value is the count of invalid rows
