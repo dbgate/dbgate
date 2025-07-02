@@ -112,19 +112,28 @@ const DS4 = [
 ];
 
 describe('Chart processor', () => {
-  test('Simple by day test, autodetected', () => {
+  test.only('Simple by day test, autodetected', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS1.slice(0, 3));
     processor.finalize();
     expect(processor.charts.length).toEqual(3);
-    const chart = processor.charts.find(x => !x.definition.groupingField && x.definition.xdef.field === 'timestamp');
-    expect(chart.definition.xdef.transformFunction).toEqual('date:day');
-    expect(chart.definition.ydefs).toEqual([
+    const chart1 = processor.charts.find(x => !x.definition.groupingField && x.definition.xdef.field === 'timestamp');
+    expect(chart1.definition.xdef.transformFunction).toEqual('date:day');
+    expect(chart1.definition.ydefs).toEqual([
       expect.objectContaining({
         field: 'value',
       }),
     ]);
-    expect(chart.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+    expect(chart1.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+
+    const chart2 = processor.charts.find(x => x.definition.groupingField);
+    expect(chart2.definition.xdef.transformFunction).toEqual('date:day');
+    expect(chart2.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+    expect(chart2.definition.groupingField).toEqual('category');
+
+    const chart3 = processor.charts.find(x => x.definition.xdef.field === 'category');
+    expect(chart3.bucketKeysOrdered).toEqual(['A', 'B']);
+    expect(chart3.definition.groupingField).toBeUndefined();
   });
   test('By month grouped, autedetected', () => {
     const processor = new ChartProcessor();
