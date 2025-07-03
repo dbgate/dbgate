@@ -78,6 +78,8 @@ function authMiddleware(req, res, next) {
   try {
     const decoded = jwt.verify(token, getTokenSecret());
     req.user = decoded;
+    storage.markUserAsActive(decoded.licenseUid);
+
     return next();
   } catch (err) {
     if (skipAuth) {

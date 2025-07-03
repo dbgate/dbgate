@@ -32,6 +32,11 @@
             : 'Community'}</span
         >
       </div>
+      {#if $config?.checkedLicense?.users}
+        <div>
+          User count: <span>{$config?.checkedLicense?.users}</span>
+        </div>
+      {/if}
 
       <div class="mt-2">
         <FontIcon icon="mdi mdi-web color-icon-blue" /> Web: <Link href="https://dbgate.io">dbgate.io</Link>
