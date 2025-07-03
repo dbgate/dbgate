@@ -42,5 +42,5 @@ module.exports = {
     return null;
   },
 
-  markUserAsActive(licenseKey) {},
+  markUserAsActive(licenseUid) {},
 };
