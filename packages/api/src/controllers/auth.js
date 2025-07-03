@@ -130,6 +130,7 @@ module.exports = {
               login: 'superadmin',
               permissions: await storage.loadSuperadminPermissions(),
               roleId: -3,
+              licenseUid: `superadmin`,
             },
             getTokenSecret(),
             {
