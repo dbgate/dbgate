@@ -1,9 +1,10 @@
 <script context="module" lang="ts">
-  export async function saveScriptToDatabase({ conid, database }, sql, syncModel = true) {
+  export async function saveScriptToDatabase({ conid, database }, sql, syncModel = true, logMessage = null) {
     const resp = await apiCall('database-connections/run-script', {
       conid,
       database,
       sql,
+      logMessage,
     });
 
     const { errorMessage } = resp || {};

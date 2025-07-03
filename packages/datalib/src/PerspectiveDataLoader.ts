@@ -153,6 +153,7 @@ export class PerspectiveDataLoader {
         pureName,
         aggregate,
       },
+      auditLogSessionGroup: 'perspective',
     });
 
     if (response.errorMessage) return response;
@@ -286,6 +287,7 @@ export class PerspectiveDataLoader {
       conid: props.databaseConfig.conid,
       database: props.databaseConfig.database,
       options,
+      auditLogSessionGroup: 'perspective',
     });
 
     if (response.errorMessage) return response;
@@ -359,6 +361,7 @@ export class PerspectiveDataLoader {
       conid: props.databaseConfig.conid,
       database: props.databaseConfig.database,
       options,
+      auditLogSessionGroup: 'perspective',
     });
 
     return response;

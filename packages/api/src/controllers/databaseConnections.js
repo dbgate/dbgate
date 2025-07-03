@@ -267,7 +267,9 @@ module.exports = {
                   schemaName: select?.from?.name?.schemaName,
                   pureName: select?.from?.name?.pureName,
                   sumint1: response?.rows?.length,
-                  sessionParam: `${select?.from?.name?.schemaName || '0'}::${select?.from?.name?.pureName}`,
+                  sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${
+                    select?.from?.name?.pureName
+                  }`,
                   sessionGroup: auditLogSessionGroup,
                   message: `Loaded table data from ${select?.from?.name?.pureName}`,
                 });
@@ -279,10 +281,22 @@ module.exports = {
   },
 
   runScript_meta: true,
-  async runScript({ conid, database, sql, useTransaction }, req) {
+  async runScript({ conid, database, sql, useTransaction, logMessage }, req) {
     testConnectionPermission(conid, req);
     logger.info({ conid, database, sql }, 'Processing script');
     const opened = await this.ensureOpened(conid, database);
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'DatabaseConnectionsController',
+      event: 'sql.runscript',
+      action: 'runscript',
+      severity: 'info',
+      conid,
+      database,
+      detail: sql,
+      message: logMessage || `Running SQL script`,
+    });
+
     const res = await this.sendRequest(opened, { msgtype: 'runScript', sql, useTransaction });
     return res;
   },
@@ -291,16 +305,53 @@ module.exports = {
   async runOperation({ conid, database, operation, useTransaction }, req) {
     testConnectionPermission(conid, req);
     logger.info({ conid, database, operation }, 'Processing operation');
+
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'DatabaseConnectionsController',
+      event: 'sql.runoperation',
+      action: operation.type,
+      severity: 'info',
+      conid,
+      database,
+      detail: operation,
+      message: `Running DB operation: ${operation.type}`,
+    });
+
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'runOperation', operation, useTransaction });
     return res;
   },
 
   collectionData_meta: true,
-  async collectionData({ conid, database, options }, req) {
+  async collectionData({ conid, database, options, auditLogSessionGroup }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'collectionData', options });
+    const res = await this.sendRequest(
+      opened,
+      { msgtype: 'collectionData', options },
+      {
+        auditLogger:
+          auditLogSessionGroup && options?.pureName
+            ? response => {
+                sendToAuditLog(req, {
+                  category: 'dbop',
+                  component: 'DatabaseConnectionsController',
+                  event: 'nosql.collectionData',
+                  action: 'select',
+                  severity: 'info',
+                  conid,
+                  database,
+                  pureName: options?.pureName,
+                  sumint1: response?.result?.rows?.length,
+                  sessionParam: `${conid}::${database}::${options?.pureName}`,
+                  sessionGroup: auditLogSessionGroup,
+                  message: `Loaded collection data ${options?.pureName}`,
+                });
+              }
+            : null,
+      }
+    );
     return res.result || null;
   },
 
@@ -532,7 +583,7 @@ module.exports = {
       database,
       sessionParam: `${conid}::${database}`,
       sessionGroup: 'getStructure',
-      message: `Loaded database structure for ${database}`
+      message: `Loaded database structure for ${database}`,
     });
 
     return opened.structure;
