@@ -32,7 +32,7 @@ module.exports = {
   },
 
   sendAuditLog_meta: true,
-  async sendAuditLog({  }) {
+  async sendAuditLog({}) {
     return null;
   },
 
@@ -41,4 +41,6 @@ module.exports = {
   async getUsedEngines() {
     return null;
   },
+
+  markUserAsActive(licenseKey) {},
 };
