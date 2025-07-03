@@ -21,6 +21,7 @@ const {
 } = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { isLoginLicensed, LOGIN_LIMIT_ERROR } = require('../utility/loginchecker');
 
 const logger = getLogger('auth');
 
@@ -110,6 +111,10 @@ module.exports = {
         adminPassword = decryptPasswordString(adminConfig?.adminPassword);
       }
       if (adminPassword && adminPassword == password) {
+        if (!(await isLoginLicensed(req, `superadmin`))) {
+          return { error: LOGIN_LIMIT_ERROR };
+        }
+
         sendToAuditLog(req, {
           category: 'auth',
           component: 'AuthController',
