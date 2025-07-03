@@ -16,6 +16,7 @@ const dialect = {
   changeColumnDependencies: ['dependencies', 'primaryKeys', 'indexes', 'uniques'],
   renameColumnDependencies: ['dependencies', 'foreignKeys', 'uniques'],
   defaultValueBeforeNullability: true,
+  useServerDatabaseFile: true,
 
   quoteIdentifier(s) {
     return `"${s}"`;
