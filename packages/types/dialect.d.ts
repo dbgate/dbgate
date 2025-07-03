@@ -21,6 +21,7 @@ export interface SqlDialect {
   enableForeignKeyChecks?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
+  useServerDatabaseFile?: boolean;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
