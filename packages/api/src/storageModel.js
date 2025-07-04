@@ -258,6 +258,9 @@ module.exports = {
           "name": "Local",
           "type": "local"
         }
+      ],
+      "preloadedRowsInsertOnly": [
+        "is_disabled"
       ]
     },
     {
