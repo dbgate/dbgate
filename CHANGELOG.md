@@ -8,7 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.5.5 - not released
+## 6.5.5
+- ADDED: Administer cloud folder window
+- CHANGED: Cloud menu redesign
 - ADDED: Audit log (for Team Premium edition)
 - ADDED: Added new timeline chart type (line chart with time axis)
 - ADDED: Chart grouping (more measure determined from data)
@@ -17,6 +19,8 @@ Builds:
 - FIXED: Fixed chart displaying problems
 - FIXED: Fixed exporting chart to HTML
 - CHANGED: Choose COUNT measure without selecting underlying ID field (use virtual __count)
+- FIXED: Problems with authentification administration, especially for Postgres storage
+- CHANGED: Anonymous autentification (in Team Premium) is now by default disabled 
 
 ## 6.5.3
 - CHANGED: Improved DbGate Cloud sign-in workflow
