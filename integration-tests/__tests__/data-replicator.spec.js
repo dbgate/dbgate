@@ -176,11 +176,11 @@ describe('Data replicator', () => {
         await queryValue(
           `select ~is_disabled as ~val from ~auth_methods where ~amoid='790ca4d2-7f01-4800-955b-d691b890cc50'`
         )
-      ).toBeFalsy();
+      ).toBeTruthy();
 
       const DB1 = {
         auth_methods: [
-          { id: -1, name: 'Anonymous', amoid: '790ca4d2-7f01-4800-955b-d691b890cc50', is_disabled: 1 },
+          { id: -1, name: 'Anonymous', amoid: '790ca4d2-7f01-4800-955b-d691b890cc50', is_disabled: 0 },
           { id: 10, name: 'OAuth', amoid: '4269b660-54b6-11ef-a3aa-a9021250bf4b' },
         ],
         auth_methods_config: [{ id: 20, auth_method_id: 10, key: 'oauthClient', value: 'dbgate' }],
@@ -266,7 +266,7 @@ describe('Data replicator', () => {
         await queryValue(
           `select ~is_disabled as ~val from ~auth_methods where ~amoid='790ca4d2-7f01-4800-955b-d691b890cc50'`
         )
-      ).toBeTruthy();
+      ).toEqual('0');
 
       expect(await queryValue(`select count(*) as ~val from ~auth_methods`)).toEqual('3');
       expect(await queryValue(`select count(*) as ~val from ~auth_methods_config`)).toEqual('1');
