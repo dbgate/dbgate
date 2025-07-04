@@ -249,7 +249,8 @@ module.exports = {
           "id": -1,
           "amoid": "790ca4d2-7f01-4800-955b-d691b890cc50",
           "name": "Anonymous",
-          "type": "none"
+          "type": "none",
+          "is_disabled": 1
         },
         {
           "id": -2,
@@ -679,49 +680,6 @@ module.exports = {
       }
     },
     {
-      "pureName": "roles",
-      "columns": [
-        {
-          "pureName": "roles",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "roles",
-          "columnName": "name",
-          "dataType": "varchar(250)",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "roles",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_roles",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      },
-      "preloadedRows": [
-        {
-          "id": -1,
-          "name": "anonymous-user"
-        },
-        {
-          "id": -2,
-          "name": "logged-user"
-        },
-        {
-          "id": -3,
-          "name": "superadmin"
-        }
-      ]
-    },
-    {
       "pureName": "role_connections",
       "columns": [
         {
@@ -833,45 +791,47 @@ module.exports = {
       }
     },
     {
-      "pureName": "users",
+      "pureName": "roles",
       "columns": [
         {
-          "pureName": "users",
+          "pureName": "roles",
           "columnName": "id",
           "dataType": "int",
           "autoIncrement": true,
           "notNull": true
         },
         {
-          "pureName": "users",
-          "columnName": "login",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "password",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "email",
+          "pureName": "roles",
+          "columnName": "name",
           "dataType": "varchar(250)",
           "notNull": false
         }
       ],
       "foreignKeys": [],
       "primaryKey": {
-        "pureName": "users",
+        "pureName": "roles",
         "constraintType": "primaryKey",
-        "constraintName": "PK_users",
+        "constraintName": "PK_roles",
         "columns": [
           {
             "columnName": "id"
           }
         ]
-      }
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "anonymous-user"
+        },
+        {
+          "id": -2,
+          "name": "logged-user"
+        },
+        {
+          "id": -3,
+          "name": "superadmin"
+        }
+      ]
     },
     {
       "pureName": "user_connections",
@@ -1039,6 +999,47 @@ module.exports = {
         "pureName": "user_roles",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "users",
+      "columns": [
+        {
+          "pureName": "users",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "users",
+          "columnName": "login",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "password",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "email",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "users",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_users",
         "columns": [
           {
             "columnName": "id"
