@@ -40,6 +40,12 @@ function getLicenseHttpHeaders() {
   return {};
 }
 
+async function tryToGetRefreshedLicense(oldLicenseKey) {
+  return {
+    status: 'error',
+  };
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -52,4 +58,5 @@ module.exports = {
   callCompleteOnCursorApi,
   callRefactorSqlQueryApi,
   getLicenseHttpHeaders,
+  tryToGetRefreshedLicense,
 };
