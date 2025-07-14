@@ -21,7 +21,13 @@ const {
 } = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
 const { sendToAuditLog } = require('../utility/auditlog');
-const { isLoginLicensed, LOGIN_LIMIT_ERROR } = require('../utility/loginchecker');
+const {
+  isLoginLicensed,
+  LOGIN_LIMIT_ERROR,
+  markTokenAsLoggedIn,
+  markUserAsActive,
+  markLoginAsLoggedOut,
+} = require('../utility/loginchecker');
 
 const logger = getLogger('auth');
 
@@ -79,7 +85,7 @@ function authMiddleware(req, res, next) {
   try {
     const decoded = jwt.verify(token, getTokenSecret());
     req.user = decoded;
-    storage.markUserAsActive(decoded.licenseUid);
+    markUserAsActive(decoded.licenseUid, token);
 
     return next();
   } catch (err) {
@@ -124,19 +130,23 @@ module.exports = {
           message: 'Administration login successful',
         });
 
+        const licenseUid = `superadmin`;
+        const accessToken = jwt.sign(
+          {
+            login: 'superadmin',
+            permissions: await storage.loadSuperadminPermissions(),
+            roleId: -3,
+            licenseUid,
+          },
+          getTokenSecret(),
+          {
+            expiresIn: getTokenLifetime(),
+          }
+        );
+        markTokenAsLoggedIn(licenseUid, accessToken);
+
         return {
-          accessToken: jwt.sign(
-            {
-              login: 'superadmin',
-              permissions: await storage.loadSuperadminPermissions(),
-              roleId: -3,
-              licenseUid: `superadmin`,
-            },
-            getTokenSecret(),
-            {
-              expiresIn: getTokenLifetime(),
-            }
-          ),
+          accessToken,
         };
       }
 
@@ -190,6 +200,18 @@ module.exports = {
   async cloudTestLogin({ email }) {
     const tokenHolder = await readCloudTestTokenHolder(email);
     return tokenHolder;
+  },
+
+  logoutAdmin_meta: true,
+  async logoutAdmin() {
+    await markLoginAsLoggedOut('superadmin');
+    return true;
+  },
+
+  logoutUser_meta: true,
+  async logoutUser({}, req) {
+    await markLoginAsLoggedOut(req?.user?.licenseUid);
+    return true;
   },
 
   authMiddleware,

@@ -311,9 +311,11 @@ export async function doLogout() {
   const category = getAuthCategory(config);
 
   if (category == 'admin') {
+    await apiCall('auth/logout-admin');
     localStorage.removeItem('adminAccessToken');
     internalRedirectTo('/admin-login.html?is-admin=true');
   } else if (category == 'token') {
+    await apiCall('auth/logout-user');
     localStorage.removeItem('accessToken');
     if (config.logoutUrl) {
       window.location.href = config.logoutUrl;
