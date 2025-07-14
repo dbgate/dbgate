@@ -209,7 +209,7 @@ module.exports = {
   },
 
   saveLicenseKey_meta: true,
-  async saveLicenseKey({ licenseKey, forceSave = false }) {
+  async saveLicenseKey({ licenseKey, forceSave = false, tryToRenew = false }) {
     if (!forceSave) {
       const decoded = jwt.decode(licenseKey?.trim());
       if (!decoded) {
@@ -221,10 +221,21 @@ module.exports = {
 
       const { exp } = decoded;
       if (exp * 1000 < Date.now()) {
-        return {
-          status: 'error',
-          errorMessage: 'License key is expired',
-        };
+        let renewed = false;
+        if (tryToRenew) {
+          const newLicenseKey = await tryToGetRefreshedLicense(licenseKey);
+          if (newLicenseKey.status == 'ok') {
+            licenseKey = newLicenseKey.token;
+            renewed = true;
+          }
+        }
+
+        if (!renewed) {
+          return {
+            status: 'error',
+            errorMessage: 'License key is expired',
+          };
+        }
       }
     }
 
