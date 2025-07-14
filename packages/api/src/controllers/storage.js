@@ -41,6 +41,4 @@ module.exports = {
   async getUsedEngines() {
     return null;
   },
-
-  markUserAsActive(licenseUid) {},
 };
