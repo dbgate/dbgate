@@ -528,7 +528,27 @@ ORDER BY
                   <div>License key expiration: <b>{safeFormatDate(licenseKeyCheckResult.expiration)}</b></div>
                 {/if}
               {:else if licenseKeyCheckResult.status == 'error'}
-                <FontIcon icon="img error" /> License key is invalid
+                <div>
+                  <FontIcon icon="img error" />
+                  {licenseKeyCheckResult.errorMessage ?? 'License key is invalid'}
+                  {#if licenseKeyCheckResult.expiration}
+                    <div>License key expiration: <b>{safeFormatDate(licenseKeyCheckResult.expiration)}</b></div>
+                  {/if}
+                </div>
+                {#if licenseKeyCheckResult.isExpired}
+                  <div class="mt-2">
+                    <FormStyledButton
+                      value="Check for new license key"
+                      skipWidth
+                      on:click={async () => {
+                        licenseKeyCheckResult = await apiCall('config/get-new-license', { oldLicenseKey: licenseKey });
+                        if (licenseKeyCheckResult.licenseKey) {
+                          apiCall('config/update-settings', { 'other.licenseKey': licenseKeyCheckResult.licenseKey });
+                        }
+                      }}
+                    />
+                  </div>
+                {/if}
               {/if}
             </div>
           {/if}

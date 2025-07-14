@@ -16,7 +16,7 @@ const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
-const { getAuthProxyUrl } = require('../utility/authProxy');
+const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
 const {
@@ -191,6 +191,7 @@ module.exports = {
         return {
           ...this.fillMissingSettings(JSON.parse(settingsText)),
           'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
+          // 'other.licenseKey': await this.loadLicenseKey(),
         };
       }
     } catch (err) {
@@ -208,21 +209,23 @@ module.exports = {
   },
 
   saveLicenseKey_meta: true,
-  async saveLicenseKey({ licenseKey }) {
-    const decoded = jwt.decode(licenseKey?.trim());
-    if (!decoded) {
-      return {
-        status: 'error',
-        errorMessage: 'Invalid license key',
-      };
-    }
+  async saveLicenseKey({ licenseKey, forceSave = false }) {
+    if (!forceSave) {
+      const decoded = jwt.decode(licenseKey?.trim());
+      if (!decoded) {
+        return {
+          status: 'error',
+          errorMessage: 'Invalid license key',
+        };
+      }
 
-    const { exp } = decoded;
-    if (exp * 1000 < Date.now()) {
-      return {
-        status: 'error',
-        errorMessage: 'License key is expired',
-      };
+      const { exp } = decoded;
+      if (exp * 1000 < Date.now()) {
+        return {
+          status: 'error',
+          errorMessage: 'License key is expired',
+        };
+      }
     }
 
     try {
@@ -297,7 +300,7 @@ module.exports = {
           // this.settingsValue = updated;
 
           if (currentValue['other.licenseKey'] != values['other.licenseKey']) {
-            await this.saveLicenseKey({ licenseKey: values['other.licenseKey'] });
+            await this.saveLicenseKey({ licenseKey: values['other.licenseKey'], forceSave: true });
             socket.emitChanged(`config-changed`);
           }
         }
@@ -325,6 +328,16 @@ module.exports = {
   async checkLicense({ licenseKey }) {
     const resp = await checkLicenseKey(licenseKey);
     return resp;
+  },
+
+  getNewLicense_meta: true,
+  async getNewLicense({ oldLicenseKey }) {
+    const newLicenseKey = await tryToGetRefreshedLicense(oldLicenseKey);
+    const res = await checkLicenseKey(newLicenseKey.token);
+    if (res.status == 'ok') {
+      res.licenseKey = newLicenseKey.token;
+    }
+    return res;
   },
 
   recryptDatabaseForExport(db) {
