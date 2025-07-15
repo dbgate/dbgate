@@ -24,4 +24,28 @@ describe('Charts', () => {
     cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
     cy.themeshot('choose-detected-chart');
   });
+
+  it('Two line charts', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.wait(1000);
+    cy.get('body').realType('SELECT InvoiceDate, Total from Invoice');
+    cy.contains('Execute').click();
+    cy.contains('Open chart').click();
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('two-line-charts');
+  });
+
+  it('Invoice naive autodetection', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.wait(1000);
+    cy.get('body').realType('SELECT * from Invoice');
+    cy.contains('Execute').click();
+    cy.contains('Open chart').click();
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('chart-naive-autodetection');
+  });
 });

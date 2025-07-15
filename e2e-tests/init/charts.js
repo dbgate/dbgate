@@ -18,6 +18,42 @@ async function copyFolder(source, target) {
   }
 }
 
+async function initMySqlDatabase(dbname, inputFile) {
+  await dbgateApi.executeQuery({
+    connection: {
+      server: process.env.SERVER_mysql,
+      user: process.env.USER_mysql,
+      password: process.env.PASSWORD_mysql,
+      port: process.env.PORT_mysql,
+      engine: 'mysql@dbgate-plugin-mysql',
+    },
+    sql: `drop database if exists ${dbname}`,
+  });
+
+  await dbgateApi.executeQuery({
+    connection: {
+      server: process.env.SERVER_mysql,
+      user: process.env.USER_mysql,
+      password: process.env.PASSWORD_mysql,
+      port: process.env.PORT_mysql,
+      engine: 'mysql@dbgate-plugin-mysql',
+    },
+    sql: `create database ${dbname}`,
+  });
+
+  await dbgateApi.importDatabase({
+    connection: {
+      server: process.env.SERVER_mysql,
+      user: process.env.USER_mysql,
+      password: process.env.PASSWORD_mysql,
+      port: process.env.PORT_mysql,
+      database: dbname,
+      engine: 'mysql@dbgate-plugin-mysql',
+    },
+    inputFile,
+  });
+}
+
 async function run() {
   const connection = {
     server: process.env.SERVER_mysql,
@@ -53,6 +89,8 @@ async function run() {
     path.resolve(path.join(__dirname, '../data/files/sql')),
     path.join(baseDir, 'files-e2etests', 'sql')
   );
+
+  await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
 }
 
 dbgateApi.runScript(run);
