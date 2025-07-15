@@ -353,6 +353,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import NewObjectModal from '../modals/NewObjectModal.svelte';
 
   export let multiTabIndex;
   export let shownTab;
@@ -716,7 +717,7 @@
     {/if}
     <div
       class="icon-button"
-      on:click={() => newQuery({ multiTabIndex })}
+      on:click={() => showModal(NewObjectModal, { multiTabIndex })}
       title="New query"
       data-testid="TabsPanel_buttonNewQuery"
     >

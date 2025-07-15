@@ -17,6 +17,8 @@
   import { openWebLink } from '../utility/simpleTools';
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
+  import { showModal } from '../modals/modalTools';
+  import NewObjectModal from '../modals/NewObjectModal.svelte';
 
   let domSettings;
   let domCloudAccount;
@@ -170,6 +172,15 @@
       {/if}
     </div>
   {/each}
+
+  <div
+    class="wrapper"
+    on:click={() => showModal(NewObjectModal)}
+    data-testid="WidgetIconPanel_addButton"
+    title="Add New"
+  >
+    <FontIcon icon="icon add" />
+  </div>
 
   <div class="flex1">&nbsp;</div>
 
