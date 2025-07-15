@@ -48,4 +48,25 @@ describe('Charts', () => {
     cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
     cy.themeshot('chart-naive-autodetection');
   });
+
+  it('Invoice by country - grouped chart', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.wait(1000);
+    cy.get('body').realType('SELECT InvoiceDate, Total, BillingCountry from Invoice where BillingCountry in (\'USA\', \'Canada\', \'Brazil\', \'France\', \'Germany\')');
+    cy.contains('Execute').click();
+    cy.contains('Open chart').click();
+    cy.testid('ChartSelector_chart_1').click();
+    cy.testid('JslChart_customizeButton').click();
+
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('chart-grouped-autodetected');
+
+    cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Bar');
+    cy.testid('ChartDefinitionEditor_xAxisTransformSelect').select('Date (Year)');
+
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('chart-grouped-bars');
+  });
 });
