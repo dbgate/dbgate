@@ -3,7 +3,7 @@
 
   registerFileCommands({
     idPrefix: 'impexp',
-    category: 'Impoirt & Export',
+    category: 'Import & Export',
     getCurrentEditor,
     folder: 'impexp',
     format: 'json',
