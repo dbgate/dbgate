@@ -412,7 +412,7 @@ export class ChartProcessor {
     }
     const ratioLimit = chart.definition.pieRatioLimit ?? ChartLimits.PIE_RATIO_LIMIT;
     let countLimit = chart.definition.pieCountLimit ?? ChartLimits.PIE_COUNT_LIMIT;
-    if (!countLimit || countLimit <= 1 || countLimit > ChartLimits.MAX_PIE_COUNT_LIMIT) {
+    if (!countLimit || countLimit < 1 || countLimit > ChartLimits.MAX_PIE_COUNT_LIMIT) {
       countLimit = ChartLimits.MAX_PIE_COUNT_LIMIT; // limit to max pie count
     }
     // if (ratioLimit == 0 && countLimit == 0) {
