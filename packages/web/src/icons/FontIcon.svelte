@@ -334,6 +334,9 @@
     'img db-restore': 'mdi mdi-database-import color-icon-red',
     'img settings': 'mdi mdi-cog color-icon-blue',
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
+
+    'img new-sql-file': 'mdi mdi-file color-icon-blue',
+    'img new-connection': 'mdi mdi-connection color-icon-yellow',
   };
 </script>
 

@@ -485,4 +485,10 @@ export const currentActiveCloudTags = derived(currentDatabase, $currentDatabase 
   return res;
 });
 
+let cloudSigninTokenHolderValue = null;
+cloudSigninTokenHolder.subscribe(value => {
+  cloudSigninTokenHolderValue = value;
+});
+export const getCloudSigninTokenHolder = () => cloudSigninTokenHolderValue;
+
 window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

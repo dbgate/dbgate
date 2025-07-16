@@ -5,6 +5,7 @@ import {
   emptyConnectionGroupNames,
   extensions,
   getAppUpdaterActive,
+  getCloudSigninTokenHolder,
   getExtensions,
   getVisibleToolbar,
   visibleToolbar,
@@ -132,7 +133,8 @@ registerCommand({
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection on Cloud',
-  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
+  testEnabled: () =>
+    !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && !!getCloudSigninTokenHolder(),
   onClick: () => {
     openNewTab({
       title: 'New Connection on Cloud',
