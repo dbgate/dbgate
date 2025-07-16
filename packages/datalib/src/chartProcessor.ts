@@ -407,14 +407,17 @@ export class ChartProcessor {
     ];
   }
   groupPieOtherBuckets(chart: ProcessedChart) {
-    if (chart.definition.chartType !== 'pie') {
+    if (chart.definition.chartType != 'pie' && chart.definition.chartType != 'polarArea') {
       return; // only for pie charts
     }
     const ratioLimit = chart.definition.pieRatioLimit ?? ChartLimits.PIE_RATIO_LIMIT;
-    const countLimit = chart.definition.pieCountLimit ?? ChartLimits.PIE_COUNT_LIMIT;
-    if (ratioLimit == 0 && countLimit == 0) {
-      return; // no grouping if limit is 0
+    let countLimit = chart.definition.pieCountLimit ?? ChartLimits.PIE_COUNT_LIMIT;
+    if (!countLimit || countLimit <= 1 || countLimit > ChartLimits.MAX_PIE_COUNT_LIMIT) {
+      countLimit = ChartLimits.MAX_PIE_COUNT_LIMIT; // limit to max pie count
     }
+    // if (ratioLimit == 0 && countLimit == 0) {
+    //   return; // no grouping if limit is 0
+    // }
     const otherBucket: any = {};
     let newBuckets: any = {};
     const cardSum = _sum(Object.values(chart.buckets).map(bucket => computeChartBucketCardinality(bucket)));
