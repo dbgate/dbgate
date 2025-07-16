@@ -10,7 +10,7 @@
   $: disabled = !enabled;
 </script>
 
-<div class="new-object-button" on:click class:enabled class:disabled>
+<div class="new-object-button" on:click class:enabled class:disabled data-testid={$$props['data-testid']}>
   <div class="icon">
     <FontIcon {icon} colorClass={enabled ? colorClass : null} />
   </div>

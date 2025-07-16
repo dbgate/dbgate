@@ -17,6 +17,7 @@
       action: () => {
         newQuery({ multiTabIndex });
       },
+      testid: 'NewObjectModal_query',
     },
     {
       icon: 'icon connection',
@@ -25,6 +26,7 @@
       description: 'Database connection stored locally',
       command: 'new.connection',
       changeWidget: 'database',
+      testid: 'NewObjectModal_connection',
     },
     {
       icon: 'icon cloud-connection',
@@ -33,6 +35,7 @@
       description: 'Database connection stored on DbGate Cloud',
       command: 'new.connectionOnCloud',
       changeWidget: 'cloud-private',
+      testid: 'NewObjectModal_connectionOnCloud',
     },
     {
       icon: 'icon query-design',
@@ -40,6 +43,7 @@
       title: 'Query Designer',
       description: 'Design SQL queries visually',
       command: 'new.queryDesign',
+      testid: 'NewObjectModal_queryDesign',
     },
     {
       icon: 'icon diagram',
@@ -47,6 +51,7 @@
       title: 'ER Diagram',
       description: 'Visualize database structure',
       command: 'new.diagram',
+      testid: 'NewObjectModal_diagram',
     },
     {
       icon: 'icon perspective',
@@ -54,6 +59,7 @@
       title: 'Perspective',
       description: 'Join complex data from multiple databases',
       command: 'new.perspective',
+      testid: 'NewObjectModal_perspective',
     },
     {
       icon: 'icon table',
@@ -61,6 +67,7 @@
       title: 'Table',
       description: 'Create table in the current database',
       command: 'new.table',
+      testid: 'NewObjectModal_table',
     },
     {
       icon: 'icon sql-generator',
@@ -68,6 +75,7 @@
       title: 'SQL Generator',
       description: 'Generate SQL scripts for database objects',
       command: 'sql.generator',
+      testid: 'NewObjectModal_sqlGenerator',
     },
   ];
 </script>
@@ -83,8 +91,10 @@
         description={item.description}
         {enabled}
         colorClass={item.colorClass}
+        data-testid={item.testid}
         on:click={() => {
           if (!enabled) return;
+          closeCurrentModal();
           if (item.action) {
             item.action();
           } else if (item.command) {
@@ -93,7 +103,6 @@
           if (item.changeWidget) {
             $selectedWidget = item.changeWidget;
           }
-          closeCurrentModal();
         }}
       />
     {/each}
