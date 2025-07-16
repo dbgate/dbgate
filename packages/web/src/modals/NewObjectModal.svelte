@@ -66,6 +66,7 @@
       description: 'Join complex data from multiple databases',
       command: 'new.perspective',
       testid: 'NewObjectModal_perspective',
+      isProFeature: true,
     },
     {
       icon: 'icon table',
@@ -102,6 +103,7 @@
       command: 'database.compare',
       testid: 'NewObjectModal_databaseCompare',
       disabledMessage: 'Database comparison is not available for current database',
+      isProFeature: true,
     },
   ];
 </script>
