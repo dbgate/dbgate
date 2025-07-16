@@ -3,6 +3,7 @@
   import runCommand from '../commands/runCommand';
   import newQuery from '../query/newQuery';
   import { commandsCustomized, selectedWidget } from '../stores';
+  import { isProApp } from '../utility/proTools';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
@@ -27,6 +28,7 @@
       command: 'new.connection',
       changeWidget: 'database',
       testid: 'NewObjectModal_connection',
+      disabledMessage: 'You are not allowed to create new connections',
     },
     {
       icon: 'icon cloud-connection',
@@ -36,6 +38,7 @@
       command: 'new.connectionOnCloud',
       changeWidget: 'cloud-private',
       testid: 'NewObjectModal_connectionOnCloud',
+      disabledMessage: 'For creating connections on DbGate Cloud, you need to be logged in',
     },
     {
       icon: 'icon query-design',
@@ -44,6 +47,8 @@
       description: 'Design SQL queries visually',
       command: 'new.queryDesign',
       testid: 'NewObjectModal_queryDesign',
+      disabledMessage: 'Query Designer is not available for current database',
+      isProFeature: true,
     },
     {
       icon: 'icon diagram',
@@ -52,6 +57,7 @@
       description: 'Visualize database structure',
       command: 'new.diagram',
       testid: 'NewObjectModal_diagram',
+      disabledMessage: 'ER Diagram is not available for current database',
     },
     {
       icon: 'icon perspective',
@@ -68,6 +74,7 @@
       description: 'Create table in the current database',
       command: 'new.table',
       testid: 'NewObjectModal_table',
+      disabledMessage: 'Table creation is not available for current database',
     },
     {
       icon: 'icon sql-generator',
@@ -76,6 +83,7 @@
       description: 'Generate SQL scripts for database objects',
       command: 'sql.generator',
       testid: 'NewObjectModal_sqlGenerator',
+      disabledMessage: 'SQL Generator is not available for current database',
     },
     {
       icon: 'icon export',
@@ -84,6 +92,7 @@
       description: 'Export to file like CSV, JSON, Excel, or other DB',
       command: 'database.export',
       testid: 'NewObjectModal_databaseExport',
+      disabledMessage: 'Export is not available for current database',
     },
     {
       icon: 'icon compare',
@@ -92,6 +101,7 @@
       description: 'Compare database schemas',
       command: 'database.compare',
       testid: 'NewObjectModal_databaseCompare',
+      disabledMessage: 'Database comparison is not available for current database',
     },
   ];
 </script>
@@ -108,6 +118,8 @@
         {enabled}
         colorClass={item.colorClass}
         data-testid={item.testid}
+        disabledMessage={item.disabledMessage}
+        isProFeature={item.isProFeature}
         on:click={() => {
           if (!enabled) return;
           closeCurrentModal();

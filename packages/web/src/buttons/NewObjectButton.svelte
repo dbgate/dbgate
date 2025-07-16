@@ -1,16 +1,30 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
+  import { isProApp } from '../utility/proTools';
 
   export let icon;
   export let title;
   export let description;
   export let enabled;
   export let colorClass;
+  export let disabledMessage = undefined;
+  export let isProFeature;
 
   $: disabled = !enabled;
 </script>
 
-<div class="new-object-button" on:click class:enabled class:disabled data-testid={$$props['data-testid']}>
+<div
+  class="new-object-button"
+  on:click
+  class:enabled
+  class:disabled
+  data-testid={$$props['data-testid']}
+  title={disabled
+    ? isProFeature && !isProApp()
+      ? 'This feature is available only in DbGate Premium'
+      : disabledMessage
+    : undefined}
+>
   <div class="icon">
     <FontIcon {icon} colorClass={enabled ? colorClass : null} />
   </div>
