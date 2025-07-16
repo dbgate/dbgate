@@ -67,6 +67,11 @@ function authMiddleware(req, res, next) {
 
   // const isAdminPage = req.headers['x-is-admin-page'] == 'true';
 
+  if (process.env.SKIP_ALL_AUTH) {
+    // API is not authorized for basic auth
+    return next();
+  }
+
   if (process.env.BASIC_AUTH) {
     // API is not authorized for basic auth
     return next();

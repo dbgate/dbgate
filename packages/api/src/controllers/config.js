@@ -109,6 +109,7 @@ module.exports = {
       ),
       isAdminPasswordMissing,
       isInvalidToken: req?.isInvalidToken,
+      skipAllAuth: !!process.env.SKIP_ALL_AUTH,
       adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),

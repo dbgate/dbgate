@@ -307,6 +307,9 @@ export function getAuthCategory(config) {
   if (getElectron()) {
     return 'electron';
   }
+  if (config.skipAllAuth) {
+    return 'none';
+  }
   return 'token';
 }
 
