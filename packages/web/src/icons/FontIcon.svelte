@@ -31,6 +31,7 @@
   export let padLeft = false;
   export let padRight = false;
   export let style = null;
+  export let colorClass = null;
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -143,6 +144,7 @@
     'icon markdown': 'mdi mdi-application',
     'icon preview': 'mdi mdi-file-find',
     'icon eye': 'mdi mdi-eye',
+    'icon perspective': 'mdi mdi-eye',
     'icon auditlog': 'mdi mdi-eye',
     'icon check-all': 'mdi mdi-check-all',
     'icon checkbox-blank': 'mdi mdi-checkbox-blank-outline',
@@ -235,6 +237,8 @@
     'icon limit': 'mdi mdi-car-speed-limiter',
 
     'icon chart': 'mdi mdi-chart-bar',
+    'icon cloud-connection': 'mdi mdi-cloud-lock',
+    'icon diagram': 'mdi mdi-graph',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
@@ -334,14 +338,11 @@
     'img db-restore': 'mdi mdi-database-import color-icon-red',
     'img settings': 'mdi mdi-cog color-icon-blue',
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
-
-    'img new-sql-file': 'mdi mdi-file color-icon-blue',
-    'img new-connection': 'mdi mdi-connection color-icon-yellow',
   };
 </script>
 
 <span
-  class={iconNames[icon] || icon}
+  class={`${iconNames[icon] || icon} ${colorClass || ''}`}
   {title}
   class:padLeft
   class:padRight

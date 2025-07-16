@@ -23,4 +23,5 @@
   referenceComponent={DiagramDesignerReference}
   showColumnFilter={false}
   {columnFilter}
+  allowAddTablesButton
 />

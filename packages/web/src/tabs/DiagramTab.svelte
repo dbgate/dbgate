@@ -162,6 +162,7 @@
     <ToolStripCommandButton command="diagram.export" />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />
+    <ToolStripCommandButton command="diagram.deleteSelectedTables" />
     {#if isProApp()}
       <ToolStripButton
         icon="icon settings"
