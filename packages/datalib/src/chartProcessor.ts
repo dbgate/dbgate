@@ -330,7 +330,7 @@ export class ChartProcessor {
     this.availableColumns = Object.values(this.availableColumnsDict);
     for (const chart of this.chartsProcessing) {
       if (chart.errorMessage) {
-        this.charts.push(chart);
+        this.charts.push({ ...chart, availableColumns: this.availableColumns });
         continue;
       }
       let addedChart: ProcessedChart = chart;
