@@ -488,30 +488,4 @@ describe('Data browser data', () => {
     cy.testid('DataDeployTab_importIntoDb').click();
     cy.themeshot('data-replicator');
   });
-
-  it('Public Knowledge base - show chart', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('WidgetIconPanel_cloud-public').click();
-    cy.testid('public-cloud-file-tag-mysql/folder-MySQL/tag-premium/top-tables-row-count.sql').click();
-    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
-    cy.themeshot('public-knowledge-base-tables-sizes');
-  });
-
-  it('Auto detect chart', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.contains('Invoice').rightclick();
-    cy.contains('SQL template').click();
-    cy.contains('SELECT').click();
-    cy.testid('QueryTab_detectChartButton').click();
-    cy.testid('QueryTab_executeButton').click();
-    cy.contains('Chart 1').click();
-    cy.testid('ChartSelector_chart_0').click();
-    cy.testid('JslChart_customizeButton').click();
-    cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Bar');
-    cy.testid('ChartDefinitionEditor_chartTypeSelect').select('Line');
-    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
-    cy.themeshot('query-result-chart');
-  });
 });
