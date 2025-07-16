@@ -85,6 +85,14 @@
       command: 'database.export',
       testid: 'NewObjectModal_databaseExport',
     },
+    {
+      icon: 'icon compare',
+      colorClass: 'color-icon-red',
+      title: 'Compare database',
+      description: 'Compare database schemas',
+      command: 'database.compare',
+      testid: 'NewObjectModal_databaseCompare',
+    },
   ];
 </script>
 

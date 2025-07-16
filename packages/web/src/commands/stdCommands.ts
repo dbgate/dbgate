@@ -682,6 +682,40 @@ registerCommand({
   },
 });
 
+if (isProApp()) {
+  registerCommand({
+    id: 'database.compare',
+    category: 'Database',
+    name: 'Compare databases',
+    toolbar: true,
+    icon: 'icon compare',
+    testEnabled: () =>
+      getCurrentDatabase() != null &&
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+    onClick: () => {
+      openNewTab(
+        {
+          title: 'Compare',
+          icon: 'img compare',
+          tabComponent: 'CompareModelTab',
+          props: {
+            conid: getCurrentDatabase()?.connection?._id,
+            database: getCurrentDatabase()?.name,
+          },
+        },
+        {
+          editor: {
+            sourceConid: getCurrentDatabase()?.connection?._id,
+            sourceDatabase: getCurrentDatabase()?.name,
+            targetConid: getCurrentDatabase()?.connection?._id,
+            targetDatabase: getCurrentDatabase()?.name,
+          },
+        }
+      );
+    },
+  });
+}
+
 if (hasPermission('settings/change')) {
   registerCommand({
     id: 'settings.commands',

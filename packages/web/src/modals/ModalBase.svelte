@@ -118,7 +118,7 @@
 
   .window.simplefix {
     margin: auto;
-    max-width: 600px;
+    max-width: 750px;
     margin-top: 10vh;
   }
 
