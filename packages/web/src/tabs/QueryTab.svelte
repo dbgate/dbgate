@@ -131,7 +131,7 @@
   import { currentEditorWrapEnabled, extensions, getCurrentDatabase } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved, sleep } from '../utility/common';
-  import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -231,6 +231,8 @@
     }
     return getIntSettingsValue('sqlEditor.limitRows', null, 1);
   }
+
+  const settingsValue = useSettings();
 
   let queryRowsLimit = getInitialRowsLimit();
   $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
@@ -332,7 +334,7 @@
       ...driver.getQuerySplitterOptions('editor'),
       queryParameterStyle,
       allowDollarDollarString: false,
-      splitByEmptyLine: true,
+      splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
     };
   }
 
@@ -707,7 +709,10 @@
               engine={$connection && $connection.engine}
               {conid}
               {database}
-              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
               options={{
                 wrap: enableWrap,
               }}
@@ -737,7 +742,10 @@
             <AceEditor
               mode={driver?.editorMode || 'sql'}
               value={$editorState.value || ''}
-              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
               options={{
                 wrap: enableWrap,
               }}

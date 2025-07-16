@@ -279,7 +279,21 @@
     }
   }
 
+  $: {
+    splitterOptions;
+    closeQueryParserWorker();
+  }
   $: watchQueryParserWorker(splitterOptions && $tabVisible);
+
+  function closeQueryParserWorker() {
+    if (queryParserWorker) {
+      if (queryParserWorker != 'fallback') {
+        queryParserWorker.terminate();
+      }
+      queryParserWorker = null;
+    }
+  }
+
   function watchQueryParserWorker(enabled) {
     if (enabled) {
       if (!queryParserWorker) {

@@ -245,6 +245,12 @@ ORDER BY
             label="Show table aliases in code completion"
             defaultValue={false}
           />
+
+          <FormCheckboxField
+            name="sqlEditor.disableSplitByEmptyLine"
+            label="Disable split by empty line"
+            defaultValue={false}
+          />
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Connection</div>
