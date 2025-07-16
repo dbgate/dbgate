@@ -191,7 +191,8 @@ describe('Data browser data', () => {
   it('Query editor - join wizard', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
     cy.get('body').realType('select * from Invoice');
     cy.get('body').realPress('{enter}');
@@ -382,7 +383,8 @@ describe('Data browser data', () => {
   it('Query editor - AI assistant', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.testid('QueryTab_switchAiAssistantButton').click();
     cy.testid('QueryAiAssistant_allowSendToAiServiceButton').click();
     cy.testid('ConfirmModal_okButton').click();

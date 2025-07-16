@@ -28,7 +28,8 @@ describe('Charts', () => {
   it('Two line charts', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
     cy.get('body').realType('SELECT InvoiceDate, Total from Invoice');
     cy.contains('Execute').click();
@@ -40,7 +41,8 @@ describe('Charts', () => {
   it('Invoice naive autodetection', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
     cy.get('body').realType('SELECT * from Invoice');
     cy.contains('Execute').click();
@@ -52,7 +54,8 @@ describe('Charts', () => {
   it('Invoice by country - grouped chart', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
     cy.get('body').realType(
       "SELECT InvoiceDate, Total, BillingCountry from Invoice where BillingCountry in ('USA', 'Canada', 'Brazil', 'France', 'Germany')"

@@ -59,7 +59,8 @@ describe('Transactions', () => {
 
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
-    cy.testid('TabsPanel_buttonNewQuery').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
     cy.get('body').type(
       formatQueryWithoutParams(driver, "INSERT INTO ~categories (~category_id, ~category_name) VALUES (5, 'test');")

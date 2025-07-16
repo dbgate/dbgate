@@ -719,7 +719,7 @@
       class="icon-button"
       on:click={() => showModal(NewObjectModal, { multiTabIndex })}
       title="New query"
-      data-testid="TabsPanel_buttonNewQuery"
+      data-testid="TabsPanel_buttonNewObject"
     >
       <FontIcon icon="icon add" />
     </div>
