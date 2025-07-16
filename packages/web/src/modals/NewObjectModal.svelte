@@ -77,6 +77,14 @@
       command: 'sql.generator',
       testid: 'NewObjectModal_sqlGenerator',
     },
+    {
+      icon: 'icon export',
+      colorClass: 'color-icon-green',
+      title: 'Export database',
+      description: 'Export to file like CSV, JSON, Excel, or other DB',
+      command: 'database.export',
+      testid: 'NewObjectModal_databaseExport',
+    },
   ];
 </script>
 

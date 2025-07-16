@@ -654,12 +654,32 @@ registerCommand({
   name: 'SQL Generator',
   toolbar: true,
   icon: 'icon sql-generator',
-  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/sql-generator`),
+  testEnabled: () =>
+    getCurrentDatabase() != null &&
+    hasPermission(`dbops/sql-generator`) &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
   onClick: () =>
     showModal(SqlGeneratorModal, {
       conid: getCurrentDatabase()?.connection?._id,
       database: getCurrentDatabase()?.name,
     }),
+});
+
+registerCommand({
+  id: 'database.export',
+  category: 'Database',
+  name: 'Export database',
+  toolbar: true,
+  icon: 'icon export',
+  testEnabled: () => getCurrentDatabase() != null,
+  onClick: () => {
+    openImportExportTab({
+      targetStorageType: getDefaultFileFormat(getExtensions()).storageType,
+      sourceStorageType: 'database',
+      sourceConnectionId: getCurrentDatabase()?.connection?._id,
+      sourceDatabaseName: getCurrentDatabase()?.name,
+    });
+  },
 });
 
 if (hasPermission('settings/change')) {
