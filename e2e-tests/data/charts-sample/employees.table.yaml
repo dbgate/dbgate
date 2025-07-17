@@ -1,0 +1,28 @@
+name: employees
+columns:
+  - name: id
+    type: int
+    default: null
+    notNull: true
+  - name: name
+    type: varchar(100)
+    default: null
+    notNull: true
+  - name: email
+    type: varchar(100)
+    default: null
+    notNull: true
+  - name: hire_date
+    type: date
+    default: null
+    notNull: true
+  - name: department_id
+    type: int
+    default: null
+    references: departments
+primaryKey:
+  - id
+uniques:
+  - name: UQ__employee__AB6E6164E18D883F
+    columns:
+      - email

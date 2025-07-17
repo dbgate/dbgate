@@ -1,0 +1,6 @@
+{"__isStreamHeader":true,"pureName":"departments","schemaName":"dbo","objectId":1205579333,"createDate":"2025-06-12T10:30:34.083Z","modifyDate":"2025-06-12T10:30:34.120Z","contentHash":"2025-06-12T10:30:34.120Z","columns":[{"columnName":"id","dataType":"int","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"name","dataType":"varchar(100)","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false}],"primaryKey":{"constraintName":"PK__departme__3213E83FE8E7043D","schemaName":"dbo","pureName":"departments","constraintType":"primaryKey","columns":[{"columnName":"id"}]},"foreignKeys":[],"indexes":[],"uniques":[],"engine":"mssql@dbgate-plugin-mssql"}
+{"id":1,"name":"IT"}
+{"id":2,"name":"Marketing"}
+{"id":3,"name":"Finance"}
+{"id":4,"name":"Human Resources"}
+{"id":5,"name":"Research and Development"}

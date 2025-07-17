@@ -3,15 +3,19 @@ import _sumBy from 'lodash/sumBy';
 import {
   ChartConstDefaults,
   ChartDateParsed,
+  ChartDefinition,
   ChartLimits,
   ChartXTransformFunction,
+  ChartYFieldDefinition,
   ProcessedChart,
 } from './chartDefinitions';
 import { addMinutes, addHours, addDays, addMonths, addYears } from 'date-fns';
 
 export function getChartDebugPrint(chart: ProcessedChart) {
   let res = '';
-  res += `Chart: ${chart.definition.chartType} (${chart.definition.xdef.transformFunction})\n`;
+  res += `Chart: ${chart.definition.chartType} (${chart.definition.xdef.transformFunction}): (${chart.definition.ydefs
+    .map(yd => yd.field)
+    .join(', ')})\n`;
   for (const key of chart.bucketKeysOrdered) {
     res += `${key}: ${_toPairs(chart.buckets[key])
       .map(([k, v]) => `${k}=${v}`)
@@ -34,22 +38,53 @@ export function tryParseChartDate(dateInput: any): ChartDateParsed | null {
   }
 
   if (typeof dateInput !== 'string') return null;
-  const m = dateInput.match(
+  const dateMatch = dateInput.match(
     /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})?)?$/
   );
-  if (!m) return null;
+  const monthMatch = dateInput.match(/^(\d{4})-(\d{2})$/);
+  // const yearMatch = dateInput.match(/^(\d{4})$/);
 
-  const [_notUsed, year, month, day, hour, minute, second, fraction] = m;
+  if (dateMatch) {
+    const [_notUsed, year, month, day, hour, minute, second, fraction] = dateMatch;
 
-  return {
-    year: parseInt(year, 10),
-    month: parseInt(month, 10),
-    day: parseInt(day, 10),
-    hour: parseInt(hour, 10) || 0,
-    minute: parseInt(minute, 10) || 0,
-    second: parseInt(second, 10) || 0,
-    fraction: fraction || undefined,
-  };
+    return {
+      year: parseInt(year, 10),
+      month: parseInt(month, 10),
+      day: parseInt(day, 10),
+      hour: parseInt(hour, 10) || 0,
+      minute: parseInt(minute, 10) || 0,
+      second: parseInt(second, 10) || 0,
+      fraction: fraction || undefined,
+    };
+  }
+
+  if (monthMatch) {
+    const [_notUsed, year, month] = monthMatch;
+    return {
+      year: parseInt(year, 10),
+      month: parseInt(month, 10),
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      fraction: undefined,
+    };
+  }
+
+  // if (yearMatch) {
+  //   const [_notUsed, year] = yearMatch;
+  //   return {
+  //     year: parseInt(year, 10),
+  //     month: 1,
+  //     day: 1,
+  //     hour: 0,
+  //     minute: 0,
+  //     second: 0,
+  //     fraction: undefined,
+  //   };
+  // }
+
+  return null;
 }
 
 function pad2Digits(number) {
@@ -130,6 +165,33 @@ export function incrementChartDate(value: ChartDateParsed, transform: ChartXTran
         hour: newDateRepresentation.getHours(),
         minute: newDateRepresentation.getMinutes(),
       };
+  }
+}
+
+export function runTransformFunction(value: string, transformFunction: ChartXTransformFunction): string {
+  const dateParsed = tryParseChartDate(value);
+  switch (transformFunction) {
+    case 'date:year':
+      return dateParsed ? `${dateParsed.year}` : null;
+    case 'date:month':
+      return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}` : null;
+    case 'date:day':
+      return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)}` : null;
+    case 'date:hour':
+      return dateParsed
+        ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)} ${pad2Digits(
+            dateParsed.hour
+          )}`
+        : null;
+    case 'date:minute':
+      return dateParsed
+        ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)} ${pad2Digits(
+            dateParsed.hour
+          )}:${pad2Digits(dateParsed.minute)}`
+        : null;
+    case 'identity':
+    default:
+      return value;
   }
 }
 
@@ -268,7 +330,27 @@ export function compareChartDatesParsed(
   }
 }
 
-function getParentDateBucketKey(bucketKey: string, transform: ChartXTransformFunction): string | null {
+function extractBucketKeyWithoutGroup(bucketKey: string, definition: ChartDefinition): string {
+  if (definition.groupingField) {
+    const [_group, key] = bucketKey.split('::', 2);
+    return key || bucketKey;
+  }
+  return bucketKey;
+}
+
+function getParentDateBucketKey(
+  bucketKey: string,
+  transform: ChartXTransformFunction,
+  isGrouped: boolean
+): string | null {
+  if (isGrouped) {
+    const [group, key] = bucketKey.split('::', 2);
+    if (!key) {
+      return null; // no parent for grouped bucket
+    }
+    return `${group}::${getParentDateBucketKey(key, transform, false)}`;
+  }
+
   switch (transform) {
     case 'date:year':
       return null; // no parent for year
@@ -345,19 +427,30 @@ function createParentChartAggregation(chart: ProcessedChart): ProcessedChart | n
     validYRows: { ...chart.validYRows }, // copy valid Y rows
     topDistinctValues: { ...chart.topDistinctValues }, // copy top distinct values
     availableColumns: chart.availableColumns,
+    groups: [...chart.groups], // copy groups
+    groupSet: new Set(chart.groups), // create a set from the groups
+    bucketKeysSet: new Set<string>(), // initialize empty set for bucket keys
   };
 
-  for (const [bucketKey, bucketValues] of Object.entries(chart.buckets)) {
-    const parentKey = getParentDateBucketKey(bucketKey, chart.definition.xdef.transformFunction);
-    if (!parentKey) {
+  for (const bucketKey of chart.bucketKeysSet) {
+    res.bucketKeysSet.add(getParentDateBucketKey(bucketKey, chart.definition.xdef.transformFunction, false));
+  }
+
+  for (const [groupedBucketKey, bucketValues] of Object.entries(chart.buckets)) {
+    const groupedParentKey = getParentDateBucketKey(
+      groupedBucketKey,
+      chart.definition.xdef.transformFunction,
+      !!chart.definition.groupingField
+    );
+    if (!groupedParentKey) {
       // skip if the bucket is already a parent
       continue;
     }
-    res.bucketKeyDateParsed[parentKey] = getParentKeyParsed(
-      chart.bucketKeyDateParsed[bucketKey],
+    res.bucketKeyDateParsed[extractBucketKeyWithoutGroup(groupedParentKey, chart.definition)] = getParentKeyParsed(
+      chart.bucketKeyDateParsed[extractBucketKeyWithoutGroup(groupedBucketKey, chart.definition)],
       chart.definition.xdef.transformFunction
     );
-    aggregateChartNumericValuesFromChild(res, parentKey, bucketValues);
+    aggregateChartNumericValuesFromChild(res, groupedParentKey, bucketValues);
   }
 
   const bucketKeys = Object.keys(res.buckets).sort();
@@ -400,7 +493,7 @@ export function aggregateChartNumericValuesFromSource(
   row: any
 ) {
   for (const ydef of chart.definition.ydefs) {
-    if (numericColumns[ydef.field] == null) {
+    if (numericColumns[ydef.field] == null && ydef.field != '__count') {
       if (row[ydef.field]) {
         chart.invalidYRows[ydef.field] = (chart.invalidYRows[ydef.field] || 0) + 1; // increment invalid row count if the field is not numeric
       }
@@ -527,16 +620,54 @@ export function fillChartTimelineBuckets(chart: ProcessedChart) {
   const transform = chart.definition.xdef.transformFunction;
 
   let currentParsed = fromParsed;
+  let count = 0;
   while (compareChartDatesParsed(currentParsed, toParsed, transform) <= 0) {
     const bucketKey = stringifyChartDate(currentParsed, transform);
     if (!chart.buckets[bucketKey]) {
       chart.buckets[bucketKey] = {};
+    }
+    if (!chart.bucketKeyDateParsed[bucketKey]) {
       chart.bucketKeyDateParsed[bucketKey] = currentParsed;
     }
+    chart.bucketKeysSet.add(bucketKey);
     currentParsed = incrementChartDate(currentParsed, transform);
+    count++;
+    if (count > ChartLimits.CHART_FILL_LIMIT) {
+      chart.errorMessage = `Too many buckets to fill in chart, limit is ${ChartLimits.CHART_FILL_LIMIT}`;
+      return;
+    }
   }
 }
 
 export function computeChartBucketCardinality(bucket: { [key: string]: any }): number {
-  return _sumBy(Object.keys(bucket), field => bucket[field]);
+  return _sumBy(Object.keys(bucket ?? {}), field => bucket[field]);
+}
+
+export function getChartYRange(chart: ProcessedChart, ydef: ChartYFieldDefinition) {
+  let min = null;
+  let max = null;
+
+  for (const obj of Object.values(chart.buckets)) {
+    const value = obj[ydef.field];
+    if (value != null) {
+      if (min === null || value < min) {
+        min = value;
+      }
+      if (max === null || value > max) {
+        max = value;
+      }
+    }
+  }
+
+  return { min, max };
+}
+
+export function chartsHaveSimilarRange(range1: number, range2: number) {
+  if (range1 < 0 && range2 < 0) {
+    return Math.abs(range1 - range2) / Math.abs(range1) < 0.5;
+  }
+  if (range1 > 0 && range2 > 0) {
+    return Math.abs(range1 - range2) / Math.abs(range1) < 0.5;
+  }
+  return false;
 }

@@ -1,3 +1,12 @@
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // if the error message matches the one about WorkerGlobalScope importScripts
+  if (err.message.includes("Failed to execute 'importScripts' on 'WorkerGlobalScope'")) {
+    // return false to let Cypress know we intentionally want to ignore this error
+    return false;
+  }
+  // otherwise let Cypress throw the error
+});
+
 beforeEach(() => {
   cy.visit('http://localhost:3000');
   cy.viewport(1250, 900);
@@ -79,5 +88,35 @@ describe('Team edition tests', () => {
     cy.testid('LoginPage_submitLogin').click();
     cy.testid('AdminMenuWidget_itemUsers').click();
     cy.contains('test@example.com');
+  });
+
+  it('Audit logging', () => {
+    cy.testid('LoginPage_linkAdmin').click();
+    cy.testid('LoginPage_password').type('adminpwd');
+    cy.testid('LoginPage_submitLogin').click();
+
+    cy.testid('AdminMenuWidget_itemAuditLog').click();
+    cy.contains('Audit log is not enabled');
+    cy.testid('AdminMenuWidget_itemSettings').click();
+    cy.testid('AdminSettingsTab_auditLogCheckbox').click();
+    cy.testid('AdminMenuWidget_itemAuditLog').click();
+    cy.contains('No data for selected date');
+
+    cy.testid('AdminMenuWidget_itemConnections').click();
+    cy.contains('Open table').click();
+    cy.contains('displayName');
+    cy.get('.toolstrip').contains('Export').click();
+    cy.contains('CSV file').click();
+
+    cy.testid('AdminMenuWidget_itemUsers').click();
+    cy.contains('Open table').click();
+    cy.contains('login');
+    cy.get('.toolstrip').contains('Export').click();
+    cy.contains('XML file').click();
+
+    cy.testid('AdminMenuWidget_itemAuditLog').click();
+    cy.testid('AdminAuditLogTab_refreshButton').click();
+    cy.contains('Exporting query').click();
+    cy.themeshot('auditlog');
   });
 });

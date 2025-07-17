@@ -84,7 +84,7 @@
   }
 
   .wrap {
-    margin-top: 20vh;
+    margin-top: 5vh;
   }
 
   .heading {

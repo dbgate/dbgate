@@ -16,7 +16,7 @@ const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
-const { getAuthProxyUrl } = require('../utility/authProxy');
+const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
 const {
@@ -29,6 +29,7 @@ const {
 } = require('../utility/crypting');
 
 const lock = new AsyncLock();
+let cachedSettingsValue = null;
 
 module.exports = {
   // settingsValue: {},
@@ -108,6 +109,7 @@ module.exports = {
       ),
       isAdminPasswordMissing,
       isInvalidToken: req?.isInvalidToken,
+      skipAllAuth: !!process.env.SKIP_ALL_AUTH,
       adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
@@ -116,7 +118,9 @@ module.exports = {
         processArgs.runE2eTests ? 'connections-e2etests.jsonl' : 'connections.jsonl'
       ),
       supportCloudAutoUpgrade: !!process.env.CLOUD_UPGRADE_FILE,
+      allowPrivateCloud: platformInfo.isElectron || !!process.env.ALLOW_DBGATE_PRIVATE_CLOUD,
       ...currentVersion,
+      redirectToDbGateCloudLogin: !!process.env.REDIRECT_TO_DBGATE_CLOUD_LOGIN,
     };
 
     return configResult;
@@ -141,6 +145,13 @@ module.exports = {
       return await this.loadSettings();
     });
     return res;
+  },
+
+  async getCachedSettings() {
+    if (!cachedSettingsValue) {
+      cachedSettingsValue = await this.loadSettings();
+    }
+    return cachedSettingsValue;
   },
 
   deleteSettings_meta: true,
@@ -181,6 +192,7 @@ module.exports = {
         return {
           ...this.fillMissingSettings(JSON.parse(settingsText)),
           'other.licenseKey': platformInfo.isElectron ? await this.loadLicenseKey() : undefined,
+          // 'other.licenseKey': await this.loadLicenseKey(),
         };
       }
     } catch (err) {
@@ -198,21 +210,34 @@ module.exports = {
   },
 
   saveLicenseKey_meta: true,
-  async saveLicenseKey({ licenseKey }) {
-    const decoded = jwt.decode(licenseKey);
-    if (!decoded) {
-      return {
-        status: 'error',
-        errorMessage: 'Invalid license key',
-      };
-    }
+  async saveLicenseKey({ licenseKey, forceSave = false, tryToRenew = false }) {
+    if (!forceSave) {
+      const decoded = jwt.decode(licenseKey?.trim());
+      if (!decoded) {
+        return {
+          status: 'error',
+          errorMessage: 'Invalid license key',
+        };
+      }
 
-    const { exp } = decoded;
-    if (exp * 1000 < Date.now()) {
-      return {
-        status: 'error',
-        errorMessage: 'License key is expired',
-      };
+      const { exp } = decoded;
+      if (exp * 1000 < Date.now()) {
+        let renewed = false;
+        if (tryToRenew) {
+          const newLicenseKey = await tryToGetRefreshedLicense(licenseKey);
+          if (newLicenseKey.status == 'ok') {
+            licenseKey = newLicenseKey.token;
+            renewed = true;
+          }
+        }
+
+        if (!renewed) {
+          return {
+            status: 'error',
+            errorMessage: 'License key is expired',
+          };
+        }
+      }
     }
 
     try {
@@ -256,6 +281,7 @@ module.exports = {
   updateSettings_meta: true,
   async updateSettings(values, req) {
     if (!hasPermission(`settings/change`, req)) return false;
+    cachedSettingsValue = null;
 
     const res = await lock.acquire('settings', async () => {
       const currentValue = await this.loadSettings();
@@ -264,7 +290,11 @@ module.exports = {
         if (process.env.STORAGE_DATABASE) {
           updated = {
             ...currentValue,
-            ...values,
+            ..._.mapValues(values, v => {
+              if (v === true) return 'true';
+              if (v === false) return 'false';
+              return v;
+            }),
           };
           await storage.writeConfig({
             group: 'settings',
@@ -282,7 +312,7 @@ module.exports = {
           // this.settingsValue = updated;
 
           if (currentValue['other.licenseKey'] != values['other.licenseKey']) {
-            await this.saveLicenseKey({ licenseKey: values['other.licenseKey'] });
+            await this.saveLicenseKey({ licenseKey: values['other.licenseKey'], forceSave: true });
             socket.emitChanged(`config-changed`);
           }
         }
@@ -302,7 +332,7 @@ module.exports = {
       const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
       return resp.data;
     } catch (err) {
-      return ''
+      return '';
     }
   },
 
@@ -310,6 +340,16 @@ module.exports = {
   async checkLicense({ licenseKey }) {
     const resp = await checkLicenseKey(licenseKey);
     return resp;
+  },
+
+  getNewLicense_meta: true,
+  async getNewLicense({ oldLicenseKey }) {
+    const newLicenseKey = await tryToGetRefreshedLicense(oldLicenseKey);
+    const res = await checkLicenseKey(newLicenseKey.token);
+    if (res.status == 'ok') {
+      res.licenseKey = newLicenseKey.token;
+    }
+    return res;
   },
 
   recryptDatabaseForExport(db) {

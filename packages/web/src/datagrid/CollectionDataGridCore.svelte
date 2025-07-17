@@ -86,6 +86,7 @@
         condition: buildConditionForGrid(props),
         sort: buildSortForGrid(props),
       },
+      auditLogSessionGroup: 'data-grid',
     });
 
     if (response.errorMessage) return response;

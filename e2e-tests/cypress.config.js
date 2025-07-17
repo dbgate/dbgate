@@ -7,7 +7,9 @@ const path = require('path');
 
 module.exports = defineConfig({
   e2e: {
+    // baseUrl: 'http://localhost:3000',
     // trashAssetsBeforeRuns: false,
+    chromeWebSecurity: false,
 
     setupNodeEvents(on, config) {
       // implement node event listeners here
@@ -39,6 +41,12 @@ module.exports = defineConfig({
               break;
             case 'multi-sql':
               serverProcess = exec('yarn start:multi-sql');
+              break;
+            case 'cloud':
+              serverProcess = exec('yarn start:cloud');
+              break;
+            case 'charts':
+              serverProcess = exec('yarn start:charts');
               break;
           }
 

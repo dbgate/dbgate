@@ -463,4 +463,32 @@ cloudConnectionsStore.subscribe(value => {
 });
 export const getCloudConnectionsStore = () => cloudConnectionsStoreValue;
 
+export const currentActiveCloudTags = derived(currentDatabase, $currentDatabase => {
+  if (!$currentDatabase || !$currentDatabase.connection) return [];
+  const engine = $currentDatabase.connection?.engine;
+  const [shortName, packageName] = engine.split('@');
+  const tags = [shortName];
+  const res = [...tags];
+
+  if (tags.includes('mariadb')) {
+    res.push('mysql');
+  }
+  if (tags.includes('mysql')) {
+    res.push('mariadb');
+  }
+  if (tags.includes('cockroach')) {
+    res.push('postgres');
+  }
+  if (tags.includes('libsql')) {
+    res.push('sqlite');
+  }
+  return res;
+});
+
+let cloudSigninTokenHolderValue = null;
+cloudSigninTokenHolder.subscribe(value => {
+  cloudSigninTokenHolderValue = value;
+});
+export const getCloudSigninTokenHolder = () => cloudSigninTokenHolderValue;
+
 window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

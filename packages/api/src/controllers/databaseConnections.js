@@ -41,6 +41,7 @@ const { decryptConnection } = require('../utility/crypting');
 const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
+const { sendToAuditLog } = require('../utility/auditlog');
 
 const logger = getLogger('databaseConnections');
 
@@ -83,8 +84,11 @@ module.exports = {
     }
   },
   handle_response(conid, database, { msgid, ...response }) {
-    const [resolve, reject] = this.requests[msgid];
+    const [resolve, reject, additionalData] = this.requests[msgid];
     resolve(response);
+    if (additionalData?.auditLogger) {
+      additionalData?.auditLogger(response);
+    }
     delete this.requests[msgid];
   },
   handle_status(conid, database, { status }) {
@@ -215,10 +219,10 @@ module.exports = {
   },
 
   /** @param {import('dbgate-types').OpenedDatabaseConnection} conn */
-  sendRequest(conn, message) {
+  sendRequest(conn, message, additionalData = {}) {
     const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
-      this.requests[msgid] = [resolve, reject];
+      this.requests[msgid] = [resolve, reject, additionalData];
       try {
         conn.subprocess.send({ msgid, ...message });
       } catch (err) {
@@ -242,18 +246,57 @@ module.exports = {
   },
 
   sqlSelect_meta: true,
-  async sqlSelect({ conid, database, select }, req) {
+  async sqlSelect({ conid, database, select, auditLogSessionGroup }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'sqlSelect', select });
+    const res = await this.sendRequest(
+      opened,
+      { msgtype: 'sqlSelect', select },
+      {
+        auditLogger:
+          auditLogSessionGroup && select?.from?.name?.pureName
+            ? response => {
+                sendToAuditLog(req, {
+                  category: 'dbop',
+                  component: 'DatabaseConnectionsController',
+                  event: 'sql.select',
+                  action: 'select',
+                  severity: 'info',
+                  conid,
+                  database,
+                  schemaName: select?.from?.name?.schemaName,
+                  pureName: select?.from?.name?.pureName,
+                  sumint1: response?.rows?.length,
+                  sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${
+                    select?.from?.name?.pureName
+                  }`,
+                  sessionGroup: auditLogSessionGroup,
+                  message: `Loaded table data from ${select?.from?.name?.pureName}`,
+                });
+              }
+            : null,
+      }
+    );
     return res;
   },
 
   runScript_meta: true,
-  async runScript({ conid, database, sql, useTransaction }, req) {
+  async runScript({ conid, database, sql, useTransaction, logMessage }, req) {
     testConnectionPermission(conid, req);
     logger.info({ conid, database, sql }, 'Processing script');
     const opened = await this.ensureOpened(conid, database);
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'DatabaseConnectionsController',
+      event: 'sql.runscript',
+      action: 'runscript',
+      severity: 'info',
+      conid,
+      database,
+      detail: sql,
+      message: logMessage || `Running SQL script`,
+    });
+
     const res = await this.sendRequest(opened, { msgtype: 'runScript', sql, useTransaction });
     return res;
   },
@@ -262,16 +305,53 @@ module.exports = {
   async runOperation({ conid, database, operation, useTransaction }, req) {
     testConnectionPermission(conid, req);
     logger.info({ conid, database, operation }, 'Processing operation');
+
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'DatabaseConnectionsController',
+      event: 'sql.runoperation',
+      action: operation.type,
+      severity: 'info',
+      conid,
+      database,
+      detail: operation,
+      message: `Running DB operation: ${operation.type}`,
+    });
+
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'runOperation', operation, useTransaction });
     return res;
   },
 
   collectionData_meta: true,
-  async collectionData({ conid, database, options }, req) {
+  async collectionData({ conid, database, options, auditLogSessionGroup }, req) {
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'collectionData', options });
+    const res = await this.sendRequest(
+      opened,
+      { msgtype: 'collectionData', options },
+      {
+        auditLogger:
+          auditLogSessionGroup && options?.pureName
+            ? response => {
+                sendToAuditLog(req, {
+                  category: 'dbop',
+                  component: 'DatabaseConnectionsController',
+                  event: 'nosql.collectionData',
+                  action: 'select',
+                  severity: 'info',
+                  conid,
+                  database,
+                  pureName: options?.pureName,
+                  sumint1: response?.result?.rows?.length,
+                  sessionParam: `${conid}::${database}::${options?.pureName}`,
+                  sessionGroup: auditLogSessionGroup,
+                  message: `Loaded collection data ${options?.pureName}`,
+                });
+              }
+            : null,
+      }
+    );
     return res.result || null;
   },
 
@@ -492,6 +572,20 @@ module.exports = {
     }
 
     const opened = await this.ensureOpened(conid, database);
+
+    sendToAuditLog(req, {
+      category: 'dbop',
+      component: 'DatabaseConnectionsController',
+      action: 'structure',
+      event: 'dbStructure.get',
+      severity: 'info',
+      conid,
+      database,
+      sessionParam: `${conid}::${database}`,
+      sessionGroup: 'getStructure',
+      message: `Loaded database structure for ${database}`,
+    });
+
     return opened.structure;
     // const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     // if (existing) return existing.status;

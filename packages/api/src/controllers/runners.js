@@ -19,6 +19,8 @@ const {
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
+const { checkSecureDirectories, checkSecureDirectoriesInScript } = require('../utility/security');
+const { sendToAuditLog, logJsonRunnerScript } = require('../utility/auditlog');
 const logger = getLogger('runners');
 
 function extractPlugins(script) {
@@ -269,17 +271,45 @@ module.exports = {
   },
 
   start_meta: true,
-  async start({ script }) {
+  async start({ script }, req) {
     const runid = crypto.randomUUID();
 
     if (script.type == 'json') {
+      if (!platformInfo.isElectron) {
+        if (!checkSecureDirectoriesInScript(script)) {
+          return { errorMessage: 'Unallowed directories in script' };
+        }
+      }
+
+      logJsonRunnerScript(req, script);
+
       const js = await jsonScriptToJavascript(script);
       return this.startCore(runid, scriptTemplate(js, false));
     }
 
     if (!platformInfo.allowShellScripting) {
+      sendToAuditLog(req, {
+        category: 'shell',
+        component: 'RunnersController',
+        event: 'script.runFailed',
+        action: 'script',
+        severity: 'warn',
+        detail: script,
+        message: 'Scripts are not allowed',
+      });
+
       return { errorMessage: 'Shell scripting is not allowed' };
     }
+
+    sendToAuditLog(req, {
+      category: 'shell',
+      component: 'RunnersController',
+      event: 'script.run.shell',
+      action: 'script',
+      severity: 'info',
+      detail: script,
+      message: 'Running JS script',
+    });
 
     return this.startCore(runid, scriptTemplate(script, false));
   },
@@ -317,6 +347,11 @@ module.exports = {
 
   loadReader_meta: true,
   async loadReader({ functionName, props }) {
+    if (!platformInfo.isElectron) {
+      if (props?.fileName && !checkSecureDirectories(props.fileName)) {
+        return { errorMessage: 'Unallowed file' };
+      }
+    }
     const prefix = extractShellApiPlugins(functionName)
       .map(packageName => `// @require ${packageName}\n`)
       .join('');

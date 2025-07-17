@@ -1,0 +1,15 @@
+name: finance_reports
+columns:
+  - name: id
+    type: int
+    default: null
+    notNull: true
+    references: projects
+  - name: date
+    type: date
+    default: null
+    notNull: true
+  - name: profit
+    type: money
+    default: null
+    notNull: true

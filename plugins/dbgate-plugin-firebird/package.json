@@ -1,0 +1,46 @@
+{
+  "name": "dbgate-plugin-firebird",
+  "main": "dist/backend.js",
+  "version": "6.0.0-alpha.1",
+  "license": "GPL-3.0",
+  "description": "firebirdQL connector plugin for DbGate",
+  "homepage": "https://dbgate.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate"
+  },
+  "author": "Jan Prochazka",
+  "keywords": [
+    "dbgate",
+    "firebird",
+    "dbgatebuiltin"
+  ],
+  "files": [
+    "dist",
+    "icon.svg"
+  ],
+  "scripts": {
+    "build:frontend": "webpack --config webpack-frontend.config",
+    "build:frontend:watch": "webpack --watch --config webpack-frontend.config",
+    "build:backend": "webpack --config webpack-backend.config.js",
+    "build": "yarn build:frontend && yarn build:backend",
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-firebird",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-firebird",
+    "plugout": "dbgate-plugout dbgate-plugin-firebird",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "dbgate-plugin-tools": "^1.0.7",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "wkx": "^0.5.0",
+    "pg-copy-streams": "^6.0.6",
+    "node-firebird": "^1.1.9",
+    "dbgate-query-splitter": "^4.11.5",
+    "dbgate-tools": "^6.0.0-alpha.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.11.5"
+  }
+}

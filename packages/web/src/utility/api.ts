@@ -14,7 +14,7 @@ import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 import { openWebLink } from './simpleTools';
 import { serializeJsTypesReplacer } from 'dbgate-tools';
-import { cloudSigninTokenHolder } from '../stores';
+import { cloudSigninTokenHolder, selectedWidget } from '../stores';
 import LicenseLimitMessageModal from '../modals/LicenseLimitMessageModal.svelte';
 
 export const strmid = uuidv1();
@@ -185,6 +185,7 @@ export async function apiCall(
       cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-session-id': getApiSessionId(),
         ...resolveApiHeaders(),
       },
       body: JSON.stringify(args, serializeJsTypesReplacer),
@@ -289,9 +290,10 @@ export function installNewVolatileConnectionListener() {
 }
 
 export function installNewCloudTokenListener() {
+  // console.log('HOLDER', tokenHolder);
   apiOn('got-cloud-token', async tokenHolder => {
-    console.log('HOLDER', tokenHolder);
     cloudSigninTokenHolder.set(tokenHolder);
+    selectedWidget.set('cloud-private');
   });
 }
 
@@ -305,16 +307,33 @@ export function getAuthCategory(config) {
   if (getElectron()) {
     return 'electron';
   }
+  if (config.skipAllAuth) {
+    return 'none';
+  }
   return 'token';
 }
 
-export function refreshPublicCloudFiles() {
-  if (sessionStorage.getItem('publicCloudFilesLoaded')) {
+export function refreshPublicCloudFiles(force = false) {
+  if (sessionStorage.getItem('publicCloudFilesLoaded') && !force) {
     return;
   }
 
-  apiCall('cloud/refresh-public-files');
+  apiCall('cloud/refresh-public-files', { isRefresh: !!sessionStorage.getItem('publicCloudFilesLoaded') });
   sessionStorage.setItem('publicCloudFilesLoaded', 'true');
+}
+
+let apiSessionIdValue = null;
+function getApiSessionId() {
+  if (!apiSessionIdValue) {
+    apiSessionIdValue = uuidv1();
+  }
+  return apiSessionIdValue;
+
+  // if (!sessionStorage.getItem('apiSessionId')) {
+  //   const sessionId = uuidv1();
+  //   sessionStorage.setItem('apiSessionId', sessionId);
+  // }
+  // return sessionStorage.getItem('apiSessionId');
 }
 
 function enableApiLog() {
@@ -328,3 +347,14 @@ function disableApiLog() {
 
 window['enableApiLog'] = enableApiLog;
 window['disableApiLog'] = disableApiLog;
+
+window['__loginToCloudTest'] = async email => {
+  const tokenHolder = await apiCall('auth/cloud-test-login', { email });
+
+  if (tokenHolder) {
+    cloudSigninTokenHolder.set(tokenHolder);
+    selectedWidget.set('cloud-private');
+  } else {
+    showSnackbarError('Login failed');
+  }
+};

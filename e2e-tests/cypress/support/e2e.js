@@ -42,3 +42,11 @@ beforeEach(() => {
     });
   });
 });
+
+// Cypress.Screenshot.defaults({
+//   onBeforeScreenshot() {
+//     if (window.Chart) {
+//       Object.values(window.Chart.instances).forEach(c => c.resize());
+//     }
+//   },
+// });

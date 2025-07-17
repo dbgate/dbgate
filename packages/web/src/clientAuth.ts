@@ -3,6 +3,7 @@ import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';
 import getElectron from './utility/getElectron';
 import { isProApp } from './utility/proTools';
+import { cloudSigninTokenHolder, selectedWidget } from './stores';
 
 export function isOauthCallback() {
   const params = new URLSearchParams(location.search);
@@ -114,6 +115,12 @@ export function handleOauthCallback() {
     return true;
   }
 
+  const cloudSid = params.get('dbgate-cloud-sid');
+  if (cloudSid) {
+    sessionStorage.setItem('dbgate-cloud-sid', cloudSid);
+    internalRedirectTo(`/`);
+  }
+
   return false;
 }
 
@@ -187,6 +194,18 @@ export async function handleAuthOnStartup(config) {
     }
   }
 
+  async function checkDbGateCloudLogin() {
+    const sid = sessionStorage.getItem('dbgate-cloud-sid');
+    if (sid) {
+      const tokenHolder = await apiCall('auth/cloud-login-redirected', { sid });
+      if (tokenHolder) {
+        sessionStorage.removeItem('dbgate-cloud-sid');
+        cloudSigninTokenHolder.set(tokenHolder);
+        selectedWidget.set('cloud-private');
+      }
+    }
+  }
+
   if (page == 'error') return;
   if (checkConfigError()) return;
 
@@ -199,6 +218,7 @@ export async function handleAuthOnStartup(config) {
   if (page == 'license' || page == 'admin-license') return;
   if (checkTrialDaysLeft()) return;
   if (checkInvalidLicense()) return;
+  checkDbGateCloudLogin();
 
   // if (config.configurationError) {
   //   internalRedirectTo(`/error.html`);
@@ -291,9 +311,11 @@ export async function doLogout() {
   const category = getAuthCategory(config);
 
   if (category == 'admin') {
+    await apiCall('auth/logout-admin');
     localStorage.removeItem('adminAccessToken');
     internalRedirectTo('/admin-login.html?is-admin=true');
   } else if (category == 'token') {
+    await apiCall('auth/logout-user');
     localStorage.removeItem('accessToken');
     if (config.logoutUrl) {
       window.location.href = config.logoutUrl;

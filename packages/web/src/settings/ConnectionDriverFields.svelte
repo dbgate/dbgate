@@ -122,7 +122,7 @@
 {/if}
 
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
-  {#if electron}
+  {#if electron && !driver?.dialect?.useServerDatabaseFile}
     <FormElectronFileSelector
       label="Database file"
       name="databaseFile"

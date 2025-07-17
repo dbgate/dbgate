@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
-  import { filterName, getConnectionLabel } from 'dbgate-tools';
+  import { filterName, getConnectionLabel, getSqlFrontMatter } from 'dbgate-tools';
+  import yaml from 'js-yaml';
 
   interface FileTypeHandler {
     icon: string;
@@ -9,6 +10,7 @@
     currentConnection: boolean;
     extension: string;
     label: string;
+    switchDatabaseOnOpen?: (data: any) => Promise<boolean>;
   }
 
   const sql: FileTypeHandler = {
@@ -19,6 +21,21 @@
     currentConnection: true,
     extension: 'sql',
     label: 'SQL file',
+    switchDatabaseOnOpen: async data => {
+      const frontMatter = getSqlFrontMatter(data, yaml);
+      if (frontMatter?.connectionId) {
+        const connection = await getConnectionInfo({ conid: frontMatter.connectionId });
+        // console.log('Switching database to', frontMatter.databaseName, 'on connection', connection);
+        if (connection && frontMatter.databaseName) {
+          currentDatabase.set({
+            connection,
+            name: frontMatter.databaseName,
+          });
+          return true;
+        }
+      }
+      return false;
+    },
   };
 
   const shell: FileTypeHandler = {
@@ -161,6 +178,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import { isProApp } from '../utility/proTools';
   import { saveFileToDisk } from '../utility/exportFileTools';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
 
   export let data;
 
@@ -280,6 +298,10 @@
 
     let tooltip = undefined;
     const connProps: any = {};
+
+    if (handler.switchDatabaseOnOpen) {
+      await handler.switchDatabaseOnOpen(dataContent);
+    }
 
     if (handler.currentConnection) {
       const connection = _.get($currentDatabase, 'connection') || {};

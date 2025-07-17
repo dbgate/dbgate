@@ -23,7 +23,7 @@ const { connectUtility } = require('../utility/connectUtility');
  * @param {object} options.driver - driver object. If not provided, it will be loaded from connection
  * @param {object} options.analysedStructure - analysed structure of the database. If not provided, it will be loaded
  * @param {string} options.modelFolder - folder with model files (YAML files for tables, SQL files for views, procedures, ...)
- * @param {import('dbgate-tools').DatabaseModelFile[]} options.loadedDbModel - loaded database model - collection of yaml and SQL files loaded into array
+ * @param {import('dbgate-tools').DatabaseModelFile[] | import('dbgate-types').DatabaseInfo} options.loadedDbModel - loaded database model - collection of yaml and SQL files loaded into array
  * @param {function[]} options.modelTransforms - array of functions for transforming model
  * @param {object} options.dbdiffOptionsExtra - extra options for dbdiff
  * @param {string} options.ignoreNameRegex - regex for ignoring objects by name

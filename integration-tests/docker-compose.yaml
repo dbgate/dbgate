@@ -100,3 +100,28 @@ services:
   #     - '5002:5001'
   #   volumes:
   #     - ./data/libsql:/var/lib/sqld
+
+  firebird:
+    image: firebirdsql/firebird:latest
+    container_name: firebird-db
+    environment:
+      - FIREBIRD_DATABASE=mydatabase.fdb
+      - FIREBIRD_USER=dbuser
+      - FIREBIRD_PASSWORD=dbpassword
+      - ISC_PASSWORD=masterkey
+      - FIREBIRD_TRACE=false
+      - FIREBIRD_USE_LEGACY_AUTH=true
+    ports:
+      - '3050:3050'
+    volumes:
+      - firebird-data:/firebird/data
+      - ./firebird.conf:/firebird/firebird.conf # Mount custom config file
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '3050']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  firebird-data:

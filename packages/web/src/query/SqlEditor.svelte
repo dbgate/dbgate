@@ -12,6 +12,7 @@
   import useEffect from '../utility/useEffect';
   import { getContext } from 'svelte';
   import { mountCodeCompletion } from './codeCompletion';
+  import { getCurrentSettings } from '../stores';
   export let engine = null;
   export let conid = null;
   export let database = null;
@@ -44,6 +45,7 @@
         database,
         editor,
         getText: () => domEditor.getCodeCompletionCommandText(),
+        getSettings: () => getCurrentSettings(),
       });
     }
     return () => {};

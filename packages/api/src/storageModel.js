@@ -1,6 +1,193 @@
 module.exports = {
   "tables": [
     {
+      "pureName": "audit_log",
+      "columns": [
+        {
+          "pureName": "audit_log",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "created",
+          "dataType": "bigint",
+          "notNull": true
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "modified",
+          "dataType": "bigint",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "user_login",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "category",
+          "dataType": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "component",
+          "dataType": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "action",
+          "dataType": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "severity",
+          "dataType": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "event",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "message",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "detail",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "detail_full_length",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "session_id",
+          "dataType": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "session_group",
+          "dataType": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "session_param",
+          "dataType": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "conid",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "connection_data",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "database",
+          "dataType": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "schema_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "pure_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "sumint_1",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "audit_log",
+          "columnName": "sumint_2",
+          "dataType": "int",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_audit_log_user_id",
+          "pureName": "audit_log",
+          "refTableName": "users",
+          "deleteAction": "SET NULL",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "idx_audit_log_session",
+          "pureName": "audit_log",
+          "constraintType": "index",
+          "columns": [
+            {
+              "columnName": "session_group"
+            },
+            {
+              "columnName": "session_id"
+            },
+            {
+              "columnName": "session_param"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "audit_log",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_audit_log",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
       "pureName": "auth_methods",
       "columns": [
         {
@@ -50,6 +237,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "auth_methods",
         "constraintType": "primaryKey",
+        "constraintName": "PK_auth_methods",
         "columns": [
           {
             "columnName": "id"
@@ -61,7 +249,8 @@ module.exports = {
           "id": -1,
           "amoid": "790ca4d2-7f01-4800-955b-d691b890cc50",
           "name": "Anonymous",
-          "type": "none"
+          "type": "none",
+          "is_disabled": 1
         },
         {
           "id": -2,
@@ -69,6 +258,9 @@ module.exports = {
           "name": "Local",
           "type": "local"
         }
+      ],
+      "preloadedRowsInsertOnly": [
+        "is_disabled"
       ]
     },
     {
@@ -103,6 +295,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_auth_methods_config_auth_method_id",
           "pureName": "auth_methods_config",
           "refTableName": "auth_methods",
           "deleteAction": "CASCADE",
@@ -114,9 +307,25 @@ module.exports = {
           ]
         }
       ],
+      "uniques": [
+        {
+          "constraintName": "UQ_auth_methods_config_auth_method_id_key",
+          "pureName": "auth_methods_config",
+          "constraintType": "unique",
+          "columns": [
+            {
+              "columnName": "auth_method_id"
+            },
+            {
+              "columnName": "key"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "auth_methods_config",
         "constraintType": "primaryKey",
+        "constraintName": "PK_auth_methods_config",
         "columns": [
           {
             "columnName": "id"
@@ -154,9 +363,25 @@ module.exports = {
         }
       ],
       "foreignKeys": [],
+      "uniques": [
+        {
+          "constraintName": "UQ_config_group_key",
+          "pureName": "config",
+          "constraintType": "unique",
+          "columns": [
+            {
+              "columnName": "group"
+            },
+            {
+              "columnName": "key"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "config",
         "constraintType": "primaryKey",
+        "constraintName": "PK_config",
         "columns": [
           {
             "columnName": "id"
@@ -291,6 +516,12 @@ module.exports = {
         {
           "pureName": "connections",
           "columnName": "trustServerCertificate",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "useSeparateSchemas",
           "dataType": "int",
           "notNull": false
         },
@@ -449,6 +680,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "connections",
         "constraintType": "primaryKey",
+        "constraintName": "PK_connections",
         "columns": [
           {
             "columnName": "id"
@@ -477,6 +709,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "roles",
         "constraintType": "primaryKey",
+        "constraintName": "PK_roles",
         "columns": [
           {
             "columnName": "id"
@@ -524,6 +757,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_role_connections_role_id",
           "pureName": "role_connections",
           "refTableName": "roles",
           "deleteAction": "CASCADE",
@@ -536,6 +770,7 @@ module.exports = {
         },
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_role_connections_connection_id",
           "pureName": "role_connections",
           "refTableName": "connections",
           "deleteAction": "CASCADE",
@@ -550,6 +785,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "role_connections",
         "constraintType": "primaryKey",
+        "constraintName": "PK_role_connections",
         "columns": [
           {
             "columnName": "id"
@@ -583,6 +819,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_role_permissions_role_id",
           "pureName": "role_permissions",
           "refTableName": "roles",
           "deleteAction": "CASCADE",
@@ -597,6 +834,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "role_permissions",
         "constraintType": "primaryKey",
+        "constraintName": "PK_role_permissions",
         "columns": [
           {
             "columnName": "id"
@@ -637,6 +875,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "users",
         "constraintType": "primaryKey",
+        "constraintName": "PK_users",
         "columns": [
           {
             "columnName": "id"
@@ -670,6 +909,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_user_connections_user_id",
           "pureName": "user_connections",
           "refTableName": "users",
           "deleteAction": "CASCADE",
@@ -682,6 +922,7 @@ module.exports = {
         },
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_user_connections_connection_id",
           "pureName": "user_connections",
           "refTableName": "connections",
           "deleteAction": "CASCADE",
@@ -696,6 +937,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "user_connections",
         "constraintType": "primaryKey",
+        "constraintName": "PK_user_connections",
         "columns": [
           {
             "columnName": "id"
@@ -729,6 +971,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_user_permissions_user_id",
           "pureName": "user_permissions",
           "refTableName": "users",
           "deleteAction": "CASCADE",
@@ -743,6 +986,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "user_permissions",
         "constraintType": "primaryKey",
+        "constraintName": "PK_user_permissions",
         "columns": [
           {
             "columnName": "id"
@@ -776,6 +1020,7 @@ module.exports = {
       "foreignKeys": [
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_user_roles_user_id",
           "pureName": "user_roles",
           "refTableName": "users",
           "deleteAction": "CASCADE",
@@ -788,6 +1033,7 @@ module.exports = {
         },
         {
           "constraintType": "foreignKey",
+          "constraintName": "FK_user_roles_role_id",
           "pureName": "user_roles",
           "refTableName": "roles",
           "deleteAction": "CASCADE",
@@ -802,6 +1048,7 @@ module.exports = {
       "primaryKey": {
         "pureName": "user_roles",
         "constraintType": "primaryKey",
+        "constraintName": "PK_user_roles",
         "columns": [
           {
             "columnName": "id"
@@ -815,5 +1062,6 @@ module.exports = {
   "matviews": [],
   "functions": [],
   "procedures": [],
-  "triggers": []
+  "triggers": [],
+  "schedulerEvents": []
 };

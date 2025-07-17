@@ -31,6 +31,11 @@ module.exports = {
     return {};
   },
 
+  sendAuditLog_meta: true,
+  async sendAuditLog({}) {
+    return null;
+  },
+
   startRefreshLicense() {},
 
   async getUsedEngines() {

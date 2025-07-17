@@ -17,6 +17,8 @@
   import { openWebLink } from '../utility/simpleTools';
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
+  import { showModal } from '../modals/modalTools';
+  import NewObjectModal from '../modals/NewObjectModal.svelte';
 
   let domSettings;
   let domCloudAccount;
@@ -33,7 +35,7 @@
       name: 'database',
       title: 'Database connections',
     },
-    {
+    getCurrentConfig().allowPrivateCloud && {
       name: 'cloud-private',
       title: 'DbGate Cloud',
       icon: 'icon cloud-private',
@@ -135,8 +137,16 @@
   }
 
   async function handleOpenCloudLogin() {
-    const { url, sid } = await apiCall('auth/create-cloud-login-session', { client: getElectron() ? 'app' : 'web' });
-    openWebLink(url, true);
+    const useRedirect = getCurrentConfig()?.redirectToDbGateCloudLogin;
+    const { url, sid } = await apiCall('auth/create-cloud-login-session', {
+      client: getElectron() ? 'app' : 'web',
+      redirectUri: useRedirect ? location.origin + location.pathname : undefined,
+    });
+    if (useRedirect) {
+      location.href = url;
+    } else {
+      openWebLink(url, true);
+    }
   }
 </script>
 
@@ -163,6 +173,15 @@
     </div>
   {/each}
 
+  <div
+    class="wrapper"
+    on:click={() => showModal(NewObjectModal)}
+    data-testid="WidgetIconPanel_addButton"
+    title="Add New"
+  >
+    <FontIcon icon="icon add" />
+  </div>
+
   <div class="flex1">&nbsp;</div>
 
   <!-- <div
@@ -176,19 +195,21 @@
     <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div> -->
 
-  {#if $cloudSigninTokenHolder}
-    <div
-      class="wrapper"
-      on:click={handleCloudAccountMenu}
-      bind:this={domCloudAccount}
-      data-testid="WidgetIconPanel_cloudAccount"
-    >
-      <FontIcon icon="icon cloud-account-connected" />
-    </div>
-  {:else}
-    <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
-      <FontIcon icon="icon cloud-account" />
-    </div>
+  {#if getCurrentConfig().allowPrivateCloud}
+    {#if $cloudSigninTokenHolder}
+      <div
+        class="wrapper"
+        on:click={handleCloudAccountMenu}
+        bind:this={domCloudAccount}
+        data-testid="WidgetIconPanel_cloudAccount"
+      >
+        <FontIcon icon="icon cloud-account-connected" />
+      </div>
+    {:else}
+      <div class="wrapper" on:click={handleOpenCloudLogin} data-testid="WidgetIconPanel_cloudAccount">
+        <FontIcon icon="icon cloud-account" />
+      </div>
+    {/if}
   {/if}
 
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings} data-testid="WidgetIconPanel_settings">

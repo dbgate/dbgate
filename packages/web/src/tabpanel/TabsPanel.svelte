@@ -185,12 +185,13 @@
     );
   };
 
-  function getTabDbName(tab, connectionList) {
+  function getTabDbName(tab, connectionList, cloudConnectionsStore) {
     if (tab.tabComponent == 'ConnectionTab') return _t('common.connections', { defaultMessage: 'Connections' });
     if (tab.tabComponent?.startsWith('Admin')) return _t('tab.administration', { defaultMessage: 'Administration' });
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
-      const connection = connectionList?.find(x => x._id == tab.props.conid);
+      const connection =
+        connectionList?.find(x => x._id == tab.props.conid) ?? cloudConnectionsStore?.[tab.props.conid];
       if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
       return '???';
     }
@@ -198,9 +199,10 @@
     return '(no DB)';
   }
 
-  function getTabDbServer(tab, connectionList) {
+  function getTabDbServer(tab, connectionList, cloudConnectionsStore) {
     if (tab.props && tab.props.conid && tab.props.database) {
-      const connection = connectionList?.find(x => x._id == tab.props.conid);
+      const connection =
+        connectionList?.find(x => x._id == tab.props.conid) ?? cloudConnectionsStore?.[tab.props.conid];
       if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
       return null;
     }
@@ -336,6 +338,7 @@
     draggingTab,
     draggingTabTarget,
     getOpenedModals,
+    cloudConnectionsStore,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab, switchCurrentDatabase } from '../utility/common';
@@ -350,6 +353,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import NewObjectModal from '../modals/NewObjectModal.svelte';
 
   export let multiTabIndex;
   export let shownTab;
@@ -367,9 +371,9 @@
 
   $: tabsWithDb = $openedTabs.filter(showTabFilterFunc).map(tab => ({
     ...tab,
-    tabDbName: getTabDbName(tab, $connectionList),
+    tabDbName: getTabDbName(tab, $connectionList, $cloudConnectionsStore),
     tabDbKey: getTabDbKey(tab),
-    tabDbServer: getTabDbServer(tab, $connectionList),
+    tabDbServer: getTabDbServer(tab, $connectionList, $cloudConnectionsStore),
   }));
 
   $: groupedTabs = groupTabs(tabsWithDb);
@@ -713,9 +717,9 @@
     {/if}
     <div
       class="icon-button"
-      on:click={() => newQuery({ multiTabIndex })}
+      on:click={() => showModal(NewObjectModal, { multiTabIndex })}
       title="New query"
-      data-testid="TabsPanel_buttonNewQuery"
+      data-testid="TabsPanel_buttonNewObject"
     >
       <FontIcon icon="icon add" />
     </div>

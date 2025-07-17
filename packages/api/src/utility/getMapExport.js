@@ -18,7 +18,7 @@ const getMapExport = (geoJson) => {
     leaflet
       .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '<a href="https://dbgate.org" title="Exported from DbGate">DbGate</a> | © OpenStreetMap',
+        attribution: '<a href="https://dbgate.io" title="Exported from DbGate">DbGate</a> | © OpenStreetMap',
       })
       .addTo(map);
       

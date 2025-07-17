@@ -13,8 +13,21 @@ const {
 } = require('../auth/authProvider');
 const storage = require('./storage');
 const { decryptPasswordString } = require('../utility/crypting');
-const { createDbGateIdentitySession, startCloudTokenChecking } = require('../utility/cloudIntf');
+const {
+  createDbGateIdentitySession,
+  startCloudTokenChecking,
+  readCloudTokenHolder,
+  readCloudTestTokenHolder,
+} = require('../utility/cloudIntf');
 const socket = require('../utility/socket');
+const { sendToAuditLog } = require('../utility/auditlog');
+const {
+  isLoginLicensed,
+  LOGIN_LIMIT_ERROR,
+  markTokenAsLoggedIn,
+  markUserAsActive,
+  markLoginAsLoggedOut,
+} = require('../utility/loginchecker');
 
 const logger = getLogger('auth');
 
@@ -54,6 +67,11 @@ function authMiddleware(req, res, next) {
 
   // const isAdminPage = req.headers['x-is-admin-page'] == 'true';
 
+  if (process.env.SKIP_ALL_AUTH) {
+    // API is not authorized for basic auth
+    return next();
+  }
+
   if (process.env.BASIC_AUTH) {
     // API is not authorized for basic auth
     return next();
@@ -72,6 +90,8 @@ function authMiddleware(req, res, next) {
   try {
     const decoded = jwt.verify(token, getTokenSecret());
     req.user = decoded;
+    markUserAsActive(decoded.licenseUid, token);
+
     return next();
   } catch (err) {
     if (skipAuth) {
@@ -87,12 +107,12 @@ function authMiddleware(req, res, next) {
 
 module.exports = {
   oauthToken_meta: true,
-  async oauthToken(params) {
+  async oauthToken(params, req) {
     const { amoid } = params;
-    return getAuthProviderById(amoid).oauthToken(params);
+    return getAuthProviderById(amoid).oauthToken(params, req);
   },
   login_meta: true,
-  async login(params) {
+  async login(params, req) {
     const { amoid, login, password, isAdminPage } = params;
 
     if (isAdminPage) {
@@ -102,25 +122,52 @@ module.exports = {
         adminPassword = decryptPasswordString(adminConfig?.adminPassword);
       }
       if (adminPassword && adminPassword == password) {
+        if (!(await isLoginLicensed(req, `superadmin`))) {
+          return { error: LOGIN_LIMIT_ERROR };
+        }
+
+        sendToAuditLog(req, {
+          category: 'auth',
+          component: 'AuthController',
+          action: 'login',
+          event: 'login.admin',
+          severity: 'info',
+          message: 'Administration login successful',
+        });
+
+        const licenseUid = `superadmin`;
+        const accessToken = jwt.sign(
+          {
+            login: 'superadmin',
+            permissions: await storage.loadSuperadminPermissions(),
+            roleId: -3,
+            licenseUid,
+          },
+          getTokenSecret(),
+          {
+            expiresIn: getTokenLifetime(),
+          }
+        );
+        markTokenAsLoggedIn(licenseUid, accessToken);
+
         return {
-          accessToken: jwt.sign(
-            {
-              login: 'superadmin',
-              permissions: await storage.loadSuperadminPermissions(),
-              roleId: -3,
-            },
-            getTokenSecret(),
-            {
-              expiresIn: getTokenLifetime(),
-            }
-          ),
+          accessToken,
         };
       }
+
+      sendToAuditLog(req, {
+        category: 'auth',
+        component: 'AuthController',
+        action: 'loginFail',
+        event: 'login.adminFailed',
+        severity: 'warn',
+        message: 'Administraton login failed',
+      });
 
       return { error: 'Login failed' };
     }
 
-    return getAuthProviderById(amoid).login(login, password);
+    return getAuthProviderById(amoid).login(login, password, undefined, req);
   },
 
   getProviders_meta: true,
@@ -138,12 +185,38 @@ module.exports = {
   },
 
   createCloudLoginSession_meta: true,
-  async createCloudLoginSession({ client }) {
-    const res = await createDbGateIdentitySession(client);
+  async createCloudLoginSession({ client, redirectUri }) {
+    const res = await createDbGateIdentitySession(client, redirectUri);
     startCloudTokenChecking(res.sid, tokenHolder => {
       socket.emit('got-cloud-token', tokenHolder);
+      socket.emitChanged('cloud-content-changed');
+      socket.emit('cloud-content-updated');
     });
     return res;
+  },
+
+  cloudLoginRedirected_meta: true,
+  async cloudLoginRedirected({ sid }) {
+    const tokenHolder = await readCloudTokenHolder(sid);
+    return tokenHolder;
+  },
+
+  cloudTestLogin_meta: true,
+  async cloudTestLogin({ email }) {
+    const tokenHolder = await readCloudTestTokenHolder(email);
+    return tokenHolder;
+  },
+
+  logoutAdmin_meta: true,
+  async logoutAdmin() {
+    await markLoginAsLoggedOut('superadmin');
+    return true;
+  },
+
+  logoutUser_meta: true,
+  async logoutUser({}, req) {
+    await markLoginAsLoggedOut(req?.user?.licenseUid);
+    return true;
   },
 
   authMiddleware,

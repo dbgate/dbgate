@@ -31,6 +31,7 @@
   export let padLeft = false;
   export let padRight = false;
   export let style = null;
+  export let colorClass = null;
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -143,6 +144,8 @@
     'icon markdown': 'mdi mdi-application',
     'icon preview': 'mdi mdi-file-find',
     'icon eye': 'mdi mdi-eye',
+    'icon perspective': 'mdi mdi-eye',
+    'icon auditlog': 'mdi mdi-eye',
     'icon check-all': 'mdi mdi-check-all',
     'icon checkbox-blank': 'mdi mdi-checkbox-blank-outline',
     'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
@@ -159,6 +162,7 @@
     'icon ai': 'mdi mdi-head-lightbulb',
     'icon wait': 'mdi mdi-timer-sand',
     'icon more': 'mdi mdi-more',
+    'icon copy': 'mdi mdi-content-copy',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
@@ -232,6 +236,10 @@
     'icon upload': 'mdi mdi-upload',
     'icon limit': 'mdi mdi-car-speed-limiter',
 
+    'icon chart': 'mdi mdi-chart-bar',
+    'icon cloud-connection': 'mdi mdi-cloud-lock',
+    'icon diagram': 'mdi mdi-graph',
+
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',
@@ -304,6 +312,7 @@
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
     'img perspective': 'mdi mdi-eye color-icon-yellow',
+    'img auditlog': 'mdi mdi-eye color-icon-blue',
     'img parent-filter': 'mdi mdi-home-alert color-icon-yellow',
 
     'img folder': 'mdi mdi-folder color-icon-yellow',
@@ -333,7 +342,7 @@
 </script>
 
 <span
-  class={iconNames[icon] || icon}
+  class={`${iconNames[icon] || icon} ${colorClass || ''}`}
   {title}
   class:padLeft
   class:padRight

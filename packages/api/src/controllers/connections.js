@@ -536,14 +536,14 @@ module.exports = {
   },
 
   dbloginAuthToken_meta: true,
-  async dbloginAuthToken({ amoid, code, conid, redirectUri, sid }) {
+  async dbloginAuthToken({ amoid, code, conid, redirectUri, sid }, req) {
     try {
       const connection = await this.getCore({ conid });
       const driver = requireEngineDriver(connection);
       const accessToken = await driver.getAuthTokenFromCode(connection, { code, redirectUri, sid });
       const volatile = await this.saveVolatile({ conid, accessToken });
       const authProvider = getAuthProviderById(amoid);
-      const resp = await authProvider.login(null, null, { conid: volatile._id });
+      const resp = await authProvider.login(null, null, { conid: volatile._id }, req);
       return resp;
     } catch (err) {
       logger.error(extractErrorLogData(err), 'Error getting DB token');
@@ -552,18 +552,18 @@ module.exports = {
   },
 
   dbloginAuth_meta: true,
-  async dbloginAuth({ amoid, conid, user, password }) {
+  async dbloginAuth({ amoid, conid, user, password }, req) {
     if (user || password) {
       const saveResp = await this.saveVolatile({ conid, user, password, test: true });
       if (saveResp.msgtype == 'connected') {
-        const loginResp = await getAuthProviderById(amoid).login(user, password, { conid: saveResp._id });
+        const loginResp = await getAuthProviderById(amoid).login(user, password, { conid: saveResp._id }, req);
         return loginResp;
       }
       return saveResp;
     }
 
     // user and password is stored in connection, volatile connection is not needed
-    const loginResp = await getAuthProviderById(amoid).login(null, null, { conid });
+    const loginResp = await getAuthProviderById(amoid).login(null, null, { conid }, req);
     return loginResp;
   },
 

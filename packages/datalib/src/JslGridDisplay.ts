@@ -17,9 +17,10 @@ export class JslGridDisplay extends GridDisplay {
     isDynamicStructure: boolean,
     supportsReload: boolean,
     editable: boolean = false,
-    driver: EngineDriver = null
+    driver: EngineDriver = null,
+    currentSettings = null
   ) {
-    super(config, setConfig, cache, setCache, driver);
+    super(config, setConfig, cache, setCache, driver, undefined, undefined, currentSettings);
 
     this.filterable = true;
     this.sortable = true;

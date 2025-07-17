@@ -24,6 +24,18 @@
     onClick: () => getCurrentEditor().exportDiagram(),
     testEnabled: () => getCurrentEditor()?.canExport(),
   });
+
+  registerCommand({
+    id: 'diagram.deleteSelectedTables',
+    category: 'Designer',
+    toolbarName: 'Remove',
+    name: 'Remove selected tables',
+    icon: 'icon delete',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().deleteSelectedTables(),
+    testEnabled: () => getCurrentEditor()?.areTablesSelected(),
+  });
 </script>
 
 <script lang="ts">
@@ -54,6 +66,7 @@
   import createRef from '../utility/createRef';
   import { isProApp } from '../utility/proTools';
   import dragScroll from '../utility/dragScroll';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   export let value;
   export let onChange;
@@ -63,6 +76,7 @@
   export let settings;
   export let referenceComponent;
   export let onReportCounts = undefined;
+  export let allowAddTablesButton = false;
 
   export const activator = createActivator('Designer', true);
 
@@ -423,6 +437,19 @@
     arrange(true, false, rect ? { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 } : null);
   };
 
+  const handleAddAllTables = async () => {
+    const db = dbInfoExtended;
+    if (!db) return;
+    callChange(current => ({
+      tables: db.tables.map(table => ({
+        ...table,
+        designerId: `${table.pureName}-${uuidv1()}`,
+      })),
+      references: [],
+      autoLayout: true,
+    }));
+  };
+
   const handleChangeTableColor = table => {
     showModal(ChooseColorModal, {
       onChange: color => {
@@ -764,7 +791,11 @@
   }
 
   function getWatermarkHtml() {
-    const replaceLinks = text => text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>');
+    const replaceLinks = text =>
+      text.replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>'
+      );
 
     if (value?.style?.omitExportWatermark) return null;
     if (value?.style?.exportWatermark) {
@@ -890,8 +921,8 @@
   function handleWheel(event) {
     if (event.ctrlKey) {
       event.preventDefault();
-      const zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
-      if (zoomIndex < 0) DIAGRAM_ZOOMS.findIndex(x => x == 1);
+      let zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == value?.style?.zoomKoef);
+      if (zoomIndex < 0) zoomIndex = DIAGRAM_ZOOMS.findIndex(x => x == 1);
 
       let newZoomIndex = zoomIndex;
       if (event.deltaY < 0) {
@@ -962,6 +993,18 @@
       filtered: _.compact(tables || []).length,
     });
   }
+
+  export function areTablesSelected() {
+    return tables.some(x => x.isSelectedTable);
+  }
+
+  export function deleteSelectedTables() {
+    callChange(current => ({
+      ...current,
+      tables: (current.tables || []).filter(x => !x.isSelectedTable),
+    }));
+    updateFromDbInfo();
+  }
 </script>
 
 <div
@@ -973,6 +1016,12 @@
 >
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
+
+    {#if allowAddTablesButton}
+      <div class="addAllTables">
+        <FormStyledButton value="Add all tables" on:click={handleAddAllTables} />
+      </div>
+    {/if}
   {/if}
 
   <div
@@ -1086,6 +1135,14 @@
     margin: 50px;
     font-size: 20px;
     position: absolute;
+  }
+
+  .addAllTables {
+    margin: 50px;
+    margin-top: 100px;
+    font-size: 20px;
+    position: absolute;
+    z-index: 100;
   }
   .canvas {
     position: relative;

@@ -50,7 +50,7 @@
           on:click={async e => {
             sessionStorage.setItem('continueTrialConfirmed', '1');
             const { licenseKey } = e.detail;
-            const resp = await apiCall('config/save-license-key', { licenseKey });
+            const resp = await apiCall('config/save-license-key', { licenseKey, tryToRenew: true });
             if (resp?.status == 'ok') {
               internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
             } else {

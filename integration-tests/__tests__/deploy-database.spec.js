@@ -106,7 +106,9 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
 
   for (const loadedDbModel of dbModelsYaml) {
     if (_.isString(loadedDbModel)) {
-      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel));
+      await driver.script(conn, formatQueryWithoutParams(driver, loadedDbModel), {
+        useTransaction: engine.runDeployInTransaction,
+      });
     } else {
       const { sql, isEmpty } = await generateDeploySql({
         systemConnection: conn.isPreparedOnly ? undefined : conn,
@@ -131,6 +133,7 @@ async function testDatabaseDeploy(engine, conn, driver, dbModelsYaml, options) {
         driver,
         loadedDbModel: convertModelToEngine(loadedDbModel, driver),
         dbdiffOptionsExtra,
+        useTransaction: engine.runDeployInTransaction,
       });
     }
 
@@ -606,7 +609,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy && !i.skipRenameTable).map(engine => [engine.label, engine]))(
     'Mark table removed - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1], [], []], {
@@ -822,7 +825,7 @@ describe('Deploy database', () => {
     })
   );
 
-  test.each(engines.filter(i => !i.skipDeploy).map(engine => [engine.label, engine]))(
+  test.each(engines.filter(i => !i.skipDeploy && !i.skipRenameTable).map(engine => [engine.label, engine]))(
     'Mark table removed, one remains - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDeploy(engine, conn, driver, [[T1, T2], [T2], [T2]], {

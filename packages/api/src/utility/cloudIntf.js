@@ -20,21 +20,26 @@ let cloudFiles = null;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
+  : process.env.PROD_DBGATE_IDENTITY
+  ? 'https://identity.dbgate.io'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://identity.dbgate.udolni.net'
   : 'https://identity.dbgate.io';
 
 const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   ? 'http://localhost:3110'
+  : process.env.PROD_DBGATE_CLOUD
+  ? 'https://cloud.dbgate.io'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://cloud.dbgate.udolni.net'
   : 'https://cloud.dbgate.io';
 
-async function createDbGateIdentitySession(client) {
+async function createDbGateIdentitySession(client, redirectUri) {
   const resp = await axios.default.post(
     `${DBGATE_IDENTITY_URL}/api/create-session`,
     {
       client,
+      redirectUri,
     },
     {
       headers: {
@@ -66,7 +71,7 @@ function startCloudTokenChecking(sid, callback) {
       });
       // console.log('CHECK RESP:', resp.data);
 
-      if (resp.data.email) {
+      if (resp.data?.email) {
         clearInterval(interval);
         callback(resp.data);
       }
@@ -76,6 +81,34 @@ function startCloudTokenChecking(sid, callback) {
   }, 500);
 }
 
+async function readCloudTokenHolder(sid) {
+  const resp = await axios.default.get(`${DBGATE_IDENTITY_URL}/api/get-token/${sid}`, {
+    headers: {
+      ...getLicenseHttpHeaders(),
+    },
+  });
+  if (resp.data?.email) {
+    return resp.data;
+  }
+  return null;
+}
+
+async function readCloudTestTokenHolder(email) {
+  const resp = await axios.default.post(
+    `${DBGATE_IDENTITY_URL}/api/test-token`,
+    { email },
+    {
+      headers: {
+        ...getLicenseHttpHeaders(),
+      },
+    }
+  );
+  if (resp.data?.email) {
+    return resp.data;
+  }
+  return null;
+}
+
 async function loadCloudFiles() {
   try {
     const fileContent = await fs.readFile(path.join(datadir(), 'cloud-files.jsonl'), 'utf-8');
@@ -83,6 +116,16 @@ async function loadCloudFiles() {
     cloudFiles = _.sortBy(parsedJson, x => `${x.folder}/${x.title}`);
   } catch (err) {
     cloudFiles = [];
+  }
+}
+
+async function getCloudUsedEngines() {
+  try {
+    const resp = await callCloudApiGet('content-engines');
+    return resp || [];
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'Error getting cloud content list');
+    return [];
   }
 }
 
@@ -120,11 +163,14 @@ async function collectCloudFilesSearchTags() {
   const engines = await connections.getUsedEngines();
   const engineTags = engines.map(engine => engine.split('@')[0]);
   res.push(...engineTags);
+  const cloudEngines = await getCloudUsedEngines();
+  const cloudEngineTags = cloudEngines.map(engine => engine.split('@')[0]);
+  res.push(...cloudEngineTags);
 
   // team-premium and trials will return the same cloud files as premium - no need to check
   res.push(isProApp() ? 'premium' : 'community');
 
-  return res;
+  return _.uniq(res);
 }
 
 async function getCloudSigninHolder() {
@@ -170,7 +216,7 @@ async function updateCloudFiles(isRefresh) {
     {
       headers: {
         ...getLicenseHttpHeaders(),
-        ...(await getCloudSigninHeaders()),
+        ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
       },
     }
@@ -243,11 +289,26 @@ async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders 
     },
     validateStatus: status => status < 500,
   });
-  const { errorMessage } = resp.data;
+  const { errorMessage, isLicenseLimit, limitedLicenseLimits } = resp.data;
   if (errorMessage) {
-    return { apiErrorMessage: errorMessage };
+    return {
+      apiErrorMessage: errorMessage,
+      apiErrorIsLicenseLimit: isLicenseLimit,
+      apiErrorLimitedLicenseLimits: limitedLicenseLimits,
+    };
   }
   return resp.data;
+}
+
+async function getCloudInstanceHeaders() {
+  if (!(await fs.exists(path.join(datadir(), 'cloud-instance.txt')))) {
+    const newInstanceId = crypto.randomUUID();
+    await fs.writeFile(path.join(datadir(), 'cloud-instance.txt'), newInstanceId);
+  }
+  const instanceId = await fs.readFile(path.join(datadir(), 'cloud-instance.txt'), 'utf-8');
+  return {
+    'x-cloud-instance': instanceId,
+  };
 }
 
 async function callCloudApiPost(endpoint, body, signinHolder = null) {
@@ -293,7 +354,7 @@ async function getCloudContent(folid, cntid) {
 
   const encryptor = simpleEncryptor.createEncryptor(signinHolder.encryptionKey);
 
-  const { content, name, type, contentFolder, contentType, apiErrorMessage } = await callCloudApiGet(
+  const { content, name, type, contentAttributes, apiErrorMessage } = await callCloudApiGet(
     `content/${folid}/${cntid}`,
     signinHolder,
     {
@@ -309,8 +370,7 @@ async function getCloudContent(folid, cntid) {
     content: encryptor.decrypt(content),
     name,
     type,
-    contentFolder,
-    contentType,
+    contentAttributes,
   };
 }
 
@@ -318,7 +378,7 @@ async function getCloudContent(folid, cntid) {
  *
  * @returns Promise<{ cntid: string } | { apiErrorMessage: string }>
  */
-async function putCloudContent(folid, cntid, content, name, type, contentFolder = null, contentType = null) {
+async function putCloudContent(folid, cntid, content, name, type, contentAttributes) {
   const signinHolder = await getCloudSigninHolder();
   if (!signinHolder) {
     throw new Error('No signed in');
@@ -335,8 +395,7 @@ async function putCloudContent(folid, cntid, content, name, type, contentFolder 
       type,
       kehid: signinHolder.kehid,
       content: encryptor.encrypt(content),
-      contentFolder,
-      contentType,
+      contentAttributes,
     },
     signinHolder
   );
@@ -377,4 +436,6 @@ module.exports = {
   loadCachedCloudConnection,
   putCloudContent,
   removeCloudCachedConnection,
+  readCloudTokenHolder,
+  readCloudTestTokenHolder,
 };

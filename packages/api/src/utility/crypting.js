@@ -91,11 +91,11 @@ function encryptObjectPasswordField(obj, field, encryptor = null) {
   return obj;
 }
 
-function decryptObjectPasswordField(obj, field) {
+function decryptObjectPasswordField(obj, field, encryptor = null) {
   if (obj && obj[field] && obj[field].startsWith('crypt:')) {
     return {
       ...obj,
-      [field]: getInternalEncryptor().decrypt(obj[field].substring('crypt:'.length)),
+      [field]: (encryptor || getInternalEncryptor()).decrypt(obj[field].substring('crypt:'.length)),
     };
   }
   return obj;
@@ -115,10 +115,10 @@ function maskConnection(connection) {
   return _.omit(connection, ['password', 'sshPassword', 'sshKeyfilePassword']);
 }
 
-function decryptConnection(connection) {
-  connection = decryptObjectPasswordField(connection, 'password');
-  connection = decryptObjectPasswordField(connection, 'sshPassword');
-  connection = decryptObjectPasswordField(connection, 'sshKeyfilePassword');
+function decryptConnection(connection, encryptor = null) {
+  connection = decryptObjectPasswordField(connection, 'password', encryptor);
+  connection = decryptObjectPasswordField(connection, 'sshPassword', encryptor);
+  connection = decryptObjectPasswordField(connection, 'sshKeyfilePassword', encryptor);
   return connection;
 }
 

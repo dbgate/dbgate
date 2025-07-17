@@ -1,0 +1,1 @@
+<div>This component is only for DbGate Premium</div>

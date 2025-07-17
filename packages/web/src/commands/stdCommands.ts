@@ -5,6 +5,7 @@ import {
   emptyConnectionGroupNames,
   extensions,
   getAppUpdaterActive,
+  getCloudSigninTokenHolder,
   getExtensions,
   getVisibleToolbar,
   visibleToolbar,
@@ -128,11 +129,12 @@ registerCommand({
   id: 'new.connectionOnCloud',
   toolbar: true,
   icon: 'img cloud-connection',
-  toolbarName: 'Add connection on cloud',
+  toolbarName: 'Add connection',
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection on Cloud',
-  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && isProApp(),
+  testEnabled: () =>
+    !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && !!getCloudSigninTokenHolder(),
   onClick: () => {
     openNewTab({
       title: 'New Connection on Cloud',
@@ -652,13 +654,67 @@ registerCommand({
   name: 'SQL Generator',
   toolbar: true,
   icon: 'icon sql-generator',
-  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/sql-generator`),
+  testEnabled: () =>
+    getCurrentDatabase() != null &&
+    hasPermission(`dbops/sql-generator`) &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
   onClick: () =>
     showModal(SqlGeneratorModal, {
       conid: getCurrentDatabase()?.connection?._id,
       database: getCurrentDatabase()?.name,
     }),
 });
+
+registerCommand({
+  id: 'database.export',
+  category: 'Database',
+  name: 'Export database',
+  toolbar: true,
+  icon: 'icon export',
+  testEnabled: () => getCurrentDatabase() != null,
+  onClick: () => {
+    openImportExportTab({
+      targetStorageType: getDefaultFileFormat(getExtensions()).storageType,
+      sourceStorageType: 'database',
+      sourceConnectionId: getCurrentDatabase()?.connection?._id,
+      sourceDatabaseName: getCurrentDatabase()?.name,
+    });
+  },
+});
+
+if (isProApp()) {
+  registerCommand({
+    id: 'database.compare',
+    category: 'Database',
+    name: 'Compare databases',
+    toolbar: true,
+    icon: 'icon compare',
+    testEnabled: () =>
+      getCurrentDatabase() != null &&
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+    onClick: () => {
+      openNewTab(
+        {
+          title: 'Compare',
+          icon: 'img compare',
+          tabComponent: 'CompareModelTab',
+          props: {
+            conid: getCurrentDatabase()?.connection?._id,
+            database: getCurrentDatabase()?.name,
+          },
+        },
+        {
+          editor: {
+            sourceConid: getCurrentDatabase()?.connection?._id,
+            sourceDatabase: getCurrentDatabase()?.name,
+            targetConid: getCurrentDatabase()?.connection?._id,
+            targetDatabase: getCurrentDatabase()?.name,
+          },
+        }
+      );
+    },
+  });
+}
 
 if (hasPermission('settings/change')) {
   registerCommand({

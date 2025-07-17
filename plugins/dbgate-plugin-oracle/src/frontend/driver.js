@@ -183,6 +183,7 @@ END trigger_name;
   adaptDataType(dataType) {
     if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
     if (dataType?.toLowerCase() == 'text') return 'clob';
+    if (dataType?.toLowerCase() == 'bigint') return 'integer';
     return dataType;
   },
 };

@@ -33,12 +33,22 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showSnackbarInfo } from '../utility/snackbar';
+  import { isProApp } from '../utility/proTools';
+  import { useCloudContentColorFactory, useConnectionColorFactory } from '../utility/useConnectionColor';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import runCommand from '../commands/runCommand';
+  import SaveFileModal from '../modals/SaveFileModal.svelte';
+  import newQuery from '../query/newQuery';
+  import ConfigureSharedFolderModal from '../modals/ConfigureSharedFolderModal.svelte';
 
   let filter = '';
   let domSqlObjectList = null;
 
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
+  const cloudContentColorFactory = useCloudContentColorFactory(3);
+  const connectionColorFactory = useConnectionColorFactory(3);
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
   $: cloudContentFlat = _.sortBy(
@@ -61,6 +71,7 @@
     'name'
   );
   $: contentGroupMap = _.keyBy($cloudContentList || [], x => x.folid);
+  $: privateFolderId = $cloudContentList?.find(x => x.isPrivate)?.folid;
 
   // $: console.log('cloudContentFlat', cloudContentFlat);
   // $: console.log('contentGroupMap', contentGroupMap);
@@ -98,10 +109,43 @@
   //   }
   // });
 
-  function createAddMenu() {
+  function createAddItemMenu() {
     return [
       {
-        text: 'New shared folder',
+        command: 'new.connectionOnCloud',
+      },
+      {
+        text: 'New SQL script',
+        onClick: () => {
+          const data = '';
+          showModal(SaveFileModal, {
+            data,
+            skipLocal: true,
+            folid: privateFolderId,
+            folder: 'sql',
+            onSave: (name, { savedFile, savedFolder, savedFilePath, savedCloudFolderId, savedCloudContentId }) => {
+              newQuery({
+                // @ts-ignore
+                savedFolder: 'sql',
+                savedFormat: 'text',
+                savedFile,
+                savedCloudFolderId,
+                savedCloudContentId,
+
+                fixCurrentConnection: true,
+                title: savedFile,
+              });
+            },
+          });
+        },
+      },
+    ];
+  }
+
+  function createAddFolderMenu() {
+    return [
+      isProApp() && {
+        text: 'Create shared folder',
         onClick: () => {
           showModal(InputTextModal, {
             label: 'New folder name',
@@ -114,8 +158,8 @@
           });
         },
       },
-      {
-        text: 'Add existing shared folder',
+      isProApp() && {
+        text: 'Add existing folder (from link)',
         onClick: () => {
           showModal(InputTextModal, {
             label: 'Your invite link (in form dbgate://folder/xxx)',
@@ -127,9 +171,6 @@
             },
           });
         },
-      },
-      {
-        command: 'new.connectionOnCloud',
       },
     ];
   }
@@ -161,39 +202,40 @@
       });
     };
 
-    const handleCopyInviteLink = async role => {
-      const { inviteToken } = await apiCall(`cloud/get-invite-token`, {
-        folid: folder,
-        role,
-      });
-      const inviteLink = `dbgate://folder/v1/${inviteToken}?mode=${role}`;
-      navigator.clipboard.writeText(inviteLink);
-      showSnackbarInfo(`Invite link (${role}) copied to clipboard`);
-    };
-
     return [
       contentGroupMap[folder]?.role == 'admin' && [
         { text: 'Rename', onClick: handleRename },
         { text: 'Delete', onClick: handleDelete },
       ],
-      contentGroupMap[folder]?.role == 'admin' &&
+      isProApp() &&
+        contentGroupMap[folder]?.role == 'admin' &&
         !contentGroupMap[folder]?.isPrivate && {
-          text: 'Copy invite link',
-          submenu: [
-            {
-              text: 'Admin',
-              onClick: () => handleCopyInviteLink('admin'),
-            },
-            {
-              text: 'Write',
-              onClick: () => handleCopyInviteLink('write'),
-            },
-            {
-              text: 'Read',
-              onClick: () => handleCopyInviteLink('read'),
-            },
-          ],
+          text: 'Administrate access',
+          onClick: () => {
+            showModal(ConfigureSharedFolderModal, {
+              folid: folder,
+              name: contentGroupMap[folder]?.name,
+            });
+          },
         },
+      // contentGroupMap[folder]?.role == 'admin' &&
+      //   !contentGroupMap[folder]?.isPrivate && {
+      //     text: 'Copy invite link',
+      //     submenu: [
+      //       {
+      //         text: 'Admin',
+      //         onClick: () => handleCopyInviteLink('admin'),
+      //       },
+      //       {
+      //         text: 'Write',
+      //         onClick: () => handleCopyInviteLink('write'),
+      //       },
+      //       {
+      //         text: 'Read',
+      //         onClick: () => handleCopyInviteLink('read'),
+      //       },
+      //     ],
+      //   },
     ];
   }
 </script>
@@ -209,7 +251,10 @@
     <SearchBoxWrapper>
       <SearchInput placeholder="Search cloud connections and files" bind:value={filter} />
       <CloseSearchButton bind:filter />
-      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+      <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title="Add new connection or file" />
+      {#if isProApp()}
+        <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title="Add new folder" />
+      {/if}
       <InlineButton
         on:click={handleRefreshContent}
         title="Refresh files"
@@ -239,11 +284,37 @@
         }}
         passProps={{
           onFocusSqlObjectList: () => domSqlObjectList.focus(),
+          cloudContentColorFactory: $cloudContentColorFactory,
+          connectionColorFactory: $connectionColorFactory,
         }}
         groupContextMenu={createGroupContextMenu}
       />
+
+      {#if !cloudContentFlat?.length}
+        <ErrorInfo message="You have no content on DbGate cloud" icon="img info" />
+        <div class="error-info">
+          <div class="m-1"></div>
+          <FormStyledButton
+            value="Create connection on DbGate Cloud"
+            skipWidth
+            on:click={() => {
+              runCommand('new.connectionOnCloud');
+            }}
+          />
+        </div>
+      {/if}
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
 
   <DatabaseWidgetDetailContent bind:domSqlObjectList showCloudConnection={true} />
 </WidgetColumnBar>
+
+<style>
+  .error-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 10px;
+  }
+</style>

@@ -60,9 +60,8 @@
         installNewCloudTokenListener();
         initializeAppUpdates();
         installCloudListeners();
+        refreshPublicCloudFiles();
       }
-
-      refreshPublicCloudFiles();
 
       loadedApi = loadedApiValue;
 

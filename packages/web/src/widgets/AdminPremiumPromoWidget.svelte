@@ -11,6 +11,9 @@
 
   <ul>
     <li>Query designer</li>
+    <li>Unlimited DbGate Cloud storage</li>
+    <li>Shared cloud folders</li>
+    <li>Charts from query result</li>
     <li>Compare database models</li>
     <li>Synchronize database structure</li>
     <li>Backup &amp; restore database</li>

@@ -55,7 +55,7 @@ const DS2 = [
   {
     ts1: '2023-10-03T07:10:00Z',
     ts2: '2024-10-03T07:10:00Z',
-    price1: '13',
+    price1: '22',
     price2: '24',
   },
   {
@@ -116,22 +116,42 @@ describe('Chart processor', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS1.slice(0, 3));
     processor.finalize();
-    expect(processor.charts.length).toEqual(1);
-    const chart = processor.charts[0];
-    expect(chart.definition.xdef.transformFunction).toEqual('date:day');
-    expect(chart.definition.ydefs).toEqual([
+    // console.log(getChartDebugPrint(processor.charts[0]));
+    expect(processor.charts.length).toEqual(6);
+    const chart1 = processor.charts.find(x => !x.definition.groupingField && x.definition.xdef.field === 'timestamp');
+    expect(chart1.definition.xdef.transformFunction).toEqual('date:day');
+    expect(chart1.definition.ydefs).toEqual([
       expect.objectContaining({
         field: 'value',
       }),
     ]);
-    expect(chart.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+    expect(chart1.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+
+    const chart2 = processor.charts.find(x => x.definition.groupingField && x.definition.xdef.field === 'timestamp');
+    expect(chart2.definition.xdef.transformFunction).toEqual('date:day');
+    expect(chart2.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+    expect(chart2.definition.groupingField).toEqual('category');
+
+    const chart3 = processor.charts.find(x => x.definition.xdef.field === 'category');
+    expect(chart3.bucketKeysOrdered).toEqual(['A', 'B']);
+    expect(chart3.definition.groupingField).toBeUndefined();
+
+    const countCharts = processor.charts.filter(
+      x => x.definition.ydefs.length == 1 && x.definition.ydefs[0].field == '__count'
+    );
+    expect(countCharts.length).toEqual(3);
   });
   test('By month grouped, autedetected', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS1.slice(0, 4));
     processor.finalize();
-    expect(processor.charts.length).toEqual(1);
-    const chart = processor.charts[0];
+    expect(processor.charts.length).toEqual(6);
+    const chart = processor.charts.find(
+      x =>
+        !x.definition.groupingField &&
+        x.definition.xdef.field === 'timestamp' &&
+        !x.definition.ydefs.find(y => y.field === '__count')
+    );
     expect(chart.definition.xdef.transformFunction).toEqual('date:month');
     expect(chart.bucketKeysOrdered).toEqual([
       '2023-10',
@@ -201,7 +221,7 @@ describe('Chart processor', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS2);
     processor.finalize();
-    expect(processor.charts.length).toEqual(2);
+    expect(processor.charts.length).toEqual(4);
     expect(processor.charts[0].definition).toEqual(
       expect.objectContaining({
         xdef: expect.objectContaining({
@@ -244,8 +264,8 @@ describe('Chart processor', () => {
     const processor = new ChartProcessor();
     processor.addRows(...DS3);
     processor.finalize();
-    expect(processor.charts.length).toEqual(1);
-    const chart = processor.charts[0];
+    expect(processor.charts.length).toEqual(2);
+    const chart = processor.charts.find(x => !x.definition.ydefs.find(y => y.field === '__count'));
     expect(chart.definition.xdef.transformFunction).toEqual('date:day');
     expect(chart.definition.ydefs).toEqual([
       expect.objectContaining({
@@ -373,4 +393,33 @@ describe('Chart processor', () => {
       expect(chart.buckets).toEqual(expectedBuckets);
     }
   );
+
+  test('Incorrect chart definition', () => {
+    const processor = new ChartProcessor([
+      {
+        chartType: 'bar',
+        xdef: {
+          field: 'category',
+          transformFunction: 'date:day',
+        },
+        ydefs: [],
+      },
+    ]);
+    processor.addRows(...DS1.slice(0, 3));
+    processor.finalize();
+
+    expect(processor.charts.length).toEqual(1);
+    const chart = processor.charts[0];
+    expect(chart.definition.xdef.transformFunction).toEqual('date:day');
+
+    // console.log(getChartDebugPrint(processor.charts[0]));
+
+    // expect(chart.definition.xdef.transformFunction).toEqual('date:day');
+    // expect(chart.definition.ydefs).toEqual([
+    //   expect.objectContaining({
+    //     field: 'value',
+    //   }),
+    // ]);
+    // expect(chart.bucketKeysOrdered).toEqual(['2023-10-01', '2023-10-02', '2023-10-03']);
+  });
 });

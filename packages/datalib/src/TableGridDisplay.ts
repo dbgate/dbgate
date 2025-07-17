@@ -38,9 +38,10 @@ export class TableGridDisplay extends GridDisplay {
     serverVersion,
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
     isReadOnly = false,
-    public isRawMode = false
+    public isRawMode = false,
+    public currentSettings = null
   ) {
-    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
+    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
 
     this.table = this.findTable(tableName);
     if (!this.table) {
@@ -265,6 +266,7 @@ export class TableGridDisplay extends GridDisplay {
       uniqueName,
       uniquePath,
       isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
+      hasAutoValue: col.hasAutoValue,
       foreignKey:
         table.foreignKeys &&
         table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),

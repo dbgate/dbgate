@@ -1,0 +1,11 @@
+{"__isStreamHeader":true,"pureName":"projects","schemaName":"dbo","objectId":1301579675,"createDate":"2025-06-12T10:30:34.127Z","modifyDate":"2025-06-23T12:15:08.750Z","contentHash":"2025-06-23T12:15:08.750Z","columns":[{"columnName":"id","dataType":"int","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"name","dataType":"varchar(100)","notNull":true,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"start_date","dataType":"date","notNull":false,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false},{"columnName":"end_date","dataType":"date","notNull":false,"autoIncrement":false,"defaultValue":null,"defaultConstraint":null,"computedExpression":null,"hasAutoValue":false}],"primaryKey":{"constraintName":"PK__projects__3213E83F26A7ED11","schemaName":"dbo","pureName":"projects","constraintType":"primaryKey","columns":[{"columnName":"id"}]},"foreignKeys":[],"indexes":[],"uniques":[],"engine":"mssql@dbgate-plugin-mssql"}
+{"id":1,"name":"Apollo Upgrade","start_date":"2020-04-27T00:00:00.000Z","end_date":"2020-10-19T00:00:00.000Z"}
+{"id":2,"name":"Market Expansion","start_date":"2022-08-04T00:00:00.000Z","end_date":"2023-06-20T00:00:00.000Z"}
+{"id":3,"name":"AI Integration","start_date":"2020-05-11T00:00:00.000Z","end_date":"2021-07-10T00:00:00.000Z"}
+{"id":4,"name":"Cost Reduction","start_date":"2022-01-08T00:00:00.000Z","end_date":"2022-07-12T00:00:00.000Z"}
+{"id":5,"name":"Cloud Migration","start_date":"2021-01-11T00:00:00.000Z","end_date":"2021-05-27T00:00:00.000Z"}
+{"id":6,"name":"Customer Portal","start_date":"2021-07-13T00:00:00.000Z","end_date":"2022-09-22T00:00:00.000Z"}
+{"id":7,"name":"Data Lake","start_date":"2021-02-25T00:00:00.000Z","end_date":"2021-08-21T00:00:00.000Z"}
+{"id":8,"name":"UX Overhaul","start_date":"2021-05-20T00:00:00.000Z","end_date":"2022-09-10T00:00:00.000Z"}
+{"id":9,"name":"Security Hardening","start_date":"2021-05-28T00:00:00.000Z","end_date":"2022-07-28T00:00:00.000Z"}
+{"id":10,"name":"Mobile App Revamp","start_date":"2021-11-17T00:00:00.000Z","end_date":"2022-06-04T00:00:00.000Z"}

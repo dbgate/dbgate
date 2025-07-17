@@ -1,0 +1,12 @@
+name: departments
+columns:
+  - name: id
+    type: int
+    default: null
+    notNull: true
+  - name: name
+    type: varchar(100)
+    default: null
+    notNull: true
+primaryKey:
+  - id

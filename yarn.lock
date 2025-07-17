@@ -1139,6 +1139,11 @@
     "@duckdb/node-bindings-linux-x64" "1.2.1-alpha.16"
     "@duckdb/node-bindings-win32-x64" "1.2.1-alpha.16"
 
+"@energiency/chartjs-plugin-piechart-outlabels@^1.3.4":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@energiency/chartjs-plugin-piechart-outlabels/-/chartjs-plugin-piechart-outlabels-1.3.4.tgz#f9047b48c059ab8979da88c6d7962d1400b59156"
+  integrity sha512-7xIJ6tWKYoyxRCgtaYMv5HK42K8HCl8Hui/difqqssyjaCg0gY2uDYskRV7iw1BrxPiLtnFUEWwwPV9DhN4s8Q==
+
 "@gar/promisify@^1.0.1":
   version "1.1.3"
   resolved "https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz"
@@ -3578,7 +3583,7 @@ better-sqlite3@11.8.1:
 
 big-integer@^1.6.51:
   version "1.6.52"
-  resolved "https://registry.npmmirror.com/big-integer/-/big-integer-1.6.52.tgz"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.52.tgz#60a887f3047614a8e1bffe5d7173490a97dc8c85"
   integrity sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==
 
 big.js@^5.2.2:
@@ -5665,6 +5670,11 @@ flat@^5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/flat/-/flat-5.0.2.tgz"
   integrity sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==
+
+flatpickr@^4.6.13:
+  version "4.6.13"
+  resolved "https://registry.yarnpkg.com/flatpickr/-/flatpickr-4.6.13.tgz#8a029548187fd6e0d670908471e43abe9ad18d94"
+  integrity sha512-97PMG/aywoYpB4IvbvUJi0RQi8vearvU0oov1WW3k0WZPBMrTQVqekSX5CjSG/M4Q3i6A/0FKXC7RyAoAUUSPw==
 
 flatted@^2.0.0:
   version "2.0.2"
@@ -8639,6 +8649,11 @@ long@*, long@^5.2.1, long@~5.2.3:
   resolved "https://registry.npmjs.org/long/-/long-5.2.3.tgz"
   integrity sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==
 
+long@^5.2.3:
+  version "5.3.2"
+  resolved "https://registry.yarnpkg.com/long/-/long-5.3.2.tgz#1d84463095999262d7d7b7f8bfd4a8cc55167f83"
+  integrity sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==
+
 lru-cache@^10.2.0:
   version "10.4.3"
   resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-10.4.3.tgz"
@@ -9202,6 +9217,14 @@ node-cron@^2.0.3:
   dependencies:
     opencollective-postinstall "^2.0.0"
     tz-offset "0.0.1"
+
+node-firebird@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/node-firebird/-/node-firebird-1.1.9.tgz#0e6815b4e209812a4c85b71227e40e268bedeb8b"
+  integrity sha512-6Ol+Koide1WbfUp4BJ1dSA4wm091jAgCwwSoihxO/RRdcfR+dMVDE9jd2Z2ixjk7q/vSNJUYORXv7jmRfvwdrw==
+  dependencies:
+    big-integer "^1.6.51"
+    long "^5.2.3"
 
 node-gyp@^7.1.0:
   version "7.1.2"

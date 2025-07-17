@@ -337,8 +337,7 @@
             text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
             onClick: handleDuplicate,
           },
-          !$openedConnections.includes(data._id) &&
-            $cloudSigninTokenHolder &&
+          $cloudSigninTokenHolder &&
             passProps?.cloudContentList?.length > 0 && {
               text: _t('connection.copyToCloudFolder', { defaultMessage: 'Copy to cloud folder' }),
               submenu: passProps?.cloudContentList

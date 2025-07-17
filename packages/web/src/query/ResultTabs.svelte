@@ -10,6 +10,7 @@
   import useEffect from '../utility/useEffect';
   import AllResultsTab from './AllResultsTab.svelte';
   import JslChart from '../charts/JslChart.svelte';
+  import { isProApp } from '../utility/proTools';
 
   export let tabs = [];
   export let sessionId;
@@ -40,6 +41,9 @@
   };
 
   const handleCharts = async props => {
+    if (!isProApp()) {
+      return;
+    }
     charts = [
       ...charts,
       {
@@ -76,6 +80,7 @@
           label: `Result ${index + 1}`,
           isResult: true,
           component: JslDataGrid,
+          resultIndex: info.resultIndex,
           props: { jslid: info.jslid, driver, onOpenChart: () => handleOpenChart(info.resultIndex) },
         }))),
     ...charts.map((info, index) => ({
@@ -86,6 +91,13 @@
       props: {
         jslid: info.jslid,
         initialCharts: info.charts,
+        onCloseChart: () => {
+          charts = charts.filter(x => x.resultIndex !== info.resultIndex);
+          onSetFrontMatterField?.(`chart-${info.resultIndex + 1}`, undefined);
+          onSetFrontMatterField?.(`selected-chart`, undefined);
+          const value = _.findIndex(allTabs, x => x.isResult && x.resultIndex === info.resultIndex);
+          domTabs.setValue(value >= 0 ? value : 0);
+        },
         onEditDefinition: definition => {
           onSetFrontMatterField?.(`chart-${info.resultIndex + 1}`, definition ?? undefined);
         },
@@ -139,6 +151,21 @@
       domTabs.setValue(_.findIndex(allTabs, x => x.isChart && x.resultIndex === resultIndex));
     }
     onSetFrontMatterField?.('selected-chart', resultIndex + 1);
+  }
+
+  export function openCurrentChart() {
+    const currentIndex = domTabs.getValue();
+    // console.log('Current index:', currentIndex);
+    const currentTab = allTabs[currentIndex];
+    // console.log('Current tab:', currentTab);
+    if (currentTab?.isChart) {
+      return;
+    }
+    const resultIndex = currentTab?.resultIndex;
+    // console.log('Result index:', resultIndex);
+    if (resultIndex != null) {
+      handleOpenChart(resultIndex);
+    }
   }
 </script>
 

@@ -31,6 +31,11 @@ export interface IndexInfoYaml {
   included?: string[];
 }
 
+export interface UniqueInfoYaml {
+  name: string;
+  columns: string[];
+}
+
 export interface TableInfoYaml {
   name: string;
   // schema?: string;
@@ -38,6 +43,7 @@ export interface TableInfoYaml {
   primaryKey?: string[];
   sortingKey?: string[];
   indexes?: IndexInfoYaml[];
+  uniques?: UniqueInfoYaml[];
 
   insertKey?: string[];
   insertOnly?: string[];
@@ -121,6 +127,12 @@ export function tableInfoToYaml(table: TableInfo): TableInfoYaml {
       return idx;
     });
   }
+  if (tableCopy.uniques?.length > 0) {
+    res.uniques = tableCopy.uniques.map(unique => ({
+      name: unique.constraintName,
+      columns: unique.columns.map(x => x.columnName),
+    }));
+  }
   return res;
 }
 
@@ -164,6 +176,12 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
         ...index.columns.map(columnName => ({ columnName })),
         ...(index.included || []).map(columnName => ({ columnName, isIncludedColumn: true })),
       ],
+    })),
+    uniques: table.uniques?.map(unique => ({
+      constraintName: unique.name,
+      pureName: table.name,
+      constraintType: 'unique',
+      columns: unique.columns.map(columnName => ({ columnName })),
     })),
   };
   if (table.primaryKey) {

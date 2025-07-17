@@ -88,13 +88,33 @@ async function extractConnectionSslParams(connection) {
   return ssl;
 }
 
+async function decryptCloudConnection(connection) {
+  const { getCloudFolderEncryptor } = require('./cloudIntf');
+
+  const m = connection?._id?.match(/^cloud\:\/\/(.+)\/(.+)$/);
+  if (!m) {
+    throw new Error('Invalid cloud connection ID format');
+  }
+
+  const folid = m[1];
+  const cntid = m[2];
+
+  const folderEncryptor = await getCloudFolderEncryptor(folid);
+  return decryptConnection(connection, folderEncryptor);
+}
+
 async function connectUtility(driver, storedConnection, connectionMode, additionalOptions = null) {
   const connectionLoaded = await loadConnection(driver, storedConnection, connectionMode);
 
-  const connection = {
-    database: connectionLoaded.defaultDatabase,
-    ...decryptConnection(connectionLoaded),
-  };
+  const connection = connectionLoaded?._id?.startsWith('cloud://')
+    ? {
+        database: connectionLoaded.defaultDatabase,
+        ...(await decryptCloudConnection(connectionLoaded)),
+      }
+    : {
+        database: connectionLoaded.defaultDatabase,
+        ...decryptConnection(connectionLoaded),
+      };
 
   if (!connection.port && driver.defaultPort) {
     connection.port = driver.defaultPort.toString();

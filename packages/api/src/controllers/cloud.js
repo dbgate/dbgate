@@ -58,7 +58,7 @@ module.exports = {
 
   putContent_meta: true,
   async putContent({ folid, cntid, content, name, type }) {
-    const resp = await putCloudContent(folid, cntid, content, name, type);
+    const resp = await putCloudContent(folid, cntid, content, name, type, {});
     socket.emitChanged('cloud-content-changed');
     socket.emit('cloud-content-updated');
     return resp;
@@ -129,7 +129,11 @@ module.exports = {
       undefined,
       JSON.stringify(connToSend),
       getConnectionLabel(conn),
-      'connection'
+      'connection',
+      {
+        connectionColor: conn.connectionColor,
+        connectionEngine: conn.engine,
+      }
     );
     return resp;
   },
@@ -157,7 +161,11 @@ module.exports = {
       cntid,
       JSON.stringify(recryptedConn),
       getConnectionLabel(recryptedConn),
-      'connection'
+      'connection',
+      {
+        connectionColor: connection.connectionColor,
+        connectionEngine: connection.engine,
+      }
     );
 
     if (resp.apiErrorMessage) {
@@ -188,7 +196,10 @@ module.exports = {
       ...conn,
       displayName: getConnectionLabel(conn) + ' - copy',
     };
-    const respPut = await putCloudContent(folid, undefined, JSON.stringify(conn2), conn2.displayName, 'connection');
+    const respPut = await putCloudContent(folid, undefined, JSON.stringify(conn2), conn2.displayName, 'connection', {
+      connectionColor: conn.connectionColor,
+      connectionEngine: conn.engine,
+    });
     return respPut;
   },
 
@@ -224,7 +235,7 @@ module.exports = {
 
   saveFile_meta: true,
   async saveFile({ folid, cntid, fileName, data, contentFolder, format }) {
-    const resp = await putCloudContent(folid, cntid, data, fileName, 'file', contentFolder, format);
+    const resp = await putCloudContent(folid, cntid, data, fileName, 'file', { contentFolder, contentType: format });
     socket.emitChanged('cloud-content-changed');
     socket.emit('cloud-content-updated');
     return resp;
@@ -246,5 +257,23 @@ module.exports = {
     }
     await fs.writeFile(filePath, content);
     return true;
+  },
+
+  folderUsers_meta: true,
+  async folderUsers({ folid }) {
+    const resp = await callCloudApiGet(`content-folders/users/${folid}`);
+    return resp;
+  },
+
+  setFolderUserRole_meta: true,
+  async setFolderUserRole({ folid, email, role }) {
+    const resp = await callCloudApiPost(`content-folders/set-user-role/${folid}`, { email, role });
+    return resp;
+  },
+
+  removeFolderUser_meta: true,
+  async removeFolderUser({ folid, email }) {
+    const resp = await callCloudApiPost(`content-folders/remove-user/${folid}`, { email });
+    return resp;
   },
 };

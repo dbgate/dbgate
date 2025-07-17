@@ -12,6 +12,7 @@ const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { sendToAuditLog } = require('../utility/auditlog');
 
 const logger = getLogger('serverConnection');
 
@@ -145,6 +146,17 @@ module.exports = {
     if (conid == '__model') return [];
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
+    sendToAuditLog(req, {
+      category: 'serverop',
+      component: 'ServerConnectionsController',
+      action: 'listDatabases',
+      event: 'databases.list',
+      severity: 'info',
+      conid,
+      sessionParam: `${conid}`,
+      sessionGroup: 'listDatabases',
+      message: `Loaded databases for connection`,
+    });
     return opened?.databases ?? [];
   },
 

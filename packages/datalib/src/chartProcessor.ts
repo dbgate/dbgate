@@ -3,16 +3,23 @@ import {
   ChartDateParsed,
   ChartDefinition,
   ChartLimits,
+  ChartYFieldDefinition,
   ProcessedChart,
 } from './chartDefinitions';
 import _sortBy from 'lodash/sortBy';
 import _sum from 'lodash/sum';
+import _zipObject from 'lodash/zipObject';
+import _mapValues from 'lodash/mapValues';
+import _pick from 'lodash/pick';
 import {
   aggregateChartNumericValuesFromSource,
   autoAggregateCompactTimelineChart,
+  chartsHaveSimilarRange,
   computeChartBucketCardinality,
   computeChartBucketKey,
   fillChartTimelineBuckets,
+  getChartYRange,
+  runTransformFunction,
   tryParseChartDate,
 } from './chartTools';
 import { getChartScore, getChartYFieldScore } from './chartScoring';
@@ -24,6 +31,7 @@ export class ChartProcessor {
   availableColumns: ChartAvailableColumn[] = [];
   autoDetectCharts = false;
   rowsAdded = 0;
+  errorMessage?: string;
 
   constructor(public givenDefinitions: ChartDefinition[] = []) {
     for (const definition of givenDefinitions) {
@@ -39,6 +47,9 @@ export class ChartProcessor {
         availableColumns: [],
         validYRows: {},
         topDistinctValues: {},
+        groups: [],
+        groupSet: new Set<string>(),
+        bucketKeysSet: new Set<string>(),
       });
     }
     this.autoDetectCharts = this.givenDefinitions.length == 0;
@@ -67,6 +78,91 @@ export class ChartProcessor {
   //   this.chartsBySignature[signature] = chart;
   //   return chart;
   // }
+  runAutoDetectCharts(
+    dateColumns: { [key: string]: ChartDateParsed },
+    numericColumnsForAutodetect: { [key: string]: number },
+    stringColumns: { [key: string]: string }
+  ) {
+    const processColumnType = (columns, transformTest, chartType, transformFunction) => {
+      for (const xcol in columns) {
+        for (const groupingField of [undefined, ...Object.keys(stringColumns)]) {
+          if (xcol == groupingField) {
+            continue;
+          }
+
+          let usedChart = this.chartsProcessing.find(
+            chart =>
+              !chart.isGivenDefinition &&
+              chart.definition.xdef.field === xcol &&
+              transformTest(chart.definition.xdef.transformFunction) &&
+              chart.definition.groupingField == groupingField
+          );
+
+          if (
+            !usedChart &&
+            (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
+              this.chartsProcessing.length < ChartLimits.AUTODETECT_CHART_LIMIT)
+          ) {
+            usedChart = {
+              definition: {
+                chartType,
+                xdef: {
+                  field: xcol,
+                  transformFunction,
+                },
+                ydefs: [
+                  {
+                    field: '__count',
+                    aggregateFunction: 'count',
+                  },
+                ],
+                groupingField,
+              },
+              rowsAdded: 0,
+              bucketKeysOrdered: [],
+              buckets: {},
+              groups: [],
+              bucketKeyDateParsed: {},
+              isGivenDefinition: false,
+              invalidXRows: 0,
+              invalidYRows: {},
+              availableColumns: [],
+              validYRows: {},
+              topDistinctValues: {},
+              groupSet: new Set<string>(),
+              bucketKeysSet: new Set<string>(),
+            };
+            this.chartsProcessing.push(usedChart);
+          }
+
+          if (!usedChart) {
+            continue; // chart not created - probably too many charts already
+          }
+
+          for (const [key, value] of Object.entries(numericColumnsForAutodetect)) {
+            // if (value == null) continue;
+            // if (key == datecol) continue; // skip date column itself
+
+            const existingYDef = usedChart.definition.ydefs.find(y => y.field === key);
+            if (
+              !existingYDef &&
+              (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
+                usedChart.definition.ydefs.length < ChartLimits.AUTODETECT_MEASURES_LIMIT)
+            ) {
+              const newYDef: ChartYFieldDefinition = {
+                field: key,
+                aggregateFunction: 'sum',
+              };
+              usedChart.definition.ydefs.push(newYDef);
+            }
+          }
+        }
+      }
+    };
+
+    processColumnType(dateColumns, transform => transform?.startsWith('date:'), 'timeline', 'date:day');
+    processColumnType(stringColumns, transform => transform == 'identity', 'bar', 'identity');
+  }
 
   addRow(row: any) {
     const dateColumns: { [key: string]: ChartDateParsed } = {};
@@ -76,9 +172,14 @@ export class ChartProcessor {
 
     for (const [key, value] of Object.entries(row)) {
       const number: number = typeof value == 'string' ? Number(value) : typeof value == 'number' ? value : NaN;
-      this.availableColumnsDict[key] = {
-        field: key,
-      };
+      let availableColumn = this.availableColumnsDict[key];
+      if (!availableColumn) {
+        availableColumn = {
+          field: key,
+          dataType: 'none',
+        };
+        this.availableColumnsDict[key] = availableColumn;
+      }
 
       const keyLower = key.toLowerCase();
       const keyIsId = keyLower.endsWith('_id') || keyLower == 'id' || key.endsWith('Id');
@@ -86,6 +187,12 @@ export class ChartProcessor {
       const parsedDate = tryParseChartDate(value);
       if (parsedDate) {
         dateColumns[key] = parsedDate;
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'date';
+        }
+        if (availableColumn.dataType != 'date') {
+          availableColumn.dataType = 'mixed';
+        }
         continue;
       }
 
@@ -94,85 +201,52 @@ export class ChartProcessor {
         if (!keyIsId) {
           numericColumnsForAutodetect[key] = number; // for auto-detecting charts
         }
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'number';
+        }
+        if (availableColumn.dataType != 'number') {
+          availableColumn.dataType = 'mixed';
+        }
         continue;
       }
 
       if (typeof value === 'string' && isNaN(number) && value.length < 100) {
         stringColumns[key] = value;
+        if (availableColumn.dataType == 'none') {
+          availableColumn.dataType = 'string';
+        }
+        if (availableColumn.dataType != 'string') {
+          availableColumn.dataType = 'mixed';
+        }
       }
     }
 
     // const sortedNumericColumnns = Object.keys(numericColumns).sort();
 
     if (this.autoDetectCharts) {
-      // create charts from data, if there are no given definitions
-      for (const datecol in dateColumns) {
-        let usedChart = this.chartsProcessing.find(
-          chart =>
-            !chart.isGivenDefinition &&
-            chart.definition.xdef.field === datecol &&
-            chart.definition.xdef.transformFunction?.startsWith('date:')
-        );
-
-        if (
-          !usedChart &&
-          (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
-            this.chartsProcessing.length < ChartLimits.AUTODETECT_CHART_LIMIT)
-        ) {
-          usedChart = {
-            definition: {
-              chartType: 'line',
-              xdef: {
-                field: datecol,
-                transformFunction: 'date:day',
-              },
-              ydefs: [],
-            },
-            rowsAdded: 0,
-            bucketKeysOrdered: [],
-            buckets: {},
-            bucketKeyDateParsed: {},
-            isGivenDefinition: false,
-            invalidXRows: 0,
-            invalidYRows: {},
-            availableColumns: [],
-            validYRows: {},
-            topDistinctValues: {},
-          };
-          this.chartsProcessing.push(usedChart);
-        }
-
-        for (const [key, value] of Object.entries(row)) {
-          if (value == null) continue;
-          if (key == datecol) continue; // skip date column itself
-          let existingYDef = usedChart.definition.ydefs.find(y => y.field === key);
-          if (
-            !existingYDef &&
-            (this.rowsAdded < ChartLimits.APPLY_LIMIT_AFTER_ROWS ||
-              usedChart.definition.ydefs.length < ChartLimits.AUTODETECT_MEASURES_LIMIT)
-          ) {
-            existingYDef = {
-              field: key,
-              aggregateFunction: 'sum',
-            };
-            usedChart.definition.ydefs.push(existingYDef);
-          }
-        }
-      }
+      this.runAutoDetectCharts(dateColumns, numericColumnsForAutodetect, stringColumns);
     }
 
     // apply on all charts with this date column
     for (const chart of this.chartsProcessing) {
-      this.applyRawData(
-        chart,
-        row,
-        dateColumns[chart.definition.xdef.field],
-        chart.isGivenDefinition ? numericColumns : numericColumnsForAutodetect,
-        stringColumns
-      );
+      if (chart.errorMessage) {
+        continue; // skip charts with errors
+      }
+
+      this.applyRawData(chart, row, dateColumns[chart.definition.xdef.field], numericColumns, stringColumns);
+
+      if (Object.keys(chart.buckets).length > ChartLimits.CHART_FILL_LIMIT) {
+        chart.errorMessage = `Chart has too many buckets, limit is ${ChartLimits.CHART_FILL_LIMIT}.`;
+      }
     }
 
     for (let i = 0; i < this.chartsProcessing.length; i++) {
+      if (this.chartsProcessing[i].errorMessage) {
+        continue; // skip charts with errors
+      }
+      if (this.chartsProcessing[i].definition.chartType != 'timeline') {
+        continue; // skip non-timeline charts
+      }
       this.chartsProcessing[i] = autoAggregateCompactTimelineChart(this.chartsProcessing[i]);
     }
 
@@ -210,30 +284,79 @@ export class ChartProcessor {
     }
   }
 
+  splitChartsByYDefs() {
+    const newCharts: ProcessedChart[] = [];
+
+    for (const chart of this.chartsProcessing) {
+      if (chart.isGivenDefinition) {
+        newCharts.push(chart);
+        continue;
+      }
+      const yRanges = chart.definition.ydefs.map(ydef => getChartYRange(chart, ydef).max);
+      const yRangeByField = _zipObject(
+        chart.definition.ydefs.map(ydef => ydef.field),
+        yRanges
+      );
+      let ydefsToAssign = chart.definition.ydefs.map(ydef => ydef.field);
+      while (ydefsToAssign.length > 0) {
+        const first = ydefsToAssign.shift();
+        const additionals = [];
+        for (const candidate of ydefsToAssign) {
+          if (chartsHaveSimilarRange(yRangeByField[first], yRangeByField[candidate])) {
+            additionals.push(candidate);
+          }
+        }
+
+        const ydefsCurrent = [first, ...additionals];
+        const partialChart: ProcessedChart = {
+          ...chart,
+          definition: {
+            ...chart.definition,
+            ydefs: ydefsCurrent.map(y => chart.definition.ydefs.find(yd => yd.field === y) as ChartYFieldDefinition),
+          },
+          buckets: _mapValues(chart.buckets, bucket => _pick(bucket, ydefsCurrent)),
+        };
+
+        newCharts.push(partialChart);
+        ydefsToAssign = ydefsToAssign.filter(y => !additionals.includes(y));
+      }
+    }
+    this.chartsProcessing = newCharts;
+  }
+
   finalize() {
+    this.splitChartsByYDefs();
     this.applyLimitsOnCharts();
     this.availableColumns = Object.values(this.availableColumnsDict);
     for (const chart of this.chartsProcessing) {
+      if (chart.errorMessage) {
+        this.charts.push({ ...chart, availableColumns: this.availableColumns });
+        continue;
+      }
       let addedChart: ProcessedChart = chart;
-      if (chart.rowsAdded == 0) {
+      if (chart.rowsAdded == 0 && !chart.isGivenDefinition) {
         continue; // skip empty charts
       }
       const sortOrder = chart.definition.xdef.sortOrder ?? 'ascKeys';
       if (sortOrder != 'natural') {
         if (sortOrder == 'ascKeys' || sortOrder == 'descKeys') {
-          if (chart.definition.xdef.transformFunction.startsWith('date:')) {
+          if (chart.definition.chartType == 'timeline' && chart.definition.xdef.transformFunction.startsWith('date:')) {
             addedChart = autoAggregateCompactTimelineChart(addedChart);
             fillChartTimelineBuckets(addedChart);
           }
 
-          addedChart.bucketKeysOrdered = _sortBy(Object.keys(addedChart.buckets));
+          if (addedChart.errorMessage) {
+            this.charts.push(addedChart);
+            continue;
+          }
+          addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet]);
           if (sortOrder == 'descKeys') {
             addedChart.bucketKeysOrdered.reverse();
           }
         }
 
         if (sortOrder == 'ascValues' || sortOrder == 'descValues') {
-          addedChart.bucketKeysOrdered = _sortBy(Object.keys(addedChart.buckets), key =>
+          addedChart.bucketKeysOrdered = _sortBy([...addedChart.bucketKeysSet], key =>
             computeChartBucketCardinality(addedChart.buckets[key])
           );
           if (sortOrder == 'descValues') {
@@ -256,31 +379,45 @@ export class ChartProcessor {
         };
       }
 
+      if (
+        addedChart.definition.trimXCountLimit != null &&
+        addedChart.bucketKeysOrdered.length > addedChart.definition.trimXCountLimit
+      ) {
+        addedChart.bucketKeysOrdered = addedChart.bucketKeysOrdered.slice(0, addedChart.definition.trimXCountLimit);
+      }
+
       if (addedChart) {
         addedChart.availableColumns = this.availableColumns;
         this.charts.push(addedChart);
       }
 
       this.groupPieOtherBuckets(addedChart);
+
+      addedChart.groups = [...addedChart.groupSet];
+      addedChart.bucketKeysSet = undefined;
+      addedChart.groupSet = undefined;
     }
 
     this.charts = [
       ...this.charts.filter(x => x.isGivenDefinition),
       ..._sortBy(
-        this.charts.filter(x => !x.isGivenDefinition),
+        this.charts.filter(x => !x.isGivenDefinition && !x.errorMessage && x.definition.ydefs.length > 0),
         chart => -getChartScore(chart)
       ),
     ];
   }
   groupPieOtherBuckets(chart: ProcessedChart) {
-    if (chart.definition.chartType !== 'pie') {
+    if (chart.definition.chartType != 'pie' && chart.definition.chartType != 'polarArea') {
       return; // only for pie charts
     }
     const ratioLimit = chart.definition.pieRatioLimit ?? ChartLimits.PIE_RATIO_LIMIT;
-    const countLimit = chart.definition.pieCountLimit ?? ChartLimits.PIE_COUNT_LIMIT;
-    if (ratioLimit == 0 && countLimit == 0) {
-      return; // no grouping if limit is 0
+    let countLimit = chart.definition.pieCountLimit ?? ChartLimits.PIE_COUNT_LIMIT;
+    if (!countLimit || countLimit < 1 || countLimit > ChartLimits.MAX_PIE_COUNT_LIMIT) {
+      countLimit = ChartLimits.MAX_PIE_COUNT_LIMIT; // limit to max pie count
     }
+    // if (ratioLimit == 0 && countLimit == 0) {
+    //   return; // no grouping if limit is 0
+    // }
     const otherBucket: any = {};
     let newBuckets: any = {};
     const cardSum = _sum(Object.values(chart.buckets).map(bucket => computeChartBucketCardinality(bucket)));
@@ -345,6 +482,15 @@ export class ChartProcessor {
     }
 
     const [bucketKey, bucketKeyParsed] = computeChartBucketKey(dateParsed, chart, row);
+    const bucketGroup = chart.definition.groupingField
+      ? runTransformFunction(row[chart.definition.groupingField], chart.definition.groupTransformFunction)
+      : null;
+    if (bucketGroup) {
+      chart.groupSet.add(bucketGroup);
+    }
+    if (chart.groupSet.size > ChartLimits.CHART_GROUP_LIMIT) {
+      chart.errorMessage = `Chart has too many groups, limit is ${ChartLimits.CHART_GROUP_LIMIT}.`;
+    }
 
     if (!bucketKey) {
       return; // skip if no bucket key
@@ -361,14 +507,19 @@ export class ChartProcessor {
       chart.maxX = bucketKey;
     }
 
-    if (!chart.buckets[bucketKey]) {
-      chart.buckets[bucketKey] = {};
+    const groupedBucketKey = chart.definition.groupingField ? `${bucketGroup ?? ''}::${bucketKey}` : bucketKey;
+    if (!chart.buckets[groupedBucketKey]) {
+      chart.buckets[groupedBucketKey] = {};
+    }
+
+    if (!chart.bucketKeysSet.has(bucketKey)) {
+      chart.bucketKeysSet.add(bucketKey);
       if (chart.definition.xdef.sortOrder == 'natural') {
         chart.bucketKeysOrdered.push(bucketKey);
       }
     }
 
-    aggregateChartNumericValuesFromSource(chart, bucketKey, numericColumns, row);
+    aggregateChartNumericValuesFromSource(chart, groupedBucketKey, numericColumns, row);
     chart.rowsAdded += 1;
   }
 }

@@ -69,6 +69,13 @@
     onClick: () => getCurrentEditor().toggleAutoExecute(),
   });
   registerCommand({
+    id: 'query.toggleFixedConnection',
+    category: 'Query',
+    name: 'Toggle fixed connection',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().toggleFixedConnection(),
+  });
+  registerCommand({
     id: 'query.beginTransaction',
     category: 'Query',
     name: 'Begin transaction',
@@ -121,10 +128,10 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { currentEditorWrapEnabled, extensions } from '../stores';
+  import { currentEditorWrapEnabled, extensions, getCurrentDatabase } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved, sleep } from '../utility/common';
-  import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -156,6 +163,7 @@
   import { getIntSettingsValue } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
   import _ from 'lodash';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let tabid;
   export let conid;
@@ -209,6 +217,8 @@
   let isInTransaction = false;
   let isAutocommit = false;
   let splitterInitialValue = undefined;
+  let autoDetectCharts = false;
+  let domResultTabs;
 
   const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
   function getInitialRowsLimit() {
@@ -221,6 +231,8 @@
     }
     return getIntSettingsValue('sqlEditor.limitRows', null, 1);
   }
+
+  const settingsValue = useSettings();
 
   let queryRowsLimit = getInitialRowsLimit();
   $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
@@ -322,7 +334,7 @@
       ...driver.getQuerySplitterOptions('editor'),
       queryParameterStyle,
       allowDollarDollarString: false,
-      splitByEmptyLine: true,
+      splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
     };
   }
 
@@ -393,6 +405,7 @@
         autoCommit: driver?.implicitTransactions && isAutocommit,
         limitRows: queryRowsLimit ? queryRowsLimit : undefined,
         frontMatter,
+        autoDetectCharts,
       });
     }
     await apiCall('query-history/write', {
@@ -565,7 +578,7 @@
 
     onInitialData: value => {
       const frontMatter = getSqlFrontMatter(value, yaml);
-      if (frontMatter?.autoExecute) {
+      if (frontMatter?.autoExecute && hasConnection() && !isBusy()) {
         executeCore(value, 0);
       }
       if (frontMatter?.splitterInitialValue) {
@@ -603,6 +616,21 @@
     );
   }
 
+  export function toggleFixedConnection() {
+    const frontMatter = getSqlFrontMatter($editorValue, yaml);
+    setEditorData(
+      setSqlFrontMatter(
+        $editorValue,
+        frontMatter?.connectionId && frontMatter?.connectionId == conid && frontMatter?.databaseName == database
+          ? { ...frontMatter, connectionId: undefined, databaseName: undefined }
+          : conid
+            ? { ...frontMatter, connectionId: conid, databaseName: database }
+            : { ...frontMatter, connectionId: undefined, databaseName: undefined },
+        yaml
+      )
+    );
+  }
+
   async function handleKeyDown(event) {
     if (isProApp()) {
       if (event.code == 'Space' && event.shiftKey && event.ctrlKey && !isAiAssistantVisible) {
@@ -632,6 +660,7 @@
       { command: 'query.executeCurrent' },
       { command: 'query.kill' },
       { command: 'query.toggleAutoExecute' },
+      { command: 'query.toggleFixedConnection' },
       { divider: true },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },
@@ -680,7 +709,10 @@
               engine={$connection && $connection.engine}
               {conid}
               {database}
-              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
               options={{
                 wrap: enableWrap,
               }}
@@ -710,7 +742,10 @@
             <AceEditor
               mode={driver?.editorMode || 'sql'}
               value={$editorState.value || ''}
-              splitterOptions={{ ...driver?.getQuerySplitterOptions('editor'), splitByEmptyLine: true }}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
               options={{
                 wrap: enableWrap,
               }}
@@ -727,6 +762,7 @@
         </svelte:fragment>
         <svelte:fragment slot="2">
           <ResultTabs
+            bind:this={domResultTabs}
             tabs={[{ label: 'Messages', slot: 0 }]}
             {sessionId}
             {executeNumber}
@@ -846,6 +882,32 @@
       data-testid="QueryTab_rollbackTransactionButton"
       hideDisabled
     />
+
+    {#if isProApp() && visibleResultTabs && !busy}
+      <ToolStripButton
+        icon="icon chart"
+        data-testid="QueryTab_openChartButton"
+        on:click={() => {
+          domResultTabs?.openCurrentChart();
+        }}
+      >
+        Open chart</ToolStripButton
+      >
+    {/if}
+    {#if isProApp() && !visibleResultTabs}
+      <ToolStripButton
+        icon="icon chart"
+        data-testid="QueryTab_detectChartButton"
+        on:click={() => {
+          autoDetectCharts = !autoDetectCharts;
+        }}
+      >
+        Detect chart<FontIcon
+          icon={autoDetectCharts ? 'icon checkbox-marked' : 'icon checkbox-blank'}
+          padLeft
+        /></ToolStripButton
+      >
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>
 

@@ -139,6 +139,19 @@ class Dumper extends SqlDumper {
       this.endCommand();
     }
   }
+
+  putValue(value, dataType) {
+    const dataLower = dataType?.toLowerCase();
+    if (dataLower?.includes('date')) {
+      if (typeof value == 'string') {
+        this.putRaw("'");
+        this.putRaw(this.escapeString(value.replace(/(?:Z|[+-]\d{2}:?\d{2})$/, '')));
+        this.putRaw("'");
+        return;
+      }
+    }
+    super.putValue(value, dataType);
+  }
 }
 
 module.exports = Dumper;
