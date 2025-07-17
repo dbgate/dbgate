@@ -64,7 +64,6 @@ Builds:
 - FIXED: Very slow render of tables with very log cells
 
 ## 6.4.2
-
 - ADDED: Source label to docker container #1105 
 - FIXED: DbGate restart needed to take effect after trigger is created/deleted on mariadb #1112
 - ADDED: View PostgreSQL query console output #1108

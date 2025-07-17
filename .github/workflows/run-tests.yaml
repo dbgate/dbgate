@@ -45,19 +45,19 @@ jobs:
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: integration-tests/result.json
           action-name: Integration tests
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: packages/filterparser/result.json
           action-name: Filter parser test results
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
           result-file: packages/datalib/result.json
           action-name: Datalib (perspectives) test results
     services:
@@ -69,7 +69,7 @@ jobs:
         ports:
           - '15000:5432'
       mysql-integr:
-        image: mysql:8.0.18
+        image: 'mysql:8.0.18'
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
         ports:
@@ -83,27 +83,27 @@ jobs:
         ports:
           - '15002:1433'
       clickhouse-integr:
-        image: bitnami/clickhouse:24.8.4
+        image: 'bitnami/clickhouse:24.8.4'
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
         ports:
           - '15005:8123'
       oracle-integr:
-        image: gvenzl/oracle-xe:21-slim
+        image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
         ports:
           - '15006:1521'
       cassandradb:
-        image: cassandra:5.0.2
+        image: 'cassandra:5.0.2'
         ports:
           - '15942:9042'
       libsql:
-        image: ghcr.io/tursodatabase/libsql-server:latest
+        image: 'ghcr.io/tursodatabase/libsql-server:latest'
         ports:
           - '8080:8080'
       firebird:
-        image: firebirdsql/firebird:latest
+        image: 'firebirdsql/firebird:latest'
         env:
           FIREBIRD_DATABASE: mydatabase.fdb
           FIREBIRD_USER: dbuser
