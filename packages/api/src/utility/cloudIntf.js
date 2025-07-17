@@ -216,7 +216,7 @@ async function updateCloudFiles(isRefresh) {
     {
       headers: {
         ...getLicenseHttpHeaders(),
-        ...(await getCloudSigninHeaders()),
+        ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
       },
     }
@@ -298,6 +298,17 @@ async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders 
     };
   }
   return resp.data;
+}
+
+async function getCloudInstanceHeaders() {
+  if (!(await fs.exists(path.join(datadir(), 'cloud-instance.txt')))) {
+    const newInstanceId = crypto.randomUUID();
+    await fs.writeFile(path.join(datadir(), 'cloud-instance.txt'), newInstanceId);
+  }
+  const instanceId = await fs.readFile(path.join(datadir(), 'cloud-instance.txt'), 'utf-8');
+  return {
+    'x-cloud-instance': instanceId,
+  };
 }
 
 async function callCloudApiPost(endpoint, body, signinHolder = null) {
