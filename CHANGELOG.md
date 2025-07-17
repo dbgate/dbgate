@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.5.6
+- ADDED: New object window - quick access to most common functions
+- ADDED: Possibility to disable split query by empty line #1162
+- ADDED: Possibility to opt out authentication #1152
+- FIXED: Separate schema mode now works in Team Premium edition
+- FIXED: Handled situation, when user enters expired license, which is already prolonged
+- FIXED: Fixed some minor problems of charts
+
 ## 6.5.5
 - ADDED: Administer cloud folder window
 - CHANGED: Cloud menu redesign

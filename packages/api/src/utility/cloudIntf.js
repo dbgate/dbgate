@@ -1,4 +1,5 @@
 const axios = require('axios');
+const crypto = require('crypto');
 const fs = require('fs-extra');
 const _ = require('lodash');
 const path = require('path');
