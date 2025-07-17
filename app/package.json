@@ -111,7 +111,10 @@
       "src",
       "icon.png",
       "!node_modules/cpu-features/build/**"
-    ]
+    ],
+    "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false
   },
   "homepage": "./",
   "scripts": {
