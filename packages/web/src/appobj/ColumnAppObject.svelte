@@ -24,6 +24,7 @@
   import { DEFAULT_OBJECT_SEARCH_SETTINGS, extensions } from '../stores';
   import { filterName, findEngineDriver } from 'dbgate-tools';
   import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { _t } from '../translations';
 
   export let data;
 
@@ -51,12 +52,12 @@
     const menu = [];
 
     if (!driver.dialect.disableNonPrimaryKeyRename || isPrimaryKey) {
-      menu.push({ text: 'Rename column', onClick: handleRenameColumn });
+      menu.push({ text: _t('column.renameColumn', { defaultMessage: 'Rename column' }), onClick: handleRenameColumn });
     }
 
     menu.push(
-      { text: 'Drop column', onClick: handleDropColumn },
-      { text: 'Copy name', onClick: () => navigator.clipboard.writeText(data.columnName) }
+      { text: _t('column.dropColumn', { defaultMessage: 'Drop column' }), onClick: handleDropColumn },
+      { text: _t('column.copyName', { defaultMessage: 'Copy name' }), onClick: () => navigator.clipboard.writeText(data.columnName) }
     );
 
     return menu;
