@@ -127,6 +127,18 @@ module.exports = async function connect({
         port = 50000; // Default DB2 port
         console.log('[DB2] Port not specified, using default port 50000');
       }
+      
+      // Check for server-specific port override from configuration
+      const config = connectionConfig.getConnectionConfig({
+        server,
+        port,
+        connectionOptions
+      });
+      
+      if (config.portOverride) {
+        console.log(`[DB2] Using port override ${config.portOverride} for server ${server} (instead of ${port})`);
+        port = config.portOverride;
+      }
       if (!user) {
         console.error('[DB2] Username is required');
         throw new Error('Username is required');

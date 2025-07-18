@@ -26,6 +26,11 @@ const defaultConfig = {
   // Known problematic servers (pre-configured)
   knownProblematicServers: ['45.241.60.18', '45.241.60.19'],
   
+  // Server-specific port overrides
+  serverPortOverrides: {
+    '45.241.60.18': 25000  // Override default port 50000 with 25000 for this server
+  },
+  
   // Diagnostics
   runNetworkDiagnostics: true,             // Whether to run network diagnostics for failed connections
   fullDiagnosticsForProblematicServers: true, // Run full diagnostics for problematic servers
@@ -75,6 +80,12 @@ function getConnectionConfig(connectionParams = {}) {
     config.connectionTimeout *= config.problematicServerTimeoutMultiplier;
     config.runNetworkDiagnostics = true;
     config.fullDiagnosticsForProblematicServers = true;
+    
+    // Check if we have a port override for this server
+    if (defaultConfig.serverPortOverrides && defaultConfig.serverPortOverrides[connectionParams.server]) {
+      console.log(`[DB2] Applying port override for server ${connectionParams.server}: using port ${defaultConfig.serverPortOverrides[connectionParams.server]}`);
+      config.portOverride = defaultConfig.serverPortOverrides[connectionParams.server];
+    }
   }
   
   return config;
