@@ -19,7 +19,10 @@
       const count = getOpenedTabs().filter(closeCondition).length;
       if (count > 0) {
         showModal(ConfirmModal, {
-          message: `Closing connection will close ${count} opened tabs, continue?`,
+          message: _t('database.closeConfirm', {
+            defaultMessage: 'Closing connection will close {count} opened tabs, continue?',
+            values: { count },
+          }),
           onConfirm: () => disconnectDatabaseConnection(conid, database, false),
         });
         return;
@@ -49,7 +52,7 @@
     const handleNewQuery = () => {
       const tooltip = `${getConnectionLabel(connection)}\n${name}`;
       openNewTab({
-        title: 'Query #',
+        title: _t('database.newQuery', { defaultMessage: 'Query #' }),
         icon: 'img sql-file',
         tooltip,
         tabComponent: 'QueryTab',
@@ -67,7 +70,10 @@
 
     const handleDropDatabase = () => {
       showModal(ConfirmModal, {
-        message: `Really drop database ${name}? All opened sessions with this database will be forcefully closed.`,
+        message: _t('database.dropConfirm', {
+          defaultMessage: 'Really drop database {name}? All opened sessions with this database will be forcefully closed.',
+          values: { name },
+        }),
         onConfirm: () =>
           apiCall('server-connections/drop-database', {
             conid: connection._id,
@@ -128,7 +134,7 @@
 
     const handleBackupDatabase = () => {
       openNewTab({
-        title: 'Backup #',
+        title: _t('database.backup', { defaultMessage: 'Backup #' }),
         icon: 'img db-backup',
         tabComponent: 'BackupDatabaseTab',
         props: {
@@ -140,7 +146,7 @@
 
     const handleRestoreDatabase = () => {
       openNewTab({
-        title: 'Restore #',
+        title: _t('database.restore', { defaultMessage: 'Restore #' }),
         icon: 'img db-restore',
         tabComponent: 'RestoreDatabaseTab',
         props: {
@@ -157,7 +163,7 @@
       });
       openNewTab(
         {
-          title: 'Diagram #',
+          title: _t('database.diagram', { defaultMessage: 'Diagram #' }),
           icon: 'img diagram',
           tabComponent: 'DiagramTab',
           props: {
@@ -204,7 +210,7 @@
     const handleCompareWithCurrentDb = () => {
       openNewTab(
         {
-          title: 'Compare',
+          title: _t('database.compare', { defaultMessage: 'Compare' }),
           icon: 'img compare',
           tabComponent: 'CompareModelTab',
           props: {
@@ -246,14 +252,14 @@
       }
 
       newQuery({
-        title: 'Export #',
+        title: _t('database.export', { defaultMessage: 'Export #' }),
         initialData: data,
       });
     };
 
     const handleQueryDesigner = () => {
       openNewTab({
-        title: 'Query #',
+        title: _t('database.queryDesigner', { defaultMessage: 'Query #' }),
         icon: 'img query-design',
         tabComponent: 'QueryDesignTab',
         focused: true,
@@ -266,7 +272,7 @@
 
     const handleNewPerspective = () => {
       openNewTab({
-        title: 'Perspective #',
+        title: _t('database.perspective', { defaultMessage: 'Perspective #' }),
         icon: 'img perspective',
         tabComponent: 'PerspectiveTab',
         props: {
@@ -278,7 +284,7 @@
 
     const handleDatabaseProfiler = () => {
       openNewTab({
-        title: 'Profiler',
+        title: _t('database.profiler', { defaultMessage: 'Profiler' }),
         icon: 'img profiler',
         tabComponent: 'ProfilerTab',
         props: {
@@ -305,12 +311,15 @@
 
     const handleGenerateDropAllObjectsScript = () => {
       showModal(ConfirmModal, {
-        message: `This will generate script, after executing this script all objects in ${name} will be dropped. Continue?`,
+        message: _t('database.dropAllObjectsConfirm', {
+          defaultMessage: 'This will generate script, after executing this script all objects in {name} will be dropped. Continue?',
+          values: { name },
+        }),
 
         onConfirm: () => {
           openNewTab(
             {
-              title: 'Shell #',
+              title: _t('database.shellTitle', { defaultMessage: 'Shell #' }),
               icon: 'img shell',
               tabComponent: 'ShellTab',
             },
@@ -333,7 +342,7 @@ await dbgateApi.dropAllDbObjects(${JSON.stringify(
     const handleGenerateRunScript = () => {
       openNewTab(
         {
-          title: 'Shell #',
+          title: _t('database.shellTitle', { defaultMessage: 'Shell #' }),
           icon: 'img shell',
           tabComponent: 'ShellTab',
         },
@@ -355,7 +364,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
     const handleShowDataDeployer = () => {
       showModal(ChooseArchiveFolderModal, {
-        message: 'Choose archive folder for data deployer',
+        message: _t('database.chooseArchiveFolderForDataDeployer', { defaultMessage: 'Choose archive folder for data deployer' }),
         onConfirm: archiveFolder => {
           openNewTab(
             {
@@ -387,57 +396,57 @@ await dbgateApi.executeQuery(${JSON.stringify(
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
 
     return [
-      hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
+      hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: _t('database.newQuery', { defaultMessage: 'New query' }), isNewQuery: true },
       hasPermission(`dbops/model/edit`) &&
         !connection.isReadOnly &&
-        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
+        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: _t('database.newTable', { defaultMessage: 'New table' }) },
       !connection.isReadOnly &&
         hasPermission(`dbops/model/edit`) &&
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
-          text: `New ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+          text: _t('database.newCollection', { defaultMessage: 'New {collectionLabel}', values: { collectionLabel: driver?.collectionSingularLabel ?? 'collection/container' } }),
         },
       hasPermission(`dbops/query`) &&
         driver?.databaseEngineTypes?.includes('sql') &&
-        isProApp() && { onClick: handleQueryDesigner, text: 'Design query' },
+        isProApp() && { onClick: handleQueryDesigner, text: _t('database.designQuery', { defaultMessage: 'Design query' }) },
       driver?.databaseEngineTypes?.includes('sql') &&
         isProApp() && {
           onClick: handleNewPerspective,
-          text: 'Design perspective query',
+          text: _t('database.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
         },
-      connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: 'Refresh schemas' },
+      connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: _t('database.refreshSchemas', { defaultMessage: 'Refresh schemas' }) },
 
       { divider: true },
       isSqlOrDoc &&
         !connection.isReadOnly &&
-        hasPermission(`dbops/import`) && { onClick: handleImport, text: 'Import' },
-      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: 'Export' },
+        hasPermission(`dbops/import`) && { onClick: handleImport, text: _t('database.import', { defaultMessage: 'Import' }) },
+      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: _t('database.export', { defaultMessage: 'Export' }) },
       driver?.supportsDatabaseRestore &&
         isProApp() &&
         hasPermission(`dbops/sql-dump/import`) &&
-        !connection.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
+        !connection.isReadOnly && { onClick: handleRestoreDatabase, text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }) },
       driver?.supportsDatabaseBackup &&
         isProApp() &&
-        hasPermission(`dbops/sql-dump/export`) && { onClick: handleBackupDatabase, text: 'Create database backup' },
+        hasPermission(`dbops/sql-dump/export`) && { onClick: handleBackupDatabase, text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }) },
       isSqlOrDoc &&
         !connection.isReadOnly &&
         !connection.singleDatabase &&
         isSqlOrDoc &&
-        hasPermission(`dbops/dropdb`) && { onClick: handleDropDatabase, text: 'Drop database' },
+        hasPermission(`dbops/dropdb`) && { onClick: handleDropDatabase, text: _t('database.dropDatabase', { defaultMessage: 'Drop database' }) },
       { divider: true },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: 'Copy database name' },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: _t('database.copyDatabaseName', { defaultMessage: 'Copy database name' }) },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: _t('database.showDiagram', { defaultMessage: 'Show diagram' }) },
       driver?.databaseEngineTypes?.includes('sql') &&
-        hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: 'SQL Generator' },
+        hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: _t('database.sqlGenerator', { defaultMessage: 'SQL Generator' }) },
       driver?.supportsDatabaseProfiler &&
         isProApp() &&
-        hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
+        hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: _t('database.databaseProfiler', { defaultMessage: 'Database profiler' }) },
       // isSqlOrDoc &&
       //   isSqlOrDoc &&
       //   hasPermission(`dbops/model/view`) && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc &&
         isProApp() &&
-        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: 'Export DB model' },
+        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }) },
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
         hasPermission('dbops/model/compare') &&
@@ -446,32 +455,32 @@ await dbgateApi.executeQuery(${JSON.stringify(
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
           onClick: handleCompareWithCurrentDb,
-          text: `Compare with ${_.get($currentDatabase, 'name')}`,
+          text: _t('database.compareWithCurrentDb', { defaultMessage: 'Compare with {name}', values: { name: _.get($currentDatabase, 'name') } }),
         },
 
-      driver?.databaseEngineTypes?.includes('keyvalue') && { onClick: handleGenerateScript, text: 'Generate script' },
+      driver?.databaseEngineTypes?.includes('keyvalue') && { onClick: handleGenerateScript, text: _t('database.generateScript', { defaultMessage: 'Generate script' }) },
 
       ($openedSingleDatabaseConnections.includes(connection._id) ||
         (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
-          _.get($currentDatabase, 'name') == name)) && { onClick: handleDisconnect, text: 'Disconnect' },
+          _.get($currentDatabase, 'name') == name)) && { onClick: handleDisconnect, text: _t('database.disconnect', { defaultMessage: 'Disconnect' }) },
 
       { divider: true },
 
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/dropdb`) && {
           onClick: handleGenerateDropAllObjectsScript,
-          text: 'Shell: Drop all objects',
+          text: _t('database.shellDropAllObjects', { defaultMessage: 'Shell: Drop all objects' }),
         },
 
       {
         onClick: handleGenerateRunScript,
-        text: 'Shell: Run script',
+        text: _t('database.shellRunScript', { defaultMessage: 'Shell: Run script' }),
       },
 
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/import`) && {
           onClick: handleShowDataDeployer,
-          text: 'Data deployer',
+          text: _t('database.dataDeployer', { defaultMessage: 'Data deployer' }),
         },
 
       { divider: true },
@@ -548,6 +557,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { getDatabaseClickActionSetting } from '../settings/settingsTools';
+  import { _t } from '../translations';
 
   export let data;
   export let passProps;
