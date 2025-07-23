@@ -9,6 +9,7 @@ const path = require('path');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
+const { startWebSocketServer, emitWsEvent } = require('./utility/wsServer');
 
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
@@ -50,6 +51,9 @@ function start() {
   const app = express();
 
   const server = http.createServer(app);
+
+  // Start WebSocket server for real-time events
+  startWebSocketServer(server);
 
   if (process.env.BASIC_AUTH && !process.env.STORAGE_DATABASE) {
     async function authorizer(username, password, cb) {
@@ -102,23 +106,7 @@ function start() {
 
   app.use(auth.authMiddleware);
 
-  app.get(getExpressPath('/stream'), async function (req, res) {
-    const strmid = req.query.strmid;
-    res.set({
-      'Cache-Control': 'no-cache',
-      'Content-Type': 'text/event-stream',
-      'X-Accel-Buffering': 'no',
-      Connection: 'keep-alive',
-    });
-    res.flushHeaders();
-
-    // Tell the client to retry every 10 seconds if connectivity is lost
-    res.write('retry: 10000\n\n');
-    socket.addSseResponse(res, strmid);
-    onFinished(req, () => {
-      socket.removeSseResponse(strmid);
-    });
-  });
+  // ...removed /stream SSE endpoint, now using WebSockets for real-time updates...
 
   app.get(getExpressPath('/health'), async function (req, res) {
     res.setHeader('Content-Type', 'application/json');

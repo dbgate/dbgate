@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const stableStringify = require('json-stable-stringify');
+const { emitWsEvent } = require('./wsServer');
 
 const sseResponses = {};
 let electronSender = null;
@@ -30,6 +31,8 @@ module.exports = {
     if (electronSender) {
       electronSender.send(message, data == null ? null : data);
     }
+    // Broadcast to WebSocket clients
+    emitWsEvent(message, data == null ? null : _.omit(data, ['strmid']));
     for (const strmid in sseResponses) {
       if (data?.strmid && data?.strmid != strmid) {
         continue;

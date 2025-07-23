@@ -13,7 +13,8 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strict": false,
-    "target": "es6"
+    "target": "es6",
+    "lib": ["dom", "es2017"]
     // "allowJs": true,
     // "checkJs": true,
   }

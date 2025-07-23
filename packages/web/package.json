@@ -3,7 +3,7 @@
   "version": "6.0.0-alpha.1",
   "scripts": {
     "build": "yarn build:index && rollup -c",
-    "dev": "yarn build:index && cross-env API_URL=http://localhost:3000 rollup -c -w",
+    "dev": "yarn build:index && cross-env  rollup -c -w",
     "start": "sirv public --port 5001",
     "validate": "svelte-check",
     "build:index": "node build-index.js",
@@ -21,6 +21,7 @@
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.2.5",
     "@tsconfig/svelte": "^1.0.0",
+    "@types/node": "^24.1.0",
     "ace-builds": "^1.36.5",
     "chart.js": "^4.4.2",
     "chartjs-adapter-moment": "^1.0.0",

@@ -19,7 +19,8 @@ import LicenseLimitMessageModal from '../modals/LicenseLimitMessageModal.svelte'
 
 export const strmid = uuidv1();
 
-let eventSource;
+let ws;
+const wsEventHandlers = new Map();
 let apiLogging = false;
 // let cacheCleanerRegistered;
 let apiDisabled = false;
@@ -75,10 +76,21 @@ export function removeVolatileMapping(conid) {
   }
 }
 
-function wantEventSource() {
-  if (!eventSource) {
-    eventSource = new EventSource(`${resolveApi()}/stream?strmid=${strmid}`);
-    // eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
+function wantWebSocket() {
+  if (!ws) {
+    // Replace http/https with ws/wss for WebSocket URL
+    let wsUrl = `${resolveApi().replace(/^http/, 'ws')}/ws`;
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = event => {
+      try {
+        const { event: evt, data } = JSON.parse(event.data);
+        if (wsEventHandlers.has(evt)) {
+          wsEventHandlers.get(evt).forEach(handler => handler(data));
+        }
+      } catch (err) {
+        if (apiLogging) console.error('WebSocket message error', err);
+      }
+    };
   }
 }
 
@@ -228,29 +240,12 @@ export function apiOn(event: string, handler: Function) {
       };
       apiHandlers.set(handler, handlerProxy);
     }
-
     electron.addEventListener(event, apiHandlers.get(handler));
   } else {
-    wantEventSource();
-    if (!apiHandlers.has(handler)) {
-      const handlerProxy = e => {
-        const json = JSON.parse(e.data);
-        if (apiLogging) {
-          console.log('@@@ API EVENT', event, json);
-        }
-
-        handler(json);
-      };
-      apiHandlers.set(handler, handlerProxy);
-    }
-
-    eventSource.addEventListener(event, apiHandlers.get(handler));
+    wantWebSocket();
+    if (!wsEventHandlers.has(event)) wsEventHandlers.set(event, []);
+    wsEventHandlers.get(event).push(handler);
   }
-
-  // if (!cacheCleanerRegistered) {
-  //   cacheCleanerRegistered = true;
-  //   apiOn('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
-  // }
 }
 
 export function apiOff(event: string, handler: Function) {
@@ -259,8 +254,9 @@ export function apiOff(event: string, handler: Function) {
     if (electron) {
       electron.removeEventListener(event, apiHandlers.get(handler));
     } else {
-      wantEventSource();
-      eventSource.removeEventListener(event, apiHandlers.get(handler));
+      if (wsEventHandlers.has(event)) {
+        wsEventHandlers.set(event, wsEventHandlers.get(event).filter(h => h !== handler));
+      }
     }
   }
 }
