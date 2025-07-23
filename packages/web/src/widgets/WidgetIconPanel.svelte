@@ -60,11 +60,11 @@
       name: 'archive',
       title: 'Archive (saved tabular data)',
     },
-    {
-      icon: 'icon plugin',
-      name: 'plugins',
-      title: 'Extensions & Plugins',
-    },
+    // {
+    //   icon: 'icon plugin',
+    //   name: 'plugins',
+    //   title: 'Extensions & Plugins',
+    // },
     {
       icon: 'icon cell-data',
       name: 'cell-data',
@@ -116,6 +116,13 @@
           $visibleWidgetSideBar = true;
         },
       },
+      {
+        text: 'Manage plugins',
+        onClick: () => {
+          $selectedWidget = 'plugins';
+          $visibleWidgetSideBar = true;
+        },
+      },
     ];
     currentDropDownMenu.set({ left, top, items });
   }
@@ -159,6 +166,7 @@
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
     .filter(x => !x.isPremiumPromo || !isProApp())
+    // .filter(x => !x.isPremiumOnly || isProApp())
     .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
       class="wrapper"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import XmlHighlighter from './XmlHighlighter.svelte';
+  import XmlHighlighter from '../elements/XmlHighlighter.svelte';
 
   export let selection;
 </script>

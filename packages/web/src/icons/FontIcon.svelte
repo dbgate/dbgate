@@ -73,6 +73,7 @@
     'icon scheduler-event': 'mdi mdi-calendar-blank',
     'icon arrow-link': 'mdi mdi-arrow-top-right-thick',
     'icon reset': 'mdi mdi-cancel',
+    'icon send': 'mdi mdi-send',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',
@@ -163,8 +164,10 @@
     'icon wait': 'mdi mdi-timer-sand',
     'icon more': 'mdi mdi-more',
     'icon copy': 'mdi mdi-content-copy',
+    'icon arrow-start-here': 'mdi mdi-arrow-down-bold-circle',
 
     'icon run': 'mdi mdi-play',
+    'icon run-settings': 'mdi mdi-cog-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
     'icon chevron-left': 'mdi mdi-chevron-left',
     'icon chevron-right': 'mdi mdi-chevron-right',
@@ -280,6 +283,8 @@
     'img admin': 'mdi mdi-security color-icon-blue',
     'img auth': 'mdi mdi-account-key color-icon-blue',
     'img cloud-connection': 'mdi mdi-cloud-lock color-icon-blue',
+    'img ai': 'mdi mdi-head-lightbulb color-icon-yellow',
+    'img run': 'mdi mdi-play color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',
@@ -338,6 +343,7 @@
     'img db-restore': 'mdi mdi-database-import color-icon-red',
     'img settings': 'mdi mdi-cog color-icon-blue',
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
+    'img arrow-start-here': 'mdi mdi-arrow-down-bold-circle color-icon-green',
   };
 </script>
 

@@ -714,6 +714,28 @@ if (isProApp()) {
       );
     },
   });
+
+  registerCommand({
+    id: 'database.chat',
+    category: 'Database',
+    name: 'Database chat',
+    toolbar: true,
+    icon: 'icon ai',
+    testEnabled: () =>
+      getCurrentDatabase() != null &&
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+    onClick: () => {
+      openNewTab({
+        title: 'Chat',
+        icon: 'img ai',
+        tabComponent: 'DatabaseChatTab',
+        props: {
+          conid: getCurrentDatabase()?.connection?._id,
+          database: getCurrentDatabase()?.name,
+        },
+      });
+    },
+  });
 }
 
 if (hasPermission('settings/change')) {
