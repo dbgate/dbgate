@@ -5,6 +5,8 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
 const { EJSON } = require('bson');
+const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
+const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
@@ -55,7 +57,7 @@ async function getScriptableDb(dbhan) {
   return db;
 }
 
-/** @type {import('dbgate-types').EngineDriver} */
+/** @type {import('dbgate-types').EngineDriver<MongoClient>} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
@@ -135,23 +137,13 @@ const driver = {
     // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
   async stream(dbhan, sql, options) {
-    let func;
-    try {
-      func = eval(`(db,ObjectId) => ${sql}`);
-    } catch (err) {
-      options.info({
-        message: 'Error compiling expression: ' + err.message,
-        time: new Date(),
-        severity: 'error',
-      });
-      options.done();
-      return;
-    }
-    const db = await getScriptableDb(dbhan);
-
     let exprValue;
+
     try {
-      exprValue = func(db, ObjectId.createFromHexString);
+      const connectionString = dbhan.client.s.url;
+      const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+      const runtime = new ElectronRuntime(serviceProvider);
+      exprValue = await runtime.evaluate(sql);
     } catch (err) {
       options.info({
         message: 'Error evaluating expression: ' + err.message,
@@ -162,45 +154,19 @@ const driver = {
       return;
     }
 
-    if (exprValue instanceof AbstractCursor) {
-      await readCursor(exprValue, options);
-    } else if (isPromise(exprValue)) {
-      try {
-        const resValue = await exprValue;
+    console.log(exprValue);
 
-        options.info({
-          message: 'Command succesfully executed',
-          time: new Date(),
-          severity: 'info',
-        });
-        try {
-          options.info({
-            message: `Result: ${JSON.stringify(resValue)}`,
-            time: new Date(),
-            severity: 'info',
-          });
-        } catch (err) {
-          options.info({
-            message: `Result: ${resValue}`,
-            time: new Date(),
-            severity: 'info',
-          });
-        }
-
-        const arrayRes = findArrayResult(resValue);
-        if (arrayRes) {
-          options.recordset({ __isDynamicStructure: true });
-          for (const row of arrayRes) {
-            options.row(row);
-          }
-        }
-      } catch (err) {
-        options.info({
-          message: 'Error when running command: ' + err.message,
-          time: new Date(),
-          severity: 'error',
-        });
+    if (exprValue.type === 'Document') {
+      options.recordset({ __isDynamicStructure: true });
+      options.row(exprValue.printable);
+    } else if (exprValue.type === 'Cursor' || exprValue.type === 'AggregationCursor') {
+      options.recordset({ __isDynamicStructure: true });
+      for (const doc of exprValue.printable.documents) {
+        options.row(doc);
       }
+    } else {
+      options.recordset({ __isDynamicStructure: true });
+      options.row(exprValue.printable);
     }
 
     options.done();
