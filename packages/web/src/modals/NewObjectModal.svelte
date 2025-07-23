@@ -113,6 +113,7 @@
       command: 'database.chat',
       isProFeature: true,
       disabledMessage: 'Database chat is not available for current database',
+      testid: 'NewObjectModal_databaseChat',
     }
   ];
 </script>
