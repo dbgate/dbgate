@@ -381,7 +381,7 @@ describe('Data browser data', () => {
     cy.themeshot('compare-database-settings');
   });
 
-  it.only('Database chat', () => {
+  it('Database chat', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
@@ -392,6 +392,11 @@ describe('Data browser data', () => {
     cy.testid('DatabaseChatTab_executeThisQuery', { timeout: 20000 }).click();
     cy.contains('Iron Maiden');
     cy.themeshot('database-chat');
+
+    // cy.get('body').realType('which song did bring the biggest income?');
+    // cy.get('body').realPress('{enter}');
+    // cy.contains('Gay Witch Hunt');
+    // cy.themeshot('database-chat');
   });
 
   it('Modify data', () => {
