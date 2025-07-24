@@ -103,6 +103,8 @@ const driver = {
       return printable;
     } else if ('documents' in printable) {
       return printable.documents;
+    } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
+      return printable.cursor.firstBatch;
     }
 
     return printable;
@@ -167,6 +169,11 @@ const driver = {
       } else if ('documents' in printable) {
         options.recordset({ __isDynamicStructure: true });
         for (const row of printable.documents) {
+          options.row(row);
+        }
+      } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
+        options.recordset({ __isDynamicStructure: true });
+        for (const row of printable.cursor.firstBatch) {
           options.row(row);
         }
       } else {
