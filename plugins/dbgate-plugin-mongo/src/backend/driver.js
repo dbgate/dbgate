@@ -1,9 +1,8 @@
 const _ = require('lodash');
 const stream = require('stream');
-const isPromise = require('is-promise');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
+const { MongoClient, ObjectId, Long } = require('mongodb');
 const { EJSON } = require('bson');
 const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
 const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
@@ -30,22 +29,8 @@ function serializeMongoData(row) {
   );
 }
 
-async function readCursor(cursor, options) {
-  options.recordset({ __isDynamicStructure: true });
-  await cursor.forEach((row) => {
-    options.row(serializeMongoData(row));
-  });
-}
-
 function deserializeMongoData(value) {
   return deserializeJsTypesFromJsonParse(EJSON.deserialize(value));
-}
-
-function findArrayResult(resValue) {
-  if (!_.isPlainObject(resValue)) return null;
-  const arrays = _.values(resValue).filter((x) => _.isArray(x));
-  if (arrays.length == 1) return arrays[0];
-  return null;
 }
 
 async function getScriptableDb(dbhan) {
@@ -107,11 +92,20 @@ const driver = {
     };
   },
   async script(dbhan, sql) {
-    let func;
-    func = eval(`(db,ObjectId) => ${sql}`);
-    const db = await getScriptableDb(dbhan);
-    const res = func(db, ObjectId.createFromHexString);
-    if (isPromise(res)) await res;
+    const connectionString = dbhan.client.s.url;
+    const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+    const runtime = new ElectronRuntime(serviceProvider);
+    const exprValue = await runtime.evaluate(sql);
+
+    const { printable } = exprValue;
+
+    if (Array.isArray(printable)) {
+      return printable;
+    } else if ('documents' in printable) {
+      return printable.documents;
+    }
+
+    return printable;
   },
   async operation(dbhan, operation, options) {
     const { type } = operation;
@@ -154,19 +148,35 @@ const driver = {
       return;
     }
 
-    console.log(exprValue);
+    const { printable, type } = exprValue;
 
-    if (exprValue.type === 'Document') {
+    if (type === 'Document') {
       options.recordset({ __isDynamicStructure: true });
-      options.row(exprValue.printable);
-    } else if (exprValue.type === 'Cursor' || exprValue.type === 'AggregationCursor') {
+      options.row(printable);
+    } else if (type === 'Cursor' || exprValue.type === 'AggregationCursor') {
       options.recordset({ __isDynamicStructure: true });
-      for (const doc of exprValue.printable.documents) {
+      for (const doc of printable.documents) {
         options.row(doc);
       }
     } else {
-      options.recordset({ __isDynamicStructure: true });
-      options.row(exprValue.printable);
+      if (Array.isArray(printable)) {
+        options.recordset({ __isDynamicStructure: true });
+        for (const row of printable) {
+          options.row(row);
+        }
+      } else if ('documents' in printable) {
+        options.recordset({ __isDynamicStructure: true });
+        for (const row of printable.documents) {
+          options.row(row);
+        }
+      } else {
+        options.info({
+          printable: printable,
+          time: new Date(),
+          severity: 'info',
+          message: 'Query returned not supported value.',
+        });
+      }
     }
 
     options.done();
