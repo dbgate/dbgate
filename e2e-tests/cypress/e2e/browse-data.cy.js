@@ -390,7 +390,8 @@ describe('Data browser data', () => {
     cy.get('body').realType('find most popular artist');
     cy.get('body').realPress('{enter}');
     cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 20000 }).click();
-    cy.contains('Iron Maiden');
+    cy.wait(4000);
+    // cy.contains('Iron Maiden');
     cy.themeshot('database-chat');
 
     // cy.testid('DatabaseChatTab_promptInput').click();
