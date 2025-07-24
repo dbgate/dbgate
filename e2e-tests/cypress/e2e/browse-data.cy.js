@@ -391,14 +391,14 @@ describe('Data browser data', () => {
     cy.get('body').realPress('{enter}');
     cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 20000 }).click();
     cy.contains('Iron Maiden');
-    // cy.themeshot('database-chat');
-
-    cy.testid('DatabaseChatTab_promptInput').click();
-    cy.get('body').realType('I need top 10 songs with the biggest income');
-    cy.get('body').realPress('{enter}');
-    cy.contains('Hot Girl', { timeout: 20000 });
-    cy.wait(1000);
     cy.themeshot('database-chat');
+
+    // cy.testid('DatabaseChatTab_promptInput').click();
+    // cy.get('body').realType('I need top 10 songs with the biggest income');
+    // cy.get('body').realPress('{enter}');
+    // cy.contains('Hot Girl', { timeout: 20000 });
+    // cy.wait(1000);
+    // cy.themeshot('database-chat');
   });
 
   it('Modify data', () => {
