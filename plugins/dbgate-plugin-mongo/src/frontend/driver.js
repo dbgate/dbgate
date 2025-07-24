@@ -128,7 +128,7 @@ const driver = {
   },
 
   getCollectionExportQueryScript(collection, condition, sort) {
-    return `db.collection('${collection}')
+    return `db.${collection}
   .find(${JSON.stringify(convertToMongoCondition(condition) || {})})
   .sort(${JSON.stringify(convertToMongoSort(sort) || {})})`;
   },
