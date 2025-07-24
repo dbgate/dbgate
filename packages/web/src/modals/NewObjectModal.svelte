@@ -105,6 +105,16 @@
       disabledMessage: 'Database comparison is not available for current database',
       isProFeature: true,
     },
+    {
+      icon: 'icon ai',
+      colorClass: 'color-icon-blue',
+      title: 'Database Chat',
+      description: 'Chat with your database using AI',
+      command: 'database.chat',
+      isProFeature: true,
+      disabledMessage: 'Database chat is not available for current database',
+      testid: 'NewObjectModal_databaseChat',
+    }
   ];
 </script>
 

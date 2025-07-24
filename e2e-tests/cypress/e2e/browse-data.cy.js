@@ -303,7 +303,8 @@ describe('Data browser data', () => {
   });
 
   it('Plugin tab', () => {
-    cy.testid('WidgetIconPanel_plugins').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Manage plugins').click();
     cy.contains('dbgate-plugin-theme-total-white').click();
     // text from plugin markdown
     cy.contains('Total white theme');
@@ -380,20 +381,25 @@ describe('Data browser data', () => {
     cy.themeshot('compare-database-settings');
   });
 
-  it('Query editor - AI assistant', () => {
+  it('Database chat', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_query').click();
-    cy.testid('QueryTab_switchAiAssistantButton').click();
-    cy.testid('QueryAiAssistant_allowSendToAiServiceButton').click();
-    cy.testid('ConfirmModal_okButton').click();
-    cy.testid('QueryAiAssistant_promptInput').type('album names');
-    cy.testid('QueryAiAssistant_queryFromQuestionButton').click();
-    cy.contains('Use this', { timeout: 10000 }).click();
-    cy.testid('QueryTab_executeButton').click();
-    cy.contains('Balls to the Wall');
-    cy.themeshot('ai-assistant');
+    cy.testid('NewObjectModal_databaseChat').click();
+    cy.wait(1000);
+    cy.get('body').realType('find most popular artist');
+    cy.get('body').realPress('{enter}');
+    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 20000 }).click();
+    cy.wait(4000);
+    // cy.contains('Iron Maiden');
+    cy.themeshot('database-chat');
+
+    // cy.testid('DatabaseChatTab_promptInput').click();
+    // cy.get('body').realType('I need top 10 songs with the biggest income');
+    // cy.get('body').realPress('{enter}');
+    // cy.contains('Hot Girl', { timeout: 20000 });
+    // cy.wait(1000);
+    // cy.themeshot('database-chat');
   });
 
   it('Modify data', () => {

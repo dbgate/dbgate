@@ -18,6 +18,9 @@
   import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
   import { getConnectionLabel } from 'dbgate-tools';
   import { _t } from '../translations';
+  import FilesInput from '../impexp/FilesInput.svelte';
+  import SimpleFilesInput from '../impexp/SimpleFilesInput.svelte';
+  import FormJsonFileInputField from '../forms/FormJsonFileInputField.svelte';
 
   export let getDatabaseList;
   export let currentConnection;
@@ -460,6 +463,10 @@
     disabled={isConnected}
     data-testid="ConnectionDriverFields_useSeparateSchemas"
   />
+{/if}
+
+{#if driver?.showConnectionField('certificateJson', $values, showConnectionFieldArgs)}
+  <FormJsonFileInputField disabled={isConnected} label="Service account key JSON" name="certificateJson" />
 {/if}
 
 {#if driver}

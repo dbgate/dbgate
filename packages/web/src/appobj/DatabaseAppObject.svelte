@@ -71,7 +71,8 @@
     const handleDropDatabase = () => {
       showModal(ConfirmModal, {
         message: _t('database.dropConfirm', {
-          defaultMessage: 'Really drop database {name}? All opened sessions with this database will be forcefully closed.',
+          defaultMessage:
+            'Really drop database {name}? All opened sessions with this database will be forcefully closed.',
           values: { name },
         }),
         onConfirm: () =>
@@ -207,6 +208,18 @@
       // showSnackbarSuccess(`Saved to archive ${resp.archiveFolder}`);
     };
 
+    const handleDatabaseChat = () => {
+      openNewTab({
+        title: 'Chat',
+        icon: 'img ai',
+        tabComponent: 'DatabaseChatTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
     const handleCompareWithCurrentDb = () => {
       openNewTab(
         {
@@ -312,7 +325,8 @@
     const handleGenerateDropAllObjectsScript = () => {
       showModal(ConfirmModal, {
         message: _t('database.dropAllObjectsConfirm', {
-          defaultMessage: 'This will generate script, after executing this script all objects in {name} will be dropped. Continue?',
+          defaultMessage:
+            'This will generate script, after executing this script all objects in {name} will be dropped. Continue?',
           values: { name },
         }),
 
@@ -364,7 +378,9 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
     const handleShowDataDeployer = () => {
       showModal(ChooseArchiveFolderModal, {
-        message: _t('database.chooseArchiveFolderForDataDeployer', { defaultMessage: 'Choose archive folder for data deployer' }),
+        message: _t('database.chooseArchiveFolderForDataDeployer', {
+          defaultMessage: 'Choose archive folder for data deployer',
+        }),
         onConfirm: archiveFolder => {
           openNewTab(
             {
@@ -396,57 +412,109 @@ await dbgateApi.executeQuery(${JSON.stringify(
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
 
     return [
-      hasPermission(`dbops/query`) && { onClick: handleNewQuery, text: _t('database.newQuery', { defaultMessage: 'New query' }), isNewQuery: true },
+      hasPermission(`dbops/query`) && {
+        onClick: handleNewQuery,
+        text: _t('database.newQuery', { defaultMessage: 'New query' }),
+        isNewQuery: true,
+      },
       hasPermission(`dbops/model/edit`) &&
         !connection.isReadOnly &&
-        driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: _t('database.newTable', { defaultMessage: 'New table' }) },
+        driver?.databaseEngineTypes?.includes('sql') && {
+          onClick: handleNewTable,
+          text: _t('database.newTable', { defaultMessage: 'New table' }),
+        },
       !connection.isReadOnly &&
         hasPermission(`dbops/model/edit`) &&
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
-          text: _t('database.newCollection', { defaultMessage: 'New {collectionLabel}', values: { collectionLabel: driver?.collectionSingularLabel ?? 'collection/container' } }),
+          text: _t('database.newCollection', {
+            defaultMessage: 'New {collectionLabel}',
+            values: { collectionLabel: driver?.collectionSingularLabel ?? 'collection/container' },
+          }),
         },
       hasPermission(`dbops/query`) &&
         driver?.databaseEngineTypes?.includes('sql') &&
-        isProApp() && { onClick: handleQueryDesigner, text: _t('database.designQuery', { defaultMessage: 'Design query' }) },
+        isProApp() && {
+          onClick: handleQueryDesigner,
+          text: _t('database.designQuery', { defaultMessage: 'Design query' }),
+        },
       driver?.databaseEngineTypes?.includes('sql') &&
         isProApp() && {
           onClick: handleNewPerspective,
           text: _t('database.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
         },
-      connection.useSeparateSchemas && { onClick: handleRefreshSchemas, text: _t('database.refreshSchemas', { defaultMessage: 'Refresh schemas' }) },
+      connection.useSeparateSchemas && {
+        onClick: handleRefreshSchemas,
+        text: _t('database.refreshSchemas', { defaultMessage: 'Refresh schemas' }),
+      },
 
       { divider: true },
       isSqlOrDoc &&
         !connection.isReadOnly &&
-        hasPermission(`dbops/import`) && { onClick: handleImport, text: _t('database.import', { defaultMessage: 'Import' }) },
-      isSqlOrDoc && hasPermission(`dbops/export`) && { onClick: handleExport, text: _t('database.export', { defaultMessage: 'Export' }) },
+        hasPermission(`dbops/import`) && {
+          onClick: handleImport,
+          text: _t('database.import', { defaultMessage: 'Import' }),
+        },
+      isSqlOrDoc &&
+        hasPermission(`dbops/export`) && {
+          onClick: handleExport,
+          text: _t('database.export', { defaultMessage: 'Export' }),
+        },
       driver?.supportsDatabaseRestore &&
         isProApp() &&
         hasPermission(`dbops/sql-dump/import`) &&
-        !connection.isReadOnly && { onClick: handleRestoreDatabase, text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }) },
+        !connection.isReadOnly && {
+          onClick: handleRestoreDatabase,
+          text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }),
+        },
       driver?.supportsDatabaseBackup &&
         isProApp() &&
-        hasPermission(`dbops/sql-dump/export`) && { onClick: handleBackupDatabase, text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }) },
+        hasPermission(`dbops/sql-dump/export`) && {
+          onClick: handleBackupDatabase,
+          text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }),
+        },
       isSqlOrDoc &&
         !connection.isReadOnly &&
         !connection.singleDatabase &&
         isSqlOrDoc &&
-        hasPermission(`dbops/dropdb`) && { onClick: handleDropDatabase, text: _t('database.dropDatabase', { defaultMessage: 'Drop database' }) },
+        hasPermission(`dbops/dropdb`) && {
+          onClick: handleDropDatabase,
+          text: _t('database.dropDatabase', { defaultMessage: 'Drop database' }),
+        },
       { divider: true },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: _t('database.copyDatabaseName', { defaultMessage: 'Copy database name' }) },
-      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: _t('database.showDiagram', { defaultMessage: 'Show diagram' }) },
+      driver?.databaseEngineTypes?.includes('sql') && {
+        onClick: handleCopyName,
+        text: _t('database.copyDatabaseName', { defaultMessage: 'Copy database name' }),
+      },
+      driver?.databaseEngineTypes?.includes('sql') && {
+        onClick: handleShowDiagram,
+        text: _t('database.showDiagram', { defaultMessage: 'Show diagram' }),
+      },
       driver?.databaseEngineTypes?.includes('sql') &&
-        hasPermission(`dbops/sql-generator`) && { onClick: handleSqlGenerator, text: _t('database.sqlGenerator', { defaultMessage: 'SQL Generator' }) },
+        hasPermission(`dbops/sql-generator`) && {
+          onClick: handleSqlGenerator,
+          text: _t('database.sqlGenerator', { defaultMessage: 'SQL Generator' }),
+        },
       driver?.supportsDatabaseProfiler &&
         isProApp() &&
-        hasPermission(`dbops/profiler`) && { onClick: handleDatabaseProfiler, text: _t('database.databaseProfiler', { defaultMessage: 'Database profiler' }) },
+        hasPermission(`dbops/profiler`) && {
+          onClick: handleDatabaseProfiler,
+          text: _t('database.databaseProfiler', { defaultMessage: 'Database profiler' }),
+        },
       // isSqlOrDoc &&
       //   isSqlOrDoc &&
       //   hasPermission(`dbops/model/view`) && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc &&
         isProApp() &&
-        hasPermission(`dbops/model/view`) && { onClick: handleExportModel, text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }) },
+        hasPermission(`dbops/model/view`) && {
+          onClick: handleExportModel,
+          text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }),
+        },
+      isProApp() &&
+        driver?.databaseEngineTypes?.includes('sql') && {
+          onClick: handleDatabaseChat,
+          text: _t('database.databaseChat', { defaultMessage: 'Database chat' }),
+        },
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
         hasPermission('dbops/model/compare') &&
@@ -455,14 +523,23 @@ await dbgateApi.executeQuery(${JSON.stringify(
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
           onClick: handleCompareWithCurrentDb,
-          text: _t('database.compareWithCurrentDb', { defaultMessage: 'Compare with {name}', values: { name: _.get($currentDatabase, 'name') } }),
+          text: _t('database.compareWithCurrentDb', {
+            defaultMessage: 'Compare with {name}',
+            values: { name: _.get($currentDatabase, 'name') },
+          }),
         },
 
-      driver?.databaseEngineTypes?.includes('keyvalue') && { onClick: handleGenerateScript, text: _t('database.generateScript', { defaultMessage: 'Generate script' }) },
+      driver?.databaseEngineTypes?.includes('keyvalue') && {
+        onClick: handleGenerateScript,
+        text: _t('database.generateScript', { defaultMessage: 'Generate script' }),
+      },
 
       ($openedSingleDatabaseConnections.includes(connection._id) ||
         (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
-          _.get($currentDatabase, 'name') == name)) && { onClick: handleDisconnect, text: _t('database.disconnect', { defaultMessage: 'Disconnect' }) },
+          _.get($currentDatabase, 'name') == name)) && {
+        onClick: handleDisconnect,
+        text: _t('database.disconnect', { defaultMessage: 'Disconnect' }),
+      },
 
       { divider: true },
 

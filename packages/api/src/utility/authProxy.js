@@ -46,6 +46,10 @@ async function tryToGetRefreshedLicense(oldLicenseKey) {
   };
 }
 
+function getAiGatewayServer() {
+  return {};
+}
+
 module.exports = {
   isAuthProxySupported,
   authProxyGetRedirectUrl,
@@ -59,4 +63,5 @@ module.exports = {
   callRefactorSqlQueryApi,
   getLicenseHttpHeaders,
   tryToGetRefreshedLicense,
+  getAiGatewayServer,
 };

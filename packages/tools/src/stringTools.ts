@@ -75,6 +75,37 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     }
   }
 
+  if (editorTypes?.parseGeopointAsDollar) {
+    const m = value.match(/^([\d\.]+)\s*°\s*([NS]),\s*([\d\.]+)\s*°\s*([EW])$/i);
+    if (m) {
+      let latitude = parseFloat(m[1]);
+      const latDir = m[2].toUpperCase();
+      let longitude = parseFloat(m[3]);
+      const lonDir = m[4].toUpperCase();
+
+      if (latDir === 'S') latitude = -latitude;
+      if (lonDir === 'W') longitude = -longitude;
+
+      return {
+        $geoPoint: {
+          latitude,
+          longitude,
+        },
+      };
+    }
+  }
+
+  if (editorTypes?.parseFsDocumentRefAsDollar) {
+    const trimmedValue = value.replace(/\s/g, '');
+    if (trimmedValue.startsWith('$ref:')) {
+      return {
+        $fsDocumentRef: {
+          documentPath: trimmedValue.slice(5),
+        },
+      };
+    }
+  }
+
   if (editorTypes?.parseJsonNull) {
     if (value == 'null') return null;
   }
@@ -243,6 +274,32 @@ export function stringifyCellValue(
             return { value: dateString.replace('T', ' '), gridStyle: 'valueCellStyle' };
           }
       }
+    }
+  }
+
+  if (editorTypes?.parseGeopointAsDollar) {
+    if (value?.$geoPoint) {
+      const { latitude, longitude } = value.$geoPoint;
+      if (_isNumber(latitude) && _isNumber(longitude)) {
+        const latAbs = Math.abs(latitude);
+        const lonAbs = Math.abs(longitude);
+        const latDir = latitude >= 0 ? 'N' : 'S';
+        const lonDir = longitude >= 0 ? 'E' : 'W';
+
+        return {
+          value: `${latAbs}° ${latDir}, ${lonAbs}° ${lonDir}`,
+          gridStyle: 'valueCellStyle',
+        };
+      }
+    }
+  }
+
+  if (editorTypes?.parseFsDocumentRefAsDollar) {
+    if (value?.$fsDocumentRef) {
+      return {
+        value: `$ref: ${value.$fsDocumentRef.documentPath ?? ''}`,
+        gridStyle: 'valueCellStyle',
+      };
     }
   }
 

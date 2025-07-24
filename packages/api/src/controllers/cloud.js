@@ -16,6 +16,7 @@ const { getConnectionLabel, getLogger, extractErrorLogData } = require('dbgate-t
 const logger = getLogger('cloud');
 const _ = require('lodash');
 const fs = require('fs-extra');
+const { getAiGatewayServer } = require('../utility/authProxy');
 
 module.exports = {
   publicFiles_meta: true,
@@ -276,4 +277,17 @@ module.exports = {
     const resp = await callCloudApiPost(`content-folders/remove-user/${folid}`, { email });
     return resp;
   },
+
+  getAiGateway_meta: true,
+  async getAiGateway() {
+    return getAiGatewayServer();
+  },
+
+  // chatStream_meta: {
+  //   raw: true,
+  //   method: 'post',
+  // },
+  // chatStream(req, res) {
+  //   callChatStream(req.body, res);
+  // },
 };
