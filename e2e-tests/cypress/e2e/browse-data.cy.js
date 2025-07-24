@@ -381,7 +381,7 @@ describe('Data browser data', () => {
     cy.themeshot('compare-database-settings');
   });
 
-  it.only('Database chat', () => {
+  it('Database chat', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
