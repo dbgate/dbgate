@@ -24,6 +24,7 @@ export const stringFilterBehaviour: FilterBehaviour = {
 export const logicalFilterBehaviour: FilterBehaviour = {
   supportBooleanValues: true,
   supportNullTesting: true,
+  supportBooleanOrNull: true,
   supportSqlCondition: true,
 };
 
@@ -36,7 +37,8 @@ export const datetimeFilterBehaviour: FilterBehaviour = {
 
 export const mongoFilterBehaviour: FilterBehaviour = {
   supportEquals: true,
-  supportArrayTesting: true,
+  supportEmptyArrayTesting: true,
+  supportNotEmptyArrayTesting: true,
   supportNumberLikeComparison: true,
   supportStringInclusion: true,
   supportBooleanValues: true,
@@ -57,11 +59,38 @@ export const evalFilterBehaviour: FilterBehaviour = {
   allowStringToken: true,
 };
 
+export const firestoreFilterBehaviours: FilterBehaviour = {
+  supportEquals: true,
+  supportEmpty: false,
+  supportNumberLikeComparison: true,
+  supportDatetimeComparison: false,
+  supportNullTesting: true,
+  supportBooleanValues: true,
+  supportEmptyArrayTesting: true,
+
+  supportStringInclusion: false,
+  supportDatetimeSymbols: false,
+  supportExistsTesting: false,
+  supportSqlCondition: false,
+
+  allowStringToken: true,
+  allowNumberToken: true,
+  allowHexString: true,
+  allowNumberDualTesting: false,
+  allowObjectIdTesting: false,
+
+  passBooleans: true,
+  passNumbers: true,
+
+  disableOr: true,
+};
+
 export const standardFilterBehaviours: { [id: string]: FilterBehaviour } = {
   numberFilterBehaviour,
   stringFilterBehaviour,
   logicalFilterBehaviour,
   datetimeFilterBehaviour,
   mongoFilterBehaviour,
+  firestoreFilterBehaviours,
   evalFilterBehaviour,
 };

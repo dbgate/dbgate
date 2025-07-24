@@ -42,8 +42,7 @@ function areDifferentRowCounts(db1: DatabaseInfo, db2: DatabaseInfo) {
   }
   return false;
 }
-
-export class DatabaseAnalyser {
+export class DatabaseAnalyser<TClient = any> {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
   singleObjectFilter: any;
@@ -51,7 +50,7 @@ export class DatabaseAnalyser {
   dialect: SqlDialect;
   logger: Logger;
 
-  constructor(public dbhan: DatabaseHandle, public driver: EngineDriver, version) {
+  constructor(public dbhan: DatabaseHandle<TClient>, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
     this.logger = logger;
   }

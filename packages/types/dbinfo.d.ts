@@ -108,6 +108,8 @@ export interface CollectionInfo extends DatabaseObjectInfo {
   // unique combination of columns (should be contatenation of partitionKey and clusterKey)
   uniqueKey?: ColumnReference[];
 
+  autoValueColumns?: ColumnReference[];
+
   // partition key columns
   partitionKey?: ColumnReference[];
 

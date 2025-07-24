@@ -9,11 +9,18 @@ export interface FilterBehaviour {
   supportExistsTesting?: boolean;
   supportBooleanValues?: boolean;
   supportSqlCondition?: boolean;
-  supportArrayTesting?: boolean;
+  supportEmptyArrayTesting?: boolean;
+  supportNotEmptyArrayTesting?: boolean;
+  supportBooleanOrNull?: boolean;
 
   allowStringToken?: boolean;
   allowNumberToken?: boolean;
   allowHexString?: boolean;
   allowNumberDualTesting?: boolean;
   allowObjectIdTesting?: boolean;
+
+  passBooleans?: boolean;
+  passNumbers?: boolean;
+
+  disableOr?: boolean;
 }

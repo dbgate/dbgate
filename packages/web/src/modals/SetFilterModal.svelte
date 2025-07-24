@@ -63,7 +63,9 @@
 
       <div class="row">
         <FormRadioGroupItem name="joinOperator" value=" " text="And" />
-        <FormRadioGroupItem name="joinOperator" value="," text="Or" />
+        {#if !filterBehaviour.disableOr}
+          <FormRadioGroupItem name="joinOperator" value="," text="Or" />
+        {/if}
       </div>
 
       <div class="row">

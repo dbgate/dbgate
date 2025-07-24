@@ -173,7 +173,9 @@
 
   {#if storageType == 'database' || storageType == 'query'}
     <FormConnectionSelect name={connectionIdField} label="Server" {direction} />
-    <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" />
+    {#if !$connectionInfo?.singleDatabase}
+      <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" />
+    {/if}
   {/if}
   {#if storageType == 'database'}
     <FormSchemaSelect

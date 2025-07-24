@@ -70,6 +70,7 @@ function getDisplayColumn(basePath, columnName, display: CollectionGridDisplay) 
     isPartitionKey: !!display?.collection?.partitionKey?.find(x => x.columnName == uniqueName),
     isClusterKey: !!display?.collection?.clusterKey?.find(x => x.columnName == uniqueName),
     isUniqueKey: !!display?.collection?.uniqueKey?.find(x => x.columnName == uniqueName),
+    hasAutoValue: !!display?.collection?.autoValueColumns?.find(x => x.columnName == uniqueName),
   };
 }
 

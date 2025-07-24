@@ -23,6 +23,28 @@ export interface StreamOptions {
   info?: (info) => void;
 }
 
+export type CollectionOperationInfo =
+  | {
+      type: 'createCollection';
+      collection: {
+        name: string;
+      };
+    }
+  | {
+      type: 'dropCollection';
+      collection: string;
+    }
+  | {
+      type: 'renameCollection';
+      collection: string;
+      newName: string;
+    }
+  | {
+      type: 'cloneCollection';
+      collection: string;
+      newName: string;
+    };
+
 export interface RunScriptOptions {
   useTransaction: boolean;
   logScriptItems?: boolean;
@@ -120,6 +142,8 @@ export interface DataEditorTypesBehaviour {
   parseHexAsBuffer?: boolean;
   parseObjectIdAsDollar?: boolean;
   parseDateAsDollar?: boolean;
+  parseGeopointAsDollar?: boolean;
+  parseFsDocumentRefAsDollar?: boolean;
 
   explicitDataType?: boolean;
   supportNumberType?: boolean;
@@ -217,7 +241,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   defaultSocketPath?: string;
   authTypeLabel?: string;
   importExportArgs?: any[];
-  connect({ server, port, user, password, database }): Promise<DatabaseHandle<TClient>>;
+  connect({ server, port, user, password, database, certificateJson }): Promise<DatabaseHandle<TClient>>;
   close(dbhan: DatabaseHandle<TClient>): Promise<any>;
   query(dbhan: DatabaseHandle<TClient>, sql: string, options?: QueryOptions): Promise<QueryResult>;
   stream(dbhan: DatabaseHandle<TClient>, sql: string, options: StreamOptions);
@@ -264,7 +288,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   dropDatabase(dbhan: DatabaseHandle<TClient>, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
   script(dbhan: DatabaseHandle<TClient>, sql: string, options?: RunScriptOptions): Promise;
-  operation(dbhan: DatabaseHandle<TClient>, operation: {}, options?: RunScriptOptions): Promise;
+  operation(dbhan: DatabaseHandle<TClient>, operation: CollectionOperationInfo, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of dbhan.client method, only some methods could be supported, on only some drivers
   callMethod(dbhan: DatabaseHandle<TClient>, method, args);

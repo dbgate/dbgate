@@ -80,11 +80,12 @@
       );
     }
 
-    if (filterBehaviour.supportArrayTesting) {
-      res.push(
-        { onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' },
-        { onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' }
-      );
+    if (filterBehaviour.supportNotEmptyArrayTesting) {
+      res.push({ onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' });
+    }
+
+    if (filterBehaviour.supportEmptyArrayTesting) {
+      res.push({ onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' });
     }
 
     if (filterBehaviour.supportNullTesting) {
@@ -132,7 +133,7 @@
       );
     }
 
-    if (filterBehaviour.supportBooleanValues && filterBehaviour.supportNullTesting) {
+    if (filterBehaviour.supportBooleanOrNull) {
       res.push(
         { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
         { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' }

@@ -122,7 +122,11 @@
   import _ from 'lodash';
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
-  import { extractShellConnection, extractShellConnectionHostable, extractShellHostConnection } from '../impexp/createImpExpScript';
+  import {
+    extractShellConnection,
+    extractShellConnectionHostable,
+    extractShellHostConnection,
+  } from '../impexp/createImpExpScript';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
