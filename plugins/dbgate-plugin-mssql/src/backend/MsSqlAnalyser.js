@@ -54,6 +54,7 @@ function getColumnInfo({
   defaultValue,
   defaultConstraint,
   computedExpression,
+  columnComment,
 }) {
   const fullDataType = getFullDataTypeName({
     dataType,
@@ -79,6 +80,7 @@ function getColumnInfo({
     defaultConstraint,
     computedExpression: simplifyComutedExpression(computedExpression),
     hasAutoValue: !!(dataType == 'timestamp' || dataType == 'rowversion' || computedExpression),
+    columnComment,
   };
 }
 
@@ -104,6 +106,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const tablesRows = await this.analyserQuery('tables', ['tables']);
     this.feedback({ analysingMessage: 'Loading columns' });
     const columnsRows = await this.analyserQuery('columns', ['tables']);
+
     this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'Loading foreign keys' });
