@@ -100,3 +100,9 @@ jobs:
           cd ..
           cd dbgate-merged/plugins/dbgate-plugin-cosmosdb
           npm publish
+
+      - name: Publish dbgate-plugin-firestore
+        run: |
+          cd ..
+          cd dbgate-merged/plugins/dbgate-plugin-firestore
+          npm publish
