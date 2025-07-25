@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.0
+- ADDED: Database chat - AI powered chatbot, which knows your database
+- ADDED: Firestore support (Premium)
+
 ## 6.5.6
 - ADDED: New object window - quick access to most common functions
 - ADDED: Possibility to disable split query by empty line #1162
