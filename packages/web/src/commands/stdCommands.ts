@@ -723,7 +723,8 @@ if (isProApp()) {
     icon: 'icon ai',
     testEnabled: () =>
       getCurrentDatabase() != null &&
-      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql') &&
+      hasPermission('dbops/chat'),
     onClick: () => {
       openNewTab({
         title: 'Chat',

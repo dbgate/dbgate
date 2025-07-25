@@ -424,6 +424,7 @@
   import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1848,6 +1849,7 @@
     // },
     isProApp() && { command: 'dataGrid.sendToDataDeploy' },
     isProApp() &&
+      hasPermission('dbops/charts') &&
       onOpenChart && {
         text: 'Open chart',
         onClick: () => onOpenChart(),
