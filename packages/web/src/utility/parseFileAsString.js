@@ -1,7 +1,7 @@
-export async function parseFileAsJson(file) {
+export async function parseFileAsString(file) {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
+    const data = text;
     return {
       success: true,
       data,
