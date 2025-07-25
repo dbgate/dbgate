@@ -163,6 +163,25 @@ class MsSqlDumper extends SqlDumper {
     this.put('^select ^scope_identity()');
   }
 
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  tableOptions(table) {
+    super.tableOptions(table);
+
+    for (const col of table.columns) {
+      if (col.columnComment) {
+        this.put('^exec sp_addextendedproperty&n');
+        this.put("@name = N'MS_Description',");
+        this.put("@value = N'Identifier for the user who created this notification record'&n");
+        this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", table.schemaName);
+        this.put("@level1type = N'TABLE',  @level1name = '%s',&n", table.pureName);
+        this.put("@level2type = N'COLUMN', @level2name = '%s'", col.pureName);
+        this.endCommand();
+      }
+    }
+  }
+
   callableTemplate(func) {
     const putParameters = (parameters, delimiter) => {
       this.putCollection(delimiter, parameters || [], param => {
@@ -207,8 +226,8 @@ MsSqlDumper.prototype.changeProcedureSchema = MsSqlDumper.prototype.changeObject
 
 MsSqlDumper.prototype.renameFunction = MsSqlDumper.prototype.renameObject;
 MsSqlDumper.prototype.changeFunctionSchema = MsSqlDumper.prototype.changeObjectSchema;
-
 MsSqlDumper.prototype.renameTrigger = MsSqlDumper.prototype.renameObject;
+
 MsSqlDumper.prototype.changeTriggerSchema = MsSqlDumper.prototype.changeObjectSchema;
 
 MsSqlDumper.prototype.renameTable = MsSqlDumper.prototype.renameObject;
