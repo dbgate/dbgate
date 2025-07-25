@@ -9,8 +9,10 @@ Builds:
  - win - application for Windows
 
 ## 6.6.0
-- ADDED: Database chat - AI powered chatbot, which knows your database
+- ADDED: Database chat - AI powered chatbot, which knows your database (Premium)
 - ADDED: Firestore support (Premium)
+- REMOVED: Query AI assistant (replaced by Database Chat)  (Premium)
+- FIXED: Chart permissions were ignored  (Premium)
 
 ## 6.5.6
 - ADDED: New object window - quick access to most common functions
