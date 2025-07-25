@@ -7,7 +7,8 @@ select c.name as columnName, t.name as dataType, c.object_id as objectId, c.is_i
 	col.NUMERIC_PRECISION as numericPrecision,
 	col.NUMERIC_SCALE as numericScale,
 	-- TODO only if version >= 2008
-	c.is_sparse as isSparse
+	c.is_sparse as isSparse,
+	ep.value as columnComment
 from sys.columns c
 inner join sys.types t on c.system_type_id = t.system_type_id and c.user_type_id = t.user_type_id
 inner join sys.objects o on c.object_id = o.object_id
@@ -15,6 +16,7 @@ INNER JOIN sys.schemas u ON u.schema_id=o.schema_id
 INNER JOIN INFORMATION_SCHEMA.COLUMNS col ON col.TABLE_NAME = o.name AND col.TABLE_SCHEMA = u.name and col.COLUMN_NAME = c.name
 left join sys.default_constraints d on c.default_object_id = d.object_id
 left join sys.computed_columns m on m.object_id = c.object_id and m.column_id = c.column_id
+left join sys.extended_properties ep on ep.major_id = c.object_id and ep.minor_id = c.column_id and ep.name = 'MS_Description'
 where o.type = 'U' and o.object_id =OBJECT_ID_CONDITION and u.name =SCHEMA_NAME_CONDITION
 order by c.column_id
 `;
