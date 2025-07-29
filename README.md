@@ -39,6 +39,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * libSQL/Turso (Premium)
 * DuckDB
 * Firebird
+* Firestore (Premium)
 
 
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
@@ -81,6 +82,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Archives - backup your data in NDJSON files on local filesystem (or on DbGate server, when using web application)
 * NDJSON data viewer and editor - browse NDJSON data, edit data and structure directly on NDJSON files. Works also for big NDSON files
 * Charts, export chart to HTML page
+* AI powered database chat
 * Show GEO data on map, export map to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture

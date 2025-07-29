@@ -154,6 +154,7 @@
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
+  import hasPermission from '../utility/hasPermission';
 
   export let tabid;
   export let conid;
@@ -794,7 +795,7 @@
       hideDisabled
     />
 
-    {#if isProApp() && visibleResultTabs && !busy}
+    {#if isProApp() && visibleResultTabs && !busy && hasPermission('dbops/charts')}
       <ToolStripButton
         icon="icon chart"
         data-testid="QueryTab_openChartButton"
@@ -805,7 +806,7 @@
         Open chart</ToolStripButton
       >
     {/if}
-    {#if isProApp() && !visibleResultTabs}
+    {#if isProApp() && !visibleResultTabs && hasPermission('dbops/charts')}
       <ToolStripButton
         icon="icon chart"
         data-testid="QueryTab_detectChartButton"

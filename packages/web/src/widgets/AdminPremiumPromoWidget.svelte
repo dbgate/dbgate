@@ -11,6 +11,7 @@
 
   <ul>
     <li>Query designer</li>
+    <li>AI powered database chat</li>
     <li>Unlimited DbGate Cloud storage</li>
     <li>Shared cloud folders</li>
     <li>Charts from query result</li>
@@ -19,8 +20,7 @@
     <li>Backup &amp; restore database</li>
     <li>Advanced ER diagram settings</li>
     <li>Export database model</li>
-    <li>AI assistant</li>
-    <li>libSQL, Turso, CosmosDB, Redshift support</li>
+    <li>Firestore, libSQL, Turso, CosmosDB, Redshift support</li>
     <li>Amazon and Azure identity providers</li>
     <li>E-mail support</li>
   </ul>

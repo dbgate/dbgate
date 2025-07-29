@@ -241,7 +241,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   defaultSocketPath?: string;
   authTypeLabel?: string;
   importExportArgs?: any[];
-  connect({ server, port, user, password, database, certificateJson }): Promise<DatabaseHandle<TClient>>;
+  connect({ server, port, user, password, database, connectionDefinition }): Promise<DatabaseHandle<TClient>>;
   close(dbhan: DatabaseHandle<TClient>): Promise<any>;
   query(dbhan: DatabaseHandle<TClient>, sql: string, options?: QueryOptions): Promise<QueryResult>;
   stream(dbhan: DatabaseHandle<TClient>, sql: string, options: StreamOptions);

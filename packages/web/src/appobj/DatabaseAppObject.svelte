@@ -511,7 +511,8 @@ await dbgateApi.executeQuery(${JSON.stringify(
           text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }),
         },
       isProApp() &&
-        driver?.databaseEngineTypes?.includes('sql') && {
+        driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission('dbops/chat') && {
           onClick: handleDatabaseChat,
           text: _t('database.databaseChat', { defaultMessage: 'Database chat' }),
         },

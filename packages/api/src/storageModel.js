@@ -674,6 +674,12 @@ module.exports = {
           "columnName": "awsRegion",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "connectionDefinition",
+          "dataType": "text",
+          "notNull": false
         }
       ],
       "foreignKeys": [],

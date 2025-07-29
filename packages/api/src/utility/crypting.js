@@ -101,24 +101,26 @@ function decryptObjectPasswordField(obj, field, encryptor = null) {
   return obj;
 }
 
+const fieldsToEncrypt = ['password', 'sshPassword', 'sshKeyfilePassword', 'connectionDefinition'];
+
 function encryptConnection(connection, encryptor = null) {
   if (connection.passwordMode != 'saveRaw') {
-    connection = encryptObjectPasswordField(connection, 'password', encryptor);
-    connection = encryptObjectPasswordField(connection, 'sshPassword', encryptor);
-    connection = encryptObjectPasswordField(connection, 'sshKeyfilePassword', encryptor);
+    for (const field of fieldsToEncrypt) {
+      connection = encryptObjectPasswordField(connection, field, encryptor);
+    }
   }
   return connection;
 }
 
 function maskConnection(connection) {
   if (!connection) return connection;
-  return _.omit(connection, ['password', 'sshPassword', 'sshKeyfilePassword']);
+  return _.omit(connection, fieldsToEncrypt);
 }
 
-function decryptConnection(connection, encryptor = null) {
-  connection = decryptObjectPasswordField(connection, 'password', encryptor);
-  connection = decryptObjectPasswordField(connection, 'sshPassword', encryptor);
-  connection = decryptObjectPasswordField(connection, 'sshKeyfilePassword', encryptor);
+function decryptConnection(connection) {
+  for (const field of fieldsToEncrypt) {
+    connection = decryptObjectPasswordField(connection, field);
+  }
   return connection;
 }
 
@@ -188,9 +190,9 @@ function recryptObjectPasswordFieldInPlace(obj, field, decryptEncryptor, encrypt
 }
 
 function recryptConnection(connection, decryptEncryptor, encryptEncryptor) {
-  connection = recryptObjectPasswordField(connection, 'password', decryptEncryptor, encryptEncryptor);
-  connection = recryptObjectPasswordField(connection, 'sshPassword', decryptEncryptor, encryptEncryptor);
-  connection = recryptObjectPasswordField(connection, 'sshKeyfilePassword', decryptEncryptor, encryptEncryptor);
+  for (const field of fieldsToEncrypt) {
+    connection = recryptObjectPasswordField(connection, field, decryptEncryptor, encryptEncryptor);
+  }
   return connection;
 }
 
