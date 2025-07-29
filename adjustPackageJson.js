@@ -41,9 +41,9 @@ function adjustFile(file, isApp = false) {
     delete json.optionalDependencies.msnodesqlv8;
   }
 
-  // if (process.argv.includes('--community')) {
-  //   delete json.optionalDependencies['mongodb-client-encryption'];
-  // }
+  if (process.argv.includes('--community')) {
+    delete json.optionalDependencies['mongodb-client-encryption'];
+  }
 
   if (isApp && process.argv.includes('--premium')) {
     json.build.win.target = [
