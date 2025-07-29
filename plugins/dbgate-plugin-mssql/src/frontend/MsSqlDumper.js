@@ -124,8 +124,51 @@ class MsSqlDumper extends SqlDumper {
     this.putCmd("^execute sp_rename '%f.%i', '%s', 'COLUMN'", column, column.columnName, newcol);
   }
 
+  /**
+   * @param {import('dbgate-types').ColumnInfo} oldcol
+   * @param {import('dbgate-types').ColumnInfo} newcol
+   */
+  changeColumnDescription(oldcol, newcol) {
+    if (oldcol.columnComment == newcol.columnComment) return;
+    if (oldcol.columnComment && !newcol.columnComment) {
+      this.dropColumnDescription(newcol);
+    } else {
+      this.dropColumnDescription(newcol);
+      this.createColumnDescription(newcol);
+    }
+  }
+
+  /**
+   * @param {import('dbgate-types').ColumnInfo} column
+   */
+  dropColumnDescription(column) {
+    const { schemaName, columnName, pureName } = column;
+
+    this.put('^exec sp_dropextendedproperty&n');
+    this.put("@name = N'MS_Description',");
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
+    this.put("@level2type = N'COLUMN', @level2name = '%s'", columnName);
+    this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').ColumnInfo} column
+   */
+  createColumnDescription(column) {
+    const { schemaName, columnName, pureName, columnComment } = column;
+
+    this.put('^exec sp_addextendedproperty&n');
+    this.put("@name = N'MS_Description',");
+    this.put(`@value = N'%s',&n`, columnComment);
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
+    this.put("@level2type = N'COLUMN', @level2name = '%s'", columnName);
+    this.endCommand();
+  }
+
   changeColumn(oldcol, newcol, constraints) {
-    if (testEqualColumns(oldcol, newcol, false, false)) {
+    if (testEqualColumns(oldcol, newcol, false, false, { ignoreComments: true })) {
       this.dropDefault(oldcol);
       if (oldcol.columnName != newcol.columnName) this.renameColumn(oldcol, newcol.columnName);
       this.createDefault(newcol);
@@ -140,6 +183,8 @@ class MsSqlDumper extends SqlDumper {
       this.endCommand();
       this.createDefault(newcol);
     }
+
+    this.changeColumnDescription(oldcol, newcol);
   }
 
   specialColumnOptions(column) {
@@ -161,25 +206,6 @@ class MsSqlDumper extends SqlDumper {
 
   selectScopeIdentity() {
     this.put('^select ^scope_identity()');
-  }
-
-  /**
-   * @param {import('dbgate-types').TableInfo} table
-   */
-  tableOptions(table) {
-    super.tableOptions(table);
-
-    for (const col of table.columns) {
-      if (col.columnComment) {
-        this.put('^exec sp_addextendedproperty&n');
-        this.put("@name = N'MS_Description',");
-        this.put("@value = N'Identifier for the user who created this notification record'&n");
-        this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", table.schemaName);
-        this.put("@level1type = N'TABLE',  @level1name = '%s',&n", table.pureName);
-        this.put("@level2type = N'COLUMN', @level2name = '%s'", col.pureName);
-        this.endCommand();
-      }
-    }
   }
 
   callableTemplate(func) {
