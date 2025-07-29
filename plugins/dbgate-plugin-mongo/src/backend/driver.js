@@ -42,6 +42,28 @@ async function getScriptableDb(dbhan) {
   return db;
 }
 
+/**
+ * @param {string} uri
+ * @param {string} dbName
+ * @returns {string}
+ */
+function ensureDatabaseInMongoURI(uri, dbName) {
+  if (!dbName) return uri;
+
+  try {
+    const url = new URL(uri);
+
+    const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
+    if (hasDatabase) return uri;
+
+    url.pathname = `/${dbName}`;
+    return url.toString();
+  } catch (error) {
+    logger.error('Invalid URI format:', error.message);
+    return uri;
+  }
+}
+
 /** @type {import('dbgate-types').EngineDriver<MongoClient>} */
 const driver = {
   ...driverBase,
@@ -92,7 +114,7 @@ const driver = {
     };
   },
   async script(dbhan, sql) {
-    const connectionString = dbhan.client.s.url;
+    const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
     const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
     const runtime = new ElectronRuntime(serviceProvider);
     const exprValue = await runtime.evaluate(sql);
@@ -136,7 +158,7 @@ const driver = {
     let exprValue;
 
     try {
-      const connectionString = dbhan.client.s.url;
+      const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
       const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
       const runtime = new ElectronRuntime(serviceProvider);
       exprValue = await runtime.evaluate(sql);
