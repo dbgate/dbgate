@@ -45,6 +45,7 @@ const dialect = {
   namedDefaultConstraint: true,
 
   columnProperties: {
+    columnComment: true,
     isSparse: true,
     isPersisted: true,
   },
