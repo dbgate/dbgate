@@ -123,6 +123,7 @@ jobs:
           cp ../dbgate-merged/app/dist/*win*.exe artifacts/dbgate-premium-beta.exe || true
           cp ../dbgate-merged/app/dist/*win_x64.zip artifacts/dbgate-windows-premium-beta.zip || true
           cp ../dbgate-merged/app/dist/*win_arm64.zip artifacts/dbgate-windows-premium-beta-arm64.zip || true
+          cp ../dbgate-merged/app/dist/*win_arm64.exe artifacts/dbgate-windows-premium-beta-arm64.exe || true
           cp ../dbgate-merged/app/dist/*-mac_universal.dmg artifacts/dbgate-premium-beta.dmg || true
           cp ../dbgate-merged/app/dist/*-mac_x64.dmg artifacts/dbgate-premium-beta-x64.dmg || true
           cp ../dbgate-merged/app/dist/*-mac_arm64.dmg artifacts/dbgate-premium-beta-arm64.dmg || true

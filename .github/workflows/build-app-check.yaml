@@ -88,6 +88,7 @@ jobs:
           cp app/dist/*win*.exe artifacts/dbgate-check.exe || true
           cp app/dist/*win_x64.zip artifacts/dbgate-windows-check.zip || true
           cp app/dist/*win_arm64.zip artifacts/dbgate-windows-check-arm64.zip || true
+          cp app/dist/*win_arm64.exe artifacts/dbgate-windows-check-arm64.exe || true
           cp app/dist/*-mac_universal.dmg artifacts/dbgate-check.dmg || true
           cp app/dist/*-mac_x64.dmg artifacts/dbgate-check-x64.dmg || true
           cp app/dist/*-mac_arm64.dmg artifacts/dbgate-check-arm64.dmg || true
