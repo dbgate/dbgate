@@ -44,6 +44,6 @@
     "tedious": "^18.6.1"
   },
   "optionalDependencies": {
-    "msnodesqlv8": "^4.2.1"
+    "msnodesqlv8": "^5.1.1"
   }
 }

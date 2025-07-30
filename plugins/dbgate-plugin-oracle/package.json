@@ -40,6 +40,6 @@
     "lodash": "^4.17.21"
   },
   "optionalDependencies": {
-    "oracledb": "^6.6.0"
+    "oracledb": "^6.9.0"
   }
 }
