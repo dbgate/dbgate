@@ -112,6 +112,18 @@ const dialect = {
       };
     }
   },
+
+  getTableFormOptions(intent) {
+    return [
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment = %v',
+        allowEmptyValue: true,
+      },
+    ];
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
