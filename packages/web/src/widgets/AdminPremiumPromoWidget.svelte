@@ -45,10 +45,10 @@
   </div>
 
   <h2>Give us feedback</h2>
-  <p>Your feedback is very valuable for us. It helps us to improve DbGate and make it more useful for you.</p>
+  <p>Your feedback is very valuable for us. We have time-limited offers available for users who provide feedback.</p>
 
   <div class="center">
-    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/feedback')} value="Give us feedback" skipWidth />
+    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/review')} value="View current offer" skipWidth />
   </div>
 </WidgetsInnerContainer>
 
