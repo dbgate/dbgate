@@ -91,7 +91,7 @@
     "jsdoc-to-markdown": "^9.0.5",
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
-    "typescript": "^5.8.3",
+    "typescript": "^4.4.3",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   }

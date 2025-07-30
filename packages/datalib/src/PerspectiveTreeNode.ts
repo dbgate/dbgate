@@ -697,7 +697,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       bindingValues: _uniqBy(
         parentRows.map(row => [row[this.foreignKey.columns[0].columnName]]),
         stableStringify
-      ) as any[][],
+      ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.refTable),
@@ -1280,7 +1280,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       bindingValues: _uniqBy(
         parentRows.map(row => [row[this.foreignKey.columns[0].refColumnName]]),
         stableStringify
-      ) as any[][],
+      ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
