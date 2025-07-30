@@ -3,7 +3,6 @@ const os = require('os');
 const path = require('path');
 const processArgs = require('./processArgs');
 const isElectron = require('is-electron');
-const { isProApp } = require('./checkLicense');
 
 const platform = process.env.OS_OVERRIDE ? process.env.OS_OVERRIDE : process.platform;
 const isWindows = platform === 'win32';
@@ -60,7 +59,6 @@ const platformInfo = {
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
   isAwsUbuntuLayout,
   isAzureUbuntuLayout,
-  isProApp: isProApp()
 };
 
 module.exports = platformInfo;
