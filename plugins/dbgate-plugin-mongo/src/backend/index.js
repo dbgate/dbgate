@@ -13,4 +13,7 @@ module.exports = {
     extractProfileTimestamp,
     aggregateProfileChartEntry,
   },
+  initialize(dbgateEnv) {
+    driver.initialize(dbgateEnv);
+  },
 };
