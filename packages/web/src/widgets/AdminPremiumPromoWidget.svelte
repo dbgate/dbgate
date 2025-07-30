@@ -44,7 +44,7 @@
     <FormStyledButton on:click={() => openWebLink('https://dbgate.io/purchase/premium')} value="Purchase" />
   </div>
 
-  <h2>Give us feedback</h2>
+  <h2>Get PREMIUM license for free</h2>
   <p>Your feedback is very valuable for us. We have time-limited offers available for users who provide feedback.</p>
 
   <div class="center">
