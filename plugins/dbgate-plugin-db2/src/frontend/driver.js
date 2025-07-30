@@ -84,13 +84,15 @@ function adaptTableInfo(table) {
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'isReadOnly'].includes(field);
     }
-    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
+    // Show 'database' as optional, and do not require 'defaultDatabase' (legacy)
+    return ['server', 'port', 'user', 'password', 'database', 'singleDatabase', 'isReadOnly'].includes(field);
   },
-  connectionFields: [    { field: 'server', type: 'string', label: 'Server', required: true },
-    { field: 'port', type: 'number', label: 'Port', required: true, defaultValue: 25000 },
+  connectionFields: [
+    { field: 'server', type: 'string', label: 'Server', required: true },
+    { field: 'port', type: 'number', label: 'Port', required: true, defaultValue: 50000 },
+    { field: 'database', type: 'string', label: 'Database name', required: true, placeholder: 'Required: enter a valid database name (e.g. SAMPLE)', help: 'DB2 always requires a database name to connect. You cannot connect to the server without specifying a database.' },
     { field: 'user', type: 'string', label: 'User', required: true },
     { field: 'password', type: 'password', label: 'Password', required: true },
-    { field: 'database', type: 'string', label: 'Database', required: true },
   ],
   icon: 'db2',  supports: {
     schemas: true,

@@ -160,7 +160,8 @@ module.exports = async function connect({
       ReadOnly: ${isReadOnly ? 'yes' : 'no'}
       UseDatabaseUrl: ${useDatabaseUrl ? 'yes' : 'no'}
     `);
-      let dbName = database || user || '';
+      // Only use database if provided, do not fallback to username
+      let dbName = database ? database : '';
     let connStr;
     
     if (useDatabaseUrl && databaseUrl) {
@@ -183,6 +184,7 @@ module.exports = async function connect({
       const escapedDbName = dbName ? dbName.replace(/[;=]/g, c => encodeURIComponent(c)) : '';      // Build a simpler connection string with minimal parameters that are most compatible
       // with standard DB2 servers to avoid any incompatibilities
       
+      // Always include DATABASE= for DB2 (required)
       const connectionParams = [
         `DATABASE=${escapedDbName}`,
         `HOSTNAME=${escapedServer}`,
@@ -194,7 +196,7 @@ module.exports = async function connect({
         'CONNECTTIMEOUT=60',        // Use a reasonable default timeout
         'AUTOCOMMIT=1'              // Keep autocommit enabled
       ].filter(Boolean);
-        connStr = connectionParams.join(';');
+      connStr = connectionParams.join(';');
       console.log(`[DB2] Using enhanced connection string format: DATABASE=xxx;HOSTNAME=xxx;PORT=xxx;...`);
     }
     

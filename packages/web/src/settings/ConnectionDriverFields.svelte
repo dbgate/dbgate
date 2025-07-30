@@ -32,6 +32,8 @@
   $: currentAuthType = $authTypes && $authTypes.find(x => x.name == authType);
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
+  // @ts-ignore: connectionFields is a dynamic property on driver objects
+  $: connectionFields = driver && driver['connectionFields'];
   $: defaultDatabase = $values.defaultDatabase;
   $: config = useConfig();
 
@@ -140,7 +142,6 @@
 {#if driver?.showConnectionField('useDatabaseUrl', $values, showConnectionFieldArgs)}
   <div class="radio">
     <FormRadioGroupField
-      disabled={isConnected || disabledFields.includes('useDatabaseUrl')}
       name="useDatabaseUrl"
       matchValueToOption={(value, option) => !!option.value == !!value}
       options={[
@@ -224,37 +225,47 @@
   />
 {/if}
 
-{#if driver?.showConnectionField('server', $values, showConnectionFieldArgs)}
-  <div class="row">
-    <div class="col-9 mr-1">
-      <FormTextField
-        label="Server"
-        name="server"
-        disabled={isConnected || disabledFields.includes('server')}
-        templateProps={{ noMargin: true }}
-        data-testid="ConnectionDriverFields_server"
-      />
-    </div>
-    {#if driver?.showConnectionField('port', $values, showConnectionFieldArgs)}
-      <div class="col-3 mr-1">
+  {#if driver?.showConnectionField('server', $values, showConnectionFieldArgs)}
+    <div class="row">
+      <div class="col-9 mr-1">
         <FormTextField
-          label="Port"
-          name="port"
-          disabled={isConnected || disabledFields.includes('port')}
+          label="Server"
+          name="server"
+          disabled={isConnected || disabledFields.includes('server')}
           templateProps={{ noMargin: true }}
-          placeholder={driver?.defaultPort}
-          data-testid="ConnectionDriverFields_port"
+          data-testid="ConnectionDriverFields_server"
         />
       </div>
-    {/if}
-  </div>
-  {#if getCurrentConfig().isDocker}
-    <div class="row">
-      <FontIcon icon="img warn" padRight />
-      Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead
+      {#if driver?.showConnectionField('port', $values, showConnectionFieldArgs)}
+        <div class="col-3 mr-1">
+          <FormTextField
+            label="Port"
+            name="port"
+            disabled={isConnected || disabledFields.includes('port')}
+            templateProps={{ noMargin: true }}
+            placeholder={driver?.defaultPort}
+            data-testid="ConnectionDriverFields_port"
+          />
+        </div>
+      {/if}
     </div>
+    {#if driver?.showConnectionField('database', $values, showConnectionFieldArgs)}
+      <FormTextField
+        label="Database name"
+        name="database"
+        disabled={isConnected || disabledFields.includes('database')}
+        data-testid="ConnectionDriverFields_database"
+        placeholder={connectionFields?.find(f => f.field === 'database')?.placeholder}
+        help={connectionFields?.find(f => f.field === 'database')?.help}
+      />
+    {/if}
+    {#if getCurrentConfig().isDocker}
+      <div class="row">
+        <FontIcon icon="img warn" padRight />
+        Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead
+      </div>
+    {/if}
   {/if}
-{/if}
 
 {#if driver?.showConnectionField('serviceName', $values, showConnectionFieldArgs)}
   <div class="row">
