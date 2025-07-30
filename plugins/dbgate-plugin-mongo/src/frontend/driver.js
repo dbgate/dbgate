@@ -88,14 +88,14 @@ const driver = {
   getCollectionUpdateScript(changeSet, collectionInfo) {
     let res = '';
     for (const insert of changeSet.inserts) {
-      res += `db.${insert.pureName}.insertOne(${jsonStringifyWithObjectId({
+      res += `db.getCollection('${insert.pureName}').insertOne(${jsonStringifyWithObjectId({
         ...insert.document,
         ...insert.fields,
       })});\n`;
     }
     for (const update of changeSet.updates) {
       if (update.document) {
-        res += `db.${update.pureName}.replaceOne(${jsonStringifyWithObjectId(
+        res += `db.getCollection('${update.pureName}').replaceOne(${jsonStringifyWithObjectId(
           update.condition
         )}, ${jsonStringifyWithObjectId({
           ...update.document,
@@ -112,13 +112,13 @@ const driver = {
         if (!_.isEmpty(set)) updates.$set = set;
         if (!_.isEmpty(unset)) updates.$unset = unset;
 
-        res += `db.${update.pureName}.updateOne(${jsonStringifyWithObjectId(
+        res += `db.getCollection('${update.pureName}').updateOne(${jsonStringifyWithObjectId(
           update.condition
         )}, ${jsonStringifyWithObjectId(updates)});\n`;
       }
     }
     for (const del of changeSet.deletes) {
-      res += `db.${del.pureName}.deleteOne(${jsonStringifyWithObjectId(del.condition)});\n`;
+      res += `db.getCollection('${del.pureName}').deleteOne(${jsonStringifyWithObjectId(del.condition)});\n`;
     }
     return res;
   },
@@ -128,7 +128,7 @@ const driver = {
   },
 
   getCollectionExportQueryScript(collection, condition, sort) {
-    return `db.collection('${collection}')
+    return `db.getCollection('${collection}')
   .find(${JSON.stringify(convertToMongoCondition(condition) || {})})
   .sort(${JSON.stringify(convertToMongoSort(sort) || {})})`;
   },
@@ -182,9 +182,9 @@ const driver = {
   async getScriptTemplateContent(scriptTemplate, props) {
     switch (scriptTemplate) {
       case 'dropCollection':
-        return `db.${props.pureName}.drop();`;
+        return `db.getCollection('${props.pureName}').drop();`;
       case 'findCollection':
-        return `db.${props.pureName}.find();`;
+        return `db.getCollection('${props.pureName}').find();`;
     }
   },
 };

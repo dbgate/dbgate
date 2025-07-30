@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const stream = require('stream');
-const isPromise = require('is-promise');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
+const isPromise = require('is-promise');
 const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
 const { EJSON } = require('bson');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
@@ -12,6 +12,8 @@ const {
   convertToMongoAggregate,
   convertToMongoSort,
 } = require('../frontend/convertToMongoCondition');
+
+let platformInfo;
 
 function serializeMongoData(row) {
   return EJSON.serialize(
@@ -48,6 +50,7 @@ function findArrayResult(resValue) {
 
 async function getScriptableDb(dbhan) {
   const db = dbhan.getDatabase();
+  db.getCollection = (name) => db.collection(name);
   const collections = await db.listCollections().toArray();
   for (const collection of collections) {
     _.set(db, collection.name, db.collection(collection.name));
@@ -55,7 +58,29 @@ async function getScriptableDb(dbhan) {
   return db;
 }
 
-/** @type {import('dbgate-types').EngineDriver} */
+/**
+ * @param {string} uri
+ * @param {string} dbName
+ * @returns {string}
+ */
+function ensureDatabaseInMongoURI(uri, dbName) {
+  if (!dbName) return uri;
+
+  try {
+    const url = new URL(uri);
+
+    const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
+    if (hasDatabase) return uri;
+
+    url.pathname = `/${dbName}`;
+    return url.toString();
+  } catch (error) {
+    logger.error('Invalid URI format:', error.message);
+    return uri;
+  }
+}
+
+/** @type {import('dbgate-types').EngineDriver<MongoClient>} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
@@ -105,11 +130,33 @@ const driver = {
     };
   },
   async script(dbhan, sql) {
-    let func;
-    func = eval(`(db,ObjectId) => ${sql}`);
-    const db = await getScriptableDb(dbhan);
-    const res = func(db, ObjectId.createFromHexString);
-    if (isPromise(res)) await res;
+    if (platformInfo.isProApp) {
+      const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
+      const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
+
+      const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
+      const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+      const runtime = new ElectronRuntime(serviceProvider);
+      const exprValue = await runtime.evaluate(sql);
+
+      const { printable } = exprValue;
+
+      if (Array.isArray(printable)) {
+        return printable;
+      } else if ('documents' in printable) {
+        return printable.documents;
+      } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
+        return printable.cursor.firstBatch;
+      }
+
+      return printable;
+    } else {
+      let func;
+      func = eval(`(db,ObjectId) => ${sql}`);
+      const db = await getScriptableDb(dbhan);
+      const res = func(db, ObjectId.createFromHexString);
+      if (isPromise(res)) await res;
+    }
   },
   async operation(dbhan, operation, options) {
     const { type } = operation;
@@ -118,15 +165,18 @@ const driver = {
         await this.script(dbhan, `db.createCollection('${operation.collection.name}')`);
         break;
       case 'dropCollection':
-        await this.script(dbhan, `db.dropCollection('${operation.collection}')`);
+        await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
         break;
       case 'renameCollection':
-        await this.script(dbhan, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
+        await this.script(
+          dbhan,
+          `db.getCollection('${operation.collection}').renameCollection('${operation.newName}')`
+        );
         break;
       case 'cloneCollection':
         await this.script(
           dbhan,
-          `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+          `db.getCollection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
         );
         break;
       default:
@@ -135,75 +185,134 @@ const driver = {
     // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
   async stream(dbhan, sql, options) {
-    let func;
-    try {
-      func = eval(`(db,ObjectId) => ${sql}`);
-    } catch (err) {
-      options.info({
-        message: 'Error compiling expression: ' + err.message,
-        time: new Date(),
-        severity: 'error',
-      });
-      options.done();
-      return;
-    }
-    const db = await getScriptableDb(dbhan);
+    if (platformInfo.isProApp) {
+      const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
+      const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 
-    let exprValue;
-    try {
-      exprValue = func(db, ObjectId.createFromHexString);
-    } catch (err) {
-      options.info({
-        message: 'Error evaluating expression: ' + err.message,
-        time: new Date(),
-        severity: 'error',
-      });
-      options.done();
-      return;
-    }
+      let exprValue;
 
-    if (exprValue instanceof AbstractCursor) {
-      await readCursor(exprValue, options);
-    } else if (isPromise(exprValue)) {
       try {
-        const resValue = await exprValue;
-
-        options.info({
-          message: 'Command succesfully executed',
-          time: new Date(),
-          severity: 'info',
-        });
-        try {
-          options.info({
-            message: `Result: ${JSON.stringify(resValue)}`,
-            time: new Date(),
-            severity: 'info',
-          });
-        } catch (err) {
-          options.info({
-            message: `Result: ${resValue}`,
-            time: new Date(),
-            severity: 'info',
-          });
-        }
-
-        const arrayRes = findArrayResult(resValue);
-        if (arrayRes) {
-          options.recordset({ __isDynamicStructure: true });
-          for (const row of arrayRes) {
-            options.row(row);
-          }
-        }
+        const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
+        const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+        const runtime = new ElectronRuntime(serviceProvider);
+        exprValue = await runtime.evaluate(sql);
       } catch (err) {
         options.info({
-          message: 'Error when running command: ' + err.message,
+          message: 'Error evaluating expression: ' + err.message,
           time: new Date(),
           severity: 'error',
         });
+        options.done();
+        return;
       }
-    }
 
-    options.done();
+      const { printable, type } = exprValue;
+
+      if (type === 'Document') {
+        options.recordset({ __isDynamicStructure: true });
+        options.row(printable);
+      } else if (type === 'Cursor' || exprValue.type === 'AggregationCursor') {
+        options.recordset({ __isDynamicStructure: true });
+        for (const doc of printable.documents) {
+          options.row(doc);
+        }
+      } else {
+        if (Array.isArray(printable)) {
+          options.recordset({ __isDynamicStructure: true });
+          for (const row of printable) {
+            options.row(row);
+          }
+        } else if ('documents' in printable) {
+          options.recordset({ __isDynamicStructure: true });
+          for (const row of printable.documents) {
+            options.row(row);
+          }
+        } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
+          options.recordset({ __isDynamicStructure: true });
+          for (const row of printable.cursor.firstBatch) {
+            options.row(row);
+          }
+        } else {
+          options.info({
+            printable: printable,
+            time: new Date(),
+            severity: 'info',
+            message: 'Query returned not supported value.',
+          });
+        }
+      }
+
+      options.done();
+    } else {
+      let func;
+      try {
+        func = eval(`(db,ObjectId) => ${sql}`);
+      } catch (err) {
+        options.info({
+          message: 'Error compiling expression: ' + err.message,
+          time: new Date(),
+          severity: 'error',
+        });
+        options.done();
+        return;
+      }
+      const db = await getScriptableDb(dbhan);
+
+      let exprValue;
+      try {
+        exprValue = func(db, ObjectId.createFromHexString);
+      } catch (err) {
+        options.info({
+          message: 'Error evaluating expression: ' + err.message,
+          time: new Date(),
+          severity: 'error',
+        });
+        options.done();
+        return;
+      }
+
+      if (exprValue instanceof AbstractCursor) {
+        await readCursor(exprValue, options);
+      } else if (isPromise(exprValue)) {
+        try {
+          const resValue = await exprValue;
+
+          options.info({
+            message: 'Command succesfully executed',
+            time: new Date(),
+            severity: 'info',
+          });
+          try {
+            options.info({
+              message: `Result: ${JSON.stringify(resValue)}`,
+              time: new Date(),
+              severity: 'info',
+            });
+          } catch (err) {
+            options.info({
+              message: `Result: ${resValue}`,
+              time: new Date(),
+              severity: 'info',
+            });
+          }
+
+          const arrayRes = findArrayResult(resValue);
+          if (arrayRes) {
+            options.recordset({ __isDynamicStructure: true });
+            for (const row of arrayRes) {
+              options.row(row);
+            }
+          }
+        } catch (err) {
+          options.info({
+            message: 'Error when running command: ' + err.message,
+            time: new Date(),
+            severity: 'error',
+          });
+        }
+      }
+      options.done();
+    }
   },
   async startProfiler(dbhan, options) {
     const db = await getScriptableDb(dbhan);
@@ -580,6 +689,10 @@ const driver = {
   async close(dbhan) {
     return dbhan.client.close();
   },
+};
+
+driver.initialize = (dbgateEnv) => {
+  platformInfo = dbgateEnv.platformInfo;
 };
 
 module.exports = driver;

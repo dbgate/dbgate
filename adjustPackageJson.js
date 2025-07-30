@@ -43,6 +43,8 @@ function adjustFile(file, isApp = false) {
 
   if (process.argv.includes('--community')) {
     delete json.optionalDependencies['mongodb-client-encryption'];
+    delete json.dependencies['@mongosh/service-provider-node-driver'];
+    delete json.dependencies['@mongosh/browser-runtime-electron'];
   }
 
   if (isApp && process.argv.includes('--premium')) {

@@ -189,6 +189,7 @@ jobs:
           cp <<artifact-root>>/*win*.exe artifacts/dbgate-<<suffix>>.exe || true
           cp <<artifact-root>>/*win_x64.zip artifacts/dbgate-windows-<<suffix>>.zip || true
           cp <<artifact-root>>/*win_arm64.zip artifacts/dbgate-windows-<<suffix>>-arm64.zip || true
+          cp <<artifact-root>>/*win_arm64.exe artifacts/dbgate-windows-<<suffix>>-arm64.exe || true
           cp <<artifact-root>>/*-mac_universal.dmg artifacts/dbgate-<<suffix>>.dmg || true
           cp <<artifact-root>>/*-mac_x64.dmg artifacts/dbgate-<<suffix>>-x64.dmg || true
           cp <<artifact-root>>/*-mac_arm64.dmg artifacts/dbgate-<<suffix>>-arm64.dmg || true

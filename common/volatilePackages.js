@@ -22,6 +22,8 @@ const volatilePackages = [
   'ssh2',
   'wkx',
   '@duckdb/node-api',
+  '@mongosh/browser-runtime-electron',
+  '@mongosh/service-provider-node-driver',
 ];
 
 module.exports = volatilePackages;
