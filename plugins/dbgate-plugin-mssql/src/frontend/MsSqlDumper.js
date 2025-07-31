@@ -156,7 +156,7 @@ class MsSqlDumper extends SqlDumper {
 
     this.put('&>^exec sp_addextendedproperty&n');
     this.put("@name = N'MS_Description', @value = N'%s',&n", objectComment);
-    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName || 'dbo');
     this.put("@level1type = N'TABLE',  @level1name = '%s&<'", pureName);
     this.endCommand();
   }
@@ -258,6 +258,29 @@ class MsSqlDumper extends SqlDumper {
 
   selectScopeIdentity() {
     this.put('^select ^scope_identity()');
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  tableOptions(table) {
+    this.endCommand();
+
+    const options = this.driver?.dialect?.getTableFormOptions?.('sqlCreateTable') || [];
+    for (const option of options) {
+      const { name, sqlFormatString } = option;
+      const value = table[name];
+
+      if (name == 'objectComment') {
+        this.createTableComment(table);
+        return;
+      }
+
+      if (value) {
+        this.put('&n');
+        this.put(sqlFormatString, value);
+      }
+    }
   }
 
   /**
