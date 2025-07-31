@@ -118,6 +118,22 @@ describe('Alter table', () => {
     })
   );
 
+  test.each(engines.filter(i => i.supportColumnComments).map(engine => [engine.label, engine]))(
+    'Add comment to column - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(engine, conn, driver, tbl => {
+        tbl.columns.push({
+          columnName: 'added',
+          columnComment: 'Added column comment',
+          dataType: 'int',
+          pairingId: crypto.randomUUID(),
+          notNull: false,
+          autoIncrement: false,
+        });
+      });
+    })
+  );
+
   test.each(
     createEnginesColumnsSource(engines.filter(x => !x.skipDropColumn)).filter(
       ([_label, col, engine]) => !engine.skipPkDrop || !col.endsWith('_pk')
