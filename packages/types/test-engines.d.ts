@@ -56,6 +56,9 @@ export type TestEngineInfo = {
 
   useTextTypeForStrings?: boolean;
 
+  supportTableComments?: boolean;
+  supportColumnComments?: boolean;
+
   supportRenameSqlObject?: boolean;
   supportSchemas?: boolean;
 
