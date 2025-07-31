@@ -111,7 +111,16 @@
       "src",
       "icon.png",
       "!node_modules/cpu-features/build/**"
-    ]
+    ],
+    "electronFuses": {
+      "runAsNode": true,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": true,
+      "enableNodeCliInspectArguments": true,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "grantFileProtocolExtraPrivileges": false
+    }    
   },
   "homepage": "./",
   "scripts": {
