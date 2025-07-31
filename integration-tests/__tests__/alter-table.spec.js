@@ -118,6 +118,15 @@ describe('Alter table', () => {
     })
   );
 
+  test.each(engines.filter(i => i.supportTableComments).map(engine => [engine.label, engine]))(
+    'Add comment to table - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(engine, conn, driver, tbl => {
+        tbl.objectComment = 'Added table comment';
+      });
+    })
+  );
+
   test.each(engines.filter(i => i.supportColumnComments).map(engine => [engine.label, engine]))(
     'Add comment to column - %s',
     testWrapper(async (conn, driver, engine) => {
