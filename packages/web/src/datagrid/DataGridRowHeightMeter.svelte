@@ -13,20 +13,22 @@
 
 <div>
   <table>
-    <tr>
-      <td
-        use:resizeObserver={true}
-        on:resize={e => {
-          // @ts-ignore
-          $dataGridRowHeight = e.detail.height + 1;
-        }}
-      >
-        title
-        <InlineButton square>
-          <FontIcon icon="icon chevron-down" />
-        </InlineButton>
-      </td>
-    </tr>
+    <tbody>
+      <tr>
+        <td
+          use:resizeObserver={true}
+          on:resize={e => {
+            // @ts-ignore
+            $dataGridRowHeight = e.detail.height + 1;
+          }}
+        >
+          title
+          <InlineButton square>
+            <FontIcon icon="icon chevron-down" />
+          </InlineButton>
+        </td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
