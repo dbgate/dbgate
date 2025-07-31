@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    #HEAD_SCRIPT#
+    <!--HEAD_SCRIPT-->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
 
@@ -108,7 +108,7 @@
   </head>
 
   <body>
-    #BODY_SCRIPT#
+    <!--BODY_SCRIPT-->
     <div id="starting_dbgate_zero">
       <div class="inner-flex">
         <div class="lds-ellipsis">
