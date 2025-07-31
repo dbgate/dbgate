@@ -6,6 +6,7 @@ const http = require('http');
 const cors = require('cors');
 const getPort = require('get-port');
 const path = require('path');
+const fs = require('fs/promises');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -91,9 +92,52 @@ function start() {
       express.static(path.join(__dirname, isProApp() ? '../../dbgate-web-premium/public' : '../../dbgate-web/public'))
     );
   } else if (process.env.DEVWEB) {
-    // console.log('__dirname', __dirname);
-    // console.log(path.join(__dirname, '../../web/public/build'));
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
+    const PUBLIC_DIR = path.join(__dirname, '../../web/public');
+
+    // 1) HTML token-replacement middleware
+    app.get([getExpressPath('/'), getExpressPath('/*.html')], async (req, res, next) => {
+      try {
+        // Resolve the requested file ("/" -> "index.html")
+        const relPath = req.path === getExpressPath('/') ? '/index.html' : req.path;
+        const filePath = path.join(PUBLIC_DIR, relPath);
+
+        // Read HTML
+        let html = await fs.readFile(filePath, 'utf8');
+
+        // Replace tokens — keep this explicit to avoid leaking env accidentally
+        if (process.env.DBGATE_GTM_ID) {
+          html = html.replace(/#HEAD_SCRIPT#/g, `<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer',process.env.DBGATE_GTM_ID);</script>
+    <!-- End Google Tag Manager -->`);
+          html = html.replace(/#BODY_SCRIPT#/g, process.env.PAGE_BODY_SCRIPT ?? `<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.DBGATE_GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->`);
+        } else {
+          html = html.replace(/#HEAD_SCRIPT#/g, process.env.PAGE_HEAD_SCRIPT ?? '');
+          html = html.replace(/#BODY_SCRIPT#/g, process.env.PAGE_BODY_SCRIPT ?? '');
+        }
+
+        // Optional: add more tokens:
+        // html = html.replaceAll('#TITLE#', process.env.PAGE_TITLE ?? '');
+
+        res.type('html').send(html); // Express will set an ETag by default
+      } catch (err) {
+        if (err.code === 'ENOENT') return next(); // let static middleware handle 404s
+        next(err);
+      }
+    });
+
+    // 2) Static assets for everything else (css/js/images/etc.)
+    app.use(
+      getExpressPath('/'),
+      express.static(PUBLIC_DIR, {
+        // extensions: ['html'],  // enable "/about" -> "/about.html" if you want
+      })
+    );
   } else {
     app.get(getExpressPath('/'), (req, res) => {
       res.send('DbGate API');
