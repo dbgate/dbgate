@@ -162,31 +162,14 @@ class MsSqlDumper extends SqlDumper {
   }
 
   /**
-   * @param {import('dbgate-types').TableInfo} table
-   */
-  createColumnComment(table) {
-    const { schemaName, pureName, objectComment } = table;
-    if (!objectComment) return;
-
-    this.put('&>^exec sp_addextendedproperty&n');
-    this.put(`@value = N'%s',&n`, objectComment);
-    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
-    this.put("@level1type = N'TABLE',  @level1name = '%s'&n&<", pureName);
-    this.endCommand();
-  }
-
-  /**
    * @param {import('dbgate-types').ColumnInfo} oldcol
    * @param {import('dbgate-types').ColumnInfo} newcol
    */
   changeColumnComment(oldcol, newcol) {
-    if (oldcol.columnComment == newcol.columnComment) return;
-    if (oldcol.columnComment && !newcol.columnComment) {
-      this.dropColumnComment(newcol);
-    } else {
-      this.dropColumnComment(newcol);
-      this.createColumnComment(newcol);
-    }
+    if (oldcol.columnComment === newcol.columnComment) return;
+
+    if (oldcol.columnComment) this.dropColumnComment(newcol);
+    if (newcol.columnComment) this.createColumnComment(newcol);
   }
 
   /**
@@ -211,12 +194,23 @@ class MsSqlDumper extends SqlDumper {
     if (!columnComment) return;
 
     this.put('&>^exec sp_addextendedproperty&n');
-    this.put("@name = N'MS_Description',");
+    this.put("@name = N'MS_Description', ");
     this.put(`@value = N'%s',&n`, columnComment);
     this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
     this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
     this.put("@level2type = N'COLUMN', @level2name = '%s&<'", columnName);
     this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  createTable(table) {
+    super.createTable(table);
+
+    for (const column of table.columns || []) {
+      this.createColumnComment(column);
+    }
   }
 
   changeColumn(oldcol, newcol, constraints) {
