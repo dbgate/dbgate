@@ -64,6 +64,40 @@ describe('Table create', () => {
     })
   );
 
+  test.each(
+    engines.filter(i => i.supportTableComments || i.supportColumnComments).map(engine => [engine.label, engine])
+  )(
+    'Simple table with comment - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableCreate(engine, conn, driver, {
+        ...(engine.supportTableComments && {
+          schemaName: 'dbo',
+          objectComment: 'table comment',
+        }),
+        ...(engine.defaultSchemaName && {
+          schemaName: engine.defaultSchemaName,
+        }),
+        columns: [
+          {
+            columnName: 'col1',
+            dataType: 'int',
+            pureName: 'tested',
+            ...(engine.skipNullability ? {} : { notNull: true }),
+            ...(engine.supportColumnComments && {
+              columnComment: 'column comment',
+            }),
+            ...(engine.defaultSchemaName && {
+              schemaName: engine.defaultSchemaName,
+            }),
+          },
+        ],
+        primaryKey: {
+          columns: [{ columnName: 'col1' }],
+        },
+      });
+    })
+  );
+
   test.each(engines.filter(x => !x.skipIndexes).map(engine => [engine.label, engine]))(
     'Table with index - %s',
     testWrapper(async (conn, driver, engine) => {

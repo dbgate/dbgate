@@ -45,6 +45,7 @@ const dialect = {
   namedDefaultConstraint: true,
 
   columnProperties: {
+    columnComment: true,
     isSparse: true,
     isPersisted: true,
   },
@@ -110,6 +111,18 @@ const dialect = {
         ],
       };
     }
+  },
+
+  getTableFormOptions(intent) {
+    return [
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment = %v',
+        allowEmptyValue: true,
+      },
+    ];
   },
 };
 

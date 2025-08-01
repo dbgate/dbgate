@@ -5,6 +5,8 @@ const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
 const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
 const { EJSON } = require('bson');
+const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
+const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
@@ -30,22 +32,8 @@ function serializeMongoData(row) {
   );
 }
 
-async function readCursor(cursor, options) {
-  options.recordset({ __isDynamicStructure: true });
-  await cursor.forEach((row) => {
-    options.row(serializeMongoData(row));
-  });
-}
-
 function deserializeMongoData(value) {
   return deserializeJsTypesFromJsonParse(EJSON.deserialize(value));
-}
-
-function findArrayResult(resValue) {
-  if (!_.isPlainObject(resValue)) return null;
-  const arrays = _.values(resValue).filter((x) => _.isArray(x));
-  if (arrays.length == 1) return arrays[0];
-  return null;
 }
 
 async function getScriptableDb(dbhan) {
@@ -123,7 +111,7 @@ const driver = {
     };
   },
   // @ts-ignore
-  async query(dbhan, sql) {
+  async query(_dbhan, _sql) {
     return {
       rows: [],
       columns: [],
@@ -158,7 +146,7 @@ const driver = {
       if (isPromise(res)) await res;
     }
   },
-  async operation(dbhan, operation, options) {
+  async operation(dbhan, operation, _options) {
     const { type } = operation;
     switch (type) {
       case 'createCollection':
@@ -357,7 +345,7 @@ const driver = {
     const db = await getScriptableDb(dbhan);
     await db.command({ profile: old.was, slowms: old.slowms });
   },
-  async readQuery(dbhan, sql, structure) {
+  async readQuery(dbhan, sql, _structure) {
     try {
       const json = JSON.parse(sql);
       if (json && json.pureName) {
@@ -498,7 +486,7 @@ const driver = {
             res.replaced.push(resdoc._id);
           }
         } else {
-          const set = deserializeMongoData(_.pickBy(update.fields, (v, k) => !v?.$$undefined$$));
+          const set = deserializeMongoData(_.pickBy(update.fields, (v, _k) => !v?.$$undefined$$));
           const unset = _.fromPairs(
             Object.keys(update.fields)
               .filter((k) => update.fields[k]?.$$undefined$$)
@@ -581,7 +569,7 @@ const driver = {
     }
   },
 
-  readJsonQuery(dbhan, select, structure) {
+  readJsonQuery(dbhan, select, _structure) {
     const { collection, condition, sort } = select;
 
     const db = dbhan.getDatabase();
