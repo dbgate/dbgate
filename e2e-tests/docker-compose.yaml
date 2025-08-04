@@ -37,7 +37,7 @@ services:
       - "16009:5556"
 
   mongo:
-    image: mongo:4.0.12
+    image: mongo:4.4.29
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
