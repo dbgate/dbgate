@@ -41,6 +41,6 @@
     "dbgate-plugin-oracle": "^6.0.0-alpha.1",
     "dbgate-web": "^6.0.0-alpha.1",
     "dotenv": "^16.0.0",
-    "pinomin": "^1.0.4"
+    "pinomin": "^1.0.5"
   }
 }

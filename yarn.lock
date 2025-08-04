@@ -11649,10 +11649,10 @@ pino-pretty@^9.1.1:
     sonic-boom "^3.0.0"
     strip-json-comments "^3.1.1"
 
-pinomin@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/pinomin/-/pinomin-1.0.4.tgz#fcbc5e50745f1769a6b4d9a5a49475927e3ce556"
-  integrity sha512-UJFXLxbgP9t9PDIWiKeVp3/+kudjeq/7IqWUFXqmNFD7810bh3+/3H8jvf+CCvEDkKVY8ckbCNIDWHWymurqHw==
+pinomin@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/pinomin/-/pinomin-1.0.5.tgz#588e3f4d39579bb6109cd8a1fadb56ff1f78a781"
+  integrity sha512-jWMMM/B7QLWlA9zxaIyBiY57tf4LThBIWkfav3kNIuJOIFC4WFKfnVYU0pL7xU+YHqhHYHpHsTzkNPBZAIXlpw==
 
 pirates@^4.0.4:
   version "4.0.6"

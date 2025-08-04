@@ -40,6 +40,8 @@ function configureLogger() {
   const consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info';
   const fileLogLevel = process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'debug';
 
+  const streamsByDatePart = {};
+
   const logConfig = {
     base: { pid: process.pid },
     targets: [
@@ -49,10 +51,21 @@ function configureLogger() {
         level: consoleLogLevel,
       },
       {
-        type: 'stream',
+        type: 'objstream',
         // @ts-ignore
         level: fileLogLevel,
-        stream: fs.createWriteStream(logsFilePath, { flags: 'a' }),
+        objstream: {
+          send(msg) {
+            const datePart = moment(msg.time).format('YYYY-MM-DD');
+            if (!streamsByDatePart[datePart]) {
+              streamsByDatePart[datePart] = fs.createWriteStream(
+                path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`),
+                { flags: 'a' }
+              );
+            }
+            streamsByDatePart[datePart].write(`${JSON.stringify(msg)}\n`);
+          },
+        },
       },
     ],
   };
