@@ -84,11 +84,13 @@ export default [
       }),
 
       svelte({
-        preprocess: sveltePreprocess({ sourceMap: !production }),
+        preprocess: sveltePreprocess({
+          sourceMap: !production,
+          errorMode: 'warn',
+        }),
         compilerOptions: {
           // enable run-time checks when not in production
           dev: !production,
-          errorMode: 'warn',
         },
         onwarn: (warning, handler) => {
           const ignoreWarnings = [
