@@ -11,7 +11,7 @@ async function runScript(func) {
     await func();
     process.exit(0);
   } catch (err) {
-    logger.error(extractErrorLogData(err), `Error running script`);
+    logger.error(extractErrorLogData(err), `DBGM-00158 Error running script`);
     process.exit(1);
   }
 }

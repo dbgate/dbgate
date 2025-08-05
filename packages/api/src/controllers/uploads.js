@@ -28,7 +28,7 @@ module.exports = {
     }
     const uploadName = crypto.randomUUID();
     const filePath = path.join(uploadsdir(), uploadName);
-    logger.info(`Uploading file ${data.name}, size=${data.size}`);
+    logger.info(`DBGM-00025 Uploading file ${data.name}, size=${data.size}`);
 
     data.mv(filePath, () => {
       res.json({
@@ -115,7 +115,7 @@ module.exports = {
 
       return response.data;
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error uploading gist');
+      logger.error(extractErrorLogData(err), 'DBGM-00148 Error uploading gist');
 
       return {
         apiErrorMessage: err.message,

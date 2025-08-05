@@ -116,12 +116,12 @@ function getPortalCollections() {
       }
     }
 
-    logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'Using connections from ENV variables');
+    logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'DBGM-00005 Using connections from ENV variables');
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       logger.warn(
         { connections: noengine.map(x => x._id) },
-        'Invalid CONNECTIONS configuration, missing ENGINE for connection ID'
+        'DBGM-00006 Invalid CONNECTIONS configuration, missing ENGINE for connection ID'
       );
     }
     return connections;
@@ -530,7 +530,7 @@ module.exports = {
       socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
       return { success: true };
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error getting DB token');
+      logger.error(extractErrorLogData(err), 'DBGM-00100 Error getting DB token');
       return { error: err.message };
     }
   },
@@ -546,7 +546,7 @@ module.exports = {
       const resp = await authProvider.login(null, null, { conid: volatile._id }, req);
       return resp;
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error getting DB token');
+      logger.error(extractErrorLogData(err), 'DBGM-00101 Error getting DB token');
       return { error: err.message };
     }
   },

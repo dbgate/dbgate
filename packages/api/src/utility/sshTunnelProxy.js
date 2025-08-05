@@ -10,7 +10,7 @@ async function handleGetSshTunnelRequest({ msgid, connection }, subprocess) {
   try {
     subprocess.send({ msgtype: 'getsshtunnel-response', msgid, response });
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error sending to SSH tunnel');
+    logger.error(extractErrorLogData(err), 'DBGM-00175 Error sending to SSH tunnel');
   }
 }
 

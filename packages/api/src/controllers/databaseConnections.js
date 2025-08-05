@@ -76,7 +76,7 @@ module.exports = {
 
   handle_error(conid, database, props) {
     const { error } = props;
-    logger.error(`Error in database connection ${conid}, database ${database}: ${error}`);
+    logger.error(`DBGM-00102 Error in database connection ${conid}, database ${database}: ${error}`);
     if (props?.msgid) {
       const [resolve, reject] = this.requests[props?.msgid];
       reject(error);
@@ -144,7 +144,7 @@ module.exports = {
   handle_copyStreamError(conid, database, { copyStreamError }) {
     const { progressName } = copyStreamError;
     const { runid } = progressName;
-    logger.error(`Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
+    logger.error(`DBGM-00103 Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
     socket.emit(`runner-done-${runid}`);
   },
 
@@ -193,7 +193,7 @@ module.exports = {
       if (newOpened.disconnected) return;
       const funcName = `handle_${msgtype}`;
       if (!this[funcName]) {
-        logger.error(`Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
+        logger.error(`DBGM-00104 Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
         return;
       }
 
@@ -204,7 +204,7 @@ module.exports = {
       this.close(conid, database, false);
     });
     subprocess.on('error', err => {
-      logger.error(extractErrorLogData(err), 'Error in database connection subprocess');
+      logger.error(extractErrorLogData(err), 'DBGM-00114 Error in database connection subprocess');
       if (newOpened.disconnected) return;
       this.close(conid, database, false);
     });
@@ -226,7 +226,7 @@ module.exports = {
       try {
         conn.subprocess.send({ msgid, ...message });
       } catch (err) {
-        logger.error(extractErrorLogData(err), 'Error sending request do process');
+        logger.error(extractErrorLogData(err), 'DBGM-00115 Error sending request do process');
         this.close(conn.conid, conn.database);
       }
     });
@@ -236,7 +236,7 @@ module.exports = {
   queryData_meta: true,
   async queryData({ conid, database, sql }, req) {
     testConnectionPermission(conid, req);
-    logger.info({ conid, database, sql }, 'Processing query');
+    logger.info({ conid, database, sql }, 'DBGM-00007 Processing query');
     const opened = await this.ensureOpened(conid, database);
     // if (opened && opened.status && opened.status.name == 'error') {
     //   return opened.status;
@@ -283,7 +283,7 @@ module.exports = {
   runScript_meta: true,
   async runScript({ conid, database, sql, useTransaction, logMessage }, req) {
     testConnectionPermission(conid, req);
-    logger.info({ conid, database, sql }, 'Processing script');
+    logger.info({ conid, database, sql }, 'DBGM-00008 Processing script');
     const opened = await this.ensureOpened(conid, database);
     sendToAuditLog(req, {
       category: 'dbop',
@@ -304,7 +304,7 @@ module.exports = {
   runOperation_meta: true,
   async runOperation({ conid, database, operation, useTransaction }, req) {
     testConnectionPermission(conid, req);
-    logger.info({ conid, database, operation }, 'Processing operation');
+    logger.info({ conid, database, operation }, 'DBGM-00009 Processing operation');
 
     sendToAuditLog(req, {
       category: 'dbop',
@@ -481,7 +481,7 @@ module.exports = {
       try {
         existing.subprocess.send({ msgtype: 'ping' });
       } catch (err) {
-        logger.error(extractErrorLogData(err), 'Error pinging DB connection');
+        logger.error(extractErrorLogData(err), 'DBGM-00116 Error pinging DB connection');
         this.close(conid, database);
 
         return {
@@ -530,7 +530,7 @@ module.exports = {
         try {
           existing.subprocess.kill();
         } catch (err) {
-          logger.error(extractErrorLogData(err), 'Error killing subprocess');
+          logger.error(extractErrorLogData(err), 'DBGM-00117 Error killing subprocess');
         }
       }
       this.opened = this.opened.filter(x => x.conid != conid || x.database != database);
@@ -924,7 +924,7 @@ module.exports = {
   executeSessionQuery_meta: true,
   async executeSessionQuery({ sesid, conid, database, sql }, req) {
     testConnectionPermission(conid, req);
-    logger.info({ sesid, sql }, 'Processing query');
+    logger.info({ sesid, sql }, 'DBGM-00010 Processing query');
     sessions.dispatchMessage(sesid, 'Query execution started');
 
     const opened = await this.ensureOpened(conid, database);

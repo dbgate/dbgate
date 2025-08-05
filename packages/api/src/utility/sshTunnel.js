@@ -40,7 +40,7 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       tunnelConfig,
     });
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error connecting SSH');
+    logger.error(extractErrorLogData(err), 'DBGM-00174 Error connecting SSH');
   }
   return new Promise((resolve, reject) => {
     let promiseHandled = false;
@@ -57,18 +57,18 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       }
     });
     subprocess.on('exit', code => {
-      logger.info(`SSH forward process exited with code ${code}`);
+      logger.info(`DBGM-00090 SSH forward process exited with code ${code}`);
       delete sshTunnelCache[tunnelCacheKey];
       if (!promiseHandled) {
         reject(
           new Error(
-            'SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'
+            'DBGM-00091 SSH forward process exited, try to change "Local host address for SSH connections" in Settings/Connections'
           )
         );
       }
     });
     subprocess.on('error', error => {
-      logger.error(extractErrorLogData(error), 'SSH forward process error');
+      logger.error(extractErrorLogData(error), 'DBGM-00092 SSH forward process error');
       delete sshTunnelCache[tunnelCacheKey];
       if (!promiseHandled) {
         reject(error);
@@ -97,13 +97,13 @@ async function getSshTunnel(connection) {
     };
     try {
       logger.info(
-        `Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
+        `DBGM-00093 Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
       const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey);
 
       logger.info(
-        `Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
+        `DBGM-00094 Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
       sshTunnelCache[tunnelCacheKey] = {
@@ -114,7 +114,7 @@ async function getSshTunnel(connection) {
       };
       return sshTunnelCache[tunnelCacheKey];
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error creating SSH tunnel:');
+      logger.error(extractErrorLogData(err), 'DBGM-00095 Error creating SSH tunnel:');
       // error is not cached
       return {
         state: 'error',

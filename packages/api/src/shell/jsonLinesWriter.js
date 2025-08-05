@@ -33,7 +33,7 @@ class StringifyStream extends stream.Transform {
  * @returns {Promise<writerType>} - writer object
  */
 async function jsonLinesWriter({ fileName, encoding = 'utf-8', header = true }) {
-  logger.info(`Writing file ${fileName}`);
+  logger.info(`DBGM-00055 Writing file ${fileName}`);
   const stringify = new StringifyStream({ header });
   const fileStream = fs.createWriteStream(fileName, encoding);
   return [stringify, fileStream];

@@ -83,7 +83,7 @@ async function copyStream(input, output, options) {
       });
     }
 
-    logger.error(extractErrorLogData(err, { progressName }), 'Import/export job failed');
+    logger.error(extractErrorLogData(err, { progressName }), 'DBGM-00157 Import/export job failed');
     // throw err;
   }
 }

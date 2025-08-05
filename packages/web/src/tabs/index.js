@@ -24,6 +24,7 @@ import * as MapTab from './MapTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ImportExportTab from './ImportExportTab.svelte';
 import * as SqlObjectTab from './SqlObjectTab.svelte';
+import * as AppLogTab from './AppLogTab.svelte';
 
 import protabs from './index-pro';
 
@@ -54,5 +55,6 @@ export default {
   ServerSummaryTab,
   ImportExportTab,
   SqlObjectTab,
+  AppLogTab,
   ...protabs,
 };

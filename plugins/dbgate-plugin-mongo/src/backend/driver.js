@@ -75,7 +75,7 @@ function ensureDatabaseInMongoURI(uri, dbName) {
     url.pathname = `/${dbName}`;
     return url.toString();
   } catch (error) {
-    logger.error('Invalid URI format:', error.message);
+    logger.error('DBGM-00198 Invalid URI format:', error.message);
     return uri;
   }
 }

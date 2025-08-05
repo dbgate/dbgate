@@ -138,7 +138,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const handleError = error => {
-      logger.error(extractErrorLogData(error), 'Stream error');
+      logger.error(extractErrorLogData(error), 'DBGM-00200 Stream error');
       const { message } = error;
       options.info({
         message,

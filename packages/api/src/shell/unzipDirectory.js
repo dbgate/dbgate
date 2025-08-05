@@ -52,14 +52,14 @@ function unzipDirectory(zipPath, outputDirectory) {
                   readStream.on('end', () => zipFile.readEntry());
 
                   writeStream.on('finish', () => {
-                    logger.info(`Extracted "${entry.fileName}" → "${destPath}".`);
+                    logger.info(`DBGM-00068 Extracted "${entry.fileName}" → "${destPath}".`);
                     res();
                   });
 
                   writeStream.on('error', writeErr => {
                     logger.error(
                       extractErrorLogData(writeErr),
-                      `Error extracting "${entry.fileName}" from "${zipPath}".`
+                      `DBGM-00069 Error extracting "${entry.fileName}" from "${zipPath}".`
                     );
                     rej(writeErr);
                   });
@@ -74,14 +74,14 @@ function unzipDirectory(zipPath, outputDirectory) {
       zipFile.on('end', () => {
         Promise.all(pending)
           .then(() => {
-            logger.info(`Archive "${zipPath}" fully extracted to "${outputDirectory}".`);
+            logger.info(`DBGM-00070 Archive "${zipPath}" fully extracted to "${outputDirectory}".`);
             resolve(true);
           })
           .catch(reject);
       });
 
       zipFile.on('error', err => {
-        logger.error(extractErrorLogData(err), `ZIP file error in ${zipPath}.`);
+        logger.error(extractErrorLogData(err), `DBGM-00071 ZIP file error in ${zipPath}.`);
         reject(err);
       });
     });

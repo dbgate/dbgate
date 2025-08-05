@@ -24,7 +24,7 @@ module.exports = {
     if (!match) return;
     const pattern = match[1];
     if (!cron.validate(pattern)) return;
-    logger.info(`Schedule script ${file} with pattern ${pattern}`);
+    logger.info(`DBGM-00018 Schedule script ${file} with pattern ${pattern}`);
     const task = cron.schedule(pattern, () => runners.start({ script: text }));
     this.tasks.push(task);
   },

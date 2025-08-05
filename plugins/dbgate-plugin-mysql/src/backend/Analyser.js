@@ -118,17 +118,17 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    this.feedback({ analysingMessage: 'Loading tables' });
+    this.feedback({ analysingMessage: 'DBGM-00218 Loading tables' });
     const tables = await this.analyserQuery('tables', ['tables']);
-    this.feedback({ analysingMessage: 'Loading columns' });
+    this.feedback({ analysingMessage: 'DBGM-00219 Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
-    this.feedback({ analysingMessage: 'Loading primary keys' });
+    this.feedback({ analysingMessage: 'DBGM-00220 Loading primary keys' });
     const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
-    this.feedback({ analysingMessage: 'Loading foreign keys' });
+    this.feedback({ analysingMessage: 'DBGM-00221 Loading foreign keys' });
     const fkColumns = await this.analyserQuery('foreignKeys', ['tables']);
-    this.feedback({ analysingMessage: 'Loading views' });
+    this.feedback({ analysingMessage: 'DBGM-00222 Loading views' });
     const views = await this.analyserQuery('views', ['views']);
-    this.feedback({ analysingMessage: 'Loading programmables' });
+    this.feedback({ analysingMessage: 'DBGM-00223 Loading programmables' });
     const programmables = await this.analyserQuery('programmables', ['procedures', 'functions']);
 
     const parameters = await this.analyserQuery('parameters', ['procedures', 'functions']);
@@ -155,20 +155,20 @@ class Analyser extends DatabaseAnalyser {
       return acc;
     }, {});
 
-    this.feedback({ analysingMessage: 'Loading view texts' });
+    this.feedback({ analysingMessage: 'DBGM-00224 Loading view texts' });
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
-    this.feedback({ analysingMessage: 'Loading indexes' });
+    this.feedback({ analysingMessage: 'DBGM-00225 Loading indexes' });
     const indexes = await this.analyserQuery('indexes', ['tables']);
-    this.feedback({ analysingMessage: 'Loading uniques' });
+    this.feedback({ analysingMessage: 'DBGM-00226 Loading uniques' });
 
-    this.feedback({ analysingMessage: 'Loading triggers' });
+    this.feedback({ analysingMessage: 'DBGM-00227 Loading triggers' });
     const triggers = await this.analyserQuery('triggers');
 
-    this.feedback({ analysingMessage: 'Loading scheduler events' });
+    this.feedback({ analysingMessage: 'DBGM-00228 Loading scheduler events' });
     const schedulerEvents = await this.analyserQuery('schedulerEvents');
 
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
-    this.feedback({ analysingMessage: 'Finalizing DB structure' });
+    this.feedback({ analysingMessage: 'DBGM-00229 Finalizing DB structure' });
 
     const res = {
       tables: tables.rows.map(table => ({

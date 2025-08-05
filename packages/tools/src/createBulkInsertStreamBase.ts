@@ -41,20 +41,20 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         writable.structure = structure;
       }
       if (structure && options.dropIfExists) {
-        logger.info(`Dropping table ${fullNameQuoted}`);
+        logger.info(`DBGM-00123 Dropping table ${fullNameQuoted}`);
         await driver.script(dbhan, `DROP TABLE ${fullNameQuoted}`);
       }
       if (options.createIfNotExists && (!structure || options.dropIfExists)) {
         const dmp = driver.createDumper();
         const createdTableInfo = driver.adaptTableInfo(prepareTableForImport({ ...writable.structure, ...name }));
         dmp.createTable(createdTableInfo);
-        logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
+        logger.info({ sql: dmp.s }, `DBGM-00124 Creating table ${fullNameQuoted}`);
         await driver.script(dbhan, dmp.s);
         structure = await driver.analyseSingleTable(dbhan, name);
         writable.structure = structure;
       }
       if (!writable.structure) {
-        throw new Error(`Error importing table - ${fullNameQuoted} not found`);
+        throw new Error(`DBGM-00125 Error importing table - ${fullNameQuoted} not found`);
       }
       if (options.truncate) {
         await driver.script(dbhan, `TRUNCATE TABLE ${fullNameQuoted}`);
@@ -71,7 +71,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         ])
       );
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error during preparing bulk insert table, stopped');
+      logger.error(extractErrorLogData(err), 'DBGM-00184 Error during preparing bulk insert table, stopped');
       writable.destroy(err);
     }
   };
@@ -129,7 +129,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error during base bulk insert, insert stopped');
+      logger.error(extractErrorLogData(err), 'DBGM-00185 Error during base bulk insert, insert stopped');
       writable.destroy(err);
     }
   };

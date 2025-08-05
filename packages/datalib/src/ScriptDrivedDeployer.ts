@@ -43,11 +43,11 @@ export class ScriptDrivedDeployer {
         dmp.put('select * from ~dbgate_deploy_journal')
       );
       this.journalItems = rows;
-      logger.debug(`Loaded ${rows.length} items from DbGate deploy journal`);
+      logger.debug(`DBGM-00109 Loaded ${rows.length} items from DbGate deploy journal`);
     } catch (err) {
       logger.warn(
         extractErrorLogData(err),
-        'Error loading DbGate deploy journal, creating table dbgate_deploy_journal'
+        'DBGM-00110 Error loading DbGate deploy journal, creating table dbgate_deploy_journal'
       );
       const dmp = this.driver.createDumper();
       dmp.createTable({
@@ -126,12 +126,12 @@ export class ScriptDrivedDeployer {
       runCommandOnDriver(this.dbhan, this.driver, dmp => dmp.beginTransaction());
     }
 
-    logger.debug(`Running ${category} script ${file.name}`);
+    logger.debug(`DBGM-00111 Running ${category} script ${file.name}`);
     try {
       await this.driver.script(this.dbhan, file.text, { useTransaction: false });
       await this.saveToJournal(file, category, hash);
     } catch (err) {
-      logger.error(extractErrorLogData(err), `Error running ${category} script ${file.name}`);
+      logger.error(extractErrorLogData(err), `DBGM-00180 Error running ${category} script ${file.name}`);
       if (this.driver.supportsTransactions) {
         runCommandOnDriver(this.dbhan, this.driver, dmp => dmp.rollbackTransaction());
         return;

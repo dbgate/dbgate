@@ -70,7 +70,7 @@ class StringifyStream extends stream.Transform {
 }
 
 async function writer({ fileName, encoding = 'utf-8', itemElementName, rootElementName }) {
-  logger.info(`Writing file ${fileName}`);
+  logger.info(`DBGM-00144 Writing file ${fileName}`);
   const stringify = new StringifyStream({ itemElementName, rootElementName });
   const fileStream = fs.createWriteStream(fileName, encoding);
   return [stringify, fileStream];

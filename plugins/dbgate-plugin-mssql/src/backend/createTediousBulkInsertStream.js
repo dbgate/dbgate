@@ -72,7 +72,7 @@ function createTediousBulkInsertStream(driver, stream, dbhan, name, options) {
     try {
       await runBulkInsertBatch(dbhan, fullName, writable, rows);
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error during bulk insert, insert stopped');
+      logger.error(extractErrorLogData(err), 'DBGM-00199 Error during bulk insert, insert stopped');
       // writable.emit('error', err);
       writable.destroy(err);
     }

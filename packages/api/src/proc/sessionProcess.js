@@ -230,7 +230,7 @@ function start() {
   setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 25 * 1000) {
-      logger.info('Session not alive, exiting');
+      logger.info('DBGM-00045 Session not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
       await driver.close(dbhan);
       process.exit(0);
@@ -250,7 +250,7 @@ function start() {
       !currentProfiler &&
       executingScripts == 0
     ) {
-      logger.info('Session not active, exiting');
+      logger.info('DBGM-00046 Session not active, exiting');
       const driver = requireEngineDriver(storedConnection);
       await driver.close(dbhan);
       process.exit(0);

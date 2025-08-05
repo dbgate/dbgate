@@ -184,6 +184,10 @@ select[disabled] {
   background-color: var(--theme-bg-1);
 }
 
+.classicform select {
+  padding: 5px 5px 4px;
+}
+
 textarea {
   background-color: var(--theme-bg-0);
   color: var(--theme-font-1);

@@ -191,15 +191,15 @@ function start() {
 
   if (platformInfo.isDocker) {
     const port = process.env.PORT || 3000;
-    logger.info(`DbGate API listening on port ${port} (docker build)`);
+    logger.info(`DBGM-00028 DbGate API listening on port ${port} (docker build)`);
     server.listen(port);
   } else if (platformInfo.isAwsUbuntuLayout) {
     const port = process.env.PORT || 3000;
-    logger.info(`DbGate API listening on port ${port} (AWS AMI build)`);
+    logger.info(`DBGM-00029 DbGate API listening on port ${port} (AWS AMI build)`);
     server.listen(port);
   } else if (platformInfo.isAzureUbuntuLayout) {
     const port = process.env.PORT || 3000;
-    logger.info(`DbGate API listening on port ${port} (Azure VM build)`);
+    logger.info(`DBGM-00030 DbGate API listening on port ${port} (Azure VM build)`);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
     getPort({
@@ -209,27 +209,27 @@ function start() {
       ),
     }).then(port => {
       server.listen(port, () => {
-        logger.info(`DbGate API listening on port ${port} (NPM build)`);
+        logger.info(`DBGM-00031 DbGate API listening on port ${port} (NPM build)`);
       });
     });
   } else if (process.env.DEVWEB) {
     const port = process.env.PORT || 3000;
-    logger.info(`DbGate API & web listening on port ${port} (dev web build)`);
+    logger.info(`DBGM-00032 DbGate API & web listening on port ${port} (dev web build)`);
     server.listen(port);
   } else {
     const port = process.env.PORT || 3000;
-    logger.info(`DbGate API listening on port ${port} (dev API build)`);
+    logger.info(`DBGM-00033 DbGate API listening on port ${port} (dev API build)`);
     server.listen(port);
   }
 
   function shutdown() {
-    logger.info('\nShutting down DbGate API server');
+    logger.info('DBGM-00034 Shutting down DbGate API server');
     server.close(() => {
-      logger.info('Server shut down, terminating');
+      logger.info('DBGM-00035 Server shut down, terminating');
       process.exit(0);
     });
     setTimeout(() => {
-      logger.info('Server close timeout, terminating');
+      logger.info('DBGM-00036 Server close timeout, terminating');
       process.exit(0);
     }, 1000);
   }

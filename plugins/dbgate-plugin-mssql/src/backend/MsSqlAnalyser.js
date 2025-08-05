@@ -100,24 +100,24 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    this.feedback({ analysingMessage: 'Loading tables' });
+    this.feedback({ analysingMessage: 'DBGM-00205 Loading tables' });
     const tablesRows = await this.analyserQuery('tables', ['tables']);
-    this.feedback({ analysingMessage: 'Loading columns' });
+    this.feedback({ analysingMessage: 'DBGM-00206 Loading columns' });
     const columnsRows = await this.analyserQuery('columns', ['tables']);
-    this.feedback({ analysingMessage: 'Loading primary keys' });
+    this.feedback({ analysingMessage: 'DBGM-00207 Loading primary keys' });
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
-    this.feedback({ analysingMessage: 'Loading foreign keys' });
+    this.feedback({ analysingMessage: 'DBGM-00208 Loading foreign keys' });
     const fkColumnsRows = await this.analyserQuery('foreignKeys', ['tables']);
-    this.feedback({ analysingMessage: 'Loading indexes' });
+    this.feedback({ analysingMessage: 'DBGM-00209 Loading indexes' });
     const indexesRows = await this.analyserQuery('indexes', ['tables']);
-    this.feedback({ analysingMessage: 'Loading index columns' });
+    this.feedback({ analysingMessage: 'DBGM-00210 Loading index columns' });
     const indexcolsRows = await this.analyserQuery('indexcols', ['tables']);
-    this.feedback({ analysingMessage: 'Loading table sizes' });
+    this.feedback({ analysingMessage: 'DBGM-00211 Loading table sizes' });
     const tableSizes = await this.analyserQuery('tableSizes');
 
     const tableSizesDict = _.mapValues(_.keyBy(tableSizes.rows, 'objectId'), 'tableRowCount');
 
-    this.feedback({ analysingMessage: 'Loading SQL code' });
+    this.feedback({ analysingMessage: 'DBGM-00212 Loading SQL code' });
     const sqlCodeRows = await this.analyserQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers']);
     const getCreateSql = row =>
       sqlCodeRows.rows
@@ -125,21 +125,21 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         .map(x => x.codeText)
         .join('');
 
-    this.feedback({ analysingMessage: 'Loading views' });
+    this.feedback({ analysingMessage: 'DBGM-00213 Loading views' });
     const viewsRows = await this.analyserQuery('views', ['views']);
-    this.feedback({ analysingMessage: 'Loading procedures & functions' });
+    this.feedback({ analysingMessage: 'DBGM-00214 Loading procedures & functions' });
 
     const programmableRows = await this.analyserQuery('programmables', ['procedures', 'functions']);
     const procedureParameterRows = await this.analyserQuery('proceduresParameters');
     const functionParameterRows = await this.analyserQuery('functionParameters');
 
-    this.feedback({ analysingMessage: 'Loading triggers' });
+    this.feedback({ analysingMessage: 'DBGM-00215 Loading triggers' });
     const triggerRows = await this.analyserQuery('triggers');
 
-    this.feedback({ analysingMessage: 'Loading view columns' });
+    this.feedback({ analysingMessage: 'DBGM-00216 Loading view columns' });
     const viewColumnRows = await this.analyserQuery('viewColumns', ['views']);
 
-    this.feedback({ analysingMessage: 'Finalizing DB structure' });
+    this.feedback({ analysingMessage: 'DBGM-00217 Finalizing DB structure' });
     const tables = tablesRows.rows.map(row => ({
       ...row,
       contentHash: row.modifyDate && row.modifyDate.toISOString(),

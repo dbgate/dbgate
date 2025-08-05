@@ -7,15 +7,15 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
-const requirePluginFunction = require('./requirePluginFunction');
 const esort = require('external-sorting');
 const { jsldir } = require('./directories');
 const LineReader = require('./LineReader');
 
 class JsonLinesDatastore {
-  constructor(file, formatterFunction) {
+  constructor(file, formatterFunction, resolveNextFile = null) {
     this.file = file;
     this.formatterFunction = formatterFunction;
+    this.resolveNextFile = resolveNextFile;
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
@@ -23,7 +23,12 @@ class JsonLinesDatastore {
     this.notifyChangedCallback = null;
     this.currentFilter = null;
     this.currentSort = null;
-    this.rowFormatter = requirePluginFunction(formatterFunction);
+    this.currentFileName = null;
+    if (formatterFunction) {
+      const requirePluginFunction = require('./requirePluginFunction');
+      this.rowFormatter = requirePluginFunction(formatterFunction);
+    }
+
     this.sortedFiles = {};
   }
 
@@ -67,6 +72,7 @@ class JsonLinesDatastore {
     // this.firstRowToBeReturned = null;
     this.currentFilter = null;
     this.currentSort = null;
+    this.currentFileName = null;
     await reader.close();
   }
 
@@ -100,8 +106,18 @@ class JsonLinesDatastore {
     //   return res;
     // }
     for (;;) {
-      const line = await this.reader.readLine();
-      if (!line) {
+      let line = await this.reader.readLine();
+      while (!line) {
+        if (!this.currentSort && this.resolveNextFile) {
+          const nextFile = await this.resolveNextFile(this.currentFileName);
+          if (nextFile) {
+            await this.reader.close();
+            this.reader = await this._openReader(nextFile);
+            this.currentFileName = nextFile;
+            line = await this.reader.readLine();
+            continue;
+          }
+        }
         // EOF
         return null;
       }
@@ -173,6 +189,7 @@ class JsonLinesDatastore {
     }
     if (!this.reader) {
       const reader = await this._openReader(sort ? this.sortedFiles[stableStringify(sort)] : this.file);
+      this.currentFileName = this.file;
       this.reader = reader;
       this.currentFilter = filter;
       this.currentSort = sort;

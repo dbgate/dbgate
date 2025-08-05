@@ -9,7 +9,7 @@ const currentVersion = require('./currentVersion');
 const logger = getLogger('apiIndex');
 
 process.on('uncaughtException', err => {
-  logger.fatal(extractErrorLogData(err), 'Uncaught exception, exiting process');
+  logger.fatal(extractErrorLogData(err), 'DBGM-00259 Uncaught exception, exiting process');
   process.exit(1);
 });
 
@@ -33,6 +33,9 @@ if (processArgs.processDisplayName) {
 // }
 
 function configureLogger() {
+  const { initializeRecentLogProvider, pushToRecentLogs } = require('./utility/AppLogDatastore');
+  initializeRecentLogProvider();
+
   const logsFilePath = path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`);
   setLogsFilePath(logsFilePath);
   setLoggerName('main');
@@ -63,7 +66,21 @@ function configureLogger() {
                 { flags: 'a' }
               );
             }
-            streamsByDatePart[datePart].write(`${JSON.stringify(msg)}\n`);
+            const additionals = {};
+            const finalMsg =
+              msg.msg && msg.msg.match(/^DBGM-\d\d\d\d\d/)
+                ? {
+                    ...msg,
+                    msg: msg.msg.substring(10).trimStart(),
+                    msgcode: msg.msg.substring(0, 10),
+                    ...additionals,
+                  }
+                : {
+                    ...msg,
+                    ...additionals,
+                  };
+            streamsByDatePart[datePart].write(`${JSON.stringify(finalMsg)}\n`);
+            pushToRecentLogs(finalMsg);
           },
         },
       },
@@ -114,10 +131,10 @@ function configureLogger() {
 
 if (processArgs.listenApi) {
   configureLogger();
-  logger.info(`Starting API process version ${currentVersion.version}`);
+  logger.info(`DBGM-00026 Starting API process version ${currentVersion.version}`);
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
-    logger.info('Debug print environment variables:');
+    logger.info('DBGM-00027 Debug print environment variables:');
     for (const key of Object.keys(process.env)) {
       logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
     }

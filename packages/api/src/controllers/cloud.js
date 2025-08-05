@@ -45,7 +45,7 @@ module.exports = {
       const resp = await callCloudApiGet('content-list');
       return resp;
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error getting cloud content list');
+      logger.error(extractErrorLogData(err), 'DBGM-00099 Error getting cloud content list');
 
       return [];
     }

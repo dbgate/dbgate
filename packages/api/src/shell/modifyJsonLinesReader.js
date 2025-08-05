@@ -132,7 +132,7 @@ async function modifyJsonLinesReader({
   mergeKey = null,
   mergeMode = 'merge',
 }) {
-  logger.info(`Reading file ${fileName} with change set`);
+  logger.info(`DBGM-00060 Reading file ${fileName} with change set`);
 
   const fileStream = fs.createReadStream(
     fileName,

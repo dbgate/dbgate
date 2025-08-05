@@ -63,7 +63,7 @@ async function jsonReader({
   encoding = 'utf-8',
   limitRows = undefined,
 }) {
-  logger.info(`Reading file ${fileName}`);
+  logger.info(`DBGM-00056 Reading file ${fileName}`);
 
   const downloadedFile = await download(fileName);
   const fileStream = fs.createReadStream(

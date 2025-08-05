@@ -20,10 +20,10 @@ const logger = createLogger('dbmodel');
 async function runAndExit(promise) {
   try {
     await promise;
-    logger.info('Success');
+    logger.info('DBGM-00112 Success');
     process.exit();
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Processing failed');
+    logger.error(extractErrorLogData(err), 'DBGM-00113 Processing failed');
     process.exit(1);
   }
 }

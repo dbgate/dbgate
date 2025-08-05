@@ -45,14 +45,14 @@ class ImportStream extends stream.Transform {
 }
 
 async function importDatabase({ connection = undefined, systemConnection = undefined, driver = undefined, inputFile }) {
-  logger.info(`Importing database`);
+  logger.info(`DBGM-00051 Importing database`);
 
   if (!driver) driver = requireEngineDriver(connection);
   const dbhan = systemConnection || (await connectUtility(driver, connection, 'write'));
   try {
-    logger.info(`Input file: ${inputFile}`);
+    logger.info(`DBGM-00052 Input file: ${inputFile}`);
     const downloadedFile = await download(inputFile);
-    logger.info(`Downloaded file: ${downloadedFile}`);
+    logger.info(`DBGM-00053 Downloaded file: ${downloadedFile}`);
 
     const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
     const splittedStream = splitQueryStream(fileStream, {

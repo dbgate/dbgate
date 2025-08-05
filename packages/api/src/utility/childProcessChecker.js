@@ -12,7 +12,7 @@ function childProcessChecker() {
       // This will come once parent dies.
       // One way can be to check for error code ERR_IPC_CHANNEL_CLOSED
       //     and call process.exit()
-      logger.error(extractErrorLogData(err), 'parent died');
+      logger.error(extractErrorLogData(err), 'DBGM-00163 parent died');
       process.exit(1);
     }
   }, 1000);

@@ -32,15 +32,15 @@ function createBulkInsertStream(driver, stream, dbhan, name, options) {
   writable.checkStructure = async () => {
     try {
       if (options.dropIfExists) {
-        logger.info(`Dropping collection ${collectionName}`);
+        logger.info(`DBGM-00137 Dropping collection ${collectionName}`);
         await db.collection(collectionName).drop();
       }
       if (options.truncate) {
-        logger.info(`Truncating collection ${collectionName}`);
+        logger.info(`DBGM-00138 Truncating collection ${collectionName}`);
         await db.collection(collectionName).deleteMany({});
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error during preparing mongo bulk insert collection, stopped');
+      logger.error(extractErrorLogData(err), 'DBGM-00139 Error during preparing mongo bulk insert collection, stopped');
       writable.destroy(err);
     }
   };
@@ -52,7 +52,7 @@ function createBulkInsertStream(driver, stream, dbhan, name, options) {
 
       await db.collection(collectionName).insertMany(rows);
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error bulk insert collection, stopped');
+      logger.error(extractErrorLogData(err), 'DBGM-00197 Error bulk insert collection, stopped');
       writable.destroy(err);
     }
   };

@@ -93,7 +93,7 @@ export class SqlGenerator {
   }
 
   private handleException = error => {
-    logger.error(extractErrorLogData(error), 'Unhandled error');
+    logger.error(extractErrorLogData(error), 'DBGM-00186 Unhandled error');
     this.isUnhandledException = true;
   };
 

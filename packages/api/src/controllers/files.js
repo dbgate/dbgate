@@ -13,6 +13,7 @@ const dbgateApi = require('../shell');
 const { getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
+const { AppLogDatastore, getRecentAppLogRecords } = require('../utility/AppLogDatastore');
 const logger = getLogger('files');
 
 function serialize(format, data) {
@@ -28,6 +29,9 @@ function deserialize(format, text) {
 }
 
 module.exports = {
+  currentLogReader: null,
+  currentLogParamsKey: null,
+
   list_meta: true,
   async list({ folder }, req) {
     if (!hasPermission(`files/${folder}/read`, req)) return [];
@@ -253,7 +257,7 @@ module.exports = {
 
   createZipFromJsons_meta: true,
   async createZipFromJsons({ db, filePath }) {
-    logger.info(`Creating zip file from JSONS ${filePath}`);
+    logger.info(`DBGM-00011 Creating zip file from JSONS ${filePath}`);
     await dbgateApi.zipJsonLinesData(db, filePath);
     return true;
   },
@@ -279,7 +283,7 @@ module.exports = {
     const FOLDERS = ['sql', 'sqlite'];
     for (const folder of FOLDERS) {
       if (fileName.toLowerCase().endsWith('.' + folder)) {
-        logger.info(`Saving ${folder} file ${fileName}`);
+        logger.info(`DBGM-00012 Saving ${folder} file ${fileName}`);
         await fs.copyFile(filePath, path.join(filesdir(), folder, fileName));
 
         socket.emitChanged(`files-changed`, { folder: folder });
@@ -291,7 +295,7 @@ module.exports = {
       }
     }
 
-    throw new Error(`${fileName} doesn't have one of supported extensions: ${FOLDERS.join(', ')}`);
+    throw new Error(`DBGM-00013 ${fileName} doesn't have one of supported extensions: ${FOLDERS.join(', ')}`);
   },
 
   exportFile_meta: true,
@@ -310,5 +314,29 @@ module.exports = {
     }
     await fs.copyFile(sourceFilePath, targetFilePath);
     return true;
+  },
+
+  getAppLog_meta: true,
+  async getAppLog({ offset = 0, limit = 100, dateFrom = 0, dateTo = new Date().getTime(), filters = {} }) {
+    const paramsKey = `${dateFrom}-${dateTo}`;
+    if (paramsKey != this.currentLogParamsKey) {
+      if (this.currentLogReader) {
+        this.currentLogReader._closeReader();
+        this.currentLogReader = null;
+      }
+      this.currentLogReader = new AppLogDatastore({ timeFrom: dateFrom, timeTo: dateTo });
+      this.currentLogParamsKey = paramsKey;
+    }
+
+    return this.currentLogReader.getRows(offset, limit, filters);
+  },
+
+  getRecentAppLog_meta: true,
+  getRecentAppLog({ limit }) {
+    const res = getRecentAppLogRecords();
+    if (limit) {
+      return res.slice(-limit);
+    }
+    return res;
   },
 };

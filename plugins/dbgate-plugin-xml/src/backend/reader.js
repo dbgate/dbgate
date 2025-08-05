@@ -59,7 +59,7 @@ class ParseStream extends stream.Transform {
 }
 
 async function reader({ fileName, encoding = 'utf-8', itemElementName }) {
-  logger.info(`Reading file ${fileName}`);
+  logger.info(`DBGM-00143 Reading file ${fileName}`);
 
   const fileStream = fs.createReadStream(fileName, encoding);
   const parser = new ParseStream({ itemElementName });

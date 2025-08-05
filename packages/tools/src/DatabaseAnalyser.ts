@@ -79,7 +79,7 @@ export class DatabaseAnalyser<TClient = any> {
 
   async fullAnalysis() {
     logger.debug(
-      `Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
+      `DBGM-00126 Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
     );
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
@@ -102,7 +102,7 @@ export class DatabaseAnalyser<TClient = any> {
 
   async incrementalAnalysis(structure) {
     logger.info(
-      `Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
+      `DBGM-00127 Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
     );
     this.structure = structure;
 
@@ -129,7 +129,7 @@ export class DatabaseAnalyser<TClient = any> {
 
     this.modifications = structureModifications;
     if (structureWithRowCounts) this.structure = structureWithRowCounts;
-    logger.info({ modifications: this.modifications }, 'DB modifications detected:');
+    logger.info({ modifications: this.modifications }, 'DBGM-00128 DB modifications detected:');
     return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
 
@@ -347,10 +347,10 @@ export class DatabaseAnalyser<TClient = any> {
     }
     try {
       const res = await this.driver.query(this.dbhan, sql);
-      this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
+      this.logger.debug({ rows: res.rows.length, template }, `DBGM-00129 Loaded analyser query`);
       return res;
     } catch (err) {
-      logger.error(extractErrorLogData(err, { template }), 'Error running analyser query');
+      logger.error(extractErrorLogData(err, { template }), 'DBGM-00130 Error running analyser query');
       return {
         rows: [],
         isError: true,

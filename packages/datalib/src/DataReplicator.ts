@@ -330,7 +330,7 @@ class ReplicatorItemHolder {
 
         if (new Date().getTime() - lastLogged.getTime() > 5000) {
           logger.info(
-            `Replicating ${this.item.name} in progress, inserted ${inserted} rows, mapped ${mapped} rows, missing ${missing} rows, skipped ${skipped} rows, updated ${updated} rows`
+            `DBGM-00105 Replicating ${this.item.name} in progress, inserted ${inserted} rows, mapped ${mapped} rows, missing ${missing} rows, skipped ${skipped} rows, updated ${updated} rows`
           );
           lastLogged = new Date();
         }
@@ -489,19 +489,19 @@ export class DataReplicator {
       for (const item of this.itemPlan) {
         const stats = await item.runImport();
         logger.info(
-          `Replicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows, skipped ${stats.skipped} rows, updated ${stats.updated} rows, deleted ${stats.deleted} rows`
+          `DBGM-00106 Replicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows, skipped ${stats.skipped} rows, updated ${stats.updated} rows, deleted ${stats.deleted} rows`
         );
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), `Failed replicator job, rollbacking. ${err.message}`);
+      logger.error(extractErrorLogData(err), `DBGM-00179 Failed replicator job, rollbacking. ${err.message}`);
       await this.runDumperCommand(dmp => dmp.rollbackTransaction());
       return;
     }
     if (this.options.rollbackAfterFinish) {
-      logger.info('Rollbacking transaction, nothing was changed');
+      logger.info('DBGM-00107 Rollbacking transaction, nothing was changed');
       await this.runDumperCommand(dmp => dmp.rollbackTransaction());
     } else {
-      logger.info('Committing replicator transaction');
+      logger.info('DBGM-00108 Committing replicator transaction');
       await this.runDumperCommand(dmp => dmp.commitTransaction());
     }
 

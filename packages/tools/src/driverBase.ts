@@ -101,7 +101,7 @@ export const driverBase = {
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
       try {
         if (options?.logScriptItems) {
-          logger.info({ sql: getLimitedQuery(sqlItem as string) }, 'Execute script item');
+          logger.info({ sql: getLimitedQuery(sqlItem as string) }, 'DBGM-00131 Execute script item');
         }
         await this.query(pool, sqlItem, { discardResult: true, ...options?.queryOptions });
       } catch (err) {

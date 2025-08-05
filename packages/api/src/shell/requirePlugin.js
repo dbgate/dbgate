@@ -22,7 +22,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
   if (requiredPlugin == null) {
     let module;
     const modulePath = getPluginBackendPath(packageName);
-    logger.info(`Loading module ${packageName} from ${modulePath}`);
+    logger.info(`DBGM-00062 Loading module ${packageName} from ${modulePath}`);
     try {
       // @ts-ignore
       module = __non_webpack_require__(modulePath);
