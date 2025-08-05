@@ -90,7 +90,7 @@ function getColumnInfo({
 /**
  * @param {ReturnType<objectTypeToField>} fieldType
  * @param {any} item
- * @param {Array<ReturnType<getColumnInfo>>} columns
+ * @param {Array<{ objectId: string; columnComment: string }>} columns
  * @returns {string|null}
  */
 function createObjectContentHash(fieldType, item, columns) {
@@ -273,8 +273,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const modificationsQueryData = await this.analyserQuery('modifications');
-    const columnsRows = await this.analyserQuery('columns', ['tables']);
-    const columns = columnsRows.rows.map(getColumnInfo);
+    const baseColumnsRows = await this.analyserQuery('columns', ['tables']);
+    const baseColumns = baseColumnsRows.rows.map(getColumnInfo);
     const tableSizes = await this.analyserQuery('tableSizes');
 
     const res = DatabaseAnalyser.createEmptyStructure();
@@ -285,7 +285,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
       res[field].push({
         objectId,
-        contentHash: createObjectContentHash(field, item, columns),
+        contentHash: createObjectContentHash(field, item, baseColumns),
         schemaName,
         pureName,
       });

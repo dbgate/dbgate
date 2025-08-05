@@ -168,21 +168,34 @@ class MsSqlDumper extends SqlDumper {
   changeColumnComment(oldcol, newcol) {
     if (oldcol.columnComment === newcol.columnComment) return;
 
-    if (oldcol.columnComment) this.dropColumnComment(newcol);
+    if (oldcol.columnComment) this.dropColumnCommentIfExists(newcol);
     if (newcol.columnComment) this.createColumnComment(newcol);
   }
 
   /**
    * @param {import('dbgate-types').ColumnInfo} column
    */
-  dropColumnComment(column) {
+  dropColumnCommentIfExists(column) {
     const { schemaName, columnName, pureName } = column;
+    const fullName = `${schemaName && schemaName + '.'}${pureName}`;
 
+    this.put('&>^if ^exists (&n');
+    this.put('&>^select 1 ^from sys.extended_properties&n');
+    this.put("^where major_id = OBJECT_ID('%s')&n", fullName);
+    this.put(
+      "^and minor_id = (^select column_id ^from sys.columns ^where object_id = OBJECT_ID('%s') ^and name = '%s')&n",
+      fullName,
+      columnName
+    );
+    this.put("^and name = N'MS_Description'&<&<&n");
+    this.put(')&n');
+    this.put('&>^begin&n');
     this.put('&>^exec sp_dropextendedproperty&n');
-    this.put("@name = N'MS_Description',");
+    this.put("@name = N'MS_Description',&n");
     this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
     this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
-    this.put("@level2type = N'COLUMN', @level2name = '%s'&<", columnName);
+    this.put("@level2type = N'COLUMN', @level2name = '%s'&<&n", columnName);
+    this.put('^end');
     this.endCommand();
   }
 
