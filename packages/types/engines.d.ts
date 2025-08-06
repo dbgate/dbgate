@@ -164,6 +164,7 @@ export interface FilterBehaviourProvider {
 export interface DatabaseHandle<TClient = any> {
   client: TClient;
   database?: string;
+  conid?: string;
   feedback?: (message: any) => void;
   getDatabase?: () => any;
   connectionType?: string;
@@ -336,6 +337,11 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   analyserClass?: any;
   dumperClass?: any;
   singleConnectionOnly?: boolean;
+  getLogDbInfo(dbhan: DatabaseHandle<TClient>): {
+    database?: string;
+    engine: string;
+    conid?: string;
+  };
 }
 
 export interface DatabaseModification {

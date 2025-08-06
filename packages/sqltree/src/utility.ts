@@ -83,3 +83,44 @@ export function selectKeysFromTable(options: {
   };
   return res;
 }
+
+export function createLogCompoudCondition(
+  fieldFilters: { [field: string]: string[] },
+  timeColumn: string,
+  timeFrom: number,
+  timeTo: number
+): Condition {
+  const conditions: Condition[] = [
+    {
+      conditionType: 'binary',
+      operator: '>=',
+      left: { exprType: 'column', columnName: timeColumn },
+      right: { exprType: 'value', value: timeFrom },
+    },
+    {
+      conditionType: 'binary',
+      operator: '<=',
+      left: { exprType: 'column', columnName: timeColumn },
+      right: { exprType: 'value', value: timeTo },
+    },
+  ];
+  for (const [key, values] of Object.entries(fieldFilters)) {
+    if (values.length == 1 && values[0] == null) {
+      conditions.push({
+        conditionType: 'isNull',
+        expr: { exprType: 'column', columnName: key },
+      });
+      continue;
+    }
+    conditions.push({
+      conditionType: 'in',
+      expr: { exprType: 'column', columnName: key },
+      values,
+    });
+  }
+
+  return {
+    conditionType: 'and',
+    conditions,
+  };
+}

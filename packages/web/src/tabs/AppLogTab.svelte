@@ -15,6 +15,10 @@
   import Link from '../elements/Link.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { onDestroy, onMount, tick } from 'svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
+  import { showModal } from '../modals/modalTools';
+  import ValueLookupModal from '../modals/ValueLookupModal.svelte';
+  import { createLogCompoudCondition } from 'dbgate-sqltree';
 
   let loadedRows = [];
   let loadedAll = false;
@@ -26,8 +30,13 @@
   let mode = 'recent';
   let autoScroll = true;
   let domTable;
+  let jslid;
 
-  function formatValue(value) {
+  function formatPossibleUuid(value) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (_.isString(value) && value.match(uuidRegex)) {
+      return value.slice(0, 8);
+    }
     if (value == null) {
       return 'N/A';
     }
@@ -36,12 +45,16 @@
 
   async function loadNextRows() {
     const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000);
-    const rows = await apiCall('files/get-app-log', {
+    const rows = await apiCall('jsldata/get-rows', {
+      jslid,
       offset: loadedRows.length,
       limit: pageSize,
-      dateFrom: startOfDay(dateFilter[0]).getTime(),
-      dateTo: endOfDay(dateFilter[1]).getTime(),
-      filters,
+      filters: createLogCompoudCondition(
+        filters,
+        'time',
+        startOfDay(dateFilter[0]).getTime(),
+        endOfDay(dateFilter[1]).getTime()
+      ),
     });
     loadedRows = [...loadedRows, ...rows];
     if (rows.length < 10) {
@@ -68,7 +81,7 @@
     startObserver(domLoadNext);
   }
 
-  async function reloadData() {
+  async function reloadData(createNewJslId = true) {
     switch (mode) {
       case 'recent':
         loadedRows = await apiCall('files/get-recent-app-log', { limit: 100 });
@@ -76,6 +89,13 @@
         scrollToRecent();
         break;
       case 'date':
+        if (createNewJslId) {
+          const resp = await apiCall('files/fill-app-logs', {
+            dateFrom: startOfDay(dateFilter[0]).getTime(),
+            dateTo: endOfDay(dateFilter[1]).getTime(),
+          });
+          jslid = resp.jslid;
+        }
         loadedRows = [];
         loadedAll = false;
         break;
@@ -87,7 +107,7 @@
       ...filters,
       [field]: values,
     };
-    reloadData();
+    reloadData(false);
   }
 
   const ColumnNamesMap = {
@@ -108,6 +128,17 @@
     if (autoScroll && domTable) {
       domTable.scrollTop = domTable.scrollHeight;
     }
+  }
+
+  function filterBy(field) {
+    showModal(ValueLookupModal, {
+      jslid,
+      field,
+      multiselect: true,
+      onConfirm: values => {
+        doSetFilter(field, values);
+      },
+    });
   }
 
   onMount(() => {
@@ -155,6 +186,21 @@
             reloadData();
           }}
         />
+        <div class="ml-2">
+          <DropDownButton
+            data-testid="AdminAuditLogTab_addFilter"
+            icon="icon filter"
+            menu={[
+              { text: 'Connection ID', onClick: () => filterBy('conid') },
+              { text: 'Database', onClick: () => filterBy('database') },
+              { text: 'Engine', onClick: () => filterBy('engine') },
+              { text: 'Message code', onClick: () => filterBy('msgcode') },
+              { text: 'Caller', onClick: () => filterBy('caller') },
+              { text: 'Name', onClick: () => filterBy('name') },
+            ]}
+          />
+        </div>
+
         {#each Object.keys(filters) as filterKey}
           <div class="ml-2">
             <span class="filter-label">{ColumnNamesMap[filterKey] || filterKey}:</span>
@@ -165,10 +211,10 @@
                   if (!filters[filterKey].length) {
                     filters = _.omit(filters, filterKey);
                   }
-                  reloadData();
+                  reloadData(false);
                 }}
               >
-                {formatValue(value)}
+                {formatPossibleUuid(value)}
               </Chip>
             {/each}
           </div>
@@ -183,6 +229,9 @@
             <th>Time</th>
             <th>Code</th>
             <th>Message</th>
+            <th>Connection</th>
+            <th>Database</th>
+            <th>Engine</th>
             <th>Caller</th>
             <th>Name</th>
           </tr>
@@ -203,13 +252,16 @@
               <td>{format(new Date(parseInt(row.time)), 'HH:mm:ss')}</td>
               <td>{row.msgcode || ''}</td>
               <td>{row.msg}</td>
+              <td>{formatPossibleUuid(row.conid) || ''}</td>
+              <td>{row.database || ''}</td>
+              <td>{row.engine?.includes('@') ? row.engine.split('@')[0] : row.engine || ''}</td>
               <td>{row.caller || ''}</td>
               <td>{row.name || ''}</td>
             </tr>
 
             {#if index === selectedLogIndex}
               <tr>
-                <td colspan="6">
+                <td colspan="9">
                   <TabControl
                     isInline
                     tabs={_.compact([
@@ -251,6 +303,38 @@
                             {row.name || 'N/A'}
                           {/if}
                         </div>
+                        {#if row.conid}
+                          <div class="row">
+                            <div>Connection ID:</div>
+                            {#if mode == 'date'}
+                              <Link onClick={() => doSetFilter('conid', [row.conid])}
+                                >{formatPossibleUuid(row.conid)}</Link
+                              >
+                            {:else}
+                              {formatPossibleUuid(row.conid)}
+                            {/if}
+                          </div>
+                        {/if}
+                        {#if row.database}
+                          <div class="row">
+                            <div>Database:</div>
+                            {#if mode == 'date'}
+                              <Link onClick={() => doSetFilter('database', [row.database])}>{row.database}</Link>
+                            {:else}
+                              {row.database}
+                            {/if}
+                          </div>
+                        {/if}
+                        {#if row.engine}
+                          <div class="row">
+                            <div>Engine:</div>
+                            {#if mode == 'date'}
+                              <Link onClick={() => doSetFilter('engine', [row.engine])}>{row.engine}</Link>
+                            {:else}
+                              {row.engine}
+                            {/if}
+                          </div>
+                        {/if}
                       </div></svelte:fragment
                     >
                     <svelte:fragment slot="2">

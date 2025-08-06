@@ -96,6 +96,7 @@ const driver = {
       client,
       connectionType,
       database: conn.database,
+      conid: conn.conid,
     };
   },
   async close(dbhan) {

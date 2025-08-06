@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
-const { filesdir, archivedir, resolveArchiveFolder, uploadsdir, appdir } = require('../utility/directories');
+const { filesdir, archivedir, resolveArchiveFolder, uploadsdir, appdir, jsldir } = require('../utility/directories');
 const getChartExport = require('../utility/getChartExport');
 const { hasPermission } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
@@ -13,7 +13,7 @@ const dbgateApi = require('../shell');
 const { getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
-const { AppLogDatastore, getRecentAppLogRecords } = require('../utility/AppLogDatastore');
+const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
 const logger = getLogger('files');
 
 function serialize(format, data) {
@@ -29,9 +29,6 @@ function deserialize(format, text) {
 }
 
 module.exports = {
-  currentLogReader: null,
-  currentLogParamsKey: null,
-
   list_meta: true,
   async list({ folder }, req) {
     if (!hasPermission(`files/${folder}/read`, req)) return [];
@@ -316,19 +313,14 @@ module.exports = {
     return true;
   },
 
-  getAppLog_meta: true,
-  async getAppLog({ offset = 0, limit = 100, dateFrom = 0, dateTo = new Date().getTime(), filters = {} }) {
-    const paramsKey = `${dateFrom}-${dateTo}`;
-    if (paramsKey != this.currentLogParamsKey) {
-      if (this.currentLogReader) {
-        this.currentLogReader._closeReader();
-        this.currentLogReader = null;
-      }
-      this.currentLogReader = new AppLogDatastore({ timeFrom: dateFrom, timeTo: dateTo });
-      this.currentLogParamsKey = paramsKey;
-    }
-
-    return this.currentLogReader.getRows(offset, limit, filters);
+  fillAppLogs_meta: true,
+  async fillAppLogs({ dateFrom = 0, dateTo = new Date().getTime() }) {
+    const jslid = crypto.randomUUID();
+    const outputFile = path.join(jsldir(), `${jslid}.jsonl`);
+    await copyAppLogsIntoFile(dateFrom, dateTo, outputFile);
+    return {
+      jslid,
+    };
   },
 
   getRecentAppLog_meta: true,

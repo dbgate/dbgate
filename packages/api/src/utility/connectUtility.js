@@ -132,7 +132,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
 
   connection.ssl = await extractConnectionSslParams(connection);
 
-  const conn = await driver.connect({ ...connection, ...additionalOptions });
+  const conn = await driver.connect({ conid: connectionLoaded?._id, ...connection, ...additionalOptions });
   return conn;
 }
 

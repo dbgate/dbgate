@@ -17,75 +17,6 @@ async function getLogFiles(timeFrom, timeTo) {
   return logFiles.sort().map(x => path.join(dir, x));
 }
 
-class AppLogDatastore {
-  constructor({ timeFrom, timeTo }) {
-    this.timeFrom = timeFrom;
-    this.timeTo = timeTo;
-  }
-
-  async resolveNextFile(file) {
-    const files = await getLogFiles(this.timeFrom, this.timeTo);
-    const index = files.indexOf(file);
-    if (index < 0 || index >= files.length - 1) return null;
-    return files[index + 1];
-  }
-
-  async getRows(offset = 0, limit = 100, filters = {}) {
-    if (!this.linesReader) {
-      const files = await getLogFiles(this.timeFrom, this.timeTo);
-      this.linesReader = new JsonLinesDatastore(files[0], null, file => this.resolveNextFile(file));
-    }
-
-    const conditions = [
-      {
-        conditionType: 'binary',
-        operator: '>=',
-        left: { exprType: 'column', columnName: 'time' },
-        right: { exprType: 'value', value: this.timeFrom },
-      },
-      {
-        conditionType: 'binary',
-        operator: '<=',
-        left: { exprType: 'column', columnName: 'time' },
-        right: { exprType: 'value', value: this.timeTo },
-      },
-    ];
-    for (const [key, values] of Object.entries(filters)) {
-      if (values.length == 1 && values[0] == null) {
-        // @ts-ignore
-        conditions.push({
-          conditionType: 'isNull',
-          expr: { exprType: 'column', columnName: key },
-        });
-        continue;
-      }
-      // @ts-ignore
-      conditions.push({
-        conditionType: 'in',
-        expr: { exprType: 'column', columnName: key },
-        values,
-      });
-    }
-
-    return this.linesReader.getRows(
-      offset,
-      limit,
-      {
-        conditionType: 'and',
-        conditions,
-      },
-      null
-    );
-  }
-
-  _closeReader() {
-    if (this.linesReader) {
-      this.linesReader._closeReader();
-      this.linesReader = null;
-    }
-  }
-}
-
 const RECENT_LOG_LIMIT = 1000;
 
 let recentLogs = null;
@@ -94,6 +25,27 @@ const beforeRecentLogs = [];
 function adjustRecentLogs() {
   if (recentLogs.length > RECENT_LOG_LIMIT) {
     recentLogs.splice(0, recentLogs.length - RECENT_LOG_LIMIT);
+  }
+}
+
+async function copyAppLogsIntoFile(timeFrom, timeTo, fileName) {
+  const writeStream = fs.createWriteStream(fileName);
+
+  for (const file of await getLogFiles(timeFrom, timeTo)) {
+    const readStream = fs.createReadStream(file);
+    const reader = new LineReader(readStream);
+    do {
+      const line = await reader.readLine();
+      if (line == null) break;
+      try {
+        const logEntry = JSON.parse(line);
+        if (logEntry.time >= timeFrom && logEntry.time <= timeTo) {
+          writeStream.write(JSON.stringify(logEntry) + '\n');
+        }
+      } catch (e) {
+        continue;
+      }
+    } while (true);
   }
 }
 
@@ -141,8 +93,8 @@ function getRecentAppLogRecords() {
 }
 
 module.exports = {
-  AppLogDatastore,
   initializeRecentLogProvider,
   getRecentAppLogRecords,
   pushToRecentLogs,
+  copyAppLogsIntoFile,
 };

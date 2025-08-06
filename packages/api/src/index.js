@@ -33,7 +33,7 @@ if (processArgs.processDisplayName) {
 // }
 
 function configureLogger() {
-  const { initializeRecentLogProvider, pushToRecentLogs } = require('./utility/AppLogDatastore');
+  const { initializeRecentLogProvider, pushToRecentLogs } = require('./utility/appLogStore');
   initializeRecentLogProvider();
 
   const logsFilePath = path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`);
