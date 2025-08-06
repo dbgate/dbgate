@@ -157,20 +157,25 @@
   });
 
   const quickExportHandler = fmt => async () => {
-    let usedJslId = jslid;
-    if (mode === 'recent') {
-      const resp = await apiCall('files/fill-app-logs', {
-        dateFrom: startOfDay(new Date()).getTime(),
-        dateTo: endOfDay(new Date()).getTime(),
-      });
-      usedJslId = resp.jslid;
-    }
+    const resp =
+      mode == 'recent'
+        ? await apiCall('files/fill-app-logs', {
+            dateFrom: startOfDay(new Date()).getTime(),
+            dateTo: endOfDay(new Date()).getTime(),
+            prepareForExport: true,
+          })
+        : await apiCall('files/fill-app-logs', {
+            dateFrom: startOfDay(dateFilter[0]).getTime(),
+            dateTo: endOfDay(dateFilter[1]).getTime(),
+            prepareForExport: true,
+          });
+
     exportQuickExportFile(
       'Log',
       {
         functionName: 'jslDataReader',
         props: {
-          jslid: usedJslId,
+          jslid: resp.jslid,
         },
       },
       fmt

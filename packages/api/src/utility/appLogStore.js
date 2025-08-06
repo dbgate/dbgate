@@ -2,9 +2,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const { logsdir } = require('./directories');
 const { format, addDays, startOfDay } = require('date-fns');
-const JsonLinesDatastore = require('./JsonLinesDatastore');
 const LineReader = require('./LineReader');
 const socket = require('./socket');
+const _ = require('lodash');
 
 async function getLogFiles(timeFrom, timeTo) {
   const dir = logsdir();
@@ -28,7 +28,20 @@ function adjustRecentLogs() {
   }
 }
 
-async function copyAppLogsIntoFile(timeFrom, timeTo, fileName) {
+function prepareEntryForExport(entry) {
+  return {
+    date: format(new Date(entry.time), 'yyyy-MM-dd'),
+    time: format(new Date(entry.time), 'HH:mm:ss'),
+    msgcode: entry.msgcode || '',
+    message: entry.msg || '',
+    ..._.omit(entry, ['time', 'msg', 'msgcode']),
+    conid: entry.conid || '',
+    database: entry.database || '',
+    engine: entry.engine || '',
+  };
+}
+
+async function copyAppLogsIntoFile(timeFrom, timeTo, fileName, prepareForExport) {
   const writeStream = fs.createWriteStream(fileName);
 
   for (const file of await getLogFiles(timeFrom, timeTo)) {
@@ -40,7 +53,7 @@ async function copyAppLogsIntoFile(timeFrom, timeTo, fileName) {
       try {
         const logEntry = JSON.parse(line);
         if (logEntry.time >= timeFrom && logEntry.time <= timeTo) {
-          writeStream.write(JSON.stringify(logEntry) + '\n');
+          writeStream.write(JSON.stringify(prepareForExport ? prepareEntryForExport(logEntry) : logEntry) + '\n');
         }
       } catch (e) {
         continue;

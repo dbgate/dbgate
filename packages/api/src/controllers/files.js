@@ -314,10 +314,10 @@ module.exports = {
   },
 
   fillAppLogs_meta: true,
-  async fillAppLogs({ dateFrom = 0, dateTo = new Date().getTime() }) {
+  async fillAppLogs({ dateFrom = 0, dateTo = new Date().getTime(), prepareForExport = false }) {
     const jslid = crypto.randomUUID();
     const outputFile = path.join(jsldir(), `${jslid}.jsonl`);
-    await copyAppLogsIntoFile(dateFrom, dateTo, outputFile);
+    await copyAppLogsIntoFile(dateFrom, dateTo, outputFile, prepareForExport);
     return {
       jslid,
     };
