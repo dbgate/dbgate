@@ -19,6 +19,11 @@
   import { showModal } from '../modals/modalTools';
   import ValueLookupModal from '../modals/ValueLookupModal.svelte';
   import { createLogCompoudCondition } from 'dbgate-sqltree';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
+  import ToolStripExportButton, {
+    createQuickExportHandlerRef,
+    registerQuickExportHandler,
+  } from '../buttons/ToolStripExportButton.svelte';
 
   let loadedRows = [];
   let loadedAll = false;
@@ -31,6 +36,8 @@
   let autoScroll = true;
   let domTable;
   let jslid;
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 
   function formatPossibleUuid(value) {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -148,6 +155,28 @@
   onDestroy(() => {
     apiOff('applog-event', handleLogMessage);
   });
+
+  const quickExportHandler = fmt => async () => {
+    let usedJslId = jslid;
+    if (mode === 'recent') {
+      const resp = await apiCall('files/fill-app-logs', {
+        dateFrom: startOfDay(new Date()).getTime(),
+        dateTo: endOfDay(new Date()).getTime(),
+      });
+      usedJslId = resp.jslid;
+    }
+    exportQuickExportFile(
+      'Log',
+      {
+        functionName: 'jslDataReader',
+        props: {
+          jslid: usedJslId,
+        },
+      },
+      fmt
+    );
+  };
+  registerQuickExportHandler(quickExportHandler);
 </script>
 
 <ToolStripContainer>
@@ -370,6 +399,7 @@
         reloadData();
       }}>Refresh</ToolStripButton
     >
+    <ToolStripExportButton {quickExportHandlerRef} />
   </svelte:fragment>
 </ToolStripContainer>
 

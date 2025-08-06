@@ -74,7 +74,8 @@ module.exports = {
 
   dispatchMessage(runid, message) {
     if (message) {
-      if (_.isPlainObject(message)) logger.log(message);
+      if (_.isPlainObject(message))
+        logger.log({ ...message, msg: message.msg || message.message || '', message: undefined });
       else logger.info(message);
 
       const toEmit = _.isPlainObject(message)
