@@ -186,7 +186,7 @@ const driver = {
     // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
   async stream(dbhan, sql, options) {
-    if (isProApp) {
+    if (isProApp()) {
       const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
       const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 
