@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { EventEmitter } = require('events');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
@@ -58,27 +59,26 @@ async function getScriptableDb(dbhan) {
   return db;
 }
 
-/**
- * @param {string} uri
- * @param {string} dbName
- * @returns {string}
- */
-function ensureDatabaseInMongoURI(uri, dbName) {
-  if (!dbName) return uri;
+// /**
+//  * @param {string} uri
+//  * @param {string} dbName
+//  * @returns {string}
+//  */
+// function ensureDatabaseInMongoURI(uri, dbName) {
+//   if (!dbName) return uri;
 
-  try {
-    const url = new URL(uri);
+//   try {
+//     const url = new URL(uri);
 
-    const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
-    if (hasDatabase) return uri;
-
-    url.pathname = `/${dbName}`;
-    return url.toString();
-  } catch (error) {
-    logger.error('DBGM-00198 Invalid URI format:', error.message);
-    return uri;
-  }
-}
+//     const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
+//     if (hasDatabase) return uri;
+//     url.pathname = `/${dbName}`;
+//     return url.toString();
+//   } catch (error) {
+//     logger.error('DBGM-00198 Invalid URI format:', error.message);
+//     return uri;
+//   }
+// }
 
 /** @type {import('dbgate-types').EngineDriver<MongoClient>} */
 const driver = {
@@ -119,6 +119,7 @@ const driver = {
     return {
       client,
       database,
+      // mongoUrl,
       getDatabase: database ? () => client.db(database) : () => client.db(),
     };
   },
@@ -192,9 +193,9 @@ const driver = {
       let exprValue;
 
       try {
-        const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
-        const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), { productDocsLink: '', productName: 'DbGate' });
         const runtime = new ElectronRuntime(serviceProvider);
+        await runtime.evaluate(`use ${dbhan.database}`);
         exprValue = await runtime.evaluate(sql);
       } catch (err) {
         options.info({
@@ -207,6 +208,25 @@ const driver = {
       }
 
       const { printable, type } = exprValue;
+
+      if (typeof printable === 'string') {
+        options.info({
+          time: new Date(),
+          severity: 'info',
+          message: printable,
+        });
+        options.done();
+        return;
+      } else if (typeof printable !== 'object' || printable === null) {
+        options.info({
+          printable: printable,
+          time: new Date(),
+          severity: 'info',
+          message: 'Query returned not supported value.',
+        });
+        options.done();
+        return;
+      }
 
       if (type === 'Document') {
         options.recordset({ __isDynamicStructure: true });
