@@ -28,22 +28,25 @@ function adjustRecentLogs() {
   }
 }
 
-function prepareEntryForExport(entry) {
+function prepareEntryForExport(entry, lastEntry) {
   return {
     date: format(new Date(entry.time), 'yyyy-MM-dd'),
     time: format(new Date(entry.time), 'HH:mm:ss'),
+    dtime: lastEntry ? entry.time - lastEntry.time : 0,
     msgcode: entry.msgcode || '',
     message: entry.msg || '',
     ..._.omit(entry, ['time', 'msg', 'msgcode']),
     conid: entry.conid || '',
     database: entry.database || '',
     engine: entry.engine || '',
+    ts: entry.time,
   };
 }
 
 async function copyAppLogsIntoFile(timeFrom, timeTo, fileName, prepareForExport) {
   const writeStream = fs.createWriteStream(fileName);
 
+  let lastEntry = null;
   for (const file of await getLogFiles(timeFrom, timeTo)) {
     const readStream = fs.createReadStream(file);
     const reader = new LineReader(readStream);
@@ -53,7 +56,10 @@ async function copyAppLogsIntoFile(timeFrom, timeTo, fileName, prepareForExport)
       try {
         const logEntry = JSON.parse(line);
         if (logEntry.time >= timeFrom && logEntry.time <= timeTo) {
-          writeStream.write(JSON.stringify(prepareForExport ? prepareEntryForExport(logEntry) : logEntry) + '\n');
+          writeStream.write(
+            JSON.stringify(prepareForExport ? prepareEntryForExport(logEntry, lastEntry) : logEntry) + '\n'
+          );
+          lastEntry = logEntry;
         }
       } catch (e) {
         continue;
