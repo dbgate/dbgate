@@ -90,7 +90,7 @@ function getColumnInfo({
 /**
  * @param {ReturnType<objectTypeToField>} fieldType
  * @param {any} item
- * @param {Array<{ objectId: string; columnComment: string }>} columns
+ * @param {Array<{ objectId: string; columnId: number, columnComment: string }>} columns
  * @returns {string|null}
  */
 function createObjectContentHash(fieldType, item, columns) {
@@ -100,12 +100,13 @@ function createObjectContentHash(fieldType, item, columns) {
   if ((columns?.length && fieldType === 'tables') || fieldType === 'views') {
     const modifyDateStr = modifyDate ? modifyDate.toISOString() : '';
     const objectColumns = columns.filter(col => col.objectId == item.objectId);
-    const colsComments = objectColumns.map(i => i.columnComment).join(',');
+    const colsComments = objectColumns
+      .filter(i => i.columnComment)
+      .map(i => `${i.columnId}/${i.columnComment}`)
+      .join('||');
+    const objectComment = item.objectComment || '';
 
-    return crypto
-      .createHash('sha256')
-      .update(modifyDateStr + colsComments)
-      .digest('hex');
+    return crypto.createHash('sha256').update(`${modifyDateStr}:${colsComments}:${objectComment}`).digest('hex');
   }
 
   if (!modifyDate) return null;
