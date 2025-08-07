@@ -50,6 +50,8 @@ const dialect = {
     isPersisted: true,
   },
 
+  safeCommentChanges: true,
+
   predefinedDataTypes: [
     'bigint',
     'bit',

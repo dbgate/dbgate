@@ -80,6 +80,8 @@ export interface SqlDialect {
     isPersisted?: true;
   };
 
+  safeCommentChanges?: boolean;
+
   // create sql-tree expression
   createColumnViewExpression(
     columnName: string,
