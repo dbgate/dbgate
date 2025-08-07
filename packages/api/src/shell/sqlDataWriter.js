@@ -41,7 +41,7 @@ class SqlizeStream extends stream.Transform {
 }
 
 async function sqlDataWriter({ fileName, dataName, driver, encoding = 'utf-8' }) {
-  logger.info(`Writing file ${fileName}`);
+  logger.info(`DBGM-00063 Writing file ${fileName}`);
   const stringify = new SqlizeStream({ fileName, dataName });
   const fileStream = fs.createWriteStream(fileName, encoding);
   return [stringify, fileStream];

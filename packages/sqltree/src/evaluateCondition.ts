@@ -78,5 +78,12 @@ export function evaluateCondition(condition: Condition, values) {
         });
         return evaluateCondition(replaced, values);
       });
+    case 'in':
+      const value = extractRawValue(evaluateExpression(condition.expr, values));
+      const list = condition.values;
+      if (Array.isArray(list)) {
+        return list.some(item => item == value);
+      }
+      return false;
   }
 }

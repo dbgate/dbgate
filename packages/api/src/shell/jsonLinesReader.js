@@ -42,7 +42,7 @@ class ParseStream extends stream.Transform {
  * @returns {Promise<readerType>} - reader object
  */
 async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined }) {
-  logger.info(`Reading file ${fileName}`);
+  logger.info(`DBGM-00054 Reading file ${fileName}`);
 
   const downloadedFile = await download(fileName);
 

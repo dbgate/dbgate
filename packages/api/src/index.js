@@ -9,7 +9,7 @@ const currentVersion = require('./currentVersion');
 const logger = getLogger('apiIndex');
 
 process.on('uncaughtException', err => {
-  logger.fatal(extractErrorLogData(err), 'Uncaught exception, exiting process');
+  logger.fatal(extractErrorLogData(err), 'DBGM-00259 Uncaught exception, exiting process');
   process.exit(1);
 });
 
@@ -33,12 +33,17 @@ if (processArgs.processDisplayName) {
 // }
 
 function configureLogger() {
+  const { initializeRecentLogProvider, pushToRecentLogs } = require('./utility/appLogStore');
+  initializeRecentLogProvider();
+
   const logsFilePath = path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`);
   setLogsFilePath(logsFilePath);
   setLoggerName('main');
 
   const consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info';
   const fileLogLevel = process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'debug';
+
+  const streamsByDatePart = {};
 
   const logConfig = {
     base: { pid: process.pid },
@@ -49,10 +54,35 @@ function configureLogger() {
         level: consoleLogLevel,
       },
       {
-        type: 'stream',
+        type: 'objstream',
         // @ts-ignore
         level: fileLogLevel,
-        stream: fs.createWriteStream(logsFilePath, { flags: 'a' }),
+        objstream: {
+          send(msg) {
+            const datePart = moment(msg.time).format('YYYY-MM-DD');
+            if (!streamsByDatePart[datePart]) {
+              streamsByDatePart[datePart] = fs.createWriteStream(
+                path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`),
+                { flags: 'a' }
+              );
+            }
+            const additionals = {};
+            const finalMsg =
+              msg.msg && msg.msg.match(/^DBGM-\d\d\d\d\d/)
+                ? {
+                    ...msg,
+                    msg: msg.msg.substring(10).trimStart(),
+                    msgcode: msg.msg.substring(0, 10),
+                    ...additionals,
+                  }
+                : {
+                    ...msg,
+                    ...additionals,
+                  };
+            streamsByDatePart[datePart].write(`${JSON.stringify(finalMsg)}\n`);
+            pushToRecentLogs(finalMsg);
+          },
+        },
       },
     ],
   };
@@ -101,10 +131,10 @@ function configureLogger() {
 
 if (processArgs.listenApi) {
   configureLogger();
-  logger.info(`Starting API process version ${currentVersion.version}`);
+  logger.info(`DBGM-00026 Starting API process version ${currentVersion.version}`);
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
-    logger.info('Debug print environment variables:');
+    logger.info('DBGM-00027 Debug print environment variables:');
     for (const key of Object.keys(process.env)) {
       logger.info(`  ${key}: ${JSON.stringify(process.env[key])}`);
     }

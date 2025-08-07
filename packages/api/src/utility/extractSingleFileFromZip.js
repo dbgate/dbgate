@@ -42,13 +42,13 @@ function extractSingleFileFromZip(zipPath, fileInZip, outputPath) {
 
             // When the file is finished writing, resolve
             writeStream.on('finish', () => {
-              logger.info(`File "${fileInZip}" extracted to "${outputPath}".`);
+              logger.info(`DBGM-00088 File "${fileInZip}" extracted to "${outputPath}".`);
               resolve(true);
             });
 
             // Handle write errors
             writeStream.on('error', writeErr => {
-              logger.error(extractErrorLogData(writeErr), `Error extracting "${fileInZip}" from "${zipPath}".`);
+              logger.error(extractErrorLogData(writeErr), `DBGM-00089 Error extracting "${fileInZip}" from "${zipPath}".`);
               reject(writeErr);
             });
           });
@@ -67,7 +67,7 @@ function extractSingleFileFromZip(zipPath, fileInZip, outputPath) {
 
       // Handle general errors
       zipFile.on('error', err => {
-        logger.error(extractErrorLogData(err), `ZIP file error in ${zipPath}.`);
+        logger.error(extractErrorLogData(err), `DBGM-00172 ZIP file error in ${zipPath}.`);
         reject(err);
       });
     });

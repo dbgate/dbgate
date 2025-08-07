@@ -77,7 +77,7 @@ function startCloudTokenChecking(sid, callback) {
         callback(resp.data);
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error checking cloud token');
+      logger.error(extractErrorLogData(err), 'DBGM-00164 Error checking cloud token');
     }
   }, 500);
 }
@@ -125,7 +125,7 @@ async function getCloudUsedEngines() {
     const resp = await callCloudApiGet('content-engines');
     return resp || [];
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error getting cloud content list');
+    logger.error(extractErrorLogData(err), 'DBGM-00165 Error getting cloud content list');
     return [];
   }
 }
@@ -208,7 +208,7 @@ async function updateCloudFiles(isRefresh) {
     lastCheckedTm = _.max(cloudFiles.map(x => parseInt(x.modifiedTm)));
   }
 
-  logger.info({ tags, lastCheckedTm }, 'Downloading cloud files');
+  logger.info({ tags, lastCheckedTm }, 'DBGM-00082 Downloading cloud files');
 
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
@@ -223,7 +223,7 @@ async function updateCloudFiles(isRefresh) {
     }
   );
 
-  logger.info(`Downloaded ${resp.data.length} cloud files`);
+  logger.info(`DBGM-00083 Downloaded ${resp.data.length} cloud files`);
 
   const filesByPath = lastCheckedTm == 0 ? {} : _.keyBy(cloudFiles, 'path');
   for (const file of resp.data) {
@@ -269,7 +269,7 @@ async function refreshPublicFiles(isRefresh) {
   try {
     await updateCloudFiles(isRefresh);
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error updating cloud files');
+    logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
   }
 }
 

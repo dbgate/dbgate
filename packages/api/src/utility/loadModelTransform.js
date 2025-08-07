@@ -28,7 +28,7 @@ async function loadModelTransform(file) {
     }
     return null;
   } catch (err) {
-    logger.error(extractErrorLogData(err), `Error loading model transform ${file}`);
+    logger.error(extractErrorLogData(err), `DBGM-00173 Error loading model transform ${file}`);
     return null;
   }
 }

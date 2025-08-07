@@ -41,7 +41,7 @@ async function handleStart({ connection, tunnelConfig }) {
       tunnelConfig,
     });
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error creating SSH tunnel connection:');
+    logger.error(extractErrorLogData(err), 'DBGM-00156 Error creating SSH tunnel connection:');
 
     process.send({
       msgtype: 'error',

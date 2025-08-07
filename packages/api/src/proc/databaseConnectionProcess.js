@@ -6,7 +6,6 @@ const {
   extractIntSettingsValue,
   getLogger,
   isCompositeDbName,
-  dbNameLogCategory,
   extractErrorMessage,
   extractErrorLogData,
   ScriptWriterEval,
@@ -43,6 +42,14 @@ let statusCounter = 0;
 function getStatusCounter() {
   statusCounter += 1;
   return statusCounter;
+}
+
+function getLogInfo() {
+  return {
+    database: dbhan ? dbhan.database : undefined,
+    conid: dbhan ? dbhan.conid : undefined,
+    engine: storedConnection ? storedConnection.engine : undefined,
+  };
 }
 
 async function checkedAsyncCall(promise) {
@@ -131,10 +138,10 @@ async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
   try {
     const version = await driver.getVersion(dbhan);
-    logger.debug(`Got server version: ${version.version}`);
+    logger.debug(getLogInfo(), `DBGM-00037 Got server version: ${version.version}`);
     serverVersion = version;
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error getting DB server version');
+    logger.error(extractErrorLogData(err, getLogInfo()), 'DBGM-00149 Error getting DB server version');
     serverVersion = { version: 'Unknown' };
   }
   process.send({ msgtype: 'version', version: serverVersion });
@@ -148,9 +155,8 @@ async function handleConnect({ connection, structure, globalSettings }) {
   const driver = requireEngineDriver(storedConnection);
   dbhan = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
   logger.debug(
-    `Connected to database, driver: ${storedConnection.engine}, separate schemas: ${
-      storedConnection.useSeparateSchemas ? 'YES' : 'NO'
-    }, 'DB: ${dbNameLogCategory(dbhan.database)} }`
+    getLogInfo(),
+    `DBGM-00038 Connected to database, separate schemas: ${storedConnection.useSeparateSchemas ? 'YES' : 'NO'}`
   );
   dbhan.feedback = feedback => setStatus({ feedback });
   await checkedAsyncCall(readVersion());
@@ -257,13 +263,16 @@ async function handleDriverDataCore(msgid, callMethod, { logName }) {
     const result = await callMethod(driver);
     process.send({ msgtype: 'response', msgid, result: serializeJsTypesForJsonStringify(result) });
   } catch (err) {
-    logger.error(extractErrorLogData(err, { logName }), `Error when handling message ${logName}`);
+    logger.error(
+      extractErrorLogData(err, { logName, ...getLogInfo() }),
+      `DBGM-00150 Error when handling message ${logName}`
+    );
     process.send({ msgtype: 'response', msgid, errorMessage: extractErrorMessage(err, 'Error executing DB data') });
   }
 }
 
 async function handleSchemaList({ msgid }) {
-  logger.debug('Loading schema list');
+  logger.debug(getLogInfo(), 'DBGM-00039 Loading schema list');
   return handleDriverDataCore(msgid, driver => driver.listSchemas(dbhan), { logName: 'listSchemas' });
 }
 
@@ -351,7 +360,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
     process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
     if (generator.isUnhandledException) {
       setTimeout(async () => {
-        logger.error('Exiting because of unhandled exception');
+        logger.error(getLogInfo(), 'DBGM-00151 Exiting because of unhandled exception');
         await driver.close(dbhan);
         process.exit(0);
       }, 500);
@@ -485,7 +494,7 @@ function start() {
   setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
-      logger.info('Database connection not alive, exiting');
+      logger.info(getLogInfo(), 'DBGM-00040 Database connection not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
       await driver.close(dbhan);
       process.exit(0);
@@ -497,10 +506,10 @@ function start() {
     try {
       await handleMessage(message);
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error in DB connection');
+      logger.error(extractErrorLogData(err, getLogInfo()), 'DBGM-00041 Error in DB connection');
       process.send({
         msgtype: 'error',
-        error: extractErrorMessage(err, 'Error processing message'),
+        error: extractErrorMessage(err, 'DBGM-00042 Error processing message'),
         msgid: message?.msgid,
       });
     }

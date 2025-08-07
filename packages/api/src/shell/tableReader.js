@@ -23,7 +23,7 @@ async function tableReader({ connection, systemConnection, pureName, schemaName,
 
   if (driver.databaseEngineTypes.includes('document')) {
     // @ts-ignore
-    logger.info(`Reading collection ${fullNameToString(fullName)}`);
+    logger.info(`DBGM-00064 Reading collection ${fullNameToString(fullName)}`);
     // @ts-ignore
     return await driver.readQuery(dbhan, JSON.stringify(fullName));
   }
@@ -32,14 +32,14 @@ async function tableReader({ connection, systemConnection, pureName, schemaName,
   const query = `select * from ${quoteFullName(driver.dialect, fullName)}`;
   if (table) {
     // @ts-ignore
-    logger.info(`Reading table ${fullNameToString(table)}`);
+    logger.info(`DBGM-00065 Reading table ${fullNameToString(table)}`);
     // @ts-ignore
     return await driver.readQuery(dbhan, query, table);
   }
   const view = await driver.analyseSingleObject(dbhan, fullName, 'views');
   if (view) {
     // @ts-ignore
-    logger.info(`Reading view ${fullNameToString(view)}`);
+    logger.info(`DBGM-00066 Reading view ${fullNameToString(view)}`);
     // @ts-ignore
     return await driver.readQuery(dbhan, query, view);
   }

@@ -37,15 +37,15 @@ export function extractSchemaNameFromComposite(name: string) {
   return splitCompositeDbName(name)?.schema;
 }
 
-export function dbNameLogCategory(database: string): string {
-  if (isCompositeDbName(database)) {
-    return '~composite';
-  }
-  if (database) {
-    return '~simple';
-  }
-  return '~nodb';
-}
+// export function getDbNameLogFace(database: string): string {
+//   if (isCompositeDbName(database)) {
+//     return '~composite';
+//   }
+//   if (database) {
+//     return '~simple';
+//   }
+//   return '~nodb';
+// }
 
 export function compositeDbNameIfNeeded(
   connnection: { useSeparateSchemas: boolean },

@@ -165,7 +165,7 @@ module.exports = {
       message: 'Executing query',
     });
 
-    logger.info({ sesid, sql }, 'Processing query');
+    logger.info({ sesid, sql }, 'DBGM-00019 Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
     session.subprocess.send({
       msgtype: 'executeQuery',
@@ -186,7 +186,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    logger.info({ sesid, command }, 'Processing control command');
+    logger.info({ sesid, command }, 'DBGM-00020 Processing control command');
     this.dispatchMessage(sesid, `${_.startCase(command)} started`);
     session.subprocess.send({ msgtype: 'executeControlCommand', command });
 
@@ -224,7 +224,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    logger.info({ sesid }, 'Starting profiler');
+    logger.info({ sesid }, 'DBGM-00021 Starting profiler');
     session.loadingReader_jslid = jslid;
     session.subprocess.send({ msgtype: 'startProfiler', jslid });
 
@@ -271,7 +271,7 @@ module.exports = {
     try {
       session.subprocess.send({ msgtype: 'ping' });
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error pinging session');
+      logger.error(extractErrorLogData(err), 'DBGM-00145 Error pinging session');
 
       return {
         status: 'error',

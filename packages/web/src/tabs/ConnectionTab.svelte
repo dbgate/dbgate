@@ -70,7 +70,7 @@
 
   function handleTest(requestDbList = false) {
     const connection = getCurrentConnection();
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
         showModal(DatabaseLoginModal, {
           testedConnection: connection,
@@ -78,7 +78,8 @@
           onCancel: () => resolve(null),
         });
       } else {
-        return handleTestCore(connection, requestDbList);
+        const res = await handleTestCore(connection, requestDbList);
+        resolve(res);
       }
     });
   }

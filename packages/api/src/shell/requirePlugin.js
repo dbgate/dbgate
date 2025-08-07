@@ -4,7 +4,7 @@ const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../uti
 const platformInfo = require('../utility/platformInfo');
 const authProxy = require('../utility/authProxy');
 const { getLogger } = require('dbgate-tools');
-const { isProApp } = require('../utility/checkLicense');
+// 
 const logger = getLogger('requirePlugin');
 
 const loadedPlugins = {};
@@ -13,7 +13,10 @@ const dbgateEnv = {
   dbgateApi: null,
   platformInfo,
   authProxy,
-  isProApp: isProApp()
+  isProApp: () =>{
+    const { isProApp } = require('../utility/checkLicense');
+    return isProApp();
+  }
 };
 function requirePlugin(packageName, requiredPlugin = null) {
   if (!packageName) throw new Error('Missing packageName in plugin');
@@ -22,7 +25,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
   if (requiredPlugin == null) {
     let module;
     const modulePath = getPluginBackendPath(packageName);
-    logger.info(`Loading module ${packageName} from ${modulePath}`);
+    logger.info(`DBGM-00062 Loading module ${packageName} from ${modulePath}`);
     try {
       // @ts-ignore
       module = __non_webpack_require__(modulePath);

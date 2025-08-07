@@ -101,7 +101,7 @@ export const driverBase = {
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
       try {
         if (options?.logScriptItems) {
-          logger.info({ sql: getLimitedQuery(sqlItem as string) }, 'Execute script item');
+          logger.info({ sql: getLimitedQuery(sqlItem as string) }, 'DBGM-00131 Execute script item');
         }
         await this.query(pool, sqlItem, { discardResult: true, ...options?.queryOptions });
       } catch (err) {
@@ -253,5 +253,13 @@ export const driverBase = {
 
   async writeQueryFromStream(dbhan, sql) {
     return null;
+  },
+
+  getLogDbInfo(dbhan) {
+    return {
+      database: dbhan ? dbhan.database : undefined,
+      engine: this.engine,
+      conid: dbhan ? dbhan.conid : undefined,
+    };
   },
 };

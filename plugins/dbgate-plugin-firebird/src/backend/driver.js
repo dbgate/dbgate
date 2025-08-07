@@ -97,7 +97,7 @@ const driver = {
 
       options.done();
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Stream error');
+      logger.error(extractErrorLogData(err), 'DBGM-00190 Stream error');
       options.info({
         message: err.message,
         line: err.line,
@@ -199,8 +199,8 @@ const driver = {
         await new Promise((resolve, reject) => {
           transactionPromise.query(currentSql, function (err, result) {
             if (err) {
-              logger.error(extractErrorLogData(err), 'Error executing SQL in transaction');
-              logger.error({ sql: currentSql }, 'SQL that caused the error');
+              logger.error(extractErrorLogData(err), 'DBGM-00191 Error executing SQL in transaction');
+              logger.error({ sql: currentSql }, 'DBGM-00192 SQL that caused the error');
               return reject(err);
             }
             resolve(result);
@@ -211,19 +211,19 @@ const driver = {
       await new Promise((resolve, reject) => {
         transactionPromise.commit(function (err) {
           if (err) {
-            logger.error(extractErrorLogData(err), 'Error committing transaction');
+            logger.error(extractErrorLogData(err), 'DBGM-00193 Error committing transaction');
             return reject(err);
           }
           resolve();
         });
       });
     } catch (error) {
-      logger.error(extractErrorLogData(error), 'Transaction error');
+      logger.error(extractErrorLogData(error), 'DBGM-00194 Transaction error');
       if (transactionPromise) {
         await new Promise((resolve, reject) => {
           transactionPromise.rollback(function (rollbackErr) {
             if (rollbackErr) {
-              logger.error(extractErrorLogData(rollbackErr), 'Error rolling back transaction');
+              logger.error(extractErrorLogData(rollbackErr), 'DBGM-00195 Error rolling back transaction');
               return reject(rollbackErr); // Re-reject the rollback error
             }
             resolve();

@@ -17,16 +17,16 @@ function zipDirectory(jsonDb, outputFile) {
 
     // Listen for all archive data to be written
     output.on('close', () => {
-      logger.info(`ZIP file created (${archive.pointer()} total bytes)`);
+      logger.info(`DBGM-00075 ZIP file created (${archive.pointer()} total bytes)`);
       resolve();
     });
 
     archive.on('warning', err => {
-      logger.warn(extractErrorLogData(err), `Warning while creating ZIP: ${err.message}`);
+      logger.warn(extractErrorLogData(err), `DBGM-00076 Warning while creating ZIP: ${err.message}`);
     });
 
     archive.on('error', err => {
-      logger.error(extractErrorLogData(err), `Error while creating ZIP: ${err.message}`);
+      logger.error(extractErrorLogData(err), `DBGM-00077 Error while creating ZIP: ${err.message}`);
       reject(err);
     });
 

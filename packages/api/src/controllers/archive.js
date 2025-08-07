@@ -102,7 +102,7 @@ module.exports = {
         ...fileType('.matview.sql', 'matview.sql'),
       ];
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'Error reading archive files');
+      logger.error(extractErrorLogData(err), 'DBGM-00001 Error reading archive files');
       return [];
     }
   },

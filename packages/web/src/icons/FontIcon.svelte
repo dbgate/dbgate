@@ -311,6 +311,7 @@
     'img sort-asc': 'mdi mdi-sort-alphabetical-ascending color-icon-green',
     'img sort-desc': 'mdi mdi-sort-alphabetical-descending color-icon-green',
     'img map': 'mdi mdi-map color-icon-blue',
+    'img applog': 'mdi mdi-desktop-classic color-icon-green',
 
     'img reference': 'mdi mdi-link-box',
     'img link': 'mdi mdi-link',

@@ -78,6 +78,7 @@ const drivers = driverBases.map(driverBase => ({
 
   async connect(props) {
     const {
+      conid,
       engine,
       server,
       port,
@@ -137,6 +138,7 @@ const drivers = driverBases.map(driverBase => ({
     const dbhan = {
       client,
       database,
+      conid,
     };
 
     const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography')`);
@@ -228,7 +230,7 @@ const drivers = driverBases.map(driverBase => ({
     });
 
     query.on('error', error => {
-      logger.error(extractErrorLogData(error), 'Stream error');
+      logger.error(extractErrorLogData(error, this.getLogDbInfo(dbhan)), 'DBGM-00201 Stream error');
       const { message, position, procName } = error;
       let line = null;
       if (position) {
@@ -382,7 +384,7 @@ const drivers = driverBases.map(driverBase => ({
     const defaultSchemaRows = await this.query(dbhan, 'SELECT current_schema');
     const defaultSchema = defaultSchemaRows.rows[0]?.current_schema?.trim();
 
-    logger.debug(`Loaded ${schemaRows.rows.length} postgres schemas`);
+    logger.debug(this.getLogDbInfo(dbhan), `DBGM-00142 Loaded ${schemaRows.rows.length} postgres schemas`);
 
     const schemas = schemaRows.rows.map(x => ({
       schemaName: x.schema_name,

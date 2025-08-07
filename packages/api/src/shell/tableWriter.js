@@ -20,7 +20,7 @@ const logger = getLogger('tableWriter');
  * @returns {Promise<writerType>} - writer object
  */
 async function tableWriter({ connection, schemaName, pureName, driver, systemConnection, ...options }) {
-  logger.info(`Writing table ${fullNameToString({ schemaName, pureName })}`);
+  logger.info(`DBGM-00067 Writing table ${fullNameToString({ schemaName, pureName })}`);
 
   if (!driver) {
     driver = requireEngineDriver(connection);

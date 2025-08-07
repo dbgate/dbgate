@@ -75,7 +75,7 @@ async function reader({ fileName, encoding = 'ISO-8859-1', includeDeletedRecords
       pass.end();
     } catch (error) {
       // If any error occurs, destroy the stream with the error
-      logger.error(extractErrorLogData(error), 'Error reading DBF file');
+      logger.error(extractErrorLogData(error), 'DBGM-00187 Error reading DBF file');
       pass.end();
     }
   })();

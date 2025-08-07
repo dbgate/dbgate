@@ -99,7 +99,7 @@ function authMiddleware(req, res, next) {
       return next();
     }
 
-    logger.error(extractErrorLogData(err), 'Sending invalid token error');
+    logger.error(extractErrorLogData(err), 'DBGM-00098 Sending invalid token error');
 
     return unauthorizedResponse(req, res, 'invalid token');
   }

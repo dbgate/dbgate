@@ -96,6 +96,7 @@ const driver = {
       client,
       connectionType,
       database: conn.database,
+      conid: conn.conid,
     };
   },
   async close(dbhan) {
@@ -169,7 +170,7 @@ const driver = {
     const defaultSchemaRows = await this.query(dbhan, 'SELECT SCHEMA_NAME() as name');
     const defaultSchema = defaultSchemaRows.rows[0]?.name;
 
-    logger.debug(`Loaded ${rows.length} mssql schemas`);
+    logger.debug(`DBGM-00140 Loaded ${rows.length} mssql schemas`);
 
     return rows.map(x => ({
       ...x,

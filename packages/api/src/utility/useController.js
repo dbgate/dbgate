@@ -12,11 +12,11 @@ module.exports = function useController(app, electron, route, controller) {
   const router = express.Router();
 
   if (controller._init) {
-    logger.info(`Calling init controller for controller ${route}`);
+    logger.info(`DBGM-00096 Calling init controller for controller ${route}`);
     try {
       controller._init();
     } catch (err) {
-      logger.error(extractErrorLogData(err), `Error initializing controller, exiting application`);
+      logger.error(extractErrorLogData(err), `DBGM-00097 Error initializing controller, exiting application`);
       process.exit(1);
     }
   }
@@ -78,7 +78,7 @@ module.exports = function useController(app, electron, route, controller) {
           const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);
         } catch (err) {
-          logger.error(extractErrorLogData(err), `Error when processing route ${route}/${key}`);
+          logger.error(extractErrorLogData(err), `DBGM-00176 Error when processing route ${route}/${key}`);
           if (err instanceof MissingCredentialsError) {
             res.json({
               missingCredentials: true,

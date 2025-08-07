@@ -10,7 +10,7 @@ const logger = getLogger();
 function archiveWriter({ folderName, fileName }) {
   const dir = resolveArchiveFolder(folderName);
   if (!fs.existsSync(dir)) {
-    logger.info(`Creating directory ${dir}`);
+    logger.info(`DBGM-00047 Creating directory ${dir}`);
     fs.mkdirSync(dir);
   }
   const jsonlFile = path.join(dir, `${fileName}.jsonl`);

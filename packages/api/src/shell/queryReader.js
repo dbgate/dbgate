@@ -29,7 +29,7 @@ async function queryReader({
   // if (!sql && !json) {
   //   throw new Error('One of sql or json must be set');
   // }
-  logger.info({ sql: query || sql }, `Reading query`);
+  logger.info({ sql: query || sql }, `DBGM-00061 Reading query`);
   // else console.log(`Reading query ${JSON.stringify(json)}`);
 
   if (!driver) {

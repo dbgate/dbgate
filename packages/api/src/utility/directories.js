@@ -14,11 +14,11 @@ const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
     if (clean && fs.existsSync(dir) && !platformInfo.isForkedApi) {
-      getLogger('directories').info(`Cleaning directory ${dir}`);
+      getLogger('directories').info(`DBGM-00170 Cleaning directory ${dir}`);
       cleanDirectory(dir, _.isNumber(clean) ? clean : null);
     }
     if (!fs.existsSync(dir)) {
-      getLogger('directories').info(`Creating directory ${dir}`);
+      getLogger('directories').info(`DBGM-00171 Creating directory ${dir}`);
       fs.mkdirSync(dir);
     }
     createDirectories[dir] = true;

@@ -29,11 +29,11 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    this.feedback({ analysingMessage: 'Loading tables' });
+    this.feedback({ analysingMessage: 'DBGM-00181 Loading tables' });
     const tables = await this.analyserQuery('tables', ['tables']);
-    this.feedback({ analysingMessage: 'Loading columns' });
+    this.feedback({ analysingMessage: 'DBGM-00182 Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
-    this.feedback({ analysingMessage: 'Loading views' });
+    this.feedback({ analysingMessage: 'DBGM-00183 Loading views' });
     let views = await this.analyserQuery('views', ['views']);
     if (views?.isError) {
       views = await this.analyserQuery('viewsNoDefinition', ['views']);

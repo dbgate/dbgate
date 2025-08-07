@@ -19,6 +19,7 @@
   import getElectron from '../utility/getElectron';
   import { showModal } from '../modals/modalTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   let domSettings;
   let domCloudAccount;
@@ -121,6 +122,16 @@
         onClick: () => {
           $selectedWidget = 'plugins';
           $visibleWidgetSideBar = true;
+        },
+      },
+      {
+        text: 'View application logs',
+        onClick: () => {
+          openNewTab({
+            title: 'Application log',
+            icon: 'img applog',
+            tabComponent: 'AppLogTab',
+          });
         },
       },
     ];

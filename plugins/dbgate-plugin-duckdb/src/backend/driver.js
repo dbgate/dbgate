@@ -114,7 +114,7 @@ const driver = {
 
       options.done();
     } catch (error) {
-      logger.error(extractErrorLogData(error), 'Stream error');
+      logger.error(extractErrorLogData(error), 'DBGM-00188 Stream error');
       const { message, procName } = error;
       options.info({
         message,
@@ -206,7 +206,7 @@ const driver = {
       pass.end();
       return pass;
     } catch (error) {
-      logger.error(extractErrorLogData(error), 'ReadQuery error');
+      logger.error(extractErrorLogData(error), 'DBGM-00189 ReadQuery error');
       const { message, procName } = error;
       pass.write({
         __isStreamInfo: true,

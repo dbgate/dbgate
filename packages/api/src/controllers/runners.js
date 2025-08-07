@@ -48,7 +48,7 @@ require=null;
 async function run() {
 ${script}
 await dbgateApi.finalizer.run();
-logger.info('Finished job script');
+logger.info('DBGM-00014 Finished job script');
 }
 dbgateApi.runScript(run);
 `;
@@ -74,7 +74,8 @@ module.exports = {
 
   dispatchMessage(runid, message) {
     if (message) {
-      if (_.isPlainObject(message)) logger.log(message);
+      if (_.isPlainObject(message))
+        logger.log({ ...message, msg: message.msg || message.message || '', message: undefined });
       else logger.info(message);
 
       const toEmit = _.isPlainObject(message)
@@ -132,7 +133,7 @@ module.exports = {
     const pluginNames = extractPlugins(scriptText);
     // console.log('********************** SCRIPT TEXT **********************');
     // console.log(scriptText);
-    logger.info({ scriptFile }, 'Running script');
+    logger.info({ scriptFile }, 'DBGM-00015 Running script');
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(
       scriptFile,
@@ -171,7 +172,7 @@ module.exports = {
     subprocess.on('exit', code => {
       // console.log('... EXITED', code);
       this.rejectRequest(runid, { message: 'No data returned, maybe input data source is too big' });
-      logger.info({ code, pid: subprocess.pid }, 'Exited process');
+      logger.info({ code, pid: subprocess.pid }, 'DBGM-00016 Exited process');
       socket.emit(`runner-done-${runid}`, code);
       this.opened = this.opened.filter(x => x.runid != runid);
     });
@@ -222,7 +223,7 @@ module.exports = {
 
     subprocess.on('exit', code => {
       console.log('... EXITED', code);
-      logger.info({ code, pid: subprocess.pid }, 'Exited process');
+      logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
       this.dispatchMessage(runid, `Finished external process with code ${code}`);
       socket.emit(`runner-done-${runid}`, code);
       if (onFinished) {
@@ -258,7 +259,7 @@ module.exports = {
           severity: 'error',
           message: extractErrorMessage(err),
         });
-        logger.error(extractErrorLogData(err), 'Caught error on stdin');
+        logger.error(extractErrorLogData(err), 'DBGM-00118 Caught error on stdin');
       });
     }
 

@@ -96,7 +96,7 @@ class StringifyStream extends stream.Transform {
  * @returns {Promise<writerType>} - writer object
  */
 async function jsonWriter({ fileName, jsonStyle, keyField = '_key', rootField, encoding = 'utf-8' }) {
-  logger.info(`Writing file ${fileName}`);
+  logger.info(`DBGM-00057 Writing file ${fileName}`);
   const stringify = new StringifyStream({ jsonStyle, keyField, rootField });
   const fileStream = fs.createWriteStream(fileName, encoding);
   return [stringify, fileStream];

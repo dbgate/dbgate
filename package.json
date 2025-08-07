@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "6.6.1-beta.7",
+  "version": "6.6.1-premium-beta.14",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -72,7 +72,8 @@
     "translations:extract": "node common/translations-cli/index.js extract",
     "translations:add-missing": "node common/translations-cli/index.js add-missing",
     "translations:remove-unused": "node common/translations-cli/index.js remove-unused",
-    "translations:check": "node common/translations-cli/index.js check"
+    "translations:check": "node common/translations-cli/index.js check",
+    "errors": "node common/assign-dbgm-codes.mjs  ."
   },
   "dependencies": {
     "concurrently": "^5.1.0",

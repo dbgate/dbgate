@@ -27,7 +27,7 @@ class CsvPrepareStream extends stream.Transform {
 }
 
 async function writer({ fileName, encoding = 'utf-8', header = true, delimiter, quoted }) {
-  logger.info(`Writing file ${fileName}`);
+  logger.info(`DBGM-00133 Writing file ${fileName}`);
   const csvPrepare = new CsvPrepareStream({ header });
   const csvStream = csv.stringify({ delimiter, quoted });
   const fileStream = fs.createWriteStream(fileName, encoding);

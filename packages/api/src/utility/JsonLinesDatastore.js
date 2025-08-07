@@ -7,7 +7,6 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
-const requirePluginFunction = require('./requirePluginFunction');
 const esort = require('external-sorting');
 const { jsldir } = require('./directories');
 const LineReader = require('./LineReader');
@@ -23,7 +22,10 @@ class JsonLinesDatastore {
     this.notifyChangedCallback = null;
     this.currentFilter = null;
     this.currentSort = null;
-    this.rowFormatter = requirePluginFunction(formatterFunction);
+    if (formatterFunction) {
+      const requirePluginFunction = require('./requirePluginFunction');
+      this.rowFormatter = requirePluginFunction(formatterFunction);
+    }
     this.sortedFiles = {};
   }
 

@@ -5,7 +5,7 @@ import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
-import { dbNameLogCategory, isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
+import { isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
 import { extractErrorLogData } from './stringTools';
 
 const logger = getLogger('dbAnalyser');
@@ -77,10 +77,12 @@ export class DatabaseAnalyser<TClient = any> {
     return db;
   }
 
+  getLogDbInfo() {
+    return this.driver.getLogDbInfo(this.dbhan);
+  }
+
   async fullAnalysis() {
-    logger.debug(
-      `Performing full analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
-    );
+    logger.debug(this.getLogDbInfo(), 'DBGM-00126 Performing full analysis');
     const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
     return res;
@@ -101,9 +103,7 @@ export class DatabaseAnalyser<TClient = any> {
   }
 
   async incrementalAnalysis(structure) {
-    logger.info(
-      `Performing incremental analysis, DB=${dbNameLogCategory(this.dbhan.database)}, engine=${this.driver.engine}`
-    );
+    logger.info(this.getLogDbInfo(), 'DBGM-00127 Performing incremental analysis');
     this.structure = structure;
 
     const modifications = await this.getModifications();
@@ -129,7 +129,7 @@ export class DatabaseAnalyser<TClient = any> {
 
     this.modifications = structureModifications;
     if (structureWithRowCounts) this.structure = structureWithRowCounts;
-    logger.info({ modifications: this.modifications }, 'DB modifications detected:');
+    logger.info({ ...this.getLogDbInfo(), modifications: this.modifications }, 'DBGM-00128 DB modifications detected');
     return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
 
@@ -274,7 +274,7 @@ export class DatabaseAnalyser<TClient = any> {
       this.dbhan.feedback(obj);
     }
     if (obj && obj.analysingMessage) {
-      logger.debug(obj.analysingMessage);
+      logger.debug(this.getLogDbInfo(), obj.analysingMessage);
     }
   }
 
@@ -347,10 +347,16 @@ export class DatabaseAnalyser<TClient = any> {
     }
     try {
       const res = await this.driver.query(this.dbhan, sql);
-      this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
+      this.logger.debug(
+        { ...this.getLogDbInfo(), rows: res.rows.length, template },
+        `DBGM-00129 Loaded analyser query`
+      );
       return res;
     } catch (err) {
-      logger.error(extractErrorLogData(err, { template }), 'Error running analyser query');
+      logger.error(
+        extractErrorLogData(err, { template, ...this.getLogDbInfo() }),
+        'DBGM-00130 Error running analyser query'
+      );
       return {
         rows: [],
         isError: true,

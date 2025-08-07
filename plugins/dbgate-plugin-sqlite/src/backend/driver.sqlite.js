@@ -76,7 +76,7 @@ const driver = {
     try {
       inTransaction();
     } catch (error) {
-      logger.error(extractErrorLogData(error), 'Stream error');
+      logger.error(extractErrorLogData(error), 'DBGM-00203 Stream error');
       const { message, procName } = error;
       options.info({
         message,

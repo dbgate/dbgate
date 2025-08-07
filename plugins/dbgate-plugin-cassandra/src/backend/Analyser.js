@@ -13,9 +13,9 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    this.feedback({ analysingMessage: 'Loading tables' });
+    this.feedback({ analysingMessage: 'DBGM-00177 Loading tables' });
     const tables = await this.analyserQuery('tables', ['tables']);
-    this.feedback({ analysingMessage: 'Loading columns' });
+    this.feedback({ analysingMessage: 'DBGM-00178 Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables']);
     // this.feedback({ analysingMessage: 'Loading views' });
     // const views = await this.analyserQuery('views', ['views']);

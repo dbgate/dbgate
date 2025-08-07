@@ -39,7 +39,7 @@ async function handleRefresh() {
       name: 'error',
       message: err.message,
     });
-    logger.error(extractErrorLogData(err), 'Error refreshing server databases');
+    logger.error(extractErrorLogData(err), 'DBGM-00152 Error refreshing server databases');
     setTimeout(() => process.exit(1), 1000);
   }
 }
@@ -50,7 +50,7 @@ async function readVersion() {
   try {
     version = await driver.getVersion(dbhan);
   } catch (err) {
-    logger.error(extractErrorLogData(err), 'Error getting DB server version');
+    logger.error(extractErrorLogData(err), 'DBGM-00153 Error getting DB server version');
     version = { version: 'Unknown' };
   }
   process.send({ msgtype: 'version', version });
@@ -90,7 +90,7 @@ async function handleConnect(connection) {
       name: 'error',
       message: err.message,
     });
-    logger.error(extractErrorLogData(err), 'Error connecting to server');
+    logger.error(extractErrorLogData(err), 'DBGM-00154 Error connecting to server');
     setTimeout(() => process.exit(1), 1000);
   }
 
@@ -120,7 +120,7 @@ async function handleDatabaseOp(op, { msgid, name }) {
     } else {
       const dmp = driver.createDumper();
       dmp[op](name);
-      logger.info({ sql: dmp.s }, 'Running script');
+      logger.info({ sql: dmp.s }, 'DBGM-00043 Running script');
       await driver.query(dbhan, dmp.s, { discardResult: true });
     }
     await handleRefresh();
@@ -170,7 +170,7 @@ function start() {
   setInterval(async () => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
-      logger.info('Server connection not alive, exiting');
+      logger.info('DBGM-00044 Server connection not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
       if (dbhan) {
         await driver.close(dbhan);
@@ -188,7 +188,7 @@ function start() {
         name: 'error',
         message: err.message,
       });
-      logger.error(extractErrorLogData(err), `Error processing message ${message?.['msgtype']}`);
+      logger.error(extractErrorLogData(err), `DBGM-00155 Error processing message ${message?.['msgtype']}`);
     }
   });
 }

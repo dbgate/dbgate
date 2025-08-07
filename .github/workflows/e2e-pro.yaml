@@ -26,7 +26,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: 36b6ce878c3c0a0c9623163c8a8b3bdeefc7da53
+          ref: 4b28757ade169ac0a1696351519bbaa4bbba5db9
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -107,7 +107,7 @@ jobs:
         ports:
           - '16009:5556'
       mongo:
-        image: mongo:6.0.25
+        image: mongo:4.4.29
         env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: Pwd2020Db

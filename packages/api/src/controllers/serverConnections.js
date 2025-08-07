@@ -103,7 +103,7 @@ module.exports = {
         this.close(conid, false);
       });
       subprocess.on('error', err => {
-        logger.error(extractErrorLogData(err), 'Error in server connection subprocess');
+        logger.error(extractErrorLogData(err), 'DBGM-00119 Error in server connection subprocess');
         if (newOpened.disconnected) return;
         this.close(conid, false);
       });
@@ -121,7 +121,7 @@ module.exports = {
         try {
           existing.subprocess.kill();
         } catch (err) {
-          logger.error(extractErrorLogData(err), 'Error killing subprocess');
+          logger.error(extractErrorLogData(err), 'DBGM-00120 Error killing subprocess');
         }
       }
       this.opened = this.opened.filter(x => x.conid != conid);
@@ -191,7 +191,7 @@ module.exports = {
         try {
           opened.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
-          logger.error(extractErrorLogData(err), 'Error pinging server connection');
+          logger.error(extractErrorLogData(err), 'DBGM-00121 Error pinging server connection');
           this.close(conid);
         }
       })
@@ -244,7 +244,7 @@ module.exports = {
       try {
         conn.subprocess.send({ msgid, ...message });
       } catch (err) {
-        logger.error(extractErrorLogData(err), 'Error sending request');
+        logger.error(extractErrorLogData(err), 'DBGM-00122 Error sending request');
         this.close(conn.conid);
       }
     });

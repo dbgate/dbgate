@@ -94,7 +94,7 @@ class OAuthProvider extends AuthProviderBase {
       payload = jwt.decode(id_token);
     }
 
-    logger.info({ payload }, 'User payload returned from OAUTH');
+    logger.info({ payload }, 'DBGM-00002 User payload returned from OAUTH');
 
     const login =
       process.env.OAUTH_LOGIN_FIELD && payload && payload[process.env.OAUTH_LOGIN_FIELD]

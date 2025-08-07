@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { EventEmitter } = require('events');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
@@ -58,27 +59,26 @@ async function getScriptableDb(dbhan) {
   return db;
 }
 
-/**
- * @param {string} uri
- * @param {string} dbName
- * @returns {string}
- */
-function ensureDatabaseInMongoURI(uri, dbName) {
-  if (!dbName) return uri;
+// /**
+//  * @param {string} uri
+//  * @param {string} dbName
+//  * @returns {string}
+//  */
+// function ensureDatabaseInMongoURI(uri, dbName) {
+//   if (!dbName) return uri;
 
-  try {
-    const url = new URL(uri);
+//   try {
+//     const url = new URL(uri);
 
-    const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
-    if (hasDatabase) return uri;
-
-    url.pathname = `/${dbName}`;
-    return url.toString();
-  } catch (error) {
-    logger.error('Invalid URI format:', error.message);
-    return uri;
-  }
-}
+//     const hasDatabase = url.pathname && url.pathname !== '/' && url.pathname.length > 1;
+//     if (hasDatabase) return uri;
+//     url.pathname = `/${dbName}`;
+//     return url.toString();
+//   } catch (error) {
+//     logger.error('DBGM-00198 Invalid URI format:', error.message);
+//     return uri;
+//   }
+// }
 
 /** @type {import('dbgate-types').EngineDriver<MongoClient>} */
 const driver = {
@@ -119,6 +119,7 @@ const driver = {
     return {
       client,
       database,
+      // mongoUrl,
       getDatabase: database ? () => client.db(database) : () => client.db(),
     };
   },
@@ -130,33 +131,33 @@ const driver = {
     };
   },
   async script(dbhan, sql) {
-    if (isProApp) {
-      const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
-      const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
+    // MongoSH should be used only in stream method
+    // if (isProApp) {
+    //   const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
+    //   const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 
-      const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
-      const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
-      const runtime = new ElectronRuntime(serviceProvider);
-      const exprValue = await runtime.evaluate(sql);
+    //   const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
+    //   const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+    //   const runtime = new ElectronRuntime(serviceProvider);
+    //   const exprValue = await runtime.evaluate(sql);
 
-      const { printable } = exprValue;
+    //   const { printable } = exprValue;
 
-      if (Array.isArray(printable)) {
-        return printable;
-      } else if ('documents' in printable) {
-        return printable.documents;
-      } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
-        return printable.cursor.firstBatch;
-      }
+    //   if (Array.isArray(printable)) {
+    //     return printable;
+    //   } else if ('documents' in printable) {
+    //     return printable.documents;
+    //   } else if ('cursor' in printable && 'firstBatch' in printable.cursor) {
+    //     return printable.cursor.firstBatch;
+    //   }
 
-      return printable;
-    } else {
-      let func;
-      func = eval(`(db,ObjectId) => ${sql}`);
-      const db = await getScriptableDb(dbhan);
-      const res = func(db, ObjectId.createFromHexString);
-      if (isPromise(res)) await res;
-    }
+    //   return printable;
+    // }
+    let func;
+    func = eval(`(db,ObjectId) => ${sql}`);
+    const db = await getScriptableDb(dbhan);
+    const res = func(db, ObjectId.createFromHexString);
+    if (isPromise(res)) await res;
   },
   async operation(dbhan, operation, options) {
     const { type } = operation;
@@ -185,16 +186,16 @@ const driver = {
     // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
   async stream(dbhan, sql, options) {
-    if (isProApp) {
+    if (isProApp()) {
       const { NodeDriverServiceProvider } = require('@mongosh/service-provider-node-driver');
       const { ElectronRuntime } = require('@mongosh/browser-runtime-electron');
 
       let exprValue;
 
       try {
-        const connectionString = ensureDatabaseInMongoURI(dbhan.client.s.url, dbhan.database);
-        const serviceProvider = await NodeDriverServiceProvider.connect(connectionString);
+        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), { productDocsLink: '', productName: 'DbGate' });
         const runtime = new ElectronRuntime(serviceProvider);
+        await runtime.evaluate(`use ${dbhan.database}`);
         exprValue = await runtime.evaluate(sql);
       } catch (err) {
         options.info({
@@ -207,6 +208,25 @@ const driver = {
       }
 
       const { printable, type } = exprValue;
+
+      if (typeof printable === 'string') {
+        options.info({
+          time: new Date(),
+          severity: 'info',
+          message: printable,
+        });
+        options.done();
+        return;
+      } else if (typeof printable !== 'object' || printable === null) {
+        options.info({
+          printable: printable,
+          time: new Date(),
+          severity: 'info',
+          message: 'Query returned not supported value.',
+        });
+        options.done();
+        return;
+      }
 
       if (type === 'Document') {
         options.recordset({ __isDynamicStructure: true });

@@ -34,7 +34,8 @@ const drivers = driverBases.map(driverBase => ({
   analyserClass: Analyser,
 
   async connect(props) {
-    const { server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType } = props;
+    const { conid, server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType } =
+      props;
     let awsIamToken = null;
     if (authType == 'awsIam') {
       awsIamToken = await authProxy.getAwsIamToken(props);
@@ -60,6 +61,7 @@ const drivers = driverBases.map(driverBase => ({
     const dbhan = {
       client,
       database,
+      conid,
     };
     if (isReadOnly) {
       await this.query(dbhan, 'SET SESSION TRANSACTION READ ONLY');
@@ -138,7 +140,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const handleError = error => {
-      logger.error(extractErrorLogData(error), 'Stream error');
+      logger.error(extractErrorLogData(error, this.getLogDbInfo(dbhan)), 'DBGM-00200 Stream error');
       const { message } = error;
       options.info({
         message,
