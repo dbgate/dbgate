@@ -59,6 +59,7 @@ export interface DbDiffOptions {
 
   ignoreForeignKeyActions?: boolean;
   ignoreDataTypes?: boolean;
+  ignoreComments?: boolean;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -322,11 +323,14 @@ export function testEqualColumns(
     );
     return false;
   }
-  if ((a.columnComment || '') != (b.columnComment || '')) {
-    console.debug(
-      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different comment: ${a.columnComment}, ${b.columnComment}`
-    );
-    return false;
+
+  if (!opts.ignoreComments) {
+    if ((a.columnComment || '') != (b.columnComment || '')) {
+      console.debug(
+        `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different comment: ${a.columnComment}, ${b.columnComment}`
+      );
+      return false;
+    }
   }
 
   if (!testEqualTypes(a, b, opts)) {

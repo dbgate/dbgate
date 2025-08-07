@@ -292,6 +292,16 @@ export class AlterPlan {
     }
   }
 
+  _hasOnlyCommentChange(op: AlterOperation): boolean {
+    if (op.operationType === 'changeColumn') {
+      return _.isEqual(
+        _.omit(op.oldObject, ['columnComment', 'ordinal']),
+        _.omit(op.newObject, ['columnComment', 'ordinal'])
+      );
+    }
+    return false;
+  }
+
   _getDependendColumnConstraints(column: ColumnInfo, dependencyDefinition) {
     const table = this.wholeOldDb.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
     if (!table) return [];
@@ -337,31 +347,42 @@ export class AlterPlan {
       ]) {
         if (op.operationType == testedOperationType) {
           const constraints = this._getDependendColumnConstraints(testedObject as ColumnInfo, testedDependencies);
+          const ignoreContraints = this.dialect.safeCommentChanges && this._hasOnlyCommentChange(op);
 
           // if (constraints.length > 0 && this.opts.noDropConstraint) {
           //   return [];
           // }
 
-          const res: AlterOperation[] = [
-            ...constraints.map(oldObject => {
-              const opRes: AlterOperation = {
-                operationType: 'dropConstraint',
-                oldObject,
-                isRecreate: true,
-              };
-              return opRes;
-            }),
-            op,
-            ..._.reverse([...constraints]).map(newObject => {
-              const opRes: AlterOperation = {
-                operationType: 'createConstraint',
-                newObject,
-              };
-              return opRes;
-            }),
-          ];
+          const res: AlterOperation[] = [];
 
-          if (constraints.length > 0) {
+          if (!ignoreContraints) {
+            res.push(
+              ...constraints.map(oldObject => {
+                const opRes: AlterOperation = {
+                  operationType: 'dropConstraint',
+                  oldObject,
+                  isRecreate: true,
+                };
+                return opRes;
+              })
+            );
+          }
+
+          res.push(op);
+
+          if (!ignoreContraints) {
+            res.push(
+              ..._.reverse([...constraints]).map(newObject => {
+                const opRes: AlterOperation = {
+                  operationType: 'createConstraint',
+                  newObject,
+                };
+                return opRes;
+              })
+            );
+          }
+
+          if (!ignoreContraints && constraints.length > 0) {
             this.recreates.constraints += 1;
           }
           return res;
