@@ -9,6 +9,7 @@ import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import css from 'rollup-plugin-css-only';
 import json from '@rollup/plugin-json';
+import babel from '@rollup/plugin-babel';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -32,6 +33,8 @@ function serve() {
     },
   };
 }
+
+const BABEL_EXTENSIONS = ['.js', '.ts', '.tsx'];
 
 export default [
   {
@@ -121,6 +124,16 @@ export default [
       typescript({
         sourceMap: !production,
         inlineSources: !production,
+      }),
+      babel({
+        // +++
+        extensions: BABEL_EXTENSIONS,
+        babelHelpers: 'bundled',
+        presets: [
+          ['solid', { generate: 'dom', hydratable: false }], // Solid JSX transform
+          '@babel/preset-typescript',
+        ],
+        exclude: /node_modules/,
       }),
       json(),
 

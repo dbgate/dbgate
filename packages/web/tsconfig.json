@@ -13,6 +13,8 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strict": false,
+    "jsxImportSource": "solid-js",
+    "jsx": "preserve",
     "target": "es6"
     // "allowJs": true,
     // "checkJs": true,

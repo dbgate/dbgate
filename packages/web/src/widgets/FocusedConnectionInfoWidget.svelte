@@ -7,6 +7,7 @@
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { useServerStatus } from '../utility/metadataLoaders';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import SolidWrapper from '../utility/SolidWrapper.svelte';
 
   export let conid;
   export let database;
@@ -82,6 +83,8 @@
       />
     {/if}
   {/if}
+
+  <SolidWrapper />
 </div>
 
 <style>
