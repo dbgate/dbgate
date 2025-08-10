@@ -8,6 +8,7 @@
   import { useServerStatus } from '../utility/metadataLoaders';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import SolidWrapper from '../utility/SolidWrapper.svelte';
+  import MySolidComponent from '../utility/MySolidComponent';
 
   export let conid;
   export let database;
@@ -84,7 +85,7 @@
     {/if}
   {/if}
 
-  <SolidWrapper />
+  <SolidWrapper component={MySolidComponent} passProps={{ message: 'I AM SVELTE' }} />
 </div>
 
 <style>

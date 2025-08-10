@@ -5,7 +5,7 @@ export default function MySolidComponent(props) {
 
   return (
     <div style="border: 1px solid gray; padding: 10px;">
-      <p>Hello from Solid! Count: {count()}</p>
+      <p>Hello from Solid ({props.message})! Count: {count()}</p>
       <button onClick={() => setCount(count() + 1)}>Increment</button>
     </div>
   );
