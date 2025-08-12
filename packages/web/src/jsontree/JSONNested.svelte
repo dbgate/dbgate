@@ -21,11 +21,14 @@
     expandable = true;
   export let elementValue = null;
   export let onRootExpandedChanged = null;
+  export let labelOverride = null;
+  export let hideKey = false;
 
   const context = getContext('json-tree-context-key');
   setContext('json-tree-context-key', { ...context, colon });
   const elementData = getContext('json-tree-element-data');
   const slicedKeyCount = getContext('json-tree-sliced-key-count');
+  const keyLabel = labelOverride ?? key;
 
   $: slicedKeys = expanded ? keys : previewKeys.slice(0, slicedKeyCount || 5);
 
@@ -56,7 +59,16 @@
     {#if expandable && isParentExpanded}
       <JSONArrow on:click={toggleExpand} {expanded} />
     {/if}
-    <JSONKey {key} colon={context.colon} {isParentExpanded} {isParentArray} on:click={toggleExpand} />
+    {#if !hideKey}
+      <JSONKey
+        key={keyLabel}
+        colon={context.colon}
+        {isParentExpanded}
+        {isParentArray}
+        {hideKey}
+        on:click={toggleExpand}
+      />
+    {/if}
     <span on:click={toggleExpand}><span>{label}</span>{bracketOpen}</span>
   </label>
   {#if isParentExpanded}

@@ -16,6 +16,7 @@
   export let expanded = !!getContext('json-tree-default-expanded');
   export let labelOverride = null;
   export let onRootExpandedChanged = null;
+  export let hideKey = false;
 
   $: nodeType = objType(value);
   $: componentType = getComponent(nodeType);
@@ -85,4 +86,5 @@
   {expanded}
   {labelOverride}
   {onRootExpandedChanged}
+  {hideKey}
 />

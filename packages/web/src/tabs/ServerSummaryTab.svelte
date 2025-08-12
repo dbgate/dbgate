@@ -18,15 +18,17 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import registerCommand from '../commands/registerCommand';
-  import Link from '../elements/Link.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import TabControl from '../elements/TabControl.svelte';
 
-  import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import formatFileSize from '../utility/formatFileSize';
   import openNewTab from '../utility/openNewTab';
+  import SummaryVariables from '../widgets/SummaryVariables.svelte';
+  import SummaryProcesses from '../widgets/SummaryProcesses.svelte';
+  import SummaryDatabases from '../widgets/SummaryDatabases.svelte';
+  import { serverSummarySelectedTab } from '../stores';
 
   export let conid;
 
@@ -78,26 +80,31 @@
     <LoadingInfo message="Loading server details" wrapper />
   {:then summary}
     <div class="wrapper">
-      <ObjectListControl
-        collection={summary.databases}
-        hideDisplayName
-        title={`Databases (${summary.databases.length})`}
-        emptyMessage={'No databases'}
-        columns={summary.columns.map(col => ({
-          ...col,
-          slot: col.columnType == 'bytes' ? 1 : col.columnType == 'actions' ? 2 : null,
-        }))}
-      >
-        <svelte:fragment slot="1" let:row let:col>{formatFileSize(row?.[col.fieldName])}</svelte:fragment>
-        <svelte:fragment slot="2" let:row let:col>
-          {#each col.actions as action, index}
-            {#if index > 0}
-              <span class="action-separator">|</span>
-            {/if}
-            <Link onClick={() => runAction(action, row)}>{action.header}</Link>
-          {/each}
-        </svelte:fragment>
-      </ObjectListControl>
+      <TabControl
+        isInline
+        inlineTabs={true}
+        containerMaxWidth="100%"
+        flex1={true}
+        value={$serverSummarySelectedTab}
+        onUserChange={(index) => serverSummarySelectedTab.set(index)}
+        tabs={[
+          {
+            label: 'Variables',
+            component: SummaryVariables,
+            props: { variables: summary.variables || [] },
+          },
+          {
+            label: 'Processes',
+            component: SummaryProcesses,
+            props: { processes: summary.processes || [], conid },
+          },
+          {
+            label: 'Databases',
+            component: SummaryDatabases,
+            props: { databases: summary.databases || [] },
+          },
+        ]}
+      />
     </div>
   {/await}
 
