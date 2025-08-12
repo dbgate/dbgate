@@ -136,6 +136,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00206 Loading columns' });
     const columnsRows = await this.analyserQuery('columns', ['tables']);
     const columns = columnsRows.rows.map(getColumnInfo);
+    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
+    const baseColumns = baseColumnsRows.rows.map(getColumnInfo);
     this.feedback({ analysingMessage: 'DBGM-00207 Loading primary keys' });
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00208 Loading foreign keys' });
@@ -174,7 +176,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00217 Finalizing DB structure' });
     const tables = tablesRows.rows.map(row => ({
       ...row,
-      contentHash: createObjectContentHash('tables', row, columns),
+      contentHash: createObjectContentHash('tables', row, baseColumns),
       columns: columns.filter(col => col.objectId == row.objectId),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
@@ -203,7 +205,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const views = viewsRows.rows.map(row => ({
       ...row,
-      contentHash: createObjectContentHash('views', row, columns),
+      contentHash: createObjectContentHash('views', row, baseColumns),
       createSql: getCreateSql(row),
       columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
