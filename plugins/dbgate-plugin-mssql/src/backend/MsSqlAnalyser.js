@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const crypto = require('crypto');
 const sql = require('./sql');
 
 const { DatabaseAnalyser, isTypeString, isTypeNumeric } = global.DBGATE_PACKAGES['dbgate-tools'];
@@ -54,6 +55,8 @@ function getColumnInfo({
   defaultValue,
   defaultConstraint,
   computedExpression,
+  columnComment,
+  objectId,
 }) {
   const fullDataType = getFullDataTypeName({
     dataType,
@@ -71,6 +74,7 @@ function getColumnInfo({
   }
 
   return {
+    objectId,
     columnName,
     dataType: fullDataType,
     notNull: !isNullable,
@@ -79,7 +83,34 @@ function getColumnInfo({
     defaultConstraint,
     computedExpression: simplifyComutedExpression(computedExpression),
     hasAutoValue: !!(dataType == 'timestamp' || dataType == 'rowversion' || computedExpression),
+    columnComment,
   };
+}
+
+/**
+ * @param {ReturnType<objectTypeToField>} fieldType
+ * @param {any} item
+ * @param {Array<{ objectId: string; columnId: number, columnComment: string }>} columns
+ * @returns {string|null}
+ */
+function createObjectContentHash(fieldType, item, columns) {
+  if (!fieldType) return null;
+  const { modifyDate } = item;
+
+  if ((columns?.length && fieldType === 'tables') || fieldType === 'views') {
+    const modifyDateStr = modifyDate ? modifyDate.toISOString() : '';
+    const objectColumns = columns.filter(col => col.objectId == item.objectId);
+    const colsComments = objectColumns
+      .filter(i => i.columnComment)
+      .map(i => `${i.columnId}/${i.columnComment}`)
+      .join('||');
+    const objectComment = item.objectComment || '';
+
+    return crypto.createHash('sha256').update(`${modifyDateStr}:${colsComments}:${objectComment}`).digest('hex');
+  }
+
+  if (!modifyDate) return null;
+  return modifyDate.toISOString();
 }
 
 class MsSqlAnalyser extends DatabaseAnalyser {
@@ -104,6 +135,9 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const tablesRows = await this.analyserQuery('tables', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00206 Loading columns' });
     const columnsRows = await this.analyserQuery('columns', ['tables']);
+    const columns = columnsRows.rows.map(getColumnInfo);
+    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
+    const baseColumns = baseColumnsRows.rows.map(getColumnInfo);
     this.feedback({ analysingMessage: 'DBGM-00207 Loading primary keys' });
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00208 Loading foreign keys' });
@@ -142,8 +176,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00217 Finalizing DB structure' });
     const tables = tablesRows.rows.map(row => ({
       ...row,
-      contentHash: row.modifyDate && row.modifyDate.toISOString(),
-      columns: columnsRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
+      contentHash: createObjectContentHash('tables', row, baseColumns),
+      columns: columns.filter(col => col.objectId == row.objectId),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
       indexes: indexesRows.rows
@@ -171,7 +205,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const views = viewsRows.rows.map(row => ({
       ...row,
-      contentHash: row.modifyDate && row.modifyDate.toISOString(),
+      contentHash: createObjectContentHash('views', row, baseColumns),
       createSql: getCreateSql(row),
       columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
@@ -192,7 +226,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       .filter(x => x.sqlObjectType.trim() == 'P')
       .map(row => ({
         ...row,
-        contentHash: row.modifyDate && row.modifyDate.toISOString(),
+        contentHash: createObjectContentHash('procedures', row),
         createSql: getCreateSql(row),
         parameters: prodceureToParameters[row.objectId],
       }));
@@ -213,14 +247,14 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       .filter(x => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
       .map(row => ({
         ...row,
-        contentHash: row.modifyDate && row.modifyDate.toISOString(),
+        contentHash: createObjectContentHash('functions', row),
         createSql: getCreateSql(row),
         parameters: functionToParameters[row.objectId],
       }));
 
     const triggers = triggerRows.rows.map(row => ({
       objectId: `triggers:${row.objectId}`,
-      contentHash: row.modifyDate && row.modifyDate.toISOString(),
+      contentHash: createObjectContentHash('triggers', row),
       createSql: row.definition,
       triggerTiming: row.triggerTiming,
       eventType: row.eventType,
@@ -241,17 +275,19 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const modificationsQueryData = await this.analyserQuery('modifications');
+    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
+    const baseColumns = baseColumnsRows.rows;
     const tableSizes = await this.analyserQuery('tableSizes');
 
     const res = DatabaseAnalyser.createEmptyStructure();
     for (const item of modificationsQueryData.rows) {
-      const { type, objectId, modifyDate, schemaName, pureName } = item;
+      const { type, objectId, schemaName, pureName } = item;
       const field = objectTypeToField(type);
       if (!field || !res[field]) continue;
 
       res[field].push({
         objectId,
-        contentHash: modifyDate && modifyDate.toISOString(),
+        contentHash: createObjectContentHash(field, item, baseColumns),
         schemaName,
         pureName,
       });

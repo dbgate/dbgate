@@ -74,6 +74,14 @@ export interface SqlDialect {
 
   predefinedDataTypes: string[];
 
+  columnProperties?: {
+    columnName?: boolean;
+    isSparse?: true;
+    isPersisted?: true;
+  };
+
+  safeCommentChanges?: boolean;
+
   // create sql-tree expression
   createColumnViewExpression(
     columnName: string,

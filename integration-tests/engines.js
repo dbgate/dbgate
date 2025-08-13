@@ -443,6 +443,8 @@ const sqlServerEngine = {
   supportSchemas: true,
   supportRenameSqlObject: true,
   defaultSchemaName: 'dbo',
+  supportTableComments: true,
+  supportColumnComments: true,
   // skipSeparateSchemas: true,
   triggers: [
     {
