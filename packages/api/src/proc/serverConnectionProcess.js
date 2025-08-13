@@ -146,6 +146,18 @@ async function handleServerSummary({ msgid }) {
   return handleDriverDataCore(msgid, driver => driver.serverSummary(dbhan));
 }
 
+async function handleKillDatabaseProccess({ msgid, pid }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+
+  try {
+    const result = await driver.killProcess(dbhan, Number(pid));
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleSummaryCommand({ msgid, command, row }) {
   return handleDriverDataCore(msgid, driver => driver.summaryCommand(dbhan, command, row));
 }
@@ -154,6 +166,7 @@ const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
   serverSummary: handleServerSummary,
+  killDatabaseProcess: handleKillDatabaseProccess,
   summaryCommand: handleSummaryCommand,
   createDatabase: props => handleDatabaseOp('createDatabase', props),
   dropDatabase: props => handleDatabaseOp('dropDatabase', props),

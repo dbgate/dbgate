@@ -3,12 +3,22 @@
   import TableControl from '../elements/TableControl.svelte';
   import { _t } from '../translations';
   import CtaButton from '../buttons/CtaButton.svelte';
+  import { apiCall } from '../utility/api';
+  import runCommand from '../commands/runCommand';
 
+  export let conid;
   export let processes: DatabaseProcess[] = [];
 
-  async function killProcess(processId: string) {
+  async function killProcess(processId: number) {
     // TODO: Implement kill process functionality
     console.log('Kill process:', processId);
+
+    await apiCall('server-connections/kill-database-process', {
+      pid: processId,
+      conid,
+    });
+
+    runCommand('serverSummary.refresh');
   }
 
   function formatRunningTime(seconds: number): string {

@@ -274,6 +274,20 @@ module.exports = {
     return this.loadDataCore('serverSummary', { conid });
   },
 
+  killDatabaseProcess_meta: true,
+  async killDatabaseProcess(ctx, req) {
+    const { conid, pid } = ctx;
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'killDatabaseProcess', pid });
+  },
+
   summaryCommand_meta: true,
   async summaryCommand({ conid, command, row }, req) {
     testConnectionPermission(conid, req);
