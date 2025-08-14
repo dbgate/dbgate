@@ -640,15 +640,16 @@ const driver = {
       this.listDatabases(dbhan),
     ]);
 
+    /** @type {import('dbgate-types').ServerSummary} */
     const data = {
       processes,
       variables,
       databases: {
         rows: databases,
         columns: [
-          { header: 'Name', fieldName: 'name' },
-          { header: 'Size on disk', fieldName: 'sizeOnDisk' },
-          { header: 'Empty', fieldName: 'empty' },
+          { header: 'Name', fieldName: 'name', type: 'data' },
+          { header: 'Size on disk', fieldName: 'sizeOnDisk', type: 'fileSize' },
+          { header: 'Empty', fieldName: 'empty', type: 'data' },
         ],
       },
     };
