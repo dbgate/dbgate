@@ -9,6 +9,7 @@
   export let conid;
   export let processes: DatabaseProcess[] = [];
   export let refreshInterval: number = 1000;
+  export let tabVisible: boolean = false;
 
   let internalProcesses = [...processes];
 
@@ -34,7 +35,11 @@
   }
 
   onMount(() => {
-    const intervalId = setInterval(() => refreshProcesses(), refreshInterval);
+    const intervalId = setInterval(() => {
+      if (!tabVisible) return;
+
+      refreshProcesses();
+    }, refreshInterval);
 
     return () => clearInterval(intervalId);
   });
