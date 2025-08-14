@@ -116,6 +116,7 @@ const dialect = {
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
+  supportsServerSummary: true,
   dumperClass: MsSqlDumper,
   dialect,
   readOnlySessions: false,

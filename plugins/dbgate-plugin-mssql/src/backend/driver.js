@@ -9,6 +9,7 @@ const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = require('./nativeDriver');
 const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
+const sql = require('./sql');
 
 const logger = getLogger('mssqlDriver');
 
@@ -148,9 +149,49 @@ const driver = {
     return res;
   },
   async listDatabases(dbhan) {
-    const { rows } = await this.query(dbhan, 'SELECT name FROM sys.databases order by name');
+    const { rows } = await this.query(dbhan, sql.listDatabases);
     return rows;
   },
+
+  async listProcesses(dbhan) {
+    const { rows } = await this.query(dbhan, sql.listProcesses);
+    return rows;
+  },
+
+  async listVariables(dbhan) {
+    const { rows } = await this.query(dbhan, sql.listVariables);
+    return rows;
+  },
+
+  async killProcess(dbhan, processId) {
+    await this.query(dbhan, `KILL ${processId}`);
+  },
+
+  async serverSummary(dbhan) {
+    const [variables, processes, databases] = await Promise.all([
+      this.listVariables(dbhan),
+      this.listProcesses(dbhan),
+      this.listDatabases(dbhan),
+    ]);
+
+    return {
+      variables: variables,
+      processes: processes,
+      databases: {
+        rows: databases,
+        columns: [
+          { header: 'Database', fieldName: 'name', type: 'data' },
+          { header: 'Status', fieldName: 'status', type: 'data' },
+          { header: 'Recovery Model', fieldName: 'recoveryModel', type: 'data' },
+          { header: 'Compatibility Level', fieldName: 'compatibilityLevel', type: 'data' },
+          { header: 'Read Only', fieldName: 'isReadOnly', type: 'data' },
+          { header: 'Data Size', fieldName: 'sizeOnDisk', type: 'fileSize' },
+          { header: 'Log Size', fieldName: 'logSizeOnDisk', type: 'fileSize' },
+        ],
+      },
+    };
+  },
+
   getRedirectAuthUrl(connection, options) {
     if (connection.authType != 'msentra') return null;
     return authProxy.authProxyGetRedirectUrl({
