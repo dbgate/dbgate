@@ -1,6 +1,7 @@
 <script lang="ts">
   import TableControl from '../elements/TableControl.svelte';
   import JSONTree from '../jsontree/JSONTree.svelte';
+  import { _t } from '../translations';
   export let variables: { variable: string; value: any }[] = [];
 </script>
 
@@ -8,9 +9,9 @@
   <TableControl
     rows={variables}
     columns={[
-      { header: 'Variable', fieldName: 'variable' },
+      { header: _t('summaryVariables.variable', { defaultMessage: 'Variable' }), fieldName: 'variable' },
       {
-        header: 'Value',
+        header: _t('summaryVariables.value', { defaultMessage: 'Value' }),
         fieldName: 'value',
         slot: 0,
       },

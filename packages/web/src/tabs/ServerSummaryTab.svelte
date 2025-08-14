@@ -77,7 +77,10 @@
 
 <ToolStripContainer>
   {#await apiCall('server-connections/server-summary', { conid, refreshToken })}
-    <LoadingInfo message="Loading server details" wrapper />
+    <LoadingInfo
+      message={_t('serverSummaryTab.loadingMessage', { defaultMessage: 'Loading server details' })}
+      wrapper
+    />
   {:then summary}
     <div class="wrapper">
       <TabControl
@@ -86,20 +89,20 @@
         containerMaxWidth="100%"
         flex1={true}
         value={$serverSummarySelectedTab}
-        onUserChange={(index) => serverSummarySelectedTab.set(index)}
+        onUserChange={index => serverSummarySelectedTab.set(index)}
         tabs={[
           {
-            label: 'Variables',
+            label: _t('serverSummaryTab.variables', { defaultMessage: 'Variables' }),
             component: SummaryVariables,
             props: { variables: summary.variables || [] },
           },
           {
-            label: 'Processes',
+            label: _t('serverSummaryTab.processes', { defaultMessage: 'Processes' }),
             component: SummaryProcesses,
             props: { processes: summary.processes || [], conid },
           },
           {
-            label: 'Databases',
+            label: _t('serverSummaryTab.databases', { defaultMessage: 'Databases' }),
             component: SummaryDatabases,
             props: { rows: summary.databases?.rows ?? [], columns: summary.databases?.columns ?? [] },
           },

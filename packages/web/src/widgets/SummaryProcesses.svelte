@@ -44,16 +44,24 @@
   <TableControl
     rows={internalProcesses}
     columns={[
-      { header: 'Process ID', fieldName: 'processId', slot: 1 },
-      { header: 'Connection ID', fieldName: 'connectionId' },
-      { header: 'Client', fieldName: 'client' },
-      { header: 'Operation', fieldName: 'operation' },
-      { header: 'Namespace', fieldName: 'namespace' },
-      { header: 'Running Time', fieldName: 'runningTime', slot: 2 },
-      { header: 'State', fieldName: 'state' },
-      { header: 'Waiting For', fieldName: 'waitingFor', slot: 3 },
+      { header: _t('summaryProcesses.processId', { defaultMessage: 'Process ID' }), fieldName: 'processId', slot: 1 },
+      { header: _t('summaryProcesses.connectionId', { defaultMessage: 'Connection ID' }), fieldName: 'connectionId' },
+      { header: _t('summaryProcesses.client', { defaultMessage: 'Client' }), fieldName: 'client' },
+      { header: _t('summaryProcesses.operation', { defaultMessage: 'Operation' }), fieldName: 'operation' },
+      { header: _t('summaryProcesses.namespace', { defaultMessage: 'Namespace' }), fieldName: 'namespace' },
       {
-        header: 'Actions',
+        header: _t('summaryProcesses.runningTime', { defaultMessage: 'Running Time' }),
+        fieldName: 'runningTime',
+        slot: 2,
+      },
+      { header: _t('summaryProcesses.state', { defaultMessage: 'State' }), fieldName: 'state' },
+      {
+        header: _t('summaryProcesses.waitingFor', { defaultMessage: 'Waiting For' }),
+        fieldName: 'waitingFor',
+        slot: 3,
+      },
+      {
+        header: _t('summaryProcesses.actions', { defaultMessage: 'Actions' }),
         fieldName: 'processId',
         slot: 0,
       },
