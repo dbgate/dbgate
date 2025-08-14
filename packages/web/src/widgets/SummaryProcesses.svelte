@@ -47,7 +47,7 @@
   function formatRunningTime(seconds: number): string {
     if (!seconds) return '-';
     if (seconds < 60) return `${seconds.toFixed(3)}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(3)}s`;
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   }
 
