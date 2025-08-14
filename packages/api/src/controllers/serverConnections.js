@@ -274,6 +274,20 @@ module.exports = {
     return this.loadDataCore('serverSummary', { conid });
   },
 
+  listDatabaseProcesses_meta: true,
+  async listDatabaseProcesses(ctx, req) {
+    const { conid } = ctx;
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'listDatabaseProcesses' });
+  },
+
   killDatabaseProcess_meta: true,
   async killDatabaseProcess(ctx, req) {
     const { conid, pid } = ctx;

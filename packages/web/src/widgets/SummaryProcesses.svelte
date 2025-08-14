@@ -4,21 +4,26 @@
   import { _t } from '../translations';
   import CtaButton from '../buttons/CtaButton.svelte';
   import { apiCall } from '../utility/api';
-  import runCommand from '../commands/runCommand';
+  import { onMount } from 'svelte';
 
   export let conid;
   export let processes: DatabaseProcess[] = [];
+  export let refreshInterval: number = 1000;
+
+  let internalProcesses = [...processes];
+
+  async function refreshProcesses() {
+    const data = await apiCall('server-connections/list-database-processes', { conid });
+    internalProcesses = data.result;
+  }
 
   async function killProcess(processId: number) {
-    // TODO: Implement kill process functionality
-    console.log('Kill process:', processId);
-
     await apiCall('server-connections/kill-database-process', {
       pid: processId,
       conid,
     });
 
-    runCommand('serverSummary.refresh');
+    refreshProcesses();
   }
 
   function formatRunningTime(seconds: number): string {
@@ -27,11 +32,17 @@
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   }
+
+  onMount(() => {
+    const intervalId = setInterval(() => refreshProcesses(), refreshInterval);
+
+    return () => clearInterval(intervalId);
+  });
 </script>
 
 <div>
   <TableControl
-    rows={processes}
+    rows={internalProcesses}
     columns={[
       { header: 'Process ID', fieldName: 'processId', slot: 1 },
       { header: 'Connection ID', fieldName: 'connectionId' },
