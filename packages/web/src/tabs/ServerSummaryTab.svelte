@@ -28,9 +28,12 @@
   import SummaryVariables from '../widgets/SummaryVariables.svelte';
   import SummaryProcesses from '../widgets/SummaryProcesses.svelte';
   import SummaryDatabases from '../widgets/SummaryDatabases.svelte';
-  import { serverSummarySelectedTab } from '../stores';
+  import { activeTabId, serverSummarySelectedTab } from '../stores';
+  import { getContext } from 'svelte';
 
   export let conid;
+  const tabid = getContext('tabid');
+  $: isActiveTab = tabid === $activeTabId;
 
   let refreshToken = 0;
 
@@ -107,7 +110,11 @@
             {
               label: _t('serverSummaryTab.processes', { defaultMessage: 'Processes' }),
               component: SummaryProcesses,
-              props: { processes: summary.processes || [], conid },
+              props: {
+                processes: summary.processes || [],
+                isSummaryOpened: isActiveTab,
+                conid,
+              },
             },
             {
               label: _t('serverSummaryTab.databases', { defaultMessage: 'Databases' }),

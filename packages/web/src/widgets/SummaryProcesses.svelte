@@ -8,6 +8,7 @@
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
 
   export let conid;
+  export let isSummaryOpened: boolean = false;
   export let processes: DatabaseProcess[] = [];
   export let refreshInterval: number = 1000;
   export let tabVisible: boolean = false;
@@ -53,7 +54,7 @@
 
   onMount(() => {
     const intervalId = setInterval(() => {
-      if (!tabVisible) return;
+      if (!tabVisible || !isSummaryOpened) return;
 
       refreshProcesses();
     }, refreshInterval);
