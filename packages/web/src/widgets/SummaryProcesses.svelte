@@ -5,6 +5,7 @@
   import CtaButton from '../buttons/CtaButton.svelte';
   import { apiCall } from '../utility/api';
   import { onMount } from 'svelte';
+  import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
 
   export let conid;
   export let processes: DatabaseProcess[] = [];
@@ -19,17 +20,33 @@
   }
 
   async function killProcess(processId: number) {
-    await apiCall('server-connections/kill-database-process', {
+    const result = await apiCall('server-connections/kill-database-process', {
       pid: processId,
       conid,
     });
+
+    if (result.errorMessage || result.error) {
+      showSnackbarError(
+        _t('summaryProcesses.killError', {
+          defaultMessage: 'Error while killing process {processId}: {errorMessage}',
+          values: { processId, errorMessage: result.errorMessage || result.error },
+        })
+      );
+    } else {
+      showSnackbarSuccess(
+        _t('summaryProcesses.killSuccess', {
+          defaultMessage: 'Process {processId} killed successfully',
+          values: { processId },
+        })
+      );
+    }
 
     refreshProcesses();
   }
 
   function formatRunningTime(seconds: number): string {
     if (!seconds) return '-';
-    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 60) return `${seconds.toFixed(3)}s`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   }
