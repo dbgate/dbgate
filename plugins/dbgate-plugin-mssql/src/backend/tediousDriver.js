@@ -66,7 +66,7 @@ async function tediousConnect(storedConnection) {
   const authentication = await getAuthentication(storedConnection);
 
   return new Promise((resolve, reject) => {
-    const [host, instance] = server.split('\\');
+    const [host, instance] = (server || '').split('\\');
     const connectionOptions = {
       instanceName: instance,
       encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
