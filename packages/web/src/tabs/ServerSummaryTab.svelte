@@ -101,7 +101,7 @@
           {
             label: 'Databases',
             component: SummaryDatabases,
-            props: { databases: summary.databases || [] },
+            props: { rows: summary.databases?.rows ?? [], columns: summary.databases?.columns ?? [] },
           },
         ]}
       />

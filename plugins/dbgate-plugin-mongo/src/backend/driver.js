@@ -643,7 +643,14 @@ const driver = {
     const data = {
       processes,
       variables,
-      databases,
+      databases: {
+        rows: databases,
+        columns: [
+          { header: 'Name', fieldName: 'name' },
+          { header: 'Size on disk', fieldName: 'sizeOnDisk' },
+          { header: 'Empty', fieldName: 'empty' },
+        ],
+      },
     };
 
     return data;

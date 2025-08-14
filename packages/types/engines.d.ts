@@ -127,11 +127,21 @@ export interface SummaryColumn {
   header: string;
   dataType: 'string' | 'number' | 'bytes';
 }
-export interface ServerSummaryDatabase {}
+export interface ServerSummaryDatabases {
+  rows: any[];
+  columns: DatabaseColumn[];
+}
+
+export type DatabaseColumn = {
+  header: string;
+  fieldName: string;
+  type: 'data' | 'fileSize';
+};
+
 export interface ServerSummary {
   processes: DatabaseProcess[];
   variables: DatabaseVariable[];
-  databases: ServerSummaryDatabase[];
+  databases: ServerSummaryDatabases;
 }
 
 export type CollectionAggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max';
@@ -292,6 +302,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   listDatabases(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<
     {
       name: string;
+      sizeOnDisk?: number;
+      empty?: boolean;
     }[]
   >;
   loadKeys(dbhan: DatabaseHandle<TClient, TDataBase>, root: string, filter?: string): Promise;
