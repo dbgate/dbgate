@@ -66,14 +66,16 @@ async function tediousConnect(storedConnection) {
   const authentication = await getAuthentication(storedConnection);
 
   return new Promise((resolve, reject) => {
+    const [host, instance] = server.split('\\');
     const connectionOptions = {
+      instanceName: instance,
       encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
       validateBulkLoadParameters: false,
       requestTimeout: 1000 * 3600,
-      port: port ? parseInt(port) : undefined,
+      port: port && !instance ? parseInt(port) : undefined,
       trustServerCertificate: !!trustServerCertificate,
       appName: 'DbGate',
     };
@@ -83,7 +85,7 @@ async function tediousConnect(storedConnection) {
     }
 
     const connection = new tedious.Connection({
-      server,
+      server: host,
       authentication,
       options: connectionOptions,
     });
