@@ -17,6 +17,9 @@ const geographyColumns = require('./geographyColumns');
 const proceduresParameters = require('./proceduresParameters');
 const foreignKeys = require('./foreignKeys');
 const triggers = require('./triggers');
+const listDatabases = require('./listDatabases');
+const listVariables = require('./listVariables');
+const listProcesses = require('./listProcesses');
 
 const fk_keyColumnUsage = require('./fk_key_column_usage');
 
@@ -41,4 +44,7 @@ module.exports = {
   geographyColumns,
   proceduresParameters,
   triggers,
+  listDatabases,
+  listVariables,
+  listProcesses,
 };
