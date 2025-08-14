@@ -6,6 +6,8 @@
   import { apiCall } from '../utility/api';
   import { onMount } from 'svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let conid;
   export let isSummaryOpened: boolean = false;
@@ -43,6 +45,18 @@
     }
 
     refreshProcesses();
+  }
+
+  async function killProcessWithConfirm(processId: number) {
+    showModal(ConfirmModal, {
+      message: _t('summaryProcesses.killConfirm', {
+        defaultMessage: 'Are you sure you want to kill process {processId}?',
+        values: { processId },
+      }),
+      onConfirm: async () => {
+        await killProcess(processId);
+      },
+    });
   }
 
   function formatRunningTime(seconds: number): string {
@@ -91,7 +105,7 @@
     ]}
   >
     <svelte:fragment slot="0" let:row>
-      <CtaButton on:click={() => killProcess(row.processId)}>
+      <CtaButton on:click={() => killProcessWithConfirm(row.processId)}>
         {_t('common.kill', { defaultMessage: 'Kill' })}
       </CtaButton>
     </svelte:fragment>
