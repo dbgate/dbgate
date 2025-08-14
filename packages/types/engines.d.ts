@@ -122,17 +122,12 @@ export interface SqlBackupDumper {
   run();
 }
 
-export interface SummaryColumn {
-  fieldName: string;
-  header: string;
-  dataType: 'string' | 'number' | 'bytes';
-}
 export interface ServerSummaryDatabases {
   rows: any[];
-  columns: DatabaseColumn[];
+  columns: SummaryDatabaseColumn[];
 }
 
-export type DatabaseColumn = {
+export type SummaryDatabaseColumn = {
   header: string;
   fieldName: string;
   type: 'data' | 'fileSize';
