@@ -82,33 +82,42 @@
       wrapper
     />
   {:then summary}
-    <div class="wrapper">
-      <TabControl
-        isInline
-        inlineTabs={true}
-        containerMaxWidth="100%"
-        flex1={true}
-        value={$serverSummarySelectedTab}
-        onUserChange={index => serverSummarySelectedTab.set(index)}
-        tabs={[
-          {
-            label: _t('serverSummaryTab.variables', { defaultMessage: 'Variables' }),
-            component: SummaryVariables,
-            props: { variables: summary.variables || [] },
-          },
-          {
-            label: _t('serverSummaryTab.processes', { defaultMessage: 'Processes' }),
-            component: SummaryProcesses,
-            props: { processes: summary.processes || [], conid },
-          },
-          {
-            label: _t('serverSummaryTab.databases', { defaultMessage: 'Databases' }),
-            component: SummaryDatabases,
-            props: { rows: summary.databases?.rows ?? [], columns: summary.databases?.columns ?? [] },
-          },
-        ]}
-      />
-    </div>
+    {#if 'errorMessage' in summary}
+      <div class="wrapper error-wrapper">
+        <div class="error-message">
+          <h3>{_t('serverSummaryTab.errorTitle', { defaultMessage: 'Error loading server summary' })}</h3>
+          <p>{summary.errorMessage}</p>
+        </div>
+      </div>
+    {:else}
+      <div class="wrapper">
+        <TabControl
+          isInline
+          inlineTabs={true}
+          containerMaxWidth="100%"
+          flex1={true}
+          value={$serverSummarySelectedTab}
+          onUserChange={index => serverSummarySelectedTab.set(index)}
+          tabs={[
+            {
+              label: _t('serverSummaryTab.variables', { defaultMessage: 'Variables' }),
+              component: SummaryVariables,
+              props: { variables: summary.variables || [] },
+            },
+            {
+              label: _t('serverSummaryTab.processes', { defaultMessage: 'Processes' }),
+              component: SummaryProcesses,
+              props: { processes: summary.processes || [], conid },
+            },
+            {
+              label: _t('serverSummaryTab.databases', { defaultMessage: 'Databases' }),
+              component: SummaryDatabases,
+              props: { rows: summary.databases?.rows ?? [], columns: summary.databases?.columns ?? [] },
+            },
+          ]}
+        />
+      </div>
+    {/if}
   {/await}
 
   <svelte:fragment slot="toolstrip">
@@ -129,5 +138,25 @@
 
   .action-separator {
     margin: 0 5px;
+  }
+
+  .error-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-message {
+    background: var(--theme-bg-1);
+    border: 1px solid var(--theme-border);
+    border-radius: 4px;
+    padding: 20px;
+    max-width: 500px;
+    text-align: center;
+  }
+
+  .error-message h3 {
+    color: var(--theme-font-error);
+    margin-top: 0;
   }
 </style>
