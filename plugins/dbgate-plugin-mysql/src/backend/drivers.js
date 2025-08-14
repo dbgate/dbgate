@@ -200,6 +200,61 @@ const drivers = driverBases.map(driverBase => ({
     const { rows } = await this.query(dbhan, 'show databases');
     return rows.map(x => ({ name: x.Database }));
   },
+
+  async listVariables(dbhan) {
+    const { rows } = await this.query(dbhan, 'SHOW VARIABLES');
+    return rows.map(row => ({
+      variable: row.Variable_name,
+      value: row.Value,
+    }));
+  },
+
+  async listProcesses(dbhan) {
+    const { rows } = await this.query(dbhan, 'SHOW PROCESSLIST');
+    return rows.map(row => ({
+      processId: row.Id,
+      connectionId: null,
+      client: row.Host,
+      operation: row.Command,
+      namespace: row.Database,
+      runningTime: row.Time,
+      state: row.State,
+      waitingFor: row.State && row.State.includes('Waiting'),
+    }));
+  },
+
+  async killProcess(dbhan, processId) {
+    await this.query(dbhan, `KILL ${processId}`);
+  },
+
+  async serverSummary(dbhan) {
+    const [variables, processes, databases] = await Promise.all([
+      this.listVariables(dbhan),
+      this.listProcesses(dbhan),
+      this.listDatabases(dbhan),
+    ]);
+
+    return {
+      variables,
+      processes: processes.map(p => ({
+        processId: p.processId,
+        connectionId: p.connectionId,
+        client: p.client,
+        operation: p.operation,
+        namespace: p.namespace,
+        runningTime: p.runningTime,
+        state: p.state,
+        waitingFor: p.waitingFor,
+      })),
+      databases: {
+        rows: databases.map(db => ({
+          name: db.name,
+        })),
+        columns: [{ header: 'Database', fieldName: 'name', type: 'data' }],
+      },
+    };
+  },
+
   async writeTable(dbhan, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);
