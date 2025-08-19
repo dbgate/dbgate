@@ -210,12 +210,12 @@ const drivers = driverBases.map(driverBase => ({
   },
 
   async listProcesses(dbhan) {
-    const { rows } = await this.query(dbhan, 'SHOW PROCESSLIST');
+    const { rows } = await this.query(dbhan, 'SHOW FULL PROCESSLIST');
     return rows.map(row => ({
       processId: row.Id,
       connectionId: null,
       client: row.Host,
-      operation: row.Command,
+      operation: row.Info,
       namespace: row.Database,
       runningTime: row.Time,
       state: row.State,
