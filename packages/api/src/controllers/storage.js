@@ -13,10 +13,6 @@ module.exports = {
     return null;
   },
 
-  async loadSuperadminPermissions() {
-    return [];
-  },
-
   getConnectionsForLoginPage_meta: true,
   async getConnectionsForLoginPage() {
     return null;
