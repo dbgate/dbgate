@@ -8,7 +8,7 @@
   const filters = writable({});
 </script>
 
-<div>
+<div class="wrapper">
   <TableControl
     stickyHeader
     rows={variables}
@@ -36,7 +36,9 @@
 </div>
 
 <style>
-  div {
-    padding: 10px;
+  .wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 100%;
   }
 </style>

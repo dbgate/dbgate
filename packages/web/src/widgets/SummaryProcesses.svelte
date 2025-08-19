@@ -80,7 +80,7 @@
   });
 </script>
 
-<div>
+<div class="wrapper">
   <TableControl
     {filters}
     stickyHeader
@@ -162,8 +162,10 @@
 </div>
 
 <style>
-  div {
-    padding: 10px;
+  .wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 100%;
   }
 
   code {

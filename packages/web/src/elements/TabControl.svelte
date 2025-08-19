@@ -15,7 +15,10 @@
   export let menu = null;
   export let isInline = false;
   export let containerMaxWidth = undefined;
+  export let containerMaxHeight = undefined;
   export let flex1 = true;
+  export let flexColContainer = true;
+  export let maxHeight100 = false;
   export let contentTestId = undefined;
   export let inlineTabs = false;
   export let onUserChange = null;
@@ -28,7 +31,7 @@
   }
 </script>
 
-<div class="main" class:flex1>
+<div class="main" class:maxHeight100 class:flex1>
   <div class="tabs" class:inlineTabs>
     {#each _.compact(tabs) as tab, index}
       <div
@@ -50,9 +53,16 @@
     {/if}
   </div>
 
-  <div class="content-container" data-testid={contentTestId}>
+  <div class="content-container" style:max-height={containerMaxHeight} data-testid={contentTestId}>
     {#each _.compact(tabs) as tab, index}
-      <div class="container" class:isInline class:tabVisible={index == value} style:max-width={containerMaxWidth}>
+      <div
+        class="container"
+        class:flexColContainer
+        class:maxHeight100
+        class:isInline
+        class:tabVisible={index == value}
+        style:max-width={containerMaxWidth}
+      >
         <svelte:component
           this={tab.component}
           {...tab.props}
@@ -86,6 +96,10 @@
   .main.flex1 {
     flex: 1;
     max-width: 100%;
+  }
+
+  .main.maxHeight100 {
+    max-height: 100%;
   }
 
   .tabs {
@@ -135,6 +149,15 @@
   .content-container {
     flex: 1;
     position: relative;
+  }
+
+  .container.maxHeight100 {
+    max-height: 100%;
+  }
+
+  .container.flexColContainer {
+    display: flex;
+    flex-direction: column;
   }
 
   .container:not(.isInline) {

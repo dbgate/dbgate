@@ -96,9 +96,12 @@
       <div class="wrapper">
         <TabControl
           isInline
-          inlineTabs={true}
+          inlineTabs
           containerMaxWidth="100%"
-          flex1={true}
+          containerMaxHeight="calc(100% - 34px)"
+          maxHeight100
+          flex1
+          flexColContainer
           value={$serverSummarySelectedTab}
           onUserChange={index => serverSummarySelectedTab.set(index)}
           tabs={[
@@ -140,7 +143,9 @@
     right: 0;
     bottom: 0;
     background-color: var(--theme-bg-0);
-    overflow: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .action-separator {
@@ -151,6 +156,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 1;
   }
 
   .error-message {
