@@ -647,9 +647,26 @@ const driver = {
       databases: {
         rows: databases,
         columns: [
-          { header: 'Name', fieldName: 'name', type: 'data' },
-          { header: 'Size on disk', fieldName: 'sizeOnDisk', type: 'fileSize' },
-          { header: 'Empty', fieldName: 'empty', type: 'data' },
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Name',
+            fieldName: 'name',
+            type: 'data',
+          },
+          {
+            sortable: true,
+            header: 'Size on disk',
+            fieldName: 'sizeOnDisk',
+            type: 'fileSize',
+          },
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Empty',
+            fieldName: 'empty',
+            type: 'data',
+          },
         ],
       },
     };

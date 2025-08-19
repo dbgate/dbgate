@@ -250,7 +250,15 @@ const drivers = driverBases.map(driverBase => ({
         rows: databases.map(db => ({
           name: db.name,
         })),
-        columns: [{ header: 'Database', fieldName: 'name', type: 'data' }],
+        columns: [
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Database',
+            fieldName: 'name',
+            type: 'data',
+          },
+        ],
       },
     };
   },

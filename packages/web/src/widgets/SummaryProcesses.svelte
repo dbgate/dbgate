@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { writable } from 'svelte/store';
   import { DatabaseProcess } from 'dbgate-types';
   import TableControl from '../elements/TableControl.svelte';
   import { _t } from '../translations';
@@ -14,6 +15,8 @@
   export let processes: DatabaseProcess[] = [];
   export let refreshInterval: number = 1000;
   export let tabVisible: boolean = false;
+
+  const filters = writable({});
 
   let internalProcesses = [...processes];
 
@@ -79,20 +82,54 @@
 
 <div>
   <TableControl
+    {filters}
+    stickyHeader
     rows={internalProcesses}
     columns={[
-      { header: _t('summaryProcesses.processId', { defaultMessage: 'Process ID' }), fieldName: 'processId', slot: 1 },
-      { header: _t('summaryProcesses.connectionId', { defaultMessage: 'Connection ID' }), fieldName: 'connectionId' },
-      { header: _t('summaryProcesses.client', { defaultMessage: 'Client' }), fieldName: 'client' },
-      { header: _t('summaryProcesses.operation', { defaultMessage: 'Operation' }), fieldName: 'operation' },
-      { header: _t('summaryProcesses.namespace', { defaultMessage: 'Namespace' }), fieldName: 'namespace' },
       {
+        sortable: true,
+        filterable: true,
+        header: _t('summaryProcesses.processId', { defaultMessage: 'Process ID' }),
+        fieldName: 'processId',
+        slot: 1,
+      },
+      {
+        sortable: true,
+        filterable: true,
+        header: _t('summaryProcesses.connectionId', { defaultMessage: 'Connection ID' }),
+        fieldName: 'connectionId',
+      },
+      {
+        sortable: true,
+        filterable: true,
+        header: _t('summaryProcesses.client', { defaultMessage: 'Client' }),
+        fieldName: 'client',
+      },
+      {
+        filterable: true,
+        header: _t('summaryProcesses.operation', { defaultMessage: 'Operation' }),
+        fieldName: 'operation',
+      },
+      {
+        sortable: true,
+        filterable: true,
+        header: _t('summaryProcesses.namespace', { defaultMessage: 'Namespace' }),
+        fieldName: 'namespace',
+      },
+      {
+        sortable: true,
         header: _t('summaryProcesses.runningTime', { defaultMessage: 'Running Time' }),
         fieldName: 'runningTime',
         slot: 2,
       },
-      { header: _t('summaryProcesses.state', { defaultMessage: 'State' }), fieldName: 'state' },
       {
+        sortable: true,
+        filterable: true,
+        header: _t('summaryProcesses.state', { defaultMessage: 'State' }),
+        fieldName: 'state',
+      },
+      {
+        sortable: true,
         header: _t('summaryProcesses.waitingFor', { defaultMessage: 'Waiting For' }),
         fieldName: 'waitingFor',
         slot: 3,

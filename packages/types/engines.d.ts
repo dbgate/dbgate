@@ -131,6 +131,8 @@ export type SummaryDatabaseColumn = {
   header: string;
   fieldName: string;
   type: 'data' | 'fileSize';
+  filterable?: boolean;
+  sortable?: boolean;
 };
 
 export interface ServerSummary {
