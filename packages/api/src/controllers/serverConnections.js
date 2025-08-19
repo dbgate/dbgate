@@ -270,6 +270,7 @@ module.exports = {
 
   serverSummary_meta: true,
   async serverSummary({ conid }, req) {
+    logger.info({ conid }, 'DBGM-00260 Processing server summary');
     testConnectionPermission(conid, req);
     return this.loadDataCore('serverSummary', { conid });
   },
@@ -277,6 +278,7 @@ module.exports = {
   listDatabaseProcesses_meta: true,
   async listDatabaseProcesses(ctx, req) {
     const { conid } = ctx;
+    logger.info({ conid }, 'DBGM-00261 Processing server summary');
     testConnectionPermission(conid, req);
 
     const opened = await this.ensureOpened(conid);
