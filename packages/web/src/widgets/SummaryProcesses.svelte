@@ -1,6 +1,7 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
   import { DatabaseProcess } from 'dbgate-types';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import { _t } from '../translations';
   import CtaButton from '../buttons/CtaButton.svelte';
@@ -9,6 +10,7 @@
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import SqlEditor from '../query/SqlEditor.svelte';
 
   export let conid;
   export let isSummaryOpened: boolean = false;
@@ -16,6 +18,7 @@
   export let refreshInterval: number = 1000;
   export let tabVisible: boolean = false;
 
+  let selectedProcess: DatabaseProcess | null = null;
   const filters = writable({});
 
   let internalProcesses = [...processes];
@@ -81,84 +84,99 @@
 </script>
 
 <div class="wrapper">
-  <TableControl
-    {filters}
-    stickyHeader
-    rows={internalProcesses}
-    columns={[
-      {
-        sortable: true,
-        filterable: true,
-        header: _t('summaryProcesses.processId', { defaultMessage: 'Process ID' }),
-        fieldName: 'processId',
-        slot: 1,
-      },
-      {
-        sortable: true,
-        filterable: true,
-        header: _t('summaryProcesses.connectionId', { defaultMessage: 'Connection ID' }),
-        fieldName: 'connectionId',
-      },
-      {
-        sortable: true,
-        filterable: true,
-        header: _t('summaryProcesses.client', { defaultMessage: 'Client' }),
-        fieldName: 'client',
-      },
-      {
-        filterable: true,
-        header: _t('summaryProcesses.operation', { defaultMessage: 'Operation' }),
-        fieldName: 'operation',
-      },
-      {
-        sortable: true,
-        filterable: true,
-        header: _t('summaryProcesses.namespace', { defaultMessage: 'Namespace' }),
-        fieldName: 'namespace',
-      },
-      {
-        sortable: true,
-        header: _t('summaryProcesses.runningTime', { defaultMessage: 'Running Time' }),
-        fieldName: 'runningTime',
-        slot: 2,
-      },
-      {
-        sortable: true,
-        filterable: true,
-        header: _t('summaryProcesses.state', { defaultMessage: 'State' }),
-        fieldName: 'state',
-      },
-      {
-        sortable: true,
-        header: _t('summaryProcesses.waitingFor', { defaultMessage: 'Waiting For' }),
-        fieldName: 'waitingFor',
-        slot: 3,
-      },
-      {
-        header: _t('summaryProcesses.actions', { defaultMessage: 'Actions' }),
-        fieldName: 'processId',
-        slot: 0,
-      },
-    ]}
-  >
-    <svelte:fragment slot="0" let:row>
-      <CtaButton on:click={() => killProcessWithConfirm(row.processId)}>
-        {_t('common.kill', { defaultMessage: 'Kill' })}
-      </CtaButton>
-    </svelte:fragment>
+  <VerticalSplitter initialValue="70%" isSplitter={!!selectedProcess}>
+    <svelte:fragment slot="1">
+      <div>
+        <TableControl
+          clickable
+          on:clickrow={e => {
+            selectedProcess = e.detail;
+          }}
+          {filters}
+          stickyHeader
+          rows={internalProcesses}
+          columns={[
+            {
+              sortable: true,
+              filterable: true,
+              header: _t('summaryProcesses.processId', { defaultMessage: 'Process ID' }),
+              fieldName: 'processId',
+              slot: 1,
+            },
+            {
+              sortable: true,
+              filterable: true,
+              header: _t('summaryProcesses.connectionId', { defaultMessage: 'Connection ID' }),
+              fieldName: 'connectionId',
+            },
+            {
+              sortable: true,
+              filterable: true,
+              header: _t('summaryProcesses.client', { defaultMessage: 'Client' }),
+              fieldName: 'client',
+            },
+            {
+              filterable: true,
+              header: _t('summaryProcesses.operation', { defaultMessage: 'Operation' }),
+              fieldName: 'operation',
+            },
+            {
+              sortable: true,
+              filterable: true,
+              header: _t('summaryProcesses.namespace', { defaultMessage: 'Namespace' }),
+              fieldName: 'namespace',
+            },
+            {
+              sortable: true,
+              header: _t('summaryProcesses.runningTime', { defaultMessage: 'Running Time' }),
+              fieldName: 'runningTime',
+              slot: 2,
+            },
+            {
+              sortable: true,
+              filterable: true,
+              header: _t('summaryProcesses.state', { defaultMessage: 'State' }),
+              fieldName: 'state',
+            },
+            {
+              sortable: true,
+              header: _t('summaryProcesses.waitingFor', { defaultMessage: 'Waiting For' }),
+              fieldName: 'waitingFor',
+              slot: 3,
+            },
+            {
+              header: _t('summaryProcesses.actions', { defaultMessage: 'Actions' }),
+              fieldName: 'processId',
+              slot: 0,
+            },
+          ]}
+        >
+          <svelte:fragment slot="0" let:row>
+            <CtaButton on:click={() => killProcessWithConfirm(row.processId)}>
+              {_t('common.kill', { defaultMessage: 'Kill' })}
+            </CtaButton>
+          </svelte:fragment>
 
-    <svelte:fragment slot="1" let:row>
-      <code>{row.processId}</code>
-    </svelte:fragment>
+          <svelte:fragment slot="1" let:row>
+            <code>{row.processId}</code>
+          </svelte:fragment>
 
-    <svelte:fragment slot="2" let:row>
-      <span>{formatRunningTime(row.runningTime)}</span>
-    </svelte:fragment>
+          <svelte:fragment slot="2" let:row>
+            <span>{formatRunningTime(row.runningTime)}</span>
+          </svelte:fragment>
 
-    <svelte:fragment slot="3" let:row>
-      <span class:waiting={row.waitingFor}>{row.waitingFor ? 'Yes' : 'No'}</span>
+          <svelte:fragment slot="3" let:row>
+            <span class:waiting={row.waitingFor}>{row.waitingFor ? 'Yes' : 'No'}</span>
+          </svelte:fragment>
+        </TableControl>
+      </div>
     </svelte:fragment>
-  </TableControl>
+    <svelte:fragment slot="2">
+      {#if !!selectedProcess}
+        <SqlEditor value={selectedProcess.operation} readOnly />
+      {/if}
+    </svelte:fragment>
+  </VerticalSplitter>
 </div>
 
 <style>
