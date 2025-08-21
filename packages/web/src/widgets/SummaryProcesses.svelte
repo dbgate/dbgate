@@ -86,7 +86,7 @@
 <div class="wrapper">
   <VerticalSplitter initialValue="70%" isSplitter={!!selectedProcess}>
     <svelte:fragment slot="1">
-      <div>
+      <div class="child1-wrapper">
         <TableControl
           clickable
           on:clickrow={e => {
@@ -184,6 +184,12 @@
     flex-grow: 1;
     overflow-y: auto;
     max-height: 100%;
+  }
+
+  .child1-wrapper {
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
   }
 
   code {
