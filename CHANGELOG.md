@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.1
+- ADDED: Support for Mongo shell (Premium) - #1114
+- FIXED: Support for BLOB in Oracle #1181
+- ADDED: Connect to named SQL Server instance #340
+- ADDED: Support for SQL Server descriptions #1137
+- ADDED: Application log viewer
+- FIXED: Selecting default database in connection dialog
+- CHANGED: Improved logging system, added related database and connection to logs metadata
+
 ## 6.6.0
 - ADDED: Database chat - AI powered chatbot, which knows your database (Premium)
 - ADDED: Firestore support (Premium)

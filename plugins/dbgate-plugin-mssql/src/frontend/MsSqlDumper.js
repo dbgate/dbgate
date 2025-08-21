@@ -124,8 +124,110 @@ class MsSqlDumper extends SqlDumper {
     this.putCmd("^execute sp_rename '%f.%i', '%s', 'COLUMN'", column, column.columnName, newcol);
   }
 
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  dropTableCommentIfExists(table) {
+    const { schemaName, pureName } = table;
+
+    const fullName = `${schemaName && schemaName + '.'}${pureName}`;
+
+    this.put('&>^if ^exists (&n');
+    this.put('&>^select 1 ^from sys.extended_properties&n');
+    this.put("^where major_id = OBJECT_ID('%s')&n", fullName);
+    this.put('^and minor_id = 0&n');
+    this.put("^and name = N'MS_Description'&<&<&n");
+    this.put(')&n');
+    this.put('&>^begin&n');
+    this.put('&>^exec sp_dropextendedproperty&n');
+    this.put("@name = N'MS_Description',&n");
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level1type = N'TABLE',  @level1name = '%s'&<&n", pureName);
+    this.put('^end');
+    this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  createTableComment(table) {
+    const { schemaName, pureName, objectComment } = table;
+    if (!objectComment) return;
+
+    this.put('&>^exec sp_addextendedproperty&n');
+    this.put("@name = N'MS_Description', @value = N'%s',&n", objectComment);
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName || 'dbo');
+    this.put("@level1type = N'TABLE',  @level1name = '%s&<'", pureName);
+    this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').ColumnInfo} oldcol
+   * @param {import('dbgate-types').ColumnInfo} newcol
+   */
+  changeColumnComment(oldcol, newcol) {
+    if (oldcol.columnComment === newcol.columnComment) return;
+
+    if (oldcol.columnComment) this.dropColumnCommentIfExists(newcol);
+    if (newcol.columnComment) this.createColumnComment(newcol);
+  }
+
+  /**
+   * @param {import('dbgate-types').ColumnInfo} column
+   */
+  dropColumnCommentIfExists(column) {
+    const { schemaName, columnName, pureName } = column;
+    const fullName = `${schemaName && schemaName + '.'}${pureName}`;
+
+    this.put('&>^if ^exists (&n');
+    this.put('&>^select 1 ^from sys.extended_properties&n');
+    this.put("^where major_id = OBJECT_ID('%s')&n", fullName);
+    this.put(
+      "^and minor_id = (^select column_id ^from sys.columns ^where object_id = OBJECT_ID('%s') ^and name = '%s')&n",
+      fullName,
+      columnName
+    );
+    this.put("^and name = N'MS_Description'&<&<&n");
+    this.put(')&n');
+    this.put('&>^begin&n');
+    this.put('&>^exec sp_dropextendedproperty&n');
+    this.put("@name = N'MS_Description',&n");
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
+    this.put("@level2type = N'COLUMN', @level2name = '%s'&<&n", columnName);
+    this.put('^end');
+    this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').ColumnInfo} column
+   */
+  createColumnComment(column) {
+    const { schemaName, columnName, pureName, columnComment } = column;
+    if (!columnComment) return;
+
+    this.put('&>^exec sp_addextendedproperty&n');
+    this.put("@name = N'MS_Description', ");
+    this.put(`@value = N'%s',&n`, columnComment);
+    this.put("@level0type = N'SCHEMA', @level0name = '%s',&n", schemaName);
+    this.put("@level1type = N'TABLE',  @level1name = '%s',&n", pureName);
+    this.put("@level2type = N'COLUMN', @level2name = '%s&<'", columnName);
+    this.endCommand();
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  createTable(table) {
+    super.createTable(table);
+
+    for (const column of table.columns || []) {
+      this.createColumnComment(column);
+    }
+  }
+
   changeColumn(oldcol, newcol, constraints) {
-    if (testEqualColumns(oldcol, newcol, false, false)) {
+    if (testEqualColumns(oldcol, newcol, false, false, { ignoreComments: true })) {
       this.dropDefault(oldcol);
       if (oldcol.columnName != newcol.columnName) this.renameColumn(oldcol, newcol.columnName);
       this.createDefault(newcol);
@@ -140,6 +242,8 @@ class MsSqlDumper extends SqlDumper {
       this.endCommand();
       this.createDefault(newcol);
     }
+
+    this.changeColumnComment(oldcol, newcol);
   }
 
   specialColumnOptions(column) {
@@ -161,6 +265,44 @@ class MsSqlDumper extends SqlDumper {
 
   selectScopeIdentity() {
     this.put('^select ^scope_identity()');
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   */
+  tableOptions(table) {
+    this.endCommand();
+
+    const options = this.driver?.dialect?.getTableFormOptions?.('sqlCreateTable') || [];
+    for (const option of options) {
+      const { name, sqlFormatString } = option;
+      const value = table[name];
+
+      if (name == 'objectComment') {
+        this.createTableComment(table);
+        return;
+      }
+
+      if (value) {
+        this.put('&n');
+        this.put(sqlFormatString, value);
+      }
+    }
+  }
+
+  /**
+   * @param {import('dbgate-types').TableInfo} table
+   * @param {string} optionName
+   * @param {string} optionValue
+   */
+  setTableOption(table, optionName, optionValue) {
+    if (optionName == 'objectComment') {
+      this.dropTableCommentIfExists(table);
+      if (optionValue) this.createTableComment(table);
+      return;
+    }
+
+    super.setTableOption(table, optionName, optionValue);
   }
 
   callableTemplate(func) {
@@ -207,8 +349,8 @@ MsSqlDumper.prototype.changeProcedureSchema = MsSqlDumper.prototype.changeObject
 
 MsSqlDumper.prototype.renameFunction = MsSqlDumper.prototype.renameObject;
 MsSqlDumper.prototype.changeFunctionSchema = MsSqlDumper.prototype.changeObjectSchema;
-
 MsSqlDumper.prototype.renameTrigger = MsSqlDumper.prototype.renameObject;
+
 MsSqlDumper.prototype.changeTriggerSchema = MsSqlDumper.prototype.changeObjectSchema;
 
 MsSqlDumper.prototype.renameTable = MsSqlDumper.prototype.renameObject;

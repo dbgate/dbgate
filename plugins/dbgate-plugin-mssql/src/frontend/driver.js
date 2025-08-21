@@ -45,9 +45,12 @@ const dialect = {
   namedDefaultConstraint: true,
 
   columnProperties: {
+    columnComment: true,
     isSparse: true,
     isPersisted: true,
   },
+
+  safeCommentChanges: true,
 
   predefinedDataTypes: [
     'bigint',
@@ -110,6 +113,18 @@ const dialect = {
         ],
       };
     }
+  },
+
+  getTableFormOptions(intent) {
+    return [
+      {
+        type: 'text',
+        label: 'Comment',
+        name: 'objectComment',
+        sqlFormatString: '^comment = %v',
+        allowEmptyValue: true,
+      },
+    ];
   },
 };
 

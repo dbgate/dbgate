@@ -13,6 +13,7 @@ function getOracledb() {
   if (!oracledbValue) {
     oracledbValue = require('oracledb');
     oracledbValue.fetchAsString = [oracledbValue.CLOB, oracledbValue.NCLOB];
+    oracledbValue.fetchAsBuffer = [oracledbValue.BLOB];
   }
   return oracledbValue;
 }

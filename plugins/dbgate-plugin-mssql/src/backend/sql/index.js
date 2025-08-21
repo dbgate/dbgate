@@ -16,6 +16,7 @@ const triggers = require('./triggers');
 const listVariables = require('./listVariables');
 const listDatabases = require('./listDatabases');
 const listProcesses = require('./listProcesses');
+const baseColumns = require('./baseColumns');
 
 module.exports = {
   columns,
@@ -36,4 +37,5 @@ module.exports = {
   listVariables,
   listDatabases,
   listProcesses,
+  baseColumns,
 };
