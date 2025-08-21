@@ -173,7 +173,7 @@
     </svelte:fragment>
     <svelte:fragment slot="2">
       {#if !!selectedProcess}
-        <SqlEditor value={selectedProcess.operation} readOnly />
+        <SqlEditor value={selectedProcess.operation ?? ''} readOnly />
       {/if}
     </svelte:fragment>
   </VerticalSplitter>
