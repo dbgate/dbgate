@@ -385,6 +385,7 @@ const mysqlDriverBase = {
 /** @type {import('dbgate-types').EngineDriver} */
 const mysqlDriver = {
   ...mysqlDriverBase,
+  supportsServerSummary: true,
   dialect: mysqlDialect,
   engine: 'mysql@dbgate-plugin-mysql',
   title: 'MySQL',
@@ -425,6 +426,7 @@ const mariaDbDialect = {
 /** @type {import('dbgate-types').EngineDriver} */
 const mariaDriver = {
   ...mysqlDriverBase,
+  supportsServerSummary: true,
   dialect: mariaDbDialect,
   engine: 'mariadb@dbgate-plugin-mysql',
   title: 'MariaDB',

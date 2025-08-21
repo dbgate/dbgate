@@ -6,7 +6,7 @@ const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
 const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
 const { EJSON } = require('bson');
-const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
+const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse, getLogger } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -15,6 +15,8 @@ const {
 } = require('../frontend/convertToMongoCondition');
 
 let isProApp;
+
+const logger = getLogger('mongoDriver');
 
 function serializeMongoData(row) {
   return EJSON.serialize(
@@ -80,7 +82,7 @@ async function getScriptableDb(dbhan) {
 //   }
 // }
 
-/** @type {import('dbgate-types').EngineDriver<MongoClient>} */
+/** @type {import('dbgate-types').EngineDriver<MongoClient, import('mongodb').Db>} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
@@ -193,7 +195,10 @@ const driver = {
       let exprValue;
 
       try {
-        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), { productDocsLink: '', productName: 'DbGate' });
+        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), {
+          productDocsLink: '',
+          productName: 'DbGate',
+        });
         const runtime = new ElectronRuntime(serviceProvider);
         await runtime.evaluate(`use ${dbhan.database}`);
         exprValue = await runtime.evaluate(sql);
@@ -629,85 +634,106 @@ const driver = {
   },
 
   async serverSummary(dbhan) {
-    const res = await dbhan.getDatabase().admin().listDatabases();
-    const profiling = await Promise.all(res.databases.map((x) => dbhan.client.db(x.name).command({ profile: -1 })));
+    const [processes, variables, databases] = await Promise.all([
+      this.listProcesses(dbhan),
+      this.listVariables(dbhan),
+      this.listDatabases(dbhan),
+    ]);
 
-    function formatProfiling(info) {
-      switch (info.was) {
-        case 0:
-          return 'No profiling';
-        case 1:
-          return `Filtered (>${info.slowms} ms)`;
-        case 2:
-          return 'Profile all';
-        default:
-          return '???';
-      }
-    }
-
-    return {
-      columns: [
-        {
-          fieldName: 'name',
-          columnType: 'string',
-          header: 'Name',
-        },
-        {
-          fieldName: 'sizeOnDisk',
-          columnType: 'bytes',
-          header: 'Size',
-        },
-        {
-          fieldName: 'profiling',
-          columnType: 'string',
-          header: 'Profiling',
-        },
-        {
-          fieldName: 'setProfile',
-          columnType: 'actions',
-          header: 'Profiling actions',
-          actions: [
-            {
-              header: 'Off',
-              command: 'profileOff',
-            },
-            {
-              header: 'Filtered',
-              command: 'profileFiltered',
-            },
-            {
-              header: 'All',
-              command: 'profileAll',
-            },
-            // {
-            //   header: 'View',
-            //   openQuery: "db['system.profile'].find()",
-            //   tabTitle: 'Profile data',
-            // },
-            {
-              header: 'View',
-              openTab: {
-                title: 'system.profile',
-                icon: 'img collection',
-                tabComponent: 'CollectionDataTab',
-                props: {
-                  pureName: 'system.profile',
-                },
-              },
-              addDbProps: true,
-            },
-          ],
-        },
-      ],
-      databases: res.databases.map((db, i) => ({
-        ...db,
-        profiling: formatProfiling(profiling[i]),
-      })),
+    /** @type {import('dbgate-types').ServerSummary} */
+    const data = {
+      processes,
+      variables,
+      databases: {
+        rows: databases,
+        columns: [
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Name',
+            fieldName: 'name',
+            type: 'data',
+          },
+          {
+            sortable: true,
+            header: 'Size on disk',
+            fieldName: 'sizeOnDisk',
+            type: 'fileSize',
+          },
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Empty',
+            fieldName: 'empty',
+            type: 'data',
+          },
+        ],
+      },
     };
+
+    return data;
   },
 
   async close(dbhan) {
     return dbhan.client.close();
+  },
+
+  async listProcesses(dbhan) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const currentOp = await adminDb.command({
+      currentOp: {
+        $all: true,
+        active: true,
+        idle: true,
+        system: true,
+        killPending: true,
+      },
+    });
+
+    const processes = currentOp.inprog.map((op) => ({
+      processId: op.opid,
+      connectionId: op.connectionId,
+      client: op.client,
+      operation: op.op,
+      namespace: op.ns,
+      command: op.command,
+      runningTime: op.secs_running,
+      state: op.state,
+      waitingFor: op.waitingForLock,
+      locks: op.locks,
+      progress: op.progress,
+    }));
+
+    return processes;
+  },
+
+  async listVariables(dbhan) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const variables = await adminDb
+      .command({ getParameter: '*' })
+      .then((params) =>
+        Object.entries(params).map(([key, value]) => ({ variable: key, value: value?.value || value }))
+      );
+
+    return variables;
+  },
+
+  async killProcess(dbhan, processId) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const result = await adminDb.command({
+      killOp: 1,
+      op: processId,
+    });
+
+    logger.info(`Killed process with ID ${processId}`, result);
+
+    return result;
   },
 };
 

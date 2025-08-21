@@ -270,8 +270,38 @@ module.exports = {
 
   serverSummary_meta: true,
   async serverSummary({ conid }, req) {
+    logger.info({ conid }, 'DBGM-00260 Processing server summary');
     testConnectionPermission(conid, req);
     return this.loadDataCore('serverSummary', { conid });
+  },
+
+  listDatabaseProcesses_meta: true,
+  async listDatabaseProcesses(ctx, req) {
+    const { conid } = ctx;
+    // logger.info({ conid }, 'DBGM-00261 Listing processes of database server');
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'listDatabaseProcesses' });
+  },
+
+  killDatabaseProcess_meta: true,
+  async killDatabaseProcess(ctx, req) {
+    const { conid, pid } = ctx;
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'killDatabaseProcess', pid });
   },
 
   summaryCommand_meta: true,

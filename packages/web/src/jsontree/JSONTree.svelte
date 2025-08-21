@@ -2,7 +2,6 @@
   import JSONNode from './JSONNode.svelte';
   import { setContext } from 'svelte';
   import contextMenu, { getContextMenu } from '../utility/contextMenu';
-  import openNewTab from '../utility/openNewTab';
   import _ from 'lodash';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
@@ -23,6 +22,7 @@
   export let isDeleted = false;
   export let isInserted = false;
   export let isModified = false;
+  export let hideKey = false;
 
   const settings = useSettings();
   $: wrap = $settings?.['behaviour.jsonPreviewWrap'];
@@ -73,6 +73,7 @@
   class:wrap
 >
   <JSONNode
+    {hideKey}
     {key}
     {value}
     isParentExpanded={true}

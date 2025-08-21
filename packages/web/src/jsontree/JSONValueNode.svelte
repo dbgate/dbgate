@@ -3,10 +3,25 @@
 
   import JSONKey from './JSONKey.svelte';
 
-  export let key, value, valueGetter = null, isParentExpanded, isParentArray, nodeType;
+  export let key,
+    value,
+    valueGetter = null,
+    labelOverride,
+    isParentExpanded,
+    isParentArray,
+    nodeType;
 
+  const label = labelOverride ?? key;
   const { colon } = getContext('json-tree-context-key');
 </script>
+
+<li class:indent={isParentExpanded}>
+  <JSONKey key={label} {colon} {isParentExpanded} {isParentArray} />
+  <span class={nodeType}>
+    {valueGetter ? valueGetter(value) : value}
+  </span>
+</li>
+
 <style>
   li {
     user-select: text;
@@ -45,9 +60,4 @@
     color: var(--symbol-color);
   }
 </style>
-<li class:indent={isParentExpanded}>
-  <JSONKey {key} {colon} {isParentExpanded} {isParentArray} />
-  <span class={nodeType}>
-    {valueGetter ? valueGetter(value) : value}
-  </span>
-</li>
+

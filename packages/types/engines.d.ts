@@ -99,19 +99,46 @@ export interface SupportedDbKeyType {
   showItemList?: boolean;
 }
 
+export type DatabaseProcess = {
+  processId: number;
+  connectionId: number;
+  client: string;
+  operation?: string;
+  namespace?: string;
+  command?: any;
+  runningTime: number;
+  state?: any;
+  waitingFor?: boolean;
+  locks?: any;
+  progress?: any;
+};
+
+export type DatabaseVariable = {
+  variable: string;
+  value: any;
+};
+
 export interface SqlBackupDumper {
   run();
 }
 
-export interface SummaryColumn {
-  fieldName: string;
-  header: string;
-  dataType: 'string' | 'number' | 'bytes';
+export interface ServerSummaryDatabases {
+  rows: any[];
+  columns: SummaryDatabaseColumn[];
 }
-export interface ServerSummaryDatabase {}
+
+export type SummaryDatabaseColumn = {
+  header: string;
+  fieldName: string;
+  type: 'data' | 'fileSize';
+  filterable?: boolean;
+  sortable?: boolean;
+};
+
 export interface ServerSummary {
-  columns: SummaryColumn[];
-  databases: ServerSummaryDatabase[];
+  processes: DatabaseProcess[];
+  variables: DatabaseVariable[];
+  databases: ServerSummaryDatabases;
 }
 
 export type CollectionAggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max';
@@ -161,12 +188,12 @@ export interface FilterBehaviourProvider {
   getFilterBehaviour(dataType: string, standardFilterBehaviours: { [id: string]: FilterBehaviour }): FilterBehaviour;
 }
 
-export interface DatabaseHandle<TClient = any> {
+export interface DatabaseHandle<TClient = any, TDataBase = any> {
   client: TClient;
   database?: string;
   conid?: string;
   feedback?: (message: any) => void;
-  getDatabase?: () => any;
+  getDatabase?: () => TDataBase;
   connectionType?: string;
   treeKeySeparator?: string;
 }
@@ -196,7 +223,7 @@ export interface RestoreDatabaseSettings extends BackupRestoreSettingsBase {
   inputFile: string;
 }
 
-export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
+export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBehaviourProvider {
   engine: string;
   title: string;
   defaultPort?: number;
@@ -242,61 +269,88 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   defaultSocketPath?: string;
   authTypeLabel?: string;
   importExportArgs?: any[];
-  connect({ server, port, user, password, database, connectionDefinition }): Promise<DatabaseHandle<TClient>>;
-  close(dbhan: DatabaseHandle<TClient>): Promise<any>;
-  query(dbhan: DatabaseHandle<TClient>, sql: string, options?: QueryOptions): Promise<QueryResult>;
-  stream(dbhan: DatabaseHandle<TClient>, sql: string, options: StreamOptions);
-  readQuery(dbhan: DatabaseHandle<TClient>, sql: string, structure?: TableInfo): Promise<StreamResult>;
-  readJsonQuery(dbhan: DatabaseHandle<TClient>, query: any, structure?: TableInfo): Promise<StreamResult>;
+  connect({
+    server,
+    port,
+    user,
+    password,
+    database,
+    connectionDefinition,
+  }): Promise<DatabaseHandle<TClient, TDataBase>>;
+  close(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<any>;
+  query(dbhan: DatabaseHandle<TClient, TDataBase>, sql: string, options?: QueryOptions): Promise<QueryResult>;
+  stream(dbhan: DatabaseHandle<TClient, TDataBase>, sql: string, options: StreamOptions);
+  readQuery(dbhan: DatabaseHandle<TClient, TDataBase>, sql: string, structure?: TableInfo): Promise<StreamResult>;
+  readJsonQuery(dbhan: DatabaseHandle<TClient, TDataBase>, query: any, structure?: TableInfo): Promise<StreamResult>;
   // eg. PostgreSQL COPY FROM stdin
-  writeQueryFromStream(dbhan: DatabaseHandle<TClient>, sql: string): Promise<StreamResult>;
-  writeTable(dbhan: DatabaseHandle<TClient>, name: NamedObjectInfo, options: WriteTableOptions): Promise<StreamResult>;
+  writeQueryFromStream(dbhan: DatabaseHandle<TClient, TDataBase>, sql: string): Promise<StreamResult>;
+  writeTable(
+    dbhan: DatabaseHandle<TClient, TDataBase>,
+    name: NamedObjectInfo,
+    options: WriteTableOptions
+  ): Promise<StreamResult>;
   analyseSingleObject(
-    dbhan: DatabaseHandle<TClient>,
+    dbhan: DatabaseHandle<TClient, TDataBase>,
     name: NamedObjectInfo,
     objectTypeField: keyof DatabaseInfo
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
-  analyseSingleTable(dbhan: DatabaseHandle<TClient>, name: NamedObjectInfo): Promise<TableInfo>;
-  getVersion(dbhan: DatabaseHandle<TClient>): Promise<{ version: string; versionText?: string }>;
-  listDatabases(dbhan: DatabaseHandle<TClient>): Promise<
+  analyseSingleTable(dbhan: DatabaseHandle<TClient, TDataBase>, name: NamedObjectInfo): Promise<TableInfo>;
+  getVersion(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<{ version: string; versionText?: string }>;
+  listDatabases(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<
     {
       name: string;
+      sizeOnDisk?: number;
+      empty?: boolean;
     }[]
   >;
-  loadKeys(dbhan: DatabaseHandle<TClient>, root: string, filter?: string): Promise;
-  scanKeys(dbhan: DatabaseHandle<TClient>, root: string, pattern: string, cursor: string, count: number): Promise;
-  exportKeys(dbhan: DatabaseHandle<TClient>, options: {}): Promise;
-  loadKeyInfo(dbhan: DatabaseHandle<TClient>, key): Promise;
-  loadKeyTableRange(dbhan: DatabaseHandle<TClient>, key, cursor, count): Promise;
+  loadKeys(dbhan: DatabaseHandle<TClient, TDataBase>, root: string, filter?: string): Promise;
+  scanKeys(
+    dbhan: DatabaseHandle<TClient, TDataBase>,
+    root: string,
+    pattern: string,
+    cursor: string,
+    count: number
+  ): Promise;
+  exportKeys(dbhan: DatabaseHandle<TClient, TDataBase>, options: {}): Promise;
+  loadKeyInfo(dbhan: DatabaseHandle<TClient, TDataBase>, key): Promise;
+  loadKeyTableRange(dbhan: DatabaseHandle<TClient, TDataBase>, key, cursor, count): Promise;
   loadFieldValues(
-    dbhan: DatabaseHandle<TClient>,
+    dbhan: DatabaseHandle<TClient, TDataBase>,
     name: NamedObjectInfo,
     field: string,
     search: string,
     dataType: string
   ): Promise;
-  analyseFull(dbhan: DatabaseHandle<TClient>, serverVersion): Promise<DatabaseInfo>;
-  analyseIncremental(dbhan: DatabaseHandle<TClient>, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
+  analyseFull(dbhan: DatabaseHandle<TClient, TDataBase>, serverVersion): Promise<DatabaseInfo>;
+  analyseIncremental(
+    dbhan: DatabaseHandle<TClient, TDataBase>,
+    structure: DatabaseInfo,
+    serverVersion
+  ): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
-  createBackupDumper(dbhan: DatabaseHandle<TClient>, options): Promise<SqlBackupDumper>;
+  createBackupDumper(dbhan: DatabaseHandle<TClient, TDataBase>, options): Promise<SqlBackupDumper>;
   getAuthTypes(): EngineAuthType[];
-  readCollection(dbhan: DatabaseHandle<TClient>, options: ReadCollectionOptions): Promise<any>;
-  updateCollection(dbhan: DatabaseHandle<TClient>, changeSet: any): Promise<any>;
+  readCollection(dbhan: DatabaseHandle<TClient, TDataBase>, options: ReadCollectionOptions): Promise<any>;
+  updateCollection(dbhan: DatabaseHandle<TClient, TDataBase>, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
-  createDatabase(dbhan: DatabaseHandle<TClient>, name: string): Promise;
-  dropDatabase(dbhan: DatabaseHandle<TClient>, name: string): Promise;
+  createDatabase(dbhan: DatabaseHandle<TClient, TDataBase>, name: string): Promise;
+  dropDatabase(dbhan: DatabaseHandle<TClient, TDataBase>, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
-  script(dbhan: DatabaseHandle<TClient>, sql: string, options?: RunScriptOptions): Promise;
-  operation(dbhan: DatabaseHandle<TClient>, operation: CollectionOperationInfo, options?: RunScriptOptions): Promise;
+  script(dbhan: DatabaseHandle<TClient, TDataBase>, sql: string, options?: RunScriptOptions): Promise;
+  operation(
+    dbhan: DatabaseHandle<TClient, TDataBase>,
+    operation: CollectionOperationInfo,
+    options?: RunScriptOptions
+  ): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of dbhan.client method, only some methods could be supported, on only some drivers
-  callMethod(dbhan: DatabaseHandle<TClient>, method, args);
-  serverSummary(dbhan: DatabaseHandle<TClient>): Promise<ServerSummary>;
-  summaryCommand(dbhan: DatabaseHandle<TClient>, command, row): Promise<void>;
-  startProfiler(dbhan: DatabaseHandle<TClient>, options): Promise<any>;
-  stopProfiler(dbhan: DatabaseHandle<TClient>, profiler): Promise<void>;
+  callMethod(dbhan: DatabaseHandle<TClient, TDataBase>, method, args);
+  serverSummary(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<ServerSummary>;
+  summaryCommand(dbhan: DatabaseHandle<TClient, TDataBase>, command, row): Promise<void>;
+  startProfiler(dbhan: DatabaseHandle<TClient, TDataBase>, options): Promise<any>;
+  stopProfiler(dbhan: DatabaseHandle<TClient, TDataBase>, profiler): Promise<void>;
   getRedirectAuthUrl(connection, options): Promise<{ url: string; sid: string }>;
   getAuthTokenFromCode(connection, options): Promise<string>;
   getAccessTokenFromAuth(connection, req): Promise<string | null>;
@@ -313,7 +367,10 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   adaptTableInfo(table: TableInfo): TableInfo;
   // simple data type adapter
   adaptDataType(dataType: string): string;
-  listSchemas(dbhan: DatabaseHandle<TClient>): Promise<SchemaInfo[] | null>;
+  listSchemas(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<SchemaInfo[] | null>;
+  listProcesses(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<DatabaseProcess[] | null>;
+  listVariables(dbhan: DatabaseHandle<TClient, TDataBase>): Promise<DatabaseVariable[] | null>;
+  killProcess(dbhan: DatabaseHandle<TClient, TDataBase>, pid: number): Promise<any>;
   backupDatabaseCommand(
     connection: any,
     settings: BackupDatabaseSettings,
@@ -337,7 +394,7 @@ export interface EngineDriver<TClient = any> extends FilterBehaviourProvider {
   analyserClass?: any;
   dumperClass?: any;
   singleConnectionOnly?: boolean;
-  getLogDbInfo(dbhan: DatabaseHandle<TClient>): {
+  getLogDbInfo(dbhan: DatabaseHandle<TClient, TDataBase>): {
     database?: string;
     engine: string;
     conid?: string;

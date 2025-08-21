@@ -215,6 +215,8 @@ export const connectionAppObjectSearchSettings = writableWithStorage(
   'connectionAppObjectSearchSettings2'
 );
 
+export const serverSummarySelectedTab = writableWithStorage(0, 'serverSummary.selectedTab');
+
 let currentThemeValue = null;
 currentTheme.subscribe(value => {
   currentThemeValue = value;

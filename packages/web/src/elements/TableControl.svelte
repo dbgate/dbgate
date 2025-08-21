@@ -350,7 +350,7 @@
                 {#if col.component}
                   <svelte:component this={col.component} {...rowProps} />
                 {:else if col.formatter}
-                  {col.formatter(row)}
+                  {col.formatter(row, col)}
                 {:else if col.slot != null}
                   {#key row[col.slotKey] || 'key'}
                     {#if col.slot == -1}<slot name="-1" {row} {col} {index} />

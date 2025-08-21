@@ -5,6 +5,7 @@
   export let expanded = false;
   export let labelOverride = null;
   export let onRootExpandedChanged = null;
+  export let hideKey = false;
 
   $: keys = Object.getOwnPropertyNames(value);
 
@@ -26,4 +27,5 @@
   bracketClose={'}'}
   elementValue={value}
   {onRootExpandedChanged}
+  {hideKey}
 />

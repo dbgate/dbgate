@@ -361,6 +361,7 @@ EXECUTE FUNCTION function_name();`,
 /** @type {import('dbgate-types').EngineDriver} */
 const postgresDriver = {
   ...postgresDriverBase,
+  supportsServerSummary: true,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'PostgreSQL',
   defaultPort: 5432,
@@ -388,6 +389,7 @@ const postgresDriver = {
 /** @type {import('dbgate-types').EngineDriver} */
 const cockroachDriver = {
   ...postgresDriverBase,
+  supportsServerSummary: true,
   engine: 'cockroach@dbgate-plugin-postgres',
   title: 'CockroachDB',
   defaultPort: 26257,
@@ -403,6 +405,7 @@ const cockroachDriver = {
 /** @type {import('dbgate-types').EngineDriver} */
 const redshiftDriver = {
   ...postgresDriverBase,
+  supportsServerSummary: true,
   dialect: {
     ...dialect,
     stringAgg: false,

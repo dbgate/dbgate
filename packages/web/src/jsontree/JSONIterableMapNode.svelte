@@ -3,6 +3,8 @@
   import MapEntry from './utils/MapEntry'
 
   export let key, value, isParentExpanded, isParentArray, nodeType;
+  export let labelOverride = null;
+  export let hideKey = false;
 
   let keys = [];
 
@@ -28,8 +30,10 @@
   {keys}
   {getKey}
   {getValue}
-  label="{nodeType}({keys.length})"
+  label={labelOverride || `${nodeType}(${keys.length})`}
   colon=""
   bracketOpen={'{'}
   bracketClose={'}'}
+  {labelOverride}
+  {hideKey}
 />

@@ -6,6 +6,7 @@ const Analyser = require('./Analyser');
 const wkx = require('wkx');
 const pg = require('pg');
 const pgCopyStreams = require('pg-copy-streams');
+const sql = require('./sql');
 const {
   getLogger,
   createBulkInsertStreamBase,
@@ -351,9 +352,63 @@ const drivers = driverBases.map(driverBase => ({
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
+
+  async serverSummary(dbhan) {
+    const [processes, variables, databases] = await Promise.all([
+      this.listProcesses(dbhan),
+      this.listVariables(dbhan),
+      this.listDatabases(dbhan),
+    ]);
+
+    /** @type {import('dbgate-types').ServerSummary} */
+    const data = {
+      processes,
+      variables,
+      databases: {
+        rows: databases,
+        columns: [
+          { header: 'Name', fieldName: 'name', type: 'data' },
+          { header: 'Size on disk', fieldName: 'sizeOnDisk', type: 'fileSize' },
+        ],
+      },
+    };
+
+    return data;
+  },
+
+  async killProcess(dbhan, pid) {
+    const result = await this.query(dbhan, `SELECT pg_terminate_backend(${parseInt(pid)})`);
+    return result;
+  },
+
   async listDatabases(dbhan) {
-    const { rows } = await this.query(dbhan, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
+    const { rows } = await this.query(dbhan, sql.listDatabases);
     return rows;
+  },
+
+  async listVariables(dbhan) {
+    const result = await this.query(dbhan, sql.listVariables);
+    return result.rows.map(row => ({
+      variable: row.variable,
+      value: row.value,
+    }));
+  },
+
+  async listProcesses(dbhan) {
+    const result = await this.query(dbhan, sql.listProcesses);
+    return result.rows.map(row => ({
+      processId: row.processId,
+      connectionId: row.connectionId,
+      client: row.client,
+      operation: row.operation,
+      namespace: null,
+      command: row.operation,
+      runningTime: row.runningTime ? Math.max(Number(row.runningTime), 0) : null,
+      state: row.state,
+      waitingFor: row.waitingFor,
+      locks: null,
+      progress: null,
+    }));
   },
 
   getAuthTypes() {

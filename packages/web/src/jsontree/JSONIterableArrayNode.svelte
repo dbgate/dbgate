@@ -2,6 +2,8 @@
   import JSONNested from './JSONNested.svelte';
 
   export let key, value, isParentExpanded, isParentArray, nodeType;
+  export let labelOverride = null;
+  export let hideKey = false;
 
   let keys = [];
 
@@ -29,7 +31,9 @@
   {getKey}
   {getValue}
   isArray={true}
-  label="{nodeType}({keys.length})"
+  label={labelOverride || `${nodeType}(${keys.length})`}
   bracketOpen={'{'}
   bracketClose={'}'}
+  {labelOverride}
+  {hideKey}
 />

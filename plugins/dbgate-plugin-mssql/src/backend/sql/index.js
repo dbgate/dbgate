@@ -13,6 +13,9 @@ const viewColumns = require('./viewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
 const triggers = require('./triggers');
+const listVariables = require('./listVariables');
+const listDatabases = require('./listDatabases');
+const listProcesses = require('./listProcesses');
 const baseColumns = require('./baseColumns');
 
 module.exports = {
@@ -31,5 +34,8 @@ module.exports = {
   indexcols,
   tableSizes,
   triggers,
+  listVariables,
+  listDatabases,
+  listProcesses,
   baseColumns,
 };
