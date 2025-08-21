@@ -146,7 +146,7 @@ async function handleServerSummary({ msgid }) {
   return handleDriverDataCore(msgid, driver => driver.serverSummary(dbhan));
 }
 
-async function handleKillDatabaseProccess({ msgid, pid }) {
+async function handleKillDatabaseProcess({ msgid, pid }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
@@ -178,7 +178,7 @@ const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
   serverSummary: handleServerSummary,
-  killDatabaseProcess: handleKillDatabaseProccess,
+  killDatabaseProcess: handleKillDatabaseProcess,
   listDatabaseProcesses: handleListDatabaseProcesses,
   summaryCommand: handleSummaryCommand,
   createDatabase: props => handleDatabaseOp('createDatabase', props),

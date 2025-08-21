@@ -197,7 +197,7 @@
             defaultActionId: 'openTable',
           },
         });
-      }}>DataX</ToolStripButton
+      }}>Data</ToolStripButton
     >
 
     <ToolStripButton

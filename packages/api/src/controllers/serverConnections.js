@@ -278,7 +278,7 @@ module.exports = {
   listDatabaseProcesses_meta: true,
   async listDatabaseProcesses(ctx, req) {
     const { conid } = ctx;
-    logger.info({ conid }, 'DBGM-00261 Processing server summary');
+    // logger.info({ conid }, 'DBGM-00261 Listing processes of database server');
     testConnectionPermission(conid, req);
 
     const opened = await this.ensureOpened(conid);
