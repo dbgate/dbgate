@@ -277,6 +277,14 @@ describe('Data browser data', () => {
     cy.testid('CommandPalette_main').themeshot('command-palette', { padding: 50 });
   });
 
+  it('About window', () => {
+    cy.contains('Connections');
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Help').click();
+    cy.contains('About').click();
+    cy.testid('ModalBase_window').themeshot('about-window', { padding: 50 });
+  });
+
   it('Show map', () => {
     cy.contains('Postgres-connection').click();
     cy.contains('PgGeoData').click();
