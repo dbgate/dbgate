@@ -48,11 +48,14 @@ async function testConnectionPermission(connection, req, loadedPermissions) {
       return;
     }
     const conid = _.isString(connection) ? connection : connection?._id;
+    if (hasPermission('internal-storage', loadedPermissions) && conid == '__storage') {
+      return;
+    }
     const authProvider = getAuthProviderFromReq(req);
     if (!req) {
       return;
     }
-    if (!await authProvider.checkCurrentConnectionPermission(req, conid)) {
+    if (!(await authProvider.checkCurrentConnectionPermission(req, conid))) {
       throw new Error('Connection permission not granted');
     }
   } else {
@@ -215,11 +218,23 @@ const TABLE_SCOPE_ID_NAMES = {
   '-9': 'collections',
 };
 
-function getTablePermissionRole(conid, database, objectTypeField, schemaName, pureName, loadedTablePermissions, databasePermissionRole) {
-  let res = databasePermissionRole == 'read_content' ? 'read' :
-    databasePermissionRole == 'write_data' ? 'create_update_delete' :
-      databasePermissionRole == 'run_script' ? 'run_script' :
-        'deny';
+function getTablePermissionRole(
+  conid,
+  database,
+  objectTypeField,
+  schemaName,
+  pureName,
+  loadedTablePermissions,
+  databasePermissionRole
+) {
+  let res =
+    databasePermissionRole == 'read_content'
+      ? 'read'
+      : databasePermissionRole == 'write_data'
+      ? 'create_update_delete'
+      : databasePermissionRole == 'run_script'
+      ? 'run_script'
+      : 'deny';
   for (const permissionRow of loadedTablePermissions) {
     if (!matchDatabasePermissionRow(conid, database, permissionRow)) {
       continue;
@@ -286,7 +301,6 @@ async function testDatabaseRolePermission(conid, database, requiredRole, req) {
   }
 }
 
-
 module.exports = {
   hasPermission,
   connectionHasPermission,
@@ -298,5 +312,5 @@ module.exports = {
   getTablePermissionRole,
   testStandardPermission,
   testDatabaseRolePermission,
-  getTablePermissionRoleLevelIndex
+  getTablePermissionRoleLevelIndex,
 };

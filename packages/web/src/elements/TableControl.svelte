@@ -199,6 +199,7 @@
   tabindex={selectable ? -1 : undefined}
   on:keydown={handleKeyDown}
   class:stickyHeader
+  data-testid={$$props['data-testid']}
 >
   <thead class:stickyHeader>
     <tr>

@@ -119,4 +119,27 @@ describe('Team edition tests', () => {
     cy.contains('Exporting query').click();
     cy.themeshot('auditlog');
   });
+
+  it('Edit database permissions', () => {
+    cy.testid('LoginPage_linkAdmin').click();
+    cy.testid('LoginPage_password').type('adminpwd');
+    cy.testid('LoginPage_submitLogin').click();
+
+    cy.testid('AdminMenuWidget_itemRoles').click();
+    cy.testid('AdminRolesTab_table').contains('superadmin').click();
+    cy.testid('AdminRolesTab_databases').click();
+
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    
+    cy.testid('AdminListOrRegexEditor_1_regexInput').type('^Chinook[\\d]*$');
+    cy.testid('AdminListOrRegexEditor_2_listSwitch').click();
+    cy.testid('AdminListOrRegexEditor_2_listInput').type('Nortwind\nSales');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_0').select('-2');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_1').select('-3');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_2').select('-4');
+
+    cy.themeshot('dbpermissions');
+  });
 });
