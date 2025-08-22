@@ -56,11 +56,11 @@ async function testConnectionPermission(connection, req, loadedPermissions) {
       return;
     }
     if (!(await authProvider.checkCurrentConnectionPermission(req, conid))) {
-      throw new Error('Connection permission not granted');
+      throw new Error('DBGM-00263 Connection permission not granted');
     }
   } else {
     if (!connectionHasPermission(connection, loadedPermissions)) {
-      throw new Error('Connection permission not granted');
+      throw new Error('DBGM-00264 Connection permission not granted');
     }
   }
 }
@@ -280,7 +280,7 @@ async function testStandardPermission(permission, req, loadedPermissions) {
     loadedPermissions = await loadPermissionsFromRequest(req);
   }
   if (!hasPermission(permission, loadedPermissions)) {
-    throw new Error('Permission not granted');
+    throw new Error('DBGM-00265 Permission not granted');
   }
 }
 
@@ -297,7 +297,7 @@ async function testDatabaseRolePermission(conid, database, requiredRole, req) {
   const requiredIndex = getDatabaseRoleLevelIndex(requiredRole);
   const roleIndex = getDatabaseRoleLevelIndex(role);
   if (roleIndex < requiredIndex) {
-    throw new Error('Permission not granted');
+    throw new Error('DBGM-00266 Permission not granted');
   }
 }
 

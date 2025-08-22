@@ -21,14 +21,17 @@ describe('Team edition tests', () => {
     cy.testid('AdminMenuWidget_itemConnections').click();
     cy.contains('New connection').click();
     cy.testid('ConnectionDriverFields_connectionType').select('PostgreSQL');
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('connection-administration');
 
     cy.testid('AdminMenuWidget_itemRoles').click();
     cy.contains('logged-user').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('role-administration');
 
     cy.testid('AdminMenuWidget_itemUsers').click();
     cy.contains('New user').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('user-administration');
 
     cy.testid('AdminMenuWidget_itemAuthentication').click();
@@ -36,6 +39,7 @@ describe('Team edition tests', () => {
     cy.contains('Use database login').click();
     cy.contains('Add authentication').click();
     cy.contains('OAuth 2.0').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('authentication-administration');
   });
 
@@ -120,7 +124,7 @@ describe('Team edition tests', () => {
     cy.themeshot('auditlog');
   });
 
-  it.only('Edit database permissions', () => {
+  it('Edit database permissions', () => {
     cy.testid('LoginPage_linkAdmin').click();
     cy.testid('LoginPage_password').type('adminpwd');
     cy.testid('LoginPage_submitLogin').click();
@@ -139,6 +143,8 @@ describe('Team edition tests', () => {
     cy.testid('AdminDatabasesPermissionsGrid_roleSelect_0').select('-2');
     cy.testid('AdminDatabasesPermissionsGrid_roleSelect_1').select('-3');
     cy.testid('AdminDatabasesPermissionsGrid_roleSelect_2').select('-4');
+
+    cy.contains('not granted').should('not.exist');
 
     cy.themeshot('database-permissions');
   });

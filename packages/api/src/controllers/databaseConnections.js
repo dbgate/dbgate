@@ -460,7 +460,7 @@ module.exports = {
       for (const operation of operations) {
         const role = getTablePermissionRole(conid, database, 'tables', operation.schemaName, operation.pureName, tablePermissions, databasePermissions);
         if (getTablePermissionRoleLevelIndex(role) < getTablePermissionRoleLevelIndex(requiredRole)) {
-          throw new Error('Permission not granted');
+          throw new Error('DBGM-00262 Permission not granted');
         }
       }
     }
