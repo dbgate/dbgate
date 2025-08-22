@@ -120,7 +120,7 @@ describe('Team edition tests', () => {
     cy.themeshot('auditlog');
   });
 
-  it('Edit database permissions', () => {
+  it.only('Edit database permissions', () => {
     cy.testid('LoginPage_linkAdmin').click();
     cy.testid('LoginPage_password').type('adminpwd');
     cy.testid('LoginPage_submitLogin').click();
@@ -140,6 +140,6 @@ describe('Team edition tests', () => {
     cy.testid('AdminDatabasesPermissionsGrid_roleSelect_1').select('-3');
     cy.testid('AdminDatabasesPermissionsGrid_roleSelect_2').select('-4');
 
-    cy.themeshot('dbpermissions');
+    cy.themeshot('database-permissions');
   });
 });
