@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const cron = require('node-cron');
 const runners = require('./runners');
-const { hasPermission } = require('../utility/hasPermission');
+const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
 const { getLogger } = require('dbgate-tools');
 
 const logger = getLogger('scheduler');
@@ -30,7 +30,8 @@ module.exports = {
   },
 
   async reload(_params, req) {
-    if (!hasPermission('files/shell/read', req)) return;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission('files/shell/read', loadedPermissions)) return;
     const shellDir = path.join(filesdir(), 'shell');
     await this.unload();
     if (!(await fs.exists(shellDir))) return;

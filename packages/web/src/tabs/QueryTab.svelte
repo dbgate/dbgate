@@ -40,7 +40,7 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
-    executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
+    executeAdditionalCondition: () => getCurrentEditor()?.hasConnection() && hasPermission('dbops/query'),
     copyPaste: true,
   });
   registerCommand({

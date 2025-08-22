@@ -12,6 +12,7 @@ const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { testStandardPermission, testDatabaseRolePermission } = require('../utility/hasPermission');
 
 const logger = getLogger('sessions');
 
@@ -94,7 +95,7 @@ module.exports = {
     socket.emit(`session-initialize-file-${jslid}`);
   },
 
-  handle_ping() {},
+  handle_ping() { },
 
   create_meta: true,
   async create({ conid, database }) {
@@ -148,10 +149,12 @@ module.exports = {
 
   executeQuery_meta: true,
   async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
+    await testStandardPermission('dbops/query', req);
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }
+    await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
 
     sendToAuditLog(req, {
       category: 'dbop',

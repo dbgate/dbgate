@@ -80,7 +80,7 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { getTableInfo, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { scriptToSql } from 'dbgate-sqltree';
   import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
@@ -156,30 +156,47 @@
     }
   }
 
-  export function save() {
+  export async function save() {
     const driver = findEngineDriver($connection, $extensions);
+    const tablePermissionRole = (await getTableInfo({ conid, database, schemaName, pureName }))?.tablePermissionRole;
 
-    const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
-      changeSetToSql($changeSetStore?.value, $dbinfo, driver.dialect)
-    );
-
-    const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
-    const sql = scriptToSql(driver, script);
-    const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({
-      title,
-      script: scriptToSql(driver, commands),
-    }));
-    // console.log('deleteCascadesScripts', deleteCascadesScripts);
-    if (getBoolSettingsValue('skipConfirm.tableDataSave', false) && !deleteCascadesScripts?.length) {
-      handleConfirmSql(sql);
-    } else {
-      showModal(ConfirmSqlModal, {
-        sql,
-        onConfirm: confirmedSql => handleConfirmSql(confirmedSql),
-        engine: driver.engine,
-        deleteCascadesScripts,
-        skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
+    if (tablePermissionRole == 'create_update_delete' || tablePermissionRole == 'update_only') {
+      const resp = await apiCall('database-connections/save-table-data', {
+        conid,
+        database,
+        changeSet: $changeSetStore?.value,
       });
+      const { errorMessage } = resp || {};
+      if (errorMessage) {
+        showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+      } else {
+        dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+        cache.update(reloadDataCacheFunc);
+        showSnackbarSuccess('Saved to database');
+      }
+    } else {
+      const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
+        changeSetToSql($changeSetStore?.value, $dbinfo, driver.dialect)
+      );
+
+      const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
+      const sql = scriptToSql(driver, script);
+      const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({
+        title,
+        script: scriptToSql(driver, commands),
+      }));
+      // console.log('deleteCascadesScripts', deleteCascadesScripts);
+      if (getBoolSettingsValue('skipConfirm.tableDataSave', false) && !deleteCascadesScripts?.length) {
+        handleConfirmSql(sql);
+      } else {
+        showModal(ConfirmSqlModal, {
+          sql,
+          onConfirm: confirmedSql => handleConfirmSql(confirmedSql),
+          engine: driver.engine,
+          deleteCascadesScripts,
+          skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
+        });
+      }
     }
   }
 

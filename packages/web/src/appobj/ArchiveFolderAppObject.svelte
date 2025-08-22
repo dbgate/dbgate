@@ -167,7 +167,7 @@ await dbgateApi.deployDb(${JSON.stringify(
       isProApp() && { text: 'Data deployer', onClick: handleOpenDataDeployTab },
       $currentDatabase && [
         { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
-        { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
+        hasPermission(`run-shell-script`) && { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
       ],
       data.name != 'default' &&
         isProApp() &&

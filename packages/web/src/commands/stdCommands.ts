@@ -322,6 +322,7 @@ registerCommand({
   toolbar: true,
   toolbarName: 'New table',
   testEnabled: () => {
+    if (!hasPermission('dbops/model/edit')) return false;
     const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
     return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('sql');
   },
@@ -671,7 +672,7 @@ registerCommand({
   name: 'Export database',
   toolbar: true,
   icon: 'icon export',
-  testEnabled: () => getCurrentDatabase() != null,
+  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/export`),
   onClick: () => {
     openImportExportTab({
       targetStorageType: getDefaultFileFormat(getExtensions()).storageType,
@@ -691,7 +692,8 @@ if (isProApp()) {
     icon: 'icon compare',
     testEnabled: () =>
       getCurrentDatabase() != null &&
-      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql')
+      && hasPermission(`dbops/export`),
     onClick: () => {
       openNewTab(
         {

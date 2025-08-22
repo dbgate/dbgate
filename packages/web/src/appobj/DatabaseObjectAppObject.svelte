@@ -703,15 +703,29 @@
   }
 
   function createMenus(objectTypeField, driver, data): ReturnType<typeof createMenusCore> {
-    return createMenusCore(objectTypeField, driver, data).filter(x => {
-      if (x.scriptTemplate) {
-        return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
+    const coreMenus = createMenusCore(objectTypeField, driver, data);
+
+    const filteredSumenus = coreMenus.map(item => {
+      if (!item.submenu) {
+        return item;
       }
-      if (x.sqlGeneratorProps) {
-        return hasPermission(`dbops/sql-generator`);
-      }
-      return true;
+      return {
+        ...item,
+        submenu: item.submenu.filter(x => {
+          if (x.scriptTemplate) {
+            return hasPermission(`dbops/sql-template/${x.scriptTemplate}`);
+          }
+          if (x.sqlGeneratorProps) {
+            return hasPermission(`dbops/sql-generator`);
+          }
+          return true;
+        }),
+      };
     });
+
+    const filteredNoEmptySubmenus = filteredSumenus.filter(x => !x.submenu || x.submenu.length > 0);
+    
+    return filteredNoEmptySubmenus;
   }
 
   function getObjectTitle(connection, schemaName, pureName) {
@@ -1062,6 +1076,7 @@
       : null}
   extInfo={getExtInfo(data)}
   isChoosed={matchDatabaseObjectAppObject($selectedDatabaseObjectAppObject, data)}
+  statusIconBefore={data.tablePermissionRole == 'read' ? 'icon lock' : null}
   on:click={() => handleObjectClick(data, 'leftClick')}
   on:middleclick={() => handleObjectClick(data, 'middleClick')}
   on:dblclick={() => handleObjectClick(data, 'dblClick')}

@@ -29,7 +29,7 @@ const generateDeploySql = require('../shell/generateDeploySql');
 const { createTwoFilesPatch } = require('diff');
 const diff2htmlPage = require('../utility/diff2htmlPage');
 const processArgs = require('../utility/processArgs');
-const { testConnectionPermission } = require('../utility/hasPermission');
+const { testConnectionPermission, hasPermission, loadPermissionsFromRequest, loadTablePermissionsFromRequest, getTablePermissionRole, loadDatabasePermissionsFromRequest, getDatabasePermissionRole, getTablePermissionRoleLevelIndex, testDatabaseRolePermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
@@ -100,7 +100,7 @@ module.exports = {
     socket.emitChanged(`database-status-changed`, { conid, database });
   },
 
-  handle_ping() {},
+  handle_ping() { },
 
   // session event handlers
 
@@ -235,7 +235,7 @@ module.exports = {
 
   queryData_meta: true,
   async queryData({ conid, database, sql }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     logger.info({ conid, database, sql }, 'DBGM-00007 Processing query');
     const opened = await this.ensureOpened(conid, database);
     // if (opened && opened.status && opened.status.name == 'error') {
@@ -247,7 +247,7 @@ module.exports = {
 
   sqlSelect_meta: true,
   async sqlSelect({ conid, database, select, auditLogSessionGroup }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(
       opened,
@@ -256,24 +256,23 @@ module.exports = {
         auditLogger:
           auditLogSessionGroup && select?.from?.name?.pureName
             ? response => {
-                sendToAuditLog(req, {
-                  category: 'dbop',
-                  component: 'DatabaseConnectionsController',
-                  event: 'sql.select',
-                  action: 'select',
-                  severity: 'info',
-                  conid,
-                  database,
-                  schemaName: select?.from?.name?.schemaName,
-                  pureName: select?.from?.name?.pureName,
-                  sumint1: response?.rows?.length,
-                  sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${
-                    select?.from?.name?.pureName
+              sendToAuditLog(req, {
+                category: 'dbop',
+                component: 'DatabaseConnectionsController',
+                event: 'sql.select',
+                action: 'select',
+                severity: 'info',
+                conid,
+                database,
+                schemaName: select?.from?.name?.schemaName,
+                pureName: select?.from?.name?.pureName,
+                sumint1: response?.rows?.length,
+                sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${select?.from?.name?.pureName
                   }`,
-                  sessionGroup: auditLogSessionGroup,
-                  message: `Loaded table data from ${select?.from?.name?.pureName}`,
-                });
-              }
+                sessionGroup: auditLogSessionGroup,
+                message: `Loaded table data from ${select?.from?.name?.pureName}`,
+              });
+            }
             : null,
       }
     );
@@ -282,7 +281,9 @@ module.exports = {
 
   runScript_meta: true,
   async runScript({ conid, database, sql, useTransaction, logMessage }, req) {
-    testConnectionPermission(conid, req);
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    await testConnectionPermission(conid, req, loadedPermissions);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
     logger.info({ conid, database, sql }, 'DBGM-00008 Processing script');
     const opened = await this.ensureOpened(conid, database);
     sendToAuditLog(req, {
@@ -303,7 +304,7 @@ module.exports = {
 
   runOperation_meta: true,
   async runOperation({ conid, database, operation, useTransaction }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     logger.info({ conid, database, operation }, 'DBGM-00009 Processing operation');
 
     sendToAuditLog(req, {
@@ -325,7 +326,7 @@ module.exports = {
 
   collectionData_meta: true,
   async collectionData({ conid, database, options, auditLogSessionGroup }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(
       opened,
@@ -334,21 +335,21 @@ module.exports = {
         auditLogger:
           auditLogSessionGroup && options?.pureName
             ? response => {
-                sendToAuditLog(req, {
-                  category: 'dbop',
-                  component: 'DatabaseConnectionsController',
-                  event: 'nosql.collectionData',
-                  action: 'select',
-                  severity: 'info',
-                  conid,
-                  database,
-                  pureName: options?.pureName,
-                  sumint1: response?.result?.rows?.length,
-                  sessionParam: `${conid}::${database}::${options?.pureName}`,
-                  sessionGroup: auditLogSessionGroup,
-                  message: `Loaded collection data ${options?.pureName}`,
-                });
-              }
+              sendToAuditLog(req, {
+                category: 'dbop',
+                component: 'DatabaseConnectionsController',
+                event: 'nosql.collectionData',
+                action: 'select',
+                severity: 'info',
+                conid,
+                database,
+                pureName: options?.pureName,
+                sumint1: response?.result?.rows?.length,
+                sessionParam: `${conid}::${database}::${options?.pureName}`,
+                sessionGroup: auditLogSessionGroup,
+                message: `Loaded collection data ${options?.pureName}`,
+              });
+            }
             : null,
       }
     );
@@ -356,7 +357,7 @@ module.exports = {
   },
 
   async loadDataCore(msgtype, { conid, database, ...args }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype, ...args });
     if (res.errorMessage) {
@@ -371,7 +372,7 @@ module.exports = {
 
   schemaList_meta: true,
   async schemaList({ conid, database }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('schemaList', { conid, database });
   },
 
@@ -383,43 +384,43 @@ module.exports = {
 
   loadKeys_meta: true,
   async loadKeys({ conid, database, root, filter, limit }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
   },
 
   scanKeys_meta: true,
   async scanKeys({ conid, database, root, pattern, cursor, count }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('scanKeys', { conid, database, root, pattern, cursor, count });
   },
 
   exportKeys_meta: true,
   async exportKeys({ conid, database, options }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('exportKeys', { conid, database, options });
   },
 
   loadKeyInfo_meta: true,
   async loadKeyInfo({ conid, database, key }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('loadKeyInfo', { conid, database, key });
   },
 
   loadKeyTableRange_meta: true,
   async loadKeyTableRange({ conid, database, key, cursor, count }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('loadKeyTableRange', { conid, database, key, cursor, count });
   },
 
   loadFieldValues_meta: true,
   async loadFieldValues({ conid, database, schemaName, pureName, field, search, dataType }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search, dataType });
   },
 
   callMethod_meta: true,
   async callMethod({ conid, database, method, args }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.loadDataCore('callMethod', { conid, database, method, args });
 
     // const opened = await this.ensureOpened(conid, database);
@@ -432,9 +433,40 @@ module.exports = {
 
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
+
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'updateCollection', changeSet });
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || null;
+  },
+
+  saveTableData_meta: true,
+  async saveTableData({ conid, database, changeSet }, req) {
+    await testConnectionPermission(conid, req);
+
+    const databasePermissions = await loadDatabasePermissionsFromRequest(req);
+    const tablePermissions = await loadTablePermissionsFromRequest(req);
+    const fieldsAndRoles = [
+      [changeSet.inserts, 'create_update_delete'],
+      [changeSet.deletes, 'create_update_delete'],
+      [changeSet.updates, 'update_only'],
+    ]
+    for (const [operations, requiredRole] of fieldsAndRoles) {
+      for (const operation of operations) {
+        const role = getTablePermissionRole(conid, database, 'tables', operation.schemaName, operation.pureName, tablePermissions, databasePermissions);
+        if (getTablePermissionRoleLevelIndex(role) < getTablePermissionRoleLevelIndex(requiredRole)) {
+          throw new Error('Permission not granted');
+        }
+      }
+    }
+
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'saveTableData', changeSet });
     if (res.errorMessage) {
       return {
         errorMessage: res.errorMessage,
@@ -451,7 +483,7 @@ module.exports = {
         message: 'No connection',
       };
     }
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) {
       return {
@@ -474,7 +506,7 @@ module.exports = {
 
   ping_meta: true,
   async ping({ conid, database }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     let existing = this.opened.find(x => x.conid == conid && x.database == database);
 
     if (existing) {
@@ -502,7 +534,7 @@ module.exports = {
 
   refresh_meta: true,
   async refresh({ conid, database, keepOpen }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     if (!keepOpen) this.close(conid, database);
 
     await this.ensureOpened(conid, database);
@@ -516,7 +548,7 @@ module.exports = {
       return { status: 'ok' };
     }
 
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const conn = await this.ensureOpened(conid, database);
     conn.subprocess.send({ msgtype: 'syncModel', isFullRefresh });
     return { status: 'ok' };
@@ -553,7 +585,7 @@ module.exports = {
 
   disconnect_meta: true,
   async disconnect({ conid, database }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     await this.close(conid, database, true);
     return { status: 'ok' };
   },
@@ -563,8 +595,9 @@ module.exports = {
     if (!conid || !database) {
       return {};
     }
+    const loadedPermissions = await loadPermissionsFromRequest(req);
 
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req, loadedPermissions);
     if (conid == '__model') {
       const model = await importDbModel(database);
       const trans = await loadModelTransform(modelTransFile);
@@ -586,6 +619,38 @@ module.exports = {
       message: `Loaded database structure for ${database}`,
     });
 
+    if (!hasPermission(`all-tables`, loadedPermissions)) {
+      // filter databases by permissions
+      const tablePermissions = await loadTablePermissionsFromRequest(req);
+      const databasePermissions = await loadDatabasePermissionsFromRequest(req);
+      const databasePermissionRole = getDatabasePermissionRole(conid, database, databasePermissions);
+
+      function applyTablePermissionRole(list, objectTypeField) {
+        const res = [];
+        for (const item of list ?? []) {
+          const tablePermissionRole = getTablePermissionRole(conid, database, objectTypeField, item.schemaName, item.pureName, tablePermissions, databasePermissionRole);
+          if (tablePermissionRole != 'deny') {
+            res.push({
+              ...item,
+              tablePermissionRole,
+            });
+          }
+        }
+        return res;
+      }
+
+      const res = {
+        ...opened.structure,
+        tables: applyTablePermissionRole(opened.structure.tables, 'tables'),
+        views: applyTablePermissionRole(opened.structure.views, 'views'),
+        procedures: applyTablePermissionRole(opened.structure.procedures, 'procedures'),
+        functions: applyTablePermissionRole(opened.structure.functions, 'functions'),
+        triggers: applyTablePermissionRole(opened.structure.triggers, 'triggers'),
+        collections: applyTablePermissionRole(opened.structure.collections, 'collections'),
+      }
+      return res;
+    }
+
     return opened.structure;
     // const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     // if (existing) return existing.status;
@@ -600,7 +665,7 @@ module.exports = {
     if (!conid) {
       return null;
     }
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     if (!conid) return null;
     const opened = await this.ensureOpened(conid, database);
     return opened.serverVersion || null;
@@ -608,7 +673,7 @@ module.exports = {
 
   sqlPreview_meta: true,
   async sqlPreview({ conid, database, objects, options }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     // wait for structure
     await this.structure({ conid, database });
 
@@ -619,7 +684,7 @@ module.exports = {
 
   exportModel_meta: true,
   async exportModel({ conid, database, outputFolder, schema }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
 
     const realFolder = outputFolder.startsWith('archive:')
       ? resolveArchiveFolder(outputFolder.substring('archive:'.length))
@@ -637,7 +702,7 @@ module.exports = {
 
   exportModelSql_meta: true,
   async exportModelSql({ conid, database, outputFolder, outputFile, schema }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
 
     const connection = await connections.getCore({ conid });
     const driver = requireEngineDriver(connection);
@@ -651,7 +716,7 @@ module.exports = {
 
   generateDeploySql_meta: true,
   async generateDeploySql({ conid, database, archiveFolder }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, {
       msgtype: 'generateDeploySql',
@@ -816,17 +881,17 @@ module.exports = {
     return {
       ...(command == 'backup'
         ? driver.backupDatabaseCommand(
-            connection,
-            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
-            // @ts-ignore
-            externalTools
-          )
+          connection,
+          { outputFile, database, options, selectedTables, skippedTables, argsFormat },
+          // @ts-ignore
+          externalTools
+        )
         : driver.restoreDatabaseCommand(
-            connection,
-            { inputFile, database, options, argsFormat },
-            // @ts-ignore
-            externalTools
-          )),
+          connection,
+          { inputFile, database, options, argsFormat },
+          // @ts-ignore
+          externalTools
+        )),
       transformMessage: driver.transformNativeCommandMessage
         ? message => driver.transformNativeCommandMessage(message, command)
         : null,
@@ -923,7 +988,7 @@ module.exports = {
 
   executeSessionQuery_meta: true,
   async executeSessionQuery({ sesid, conid, database, sql }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     logger.info({ sesid, sql }, 'DBGM-00010 Processing query');
     sessions.dispatchMessage(sesid, 'Query execution started');
 
@@ -935,7 +1000,7 @@ module.exports = {
 
   evalJsonScript_meta: true,
   async evalJsonScript({ conid, database, script, runid }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
 
     opened.subprocess.send({ msgtype: 'evalJsonScript', script, runid });

@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const axios = require('axios');
 const { datadir, getLogsFilePath } = require('../utility/directories');
-const { hasPermission } = require('../utility/hasPermission');
+const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
@@ -46,7 +46,7 @@ module.exports = {
   async get(_params, req) {
     const authProvider = getAuthProviderFromReq(req);
     const login = authProvider.getCurrentLogin(req);
-    const permissions = authProvider.getCurrentPermissions(req);
+    const permissions = await authProvider.getCurrentPermissions(req);
     const isUserLoggedIn = authProvider.isUserLoggedIn(req);
 
     const singleConid = authProvider.getSingleConnectionId(req);
@@ -280,7 +280,8 @@ module.exports = {
 
   updateSettings_meta: true,
   async updateSettings(values, req) {
-    if (!hasPermission(`settings/change`, req)) return false;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`settings/change`, loadedPermissions)) return false;
     cachedSettingsValue = null;
 
     const res = await lock.acquire('settings', async () => {
@@ -392,7 +393,8 @@ module.exports = {
 
   exportConnectionsAndSettings_meta: true,
   async exportConnectionsAndSettings(_params, req) {
-    if (!hasPermission(`admin/config`, req)) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`admin/config`, loadedPermissions)) {
       throw new Error('Permission denied: admin/config');
     }
 
@@ -416,7 +418,8 @@ module.exports = {
 
   importConnectionsAndSettings_meta: true,
   async importConnectionsAndSettings({ db }, req) {
-    if (!hasPermission(`admin/config`, req)) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`admin/config`, loadedPermissions)) {
       throw new Error('Permission denied: admin/config');
     }
 

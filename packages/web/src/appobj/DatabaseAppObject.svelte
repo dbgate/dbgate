@@ -46,7 +46,8 @@
     $extensions,
     $currentDatabase,
     $apps,
-    $openedSingleDatabaseConnections
+    $openedSingleDatabaseConnections,
+    databasePermissionRole
   ) {
     const apps = filterAppsForDatabase(connection, name, $apps);
     const handleNewQuery = () => {
@@ -412,11 +413,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
 
     return [
-      hasPermission(`dbops/query`) && {
-        onClick: handleNewQuery,
-        text: _t('database.newQuery', { defaultMessage: 'New query' }),
-        isNewQuery: true,
-      },
+      hasPermission(`dbops/query`) &&
+        isAllowedDatabaseRunScript(databasePermissionRole) && {
+          onClick: handleNewQuery,
+          text: _t('database.newQuery', { defaultMessage: 'New query' }),
+          isNewQuery: true,
+        },
       hasPermission(`dbops/model/edit`) &&
         !connection.isReadOnly &&
         driver?.databaseEngineTypes?.includes('sql') && {
@@ -545,12 +547,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
       { divider: true },
 
       driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`run-shell-script`) &&
         hasPermission(`dbops/dropdb`) && {
           onClick: handleGenerateDropAllObjectsScript,
           text: _t('database.shellDropAllObjects', { defaultMessage: 'Shell: Drop all objects' }),
         },
 
-      {
+      hasPermission(`run-shell-script`) && {
         onClick: handleGenerateRunScript,
         text: _t('database.shellRunScript', { defaultMessage: 'Shell: Run script' }),
       },
@@ -625,7 +628,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';
-  import hasPermission from '../utility/hasPermission';
+  import hasPermission, { isAllowedDatabaseRunScript } from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import newTable from '../tableeditor/newTable';
   import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
@@ -636,6 +639,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { getDatabaseClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
+  import { dataGridRowHeight } from '../datagrid/DataGridRowHeightMeter.svelte';
 
   export let data;
   export let passProps;
@@ -647,7 +651,8 @@ await dbgateApi.executeQuery(${JSON.stringify(
       $extensions,
       $currentDatabase,
       $apps,
-      $openedSingleDatabaseConnections
+      $openedSingleDatabaseConnections,
+      data.databasePermissionRole
     );
   }
 
@@ -697,6 +702,9 @@ await dbgateApi.executeQuery(${JSON.stringify(
           ).length
         )
       : ''}
+  statusIconBefore={data.databasePermissionRole == 'read_content' || data.databasePermissionRole == 'view'
+    ? 'icon lock'
+    : null}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}

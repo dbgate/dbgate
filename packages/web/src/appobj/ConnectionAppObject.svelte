@@ -382,7 +382,8 @@
           $extensions,
           $currentDatabase,
           $apps,
-          $openedSingleDatabaseConnections
+          $openedSingleDatabaseConnections,
+          data.databasePermissionRole,
         ),
       ],
 

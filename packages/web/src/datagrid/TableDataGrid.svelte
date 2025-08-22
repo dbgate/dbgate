@@ -77,7 +77,10 @@
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          forceReadOnly || $connection?.isReadOnly,
+          forceReadOnly ||
+            $connection?.isReadOnly ||
+            extendedDbInfo?.tables?.find(x => x.pureName == pureName && x.schemaName == schemaName)
+              ?.tablePermissionRole == 'read',
           isRawMode,
           $settingsValue
         )

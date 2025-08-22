@@ -21,6 +21,7 @@ const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
 const { checkSecureDirectories, checkSecureDirectoriesInScript } = require('../utility/security');
 const { sendToAuditLog, logJsonRunnerScript } = require('../utility/auditlog');
+const { testStandardPermission } = require('../utility/hasPermission');
 const logger = getLogger('runners');
 
 function extractPlugins(script) {
@@ -273,6 +274,8 @@ module.exports = {
 
   start_meta: true,
   async start({ script }, req) {
+    await testStandardPermission('run-shell-script', req);
+    
     const runid = crypto.randomUUID();
 
     if (script.type == 'json') {

@@ -3,6 +3,7 @@
   import runCommand from '../commands/runCommand';
   import newQuery from '../query/newQuery';
   import { commandsCustomized, selectedWidget } from '../stores';
+  import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
@@ -19,6 +20,7 @@
         newQuery({ multiTabIndex });
       },
       testid: 'NewObjectModal_query',
+      testEnabled: () => hasPermission('dbops/query'),
     },
     {
       icon: 'icon connection',
@@ -114,7 +116,7 @@
       isProFeature: true,
       disabledMessage: 'Database chat is not available for current database',
       testid: 'NewObjectModal_databaseChat',
-    }
+    },
   ];
 </script>
 
@@ -122,7 +124,11 @@
   <div class="create-header">Create new</div>
   <div class="wrapper">
     {#each NEW_ITEMS as item}
-      {@const enabled = item.command ? $commandsCustomized[item.command]?.enabled : true}
+      {@const enabled = item.command
+        ? $commandsCustomized[item.command]?.enabled
+        : item.testEnabled
+          ? item.testEnabled()
+          : true}
       <NewObjectButton
         icon={item.icon}
         title={item.title}
