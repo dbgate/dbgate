@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.2 - not published
+- ADDED: List of processes, ability to kill process (Server summary) #1178
+- ADDED: Database and table permissions (Team Premium edition)
+
 ## 6.6.1
 - ADDED: Support for Mongo shell (Premium) - #1114
 - FIXED: Support for BLOB in Oracle #1181
