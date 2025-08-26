@@ -33,6 +33,7 @@
   import AppObjectListHandler from './AppObjectListHandler.svelte';
   import { getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import openNewTab from '../utility/openNewTab';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let conid;
   export let database;
@@ -83,18 +84,28 @@
     if (loadNext) loadNextPage();
   }
 
-  async function loadNextPage() {
+  async function loadNextPage(skipCount = false) {
     isLoading = true;
     const nextScan = await apiCall('database-connections/scan-keys', {
       conid,
       database,
       pattern: filter,
       cursor: model.cursor,
-      count: model.loadCount,
+      count: skipCount ? undefined : model.loadCount,
     });
 
     model = dbKeys_mergeNextPage(model, nextScan);
     isLoading = false;
+  }
+
+  async function loadAll() {
+    showModal(ConfirmModal, {
+      message:
+        'This will scan all keys in the database, which could affect server performance. Do you want to continue?',
+      onConfirm: () => {
+        loadNextPage(true);
+      },
+    });
   }
 
   function reloadModel() {
@@ -145,9 +156,14 @@
         <FontIcon icon="icon loading" />
       </div>
     {:else}
-      <InlineButton on:click={loadNextPage} title="Scan more keys">
-        <FontIcon icon="icon more" /> Scan more
-      </InlineButton>
+      <div class="flex">
+        <InlineButton on:click={() => loadNextPage()} title="Scan more keys">
+          <FontIcon icon="icon more" /> Scan more
+        </InlineButton>
+        <InlineButton on:click={() => loadAll()} title="Scan all keys">
+          <FontIcon icon="icon warn" /> Scan all
+        </InlineButton>
+      </div>
     {/if}
   </div>
 {/if}

@@ -203,7 +203,7 @@ const driver = {
 
   async scanKeys(dbhan, pattern, cursor = 0, count) {
     const match = pattern?.match(/[\?\[\{]/) ? pattern : pattern ? `*${pattern}*` : '*';
-    const [nextCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', match, 'COUNT', count);
+    const [nextCursor, keys] = await dbhan.client.scan(cursor, 'MATCH', match, 'COUNT', count ?? 2 ** 32);
     const dbsize = await dbhan.client.dbsize();
     const keysMapped = keys.map((key) => ({
       key,

@@ -226,6 +226,7 @@
     'icon type-unknown': 'mdi mdi-help-box',
     'icon equal': 'mdi mdi-equal',
     'icon not-equal': 'mdi mdi-not-equal-variant',
+    'icon warn': 'mdi mdi-alert',
 
     'icon at': 'mdi mdi-at',
     'icon expand-all': 'mdi mdi-expand-all',
