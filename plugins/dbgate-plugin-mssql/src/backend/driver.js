@@ -98,6 +98,9 @@ const driver = {
       connectionType,
       database: conn.database,
       conid: conn.conid,
+      options: {
+        hideDescriptions: conn.hideDescriptions,
+      },
     };
   },
   async close(dbhan) {

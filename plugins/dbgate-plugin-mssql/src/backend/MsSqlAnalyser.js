@@ -116,6 +116,7 @@ function createObjectContentHash(fieldType, item, columns) {
 class MsSqlAnalyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
     super(dbhan, driver, version);
+    console.log('#ammsqlcon', this.dbhan.options);
   }
 
   createQuery(resFileName, typeFields) {
@@ -132,12 +133,10 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'DBGM-00205 Loading tables' });
-    const tablesRows = await this.analyserQuery('tables', ['tables']);
+    const tableItems = await this._getTables();
     this.feedback({ analysingMessage: 'DBGM-00206 Loading columns' });
-    const columnsRows = await this.analyserQuery('columns', ['tables']);
-    const columns = columnsRows.rows.map(getColumnInfo);
-    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
-    const baseColumns = baseColumnsRows.rows.map(getColumnInfo);
+    const columns = await this._getColumns();
+    const baseColumns = await this._getBaseColumns();
     this.feedback({ analysingMessage: 'DBGM-00207 Loading primary keys' });
     const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00208 Loading foreign keys' });
@@ -174,7 +173,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const viewColumnRows = await this.analyserQuery('viewColumns', ['views']);
 
     this.feedback({ analysingMessage: 'DBGM-00217 Finalizing DB structure' });
-    const tables = tablesRows.rows.map(row => ({
+    const tables = tableItems.map(row => ({
       ...row,
       contentHash: createObjectContentHash('tables', row, baseColumns),
       columns: columns.filter(col => col.objectId == row.objectId),
@@ -275,8 +274,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const modificationsQueryData = await this.analyserQuery('modifications');
-    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
-    const baseColumns = baseColumnsRows.rows;
+    const baseColumns = await this._getBaseColumns();
     const tableSizes = await this.analyserQuery('tableSizes');
 
     const res = DatabaseAnalyser.createEmptyStructure();
@@ -300,6 +298,30 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       }
     }
     return res;
+  }
+
+  async _getBaseColumns() {
+    if (this.dbhan.options?.hideDescriptions) return [];
+    const baseColumnsRows = await this.analyserQuery('baseColumns', ['tables']);
+    return baseColumnsRows.rows;
+  }
+
+  async _getColumns() {
+    if (this.dbhan.options?.hideDescriptions) {
+      const columnsRows = await this.analyserQuery('columns', ['tables']);
+      return columnsRows.rows.map(getColumnInfo);
+    }
+    const columnsWithDescRows = await this.analyserQuery('columnsWithDescriptions', ['tables']);
+    return columnsWithDescRows.rows.map(getColumnInfo);
+  }
+
+  async _getTables() {
+    if (this.dbhan.options?.hideDescriptions) {
+      const tablesRows = await this.analyserQuery('tables', ['tables']);
+      return tablesRows.rows;
+    }
+    const tablesRows = await this.analyserQuery('tables', ['tables']);
+    return tablesRows.rows;
   }
 }
 

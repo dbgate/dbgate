@@ -467,6 +467,15 @@
   <FormFileInputField disabled={isConnected} label="Service account key JSON" name="connectionDefinition" />
 {/if}
 
+{#if driver?.showConnectionField('hideDescriptions', $values, showConnectionFieldArgs)}
+  <FormCheckboxField
+    label={_t('connection.hideDescriptions', { defaultMessage: 'Hide descriptions' })}
+    name="hideDescriptions"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_hideDescriptions"
+  />
+{/if}
+
 {#if driver}
   <div class="row">
     <div class="col-6 mr-1">

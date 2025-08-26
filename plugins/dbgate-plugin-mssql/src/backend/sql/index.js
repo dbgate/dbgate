@@ -1,4 +1,5 @@
 const columns = require('./columns');
+const columnsWithDescriptions = require('./columnsWithDescriptions');
 const foreignKeys = require('./foreignKeys');
 const primaryKeys = require('./primaryKeys');
 const tables = require('./tables');
@@ -20,6 +21,7 @@ const baseColumns = require('./baseColumns');
 
 module.exports = {
   columns,
+  columnsWithDescriptions,
   tables,
   foreignKeys,
   primaryKeys,
