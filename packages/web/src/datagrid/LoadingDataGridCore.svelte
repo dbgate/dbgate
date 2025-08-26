@@ -54,7 +54,7 @@
     const nextRows = await loadDataPage(
       $$props,
       loadedRows.length,
-      getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)
+      getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000)
     );
     if (loadedTimeRef.get() !== loadStart) {
       // new load was dispatched

@@ -144,7 +144,7 @@
   }
 
   function openQueryOnError() {
-    openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)));
+    openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000)));
   }
 
   const quickExportHandler = fmt => async () => {

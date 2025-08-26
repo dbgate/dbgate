@@ -51,7 +51,7 @@
   }
 
   async function loadNextRows() {
-    const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000);
+    const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000);
     const rows = await apiCall('jsldata/get-rows', {
       jslid,
       offset: loadedRows.length,

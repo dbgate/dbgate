@@ -157,7 +157,7 @@ ORDER BY
           <div class="heading">Data grid</div>
           <FormTextField
             name="dataGrid.pageSize"
-            label="Page size (number of rows for incremental loading, must be between 5 and 1000)"
+            label="Page size (number of rows for incremental loading, must be between 5 and 50000)"
             defaultValue="100"
           />
           <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
