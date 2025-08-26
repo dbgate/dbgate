@@ -11,4 +11,5 @@ inner join sys.schemas s on o.schema_id = s.schema_id
 left join sys.extended_properties ep on ep.major_id = o.object_id 
 	and ep.minor_id = 0 
 	and ep.name = 'MS_Description'
+  and ep.class = 1  -- Add this filter for object/column level properties
 where o.object_id =OBJECT_ID_CONDITION and s.name =SCHEMA_NAME_CONDITION`;
