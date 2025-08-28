@@ -11,6 +11,9 @@ Builds:
 ## 6.6.2 - not published
 - ADDED: List of processes, ability to kill process (Server summary) #1178
 - ADDED: Database and table permissions (Team Premium edition)
+- ADDED: Redis search box - Scan all #1191
+- FIXED: Optimalized loading SQL server with descriptions #1187
+- CHANGED: Allow a much greater page size #1185
 
 ## 6.6.1
 - ADDED: Support for Mongo shell (Premium) - #1114
