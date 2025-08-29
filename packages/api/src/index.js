@@ -5,6 +5,7 @@ const moment = require('moment');
 const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
 const currentVersion = require('./currentVersion');
+const _ = require('lodash');
 
 const logger = getLogger('apiIndex');
 
@@ -68,7 +69,7 @@ function configureLogger() {
             }
             const additionals = {};
             const finalMsg =
-              msg.msg && msg.msg.match(/^DBGM-\d\d\d\d\d/)
+              _.isString(msg.msg) && msg.msg.match(/^DBGM-\d\d\d\d\d/)
                 ? {
                     ...msg,
                     msg: msg.msg.substring(10).trimStart(),
