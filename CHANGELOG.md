@@ -14,6 +14,8 @@ Builds:
 - ADDED: Redis search box - Scan all #1191
 - FIXED: Optimalized loading SQL server with descriptions #1187
 - CHANGED: Allow a much greater page size #1185
+- FIXED: Optimalized loading SQL server with descriptions #1187
+- FIXED: Executing queries for SQLite crash #1195
 
 ## 6.6.1
 - ADDED: Support for Mongo shell (Premium) - #1114
