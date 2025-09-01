@@ -167,21 +167,35 @@ const driver = {
       case 'createCollection':
         await this.script(dbhan, `db.createCollection('${operation.collection.name}')`);
         break;
+      // case 'dropCollection':
+      //   await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
+      //   break;
+      // case 'renameCollection':
+      //   await this.script(
+      //     dbhan,
+      //     `db.getCollection('${operation.collection}').renameCollection('${operation.newName}')`
+      //   );
+      //   break;
+      // case 'cloneCollection':
+      //   await this.script(
+      //     dbhan,
+      //     `db.getCollection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+      //   );
+      //   break;
+
       case 'dropCollection':
-        await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
+        await this.script(dbhan, `db.dropCollection('${operation.collection}')`);
         break;
       case 'renameCollection':
-        await this.script(
-          dbhan,
-          `db.getCollection('${operation.collection}').renameCollection('${operation.newName}')`
-        );
+        await this.script(dbhan, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
         break;
       case 'cloneCollection':
         await this.script(
           dbhan,
-          `db.getCollection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+          `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
         );
         break;
+
       default:
         throw new Error(`Operation type ${type} not supported`);
     }
