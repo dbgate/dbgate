@@ -148,7 +148,13 @@ const driver = {
     }
     return res;
   },
+
   async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT name FROM sys.databases order by name');
+    return rows;
+  },
+
+  async listDatabasesFull(dbhan) {
     const { rows } = await this.query(dbhan, sql.listDatabases);
     return rows;
   },
@@ -171,7 +177,7 @@ const driver = {
     const [variables, processes, databases] = await Promise.all([
       this.listVariables(dbhan),
       this.listProcesses(dbhan),
-      this.listDatabases(dbhan),
+      this.listDatabasesFull(dbhan),
     ]);
 
     return {
