@@ -8,6 +8,11 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.3
+- FIXED: Error “db.getCollection(…).renameCollection is not a function” when renaming collection in dbGate #1198
+- FIXED: Can't list databases from Azure SQL SERVER #1197
+- ADDED: Save zoom level in electron apps
+
 ## 6.6.2
 - ADDED: List of processes, ability to kill process (Server summary) #1178
 - ADDED: Database and table permissions (Team Premium edition)
