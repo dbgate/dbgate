@@ -212,6 +212,10 @@ ipcMain.on('app-started', async (event, arg) => {
       autoUpdater.checkForUpdates();
     }
   }
+
+  if (initialConfig['winZoomLevel'] != null) {
+    mainWindow.webContents.zoomLevel = initialConfig['winZoomLevel'];
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -394,6 +398,7 @@ function createWindow() {
             JSON.stringify({
               winBounds: mainWindow.getBounds(),
               winIsMaximized: mainWindow.isMaximized(),
+              winZoomLevel: mainWindow.webContents.zoomLevel,
             }),
             'utf-8'
           );
