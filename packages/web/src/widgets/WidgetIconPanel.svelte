@@ -110,21 +110,21 @@
       { command: 'settings.show' },
       { command: 'theme.changeTheme' },
       { command: 'settings.commands' },
-      {
+      hasPermission('widgets/app') && {
         text: 'View applications',
         onClick: () => {
           $selectedWidget = 'app';
           $visibleWidgetSideBar = true;
         },
       },
-      {
+      hasPermission('widgets/plugins') && {
         text: 'Manage plugins',
         onClick: () => {
           $selectedWidget = 'plugins';
           $visibleWidgetSideBar = true;
         },
       },
-      {
+      hasPermission('application-log') && {
         text: 'View application logs',
         onClick: () => {
           openNewTab({
