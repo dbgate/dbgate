@@ -619,7 +619,7 @@ module.exports = {
       message: `Loaded database structure for ${database}`,
     });
 
-    if (!hasPermission(`all-tables`, loadedPermissions)) {
+    if (process.env.STORAGE_DATABASE && !hasPermission(`all-tables`, loadedPermissions)) {
       // filter databases by permissions
       const tablePermissions = await loadTablePermissionsFromRequest(req);
       const databasePermissions = await loadDatabasePermissionsFromRequest(req);

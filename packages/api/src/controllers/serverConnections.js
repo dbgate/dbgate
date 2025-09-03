@@ -46,7 +46,7 @@ module.exports = {
     existing.status = status;
     socket.emitChanged(`server-status-changed`);
   },
-  handle_ping() { },
+  handle_ping() {},
   handle_response(conid, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];
     resolve(response);
@@ -166,7 +166,7 @@ module.exports = {
       message: `Loaded databases for connection`,
     });
 
-    if (!hasPermission(`all-databases`, loadedPermissions)) {
+    if (process.env.STORAGE_DATABASE && !hasPermission(`all-databases`, loadedPermissions)) {
       // filter databases by permissions
       const databasePermissions = await loadDatabasePermissionsFromRequest(req);
       const res = [];
