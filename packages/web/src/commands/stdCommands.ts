@@ -1138,13 +1138,6 @@ registerCommand({
 });
 
 registerCommand({
-  id: 'new.gist',
-  category: 'New',
-  name: 'Upload error to gist',
-  onClick: () => showModal(UploadErrorModal),
-});
-
-registerCommand({
   id: 'app.unsetCurrentDatabase',
   category: 'Application',
   name: 'Unset current database',

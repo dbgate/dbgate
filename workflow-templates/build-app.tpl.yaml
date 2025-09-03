@@ -137,12 +137,6 @@ jobs:
         run: |
           <<cd_merged>>
           yarn setCurrentVersion
-      - name: printSecrets
-        run: |
-          <<cd_merged>>
-          yarn printSecrets
-        env:
-          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
       - name: fillPackagedPlugins
         run: |
           <<cd_merged>>

@@ -49,12 +49,6 @@ jobs:
         run: |
           yarn setCurrentVersion
 
-      - name: printSecrets
-        run: |
-            yarn printSecrets
-        env:
-          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
-
       - name: Publish types
         working-directory: packages/types
         run: |
