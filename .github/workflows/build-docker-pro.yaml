@@ -76,14 +76,6 @@ jobs:
           cd dbgate-merged
 
           yarn setCurrentVersion
-      - name: printSecrets
-        run: |
-          cd ..
-          cd dbgate-merged
-
-          yarn printSecrets
-        env:
-          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
       - name: Prepare docker image
         run: |
           cd ..
