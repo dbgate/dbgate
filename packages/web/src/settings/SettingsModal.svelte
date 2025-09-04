@@ -41,15 +41,14 @@
   import { derived } from 'svelte/store';
   import { safeFormatDate } from 'dbgate-tools';
   import FormDefaultActionField from './FormDefaultActionField.svelte';
-  import { _t, getSelectedLanguage } from '../translations';
-  import { internalRedirectTo } from '../clientAuth';
-  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { _t } from '../translations';
+  import hasPermission from '../utility/hasPermission';
 
   const electron = getElectron();
   let restartWarning = false;
   let licenseKeyCheckResult = null;
 
-  export let selectedTab = 0;
+  export let selectedTab = 'general';
 
   const sqlPreview = `-- example query
 SELECT
@@ -100,14 +99,14 @@ ORDER BY
         bind:value={selectedTab}
         isInline
         tabs={[
-          { label: 'General', slot: 1 },
-          isProApp() && electron && { label: 'License', slot: 7 },
-          { label: 'Connection', slot: 2 },
-          { label: 'Themes', slot: 3 },
-          { label: 'Default Actions', slot: 4 },
-          { label: 'Behaviour', slot: 5 },
-          { label: 'External tools', slot: 8 },
-          { label: 'Other', slot: 6 },
+          hasPermission('settings/change') && { identifier: 'general', label: 'General', slot: 1 },
+          isProApp() && electron && { identifier: 'license', label: 'License', slot: 7 },
+          hasPermission('settings/change') && { identifier: 'connection', label: 'Connection', slot: 2 },
+          { identifier: 'theme', label: 'Themes', slot: 3 },
+          hasPermission('settings/change') && { identifier: 'default-actions', label: 'Default Actions', slot: 4 },
+          hasPermission('settings/change') && { identifier: 'behaviour', label: 'Behaviour', slot: 5 },
+          hasPermission('settings/change') && { identifier: 'external-tools', label: 'External tools', slot: 8 },
+          hasPermission('settings/change') && { identifier: 'other', label: 'Other', slot: 6 },
         ]}
       >
         <svelte:fragment slot="1">

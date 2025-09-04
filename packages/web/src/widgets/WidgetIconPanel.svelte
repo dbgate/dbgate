@@ -107,9 +107,9 @@
     const left = rect.right;
     const top = rect.bottom;
     const items = [
-      { command: 'settings.show' },
+      hasPermission('settings/change') && { command: 'settings.show' },
       { command: 'theme.changeTheme' },
-      { command: 'settings.commands' },
+      hasPermission('settings/change') && { command: 'settings.commands' },
       hasPermission('widgets/app') && {
         text: 'View applications',
         onClick: () => {

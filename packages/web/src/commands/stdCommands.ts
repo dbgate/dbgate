@@ -70,7 +70,7 @@ registerCommand({
   category: 'Theme',
   name: 'Change',
   toolbarName: 'Change theme',
-  onClick: () => showModal(SettingsModal, { selectedTab: 2 }),
+  onClick: () => showModal(SettingsModal, { selectedTab: 'theme' }),
   // getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 
@@ -692,8 +692,8 @@ if (isProApp()) {
     icon: 'icon compare',
     testEnabled: () =>
       getCurrentDatabase() != null &&
-      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql')
-      && hasPermission(`dbops/export`),
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql') &&
+      hasPermission(`dbops/export`),
     onClick: () => {
       openNewTab(
         {
@@ -754,6 +754,7 @@ if (hasPermission('settings/change')) {
         props: {},
       });
     },
+    testEnabled: () => hasPermission('settings/change'),
   });
 
   registerCommand({
@@ -762,6 +763,7 @@ if (hasPermission('settings/change')) {
     name: 'Change',
     toolbarName: 'Settings',
     onClick: () => showModal(SettingsModal),
+    testEnabled: () => hasPermission('settings/change'),
   });
 }
 

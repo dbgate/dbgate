@@ -8,10 +8,11 @@
     component?: any;
     props?: any;
     testid?: string;
+    identifier?: string;
   }
 
   export let tabs: TabDef[];
-  export let value = 0;
+  export let value: string | number = 0;
   export let menu = null;
   export let isInline = false;
   export let containerMaxWidth = undefined;
@@ -36,10 +37,10 @@
     {#each _.compact(tabs) as tab, index}
       <div
         class="tab-item"
-        class:selected={value == index}
+        class:selected={value == (tab.identifier ?? index)}
         on:click={() => {
-          value = index;
-          onUserChange?.(index);
+          value = tab.identifier ?? index;
+          onUserChange?.(tab.identifier ?? index);
         }}
         data-testid={tab.testid}
       >
@@ -60,14 +61,14 @@
         class:flexColContainer
         class:maxHeight100
         class:isInline
-        class:tabVisible={index == value}
+        class:tabVisible={(tab.identifier ?? index) == value}
         style:max-width={containerMaxWidth}
       >
         <svelte:component
           this={tab.component}
           {...tab.props}
-          tabVisible={index == value}
-          tabControlHiddenTab={index != value}
+          tabVisible={(tab.identifier ?? index) == value}
+          tabControlHiddenTab={(tab.identifier ?? index) != value}
         />
         {#if tab.slot != null}
           {#if tab.slot == 0}<slot name="0" />
