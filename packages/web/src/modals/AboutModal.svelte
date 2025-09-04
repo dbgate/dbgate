@@ -48,11 +48,11 @@
           >
         </div>
       {/if}
-      <div>
+      <!-- <div>
         <FontIcon icon="mdi mdi-lightbulb color-icon-yellow" /> Give us feedback: <Link
           href="https://dbgate.io/feedback">dbgate.io/feedback</Link
         >
-      </div>
+      </div> -->
 
       <div class="mt-2">
         Source codes: <Link href="https://github.com/dbgate/dbgate/">GitHub</Link>
