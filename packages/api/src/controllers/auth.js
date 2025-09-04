@@ -174,7 +174,9 @@ module.exports = {
   getProviders_meta: true,
   getProviders() {
     return {
-      providers: getAuthProviders().map(x => x.toJson()),
+      providers: getAuthProviders()
+        .filter(x => !x.skipInList)
+        .map(x => x.toJson()),
       default: getDefaultAuthProvider()?.amoid,
     };
   },

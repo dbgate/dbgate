@@ -10,6 +10,7 @@ const logger = getLogger('authProvider');
 
 class AuthProviderBase {
   amoid = 'none';
+  skipInList = false;
 
   async login(login, password, options = undefined, req = undefined) {
     return {
@@ -53,7 +54,7 @@ class AuthProviderBase {
   async getCurrentTablePermissions(req) {
     return [];
   }
-  
+
   getLoginPageConnections() {
     return null;
   }
