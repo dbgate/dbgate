@@ -357,7 +357,7 @@ const drivers = driverBases.map(driverBase => ({
     const [processes, variables, databases] = await Promise.all([
       this.listProcesses(dbhan),
       this.listVariables(dbhan),
-      this.listDatabases(dbhan),
+      this.listDatabasesFull(dbhan),
     ]);
 
     /** @type {import('dbgate-types').ServerSummary} */
@@ -381,8 +381,13 @@ const drivers = driverBases.map(driverBase => ({
     return result;
   },
 
-  async listDatabases(dbhan) {
+  async listDatabasesFull(dbhan) {
     const { rows } = await this.query(dbhan, sql.listDatabases);
+    return rows;
+  },
+
+  async listDatabases(dbhan) {
+    const { rows } = await this.query(dbhan, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
 
