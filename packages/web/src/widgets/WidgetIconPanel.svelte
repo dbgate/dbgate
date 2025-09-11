@@ -110,13 +110,6 @@
       hasPermission('settings/change') && { command: 'settings.show' },
       { command: 'theme.changeTheme' },
       hasPermission('settings/change') && { command: 'settings.commands' },
-      hasPermission('widgets/app') && {
-        text: 'View applications',
-        onClick: () => {
-          $selectedWidget = 'app';
-          $visibleWidgetSideBar = true;
-        },
-      },
       hasPermission('widgets/plugins') && {
         text: 'Manage plugins',
         onClick: () => {

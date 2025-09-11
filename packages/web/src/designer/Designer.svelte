@@ -42,7 +42,7 @@
   import DesignerTable from './DesignerTable.svelte';
   import { isConnectedByReference } from './designerTools';
   import uuidv1 from 'uuid/v1';
-  import { getTableInfo, useDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
+  import { getTableInfo, useAllApps, useDatabaseInfo } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
   import { writable } from 'svelte/store';
@@ -108,7 +108,7 @@
     ref => tables.find(x => x.designerId == ref.sourceId) && tables.find(x => x.designerId == ref.targetId)
   ) as any[];
   $: zoomKoef = settings?.customizeStyle && value?.style?.zoomKoef ? value?.style?.zoomKoef : 1;
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
 
   $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
 

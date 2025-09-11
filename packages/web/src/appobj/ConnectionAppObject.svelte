@@ -130,7 +130,7 @@
   import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
-  import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
+  import { getDatabaseList, useAllApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall, removeVolatileMapping } from '../utility/api';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
@@ -383,7 +383,7 @@
           $currentDatabase,
           $apps,
           $openedSingleDatabaseConnections,
-          data.databasePermissionRole,
+          data.databasePermissionRole
         ),
       ],
 
@@ -427,7 +427,7 @@
     }
   }
 
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
 </script>
 
 <AppObjectCore

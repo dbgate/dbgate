@@ -111,3 +111,20 @@ export function fillConstraintNames(table: TableInfo, dialect: SqlDialect) {
   }
   return res;
 }
+
+export const DATA_FOLDER_NAMES = [
+  { name: 'sql', label: 'SQL scripts' },
+  { name: 'shell', label: 'Shell scripts' },
+  { name: 'markdown', label: 'Markdown files' },
+  { name: 'charts', label: 'Charts' },
+  { name: 'query', label: 'Query designs' },
+  { name: 'sqlite', label: 'SQLite files' },
+  { name: 'duckdb', label: 'DuckDB files' },
+  { name: 'diagrams', label: 'Diagrams' },
+  { name: 'perspectives', label: 'Perspectives' },
+  { name: 'impexp', label: 'Import/Export jobs' },
+  { name: 'modtrans', label: 'Model transforms' },
+  { name: 'datadeploy', label: 'Data deploy jobs' },
+  { name: 'dbcompare', label: 'Database compare jobs' },
+  { name: 'apps', label: 'Applications' },
+];

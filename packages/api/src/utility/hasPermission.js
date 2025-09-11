@@ -85,6 +85,16 @@ async function loadTablePermissionsFromRequest(req) {
   return tablePermissions;
 }
 
+async function loadFilePermissionsFromRequest(req) {
+  const authProvider = getAuthProviderFromReq(req);
+  if (!req) {
+    return null;
+  }
+
+  const filePermissions = await authProvider.getCurrentFilePermissions(req);
+  return filePermissions;
+}
+
 function matchDatabasePermissionRow(conid, database, permissionRow) {
   if (permissionRow.connection_id) {
     if (conid != permissionRow.connection_id) {
@@ -135,12 +145,38 @@ function matchTablePermissionRow(objectTypeField, schemaName, pureName, permissi
   return true;
 }
 
+function matchFilePermissionRow(folder, file, permissionRow) {
+  if (permissionRow.folder_name) {
+    if (folder != permissionRow.folder_name) {
+      return false;
+    }
+  }
+  if (permissionRow.file_names_list) {
+    const items = permissionRow.file_names_list.split('\n');
+    if (!items.find(item => item.trim()?.toLowerCase() === file?.toLowerCase())) {
+      return false;
+    }
+  }
+  if (permissionRow.file_names_regex) {
+    const regex = new RegExp(permissionRow.file_names_regex, 'i');
+    if (!regex.test(file)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const DATABASE_ROLE_ID_NAMES = {
   '-1': 'view',
   '-2': 'read_content',
   '-3': 'write_data',
   '-4': 'run_script',
   '-5': 'deny',
+};
+
+const FILE_ROLE_ID_NAMES = {
+  '-1': 'allow',
+  '-2': 'deny',
 };
 
 function getDatabaseRoleLevelIndex(roleName) {
@@ -194,6 +230,17 @@ function getDatabasePermissionRole(conid, database, loadedDatabasePermissions) {
       continue;
     }
     res = DATABASE_ROLE_ID_NAMES[permissionRow.database_permission_role_id];
+  }
+  return res;
+}
+
+function getFilePermissionRole(folder, file, loadedFilePermissions) {
+  let res = 'deny';
+  for (const permissionRow of loadedFilePermissions) {
+    if (!matchFilePermissionRow(folder, file, permissionRow)) {
+      continue;
+    }
+    res = FILE_ROLE_ID_NAMES[permissionRow.file_permission_role_id];
   }
   return res;
 }
@@ -308,8 +355,10 @@ module.exports = {
   loadPermissionsFromRequest,
   loadDatabasePermissionsFromRequest,
   loadTablePermissionsFromRequest,
+  loadFilePermissionsFromRequest,
   getDatabasePermissionRole,
   getTablePermissionRole,
+  getFilePermissionRole,
   testStandardPermission,
   testDatabaseRolePermission,
   getTablePermissionRoleLevelIndex,

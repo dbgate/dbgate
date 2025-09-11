@@ -268,6 +268,23 @@ if (isProApp()) {
   });
 }
 
+if (isProApp()) {
+  registerCommand({
+    id: 'new.application',
+    category: 'New',
+    icon: 'img app',
+    name: 'Application',
+    menuName: 'New application',
+    onClick: () => {
+      openNewTab({
+        title: 'Application #',
+        icon: 'img app',
+        tabComponent: 'AppEditorTab',
+      });
+    },
+  });
+}
+
 registerCommand({
   id: 'new.diagram',
   category: 'New',
@@ -297,22 +314,22 @@ registerCommand({
   },
 });
 
-registerCommand({
-  id: 'new.application',
-  category: 'New',
-  icon: 'img app',
-  name: 'Application',
-  onClick: () => {
-    showModal(InputTextModal, {
-      value: '',
-      label: 'New application name',
-      header: 'Create application',
-      onConfirm: async folder => {
-        apiCall('apps/create-folder', { folder });
-      },
-    });
-  },
-});
+// registerCommand({
+//   id: 'new.application',
+//   category: 'New',
+//   icon: 'img app',
+//   name: 'Application',
+//   onClick: () => {
+//     showModal(InputTextModal, {
+//       value: '',
+//       label: 'New application name',
+//       header: 'Create application',
+//       onConfirm: async folder => {
+//         apiCall('apps/create-folder', { folder });
+//       },
+//     });
+//   },
+// });
 
 registerCommand({
   id: 'new.table',

@@ -6,6 +6,7 @@ const cachedByKey = {};
 const cachedPromisesByKey = {};
 const cachedKeysByReloadTrigger = {};
 const subscriptionsByReloadTrigger = {};
+const subscriptionsByByCacheKeyPeek = {};
 const cacheGenerationByKey = {};
 
 let cacheGeneration = 0;
@@ -29,6 +30,7 @@ function cacheSet(cacheKey, value, reloadTrigger, generation) {
   addCacheKeyToReloadTrigger(cacheKey, reloadTrigger);
   delete cachedPromisesByKey[cacheKey];
   cacheGenerationByKey[cacheKey] = generation;
+  dispatchCacheChangePeek(cacheKey);
 }
 
 function cacheClean(reloadTrigger) {
@@ -62,6 +64,10 @@ function acquireCacheGeneration() {
 
 function getCacheGenerationForKey(cacheKey) {
   return cacheGenerationByKey[cacheKey] || 0;
+}
+
+export function getCachedValue(cacheKey) {
+  return cacheGet(cacheKey);
 }
 
 export async function loadCachedValue(reloadTrigger, cacheKey, func) {
@@ -107,8 +113,32 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
         x => x != reloadHandler
       );
     }
-    if (subscriptionsByReloadTrigger[itemString].length == 0) {
+    if (subscriptionsByReloadTrigger[itemString]?.length == 0) {
       delete subscriptionsByReloadTrigger[itemString];
+    }
+  }
+}
+
+export function subscribeCachePeek(cacheKey, peekHandler) {
+  if (!subscriptionsByByCacheKeyPeek[cacheKey]) {
+    subscriptionsByByCacheKeyPeek[cacheKey] = [];
+  }
+  subscriptionsByByCacheKeyPeek[cacheKey].push(peekHandler);
+}
+
+export function unsubscribeCachePeek(cacheKey, peekHandler) {
+  if (subscriptionsByByCacheKeyPeek[cacheKey]) {
+    subscriptionsByByCacheKeyPeek[cacheKey] = subscriptionsByByCacheKeyPeek[cacheKey].filter(x => x != peekHandler);
+  }
+  if (subscriptionsByByCacheKeyPeek[cacheKey]?.length == 0) {
+    delete subscriptionsByByCacheKeyPeek[cacheKey];
+  }
+}
+
+function dispatchCacheChangePeek(cacheKey) {
+  if (subscriptionsByByCacheKeyPeek[cacheKey]) {
+    for (const handler of subscriptionsByByCacheKeyPeek[cacheKey]) {
+      handler();
     }
   }
 }

@@ -12,6 +12,7 @@
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { isProApp } from '../utility/proTools';
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
+  import { DATA_FOLDER_NAMES } from 'dbgate-tools';
 
   let filter = '';
 
@@ -27,6 +28,7 @@
   const dbCompareJobFiles = useFiles({ folder: 'dbcompare' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
+  const appFiles = useFiles({ folder: 'apps' });
 
   $: files = [
     ...($sqlFiles || []),
@@ -41,32 +43,18 @@
     ...($modelTransformFiles || []),
     ...((isProApp() && $dataDeployJobFiles) || []),
     ...((isProApp() && $dbCompareJobFiles) || []),
+    ...((isProApp() && $appFiles) || []),
   ];
 
   function handleRefreshFiles() {
     apiCall('files/refresh', {
-      folders: [
-        'sql',
-        'shell',
-        'markdown',
-        'charts',
-        'query',
-        'sqlite',
-        'diagrams',
-        'perspectives',
-        'impexp',
-        'modtrans',
-        'datadeploy',
-        'dbcompare',
-      ],
+      folders: DATA_FOLDER_NAMES.map(folder => folder.name),
     });
   }
 
   function dataFolderTitle(folder) {
-    if (folder == 'modtrans') return 'Model transforms';
-    if (folder == 'datadeploy') return 'Data deploy jobs';
-    if (folder == 'dbcompare') return 'Database compare jobs';
-    return _.startCase(folder);
+    const foundFolder = DATA_FOLDER_NAMES.find(f => f.name === folder);
+    return foundFolder ? foundFolder.label : _.startCase(folder);
   }
 
   async function handleUploadedFile(filePath, fileName) {

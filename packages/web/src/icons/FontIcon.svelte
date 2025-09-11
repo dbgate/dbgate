@@ -76,6 +76,7 @@
     'icon send': 'mdi mdi-send',
     'icon regex': 'mdi mdi-regex',
     'icon list': 'mdi mdi-format-list-bulleted-triangle',
+    'icon help': 'mdi mdi-help',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',

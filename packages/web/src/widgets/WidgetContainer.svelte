@@ -6,7 +6,6 @@
   import PluginsWidget from './PluginsWidget.svelte';
   import CellDataWidget from './CellDataWidget.svelte';
   import HistoryWidget from './HistoryWidget.svelte';
-  import AppWidget from './AppWidget.svelte';
   import AdminMenuWidget from './AdminMenuWidget.svelte';
   import AdminPremiumPromoWidget from './AdminPremiumPromoWidget.svelte';
   import PublicCloudWidget from './PublicCloudWidget.svelte';
@@ -14,8 +13,9 @@
   import hasPermission from '../utility/hasPermission';
 </script>
 
-<DatabaseWidget hidden={$visibleSelectedWidget != 'database'} />
-
+{#if hasPermission('widgets/database')}
+  <DatabaseWidget hidden={$visibleSelectedWidget != 'database'} />
+{/if}
 {#if $visibleSelectedWidget == 'file' && hasPermission('widgets/file')}
   <FilesWidget />
 {/if}
@@ -30,9 +30,6 @@
 {/if}
 {#if $visibleSelectedWidget == 'cell-data' && hasPermission('widgets/cell-data')}
   <CellDataWidget />
-{/if}
-{#if $visibleSelectedWidget == 'app' && hasPermission('widgets/app')}
-  <AppWidget />
 {/if}
 {#if $visibleSelectedWidget == 'admin' && hasPermission('widgets/admin')}
   <AdminMenuWidget />

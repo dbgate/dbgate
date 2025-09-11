@@ -20,7 +20,7 @@
     installNewVolatileConnectionListener,
     refreshPublicCloudFiles,
   } from './utility/api';
-  import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
+  import { getAllApps, getConfig, getSettings } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
@@ -49,7 +49,7 @@
 
       const connections = await apiCall('connections/list');
       const settings = await getSettings();
-      const apps = await getUsedApps();
+      const apps = await getAllApps();
       const loadedApiValue = !!(settings && connections && config && apps);
 
       if (loadedApiValue) {

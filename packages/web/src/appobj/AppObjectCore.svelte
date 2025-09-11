@@ -36,6 +36,7 @@
   export let filter = null;
   export let disableHover = false;
   export let divProps = {};
+  export let additionalIcons = null;
 
   $: isChecked =
     checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));
@@ -159,6 +160,11 @@
         }}
       />
     </span>
+  {/if}
+  {#if additionalIcons}
+    {#each additionalIcons as ic}
+      <FontIcon icon={ic.icon} title={ic.title} colorClass={ic.colorClass} />
+    {/each}
   {/if}
   {#if extInfo}
     <span class="ext-info">

@@ -12,7 +12,8 @@
   import { onMount, tick } from 'svelte';
   import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
   import { apiCall } from '../utility/api';
-  import { saveDbToApp } from '../utility/appTools';
+  // import { apiCall } from '../utility/api';
+  // import { saveDbToApp } from '../utility/appTools';
 
   export let conid;
   export let database;
@@ -173,7 +174,7 @@
       <div class="row">
         <div class="label col-3">Target application</div>
         <div class="col-9">
-          <TargetApplicationSelect bind:value={dstApp} />
+          <TargetApplicationSelect bind:value={dstApp} {conid} {database} />
         </div>
       </div>
     </div>
@@ -181,10 +182,10 @@
     <svelte:fragment slot="footer">
       <FormSubmit
         value={'Save'}
+        disabled={!dstApp}
         on:click={async () => {
-          const appFolder = await saveDbToApp(conid, database, dstApp);
           await apiCall('apps/save-virtual-reference', {
-            appFolder,
+            appid: dstApp,
             schemaName,
             pureName,
             refSchemaName,

@@ -142,6 +142,18 @@
     label: 'Model transform file',
   };
 
+  const apps: FileTypeHandler = isProApp()
+    ? {
+        icon: 'img app',
+        format: 'json',
+        tabComponent: 'AppEditorTab',
+        folder: 'apps',
+        currentConnection: false,
+        extension: 'json',
+        label: 'Application file',
+      }
+    : undefined;
+
   export const SAVED_FILE_HANDLERS = {
     sql,
     shell,
@@ -154,6 +166,7 @@
     modtrans,
     datadeploy,
     dbcompare,
+    apps,
   };
 
   export const extractKey = data => data.file;

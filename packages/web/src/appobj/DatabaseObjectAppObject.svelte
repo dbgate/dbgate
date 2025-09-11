@@ -45,16 +45,16 @@
     schedulerEvents: 'icon scheduler-event',
   };
 
-  const defaultTabs = {
-    tables: 'TableDataTab',
-    collections: 'CollectionDataTab',
-    views: 'ViewDataTab',
-    matviews: 'ViewDataTab',
-    queries: 'QueryDataTab',
-    procedures: 'SqlObjectTab',
-    functions: 'SqlObjectTab',
-    triggers: 'SqlObjectTab',
-  };
+  // const defaultTabs = {
+  //   tables: 'TableDataTab',
+  //   collections: 'CollectionDataTab',
+  //   views: 'ViewDataTab',
+  //   matviews: 'ViewDataTab',
+  //   queries: 'QueryDataTab',
+  //   procedures: 'SqlObjectTab',
+  //   functions: 'SqlObjectTab',
+  //   triggers: 'SqlObjectTab',
+  // };
 
   function createScriptTemplatesSubmenu(objectTypeField) {
     return {
@@ -724,7 +724,7 @@
     });
 
     const filteredNoEmptySubmenus = filteredSumenus.filter(x => !x.submenu || x.submenu.length > 0);
-    
+
     return filteredNoEmptySubmenus;
   }
 
@@ -741,7 +741,7 @@
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
-    { schemaName, pureName, conid, database, objectTypeField, defaultActionId, isRawMode },
+    { schemaName, pureName, conid, database, objectTypeField, defaultActionId, isRawMode, sql },
     forceNewTab?,
     initialData?,
     icon?,
@@ -776,6 +776,7 @@
           initialArgs: scriptTemplate ? { scriptTemplate } : null,
           defaultActionId,
           isRawMode,
+          sql,
         },
       },
       initialData,
@@ -797,7 +798,7 @@
     data,
     { forceNewTab = false, tabPreviewMode = false, focusTab = false } = {}
   ) {
-    const { schemaName, pureName, conid, database, objectTypeField } = data;
+    const { schemaName, pureName, conid, database, objectTypeField, sql } = data;
     const driver = findEngineDriver(data, getExtensions());
 
     const activeTab = getActiveTab();
@@ -843,6 +844,7 @@
         objectTypeField,
         defaultActionId: prefferedAction.defaultActionId,
         isRawMode: prefferedAction?.isRawMode ?? false,
+        sql,
       },
       forceNewTab,
       prefferedAction?.initialData,

@@ -1,8 +1,9 @@
 import type { DictionaryDescription } from 'dbgate-datalib';
-import type { ApplicationDefinition, TableInfo } from 'dbgate-types';
+import type { ApplicationDefinition, DatabaseInfo, TableInfo } from 'dbgate-types';
 import _ from 'lodash';
 import { apiCall } from './api';
-import { filterAppsForDatabase, saveDbToApp } from './appTools';
+import { filterAppsForDatabase } from './appTools';
+// import { filterAppsForDatabase, saveDbToApp } from './appTools';
 
 function checkDescriptionColumns(columns: string[], table: TableInfo) {
   if (!columns?.length) return false;
@@ -17,7 +18,8 @@ export function getDictionaryDescription(
   database: string,
   apps: ApplicationDefinition[],
   connections,
-  skipCheckSaved: boolean = false
+  skipCheckSaved: boolean = false,
+  dbInfo: DatabaseInfo = null
 ): DictionaryDescription {
   const conn = connections?.find(x => x._id == conid);
 
@@ -25,7 +27,7 @@ export function getDictionaryDescription(
     return null;
   }
 
-  const dbApps = filterAppsForDatabase(conn, database, apps);
+  const dbApps = filterAppsForDatabase(conn, database, apps, dbInfo);
 
   if (!dbApps) {
     return null;
@@ -70,22 +72,20 @@ export function changeDelimitedColumnList(columns, columnName, isChecked) {
   return parsed.join(',');
 }
 
-export async function saveDictionaryDescription(
-  table: TableInfo,
-  conid: string,
-  database: string,
-  expression: string,
-  delimiter: string,
-  targetApplication: string
-) {
-  const appFolder = await saveDbToApp(conid, database, targetApplication);
-
-  await apiCall('apps/save-dictionary-description', {
-    appFolder,
-    schemaName: table.schemaName,
-    pureName: table.pureName,
-    columns: parseDelimitedColumnList(expression),
-    expression,
-    delimiter,
-  });
-}
+// export async function saveDictionaryDescription(
+//   table: TableInfo,
+//   conid: string,
+//   database: string,
+//   expression: string,
+//   delimiter: string,
+//   targetApplication: string
+// ) {
+//   await apiCall('apps/save-dictionary-description', {
+//     appFolder,
+//     schemaName: table.schemaName,
+//     pureName: table.pureName,
+//     columns: parseDelimitedColumnList(expression),
+//     expression,
+//     delimiter,
+//   });
+// }

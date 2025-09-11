@@ -11,7 +11,7 @@
 
 <TextField
   {...$$restProps}
-  value={$values[name] ?? defaultValue}
+  value={$values?.[name] ?? defaultValue}
   on:input={e => setFieldValue(name, e.target['value'])}
   on:input={e => {
     if (saveOnInput) {

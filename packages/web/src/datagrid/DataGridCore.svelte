@@ -2003,6 +2003,7 @@
                 grouping={display.getGrouping(col.uniqueName)}
                 {allowDefineVirtualReferences}
                 seachInColumns={display.config?.searchInColumns}
+                onReload={refresh}
               />
             </td>
           {/each}

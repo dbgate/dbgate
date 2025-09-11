@@ -746,6 +746,88 @@ module.exports = {
       ]
     },
     {
+      "pureName": "file_permission_roles",
+      "columns": [
+        {
+          "pureName": "file_permission_roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "file_permission_roles",
+          "columnName": "name",
+          "dataType": "varchar(100)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "file_permission_roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_file_permission_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "allow"
+        },
+        {
+          "id": -2,
+          "name": "deny"
+        }
+      ]
+    },
+    {
+      "pureName": "roles",
+      "columns": [
+        {
+          "pureName": "roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "roles",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "anonymous-user"
+        },
+        {
+          "id": -2,
+          "name": "logged-user"
+        },
+        {
+          "id": -3,
+          "name": "superadmin"
+        }
+      ]
+    },
+    {
       "pureName": "role_connections",
       "columns": [
         {
@@ -892,6 +974,85 @@ module.exports = {
         "pureName": "role_databases",
         "constraintType": "primaryKey",
         "constraintName": "PK_role_databases",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "role_files",
+      "columns": [
+        {
+          "pureName": "role_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "folder_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_files_role_id",
+          "pureName": "role_files",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_files_file_permission_role_id",
+          "pureName": "role_files",
+          "refTableName": "file_permission_roles",
+          "columns": [
+            {
+              "columnName": "file_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_files",
         "columns": [
           {
             "columnName": "id"
@@ -1083,49 +1244,6 @@ module.exports = {
       }
     },
     {
-      "pureName": "roles",
-      "columns": [
-        {
-          "pureName": "roles",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "roles",
-          "columnName": "name",
-          "dataType": "varchar(250)",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "roles",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_roles",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      },
-      "preloadedRows": [
-        {
-          "id": -1,
-          "name": "anonymous-user"
-        },
-        {
-          "id": -2,
-          "name": "logged-user"
-        },
-        {
-          "id": -3,
-          "name": "superadmin"
-        }
-      ]
-    },
-    {
       "pureName": "table_permission_roles",
       "columns": [
         {
@@ -1242,6 +1360,47 @@ module.exports = {
           "name": "collections"
         }
       ]
+    },
+    {
+      "pureName": "users",
+      "columns": [
+        {
+          "pureName": "users",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "users",
+          "columnName": "login",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "password",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "email",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "users",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_users",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
     },
     {
       "pureName": "user_connections",
@@ -1390,6 +1549,85 @@ module.exports = {
         "pureName": "user_databases",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_databases",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_files",
+      "columns": [
+        {
+          "pureName": "user_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "folder_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_files_user_id",
+          "pureName": "user_files",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_files_file_permission_role_id",
+          "pureName": "user_files",
+          "refTableName": "file_permission_roles",
+          "columns": [
+            {
+              "columnName": "file_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_files",
         "columns": [
           {
             "columnName": "id"
@@ -1635,47 +1873,6 @@ module.exports = {
         "pureName": "user_tables",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_tables",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      }
-    },
-    {
-      "pureName": "users",
-      "columns": [
-        {
-          "pureName": "users",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "users",
-          "columnName": "login",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "password",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "email",
-          "dataType": "varchar(250)",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "users",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_users",
         "columns": [
           {
             "columnName": "id"

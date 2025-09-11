@@ -10,6 +10,8 @@
   import { copyTextToClipboard } from '../utility/clipboard';
   import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import DefineDictionaryDescriptionModal from '../modals/DefineDictionaryDescriptionModal.svelte';
+  import { sleep } from '../utility/common';
 
   export let column;
   export let conid = undefined;
@@ -24,6 +26,7 @@
   export let allowDefineVirtualReferences = false;
   export let setGrouping;
   export let seachInColumns = '';
+  export let onReload = undefined;
 
   const openReferencedTable = () => {
     openDatabaseObjectDetail('TableDataTab', null, {
@@ -42,6 +45,19 @@
       conid,
       database,
       columnName: column.columnName,
+    });
+  };
+
+  const handleCustomizeDescriptions = () => {
+    showModal(DefineDictionaryDescriptionModal, {
+      conid,
+      database,
+      schemaName: column.foreignKey.refSchemaName,
+      pureName: column.foreignKey.refTableName,
+      onConfirm: async () => {
+        await sleep(100);
+        onReload?.();
+      },
     });
   };
 
@@ -72,10 +88,13 @@
         { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
       ],
 
-      allowDefineVirtualReferences && [
-        { divider: true },
-        { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
-      ],
+      { divider: true },
+
+      allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      column.foreignKey && {
+        onClick: handleCustomizeDescriptions,
+        text: 'Customize description',
+      },
     ];
   }
 </script>

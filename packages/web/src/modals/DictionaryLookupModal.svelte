@@ -6,7 +6,7 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import DefineDictionaryDescriptionModal from './DefineDictionaryDescriptionModal.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
-  import { getTableInfo, useConnectionList, useUsedApps } from '../utility/metadataLoaders';
+  import { getTableInfo, useAllApps, useConnectionList } from '../utility/metadataLoaders';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
   import { onMount } from 'svelte';
   import { dumpSqlSelect } from 'dbgate-sqltree';
@@ -34,7 +34,7 @@
 
   let checkedKeys = [];
 
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
   $: connections = useConnectionList();
 
   function defineDescription() {

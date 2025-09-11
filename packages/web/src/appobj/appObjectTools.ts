@@ -100,4 +100,12 @@ export const defaultDatabaseObjectAppObjectActions = {
       icon: 'img sql-file',
     },
   ],
+  queries: [
+    {
+      label: 'Show query',
+      tab: 'QueryDataTab',
+      defaultActionId: 'showAppQuery',
+      icon: 'img app-query',
+    },
+  ],
 };

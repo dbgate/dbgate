@@ -17,11 +17,11 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import {
+    useAllApps,
     useConnectionInfo,
     useDatabaseInfo,
     useDatabaseStatus,
     useSchemaList,
-    useUsedApps,
   } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
@@ -73,9 +73,8 @@
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
 
-  $: apps = useUsedApps();
-
-  $: dbApps = filterAppsForDatabase($currentDatabase?.connection, $currentDatabase?.name, $apps || []);
+  $: apps = useAllApps();
+  $: appsForDb = filterAppsForDatabase($connection, database, $apps || [], $objects);
 
   // $: console.log('OBJECTS', $objects);
 
@@ -87,13 +86,14 @@
           ['schemaName', 'pureName']
         )
     ),
-    ...dbApps.map(app =>
-      app.queries.map(query => ({
-        objectTypeField: 'queries',
-        pureName: query.name,
-        schemaName: app.name,
-        sql: query.sql,
-      }))
+    ...appsForDb.map(app =>
+      Object.values(app.files || {})
+        .filter(x => x.type == 'query')
+        .map(query => ({
+          objectTypeField: 'queries',
+          pureName: query.label,
+          sql: query.sql,
+        }))
     ),
   ]);
 
@@ -281,7 +281,7 @@
       >
         <AppObjectList
           list={objectList
-            .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
+            .filter(x => x.schemaName == null || ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
           groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}

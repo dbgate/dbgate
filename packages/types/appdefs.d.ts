@@ -1,12 +1,12 @@
-interface ApplicationCommand {
-  name: string;
-  sql: string;
-}
+// interface ApplicationCommand {
+//   name: string;
+//   sql: string;
+// }
 
-interface ApplicationQuery {
-  name: string;
-  sql: string;
-}
+// interface ApplicationQuery {
+//   name: string;
+//   sql: string;
+// }
 
 interface VirtualReferenceDefinition {
   pureName: string;
@@ -27,11 +27,31 @@ interface DictionaryDescriptionDefinition {
   delimiter: string;
 }
 
-export interface ApplicationDefinition {
-  name: string;
+interface ApplicationUsageRule {
+  conditionGroup?: string;
+  serverHostsRegex?: string;
+  serverHostsList?: string[];
+  databaseNamesRegex?: string;
+  databaseNamesList?: string[];
+  tableNamesRegex?: string;
+  tableNamesList?: string[];
+  columnNamesRegex?: string;
+  columnNamesList?: string[];
+}
 
-  queries: ApplicationQuery[];
-  commands: ApplicationCommand[];
-  virtualReferences: VirtualReferenceDefinition[];
-  dictionaryDescriptions: DictionaryDescriptionDefinition[];
+export interface ApplicationDefinition {
+  appid: string;
+  applicationName: string;
+  applicationIcon?: string;
+  applicationColor?: string;
+  usageRules?: ApplicationUsageRule[];
+  files?: {
+    [key: string]: {
+      label: string;
+      sql: string;
+      type: 'query' | 'command';
+    };
+  };
+  virtualReferences?: VirtualReferenceDefinition[];
+  dictionaryDescriptions?: DictionaryDescriptionDefinition[];
 }

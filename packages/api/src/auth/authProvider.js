@@ -55,6 +55,10 @@ class AuthProviderBase {
     return [];
   }
 
+  async getCurrentFilePermissions(req) {
+    return [];
+  }
+
   getLoginPageConnections() {
     return null;
   }

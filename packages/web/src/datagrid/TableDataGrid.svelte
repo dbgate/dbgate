@@ -15,13 +15,13 @@
   import stableStringify from 'json-stable-stringify';
 
   import {
+    useAllApps,
     useConnectionInfo,
     useConnectionList,
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
     useSettings,
-    useUsedApps,
   } from '../utility/metadataLoaders';
 
   import DataGrid from './DataGrid.svelte';
@@ -53,7 +53,7 @@
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
   $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
   $: connections = useConnectionList();
   const settingsValue = useSettings();

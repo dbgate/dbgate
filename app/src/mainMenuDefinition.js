@@ -10,6 +10,7 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'new.queryDesign', hideDisabled: true },
       { command: 'new.diagram', hideDisabled: true },
       { command: 'new.perspective', hideDisabled: true },
+      { command: 'new.application', hideDisabled: true },
       { command: 'new.shell', hideDisabled: true },
       { command: 'new.jsonl', hideDisabled: true },
       { command: 'new.modelTransform', hideDisabled: true },

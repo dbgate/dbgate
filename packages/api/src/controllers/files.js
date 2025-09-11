@@ -3,7 +3,12 @@ const path = require('path');
 const crypto = require('crypto');
 const { filesdir, archivedir, resolveArchiveFolder, uploadsdir, appdir, jsldir } = require('../utility/directories');
 const getChartExport = require('../utility/getChartExport');
-const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
+const {
+  hasPermission,
+  loadPermissionsFromRequest,
+  loadFilePermissionsFromRequest,
+  getFilePermissionRole,
+} = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');

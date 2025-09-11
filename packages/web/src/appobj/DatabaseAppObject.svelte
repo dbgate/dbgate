@@ -405,9 +405,25 @@ await dbgateApi.executeQuery(${JSON.stringify(
       });
     };
 
+    const handleCreateNewApp = () => {
+      showModal(InputTextModal, {
+        header: 'New application',
+        label: 'Application name',
+        value: _.startCase(name),
+        onConfirm: async appName => {
+          const newAppId = await apiCall('apps/create-app-from-db', {
+            appName,
+            server: connection?.server,
+            database: name,
+          });
+          openApplicationEditor(newAppId);
+        },
+      });
+    };
+
     const driver = findEngineDriver(connection, getExtensions());
 
-    const commands = _.flatten((apps || []).map(x => x.commands || []));
+    const commands = _.flatten((apps || []).map(x => Object.values(x.files || {}).filter(x => x.type == 'command')));
 
     const isSqlOrDoc =
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
@@ -564,11 +580,26 @@ await dbgateApi.executeQuery(${JSON.stringify(
           text: _t('database.dataDeployer', { defaultMessage: 'Data deployer' }),
         },
 
+      isProApp() &&
+        hasPermission(`files/apps/write`) && {
+          onClick: handleCreateNewApp,
+          text: _t('database.createNewApplication', { defaultMessage: 'Create new application' }),
+        },
+
+      isProApp() &&
+        apps?.length > 0 && {
+          text: _t('database.editApplications', { defaultMessage: 'Edit application' }),
+          submenu: apps.map((app: any) => ({
+            text: app.applicationName,
+            onClick: () => openApplicationEditor(app.appid),
+          })),
+        },
+
       { divider: true },
 
       commands.length > 0 && [
         commands.map((cmd: any) => ({
-          text: cmd.name,
+          text: cmd.label,
           onClick: () => {
             showModal(ConfirmSqlModal, {
               sql: cmd.sql,
@@ -618,12 +649,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
     getConnectionLabel,
   } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useAllApps, useDatabaseInfoPeek } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
-  import { filterAppsForDatabase } from '../utility/appTools';
+  import { filterAppsForDatabase, openApplicationEditor } from '../utility/appTools';
   import newQuery from '../query/newQuery';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
@@ -639,7 +670,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { getDatabaseClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
-  import { dataGridRowHeight } from '../datagrid/DataGridRowHeightMeter.svelte';
+  import { tick } from 'svelte';
 
   export let data;
   export let passProps;
@@ -657,8 +688,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
   }
 
   $: isPinned = !!$pinnedDatabases.find(x => x?.name == data.name && x?.connection?._id == data.connection?._id);
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
   $: isLoadingSchemas = $loadingSchemaLists[`${data?.connection?._id}::${data?.name}`];
+  $: dbInfo = useDatabaseInfoPeek({ conid: data?.connection?._id, database: data?.name });
+
+  $: appsForDb = filterAppsForDatabase(data?.connection, data?.name, $apps, $dbInfo);
+
+  // $: console.log('AppsForDB:', data?.name, appsForDb);
 </script>
 
 <AppObjectCore
@@ -681,6 +717,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
       switchCurrentDatabase(data);
     }
   }}
+  additionalIcons={appsForDb?.length > 0
+    ? appsForDb.map(ic => ({
+        icon: ic.applicationIcon || 'img app',
+        title: ic.applicationName,
+        colorClass: ic.applicationColor ? `color-icon-${ic.applicationColor}` : undefined,
+      }))
+    : null}
   on:mousedown={() => {
     $focusedConnectionOrDatabase = { conid: data.connection?._id, database: data.name, connection: data.connection };
   }}
