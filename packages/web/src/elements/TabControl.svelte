@@ -18,7 +18,7 @@
   export let containerMaxWidth = undefined;
   export let containerMaxHeight = undefined;
   export let flex1 = true;
-  export let flexColContainer = true;
+  export let flexColContainer = false;
   export let maxHeight100 = false;
   export let scrollableContentContainer = false;
   export let contentTestId = undefined;

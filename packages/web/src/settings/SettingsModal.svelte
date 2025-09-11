@@ -104,7 +104,6 @@ ORDER BY
         containerMaxWidth="100%"
         containerMaxHeight="calc(100% - 34px)"
         maxHeight100
-        flexColContainer={false}
         flex1
         tabs={[
           hasPermission('settings/change') && { identifier: 'general', label: 'General', slot: 1 },
