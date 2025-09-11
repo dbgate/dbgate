@@ -386,6 +386,9 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
   if (_isArray(json) || _isPlainObject(json)) {
     return json;
   }
+  if (!json) {
+    return defaultValue;
+  }
   try {
     return JSON.parse(json);
   } catch (err) {

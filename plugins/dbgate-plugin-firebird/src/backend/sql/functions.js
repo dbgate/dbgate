@@ -10,7 +10,7 @@ FROM
     RDB$FUNCTIONS F
 WHERE
     COALESCE(F.RDB$SYSTEM_FLAG, 0) = 0 -- User-defined functions 
-    AND ('funcitons:' || TRIM(F.RDB$FUNCTION_NAME)) =OBJECT_ID_CONDITION
+    AND ('functions:' || TRIM(F.RDB$FUNCTION_NAME)) =OBJECT_ID_CONDITION
 ORDER BY
     "pureName";
 `;

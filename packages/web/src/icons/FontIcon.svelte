@@ -163,6 +163,7 @@
     'icon parent-filter-outline': 'mdi mdi-home-alert-outline',
     'icon download': 'mdi mdi-download',
     'icon text': 'mdi mdi-text',
+    'icon ai-provider': 'mdi mdi-cloud-cog',
     'icon ai': 'mdi mdi-head-lightbulb',
     'icon wait': 'mdi mdi-timer-sand',
     'icon more': 'mdi mdi-more',
@@ -288,6 +289,7 @@
     'img auth': 'mdi mdi-account-key color-icon-blue',
     'img cloud-connection': 'mdi mdi-cloud-lock color-icon-blue',
     'img ai': 'mdi mdi-head-lightbulb color-icon-yellow',
+    'img ai-provider': 'mdi mdi-head-lightbulb color-icon-blue',
     'img run': 'mdi mdi-play color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',

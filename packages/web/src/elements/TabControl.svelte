@@ -20,6 +20,7 @@
   export let flex1 = true;
   export let flexColContainer = true;
   export let maxHeight100 = false;
+  export let scrollableContentContainer = false;
   export let contentTestId = undefined;
   export let inlineTabs = false;
   export let onUserChange = null;
@@ -54,7 +55,12 @@
     {/if}
   </div>
 
-  <div class="content-container" style:max-height={containerMaxHeight} data-testid={contentTestId}>
+  <div
+    class="content-container"
+    class:scrollableContentContainer
+    style:max-height={containerMaxHeight}
+    data-testid={contentTestId}
+  >
     {#each _.compact(tabs) as tab, index}
       <div
         class="container"
@@ -129,6 +135,7 @@
   }
 
   .tab-item {
+    white-space: nowrap;
     padding-left: 15px;
     padding-right: 15px;
     display: flex;
@@ -150,6 +157,10 @@
   .content-container {
     flex: 1;
     position: relative;
+  }
+
+  .scrollableContentContainer {
+    overflow-y: auto;
   }
 
   .container.maxHeight100 {

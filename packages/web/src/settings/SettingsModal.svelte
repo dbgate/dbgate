@@ -16,7 +16,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
-  import { closeCurrentModal, showModal } from '../modals/modalTools';
+  import { closeCurrentModal } from '../modals/modalTools';
   import { EDITOR_KEYBINDINGS_MODES, EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import {
@@ -41,6 +41,7 @@
   import { derived } from 'svelte/store';
   import { safeFormatDate } from 'dbgate-tools';
   import FormDefaultActionField from './FormDefaultActionField.svelte';
+  import AiSettingsTab from './AiSettingsTab.svelte';
   import { _t } from '../translations';
   import hasPermission from '../utility/hasPermission';
 
@@ -91,13 +92,20 @@ ORDER BY
 </script>
 
 <SettingsFormProvider>
-  <ModalBase {...$$restProps} noPadding>
+  <ModalBase {...$$restProps} noPadding fixedHeight>
     <div slot="header">Settings</div>
 
     <FormValues let:values>
       <TabControl
         bind:value={selectedTab}
         isInline
+        inlineTabs
+        scrollableContentContainer
+        containerMaxWidth="100%"
+        containerMaxHeight="calc(100% - 34px)"
+        maxHeight100
+        flex1
+        flexColContainer
         tabs={[
           hasPermission('settings/change') && { identifier: 'general', label: 'General', slot: 1 },
           isProApp() && electron && { identifier: 'license', label: 'License', slot: 7 },
@@ -107,6 +115,7 @@ ORDER BY
           hasPermission('settings/change') && { identifier: 'behaviour', label: 'Behaviour', slot: 5 },
           hasPermission('settings/change') && { identifier: 'external-tools', label: 'External tools', slot: 8 },
           hasPermission('settings/change') && { identifier: 'other', label: 'Other', slot: 6 },
+          isProApp() && hasPermission('settings/change') && { identifier: 'ai', label: 'AI', slot: 9 },
         ]}
       >
         <svelte:fragment slot="1">
@@ -578,6 +587,10 @@ ORDER BY
             defaultValue="pg_dump"
           />
           <FormTextField name="externalTools.psql" label="psql (restore PostgreSQL database)" defaultValue="psql" />
+        </svelte:fragment>
+
+        <svelte:fragment slot="9">
+          <AiSettingsTab {values} />
         </svelte:fragment>
       </TabControl>
     </FormValues>

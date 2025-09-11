@@ -5,7 +5,7 @@
 
   const dispatch = createEventDispatcher();
 
-  export let options = [];
+  export let options: Array<{ label: string; value: any }> = [];
   export let value;
   export let isNative = false;
   export let isMulti = false;

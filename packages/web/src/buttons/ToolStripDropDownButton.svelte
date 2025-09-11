@@ -20,7 +20,7 @@
   }
 </script>
 
-<svelte:component this={component} {title} {icon} on:click={handleClick}>
+<svelte:component this={component} {title} {icon} on:click={handleClick} {...$$restProps}>
   {label}
   <FontIcon icon="icon chevron-down" />
 </svelte:component>
