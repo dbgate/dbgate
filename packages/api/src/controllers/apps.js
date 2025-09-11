@@ -15,6 +15,7 @@ module.exports = {
   getAllApps_meta: true,
   async getAllApps({}, req) {
     const dir = path.join(filesdir(), 'apps');
+    if (!(await fs.exists(dir))) return [];
     const res = [];
     const loadedPermissions = await loadPermissionsFromRequest(req);
     const filePermissions = await loadFilePermissionsFromRequest(req);
