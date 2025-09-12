@@ -37,7 +37,7 @@ export default [
   {
     input: 'src/query/QueryParserWorker.js',
     output: {
-      sourcemap: true,
+      sourcemap: !production,
       format: 'iife',
       file: 'public/build/query-parser-worker.js',
     },
@@ -56,7 +56,7 @@ export default [
   {
     input: 'src/main.ts',
     output: {
-      sourcemap: true,
+      sourcemap: !production,
       format: 'iife',
       name: 'app',
       file: 'public/build/bundle.js',
