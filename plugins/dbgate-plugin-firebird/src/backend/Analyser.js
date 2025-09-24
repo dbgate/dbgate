@@ -15,19 +15,24 @@ class Analyser extends DatabaseAnalyser {
     super(dbhan, driver, version);
   }
 
+  createQuery(resFileName, typeFields) {
+    if (!sql[resFileName]) throw new Error(`Missing analyse file ${resFileName}`);
+    return super.createQuery(sql[resFileName], typeFields);
+  }
+
   async _runAnalysis() {
-    const tablesResult = await this.analyserQuery(sql.tables, ['tables']);
-    const columnsResult = await this.analyserQuery(sql.columns, ['tables', 'views']);
-    const triggersResult = await this.analyserQuery(sql.triggers, ['triggers']);
-    const primaryKeysResult = await this.analyserQuery(sql.primaryKeys, ['primaryKeys']);
-    const foreignKeysResult = await this.analyserQuery(sql.foreignKeys, ['foreignKeys']);
-    const functionsResults = await this.analyserQuery(sql.functions, ['functions']);
-    const functionParametersResults = await this.analyserQuery(sql.functionParameters, ['functions']);
-    const proceduresResults = await this.analyserQuery(sql.procedures, ['procedures']);
-    const procedureParametersResults = await this.analyserQuery(sql.procedureParameters, ['procedures']);
-    const viewsResults = await this.analyserQuery(sql.views, ['views']);
-    const unqiuesResults = await this.analyserQuery(sql.uniques, ['tables']);
-    const indexesResults = await this.analyserQuery(sql.indexes, ['tables']);
+    const tablesResult = await this.analyserQuery('tables', ['tables']);
+    const columnsResult = await this.analyserQuery('columns', ['tables', 'views']);
+    const triggersResult = await this.analyserQuery('triggers', ['triggers']);
+    const primaryKeysResult = await this.analyserQuery('primaryKeys', ['primaryKeys']);
+    const foreignKeysResult = await this.analyserQuery('foreignKeys', ['foreignKeys']);
+    const functionsResults = await this.analyserQuery('functions', ['functions']);
+    const functionParametersResults = await this.analyserQuery('functionParameters', ['functions']);
+    const proceduresResults = await this.analyserQuery('procedures', ['procedures']);
+    const procedureParametersResults = await this.analyserQuery('procedureParameters', ['procedures']);
+    const viewsResults = await this.analyserQuery('views', ['views']);
+    const unqiuesResults = await this.analyserQuery('uniques', ['tables']);
+    const indexesResults = await this.analyserQuery('indexes', ['tables']);
 
     const columns =
       columnsResult.rows?.map(column => ({
