@@ -28,7 +28,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "cross-env": "^7.0.3",
     "dbgate-datalib": "^6.0.0-alpha.1",
-    "dbgate-query-splitter": "^4.11.5",
+    "dbgate-query-splitter": "^4.11.6",
     "dbgate-sqltree": "^6.0.0-alpha.1",
     "dbgate-tools": "^6.0.0-alpha.1",
     "dbgate-types": "^6.0.0-alpha.1",
