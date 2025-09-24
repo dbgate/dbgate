@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { splitQuery } = require('dbgate-query-splitter');
+const { splitQuery, firebirdSplitterOptions } = require('dbgate-query-splitter');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
@@ -112,7 +112,7 @@ const driver = {
   async script(dbhan, sql, { useTransaction } = {}) {
     if (useTransaction) return this.runSqlInTransaction(dbhan, sql);
 
-    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+    const sqlItems = splitQuery(sql, firebirdSplitterOptions);
     for (const sqlItem of sqlItems) {
       await this.query(dbhan, sqlItem, { discardResult: true });
     }
@@ -183,7 +183,7 @@ const driver = {
   async runSqlInTransaction(dbhan, sql) {
     /** @type {Firebird.Transaction} */
     let transactionPromise;
-    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+    const sqlItems = splitQuery(sql, firebirdSplitterOptions);
 
     try {
       transactionPromise = await new Promise((resolve, reject) => {
