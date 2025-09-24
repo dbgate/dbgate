@@ -6154,6 +6154,11 @@ dbgate-query-splitter@^4.11.6:
   resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.6.tgz#8034bd7677e57db09b3ab96d3ff7c0fd3a289a5a"
   integrity sha512-QmOOKsaaoZa6OuHjUKRpFiZxfotJ7jebLNzGFhyEjcmjVb9I0QBxPq6mJX7vRleLX5lN0aS6UDwsHwb8B3LNAw==
 
+dbgate-query-splitter@^4.11.7:
+  version "4.11.7"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.7.tgz#f9d53b3ceafbd76355152677b87ae453598b4a88"
+  integrity sha512-2J0Gc2hyZrHnrLBpI6Tw8MvP7V01eTj+SMHLeG9ggVf6Y8JB/6JBK5kPwhz77SwZw/InhpaweCUBoHFCJUv/kg==
+
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
