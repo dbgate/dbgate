@@ -282,8 +282,8 @@
                 }
               }}
             >
-              <td>{format(new Date(parseInt(row.time)), 'yyyy-MM-dd')}</td>
-              <td>{format(new Date(parseInt(row.time)), 'HH:mm:ss')}</td>
+              <td>{row.time ? format(new Date(parseInt(row.time)), 'yyyy-MM-dd') : ''}</td>
+              <td>{row.time ? format(new Date(parseInt(row.time)), 'HH:mm:ss') : ''}</td>
               <td>{row.msgcode || ''}</td>
               <td>{row.msg}</td>
               <td>{formatPossibleUuid(row.conid) || ''}</td>
@@ -319,7 +319,7 @@
                         </div>
                         <div class="row">
                           <div>Time:</div>
-                          <b>{format(new Date(parseInt(row.time)), 'yyyy-MM-dd HH:mm:ss')}</b>
+                          <b>{row.time ? format(new Date(parseInt(row.time)), 'yyyy-MM-dd HH:mm:ss') : ''}</b>
                         </div>
                         <div class="row">
                           <div>Caller:</div>
