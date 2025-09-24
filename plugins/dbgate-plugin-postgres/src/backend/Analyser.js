@@ -376,6 +376,7 @@ class Analyser extends DatabaseAnalyser {
 
     this.logger.debug(
       {
+        ...this.getLogDbInfo(),
         tables: res.tables?.length,
         columns: _.sum(res.tables?.map(x => x.columns?.length)),
         primaryKeys: res.tables?.filter(x => x.primaryKey)?.length,

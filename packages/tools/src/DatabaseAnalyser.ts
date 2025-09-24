@@ -49,6 +49,8 @@ export class DatabaseAnalyser<TClient = any> {
   singleObjectId: string = null;
   dialect: SqlDialect;
   logger: Logger;
+  startedTm = Date.now();
+  analyseIdentifier = Math.random().toString().substring(2);
 
   constructor(public dbhan: DatabaseHandle<TClient>, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
@@ -78,7 +80,11 @@ export class DatabaseAnalyser<TClient = any> {
   }
 
   getLogDbInfo() {
-    return this.driver.getLogDbInfo(this.dbhan);
+    return {
+      ...this.driver.getLogDbInfo(this.dbhan),
+      analyserTime: Date.now() - this.startedTm,
+      analyseIdentifier: this.analyseIdentifier,
+    };
   }
 
   async fullAnalysis() {
@@ -124,6 +130,7 @@ export class DatabaseAnalyser<TClient = any> {
     }
 
     if (structureModifications.length == 0) {
+      logger.debug(this.getLogDbInfo(), 'DBGM-00267 No changes in database structure detected');
       return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
     }
 
