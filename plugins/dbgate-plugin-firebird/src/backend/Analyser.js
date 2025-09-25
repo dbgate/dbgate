@@ -124,7 +124,7 @@ class Analyser extends DatabaseAnalyser {
         uniques: uniques.filter(unique => unique.pureName === table.pureName),
         indexes: indexes.filter(index => index.pureName === table.pureName),
       })) ?? [];
-    console.log(uniques);
+    // console.log(uniques);
 
     const views =
       viewsResults.rows?.map(view => ({

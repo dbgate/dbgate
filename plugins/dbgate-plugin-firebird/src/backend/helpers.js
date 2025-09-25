@@ -126,7 +126,5 @@ module.exports = {
   getTriggerTiming,
   getFormattedDefaultValue,
   getTriggerCreateSql,
-  blobStreamToString,
-  normalizeRow,
   createFirebirdInsertStream,
 };

@@ -11,7 +11,7 @@ SELECT       -- Index name, maps to pureName
         WHEN I.RDB$EXPRESSION_SOURCE IS NOT NULL THEN TRIM('expression') -- indexType: if an expression index [cite: 46, 262]
         ELSE TRIM('normal')
     END AS "indexType",
-    I.RDB$CONDITION_SOURCE AS "idx_filterDefinition", -- filterDefinition: for partial indexes [cite: 46, 261, 838]
+    -- I.RDB$CONDITION_SOURCE AS "idx_filterDefinition", -- filterDefinition: for partial indexes [cite: 46, 261, 838]
     COALESCE(I.RDB$INDEX_INACTIVE, 0) AS "idx_isInactive", -- 0 for active, 1 for inactive [cite: 46, 838]
     I.RDB$DESCRIPTION AS "idx_description",           -- Index description/comment [cite: 46, 838]
 
