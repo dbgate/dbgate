@@ -195,6 +195,7 @@ export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   columnComment: false,
   sqlObjectText: false,
   tableEngine: false,
+  tablesWithRows: false,
 };
 
 export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {

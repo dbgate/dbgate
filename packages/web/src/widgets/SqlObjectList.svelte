@@ -143,6 +143,7 @@
       res.push({ label: 'Column comment', switchValue: 'columnComment' });
       res.push({ label: 'View/procedure/trigger text', switchValue: 'sqlObjectText' });
       res.push({ label: 'Table engine', switchValue: 'tableEngine' });
+      res.push({ label: 'Only tables with rows', switchValue: 'tablesWithRows' });
     }
     return res.map(item => ({
       ...item,

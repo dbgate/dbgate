@@ -4,7 +4,17 @@
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
     (filter, cfg = DEFAULT_OBJECT_SEARCH_SETTINGS) =>
-    ({ schemaName, pureName, objectComment, tableEngine, columns, objectTypeField, tableName, createSql }) => {
+    ({
+      schemaName,
+      pureName,
+      objectComment,
+      tableEngine,
+      columns,
+      objectTypeField,
+      tableName,
+      createSql,
+      tableRowCount,
+    }) => {
       const mainArgs = [];
       const childArgs = [];
       if (cfg.schemaName) mainArgs.push(schemaName);
@@ -12,6 +22,7 @@
       if (objectTypeField == 'tables') {
         if (cfg.tableComment) mainArgs.push(objectComment);
         if (cfg.tableEngine) mainArgs.push(tableEngine);
+        if (cfg.tablesWithRows && !tableRowCount) return 'none';
 
         for (const column of columns || []) {
           if (cfg.columnName) childArgs.push(column.columnName);
