@@ -18,6 +18,7 @@ const dialect = {
   renameColumnDependencies: ['dependencies', 'foreignKeys', 'uniques'],
   defaultValueBeforeNullability: true,
   useServerDatabaseFile: true,
+  maxIdentifierLength: 31,
 
   quoteIdentifier(s) {
     return `"${s}"`;

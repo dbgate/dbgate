@@ -366,8 +366,6 @@ async function handleSaveTableData({ msgid, changeSet }) {
       errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
     });
   }
-
-
 }
 
 async function handleSqlPreview({ msgid, objects, options }) {

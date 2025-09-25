@@ -13,7 +13,7 @@ import type {
   FilterBehaviour,
 } from 'dbgate-types';
 import { parseFilter } from 'dbgate-filterparser';
-import { filterName } from 'dbgate-tools';
+import { filterName, shortenIdentifier } from 'dbgate-tools';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect, Condition, CompoudCondition } from 'dbgate-sqltree';
 import { isTypeLogical, standardFilterBehaviours, detectSqlFilterBehaviour, stringFilterBehaviour } from 'dbgate-tools';
@@ -606,7 +606,9 @@ export abstract class GridDisplay {
     }
     return {
       exprType: 'column',
-      ...(!this.dialect.omitTableAliases && { alias: alias || col.columnName }),
+      ...(!this.dialect.omitTableAliases && {
+        alias: alias ? shortenIdentifier(alias, this.driver.dialect.maxIdentifierLength) : col.columnName,
+      }),
       source,
       ...col,
     };

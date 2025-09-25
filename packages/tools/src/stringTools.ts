@@ -9,6 +9,7 @@ import _isEmpty from 'lodash/isEmpty';
 import _omitBy from 'lodash/omitBy';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
 import isPlainObject from 'lodash/isPlainObject';
+import md5 from 'blueimp-md5';
 
 export const MAX_GRID_TEXT_LENGTH = 1000; // maximum length of text in grid cell, longer text is truncated
 
@@ -736,4 +737,13 @@ export function setSqlFrontMatter(text: string, data: { [key: string]: any }, ya
     .join('\n');
   const frontMatterContent = `-- >>>\n${yamlContentMapped}\n-- <<<\n`;
   return frontMatterContent + (textClean || '');
+}
+
+export function shortenIdentifier(s: string, maxLength?: number) {
+  if (!maxLength || maxLength < 10) return s;
+  if (s.length <= maxLength) return s;
+  const hash = md5(s).substring(0, 8);
+  const partLength = Math.floor((maxLength - 9) / 2);
+  const restLength = maxLength - 10 - partLength;
+  return s.substring(0, partLength) + '_' + hash + '_' + s.substring(s.length - restLength);
 }

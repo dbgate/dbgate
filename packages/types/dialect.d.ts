@@ -22,6 +22,7 @@ export interface SqlDialect {
   requireStandaloneSelectForScopeIdentity?: boolean;
   allowMultipleValuesInsert?: boolean;
   useServerDatabaseFile?: boolean;
+  maxIdentifierLength?: number;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
