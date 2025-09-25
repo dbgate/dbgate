@@ -38,7 +38,9 @@
   export let overlayValue = null;
   export let isMissingOverlayField = false;
 
-  $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
+  $: value = col.isStructured
+    ? _.get(rowData || {}, col.uniquePath)
+    : (rowData || {})[col.uniqueNameShorten ?? col.uniqueName];
 
   function computeStyle(maxWidth, col) {
     let res = '';

@@ -24,6 +24,7 @@ export interface DisplayColumn {
   columnName: string;
   headerText: string;
   uniqueName: string;
+  uniqueNameShorten?: string;
   uniquePath: string[];
   notNull?: boolean;
   autoIncrement?: boolean;
@@ -607,7 +608,7 @@ export abstract class GridDisplay {
     return {
       exprType: 'column',
       ...(!this.dialect.omitTableAliases && {
-        alias: alias ? shortenIdentifier(alias, this.driver.dialect.maxIdentifierLength) : col.columnName,
+        alias: alias ?? col.columnName,
       }),
       source,
       ...col,

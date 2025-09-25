@@ -93,7 +93,7 @@ export class TableGridDisplay extends GridDisplay {
     );
   }
 
-  getDisplayColumns(table: TableInfo, parentPath: string[]) {
+  getDisplayColumns(table: TableInfo, parentPath: string[]): DisplayColumn[] {
     return (
       table?.columns
         ?.map(col => this.getDisplayColumn(table, col, parentPath))
@@ -106,6 +106,7 @@ export class TableGridDisplay extends GridDisplay {
             ) || null,
           hintColumnDelimiter: this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)
             ?.delimiter,
+          uniqueNameShorten: shortenIdentifier(col.uniqueName, this.driver.dialect.maxIdentifierLength),
           isExpandable: !!col.foreignKey,
         })) || []
     );
@@ -307,7 +308,12 @@ export class TableGridDisplay extends GridDisplay {
     for (const column of columns) {
       if (this.addAllExpandedColumnsToSelected || this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push(
-          this.createColumnExpression(column, { name: column, alias: parentAlias }, column.uniqueName, 'view')
+          this.createColumnExpression(
+            column,
+            { name: column, alias: parentAlias },
+            column.uniqueNameShorten ?? column.uniqueName,
+            'view'
+          )
         );
         displayedColumnInfo[column.uniqueName] = {
           ...column,
