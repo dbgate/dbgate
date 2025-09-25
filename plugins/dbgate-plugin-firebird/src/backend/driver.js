@@ -4,7 +4,7 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Firebird = require('node-firebird');
-const { normalizeRow, createFirebirdInsertStream } = require('./helpers');
+const { createFirebirdInsertStream } = require('./helpers');
 const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
 const sql = require('./sql');
 
@@ -21,6 +21,7 @@ const driver = {
       database: databaseFile,
       user,
       password,
+      blobAsText: true,
     };
 
     /**@type {Firebird.Database} */
@@ -63,7 +64,7 @@ const driver = {
     const columns = res?.[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
 
     return {
-      rows: res ? await Promise.all(res.map(normalizeRow)) : [],
+      rows: res || [],
       columns,
     };
   },

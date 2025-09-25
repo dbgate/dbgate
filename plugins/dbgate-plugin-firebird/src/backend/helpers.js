@@ -91,43 +91,6 @@ function getFormattedDefaultValue(defaultValue) {
 
   return defaultValue.replace(/^default\s*/i, '');
 }
-function blobStreamToString(stream, encoding = 'utf8') {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    stream.on('data', chunk => {
-      chunks.push(chunk);
-    });
-    stream.on('end', () => {
-      resolve(Buffer.concat(chunks).toString(encoding));
-    });
-    stream.on('error', err => {
-      reject(err);
-    });
-  });
-}
-
-async function normalizeRow(row) {
-  const entries = await Promise.all(
-    Object.entries(row).map(async ([key, value]) => {
-      if (value === null || value === undefined) return [key, null];
-      if (typeof value === 'function') {
-        const result = await new Promise((resolve, reject) => {
-          value(async (_err, _name, eventEmitter) => {
-            try {
-              const stringValue = await blobStreamToString(eventEmitter, 'utf8');
-              resolve(stringValue);
-            } catch (error) {
-              reject(error);
-            }
-          });
-        });
-        return [key, result];
-      }
-      return [key, value];
-    })
-  );
-  return Object.fromEntries(entries);
-}
 
 function transformRow(row) {
   return Object.fromEntries(
