@@ -327,7 +327,7 @@ async function testStandardPermission(permission, req, loadedPermissions) {
     loadedPermissions = await loadPermissionsFromRequest(req);
   }
   if (!hasPermission(permission, loadedPermissions)) {
-    throw new Error('DBGM-00265 Permission not granted');
+    throw new Error(`DBGM-00265 Permission ${permission} not granted`);
   }
 }
 
@@ -344,7 +344,7 @@ async function testDatabaseRolePermission(conid, database, requiredRole, req) {
   const requiredIndex = getDatabaseRoleLevelIndex(requiredRole);
   const roleIndex = getDatabaseRoleLevelIndex(role);
   if (roleIndex < requiredIndex) {
-    throw new Error('DBGM-00266 Permission not granted');
+    throw new Error(`DBGM-00266 Permission ${requiredRole} not granted`);
   }
 }
 

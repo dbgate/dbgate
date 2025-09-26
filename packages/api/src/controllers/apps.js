@@ -21,7 +21,7 @@ module.exports = {
     const filePermissions = await loadFilePermissionsFromRequest(req);
 
     for (const file of await fs.readdir(dir)) {
-      if (!hasPermission(`all-files`, loadedPermissions)) {
+      if (!hasPermission(`all-disk-files`, loadedPermissions)) {
         const role = getFilePermissionRole('apps', file, filePermissions);
         if (role == 'deny') continue;
       }

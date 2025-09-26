@@ -160,6 +160,7 @@
   export let conid;
   export let database;
   export let initialArgs;
+  export let hideEditor;
 
   export const activator = createActivator('QueryTab', false);
 
@@ -653,7 +654,7 @@
 </script>
 
 <ToolStripContainer bind:this={domToolStrip}>
-  <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue}>
+  <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue} hideFirst={hideEditor}>
     <svelte:fragment slot="1">
       {#if driver?.databaseEngineTypes?.includes('sql')}
         <SqlEditor

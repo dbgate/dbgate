@@ -8,11 +8,13 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, removeSqlFrontMatter } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 const { sendToAuditLog } = require('../utility/auditlog');
 const { testStandardPermission, testDatabaseRolePermission } = require('../utility/hasPermission');
+const { getStaticTokenSecret } = require('../auth/authCommon');
+const jwt = require('jsonwebtoken');
 
 const logger = getLogger('sessions');
 
@@ -95,7 +97,7 @@ module.exports = {
     socket.emit(`session-initialize-file-${jslid}`);
   },
 
-  handle_ping() { },
+  handle_ping() {},
 
   create_meta: true,
   async create({ conid, database }) {
@@ -149,12 +151,23 @@ module.exports = {
 
   executeQuery_meta: true,
   async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
-    await testStandardPermission('dbops/query', req);
+    let useTokenIsOk = false;
+    if (frontMatter?.useToken) {
+      const decoded = jwt.verify(frontMatter.useToken, getStaticTokenSecret());
+      if (decoded?.['contentHash'] == crypto.createHash('md5').update(removeSqlFrontMatter(sql)).digest('hex')) {
+        useTokenIsOk = true;
+      }
+    }
+    if (!useTokenIsOk) {
+      await testStandardPermission('dbops/query', req);
+    }
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }
-    await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
+    if (!useTokenIsOk) {
+      await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
+    }
 
     sendToAuditLog(req, {
       category: 'dbop',

@@ -120,6 +120,7 @@
     'icon structure': 'mdi mdi-tools',
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
+    'icon team-file': 'mdi mdi-account-file',
 
     'icon cloud-account': 'mdi mdi-account-remove-outline',
     'icon cloud-account-connected': 'mdi mdi-account-check-outline',
@@ -351,6 +352,7 @@
     'img settings': 'mdi mdi-cog color-icon-blue',
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
     'img arrow-start-here': 'mdi mdi-arrow-down-bold-circle color-icon-green',
+    'img team-file': 'mdi mdi-account-file color-icon-red',
   };
 </script>
 

@@ -8,7 +8,7 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
-  import { useFiles } from '../utility/metadataLoaders';
+  import { useFiles, useTeamFiles } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { isProApp } from '../utility/proTools';
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
@@ -29,6 +29,7 @@
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
   const appFiles = useFiles({ folder: 'apps' });
+  const teamFiles = useTeamFiles({});
 
   $: files = [
     ...($sqlFiles || []),
@@ -44,6 +45,7 @@
     ...((isProApp() && $dataDeployJobFiles) || []),
     ...((isProApp() && $dbCompareJobFiles) || []),
     ...((isProApp() && $appFiles) || []),
+    ...($teamFiles || []),
   ];
 
   function handleRefreshFiles() {
@@ -81,5 +83,10 @@
 </SearchBoxWrapper>
 
 <WidgetsInnerContainer>
-  <AppObjectList list={files} module={savedFileAppObject} groupFunc={data => dataFolderTitle(data.folder)} {filter} />
+  <AppObjectList
+    list={files}
+    module={savedFileAppObject}
+    groupFunc={data => (data.teamFileId ? 'Team files' : dataFolderTitle(data.folder))}
+    {filter}
+  />
 </WidgetsInnerContainer>

@@ -192,6 +192,7 @@
   import { isProApp } from '../utility/proTools';
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
+  import { showSnackbarError } from '../utility/snackbar';
 
   export let data;
 
@@ -214,11 +215,20 @@
   function createMenu() {
     return [
       handler?.tabComponent && { text: 'Open', onClick: openTab },
-      hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
-      hasPermission(`files/${data.folder}/write`) && { text: 'Create copy', onClick: handleCopy },
-      hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
+
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Create copy', onClick: handleCopy },
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
+
+      data.teamFileId && data.allowWrite && { text: 'Rename', onClick: handleRename },
+      data.teamFileId &&
+        data.allowRead &&
+        hasPermission('all-team-files/create') && { text: 'Create copy', onClick: handleCopy },
+      data.teamFileId && data.allowWrite && { text: 'Delete', onClick: handleDelete },
+
       folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
-      { text: 'Download', onClick: handleDownload },
+      !data.teamFileId && { text: 'Download', onClick: handleDownload },
+      data.teamFileId && data.allowRead && { text: 'Download', onClick: handleDownload },
     ];
   }
 
@@ -226,7 +236,9 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.file}?`,
       onConfirm: () => {
-        if (data.folid && data.cntid) {
+        if (data.teamFileId) {
+          apiCall('team-files/delete', { teamFileId: data.teamFileId });
+        } else if (data.folid && data.cntid) {
           apiCall('cloud/delete-content', {
             folid: data.folid,
             cntid: data.cntid,
@@ -244,7 +256,9 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        if (data.folid && data.cntid) {
+        if (data.teamFileId) {
+          apiCall('team-files/update', { teamFileId: data.teamFileId, name: newFile });
+        } else if (data.folid && data.cntid) {
           apiCall('cloud/rename-content', {
             folid: data.folid,
             cntid: data.cntid,
@@ -263,7 +277,9 @@
       label: 'New file name',
       header: 'Copy file',
       onConfirm: newFile => {
-        if (data.folid && data.cntid) {
+        if (data.teamFileId) {
+          apiCall('team-files/copy', { teamFileId: data.teamFileId, newName: newFile });
+        } else if (data.folid && data.cntid) {
           apiCall('cloud/copy-file', {
             folid: data.folid,
             cntid: data.cntid,
@@ -279,7 +295,12 @@
   const handleDownload = () => {
     saveFileToDisk(
       async filePath => {
-        if (data.folid && data.cntid) {
+        if (data.teamFileId) {
+          await apiCall('team-files/export-file', {
+            teamFileId: data.teamFileId,
+            filePath,
+          });
+        } else if (data.folid && data.cntid) {
           await apiCall('cloud/export-file', {
             folid: data.folid,
             cntid: data.cntid,
@@ -299,7 +320,23 @@
 
   async function openTab() {
     let dataContent;
-    if (data.folid && data.cntid) {
+    if (data.teamFileId) {
+      if (data?.metadata?.autoExecute) {
+        if (!data.allowUse) {
+          showSnackbarError('You do not have permission to use this team file');
+          return;
+        }
+      } else {
+        if (!data.allowRead) {
+          showSnackbarError('You do not have permission to read this team file');
+          return;
+        }
+      }
+      const resp = await apiCall('team-files/get-content', {
+        teamFileId: data.teamFileId,
+      });
+      dataContent = resp.content;
+    } else if (data.folid && data.cntid) {
       const resp = await apiCall('cloud/get-content', {
         folid: data.folid,
         cntid: data.cntid,
@@ -324,6 +361,11 @@
       tooltip = `${getConnectionLabel(connection)}\n${database}`;
     }
 
+    if (data?.metadata?.connectionId) {
+      connProps.conid = data.metadata.connectionId;
+      connProps.database = data.metadata.databaseName;
+    }
+
     openNewTab(
       {
         title: data.file,
@@ -336,6 +378,8 @@
           savedFormat: handler.format,
           savedCloudFolderId: data.folid,
           savedCloudContentId: data.cntid,
+          savedTeamFileId: data.teamFileId,
+          hideEditor: data.teamFileId && data?.metadata?.autoExecute && !data.allowRead,
           ...connProps,
         },
       },

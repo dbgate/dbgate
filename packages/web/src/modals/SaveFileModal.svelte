@@ -4,7 +4,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import { cloudSigninTokenHolder } from '../stores';
+  import { cloudSigninTokenHolder, getCurrentConfig } from '../stores';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
   import { writable } from 'svelte/store';
@@ -13,6 +13,7 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
+  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
   export let data;
   export let name;
@@ -31,7 +32,20 @@
 
   const handleSubmit = async e => {
     const { name, cloudFolder } = e.detail;
-    if (cloudFolder === '__local') {
+    if ($values['saveToTeamFolder']) {
+      const { teamFileId } = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
+      closeCurrentModal();
+      if (onSave) {
+        onSave(name, {
+          savedFile: name,
+          savedFolder: folder,
+          savedFilePath: null,
+          savedCloudFolderId: null,
+          savedCloudContentId: null,
+          savedTeamFileId: teamFileId,
+        });
+      }
+    } else if (cloudFolder === '__local') {
       await apiCall('files/save', { folder, file: name, data, format });
       closeCurrentModal();
       if (onSave) {
@@ -41,6 +55,7 @@
           savedFilePath: null,
           savedCloudFolderId: null,
           savedCloudContentId: null,
+          savedTeamFileId: null,
         });
       }
     } else {
@@ -61,6 +76,7 @@
             savedFilePath: null,
             savedCloudFolderId: cloudFolder,
             savedCloudContentId: resp.cntid,
+            savedTeamFileId: null,
           });
         }
       }
@@ -82,6 +98,7 @@
         savedFilePath: filePath,
         savedCloudFolderId: null,
         savedCloudContentId: null,
+        savedTeamFileId: null,
       });
     }
   };
@@ -91,7 +108,7 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
-    {#if $cloudSigninTokenHolder}
+    {#if $cloudSigninTokenHolder && !$values['saveToTeamFolder']}
       <FormCloudFolderSelect
         label="Choose cloud folder"
         name="cloudFolder"
@@ -106,6 +123,9 @@
               },
             ]}
       />
+    {/if}
+    {#if getCurrentConfig().storageDatabase}
+      <FormCheckboxField label="Save to team folder" name="saveToTeamFolder" />
     {/if}
 
     <svelte:fragment slot="footer">

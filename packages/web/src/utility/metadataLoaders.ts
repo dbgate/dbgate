@@ -184,6 +184,12 @@ const cloudContentListLoader = () => ({
   reloadTrigger: { key: `cloud-content-changed` },
 });
 
+const teamFilesLoader = () => ({
+  url: 'team-files/list',
+  params: {},
+  reloadTrigger: { key: `team-files-changed` },
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform, onLoaded, errorValue } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -522,4 +528,11 @@ export function getCloudContentList(args) {
 }
 export function useCloudContentList(args = {}) {
   return useCore(cloudContentListLoader, args);
+}
+
+export function getTeamFiles(args) {
+  return getCore(teamFilesLoader, args);
+}
+export function useTeamFiles(args) {
+  return useCore(teamFilesLoader, args);
 }

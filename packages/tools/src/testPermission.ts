@@ -107,11 +107,27 @@ export function testSubPermission(
 export function getPredefinedPermissions(predefinedRoleName: string) {
   switch (predefinedRoleName) {
     case 'superadmin':
-      return ['*', '~widgets/*', 'widgets/admin', 'widgets/database', '~all-connections'];
+      return ['*', '~widgets/*', 'widgets/admin', 'widgets/database', '~all-connections', '~all-team-files/*'];
     case 'logged-user':
-      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections', '~run-shell-script'];
+      return [
+        '*',
+        '~widgets/admin',
+        '~admin/*',
+        '~internal-storage',
+        '~all-connections',
+        '~run-shell-script',
+        '~all-team-files/*',
+      ];
     case 'anonymous-user':
-      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections', '~run-shell-script'];
+      return [
+        '*',
+        '~widgets/admin',
+        '~admin/*',
+        '~internal-storage',
+        '~all-connections',
+        '~run-shell-script',
+        '~all-team-files/*',
+      ];
     default:
       return null;
   }

@@ -7,6 +7,7 @@
 
   export let isSplitter = true;
   export let initialValue = undefined;
+  export let hideFirst = false;
 
   export let allowCollapseChild1 = false;
   export let allowCollapseChild2 = false;
@@ -22,28 +23,32 @@
 </script>
 
 <div class="container" bind:clientHeight>
-  <div
-    class="child1"
-    style={isSplitter
-      ? collapsed1
-        ? 'display:none'
-        : collapsed2
-        ? 'flex:1'
-        : `height:${size}px; min-height:${size}px; max-height:${size}px}`
-      : `flex:1`}
-  >
-    <slot name="1" />
-  </div>
-  {#if isSplitter}
+  {#if !hideFirst}
     <div
-      class={'vertical-split-handle'}
-      style={collapsed1 || collapsed2 ? 'display:none' : ''}
-      use:splitterDrag={'clientY'}
-      on:resizeSplitter={e => {
-        size += e.detail;
-        if (clientHeight > 0) customRatio = size / clientHeight;
-      }}
-    />
+      class="child1"
+      style={isSplitter
+        ? collapsed1
+          ? 'display:none'
+          : collapsed2
+            ? 'flex:1'
+            : `height:${size}px; min-height:${size}px; max-height:${size}px}`
+        : `flex:1`}
+    >
+      <slot name="1" />
+    </div>
+  {/if}
+  {#if isSplitter}
+    {#if !hideFirst}
+      <div
+        class={'vertical-split-handle'}
+        style={collapsed1 || collapsed2 ? 'display:none' : ''}
+        use:splitterDrag={'clientY'}
+        on:resizeSplitter={e => {
+          size += e.detail;
+          if (clientHeight > 0) customRatio = size / clientHeight;
+        }}
+      />
+    {/if}
     <div
       class={collapsed1 ? 'child1' : 'child2'}
       style={collapsed2 ? 'display:none' : collapsed1 ? 'flex:1' : 'child2'}
