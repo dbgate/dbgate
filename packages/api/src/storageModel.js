@@ -785,6 +785,49 @@ module.exports = {
       ]
     },
     {
+      "pureName": "roles",
+      "columns": [
+        {
+          "pureName": "roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "roles",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "anonymous-user"
+        },
+        {
+          "id": -2,
+          "name": "logged-user"
+        },
+        {
+          "id": -3,
+          "name": "superadmin"
+        }
+      ]
+    },
+    {
       "pureName": "role_connections",
       "columns": [
         {
@@ -1281,49 +1324,6 @@ module.exports = {
       }
     },
     {
-      "pureName": "roles",
-      "columns": [
-        {
-          "pureName": "roles",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "roles",
-          "columnName": "name",
-          "dataType": "varchar(250)",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "roles",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_roles",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      },
-      "preloadedRows": [
-        {
-          "id": -1,
-          "name": "anonymous-user"
-        },
-        {
-          "id": -2,
-          "name": "logged-user"
-        },
-        {
-          "id": -3,
-          "name": "superadmin"
-        }
-      ]
-    },
-    {
       "pureName": "table_permission_roles",
       "columns": [
         {
@@ -1442,40 +1442,6 @@ module.exports = {
       ]
     },
     {
-      "pureName": "team_file_types",
-      "columns": [
-        {
-          "pureName": "team_file_types",
-          "columnName": "id",
-          "dataType": "int",
-          "notNull": true
-        },
-        {
-          "pureName": "team_file_types",
-          "columnName": "name",
-          "dataType": "varchar(250)",
-          "notNull": true
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "team_file_types",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_team_file_types",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      },
-      "preloadedRows": [
-        {
-          "id": -1,
-          "name": "sql"
-        }
-      ]
-    },
-    {
       "pureName": "team_files",
       "columns": [
         {
@@ -1534,7 +1500,6 @@ module.exports = {
           "constraintName": "FK_team_files_owner_user_id",
           "pureName": "team_files",
           "refTableName": "users",
-          "deleteAction": "CASCADE",
           "columns": [
             {
               "columnName": "owner_user_id",
@@ -1547,6 +1512,81 @@ module.exports = {
         "pureName": "team_files",
         "constraintType": "primaryKey",
         "constraintName": "PK_team_files",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "team_file_types",
+      "columns": [
+        {
+          "pureName": "team_file_types",
+          "columnName": "id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "team_file_types",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "team_file_types",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_team_file_types",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "sql"
+        }
+      ]
+    },
+    {
+      "pureName": "users",
+      "columns": [
+        {
+          "pureName": "users",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "users",
+          "columnName": "login",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "password",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "users",
+          "columnName": "email",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "users",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_users",
         "columns": [
           {
             "columnName": "id"
@@ -2105,47 +2145,6 @@ module.exports = {
         "pureName": "user_team_files",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_team_files",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      }
-    },
-    {
-      "pureName": "users",
-      "columns": [
-        {
-          "pureName": "users",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "users",
-          "columnName": "login",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "password",
-          "dataType": "varchar(250)",
-          "notNull": false
-        },
-        {
-          "pureName": "users",
-          "columnName": "email",
-          "dataType": "varchar(250)",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [],
-      "primaryKey": {
-        "pureName": "users",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_users",
         "columns": [
           {
             "columnName": "id"
