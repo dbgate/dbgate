@@ -653,7 +653,7 @@
     (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : '');
 </script>
 
-<ToolStripContainer bind:this={domToolStrip}>
+<ToolStripContainer bind:this={domToolStrip} hideToolStrip={hideEditor}>
   <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue} hideFirst={hideEditor}>
     <svelte:fragment slot="1">
       {#if driver?.databaseEngineTypes?.includes('sql')}

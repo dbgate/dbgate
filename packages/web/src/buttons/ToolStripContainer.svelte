@@ -6,13 +6,14 @@
 
   export const activator = createActivator('ToolStripContainer', true);
 
-  $: isComponentActive = $isComponentActiveStore('ToolStripContainer', thisInstance);
-
   export function activate() {
     activator?.activate();
   }
 
   export let scrollContent = false;
+  export let hideToolStrip = false;
+
+  $: isComponentActive = $isComponentActiveStore('ToolStripContainer', thisInstance) && !hideToolStrip;
 </script>
 
 <div class="wrapper">
