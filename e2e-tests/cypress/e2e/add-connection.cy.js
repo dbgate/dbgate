@@ -119,4 +119,15 @@ describe('Add connection', () => {
     cy.contains('Export connections').click();
     cy.themeshot('export-connections');
   });
+
+  it('configure LLM provider', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Settings').click();
+    cy.contains('AI').click();
+    cy.testid('AiSupportedProvidersInfo_add_OpenRouter').click();
+    cy.testid('AiProviderCard_apikey_OpenRouter').clear().type('xxx');
+    cy.testid('AiProviderCard_testButton_OpenRouter').click();
+    cy.testid('AiProviderCard_editButton_OpenRouter').click();
+    cy.themeshot('llm-providers=settings');
+  });
 });
