@@ -158,7 +158,7 @@
           });
         },
       },
-      isProApp() && {
+      {
         text: 'Add existing folder (from link)',
         onClick: () => {
           showModal(InputTextModal, {
@@ -252,9 +252,7 @@
       <SearchInput placeholder="Search cloud connections and files" bind:value={filter} />
       <CloseSearchButton bind:filter />
       <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title="Add new connection or file" />
-      {#if isProApp()}
-        <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title="Add new folder" />
-      {/if}
+      <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title="Add new folder" />
       <InlineButton
         on:click={handleRefreshContent}
         title="Refresh files"
