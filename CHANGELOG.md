@@ -8,6 +8,19 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.4
+- ADDED: AI Database chat now supports much more LLM models. 
+- ADDED: Possibility to use your own API key with OPENAI-compatible providers (OpenRouter, Antropic...)
+- ADDED: Possibility to use self=hosted own LLM (eg. Llama)
+- ADDED: Team files - save SQL files and define shared charts, assign roles and users to these objects (Team Premium)
+- FIXED: BUG: does no longer work with Cockroach DB #1202
+- FIXED: DbGate Web UI Connections do not display 'Databases' #1199
+- CHANGED: Redesign fof applications. Applications are now storted in single JSON file
+- ADDED: Application editor (Premium)
+- ADDED: Posibility to filter only tables with rows
+- FIXED: Fixed several issues with large Firebird databases
+- CHANGED: Community edition now supports shared folders in read-only mode
+
 ## 6.6.3
 - FIXED: Error “db.getCollection(…).renameCollection is not a function” when renaming collection in dbGate #1198
 - FIXED: Can't list databases from Azure SQL SERVER #1197
