@@ -100,7 +100,7 @@ jobs:
           - 15002:1433
 
       clickhouse-integr:
-        image: bitnami/clickhouse:24.8.4
+        image: bitnamilegacy/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
         ports:
