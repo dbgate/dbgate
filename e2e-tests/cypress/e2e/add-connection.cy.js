@@ -127,8 +127,9 @@ describe('Add connection', () => {
     cy.testid('AiSupportedProvidersInfo_add_OpenRouter').click();
     cy.testid('AiProviderCard_apikey_OpenRouter').clear().type('xxx');
     cy.testid('AiProviderCard_testButton_OpenRouter').click();
-    cy.testid('AiProviderCard_editButton_OpenRouter').click();
     cy.testid('AiProviderCard_statusValid_OpenRouter').should('exist');
+    cy.testid('AiProviderCard_editButton_OpenRouter').click();
+    cy.wait(1000);
     cy.themeshot('llm-providers-settings');
   });
 });
