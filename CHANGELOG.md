@@ -11,7 +11,7 @@ Builds:
 ## 6.6.4
 - ADDED: AI Database chat now supports much more LLM models. 
 - ADDED: Possibility to use your own API key with OPENAI-compatible providers (OpenRouter, Antropic...)
-- ADDED: Possibility to use self=hosted own LLM (eg. Llama)
+- ADDED: Possibility to use self-hosted own LLM (eg. Llama)
 - ADDED: Team files - save SQL files and define shared charts, assign roles and users to these objects (Team Premium)
 - FIXED: BUG: does no longer work with Cockroach DB #1202
 - FIXED: DbGate Web UI Connections do not display 'Databases' #1199
