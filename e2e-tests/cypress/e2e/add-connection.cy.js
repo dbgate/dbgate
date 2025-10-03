@@ -128,6 +128,6 @@ describe('Add connection', () => {
     cy.testid('AiProviderCard_apikey_OpenRouter').clear().type('xxx');
     cy.testid('AiProviderCard_testButton_OpenRouter').click();
     cy.testid('AiProviderCard_editButton_OpenRouter').click();
-    cy.themeshot('llm-providers=settings');
+    cy.themeshot('llm-providers-settings');
   });
 });
