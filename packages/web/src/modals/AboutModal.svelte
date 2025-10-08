@@ -39,7 +39,7 @@
       {/if}
 
       <div class="mt-2">
-        <FontIcon icon="mdi mdi-web color-icon-blue" /> Web: <Link href="https://dbgate.io">dbgate.io</Link>
+        <FontIcon icon="mdi mdi-web color-icon-blue" /> Web: <Link href="https://www.dbgate.io">dbgate.io</Link>
       </div>
       {#if isProApp()}
         <div>
@@ -50,7 +50,7 @@
       {/if}
       <!-- <div>
         <FontIcon icon="mdi mdi-lightbulb color-icon-yellow" /> Give us feedback: <Link
-          href="https://dbgate.io/feedback">dbgate.io/feedback</Link
+          href="https://www.dbgate.io/feedback">dbgate.io/feedback</Link
         >
       </div> -->
 

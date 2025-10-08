@@ -53,7 +53,7 @@ const getChartExport = (title, config, imageFile, plugins) => {
     </div>
 
     <div class="footer">
-        Exported from <a href='https://dbgate.io/' target='_blank'>DbGate</a>, powered by <a href='https://www.chartjs.org/' target='_blank'>Chart.js</a>
+        Exported from <a href='https://www.dbgate.io/' target='_blank'>DbGate</a>, powered by <a href='https://www.chartjs.org/' target='_blank'>Chart.js</a>
     </div>
 </body>
 

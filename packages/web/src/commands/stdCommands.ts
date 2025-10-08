@@ -1046,7 +1046,7 @@ registerCommand({
   id: 'app.openWeb',
   category: 'Application',
   name: 'DbGate web',
-  onClick: () => openWebLink('https://dbgate.io/'),
+  onClick: () => openWebLink('https://www.dbgate.io/'),
 });
 
 registerCommand({

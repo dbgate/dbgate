@@ -32,7 +32,7 @@
   </ul>
 
   <div class="center">
-    <FormStyledButton on:click={() => openWebLink('https://dbgate.io/download')} value="Download" />
+    <FormStyledButton on:click={() => openWebLink('https://www.dbgate.io/download')} value="Download" />
   </div>
 
   <h2>Purchase DbGate Premium</h2>
@@ -41,7 +41,7 @@
   </ul>
 
   <div class="center">
-    <FormStyledButton on:click={() => openWebLink('https://dbgate.io/purchase/premium')} value="Purchase" />
+    <FormStyledButton on:click={() => openWebLink('https://www.dbgate.io/purchase/premium')} value="Purchase" />
   </div>
 
   <h2>Get PREMIUM license for free</h2>

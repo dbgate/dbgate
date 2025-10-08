@@ -45,13 +45,13 @@
       {#if !isProApp()}
         <FormStyledButton
           value="Download DbGate Premium"
-          on:click={() => openWebLink('https://dbgate.io/download/')}
+          on:click={() => openWebLink('https://www.dbgate.io/download/')}
           skipWidth
         />
       {/if}
       <FormStyledButton
         value="Purchase DbGate Premium"
-        on:click={() => openWebLink('https://dbgate.io/purchase/premium/')}
+        on:click={() => openWebLink('https://www.dbgate.io/purchase/premium/')}
         skipWidth
       />
     </div>
