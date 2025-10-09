@@ -127,8 +127,9 @@ async function tediousQueryCore(dbhan, sql, options) {
         )
       );
     });
-    if (discardResult) dbhan.client.execSqlBatch(request);
-    else dbhan.client.execSql(request);
+    dbhan.client.execSqlBatch(request);
+    // if (discardResult) dbhan.client.execSqlBatch(request);
+    // else dbhan.client.execSql(request);
   });
 }
 
