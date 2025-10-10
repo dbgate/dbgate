@@ -29,8 +29,11 @@
   const elementData = getContext('json-tree-element-data');
   const slicedKeyCount = getContext('json-tree-sliced-key-count');
   const keyLabel = labelOverride ?? key;
+  const PAGE_SIZE = 100;
+  let visibleKeyCount = PAGE_SIZE;
 
-  $: slicedKeys = expanded ? keys : previewKeys.slice(0, slicedKeyCount || 5);
+  //   $: slicedKeys = expanded ? keys : previewKeys.slice(0, Math.max(slicedKeyCount || 5, visibleKeyCount));
+  $: slicedKeys = expanded ? keys?.slice(0, visibleKeyCount) : previewKeys.slice(0, slicedKeyCount || 5);
 
   $: if (!isParentExpanded) {
     expanded = false;
@@ -52,6 +55,12 @@
   $: if (domElement && elementData && elementValue) {
     elementData.set(domElement, elementValue);
   }
+
+  function showNextKeys() {
+    visibleKeyCount += PAGE_SIZE;
+  }
+
+  $: visibleShowNextKeys = expanded && slicedKeys.length < keys.length;
 </script>
 
 <li class:indent={isParentExpanded} class:jsonValueHolder={!!elementValue} bind:this={domElement}>
@@ -84,13 +93,21 @@
           <span class="comma">,</span>
         {/if}
       {/each}
-      {#if slicedKeys.length < previewKeys.length}
+      {#if !visibleShowNextKeys && slicedKeys.length < previewKeys.length}
         <span>…</span>
       {/if}
     </ul>
   {:else}
     <span>…</span>
   {/if}
+
+  {#if visibleShowNextKeys}
+    <span class="load-more">
+      <!-- svelte-ignore a11y-invalid-attribute -->
+      <a href="#" on:click|preventDefault={showNextKeys}>(Next 100)</a>
+    </span>
+  {/if}
+
   <span>{bracketClose}</span>
 </li>
 
@@ -114,5 +131,19 @@
   label {
     /* display: contents; */
     position: relative;
+  }
+
+  .load-more {
+    margin-left: 2em;
+    font-style: italic;
+    color: var(--theme-font-link);
+  }
+  .load-more a {
+    color: var(--theme-font-link);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .load-more a:hover {
+    text-decoration: underline;
   }
 </style>
