@@ -122,6 +122,7 @@
     getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
+    pinnedDatabases,
   } from '../stores';
   import { filterName, filterNameCompoud } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
@@ -151,6 +152,8 @@
   let extInfo = null;
   let engineStatusIcon = null;
   let engineStatusTitle = null;
+
+  $: isPinned = data.singleDatabase && !!$pinnedDatabases.find(x => x?.connection?._id == data?._id);
 
   const electron = getElectron();
 
@@ -455,6 +458,19 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  onPin={!isPinned && data.singleDatabase
+    ? () =>
+        pinnedDatabases.update(list => [
+          ...list,
+          {
+            name: data.defaultDatabase,
+            connection: data,
+          },
+        ])
+    : null}
+  onUnpin={isPinned && data.singleDatabase
+    ? () => pinnedDatabases.update(list => list.filter(x => x?.connection?._id != data?._id))
+    : null}
   isChoosed={data._id == $focusedConnectionOrDatabase?.conid &&
     (data.singleDatabase
       ? $focusedConnectionOrDatabase?.database == data.defaultDatabase
