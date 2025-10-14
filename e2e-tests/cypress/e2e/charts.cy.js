@@ -124,7 +124,7 @@ describe('Charts', () => {
     cy.themeshot('database-chat-chart');
   });
 
-  it.only('Database chat', () => {
+  it('Database chat', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
@@ -143,5 +143,28 @@ describe('Charts', () => {
     // cy.contains('Hot Girl', { timeout: 20000 });
     // cy.wait(1000);
     // cy.themeshot('database-chat');
+  });
+
+  it('Explain query error', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
+    cy.wait(1000);
+    cy.get('body').realType('select * from Invoice2');
+    cy.contains('Execute').click();
+    cy.testid('MessageViewRow-explainErrorButton-1').click();
+    cy.testid('ChatCodeRenderer_useSqlButton', { timeout: 30000 });
+    cy.themeshot('explain-query-error');
+
+    // cy.testid('TabsPanel_buttonNewObject').click();
+    // cy.testid('NewObjectModal_databaseChat').click();
+    // cy.wait(1000);
+    // cy.get('body').realType('show me chart of most popular genres');
+    // cy.get('body').realPress('{enter}');
+    // cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
+    // cy.wait(5000);
+    // cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    // cy.themeshot('database-chat-chart');
   });
 });
