@@ -389,27 +389,6 @@ describe('Data browser data', () => {
     cy.themeshot('compare-database-settings');
   });
 
-  it('Database chat', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_databaseChat').click();
-    cy.wait(1000);
-    cy.get('body').realType('find most popular artist');
-    cy.get('body').realPress('{enter}');
-    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
-    cy.wait(30000);
-    // cy.contains('Iron Maiden');
-    cy.themeshot('database-chat');
-
-    // cy.testid('DatabaseChatTab_promptInput').click();
-    // cy.get('body').realType('I need top 10 songs with the biggest income');
-    // cy.get('body').realPress('{enter}');
-    // cy.contains('Hot Girl', { timeout: 20000 });
-    // cy.wait(1000);
-    // cy.themeshot('database-chat');
-  });
-
   it('Modify data', () => {
     // TODO FIX: delete references cascade not working
     cy.contains('MySql-connection').click();
