@@ -109,4 +109,18 @@ describe('Charts', () => {
     cy.contains('Compare database');
     cy.themeshot('new-object-window');
   });
+
+  it('Database chat - charts', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_databaseChat').click();
+    cy.wait(1000);
+    cy.get('body').realType('show me chart of most popular genres');
+    cy.get('body').realPress('{enter}');
+    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
+    cy.wait(5000);
+    cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.themeshot('database-chat-chart');
+  });
 });

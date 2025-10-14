@@ -49,6 +49,7 @@
       <InlineButton
         title="Explain error"
         inlineBlock
+        data-testid={`MessageViewRow-explainErrorButton-${index}`}
         on:click={e => {
           onExplainError(row);
         }}><FontIcon icon="img ai" /> Explain</InlineButton
