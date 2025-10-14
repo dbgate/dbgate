@@ -11,6 +11,7 @@
   export let showCaller = false;
   export let startLine = 0;
   export let onMessageClick = null;
+  export let onExplainError = null;
 
   export let filter = '';
 
@@ -90,6 +91,7 @@
           {startLine}
           previousRow={index > 0 ? items[index - 1] : null}
           {onMessageClick}
+          {onExplainError}
         />
       {/each}
     </table>

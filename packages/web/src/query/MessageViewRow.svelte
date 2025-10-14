@@ -16,6 +16,7 @@
   import JSONTree from '../jsontree/JSONTree.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   export let row;
   export let index;
@@ -27,6 +28,7 @@
 
   export let previousRow = null;
   export let onMessageClick = null;
+  export let onExplainError = null;
 
   let isExpanded = false;
 </script>
@@ -43,6 +45,15 @@
       <FontIcon icon={plusExpandIcon(isExpanded)} />
     </span>
     {row.message}
+    {#if row.severity == 'error' && onExplainError}
+      <InlineButton
+        title="Explain error"
+        inlineBlock
+        on:click={e => {
+          onExplainError(row);
+        }}><FontIcon icon="img ai" /> Explain</InlineButton
+      >
+    {/if}
   </td>
   <td>{moment(row.time).format('HH:mm:ss')}</td>
   <td>{formatDuration(new Date(row.time).getTime() - time0)}</td>
