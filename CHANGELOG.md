@@ -8,8 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.5
+- ADDED: SQL AI assistant - powered by database chat, could help you to write SQL queries (Premium)
+- ADDED: Explain SQL error (powered by AI) (Premium)
+- ADDED: Database chat (and SQL AI Assistant) now supports showing charts (Premium)
+- FIXED: Fxied editing new files and roles (Team Premium)
+- FIXED: Connection to standalone database could be now pinned
+
 ## 6.6.4
-- ADDED: AI Database chat now supports much more LLM models. 
+- ADDED: AI Database chat now supports much more LLM models. (Premium)
 - ADDED: Possibility to use your own API key with OPENAI-compatible providers (OpenRouter, Antropic...)
 - ADDED: Possibility to use self-hosted own LLM (eg. Llama)
 - ADDED: Team files - save SQL files and define shared charts, assign roles and users to these objects (Team Premium)
