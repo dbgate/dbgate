@@ -23,10 +23,13 @@ const driver = {
   title: 'Redis',
   defaultPort: 6379,
   editorMode: 'text',
+  authTypeFirst: true,
   databaseEngineTypes: ['keyvalue'],
   supportedCreateDatabase: false,
   getQuerySplitterOptions: () => redisSplitterOptions,
   databaseUrlPlaceholder: 'e.g. redis://:authpassword@127.0.0.1:6380/4',
+  authTypeLabel: 'Connection mode',
+  defaultAuthTypeName: 'node',
   supportedKeyTypes: [
     {
       name: 'string',
@@ -76,9 +79,13 @@ const driver = {
   ],
 
   showConnectionField: (field, values) => {
-    if (field == 'useDatabaseUrl') return true;
+    if (field == 'useDatabaseUrl') return values.authType != 'cluster';
+    if (field == 'authType') return !values.useDatabaseUrl;
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'isReadOnly', 'treeKeySeparator'].includes(field);
+    }
+    if (values.authType == 'cluster') {
+      return ['user', 'password', 'isReadOnly', 'treeKeySeparator', 'clusterNodes', 'autoDetectNatMap'].includes(field);
     }
     return ['server', 'port', 'user', 'password', 'isReadOnly', 'treeKeySeparator'].includes(field);
   },

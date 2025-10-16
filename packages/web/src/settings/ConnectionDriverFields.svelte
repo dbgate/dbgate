@@ -19,6 +19,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
   import { _t } from '../translations';
   import FormFileInputField from '../forms/FormFileInputField.svelte';
+  import FormClusterNodesField from '../forms/FormClusterNodesField.svelte';
 
   export let getDatabaseList;
   export let currentConnection;
@@ -120,6 +121,24 @@
       }))}
     />
   {/key}
+{/if}
+
+{#if driver?.showConnectionField('clusterNodes', $values, showConnectionFieldArgs)}
+  <FormClusterNodesField
+    label="Cluster nodes"
+    name="clusterNodes"
+    disabled={isConnected || disabledFields.includes('clusterNodes')}
+    data-testid="ConnectionDriverFields_clusterNodes"
+  />
+{/if}
+
+{#if driver?.showConnectionField('autoDetectNatMap', $values, showConnectionFieldArgs)}
+  <FormCheckboxField
+    label="Auto detect NAT map (use for Redis Cluster in Docker network)"
+    name="autoDetectNatMap"
+    disabled={isConnected}
+    data-testid="ConnectionDriverFields_autoDetectNatMap"
+  />
 {/if}
 
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}

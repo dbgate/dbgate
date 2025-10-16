@@ -7,6 +7,8 @@ const Redis = require('ioredis');
 const RedisDump = require('node-redis-dump2');
 const { filterName } = global.DBGATE_PACKAGES['dbgate-tools'];
 
+let isProApp;
+
 function splitCommandLine(str) {
   let results = [];
   let word = '';
@@ -77,6 +79,47 @@ function splitCommandLine(str) {
   return results;
 }
 
+async function buildNatMapFromSeeds(seeds, redisOptions) {
+  const natMap = {};
+
+  await Promise.all(
+    seeds.map(async (seed) => {
+      const single = new Redis({
+        host: typeof seed === 'string' ? new URL(seed).hostname : seed.host,
+        port: typeof seed === 'string' ? Number(new URL(seed).port || 6379) : seed.port,
+        ...redisOptions,
+        // Make these connections quick and disposable
+        lazyConnect: false,
+        enableReadyCheck: false,
+        maxRetriesPerRequest: 0,
+      });
+
+      try {
+        const nodes = await single.cluster('nodes'); // text blob
+        const line = nodes.split(/\r?\n/).find((l) => /\bmyself\b/.test(l));
+        if (!line) return;
+
+        // Example addr token: "172.18.0.3:6379@16379" or "redis-node-0:6379@16379"
+        const addrToken = line.split(' ')[1];
+        const hostPort = addrToken.split('@')[0]; // strip bus port
+        const [advHost, advPortStr] = hostPort.split(':');
+        const advKey = `${advHost}:${Number(advPortStr)}`;
+
+        const extHost = typeof seed === 'string' ? new URL(seed).hostname : seed.host;
+        const extPort = typeof seed === 'string' ? Number(new URL(seed).port || 6379) : seed.port;
+
+        natMap[advKey] = { host: extHost, port: extPort };
+      } catch {
+        // ignore this seed if it fails; others may still succeed
+      } finally {
+        single.disconnect();
+      }
+    })
+  );
+
+  return natMap;
+}
+
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
@@ -92,6 +135,9 @@ const driver = {
     treeKeySeparator,
     ssl,
     skipSetName,
+    authType,
+    clusterNodes,
+    autoDetectNatMap,
   }) {
     let db = 0;
     let client;
@@ -100,6 +146,26 @@ const driver = {
       if (!skipSetName) {
         await client.client('SETNAME', 'dbgate');
       }
+    } else if (authType === 'cluster' && isProApp && isProApp()) {
+      const redisOptions = {
+        user,
+        password,
+      };
+
+      let seeds = [];
+      try {
+        seeds = JSON.parse(clusterNodes);
+      } catch {}
+      if (!Array.isArray(seeds) || seeds.length === 0) {
+        throw new Error('Cluster nodes must be a non-empty array of host:port or objects with host and port');
+      }
+
+      const natMap = autoDetectNatMap ? await buildNatMapFromSeeds(seeds, redisOptions) : undefined;
+
+      client = new Redis.Cluster(seeds, {
+        redisOptions,
+        natMap,
+      });
     } else {
       if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
       if (_.isNumber(database)) db = database;
@@ -487,6 +553,20 @@ const driver = {
   async close(dbhan) {
     return dbhan.client.quit();
   },
+
+  getAuthTypes() {
+    if (isProApp && isProApp()) {
+      return [
+        { name: 'node', title: 'Single Redis node' },
+        { name: 'cluster', title: 'Redis Cluster' },
+      ];
+    }
+    return null;
+  },
+};
+
+driver.initialize = (dbgateEnv) => {
+  isProApp = dbgateEnv.isProApp;
 };
 
 module.exports = driver;
