@@ -1,0 +1,1 @@
+This file is part of DbGate Premium
