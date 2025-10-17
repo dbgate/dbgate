@@ -13,7 +13,6 @@ const socket = require('./socket');
 const config = require('../controllers/config');
 const simpleEncryptor = require('simple-encryptor');
 const currentVersion = require('../currentVersion');
-const { getPublicIpInfo } = require('./hardwareFingerprint');
 
 const logger = getLogger('cloudIntf');
 
@@ -423,6 +422,18 @@ function removeCloudCachedConnection(folid, cntid) {
   delete cloudConnectionCache[cacheKey];
 }
 
+async function getPublicIpInfo() {
+  try {
+    const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/ipinfo`);
+    if (!resp.data?.ip) {
+      return { ip: 'unknown-ip' };
+    }
+    return resp.data;
+  } catch (err) {
+    return { ip: 'unknown-ip' };
+  }
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -439,4 +450,5 @@ module.exports = {
   removeCloudCachedConnection,
   readCloudTokenHolder,
   readCloudTestTokenHolder,
+  getPublicIpInfo,
 };
