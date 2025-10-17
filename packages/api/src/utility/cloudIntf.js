@@ -199,8 +199,6 @@ async function updateCloudFiles(isRefresh) {
     lastCloudFilesTags = '';
   }
 
-  const ipInfo = await getPublicIpInfo();
-
   const tags = (await collectCloudFilesSearchTags()).join(',');
   let lastCheckedTm = 0;
   if (tags == lastCloudFilesTags && cloudFiles.length > 0) {
@@ -212,7 +210,7 @@ async function updateCloudFiles(isRefresh) {
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
       isRefresh ? 1 : 0
-    }&country=${ipInfo?.country || ''}`,
+    }`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
