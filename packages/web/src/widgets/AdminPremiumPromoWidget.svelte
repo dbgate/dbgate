@@ -48,7 +48,7 @@
   <p>Your feedback is very valuable for us. We have time-limited offers available for users who provide feedback.</p>
 
   <div class="center">
-    <FormStyledButton on:click={() => openWebLink('https://dbgate.org/review')} value="View current offer" skipWidth />
+    <FormStyledButton on:click={() => openWebLink('https://www.dbgate.io/review?utm_campaign=communityWidget')} value="View current offer" skipWidth />
   </div>
 </WidgetsInnerContainer>
 
