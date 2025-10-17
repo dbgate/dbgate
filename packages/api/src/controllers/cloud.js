@@ -8,6 +8,7 @@ const {
   getCloudContent,
   putCloudContent,
   removeCloudCachedConnection,
+  getPromoWidgetData,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -281,6 +282,11 @@ module.exports = {
   getAiGateway_meta: true,
   async getAiGateway() {
     return getAiGatewayServer();
+  },
+
+  premiumPromoWidget_meta: true,
+  async premiumPromoWidget() {
+    return getPromoWidgetData();
   },
 
   // chatStream_meta: {

@@ -183,11 +183,15 @@ const cloudContentListLoader = () => ({
   params: {},
   reloadTrigger: { key: `cloud-content-changed` },
 });
-
 const teamFilesLoader = () => ({
   url: 'team-files/list',
   params: {},
   reloadTrigger: { key: `team-files-changed` },
+});
+const promoWidgetLoader = () => ({
+  url: 'cloud/premium-promo-widget',
+  params: {},
+  reloadTrigger: { key: `promo-widget-changed` },
 });
 
 async function getCore(loader, args) {
@@ -535,4 +539,11 @@ export function getTeamFiles(args) {
 }
 export function useTeamFiles(args) {
   return useCore(teamFilesLoader, args);
+}
+
+export function getPromoWidget(args) {
+  return getCore(promoWidgetLoader, args);
+}
+export function usePromoWidget(args) {
+  return useCore(promoWidgetLoader, args);
 }
