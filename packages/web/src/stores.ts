@@ -183,6 +183,7 @@ export const focusedConnectionOrDatabase = writable<{ conid: string; database?: 
 export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
 export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
+export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumPromoWidget');
 
 export const cloudConnectionsStore = writable({});
 

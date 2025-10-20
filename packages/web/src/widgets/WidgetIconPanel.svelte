@@ -10,6 +10,7 @@
     lockedDatabaseMode,
     getCurrentConfig,
     cloudSigninTokenHolder,
+    seenPremiumPromoWidget,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -101,6 +102,10 @@
     } else {
       $selectedWidget = name;
       $visibleWidgetSideBar = true;
+
+      if (name == 'premium') {
+        $seenPremiumPromoWidget = $promoWidget?.identifier || '';
+      }
     }
   }
   //const handleChangeWidget= e => (selectedWidget.set(item.name))
@@ -184,6 +189,9 @@
       <FontIcon icon={item.icon} title={item.title} />
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
+        {#if $promoWidget?.identifier != $seenPremiumPromoWidget}
+          <div class="premium-promo-not-seen">•</div>
+        {/if}
       {/if}
     </div>
   {/each}
@@ -264,5 +272,13 @@
     padding: 1px 3px;
     border-radius: 3px;
     bottom: 0;
+  }
+
+  .premium-promo-not-seen {
+    position: absolute;
+    font-size: 16pt;
+    color: var(--theme-icon-yellow);
+    top: -5px;
+    right: 5px;
   }
 </style>
