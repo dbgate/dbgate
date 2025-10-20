@@ -17,6 +17,7 @@ const currentVersion = require('../currentVersion');
 const logger = getLogger('cloudIntf');
 
 let cloudFiles = null;
+let promoWidgetData = null;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
@@ -259,6 +260,36 @@ async function getPublicFileData(path) {
   return resp.data;
 }
 
+async function updatePremiumPromoWidget() {
+  try {
+    const fileContent = await fs.readFile(path.join(datadir(), 'promo-widget.json'), 'utf-8');
+    promoWidgetData = JSON.parse(fileContent);
+  } catch (err) {
+    promoWidgetData = null;
+  }
+
+  const tags = (await collectCloudFilesSearchTags()).join(',');
+
+  const resp = await axios.default.get(
+    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
+    {
+      headers: {
+        ...(await getCloudInstanceHeaders()),
+        'x-app-version': currentVersion.version,
+      },
+    }
+  );
+
+  if (!resp.data || resp.data?.state == 'unchanged') {
+    return;
+  }
+
+  promoWidgetData = resp.data;
+  await fs.writeFile(path.join(datadir(), 'promo-widget.json'), JSON.stringify(promoWidgetData, null, 2));
+
+  socket.emitChanged(`promo-widget-changed`);
+}
+
 async function refreshPublicFiles(isRefresh) {
   if (!cloudFiles) {
     await loadCloudFiles();
@@ -267,6 +298,9 @@ async function refreshPublicFiles(isRefresh) {
     await updateCloudFiles(isRefresh);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
+  }
+  if (!isProApp()) {
+    await updatePremiumPromoWidget();
   }
 }
 
@@ -432,6 +466,10 @@ async function getPublicIpInfo() {
   }
 }
 
+function getPromoWidgetData() {
+  return promoWidgetData;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -449,4 +487,5 @@ module.exports = {
   readCloudTokenHolder,
   readCloudTestTokenHolder,
   getPublicIpInfo,
+  getPromoWidgetData,
 };
