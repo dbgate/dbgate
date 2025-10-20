@@ -286,7 +286,14 @@ module.exports = {
 
   premiumPromoWidget_meta: true,
   async premiumPromoWidget() {
-    return getPromoWidgetData();
+    const data = getPromoWidgetData();
+    if (data?.state != 'data') {
+      return null;
+    }
+    if (data.validTo && new Date().getTime() > new Date(data.validTo).getTime()) {
+      return null;
+    }
+    return data;
   },
 
   // chatStream_meta: {

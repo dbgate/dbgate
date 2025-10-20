@@ -20,10 +20,13 @@
   import { showModal } from '../modals/modalTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { usePromoWidget } from '../utility/metadataLoaders';
 
   let domSettings;
   let domCloudAccount;
   let domMainMenu;
+
+  const promoWidget = usePromoWidget({});
 
   const widgets = [
     getCurrentConfig().storageDatabase && {
@@ -169,7 +172,7 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isPremiumPromo || !isProApp())
+    .filter(x => !x.isPremiumPromo || (!isProApp() && $promoWidget?.state == 'data'))
     // .filter(x => !x.isPremiumOnly || isProApp())
     .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div

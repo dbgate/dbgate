@@ -271,7 +271,13 @@ async function updatePremiumPromoWidget() {
   const tags = (await collectCloudFilesSearchTags()).join(',');
 
   const resp = await axios.default.get(
-    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'nope'}&tags=${tags}`
+    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
+    {
+      headers: {
+        ...(await getCloudInstanceHeaders()),
+        'x-app-version': currentVersion.version,
+      },
+    }
   );
 
   if (!resp.data || resp.data?.state == 'unchanged') {
