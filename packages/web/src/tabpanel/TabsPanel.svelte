@@ -171,6 +171,10 @@
       (x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex,
       tabs => tabs.map(x => (x.selected ? { ...x, tabPreviewMode: false } : x))
     );
+  const closeRightTabs = multiTabIndex =>
+    closeTabFunc(
+      (x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex && x.tabOrder > active.tabOrder
+    );
   const reopenClosedTab = () => {
     const lastClosedTabId = getOpenedTabs()
       .filter(x => x.closedTime)
@@ -444,6 +448,10 @@
       {
         text: 'Close others',
         onClick: () => closeOthersInMultiTab(multiTabIndex)(tabid),
+      },
+      {
+        text: 'Close to the right',
+        onClick: () => closeRightTabs(multiTabIndex)(tabid),
       },
       {
         text: 'Duplicate',
