@@ -258,6 +258,12 @@ ORDER BY
             label="Disable split by empty line"
             defaultValue={false}
           />
+
+          <FormCheckboxField
+            name="sqlEditor.disableExecuteCurrentLine"
+            label="Disable current line execution (Execute current)"
+            defaultValue={false}
+          />
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Connection</div>
