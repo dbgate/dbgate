@@ -209,11 +209,11 @@ module.exports = {
           return Promise.resolve();
         }
         this.lastPinged[conid] = new Date().getTime();
-        const opened = await this.ensureOpened(conid);
-        if (!opened) {
-          return Promise.resolve();
-        }
         try {
+          const opened = await this.ensureOpened(conid);
+          if (!opened) {
+            return Promise.resolve();
+          }
           opened.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
           logger.error(extractErrorLogData(err), 'DBGM-00121 Error pinging server connection');
