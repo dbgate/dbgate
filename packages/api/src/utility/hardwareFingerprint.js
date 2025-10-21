@@ -2,7 +2,6 @@ const axios = require('axios');
 const os = require('os');
 const crypto = require('crypto');
 const platformInfo = require('./platformInfo');
-const { getPublicIpInfo } = require('./cloudIntf');
 
 function getMacAddress() {
   try {
@@ -21,6 +20,7 @@ function getMacAddress() {
 }
 
 async function getHardwareFingerprint() {
+  const { getPublicIpInfo } = require('./cloudIntf');
   const publicIpInfo = await getPublicIpInfo();
   const macAddress = getMacAddress();
   const platform = os.platform();
