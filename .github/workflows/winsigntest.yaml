@@ -14,7 +14,6 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    environment: dbgate-signing
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +31,7 @@ jobs:
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
+        environment: dbgate-signing
         if: matrix.os == 'windows-2022'
         with:
           client-id: ${{ secrets.AZURE_TC_CLIENT_ID }}
