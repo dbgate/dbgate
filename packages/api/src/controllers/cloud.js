@@ -286,7 +286,7 @@ module.exports = {
 
   premiumPromoWidget_meta: true,
   async premiumPromoWidget() {
-    const data = getPromoWidgetData();
+    const data = await getPromoWidgetData();
     if (data?.state != 'data') {
       return null;
     }

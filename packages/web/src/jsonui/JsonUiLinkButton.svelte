@@ -4,14 +4,14 @@
 
   export let text: string;
   export let link: string;
-  export let newTab: boolean = true;
+  export let colorClass: string = '';
 
   // very light url guard
   const safe = /^(https?:)?\/\//i.test(link) || link.startsWith('/');
 </script>
 
 <div class="center">
-  <FormStyledButton on:click={() => openWebLink(link)} value={text} skipWidth />
+  <FormStyledButton on:click={() => openWebLink(link)} value={text} skipWidth {colorClass} />
 </div>
 
 <style>
