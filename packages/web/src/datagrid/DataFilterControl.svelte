@@ -34,6 +34,7 @@
   export let onCustomCommand = null;
   export let customCommandTooltip = null;
   export let formatterFunction = null;
+  export let filterDisabled = false;
 
   export let pureName = null;
   export let schemaName = null;
@@ -47,6 +48,7 @@
   let isError;
   let isOk;
   let domInput;
+  let isDisabled;
 
   $: if (onGetReference && domInput) onGetReference(domInput);
 
@@ -257,6 +259,7 @@
     try {
       isOk = false;
       isError = false;
+      isDisabled = filterDisabled;
       if (value) {
         parseFilter(value, filterBehaviour);
         isOk = true;
@@ -287,6 +290,7 @@
     on:paste={handlePaste}
     class:isError
     class:isOk
+    class:isDisabled
     {placeholder}
     data-testid={`DataFilterControl_input_${uniqueName}`}
   />
@@ -344,5 +348,9 @@
 
   input.isOk {
     background-color: var(--theme-bg-green);
+  }
+
+  input.isDisabled {
+    text-decoration: line-through;
   }
 </style>

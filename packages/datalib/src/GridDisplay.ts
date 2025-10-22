@@ -233,6 +233,7 @@ export abstract class GridDisplay {
       if (!filter) continue;
       const column = displayedColumnInfo[uniqueName];
       if (!column) continue;
+      if (this.isFilterDisabled(uniqueName)) continue;
       try {
         const condition = parseFilter(
           filter,
@@ -259,7 +260,7 @@ export abstract class GridDisplay {
       }
     }
 
-    if (this.baseTableOrView && this.config.multiColumnFilter) {
+    if (this.baseTableOrView && this.config.multiColumnFilter && !this.isMultiColumnFilterDisabled()) {
       const orCondition: CompoudCondition = {
         conditionType: 'or',
         conditions: [],
@@ -416,6 +417,7 @@ export abstract class GridDisplay {
         [uniqueName]: value,
       },
       formViewRecordNumber: 0,
+      disabledFilterColumns: cfg.disabledFilterColumns.filter(x => x != uniqueName),
     }));
     this.reload();
   }
@@ -425,6 +427,7 @@ export abstract class GridDisplay {
       ...cfg,
       multiColumnFilter: value,
       formViewRecordNumber: 0,
+      disabledMultiColumnFilter: false,
     }));
     this.reload();
   }
@@ -448,6 +451,7 @@ export abstract class GridDisplay {
       ...cfg,
       filters: _.omit(cfg.filters, [uniqueName]),
       formFilterColumns: (cfg.formFilterColumns || []).filter(x => x != uniqueName),
+      disabledFilterColumns: (cfg.disabledFilterColumns).filter(x => x != uniqueName),
     }));
     this.reload();
   }
@@ -461,6 +465,37 @@ export abstract class GridDisplay {
       },
     }));
     this.reload();
+  }
+
+  toggleFilterEnabled(uniqueName) {
+    if (this.isFilterDisabled(uniqueName)) {
+      this.setConfig(cfg => ({
+        ...cfg,
+        disabledFilterColumns: cfg.disabledFilterColumns.filter(x => x != uniqueName),
+      }));
+    } else {
+      this.setConfig(cfg => ({
+        ...cfg,
+        disabledFilterColumns: [...cfg.disabledFilterColumns, uniqueName],
+      }));
+    }
+    this.reload();
+  }
+
+  isFilterDisabled(uniqueName: string) {
+    return this.config.disabledFilterColumns.includes(uniqueName);
+  }
+
+  toggleMultiColumnFilterEnabled() {
+    this.setConfig(cfg => ({
+      ...cfg,
+      disabledMultiColumnFilter: !cfg.disabledMultiColumnFilter,
+    }));
+    this.reload();
+  }
+
+  isMultiColumnFilterDisabled() {
+    return this.config.disabledMultiColumnFilter;
   }
 
   setSort(uniqueName, order) {
