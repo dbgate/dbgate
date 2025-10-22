@@ -77,9 +77,9 @@ jobs:
       - name: Sign Windows artifacts with Azure Trusted Signing
         uses: azure/trusted-signing-action@v0
         with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          azure-tenant-id: ${{ secrets.AZURE_TC_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_TC_CLIENT_ID }}
+          # azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
           endpoint: https://wus3.codesigning.azure.net/
           trusted-signing-account-name: DbGate
