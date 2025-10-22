@@ -84,6 +84,8 @@ jobs:
         run: |
           echo "OIDC URL: $env:ACTIONS_ID_TOKEN_REQUEST_URL"
           echo "OIDC TOKEN: ${{ steps.none.outputs.nothing || '' }}"
+          echo "Client ID: ${{ secrets.AZURE_TC_CLIENT_ID }}"
+          echo "Tenant ID: ${{ secrets.AZURE_TC_TENANT_ID }}"
         shell: pwsh
 
       - name: Azure login (OIDC)
