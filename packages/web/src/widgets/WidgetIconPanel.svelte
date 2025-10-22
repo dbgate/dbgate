@@ -186,7 +186,7 @@
       data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
-      <FontIcon icon={item.icon} title={item.title} />
+      <FontIcon icon={item.isPremiumPromo ? ($promoWidget?.icon ?? item.icon) : item.icon} title={item.title} />
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
         {#if $promoWidget?.identifier != $seenPremiumPromoWidget}

@@ -30,3 +30,7 @@
 .color-icon-inv-red {
   color: var(--theme-icon-inv-red);
 }
+
+.color-icon-premium {
+  background: linear-gradient(135deg, #1686c8, #8a25b1);
+}
