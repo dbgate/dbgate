@@ -260,7 +260,7 @@ export abstract class GridDisplay {
       }
     }
 
-    if (this.baseTableOrView && this.config.multiColumnFilter) {
+    if (this.baseTableOrView && this.config.multiColumnFilter && !this.isMultiColumnFilterDisabled()) {
       const orCondition: CompoudCondition = {
         conditionType: 'or',
         conditions: [],
@@ -427,6 +427,7 @@ export abstract class GridDisplay {
       ...cfg,
       multiColumnFilter: value,
       formViewRecordNumber: 0,
+      disabledMultiColumnFilter: false,
     }));
     this.reload();
   }
@@ -483,6 +484,18 @@ export abstract class GridDisplay {
 
   isFilterDisabled(uniqueName: string) {
     return this.config.disabledFilterColumns.includes(uniqueName);
+  }
+
+  toggleMultiColumnFilterEnabled() {
+    this.setConfig(cfg => ({
+      ...cfg,
+      disabledMultiColumnFilter: !cfg.disabledMultiColumnFilter,
+    }));
+    this.reload();
+  }
+
+  isMultiColumnFilterDisabled() {
+    return this.config.disabledMultiColumnFilter;
   }
 
   setSort(uniqueName, order) {

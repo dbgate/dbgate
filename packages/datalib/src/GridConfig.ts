@@ -32,6 +32,7 @@ export interface GridConfig extends GridConfigColumns {
   multiColumnFilter?: string;
   searchInColumns?: string;
   disabledFilterColumns: string[];
+  disabledMultiColumnFilter?: boolean;
 }
 
 export interface GridCache {
