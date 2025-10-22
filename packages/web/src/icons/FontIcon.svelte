@@ -353,8 +353,6 @@
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
     'img arrow-start-here': 'mdi mdi-arrow-down-bold-circle color-icon-green',
     'img team-file': 'mdi mdi-account-file color-icon-red',
-
-    'img premium': 'mdi mdi-star color-icon-premium',
   };
 </script>
 

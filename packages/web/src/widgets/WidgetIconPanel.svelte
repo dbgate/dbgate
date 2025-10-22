@@ -186,7 +186,15 @@
       data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
-      <FontIcon icon={item.isPremiumPromo ? ($promoWidget?.icon ?? item.icon) : item.icon} title={item.title} />
+      {#if item.isPremiumPromo && $promoWidget?.isColoredIcon}
+        <FontIcon
+          icon={item.icon}
+          title={item.title}
+          colorClass="premium-background-gradient widget-icon-panel-rounded"
+        />
+      {:else}
+        <FontIcon icon={item.icon} title={item.title} />
+      {/if}
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
         {#if $promoWidget?.identifier != $seenPremiumPromoWidget}
@@ -280,5 +288,10 @@
     color: var(--theme-icon-yellow);
     top: -5px;
     right: 5px;
+  }
+
+  :global(.widget-icon-panel-rounded) {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 </style>
