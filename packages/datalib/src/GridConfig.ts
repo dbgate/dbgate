@@ -31,6 +31,7 @@ export interface GridConfig extends GridConfigColumns {
   formFilterColumns: string[];
   multiColumnFilter?: string;
   searchInColumns?: string;
+  disabledFilterColumns: string[];
 }
 
 export interface GridCache {
@@ -48,6 +49,7 @@ export function createGridConfig(): GridConfig {
     focusedColumns: null,
     grouping: {},
     formFilterColumns: [],
+    disabledFilterColumns: [],
   };
 }
 

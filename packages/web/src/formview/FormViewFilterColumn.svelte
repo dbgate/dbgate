@@ -6,6 +6,7 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
 
   export let uniqueName;
   export let display;
@@ -42,15 +43,23 @@
       {:else}
         {uniqueName}
       {/if}
-      <InlineButton
-        square
-        narrow
-        on:click={() => {
-          display.removeFilter(uniqueName);
-        }}
-      >
-        <FontIcon icon="icon close" />
-      </InlineButton>
+      <div class="flex items-center gap-2">
+        <CheckboxField
+          checked={!display.isFilterDisabled(uniqueName)}
+          on:change={() => {
+            display.toggleFilterEnabled(uniqueName);
+          }}
+        />
+        <InlineButton
+          square
+          narrow
+          on:click={() => {
+            display.removeFilter(uniqueName);
+          }}
+        >
+          <FontIcon icon="icon close" />
+        </InlineButton>
+      </div>
     </div>
     <DataFilterControl
       filterBehaviour={computeFilterBehavoir(column, display, isDynamicStructure)}
@@ -64,6 +73,7 @@
       columnName={column ? (column.uniquePath.length == 1 ? column.uniquePath[0] : null) : uniqueName}
       foreignKey={column?.foreignKey}
       dataType={column?.dataType}
+      filterDisabled={display.isFilterDisabled(uniqueName)}
     />
   </div>
 {/if}

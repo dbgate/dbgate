@@ -2059,6 +2059,7 @@
                     selectTopmostCell(col.uniqueName);
                   }}
                   dataType={col.dataType}
+                  filterDisabled={display.isFilterDisabled(col.uniqueName)}
                 />
               </td>
             {/each}
