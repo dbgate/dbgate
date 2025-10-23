@@ -9,8 +9,8 @@ name: Electron app BETA
 
 permissions:
   id-token: write
-  contents: read
-
+  contents: write
+  
 jobs:
   build:
     runs-on: ${{ matrix.os }}
