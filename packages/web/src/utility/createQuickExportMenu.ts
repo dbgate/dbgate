@@ -16,7 +16,7 @@ export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition)
       onClick: handler(fmt),
     })),
     { divider: true },
-    {
+    isProApp() && {
       text: 'Current archive',
       onClick: handler({
         extension: 'jsonl',
