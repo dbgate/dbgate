@@ -30,6 +30,7 @@
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
+  import { isProApp } from '../utility/proTools';
 
   export let conid;
   export let database;
@@ -82,7 +83,8 @@
             extendedDbInfo?.tables?.find(x => x.pureName == pureName && x.schemaName == schemaName)
               ?.tablePermissionRole == 'read',
           isRawMode,
-          $settingsValue
+          $settingsValue,
+          isProApp()
         )
       : null;
 

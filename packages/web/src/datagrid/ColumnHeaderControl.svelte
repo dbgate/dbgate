@@ -95,11 +95,13 @@
 
       { divider: true },
 
-      allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
-      column.foreignKey && {
-        onClick: handleCustomizeDescriptions,
-        text: 'Customize description',
-      },
+      isProApp() &&
+        allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      column.foreignKey &&
+        isProApp() && {
+          onClick: handleCustomizeDescriptions,
+          text: 'Customize description',
+        },
     ];
   }
 </script>
