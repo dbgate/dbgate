@@ -68,6 +68,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import { isProApp } from '../utility/proTools';
 
   export let config;
   export let setConfig;
@@ -205,7 +206,7 @@
         name="references"
         height="30%"
         collapsed={isDetailView}
-        skip={!(showReferences && display?.hasReferences)}
+        skip={!(showReferences && display?.hasReferences && isProApp())}
         data-testid="DataGrid_itemReferences"
       >
         <ReferenceManager {...$$props} {managerSize} />
@@ -214,7 +215,7 @@
       <WidgetColumnBarItem
         title="Macros"
         name="macros"
-        skip={!showMacros}
+        skip={!(showMacros && isProApp())}
         collapsed={!expandMacros}
         data-testid="DataGrid_itemMacros"
       >
