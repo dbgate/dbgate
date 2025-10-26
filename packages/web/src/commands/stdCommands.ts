@@ -689,7 +689,7 @@ registerCommand({
   name: 'Export database',
   toolbar: true,
   icon: 'icon export',
-  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/export`),
+  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/export`) && isProApp(),
   onClick: () => {
     openImportExportTab({
       targetStorageType: getDefaultFileFormat(getExtensions()).storageType,

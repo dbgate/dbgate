@@ -1,11 +1,12 @@
 import type { QuickExportDefinition } from 'dbgate-types';
 import { currentArchive, getCurrentArchive, getExtensions } from '../stores';
 import hasPermission from './hasPermission';
+import { isProApp } from './proTools';
 
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
   return [
-    {
+    isProApp() && {
       text: 'Export advanced...',
       ...advancedExportMenuItem,
     },
