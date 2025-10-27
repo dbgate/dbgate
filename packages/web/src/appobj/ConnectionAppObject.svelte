@@ -279,7 +279,7 @@
       showModal(InputTextModal, {
         header: _t('connection.createDatabase', { defaultMessage: 'Create database' }),
         value: 'newdb',
-        label: _t('connection.databaseName', { defaultMessage: 'Database name' }),
+        label: _t('connection.database', { defaultMessage: 'Database name' }),
         onConfirm: name =>
           apiCall('server-connections/create-database', {
             conid: data._id,

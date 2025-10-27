@@ -47,6 +47,7 @@
     getOpenDetailOnArrowsSettings,
   } from '../settings/settingsTools';
   import DropDownButton from '../buttons/DropDownButton.svelte';
+  import { _t } from '../translations';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -58,7 +59,7 @@
   let domContainer = null;
   let domFilter = null;
 
-  const RECENT_AND_UNSAVED_LABEL = 'Recent & unsaved';
+  const RECENT_AND_UNSAVED_LABEL = _t('connection.recentUnsaved', { defaultMessage: 'Recent & unsaved' });
 
   function extractConnectionParent(data, openedConnections, openedSingleDatabaseConnections) {
     if (data.parent) {
@@ -193,12 +194,12 @@
 
   function createSearchMenu() {
     const res = [];
-    res.push({ label: 'Search by:', isBold: true, disabled: true });
-    res.push({ label: 'Display name', switchValue: 'displayName' });
-    res.push({ label: 'Server', switchValue: 'server' });
-    res.push({ label: 'User', switchValue: 'user' });
-    res.push({ label: 'Database engine', switchValue: 'engine' });
-    res.push({ label: 'Database name', switchValue: 'database' });
+    res.push({ label: _t('common.searchBy', { defaultMessage: 'Search by:' }), isBold: true, disabled: true });
+    res.push({ label: _t('connection.displayName', { defaultMessage: 'Display name' }), switchValue: 'displayName' });
+    res.push({ label: _t('connection.server', { defaultMessage: 'Server' }), switchValue: 'server' });
+    res.push({ label: _t('connection.user', { defaultMessage: 'User' }), switchValue: 'user' });
+    res.push({ label: _t('connection.engine', { defaultMessage: 'Database engine' }), switchValue: 'engine' });
+    res.push({ label: _t('connection.database', { defaultMessage: 'Database name' }), switchValue: 'database' });
     return res.map(item => ({
       ...item,
       switchStore: connectionAppObjectSearchSettings,
@@ -209,7 +210,7 @@
 
 <SearchBoxWrapper>
   <SearchInput
-    placeholder="Search connection or database"
+    placeholder= {_t('connection.search.placeholder', { defaultMessage: 'Search connection or database' })}
     bind:value={filter}
     bind:this={domFilter}
     onFocusFilteredList={() => {
@@ -227,16 +228,16 @@
   {#if $commandsCustomized['new.connection']?.enabled}
     <InlineButton
       on:click={() => runCommand('new.connection')}
-      title="Add new connection"
+      title={_t('connection.new.title', { defaultMessage: 'Add new connection' })}
       data-testid="ConnectionList_buttonNewConnection"
     >
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
-    <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">
+    <InlineButton on:click={() => runCommand('new.connection.folder')} title={_t('connection.new.folder.title', { defaultMessage: 'Add new connection folder' })}>
       <FontIcon icon="icon add-folder" />
     </InlineButton>
   {/if}
-  <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
+  <InlineButton on:click={handleRefreshConnections} title={_t('connection.refresh.title', { defaultMessage: 'Refresh connection list' })}>
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>

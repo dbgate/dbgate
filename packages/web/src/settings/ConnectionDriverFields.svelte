@@ -87,13 +87,13 @@
 </script>
 
 <FormSelectField
-  label="Connection type"
+  label={_t('connection.type', { defaultMessage: 'Connection type' })}
   name="engine"
   isNative
   disabled={isConnected}
   data-testid="ConnectionDriverFields_connectionType"
   options={[
-    { label: '(select connection type)', value: '' },
+    { label: _t('connection.selectType', { defaultMessage: '(select connection type)' })},
     ..._.sortBy(
       $extensions.drivers
         // .filter(driver => !driver.isElectronOnly || electron)
@@ -109,7 +109,7 @@
 {#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs) && driver?.authTypeFirst}
   {#key $authTypes}
     <FormSelectField
-      label={driver?.authTypeLabel ?? 'Authentication'}
+      label={driver?.authTypeLabel ?? _t('connection.authentication', { defaultMessage: 'Authentication' })}
       data-testid="ConnectionDriverFields_authType"
       name="authType"
       isNative
@@ -125,7 +125,7 @@
 
 {#if driver?.showConnectionField('clusterNodes', $values, showConnectionFieldArgs)}
   <FormClusterNodesField
-    label="Cluster nodes"
+    label={_t('connection.clusterNodes', { defaultMessage: 'Cluster nodes' })}
     name="clusterNodes"
     disabled={isConnected || disabledFields.includes('clusterNodes')}
     data-testid="ConnectionDriverFields_clusterNodes"
@@ -134,7 +134,7 @@
 
 {#if driver?.showConnectionField('autoDetectNatMap', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label="Auto detect NAT map (use for Redis Cluster in Docker network)"
+    label={_t('connection.autoDetectNatMap', { defaultMessage: 'Auto detect NAT map (use for Redis Cluster in Docker network)' })}
     name="autoDetectNatMap"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_autoDetectNatMap"
@@ -144,13 +144,13 @@
 {#if driver?.showConnectionField('databaseFile', $values, showConnectionFieldArgs)}
   {#if electron && !driver?.dialect?.useServerDatabaseFile}
     <FormElectronFileSelector
-      label="Database file"
+      label={_t('connection.databaseFile', { defaultMessage: 'Database file' })}
       name="databaseFile"
       disabled={isConnected || disabledFields.includes('databaseFile')}
     />
   {:else}
     <FormTextField
-      label="Database file (path on server)"
+      label={_t('connection.databaseFilePath', { defaultMessage: 'Database file (path on server)' })}
       name="databaseFile"
       disabled={isConnected || disabledFields.includes('databaseFile')}
     />
@@ -164,8 +164,8 @@
       name="useDatabaseUrl"
       matchValueToOption={(value, option) => !!option.value == !!value}
       options={[
-        { label: 'Fill database connection details', value: '', default: true },
-        { label: 'Use database URL', value: '1' },
+        { label: _t('connection.fillDetails', { defaultMessage: 'Fill database connection details' }), value: '', default: true },
+        { label: _t('connection.useUrl', { defaultMessage: 'Use database URL' }), value: '1' },
       ]}
     />
   </div>
@@ -173,7 +173,7 @@
 
 {#if driver?.showConnectionField('databaseUrl', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Database URL"
+    label={_t('connection.databaseUrl', { defaultMessage: 'Database URL' })}
     name="databaseUrl"
     data-testid="ConnectionDriverFields_databaseUrl"
     placeholder={driver?.databaseUrlPlaceholder}
@@ -183,7 +183,7 @@
 
 {#if driver?.showConnectionField('localDataCenter', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Local DataCenter"
+    label={_t('connection.localDataCenter', { defaultMessage: 'Local DataCenter' })}
     name="localDataCenter"
     data-testid="ConnectionDriverFields_localDataCenter"
     placeholder={driver?.defaultLocalDataCenter}
@@ -203,7 +203,7 @@
 {#if $authTypes && driver?.showConnectionField('authType', $values, showConnectionFieldArgs) && !driver?.authTypeFirst}
   {#key $authTypes}
     <FormSelectField
-      label={driver?.authTypeLabel ?? 'Authentication'}
+      label={driver?.authTypeLabel ?? _t('connection.authentication', { defaultMessage: 'Authentication' })}
       data-testid="ConnectionDriverFields_authType"
       name="authType"
       isNative
@@ -219,7 +219,7 @@
 
 {#if driver?.showConnectionField('endpoint', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Endpoint"
+    label='Endpoint'
     name="endpoint"
     disabled={isConnected || disabledFields.includes('endpoint')}
     data-testid="ConnectionDriverFields_endpoint"
@@ -228,7 +228,7 @@
 
 {#if driver?.showConnectionField('endpointKey', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Key"
+    label={_t('connection.endpointKey', { defaultMessage: 'Key' })}
     name="endpointKey"
     disabled={isConnected || disabledFields.includes('endpointKey')}
     data-testid="ConnectionDriverFields_endpointKey"
@@ -237,7 +237,7 @@
 
 {#if driver?.showConnectionField('clientLibraryPath', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Client library path"
+    label={_t('connection.clientLibraryPath', { defaultMessage: 'Client library path' })}
     name="clientLibraryPath"
     disabled={isConnected || disabledFields.includes('clientLibraryPath')}
     data-testid="ConnectionDriverFields_clientLibraryPath"
@@ -248,7 +248,7 @@
   <div class="row">
     <div class="col-9 mr-1">
       <FormTextField
-        label="Server"
+        label={_t('connection.server', { defaultMessage: 'Server' })}
         name="server"
         disabled={isConnected || disabledFields.includes('server')}
         templateProps={{ noMargin: true }}
@@ -271,7 +271,7 @@
   {#if getCurrentConfig().isDocker}
     <div class="row">
       <FontIcon icon="img warn" padRight />
-      Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead
+      { _t('connection.dockerWarning', { defaultMessage: 'Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead' }) }
     </div>
   {/if}
 {/if}
@@ -280,7 +280,7 @@
   <div class="row">
     <div class="col-9 mr-1">
       <FormTextField
-        label={$values.serviceNameType == 'sid' ? 'SID' : 'Service name'}
+        label={$values.serviceNameType == 'sid' ? 'SID' : _t('connection.serviceName', { defaultMessage: 'Service name' })}
         name="serviceName"
         disabled={isConnected}
         templateProps={{ noMargin: true }}
@@ -289,14 +289,14 @@
     </div>
     <div class="col-3">
       <FormSelectField
-        label="Choose type"
+        label={_t('connection.chooseType', { defaultMessage: 'Choose type' })}
         isNative
         name="serviceNameType"
         defaultValue="serviceName"
         disabled={isConnected}
         templateProps={{ noMargin: true }}
         options={[
-          { value: 'serviceName', label: 'Service name' },
+          { value: 'serviceName', label: _t('connection.serviceName', { defaultMessage: 'Service name' }) },
           { value: 'sid', label: 'SID' },
         ]}
         data-testid="ConnectionDriverFields_serviceNameType"
@@ -307,7 +307,7 @@
 
 {#if driver?.showConnectionField('socketPath', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Socket path"
+    label={_t('connection.socketPath', { defaultMessage: 'Socket path' })}
     name="socketPath"
     disabled={isConnected || disabledFields.includes('socketPath')}
     placeholder={driver?.defaultSocketPath}
@@ -320,7 +320,7 @@
     {#if showUser}
       <div class="col-6 mr-1">
         <FormTextField
-          label="User"
+          label={_t('connection.user', { defaultMessage: 'User' })}
           name="user"
           disabled={isConnected || disabledFields.includes('user')}
           templateProps={{ noMargin: true }}
@@ -331,7 +331,7 @@
     {#if showPassword}
       <div class="col-6 mr-1">
         <FormPasswordField
-          label="Password"
+          label={_t('connection.password', { defaultMessage: 'Password' })}
           name="password"
           disabled={isConnected || disabledFields.includes('password')}
           templateProps={{ noMargin: true }}
@@ -343,7 +343,7 @@
 {/if}
 {#if showUser && !showPassword}
   <FormTextField
-    label="User"
+    label={_t('connection.user', { defaultMessage: 'User' })}
     name="user"
     disabled={isConnected || disabledFields.includes('user')}
     data-testid="ConnectionDriverFields_user"
@@ -351,7 +351,7 @@
 {/if}
 {#if !showUser && showPassword}
   <FormPasswordField
-    label="Password"
+    label={_t('connection.password', { defaultMessage: 'Password' })}
     name="password"
     disabled={isConnected || disabledFields.includes('password')}
     data-testid="ConnectionDriverFields_password"
@@ -378,7 +378,7 @@
   {#if driver?.showConnectionField('accessKeyId', $values, showConnectionFieldArgs)}
     <div class="col-6 mr-1">
       <FormTextField
-        label="Access Key ID"
+        label={_t('connection.accessKeyId', { defaultMessage: 'Access Key ID' })}
         name="accessKeyId"
         disabled={isConnected || disabledFields.includes('accessKeyId')}
         templateProps={{ noMargin: true }}
@@ -389,7 +389,7 @@
   {#if driver?.showConnectionField('secretAccessKey', $values, showConnectionFieldArgs)}
     <div class="col-6 mr-1">
       <FormPasswordField
-        label="Secret access key"
+        label={_t('connection.secretAccessKey', { defaultMessage: 'Secret access key' })}
         name="secretAccessKey"
         disabled={isConnected || disabledFields.includes('secretAccessKey')}
         templateProps={{ noMargin: true }}
@@ -401,16 +401,16 @@
 
 {#if !disabledFields.includes('password') && showPasswordMode}
   <FormSelectField
-    label="Password mode"
+    label={_t('connection.passwordMode', { defaultMessage: 'Password mode' })}
     isNative
     name="passwordMode"
     defaultValue="saveEncrypted"
     disabled={isConnected}
     options={[
-      { value: 'saveEncrypted', label: 'Save and encrypt' },
-      { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
-      { value: 'askPassword', label: "Don't save, ask for password" },
-      { value: 'askUser', label: "Don't save, ask for login and password" },
+      { value: 'saveEncrypted', label: _t('connection.saveEncrypted', { defaultMessage: 'Save and encrypt' }) },
+      { value: 'saveRaw', label: _t('connection.saveRaw', { defaultMessage: 'Save raw (UNSAFE!!)' }) },
+      { value: 'askPassword', label: _t('connection.askPassword', { defaultMessage: "Don't save, ask for password" }) },
+      { value: 'askUser', label: _t('connection.askUser', { defaultMessage: "Don't save, ask for login and password" }) },
     ]}
     data-testid="ConnectionDriverFields_passwordMode"
   />
@@ -418,7 +418,7 @@
 
 {#if driver?.showConnectionField('treeKeySeparator', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Key separator"
+    label={_t('connection.keySeparator', { defaultMessage: 'Key separator' })}
     name="treeKeySeparator"
     disabled={isConnected}
     placeholder=":"
@@ -428,7 +428,7 @@
 
 {#if driver?.showConnectionField('windowsDomain', $values, showConnectionFieldArgs)}
   <FormTextField
-    label="Domain (specify to use NTLM authentication)"
+    label={_t('connection.windowsDomain', { defaultMessage: 'Domain (specify to use NTLM authentication)' })}
     name="windowsDomain"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_windowsDomain"
@@ -437,7 +437,7 @@
 
 {#if driver?.showConnectionField('isReadOnly', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label="Is read only"
+    label={_t('connection.isReadOnly', { defaultMessage: 'Is read only' })}
     name="isReadOnly"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_isReadOnly"
@@ -446,7 +446,7 @@
 
 {#if driver?.showConnectionField('trustServerCertificate', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label="Trust server certificate"
+    label={_t('connection.trustServerCertificate', { defaultMessage: 'Trust server certificate' })}
     name="trustServerCertificate"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_trustServerCertificate"
@@ -455,7 +455,7 @@
 
 {#if driver?.showConnectionField('defaultDatabase', $values, showConnectionFieldArgs)}
   <FormDropDownTextField
-    label="Default database"
+    label={_t('connection.defaultDatabase', { defaultMessage: 'Default database' })}
     name="defaultDatabase"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_defaultDatabase"
@@ -466,7 +466,7 @@
 
 {#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label={`Use only database ${defaultDatabase}`}
+    label={_t('connection.singleDatabase', { defaultMessage: `Use only database ${defaultDatabase}` })}
     name="singleDatabase"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_singleDatabase"
@@ -475,7 +475,7 @@
 
 {#if driver?.showConnectionField('useSeparateSchemas', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label={`Use schemas separately (use this if you have many large schemas)`}
+    label={_t('connection.useSeparateSchemas', { defaultMessage: `Use schemas separately (use this if you have many large schemas)` })}
     name="useSeparateSchemas"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_useSeparateSchemas"
@@ -483,14 +483,14 @@
 {/if}
 
 {#if driver?.showConnectionField('connectionDefinition', $values, showConnectionFieldArgs)}
-  <FormFileInputField disabled={isConnected} label="Service account key JSON" name="connectionDefinition" />
+  <FormFileInputField disabled={isConnected} label={_t('connection.connectionDefinition', { defaultMessage: 'Service account key JSON' })} name="connectionDefinition" />
 {/if}
 
 {#if driver}
   <div class="row">
     <div class="col-6 mr-1">
       <FormTextField
-        label="Display name"
+        label={_t('connection.displayName', { defaultMessage: 'Display name' })}
         name="displayName"
         templateProps={{ noMargin: true }}
         disabled={isConnected}
@@ -501,7 +501,7 @@
     <div class="col-6 mr-1">
       <FormColorField
         useSelector
-        label="Color"
+        label={_t('connection.color', { defaultMessage: 'Color' })}
         name="connectionColor"
         emptyLabel="(not selected)"
         templateProps={{ noMargin: true }}

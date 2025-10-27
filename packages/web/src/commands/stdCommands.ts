@@ -161,8 +161,8 @@ registerCommand({
   onClick: () => {
     showModal(InputTextModal, {
       value: '',
-      label: 'New connection folder name',
-      header: 'Create connection folder',
+      label: _t('connection.createNewFolderName', { defaultMessage: 'New connection folder name' }),
+      header: _t('connection.createNewFolder', { defaultMessage: 'Create connection folder' }),
       onConfirm: async folder => {
         emptyConnectionGroupNames.update(names => {
           if (!folder) return names;
