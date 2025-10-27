@@ -8,6 +8,7 @@ import {
   getCloudSigninTokenHolder,
   getExtensions,
   getVisibleToolbar,
+  promoWidgetPreview,
   visibleToolbar,
   visibleWidgetSideBar,
 } from '../stores';
@@ -50,6 +51,7 @@ import { isProApp } from '../utility/proTools';
 import { openWebLink } from '../utility/simpleTools';
 import { _t } from '../translations';
 import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
+import { getBoolSettingsValue } from '../settings/settingsTools';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -1162,6 +1164,41 @@ registerCommand({
   name: 'Unset current database',
   testEnabled: () => getCurrentDatabase() != null,
   onClick: () => currentDatabase.set(null),
+});
+
+let loadedCampaignList = [];
+
+registerCommand({
+  id: 'internal.loadCampaigns',
+  category: 'Internal',
+  name: 'Load campaign list',
+  testEnabled: () => getBoolSettingsValue('internal.showCampaigns', false),
+  onClick: async () => {
+    const resp = await apiCall('cloud/promo-widget-list', {});
+    loadedCampaignList = resp;
+  },
+});
+
+registerCommand({
+  id: 'internal.showCampaigns',
+  category: 'Internal',
+  name: 'Show campaigns',
+  testEnabled: () => getBoolSettingsValue('internal.showCampaigns', false) && loadedCampaignList?.length > 0,
+  getSubCommands: () => {
+    return loadedCampaignList.map(campaign => ({
+      text: `${campaign.campaignName} (${campaign.countries || 'Global'}) - #${campaign.quantileRank ?? '*'}/${
+        campaign.quantileGroupCount ?? '*'
+      } - ${campaign.variantIdentifier}`,
+      onClick: async () => {
+        promoWidgetPreview.set(
+          await apiCall('cloud/promo-widget-preview', {
+            campaign: campaign.campaignIdentifier,
+            variant: campaign.variantIdentifier,
+          })
+        );
+      },
+    }));
+  },
 });
 
 const electron = getElectron();

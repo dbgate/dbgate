@@ -480,6 +480,16 @@ async function getPromoWidgetData() {
   return promoWidgetData;
 }
 
+async function getPromoWidgetPreview(campaign, variant) {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`);
+  return resp.data;
+}
+
+async function getPromoWidgetList() {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`);
+  return resp.data;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -498,4 +508,6 @@ module.exports = {
   readCloudTestTokenHolder,
   getPublicIpInfo,
   getPromoWidgetData,
+  getPromoWidgetPreview,
+  getPromoWidgetList,
 };

@@ -35,6 +35,11 @@
   background: linear-gradient(135deg, #1686c8, #8a25b1);
 }
 
+.premium-gradient {
+  background: linear-gradient(135deg, #1686c8, #8a25b1);
+  color: white;
+}
+
 .web-color-primary {
   background:  #1686c8;
 }
