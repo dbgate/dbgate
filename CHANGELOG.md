@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.6.6 - not released yet
+## 6.6.6
 - ADDED: Allow disable/re-enable filter #1174
 - ADDED: Close right side tabs #1219
 - ADDED: Ability disable execute current line in query editor #1209
