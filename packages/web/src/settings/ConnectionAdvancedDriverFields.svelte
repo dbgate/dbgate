@@ -4,6 +4,7 @@
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormTextAreaField from '../forms/FormTextAreaField.svelte';
   import FormArgumentList from '../forms/FormArgumentList.svelte';
+  import { _t } from '../translations';
 
   const { values } = getFormContext();
 
@@ -16,8 +17,8 @@
   $: advancedFields = driver?.getAdvancedConnectionFields ? driver?.getAdvancedConnectionFields() : null;
 </script>
 
-<FormTextAreaField label="Allowed databases, one per line" name="allowedDatabases" disabled={isConnected} rows={8} />
-<FormTextField label="Allowed databases regular expression" name="allowedDatabasesRegex" disabled={isConnected} />
+<FormTextAreaField label={_t('connection.allowedDatabases', { defaultMessage: 'Allowed databases, one per line' })} name="allowedDatabases" disabled={isConnected} rows={8} />
+<FormTextField label={_t('connection.allowedDatabasesRegex', { defaultMessage: 'Allowed databases regular expression' })} name="allowedDatabasesRegex" disabled={isConnected} />
 
 {#if advancedFields}
   <FormArgumentList args={advancedFields} />
