@@ -10,6 +10,9 @@
       if (value?.type == 'Buffer' && _.isArray(value?.data)) {
         return 'data:image/png;base64, ' + btoa(String.fromCharCode.apply(null, value?.data));
       }
+      if (value?.$binary?.base64) {
+        return 'data:image/png;base64, ' + value.$binary.base64;
+      }
       return null;
     } catch (err) {
       console.log('Error showing picture', err);
