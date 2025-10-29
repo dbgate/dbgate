@@ -361,6 +361,7 @@
     detectSqlFilterBehaviour,
     stringifyCellValue,
     shouldOpenMultilineDialog,
+    base64ToHex,
   } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
   import _, { map } from 'lodash';
@@ -758,7 +759,7 @@
 
   export function saveCellToFileEnabled() {
     const value = getSelectedExportableCell();
-    return _.isString(value) || (value?.type == 'Buffer' && _.isArray(value?.data));
+    return _.isString(value) || (value?.type == 'Buffer' && _.isArray(value?.data)) || (value?.$binary?.base64);
   }
 
   export async function saveCellToFile() {
@@ -771,6 +772,8 @@
         fs.promises.writeFile(file, value);
       } else if (value?.type == 'Buffer' && _.isArray(value?.data)) {
         fs.promises.writeFile(file, window['Buffer'].from(value.data));
+      } else if (value?.$binary?.base64) {
+        fs.promises.writeFile(file, window['Buffer'].from(value.$binary.base64, 'base64'));
       }
     }
   }

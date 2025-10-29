@@ -45,6 +45,10 @@ class StringifyStream extends stream.Transform {
 
   elementValue(element, value) {
     this.startElement(element);
+    if (value?.$binary?.base64) {
+      const buffer = Buffer.from(value.$binary.base64, 'base64');
+      value = '0x' +buffer.toString('hex').toUpperCase();
+    }
     this.push(escapeXml(`${value}`));
     this.endElement(element);
   }
