@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { openWebLink } from '../utility/simpleTools';
 
   export let colorClass: string = 'premium-gradient';
   export let validTo;
+  export let link;
 
   function formatRemaining(validTo, now) {
     let diffMs = validTo.getTime() - now.getTime();
@@ -43,7 +45,15 @@
 </script>
 
 {#if validTo}
-  <div class="countdown {colorClass}">
+  <div
+    class="countdown {colorClass}"
+    class:isLink={!!link}
+    on:click={() => {
+      if (link) {
+        openWebLink(link);
+      }
+    }}
+  >
     <span class="big">Offer ends in:</span><br />
     {#each parts as part}
       <span class="part">
@@ -60,6 +70,10 @@
     margin: 10px;
     border: 1px solid;
     padding: 5px;
+  }
+
+  .countdown.isLink {
+    cursor: pointer;
   }
 
   .big {

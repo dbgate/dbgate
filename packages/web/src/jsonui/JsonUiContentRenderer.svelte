@@ -3,6 +3,7 @@
   import JsonUiHeading from './JsonUiHeading.svelte';
   import JsonUiHighlight from './JsonUiHighlight.svelte';
   import JsonUiLinkButton from './JsonUiLinkButton.svelte';
+  import JsonUiLinkButtonBlock from './JsonUiLinkButtonBlock.svelte';
   import JsonUiMarkdown from './JsonUiMarkdown.svelte';
   import JsonUiTextBlock from './JsonUiTextBlock.svelte';
   import JsonUiTickList from './JsonUiTickList.svelte';
@@ -19,6 +20,7 @@
     markdown: JsonUiMarkdown,
     highlight: JsonUiHighlight,
     countdown: JsonUiCountdown,
+    buttonblock: JsonUiLinkButtonBlock,
   } as const;
 </script>
 
