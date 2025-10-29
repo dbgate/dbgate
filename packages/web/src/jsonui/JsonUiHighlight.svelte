@@ -1,18 +1,22 @@
 <script lang="ts">
+  import { openWebLink } from '../utility/simpleTools';
+
   export let text: string;
   export let colorClass: string = 'premium-gradient';
   export let link: string;
 </script>
 
-{#if link}
-  <a class="highlight {colorClass}" href={link}>
-    {text}
-  </a>
-{:else}
-  <div class="highlight {colorClass}">
-    {text}
-  </div>
-{/if}
+<div
+  class="highlight {colorClass}"
+  class:isLink={!!link}
+  on:click={() => {
+    if (link) {
+      openWebLink(link);
+    }
+  }}
+>
+  {text}
+</div>
 
 <style>
   .highlight {
@@ -23,6 +27,9 @@
     font-weight: bold;
     border: 1px solid;
     padding: 5px;
-    text-decoration: none;
+  }
+
+  .highlight.isLink {
+    cursor: pointer;
   }
 </style>
