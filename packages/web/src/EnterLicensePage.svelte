@@ -125,8 +125,8 @@
       {/if}
 
       <div class="purchase-info">
-        For more info about DbGate licensing, you could visit <Link href="https://dbgate.eu/">dbgate.eu</Link> web or contact
-        us at <Link href="mailto:sales@dbgate.eu">sales@dbgate.eu</Link>
+        For more info about DbGate licensing, you could visit <Link href="https://dbgate.io/">dbgate.io</Link> web or contact
+        us at <Link href="mailto:sales@dbgate.io">sales@dbgate.io</Link>
       </div>
     {:else}
       <ErrorInfo message="License for DbGate is not valid. Please contact administrator." />
