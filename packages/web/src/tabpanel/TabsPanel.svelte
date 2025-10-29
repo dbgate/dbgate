@@ -736,7 +736,9 @@
       <div
         class="upgrade-button"
         on:click={() => {
-          openWebLink('https://www.dbgate.io/purchase/premium/?utm_campaign=premiumUpgradeButton');
+          openWebLink(
+            `https://www.dbgate.io/purchase/${isElectronAvailable() ? 'premium' : 'team-premium'}/?utm_campaign=premiumUpgradeButton`
+          );
         }}
         title="Upgrade to Premium"
         data-testid="TabsPanel_buttonUpgrade"
