@@ -43,6 +43,14 @@ export function hexStringToArray(inputString) {
   return res;
 }
 
+export function base64ToHex(base64String) {
+  const binaryString = atob(base64String);
+  const hexString = Array.from(binaryString, c =>
+    c.charCodeAt(0).toString(16).padStart(2, '0')
+  ).join('');
+  return '0x' + hexString.toUpperCase();
+};
+
 export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
@@ -229,6 +237,13 @@ export function stringifyCellValue(
 
   if (value === true) return { value: 'true', gridStyle: 'valueCellStyle' };
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
+
+  if (value?.$binary?.base64) {
+    return {
+      value: base64ToHex(value.$binary.base64),
+      gridStyle: 'valueCellStyle',
+    };
+  }
 
   if (editorTypes?.parseHexAsBuffer) {
     if (value?.type == 'Buffer' && _isArray(value.data)) {

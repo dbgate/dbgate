@@ -16,7 +16,7 @@ class QueryStreamTableWriter {
     this.sesid = sesid;
   }
 
-  initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false) {
+  initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false, options = {}) {
     this.jslid = crypto.randomUUID();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     fs.writeFileSync(
@@ -24,6 +24,7 @@ class QueryStreamTableWriter {
       JSON.stringify({
         ...structure,
         __isStreamHeader: true,
+        ...options
       }) + '\n'
     );
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
@@ -166,7 +167,7 @@ class StreamHandler {
     }
   }
 
-  recordset(columns) {
+  recordset(columns, options) {
     if (this.rowsLimitOverflow) {
       return;
     }
@@ -176,7 +177,8 @@ class StreamHandler {
       Array.isArray(columns) ? { columns } : columns,
       this.queryStreamInfoHolder.resultIndex,
       this.frontMatter?.[`chart-${this.queryStreamInfoHolder.resultIndex + 1}`],
-      this.autoDetectCharts
+      this.autoDetectCharts,
+      options
     );
     this.queryStreamInfoHolder.resultIndex += 1;
     this.rowCounter = 0;
