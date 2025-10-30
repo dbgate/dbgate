@@ -9,6 +9,10 @@
     "build:index": "node build-index.js",
     "prepublishOnly": "yarn build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
   "files": [
     "public"
   ],
