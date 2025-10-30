@@ -11,6 +11,8 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import TokenizedFilteredText from '../widgets/TokenizedFilteredText.svelte';
 
+  import { _t } from '../translations';
+
   export let managerSize;
   export let display: GridDisplay;
   export let onReferenceClick = ref => {};
@@ -24,12 +26,12 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search references" bind:value={filter} />
+  <SearchInput placeholder={_t('dataGrid.searchReferences', { defaultMessage: 'Search references' })} bind:value={filter} />
   <CloseSearchButton bind:filter />
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
   {#if foreignKeys.length > 0}
-    <div class="bold nowrap ml-1">References tables ({foreignKeys.length})</div>
+    <div class="bold nowrap ml-1">{_t('dataGrid.referencesTables', { defaultMessage: 'References tables' })} ({foreignKeys.length})</div>
     {#each foreignKeys.filter(fk => filterName(filter, fk.refTableName)) as fk}
       <div
         class="link"

@@ -1,37 +1,39 @@
+import { _t } from '../translations';
+
 const macros = [
   {
-    title: 'Remove diacritics',
+    title: _t('datagrid.macros.removeDiacritics', { defaultMessage: 'Remove diacritics' }),
     name: 'removeDiacritics',
     group: 'Text',
-    description: 'Removes diacritics from selected cells',
+    description: _t('datagrid.macros.removeDiacriticsDescription', { defaultMessage: 'Removes diacritics from selected cells' }),
     type: 'transformValue',
     code: `return modules.lodash.deburr(value)`,
   },
   {
-    title: 'Search & replace text',
+    title: _t('datagrid.macros.searchReplaceText', { defaultMessage: 'Search & replace text' }),
     name: 'stringReplace',
     group: 'Text',
-    description: 'Search & replace text or regular expression',
+    description: _t('datagrid.macros.searchReplaceTextDescription', { defaultMessage: 'Search & replace text or regular expression' }),
     type: 'transformValue',
     args: [
       {
         type: 'text',
-        label: 'Find',
+        label: _t('datagrid.macros.searchReplaceTextFind', { defaultMessage: 'Find' }),
         name: 'find',
       },
       {
         type: 'text',
-        label: 'Replace with',
+        label: _t('datagrid.macros.searchReplaceTextReplaceWith', { defaultMessage: 'Replace with' }),
         name: 'replace',
       },
       {
         type: 'checkbox',
-        label: 'Case sensitive',
+        label: _t('datagrid.macros.searchReplaceTextCaseSensitive', { defaultMessage: 'Case sensitive' }),
         name: 'caseSensitive',
       },
       {
         type: 'checkbox',
-        label: 'Regular expression',
+        label: _t('datagrid.macros.searchReplaceTextIsRegex', { defaultMessage: 'Regular expression' }),
         name: 'isRegex',
       },
     ],
@@ -42,16 +44,16 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     `,
   },
   {
-    title: 'Change text case',
+    title: _t('datagrid.macros.changeTextCase', { defaultMessage: 'Change text case' }),
     name: 'changeTextCase',
     group: 'Text',
-    description: 'Uppercase, lowercase and other case functions',
+    description: _t('datagrid.macros.changeTextCaseDescription', { defaultMessage: 'Uppercase, lowercase and other case functions' }),
     type: 'transformValue',
     args: [
       {
         type: 'select',
         options: ['toUpper', 'toLower', 'lowerCase', 'upperCase', 'kebabCase', 'snakeCase', 'camelCase', 'startCase'],
-        label: 'Type',
+        label: _t('datagrid.macros.changeTextCaseType', { defaultMessage: 'Type' }),
         name: 'type',
         default: 'toUpper',
       },
@@ -59,81 +61,81 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     code: `return modules.lodash[args.type](value)`,
   },
   {
-    title: 'Pad left',
+    title: _t('datagrid.macros.padLeft', { defaultMessage: 'Pad left' }),
     name: 'padLeft',
     group: 'Text',
     args: [
       {
         type: 'text',
-        label: 'Character',
+        label: _t('datagrid.macros.padCharacter', { defaultMessage: 'Character' }),
         name: 'character',
         default: '0',
       },
       {
         type: 'text',
-        label: 'Length',
+        label: _t('datagrid.macros.padLength', { defaultMessage: 'Length' }),
         name: 'length',
         default: '3',
       },
     ],
     description:
-      'Returns string of a specified length in which the beginning of the current string is padded with spaces or other character',
+      _t('datagrid.macros.padLeftDescription', { defaultMessage: 'Returns string of a specified length in which the beginning of the current string is padded with spaces or other character' }),
     type: 'transformValue',
     code: `return modules.lodash.padStart(value, +args.length, args.character)`,
   },
   {
-    title: 'Pad right',
+    title: _t('datagrid.macros.padRight', { defaultMessage: 'Pad right' }),
     name: 'padRight',
     group: 'Text',
     args: [
       {
         type: 'text',
-        label: 'Character',
+        label: _t('datagrid.macros.padCharacter', { defaultMessage: 'Character' }),
         name: 'character',
         default: '0',
       },
       {
         type: 'text',
-        label: 'Length',
+        label: _t('datagrid.macros.padLength', { defaultMessage: 'Length' }),
         name: 'length',
         default: '3',
       },
     ],
     description:
-      'Returns string of a specified length in which the end of the current string is padded with spaces or other character',
+      _t('datagrid.macros.padRightDescription', { defaultMessage: 'Returns string of a specified length in which the end of the current string is padded with spaces or other character' }),
     type: 'transformValue',
     code: `return modules.lodash.padEnd(value, +args.length, args.character)`,
   },
   {
-    title: 'Trim',
+    title: _t('datagrid.macros.trim', { defaultMessage: 'Trim' }),
     name: 'trim',
     group: 'Text',
-    description: 'Removes leading and trailing whitespace ',
+    description: _t('datagrid.macros.trimDescription', { defaultMessage: 'Removes leading and trailing whitespace' }),
     type: 'transformValue',
     code: `return modules.lodash.trim(value)`,
   },
   {
-    title: 'Row index',
+    title: _t('datagrid.macros.rowIndex', { defaultMessage: 'Row index' }),
     name: 'rowIndex',
     group: 'Tools',
-    description: 'Index of row from 1 (autoincrement)',
+    description: _t('datagrid.macros.rowIndexDescription', { defaultMessage: 'Index of row from 1 (autoincrement)' }),
     type: 'transformValue',
     code: `return rowIndex + 1`,
   },
   {
-    title: 'Generate UUID',
+    title: _t('datagrid.macros.generateUUID', { defaultMessage: 'Generate UUID' }),
     name: 'uuidv1',
     group: 'Tools',
-    description: 'Generate unique identifier',
+    description: _t('datagrid.macros.generateUUIDDescription', { defaultMessage: 'Generate unique identifier' }),
     type: 'transformValue',
     args: [
       {
         type: 'select',
         options: [
-          { value: 'uuidv1', name: 'V1 - from timestamp' },
-          { value: 'uuidv4', name: 'V4 - random generated' },
+          { value: 'uuidv1', name: _t('datagrid.macros.uuidv1', { defaultMessage: 'V1 - from timestamp' }) },
+          { value: 'uuidv4', name: _t('datagrid.macros.uuidv4', { defaultMessage: 'V4 - random generated' }) },
         ],
-        label: 'Version',
+        label: _t('datagrid.macros.version', { defaultMessage: 'Version' }),
         name: 'version',
         default: 'uuidv1',
       },
@@ -141,26 +143,26 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     code: `return modules[args.version]()`,
   },
   {
-    title: 'Convert to integer',
+    title: _t('datagrid.macros.toInt', { defaultMessage: 'Convert to integer' }),
     name: 'toInt',
     group: 'Tools',
-    description: 'Converts to integral number',
+    description: _t('datagrid.macros.toIntDescription', { defaultMessage: 'Converts to integral number' }),
     type: 'transformValue',
     code: `return modules.lodash.isNaN(parseInt(value)) ? null : parseInt(value)`,
   },
   {
-    title: 'Convert to number',
+    title: _t('datagrid.macros.toNumber', { defaultMessage: 'Convert to number' }),
     name: 'toNumber',
     group: 'Tools',
-    description: 'Converts to number',
+    description: _t('datagrid.macros.toNumberDescription', { defaultMessage: 'Converts to number' }),
     type: 'transformValue',
     code: `return modules.lodash.isNaN(parseFloat(value)) ? null : parseFloat(value)`,
   },
   {
-    title: 'Convert to boolean',
+    title: _t('datagrid.macros.toBoolean', { defaultMessage: 'Convert to boolean' }),
     name: 'toBoolean',
     group: 'Tools',
-    description: 'Converts to boolean',
+    description: _t('datagrid.macros.toBooleanDescription', { defaultMessage: 'Converts to boolean' }),
     type: 'transformValue',
     code: `
 if (modules.lodash.isString(value)) {
@@ -176,10 +178,10 @@ return !!value;
   `,
   },
   {
-    title: 'Convert to string',
+    title: _t('datagrid.macros.toString', { defaultMessage: 'Convert to string' }),
     name: 'toString',
     group: 'Tools',
-    description: 'Converts to string',
+    description: _t('datagrid.macros.toStringDescription', { defaultMessage: 'Converts to string' }),
     type: 'transformValue',
     code: `
     if (value==null) return null;
@@ -188,15 +190,15 @@ return !!value;
   `,
   },
   {
-    title: 'Current date',
+    title: _t('datagrid.macros.currentDate', { defaultMessage: 'Current date' }),
     name: 'currentDate',
     group: 'Tools',
-    description: 'Gets current date',
+    description: _t('datagrid.macros.currentDateDescription', { defaultMessage: 'Gets current date' }),
     type: 'transformValue',
     args: [
       {
         type: 'text',
-        label: 'Format',
+        label: _t('datagrid.macros.format', { defaultMessage: 'Format' }),
         name: 'format',
         default: 'YYYY-MM-DD HH:mm:ss',
       },
@@ -204,10 +206,10 @@ return !!value;
     code: `return modules.moment().format(args.format)`,
   },
   {
-    title: 'Duplicate columns',
+    title: _t('datagrid.macros.duplicateColumns', { defaultMessage: 'Duplicate columns' }),
     name: 'duplicateColumns',
     group: 'Tools',
-    description: 'Duplicate selected columns',
+    description: _t('datagrid.macros.duplicateColumnsDescription', { defaultMessage: 'Duplicate selected columns' }),
     type: 'transformRow',
     code: `
       return {
@@ -218,22 +220,22 @@ return !!value;
     args: [
       {
         type: 'text',
-        label: 'Prefix',
+        label: _t('datagrid.macros.prefix', { defaultMessage: 'Prefix' }),
         name: 'prefix',
       },
       {
         type: 'text',
-        label: 'Postfix',
+        label: _t('datagrid.macros.postfix', { defaultMessage: 'Postfix' }),
         name: 'postfix',
         default: '_copy',
       },
     ],
   },
   {
-    title: 'Split columns',
+    title: _t('datagrid.macros.splitColumns', { defaultMessage: 'Split columns' }),
     name: 'splitColumns',
     group: 'Tools',
-    description: 'Split selected columns',
+    description: _t('datagrid.macros.splitColumnsDescription', { defaultMessage: 'Split selected columns' }),
     type: 'transformRow',
     code: `
        const res = {...row};
@@ -252,22 +254,22 @@ return !!value;
     args: [
       {
         type: 'text',
-        label: 'Delimiter',
+        label: _t('datagrid.macros.delimiter', { defaultMessage: 'Delimiter' }),
         name: 'delimiter',
         default: ',',
       },
     ],
   },
   {
-    title: 'Calculation',
+    title: _t('datagrid.macros.calculation', { defaultMessage: 'Calculation' }),
     name: 'calculation',
     group: 'Tools',
-    description: 'Custom expression. Use row.column_name for accessing column values, value for original value',
+    description: _t('datagrid.macros.calculationDescription', { defaultMessage: 'Custom expression. Use row.column_name for accessing column values, value for original value' }),
     type: 'transformValue',
     args: [
       {
         type: 'text',
-        label: 'Expression',
+        label: _t('datagrid.macros.expression', { defaultMessage: 'Expression' }),
         name: 'expression',
         default: 'value',
       },
@@ -275,10 +277,10 @@ return !!value;
     code: `return eval(args.expression);`,
   },
   {
-    title: 'Extract date fields',
+    title: _t('datagrid.macros.extractDateFields', { defaultMessage: 'Extract date fields' }),
     name: 'extractDateFields',
     group: 'Tools',
-    description: 'Extract yaear, month, day and other date/time fields from selection and adds it as new columns',
+    description: _t('datagrid.macros.extractDateFieldsDescription', { defaultMessage: 'Extract year, month, day and other date/time fields from selection and adds it as new columns' }),
     type: 'transformRow',
     code: `
       let mom = null;
@@ -311,37 +313,37 @@ return !!value;
     args: [
       {
         type: 'text',
-        label: 'Year name',
+        label: _t('datagrid.macros.yearName', { defaultMessage: 'Year name' }),
         name: 'year',
         default: 'year',
       },
       {
         type: 'text',
-        label: 'Month name',
+        label: _t('datagrid.macros.monthName', { defaultMessage: 'Month name' })  ,
         name: 'month',
         default: 'month',
       },
       {
         type: 'text',
-        label: 'Day name',
+        label: _t('datagrid.macros.dayName', { defaultMessage: 'Day name' }),
         name: 'day',
         default: 'day',
       },
       {
         type: 'text',
-        label: 'Hour name',
+        label: _t('datagrid.macros.hourName', { defaultMessage: 'Hour name' }),
         name: 'hour',
         default: 'hour',
       },
       {
         type: 'text',
-        label: 'Minute name',
+        label: _t('datagrid.macros.minuteName', { defaultMessage: 'Minute name' }),
         name: 'minute',
         default: 'minute',
       },
       {
         type: 'text',
-        label: 'Second name',
+        label: _t('datagrid.macros.secondName', { defaultMessage: 'Second name' }),
         name: 'second',
         default: 'second',
       },

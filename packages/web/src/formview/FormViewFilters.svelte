@@ -9,6 +9,7 @@
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
   import { stringFilterBehaviour } from 'dbgate-tools';
   import CheckboxField from '../forms/CheckboxField.svelte';
+  import { _t } from '../translations';
   // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
   export let managerSize;
@@ -63,7 +64,7 @@
 {#if hasMultiColumnFilter}
   <div class="m-1">
     <div class="space-between">
-      <span>Multi column filter</span>
+      <span>{_t('dataGrid.multiColumnFilter', { defaultMessage: 'Multi column filter' })}</span>
       {#if multiColumnFilter}
       <div class="flex items-center gap-2">
         <CheckboxField

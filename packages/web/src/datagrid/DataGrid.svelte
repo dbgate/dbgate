@@ -68,6 +68,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import { _t } from '../translations';
 
   export let config;
   export let setConfig;
@@ -173,7 +174,7 @@
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem
-        title="Columns"
+        title={_t('dataGrid.columns', { defaultMessage: 'Columns' })}
         name="columns"
         height="45%"
         skip={isFormView}
@@ -183,7 +184,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="Filters"
+        title={_t('dataGrid.filters', { defaultMessage: 'Filters' })}
         name="filters"
         height={showReferences && display?.hasReferences && !isFormView ? '15%' : '30%'}
         skip={!display?.filterable}
@@ -201,7 +202,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="References"
+        title={_t('dataGrid.references', { defaultMessage: 'References' })}
         name="references"
         height="30%"
         collapsed={isDetailView}
@@ -212,7 +213,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="Macros"
+        title={_t('dataGrid.macros', { defaultMessage: 'Macros' })}
         name="macros"
         skip={!showMacros}
         collapsed={!expandMacros}
