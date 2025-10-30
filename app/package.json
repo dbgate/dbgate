@@ -26,13 +26,6 @@
       "hardenedRuntime": true,
       "entitlements": "entitlements.mac.plist",
       "entitlementsInherit": "entitlements.mac.plist",
-      "publish": [
-        {
-          "provider": "github",
-          "owner": "dbgate",
-          "repo": "dbgate"
-        }
-      ],
       "target": {
         "target": "default",
         "arch": [
@@ -58,14 +51,7 @@
       ],
       "icon": "icons/",
       "category": "Development",
-      "synopsis": "Database manager for SQL Server, MySQL, PostgreSQL, MongoDB and SQLite",
-      "publish": [
-        {
-          "provider": "github",
-          "owner": "dbgate",
-          "repo": "dbgate"
-        }
-      ]
+      "synopsis": "Database manager for SQL Server, MySQL, PostgreSQL, MongoDB and SQLite"
     },
     "appImage": {
       "license": "./LICENSE",
@@ -97,14 +83,7 @@
           ]
         }
       ],
-      "icon": "icon.ico",
-      "publish": [
-        {
-          "provider": "github",
-          "owner": "dbgate",
-          "repo": "dbgate"
-        }
-      ]
+      "icon": "icon.ico"
     },
     "files": [
       "packages",
