@@ -8,6 +8,10 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
 
+permissions:
+  id-token: write
+  contents: write
+
 # on:
 #   push:
 #     branches:
@@ -35,11 +39,15 @@ jobs:
         with:
           node-version: 22.x
 
-      - name: Configure NPM token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      # - name: Configure NPM token
+      #   env:
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #   run: |
+      #     npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
 
       - name: yarn install
         run: |
