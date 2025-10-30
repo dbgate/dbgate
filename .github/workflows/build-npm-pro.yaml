@@ -7,6 +7,9 @@ name: NPM packages PREMIUM
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+
+permissions:
+  id-token: write
+  contents: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -49,13 +52,8 @@ jobs:
           cd ..
           cd dbgate-merged
           node adjustNpmPackageJsonPremium
-      - name: Configure NPM token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd ..
-          cd dbgate-merged
-          npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Remove dbmodel - should be not published
         run: |
           cd ..
@@ -71,28 +69,35 @@ jobs:
           cd ..
           cd dbgate-merged
           yarn setCurrentVersion
+      - name: Compute npm dist-tag
+        run: |
+          if [[ "${GITHUB_REF_NAME}" =~ -alpha\. ]]; then
+            echo "NPM_TAG=alpha" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
       - name: Publish dbgate-api-premium
         run: |
           cd ..
           cd dbgate-merged/packages/api
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-web-premium
         run: |
           cd ..
           cd dbgate-merged/packages/web
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-serve-premium
         run: |
           cd ..
           cd dbgate-merged/packages/serve
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-cosmosdb
         run: |
           cd ..
           cd dbgate-merged/plugins/dbgate-plugin-cosmosdb
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-firestore
         run: |
           cd ..
           cd dbgate-merged/plugins/dbgate-plugin-firestore
-          npm publish
+          npm publish --tag "$NPM_TAG"
