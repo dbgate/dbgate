@@ -68,8 +68,8 @@ jobs:
         run: |
 
           yarn run build:app
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        # env:
+        #   GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
           # WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
 
