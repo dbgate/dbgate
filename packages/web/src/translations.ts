@@ -15,13 +15,20 @@ const compiledMessages: Partial<Record<string, Record<string, MessageFunction<'s
 
 const defaultLanguage = 'en';
 
+let selectedLanguageCache: string | null = null;
+
 export function getSelectedLanguage(): string {
-  const borwserLanguage = getBrowserLanguage();
-  const selectedLanguage = getStringSettingsValue('localization.language', borwserLanguage);
+  if (selectedLanguageCache) return selectedLanguageCache;
+
+  const browserLanguage = getBrowserLanguage();
+  const selectedLanguage = getStringSettingsValue('localization.language', browserLanguage);
 
   if (!supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
-
   return selectedLanguage;
+}
+
+export function saveSelectedLanguageToCache() {
+  selectedLanguageCache = getSelectedLanguage();
 }
 
 export function getBrowserLanguage(): string {
@@ -69,4 +76,8 @@ export function _t(key: string, options: TranslateOptions): string {
   const compliledTranslation = compiledMessages[selectedLanguage][key];
 
   return compliledTranslation(values ?? {});
+}
+
+export function __t(key: string, options: TranslateOptions): () => string {
+  return () => _t(key, options);
 }

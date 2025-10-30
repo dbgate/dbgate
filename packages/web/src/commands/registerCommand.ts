@@ -10,8 +10,8 @@ export interface GlobalCommand {
   id: string;
   category: string; // null for group commands
   isGroupCommand?: boolean;
-  name: string;
-  text?: string /* category: name */;
+  name: string | (() => string);
+  text?: string | (() => string);
   keyText?: string;
   keyTextFromGroup?: string; // automatically filled from group
   group?: string;
@@ -27,7 +27,7 @@ export interface GlobalCommand {
   menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
-  isRelatedToTab?: boolean,
+  isRelatedToTab?: boolean;
   systemCommand?: boolean;
 }
 

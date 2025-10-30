@@ -152,7 +152,7 @@
     id: 'dataGrid.editJsonDocument',
     category: 'Data grid',
     keyText: 'CtrlOrCommand+J',
-    name: _t('command.datagrid.editJsonDocument', { defaultMessage: 'Edit row as JSON document' }),
+    name: __t('command.datagrid.editJsonDocument', { defaultMessage: 'Edit row as JSON document' }),
     testEnabled: () => getCurrentDataGrid()?.editJsonEnabled(),
     onClick: () => getCurrentDataGrid().editJsonDocument(),
   });
@@ -421,7 +421,7 @@
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { _t } from '../translations';
+  import { __t, _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import hasPermission from '../utility/hasPermission';
