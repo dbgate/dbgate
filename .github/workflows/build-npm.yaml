@@ -7,6 +7,9 @@ name: NPM packages
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+
+permissions:
+  id-token: write
+  contents: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -26,11 +29,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - name: Configure NPM token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: yarn install
         run: |
           yarn install
