@@ -14,6 +14,10 @@
     "dist",
     "icon.svg"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",
     "build:frontend:watch": "webpack  --watch --config webpack-frontend.config",
