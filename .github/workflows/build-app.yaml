@@ -108,6 +108,7 @@ jobs:
       - name: Fix YML hashes
         if: matrix.os == 'windows-2022'
         run: |
+
           yarn run fixYmlHashes
       - name: Copy artifacts
         run: |

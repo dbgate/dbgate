@@ -135,13 +135,16 @@ jobs:
           endpoint: https://wus3.codesigning.azure.net/
           trusted-signing-account-name: DbGate
           certificate-profile-name: DbGate-Release
-          files-folder: app/dist
+          files-folder: ../dbgate-merged/app/dist
           files-folder-filter: exe
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
       - name: Fix YML hashes
         if: matrix.os == 'windows-2022'
         run: |
+          cd ..
+          cd dbgate-merged
+
           yarn run fixYmlHashes
       - name: Copy artifacts
         run: |
