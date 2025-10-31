@@ -116,6 +116,11 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
+      - name: Repackage Windows
+        if: matrix.os == 'windows-2022'
+        run: |
+          yarn run repackage:app
+
       - name: Copy artifacts
         run: |
           mkdir artifacts          

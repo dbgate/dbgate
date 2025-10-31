@@ -119,6 +119,7 @@
     "start:local": "cross-env electron .",
     "dist": "electron-builder --publish never",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
+    "repackage": "electron-builder --prepackaged app/dist --publish never",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
     "rebuild": "electron-builder install-app-deps",
