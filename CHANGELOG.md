@@ -11,6 +11,7 @@ Builds:
 ## 6.6.8
 - CHANGED: Windows executable now uses Azure trusted signing certificate
 - CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
+- CHANGED: Some features moved to Premium edition (master/detail views, FK lookups, column expansion, split view, advanced export/import, data archives, grouping, macros)
 
 ## 6.6.6
 - ADDED: Allow disable/re-enable filter #1174
