@@ -156,8 +156,8 @@ jobs:
         run: |
           <<cd_merged>>
           yarn run build:app
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+        # env:
+        #   GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       - name: Publish MacOS
         if: matrix.os == 'macos-14'
@@ -165,7 +165,7 @@ jobs:
           <<cd_merged>>
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+          # GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -179,7 +179,7 @@ jobs:
           <<cd_merged>>
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+          # GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
 
       - name: generatePadFile
