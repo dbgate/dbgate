@@ -61,7 +61,7 @@
       name: 'history',
       title: 'Query history & Closed tabs',
     },
-    {
+    isProApp() && {
       icon: 'icon archive',
       name: 'archive',
       title: 'Archive (saved tabular data)',

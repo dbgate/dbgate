@@ -27,6 +27,7 @@
   import { useConnectionColor } from '../utility/useConnectionColor';
   import { apiCall } from '../utility/api';
   import { statusBarTabInfo } from '../utility/statusBarStore';
+  import { isProApp } from '../utility/proTools';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
@@ -155,7 +156,7 @@
         </div>
       </div>
     {/if}
-    {#if $currentArchive && $currentArchive != 'default'}
+    {#if isProApp() && $currentArchive && $currentArchive != 'default'}
       <div
         class="item flex clickable"
         title="Current archive"

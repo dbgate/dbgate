@@ -94,6 +94,7 @@
       title: 'Export database',
       description: 'Export to file like CSV, JSON, Excel, or other DB',
       command: 'database.export',
+      isProFeature: true,
       testid: 'NewObjectModal_databaseExport',
       disabledMessage: 'Export is not available for current database',
     },

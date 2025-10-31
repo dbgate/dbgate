@@ -39,7 +39,8 @@ export class TableGridDisplay extends GridDisplay {
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
     isReadOnly = false,
     public isRawMode = false,
-    public currentSettings = null
+    public currentSettings = null,
+    public areReferencesAllowed = true
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
 
@@ -248,6 +249,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {
+    if (!this.areReferencesAllowed) return;
     this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
     if (!options.isExport && this.displayOptions.showHintColumns) {
       this.addHintsToSelect(select);
