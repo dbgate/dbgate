@@ -38,7 +38,7 @@
     "build:lib": "yarn build:sqltree && yarn build:tools && yarn build:filterparser && yarn build:datalib",
     "build:app": "yarn plugins:copydist && cd app && yarn install && yarn build",
     "repackage:app": "cd app && yarn repackage",
-    "fixYmlHashes": "cd common && yarn add yaml -W && cd .. && node common/fixYmlHashes.js app/dist",
+    "fixYmlHashes": "cd common && yarn init -y && yarn add yaml -W && cd .. && node common/fixYmlHashes.js app/dist",
     "build:api": "yarn workspace dbgate-api build",
     "build:api:doc": "yarn workspace dbgate-api build:doc",
     "build:web": "yarn workspace dbgate-web build",
