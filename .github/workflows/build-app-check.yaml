@@ -65,15 +65,12 @@ jobs:
         run: |
 
           yarn run build:app
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Publish MacOS
         if: matrix.os == 'macos-14'
         run: |
 
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -86,7 +83,6 @@ jobs:
 
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
       - name: Azure login (OIDC)
         uses: azure/login@v2
