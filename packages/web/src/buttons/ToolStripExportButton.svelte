@@ -23,7 +23,7 @@
   import hasPermission from '../utility/hasPermission';
   import ToolStripCommandButton from './ToolStripCommandButton.svelte';
   import ToolStripDropDownButton from './ToolStripDropDownButton.svelte';
-
+  import _ from 'lodash';
   export let quickExportHandlerRef = null;
   export let command = 'sqlDataGrid.export';
   export let label = 'Export';
@@ -39,7 +39,7 @@
 
 {#if hasPermission('dbops/export')}
   {#if quickExportHandlerRef}
-    <ToolStripDropDownButton menu={getExportMenu} {label} icon="icon export" />
+    <ToolStripDropDownButton menu={getExportMenu} label={_.isFunction(label) ? label() : label} icon="icon export" />
   {:else}
     <ToolStripCommandButton {command} />
   {/if}

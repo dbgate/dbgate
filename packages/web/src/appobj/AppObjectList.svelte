@@ -40,7 +40,16 @@
 
   $: dataLabeled = _.compact(
     (list || []).map(data => {
-      const matchResult = matcher ? matcher(data) : true;
+      const dataCopy = { ...data };
+      if (dataCopy?.group && _.isFunction(dataCopy.group)) dataCopy.group = dataCopy.group();
+      if (dataCopy?.title && _.isFunction(dataCopy.title)) dataCopy.title = dataCopy.title();
+      if (dataCopy?.description && _.isFunction(dataCopy.description)) dataCopy.description = dataCopy.description();
+      (dataCopy?.args || []).map(x => {
+        if(x?.label && _.isFunction(x.label)) x.label = x.label();
+      })
+
+
+      const matchResult = matcher ? matcher(dataCopy) : true;
 
       let isMatched = true;
       let isMainMatched = true;
@@ -62,8 +71,8 @@
         isChildMatched = !module.disableShowChildrenWithParentMatch;
       }
 
-      const group = groupFunc ? groupFunc(data) : undefined;
-      return { group, data, isMatched, isChildMatched, isMainMatched };
+      const group = groupFunc ? groupFunc(dataCopy) : undefined;
+      return { group, data: dataCopy, isMatched, isChildMatched, isMainMatched };
     })
   );
 

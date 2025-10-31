@@ -368,7 +368,7 @@
                     {/if}
                   {/key}
                 {:else}
-                  {row[col.fieldName] || ''}
+                  { _.isFunction(row[col.fieldName]) ? row[col.fieldName]() : row[col.fieldName] || ''}
                 {/if}
               </td>
             {/each}

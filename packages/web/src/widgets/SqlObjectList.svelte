@@ -233,7 +233,7 @@
     {/if}
     <InlineButton
       on:click={handleRefreshDatabase}
-      title="Refresh database connection and object list"
+      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: "Refresh database connection and object list" })}
       square
       data-testid="SqlObjectList_refreshButton"
     >

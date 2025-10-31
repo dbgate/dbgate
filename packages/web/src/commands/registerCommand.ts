@@ -1,5 +1,6 @@
 import { commands } from '../stores';
 import { invalidateCommandDefinitions } from './invalidateCommands';
+import _ from 'lodash';
 
 export interface SubCommand {
   text: string;
@@ -8,7 +9,7 @@ export interface SubCommand {
 
 export interface GlobalCommand {
   id: string;
-  category: string; // null for group commands
+  category: string | (() => string); // null for group commands
   isGroupCommand?: boolean;
   name: string | (() => string);
   text?: string | (() => string);
@@ -23,7 +24,7 @@ export interface GlobalCommand {
   toolbar?: boolean;
   enabled?: boolean;
   showDisabled?: boolean;
-  toolbarName?: string;
+  toolbarName?: string | (() => string);
   menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
@@ -41,7 +42,13 @@ export default function registerCommand(command: GlobalCommand) {
     return {
       ...x,
       [command.id]: {
-        text: `${command.category}: ${command.name}`,
+        text:
+          _.isFunction(command.category) || _.isFunction(command.name)
+            ? () =>
+                `${_.isFunction(command.category) ? command.category() : command.category}: ${
+                  _.isFunction(command.name) ? command.name() : command.name
+                }`
+            : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,
       },

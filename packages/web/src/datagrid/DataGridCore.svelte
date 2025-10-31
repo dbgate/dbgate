@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'dataGrid.refresh',
-    category: 'Data grid',
-    name: _t('common.refresh', { defaultMessage: 'Refresh' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('common.refresh', { defaultMessage: 'Refresh' }),
     keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
@@ -15,8 +15,8 @@
 
   registerCommand({
     id: 'dataGrid.deepRefresh',
-    category: 'Data grid',
-    name: 'Refresh with structure',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('common.datagrid.deepRefresh', { defaultMessage: 'Refresh with structure' }),
     keyText: 'Ctrl+F5',
     toolbar: true,
     isRelatedToTab: true,
@@ -27,8 +27,8 @@
 
   registerCommand({
     id: 'dataGrid.revertRowChanges',
-    category: 'Data grid',
-    name: _t('command.datagrid.revertRowChanges', { defaultMessage: 'Revert row changes' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.revertRowChanges', { defaultMessage: 'Revert row changes' }),
     keyText: 'CtrlOrCommand+U',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertRowChanges(),
@@ -36,9 +36,9 @@
 
   registerCommand({
     id: 'dataGrid.revertAllChanges',
-    category: 'Data grid',
-    name: _t('command.datagrid.revertAllChanges', { defaultMessage: 'Revert all changes' }),
-    toolbarName: _t('command.datagrid.revertAllChanges.toolbar', { defaultMessage: 'Revert all' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.revertAllChanges', { defaultMessage: 'Revert all changes' }),
+    toolbarName: __t('command.datagrid.revertAllChanges.toolbar', { defaultMessage: 'Revert all' }),
     icon: 'icon undo',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertAllChanges(),
@@ -46,9 +46,9 @@
 
   registerCommand({
     id: 'dataGrid.deleteSelectedRows',
-    category: 'Data grid',
-    name: _t('command.datagrid.deleteSelectedRows', { defaultMessage: 'Delete selected rows' }),
-    toolbarName: _t('command.datagrid.deleteSelectedRows.toolbar', { defaultMessage: 'Delete row(s)' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.deleteSelectedRows', { defaultMessage: 'Delete selected rows' }),
+    toolbarName: __t('command.datagrid.deleteSelectedRows.toolbar', { defaultMessage: 'Delete row(s)' }),
     keyText: isMac() ? 'Command+Backspace' : 'CtrlOrCommand+Delete',
     icon: 'icon minus',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
@@ -57,9 +57,9 @@
 
   registerCommand({
     id: 'dataGrid.insertNewRow',
-    category: 'Data grid',
-    name: _t('command.datagrid.insertNewRow', { defaultMessage: 'Insert new row' }),
-    toolbarName: _t('command.datagrid.insertNewRow.toolbar', { defaultMessage: 'New row' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.insertNewRow', { defaultMessage: 'Insert new row' }),
+    toolbarName: __t('command.datagrid.insertNewRow.toolbar', { defaultMessage: 'New row' }),
     icon: 'icon add',
     keyText: isMac() ? 'Command+I' : 'Insert',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
@@ -68,9 +68,9 @@
 
   registerCommand({
     id: 'dataGrid.addNewColumn',
-    category: 'Data grid',
-    name: _t('command.datagrid.addNewColumn', { defaultMessage: 'Add new column' }),
-    toolbarName: _t('command.datagrid.addNewColumn.toolbar', { defaultMessage: 'New column' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.addNewColumn', { defaultMessage: 'Add new column' }),
+    toolbarName: __t('command.datagrid.addNewColumn.toolbar', { defaultMessage: 'New column' }),
     icon: 'icon add-column',
     testEnabled: () => getCurrentDataGrid()?.addNewColumnEnabled(),
     onClick: () => getCurrentDataGrid().addNewColumn(),
@@ -78,9 +78,9 @@
 
   registerCommand({
     id: 'dataGrid.cloneRows',
-    category: 'Data grid',
-    name: _t('command.datagrid.cloneRows', { defaultMessage: 'Clone rows' }),
-    toolbarName: _t('command.datagrid.cloneRows.toolbar', { defaultMessage: 'Clone row(s)' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.cloneRows', { defaultMessage: 'Clone rows' }),
+    toolbarName: __t('command.datagrid.cloneRows.toolbar', { defaultMessage: 'Clone row(s)' }),
     keyText: 'CtrlOrCommand+Shift+C',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().cloneRows(),
@@ -88,8 +88,8 @@
 
   registerCommand({
     id: 'dataGrid.setNull',
-    category: 'Data grid',
-    name: _t('command.datagrid.setNull', { defaultMessage: 'Set NULL' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.setNull', { defaultMessage: 'Set NULL' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
       getCurrentDataGrid()?.getGrider()?.editable && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
@@ -98,8 +98,8 @@
 
   registerCommand({
     id: 'dataGrid.removeField',
-    category: 'Data grid',
-    name: _t('command.datagrid.removeField', { defaultMessage: 'Remove field' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.removeField', { defaultMessage: 'Remove field' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
       getCurrentDataGrid()?.getGrider()?.editable && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
@@ -108,8 +108,8 @@
 
   registerCommand({
     id: 'dataGrid.undo',
-    category: 'Data grid',
-    name: _t('command.datagrid.undo', { defaultMessage: 'Undo' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.undo', { defaultMessage: 'Undo' }),
     group: 'undo',
     icon: 'icon undo',
     toolbar: true,
@@ -120,8 +120,8 @@
 
   registerCommand({
     id: 'dataGrid.redo',
-    category: 'Data grid',
-    name: _t('command.datagrid.redo', { defaultMessage: 'Redo' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.redo', { defaultMessage: 'Redo' }),
     group: 'redo',
     icon: 'icon redo',
     toolbar: true,
@@ -132,16 +132,16 @@
 
   registerCommand({
     id: 'dataGrid.reconnect',
-    category: 'Data grid',
-    name: _t('command.datagrid.reconnect', { defaultMessage: 'Reconnect' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.reconnect', { defaultMessage: 'Reconnect' }),
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().reconnect(),
   });
 
   registerCommand({
     id: 'dataGrid.copyToClipboard',
-    category: 'Data grid',
-    name: _t('command.datagrid.copyToClipboard', { defaultMessage: 'Copy to clipboard' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.copyToClipboard', { defaultMessage: 'Copy to clipboard' }),
     keyText: 'CtrlOrCommand+C',
     disableHandleKeyText: 'CtrlOrCommand+C',
     testEnabled: () => getCurrentDataGrid() != null,
@@ -150,7 +150,7 @@
 
   registerCommand({
     id: 'dataGrid.editJsonDocument',
-    category: 'Data grid',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     keyText: 'CtrlOrCommand+J',
     name: __t('command.datagrid.editJsonDocument', { defaultMessage: 'Edit row as JSON document' }),
     testEnabled: () => getCurrentDataGrid()?.editJsonEnabled(),
@@ -159,48 +159,48 @@
 
   registerCommand({
     id: 'dataGrid.openSelectionInMap',
-    category: 'Data grid',
-    name: _t('command.datagrid.openSelectionInMap', { defaultMessage: 'Open selection in map' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.openSelectionInMap', { defaultMessage: 'Open selection in map' }),
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().openSelectionInMap(),
   });
 
   registerCommand({
     id: 'dataGrid.viewJsonDocument',
-    category: 'Data grid',
-    name: _t('command.datagrid.viewJsonDocument', { defaultMessage: 'View row as JSON document' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.viewJsonDocument', { defaultMessage: 'View row as JSON document' }),
     testEnabled: () => getCurrentDataGrid()?.viewJsonDocumentEnabled(),
     onClick: () => getCurrentDataGrid().viewJsonDocument(),
   });
 
   registerCommand({
     id: 'dataGrid.viewJsonValue',
-    category: 'Data grid',
-    name: _t('command.datagrid.viewJsonValue', { defaultMessage: 'View cell as JSON document' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.viewJsonValue', { defaultMessage: 'View cell as JSON document' }),
     testEnabled: () => getCurrentDataGrid()?.viewJsonValueEnabled(),
     onClick: () => getCurrentDataGrid().viewJsonValue(),
   });
 
   registerCommand({
     id: 'dataGrid.openJsonArrayInSheet',
-    category: 'Data grid',
-    name: _t('command.datagrid.openJsonArrayInSheet', { defaultMessage: 'Open array as table' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.openJsonArrayInSheet', { defaultMessage: 'Open array as table' }),
     testEnabled: () => getCurrentDataGrid()?.openJsonArrayInSheetEnabled(),
     onClick: () => getCurrentDataGrid().openJsonArrayInSheet(),
   });
 
   registerCommand({
     id: 'dataGrid.saveCellToFile',
-    category: 'Data grid',
-    name: _t('command.datagrid.saveCellToFile', { defaultMessage: 'Save cell to file' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.saveCellToFile', { defaultMessage: 'Save cell to file' }),
     testEnabled: () => getCurrentDataGrid()?.saveCellToFileEnabled(),
     onClick: () => getCurrentDataGrid().saveCellToFile(),
   });
 
   registerCommand({
     id: 'dataGrid.loadCellFromFile',
-    category: 'Data grid',
-    name: _t('command.datagrid.loadCellFromFile', { defaultMessage: 'Load cell from file' }),
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.loadCellFromFile', { defaultMessage: 'Load cell from file' }),
     testEnabled: () => getCurrentDataGrid()?.loadCellFromFileEnabled(),
     onClick: () => getCurrentDataGrid().loadCellFromFile(),
   });
@@ -216,62 +216,62 @@
   //
   registerCommand({
     id: 'dataGrid.filterSelected',
-    category: 'Data grid',
-    name: 'Filter selected value',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.filterSelected', { defaultMessage : 'Filter selected value'}),
     keyText: 'CtrlOrCommand+Shift+F',
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
   });
   registerCommand({
     id: 'dataGrid.findColumn',
-    category: 'Data grid',
-    name: 'Find column',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.findColumn', { defaultMessage: 'Find column'}),
     keyText: 'CtrlOrCommand+F',
     testEnabled: () => getCurrentDataGrid() != null,
     getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
   });
   registerCommand({
     id: 'dataGrid.hideColumn',
-    category: 'Data grid',
-    name: 'Hide column',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datgrid.hideColumn', { defaultMessage: 'Hide column' }),
     keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
     testEnabled: () => getCurrentDataGrid()?.canShowLeftPanel(),
     onClick: () => getCurrentDataGrid().hideColumn(),
   });
   registerCommand({
     id: 'dataGrid.clearFilter',
-    category: 'Data grid',
-    name: 'Clear filter',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.clearFilter', { defaultMessage : 'Clear filter'}),
     keyText: 'CtrlOrCommand+Shift+E',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
   registerCommand({
     id: 'dataGrid.generateSqlFromData',
-    category: 'Data grid',
-    name: 'Generate SQL',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.generateSql', { defaultMessage: 'Generate SQL'}),
     keyText: 'CtrlOrCommand+G',
     testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
     onClick: () => getCurrentDataGrid().generateSqlFromData(),
   });
   registerCommand({
     id: 'dataGrid.openFreeTable',
-    category: 'Data grid',
-    name: 'Edit selection as table',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.editSelection', { defaultMessage: 'Edit selection as table'}),
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().openFreeTable(),
   });
   registerCommand({
     id: 'dataGrid.newJson',
-    category: 'Data grid',
-    name: 'Add JSON document',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.addJsonDocument', { defaultMessage: 'Add JSON document'}),
     testEnabled: () => getCurrentDataGrid()?.addJsonDocumentEnabled(),
     onClick: () => getCurrentDataGrid().addJsonDocument(),
   });
   registerCommand({
     id: 'dataGrid.editCellValue',
-    category: 'Data grid',
-    name: 'Edit cell value',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.editCell', { defaultMessage: 'Edit cell value' }),
     testEnabled: () => getCurrentDataGrid()?.editCellValueEnabled(),
     onClick: () => getCurrentDataGrid().editCellValue(),
   });
@@ -279,8 +279,8 @@
   if (isProApp()) {
     registerCommand({
       id: 'dataGrid.sendToDataDeploy',
-      category: 'Data grid',
-      name: 'Send to data deployer',
+      category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+      name: __t('command.datagrid.sendToDataDeployer', { defaultMessage: 'Send to data deployer' }),
       testEnabled: () => getCurrentDataGrid()?.sendToDataDeployEnabled(),
       onClick: () => getCurrentDataGrid().sendToDataDeploy(),
     });
@@ -1788,15 +1788,15 @@
     { command: 'dataGrid.refresh' },
     { placeTag: 'copy' },
     {
-      text: 'Copy advanced',
+      text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced'}),
       submenu: [
         _.keys(copyRowsFormatDefs).map(format => ({
-          text: copyRowsFormatDefs[format].label,
+          text: _.isFunction(copyRowsFormatDefs[format].label) ? copyRowsFormatDefs[format].label() : copyRowsFormatDefs[format].label,
           onClick: () => copyToClipboardCore(format),
         })),
         { divider: true },
         _.keys(copyRowsFormatDefs).map(format => ({
-          text: `Set format: ${copyRowsFormatDefs[format].name}`,
+          text: _t('datagrid.setFormat', { defaultMessage: 'Set format: ' }) + (_.isFunction(copyRowsFormatDefs[format].name) ? copyRowsFormatDefs[format].name() : copyRowsFormatDefs[format].name),
           onClick: () => ($copyRowsFormat = format),
         })),
 
@@ -1866,7 +1866,7 @@
     return [
       menu,
       {
-        text: copyRowsFormatDefs[$copyRowsFormat].label,
+        text: _.isFunction(copyRowsFormatDefs[$copyRowsFormat].label) ? copyRowsFormatDefs[$copyRowsFormat].label() : copyRowsFormatDefs[$copyRowsFormat].label,
         onClick: () => copyToClipboardCore($copyRowsFormat),
         keyText: 'CtrlOrCommand+C',
         tag: 'copy',
