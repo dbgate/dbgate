@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.8
+- CHANGED: Windows executable now uses Azure trusted signing certificate
+- CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
+
 ## 6.6.6
 - ADDED: Allow disable/re-enable filter #1174
 - ADDED: Close right side tabs #1219
