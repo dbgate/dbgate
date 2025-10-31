@@ -116,10 +116,14 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Repackage Windows
-        if: matrix.os == 'windows-2022'
+      # - name: Repackage Windows
+      #   if: matrix.os == 'windows-2022'
+      #   run: |
+      #     yarn run repackage:app
+
+      - name: Fix YML hashes
         run: |
-          yarn run repackage:app
+          yarn run fixYmlHashes
 
       - name: Copy artifacts
         run: |
@@ -145,7 +149,6 @@ jobs:
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.snap artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
-          mv app/dist/*.blockmap artifacts/ || true
 
           mv app/dist/*.yml artifacts/ || true
           rm artifacts/builder-debug.yml
