@@ -228,7 +228,6 @@ describe('Query', () => {
     'Binary',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp =>
-        // bytea
         dmp.createTable({
           pureName: 't1',
           columns: [
@@ -240,13 +239,11 @@ describe('Query', () => {
           },
         })
       );
-
       const structure = await driver.analyseFull(conn);
       const table = structure.tables.find(x => x.pureName == 't1');
 
-      await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO t1 (val) VALUES (%v)", {$binary: {base64: 'iVBORw0KWgo='}}));
-
-      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT val FROM t1'));
+      await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO ~t1 (~val) VALUES (%v)", {$binary: {base64: 'iVBORw0KWgo='}}));
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT ~val FROM ~t1'));
 
       const row = res2.rows[0];
       const keys = Object.keys(row);
