@@ -76,11 +76,16 @@ export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo | s
   return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column.columnName));
 }
 
+export function getConflictingColumnNames(columns: ColumnInfo[]): Set<string> {
+  const conflictingNames = new Set(
+    _uniq(columns.map(x => x.columnName).filter((item, index, arr) => arr.indexOf(item) !== index))
+  );
+  return conflictingNames;
+}
+
 export function makeUniqueColumnNames(res: ColumnInfo[]) {
   const usedNames = new Set();
-  const conflictingNames = new Set(
-    _uniq(res.map(x => x.columnName).filter((item, index, arr) => arr.indexOf(item) !== index))
-  );
+  const conflictingNames = getConflictingColumnNames(res);
   for (let i = 0; i < res.length; i++) {
     if (
       conflictingNames.has(res[i].columnName) &&

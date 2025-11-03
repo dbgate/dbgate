@@ -13,6 +13,7 @@ const {
   makeUniqueColumnNames,
   extractDbNameFromComposite,
   extractErrorLogData,
+  getConflictingColumnNames,
 } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 let authProxy;
@@ -60,7 +61,23 @@ function extractPostgresColumns(result, dbhan) {
     columnName: fld.name,
     dataTypeId: fld.dataTypeID,
     dataTypeName: typeIdToName[fld.dataTypeID],
+    tableId: fld.tableID,
   }));
+
+  // const conflictingNames = getConflictingColumnNames(res);
+  // if (conflictingNames.size > 0) {
+  //   const requiredTableIds = res.filter(x => conflictingNames.has(x.columnName)).map(x => x.tableId);
+  //   const tableIdResult = await dbhan.client.query(
+  //     `SELECT DISTINCT c.oid AS table_id, c.relname AS table_name
+  //      FROM pg_class c
+  //      WHERE c.oid IN (${requiredTableIds.join(',')})`
+  //   );
+  //   const tableIdToTableName = _.fromPairs(tableIdResult.rows.map(cur => [cur.table_id, cur.table_name]));
+  //   for (const col of res) {
+  //     col.pureName = tableIdToTableName[col.tableId];
+  //   }
+  // }
+
   makeUniqueColumnNames(res);
   return res;
 }
