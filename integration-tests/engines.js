@@ -216,6 +216,7 @@ const postgreSqlEngine = {
   supportSchemas: true,
   supportRenameSqlObject: true,
   defaultSchemaName: 'public',
+  binaryDataType: 'bytea',
   dumpFile: 'data/chinook-postgre.sql',
   dumpChecks: [
     {

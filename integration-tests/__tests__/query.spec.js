@@ -223,4 +223,35 @@ describe('Query', () => {
       expect(row[keys[0]] == 1).toBeTruthy();
     })
   );
+
+  test.each(engines.filter(x => x.binaryDataType).map(engine => [engine.label, engine]))(
+    'Binary',
+    testWrapper(async (conn, driver, engine) => {
+      await runCommandOnDriver(conn, driver, dmp =>
+        // bytea
+        dmp.createTable({
+          pureName: 't1',
+          columns: [
+            { columnName: 'id', dataType: 'int', notNull: true, autoIncrement: true },
+            { columnName: 'val', dataType: engine.binaryDataType },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+        })
+      );
+
+      const structure = await driver.analyseFull(conn);
+      const table = structure.tables.find(x => x.pureName == 't1');
+
+      await runCommandOnDriver(conn, driver, dmp => dmp.put("INSERT INTO t1 (val) VALUES (%v)", {$binary: {base64: 'iVBORw0KWgo='}}));
+
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put('SELECT val FROM t1'));
+
+      const row = res2.rows[0];
+      const keys = Object.keys(row);
+      expect(keys.length).toEqual(1);
+      expect(row[keys[0]]).toEqual({$binary: {base64: 'iVBORw0KWgo='}});
+    })
+  );
 });
