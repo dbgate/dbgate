@@ -3,6 +3,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
+const fs = require('fs');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErrorLogData } =
   global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -53,6 +54,7 @@ const drivers = driverBases.map(driverBase => ({
       supportBigNumbers: true,
       bigNumberStrings: true,
       dateStrings: true,
+      infileStreamFactory: path => fs.createReadStream(path),
       // TODO: test following options
       // multipleStatements: true,
     };
