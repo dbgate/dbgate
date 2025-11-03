@@ -1,4 +1,5 @@
 import _cloneDeep from 'lodash/cloneDeep';
+import _uniq from 'lodash/uniq';
 import _isString from 'lodash/isString';
 import type {
   ColumnInfo,
@@ -77,7 +78,20 @@ export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo | s
 
 export function makeUniqueColumnNames(res: ColumnInfo[]) {
   const usedNames = new Set();
+  const conflictingNames = new Set(
+    _uniq(res.map(x => x.columnName).filter((item, index, arr) => arr.indexOf(item) !== index))
+  );
   for (let i = 0; i < res.length; i++) {
+    if (
+      conflictingNames.has(res[i].columnName) &&
+      res[i].pureName &&
+      !usedNames.has(`${res[i].pureName}_${res[i].columnName}`)
+    ) {
+      res[i].columnName = `${res[i].pureName}_${res[i].columnName}`;
+      usedNames.add(res[i].columnName);
+      continue;
+    }
+
     if (usedNames.has(res[i].columnName)) {
       let suffix = 2;
       while (usedNames.has(`${res[i].columnName}${suffix}`)) suffix++;

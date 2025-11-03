@@ -15,6 +15,7 @@ function extractColumns(fields) {
   if (fields) {
     const res = fields.map(col => ({
       columnName: col.name,
+      pureName: col.orgTable,
     }));
     makeUniqueColumnNames(res);
     return res;
