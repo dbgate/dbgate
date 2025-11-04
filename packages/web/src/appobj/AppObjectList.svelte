@@ -40,14 +40,15 @@
 
   $: dataLabeled = _.compact(
     (list || []).map(data => {
-      const dataCopy = { ...data };
-      if (dataCopy?.group && _.isFunction(dataCopy.group)) dataCopy.group = dataCopy.group();
-      if (dataCopy?.title && _.isFunction(dataCopy.title)) dataCopy.title = dataCopy.title();
-      if (dataCopy?.description && _.isFunction(dataCopy.description)) dataCopy.description = dataCopy.description();
-      (dataCopy?.args || []).map(x => {
-        if(x?.label && _.isFunction(x.label)) x.label = x.label();
-      })
-
+      const dataCopy = {...data,
+        group: (data?.group && _.isFunction(data.group)) ? data.group() : data.group,
+        title: (data?.title && _.isFunction(data.title)) ? data.title() : data.title,
+        description: (data?.description && _.isFunction(data.description)) ? data.description() : data.description,
+        args: (data?.args || []).map(x => ({
+          ...x,
+          label: (x?.label && _.isFunction(x.label)) ? x.label() : x.label,
+        }))
+      };
 
       const matchResult = matcher ? matcher(dataCopy) : true;
 
