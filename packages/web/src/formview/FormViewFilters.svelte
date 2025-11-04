@@ -37,7 +37,7 @@
 
 {#if isFormView}
   <div class="m-1">
-    <div>Column name filter</div>
+    <div>{_t('datagrid.columnNameFilter', { defaultMessage: 'Column name filter' })}</div>
     <div class="flex">
       <input
         type="text"

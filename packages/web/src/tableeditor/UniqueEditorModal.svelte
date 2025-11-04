@@ -1,5 +1,6 @@
 <script lang="ts">
   import ColumnsConstraintEditorModal from './ColumnsConstraintEditorModal.svelte';
+  import { _t } from '../translations';
 
   export let constraintInfo;
   export let setTableInfo;
@@ -9,7 +10,7 @@
 
 <ColumnsConstraintEditorModal
   {...$$restProps}
-  constraintLabel="unique"
+  constraintLabel={_t('tableEdit.unique', { defaultMessage: "unique" })}
   constraintType="unique"
   {constraintInfo}
   {setTableInfo}

@@ -193,7 +193,7 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo
-      message={_t('sqlObject.databaseEmpty', { defaultMessage: `Database ${database} is empty or structure is not loaded, press Refresh button to reload structure` })}
+      message={_t('sqlObject.databaseEmpty', { defaultMessage: 'Database {database} is empty or structure is not loaded, press Refresh button to reload structure', values: { database } })}
       icon="img alert"
     />
     <div class="m-1" />

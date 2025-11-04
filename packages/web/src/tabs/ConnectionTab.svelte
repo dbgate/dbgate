@@ -300,7 +300,7 @@
       contentTestId="ConnectionTab_tabControlContent"
       tabs={[
         {
-          label: 'General',
+          label: _t('common.general', { defaultMessage: 'General' }),
           component: ConnectionDriverFields,
           props: { getDatabaseList, currentConnection },
           testid: 'ConnectionTab_tabGeneral',
@@ -316,7 +316,7 @@
           testid: 'ConnectionTab_tabSsl',
         },
         {
-          label: 'Advanced',
+          label: _t('common.advanced', { defaultMessage: 'Advanced' }),
           component: ConnectionAdvancedDriverFields,
           testid: 'ConnectionTab_tabAdvanced',
         },
@@ -383,7 +383,7 @@
           {/if}
           {#if isTesting}
             <div>
-              <FontIcon icon="icon loading" /> Testing connection
+              <FontIcon icon="icon loading" /> {_t('common.testingConnection', { defaultMessage: 'Testing connection' })}
             </div>
           {/if}
         </div>

@@ -466,7 +466,7 @@
 
 {#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label={_t('connection.singleDatabase', { defaultMessage: `Use only database ${defaultDatabase}` })}
+    label={_t('connection.singleDatabase', { defaultMessage: 'Use only database {defaultDatabase}', values: { defaultDatabase } })}
     name="singleDatabase"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_singleDatabase"
