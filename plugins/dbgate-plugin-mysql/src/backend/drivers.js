@@ -130,6 +130,9 @@ const drivers = driverBases.map(driverBase => ({
           time: new Date(),
           severity: 'info',
         });
+        if (row.stateChanges?.schema) {
+          options.changedCurrentDatabase(row.stateChanges.schema);
+        }
       } else {
         if (columns) {
           options.row(zipDataRow(row, columns));

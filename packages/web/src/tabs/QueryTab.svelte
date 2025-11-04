@@ -265,9 +265,11 @@
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
       apiOn(`session-closed-${sid}`, handleSessionClosed);
+      apiOn(`session-changedb-${sid}`, handleChangedDatabase);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
         apiOff(`session-closed-${sid}`, handleSessionClosed);
+        apiOff(`session-changedb-${sid}`, handleChangedDatabase);
       };
     }
     return () => {};
@@ -564,6 +566,17 @@
   const handleSessionClosed = () => {
     sessionId = null;
     handleSessionDone();
+  };
+
+  const handleChangedDatabase = async props => {
+    changeTab(tabid, tab => ({
+      ...tab,
+      props: {
+        ...tab.props,
+        conid,
+        database: props.database,
+      },
+    }));
   };
 
   const { editorState, editorValue, setEditorData } = useEditorData({
