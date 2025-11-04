@@ -131,8 +131,8 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
-    if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
     const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
+    if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
     const table = this.getFkTarget(column);
     if (table && table.primaryKey) {
       select.from.relations = [
