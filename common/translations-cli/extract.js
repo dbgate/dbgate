@@ -6,7 +6,7 @@ const { getFiles } = require('./helpers');
 
 const readFilePromise = promisify(fs.readFile);
 
-const translationRegex = /_t\(\s*['"]([^'"]+)['"]\s*,\s*\{\s*defaultMessage\s*:\s*['"]([^'"]+)['"]\s*\}/g;
+const translationRegex = /_t\(\s*['"]([^'"]+)['"]\s*,\s*\{\s*defaultMessage\s*:\s*(?:'([^'\\]*(?:\\.[^'\\]*)*)'|"([^"\\]*(?:\\.[^"\\]*)*)"|\`([^`\\]*(?:\\.[^`\\]*)*(?:\{[^}]*\}[^`\\]*(?:\\.[^`\\]*)*)*)\`)(?:\s*,\s*[^}]*)*\s*\}/g;
 
 /**
  * @param {string} file
@@ -20,7 +20,8 @@ async function extractTranslationsFromFile(file) {
   let match;
 
   while ((match = translationRegex.exec(content)) !== null) {
-    const [_, key, defaultText] = match;
+    const [_, key, singleQuotedText, doubleQuotedText, templateLiteral] = match;
+    const defaultText = singleQuotedText || doubleQuotedText || templateLiteral;
     translations[key] = defaultText;
   }
 
