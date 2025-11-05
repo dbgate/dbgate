@@ -1,4 +1,4 @@
-<script>
+<script lang='ts'>
   import _ from 'lodash';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import newQuery from '../query/newQuery';
@@ -6,6 +6,7 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let sql;
   export let onConfirm;

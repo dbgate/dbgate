@@ -771,7 +771,6 @@
               <SocketMessageView
                 eventName={sessionId ? `session-info-${sessionId}` : null}
                 onMessageClick={handleMesageClick}
-                {executeNumber}
                 startLine={executeStartLine}
                 showProcedure
                 showLine
