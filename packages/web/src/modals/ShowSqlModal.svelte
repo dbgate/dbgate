@@ -20,7 +20,12 @@
   </div>
 
   <div slot="footer">
-    <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} data-testid="ShowSqlModal_closeButton" />
+    <FormStyledButton
+      type="button"
+      value={_t('common.close', { defaultMessage: 'Close' })}
+      on:click={closeCurrentModal}
+      data-testid="ShowSqlModal_closeButton"
+    />
     <FormStyledButton
       type="button"
       value="Open script"
