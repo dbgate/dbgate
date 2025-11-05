@@ -18,6 +18,7 @@ const logger = getLogger('cloudIntf');
 
 let cloudFiles = null;
 let promoWidgetData = null;
+let promoWidgetDataLoaded = false;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
@@ -260,13 +261,21 @@ async function getPublicFileData(path) {
   return resp.data;
 }
 
-async function updatePremiumPromoWidget() {
+async function ensurePromoWidgetDataLoaded() {
+  if (promoWidgetDataLoaded) {
+    return;
+  }
   try {
     const fileContent = await fs.readFile(path.join(datadir(), 'promo-widget.json'), 'utf-8');
     promoWidgetData = JSON.parse(fileContent);
   } catch (err) {
     promoWidgetData = null;
   }
+  promoWidgetDataLoaded = true;
+}
+
+async function updatePremiumPromoWidget() {
+  await ensurePromoWidgetDataLoaded();
 
   const tags = (await collectCloudFilesSearchTags()).join(',');
 
@@ -466,8 +475,19 @@ async function getPublicIpInfo() {
   }
 }
 
-function getPromoWidgetData() {
+async function getPromoWidgetData() {
+  await ensurePromoWidgetDataLoaded();
   return promoWidgetData;
+}
+
+async function getPromoWidgetPreview(campaign, variant) {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`);
+  return resp.data;
+}
+
+async function getPromoWidgetList() {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`);
+  return resp.data;
 }
 
 module.exports = {
@@ -488,4 +508,6 @@ module.exports = {
   readCloudTestTokenHolder,
   getPublicIpInfo,
   getPromoWidgetData,
+  getPromoWidgetPreview,
+  getPromoWidgetList,
 };

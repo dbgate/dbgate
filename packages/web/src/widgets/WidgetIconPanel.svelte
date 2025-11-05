@@ -11,6 +11,7 @@
     getCurrentConfig,
     cloudSigninTokenHolder,
     seenPremiumPromoWidget,
+    promoWidgetPreview,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -60,7 +61,7 @@
       name: 'history',
       title: 'Query history & Closed tabs',
     },
-    {
+    isProApp() && {
       icon: 'icon archive',
       name: 'archive',
       title: 'Archive (saved tabular data)',
@@ -167,6 +168,8 @@
       openWebLink(url, true);
     }
   }
+
+  $: promoWidgetData = $promoWidgetPreview || $promoWidget;
 </script>
 
 <div class="main">
@@ -177,7 +180,7 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isPremiumPromo || (!isProApp() && $promoWidget?.state == 'data'))
+    .filter(x => !x.isPremiumPromo || (!isProApp() && promoWidgetData?.state == 'data'))
     // .filter(x => !x.isPremiumOnly || isProApp())
     .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
@@ -186,10 +189,18 @@
       data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
-      <FontIcon icon={item.icon} title={item.title} />
+      {#if item.isPremiumPromo && promoWidgetData?.isColoredIcon}
+        <FontIcon
+          icon={item.icon}
+          title={item.title}
+          colorClass="premium-background-gradient widget-icon-panel-rounded"
+        />
+      {:else}
+        <FontIcon icon={item.icon} title={item.title} />
+      {/if}
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
-        {#if $promoWidget?.identifier != $seenPremiumPromoWidget}
+        {#if promoWidgetData?.identifier != $seenPremiumPromoWidget}
           <div class="premium-promo-not-seen">•</div>
         {/if}
       {/if}
@@ -280,5 +291,10 @@
     color: var(--theme-icon-yellow);
     top: -5px;
     right: 5px;
+  }
+
+  :global(.widget-icon-panel-rounded) {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 </style>

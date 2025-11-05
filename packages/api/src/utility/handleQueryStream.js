@@ -148,6 +148,7 @@ class StreamHandler {
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
     this.info = this.info.bind(this);
+    this.changedCurrentDatabase = this.changedCurrentDatabase.bind(this);
 
     // use this for cancelling - not implemented
     // this.stream = null;
@@ -164,6 +165,10 @@ class StreamHandler {
       this.currentWriter.close();
       this.currentWriter = null;
     }
+  }
+
+  changedCurrentDatabase(database) {
+    process.send({ msgtype: 'changedCurrentDatabase', database, sesid: this.sesid });
   }
 
   recordset(columns) {

@@ -55,7 +55,7 @@
   {/if}
 
   {#if dependencies.length > 0}
-    <div class="bold nowrap ml-1">Dependend tables ({dependencies.length})</div>
+    <div class="bold nowrap ml-1">Dependent tables ({dependencies.length})</div>
     {#each dependencies.filter(fk => filterName(filter, fk.pureName)) as fk}
       <div
         class="link"

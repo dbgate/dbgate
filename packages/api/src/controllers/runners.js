@@ -274,8 +274,6 @@ module.exports = {
 
   start_meta: true,
   async start({ script }, req) {
-    await testStandardPermission('run-shell-script', req);
-    
     const runid = crypto.randomUUID();
 
     if (script.type == 'json') {
@@ -290,6 +288,8 @@ module.exports = {
       const js = await jsonScriptToJavascript(script);
       return this.startCore(runid, scriptTemplate(js, false));
     }
+
+    await testStandardPermission('run-shell-script', req);
 
     if (!platformInfo.allowShellScripting) {
       sendToAuditLog(req, {

@@ -1,14 +1,17 @@
 <script lang="ts">
   import JsonUiContentRenderer from '../jsonui/JsonUiContentRenderer.svelte';
+  import { promoWidgetPreview } from '../stores';
   import { usePromoWidget } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   const promoWidget = usePromoWidget({});
+
+  $: promoWidgetData = $promoWidgetPreview || $promoWidget;
 </script>
 
 <WidgetsInnerContainer>
-  {#if $promoWidget?.state == 'data'}
-    <JsonUiContentRenderer blocks={$promoWidget?.blocks} />
+  {#if promoWidgetData?.state == 'data'}
+    <JsonUiContentRenderer blocks={promoWidgetData?.blocks} passProps={{ validTo: promoWidgetData?.validTo }} />
   {/if}
 </WidgetsInnerContainer>
 

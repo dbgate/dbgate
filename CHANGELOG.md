@@ -8,12 +8,24 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.8
+- CHANGED: Windows executable now uses Azure trusted signing certificate
+- CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
+- CHANGED: Some features moved to Premium edition (master/detail views, FK lookups, column expansion, split view, advanced export/import, data archives, grouping, macros)
+
+## 6.6.6
+- ADDED: Allow disable/re-enable filter #1174
+- ADDED: Close right side tabs #1219
+- ADDED: Ability disable execute current line in query editor #1209
+- ADDED: Support for Redis Cluster #1204 (Premium)
+
 ## 6.6.5
 - ADDED: SQL AI assistant - powered by database chat, could help you to write SQL queries (Premium)
 - ADDED: Explain SQL error (powered by AI) (Premium)
 - ADDED: Database chat (and SQL AI Assistant) now supports showing charts (Premium)
 - FIXED: Fxied editing new files and roles (Team Premium)
 - FIXED: Connection to standalone database could be now pinned
+- FIXED: Cannot open up large JSON file #1215
 
 ## 6.6.4
 - ADDED: AI Database chat now supports much more LLM models. (Premium)

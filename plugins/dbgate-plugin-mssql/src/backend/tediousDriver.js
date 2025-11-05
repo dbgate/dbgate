@@ -186,7 +186,11 @@ async function tediousStream(dbhan, sql, options) {
       severity: 'error',
     });
   };
+  const handleDatabaseChange = database => {
+    options.changedCurrentDatabase(database);
+  };
 
+  dbhan.client.on('databaseChange', handleDatabaseChange);
   dbhan.client.on('infoMessage', handleInfo);
   dbhan.client.on('errorMessage', handleError);
   const request = new tedious.Request(sql, (err, rowCount) => {

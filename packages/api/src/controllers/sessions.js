@@ -97,6 +97,12 @@ module.exports = {
     socket.emit(`session-initialize-file-${jslid}`);
   },
 
+  handle_changedCurrentDatabase(sesid, props) {
+    const { database } = props;
+    this.dispatchMessage(sesid, `Current database changed to ${database}`);
+    socket.emit(`session-changedb-${sesid}`, { database });
+  },
+
   handle_ping() {},
 
   create_meta: true,

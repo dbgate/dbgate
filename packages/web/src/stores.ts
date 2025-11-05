@@ -187,6 +187,9 @@ export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumProm
 
 export const cloudConnectionsStore = writable({});
 
+export const promoWidgetPreview = writable(null);
+
+
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
   schemaName: false,

@@ -468,12 +468,14 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
       { divider: true },
       isSqlOrDoc &&
+        isProApp() &&
         !connection.isReadOnly &&
         hasPermission(`dbops/import`) && {
           onClick: handleImport,
           text: _t('database.import', { defaultMessage: 'Import' }),
         },
       isSqlOrDoc &&
+        isProApp() &&
         hasPermission(`dbops/export`) && {
           onClick: handleExport,
           text: _t('database.export', { defaultMessage: 'Export' }),

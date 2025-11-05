@@ -12,6 +12,7 @@
   import { showModal } from '../modals/modalTools';
   import DefineDictionaryDescriptionModal from '../modals/DefineDictionaryDescriptionModal.svelte';
   import { sleep } from '../utility/common';
+  import { isProApp } from '../utility/proTools';
 
   export let column;
   export let conid = undefined;
@@ -72,29 +73,35 @@
 
       column.foreignKey && [{ divider: true }, { onClick: openReferencedTable, text: column.foreignKey.refTableName }],
 
-      setGrouping && { divider: true },
-      setGrouping && { onClick: () => setGrouping('GROUP'), text: 'Group by' },
-      setGrouping && { onClick: () => setGrouping('MAX'), text: 'MAX' },
-      setGrouping && { onClick: () => setGrouping('MIN'), text: 'MIN' },
-      setGrouping && { onClick: () => setGrouping('SUM'), text: 'SUM' },
-      setGrouping && { onClick: () => setGrouping('AVG'), text: 'AVG' },
-      setGrouping && { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
-      setGrouping && { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
+      isProApp() &&
+        setGrouping && [
+          { divider: true },
+          { onClick: () => setGrouping('GROUP'), text: 'Group by' },
+          { onClick: () => setGrouping('MAX'), text: 'MAX' },
+          { onClick: () => setGrouping('MIN'), text: 'MIN' },
+          { onClick: () => setGrouping('SUM'), text: 'SUM' },
+          { onClick: () => setGrouping('AVG'), text: 'AVG' },
+          { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
+          { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
+        ],
 
-      isTypeDateTime(column.dataType) && [
-        { divider: true },
-        { onClick: () => setGrouping('GROUP:YEAR'), text: 'Group by YEAR' },
-        { onClick: () => setGrouping('GROUP:MONTH'), text: 'Group by MONTH' },
-        { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
-      ],
+      isProApp() &&
+        isTypeDateTime(column.dataType) && [
+          { divider: true },
+          { onClick: () => setGrouping('GROUP:YEAR'), text: 'Group by YEAR' },
+          { onClick: () => setGrouping('GROUP:MONTH'), text: 'Group by MONTH' },
+          { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
+        ],
 
       { divider: true },
 
-      allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
-      column.foreignKey && {
-        onClick: handleCustomizeDescriptions,
-        text: 'Customize description',
-      },
+      isProApp() &&
+        allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      column.foreignKey &&
+        isProApp() && {
+          onClick: handleCustomizeDescriptions,
+          text: 'Customize description',
+        },
     ];
   }
 </script>

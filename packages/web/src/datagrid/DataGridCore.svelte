@@ -1413,7 +1413,11 @@
 
   function handleGridWheel(event) {
     if (event.shiftKey) {
-      scrollHorizontal(event.deltaY, event.deltaX);
+      if (isMac()) {
+        scrollHorizontal(event.deltaX, event.deltaY);
+      } else {
+        scrollHorizontal(event.deltaY, event.deltaX);
+      }
     } else {
       scrollHorizontal(event.deltaX, event.deltaY);
       scrollVertical(event.deltaX, event.deltaY);

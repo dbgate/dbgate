@@ -5,10 +5,13 @@
   export let text: string;
   export let link: string;
   export let colorClass: string = '';
+  export let items: any[] = [];
 </script>
 
 <div class="center">
-  <FormStyledButton on:click={() => openWebLink(link)} value={text} skipWidth {colorClass} />
+  {#each items as item}
+    <FormStyledButton on:click={() => openWebLink(item.link)} value={item.text} skipWidth {colorClass} />
+  {/each}
 </div>
 
 <style>
