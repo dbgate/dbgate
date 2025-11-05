@@ -75,7 +75,7 @@
 
     --token-base: #303030;
     --token-text: #ddd;
-    --token-keyword: white;
+    --token-keyword: #096dd9;
     --token-selector-tag: white;
     --token-literal: white;
     --token-section: white;

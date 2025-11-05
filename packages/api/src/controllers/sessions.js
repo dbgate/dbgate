@@ -188,7 +188,10 @@ module.exports = {
     });
 
     logger.info({ sesid, sql }, 'DBGM-00019 Processing query');
-    this.dispatchMessage(sesid, 'Query execution started');
+    this.dispatchMessage(sesid, {
+      message: 'Query execution started',
+      sql,
+    });
     session.subprocess.send({
       msgtype: 'executeQuery',
       sql,

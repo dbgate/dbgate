@@ -18,6 +18,7 @@
   export let onChangeErrors = null;
   export let onMessageClick = null;
   export let onExplainError = null;
+  export let engine = null;
 
   const cachedMessagesRef = createRef([]);
   const lastErrorMessageCountRef = createRef(0);
@@ -79,5 +80,6 @@
     {showCaller}
     {startLine}
     {onExplainError}
+    {engine}
   />
 {/if}
