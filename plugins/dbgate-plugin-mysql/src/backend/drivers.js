@@ -21,6 +21,15 @@ function extractColumns(fields) {
   return null;
 }
 
+function transformRow(row, columns) {
+  columns.forEach((col) => {
+    if (Buffer.isBuffer(row[col.columnName])) {
+      row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
+    }
+  });
+  return row;
+}
+
 function zipDataRow(rowArray, columns) {
   return _.zipObject(
     columns.map(x => x.columnName),
@@ -96,8 +105,8 @@ const drivers = driverBases.map(driverBase => ({
     return new Promise((resolve, reject) => {
       dbhan.client.query(sql, function (error, results, fields) {
         if (error) reject(error);
-        const columns = extractColumns(fields);
-        resolve({ rows: results && columns && results.map && results.map(row => zipDataRow(row, columns)), columns });
+        const columns = extractColumns(fields);   
+        resolve({ rows: results && columns && results.map && results.map(row => transformRow(zipDataRow(row, columns), columns)), columns });
       });
     });
   },
@@ -127,16 +136,17 @@ const drivers = driverBases.map(driverBase => ({
           time: new Date(),
           severity: 'info',
         });
+        options.recordset(columns, { engine: driverBase.engine });
       } else {
         if (columns) {
-          options.row(zipDataRow(row, columns));
+          options.row(transformRow(zipDataRow(row, columns), columns));
         }
       }
     };
 
     const handleFields = fields => {
       columns = extractColumns(fields);
-      if (columns) options.recordset(columns);
+      if (columns) options.recordset(columns, { engine: driverBase.engine });
     };
 
     const handleError = error => {
@@ -170,10 +180,11 @@ const drivers = driverBases.map(driverBase => ({
         columns = extractColumns(fields);
         pass.write({
           __isStreamHeader: true,
+          engine: driverBase.engine,
           ...(structure || { columns }),
         });
       })
-      .on('result', row => pass.write(zipDataRow(row, columns)))
+      .on('result', row => pass.write(transformRow(zipDataRow(row, columns), columns)))
       .on('end', () => pass.end());
 
     return pass;
