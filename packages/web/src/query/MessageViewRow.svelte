@@ -20,6 +20,7 @@
   import SqlHighlighter from '../elements/SqlHighlighter.svelte';
   import { showModal } from '../modals/modalTools';
   import ShowSqlModal from '../modals/ShowSqlModal.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let row;
   export let index;
@@ -57,6 +58,23 @@
         on:click={e => {
           onExplainError(row);
         }}><FontIcon icon="img ai" /> Explain</InlineButton
+      >
+    {/if}
+    {#if row.jslid}
+      <InlineButton
+        title="Show data"
+        inlineBlock
+        data-testid={`MessageViewRow-showDataButton-${index}`}
+        on:click={e => {
+          openNewTab({
+            title: 'Query data #',
+            icon: 'img query-data',
+            tabComponent: 'ArchiveFileTab',
+            props: {
+              jslid: row.jslid,
+            },
+          });
+        }}><FontIcon icon="img query-data" /> Show Data</InlineButton
       >
     {/if}
     {#if row.sql}

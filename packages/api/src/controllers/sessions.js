@@ -83,6 +83,16 @@ module.exports = {
     socket.emit(`session-recordset-${sesid}`, { jslid, resultIndex });
   },
 
+  handle_endrecordset(sesid, props) {
+    const { jslid, rowCount, durationMs } = props;
+    this.dispatchMessage(sesid, {
+      message: `Query returned ${rowCount} rows in ${durationMs} ms`,
+      rowCount,
+      durationMs,
+      jslid,
+    });
+  },
+
   handle_stats(sesid, stats) {
     jsldata.notifyChangedStats(stats);
   },

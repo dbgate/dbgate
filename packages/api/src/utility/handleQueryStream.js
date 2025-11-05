@@ -14,6 +14,7 @@ class QueryStreamTableWriter {
     this.currentChangeIndex = 1;
     this.initializedFile = false;
     this.sesid = sesid;
+    this.started = new Date().getTime();
   }
 
   initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false) {
@@ -118,6 +119,13 @@ class QueryStreamTableWriter {
               this.chartProcessor = null;
             }
           }
+          process.send({
+            msgtype: 'endrecordset',
+            jslid: this.jslid,
+            rowCount: this.currentRowCount,
+            sesid: this.sesid,
+            durationMs: new Date().getTime() - this.started,
+          });
           resolve();
         });
       } else {
