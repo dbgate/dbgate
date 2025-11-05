@@ -776,6 +776,7 @@
                 showLine
                 onChangeErrors={handleChangeErrors}
                 onExplainError={isProApp() ? handleExplainError : null}
+                engine={$connection && $connection.engine}
               />
             </svelte:fragment>
           </ResultTabs>
