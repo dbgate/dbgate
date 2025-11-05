@@ -1,13 +1,14 @@
 import type { QuickExportDefinition } from 'dbgate-types';
 import { currentArchive, getCurrentArchive, getExtensions } from '../stores';
 import hasPermission from './hasPermission';
+import { _t } from '../translations'
 import { isProApp } from './proTools';
 
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
   return [
     isProApp() && {
-      text: 'Export advanced...',
+      text: _t('export.exportAdvanced', { defaultMessage : 'Export advanced...'}),
       ...advancedExportMenuItem,
     },
     { divider: true },
@@ -17,10 +18,10 @@ export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition)
     })),
     { divider: true },
     isProApp() && {
-      text: 'Current archive',
+      text: _t('export.currentArchive', { defaultMessage : 'Current archive'}),
       onClick: handler({
         extension: 'jsonl',
-        label: 'Current archive',
+        label: _t('export.currentArchive', { defaultMessage : 'Current archive'}),
         noFilenameDependency: true,
         createWriter: (fileName, dataName) => ({
           functionName: 'archiveWriter',

@@ -6,6 +6,7 @@
 
   import MacroHeader from './MacroHeader.svelte';
   import MacroInfoTab from './MacroInfoTab.svelte';
+  import { _t } from '../translations';
 
   const selectedMacro = getContext('selectedMacro') as any;
 
@@ -17,7 +18,7 @@
   <TabControl
     tabs={[
       {
-        label: 'Macro detail',
+        label: _t('datagrid.macros.detail', { defaultMessage: 'Macro detail' }),
         component: MacroInfoTab,
         props: {
           onExecute,

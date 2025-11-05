@@ -95,7 +95,7 @@
     </div>
     <div class="col-6">
       <FormPasswordField
-        label={_t('connection.password', {defaultMessage: "Password"})}
+        label={_t('connection.password', {defaultMessage: 'Password'})}
         name="sshPassword"
         disabled={isConnected || !useSshTunnel}
         templateProps={{ noMargin: true }}

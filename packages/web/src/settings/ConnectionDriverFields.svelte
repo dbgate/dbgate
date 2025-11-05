@@ -460,13 +460,13 @@
     disabled={isConnected}
     data-testid="ConnectionDriverFields_defaultDatabase"
     asyncMenu={createDatabasesMenu}
-    placeholder="(not selected - optional)"
+    placeholder={_t('common.notSelectedOptional', { defaultMessage : "(not selected - optional)"})}
   />
 {/if}
 
 {#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label={_t('connection.singleDatabase', { defaultMessage: `Use only database ${defaultDatabase}` })}
+    label={_t('connection.singleDatabase', { defaultMessage: 'Use only database {defaultDatabase}', values: { defaultDatabase } })}
     name="singleDatabase"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_singleDatabase"
@@ -475,7 +475,7 @@
 
 {#if driver?.showConnectionField('useSeparateSchemas', $values, showConnectionFieldArgs)}
   <FormCheckboxField
-    label={_t('connection.useSeparateSchemas', { defaultMessage: `Use schemas separately (use this if you have many large schemas)` })}
+    label={_t('connection.useSeparateSchemas', { defaultMessage: 'Use schemas separately (use this if you have many large schemas)' })}
     name="useSeparateSchemas"
     disabled={isConnected}
     data-testid="ConnectionDriverFields_useSeparateSchemas"

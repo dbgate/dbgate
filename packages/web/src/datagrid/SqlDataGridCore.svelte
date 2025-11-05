@@ -1,18 +1,19 @@
 <script context="module" lang="ts">
+  import { __t } from '../translations'
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
     id: 'sqlDataGrid.openQuery',
-    category: 'Data grid',
-    name: 'Open query',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.openQuery', { defaultMessage : 'Open query' }),
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/query'),
     onClick: () => getCurrentEditor().openQuery(),
   });
 
   registerCommand({
     id: 'sqlDataGrid.export',
-    category: 'Data grid',
-    name: 'Export',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('common.export', { defaultMessage : 'Export' }),
     icon: 'icon export',
     keyText: 'CtrlOrCommand+E',
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/export'),

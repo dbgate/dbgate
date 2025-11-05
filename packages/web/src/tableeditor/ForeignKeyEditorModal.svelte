@@ -60,11 +60,11 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{constraintInfo ? `Edit foreign key` : `Add foreign key`}</svelte:fragment>
+    <svelte:fragment slot="header">{constraintInfo ? _t('foreignKeyEditor.editForeignKey', { defaultMessage: 'Edit foreign key' }) : _t('foreignKeyEditor.addForeignKey', { defaultMessage: 'Add foreign key' })}</svelte:fragment>
 
     <div class="largeFormMarker">
       <div class="row">
-        <div class="label col-3">Constraint name</div>
+        <div class="label col-3">{_t('tableEditor.constraintName', { defaultMessage: 'Constraint name' })}</div>
         <div class="col-9">
           <TextField
             value={constraintName}
@@ -76,7 +76,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">Referenced table</div>
+        <div class="label col-3">{_t('foreignKeyEditor.referencedTable', { defaultMessage: 'Referenced table' })}</div>
         <div class="col-9">
           <SelectField
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
@@ -99,7 +99,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">On update action</div>
+        <div class="label col-3">{_t('foreignKeyEditor.onUpdateAction', { defaultMessage: 'On update action' })}</div>
         <div class="col-9">
           <SelectField
             value={updateAction}
@@ -115,7 +115,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">On delete action</div>
+        <div class="label col-3">{_t('foreignKeyEditor.onDeleteAction', { defaultMessage: 'On delete action' })}</div>
         <div class="col-9">
           <SelectField
             value={deleteAction}
@@ -132,10 +132,10 @@
 
       <div class="row">
         <div class="col-5 mr-1">
-          Base column - {tableInfo.pureName}
+          {_t('foreignKeyEditor.baseColumn', { defaultMessage: 'Base column - ' })}{tableInfo.pureName}
         </div>
         <div class="col-5 ml-1">
-          Ref column - {refTableName || '(table not set)'}
+          {_t('foreignKeyEditor.refColumn', { defaultMessage: 'Ref column - ' })}{refTableName || _t('foreignKeyEditor.tableNotSet', { defaultMessage: '(table not set)' })}
         </div>
       </div>
 
@@ -195,7 +195,7 @@
 
       <FormStyledButton
         type="button"
-        value="Add column"
+        value={_t('foreignKeyEditor.addColumn', { defaultMessage: 'Add column' })}
         disabled={isReadOnly}
         on:click={() => {
           columns = [...columns, {}];
@@ -217,12 +217,12 @@
         }}
       />
 
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
       {#if constraintInfo}
         <FormStyledButton
           type="button"
           disabled={isReadOnly}
-          value="Remove"
+          value={_t('common.remove', { defaultMessage: 'Remove' })}
           on:click={() => {
             closeCurrentModal();
             setTableInfo(tbl => editorDeleteConstraint(tbl, constraintInfo));
