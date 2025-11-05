@@ -112,8 +112,9 @@ function mapItem(item, commands) {
   if (item.command) {
     const command = commands[item.command];
     if (command) {
+      const commandText = item.text || command.menuName || command.toolbarName || command.name;
       return {
-        text: item.text || command.menuName || command.toolbarName || command.name,
+        text: _.isFunction(commandText) ? commandText() : commandText,
         keyText: command.keyText || command.keyTextFromGroup || command.disableHandleKeyText,
         onClick: () => {
           if (command.isGroupCommand) {

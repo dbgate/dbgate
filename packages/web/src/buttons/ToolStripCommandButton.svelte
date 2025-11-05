@@ -1,6 +1,6 @@
 <script context="module">
   function getCommandTitle(command) {
-    let res = command.text;
+    let res = _.isFunction(command.text) ? command.text() : command.text;
     if (command.keyText || command.keyTextFromGroup) {
       res += ` (${formatKeyText(command.keyText || command.keyTextFromGroup)})`;
     }
@@ -12,6 +12,7 @@
   import { commandsCustomized } from '../stores';
   import { formatKeyText } from '../utility/common';
   import ToolStripButton from './ToolStripButton.svelte';
+  import _ from 'lodash';
 
   export let command;
   export let component = ToolStripButton;
@@ -32,6 +33,6 @@
     {iconAfter}
     {...$$restProps}
   >
-    {buttonLabel || cmd.toolbarName || cmd.name}
+    {(_.isFunction(buttonLabel) ? buttonLabel() : buttonLabel) || (_.isFunction(cmd?.toolbarName) ? cmd.toolbarName() : cmd.toolbarName) || (_.isFunction(cmd?.name) ? cmd.name() : cmd.name)}
   </svelte:component>
 {/if}

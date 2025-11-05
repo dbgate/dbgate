@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'tableEditor.addColumn',
-    category: 'Table editor',
-    name: 'Add column',
+    category: __t('tableEditor', { defaultMessage: 'Table editor'}),
+    name: __t('tableEditor.addColumn', { defaultMessage: 'Add column'}),
     icon: 'icon add-column',
     toolbar: true,
     isRelatedToTab: true,
@@ -14,8 +14,8 @@
 
   registerCommand({
     id: 'tableEditor.addPrimaryKey',
-    category: 'Table editor',
-    name: 'Add primary key',
+    category: __t('tableEditor', { defaultMessage: 'Table editor'}),
+    name: __t('tableEditor.addPrimaryKey', { defaultMessage: 'Add primary key'}),
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
@@ -25,8 +25,8 @@
 
   registerCommand({
     id: 'tableEditor.addForeignKey',
-    category: 'Table editor',
-    name: 'Add foreign key',
+    category: __t('tableEditor', { defaultMessage: 'Table editor'}),
+    name: __t('tableEditor.addForeignKey', { defaultMessage: 'Add foreign key'}),
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
@@ -36,8 +36,8 @@
 
   registerCommand({
     id: 'tableEditor.addIndex',
-    category: 'Table editor',
-    name: 'Add index',
+    category: __t('tableEditor', { defaultMessage: 'Table editor'}),
+    name: __t('tableEditor.addIndex', { defaultMessage: 'Add index'}),
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
@@ -47,8 +47,8 @@
 
   registerCommand({
     id: 'tableEditor.addUnique',
-    category: 'Table editor',
-    name: 'Add unique',
+    category: __t('tableEditor', { defaultMessage: 'Table editor'}),
+    name: __t('tableEditor.addUnique', { defaultMessage: 'Add unique'}),
     icon: 'icon add-key',
     toolbar: true,
     isRelatedToTab: true,
@@ -83,6 +83,7 @@
   import UniqueEditorModal from './UniqueEditorModal.svelte';
   import ObjectFieldsEditor from '../elements/ObjectFieldsEditor.svelte';
   import PrimaryKeyLikeListControl from './PrimaryKeyLikeListControl.svelte';
+  import { __t, _t } from '../translations';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -171,9 +172,9 @@
   {#if tableInfo && (tableFormOptions || isCreateTable)}
     {#key resetCounter}
       <ObjectFieldsEditor
-        title="Table properties"
+        title={_t('tableEditor.tableproperties', { defaultMessage: 'Table properties' })}
         fieldDefinitions={tableFormOptions ?? []}
-        pureNameTitle={isCreateTable ? 'Table name' : null}
+        pureNameTitle={isCreateTable ? _t('tableEditor.tablename', { defaultMessage: 'Table name' }) : null}
         schemaList={isCreateTable && schemaList?.length >= 0 ? schemaList : null}
         values={_.pick(tableInfo, ['schemaName', 'pureName', ...(tableFormOptions ?? []).map(x => x.name)])}
         onChangeValues={vals => {
@@ -187,15 +188,15 @@
 
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
-    title={`Columns (${columns?.length || 0})`}
-    emptyMessage="No columns defined"
+    title={_t('tableEditor.columns', { defaultMessage: 'Columns ({columnCount})', values: { columnCount: columns?.length || 0 } })}
+    emptyMessage={_t('tableEditor.nocolumnsdefined', { defaultMessage: 'No columns defined' })}
     clickable
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={isWritable ? addColumn : null}
     displayNameFieldName="columnName"
     multipleItemsActions={[
       {
-        text: 'Remove',
+        text: _t('tableEditor.remove', { defaultMessage: 'Remove' }),
         icon: 'icon delete',
         onClick: selected => {
           setTableInfo(tbl => {
@@ -205,7 +206,7 @@
         },
       },
       {
-        text: 'Copy names',
+        text: _t('tableEditor.copynames', { defaultMessage: 'Copy names' }),
         icon: 'icon copy',
         onClick: selected => {
           const names = selected.map(x => x.columnName).join('\n');
@@ -213,7 +214,7 @@
         },
       },
       {
-        text: 'Copy definitions',
+        text: _t('tableEditor.copydefinitions', { defaultMessage: 'Copy definitions' }),
         icon: 'icon copy',
         onClick: selected => {
           const names = selected
@@ -226,55 +227,55 @@
     columns={[
       !driver?.dialect?.specificNullabilityImplementation && {
         fieldName: 'notNull',
-        header: 'Nullability',
+        header: _t('tableEditor.nullability', { defaultMessage: 'Nullability' }),
         sortable: true,
         slot: 0,
       },
       {
         fieldName: 'dataType',
-        header: 'Data Type',
+        header: _t('tableEditor.dataType', { defaultMessage: 'Data type' }),
         sortable: true,
         filterable: true,
       },
       {
         fieldName: 'defaultValue',
-        header: 'Default value',
+        header: _t('tableEditor.defaultValue', { defaultMessage: 'Default value' }),
         sortable: true,
         filterable: true,
       },
       driver?.dialect?.columnProperties?.isSparse && {
         fieldName: 'isSparse',
-        header: 'Is Sparse',
+        header: _t('tableEditor.isSparse', { defaultMessage: 'Is Sparse' }),
         sortable: true,
         slot: 1,
       },
       {
         fieldName: 'computedExpression',
-        header: 'Computed Expression',
+        header: _t('tableEditor.computedExpression', { defaultMessage: 'Computed Expression' }),
         sortable: true,
         filterable: true,
       },
       driver?.dialect?.columnProperties?.isPersisted && {
         fieldName: 'isPersisted',
-        header: 'Is Persisted',
+        header: _t('tableEditor.isPersisted', { defaultMessage: 'Is Persisted' }),
         sortable: true,
         slot: 2,
       },
       driver?.dialect?.columnProperties?.isUnsigned && {
         fieldName: 'isUnsigned',
-        header: 'Unsigned',
+        header: _t('tableEditor.isUnsigned', { defaultMessage: 'Unsigned' }),
         sortable: true,
         slot: 4,
       },
       driver?.dialect?.columnProperties?.isZerofill && {
         fieldName: 'isZerofill',
-        header: 'Zero fill',
+        header: _t('tableEditor.isZeroFill', { defaultMessage: 'Zero fill' }),
         sortable: true,
         slot: 5,
       },
       driver?.dialect?.columnProperties?.columnComment && {
         fieldName: 'columnComment',
-        header: 'Comment',
+        header: _t('tableEditor.columnComment', { defaultMessage: 'Comment' }),
         sortable: true,
         filterable: true,
       },
@@ -287,19 +288,19 @@
         : null,
     ]}
   >
-    <svelte:fragment slot="0" let:row>{row?.notNull ? 'NOT NULL' : 'NULL'}</svelte:fragment>
-    <svelte:fragment slot="1" let:row>{row?.isSparse ? 'YES' : 'NO'}</svelte:fragment>
-    <svelte:fragment slot="2" let:row>{row?.isPersisted ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="0" let:row>{row?.notNull ? _t('tableEditor.notnull', { defaultMessage: 'NOT NULL' }) : _t('tableEditor.null', { defaultMessage: 'NULL' })}</svelte:fragment>
+    <svelte:fragment slot="1" let:row>{row?.isSparse ? _t('tableEditor.yes', { defaultMessage: 'YES' }) : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment>
+    <svelte:fragment slot="2" let:row>{row?.isPersisted ? _t('tableEditor.yes', { defaultMessage: 'YES' }) : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment>
     <svelte:fragment slot="3" let:row
       ><Link
         onClick={e => {
           e.stopPropagation();
           setTableInfo(tbl => editorDeleteColumn(tbl, row));
-        }}>Remove</Link
+        }}>{_t('tableEditor.remove', { defaultMessage: 'Remove' })}</Link
       ></svelte:fragment
     >
-    <svelte:fragment slot="4" let:row>{row?.isUnsigned ? 'YES' : 'NO'}</svelte:fragment>
-    <svelte:fragment slot="5" let:row>{row?.isZerofill ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="4" let:row>{row?.isUnsigned ? _t('tableEditor.yes', { defaultMessage: 'YES' }) : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment>
+    <svelte:fragment slot="5" let:row>{row?.isZerofill ? _t('tableEditor.yes', { defaultMessage: 'YES' }) : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment>
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
 
@@ -320,20 +321,20 @@
     <ObjectListControl
       collection={indexes}
       onAddNew={isWritable && columns?.length > 0 ? addIndex : null}
-      title={`Indexes (${indexes?.length || 0})`}
-      emptyMessage={isWritable ? 'No index defined' : null}
+      title={_t('tableEditor.indexes', { defaultMessage: 'Indexes ({indexCount})', values: { indexCount: indexes?.length || 0 } })}
+      emptyMessage={isWritable ? _t('tableEditor.noindexdefined', { defaultMessage: 'No index defined' }) : null}
       clickable
       on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, driver })}
       columns={[
         {
           fieldName: 'columns',
-          header: 'Columns',
+          header: _t('tableEditor.columns', { defaultMessage: 'Columns' }),
           slot: 0,
           sortable: true,
         },
         {
           fieldName: 'unique',
-          header: 'Unique',
+          header: _t('tableEditor.unique', { defaultMessage: 'Unique' }),
           slot: 1,
           sortable: true,
         },
@@ -347,13 +348,13 @@
     >
       <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
       <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-      <svelte:fragment slot="1" let:row>{row?.isUnique ? 'YES' : 'NO'}</svelte:fragment>
+      <svelte:fragment slot="1" let:row>{row?.isUnique ? _t('tableEditor.yes', { defaultMessage: 'YES' }) : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment>
       <svelte:fragment slot="2" let:row
         ><Link
           onClick={e => {
             e.stopPropagation();
             setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-          }}>Remove</Link
+          }}>{_t('common.remove', { defaultMessage: 'Remove' })}</Link
         ></svelte:fragment
       >
     </ObjectListControl>
@@ -363,14 +364,14 @@
     <ObjectListControl
       collection={uniques}
       onAddNew={isWritable && columns?.length > 0 ? addUnique : null}
-      title={`Unique constraints (${uniques?.length || 0})`}
-      emptyMessage={isWritable ? 'No unique defined' : null}
+      title={_t('tableEditor.uniqueConstraints', { defaultMessage: 'Unique constraints ({constraintCount})', values: { constraintCount: uniques?.length || 0 } })}
+      emptyMessage={isWritable ? _t('tableEditor.nouniquedefined', { defaultMessage: 'No unique defined' }) : null}
       clickable
       on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
       columns={[
         {
           fieldName: 'columns',
-          header: 'Columns',
+          header: _t('tableEditor.columns', { defaultMessage: 'Columns' }),
           slot: 0,
           sortable: true,
         },
@@ -390,7 +391,7 @@
           onClick={e => {
             e.stopPropagation();
             setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-          }}>Remove</Link
+          }}>{_t('common.remove', { defaultMessage: 'Remove' })}</Link
         ></svelte:fragment
       >
     </ObjectListControl>
@@ -400,13 +401,13 @@
     <ForeignKeyObjectListControl
       collection={foreignKeys}
       onAddNew={isWritable && columns?.length > 0 ? addForeignKey : null}
-      title={`Foreign keys (${foreignKeys?.length || 0})`}
-      emptyMessage={isWritable ? 'No foreign key defined' : null}
+      title={_t('tableEditor.foreignKeys', { defaultMessage: 'Foreign keys ({foreignKeyCount})', values: { foreignKeyCount: foreignKeys?.length || 0 } })}
+      emptyMessage={isWritable ? _t('tableEditor.noforeignkeydefined', { defaultMessage: 'No foreign key defined' }) : null}
       clickable
       onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
       on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
     />
-    <ForeignKeyObjectListControl collection={dependencies} title="Dependencies" />
+    <ForeignKeyObjectListControl collection={dependencies} title={_t('tableEditor.dependencies', { defaultMessage: 'Dependencies' })} />
   {/if}
 </div>
 

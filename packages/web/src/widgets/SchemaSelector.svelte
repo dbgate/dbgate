@@ -113,7 +113,7 @@
         ? (schemaList?.map(x => ({ label: x.schemaName, value: x.schemaName })) ?? [])
         : [
             {
-              label: _t('schema.all_schemas', {
+              label: _t('schema.allSchemas', {
                 defaultMessage: 'All schemas ({count})',
                 values: { count: objectList?.length ?? 0 },
               }),

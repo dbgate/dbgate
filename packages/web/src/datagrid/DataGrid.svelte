@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'dataGrid.switchToForm',
-    category: 'Data grid',
-    name: 'Switch to form',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.switchToform', { defaultMessage: 'Switch to form' }),
     icon: 'icon form',
     keyText: 'F4',
     testEnabled: () => getCurrentEditor()?.switchViewEnabled('form'),
@@ -13,8 +13,8 @@
 
   registerCommand({
     id: 'dataGrid.switchToJson',
-    category: 'Data grid',
-    name: 'Switch to JSON',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.switchToJSON', { defaultMessage: 'Switch to JSON' }),
     icon: 'icon json',
     keyText: 'F4',
     testEnabled: () => getCurrentEditor()?.switchViewEnabled('json'),
@@ -23,8 +23,8 @@
 
   registerCommand({
     id: 'dataGrid.switchToTable',
-    category: 'Data grid',
-    name: 'Switch to table',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.witchToTable', { defaultMessage: 'Switch to table'}),
     icon: 'icon table',
     keyText: 'F4',
     testEnabled: () => getCurrentEditor()?.switchViewEnabled('table'),
@@ -33,8 +33,8 @@
 
   registerCommand({
     id: 'dataGrid.toggleLeftPanel',
-    category: 'Data grid',
-    name: 'Toggle left panel',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.toggleLeftPanel', { defaultMessage: 'Toggle left panel' }),
     keyText: 'CtrlOrCommand+L',
     testEnabled: () => getCurrentEditor()?.canShowLeftPanel(),
     onClick: () => getCurrentEditor().toggleLeftPanel(),
@@ -68,6 +68,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import { __t, _t } from '../translations';
   import { isProApp } from '../utility/proTools';
 
   export let config;
@@ -174,7 +175,7 @@
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem
-        title="Columns"
+        title={_t('dataGrid.columns', { defaultMessage: 'Columns' })}
         name="columns"
         height="45%"
         skip={isFormView}
@@ -184,7 +185,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="Filters"
+        title={_t('dataGrid.filters', { defaultMessage: 'Filters' })}
         name="filters"
         height={showReferences && display?.hasReferences && !isFormView ? '15%' : '30%'}
         skip={!display?.filterable}
@@ -202,7 +203,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="References"
+        title={_t('dataGrid.references', { defaultMessage: 'References' })}
         name="references"
         height="30%"
         collapsed={isDetailView}
@@ -213,7 +214,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
-        title="Macros"
+        title={_t('dataGrid.macros', { defaultMessage: 'Macros' })}
         name="macros"
         skip={!(showMacros && isProApp())}
         collapsed={!expandMacros}

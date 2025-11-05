@@ -27,7 +27,7 @@
   import SettingsListener from './utility/SettingsListener.svelte';
   import { handleAuthOnStartup } from './clientAuth';
   import { initializeAppUpdates } from './utility/appUpdate';
-  import { _t } from './translations';
+  import { _t, saveSelectedLanguageToCache } from './translations';
   import { installCloudListeners } from './utility/cloudListeners';
 
   export let isAdminPage = false;
@@ -61,6 +61,7 @@
         initializeAppUpdates();
         installCloudListeners();
         refreshPublicCloudFiles();
+        saveSelectedLanguageToCache();
       }
 
       loadedApi = loadedApiValue;

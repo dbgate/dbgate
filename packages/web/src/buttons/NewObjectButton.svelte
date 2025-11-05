@@ -1,6 +1,7 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
   import { isProApp } from '../utility/proTools';
+  import { _t } from '../translations';
 
   export let icon;
   export let title;
@@ -21,7 +22,7 @@
   data-testid={$$props['data-testid']}
   title={disabled
     ? isProFeature && !isProApp()
-      ? 'This feature is available only in DbGate Premium'
+      ? _t('common.featurePremium', { defaultMessage: 'This feature is available only in DbGate Premium' })
       : disabledMessage
     : undefined}
 >
