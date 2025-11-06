@@ -81,3 +81,7 @@ export function _t(key: string, options: TranslateOptions): string {
 export function __t(key: string, options: TranslateOptions): () => string {
   return () => _t(key, options);
 }
+
+export function _val<T>(x: T | (() => T)): T {
+  return typeof x === 'function' ? (x as () => T)() : x;
+}
