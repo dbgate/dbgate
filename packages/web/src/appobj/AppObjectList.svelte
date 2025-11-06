@@ -38,19 +38,20 @@
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
 
-  $: dataLabeled = _.compact(
-    (list || []).map(data => {
-      const dataCopy = {...data,
-        group: (data?.group && _.isFunction(data.group)) ? data.group() : data.group,
-        title: (data?.title && _.isFunction(data.title)) ? data.title() : data.title,
-        description: (data?.description && _.isFunction(data.description)) ? data.description() : data.description,
-        args: (data?.args || []).map(x => ({
-          ...x,
-          label: (x?.label && _.isFunction(x.label)) ? x.label() : x.label,
-        }))
-      };
+  $: listTranslated = (list || []).map(data => ({
+    ...data,
+    group: data?.group && _.isFunction(data.group) ? data.group() : data.group,
+    title: data?.title && _.isFunction(data.title) ? data.title() : data.title,
+    description: data?.description && _.isFunction(data.description) ? data.description() : data.description,
+    args: (data?.args || []).map(x => ({
+      ...x,
+      label: x?.label && _.isFunction(x.label) ? x.label() : x.label,
+    })),
+  }));
 
-      const matchResult = matcher ? matcher(dataCopy) : true;
+  $: dataLabeled = _.compact(
+    (listTranslated || []).map(data => {
+      const matchResult = matcher ? matcher(data) : true;
 
       let isMatched = true;
       let isMainMatched = true;
@@ -72,8 +73,8 @@
         isChildMatched = !module.disableShowChildrenWithParentMatch;
       }
 
-      const group = groupFunc ? groupFunc(dataCopy) : undefined;
-      return { group, data: dataCopy, isMatched, isChildMatched, isMainMatched };
+      const group = groupFunc ? groupFunc(data) : undefined;
+      return { group, data, isMatched, isChildMatched, isMainMatched };
     })
   );
 
@@ -112,7 +113,8 @@
 
   $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
 
-  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : list;
+  $: listLimited =
+    isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : listTranslated;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
   $: listMissingItems = isListLimited ? filtered.slice(listLimited.length) : [];
 
