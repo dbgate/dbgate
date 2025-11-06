@@ -129,6 +129,7 @@ const drivers = driverBases.map(driverBase => ({
           message: `${row.affectedRows} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: row.affectedRows,
         });
         if (row.stateChanges?.schema) {
           options.changedCurrentDatabase(row.stateChanges.schema);

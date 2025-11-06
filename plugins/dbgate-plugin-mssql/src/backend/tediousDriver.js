@@ -165,6 +165,7 @@ async function tediousReadQuery(dbhan, sql, structure) {
 
 async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
+  let skipAffectedMessage = false;
 
   const handleInfo = info => {
     const { message, lineNumber, procName } = info;
@@ -200,11 +201,14 @@ async function tediousStream(dbhan, sql, options) {
     dbhan.client.off('infoMessage', handleInfo);
     dbhan.client.off('errorMessage', handleError);
 
-    options.info({
-      message: `${rowCount} rows affected`,
-      time: new Date(),
-      severity: 'info',
-    });
+    if (!skipAffectedMessage) {
+      options.info({
+        message: `${rowCount} rows affected`,
+        time: new Date(),
+        severity: 'info',
+        rowsAffected: rowCount,
+      });
+    }
   });
   request.on('columnMetadata', function (columns) {
     currentColumns = extractTediousColumns(columns);
@@ -216,6 +220,7 @@ async function tediousStream(dbhan, sql, options) {
       columns.map(x => x.value)
     );
     options.row(row);
+    skipAffectedMessage = true;
   });
   dbhan.client.execSqlBatch(request);
 }

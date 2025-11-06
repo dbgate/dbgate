@@ -232,6 +232,7 @@ const drivers = driverBases.map(driverBase => ({
           message: `${rowCount} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: rowCount,
         });
       }
 

@@ -27,6 +27,7 @@ function runStreamItem(dbhan, sql, options, rowCounter) {
         message: `${rowCounter.count} rows affected`,
         time: new Date(),
         severity: 'info',
+        rowsAffected: rowCounter.count,
       });
       rowCounter.count = 0;
       rowCounter.date = null;
