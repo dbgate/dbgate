@@ -136,9 +136,9 @@ class Dumper extends SqlDumper {
   //   else super.putValue(value);
   // }
 
-  // putByteArrayValue(value) {
-  //   this.putRaw(`e'\\\\x${arrayToHexString(value)}'`);
-  // }
+  putByteArrayValue(value) {
+    this.putRaw(`HEXTORAW('${arrayToHexString(value)}')`);
+  }
 
   putValue(value, dataType) {
     if (dataType?.toLowerCase() == 'timestamp') {
