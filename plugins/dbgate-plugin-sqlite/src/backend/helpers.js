@@ -1,6 +1,6 @@
 // @ts-check
 
-function runStreamItem(dbhan, sql, options, rowCounter) {
+function runStreamItem(dbhan, sql, options, rowCounter, engine) {
   const stmt = dbhan.client.prepare(sql);
   console.log(stmt);
   console.log(stmt.reader);
@@ -12,11 +12,12 @@ function runStreamItem(dbhan, sql, options, rowCounter) {
       columns.map((col) => ({
         columnName: col.name,
         dataType: col.type,
-      }))
+      })),
+      { engine }
     );
 
     for (const row of stmt.iterate()) {
-      options.row(row);
+      options.row(modifyRow(row, columns));
     }
   } else {
     const info = stmt.run();
@@ -43,7 +44,17 @@ async function waitForDrain(stream) {
   });
 }
 
+function modifyRow(row, columns) {
+  columns.forEach((col) => {
+    if (row[col.name] instanceof Uint8Array) {
+      row[col.name] = { $binary: { base64: row[col.name].toString('base64') } };
+    }
+  });
+  return row;
+}
+
 module.exports = {
   runStreamItem,
   waitForDrain,
+  modifyRow,
 };

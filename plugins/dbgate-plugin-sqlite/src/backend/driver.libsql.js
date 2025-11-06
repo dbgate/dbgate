@@ -4,7 +4,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
-const { runStreamItem, waitForDrain } = require('./helpers');
+const { runStreamItem, waitForDrain, modifyRow } = require('./helpers');
 const { getLogger, createBulkInsertStreamBase, extractErrorLogData } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('sqliteDriver');
@@ -51,7 +51,7 @@ const libsqlDriver = {
     const columns = stmtColumns.length > 0 ? stmtColumns : extractColumns(rows[0]);
 
     return {
-      rows,
+      rows: rows.map((row) => modifyRow(row, columns)),
       columns: columns.map((col) => ({
         columnName: col.name,
         dataType: col.type,
@@ -66,7 +66,7 @@ const libsqlDriver = {
     console.log('#stream', sql);
     const inTransaction = dbhan.client.transaction(() => {
       for (const sqlItem of sqlSplitted) {
-        runStreamItem(dbhan, sqlItem, options, rowCounter);
+        runStreamItem(dbhan, sqlItem, options, rowCounter, driverBases[1].engine);
       }
 
       if (rowCounter.date) {
@@ -114,9 +114,10 @@ const libsqlDriver = {
 
   async readQueryTask(stmt, pass) {
     // let sent = 0;
+    const columns = stmt.columns();
     for (const row of stmt.iterate()) {
       // sent++;
-      if (!pass.write(row)) {
+      if (!pass.write(modifyRow(row, columns))) {
         // console.log('WAIT DRAIN', sent);
         await waitForDrain(pass);
       }
@@ -134,6 +135,7 @@ const libsqlDriver = {
 
     pass.write({
       __isStreamHeader: true,
+      engine: driverBases[1].engine,
       ...(structure || {
         columns: columns.map((col) => ({
           columnName: col.name,
