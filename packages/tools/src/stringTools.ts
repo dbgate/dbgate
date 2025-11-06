@@ -51,6 +51,11 @@ export function base64ToHex(base64String) {
   return '0x' + hexString.toUpperCase();
 };
 
+export function hexToBase64(hexString) {
+  const binaryString = hexString.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+  return btoa(binaryString);
+}
+
 export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
@@ -62,9 +67,10 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
       return {
-        type: 'Buffer',
-        data: hexStringToArray(value.substring(2)),
-      };
+        $binary: {
+          base64: hexToBase64(value.substring(2))
+        }
+      }
     }
   }
 
@@ -246,10 +252,11 @@ export function stringifyCellValue(
   }
 
   if (editorTypes?.parseHexAsBuffer) {
-    if (value?.type == 'Buffer' && _isArray(value.data)) {
-      return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
-    }
+    // if (value?.type == 'Buffer' && _isArray(value.data)) {
+    //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
+    // }
   }
+  
   if (editorTypes?.parseObjectIdAsDollar) {
     if (value?.$oid) {
       switch (intent) {

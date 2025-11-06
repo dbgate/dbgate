@@ -21,7 +21,7 @@ function extractColumns(fields) {
   return null;
 }
 
-function transformRow(row, columns) {
+function modifyRow(row, columns) {
   columns.forEach((col) => {
     if (Buffer.isBuffer(row[col.columnName])) {
       row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
@@ -106,7 +106,7 @@ const drivers = driverBases.map(driverBase => ({
       dbhan.client.query(sql, function (error, results, fields) {
         if (error) reject(error);
         const columns = extractColumns(fields);   
-        resolve({ rows: results && columns && results.map && results.map(row => transformRow(zipDataRow(row, columns), columns)), columns });
+        resolve({ rows: results && columns && results.map && results.map(row => modifyRow(zipDataRow(row, columns), columns)), columns });
       });
     });
   },
@@ -139,7 +139,7 @@ const drivers = driverBases.map(driverBase => ({
         options.recordset(columns, { engine: driverBase.engine });
       } else {
         if (columns) {
-          options.row(transformRow(zipDataRow(row, columns), columns));
+          options.row(modifyRow(zipDataRow(row, columns), columns));
         }
       }
     };
@@ -184,7 +184,7 @@ const drivers = driverBases.map(driverBase => ({
           ...(structure || { columns }),
         });
       })
-      .on('result', row => pass.write(transformRow(zipDataRow(row, columns), columns)))
+      .on('result', row => pass.write(modifyRow(zipDataRow(row, columns), columns)))
       .on('end', () => pass.end());
 
     return pass;

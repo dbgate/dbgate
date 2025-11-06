@@ -79,7 +79,12 @@ export class SqlDumper implements AlterProcessor {
     else if (_isDate(value)) this.putStringValue(new Date(value).toISOString());
     else if (value?.type == 'Buffer' && _isArray(value?.data)) this.putByteArrayValue(value?.data);
     else if (value?.$binary?.base64) {
-      this.putByteArrayValue(Array.from(Buffer.from(value.$binary.base64, 'base64')));
+      const binary = atob(value.$binary.base64);
+      const bytes = new Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      this.putByteArrayValue(bytes);
     }
     else if (value?.$bigint) this.putRaw(value?.$bigint);
     else if (_isPlainObject(value) || _isArray(value)) this.putStringValue(JSON.stringify(value));
