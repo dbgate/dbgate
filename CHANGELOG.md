@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.10
+- FIXED: License fron environment variable is not refreshed #1245
+- FIXED: connection closing / reconnecting #1237
+- ADDED: retain history across multiple queries #1236
+- ADDED: load CSVs to temp tables #1235
+- FIXED: Not possible to scroll the data view horizontally by pressing shift and scroll mouse middle button on Mac #453
+- FIXED: Expired trial workflow (Premium)
+- ADDED: Column name collision resolving #1234 (MySQL)
+ 
 ## 6.6.8
 - CHANGED: Windows executable now uses Azure trusted signing certificate
 - CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
