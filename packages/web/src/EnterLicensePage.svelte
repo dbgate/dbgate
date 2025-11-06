@@ -32,7 +32,7 @@
   // $: console.log('CONFIG', $config);
 
   $: {
-    if ($config?.isLicenseValid) {
+    if ($config?.isLicenseValid && trialDaysLeft == null) {
       internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
     }
   }
