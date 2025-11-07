@@ -85,7 +85,7 @@ function formatKeyText(keyText) {
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
-function commandItem(item, isModalOpened = false) {
+function commandItem(item, disableAll = false) {
   const id = item.command;
   const command = commands[id];
   if (item.skipInApp) {
@@ -95,7 +95,7 @@ function commandItem(item, isModalOpened = false) {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
-    enabled: command ? command.enabled && !isModalOpened : false,
+    enabled: command ? command.enabled && !disableAll : false,
     click() {
       if (mainWindow) {
         mainWindow.webContents.send('run-command', id);
@@ -107,14 +107,14 @@ function commandItem(item, isModalOpened = false) {
   };
 }
 
-function buildMenu(isModalOpened = false) {
+function buildMenu(disableAll = false) {
   let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac() }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
 
     if (item.command) {
-      return commandItem(item, isModalOpened);
+      return commandItem(item, disableAll);
     }
   });
 
@@ -129,7 +129,7 @@ function buildMenu(isModalOpened = false) {
       {
         label: 'DbGate',
         submenu: [
-          commandItem({ command: 'about.show' }, isModalOpened),
+          commandItem({ command: 'about.show' }, disableAll),
           { role: 'services' },
           { role: 'hide' },
           { role: 'hideOthers' },
@@ -148,6 +148,7 @@ ipcMain.on('update-commands', async (event, arg) => {
   const parsed = JSON.parse(arg);
   commands = parsed.commands;
   const isModalOpened = parsed.isModalOpened;
+  const dbgatePage = parsed.dbgatePage;
   for (const key of Object.keys(commands)) {
     const menu = mainMenu.getMenuItemById(key);
     if (!menu) continue;
@@ -155,14 +156,14 @@ ipcMain.on('update-commands', async (event, arg) => {
 
     // rebuild menu
     if (menu.label != command.text || menu.accelerator != command.keyText) {
-      mainMenu = buildMenu(isModalOpened);
+      mainMenu = buildMenu(isModalOpened || !!dbgatePage);
 
       Menu.setApplicationMenu(mainMenu);
       // mainWindow.setMenu(mainMenu);
       return;
     }
 
-    menu.enabled = command.enabled && !isModalOpened;
+    menu.enabled = command.enabled && !isModalOpened && !dbgatePage;
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {

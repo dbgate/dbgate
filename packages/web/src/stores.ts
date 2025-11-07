@@ -346,6 +346,7 @@ function dispatchUpdateCommands() {
       JSON.stringify({
         isModalOpened: openedModalsValue?.length > 0,
         commands: commandsValue,
+        dbgatePage: window['dbgate_page'],
       })
     );
   }
