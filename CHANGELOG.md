@@ -8,8 +8,12 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.11
+- FIXED: Fixed theming on application startup
+- CHANGED: Improved licensing page
+
 ## 6.6.10
-- FIXED: License fron environment variable is not refreshed #1245
+- FIXED: License from environment variable is not refreshed #1245
 - FIXED: connection closing / reconnecting #1237
 - ADDED: retain history across multiple queries #1236
 - ADDED: load CSVs to temp tables #1235
