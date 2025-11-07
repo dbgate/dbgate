@@ -8,6 +8,7 @@
   import Link from '../elements/Link.svelte';
   import { focusedConnectionOrDatabase } from '../stores';
   import { tick } from 'svelte';
+  import { _val } from '../translations';
 
   export let list;
   export let module;
@@ -40,12 +41,12 @@
 
   $: listTranslated = (list || []).map(data => ({
     ...data,
-    group: data?.group && _.isFunction(data.group) ? data.group() : data.group,
-    title: data?.title && _.isFunction(data.title) ? data.title() : data.title,
-    description: data?.description && _.isFunction(data.description) ? data.description() : data.description,
+    group: data?.group && _val(data.group),
+    title: data?.title && _val(data.title),
+    description: data?.description && _val(data.description),
     args: (data?.args || []).map(x => ({
       ...x,
-      label: x?.label && _.isFunction(x.label) ? x.label() : x.label,
+      label: x?.label && _val(x.label),
     })),
   }));
 

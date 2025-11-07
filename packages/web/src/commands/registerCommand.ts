@@ -1,6 +1,7 @@
 import { commands } from '../stores';
 import { invalidateCommandDefinitions } from './invalidateCommands';
 import _ from 'lodash';
+import { _val } from '../translations';
 
 export interface SubCommand {
   text: string;
@@ -43,11 +44,9 @@ export default function registerCommand(command: GlobalCommand) {
       ...x,
       [command.id]: {
         text:
-          _.isFunction(command.category) || _.isFunction(command.name)
+          _val(command.category) || _val(command.name)
             ? () =>
-                `${_.isFunction(command.category) ? command.category() : command.category}: ${
-                  _.isFunction(command.name) ? command.name() : command.name
-                }`
+                `${_val(command.category)}: ${_val(command.name)}`
             : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,
