@@ -228,6 +228,12 @@ currentTheme.subscribe(value => {
 });
 export const getCurrentTheme = () => currentThemeValue;
 
+let extensionsValue: ExtensionsDirectory = null;
+extensions.subscribe(value => {
+  extensionsValue = value;
+});
+export const getExtensions = () => extensionsValue;
+
 export const currentThemeDefinition = derived(
   [currentTheme, extensions, systemThemeStore],
   ([$currentTheme, $extensions, $systemTheme]) => {
@@ -239,7 +245,9 @@ currentThemeDefinition.subscribe(value => {
   if (value?.themeType && getCurrentTheme()) {
     localStorage.setItem('currentThemeType', value?.themeType);
   } else {
-    localStorage.removeItem('currentThemeType');
+    if (extensionsValue?.themes?.length > 0) {
+      localStorage.removeItem('currentThemeType');
+    }
   }
 });
 export const openedConnectionsWithTemporary = derived(
@@ -387,12 +395,6 @@ export const getCurrentDatabase = () => currentDatabaseValue;
 
 let currentSettingsValue = null;
 export const getCurrentSettings = () => currentSettingsValue || {};
-
-let extensionsValue: ExtensionsDirectory = null;
-extensions.subscribe(value => {
-  extensionsValue = value;
-});
-export const getExtensions = () => extensionsValue;
 
 let openedConnectionsValue = null;
 openedConnections.subscribe(value => {
