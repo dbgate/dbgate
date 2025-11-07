@@ -6,8 +6,9 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
-  export let title = 'Error';
+  export let title = _t('common.error', { defaultMessage: 'Error' });
   export let message;
   export let showAsCode = false;
 </script>
@@ -30,7 +31,7 @@
     {/if}
 
     <div slot="footer">
-      <FormSubmit value="Close" on:click={closeCurrentModal} data-testid="ErrorMessageModal_closeButton" />
+      <FormSubmit value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} data-testid="ErrorMessageModal_closeButton" />
     </div>
   </ModalBase>
 </FormProvider>
