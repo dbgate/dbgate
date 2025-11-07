@@ -9,6 +9,7 @@ import { safeJsonParse } from 'dbgate-tools';
 import { apiCall } from './utility/api';
 import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
 import { switchCurrentDatabase } from './utility/common';
+import { tick } from 'svelte';
 
 export interface TabDefinition {
   title: string;
@@ -189,7 +190,6 @@ export const cloudConnectionsStore = writable({});
 
 export const promoWidgetPreview = writable(null);
 
-
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
   schemaName: false,
@@ -310,16 +310,38 @@ openedTabs.subscribe(value => {
 });
 export const getOpenedTabs = () => openedTabsValue;
 
+let openedModalsValue = [];
+openedModals.subscribe(value => {
+  openedModalsValue = value;
+
+  tick().then(() => {
+    dispatchUpdateCommands();
+  });
+});
+export const getOpenedModals = () => openedModalsValue;
+
 let commandsValue = null;
 commands.subscribe(value => {
   commandsValue = value;
 
-  const electron = getElectron();
-  if (electron) {
-    electron.send('update-commands', JSON.stringify(value));
-  }
+  tick().then(() => {
+    dispatchUpdateCommands();
+  });
 });
 export const getCommands = () => commandsValue;
+
+function dispatchUpdateCommands() {
+  const electron = getElectron();
+  if (electron) {
+    electron.send(
+      'update-commands',
+      JSON.stringify({
+        isModalOpened: openedModalsValue?.length > 0,
+        commands: commandsValue,
+      })
+    );
+  }
+}
 
 let activeTabValue = null;
 activeTab.subscribe(value => {
@@ -417,12 +439,6 @@ selectedDatabaseObjectAppObject.subscribe(value => {
   selectedDatabaseObjectAppObjectValue = value;
 });
 export const getSelectedDatabaseObjectAppObject = () => selectedDatabaseObjectAppObjectValue;
-
-let openedModalsValue = [];
-openedModals.subscribe(value => {
-  openedModalsValue = value;
-});
-export const getOpenedModals = () => openedModalsValue;
 
 let focusedConnectionOrDatabaseValue = null;
 focusedConnectionOrDatabase.subscribe(value => {

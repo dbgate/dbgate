@@ -85,7 +85,7 @@ function formatKeyText(keyText) {
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
-function commandItem(item) {
+function commandItem(item, isModalOpened = false) {
   const id = item.command;
   const command = commands[id];
   if (item.skipInApp) {
@@ -95,7 +95,7 @@ function commandItem(item) {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
-    enabled: command ? command.enabled : false,
+    enabled: command ? command.enabled && !isModalOpened : false,
     click() {
       if (mainWindow) {
         mainWindow.webContents.send('run-command', id);
@@ -107,14 +107,14 @@ function commandItem(item) {
   };
 }
 
-function buildMenu() {
+function buildMenu(isModalOpened = false) {
   let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac() }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
 
     if (item.command) {
-      return commandItem(item);
+      return commandItem(item, isModalOpened);
     }
   });
 
@@ -129,7 +129,7 @@ function buildMenu() {
       {
         label: 'DbGate',
         submenu: [
-          commandItem({ command: 'about.show' }),
+          commandItem({ command: 'about.show' }, isModalOpened),
           { role: 'services' },
           { role: 'hide' },
           { role: 'hideOthers' },
@@ -145,7 +145,9 @@ function buildMenu() {
 }
 
 ipcMain.on('update-commands', async (event, arg) => {
-  commands = JSON.parse(arg);
+  const parsed = JSON.parse(arg);
+  commands = parsed.commands;
+  const isModalOpened = parsed.isModalOpened;
   for (const key of Object.keys(commands)) {
     const menu = mainMenu.getMenuItemById(key);
     if (!menu) continue;
@@ -153,14 +155,14 @@ ipcMain.on('update-commands', async (event, arg) => {
 
     // rebuild menu
     if (menu.label != command.text || menu.accelerator != command.keyText) {
-      mainMenu = buildMenu();
+      mainMenu = buildMenu(isModalOpened);
 
       Menu.setApplicationMenu(mainMenu);
       // mainWindow.setMenu(mainMenu);
       return;
     }
 
-    menu.enabled = command.enabled;
+    menu.enabled = command.enabled && !isModalOpened;
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {
@@ -408,7 +410,7 @@ function createWindow() {
       }
     });
 
-    // mainWindow.webContents.toggleDevTools();
+    mainWindow.webContents.toggleDevTools();
 
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
