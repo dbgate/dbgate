@@ -410,7 +410,7 @@ function createWindow() {
       }
     });
 
-    mainWindow.webContents.toggleDevTools();
+    // mainWindow.webContents.toggleDevTools();
 
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
