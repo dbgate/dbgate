@@ -14,6 +14,7 @@
   import ErrorInfo from './elements/ErrorInfo.svelte';
   import { isOneOfPage } from './utility/pageDefs';
   import { openWebLink } from './utility/simpleTools';
+  import FontIcon from './icons/FontIcon.svelte';
 
   const config = useConfig();
   const values = writable({ amoid: null, databaseServer: null });
@@ -22,12 +23,10 @@
   $: trialDaysLeft = $config?.trialDaysLeft;
 
   let errorMessage = '';
-  let expiredMessageSet = false;
 
-  $: if (isExpired && !expiredMessageSet) {
-    errorMessage = 'Your license is expired';
-    expiredMessageSet = true;
-  }
+  let isInsertingLicense = false;
+
+  $: trialButtonAvailable = !isExpired && trialDaysLeft == null;
 
   // $: console.log('CONFIG', $config);
 
@@ -41,83 +40,126 @@
 <FormProviderCore {values}>
   <SpecialPageLayout>
     {#if getElectron() || ($config?.storageDatabase && hasPermission('admin/license'))}
-      <div class="heading">License</div>
-      <FormTextAreaField label="Enter your license key" name="licenseKey" rows={5} />
+      <div class="heading">Thank you for using DbGate!</div>
 
-      <div class="submit">
-        <FormSubmit
-          value="Save license"
-          on:click={async e => {
-            sessionStorage.setItem('continueTrialConfirmed', '1');
-            const { licenseKey } = e.detail;
-            const resp = await apiCall('config/save-license-key', { licenseKey, tryToRenew: true });
-            if (resp?.status == 'ok') {
-              internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
-            } else {
-              errorMessage = resp?.errorMessage || 'Error saving license key';
-            }
-          }}
-        />
-      </div>
+      {#if isExpired}
+        <div class="infotext"><FontIcon icon="img warn" /> Your license has expired. Please insert new license.</div>
+      {:else if trialDaysLeft > 0}
+        <div class="infotext">
+          <FontIcon icon="img warn" /> Your trial period will expire in {trialDaysLeft} day{trialDaysLeft != 1
+            ? 's'
+            : ''}.
+        </div>
+      {:else}
+        <div class="infotext">
+          <FontIcon icon="img info" /> Please choose licensing model. You could either purchase Premium edition
+          {#if trialButtonAvailable}, use 30-day free trial{/if} or download free
+          <Link href="https://dbgate.io/download-community">Community edition</Link>.
+        </div>
+      {/if}
 
-      {#if !isExpired && trialDaysLeft == null}
+      {#if isInsertingLicense}
+        <FormTextAreaField label="Enter your license key" name="licenseKey" rows={5} />
+
+        <div class="submit">
+          <div class="flex flex1">
+            <div class="col-6 flex">
+              <FormSubmit
+                value="Save license"
+                on:click={async e => {
+                  sessionStorage.setItem('continueTrialConfirmed', '1');
+                  const { licenseKey } = e.detail;
+                  const resp = await apiCall('config/save-license-key', { licenseKey, tryToRenew: true });
+                  if (resp?.status == 'ok') {
+                    internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
+                  } else {
+                    errorMessage = resp?.errorMessage || 'Error saving license key';
+                  }
+                }}
+              />
+            </div>
+            <div class="col-6 flex">
+              <FormStyledButton
+                value="Cancel"
+                on:click={() => {
+                  isInsertingLicense = false;
+                  errorMessage = '';
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if !isInsertingLicense}
         <div class="submit">
           <FormStyledButton
-            value="Start 30-day trial"
-            on:click={async e => {
-              errorMessage = '';
-              const license = await apiCall('config/start-trial');
-              if (license?.status == 'ok') {
+            value="Insert license key"
+            on:click={() => {
+              isInsertingLicense = true;
+            }}
+          />
+        </div>
+
+        {#if trialButtonAvailable}
+          <div class="submit">
+            <FormStyledButton
+              value="Start 30-day trial"
+              on:click={async e => {
+                errorMessage = '';
+                const license = await apiCall('config/start-trial');
+                if (license?.status == 'ok') {
+                  sessionStorage.setItem('continueTrialConfirmed', '1');
+                  internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
+                } else {
+                  errorMessage = license?.errorMessage || 'Error starting trial';
+                }
+              }}
+            />
+          </div>
+        {/if}
+
+        {#if trialDaysLeft > 0}
+          <div class="submit">
+            <FormStyledButton
+              value={`Continue trial (${trialDaysLeft} days left)`}
+              on:click={async e => {
                 sessionStorage.setItem('continueTrialConfirmed', '1');
                 internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
-              } else {
-                errorMessage = license?.errorMessage || 'Error starting trial';
-              }
-            }}
-          />
-        </div>
-      {/if}
+              }}
+            />
+          </div>
+        {/if}
 
-      {#if trialDaysLeft > 0}
         <div class="submit">
           <FormStyledButton
-            value={`Continue trial (${trialDaysLeft} days left)`}
+            value="Purchase DbGate Premium"
             on:click={async e => {
-              sessionStorage.setItem('continueTrialConfirmed', '1');
-              internalRedirectTo(isOneOfPage('admin-license') ? '/admin.html' : '/index.html');
+              // openWebLink(
+              //   `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+              // );
+
+              // openWebLink(
+              //   `https://auth-proxy.dbgate.udolni.net/redirect-to-purchase?product=${getElectron() ? 'premium' : 'teram-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+              // );
+
+              openWebLink(
+                `https://auth.dbgate.eu/redirect-to-purchase?product=${getElectron() ? 'premium' : 'team-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
+              );
             }}
           />
         </div>
-      {/if}
 
-      <div class="submit">
-        <FormStyledButton
-          value="Purchase DbGate Premium"
-          on:click={async e => {
-            // openWebLink(
-            //   `https://auth.dbgate.eu/create-checkout-session-simple?source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
-            // );
-
-            // openWebLink(
-            //   `https://auth-proxy.dbgate.udolni.net/redirect-to-purchase?product=${getElectron() ? 'premium' : 'teram-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
-            // );
-
-            openWebLink(
-              `https://auth.dbgate.eu/redirect-to-purchase?product=${getElectron() ? 'premium' : 'team-premium'}&source=trial-${isExpired ? 'expired' : (trialDaysLeft ?? 'no')}`
-            );
-          }}
-        />
-      </div>
-
-      {#if getElectron()}
-        <div class="submit">
-          <FormStyledButton
-            value="Exit"
-            on:click={e => {
-              getElectron().send('quit-app');
-            }}
-          />
-        </div>
+        {#if getElectron()}
+          <div class="submit">
+            <FormStyledButton
+              value="Exit"
+              on:click={e => {
+                getElectron().send('quit-app');
+              }}
+            />
+          </div>
+        {/if}
       {/if}
 
       {#if errorMessage}
@@ -139,6 +181,10 @@
     text-align: center;
     margin: 1em;
     font-size: xx-large;
+  }
+
+  .infotext {
+    margin: 1em;
   }
 
   .submit {
