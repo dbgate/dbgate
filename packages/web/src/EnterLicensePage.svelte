@@ -52,9 +52,7 @@
         </div>
       {:else}
         <div class="infotext">
-          <FontIcon icon="img info" /> Please choose licensing model. You could either purchase Premium edition
-          {#if trialButtonAvailable}, use 30-day free trial{/if} or download free
-          <Link href="https://dbgate.io/download-community">Community edition</Link>.
+          <FontIcon icon="img info" /> Proceed by selecting a licensing option or providing your license key.
         </div>
       {/if}
 
