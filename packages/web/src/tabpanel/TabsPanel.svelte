@@ -577,9 +577,13 @@
   let domTabs;
 
   function handleTabsWheel(e) {
-    if (!e.shiftKey) {
+    // Handle horizontal scrolling from trackpad gestures (deltaX)
+    // or vertical scrolling converted to horizontal (deltaY with Shift)
+    const scrollAmount = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? 0 : e.deltaY;
+    
+    if (scrollAmount !== 0) {
       e.preventDefault();
-      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+      domTabs.scrollBy({ top: 0, left: scrollAmount < 0 ? -150 : 150, behavior: 'smooth' });
     }
   }
 </script>
