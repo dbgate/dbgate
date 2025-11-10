@@ -446,8 +446,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
           text: _t('database.newCollection', {
-            defaultMessage: 'New {collectionLabel}',
-            values: { collectionLabel: driver?.collectionSingularLabel ?? 'collection/container' },
+            defaultMessage: 'New collection/container'
           }),
         },
       hasPermission(`dbops/query`) &&

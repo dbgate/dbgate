@@ -3,6 +3,7 @@ import { currentDatabase, getExtensions, getOpenedTabs, loadingSchemaLists, open
 import _ from 'lodash';
 import { getSchemaList } from './metadataLoaders';
 import { showSnackbarError } from './snackbar';
+import { _t } from '../translations';
 
 export class LoadingToken {
   isCanceled = false;
@@ -57,8 +58,14 @@ export function setSelectedTab(tabid) {
 }
 
 export function getObjectTypeFieldLabel(objectTypeField, driver?) {
-  if (objectTypeField == 'matviews') return 'Materialized Views';
-  if (objectTypeField == 'collections') return _.startCase(driver?.collectionPluralLabel) ?? 'Collections/Containers';
+  if (objectTypeField == 'tables') return _t('dbObject.tables', { defaultMessage: 'Tables' });
+  if (objectTypeField == 'views') return _t('dbObject.views', { defaultMessage: 'Views' });
+  if (objectTypeField == 'procedures') return _t('dbObject.procedures', { defaultMessage: 'Procedures' });
+  if (objectTypeField == 'functions') return _t('dbObject.functions', { defaultMessage: 'Functions' });
+  if (objectTypeField == 'triggers') return _t('dbObject.triggers', { defaultMessage: 'Triggers' });
+  if (objectTypeField == 'schedulerEvents') return _t('dbObject.schedulerEvents', { defaultMessage: 'Scheduler Events' });
+  if (objectTypeField == 'matviews') return _t('dbObject.matviews', { defaultMessage: 'Materialized Views' });
+  if (objectTypeField == 'collections') return _t('dbObject.collections', { defaultMessage: 'Collections/Containers' });
   return _.startCase(objectTypeField);
 }
 

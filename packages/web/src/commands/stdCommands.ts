@@ -52,6 +52,7 @@ import { openWebLink } from '../utility/simpleTools';
 import { _t } from '../translations';
 import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
 import { getBoolSettingsValue } from '../settings/settingsTools';
+import { __t } from '../translations';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -359,7 +360,7 @@ registerCommand({
   icon: 'icon table',
   name: 'Collection',
   toolbar: true,
-  toolbarName: 'New collection/container',
+  toolbarName: __t('command.new.collectionToolbar', { defaultMessage: 'New collection/container' }),
   testEnabled: () => {
     const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
     return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('document');
