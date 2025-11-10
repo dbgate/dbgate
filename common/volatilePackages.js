@@ -24,6 +24,7 @@ const volatilePackages = [
   '@duckdb/node-api',
   '@mongosh/browser-runtime-electron',
   '@mongosh/service-provider-node-driver',
+  'ibm_db',
 ];
 
 module.exports = volatilePackages;
