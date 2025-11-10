@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'jslTableGrid.export',
-    category: 'Data grid',
-    name: 'Export',
+    category: __t('command.dataGrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.dataGrid.export', { defaultMessage: 'Export' }),
     icon: 'icon export',
     keyText: 'CtrlOrCommand+E',
     testEnabled: () => getCurrentEditor() != null,
@@ -56,6 +56,7 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import { openImportExportTab } from '../utility/importExportTools';
+  import { __t } from '../translations';
 
   export let jslid;
   export let display;

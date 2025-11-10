@@ -3,6 +3,7 @@ import { recentDatabases, currentDatabase, getRecentDatabases } from '../stores'
 import registerCommand from './registerCommand';
 import { getConnectionLabel } from 'dbgate-tools';
 import { switchCurrentDatabase } from '../utility/common';
+import { __t } from '../translations';
 
 currentDatabase.subscribe(value => {
   if (!value) return;
@@ -24,8 +25,8 @@ function switchDatabaseCommand(db) {
 
 registerCommand({
   id: 'database.switch',
-  category: 'Database',
-  name: 'Change to recent',
+  category: __t('command.database', { defaultMessage: 'Database' }),
+  name: __t('command.database.changeRecent', { defaultMessage: 'Change to recent' }),
   menuName: 'Switch recent database',
   keyText: 'CtrlOrCommand+D',
   getSubCommands: () => getRecentDatabases().map(switchDatabaseCommand),
