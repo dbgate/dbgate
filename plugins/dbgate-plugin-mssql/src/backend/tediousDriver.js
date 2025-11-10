@@ -69,7 +69,11 @@ async function tediousConnect(storedConnection) {
     const [host, instance] = (server || '').split('\\');
     const connectionOptions = {
       instanceName: instance,
-      encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
+      encrypt:
+        !!ssl ||
+        authType == 'msentra' ||
+        authType == 'azureManagedIdentity' ||
+        server?.endsWith('.database.windows.net'),
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
