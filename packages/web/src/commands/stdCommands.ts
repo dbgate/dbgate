@@ -768,7 +768,7 @@ if (hasPermission('settings/change')) {
     name: __t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
     onClick: () => {
       openNewTab({
-        title: __t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
+        title: _t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
         icon: 'icon keyboard',
         tabComponent: 'CommandListTab',
         props: {},
