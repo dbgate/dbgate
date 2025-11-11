@@ -47,6 +47,7 @@ export const mongoFilterBehaviour: FilterBehaviour = {
   allowStringToken: true,
   allowNumberDualTesting: true,
   allowObjectIdTesting: true,
+  allowHexString: true,
 };
 
 export const evalFilterBehaviour: FilterBehaviour = {
