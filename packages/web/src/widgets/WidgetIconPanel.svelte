@@ -22,7 +22,7 @@
   import { showModal } from '../modals/modalTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
-  import { usePromoWidget } from '../utility/metadataLoaders';
+  import { useConfig, usePromoWidget } from '../utility/metadataLoaders';
 
   let domSettings;
   let domCloudAccount;
@@ -170,6 +170,7 @@
   }
 
   $: promoWidgetData = $promoWidgetPreview || $promoWidget;
+  $: config = useConfig();
 </script>
 
 <div class="main">
@@ -180,7 +181,7 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isPremiumPromo || (!isProApp() && promoWidgetData?.state == 'data'))
+    .filter(x => !x.isPremiumPromo || (($config?.trialDaysLeft != null || !isProApp()) && promoWidgetData?.state == 'data'))
     // .filter(x => !x.isPremiumOnly || isProApp())
     .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
