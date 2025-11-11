@@ -12,6 +12,7 @@ const {
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');
+const getDiagramSvgExport = require('../utility/getDiagramSvgExport');
 const apps = require('./apps');
 const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
@@ -243,6 +244,25 @@ module.exports = {
   async exportDiagram({ filePath, html, css, themeType, themeClassName, watermark }) {
     await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName, watermark));
     return true;
+  },
+
+  exportDiagramSvg_meta: true,
+  async exportDiagramSvg({ filePath, html, css, themeType, themeClassName }) {
+    await fs.writeFile(filePath, getDiagramSvgExport(html, css, themeType, themeClassName));
+    return true;
+  },
+
+  exportDiagramPng_meta: true,
+  async exportDiagramPng({ filePath, imageData }) {
+    // imageData is a base64 encoded PNG
+    const index = imageData.indexOf('base64,');
+    if (index > 0) {
+      const data = imageData.substr(index + 'base64,'.length);
+      const buf = Buffer.from(data, 'base64');
+      await fs.writeFile(filePath, buf);
+      return true;
+    }
+    return false;
   },
 
   getFileRealPath_meta: true,

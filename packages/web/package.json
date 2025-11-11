@@ -74,6 +74,7 @@
     "flatpickr": "^4.6.13",
     "fuzzy": "^0.1.3",
     "highlight.js": "^11.11.1",
+    "html-to-image": "^1.11.13",
     "interval-operations": "^1.0.7",
     "leaflet": "^1.8.0",
     "openai": "^5.10.1",
