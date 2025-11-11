@@ -4,11 +4,12 @@ import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import { apiCall } from '../utility/api';
 import { switchCurrentDatabase } from '../utility/common';
+import { __t } from '../translations';
 
 registerCommand({
   id: 'database.changeState',
-  category: 'Database',
-  name: 'Change status',
+  category: __t('command.database', { defaultMessage: 'Database' }),
+  name: __t('command.database.changeStatus', { defaultMessage: 'Change status' }),
   getSubCommands: () => {
     const current = getCurrentDatabase();
     if (!current) return [];

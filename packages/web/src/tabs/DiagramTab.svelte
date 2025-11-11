@@ -3,7 +3,7 @@
 
   registerFileCommands({
     idPrefix: 'diagram',
-    category: 'Diagram',
+    category: __t('command.diagram', { defaultMessage: 'Diagram' }),
     getCurrentEditor,
     folder: 'diagrams',
     format: 'json',
@@ -32,6 +32,7 @@
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
   import { isProApp } from '../utility/proTools';
+  import { __t } from '../translations';
 
   export let tabid;
   export let conid;

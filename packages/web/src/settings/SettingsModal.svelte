@@ -143,19 +143,20 @@ ORDER BY
             label={_t('settings.tabGroup.showServerName', { defaultMessage: 'Show server name alongside database name in title of the tab group' })}
             defaultValue={false}
           />
-          <!-- <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
+          <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
           <FormSelectField
-            label="Language"
+            label={_t('settings.localization.language', { defaultMessage: 'Language' })}
             name="localization.language"
             defaultValue={getSelectedLanguage()}
             isNative
             options={[
               { value: 'en', label: 'English' },
-              { value: 'cs', label: 'Czech' },
+              { value: 'cs', label: 'Čeština' },
+              { value: 'sk', label: 'Slovenčina' },
             ]}
             on:change={() => {
               showModal(ConfirmModal, {
-                message: 'Application will be reloaded to apply new language settings',
+                message: _t('settings.localization.reloadWarning', { defaultMessage: 'Application will be reloaded to apply new language settings' }),
                 onConfirm: () => {
                   setTimeout(() => {
                     internalRedirectTo('/');
@@ -163,7 +164,7 @@ ORDER BY
                 },
               });
             }}
-          /> -->
+          />
 
           <div class="heading">{_t('settings.dataGrid.title', { defaultMessage: 'Data grid' })}</div>
           <FormTextField

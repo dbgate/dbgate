@@ -15,6 +15,7 @@
   import _ from 'lodash';
   import { apiCall } from '../utility/api';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import { _t } from '../translations';
 
   export let onConfirm;
   export let conid;
@@ -73,15 +74,15 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Choose value from {field}</svelte:fragment>
+    <svelte:fragment slot="header">{_t('dataGrid.chooseValue', { defaultMessage: 'Choose value from {field}', values: { field } })}</svelte:fragment>
 
     <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
     <div class="largeFormMarker">
-      <SearchInput placeholder="Search" bind:value={search} isDebounced />
+      <SearchInput placeholder={_t('common.search', { defaultMessage: 'Search' })} bind:value={search} isDebounced />
     </div>
 
     {#if isLoading}
-      <LoadingInfo message="Loading data" />
+      <LoadingInfo message={_t('common.loadingData', { defaultMessage: 'Loading data' })} />
     {/if}
 
     {#if !isLoading && rows}
@@ -111,7 +112,7 @@
               },
               {
                 fieldName: 'value',
-                header: 'Value',
+                header: _t('dataGrid.value', { defaultMessage: 'Value' }),
                 formatter: row => (row.value == null ? '(NULL)' : row.value),
               },
             ]}
@@ -146,7 +147,7 @@
           }}
         />
       {/if}
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

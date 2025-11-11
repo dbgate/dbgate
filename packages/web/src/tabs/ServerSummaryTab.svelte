@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'serverSummary.refresh',
-    category: 'Server sumnmary',
-    name: _t('common.refresh', { defaultMessage: 'Refresh' }),
+    category: __t('command.serverSummary', { defaultMessage: 'Server summary' }),
+    name: __t('common.refresh', { defaultMessage: 'Refresh' }),
     keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
@@ -21,7 +21,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import TabControl from '../elements/TabControl.svelte';
 
-  import { _t } from '../translations';
+  import { _t, __t } from '../translations';
   import { apiCall } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import openNewTab from '../utility/openNewTab';

@@ -5,6 +5,7 @@
 
   import { getFormContext } from './FormProviderCore.svelte';
   import TextField from './TextField.svelte';
+  import { _t } from '../translations';
 
   export let name;
   export let disabled = false;
@@ -29,7 +30,7 @@
         setFieldValue(name, e.target['value']);
       }
     }}
-    placeholder={isCrypted ? '(Password is encrypted)' : undefined}
+    placeholder={isCrypted ? _t('common.passwordEncrypted', { defaultMessage: 'Password is encrypted' }) : undefined}
     type={isCrypted || showPassword ? 'text' : 'password'}
   />
   {#if !isCrypted}

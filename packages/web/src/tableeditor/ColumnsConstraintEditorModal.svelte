@@ -43,7 +43,7 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
-      >{constraintInfo ? _t('tableEdit.editConstraintLabel', { defaultMessage: 'Edit {constraintLabel}', values: { constraintLabel: _.isFunction(constraintLabel) ? constraintLabel() : constraintLabel } }) : _t('tableEdit.addConstraintLabel', { defaultMessage: 'Add {constraintLabel}', values: { constraintLabel: _.isFunction(constraintLabel) ? constraintLabel() : constraintLabel } })}</svelte:fragment
+      >{constraintInfo ? _t('tableEdit.editConstraintLabel', { defaultMessage: 'Edit {constraintLabel}', values: { constraintLabel } }) : _t('tableEdit.addConstraintLabel', { defaultMessage: 'Add {constraintLabel}', values: { constraintLabel } })}</svelte:fragment
     >
 
     <div class="largeFormMarker">

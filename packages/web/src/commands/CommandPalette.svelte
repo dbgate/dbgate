@@ -1,9 +1,9 @@
 <script context="module">
   registerCommand({
     id: 'commandPalette.show',
-    category: 'Command palette',
-    name: 'Show',
-    toolbarName: 'Command palette',
+    category: __t('command.commandPalette', { defaultMessage: 'Command palette' }),
+    name: __t('command.commandPalette.show', { defaultMessage: 'Show' }),
+    toolbarName: __t('command.commandPalette', { defaultMessage: 'Command palette' }),
     toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
@@ -15,9 +15,9 @@
 
   registerCommand({
     id: 'database.search',
-    category: 'Database',
-    toolbarName: 'Database search',
-    name: 'Search',
+    category: __t('command.database', { defaultMessage: 'Database' }),
+    toolbarName: __t('command.database.databaseSearch', { defaultMessage: 'Database search' }),
+    name: __t('command.database.search', { defaultMessage: 'Search' }),
     keyText: isElectronAvailable() ? 'CtrlOrCommand+P' : 'F3',
     onClick: () => visibleCommandPalette.set('database'),
     testEnabled: () => getVisibleCommandPalette() != 'database',
@@ -81,7 +81,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
-  import { _val } from '../translations';
+  import { _val, __t } from '../translations';
 
   let domInput;
   let filter = '';

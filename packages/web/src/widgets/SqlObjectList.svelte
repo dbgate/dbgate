@@ -205,7 +205,7 @@
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.collection')}
-        >New {driver?.collectionSingularLabel ?? 'collection/container'}</InlineButton
+        >{_t('sqlObject.newCollection', { defaultMessage: 'New collection/container'})}</InlineButton
       >
     {/if}
   </WidgetsInnerContainer>

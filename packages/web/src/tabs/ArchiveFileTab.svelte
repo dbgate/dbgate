@@ -6,8 +6,8 @@
   registerCommand({
     id: 'archiveFile.save',
     group: 'save',
-    category: 'Archive file',
-    name: 'Save',
+    category: __t('command.archiveFile', { defaultMessage: 'Archive file' }),
+    name: __t('command.archiveFile.save', { defaultMessage: 'Save' }),
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon save',
@@ -17,8 +17,8 @@
 
   registerCommand({
     id: 'archiveFile.saveAs',
-    category: 'Archive file',
-    name: 'Save as',
+    category: __t('command.archiveFile', { defaultMessage: 'Archive file' }),
+    name: __t('command.archiveFile.saveAs', { defaultMessage: 'Save as' }),
     icon: 'icon save',
     isRelatedToTab: true,
     testEnabled: () => getCurrentEditor() != null,
@@ -49,6 +49,7 @@
   import { changeTab, markTabSaved, markTabUnsaved, sleep } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
+  import { __t } from '../translations';
 
   export const activator = createActivator('ArchiveFileTab', true);
 

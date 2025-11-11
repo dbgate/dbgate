@@ -8,8 +8,8 @@
   registerCommand({
     id: 'collectionTable.save',
     group: 'save',
-    category: 'Collection data',
-    name: 'Save',
+    category: __t('command.collectionData', { defaultMessage: 'Collection data' }),
+    name: __t('command.collectionData.save', { defaultMessage: 'Save' }),
     // keyText: 'CtrlOrCommand+S',
     toolbar: true,
     isRelatedToTab: true,
@@ -56,6 +56,7 @@
   import useEditorData from '../query/useEditorData';
   import { markTabSaved, markTabUnsaved } from '../utility/common';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
+  import { __t } from '../translations';
 
   export let tabid;
   export let conid;
