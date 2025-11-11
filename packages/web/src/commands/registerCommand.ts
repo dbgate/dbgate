@@ -44,9 +44,8 @@ export default function registerCommand(command: GlobalCommand) {
       ...x,
       [command.id]: {
         text:
-          _val(command.category) || _val(command.name)
-            ? () =>
-                `${_val(command.category)}: ${_val(command.name)}`
+          _.isFunction(command.category) || _.isFunction(command.name)
+            ? () => `${_val(command.category)}: ${_val(command.name)}`
             : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,
