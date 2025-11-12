@@ -268,7 +268,15 @@ export class GraphLayout {
     );
     const nodeRadius = _.max(circleSortedNodes.map(x => x.radius));
     const nodeCount = circleSortedNodes.length;
-    const radius = (nodeCount * nodeRadius) / (2 * Math.PI) + nodeRadius;
+    
+    // Calculate radius based on the perimeter needed to fit all nodes with spacing
+    // Each node needs space for its diameter plus margins
+    const avgNodeDiameter = _.mean(circleSortedNodes.map(x => x.radius * 2)) || 0;
+    const totalPerimeter = nodeCount * (avgNodeDiameter + NODE_MARGIN * 2);
+    const radius = Math.max(
+      totalPerimeter / (2 * Math.PI),
+      nodeRadius * 3 // Minimum radius to avoid too tight circles
+    );
 
     let angle = 0;
     const dangle = (2 * Math.PI) / circleSortedNodes.length;
