@@ -799,8 +799,9 @@
         isText
           ? data
           : {
-              type: 'Buffer',
-              data: [...data],
+              $binary: {
+                base64: data.toString('base64'),
+              },
             }
       );
     }
