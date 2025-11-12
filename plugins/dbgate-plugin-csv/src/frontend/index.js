@@ -39,6 +39,24 @@ const fileFormat = {
       apiName: 'header',
       default: true,
     },
+    {
+      type: 'checkbox',
+      name: 'writeBom',
+      label: 'Write BOM (Byte Order Mark)',
+      apiName: 'writeBom',
+      direction: 'target',
+    },
+    {
+      type: 'select',
+      name: 'recordDelimiter',
+      label: 'Record Delimiter',
+      options: [
+        { name: 'CR', value: '\r' },
+        { name: 'CRLF', value: '\r\n' },
+      ],
+      apiName: 'recordDelimiter',
+      direction: 'target',
+    },
   ],
 };
 

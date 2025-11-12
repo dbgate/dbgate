@@ -86,7 +86,7 @@ async function writer({
 }) {
   logger.info(`DBGM-00133 Writing file ${fileName}`);
   const csvPrepare = new CsvPrepareStream({ header });
-  const csvStream = csv.stringify({ delimiter, quoted, record_delimiter: recordDelimiter });
+  const csvStream = csv.stringify({ delimiter, quoted, record_delimiter: recordDelimiter || undefined });
   const fileStream = fs.createWriteStream(fileName, encoding);
   if (writeBom) {
     switch (encoding.toLowerCase()) {
