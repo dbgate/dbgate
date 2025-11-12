@@ -308,7 +308,8 @@ async function refreshPublicFiles(isRefresh) {
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
   }
-  if (!isProApp()) {
+  const configSettings = await config.get();
+  if (!isProApp() || configSettings?.trialDaysLeft != null) {
     await updatePremiumPromoWidget();
   }
 }
