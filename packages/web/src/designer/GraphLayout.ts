@@ -271,6 +271,7 @@ export class GraphLayout {
 
     // Calculate radius based on the perimeter needed to fit all nodes with spacing
     // Each node needs space for its diameter plus margins
+    // This provides better spacing especially for diagrams with many nodes
     const avgNodeDiameter = _.mean(circleSortedNodes.map(x => x.radius * 2)) || 0;
     const totalPerimeter = nodeCount * (avgNodeDiameter + NODE_MARGIN * 4);
     // Use a larger multiplier for many nodes to provide more space
