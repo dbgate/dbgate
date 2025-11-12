@@ -268,7 +268,7 @@ export class GraphLayout {
     );
     const nodeRadius = _.max(circleSortedNodes.map(x => x.radius));
     const nodeCount = circleSortedNodes.length;
-    
+
     // Calculate radius based on the perimeter needed to fit all nodes with spacing
     // Each node needs space for its diameter plus margins
     const avgNodeDiameter = _.mean(circleSortedNodes.map(x => x.radius * 2)) || 0;
