@@ -283,6 +283,7 @@ async function updatePremiumPromoWidget() {
     `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
     {
       headers: {
+        ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
       },
