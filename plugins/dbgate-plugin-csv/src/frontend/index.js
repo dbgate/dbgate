@@ -68,5 +68,31 @@ export default {
         },
       }),
     },
+    {
+      label: 'CSV file for MS Excel',
+      extension: 'csv',
+      createWriter: (fileName) => ({
+        functionName: 'writer@dbgate-plugin-csv',
+        props: {
+          fileName,
+          delimiter: ';',
+          recordDelimiter: '\r\n',
+          encoding: 'utf16le',
+          writeSepHeader: true,
+          writeBom: true,
+        },
+      }),
+    },
+    {
+      label: 'TSV file (tab separated)',
+      extension: 'tsv',
+      createWriter: (fileName) => ({
+        functionName: 'writer@dbgate-plugin-csv',
+        props: {
+          fileName,
+          delimiter: '\t',
+        },
+      }),
+    },
   ],
 };
