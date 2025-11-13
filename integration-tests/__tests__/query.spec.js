@@ -251,7 +251,7 @@ describe('Query', () => {
   );
 
   test.each(engines.filter(x => x.binaryDataType).map(engine => [engine.label, engine]))(
-    'Binary',
+    'Binary - %s',
     testWrapper(async (dbhan, driver, engine) => {
       await runCommandOnDriver(dbhan, driver, dmp =>
         dmp.createTable({
