@@ -504,6 +504,9 @@ export function getAsImageSrc(obj) {
   if (obj?.type == 'Buffer' && _isArray(obj?.data)) {
     return `data:image/png;base64, ${arrayBufferToBase64(obj?.data)}`;
   }
+  if (obj?.$binary?.base64) {
+    return `data:image/png;base64, ${obj.$binary.base64}`;
+  }
 
   if (_isString(obj) && (obj.startsWith('http://') || obj.startsWith('https://'))) {
     return obj;
