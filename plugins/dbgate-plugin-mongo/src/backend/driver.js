@@ -51,6 +51,10 @@ function findArrayResult(resValue) {
   return null;
 }
 
+function BinData(_subType, base64) {
+  return Buffer.from(base64, 'base64');
+}
+
 async function getScriptableDb(dbhan) {
   const db = dbhan.getDatabase();
   db.getCollection = (name) => db.collection(name);
@@ -156,9 +160,9 @@ const driver = {
     //   return printable;
     // }
     let func;
-    func = eval(`(db,ObjectId) => ${sql}`);
+    func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
-    const res = func(db, ObjectId.createFromHexString);
+    const res = func(db, ObjectId.createFromHexString, BinData);
     if (isPromise(res)) await res;
   },
   async operation(dbhan, operation, options) {
@@ -285,7 +289,7 @@ const driver = {
     } else {
       let func;
       try {
-        func = eval(`(db,ObjectId) => ${sql}`);
+        func = eval(`(db,ObjectId,BinData) => ${sql}`);
       } catch (err) {
         options.info({
           message: 'Error compiling expression: ' + err.message,
@@ -299,7 +303,7 @@ const driver = {
 
       let exprValue;
       try {
-        exprValue = func(db, ObjectId.createFromHexString);
+        exprValue = func(db, ObjectId.createFromHexString, BinData);
       } catch (err) {
         options.info({
           message: 'Error evaluating expression: ' + err.message,
@@ -411,9 +415,9 @@ const driver = {
     //   highWaterMark: 100,
     // });
 
-    func = eval(`(db,ObjectId) => ${sql}`);
+    func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
-    exprValue = func(db, ObjectId.createFromHexString);
+    exprValue = func(db, ObjectId.createFromHexString, BinData);
 
     const pass = new stream.PassThrough({
       objectMode: true,

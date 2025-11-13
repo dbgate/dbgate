@@ -15,6 +15,7 @@
   import _ from 'lodash';
   import { apiCall } from '../utility/api';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import { base64ToHex } from 'dbgate-tools';
   import { _t } from '../translations';
 
   export let onConfirm;
@@ -113,7 +114,7 @@
               {
                 fieldName: 'value',
                 header: _t('dataGrid.value', { defaultMessage: 'Value' }),
-                formatter: row => (row.value == null ? '(NULL)' : row.value),
+                formatter: row => (row.value == null ? '(NULL)' : row.value?.$binary?.base64 ? base64ToHex(row.value.$binary.base64) :  row.value),
               },
             ]}
           >

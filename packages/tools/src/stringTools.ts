@@ -43,6 +43,19 @@ export function hexStringToArray(inputString) {
   return res;
 }
 
+export function base64ToHex(base64String) {
+  const binaryString = atob(base64String);
+  const hexString = Array.from(binaryString, c =>
+    c.charCodeAt(0).toString(16).padStart(2, '0')
+  ).join('');
+  return '0x' + hexString.toUpperCase();
+};
+
+export function hexToBase64(hexString) {
+  const binaryString = hexString.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+  return btoa(binaryString);
+}
+
 export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
@@ -54,9 +67,10 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
       return {
-        type: 'Buffer',
-        data: hexStringToArray(value.substring(2)),
-      };
+        $binary: {
+          base64: hexToBase64(value.substring(2))
+        }
+      }
     }
   }
 
@@ -230,11 +244,19 @@ export function stringifyCellValue(
   if (value === true) return { value: 'true', gridStyle: 'valueCellStyle' };
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
 
-  if (editorTypes?.parseHexAsBuffer) {
-    if (value?.type == 'Buffer' && _isArray(value.data)) {
-      return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
-    }
+  if (value?.$binary?.base64) {
+    return {
+      value: base64ToHex(value.$binary.base64),
+      gridStyle: 'valueCellStyle',
+    };
   }
+
+  if (editorTypes?.parseHexAsBuffer) {
+    // if (value?.type == 'Buffer' && _isArray(value.data)) {
+    //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
+    // }
+  }
+  
   if (editorTypes?.parseObjectIdAsDollar) {
     if (value?.$oid) {
       switch (intent) {
@@ -481,6 +503,9 @@ export function arrayBufferToBase64(buffer) {
 export function getAsImageSrc(obj) {
   if (obj?.type == 'Buffer' && _isArray(obj?.data)) {
     return `data:image/png;base64, ${arrayBufferToBase64(obj?.data)}`;
+  }
+  if (obj?.$binary?.base64) {
+    return `data:image/png;base64, ${obj.$binary.base64}`;
   }
 
   if (_isString(obj) && (obj.startsWith('http://') || obj.startsWith('https://'))) {

@@ -96,4 +96,6 @@ export type TestEngineInfo = {
   }>;
 
   objects?: Array<TestObjectInfo>;
+
+  binaryDataType?: string;
 };

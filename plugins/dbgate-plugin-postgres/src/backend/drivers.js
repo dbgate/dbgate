@@ -48,6 +48,9 @@ function transformRow(row, columnsToTransform) {
     if (dataTypeName == 'geography') {
       row[columnName] = extractGeographyDate(row[columnName]);
     }
+    else if (dataTypeName == 'bytea' && row[columnName]) {
+      row[columnName] = { $binary: { base64: Buffer.from(row[columnName]).toString('base64') } };
+    }
   }
 
   return row;
@@ -159,7 +162,7 @@ const drivers = driverBases.map(driverBase => ({
       conid,
     };
 
-    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography')`);
+    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography', 'bytea')`);
     const typeIdToName = _.fromPairs(datatypes.rows.map(cur => [cur.oid, cur.typname]));
     dbhan['typeIdToName'] = typeIdToName;
 
@@ -181,7 +184,14 @@ const drivers = driverBases.map(driverBase => ({
     }
     const res = await dbhan.client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res, dbhan);
-    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+
+    const transormableTypeNames = Object.values(dbhan.typeIdToName ?? {});
+    const columnsToTransform = columns.filter(x => transormableTypeNames.includes(x.dataTypeName));
+
+    const zippedRows = (res.rows || []).map(row => zipDataRow(row, columns));
+    const transformedRows = zippedRows.map(row => transformRow(row, columnsToTransform));
+
+    return { rows: transformedRows, columns };
   },
   stream(dbhan, sql, options) {
     const handleNotice = notice => {
@@ -208,7 +218,7 @@ const drivers = driverBases.map(driverBase => ({
       if (!wasHeader) {
         columns = extractPostgresColumns(query._result, dbhan);
         if (columns && columns.length > 0) {
-          options.recordset(columns);
+          options.recordset(columns, { engine: driverBase.engine });
         }
         wasHeader = true;
       }
@@ -328,6 +338,7 @@ const drivers = driverBases.map(driverBase => ({
         columns = extractPostgresColumns(query._result, dbhan);
         pass.write({
           __isStreamHeader: true,
+          engine: driverBase.engine,
           ...(structure || { columns }),
         });
         wasHeader = true;

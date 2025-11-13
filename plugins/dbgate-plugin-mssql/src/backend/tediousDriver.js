@@ -24,6 +24,15 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
   return res;
 }
 
+function modifyRow(row, columns) {
+  columns.forEach((col) => {
+    if (Buffer.isBuffer(row[col.columnName])) {
+      row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
+    }
+  });
+  return row;
+}
+
 async function getDefaultAzureSqlToken() {
   const credential = new ManagedIdentityCredential();
   const tokenResponse = await credential.getToken('https://database.windows.net/.default');
@@ -125,9 +134,12 @@ async function tediousQueryCore(dbhan, sql, options) {
     });
     request.on('row', function (columns) {
       result.rows.push(
-        _.zipObject(
-          result.columns.map(x => x.columnName),
-          columns.map(x => x.value)
+        modifyRow(
+          _.zipObject(
+            result.columns.map(x => x.columnName),
+            columns.map(x => x.value)
+          ),
+          result.columns
         )
       );
     });
@@ -152,13 +164,17 @@ async function tediousReadQuery(dbhan, sql, structure) {
     currentColumns = extractTediousColumns(columns);
     pass.write({
       __isStreamHeader: true,
+      engine: 'mssql@dbgate-plugin-mssql',
       ...(structure || { columns: currentColumns }),
     });
   });
   request.on('row', function (columns) {
-    const row = _.zipObject(
-      currentColumns.map(x => x.columnName),
-      columns.map(x => x.value)
+    const row = modifyRow(
+      _.zipObject(
+        currentColumns.map(x => x.columnName),
+        columns.map(x => x.value)
+      ),
+      currentColumns
     );
     pass.write(row);
   });
@@ -216,12 +232,15 @@ async function tediousStream(dbhan, sql, options) {
   });
   request.on('columnMetadata', function (columns) {
     currentColumns = extractTediousColumns(columns);
-    options.recordset(currentColumns);
+    options.recordset(currentColumns, { engine: 'mssql@dbgate-plugin-mssql' });
   });
   request.on('row', function (columns) {
-    const row = _.zipObject(
-      currentColumns.map(x => x.columnName),
-      columns.map(x => x.value)
+    const row = modifyRow(
+      _.zipObject(
+        currentColumns.map(x => x.columnName),
+        columns.map(x => x.value)
+      ),
+      currentColumns
     );
     options.row(row);
     skipAffectedMessage = true;

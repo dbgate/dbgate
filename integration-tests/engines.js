@@ -44,6 +44,7 @@ const mysqlEngine = {
   supportRenameSqlObject: false,
   dbSnapshotBySeconds: true,
   dumpFile: 'data/chinook-mysql.sql',
+  binaryDataType: 'blob',
   dumpChecks: [
     {
       sql: 'select count(*) as res from genre',
@@ -216,6 +217,7 @@ const postgreSqlEngine = {
   supportSchemas: true,
   supportRenameSqlObject: true,
   defaultSchemaName: 'public',
+  binaryDataType: 'bytea',
   dumpFile: 'data/chinook-postgre.sql',
   dumpChecks: [
     {
@@ -446,6 +448,7 @@ const sqlServerEngine = {
   supportTableComments: true,
   supportColumnComments: true,
   // skipSeparateSchemas: true,
+  binaryDataType: 'varbinary(100)',
   triggers: [
     {
       testName: 'triggers before each row',
@@ -506,6 +509,7 @@ const sqliteEngine = {
       },
     },
   ],
+  binaryDataType: 'blob',
 };
 
 const libsqlFileEngine = {
@@ -619,6 +623,7 @@ const oracleEngine = {
       },
     },
   ],
+  binaryDataType: 'blob',
 };
 
 /** @type {import('dbgate-types').TestEngineInfo} */
@@ -752,18 +757,18 @@ const enginesOnCi = [
 const enginesOnLocal = [
   // all engines, which would be run on local test
   // cassandraEngine,
-  // mysqlEngine,
+  //mysqlEngine,
   // mariaDbEngine,
-  // postgreSqlEngine,
-  // sqlServerEngine,
-  // sqliteEngine,
+  //postgreSqlEngine,
+  //sqlServerEngine,
+  sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
   // libsqlFileEngine,
   // libsqlWsEngine,
-  // oracleEngine,
+  //oracleEngine,
   // duckdbEngine,
-  firebirdEngine,
+  //firebirdEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */
