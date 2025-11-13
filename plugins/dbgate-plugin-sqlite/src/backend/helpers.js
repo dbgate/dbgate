@@ -46,8 +46,8 @@ async function waitForDrain(stream) {
 
 function modifyRow(row, columns) {
   columns.forEach((col) => {
-    if (row[col.name] instanceof Uint8Array) {
-      row[col.name] = { $binary: { base64: row[col.name].toString('base64') } };
+    if (row[col.name] instanceof Uint8Array || row[col.name] instanceof ArrayBuffer) {
+      row[col.name] = { $binary: { base64: Buffer.from(row[col.name]).toString('base64') } };
     }
   });
   return row;
