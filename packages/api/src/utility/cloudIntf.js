@@ -283,6 +283,7 @@ async function updatePremiumPromoWidget() {
     `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
     {
       headers: {
+        ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
       },
@@ -308,7 +309,8 @@ async function refreshPublicFiles(isRefresh) {
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
   }
-  if (!isProApp()) {
+  const configSettings = await config.get();
+  if (!isProApp() || configSettings?.trialDaysLeft != null) {
     await updatePremiumPromoWidget();
   }
 }
@@ -480,6 +482,16 @@ async function getPromoWidgetData() {
   return promoWidgetData;
 }
 
+async function getPromoWidgetPreview(campaign, variant) {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`);
+  return resp.data;
+}
+
+async function getPromoWidgetList() {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`);
+  return resp.data;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -498,4 +510,6 @@ module.exports = {
   readCloudTestTokenHolder,
   getPublicIpInfo,
   getPromoWidgetData,
+  getPromoWidgetPreview,
+  getPromoWidgetList,
 };

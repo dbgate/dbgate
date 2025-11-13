@@ -1,6 +1,7 @@
 <script lang="ts">
   import FormDropDownTextField from '../forms/FormDropDownTextField.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
+  import { _t } from '../translations';
 
   const { values, setFieldValue } = getFormContext();
 
@@ -17,4 +18,4 @@
   export let disabled = false;
 </script>
 
-<FormDropDownTextField name="dataType" label="Data type" menu={createDataTypesMenu} {disabled} />
+<FormDropDownTextField name="dataType" label="{_t('tableEditor.dataType', { defaultMessage: 'Data type' })}" menu={createDataTypesMenu} {disabled} />

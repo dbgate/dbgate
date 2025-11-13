@@ -4,6 +4,7 @@
   import Link from './Link.svelte';
   import TableControl from './TableControl.svelte';
   import { writable } from 'svelte/store';
+  import { _t } from '../translations';
 
   export let title;
   export let collection;
@@ -39,7 +40,7 @@
       </span>
       <span class="title mr-1">{title}</span>
       {#if onAddNew}
-        <Link onClick={onAddNew}><FontIcon icon="icon add" /> Add new</Link>
+        <Link onClick={onAddNew}><FontIcon icon="icon add" />{_t('common.addNew', { defaultMessage: 'Add new' })}</Link>
       {/if}
       {#if multipleItemsActions && activeMultipleSelection && activeMultipleSelection?.length > 0}
         {#each multipleItemsActions as item}
@@ -65,7 +66,7 @@
           columns={_.compact([
             !hideDisplayName && {
               fieldName: displayNameFieldName || 'displayName',
-              header: 'Name',
+              header: _t('common.name', { defaultMessage: 'Name' }),
               slot: -1,
               sortable: true,
               filterable: !!displayNameFieldName,

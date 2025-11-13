@@ -56,6 +56,7 @@
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import SubProcedureParamList from '../appobj/SubProcedureParamList.svelte';
   import SubProcedureLineList from '../appobj/SubProcedureLineList.svelte';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -130,20 +131,20 @@
 
   function createSearchMenu() {
     const res = [];
-    res.push({ label: 'Search by:', isBold: true, disabled: true });
+    res.push({ label: _t('sqlObject.searchBy', { defaultMessage: 'Search by:' }), isBold: true, disabled: true });
     if (driver?.databaseEngineTypes?.includes('document')) {
-      res.push({ label: 'Collection name', switchValue: 'pureName' });
+      res.push({ label: _t('sqlObject.collectionName', { defaultMessage: 'Collection name' }), switchValue: 'pureName' });
     }
     if (driver?.databaseEngineTypes?.includes('sql')) {
-      res.push({ label: 'Table/view/procedure name', switchValue: 'pureName' });
-      res.push({ label: 'Schema', switchValue: 'schemaName' });
-      res.push({ label: 'Column name', switchValue: 'columnName' });
-      res.push({ label: 'Column data type', switchValue: 'columnDataType' });
-      res.push({ label: 'Table comment', switchValue: 'tableComment' });
-      res.push({ label: 'Column comment', switchValue: 'columnComment' });
-      res.push({ label: 'View/procedure/trigger text', switchValue: 'sqlObjectText' });
-      res.push({ label: 'Table engine', switchValue: 'tableEngine' });
-      res.push({ label: 'Only tables with rows', switchValue: 'tablesWithRows' });
+      res.push({ label: _t('sqlObject.tableViewProcedureName', { defaultMessage: 'Table/view/procedure name' }), switchValue: 'pureName' });
+      res.push({ label: _t('sqlObject.schemaName', { defaultMessage: 'Schema' }), switchValue: 'schemaName' });
+      res.push({ label: _t('sqlObject.columnName', { defaultMessage: 'Column name' }), switchValue: 'columnName' });
+      res.push({ label: _t('sqlObject.columnDataType', { defaultMessage: 'Column data type' }), switchValue: 'columnDataType' });
+      res.push({ label: _t('sqlObject.tableComment', { defaultMessage: 'Table comment' }), switchValue: 'tableComment' });
+      res.push({ label: _t('sqlObject.columnComment', { defaultMessage: 'Column comment' }), switchValue: 'columnComment' });
+      res.push({ label: _t('sqlObject.viewProcedureTriggerText', { defaultMessage: 'View/procedure/trigger text' }), switchValue: 'sqlObjectText' });
+      res.push({ label: _t('sqlObject.tableEngine', { defaultMessage: 'Table engine' }), switchValue: 'tableEngine' });
+      res.push({ label: _t('sqlObject.tablesWithRows', { defaultMessage: 'Only tables with rows' }), switchValue: 'tablesWithRows' });
     }
     return res.map(item => ({
       ...item,
@@ -175,7 +176,7 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo message={$status.message} icon="img error" />
-    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <SchemaSelector
@@ -192,26 +193,26 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo
-      message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
+      message={_t('sqlObject.databaseEmpty', { defaultMessage: 'Database {database} is empty or structure is not loaded, press Refresh button to reload structure', values: { database } })}
       icon="img alert"
     />
     <div class="m-1" />
-    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
     {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
-      <InlineButton on:click={() => runCommand('new.table')}>New table</InlineButton>
+      <InlineButton on:click={() => runCommand('new.table')}>{_t('database.newTable', { defaultMessage: 'New table' })}</InlineButton>
     {/if}
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.collection')}
-        >New {driver?.collectionSingularLabel ?? 'collection/container'}</InlineButton
+        >{_t('sqlObject.newCollection', { defaultMessage: 'New collection/container'})}</InlineButton
       >
     {/if}
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
     <SearchInput
-      placeholder="Search in tables, views, procedures"
+      placeholder={_t('sqlObject.search.placeholder', { defaultMessage: 'Search in tables, views, procedures' })}
       bind:value={filter}
       bind:this={domFilter}
       onFocusFilteredList={() => {
@@ -232,7 +233,7 @@
     {/if}
     <InlineButton
       on:click={handleRefreshDatabase}
-      title="Refresh database connection and object list"
+      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: "Refresh database connection and object list" })}
       square
       data-testid="SqlObjectList_refreshButton"
     >
@@ -259,7 +260,7 @@
     data-testid="SqlObjectList_container"
   >
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
-      <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
+      <LoadingInfo message={$status?.feedback?.analysingMessage || _t('sqlObject.loadingStructure', { defaultMessage: 'Loading database structure' })} />
     {:else}
       <AppObjectListHandler
         bind:this={domListHandler}

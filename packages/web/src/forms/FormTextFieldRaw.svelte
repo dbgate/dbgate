@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getFormContext } from './FormProviderCore.svelte';
   import TextField from './TextField.svelte';
+  import { _val } from '../translations';
 
   export let name;
   export let defaultValue;
@@ -11,7 +12,7 @@
 
 <TextField
   {...$$restProps}
-  value={$values?.[name] ?? defaultValue}
+  value={$values?.[name] ? _val($values[name]) : defaultValue}
   on:input={e => setFieldValue(name, e.target['value'])}
   on:input={e => {
     if (saveOnInput) {

@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import { copyTextToClipboard } from '../utility/clipboard';
+  import { _t, _val } from '../translations';
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
@@ -69,13 +70,13 @@
 
   function createScriptTemplatesSubmenu(objectTypeField) {
     return {
-      label: 'SQL template',
+      label: _t('dbObject.sqlTemplate', { defaultMessage: 'SQL template' }),
       submenu: getSupportedScriptTemplates(objectTypeField),
     };
   }
 
   interface DbObjMenuItem {
-    label?: string;
+    label?: string | (() => string);
     tab?: string;
     forceNewTab?: boolean;
     initialData?: any;
@@ -113,19 +114,19 @@
             divider: true,
           },
           isProApp() && {
-            label: 'Design query',
+            label: _t('dbObject.designQuery', { defaultMessage: 'Design query' }),
             isQueryDesigner: true,
             requiresWriteAccess: true,
           },
           isProApp() && {
-            label: 'Design perspective query',
+            label: _t('dbObject.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
             tab: 'PerspectiveTab',
             forceNewTab: true,
             icon: 'img perspective',
           },
           createScriptTemplatesSubmenu('tables'),
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE TABLE',
@@ -154,33 +155,33 @@
             divider: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Drop table',
+            label: _t('dbObject.dropTable', { defaultMessage: 'Drop table' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/rename') &&
             !driver?.dialect.disableRenameTable && {
-              label: 'Rename table',
+              label: _t('dbObject.renameTable', { defaultMessage: 'Rename table' }),
               isRename: true,
               requiresWriteAccess: true,
             },
           hasPermission('dbops/table/truncate') && {
-            label: 'Truncate table',
+            label: _t('dbObject.truncateTable', { defaultMessage: 'Truncate table' }),
             isTruncate: true,
             requiresWriteAccess: true,
           },
           {
-            label: 'Copy table name',
+            label: _t('dbObject.copyTableName', { defaultMessage: 'Copy table name' }),
             isCopyTableName: true,
             requiresWriteAccess: false,
           },
           hasPermission('dbops/table/backup') && {
-            label: 'Create table backup',
+            label: _t('dbObject.createTableBackup', { defaultMessage: 'Create table backup' }),
             isDuplicateTable: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/model/view') && {
-            label: 'Show diagram',
+            label: _t('dbObject.showDiagram', { defaultMessage: 'Show diagram' }),
             isDiagram: true,
           },
           {
@@ -204,18 +205,18 @@
             divider: true,
           },
           isProApp() && {
-            label: 'Design query',
+            label: _t('dbObject.designQuery', { defaultMessage: 'Design query' }),
             isQueryDesigner: true,
           },
           isProApp() && {
-            label: 'Design perspective query',
+            label: _t('dbObject.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
             tab: 'PerspectiveTab',
             forceNewTab: true,
             icon: 'img perspective',
           },
           createScriptTemplatesSubmenu('views'),
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE VIEW',
@@ -235,12 +236,12 @@
             divider: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Drop view',
+            label: _t('dbObject.dropView', { defaultMessage: 'Drop view' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Rename view',
+            label: _t('dbObject.renameView', { defaultMessage: 'Rename view' }),
             isRename: true,
             requiresWriteAccess: true,
           },
@@ -260,12 +261,12 @@
             divider: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Drop view',
+            label: _t('dbObject.dropView', { defaultMessage: 'Drop view' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Rename view',
+            label: _t('dbObject.renameView', { defaultMessage: 'Rename view' }),
             isRename: true,
             requiresWriteAccess: true,
           },
@@ -273,12 +274,12 @@
             divider: true,
           },
           {
-            label: 'Query designer',
+            label: _t('dbObject.queryDesigner', { defaultMessage: 'Query designer' }),
             isQueryDesigner: true,
           },
           createScriptTemplatesSubmenu('matviews'),
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE MATERIALIZED VIEW',
@@ -306,7 +307,7 @@
       case 'queries':
         return [
           {
-            label: 'Open data',
+            label: _t('dbObject.openData', { defaultMessage: 'Open data' }),
             tab: 'QueryDataTab',
             forceNewTab: true,
           },
@@ -318,18 +319,18 @@
             divider: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Drop procedure',
+            label: _t('dbObject.dropProcedure', { defaultMessage: 'Drop procedure' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/model/edit') && {
-            label: 'Rename procedure',
+            label: _t('dbObject.renameProcedure', { defaultMessage: 'Rename procedure' }),
             isRename: true,
             requiresWriteAccess: true,
           },
           createScriptTemplatesSubmenu('procedures'),
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE PROCEDURE',
@@ -352,7 +353,7 @@
         return [
           ...defaultDatabaseObjectAppObjectActions['triggers'],
           hasPermission('dbops/model/edit') && {
-            label: 'Drop trigger',
+            label: _t('dbObject.dropTrigger', { defaultMessage: 'Drop trigger' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
@@ -360,7 +361,7 @@
             divider: true,
           },
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE TRIGGER',
@@ -384,7 +385,7 @@
             divider: true,
           },
           isProApp() && {
-            label: 'Design perspective query',
+            label: _t('dbObject.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
             tab: 'PerspectiveTab',
             forceNewTab: true,
             icon: 'img perspective',
@@ -395,17 +396,17 @@
             functionName: 'tableReader',
           },
           hasPermission('dbops/model/edit') && {
-            label: `Drop ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+            label: _t('dbObject.dropCollection', { defaultMessage: 'Drop collection/container'}),
             isDropCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/rename') && {
-            label: `Rename ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+            label: _t('dbObject.renameCollection', { defaultMessage: 'Rename collection/container'}),
             isRenameCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/backup') && {
-            label: `Create ${driver?.collectionSingularLabel ?? 'collection/container'} backup`,
+            label: _t('dbObject.createCollectionBackup', { defaultMessage: 'Create collection/container backup'}),
             isDuplicateCollection: true,
             requiresWriteAccess: true,
           },
@@ -418,7 +419,7 @@
         const menu: DbObjMenuItem[] = [
           ...defaultDatabaseObjectAppObjectActions['schedulerEvents'],
           hasPermission('dbops/model/edit') && {
-            label: 'Drop event',
+            label: _t('dbObject.dropEvent', { defaultMessage: 'Drop event' }),
             isDrop: true,
             requiresWriteAccess: true,
           },
@@ -426,12 +427,12 @@
 
         if (data?.status === 'ENABLED') {
           menu.push({
-            label: 'Disable',
+            label: _t('dbObject.disable', { defaultMessage: 'Disable' }),
             isDisableEvent: true,
           });
         } else {
           menu.push({
-            label: 'Enable',
+            label: _t('dbObject.enable', { defaultMessage: 'Enable' }),
             isEnableEvent: true,
           });
         }
@@ -441,7 +442,7 @@
             divider: true,
           },
           {
-            label: 'SQL generator',
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
             submenu: [
               {
                 label: 'CREATE SCHEDULER EVENT',
@@ -474,7 +475,7 @@
     if (menu.isQueryDesigner) {
       openNewTab(
         {
-          title: 'Query #',
+          title: _t('dbObject.query', { defaultMessage: 'Query #' }),
           icon: 'img query-design',
           tabComponent: 'QueryDesignTab',
           focused: true,
@@ -499,7 +500,7 @@
     } else if (menu.isDiagram) {
       openNewTab(
         {
-          title: 'Diagram #',
+          title: _t('dbObject.diagram', { defaultMessage: 'Diagram #' }),
           icon: 'img diagram',
           tabComponent: 'DiagramTab',
           props: {
@@ -589,7 +590,7 @@
       });
     } else if (menu.isDropCollection) {
       showModal(ConfirmModal, {
-        message: `Really drop collection ${data.pureName}?`,
+        message: _t('dbObject.confirmDropCollection', { defaultMessage: 'Really drop collection {name}?', values: { name: data.pureName } }),
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
           runOperationOnDatabase(dbid, {
@@ -603,8 +604,8 @@
     } else if (menu.isRenameCollection) {
       const driver = await getDriver();
       showModal(InputTextModal, {
-        label: `New ${driver?.collectionSingularLabel ?? 'collection/container'} name`,
-        header: `Rename ${driver?.collectionSingularLabel ?? 'collection/container'}`,
+        label: _t('dbObject.newCollectionName', { defaultMessage: 'New collection/container name' }),
+        header: _t('dbObject.renameCollection', { defaultMessage: 'Rename collection/container' }),
         value: data.pureName,
         onConfirm: async newName => {
           const dbid = _.pick(data, ['conid', 'database']);
@@ -620,7 +621,7 @@
       const driver = await getDriver();
 
       showModal(ConfirmModal, {
-        message: `Really create ${driver?.collectionSingularLabel ?? 'collection/container'} copy named ${newName}?`,
+        message: _t('dbObject.confirmCloneCollection', { defaultMessage: 'Really create collection/container copy named {name}?', values: { name: newName } }),
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
           runOperationOnDatabase(dbid, {
@@ -718,7 +719,7 @@
 
     const filteredSumenus = coreMenus.map(item => {
       if (!item.submenu) {
-        return item;
+        return { ...item , label: _val(item.label)};
       }
       return {
         ...item,
@@ -768,7 +769,7 @@
     openNewTab(
       {
         // title: getObjectTitle(connection, schemaName, pureName),
-        title: tabComponent ? getObjectTitle(connection, schemaName, pureName) : 'Query #',
+        title: tabComponent ? getObjectTitle(connection, schemaName, pureName) : _t('dbObject.query', { defaultMessage: 'Query #' }),
         focused: tabComponent == null,
         tooltip,
         icon:

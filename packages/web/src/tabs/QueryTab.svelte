@@ -2,21 +2,22 @@
   import registerCommand from '../commands/registerCommand';
   import { copyTextToClipboard } from '../utility/clipboard';
   import yaml from 'js-yaml';
+  import { __t, _t } from '../translations';
 
   const getCurrentEditor = () => getActiveComponent('QueryTab');
 
   registerCommand({
     id: 'query.formatCode',
-    category: 'Query',
-    name: 'Format code',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.formatCode', { defaultMessage: 'Format code' }),
     keyText: 'Shift+Alt+F',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().formatCode(),
   });
   registerCommand({
     id: 'query.switchAiAssistant',
-    category: 'Query',
-    name: 'AI Assistant',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.AiAssistant', { defaultMessage: 'AI Assistant' }),
     keyText: 'Shift+Alt+A',
     icon: 'icon ai',
     testEnabled: () => isProApp(),
@@ -24,23 +25,23 @@
   });
   registerCommand({
     id: 'query.insertSqlJoin',
-    category: 'Query',
-    name: 'Insert SQL Join',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.insertSqlJoin', { defaultMessage: 'Insert SQL Join' }),
     keyText: 'CtrlOrCommand+J',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
   registerCommand({
     id: 'query.toggleVisibleResultTabs',
-    category: 'Query',
-    name: 'Toggle visible result tabs',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleVisibleResultTabs', { defaultMessage: 'Toggle visible result tabs' }),
     keyText: 'CtrlOrCommand+Shift+R',
     testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().toggleVisibleResultTabs(),
   });
   registerFileCommands({
     idPrefix: 'query',
-    category: 'Query',
+    category: __t('command.query', { defaultMessage: 'Query' }),
     getCurrentEditor,
     folder: 'sql',
     format: 'text',
@@ -54,8 +55,8 @@
   });
   registerCommand({
     id: 'query.executeCurrent',
-    category: 'Query',
-    name: 'Execute current',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.executeCurrent', { defaultMessage: 'Execute current' }),
     keyText: 'CtrlOrCommand+Shift+Enter',
     testEnabled: () =>
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
@@ -63,56 +64,56 @@
   });
   registerCommand({
     id: 'query.toggleAutoExecute',
-    category: 'Query',
-    name: 'Toggle auto execute',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleAutoExecute', { defaultMessage: 'Toggle auto execute' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().toggleAutoExecute(),
   });
   registerCommand({
     id: 'query.toggleFixedConnection',
-    category: 'Query',
-    name: 'Toggle fixed connection',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleFixedConnection', { defaultMessage: 'Toggle fixed connection' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().toggleFixedConnection(),
   });
   registerCommand({
     id: 'query.beginTransaction',
-    category: 'Query',
-    name: 'Begin transaction',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.beginTransaction', { defaultMessage: 'Begin transaction' }),
     icon: 'icon transaction',
     testEnabled: () => getCurrentEditor()?.beginTransactionEnabled(),
     onClick: () => getCurrentEditor().beginTransaction(),
   });
   registerCommand({
     id: 'query.autocommitOffSwitch',
-    category: 'Query',
-    name: 'Auto commit: OFF',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.autocommitOffSwitch', { defaultMessage: 'Auto commit: OFF' }),
     icon: 'icon autocommit-off',
     testEnabled: () => getCurrentEditor()?.autocommitOffSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOffSwitch(),
   });
   registerCommand({
     id: 'query.autocommitOnSwitch',
-    category: 'Query',
-    name: 'Auto commit: ON',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.autocommitOnSwitch', { defaultMessage: 'Auto commit: ON' }),
     icon: 'icon autocommit-on',
     testEnabled: () => getCurrentEditor()?.autocommitOnSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOnSwitch(),
   });
   registerCommand({
     id: 'query.commitTransaction',
-    category: 'Query',
-    name: 'Commit transaction',
-    toolbarName: 'Commit',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.commitTransaction', { defaultMessage: 'Commit transaction' }),
+    toolbarName: __t('command.query.commitTransactionToolbar', { defaultMessage: 'Commit' }),
     icon: 'icon commit',
     testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().commitTransaction(),
   });
   registerCommand({
     id: 'query.rollbackTransaction',
-    category: 'Query',
-    name: 'Rollback transaction',
-    toolbarName: 'Rollback',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.rollbackTransaction', { defaultMessage: 'Rollback transaction' }),
+    toolbarName: __t('command.query.rollbackTransactionToolbar', { defaultMessage: 'Rollback' }),
     icon: 'icon rollback',
     testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().rollbackTransaction(),
@@ -177,27 +178,27 @@
   const QUERY_PARAMETER_STYLES = [
     {
       value: '',
-      text: '(no parameters)',
+      text: _t('query.noParameters', { defaultMessage: '(no parameters)' }),
     },
     {
       value: '?',
-      text: '? (positional)',
+      text: _t('query.positional', { defaultMessage: '? (positional)' }),
     },
     {
       value: '@',
-      text: '@variable',
+      text: _t('query.variable', { defaultMessage: '@variable' }),
     },
     {
       value: ':',
-      text: ':variable',
+      text: _t('query.named', { defaultMessage: ':variable' }),
     },
     {
       value: '$',
-      text: '$variable',
+      text: _t('query.variable', { defaultMessage: '$variable' }),
     },
     {
       value: '#',
-      text: '#variable',
+      text: _t('query.variable', { defaultMessage: '#variable' }),
     },
   ];
 
@@ -265,9 +266,11 @@
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
       apiOn(`session-closed-${sid}`, handleSessionClosed);
+      apiOn(`session-changedb-${sid}`, handleChangedDatabase);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
         apiOff(`session-closed-${sid}`, handleSessionClosed);
+        apiOff(`session-changedb-${sid}`, handleChangedDatabase);
       };
     }
     return () => {};
@@ -566,6 +569,17 @@
     handleSessionDone();
   };
 
+  const handleChangedDatabase = async props => {
+    changeTab(tabid, tab => ({
+      ...tab,
+      props: {
+        ...tab.props,
+        conid,
+        database: props.database,
+      },
+    }));
+  };
+
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     loadFromArgs:
@@ -757,12 +771,12 @@
               <SocketMessageView
                 eventName={sessionId ? `session-info-${sessionId}` : null}
                 onMessageClick={handleMesageClick}
-                {executeNumber}
                 startLine={executeStartLine}
                 showProcedure
                 showLine
                 onChangeErrors={handleChangeErrors}
                 onExplainError={isProApp() ? handleExplainError : null}
+                engine={$connection && $connection.engine}
               />
             </svelte:fragment>
           </ResultTabs>
@@ -818,11 +832,11 @@
             },
           })}
       >
-        {queryRowsLimit ? `Limit ${queryRowsLimit} rows` : 'Unlimited rows'}</ToolStripButton
+        {queryRowsLimit ? _t('query.limitRows', { defaultMessage: 'Limit {queryRowsLimit} rows', values: { queryRowsLimit } }) : _t('query.unlimitedRows', { defaultMessage: 'Unlimited rows' })}</ToolStripButton
       >
     {/if}
     {#if resultCount == 1}
-      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
+      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label={_t('export.result', { defaultMessage: 'Export result' })} />
     {/if}
     <ToolStripDropDownButton
       menu={() =>
@@ -872,7 +886,7 @@
           domResultTabs?.openCurrentChart();
         }}
       >
-        Open chart</ToolStripButton
+        {_t('chart.open', { defaultMessage: 'Open chart' })}</ToolStripButton
       >
     {/if}
     {#if isProApp() && !visibleResultTabs && hasPermission('dbops/charts')}
@@ -883,7 +897,7 @@
           autoDetectCharts = !autoDetectCharts;
         }}
       >
-        Detect chart<FontIcon
+        {_t('chart.detect', { defaultMessage: 'Detect chart' })}<FontIcon
           icon={autoDetectCharts ? 'icon checkbox-marked' : 'icon checkbox-blank'}
           padLeft
         /></ToolStripButton

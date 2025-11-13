@@ -239,8 +239,8 @@
 
   registerCommand({
     id: 'tabs.nextTab',
-    category: 'Tabs',
-    name: _t('command.tabs.nextTab', { defaultMessage: 'Next tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.nextTab', { defaultMessage: 'Next tab' }),
     keyText: 'Ctrl+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => switchTabByOrder(false),
@@ -248,8 +248,8 @@
 
   registerCommand({
     id: 'tabs.previousTab',
-    category: 'Tabs',
-    name: _t('command.tabs.previousTab', { defaultMessage: 'Previous tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.previousTab', { defaultMessage: 'Previous tab' }),
     keyText: 'Ctrl+Shift+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => switchTabByOrder(true),
@@ -257,16 +257,16 @@
 
   registerCommand({
     id: 'tabs.closeAll',
-    category: 'Tabs',
-    name: _t('command.tabs.closeAll', { defaultMessage: 'Close all tabs' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeAll', { defaultMessage: 'Close all tabs' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
     onClick: closeAll,
   });
 
   registerCommand({
     id: 'tabs.closeTab',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTab', { defaultMessage: 'Close tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTab', { defaultMessage: 'Close tab' }),
     keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : 'Alt+W',
     testEnabled: () => {
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
@@ -279,24 +279,24 @@
 
   registerCommand({
     id: 'tabs.closeTabsWithCurrentDb',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTabsWithCurrentDb', { defaultMessage: 'Close tabs with current DB' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTabsWithCurrentDb', { defaultMessage: 'Close tabs with current DB' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsWithCurrentDb,
   });
 
   registerCommand({
     id: 'tabs.closeTabsButCurrentDb',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTabsButCurrentDb', { defaultMessage: 'Close tabs but current DB' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTabsButCurrentDb', { defaultMessage: 'Close tabs but current DB' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsButCurrentDb,
   });
 
   registerCommand({
     id: 'tabs.reopenClosedTab',
-    category: 'Tabs',
-    name: _t('command.tabs.reopenClosedTab', { defaultMessage: 'Reopen closed tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.reopenClosedTab', { defaultMessage: 'Reopen closed tab' }),
     keyText: 'CtrlOrCommand+Shift+T',
     testEnabled: () => getOpenedTabs().filter(x => x.closedTime).length >= 1,
     onClick: reopenClosedTab,
@@ -304,8 +304,8 @@
 
   registerCommand({
     id: 'tabs.addToFavorites',
-    category: 'Tabs',
-    name: _t('command.tabs.addToFavorites', { defaultMessage: 'Add current tab to favorites' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.addToFavorites', { defaultMessage: 'Add current tab to favorites' }),
     // icon: 'icon favorite',
     // toolbar: true,
     testEnabled: () =>
@@ -358,6 +358,9 @@
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
+  import { isProApp } from '../utility/proTools';
+  import { openWebLink } from '../utility/simpleTools';
+  import { __t } from '../translations';
 
   export let multiTabIndex;
   export let shownTab;
@@ -583,7 +586,13 @@
 </script>
 
 <div class="root">
-  <div class="tabs" class:can-split={allowSplitTab} on:wheel={handleTabsWheel} bind:this={domTabs}>
+  <div
+    class="tabs"
+    class:can-split={allowSplitTab && isProApp()}
+    class:tabs-upgrade-button={!isProApp()}
+    on:wheel={handleTabsWheel}
+    bind:this={domTabs}
+  >
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
         {#if !$lockedDatabaseMode}
@@ -713,7 +722,7 @@
     {/each}
   </div>
   <div class="icons-wrapper">
-    {#if allowSplitTab}
+    {#if allowSplitTab && isProApp()}
       <div
         class="icon-button"
         on:click={() => splitTab(multiTabIndex)}
@@ -723,6 +732,22 @@
         <FontIcon icon="icon split" />
       </div>
     {/if}
+
+    {#if !isProApp()}
+      <div
+        class="upgrade-button"
+        on:click={() => {
+          openWebLink(
+            `https://www.dbgate.io/purchase/${isElectronAvailable() ? 'premium' : 'team-premium'}/?utm_campaign=premiumUpgradeButton`
+          );
+        }}
+        title="Upgrade to Premium"
+        data-testid="TabsPanel_buttonUpgrade"
+      >
+        <FontIcon icon="icon premium" padRight /> Upgrade
+      </div>
+    {/if}
+
     <div
       class="icon-button"
       on:click={() => showModal(NewObjectModal, { multiTabIndex })}
@@ -756,6 +781,18 @@
     color: var(--theme-font-2);
     cursor: pointer;
   }
+  .upgrade-button {
+    background: linear-gradient(135deg, #1686c8, #8a25b1);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 10pt;
+    padding: 5px;
+  }
+  .upgrade-button:hover {
+    background: linear-gradient(135deg, #0f5a85, #5c1870);
+  }
   .icon-button:hover {
     color: var(--theme-font-1);
   }
@@ -768,6 +805,10 @@
     top: 0;
     right: 35px;
     bottom: 0;
+  }
+
+  .tabs-upgrade-button {
+    right: 120px;
   }
   .tabs.can-split {
     right: 60px;

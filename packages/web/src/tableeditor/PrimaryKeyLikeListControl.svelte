@@ -9,13 +9,14 @@
   import { showModal } from '../modals/modalTools';
 
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
+  import { _t } from '../translations';
 
   export let tableInfo;
   export let setTableInfo;
   export let isWritable;
   export let driver;
 
-  export let constraintLabel = 'primary key';
+  export let constraintLabel = _t('tableEditor.primaryKey', { defaultMessage: 'primary key' });
   export let constraintType = 'primaryKey';
 
   $: columns = tableInfo?.columns;
@@ -35,7 +36,12 @@
 <ObjectListControl
   collection={_.compact([keyConstraint])}
   title={_.startCase(constraintLabel)}
-  emptyMessage={isWritable ? `No ${constraintLabel} defined` : null}
+  emptyMessage={isWritable
+    ? _t('tableEditor.noConstraintDefined', {
+        defaultMessage: 'No {constraintLabel} defined',
+        values: { constraintLabel },
+      })
+    : null}
   onAddNew={isWritable && !keyConstraint && columns?.length > 0 ? addKeyConstraint : null}
   hideDisplayName={driver?.dialect?.anonymousPrimaryKey}
   clickable
@@ -51,7 +57,7 @@
   columns={[
     {
       fieldName: 'columns',
-      header: 'Columns',
+      header: _t('tableEditor.columns', { defaultMessage: 'Columns' }),
       slot: 0,
       sortable: true,
     },
@@ -70,7 +76,7 @@
       onClick={e => {
         e.stopPropagation();
         setTableInfo(tbl => editorDeleteConstraint(tbl, row));
-      }}>Remove</Link
+      }}>{_t('common.remove', { defaultMessage: 'Remove' })}</Link
     ></svelte:fragment
   >
 </ObjectListControl>

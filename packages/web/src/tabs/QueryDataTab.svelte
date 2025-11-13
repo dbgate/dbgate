@@ -5,8 +5,8 @@
 
   registerCommand({
     id: 'queryData.stopLoading',
-    category: 'Query data',
-    name: 'Stop loading',
+    category: __t('command.queryData', { defaultMessage: 'Query data' }),
+    name: __t('command.queryData.stopLoading', { defaultMessage: 'Stop loading' }),
     icon: 'icon stop',
     testEnabled: () => getCurrentEditor()?.isLoading(),
     onClick: () => getCurrentEditor().stopLoading(),
@@ -32,6 +32,7 @@
   import yaml from 'js-yaml';
   import JslChart from '../charts/JslChart.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import { __t } from '../translations';
 
   export const activator = createActivator('QueryDataTab', true);
 

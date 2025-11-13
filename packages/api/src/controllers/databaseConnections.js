@@ -29,7 +29,17 @@ const generateDeploySql = require('../shell/generateDeploySql');
 const { createTwoFilesPatch } = require('diff');
 const diff2htmlPage = require('../utility/diff2htmlPage');
 const processArgs = require('../utility/processArgs');
-const { testConnectionPermission, hasPermission, loadPermissionsFromRequest, loadTablePermissionsFromRequest, getTablePermissionRole, loadDatabasePermissionsFromRequest, getDatabasePermissionRole, getTablePermissionRoleLevelIndex, testDatabaseRolePermission } = require('../utility/hasPermission');
+const {
+  testConnectionPermission,
+  hasPermission,
+  loadPermissionsFromRequest,
+  loadTablePermissionsFromRequest,
+  getTablePermissionRole,
+  loadDatabasePermissionsFromRequest,
+  getDatabasePermissionRole,
+  getTablePermissionRoleLevelIndex,
+  testDatabaseRolePermission,
+} = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
@@ -100,7 +110,7 @@ module.exports = {
     socket.emitChanged(`database-status-changed`, { conid, database });
   },
 
-  handle_ping() { },
+  handle_ping() {},
 
   // session event handlers
 
@@ -256,23 +266,24 @@ module.exports = {
         auditLogger:
           auditLogSessionGroup && select?.from?.name?.pureName
             ? response => {
-              sendToAuditLog(req, {
-                category: 'dbop',
-                component: 'DatabaseConnectionsController',
-                event: 'sql.select',
-                action: 'select',
-                severity: 'info',
-                conid,
-                database,
-                schemaName: select?.from?.name?.schemaName,
-                pureName: select?.from?.name?.pureName,
-                sumint1: response?.rows?.length,
-                sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${select?.from?.name?.pureName
+                sendToAuditLog(req, {
+                  category: 'dbop',
+                  component: 'DatabaseConnectionsController',
+                  event: 'sql.select',
+                  action: 'select',
+                  severity: 'info',
+                  conid,
+                  database,
+                  schemaName: select?.from?.name?.schemaName,
+                  pureName: select?.from?.name?.pureName,
+                  sumint1: response?.rows?.length,
+                  sessionParam: `${conid}::${database}::${select?.from?.name?.schemaName || '0'}::${
+                    select?.from?.name?.pureName
                   }`,
-                sessionGroup: auditLogSessionGroup,
-                message: `Loaded table data from ${select?.from?.name?.pureName}`,
-              });
-            }
+                  sessionGroup: auditLogSessionGroup,
+                  message: `Loaded table data from ${select?.from?.name?.pureName}`,
+                });
+              }
             : null,
       }
     );
@@ -335,21 +346,21 @@ module.exports = {
         auditLogger:
           auditLogSessionGroup && options?.pureName
             ? response => {
-              sendToAuditLog(req, {
-                category: 'dbop',
-                component: 'DatabaseConnectionsController',
-                event: 'nosql.collectionData',
-                action: 'select',
-                severity: 'info',
-                conid,
-                database,
-                pureName: options?.pureName,
-                sumint1: response?.result?.rows?.length,
-                sessionParam: `${conid}::${database}::${options?.pureName}`,
-                sessionGroup: auditLogSessionGroup,
-                message: `Loaded collection data ${options?.pureName}`,
-              });
-            }
+                sendToAuditLog(req, {
+                  category: 'dbop',
+                  component: 'DatabaseConnectionsController',
+                  event: 'nosql.collectionData',
+                  action: 'select',
+                  severity: 'info',
+                  conid,
+                  database,
+                  pureName: options?.pureName,
+                  sumint1: response?.result?.rows?.length,
+                  sessionParam: `${conid}::${database}::${options?.pureName}`,
+                  sessionGroup: auditLogSessionGroup,
+                  message: `Loaded collection data ${options?.pureName}`,
+                });
+              }
             : null,
       }
     );
@@ -455,10 +466,18 @@ module.exports = {
       [changeSet.inserts, 'create_update_delete'],
       [changeSet.deletes, 'create_update_delete'],
       [changeSet.updates, 'update_only'],
-    ]
+    ];
     for (const [operations, requiredRole] of fieldsAndRoles) {
       for (const operation of operations) {
-        const role = getTablePermissionRole(conid, database, 'tables', operation.schemaName, operation.pureName, tablePermissions, databasePermissions);
+        const role = getTablePermissionRole(
+          conid,
+          database,
+          'tables',
+          operation.schemaName,
+          operation.pureName,
+          tablePermissions,
+          databasePermissions
+        );
         if (getTablePermissionRoleLevelIndex(role) < getTablePermissionRoleLevelIndex(requiredRole)) {
           throw new Error('DBGM-00262 Permission not granted');
         }
@@ -628,7 +647,15 @@ module.exports = {
       function applyTablePermissionRole(list, objectTypeField) {
         const res = [];
         for (const item of list ?? []) {
-          const tablePermissionRole = getTablePermissionRole(conid, database, objectTypeField, item.schemaName, item.pureName, tablePermissions, databasePermissionRole);
+          const tablePermissionRole = getTablePermissionRole(
+            conid,
+            database,
+            objectTypeField,
+            item.schemaName,
+            item.pureName,
+            tablePermissions,
+            databasePermissionRole
+          );
           if (tablePermissionRole != 'deny') {
             res.push({
               ...item,
@@ -647,7 +674,7 @@ module.exports = {
         functions: applyTablePermissionRole(opened.structure.functions, 'functions'),
         triggers: applyTablePermissionRole(opened.structure.triggers, 'triggers'),
         collections: applyTablePermissionRole(opened.structure.collections, 'collections'),
-      }
+      };
       return res;
     }
 
@@ -881,17 +908,17 @@ module.exports = {
     return {
       ...(command == 'backup'
         ? driver.backupDatabaseCommand(
-          connection,
-          { outputFile, database, options, selectedTables, skippedTables, argsFormat },
-          // @ts-ignore
-          externalTools
-        )
+            connection,
+            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
+            // @ts-ignore
+            externalTools
+          )
         : driver.restoreDatabaseCommand(
-          connection,
-          { inputFile, database, options, argsFormat },
-          // @ts-ignore
-          externalTools
-        )),
+            connection,
+            { inputFile, database, options, argsFormat },
+            // @ts-ignore
+            externalTools
+          )),
       transformMessage: driver.transformNativeCommandMessage
         ? message => driver.transformNativeCommandMessage(message, command)
         : null,
@@ -990,7 +1017,10 @@ module.exports = {
   async executeSessionQuery({ sesid, conid, database, sql }, req) {
     await testConnectionPermission(conid, req);
     logger.info({ sesid, sql }, 'DBGM-00010 Processing query');
-    sessions.dispatchMessage(sesid, 'Query execution started');
+    sessions.dispatchMessage(sesid, {
+      message: 'Query execution started',
+      sql,
+    });
 
     const opened = await this.ensureOpened(conid, database);
     opened.subprocess.send({ msgtype: 'executeSessionQuery', sql, sesid });

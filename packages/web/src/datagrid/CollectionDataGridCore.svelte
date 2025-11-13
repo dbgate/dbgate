@@ -3,16 +3,16 @@
 
   registerCommand({
     id: 'collectionDataGrid.openQuery',
-    category: 'Data grid',
-    name: 'Open query',
+    category: __t('command.dataGrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.dataGrid.openQuery', { defaultMessage: 'Open query' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().openQuery(),
   });
 
   registerCommand({
     id: 'collectionDataGrid.export',
-    category: 'Data grid',
-    name: 'Export',
+    category: __t('command.dataGrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.dataGrid.export', { defaultMessage: 'Export' }),
     keyText: 'CtrlOrCommand+E',
     icon: 'icon export',
     testEnabled: () => getCurrentEditor() != null,
@@ -140,6 +140,7 @@
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import { mongoFilterBehaviour, standardFilterBehaviours } from 'dbgate-tools';
   import { openImportExportTab } from '../utility/importExportTools';
+  import { __t } from '../translations';
 
   export let conid;
   export let display;

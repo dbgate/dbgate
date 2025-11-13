@@ -1,3 +1,4 @@
+import { __t } from '../translations';
 export function matchDatabaseObjectAppObject(obj1, obj2) {
   return (
     obj1?.objectTypeField == obj2?.objectTypeField &&
@@ -11,12 +12,12 @@ export function matchDatabaseObjectAppObject(obj1, obj2) {
 function getTableLikeActions(dataTab) {
   return [
     {
-      label: 'Open data',
+      label: __t('dbObject.openData', { defaultMessage: 'Open data' }),
       tab: dataTab,
       defaultActionId: 'openTable',
     },
     {
-      label: 'Open raw data',
+      label: __t('dbObject.openRawData', { defaultMessage: 'Open raw data' }),
       tab: dataTab,
       defaultActionId: 'openRawTable',
       isRawMode: true,
@@ -33,13 +34,13 @@ function getTableLikeActions(dataTab) {
     //   defaultActionId: 'openForm',
     // },
     {
-      label: 'Open structure',
+      label: __t('dbObject.openStructure', { defaultMessage: 'Open structure' }),
       tab: 'TableStructureTab',
       icon: 'img table-structure',
       defaultActionId: 'openStructure',
     },
     {
-      label: 'Show SQL',
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
       tab: 'SqlObjectTab',
       defaultActionId: 'showSql',
       icon: 'img sql-file',
@@ -53,7 +54,7 @@ export const defaultDatabaseObjectAppObjectActions = {
   matviews: getTableLikeActions('ViewDataTab'),
   procedures: [
     {
-      label: 'Show SQL',
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
       tab: 'SqlObjectTab',
       defaultActionId: 'showSql',
       icon: 'img sql-file',
@@ -61,7 +62,7 @@ export const defaultDatabaseObjectAppObjectActions = {
   ],
   functions: [
     {
-      label: 'Show SQL',
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
       tab: 'SqlObjectTab',
       defaultActionId: 'showSql',
       icon: 'img sql-file',
@@ -69,7 +70,7 @@ export const defaultDatabaseObjectAppObjectActions = {
   ],
   triggers: [
     {
-      label: 'Show SQL',
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
       tab: 'SqlObjectTab',
       defaultActionId: 'showSql',
       icon: 'img sql-file',
@@ -77,12 +78,12 @@ export const defaultDatabaseObjectAppObjectActions = {
   ],
   collections: [
     {
-      label: 'Open data',
+      label: __t('dbObject.openData', { defaultMessage: 'Open data' }),
       tab: 'CollectionDataTab',
       defaultActionId: 'openTable',
     },
     {
-      label: 'Open JSON',
+      label: __t('dbObject.openJson', { defaultMessage: 'Open JSON' }),
       tab: 'CollectionDataTab',
       defaultActionId: 'openJson',
       initialData: {
@@ -94,7 +95,7 @@ export const defaultDatabaseObjectAppObjectActions = {
   ],
   schedulerEvents: [
     {
-      label: 'Show SQL',
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
       tab: 'SqlObjectTab',
       defaultActionId: 'showSql',
       icon: 'img sql-file',
@@ -102,7 +103,7 @@ export const defaultDatabaseObjectAppObjectActions = {
   ],
   queries: [
     {
-      label: 'Show query',
+      label: __t('dbObject.showQuery', { defaultMessage: 'Show query' }),
       tab: 'QueryDataTab',
       defaultActionId: 'showAppQuery',
       icon: 'img app-query',

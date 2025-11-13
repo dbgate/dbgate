@@ -8,12 +8,37 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.11
+- FIXED: Fixed theming on application startup
+- CHANGED: Improved licensing page
+
+## 6.6.10
+- FIXED: License from environment variable is not refreshed #1245
+- FIXED: connection closing / reconnecting #1237
+- ADDED: retain history across multiple queries #1236
+- ADDED: load CSVs to temp tables #1235
+- FIXED: Not possible to scroll the data view horizontally by pressing shift and scroll mouse middle button on Mac #453
+- FIXED: Expired trial workflow (Premium)
+- ADDED: Column name collision resolving #1234 (MySQL)
+ 
+## 6.6.8
+- CHANGED: Windows executable now uses Azure trusted signing certificate
+- CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
+- CHANGED: Some features moved to Premium edition (master/detail views, FK lookups, column expansion, split view, advanced export/import, data archives, grouping, macros)
+
+## 6.6.6
+- ADDED: Allow disable/re-enable filter #1174
+- ADDED: Close right side tabs #1219
+- ADDED: Ability disable execute current line in query editor #1209
+- ADDED: Support for Redis Cluster #1204 (Premium)
+
 ## 6.6.5
 - ADDED: SQL AI assistant - powered by database chat, could help you to write SQL queries (Premium)
 - ADDED: Explain SQL error (powered by AI) (Premium)
 - ADDED: Database chat (and SQL AI Assistant) now supports showing charts (Premium)
 - FIXED: Fxied editing new files and roles (Team Premium)
 - FIXED: Connection to standalone database could be now pinned
+- FIXED: Cannot open up large JSON file #1215
 
 ## 6.6.4
 - ADDED: AI Database chat now supports much more LLM models. (Premium)

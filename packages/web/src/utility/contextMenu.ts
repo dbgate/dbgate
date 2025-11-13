@@ -4,6 +4,7 @@ import invalidateCommands from '../commands/invalidateCommands';
 import { runGroupCommand } from '../commands/runCommand';
 import { currentDropDownMenu, visibleCommandPalette } from '../stores';
 import getAsArray from './getAsArray';
+import { _val } from '../translations';
 
 let isContextMenuSupressed = false;
 
@@ -112,8 +113,9 @@ function mapItem(item, commands) {
   if (item.command) {
     const command = commands[item.command];
     if (command) {
+      const commandText = item.text || command.menuName || command.toolbarName || command.name;
       return {
-        text: item.text || command.menuName || command.toolbarName || command.name,
+        text: _val(commandText),
         keyText: command.keyText || command.keyTextFromGroup || command.disableHandleKeyText,
         onClick: () => {
           if (command.isGroupCommand) {

@@ -39,7 +39,8 @@ export class TableGridDisplay extends GridDisplay {
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
     isReadOnly = false,
     public isRawMode = false,
-    public currentSettings = null
+    public currentSettings = null,
+    public areReferencesAllowed = true
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
 
@@ -102,11 +103,11 @@ export class TableGridDisplay extends GridDisplay {
           isChecked: this.isColumnChecked(col),
           hintColumnNames:
             this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)?.columns?.map(columnName =>
-              shortenIdentifier(`hint_${col.uniqueName}_${columnName}`, this.driver.dialect.maxIdentifierLength)
+              shortenIdentifier(`hint_${col.uniqueName}_${columnName}`, this.driver?.dialect?.maxIdentifierLength)
             ) || null,
           hintColumnDelimiter: this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)
             ?.delimiter,
-          uniqueNameShorten: shortenIdentifier(col.uniqueName, this.driver.dialect.maxIdentifierLength),
+          uniqueNameShorten: shortenIdentifier(col.uniqueName, this.driver?.dialect?.maxIdentifierLength),
           isExpandable: !!col.foreignKey,
         })) || []
     );
@@ -117,7 +118,7 @@ export class TableGridDisplay extends GridDisplay {
       if (this.isExpandedColumn(column.uniqueName)) {
         const table = this.getFkTarget(column);
         if (table) {
-          const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver.dialect.maxIdentifierLength);
+          const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
 
           this.addReferenceToSelect(select, parentAlias, column);
@@ -130,7 +131,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
-    const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver.dialect.maxIdentifierLength);
+    const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
     if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
     const table = this.getFkTarget(column);
     if (table && table.primaryKey) {
@@ -195,11 +196,11 @@ export class TableGridDisplay extends GridDisplay {
             this.addReferenceToSelect(
               select,
               parentUniqueName
-                ? shortenIdentifier(`${parentUniqueName}_ref`, this.driver.dialect.maxIdentifierLength)
+                ? shortenIdentifier(`${parentUniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength)
                 : 'basetbl',
               column
             );
-            const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver.dialect.maxIdentifierLength);
+            const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
             select.columns.push(
               ...hintDescription.columns.map(
                 columnName =>
@@ -208,7 +209,7 @@ export class TableGridDisplay extends GridDisplay {
                     columnName,
                     alias: shortenIdentifier(
                       `hint_${column.uniqueName}_${columnName}`,
-                      this.driver.dialect.maxIdentifierLength
+                      this.driver?.dialect?.maxIdentifierLength
                     ),
                     source: { alias: childAlias },
                   } as ColumnRefExpression)
@@ -248,6 +249,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {
+    if (!this.areReferencesAllowed) return;
     this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
     if (!options.isExport && this.displayOptions.showHintColumns) {
       this.addHintsToSelect(select);

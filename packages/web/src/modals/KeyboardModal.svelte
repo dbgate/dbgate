@@ -5,6 +5,7 @@
   import keycodes from '../utility/keycodes';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let onChange;
   let value;
@@ -38,7 +39,7 @@
 </script>
 
 <ModalBase {...$$restProps} simple>
-  <div class="mb-2">Show desired key combination and press ENTER</div>
+  <div class="mb-2">_{_t('commandModal.showKeyCombination', { defaultMessage: 'Show desired key combination and press ENTER' })}</div>
   <div class="largeFormMarker">
     <TextField on:keydown={handleKeyDown} bind:value focused />
   </div>

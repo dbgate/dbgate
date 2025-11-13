@@ -4,6 +4,8 @@
   import RowsFilterSwitcher from '../forms/RowsFilterSwitcher.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import { filterName } from 'dbgate-tools';
+  import InlineButton from '../buttons/InlineButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let items: any[];
   export let showProcedure = false;
@@ -12,8 +14,10 @@
   export let startLine = 0;
   export let onMessageClick = null;
   export let onExplainError = null;
+  export let engine = null;
 
   export let filter = '';
+  export let onClear = null;
 
   $: time0 = items[0] && new Date(items[0].time).getTime();
 
@@ -37,6 +41,17 @@
 
 <div class="main">
   <div class="topbar">
+    {#if onClear}
+      <InlineButton
+        icon="img clear"
+        on:click={() => {
+          onClear();
+        }}
+      >
+        <FontIcon icon="icon delete" padRight />
+        Clear
+      </InlineButton>
+    {/if}
     <RowsFilterSwitcher
       icon="img debug"
       label="Debug"
@@ -92,6 +107,7 @@
           previousRow={index > 0 ? items[index - 1] : null}
           {onMessageClick}
           {onExplainError}
+          {engine}
         />
       {/each}
     </table>

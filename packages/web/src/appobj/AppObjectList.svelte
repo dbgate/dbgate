@@ -8,6 +8,7 @@
   import Link from '../elements/Link.svelte';
   import { focusedConnectionOrDatabase } from '../stores';
   import { tick } from 'svelte';
+  import { _val } from '../translations';
 
   export let list;
   export let module;
@@ -38,8 +39,19 @@
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
 
+  $: listTranslated = (list || []).map(data => ({
+    ...data,
+    group: data?.group && _val(data.group),
+    title: data?.title && _val(data.title),
+    description: data?.description && _val(data.description),
+    args: (data?.args || []).map(x => ({
+      ...x,
+      label: x?.label && _val(x.label),
+    })),
+  }));
+
   $: dataLabeled = _.compact(
-    (list || []).map(data => {
+    (listTranslated || []).map(data => {
       const matchResult = matcher ? matcher(data) : true;
 
       let isMatched = true;
@@ -102,7 +114,8 @@
 
   $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
 
-  $: listLimited = isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : list;
+  $: listLimited =
+    isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : listTranslated;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
   $: listMissingItems = isListLimited ? filtered.slice(listLimited.length) : [];
 

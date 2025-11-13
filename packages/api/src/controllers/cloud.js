@@ -9,6 +9,8 @@ const {
   putCloudContent,
   removeCloudCachedConnection,
   getPromoWidgetData,
+  getPromoWidgetList,
+  getPromoWidgetPreview,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -294,6 +296,16 @@ module.exports = {
       return null;
     }
     return data;
+  },
+
+  promoWidgetList_meta: true,
+  async promoWidgetList() {
+    return getPromoWidgetList();
+  },
+
+  promoWidgetPreview_meta: true,
+  async promoWidgetPreview({ campaign, variant }) {
+    return getPromoWidgetPreview(campaign, variant);
   },
 
   // chatStream_meta: {

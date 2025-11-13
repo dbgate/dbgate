@@ -16,7 +16,7 @@
   registerCommand({
     id: 'markdown.preview',
     category: 'Markdown',
-    name: 'Preview',
+    name: __t('command.markdown.preview', { defaultMessage: 'Preview' }),
     icon: 'icon run',
     toolbar: true,
     isRelatedToTab: true,
@@ -38,6 +38,7 @@
   import openNewTab from '../utility/openNewTab';
   import { setSelectedTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { __t } from '../translations';
 
   export let tabid;
 

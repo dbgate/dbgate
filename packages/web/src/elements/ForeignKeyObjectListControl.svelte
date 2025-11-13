@@ -5,6 +5,7 @@
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import Link from './Link.svelte';
+  import { _t } from '../translations';
 
   export let collection;
   export let title;
@@ -24,18 +25,18 @@
   columns={[
     {
       fieldName: 'baseColumns',
-      header: 'Base columns',
+      header: _t('foreignKey.baseColumns', { defaultMessage: 'Base columns' }),
       slot: 0,
       sortable: true,
     },
     {
       fieldName: 'refTableName',
-      header: 'Referenced table',
+      header: _t('foreignKey.refTableName', { defaultMessage: 'Referenced table' }),
       sortable: true,
     },
     {
       fieldName: 'refColumns',
-      header: 'Referenced columns',
+      header: _t('foreignKey.refColumns', { defaultMessage: 'Referenced columns' }),
       slot: 1,
       sortable: true,
     },
@@ -60,5 +61,5 @@
   <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
   <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
   <svelte:fragment slot="1" let:row>{row?.columns.map(x => x.refColumnName).join(', ')}</svelte:fragment>
-  <svelte:fragment slot="2" let:row><Link onClick={() => onRemove(row)}>Remove</Link></svelte:fragment>
+  <svelte:fragment slot="2" let:row><Link onClick={() => onRemove(row)}>{_t('common.remove', { defaultMessage: 'Remove' })}</Link></svelte:fragment>
 </ObjectListControl>

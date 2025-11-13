@@ -6,9 +6,13 @@ name: Electron app
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
+permissions:
+  id-token: write
+  contents: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    environment: dbgate-app
     strategy:
       fail-fast: false
       matrix:
@@ -56,24 +60,56 @@ jobs:
       - name: Install Snapcraft
         if: matrix.os == 'ubuntu-22.04'
         uses: samuelmeuli/action-snapcraft@v1
-      - name: Publish
+      - name: Publish Windows
+        if: matrix.os == 'windows-2022'
+        run: |
+
+          yarn run build:app
+      - name: Publish MacOS
+        if: matrix.os == 'macos-14'
         run: |
 
           yarn run build:app
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          WIN_CSC_LINK: ${{ secrets.WINCERT_2025 }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_2025_PASSWORD }}
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
+      - name: Publish Linux
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+
+          yarn run build:app
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
       - name: generatePadFile
         run: |
           yarn generatePadFile
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        if: matrix.os == 'windows-2022'
+        with:
+          client-id: ${{ secrets.AZURE_TC_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TC_TENANT_ID }}
+          allow-no-subscriptions: true
+      - name: Sign Windows artifacts with Azure Trusted Signing
+        uses: azure/trusted-signing-action@v0
+        if: matrix.os == 'windows-2022'
+        with:
+          endpoint: https://wus3.codesigning.azure.net/
+          trusted-signing-account-name: DbGate
+          certificate-profile-name: DbGate-Release
+          files-folder: app/dist
+          files-folder-filter: exe
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+      - name: Fix YML hashes
+        if: matrix.os == 'windows-2022'
+        run: |
+
+          yarn run fixYmlHashes
       - name: Copy artifacts
         run: |
           mkdir artifacts          

@@ -17,6 +17,10 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import InlineButton from '../buttons/InlineButton.svelte';
+  import SqlHighlighter from '../elements/SqlHighlighter.svelte';
+  import { showModal } from '../modals/modalTools';
+  import ShowSqlModal from '../modals/ShowSqlModal.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let row;
   export let index;
@@ -29,6 +33,7 @@
   export let previousRow = null;
   export let onMessageClick = null;
   export let onExplainError = null;
+  export let engine = null;
 
   let isExpanded = false;
 </script>
@@ -55,10 +60,39 @@
         }}><FontIcon icon="img ai" /> Explain</InlineButton
       >
     {/if}
+    {#if row.jslid}
+      <InlineButton
+        title="Show data"
+        inlineBlock
+        data-testid={`MessageViewRow-showDataButton-${index}`}
+        on:click={e => {
+          openNewTab({
+            title: 'Query data #',
+            icon: 'img query-data',
+            tabComponent: 'ArchiveFileTab',
+            props: {
+              jslid: row.jslid,
+            },
+          });
+        }}><FontIcon icon="img query-data" /> Show Data</InlineButton
+      >
+    {/if}
+    {#if row.sql}
+      <SqlHighlighter
+        code={row.sql.substring(0, 100) + (row.sql.length > 100 ? '...' : '')}
+        inline
+        onClick={() => {
+          showModal(ShowSqlModal, {
+            sql: row.sql,
+            engine,
+          });
+        }}
+      />
+    {/if}
   </td>
   <td>{moment(row.time).format('HH:mm:ss')}</td>
   <td>{formatDuration(new Date(row.time).getTime() - time0)}</td>
-  <td> {previousRow ? formatDuration(new Date(row.time).getTime() - new Date(previousRow.time).getTime()) : 'n/a'}</td>
+  <td>{previousRow ? formatDuration(new Date(row.time).getTime() - new Date(previousRow.time).getTime()) : 'n/a'}</td>
   {#if showProcedure}
     <td>{row.procedure || ''}</td>
   {/if}

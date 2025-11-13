@@ -3,9 +3,9 @@
 
   registerCommand({
     id: 'designer.arrange',
-    category: 'Designer',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
     icon: 'icon arrange',
-    name: 'Arrange',
+    name: __t('command.designer.arrange', { defaultMessage: 'Arrange' }),
     toolbar: true,
     isRelatedToTab: true,
     testEnabled: () => getCurrentEditor()?.canArrange(),
@@ -15,9 +15,9 @@
 
   registerCommand({
     id: 'diagram.export',
-    category: 'Designer',
-    toolbarName: 'Export diagram',
-    name: 'Export diagram',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
+    toolbarName: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
+    name: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
     icon: 'icon report',
     toolbar: true,
     isRelatedToTab: true,
@@ -27,9 +27,9 @@
 
   registerCommand({
     id: 'diagram.deleteSelectedTables',
-    category: 'Designer',
-    toolbarName: 'Remove',
-    name: 'Remove selected tables',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
+    toolbarName: __t('command.designer.remove', { defaultMessage: 'Remove' }),
+    name: __t('command.designer.removeSelectedTables', { defaultMessage: 'Remove selected tables' }),
     icon: 'icon delete',
     toolbar: true,
     isRelatedToTab: true,
@@ -67,6 +67,7 @@
   import { isProApp } from '../utility/proTools';
   import dragScroll from '../utility/dragScroll';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import { __t } from '../translations';
 
   export let value;
   export let onChange;

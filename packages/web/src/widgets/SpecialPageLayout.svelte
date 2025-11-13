@@ -3,6 +3,8 @@
   import { getConfig } from '../utility/metadataLoaders';
   import { handleAuthOnStartup } from '../clientAuth';
   import { setConfigForPermissions } from '../utility/hasPermission';
+  import { visibleTitleBar } from '../stores';
+  import TitleBar from './TitleBar.svelte';
 
   async function loadApi() {
     try {
@@ -21,10 +23,22 @@
 
     loadApi();
   });
+
+  const isDark =
+    localStorage.getItem('currentThemeType') === 'dark' ||
+    (!localStorage.getItem('currentThemeType') &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches);
 </script>
 
-<div class="root theme-light theme-type-light">
-  <div class="text">DbGate</div>
+<div class={`root ${isDark ? 'theme-dark theme-type-dark' : 'theme-light theme-type-light'}`}>
+  {#if $visibleTitleBar}
+    <div class="titlebar">
+      <TitleBar />
+    </div>
+  {/if}
+
+  <div class="text" class:visibleTitleBar={!!$visibleTitleBar}>DbGate</div>
   <div class="wrap">
     <div class="logo">
       <img class="img" src="logo192.png" />
@@ -57,6 +71,10 @@
     font-family: monospace;
     color: var(--theme-bg-2);
     text-transform: uppercase;
+  }
+
+  .text.visibleTitleBar {
+    top: calc(var(--dim-titlebar-height) + 1rem);
   }
 
   .root {
@@ -97,5 +115,13 @@
     display: flex;
     flex-wrap: wrap;
     width: 600px;
+  }
+
+  .titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--dim-titlebar-height);
   }
 </style>

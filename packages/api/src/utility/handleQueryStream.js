@@ -14,6 +14,7 @@ class QueryStreamTableWriter {
     this.currentChangeIndex = 1;
     this.initializedFile = false;
     this.sesid = sesid;
+    this.started = new Date().getTime();
   }
 
   initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false, options = {}) {
@@ -119,6 +120,13 @@ class QueryStreamTableWriter {
               this.chartProcessor = null;
             }
           }
+          process.send({
+            msgtype: 'endrecordset',
+            jslid: this.jslid,
+            rowCount: this.currentRowCount,
+            sesid: this.sesid,
+            durationMs: new Date().getTime() - this.started,
+          });
           resolve();
         });
       } else {
@@ -149,6 +157,7 @@ class StreamHandler {
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
     this.info = this.info.bind(this);
+    this.changedCurrentDatabase = this.changedCurrentDatabase.bind(this);
 
     // use this for cancelling - not implemented
     // this.stream = null;
@@ -165,6 +174,10 @@ class StreamHandler {
       this.currentWriter.close();
       this.currentWriter = null;
     }
+  }
+
+  changedCurrentDatabase(database) {
+    process.send({ msgtype: 'changedCurrentDatabase', database, sesid: this.sesid });
   }
 
   recordset(columns, options) {

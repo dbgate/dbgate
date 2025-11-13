@@ -232,6 +232,7 @@ const driver = {
               message: `${rowsAffected} rows affected`,
               time: new Date(),
               severity: 'info',
+              rowsAffected,
             });
           }
         }

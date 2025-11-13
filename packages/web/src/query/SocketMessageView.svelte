@@ -12,12 +12,13 @@
   export let showLine = false;
   export let showCaller = false;
   export let eventName;
-  export let executeNumber;
+  export let executeNumber = null;
   export let showNoMessagesAlert = false;
   export let startLine = 0;
   export let onChangeErrors = null;
   export let onMessageClick = null;
   export let onExplainError = null;
+  export let engine = null;
 
   const cachedMessagesRef = createRef([]);
   const lastErrorMessageCountRef = createRef(0);
@@ -42,6 +43,11 @@
     }
     return () => {};
   });
+
+  function handleClearMessages() {
+    cachedMessagesRef.set([]);
+    displayedMessages = [];
+  }
 
   $: {
     if (executeNumber >= 0) {
@@ -79,5 +85,7 @@
     {showCaller}
     {startLine}
     {onExplainError}
+    {engine}
+    onClear={executeNumber == null ? handleClearMessages : null}
   />
 {/if}

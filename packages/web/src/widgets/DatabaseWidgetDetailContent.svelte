@@ -44,7 +44,7 @@
 
 <WidgetColumnBarItem
   title={driver?.databaseEngineTypes?.includes('document')
-    ? (driver?.collectionPluralLabel ?? 'Collections/containers')
+    ? _t('widget.collectionsContainers', { defaultMessage: 'Collections/containers' })
     : _t('widget.tablesViewsFunctions', { defaultMessage: 'Tables, views, functions' })}
   name="dbObjects"
   storageName="dbObjectsWidget"

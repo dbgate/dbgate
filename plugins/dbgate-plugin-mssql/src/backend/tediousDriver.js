@@ -78,7 +78,11 @@ async function tediousConnect(storedConnection) {
     const [host, instance] = (server || '').split('\\');
     const connectionOptions = {
       instanceName: instance,
-      encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
+      encrypt:
+        !!ssl ||
+        authType == 'msentra' ||
+        authType == 'azureManagedIdentity' ||
+        server?.endsWith('.database.windows.net'),
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
@@ -181,6 +185,7 @@ async function tediousReadQuery(dbhan, sql, structure) {
 
 async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
+  let skipAffectedMessage = false;
 
   const handleInfo = info => {
     const { message, lineNumber, procName } = info;
@@ -202,7 +207,11 @@ async function tediousStream(dbhan, sql, options) {
       severity: 'error',
     });
   };
+  const handleDatabaseChange = database => {
+    options.changedCurrentDatabase(database);
+  };
 
+  dbhan.client.on('databaseChange', handleDatabaseChange);
   dbhan.client.on('infoMessage', handleInfo);
   dbhan.client.on('errorMessage', handleError);
   const request = new tedious.Request(sql, (err, rowCount) => {
@@ -212,11 +221,14 @@ async function tediousStream(dbhan, sql, options) {
     dbhan.client.off('infoMessage', handleInfo);
     dbhan.client.off('errorMessage', handleError);
 
-    options.info({
-      message: `${rowCount} rows affected`,
-      time: new Date(),
-      severity: 'info',
-    });
+    if (!skipAffectedMessage) {
+      options.info({
+        message: `${rowCount} rows affected`,
+        time: new Date(),
+        severity: 'info',
+        rowsAffected: rowCount,
+      });
+    }
   });
   request.on('columnMetadata', function (columns) {
     currentColumns = extractTediousColumns(columns);
@@ -231,6 +243,7 @@ async function tediousStream(dbhan, sql, options) {
       currentColumns
     );
     options.row(row);
+    skipAffectedMessage = true;
   });
   dbhan.client.execSqlBatch(request);
 }

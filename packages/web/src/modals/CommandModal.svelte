@@ -11,6 +11,7 @@
   import KeyboardModal from './KeyboardModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let command;
 
@@ -23,16 +24,16 @@
 
 <FormProviderCore {values}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Configure commmand</svelte:fragment>
+    <svelte:fragment slot="header">{_t('commandModal.configure', { defaultMessage: 'Configure command' })}</svelte:fragment>
 
-    <FormTextField label="Category" name="category" disabled />
-    <FormTextField label="Name" name="name" disabled />
+    <FormTextField label={_t('commandModal.category', { defaultMessage: 'Category' })} name="category" disabled />
+    <FormTextField label={_t('commandModal.name', { defaultMessage: 'Name' })} name="name" disabled />
 
     <div class="row">
-      <FormTextField label="Keyboard shortcut" name="keyText" templateProps={{ noMargin: true }} focused />
+      <FormTextField label={_t('commandModal.keyboardShortcut', { defaultMessage: 'Keyboard shortcut' })} name="keyText" templateProps={{ noMargin: true }} focused />
       <FormStyledButton
         type="button"
-        value="Keyboard"
+        value={_t('commandModal.keyboard', { defaultMessage: 'Keyboard' })}
         on:click={handleKeyboard}
         data-testid="CommandModal_keyboardButton"
       />
@@ -56,7 +57,7 @@
       />
       <FormStyledButton
         type="button"
-        value="Reset"
+        value={_t('common.reset', { defaultMessage: 'Reset' })}
         on:click={() => {
           closeCurrentModal();
           apiCall('config/update-settings', {
@@ -64,7 +65,7 @@
           });
         }}
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProviderCore>

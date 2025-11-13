@@ -83,6 +83,16 @@ module.exports = {
     socket.emit(`session-recordset-${sesid}`, { jslid, resultIndex });
   },
 
+  handle_endrecordset(sesid, props) {
+    const { jslid, rowCount, durationMs } = props;
+    this.dispatchMessage(sesid, {
+      message: `Query returned ${rowCount} rows in ${durationMs} ms`,
+      rowCount,
+      durationMs,
+      jslid,
+    });
+  },
+
   handle_stats(sesid, stats) {
     jsldata.notifyChangedStats(stats);
   },
@@ -95,6 +105,12 @@ module.exports = {
   handle_initializeFile(sesid, props) {
     const { jslid } = props;
     socket.emit(`session-initialize-file-${jslid}`);
+  },
+
+  handle_changedCurrentDatabase(sesid, props) {
+    const { database } = props;
+    this.dispatchMessage(sesid, `Current database changed to ${database}`);
+    socket.emit(`session-changedb-${sesid}`, { database });
   },
 
   handle_ping() {},
@@ -182,7 +198,10 @@ module.exports = {
     });
 
     logger.info({ sesid, sql }, 'DBGM-00019 Processing query');
-    this.dispatchMessage(sesid, 'Query execution started');
+    this.dispatchMessage(sesid, {
+      message: 'Query execution started',
+      sql,
+    });
     session.subprocess.send({
       msgtype: 'executeQuery',
       sql,

@@ -5,6 +5,10 @@
   "license": "GPL-3.0",
   "author": "Jan Prochazka",
   "description": "cassandra connector for DbGate",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
   "keywords": [
     "dbgate",
     "cassandra",

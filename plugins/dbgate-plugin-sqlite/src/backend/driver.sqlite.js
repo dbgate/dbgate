@@ -69,6 +69,7 @@ const driver = {
           message: `${rowCounter.count} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: rowCounter.count,
         });
       }
     });

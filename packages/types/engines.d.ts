@@ -21,6 +21,7 @@ export interface StreamOptions {
   error?: (error) => void;
   done?: (result) => void;
   info?: (info) => void;
+  changedCurrentDatabase?: (database: string) => void;
 }
 
 export type CollectionOperationInfo =

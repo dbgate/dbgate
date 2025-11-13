@@ -1,5 +1,7 @@
 import { commands } from '../stores';
 import { invalidateCommandDefinitions } from './invalidateCommands';
+import _ from 'lodash';
+import { _val } from '../translations';
 
 export interface SubCommand {
   text: string;
@@ -8,10 +10,10 @@ export interface SubCommand {
 
 export interface GlobalCommand {
   id: string;
-  category: string; // null for group commands
+  category: string | (() => string); // null for group commands
   isGroupCommand?: boolean;
-  name: string;
-  text?: string /* category: name */;
+  name: string | (() => string);
+  text?: string | (() => string);
   keyText?: string;
   keyTextFromGroup?: string; // automatically filled from group
   group?: string;
@@ -23,11 +25,11 @@ export interface GlobalCommand {
   toolbar?: boolean;
   enabled?: boolean;
   showDisabled?: boolean;
-  toolbarName?: string;
+  toolbarName?: string | (() => string);
   menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
-  isRelatedToTab?: boolean,
+  isRelatedToTab?: boolean;
   systemCommand?: boolean;
 }
 
@@ -41,7 +43,10 @@ export default function registerCommand(command: GlobalCommand) {
     return {
       ...x,
       [command.id]: {
-        text: `${command.category}: ${command.name}`,
+        text:
+          _.isFunction(command.category) || _.isFunction(command.name)
+            ? () => `${_val(command.category)}: ${_val(command.name)}`
+            : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,
       },

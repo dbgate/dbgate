@@ -17,6 +17,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import ValueLookupModal from '../modals/ValueLookupModal.svelte';
+  import { _t } from '../translations';
 
   export let isReadOnly = false;
   export let filterBehaviour;
@@ -64,43 +65,43 @@
 
   function createMenu() {
     const res = [
-      { onClick: () => setFilter(''), text: 'Clear Filter' },
-      { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+      { onClick: () => setFilter(''), text: _t('filter.clear', { defaultMessage: 'Clear Filter' }) },
+      { onClick: () => filterMultipleValues(), text: _t('filter.multipleValues', { defaultMessage: 'Filter multiple values' }) },
     ];
 
     if (filterBehaviour.supportEquals) {
       res.push(
-        { onClick: () => openFilterWindow('='), text: 'Equals...' },
-        { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' }
+        { onClick: () => openFilterWindow('='), text: _t('filter.equals', { defaultMessage: 'Equals...' }) },
+        { onClick: () => openFilterWindow('<>'), text: _t('filter.doesNotEqual', { defaultMessage: 'Does Not Equal...' }) }
       );
     }
 
     if (filterBehaviour.supportExistsTesting) {
       res.push(
-        { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
-        { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' }
+        { onClick: () => setFilter('EXISTS'), text: _t('filter.fieldExists', { defaultMessage: 'Field exists' }) },
+        { onClick: () => setFilter('NOT EXISTS'), text: _t('filter.fieldDoesNotExist', { defaultMessage: 'Field does not exist' }) }
       );
     }
 
     if (filterBehaviour.supportNotEmptyArrayTesting) {
-      res.push({ onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' });
+      res.push({ onClick: () => setFilter('NOT EMPTY ARRAY'), text: _t('filter.arrayIsNotEmpty', { defaultMessage: 'Array is not empty' }) });
     }
 
     if (filterBehaviour.supportEmptyArrayTesting) {
-      res.push({ onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' });
+      res.push({ onClick: () => setFilter('EMPTY ARRAY'), text: _t('filter.arrayIsEmpty', { defaultMessage: 'Array is empty' }) });
     }
 
     if (filterBehaviour.supportNullTesting) {
       res.push(
-        { onClick: () => setFilter('NULL'), text: 'Is Null' },
-        { onClick: () => setFilter('NOT NULL'), text: 'Is Not Null' }
+        { onClick: () => setFilter('NULL'), text: _t('filter.isNull', { defaultMessage: 'Is Null' }) },
+        { onClick: () => setFilter('NOT NULL'), text: _t('filter.isNotNull', { defaultMessage: 'Is Not Null' }) }
       );
     }
 
     if (filterBehaviour.supportEmpty) {
       res.push(
-        { onClick: () => setFilter('EMPTY, NULL'), text: 'Is Empty Or Null' },
-        { onClick: () => setFilter('NOT EMPTY NOT NULL'), text: 'Has Not Empty Value' }
+        { onClick: () => setFilter('EMPTY, NULL'), text: _t('filter.isEmptyOrNull', { defaultMessage: 'Is Empty Or Null' }) },
+        { onClick: () => setFilter('NOT EMPTY NOT NULL'), text: _t('filter.hasNotEmptyValue', { defaultMessage: 'Has Not Empty Value' }) }
       );
     }
 
@@ -108,10 +109,10 @@
       res.push(
         { divider: true },
 
-        { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
-        { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
-        { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
-        { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' }
+        { onClick: () => openFilterWindow('>'), text: _t('filter.greaterThan', { defaultMessage: 'Greater Than...' }) },
+        { onClick: () => openFilterWindow('>='), text: _t('filter.greaterThanOrEqualTo', { defaultMessage: 'Greater Than Or Equal To...' }) },
+        { onClick: () => openFilterWindow('<'), text: _t('filter.lessThan', { defaultMessage: 'Less Than...' }) },
+        { onClick: () => openFilterWindow('<='), text: _t('filter.lessThanOrEqualTo', { defaultMessage: 'Less Than Or Equal To...' }) }
       );
     }
 
@@ -119,26 +120,26 @@
       res.push(
         { divider: true },
 
-        { onClick: () => openFilterWindow('+'), text: 'Contains...' },
-        { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
-        { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
-        { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
-        { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
-        { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' }
+        { onClick: () => openFilterWindow('+'), text: _t('filter.contains', { defaultMessage: 'Contains...' }) },
+        { onClick: () => openFilterWindow('~'), text: _t('filter.doesNotContain', { defaultMessage: 'Does Not Contain...' }) },
+        { onClick: () => openFilterWindow('^'), text: _t('filter.beginsWith', { defaultMessage: 'Begins With...' }) },
+        { onClick: () => openFilterWindow('!^'), text: _t('filter.doesNotBeginWith', { defaultMessage: 'Does Not Begin With...' }) },
+        { onClick: () => openFilterWindow('$'), text: _t('filter.endsWith', { defaultMessage: 'Ends With...' }) },
+        { onClick: () => openFilterWindow('!$'), text: _t('filter.doesNotEndWith', { defaultMessage: 'Does Not End With...' }) }
       );
     }
 
     if (filterBehaviour.supportBooleanValues) {
       res.push(
-        { onClick: () => setFilter('TRUE'), text: 'Is True' },
-        { onClick: () => setFilter('FALSE'), text: 'Is False' }
+        { onClick: () => setFilter('TRUE'), text: _t('filter.isTrue', { defaultMessage: 'Is True' }) },
+        { onClick: () => setFilter('FALSE'), text: _t('filter.isFalse', { defaultMessage: 'Is False' }) }
       );
     }
 
     if (filterBehaviour.supportBooleanOrNull) {
       res.push(
-        { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
-        { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' }
+        { onClick: () => setFilter('TRUE, NULL'), text: _t('filter.isTrueOrNull', { defaultMessage: 'Is True or NULL' }) },
+        { onClick: () => setFilter('FALSE, NULL'), text: _t('filter.isFalseOrNull', { defaultMessage: 'Is False or NULL' }) }
       );
     }
 
@@ -146,44 +147,44 @@
       res.push(
         { divider: true },
 
-        { onClick: () => setFilter('TOMORROW'), text: 'Tomorrow' },
-        { onClick: () => setFilter('TODAY'), text: 'Today' },
-        { onClick: () => setFilter('YESTERDAY'), text: 'Yesterday' },
+        { onClick: () => setFilter('TOMORROW'), text: _t('filter.tomorrow', { defaultMessage: 'Tomorrow' }) },
+        { onClick: () => setFilter('TODAY'), text: _t('filter.today', { defaultMessage: 'Today' }) },
+        { onClick: () => setFilter('YESTERDAY'), text: _t('filter.yesterday', { defaultMessage: 'Yesterday' }) },
 
         { divider: true },
 
-        { onClick: () => setFilter('NEXT WEEK'), text: 'Next Week' },
-        { onClick: () => setFilter('THIS WEEK'), text: 'This Week' },
-        { onClick: () => setFilter('LAST WEEK'), text: 'Last Week' },
+        { onClick: () => setFilter('NEXT WEEK'), text: _t('filter.nextWeek', { defaultMessage: 'Next Week' }) },
+        { onClick: () => setFilter('THIS WEEK'), text: _t('filter.thisWeek', { defaultMessage: 'This Week' }) },
+        { onClick: () => setFilter('LAST WEEK'), text: _t('filter.lastWeek', { defaultMessage: 'Last Week' }) },
 
         { divider: true },
 
-        { onClick: () => setFilter('NEXT MONTH'), text: 'Next Month' },
-        { onClick: () => setFilter('THIS MONTH'), text: 'This Month' },
-        { onClick: () => setFilter('LAST MONTH'), text: 'Last Month' },
+        { onClick: () => setFilter('NEXT MONTH'), text: _t('filter.nextMonth', { defaultMessage: 'Next Month' }) },
+        { onClick: () => setFilter('THIS MONTH'), text: _t('filter.thisMonth', { defaultMessage: 'This Month' }) },
+        { onClick: () => setFilter('LAST MONTH'), text: _t('filter.lastMonth', { defaultMessage: 'Last Month' }) },
 
         { divider: true },
 
-        { onClick: () => setFilter('NEXT YEAR'), text: 'Next Year' },
-        { onClick: () => setFilter('THIS YEAR'), text: 'This Year' },
-        { onClick: () => setFilter('LAST YEAR'), text: 'Last Year' }
+        { onClick: () => setFilter('NEXT YEAR'), text: _t('filter.nextYear', { defaultMessage: 'Next Year' }) },
+        { onClick: () => setFilter('THIS YEAR'), text: _t('filter.thisYear', { defaultMessage: 'This Year' }) },
+        { onClick: () => setFilter('LAST YEAR'), text: _t('filter.lastYear', { defaultMessage: 'Last Year' }) }
       );
     }
 
     if (filterBehaviour.supportDatetimeComparison) {
       res.push(
         { divider: true },
-        { onClick: () => openFilterWindow('<='), text: 'Before...' },
-        { onClick: () => openFilterWindow('>='), text: 'After...' },
-        { onClick: () => openFilterWindow('>=;<='), text: 'Between...' }
+        { onClick: () => openFilterWindow('<='), text: _t('filter.before', { defaultMessage: 'Before...' }) },
+        { onClick: () => openFilterWindow('>='), text: _t('filter.after', { defaultMessage: 'After...' }) },
+        { onClick: () => openFilterWindow('>=;<='), text: _t('filter.between', { defaultMessage: 'Between...' }) }
       );
     }
 
     if (filterBehaviour.supportSqlCondition) {
       res.push(
         { divider: true },
-        { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
-        { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' }
+        { onClick: () => openFilterWindow('sql'), text: _t('filter.sqlCondition', { defaultMessage: 'SQL condition ...' }) },
+        { onClick: () => openFilterWindow('sqlRight'), text: _t('filter.sqlConditionRight', { defaultMessage: 'SQL condition - right side ...' }) }
       );
     }
 

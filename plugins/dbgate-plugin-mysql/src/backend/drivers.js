@@ -3,6 +3,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
+const fs = require('fs');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErrorLogData } =
   global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -14,6 +15,7 @@ function extractColumns(fields) {
   if (fields) {
     const res = fields.map(col => ({
       columnName: col.name,
+      pureName: col.orgTable,
     }));
     makeUniqueColumnNames(res);
     return res;
@@ -62,6 +64,7 @@ const drivers = driverBases.map(driverBase => ({
       supportBigNumbers: true,
       bigNumberStrings: true,
       dateStrings: true,
+      infileStreamFactory: path => fs.createReadStream(path),
       // TODO: test following options
       // multipleStatements: true,
     };
@@ -135,7 +138,11 @@ const drivers = driverBases.map(driverBase => ({
           message: `${row.affectedRows} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: row.affectedRows,
         });
+        if (row.stateChanges?.schema) {
+          options.changedCurrentDatabase(row.stateChanges.schema);
+        }
       } else {
         if (columns) {
           options.row(modifyRow(zipDataRow(row, columns), columns));

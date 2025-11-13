@@ -10,9 +10,8 @@
   import { apiOn } from '../utility/api';
   import { isProApp } from '../utility/proTools';
 
-  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, isProApp() ? 'DbGate Premium' : 'DbGate']).join(
-    ' - '
-  );
+  $: appName = isProApp() ? 'DbGate Premium' : 'DbGate Community';
+  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, appName]).join(' - ');
   const electron = getElectron();
 
   let isMaximized = false;
@@ -27,11 +26,13 @@
 <div class="container" on:dblclick|stopPropagation|preventDefault={() => electron.send('window-action', 'maximize')}>
   {#if !isMac()}
     <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
-    <div class="menu">
-      <HorizontalMenu items={mainMenuDefinition({ editMenu: !!electron })} />
-    </div>
+    {#if !window['dbgate_page']}
+      <div class="menu">
+        <HorizontalMenu items={mainMenuDefinition({ editMenu: !!electron })} />
+      </div>
+    {/if}
   {/if}
-  <div class="title">{title}</div>
+  <div class="title">{window['dbgate_page'] ? appName : title}</div>
 
   {#if !isMac()}
     <div class="actions">
