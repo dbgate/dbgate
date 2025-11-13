@@ -136,7 +136,6 @@ const drivers = driverBases.map(driverBase => ({
           time: new Date(),
           severity: 'info',
         });
-        options.recordset(columns, { engine: driverBase.engine });
       } else {
         if (columns) {
           options.row(modifyRow(zipDataRow(row, columns), columns));
