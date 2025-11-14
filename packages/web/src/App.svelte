@@ -62,6 +62,13 @@
         installCloudListeners();
         refreshPublicCloudFiles();
         saveSelectedLanguageToCache();
+
+        const electron = getElectron();
+        if (electron) {
+          const translation = {"File": "subor"};
+          console.log('SENDING TRANSLATION TO ELECTRON', translation);
+          electron.send('menu-translation', JSON.stringify(translation));
+        }
       }
 
       loadedApi = loadedApiValue;

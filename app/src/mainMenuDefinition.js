@@ -1,6 +1,6 @@
 module.exports = ({ editMenu, isMac }) => [
   {
-    label: 'File',
+    label:  global.TRANSLATION?.['File'] ?? 'File',
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },

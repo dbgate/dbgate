@@ -31,6 +31,8 @@ let mainModule;
 let appUpdateStatus = '';
 let settingsJson = {};
 
+global.TRANSLATION = {};
+
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
 });
@@ -108,7 +110,7 @@ function commandItem(item) {
 }
 
 function buildMenu() {
-  let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac() }), item => {
+  let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac(), translation: global.TRANSLATION }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
@@ -154,7 +156,8 @@ ipcMain.on('update-commands', async (event, arg) => {
     // rebuild menu
     if (menu.label != command.text || menu.accelerator != command.keyText) {
       mainMenu = buildMenu();
-
+      // console.log(mainMenu.items[0].label);
+      // console.log(mainMenu.items[0].role);
       Menu.setApplicationMenu(mainMenu);
       // mainWindow.setMenu(mainMenu);
       return;
@@ -303,6 +306,19 @@ ipcMain.on('check-for-updates', async (event, url) => {
   autoUpdater.autoDownload = false;
   autoUpdater.checkForUpdates();
 });
+ipcMain.on('menu-translation', async (event, arg) => {
+  console.log('***************************************************************************************')
+  global.TRANSLATION = JSON.parse(arg);
+  console.log('RECEIVED TRANSLATION IN ELECTRON', global.TRANSLATION);
+  mainMenu = buildMenu();
+  // console.log(mainMenu.items[0].label);
+  // console.log(mainMenu.items[0].role);
+  // mainWindow.setMenu(null);
+  // mainWindow.setMenu(mainMenu);
+  Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(mainMenu);
+  
+});
 
 function fillMissingSettings(value) {
   const res = {
@@ -379,8 +395,9 @@ function createWindow() {
     mainWindow.setFullScreen(true);
   }
 
-  mainMenu = buildMenu();
-  mainWindow.setMenu(mainMenu);
+  //mainMenu = buildMenu();
+  //mainWindow.setMenu(mainMenu);
+  //Menu.setApplicationMenu(mainMenu);
 
   function loadMainWindow() {
     const startUrl =
