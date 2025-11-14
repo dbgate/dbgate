@@ -2,6 +2,7 @@
   import { commandsCustomized, currentDropDownMenu } from '../stores';
   import { prepareMenuItems } from '../utility/contextMenu';
   import DropDownMenu from './DropDownMenu.svelte';
+  import { _t } from '../translations';
 
   export let items;
 
@@ -37,7 +38,7 @@
         }
       }}
     >
-      {item.text || item.label}
+      {item.text || _t(item.label.id, item.label.defaultMessage)}
     </div>
   {/each}
 </div>

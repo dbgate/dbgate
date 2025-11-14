@@ -126,7 +126,7 @@ ORDER BY
             <div class="heading">{_t('settings.appearance', { defaultMessage: 'Appearance' })}</div>
             <FormCheckboxField
               name="app.useNativeMenu"
-              label={isMac() ? 'Use native window title' : 'Use system native menu'}
+              label={isMac() ? _t('settings.useNativeWindowTitle', { defaultMessage: 'Use native window title' }) : _t('settings.useSystemNativeMenu', { defaultMessage: 'Use system native menu' })}
               on:change={() => {
                 restartWarning = true;
               }}

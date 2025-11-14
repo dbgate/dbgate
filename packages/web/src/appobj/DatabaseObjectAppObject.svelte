@@ -719,7 +719,11 @@
 
     const filteredSumenus = coreMenus.map(item => {
       if (!item.submenu) {
-        return { ...item , label: _val(item.label)};
+        if (!item) return item;
+
+        return {...item, 
+          label:  _val(item.label)  
+        };
       }
       return {
         ...item,

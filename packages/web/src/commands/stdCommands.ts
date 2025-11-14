@@ -192,7 +192,7 @@ registerCommand({
   category: __t('command.new', { defaultMessage: 'New' }),
   icon: 'img shell',
   name: __t('command.new.shell', { defaultMessage: 'JavaScript Shell' }),
-  menuName: 'New JavaScript shell',
+  menuName: __t('command.new.JSShell', { defaultMessage: 'New JavaScript shell' }),
   onClick: () => {
     openNewTab({
       title: 'Shell #',
@@ -208,7 +208,7 @@ if (isProApp()) {
     category: __t('command.new', { defaultMessage: 'New' }),
     icon: 'img query-design',
     name: __t('command.new.queryDesign', { defaultMessage: 'Query design' }),
-    menuName: 'New query design',
+    menuName: __t('command.new.newQueryDesign', { defaultMessage: 'New query design' }),
     onClick: () => newQueryDesign(),
     testEnabled: () =>
       getCurrentDatabase() &&
@@ -222,7 +222,7 @@ if (isProApp()) {
     category: __t('command.new', { defaultMessage: 'New' }),
     icon: 'img transform',
     name: __t('command.new.modelTransform', { defaultMessage: 'Model transform' }),
-    menuName: 'New model transform',
+    menuName: __t('command.new.newModelTransform', { defaultMessage: 'New model transform' }),
     onClick: () => {
       openNewTab(
         {
@@ -266,7 +266,7 @@ if (isProApp()) {
     category: __t('command.new', { defaultMessage: 'New' }),
     icon: 'img perspective',
     name: __t('command.new.perspective', { defaultMessage: 'Perspective' }),
-    menuName: 'New perspective',
+    menuName: __t('command.new.newPerspective', { defaultMessage: 'New perspective' }),
     onClick: () => newPerspective(),
   });
 }
@@ -277,7 +277,7 @@ if (isProApp()) {
     category: __t('command.new', { defaultMessage: 'New' }),
     icon: 'img app',
     name: __t('command.new.application', { defaultMessage: 'Application' }),
-    menuName: 'New application',
+    menuName: __t('command.new.newApplication', { defaultMessage: 'New application' }),
     onClick: () => {
       openNewTab({
         title: 'Application #',
@@ -293,7 +293,7 @@ registerCommand({
   category: __t('command.new', { defaultMessage: 'New' }),
   icon: 'img diagram',
   name: __t('command.new.diagram', { defaultMessage: 'ER Diagram' }),
-  menuName: 'New ER diagram',
+  menuName: __t('command.new.newDiagram', { defaultMessage: 'New ER diagram' }),
   testEnabled: () =>
     getCurrentDatabase() &&
     findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
@@ -416,7 +416,7 @@ registerCommand({
   category: __t('command.new', { defaultMessage: 'New' }),
   icon: 'img archive',
   name: __t('command.new.jsonl', { defaultMessage: 'JSON Lines' }),
-  menuName: 'New JSON lines file',
+  menuName: __t('command.new.newJsonl', { defaultMessage: 'New JSON lines file' }),
   onClick: () => {
     openNewTab(
       {
@@ -436,7 +436,7 @@ registerCommand({
   category: __t('command.new', { defaultMessage: 'New' }),
   icon: 'img sqlite-database',
   name: __t('command.new.sqliteDatabase', { defaultMessage: 'SQLite database' }),
-  menuName: _t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
+  menuName: __t('command.new.sqliteDatabase', { defaultMessage: 'New SQLite database' }),
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
@@ -456,7 +456,7 @@ registerCommand({
   category: __t('command.new', { defaultMessage: 'New' }),
   icon: 'img sqlite-database',
   name: __t('command.new.duckdbDatabase', { defaultMessage: 'DuckDB database' }),
-  menuName: _t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
+  menuName: __t('command.new.duckdbDatabase', { defaultMessage: 'New DuckDB database' }),
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',
