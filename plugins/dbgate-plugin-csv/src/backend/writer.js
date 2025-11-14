@@ -54,23 +54,64 @@ class RecodeTransform extends stream.Transform {
   }
 }
 
+const INFER_STRUCTURE_ROWS = 100;
+
 class CsvPrepareStream extends stream.Transform {
   constructor({ header }) {
     super({ objectMode: true });
-    this.structure = null;
+    this.columns = null;
     this.header = header;
+    this.cachedRows = null;
   }
   _transform(chunk, encoding, done) {
-    if (this.structure) {
-      this.push(this.structure.columns.map((col) => chunk[col.columnName]));
+    if (this.columns) {
+      this.push(this.columns.map((col) => chunk[col]));
       done();
     } else {
-      this.structure = chunk;
-      if (this.header) {
-        this.push(chunk.columns.map((x) => x.columnName));
+      if (chunk.__isStreamHeader && chunk.columns?.length > 0) {
+        this.columns = chunk.columns.map((x) => x.columnName);
+        if (this.header) {
+          this.push(this.columns);
+        }
+        done();
+        return;
       }
+
+      if (!this.cachedRows) {
+        this.cachedRows = [];
+      }
+      this.cachedRows.push(chunk);
+      if (this.cachedRows.length < INFER_STRUCTURE_ROWS) {
+        done();
+        return;
+      }
+      this.inferStructureFromCachedRows();
       done();
     }
+  }
+
+  inferStructureFromCachedRows() {
+    const allKeys = {};
+    for (const row of this.cachedRows) {
+      for (const key of Object.keys(row)) {
+        allKeys[key] = true;
+      }
+    }
+    this.columns = Object.keys(allKeys);
+    if (this.header) {
+      this.push(this.columns);
+    }
+    for (const row of this.cachedRows) {
+      this.push(this.columns.map((col) => row[col]));
+    }
+    this.cachedRows = null;
+  }
+
+  _final(callback) {
+    if (this.cachedRows) {
+      this.inferStructureFromCachedRows();
+    }
+    callback();
   }
 }
 
