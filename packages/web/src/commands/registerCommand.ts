@@ -26,7 +26,7 @@ export interface GlobalCommand {
   enabled?: boolean;
   showDisabled?: boolean;
   toolbarName?: string | (() => string);
-  menuName?: string;
+  menuName?: string | (() => string);
   toolbarOrder?: number;
   disableHandleKeyText?: string;
   isRelatedToTab?: boolean;
