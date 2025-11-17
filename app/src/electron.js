@@ -95,7 +95,7 @@ function commandItem(item, disableAll = false) {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
-    enabled: command ? command.enabled && !disableAll : false,
+    enabled: command ? command.enabled && (!disableAll || command.systemCommand) : false,
     click() {
       if (mainWindow) {
         mainWindow.webContents.send('run-command', id);
