@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.12
+- FIXED: Fixed regression when pasting license key on Mac
+
 ## 6.6.10
 - FIXED: License fron environment variable is not refreshed #1245
 - FIXED: connection closing / reconnecting #1237
