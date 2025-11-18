@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.7.0 - not released
+- ADDED: Added localization support, now you can use DbGate in multiple languages (French, Spanish, German, Czech, Slovak, Simplified Chinese) #347 #705 #939 #1079
+- CHANGED: Solved many issues with binary fields, huge performance improvements in binary fields processing
+- FIXED: Export to CSV produces empty file #1247
+- FIXED: BUG: macOS Tahoe Electron performance #1243
+- FIXED: PostgreSQL export to SQL and XML doesn't include bytea field contents #1228
+- FIXED: Export CSV broken #1080
+- FIXED: Inconsistent handling of hex-like strings #680
+- FIXED: Export mongodb binary cell as binary file #292
+
 ## 6.6.12
 - FIXED: Cannot paste license key on Mac (special commands like copy/paste were disabled on license screen)
 
