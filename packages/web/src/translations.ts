@@ -1,6 +1,7 @@
 import cs from '../../../translations/cs.json';
 import sk from '../../../translations/sk.json';
 import de from '../../../translations/de.json';
+import fr from '../../../translations/fr.json';
 
 import MessageFormat, { MessageFunction } from '@messageformat/core';
 import { getStringSettingsValue } from './settings/settingsTools';
@@ -10,6 +11,7 @@ const translations = {
   cs,
   sk,
   de,
+  fr,
 };
 const supportedLanguages = Object.keys(translations);
 

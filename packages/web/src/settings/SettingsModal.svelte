@@ -154,6 +154,7 @@ ORDER BY
               { value: 'cs', label: 'Čeština' },
               { value: 'sk', label: 'Slovenčina' },
               { value: 'de', label: 'Deutsch' },
+              { value: 'fr', label: 'Français' },
             ]}
             on:change={() => {
               showModal(ConfirmModal, {
