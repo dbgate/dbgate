@@ -1,8 +1,6 @@
 <script lang="ts">
   import { commandsCustomized, currentDropDownMenu } from '../stores';
   import { prepareMenuItems } from '../utility/contextMenu';
-  import DropDownMenu from './DropDownMenu.svelte';
-  import { _t } from '../translations';
 
   export let items;
 
@@ -38,7 +36,7 @@
         }
       }}
     >
-      {item.text || _t(item.label.id, item.label.defaultMessage)}
+      {item.text || item.label}
     </div>
   {/each}
 </div>

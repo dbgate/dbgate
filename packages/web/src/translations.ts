@@ -64,7 +64,7 @@ export function getCurrentTranslations(): Record<string, string> {
 }
 
 export function _t(key: string, options: TranslateOptions): string {
-  const { defaultMessage, values } = options;
+  const { defaultMessage, values } = options || {};
 
   const selectedLanguage = getSelectedLanguage();
 

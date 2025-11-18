@@ -66,6 +66,7 @@
         const electron = getElectron();
         if (electron) {
           electron.send('translation-data', JSON.stringify(getCurrentTranslations()));
+          global.TRANSLATION_DATA = getCurrentTranslations();
         }
       }
 
