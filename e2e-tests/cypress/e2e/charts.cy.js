@@ -110,7 +110,7 @@ describe('Charts', () => {
     cy.themeshot('new-object-window');
   });
 
-  it.only('Database chat - charts', () => {
+  it('Database chat - charts', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
@@ -119,7 +119,9 @@ describe('Charts', () => {
     cy.get('body').realType('show me chart of most popular genres');
     cy.get('body').realPress('{enter}');
     cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
-    cy.testid('chart-canvas', { timeout: 30000 }).should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
+    cy.testid('chart-canvas', { timeout: 30000 }).should($c =>
+      expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/)
+    );
     cy.themeshot('database-chat-chart');
   });
 
@@ -155,15 +157,51 @@ describe('Charts', () => {
     cy.testid('MessageViewRow-explainErrorButton-1').click();
     cy.testid('ChatCodeRenderer_useSqlButton', { timeout: 30000 });
     cy.themeshot('explain-query-error');
+  });
 
-    // cy.testid('TabsPanel_buttonNewObject').click();
-    // cy.testid('NewObjectModal_databaseChat').click();
-    // cy.wait(1000);
-    // cy.get('body').realType('show me chart of most popular genres');
-    // cy.get('body').realPress('{enter}');
-    // cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
-    // cy.wait(5000);
-    // cy.testid('chart-canvas').should($c => expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/));
-    // cy.themeshot('database-chat-chart');
+  it('Switch language', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Settings').click();
+
+    cy.testid('SettingsModal_languageSelect').select('Deutsch');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Einstellungen').click();
+    cy.contains('Lokalisierung');
+    cy.themeshot('switch-language-de');
+
+    cy.testid('SettingsModal_languageSelect').select('Français');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Paramètres').click();
+    cy.contains('Localisation');
+    cy.themeshot('switch-language-fr');
+
+    cy.testid('SettingsModal_languageSelect').select('Español');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Configuración').click();
+    cy.contains('Localización');
+    cy.themeshot('switch-language-es');
+
+    cy.testid('SettingsModal_languageSelect').select('Čeština');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Nastavení').click();
+    cy.contains('Lokalizace');
+    cy.themeshot('switch-language-cs');
+
+    cy.testid('SettingsModal_languageSelect').select('中文');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('设置').click();
+    cy.contains('本地化');
+    cy.themeshot('switch-language-zh');
+
+    cy.testid('SettingsModal_languageSelect').select('English');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings');
   });
 });

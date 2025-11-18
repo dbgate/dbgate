@@ -184,6 +184,7 @@ ORDER BY
             label={_t('settings.localization.language', { defaultMessage: 'Language' })}
             name="localization.language"
             defaultValue={getSelectedLanguage()}
+            data-testid="SettingsModal_languageSelect"
             isNative
             options={[
               { value: 'cs', label: 'Čeština' },
