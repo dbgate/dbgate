@@ -186,12 +186,13 @@ ORDER BY
             defaultValue={getSelectedLanguage()}
             isNative
             options={[
-              { value: 'en', label: 'English' },
               { value: 'cs', label: 'Čeština' },
-              { value: 'sk', label: 'Slovenčina' },
               { value: 'de', label: 'Deutsch' },
-              { value: 'fr', label: 'Français' },
+              { value: 'en', label: 'English' },
               { value: 'es', label: 'Español' },
+              { value: 'fr', label: 'Français' },
+              { value: 'sk', label: 'Slovenčina' },
+              { value: 'zh', label: '中文' },
             ]}
             on:change={() => {
               showModal(ConfirmModal, {
