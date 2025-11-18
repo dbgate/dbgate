@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-  import { _t } from '../translations';
 
   const getCurrentValueMarker: any = {};
 
@@ -360,7 +359,7 @@
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import { isProApp } from '../utility/proTools';
   import { openWebLink } from '../utility/simpleTools';
-  import { __t } from '../translations';
+  import { __t, _t } from '../translations';
 
   export let multiTabIndex;
   export let shownTab;
@@ -437,27 +436,27 @@
 
     return [
       tab.tabPreviewMode && {
-        text: 'Pin tab',
+        text: _t('tabsPanel.pinTab', { defaultMessage: 'Pin tab' }),
         onClick: () => pinTab(tabid),
       },
       {
-        text: 'Close',
+        text: _t('common.close', { defaultMessage: 'Close' }),
         onClick: () => closeTab(tabid),
       },
       {
-        text: 'Close all',
+        text: _t('tabsPanel.closeAll', { defaultMessage: 'Close all' }),
         onClick: () => closeAll(multiTabIndex),
       },
       {
-        text: 'Close others',
+        text: _t('tabsPanel.closeOthers', { defaultMessage: 'Close others' }),
         onClick: () => closeOthersInMultiTab(multiTabIndex)(tabid),
       },
       {
-        text: 'Close to the right',
+        text: _t('tabsPanel.closeToTheRight', { defaultMessage: 'Close to the right' }),
         onClick: () => closeRightTabs(multiTabIndex)(tabid),
       },
       {
-        text: 'Duplicate',
+        text: _t('tabsPanel.duplicate', { defaultMessage: 'Duplicate' }),
         onClick: () => duplicateTab(tab),
       },
       tabComponent &&
@@ -466,7 +465,7 @@
         tabs[tabComponent].allowAddToFavorites(props) && [
           { divider: true },
           {
-            text: 'Add to favorites',
+            text: _t('tabsPanel.addToFavorites', { defaultMessage: 'Add to favorites' }),
             onClick: () => showModal(FavoriteModal, { savingTab: tab }),
           },
         ],
@@ -476,7 +475,7 @@
         tabs[tabComponent].allowSwitchDatabase(props) && [
           { divider: true },
           {
-            text: 'Switch database',
+            text: _t('tabsPanel.switchDatabase', { defaultMessage: 'Switch database' }),
             onClick: () => showModal(SwitchDatabaseModal, { callingTab: tab }),
           },
         ],
@@ -499,11 +498,11 @@
       conid &&
         database && [
           {
-            text: `Close tabs with DB ${database}`,
+            text: _t('tabsPanel.closeTabsWithDb', { defaultMessage: 'Close tabs with DB {database}', values: { database } }),
             onClick: () => closeWithSameDb(tabid),
           },
           {
-            text: `Close tabs with other DB than ${database}`,
+            text: _t('tabsPanel.closeTabsWithOtherDb', { defaultMessage: `Close tabs with other DB than {database}`, values: { database } }),
             onClick: () => closeWithOtherDb(tabid),
           },
         ],
