@@ -171,7 +171,7 @@ ipcMain.on('update-commands', async (event, arg) => {
     const command = commands[key];
 
     // rebuild menu
-    if (menu.label != command.text || (menu.accelerator != command.keyText && global.TRANSLATION_DATA)) {
+    if (global.TRANSLATION_DATA && (menu.label != command.text || menu.accelerator != command.keyText)) {
       mainMenu = buildMenu(isModalOpened || !!dbgatePage);
 
       Menu.setApplicationMenu(mainMenu);
