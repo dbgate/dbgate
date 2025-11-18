@@ -1,5 +1,6 @@
 import cs from '../../../translations/cs.json';
 import sk from '../../../translations/sk.json';
+import de from '../../../translations/de.json';
 
 import MessageFormat, { MessageFunction } from '@messageformat/core';
 import { getStringSettingsValue } from './settings/settingsTools';
@@ -8,6 +9,7 @@ const translations = {
   en: {},
   cs,
   sk,
+  de,
 };
 const supportedLanguages = Object.keys(translations);
 
@@ -107,8 +109,6 @@ export function _tval(x: string | DefferedTranslationResult): string {
   return '';
 }
 
-export function isDefferedTranslationResult(
-  x: string | DefferedTranslationResult
-): x is DefferedTranslationResult {
+export function isDefferedTranslationResult(x: string | DefferedTranslationResult): x is DefferedTranslationResult {
   return typeof x !== 'string' && typeof x?._transKey === 'string';
 }
