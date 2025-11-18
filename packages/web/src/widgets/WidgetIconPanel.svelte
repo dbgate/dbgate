@@ -23,6 +23,7 @@
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
   import { useConfig, usePromoWidget } from '../utility/metadataLoaders';
+  import { _t } from '../translations';
 
   let domSettings;
   let domCloudAccount;
@@ -120,14 +121,14 @@
       { command: 'theme.changeTheme' },
       hasPermission('settings/change') && { command: 'settings.commands' },
       hasPermission('widgets/plugins') && {
-        text: 'Manage plugins',
+        text: _t('widgets.managePlugins', { defaultMessage: 'Manage plugins' }),
         onClick: () => {
           $selectedWidget = 'plugins';
           $visibleWidgetSideBar = true;
         },
       },
       hasPermission('application-log') && {
-        text: 'View application logs',
+        text: _t('widgets.viewApplicationLogs', { defaultMessage: 'View application logs' }),
         onClick: () => {
           openNewTab({
             title: 'Application log',
@@ -153,7 +154,8 @@
     const left = rect.right;
     const top = rect.top;
     const items = mainMenuDefinition({ editMenu: false });
-    currentDropDownMenu.set({ left, top, items });
+    const copy = items.map(x => x && ({ ...x, label: x?.label ? _t(x.label.id, x.label.defaultMessage) : null }));
+    currentDropDownMenu.set({ left, top, items: copy });
   }
 
   async function handleOpenCloudLogin() {
