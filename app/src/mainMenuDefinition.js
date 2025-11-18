@@ -1,6 +1,10 @@
+function _t(key, { defaultMessage }) {
+  return global.TRANSLATION_DATA?.[key] || defaultMessage;
+}
+
 module.exports = ({ editMenu, isMac }) => [
   {
-    label: 'File',
+    label: _t('app.databaseName', { defaultMessage: 'DB NAME' }),
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },

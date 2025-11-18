@@ -58,6 +58,11 @@ function getTranslation(key: string, defaultMessage: string, language: string) {
   return translation;
 }
 
+export function getCurrentTranslations(): Record<string, string> {
+  const selectedLanguage = getSelectedLanguage();
+  return translations[selectedLanguage] || {};
+}
+
 export function _t(key: string, options: TranslateOptions): string {
   const { defaultMessage, values } = options;
 
