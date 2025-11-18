@@ -153,6 +153,7 @@ ORDER BY
               { value: 'en', label: 'English' },
               { value: 'cs', label: 'Čeština' },
               { value: 'sk', label: 'Slovenčina' },
+              { value: 'de', label: 'Deutsch' },
             ]}
             on:change={() => {
               showModal(ConfirmModal, {
