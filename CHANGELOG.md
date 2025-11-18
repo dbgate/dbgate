@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.6.12
+- FIXED: Cannot paste license key on Mac (special commands like copy/paste were disabled on license screen)
+
 ## 6.6.11
 - FIXED: Fixed theming on application startup
 - CHANGED: Improved licensing page
