@@ -23,7 +23,7 @@
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
   import { useConfig, usePromoWidget } from '../utility/metadataLoaders';
-  import { _t } from '../translations';
+  import { _t, getCurrentTranslations } from '../translations';
 
   let domSettings;
   let domCloudAccount;
@@ -153,9 +153,8 @@
     const rect = domMainMenu.getBoundingClientRect();
     const left = rect.right;
     const top = rect.top;
-    const items = mainMenuDefinition({ editMenu: false });
-    const copy = items.map(x => x && ({ ...x, label: x?.label ? _t(x.label.id, x.label.defaultMessage) : null }));
-    currentDropDownMenu.set({ left, top, items: copy });
+    const items = mainMenuDefinition({ editMenu: false }, getCurrentTranslations());
+    currentDropDownMenu.set({ left, top, items });
   }
 
   async function handleOpenCloudLogin() {
