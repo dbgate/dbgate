@@ -81,7 +81,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
-  import { _val, __t } from '../translations';
+  import { _tval, __t } from '../translations';
 
   let domInput;
   let filter = '';
@@ -114,11 +114,11 @@
       ($visibleCommandPalette == 'database'
         ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
         : parentCommand
-        ? parentCommand.getSubCommands()
-        : sortedComands
+          ? parentCommand.getSubCommands()
+          : sortedComands
       ).filter(x => !x.isGroupCommand),
       {
-        extract: x => _val(x.text),
+        extract: x => _tval(x.text),
         pre: '<b>',
         post: '</b>',
       }
@@ -163,10 +163,10 @@
   on:clickOutside={() => {
     $visibleCommandPalette = null;
   }}
-  data-testid='CommandPalette_main'
+  data-testid="CommandPalette_main"
 >
-  <div 
-    class="overlay" 
+  <div
+    class="overlay"
     on:click={() => {
       $visibleCommandPalette = null;
     }}

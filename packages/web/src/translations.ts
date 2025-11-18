@@ -58,8 +58,13 @@ function getTranslation(key: string, defaultMessage: string, language: string) {
   return translation;
 }
 
+export function getCurrentTranslations(): Record<string, string> {
+  const selectedLanguage = getSelectedLanguage();
+  return translations[selectedLanguage] || {};
+}
+
 export function _t(key: string, options: TranslateOptions): string {
-  const { defaultMessage, values } = options;
+  const { defaultMessage, values } = options || {};
 
   const selectedLanguage = getSelectedLanguage();
 
@@ -78,10 +83,32 @@ export function _t(key: string, options: TranslateOptions): string {
   return compliledTranslation(values ?? {});
 }
 
-export function __t(key: string, options: TranslateOptions): () => string {
-  return () => _t(key, options);
+export type DefferedTranslationResult = {
+  _transKey?: string;
+  _transOptions?: TranslateOptions;
+  _transCallback?: () => string;
+};
+
+export function __t(key: string, options: TranslateOptions): DefferedTranslationResult {
+  return {
+    _transKey: key,
+    _transOptions: options,
+  };
 }
 
-export function _val<T>(x: T | (() => T)): T {
-  return typeof x === 'function' ? (x as () => T)() : x;
+export function _tval(x: string | DefferedTranslationResult): string {
+  if (typeof x === 'string') return x;
+  if (typeof x?._transKey === 'string') {
+    return _t(x._transKey, x._transOptions);
+  }
+  if (typeof x?._transCallback === 'function') {
+    return x._transCallback();
+  }
+  return '';
+}
+
+export function isDefferedTranslationResult(
+  x: string | DefferedTranslationResult
+): x is DefferedTranslationResult {
+  return typeof x !== 'string' && typeof x?._transKey === 'string';
 }

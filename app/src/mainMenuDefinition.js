@@ -1,6 +1,10 @@
-module.exports = ({ editMenu, isMac }) => [
+function _t(key, { defaultMessage, currentTranslations } = {}) {
+  return (currentTranslations || global.TRANSLATION_DATA)?.[key] || defaultMessage;
+}
+
+module.exports = ({ editMenu, isMac }, currentTranslations = null) => [
   {
-    label: 'File',
+    label: _t('menu.file', { defaultMessage: 'File', currentTranslations }),
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },
@@ -28,7 +32,7 @@ module.exports = ({ editMenu, isMac }) => [
   },
   editMenu
     ? {
-        label: 'Edit',
+        label: _t('menu.edit', { defaultMessage: 'Edit', currentTranslations }),
         submenu: [
           { command: 'edit.undo' },
           { command: 'edit.redo' },
@@ -53,7 +57,7 @@ module.exports = ({ editMenu, isMac }) => [
   //   ],
   // },
   {
-    label: 'View',
+    label: _t('menu.view', { defaultMessage: 'View', currentTranslations }),
     submenu: [
       { command: 'app.reload', hideDisabled: true },
       { command: 'app.toggleDevTools', hideDisabled: true },
@@ -75,7 +79,7 @@ module.exports = ({ editMenu, isMac }) => [
     ],
   },
   {
-    label: 'Tools',
+    label: _t('menu.tools', { defaultMessage: 'Tools', currentTranslations }),
     submenu: [
       { command: 'database.search', hideDisabled: true },
       { command: 'commandPalette.show', hideDisabled: true },
@@ -102,7 +106,7 @@ module.exports = ({ editMenu, isMac }) => [
       ]
     : []),
   {
-    label: 'Help',
+    label: _t('menu.help', { defaultMessage: 'Help', currentTranslations }),
     submenu: [
       { command: 'app.openDocs', hideDisabled: true },
       { command: 'app.openWeb', hideDisabled: true },

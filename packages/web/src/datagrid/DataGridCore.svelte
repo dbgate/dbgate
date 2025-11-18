@@ -422,7 +422,7 @@
   import { openJsonLinesData } from '../utility/openJsonLinesData';
   import contextMenuActivator from '../utility/contextMenuActivator';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { __t, _t, _val } from '../translations';
+  import { __t, _t, _tval } from '../translations';
   import { isProApp } from '../utility/proTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import hasPermission from '../utility/hasPermission';
@@ -1799,12 +1799,12 @@
       text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced'}),
       submenu: [
         _.keys(copyRowsFormatDefs).map(format => ({
-          text: _val(copyRowsFormatDefs[format].label),
+          text: _tval(copyRowsFormatDefs[format].label),
           onClick: () => copyToClipboardCore(format),
         })),
         { divider: true },
         _.keys(copyRowsFormatDefs).map(format => ({
-          text: _t('datagrid.setFormat', { defaultMessage: 'Set format: ' }) + (_val(copyRowsFormatDefs[format].name)),
+          text: _t('datagrid.setFormat', { defaultMessage: 'Set format: ' }) + (_tval(copyRowsFormatDefs[format].name)),
           onClick: () => ($copyRowsFormat = format),
         })),
 
@@ -1874,7 +1874,7 @@
     return [
       menu,
       {
-        text: _val(copyRowsFormatDefs[$copyRowsFormat].label),
+        text: _tval(copyRowsFormatDefs[$copyRowsFormat].label),
         onClick: () => copyToClipboardCore($copyRowsFormat),
         keyText: 'CtrlOrCommand+C',
         tag: 'copy',

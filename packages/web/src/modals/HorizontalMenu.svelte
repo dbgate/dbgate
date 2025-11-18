@@ -1,7 +1,6 @@
 <script lang="ts">
   import { commandsCustomized, currentDropDownMenu } from '../stores';
   import { prepareMenuItems } from '../utility/contextMenu';
-  import DropDownMenu from './DropDownMenu.svelte';
 
   export let items;
 

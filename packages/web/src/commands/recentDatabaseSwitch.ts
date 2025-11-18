@@ -27,7 +27,7 @@ registerCommand({
   id: 'database.switch',
   category: __t('command.database', { defaultMessage: 'Database' }),
   name: __t('command.database.changeRecent', { defaultMessage: 'Change to recent' }),
-  menuName: 'Switch recent database',
+  menuName: __t('command.database.switchRecent', { defaultMessage: 'Switch recent database' }),
   keyText: 'CtrlOrCommand+D',
   getSubCommands: () => getRecentDatabases().map(switchDatabaseCommand),
 });

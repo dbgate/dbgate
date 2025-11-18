@@ -23,6 +23,7 @@
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
   import { useConfig, usePromoWidget } from '../utility/metadataLoaders';
+  import { _t, getCurrentTranslations } from '../translations';
 
   let domSettings;
   let domCloudAccount;
@@ -120,14 +121,14 @@
       { command: 'theme.changeTheme' },
       hasPermission('settings/change') && { command: 'settings.commands' },
       hasPermission('widgets/plugins') && {
-        text: 'Manage plugins',
+        text: _t('widgets.managePlugins', { defaultMessage: 'Manage plugins' }),
         onClick: () => {
           $selectedWidget = 'plugins';
           $visibleWidgetSideBar = true;
         },
       },
       hasPermission('application-log') && {
-        text: 'View application logs',
+        text: _t('widgets.viewApplicationLogs', { defaultMessage: 'View application logs' }),
         onClick: () => {
           openNewTab({
             title: 'Application log',
@@ -152,7 +153,7 @@
     const rect = domMainMenu.getBoundingClientRect();
     const left = rect.right;
     const top = rect.top;
-    const items = mainMenuDefinition({ editMenu: false });
+    const items = mainMenuDefinition({ editMenu: false }, getCurrentTranslations());
     currentDropDownMenu.set({ left, top, items });
   }
 

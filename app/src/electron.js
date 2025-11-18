@@ -31,6 +31,16 @@ let mainModule;
 let appUpdateStatus = '';
 let settingsJson = {};
 
+function getTranslated(key) {
+  if (typeof key === 'string' && global.TRANSLATION_DATA?.[key]) {
+    return global.TRANSLATION_DATA?.[key];
+  }
+  if (typeof key?._transKey === 'string') {
+    return global.TRANSLATION_DATA?.[key._transKey] ?? key._transOptions?.defaultMessage;
+  }
+  return key;
+}
+
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
 });
@@ -63,6 +73,7 @@ try {
 let mainWindow;
 let mainMenu;
 let runCommandOnLoad = null;
+let mainWindowMenuSet = false;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -91,9 +102,14 @@ function commandItem(item, disableAll = false) {
   if (item.skipInApp) {
     return { skip: true };
   }
+  if (!command) {
+    return { skip: true };
+  }
   return {
     id,
-    label: command ? command.menuName || command.toolbarName || command.name : id,
+    label: command
+      ? getTranslated(command.menuName) || getTranslated(command.toolbarName) || getTranslated(command.name)
+      : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
     enabled: command ? command.enabled && (!disableAll || command.systemCommand) : false,
     click() {
@@ -155,11 +171,14 @@ ipcMain.on('update-commands', async (event, arg) => {
     const command = commands[key];
 
     // rebuild menu
-    if (menu.label != command.text || menu.accelerator != command.keyText) {
+    if (global.TRANSLATION_DATA && (menu.label != command.text || menu.accelerator != command.keyText)) {
       mainMenu = buildMenu(isModalOpened || !!dbgatePage);
 
       Menu.setApplicationMenu(mainMenu);
-      // mainWindow.setMenu(mainMenu);
+      if (!mainWindowMenuSet) {
+        mainWindow.setMenu(mainMenu);
+        mainWindowMenuSet = true;
+      }
       return;
     }
 
@@ -306,6 +325,12 @@ ipcMain.on('check-for-updates', async (event, url) => {
   autoUpdater.autoDownload = false;
   autoUpdater.checkForUpdates();
 });
+ipcMain.on('translation-data', async (event, arg) => {
+  global.TRANSLATION_DATA = JSON.parse(arg);
+  mainMenu = buildMenu();
+  Menu.setApplicationMenu(mainMenu);
+  mainWindow.setMenu(mainMenu);
+});
 
 function fillMissingSettings(value) {
   const res = {
@@ -382,8 +407,8 @@ function createWindow() {
     mainWindow.setFullScreen(true);
   }
 
-  mainMenu = buildMenu();
-  mainWindow.setMenu(mainMenu);
+  // mainMenu = buildMenu();
+  // mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
     const startUrl =

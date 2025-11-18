@@ -27,7 +27,7 @@
   import SettingsListener from './utility/SettingsListener.svelte';
   import { handleAuthOnStartup } from './clientAuth';
   import { initializeAppUpdates } from './utility/appUpdate';
-  import { _t, saveSelectedLanguageToCache } from './translations';
+  import { _t, getCurrentTranslations, saveSelectedLanguageToCache } from './translations';
   import { installCloudListeners } from './utility/cloudListeners';
 
   export let isAdminPage = false;
@@ -62,6 +62,12 @@
         installCloudListeners();
         refreshPublicCloudFiles();
         saveSelectedLanguageToCache();
+
+        const electron = getElectron();
+        if (electron) {
+          electron.send('translation-data', JSON.stringify(getCurrentTranslations()));
+          global.TRANSLATION_DATA = getCurrentTranslations();
+        }
       }
 
       loadedApi = loadedApiValue;
