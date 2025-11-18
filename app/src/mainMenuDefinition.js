@@ -1,6 +1,6 @@
-function _t(id, defaultMessage) {
-  return {id, defaultMessage};
-};
+function _t(key, { defaultMessage }) {
+  return global.TRANSLATION_DATA?.[key] || defaultMessage;
+}
 
 module.exports = ({ editMenu, isMac }) => [
   {
