@@ -114,8 +114,8 @@
       ($visibleCommandPalette == 'database'
         ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
         : parentCommand
-        ? parentCommand.getSubCommands()
-        : sortedComands
+          ? parentCommand.getSubCommands()
+          : sortedComands
       ).filter(x => !x.isGroupCommand),
       {
         extract: x => _tval(x.text),
@@ -163,10 +163,10 @@
   on:clickOutside={() => {
     $visibleCommandPalette = null;
   }}
-  data-testid='CommandPalette_main'
+  data-testid="CommandPalette_main"
 >
-  <div 
-    class="overlay" 
+  <div
+    class="overlay"
     on:click={() => {
       $visibleCommandPalette = null;
     }}

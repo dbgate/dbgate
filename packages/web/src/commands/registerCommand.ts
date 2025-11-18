@@ -45,7 +45,9 @@ export default function registerCommand(command: GlobalCommand) {
       [command.id]: {
         text:
           isDefferedTranslationResult(command.category) || isDefferedTranslationResult(command.name)
-            ? () => `${_tval(command.category)}: ${_tval(command.name)}`
+            ? {
+                _transCallback: () => `${_tval(command.category)}: ${_tval(command.name)}`,
+              }
             : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,

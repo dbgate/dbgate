@@ -84,8 +84,9 @@ export function _t(key: string, options: TranslateOptions): string {
 }
 
 export type DefferedTranslationResult = {
-  _transKey: string;
-  _transOptions: TranslateOptions;
+  _transKey?: string;
+  _transOptions?: TranslateOptions;
+  _transCallback?: () => string;
 };
 
 export function __t(key: string, options: TranslateOptions): DefferedTranslationResult {
@@ -100,6 +101,10 @@ export function _tval(x: string | DefferedTranslationResult): string {
   if (typeof x?._transKey === 'string') {
     return _t(x._transKey, x._transOptions);
   }
+  if (typeof x?._transCallback === 'function') {
+    return x._transCallback();
+  }
+  return '';
 }
 
 export function isDefferedTranslationResult(
