@@ -155,6 +155,7 @@ ORDER BY
               { value: 'sk', label: 'Slovenčina' },
               { value: 'de', label: 'Deutsch' },
               { value: 'fr', label: 'Français' },
+              { value: 'es', label: 'Español' },
             ]}
             on:change={() => {
               showModal(ConfirmModal, {
