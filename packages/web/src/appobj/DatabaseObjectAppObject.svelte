@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import { copyTextToClipboard } from '../utility/clipboard';
-  import { _t, _val } from '../translations';
+  import { _t, _tval, DefferedTranslationResult } from '../translations';
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
@@ -76,7 +76,7 @@
   }
 
   interface DbObjMenuItem {
-    label?: string | (() => string);
+    label?: string | DefferedTranslationResult;
     tab?: string;
     forceNewTab?: boolean;
     initialData?: any;
@@ -722,7 +722,7 @@
         if (!item) return item;
 
         return {...item, 
-          label:  _val(item.label)  
+          label:  _tval(item.label)  
         };
       }
       return {

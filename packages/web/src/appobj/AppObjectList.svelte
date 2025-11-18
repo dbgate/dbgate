@@ -8,7 +8,7 @@
   import Link from '../elements/Link.svelte';
   import { focusedConnectionOrDatabase } from '../stores';
   import { tick } from 'svelte';
-  import { _val } from '../translations';
+  import { _tval } from '../translations';
 
   export let list;
   export let module;
@@ -41,12 +41,12 @@
 
   $: listTranslated = (list || []).map(data => ({
     ...data,
-    group: data?.group && _val(data.group),
-    title: data?.title && _val(data.title),
-    description: data?.description && _val(data.description),
+    group: data?.group && _tval(data.group),
+    title: data?.title && _tval(data.title),
+    description: data?.description && _tval(data.description),
     args: (data?.args || []).map(x => ({
       ...x,
-      label: x?.label && _val(x.label),
+      label: x?.label && _tval(x.label),
     })),
   }));
 

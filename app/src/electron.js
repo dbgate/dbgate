@@ -31,8 +31,14 @@ let mainModule;
 let appUpdateStatus = '';
 let settingsJson = {};
 
-function _t(key, { defaultMessage } = {}) {
-  return global.TRANSLATION_DATA?.[key] || defaultMessage;
+function getTranslated(key) {
+  if (typeof key === 'string' && global.TRANSLATION_DATA?.[key]) {
+    return global.TRANSLATION_DATA?.[key];
+  }
+  if (typeof key?._transKey === 'string') {
+    return global.TRANSLATION_DATA?.[key._transKey] ?? key._transOptions?.defaultMessage;
+  }
+  return key;
 }
 
 process.on('uncaughtException', function (error) {
@@ -96,9 +102,14 @@ function commandItem(item, disableAll = false) {
   if (item.skipInApp) {
     return { skip: true };
   }
+  if (!command) {
+    return { skip: true };
+  }
   return {
     id,
-    label: command ? _t(command.menuName) || _t(command.toolbarName) || command.name : id,
+    label: command
+      ? getTranslated(command.menuName) || getTranslated(command.toolbarName) || getTranslated(command.name)
+      : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
     enabled: command ? command.enabled && (!disableAll || command.systemCommand) : false,
     click() {

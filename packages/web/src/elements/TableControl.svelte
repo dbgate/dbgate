@@ -27,7 +27,7 @@
   import { evaluateCondition } from 'dbgate-sqltree';
   import { compileCompoudEvalCondition } from 'dbgate-filterparser';
   import { chevronExpandIcon } from '../icons/expandIcons';
-  import { _val } from '../translations';
+  import { _tval } from '../translations';
 
   export let columns: (TableControlColumn | false)[];
   export let rows = null;
@@ -369,7 +369,7 @@
                     {/if}
                   {/key}
                 {:else}
-                  { _val(row[col.fieldName]) || '' }
+                  { _tval(row[col.fieldName]) || '' }
                 {/if}
               </td>
             {/each}

@@ -4,7 +4,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { lastUsedDefaultActions } from '../stores';
-  import { _val } from '../translations';
+  import { _tval } from '../translations';
 
   export let label;
   export let objectTypeField;
@@ -19,7 +19,7 @@
     defaultValue={defaultDatabaseObjectAppObjectActions[objectTypeField][0]?.defaultActionId}
     options={defaultDatabaseObjectAppObjectActions[objectTypeField].map(x => ({
       value: x.defaultActionId,
-      label: _val(x.label),
+      label: _tval(x.label),
     }))}
     value={$lastUsedDefaultActions[objectTypeField]}
     on:change={e => {
