@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-
   const getCurrentValueMarker: any = {};
 
   export function shouldShowTab(tab, lockedDbModeArg = getCurrentValueMarker, currentDbArg = getCurrentValueMarker) {
@@ -498,11 +497,17 @@
       conid &&
         database && [
           {
-            text: _t('tabsPanel.closeTabsWithDb', { defaultMessage: 'Close tabs with DB {database}', values: { database } }),
+            text: _t('tabsPanel.closeTabsWithDb', {
+              defaultMessage: 'Close tabs with DB {database}',
+              values: { database },
+            }),
             onClick: () => closeWithSameDb(tabid),
           },
           {
-            text: _t('tabsPanel.closeTabsWithOtherDb', { defaultMessage: `Close tabs with other DB than {database}`, values: { database } }),
+            text: _t('tabsPanel.closeTabsWithOtherDb', {
+              defaultMessage: `Close tabs with other DB than {database}`,
+              values: { database },
+            }),
             onClick: () => closeWithOtherDb(tabid),
           },
         ],
@@ -577,9 +582,19 @@
   let domTabs;
 
   function handleTabsWheel(e) {
-    if (!e.shiftKey) {
+    // if (!e.shiftKey) {
+    //   e.preventDefault();
+    //   domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+    // }
+
+    // Handle horizontal scrolling from trackpad gestures (deltaX)
+    // or vertical scrolling converted to horizontal (deltaY with Shift)
+
+    const scrollAmount = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? 0 : e.deltaY;
+
+    if (scrollAmount !== 0) {
       e.preventDefault();
-      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+      domTabs.scrollBy({ left: scrollAmount, behavior: 'auto' });
     }
   }
 </script>
