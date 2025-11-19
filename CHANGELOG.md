@@ -19,6 +19,7 @@ Builds:
 - FIXED: Export mongodb binary cell as binary file #292
 - CHANGED: SSL is used automatically for connections to Azure databases
 - ADDED: New export formats CSV for Excel, TSV
+- FIXED: Horizontal scrolling on macOS trackpad/Magic Mouse #1250
 
 ## 6.6.12
 - FIXED: Cannot paste license key on Mac (special commands like copy/paste were disabled on license screen)
