@@ -3,7 +3,7 @@
   "app.loading_plugin": "Loading plugin {plugin} ...",
   "app.preparingPlugins": "Preparing plugins ...",
   "app.starting": "Starting DbGate",
-  "authToken": "Auth token",
+  "connection.authToken": "Auth token",
   "chart.detect": "Detect chart",
   "chart.open": "Open chart",
   "clipboard.SQLInsert": "SQL INSERTs",

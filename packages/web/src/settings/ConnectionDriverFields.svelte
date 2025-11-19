@@ -193,7 +193,7 @@
 
 {#if driver?.showConnectionField('authToken', $values, showConnectionFieldArgs)}
   <FormTextField
-    label={_t('authToken', { defaultMessage: 'Auth token' })}
+    label={_t('connection.authToken', { defaultMessage: 'Auth token' })}
     name="authToken"
     data-testid="ConnectionDriverFields_authToken"
     disabled={isConnected || disabledFields.includes('authToken')}

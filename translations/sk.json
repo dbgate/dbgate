@@ -3,7 +3,7 @@
   "app.loading_plugin": "Načítavam plugin {plugin} ...",
   "app.preparingPlugins": "Príprava pluginov...",
   "app.starting": "Spúšťam DbGate",
-  "authToken": "Autentifikačný token",
+  "connection.authToken": "Autentifikačný token",
   "chart.detect": "Rozpoznať graf",
   "chart.open": "Otvoriť graf",
   "clipboard.SQLInsert": "SQL INSERT príkazy",

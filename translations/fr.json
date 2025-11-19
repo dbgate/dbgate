@@ -3,7 +3,7 @@
   "app.loading_plugin": "Chargement du plugin {plugin}...",
   "app.preparingPlugins": "Préparation des plugins...",
   "app.starting": "Démarrage de DbGate",
-  "authToken": "Jeton d'authentification",
+  "connection.authToken": "Jeton d'authentification",
   "chart.detect": "Détecter le graphique",
   "chart.open": "Ouvrir le graphique",
   "clipboard.SQLInsert": "INSERT SQL",

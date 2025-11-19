@@ -3,7 +3,7 @@
   "app.loading_plugin": "正在加载插件 {plugin} ...",
   "app.preparingPlugins": "正在准备插件 ...",
   "app.starting": "正在启动 DbGate",
-  "authToken": "认证令牌",
+  "connection.authToken": "认证令牌",
   "chart.detect": "检测图表",
   "chart.open": "打开图表",
   "clipboard.SQLInsert": "SQL INSERT 语句",
