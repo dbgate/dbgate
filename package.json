@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "6.6.14-premium-beta.6",
+  "version": "6.6.14-beta.6",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
