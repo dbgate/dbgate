@@ -7,6 +7,8 @@ import zh from '../../../translations/zh.json';
 
 import MessageFormat, { MessageFunction } from '@messageformat/core';
 import { getStringSettingsValue } from './settings/settingsTools';
+import getElectron from './utility/getElectron';
+import { apiCall } from './utility/api';
 
 const translations = {
   en: {},
@@ -28,11 +30,21 @@ let selectedLanguageCache: string | null = null;
 export function getSelectedLanguage(): string {
   if (selectedLanguageCache) return selectedLanguageCache;
 
-  const browserLanguage = getBrowserLanguage();
-  const selectedLanguage = getStringSettingsValue('localization.language', browserLanguage);
+  // const browserLanguage = getBrowserLanguage();
+  const selectedLanguage = getElectron()
+    ? getStringSettingsValue('localization.language', null)
+    : localStorage.getItem('selectedLanguage');
 
-  if (!supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
+  if (!selectedLanguage || !supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
   return selectedLanguage;
+}
+
+export async function setSelectedLanguage(language: string) {
+  if (getElectron()) {
+    await apiCall('config/update-settings', { 'localization.language': language });
+  } else {
+    localStorage.setItem('selectedLanguage', language);
+  }
 }
 
 export function saveSelectedLanguageToCache() {
@@ -40,13 +52,12 @@ export function saveSelectedLanguageToCache() {
 }
 
 export function getBrowserLanguage(): string {
-  return 'en';
-  // if (typeof window !== 'undefined') {
-  //   return (
-  //     (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
-  //   );
-  // }
-  // return defaultLanguage;
+  if (typeof window !== 'undefined') {
+    return (
+      (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
+    );
+  }
+  return defaultLanguage;
 }
 
 type TranslateOptions = {

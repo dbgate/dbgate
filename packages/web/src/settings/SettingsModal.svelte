@@ -42,7 +42,7 @@
   import { safeFormatDate } from 'dbgate-tools';
   import FormDefaultActionField from './FormDefaultActionField.svelte';
   import AiSettingsTab from './AiSettingsTab.svelte';
-  import { _t } from '../translations';
+  import { _t, setSelectedLanguage } from '../translations';
   import hasPermission from '../utility/hasPermission';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showModal } from '../modals/modalTools';
@@ -180,34 +180,40 @@ ORDER BY
             defaultValue={false}
           />
           <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
-          <FormSelectField
+
+          <FormFieldTemplateLarge
             label={_t('settings.localization.language', { defaultMessage: 'Language' })}
-            name="localization.language"
-            defaultValue={getSelectedLanguage()}
-            data-testid="SettingsModal_languageSelect"
-            isNative
-            options={[
-              { value: 'cs', label: 'Čeština' },
-              { value: 'de', label: 'Deutsch' },
-              { value: 'en', label: 'English' },
-              { value: 'es', label: 'Español' },
-              { value: 'fr', label: 'Français' },
-              { value: 'sk', label: 'Slovenčina' },
-              { value: 'zh', label: '中文' },
-            ]}
-            on:change={() => {
-              showModal(ConfirmModal, {
-                message: _t('settings.localization.reloadWarning', {
-                  defaultMessage: 'Application will be reloaded to apply new language settings',
-                }),
-                onConfirm: () => {
-                  setTimeout(() => {
-                    internalRedirectTo(electron ? '/index.html' : '/');
-                  }, 100);
-                },
-              });
-            }}
-          />
+            type="combo"
+          >
+            <SelectField
+              isNative
+              data-testid="SettingsModal_languageSelect"
+              options={[
+                { value: 'cs', label: 'Čeština' },
+                { value: 'de', label: 'Deutsch' },
+                { value: 'en', label: 'English' },
+                { value: 'es', label: 'Español' },
+                { value: 'fr', label: 'Français' },
+                { value: 'sk', label: 'Slovenčina' },
+                { value: 'zh', label: '中文' },
+              ]}
+              defaultValue={getSelectedLanguage()}
+              value={getSelectedLanguage()}
+              on:change={e => {
+                setSelectedLanguage(e.detail);
+                showModal(ConfirmModal, {
+                  message: _t('settings.localization.reloadWarning', {
+                    defaultMessage: 'Application will be reloaded to apply new language settings',
+                  }),
+                  onConfirm: () => {
+                    setTimeout(() => {
+                      internalRedirectTo(electron ? '/index.html' : '/');
+                    }, 100);
+                  },
+                });
+              }}
+            />
+          </FormFieldTemplateLarge>
 
           <div class="heading">{_t('settings.dataGrid.title', { defaultMessage: 'Data grid' })}</div>
           <FormTextField
