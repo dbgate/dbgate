@@ -14,7 +14,11 @@ const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 const processArgs = require('../utility/processArgs');
 const { safeJsonParse, getLogger, extractErrorLogData } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
-const { connectionHasPermission, testConnectionPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
+const {
+  connectionHasPermission,
+  testConnectionPermission,
+  loadPermissionsFromRequest,
+} = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { getAuthProviderById } = require('../auth/authProvider');
@@ -116,7 +120,10 @@ function getPortalCollections() {
       }
     }
 
-    logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'DBGM-00005 Using connections from ENV variables');
+    logger.info(
+      { connections: connections.map(pickSafeConnectionInfo) },
+      'DBGM-00005 Using connections from ENV variables'
+    );
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       logger.warn(
@@ -502,7 +509,11 @@ module.exports = {
       state,
       client: 'web',
     });
-    res.redirect(authResp.url);
+    if (authResp?.url) {
+      res.redirect(authResp.url);
+      return;
+    }
+    res.json({ error: 'No URL returned from auth provider' });
   },
 
   dbloginApp_meta: true,
