@@ -194,6 +194,7 @@ ORDER BY
                 { value: 'en', label: 'English' },
                 { value: 'es', label: 'Español' },
                 { value: 'fr', label: 'Français' },
+                { value: 'pt', label: 'Português (Brasil)' },
                 { value: 'sk', label: 'Slovenčina' },
                 { value: 'zh', label: '中文' },
               ]}
