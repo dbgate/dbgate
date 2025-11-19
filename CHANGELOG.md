@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.7.0 - not released
+## 6.7.0
 - ADDED: Added localization support, now you can use DbGate in multiple languages (French, Spanish, German, Czech, Slovak, Simplified Chinese) #347 #705 #939 #1079
 - CHANGED: Solved many issues with binary fields, huge performance improvements in binary fields processing
 - FIXED: Export to CSV produces empty file #1247
