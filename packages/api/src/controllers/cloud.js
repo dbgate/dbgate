@@ -35,8 +35,8 @@ module.exports = {
   },
 
   refreshPublicFiles_meta: true,
-  async refreshPublicFiles({ isRefresh }) {
-    await refreshPublicFiles(isRefresh);
+  async refreshPublicFiles({ isRefresh }, req) {
+    await refreshPublicFiles(isRefresh, req?.headers?.['x-ui-language']);
     return {
       status: 'ok',
     };

@@ -193,7 +193,7 @@ async function getCloudSigninHeaders(holder = null) {
   return null;
 }
 
-async function updateCloudFiles(isRefresh) {
+async function updateCloudFiles(isRefresh, language) {
   let lastCloudFilesTags;
   try {
     lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');
@@ -218,6 +218,7 @@ async function updateCloudFiles(isRefresh) {
         ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
+        'x-app-language': language || 'en',
       },
     }
   );
@@ -274,7 +275,7 @@ async function ensurePromoWidgetDataLoaded() {
   promoWidgetDataLoaded = true;
 }
 
-async function updatePremiumPromoWidget() {
+async function updatePremiumPromoWidget(language) {
   await ensurePromoWidgetDataLoaded();
 
   const tags = (await collectCloudFilesSearchTags()).join(',');
@@ -286,6 +287,7 @@ async function updatePremiumPromoWidget() {
         ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
+        'x-app-language': language || 'en',
       },
     }
   );
@@ -300,18 +302,21 @@ async function updatePremiumPromoWidget() {
   socket.emitChanged(`promo-widget-changed`);
 }
 
-async function refreshPublicFiles(isRefresh) {
+async function refreshPublicFiles(isRefresh, uiLanguage) {
+  const language = platformInfo.isElectron
+    ? (await config.getCachedSettings())?.['localization.language'] || 'en'
+    : uiLanguage;
   if (!cloudFiles) {
     await loadCloudFiles();
   }
   try {
-    await updateCloudFiles(isRefresh);
+    await updateCloudFiles(isRefresh, language);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
   }
   const configSettings = await config.get();
   if (!isProApp() || configSettings?.trialDaysLeft != null) {
-    await updatePremiumPromoWidget();
+    await updatePremiumPromoWidget(language);
   }
 }
 
