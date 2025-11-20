@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "blueimp-md5": "^2.19.0",
-    "dbgate-query-splitter": "^4.11.7",
+    "dbgate-query-splitter": "^4.11.9",
     "dbgate-sqltree": "^6.0.0-alpha.1",
     "debug": "^4.3.4",
     "json-stable-stringify": "^1.0.1",
