@@ -42,7 +42,7 @@
     "is-promise": "^4.0.0",
     "lodash": "^4.17.21",
     "mongodb": "^6.3.0",
-    "mongodb-old": "npm:mongodb@^6.16.0",
+    "mongodb-old": "npm:mongodb@6.16.0",
     "@mongosh/browser-runtime-electron": "^3.16.4",
     "@mongosh/service-provider-node-driver": "^3.10.2"
   },
