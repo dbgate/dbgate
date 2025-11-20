@@ -2669,6 +2669,13 @@
   dependencies:
     sparse-bitfield "^3.0.3"
 
+"@mongodb-js/saslprep@^1.3.0":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@mongodb-js/saslprep/-/saslprep-1.3.2.tgz#51e5cad2f24b8759702d9cc185da0a3ef3784bad"
+  integrity sha512-QgA5AySqB27cGTXBFmnpifAi7HxoGUeezwo6p9dI03MuDB6Pp33zgclqVb6oVK3j6I9Vesg0+oojW2XxB59SGg==
+  dependencies:
+    sparse-bitfield "^3.0.3"
+
 "@mongodb-js/socksv5@^0.0.10":
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/@mongodb-js/socksv5/-/socksv5-0.0.10.tgz#d734c9799a5d011caaf43788e16925aca90712d8"
@@ -6158,6 +6165,11 @@ dbgate-query-splitter@^4.11.7:
   version "4.11.7"
   resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.7.tgz#f9d53b3ceafbd76355152677b87ae453598b4a88"
   integrity sha512-2J0Gc2hyZrHnrLBpI6Tw8MvP7V01eTj+SMHLeG9ggVf6Y8JB/6JBK5kPwhz77SwZw/InhpaweCUBoHFCJUv/kg==
+
+dbgate-query-splitter@^4.11.9:
+  version "4.11.9"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.11.9.tgz#1461ec652caf6b44d7b94109610f497695c4aef6"
+  integrity sha512-WaN9VFgmIpIvpNDUFNV1P0m7TimCAk2Itgk4lKndxC+ixhersHfLfGcea5gcKS1ie8+SRoKlFsfe/MIehvOA9A==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -10685,7 +10697,7 @@ mongodb-connection-string-url@^3.0.0:
     "@types/whatwg-url" "^11.0.2"
     whatwg-url "^13.0.0"
 
-mongodb-connection-string-url@^3.0.1:
+mongodb-connection-string-url@^3.0.1, mongodb-connection-string-url@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/mongodb-connection-string-url/-/mongodb-connection-string-url-3.0.2.tgz#e223089dfa0a5fa9bf505f8aedcbc67b077b33e7"
   integrity sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==
@@ -10697,6 +10709,15 @@ mongodb-ns@^2.4.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/mongodb-ns/-/mongodb-ns-2.4.2.tgz#481592316d3a2be68accbba3aca2cb660eb6da1d"
   integrity sha512-gYJjEYG4v4a1WSXgUf81OBoBRlj+Z1SlnQVO392fC/4a1CN7CLWDITajZWPFTPh/yRozYk6sHHtZwZmQhodBEA==
+
+"mongodb-old@npm:mongodb@^6.16.0":
+  version "6.21.0"
+  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-6.21.0.tgz#f83355905900f2e7a912593f0315d5e2e0bda576"
+  integrity sha512-URyb/VXMjJ4da46OeSXg+puO39XH9DeQpWCslifrRn9JWugy0D+DvvBvkm2WxmHe61O/H19JM66p1z7RHVkZ6A==
+  dependencies:
+    "@mongodb-js/saslprep" "^1.3.0"
+    bson "^6.10.4"
+    mongodb-connection-string-url "^3.0.2"
 
 mongodb-redact@^1.1.5:
   version "1.1.8"
