@@ -224,11 +224,13 @@ ORDER BY
             })}
             defaultValue="100"
           />
-          <FormCheckboxField
-            name="dataGrid.showHintColumns"
-            label={_t('settings.dataGrid.showHintColumns', { defaultMessage: 'Show foreign key hints' })}
-            defaultValue={true}
-          />
+          {#if isProApp()}
+            <FormCheckboxField
+              name="dataGrid.showHintColumns"
+              label={_t('settings.dataGrid.showHintColumns', { defaultMessage: 'Show foreign key hints' })}
+              defaultValue={true}
+            />
+          {/if}
           <!-- <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} /> -->
 
           <FormCheckboxField
