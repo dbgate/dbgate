@@ -1,10 +1,11 @@
 const _ = require('lodash');
 const { EventEmitter } = require('events');
 const stream = require('stream');
-const driverBase = require('../frontend/driver');
+const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
-const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
+const mongodb = require('mongodb');
+const { ObjectId } = require('mongodb');
 const { EJSON } = require('bson');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse, getLogger } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
@@ -18,7 +19,8 @@ let isProApp;
 
 const logger = getLogger('mongoDriver');
 
-function serializeMongoData(row) {
+function serializeMongoData(row, driverBase) {
+  const { Long } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
   return EJSON.serialize(
     serializeJsTypesForJsonStringify(row, (value) => {
       if (value instanceof Long) {
@@ -33,10 +35,10 @@ function serializeMongoData(row) {
   );
 }
 
-async function readCursor(cursor, options) {
+async function readCursor(cursor, options, driverBase) {
   options.recordset({ __isDynamicStructure: true });
   await cursor.forEach((row) => {
-    options.row(serializeMongoData(row));
+    options.row(serializeMongoData(row, driverBase));
   });
 }
 
@@ -86,8 +88,8 @@ async function getScriptableDb(dbhan) {
 //   }
 // }
 
-/** @type {import('dbgate-types').EngineDriver<MongoClient, import('mongodb').Db>} */
-const driver = {
+/** @type {import('dbgate-types').EngineDriver<import('mongodb').MongoClient, import('mongodb').Db>} */
+const drivers = driverBases.map((driverBase) => ({
   ...driverBase,
   analyserClass: Analyser,
   async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl, useSshTunnel }) {
@@ -119,6 +121,8 @@ const driver = {
       // options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
+
+    const { MongoClient } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
 
     const client = new MongoClient(mongoUrl, options);
     await client.connect();
@@ -314,8 +318,10 @@ const driver = {
         return;
       }
 
+      const { AbstractCursor } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
+
       if (exprValue instanceof AbstractCursor) {
-        await readCursor(exprValue, options);
+        await readCursor(exprValue, options, driverBase);
       } else if (isPromise(exprValue)) {
         try {
           const resValue = await exprValue;
@@ -427,7 +433,7 @@ const driver = {
     const cursorStream = exprValue.stream();
 
     cursorStream.on('data', (row) => {
-      pass.write(serializeMongoData(row));
+      pass.write(serializeMongoData(row, driverBase));
     });
 
     // propagate error
@@ -487,10 +493,12 @@ const driver = {
         let cursor = await collection.aggregate(deserializeMongoData(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(serializeMongoData).map((x) => ({
-            ...x._id,
-            ..._.omit(x, ['_id']),
-          })),
+          rows: rows
+            .map((row) => serializeMongoData(row, driverBase))
+            .map((x) => ({
+              ...x._id,
+              ..._.omit(x, ['_id']),
+            })),
         };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
@@ -500,7 +508,7 @@ const driver = {
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(serializeMongoData),
+          rows: rows.map((row) => serializeMongoData(row, driverBase)),
         };
       }
     } catch (err) {
@@ -613,10 +621,12 @@ const driver = {
       ]);
       const rows = await cursor.toArray();
       return _.uniqBy(
-        rows.map(serializeMongoData).map(({ _id }) => {
-          if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
-          return { value: _id };
-        }),
+        rows
+          .map((row) => serializeMongoData(row, driverBase))
+          .map(({ _id }) => {
+            if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
+            return { value: _id };
+          }),
         (x) => x.value
       );
     } catch (err) {
@@ -753,10 +763,10 @@ const driver = {
 
     return result;
   },
-};
+}));
 
-driver.initialize = (dbgateEnv) => {
+drivers.initialize = (dbgateEnv) => {
   isProApp = dbgateEnv.isProApp;
 };
 
-module.exports = driver;
+module.exports = drivers;
