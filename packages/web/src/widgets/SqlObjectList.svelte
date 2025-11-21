@@ -79,6 +79,8 @@
 
   // $: console.log('OBJECTS', $objects);
 
+  $databaseObjectAppObjectSearchSettings?.
+
   $: objectList = _.flatten([
     ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(
       objectTypeField =>
@@ -133,19 +135,61 @@
     const res = [];
     res.push({ label: _t('sqlObject.searchBy', { defaultMessage: 'Search by:' }), isBold: true, disabled: true });
     if (driver?.databaseEngineTypes?.includes('document')) {
-      res.push({ label: _t('sqlObject.collectionName', { defaultMessage: 'Collection name' }), switchValue: 'pureName' });
+      res.push({
+        label: _t('sqlObject.collectionName', { defaultMessage: 'Collection name' }),
+        switchValue: 'pureName',
+      });
     }
     if (driver?.databaseEngineTypes?.includes('sql')) {
-      res.push({ label: _t('sqlObject.tableViewProcedureName', { defaultMessage: 'Table/view/procedure name' }), switchValue: 'pureName' });
+      res.push({
+        label: _t('sqlObject.tableViewProcedureName', { defaultMessage: 'Table/view/procedure name' }),
+        switchValue: 'pureName',
+      });
       res.push({ label: _t('sqlObject.schemaName', { defaultMessage: 'Schema' }), switchValue: 'schemaName' });
       res.push({ label: _t('sqlObject.columnName', { defaultMessage: 'Column name' }), switchValue: 'columnName' });
-      res.push({ label: _t('sqlObject.columnDataType', { defaultMessage: 'Column data type' }), switchValue: 'columnDataType' });
-      res.push({ label: _t('sqlObject.tableComment', { defaultMessage: 'Table comment' }), switchValue: 'tableComment' });
-      res.push({ label: _t('sqlObject.columnComment', { defaultMessage: 'Column comment' }), switchValue: 'columnComment' });
-      res.push({ label: _t('sqlObject.viewProcedureTriggerText', { defaultMessage: 'View/procedure/trigger text' }), switchValue: 'sqlObjectText' });
+      res.push({
+        label: _t('sqlObject.columnDataType', { defaultMessage: 'Column data type' }),
+        switchValue: 'columnDataType',
+      });
+      res.push({
+        label: _t('sqlObject.tableComment', { defaultMessage: 'Table comment' }),
+        switchValue: 'tableComment',
+      });
+      res.push({
+        label: _t('sqlObject.columnComment', { defaultMessage: 'Column comment' }),
+        switchValue: 'columnComment',
+      });
+      res.push({
+        label: _t('sqlObject.viewProcedureTriggerText', { defaultMessage: 'View/procedure/trigger text' }),
+        switchValue: 'sqlObjectText',
+      });
       res.push({ label: _t('sqlObject.tableEngine', { defaultMessage: 'Table engine' }), switchValue: 'tableEngine' });
-      res.push({ label: _t('sqlObject.tablesWithRows', { defaultMessage: 'Only tables with rows' }), switchValue: 'tablesWithRows' });
+      res.push({
+        label: _t('sqlObject.tablesWithRows', { defaultMessage: 'Only tables with rows' }),
+        switchValue: 'tablesWithRows',
+      });
     }
+
+    res.push({ label: _t('sqlObject.sortBy', { defaultMessage: 'Sort by:' }), isBold: true, disabled: true });
+    res.push({
+      label: _t('sqlObject.name', { defaultMessage: 'Name' }),
+      switchValue: 'sortByName',
+      switchGroupPrefix: 'sortBy',
+      closeOnSwitchClick: true,
+    });
+    res.push({
+      label: _t('sqlObject.rowCount', { defaultMessage: 'Row count' }),
+      switchValue: 'sortByRowCount',
+      switchGroupPrefix: 'sortBy',
+      closeOnSwitchClick: true,
+    });
+    res.push({
+      label: _t('sqlObject.sizeBytes', { defaultMessage: 'Size bytes' }),
+      switchValue: 'sortBySizeBytes',
+      switchGroupPrefix: 'sortBy',
+      closeOnSwitchClick: true,
+    });
+
     return res.map(item => ({
       ...item,
       switchStore: databaseObjectAppObjectSearchSettings,
@@ -193,19 +237,25 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo
-      message={_t('sqlObject.databaseEmpty', { defaultMessage: 'Database {database} is empty or structure is not loaded, press Refresh button to reload structure', values: { database } })}
+      message={_t('sqlObject.databaseEmpty', {
+        defaultMessage:
+          'Database {database} is empty or structure is not loaded, press Refresh button to reload structure',
+        values: { database },
+      })}
       icon="img alert"
     />
     <div class="m-1" />
     <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
     {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
-      <InlineButton on:click={() => runCommand('new.table')}>{_t('database.newTable', { defaultMessage: 'New table' })}</InlineButton>
+      <InlineButton on:click={() => runCommand('new.table')}
+        >{_t('database.newTable', { defaultMessage: 'New table' })}</InlineButton
+      >
     {/if}
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.collection')}
-        >{_t('sqlObject.newCollection', { defaultMessage: 'New collection/container'})}</InlineButton
+        >{_t('sqlObject.newCollection', { defaultMessage: 'New collection/container' })}</InlineButton
       >
     {/if}
   </WidgetsInnerContainer>
@@ -233,7 +283,7 @@
     {/if}
     <InlineButton
       on:click={handleRefreshDatabase}
-      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: "Refresh database connection and object list" })}
+      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
       square
       data-testid="SqlObjectList_refreshButton"
     >
@@ -260,7 +310,10 @@
     data-testid="SqlObjectList_container"
   >
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
-      <LoadingInfo message={$status?.feedback?.analysingMessage || _t('sqlObject.loadingStructure', { defaultMessage: 'Loading database structure' })} />
+      <LoadingInfo
+        message={$status?.feedback?.analysingMessage ||
+          _t('sqlObject.loadingStructure', { defaultMessage: 'Loading database structure' })}
+      />
     {:else}
       <AppObjectListHandler
         bind:this={domListHandler}

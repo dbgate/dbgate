@@ -87,12 +87,24 @@
       return;
     }
     if (item.switchStore && item.switchValue) {
-      item.switchStore.update(x => ({
-        ...x,
-        [item.switchValue]: !x[item.switchValue],
-      }));
+      item.switchStore.update(x => {
+        const res = {
+          ...x,
+          [item.switchValue]: !x[item.switchValue],
+        };
+        if (item.switchGroupPrefix) {
+          for (const key of Object.keys(res)) {
+            if (key.startsWith(item.switchGroupPrefix) && key !== item.switchValue) {
+              res[key] = false;
+            }
+          }
+        }
+        return res;
+      });
       switchIndex++;
-      return;
+      if (!item.closeOnSwitchClick) {
+        return;
+      }
     }
     dispatchClose();
     if (onCloseParent) onCloseParent();
