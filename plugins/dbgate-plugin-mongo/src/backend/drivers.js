@@ -5,9 +5,7 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
 const mongodb = require('mongodb');
-const oldmongodb = require('mongodb-old');
 const { ObjectId } = require('mongodb');
-// { MongoClient, ObjectId, AbstractCursor, Long }
 const { EJSON } = require('bson');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse, getLogger } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
@@ -22,7 +20,7 @@ let isProApp;
 const logger = getLogger('mongoDriver');
 
 function serializeMongoData(row, driverBase) {
-  const { Long } = driverBase.useLegacyDriver ? oldmongodb : mongodb;
+  const { Long } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
   return EJSON.serialize(
     serializeJsTypesForJsonStringify(row, (value) => {
       if (value instanceof Long) {
@@ -124,7 +122,7 @@ const drivers = driverBases.map((driverBase) => ({
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
 
-    const { MongoClient } = driverBase.useLegacyDriver ? oldmongodb : mongodb;
+    const { MongoClient } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
 
     const client = new MongoClient(mongoUrl, options);
     await client.connect();
@@ -320,7 +318,7 @@ const drivers = driverBases.map((driverBase) => ({
         return;
       }
 
-      const { AbstractCursor } = driverBase.useLegacyDriver ? oldmongodb : mongodb;
+      const { AbstractCursor } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
 
       if (exprValue instanceof AbstractCursor) {
         await readCursor(exprValue, options, driverBase);
