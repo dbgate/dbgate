@@ -118,7 +118,7 @@ module.exports = ({ editMenu, isMac }, currentTranslations = null) => [
       { command: 'tabs.changelog', hideDisabled: true },
       { command: 'about.show', hideDisabled: true },
       { divider: true },
-      { command: 'file.checkForUpdates', hideDisabled: true },
+      { command: 'app.checkForUpdates', hideDisabled: true },
     ],
   },
 ];
