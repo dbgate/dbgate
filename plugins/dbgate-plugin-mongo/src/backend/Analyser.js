@@ -16,12 +16,16 @@ class Analyser extends DatabaseAnalyser {
         collections
           .filter((x) => x.type == 'collection')
           .map((x) =>
-            this.dbhan
-              .getDatabase()
-              .collection(x.name)
-              .aggregate([{ $collStats: { count: {} } }])
-              .toArray()
-              .then((resp) => ({ name: x.name, count: resp[0].count }))
+        this.dbhan
+          .getDatabase()
+          .collection(x.name)
+          .aggregate([{ $collStats: { count: {}, storageStats: {} } }])
+          .toArray()
+          .then((resp) => ({ 
+            name: x.name, 
+            count: resp[0].count,
+            size: resp[0].storageStats?.size 
+          }))
           )
       );
     } catch (e) {
@@ -29,11 +33,13 @@ class Analyser extends DatabaseAnalyser {
       stats = {};
     }
 
+
     const res = this.mergeAnalyseResult({
       collections: [
         ...collections.map((x, index) => ({
           pureName: x.name,
           tableRowCount: stats[index]?.count,
+          sizeBytes: stats[index]?.size,
           uniqueKey: [{ columnName: '_id' }],
           partitionKey: [{ columnName: '_id' }],
           clusterKey: [{ columnName: '_id' }],
