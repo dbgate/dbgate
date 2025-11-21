@@ -16,7 +16,8 @@ select infoTables.table_schema as "schema_name", infoTables.table_name as "pure_
         )) as "hash_code_constraints"
         from information_schema.table_constraints infoConstraints 
         where infoConstraints.table_schema = infoTables.table_schema and infoConstraints.table_name = infoTables.table_name
-    )
+    ),
+    pg_relation_size('"'||infoTables.table_schema||'"."'||infoTables.table_name||'"') as "size_bytes"
     
 from information_schema.tables infoTables 
 where infoTables.table_type not like '%VIEW%' 

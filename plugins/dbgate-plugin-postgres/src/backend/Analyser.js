@@ -255,6 +255,7 @@ class Analyser extends DatabaseAnalyser {
         const newTable = {
           pureName: table.pure_name,
           schemaName: table.schema_name,
+          sizeBytes: table.size_bytes,
           objectId: `tables:${table.schema_name}.${table.pure_name}`,
           contentHash: table.hash_code_columns ? `${table.hash_code_columns}-${table.hash_code_constraints}` : null,
         };
@@ -410,6 +411,7 @@ class Analyser extends DatabaseAnalyser {
             objectId: `tables:${x.schema_name}.${x.pure_name}`,
             pureName: x.pure_name,
             schemaName: x.schema_name,
+            sizeBytes: x.size_bytes,
             contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
           }))
         : null,

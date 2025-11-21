@@ -396,17 +396,17 @@
             functionName: 'tableReader',
           },
           hasPermission('dbops/model/edit') && {
-            label: _t('dbObject.dropCollection', { defaultMessage: 'Drop collection/container'}),
+            label: _t('dbObject.dropCollection', { defaultMessage: 'Drop collection/container' }),
             isDropCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/rename') && {
-            label: _t('dbObject.renameCollection', { defaultMessage: 'Rename collection/container'}),
+            label: _t('dbObject.renameCollection', { defaultMessage: 'Rename collection/container' }),
             isRenameCollection: true,
             requiresWriteAccess: true,
           },
           hasPermission('dbops/table/backup') && {
-            label: _t('dbObject.createCollectionBackup', { defaultMessage: 'Create collection/container backup'}),
+            label: _t('dbObject.createCollectionBackup', { defaultMessage: 'Create collection/container backup' }),
             isDuplicateCollection: true,
             requiresWriteAccess: true,
           },
@@ -590,7 +590,10 @@
       });
     } else if (menu.isDropCollection) {
       showModal(ConfirmModal, {
-        message: _t('dbObject.confirmDropCollection', { defaultMessage: 'Really drop collection {name}?', values: { name: data.pureName } }),
+        message: _t('dbObject.confirmDropCollection', {
+          defaultMessage: 'Really drop collection {name}?',
+          values: { name: data.pureName },
+        }),
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
           runOperationOnDatabase(dbid, {
@@ -621,7 +624,10 @@
       const driver = await getDriver();
 
       showModal(ConfirmModal, {
-        message: _t('dbObject.confirmCloneCollection', { defaultMessage: 'Really create collection/container copy named {name}?', values: { name: newName } }),
+        message: _t('dbObject.confirmCloneCollection', {
+          defaultMessage: 'Really create collection/container copy named {name}?',
+          values: { name: newName },
+        }),
         onConfirm: async () => {
           const dbid = _.pick(data, ['conid', 'database']);
           runOperationOnDatabase(dbid, {
@@ -721,9 +727,7 @@
       if (!item.submenu) {
         if (!item) return item;
 
-        return {...item, 
-          label:  _tval(item.label)  
-        };
+        return { ...item, label: _tval(item.label) };
       }
       return {
         ...item,
@@ -773,7 +777,9 @@
     openNewTab(
       {
         // title: getObjectTitle(connection, schemaName, pureName),
-        title: tabComponent ? getObjectTitle(connection, schemaName, pureName) : _t('dbObject.query', { defaultMessage: 'Query #' }),
+        title: tabComponent
+          ? getObjectTitle(connection, schemaName, pureName)
+          : _t('dbObject.query', { defaultMessage: 'Query #' }),
         focused: tabComponent == null,
         tooltip,
         icon:
@@ -1040,6 +1046,7 @@
   import { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
   import { getBoolSettingsValue, getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import { isProApp } from '../utility/proTools';
+  import formatFileSize from '../utility/formatFileSize';
 
   export let data;
   export let passProps;
@@ -1067,6 +1074,9 @@
     }
     if (data.tableRowCount != null) {
       res.push(`${formatRowCount(data.tableRowCount)} rows`);
+    }
+    if (data.sizeBytes) {
+      res.push(formatFileSize(data.sizeBytes));
     }
     if (data.tableEngine) {
       res.push(data.tableEngine);
