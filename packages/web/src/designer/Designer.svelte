@@ -17,11 +17,31 @@
     id: 'diagram.export',
     category: __t('command.designer', { defaultMessage: 'Designer' }),
     toolbarName: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
-    name: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
+    name: __t('command.designer.exportDiagramHtml', { defaultMessage: 'Export diagram as HTML' }),
     icon: 'icon report',
     toolbar: true,
     isRelatedToTab: true,
     onClick: () => getCurrentEditor().exportDiagram(),
+    testEnabled: () => getCurrentEditor()?.canExport(),
+  });
+
+  registerCommand({
+    id: 'diagram.exportSvg',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
+    name: __t('command.designer.exportDiagramSvg', { defaultMessage: 'Export diagram as SVG' }),
+    icon: 'icon report',
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().exportDiagramSvg(),
+    testEnabled: () => getCurrentEditor()?.canExport(),
+  });
+
+  registerCommand({
+    id: 'diagram.exportPng',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
+    name: __t('command.designer.exportDiagramPng', { defaultMessage: 'Export diagram as PNG' }),
+    icon: 'icon report',
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().exportDiagramPng(),
     testEnabled: () => getCurrentEditor()?.canExport(),
   });
 
@@ -55,6 +75,7 @@
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { apiCall } from '../utility/api';
   import moveDrag from '../utility/moveDrag';
+  import { toPng } from 'html-to-image';
   import { rectanglesHaveIntersection } from './designerMath';
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
@@ -829,6 +850,54 @@
         watermark: getWatermarkHtml(),
       });
     });
+  }
+
+  export async function exportDiagramSvg() {
+    const cssLinks = ['global.css', 'build/bundle.css'];
+    let css = '';
+    for (const link of cssLinks) {
+      const cssResp = await fetch(link);
+      const cssItem = await cssResp.text();
+      if (css) css += '\n';
+      css += cssItem;
+    }
+    if ($currentThemeDefinition?.themeCss) {
+      if (css) css += '\n';
+      css += $currentThemeDefinition?.themeCss;
+    }
+    saveFileToDisk(
+      async filePath => {
+        await apiCall('files/export-diagram-svg', {
+          filePath,
+          html: domCanvas.innerHTML,
+          css,
+          themeType: $currentThemeDefinition?.themeType,
+          themeClassName: $currentThemeDefinition?.themeClassName,
+        });
+      },
+      { formatLabel: 'SVG Image', formatExtension: 'svg', defaultFileName: 'diagram.svg' }
+    );
+  }
+
+  export async function exportDiagramPng() {
+    try {
+      const dataUrl = await toPng(domCanvas, {
+        backgroundColor: $currentThemeDefinition?.themeType === 'dark' ? '#1e1e1e' : '#ffffff',
+        cacheBust: true,
+      });
+      
+      saveFileToDisk(
+        async filePath => {
+          await apiCall('files/export-diagram-png', {
+            filePath,
+            imageData: dataUrl,
+          });
+        },
+        { formatLabel: 'PNG Image', formatExtension: 'png', defaultFileName: 'diagram.png' }
+      );
+    } catch (error) {
+      console.error('Failed to export diagram as PNG:', error);
+    }
   }
 
   const changeStyleFunc = (name, value) => () => {
