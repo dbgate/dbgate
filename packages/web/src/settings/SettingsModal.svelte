@@ -197,6 +197,7 @@ ORDER BY
                 { value: 'it', label: 'Italiano' },
                 { value: 'pt', label: 'Português (Brasil)' },
                 { value: 'sk', label: 'Slovenčina' },
+                { value: 'ja', label: '日本語' },
                 { value: 'zh', label: '中文' },
               ]}
               defaultValue={getSelectedLanguage()}
