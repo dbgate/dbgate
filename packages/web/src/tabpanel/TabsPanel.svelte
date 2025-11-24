@@ -758,7 +758,7 @@
         title="Upgrade to Premium"
         data-testid="TabsPanel_buttonUpgrade"
       >
-        <FontIcon icon="icon premium" padRight /> Upgrade
+        <FontIcon icon="icon premium" /> Upgrade
       </div>
     {/if}
 
@@ -803,6 +803,9 @@
     cursor: pointer;
     font-size: 10pt;
     padding: 5px;
+    margin-top: 3px;
+    margin-right: 3px;
+    font-size: 8pt;    
   }
   .upgrade-button:hover {
     background: linear-gradient(135deg, #0f5a85, #5c1870);
@@ -822,7 +825,7 @@
   }
 
   .tabs-upgrade-button {
-    right: 120px;
+    right: 110px;
   }
   .tabs.can-split {
     right: 60px;
