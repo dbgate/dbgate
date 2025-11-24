@@ -86,26 +86,26 @@
       submenuKey += 1;
       return;
     }
-    if (item.switchStore && item.switchValue) {
-      item.switchStore.update(x => {
-        const res = {
+    if (item.switchStore) {
+      if (item.switchValue) {
+        item.switchStore.update(x => ({
           ...x,
           [item.switchValue]: !x[item.switchValue],
-        };
-        if (item.switchGroupPrefix) {
-          for (const key of Object.keys(res)) {
-            if (key.startsWith(item.switchGroupPrefix) && key !== item.switchValue) {
-              res[key] = false;
-            }
-          }
-        }
-        return res;
-      });
+        }));
+      }
+
+      if (item.switchOption && item.switchOptionValue) {
+        item.switchStore.update(x => ({
+          ...x,
+          [item.switchOption]: item.switchOptionValue,
+        }));
+      }
       switchIndex++;
       if (!item.closeOnSwitchClick) {
         return;
       }
     }
+
     dispatchClose();
     if (onCloseParent) onCloseParent();
     if (item.onClick) item.onClick();
@@ -169,6 +169,16 @@
             {#if item.switchValue && item.switchStoreGetter}
               {#key switchIndex}
                 {#if item.switchStoreGetter()[item.switchValue]}
+                  <FontIcon icon="icon check" padRight />
+                {:else}
+                  <FontIcon icon="icon invisible-box" padRight />
+                {/if}
+              {/key}
+            {/if}
+            {#if item.switchOption && item.switchStoreGetter}
+              {@const optionValue = item.switchStoreGetter()[item.switchOption]}
+              {#key switchIndex}
+                {#if optionValue === item.switchOptionValue || (item.switchOptionIsDefault && !optionValue)}
                   <FontIcon icon="icon check" padRight />
                 {:else}
                   <FontIcon icon="icon invisible-box" padRight />

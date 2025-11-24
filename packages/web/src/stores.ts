@@ -200,6 +200,7 @@ export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   sqlObjectText: false,
   tableEngine: false,
   tablesWithRows: false,
+  sortBy: undefined as string
 };
 
 export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {

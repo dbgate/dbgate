@@ -79,14 +79,30 @@
 
   // $: console.log('OBJECTS', $objects);
 
-  $databaseObjectAppObjectSearchSettings?.
+  $: sortArgs =
+    $databaseObjectAppObjectSearchSettings.sortBy == 'rowCount'
+      ? [
+          ['rowCount', 'sizeBytes', 'schemaName', 'pureName'],
+          ['desc', 'desc', 'asc', 'asc'],
+        ]
+      : $databaseObjectAppObjectSearchSettings.sortBy == 'sizeBytes'
+        ? [
+            ['sizeBytes', 'rowCount', 'schemaName', 'pureName'],
+            ['desc', 'desc', 'asc', 'asc'],
+          ]
+        : [
+            ['schemaName', 'pureName'],
+            ['asc', 'asc'],
+          ];
 
   $: objectList = _.flatten([
     ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(
       objectTypeField =>
-        _.sortBy(
+        _.orderBy(
           (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
-          ['schemaName', 'pureName']
+          sortArgs[0],
+          // @ts-ignore
+          sortArgs[1]
         )
     ),
     ...appsForDb.map(app =>
@@ -173,20 +189,21 @@
     res.push({ label: _t('sqlObject.sortBy', { defaultMessage: 'Sort by:' }), isBold: true, disabled: true });
     res.push({
       label: _t('sqlObject.name', { defaultMessage: 'Name' }),
-      switchValue: 'sortByName',
-      switchGroupPrefix: 'sortBy',
+      switchOption: 'sortBy',
+      switchOptionValue: 'name',
+      switchOptionIsDefault: true,
       closeOnSwitchClick: true,
     });
     res.push({
       label: _t('sqlObject.rowCount', { defaultMessage: 'Row count' }),
-      switchValue: 'sortByRowCount',
-      switchGroupPrefix: 'sortBy',
+      switchOption: 'sortBy',
+      switchOptionValue: 'rowCount',
       closeOnSwitchClick: true,
     });
     res.push({
       label: _t('sqlObject.sizeBytes', { defaultMessage: 'Size bytes' }),
-      switchValue: 'sortBySizeBytes',
-      switchGroupPrefix: 'sortBy',
+      switchOption: 'sortBy',
+      switchOptionValue: 'sizeBytes',
       closeOnSwitchClick: true,
     });
 
