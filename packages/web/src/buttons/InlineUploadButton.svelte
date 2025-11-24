@@ -5,6 +5,7 @@
   import getElectron from '../utility/getElectron';
   import InlineButtonLabel from '../buttons/InlineButtonLabel.svelte';
   import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
+  import { _t } from '../translations';
 
   import uuidv1 from 'uuid/v1';
 
@@ -49,11 +50,11 @@
 </script>
 
 {#if electron}
-  <InlineButton on:click={handleOpenElectronFile} title="Open file" data-testid={$$props['data-testid']}>
+  <InlineButton on:click={handleOpenElectronFile} title={_t('files.openFile', { defaultMessage: "Open file" })} data-testid={$$props['data-testid']}>
     <FontIcon {icon} />
   </InlineButton>
 {:else}
-  <InlineButtonLabel on:click={() => {}} title="Upload file" data-testid={$$props['data-testid']} htmlFor={inputId}>
+  <InlineButtonLabel on:click={() => {}} title={_t('files.uploadFile', { defaultMessage: "Upload file" })} data-testid={$$props['data-testid']} htmlFor={inputId}>
     <FontIcon {icon} />
   </InlineButtonLabel>
 {/if}
