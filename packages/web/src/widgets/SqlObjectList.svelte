@@ -201,7 +201,7 @@
       closeOnSwitchClick: true,
     });
     res.push({
-      label: _t('sqlObject.sizeBytes', { defaultMessage: 'Size bytes' }),
+      label: _t('sqlObject.sizeBytes', { defaultMessage: 'Size (bytes)' }),
       switchOption: 'sortBy',
       switchOptionValue: 'sizeBytes',
       closeOnSwitchClick: true,
