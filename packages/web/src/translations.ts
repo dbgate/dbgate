@@ -34,10 +34,10 @@ let selectedLanguageCache: string | null = null;
 export function getSelectedLanguage(preferrendLanguage?: string): string {
   if (selectedLanguageCache) return selectedLanguageCache;
 
-  if (preferrendLanguage == 'browser') {
+  if (preferrendLanguage == 'auto') {
     preferrendLanguage = getBrowserLanguage();
   }
-  
+
   const selectedLanguage = getElectron()
     ? getStringSettingsValue('localization.language', preferrendLanguage)
     : localStorage.getItem('selectedLanguage') ?? preferrendLanguage;
