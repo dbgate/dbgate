@@ -115,7 +115,7 @@ registerCommand({
   toolbar: true,
   icon: 'icon new-connection',
   toolbarName: __t('command.new.connection', { defaultMessage: 'Add connection' }),
-  category: __t('command.new', { defaultMessage: 'New'}),
+  category: __t('command.new', { defaultMessage: 'New' }),
   toolbarOrder: 1,
   name: __t('command.new.connection', { defaultMessage: 'Connection' }),
   testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
@@ -561,7 +561,10 @@ registerCommand({
   testEnabled: () => true,
   onClick: () => {
     showModal(ConfirmModal, {
-      message: _t('command.file.resetLayoutConfirm', { defaultMessage: 'Really reset layout data? All opened tabs, settings and layout data will be lost. Connections and saved files will be preserved. After this, restart DbGate for applying changes.' }),
+      message: _t('command.file.resetLayoutConfirm', {
+        defaultMessage:
+          'Really reset layout data? All opened tabs, settings and layout data will be lost. Connections and saved files will be preserved. After this, restart DbGate for applying changes.',
+      }),
       onConfirm: async () => {
         await apiCall('config/delete-settings');
         localStorage.clear();
@@ -665,7 +668,9 @@ registerCommand({
       'currentArchive',
     ];
     for (const key of keys) removeLocalStorage(key);
-    showSnackbarSuccess(_t('command.view.restart', { defaultMessage: 'Restart DbGate (or reload on web) for applying changes' }));
+    showSnackbarSuccess(
+      _t('command.view.restart', { defaultMessage: 'Restart DbGate (or reload on web) for applying changes' })
+    );
   },
 });
 
@@ -799,7 +804,9 @@ registerCommand({
 registerCommand({
   id: 'file.exit',
   category: __t('command.file', { defaultMessage: 'File' }),
-  name: isMac() ? __t('command.file.quit', { defaultMessage: 'Quit' }) : __t('command.file.exit', { defaultMessage: 'Exit' }),
+  name: isMac()
+    ? __t('command.file.quit', { defaultMessage: 'Quit' })
+    : __t('command.file.exit', { defaultMessage: 'Exit' }),
   // keyText: isMac() ? 'Command+Q' : null,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('quit-app'),
@@ -862,6 +869,7 @@ export function registerFileCommands({
   undoRedo = false,
   executeAdditionalCondition = null,
   copyPaste = false,
+  defaultTeamFolder = false,
 }) {
   if (save) {
     registerCommand({
@@ -874,7 +882,7 @@ export function registerFileCommands({
       toolbar: true,
       isRelatedToTab: true,
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save', folder, format, fileExtension, defaultTeamFolder),
     });
     registerCommand({
       id: idPrefix + '.saveAs',
@@ -882,14 +890,14 @@ export function registerFileCommands({
       category,
       name: __t('command.saveAs', { defaultMessage: 'Save As' }),
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save-as', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-as', folder, format, fileExtension, defaultTeamFolder),
     });
     registerCommand({
       id: idPrefix + '.saveToDisk',
       category,
       name: __t('command.saveToDisk', { defaultMessage: 'Save to disk' }),
       testEnabled: () => getCurrentEditor() != null && getElectron() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save-to-disk', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-to-disk', folder, format, fileExtension, defaultTeamFolder),
     });
   }
 

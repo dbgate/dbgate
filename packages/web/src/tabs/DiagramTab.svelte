@@ -8,6 +8,7 @@
     folder: 'diagrams',
     format: 'json',
     fileExtension: 'diagram',
+    defaultTeamFolder: true,
 
     undoRedo: true,
   });

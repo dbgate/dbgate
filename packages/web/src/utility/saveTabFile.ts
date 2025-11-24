@@ -11,7 +11,7 @@ import getElectron from './getElectron';
 //   return derived(editorStore, editor => editor != null);
 // }
 
-export default async function saveTabFile(editor, saveMode, folder, format, fileExtension) {
+export default async function saveTabFile(editor, saveMode, folder, format, fileExtension, defaultTeamFolder) {
   const tabs = get(openedTabs);
   const tabid = editor.activator.tabid;
   const data = editor.getData();
@@ -94,6 +94,7 @@ export default async function saveTabFile(editor, saveMode, folder, format, file
       filePath: savedFilePath,
       onSave,
       folid: savedCloudFolderId,
+      defaultTeamFolder,
       // cntid: savedCloudContentId,
     });
   }
