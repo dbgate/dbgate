@@ -61,7 +61,7 @@
         initializeAppUpdates();
         installCloudListeners();
         refreshPublicCloudFiles();
-        saveSelectedLanguageToCache();
+        saveSelectedLanguageToCache(config.preferrendLanguage);
 
         const electron = getElectron();
         if (electron) {

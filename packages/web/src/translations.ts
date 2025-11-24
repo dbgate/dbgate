@@ -31,13 +31,13 @@ const defaultLanguage = 'en';
 
 let selectedLanguageCache: string | null = null;
 
-export function getSelectedLanguage(): string {
+export function getSelectedLanguage(preferrendLanguage?: string): string {
   if (selectedLanguageCache) return selectedLanguageCache;
 
   // const browserLanguage = getBrowserLanguage();
   const selectedLanguage = getElectron()
-    ? getStringSettingsValue('localization.language', null)
-    : localStorage.getItem('selectedLanguage');
+    ? getStringSettingsValue('localization.language', preferrendLanguage)
+    : localStorage.getItem('selectedLanguage') ?? preferrendLanguage;
 
   if (!selectedLanguage || !supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
   return selectedLanguage;
@@ -51,8 +51,8 @@ export async function setSelectedLanguage(language: string) {
   }
 }
 
-export function saveSelectedLanguageToCache() {
-  selectedLanguageCache = getSelectedLanguage();
+export function saveSelectedLanguageToCache(preferrendLanguage?: string) {
+  selectedLanguageCache = getSelectedLanguage(preferrendLanguage);
 }
 
 export function getBrowserLanguage(): string {

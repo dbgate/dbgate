@@ -121,6 +121,7 @@ module.exports = {
       allowPrivateCloud: platformInfo.isElectron || !!process.env.ALLOW_DBGATE_PRIVATE_CLOUD,
       ...currentVersion,
       redirectToDbGateCloudLogin: !!process.env.REDIRECT_TO_DBGATE_CLOUD_LOGIN,
+      preferrendLanguage: adminConfig?.preferredLanguage || process.env.LANGUAGE || null,
     };
 
     return configResult;
