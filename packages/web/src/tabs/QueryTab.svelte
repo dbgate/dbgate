@@ -52,6 +52,7 @@
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection() && hasPermission('dbops/query'),
     copyPaste: true,
+    defaultTeamFolder: true,
   });
   registerCommand({
     id: 'query.executeCurrent',

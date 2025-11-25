@@ -43,9 +43,9 @@
     const { name, cloudFolder } = e.detail;
     if ($values['saveToTeamFolder']) {
       const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
-      if (resp.apiErrorMessage) {
+      if (resp?.apiErrorMessage) {
         showSnackbarError(resp.apiErrorMessage);
-      } else if (resp.teamFileId) {
+      } else if (resp?.teamFileId) {
         closeCurrentModal();
         if (onSave) {
           onSave(name, {
@@ -57,6 +57,8 @@
             savedTeamFileId: resp.teamFileId,
           });
         }
+      } else {
+        showSnackbarError('Failed to save to team folder.');
       }
     } else if (cloudFolder === '__local') {
       await apiCall('files/save', { folder, file: name, data, format });
