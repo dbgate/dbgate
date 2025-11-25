@@ -10,6 +10,7 @@
     fileExtension: 'impexp',
 
     // undoRedo: true,
+    defaultTeamFolder: true,
   });
 </script>
 

@@ -1562,6 +1562,31 @@ module.exports = {
           "id": -2,
           "name": "diagrams",
           "format": "json"
+        },
+        {
+          "id": -3,
+          "name": "query",
+          "format": "json"
+        },
+        {
+          "id": -4,
+          "name": "perspectives",
+          "format": "json"
+        },
+        {
+          "id": -5,
+          "name": "impexp",
+          "format": "json"
+        },
+        {
+          "id": -6,
+          "name": "shell",
+          "format": "text"
+        },
+        {
+          "id": -7,
+          "name": "dbcompare",
+          "format": "json"
         }
       ]
     },

@@ -12,6 +12,7 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
+    defaultTeamFolder: true,
     executeAdditionalCondition: () => getCurrentConfig().allowShellScripting,
   });
 
