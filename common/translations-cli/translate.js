@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env.translation' });
 const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai');
@@ -7,24 +8,23 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const translationsDir = path.join(__dirname, '../../translations');
 const enFilePath = path.join(translationsDir, 'en.json');
 
-// Language names for OpenAI prompts
 const languageNames = {
-  'cs.json': 'Czech',
-  'de.json': 'German',
-  'es.json': 'Spanish',
-  'fr.json': 'French',
-  'it.json': 'Italian',
-  'ja.json': 'Japanese',
-  'pt.json': 'Portuguese',
-  'sk.json': 'Slovak',
-  'zh.json': 'Chinese'
+    'cs.json': 'Czech',
+    'de.json': 'German',
+    'es.json': 'Spanish',
+    'fr.json': 'French',
+    'it.json': 'Italian',
+    'ja.json': 'Japanese',
+    'pt.json': 'Portuguese',
+    'sk.json': 'Slovak',
+    'zh.json': 'Chinese'
 };
 
-// Read English (source) translations
+// Read source (english)
 const enTranslations = JSON.parse(fs.readFileSync(enFilePath, 'utf8'));
 const enKeys = Object.keys(enTranslations);
 
-// Get all translation files except en.json
+// Get all translation files
 const translationFiles = fs.readdirSync(translationsDir)
   .filter(file => file.endsWith('.json') && file !== 'en.json')
   .sort();
