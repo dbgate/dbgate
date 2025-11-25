@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.7.1 - not released yet
+## 6.7.1
 - ADDED: LANGUAGE environment variable for the web version. #1266
 - ADDED: New localizations (Italian, Portugese (Brazil), Japanese)
 - ADDED: Option to detect language from browser settings in web version
@@ -17,6 +17,9 @@ Builds:
 - ADDED: Show table size #552
 - ADDED: Sort tables by size and by row count
 - ADDED: Connect to Legacy MongoDB (Premium) #540
+- FIXED: Fixed problems in saving team files in Team Premium edition
+- CHANGED: Files are by default saved to team folders in Team Premium edition
+- ADDED: Other files types supported in Team Premium edition (diagrams, query design, perspectives, import/export jobs, shell scripts, database compare jobs)
 
 ## 6.7.0
 - ADDED: Added localization support, now you can use DbGate in multiple languages (French, Spanish, German, Czech, Slovak, Simplified Chinese) #347 #705 #939 #1079
