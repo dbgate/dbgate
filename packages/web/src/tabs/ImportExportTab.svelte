@@ -53,6 +53,7 @@
   import uuidv1 from 'uuid/v1';
   import { tick } from 'svelte';
   import { showSnackbarError } from '../utility/snackbar';
+  import { _t } from '../translations';
 
   let busy = false;
   let executeNumber = 0;
@@ -288,21 +289,21 @@
         />
 
         {#if busy}
-          <LoadingInfo wrapper message="Processing import/export ..." />
+          <LoadingInfo wrapper message={_t('importExport.processingImportExport', { defaultMessage: "Processing import/export ..." })} />
         {/if}
       </div>
 
       <svelte:fragment slot="2">
         <WidgetColumnBar>
           <WidgetColumnBarItem
-            title="Output files"
+            title={_t('importExport.outputFiles', { defaultMessage: "Output files" })}
             name="output"
             height="20%"
             data-testid="ImportExportTab_outputFiles"
           >
             <RunnerOutputFiles {runnerId} {executeNumber} />
           </WidgetColumnBarItem>
-          <WidgetColumnBarItem title="Messages" name="messages">
+          <WidgetColumnBarItem title={_t('importExport.messages', { defaultMessage: "Messages" })} name="messages">
             <SocketMessageView
               eventName={runnerId ? `runner-info-${runnerId}` : null}
               {executeNumber}
@@ -311,16 +312,16 @@
             />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem
-            title="Preview"
+            title={_t('importExport.preview', { defaultMessage: "Preview" })}
             name="preview"
             skip={!$previewReaderStore}
             data-testid="ImportExportTab_preview"
           >
             <PreviewDataGrid reader={$previewReaderStore} />
           </WidgetColumnBarItem>
-          <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
-            <FormTextField label="Schedule" name="schedule" />
-            <FormTextField label="Start variable index" name="startVariableIndex" />
+          <WidgetColumnBarItem title={_t('importExport.advancedConfiguration', { defaultMessage: "Advanced configuration" })} name="config" collapsed>
+            <FormTextField label={_t('importExport.schedule', { defaultMessage: "Schedule" })} name="schedule" />
+            <FormTextField label={_t('importExport.startVariableIndex', { defaultMessage: "Start variable index" })} name="startVariableIndex" />
           </WidgetColumnBarItem>
         </WidgetColumnBar>
       </svelte:fragment>
@@ -329,15 +330,15 @@
   <svelte:fragment slot="toolstrip">
     {#if busy}
       <ToolStripButton icon="icon stop" on:click={handleCancel} data-testid="ImportExportTab_stopButton"
-        >Stop</ToolStripButton
+        >{_t('importExport.stop', { defaultMessage: "Stop" })}</ToolStripButton
       >
     {:else}
       <ToolStripButton on:click={handleExecute} icon="icon run" data-testid="ImportExportTab_executeButton"
-        >Run</ToolStripButton
+        >{_t('importExport.run', { defaultMessage: "Run" })}</ToolStripButton
       >
     {/if}
     <ToolStripButton icon="img shell" on:click={handleGenerateScript} data-testid="ImportExportTab_generateScriptButton"
-      >Generate script</ToolStripButton
+      >{_t('importExport.generateScript', { defaultMessage: "Generate script" })}</ToolStripButton
     >
     <ToolStripSaveButton idPrefix="impexp" />
   </svelte:fragment>

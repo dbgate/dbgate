@@ -133,7 +133,7 @@
   <FormSelectField
     options={types.filter(x => x.directions.includes(direction))}
     name={storageTypeField}
-    label="Storage type"
+    label={_t('importExport.storageType', { defaultMessage: "Storage type" })}
   />
 
   {#if format && isProApp()}
@@ -210,7 +210,7 @@
 
   {#if storageType == 'archive'}
     <FormArchiveFolderSelect
-      label="Archive folder"
+      label={_t('importExport.archiveFolder', { defaultMessage: "Archive folder" })}
       name={archiveFolderField}
       additionalFolders={_.compact([$values[archiveFolderField]])}
       allowCreateNew={direction == 'target'}
