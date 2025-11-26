@@ -35,6 +35,12 @@ program
   .option('-u, --user <user>', 'user name')
   .option('-p, --password <password>', 'password')
   .option('-d, --database <database>', 'database name')
+  .option('--url <url>', 'database url')
+  .option('--file <file>', 'database file')
+  .option('--socket-path <socketPath>', 'socket path')
+  .option('--service-name <serviceName>', 'service name (for Oracle)')
+  .option('--auth-type <authType>', 'authentication type')
+  .option('--use-ssl', 'use SSL connection')
   .option('--auto-index-foreign-keys', 'automatically adds indexes to all foreign keys')
   .option(
     '--load-data-condition <condition>',
@@ -48,7 +54,7 @@ program
   .command('deploy <modelFolder>')
   .description('Deploys model to database')
   .action(modelFolder => {
-    const { engine, server, user, password, database, transaction } = program.opts();
+    const { engine, server, user, password, database, url, file, transaction } = program.opts();
     // const hooks = [];
     // if (program.autoIndexForeignKeys) hooks.push(dbmodel.hooks.autoIndexForeignKeys);
 
@@ -60,6 +66,13 @@ program
           user,
           password,
           database,
+          databaseUrl: url,
+          useDatabaseUrl: !!url,
+          databaseFile: file,
+          socketPath: program.socketPath,
+          serviceName: program.serviceName,
+          authType: program.authType,
+          useSsl: program.useSsl,
         },
         modelFolder,
         useTransaction: transaction,
