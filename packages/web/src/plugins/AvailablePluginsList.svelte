@@ -8,6 +8,7 @@
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import PluginsList from './PluginsList.svelte';
   import { filterName } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   let filter = '';
   // let search = '';
@@ -20,7 +21,7 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search extensions on web" {filter} bind:value={filter} />
+  <SearchInput placeholder={_t('plugins.searchExtensionsOnWeb', { defaultMessage: 'Search extensions on web' })} {filter} bind:value={filter} />
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   {#if $plugins?.errorMessage}

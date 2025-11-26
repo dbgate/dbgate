@@ -19,12 +19,12 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Saved files" name="files" height="70%" storageName="savedFilesWidget">
+  <WidgetColumnBarItem title={_t('files.savedFiles', { defaultMessage: "Saved files" })} name="files" height="70%" storageName="savedFilesWidget">
     <SavedFilesList />
   </WidgetColumnBarItem>
 
   {#if hasPermission('files/favorites/read')}
-    <WidgetColumnBarItem title="Favorites" name="favorites" storageName="favoritesWidget">
+    <WidgetColumnBarItem title={_t('files.favorites', { defaultMessage: "Favorites" })} name="favorites" storageName="favoritesWidget">
       <WidgetsInnerContainer>
         <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
       </WidgetsInnerContainer>

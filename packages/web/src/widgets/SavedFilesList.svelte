@@ -13,6 +13,7 @@
   import { isProApp } from '../utility/proTools';
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
   import { DATA_FOLDER_NAMES } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   let filter = '';
 
@@ -65,19 +66,19 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search saved files" bind:value={filter} />
+  <SearchInput placeholder={_t('files.searchSavedFiles', { defaultMessage: "Search saved files" })} bind:value={filter} />
   <CloseSearchButton bind:filter />
   <InlineUploadButton
     filters={[
       {
-        name: `All supported files`,
+        name: _t('files.allSupportedFiles', { defaultMessage: "All supported files" }),
         extensions: ['sql'],
       },
-      { name: `SQL files`, extensions: ['sql'] },
+      { name: _t('files.sqlFiles', { defaultMessage: "SQL files" }), extensions: ['sql'] },
     ]}
     onProcessFile={handleUploadedFile}
   />
-  <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
+  <InlineButton on:click={handleRefreshFiles} title={_t('files.refreshFiles', { defaultMessage: "Refresh files" })} data-testid="SavedFileList_buttonRefresh">
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
@@ -86,7 +87,7 @@
   <AppObjectList
     list={files}
     module={savedFileAppObject}
-    groupFunc={data => (data.teamFileId ? 'Team files' : dataFolderTitle(data.folder))}
+    groupFunc={data => (data.teamFileId ? _t('files.teamFiles', { defaultMessage: "Team files" }) : dataFolderTitle(data.folder))}
     {filter}
   />
 </WidgetsInnerContainer>

@@ -23,6 +23,7 @@
   import ElectronFilesInput from './ElectronFilesInput.svelte';
   import { addFilesToSourceList } from './ImportExportConfigurator.svelte';
   import UploadButton from '../buttons/UploadButton.svelte';
+  import { _t } from '../translations';
 
   export let setPreviewSource = undefined;
 
@@ -55,10 +56,10 @@
     {:else}
       <UploadButton />
     {/if}
-    <FormStyledButton value="Add web URL" on:click={handleAddUrl} />
+    <FormStyledButton value={_t('importExport.addWebUrl', { defaultMessage: "Add web URL" })} on:click={handleAddUrl} />
   </div>
 
-  <div class="wrapper">Drag &amp; drop imported files here</div>
+  <div class="wrapper">{_t('importExport.dragDropImportedFilesHere', { defaultMessage: "Drag & drop imported files here" })}</div>
 </div>
 
 <style>

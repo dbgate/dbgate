@@ -17,6 +17,7 @@
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
   import DomTableRef from './DomTableRef';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -185,8 +186,8 @@
   const handleSetTableAlias = () => {
     showModal(InputTextModal, {
       value: alias || '',
-      label: 'New alias',
-      header: 'Set table alias',
+      label: _t('designerTable.newAlias', { defaultMessage: 'New alias' }),
+      header: _t('designerTable.setTableAlias', { defaultMessage: 'Set table alias' }),
       onConfirm: newAlias => {
         onChangeTable({
           ...table,
@@ -210,13 +211,13 @@
       return settings?.tableMenu({ designer, designerId, onRemoveTable });
     }
     return [
-      { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
+      { text: _t('common.remove', { defaultMessage: 'Remove' }), onClick: () => onRemoveTable({ designerId }) },
       { divider: true },
       settings?.allowTableAlias &&
         !isMultipleTableSelection && [
-          { text: 'Set table alias', onClick: handleSetTableAlias },
+          { text: _t('designerTable.setTableAlias', { defaultMessage: 'Set table alias' }), onClick: handleSetTableAlias },
           alias && {
-            text: 'Remove table alias',
+            text: _t('designerTable.removeTableAlias', { defaultMessage: 'Remove table alias' }),
             onClick: () =>
               onChangeTable({
                 ...table,
@@ -225,11 +226,11 @@
           },
         ],
       settings?.allowAddAllReferences &&
-        !isMultipleTableSelection && { text: 'Add references', onClick: () => onAddAllReferences(table) },
-      settings?.allowChangeColor && { text: 'Change color', onClick: () => onChangeTableColor(table) },
+        !isMultipleTableSelection && { text: _t('designerTable.addReferences', { defaultMessage: 'Add references' }), onClick: () => onAddAllReferences(table) },
+      settings?.allowChangeColor && { text: _t('designerTable.changeColor', { defaultMessage: 'Change color' }), onClick: () => onChangeTableColor(table) },
       settings?.allowDefineVirtualReferences &&
         !isMultipleTableSelection && {
-          text: 'Define virtual foreign key',
+          text: _t('designerTable.defineVirtualForeignKey', { defaultMessage: 'Define virtual foreign key' }),
           onClick: () => handleDefineVirtualForeignKey(table),
         },
       settings?.appendTableSystemMenu &&

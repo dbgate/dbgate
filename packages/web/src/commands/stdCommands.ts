@@ -121,7 +121,7 @@ registerCommand({
   testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     openNewTab({
-      title: 'New Connection',
+      title: _t('common.newConnection', { defaultMessage: 'New Connection' }),
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
     });
@@ -140,7 +140,7 @@ registerCommand({
     !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && !!getCloudSigninTokenHolder(),
   onClick: () => {
     openNewTab({
-      title: 'New Connection on Cloud',
+      title: _t('common.newConnectionCloud', { defaultMessage: 'New Connection on Cloud' }),
       icon: 'img cloud-connection',
       tabComponent: 'ConnectionTab',
       props: {
