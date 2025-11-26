@@ -124,8 +124,9 @@
 </script>
 
 <script lang="ts">
-  import { getContext, onDestroy, onMount, tick } from 'svelte';
+  import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
+  import { writable } from 'svelte/store';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
@@ -167,6 +168,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import hasPermission from '../utility/hasPermission';
   import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
+  import { getCurrentSettings } from '../stores';
 
   export let tabid;
   export let conid;
@@ -175,6 +177,9 @@
   export let hideEditor;
 
   export const activator = createActivator('QueryTab', false);
+
+  const collapsedLeftColumnStore = writable(getCurrentSettings()['sqlEditor.hideColumnsPanel'] ?? false);
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 
   const QUERY_PARAMETER_STYLES = [
     {
