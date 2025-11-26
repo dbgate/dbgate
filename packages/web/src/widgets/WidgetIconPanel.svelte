@@ -118,6 +118,7 @@
     const top = rect.bottom;
     const items = [
       hasPermission('settings/change') && { command: 'settings.show' },
+      hasPermission('settings/change') && { command: 'settings.settingsTab' },
       { command: 'theme.changeTheme' },
       hasPermission('settings/change') && { command: 'settings.commands' },
       hasPermission('widgets/plugins') && {

@@ -768,6 +768,19 @@ if (isProApp()) {
 
 if (hasPermission('settings/change')) {
   registerCommand({
+    id: 'settings.settingsTab',
+    category: __t('command.settings', { defaultMessage: 'Settings' }),
+    name: __t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+    onClick: () => {
+      openNewTab({
+        title: _t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+        icon: 'icon settings',
+        tabComponent: 'SettingsTab',
+        props: {},
+      });
+    },
+  });
+  registerCommand({
     id: 'settings.commands',
     category: __t('command.settings', { defaultMessage: 'Settings' }),
     name: __t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
