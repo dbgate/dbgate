@@ -1,7 +1,8 @@
 module.exports = {
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
   reporters: [
-    'summary',        // nice overall summary
-    'github-actions', // adds inline annotations in PRs
+    'default',
+    'jest-summary-reporter',
+    'jest-github-actions-reporter',
   ],  
 };
