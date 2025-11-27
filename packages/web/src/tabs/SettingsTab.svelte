@@ -1,5 +1,4 @@
 <script>
-  import HorizontalSplitter from "../elements/HorizontalSplitter.svelte";
   import SettingsMenuControl from "../elements/SettingsMenuControl.svelte";
   import GeneralSettings from "../settings/GeneralSettings.svelte";
   import SettingsFormProvider from "../forms/SettingsFormProvider.svelte";
@@ -15,6 +14,7 @@
   import CommandListTab from "./CommandListTab.svelte";
   import DataGridSettings from "../settings/DataGridSettings.svelte";
     import SQLEditorSettings from "../settings/SQLEditorSettings.svelte";
+    import AiSettingsTab from "../settings/AiSettingsTab.svelte";
 
     const menuItems = [
         {
@@ -86,6 +86,13 @@
             component: LicenseSettings,
             props: {},
             testid: 'settings-license',
+        },
+        isProApp() && {
+            label: _t('settings.AI', { defaultMessage: 'AI'}),
+            identifier: 'ai',
+            component: AiSettingsTab,
+            props: {},
+            testid: 'settings-ai',
         },
         {
             label: _t('settings.other', { defaultMessage: 'Other' }),
