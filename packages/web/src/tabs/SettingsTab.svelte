@@ -11,59 +11,60 @@
   import OtherSettings from "../settings/OtherSettings.svelte";
   import LicenseSettings from "../settings/LicenseSettings.svelte";
   import { isProApp } from "../utility/proTools";
+  import { _t } from "../translations";
 
     const menuItems = [
         {
-            label: 'General',
+            label: _t('settings.general', { defaultMessage: 'General' }),
             identifier: 'general',
             component: GeneralSettings,
             props: {},
             testid: 'settings-general',
         },
         {
-            label: 'Connection',
+            label: _t('settings.connection', { defaultMessage: 'Connection' }),
             identifier: 'connection',
             component: ConnectionSettings,
             props: {},
             testid: 'settings-connection',
         },
         {
-            label: 'Themes',
+            label: _t('settings.theme', { defaultMessage: 'Themes' }),
             identifier: 'theme',
             component: ThemeSettings,
             props: {},
             testid: 'settings-themes',
         },
         {
-            label: 'Default Actions',
+            label: _t('settings.defaultActions', { defaultMessage: 'Default Actions' }),
             identifier: 'default-actions',
             component: DefaultActionsSettings,
             props: {},
             testid: 'settings-default-actions',
         },
         {
-            label: 'Behaviour',
+            label: _t('settings.behaviour', { defaultMessage: 'Behaviour' }),
             identifier: 'behaviour',
             component: BehaviourSettings,
             props: {},
             testid: 'settings-behaviour',
         },
         {
-            label: 'External Tools',
+            label: _t('settings.externalTools', { defaultMessage: 'External Tools' }),
             identifier: 'external-tools',
             component: ExternalToolsSettings,
             props: {},
             testid: 'settings-external-tools',
         },
         isProApp() && {
-            label: 'License',
+            label: _t('settings.license', { defaultMessage: 'License' }),
             identifier: 'license',
             component: LicenseSettings,
             props: {},
             testid: 'settings-license',
         },
         {
-            label: 'Other',
+            label: _t('settings.other', { defaultMessage: 'Other' }),
             identifier: 'other',
             component: OtherSettings,
             props: {},

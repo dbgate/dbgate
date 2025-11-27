@@ -19,7 +19,7 @@
     const electron = getElectron();
     let restartWarning = false;
 </script>
-
+<div class="heading">{_t('settings.general', { defaultMessage: 'General' })}</div>
 {#if electron}
     <div class="heading">{_t('settings.appearance', { defaultMessage: 'Appearance' })}</div>
     <FormCheckboxField
