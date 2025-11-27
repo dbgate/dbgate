@@ -12,6 +12,7 @@
   import LicenseSettings from "../settings/LicenseSettings.svelte";
   import { isProApp } from "../utility/proTools";
   import { _t } from "../translations";
+  import CommandListTab from "./CommandListTab.svelte";
 
     const menuItems = [
         {
@@ -55,6 +56,13 @@
             component: ExternalToolsSettings,
             props: {},
             testid: 'settings-external-tools',
+        },
+        {
+            label: _t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
+            identifier: 'shortcuts',
+            component: CommandListTab,
+            props: {},
+            testid: 'settings-shortcuts',
         },
         isProApp() && {
             label: _t('settings.license', { defaultMessage: 'License' }),
