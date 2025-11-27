@@ -96,6 +96,19 @@
                 const name = fullNameFromString(e.detail);
                 refTableName = name.pureName;
                 refSchemaName = name.schemaName;
+                
+                if (!columns?.find(x => x.columnName)) {
+                  const refTable = dbInfo?.tables?.find(
+                    x => x.pureName == refTableName && x.schemaName == refSchemaName
+                  );
+                  if (refTable?.primaryKey) {
+                    columns = refTable.primaryKey.columns.map(col => ({
+                      refColumnName: col.columnName,
+                    }));
+                  } else {
+                    columns = [];
+                  }
+                }
               }
             }}
           />
