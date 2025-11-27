@@ -3,6 +3,7 @@
   import { _t } from "../translations";
 </script>
 
+<div class="wrapper">
 <div class="heading">{_t('settings.externalTools', { defaultMessage: 'External tools' })}</div>
 <FormTextField
     name="externalTools.mysqldump"
@@ -36,6 +37,7 @@
     label={_t('settings.other.externalTools.psql', { defaultMessage: 'psql (restore PostgreSQL database)' })}
     defaultValue="psql"
 />
+</div>
 
 <style>
   .heading {

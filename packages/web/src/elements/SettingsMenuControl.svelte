@@ -101,7 +101,7 @@
     height: 100%;
     width: 100%;
     background-color: var(--theme-bg-2);
-    overflow-y: auto;
+    overflow-x: auto;
   }
 
   .menu::-webkit-scrollbar {
@@ -111,7 +111,6 @@
   .menu-item {
     white-space: nowrap;
     padding: 12px 20px;
-    width: 100%;
     display: flex;
     align-items: center;
     cursor: pointer;

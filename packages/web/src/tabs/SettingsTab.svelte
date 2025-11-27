@@ -13,6 +13,8 @@
   import { isProApp } from "../utility/proTools";
   import { _t } from "../translations";
   import CommandListTab from "./CommandListTab.svelte";
+  import DataGridSettings from "../settings/DataGridSettings.svelte";
+    import SQLEditorSettings from "../settings/SQLEditorSettings.svelte";
 
     const menuItems = [
         {
@@ -28,6 +30,20 @@
             component: ConnectionSettings,
             props: {},
             testid: 'settings-connection',
+        },
+        {
+            label: _t('settings.dataGrid.title', { defaultMessage: 'Data grid' }),
+            identifier: 'data-grid',
+            component: DataGridSettings,
+            props: {},
+            testid: 'settings-data-grid',
+        },
+        {
+            label: _t('settings.sqlEditor.title', { defaultMessage: 'SQL Editor' }),
+            identifier: 'sql-editor',
+            component: SQLEditorSettings,
+            props: {},
+            testid: 'settings-sql-editor',
         },
         {
             label: _t('settings.theme', { defaultMessage: 'Themes' }),

@@ -11,6 +11,7 @@
     
 </script>
 
+<div class="wrapper">
 <FormValues let:values>
     <div class="heading">{_t('settings.connection', { defaultMessage: 'Connection' })}</div>
 
@@ -72,6 +73,8 @@
     disabled={values['session.autoClose'] === false}
     />
 </FormValues>
+</div>
+
 
 <style>
   .heading {

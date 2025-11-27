@@ -8,6 +8,7 @@
 
 </script>
 
+<div class="wrapper">
 <FormValues let:values>
     <div class="heading">{_t('settings.defaultActions', { defaultMessage: 'Default actions' })}</div>
 
@@ -88,6 +89,8 @@
     disabled={values['defaultAction.useLastUsedAction'] !== false}
     />
 </FormValues>
+</div>
+
 
 <style>
   .heading {

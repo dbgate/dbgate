@@ -8,6 +8,7 @@
 
 </script>
 
+<div class="wrapper">
 <div class="heading">{_t('settings.other', { defaultMessage: 'Other' })}</div>
 
 <FormTextField
@@ -50,6 +51,8 @@ options={[
     defaultValue={false}
 />
 {/if}
+</div>
+
 
 <style>
   .heading {

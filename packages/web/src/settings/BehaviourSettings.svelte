@@ -5,6 +5,7 @@
     import FormValues from "../forms/FormValues.svelte";
 </script>
 
+<div class="wrapper">
 <FormValues let:values>
     <div class="heading">{_t('settings.behaviour', { defaultMessage: 'Behaviour' })}</div>
 
@@ -52,6 +53,7 @@
     })}
     />
 </FormValues>
+</div>
 
 <style>
   .heading {
