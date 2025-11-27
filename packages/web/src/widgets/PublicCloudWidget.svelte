@@ -30,11 +30,11 @@
   <WidgetColumnBarItem title="Public Knowledge Base" name="publicCloud" storageName="publicCloudItems">
     <WidgetsInnerContainer>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search public files" bind:value={filter} />
+        <SearchInput placeholder={_t('publicCloudWidget.searchPublicFiles', { defaultMessage: "Search public files" })} bind:value={filter} />
         <CloseSearchButton bind:filter />
         <InlineButton
           on:click={handleRefreshPublic}
-          title="Refresh files"
+          title={_t('publicCloudWidget.refreshFiles', { defaultMessage: "Refresh files" })}
           data-testid="CloudItemsWidget_buttonRefreshPublic"
         >
           <FontIcon icon="icon refresh" />
@@ -52,9 +52,9 @@
         <ErrorInfo message="No files found for your configuration" />
         <div class="error-info">
           <div class="m-1">
-            Only files relevant for your connections, platform and DbGate edition are listed. Please define connections at first.
+            {_t('publicCloudWidget.onlyRelevantFilesListed', { defaultMessage: "Only files relevant for your connections, platform and DbGate edition are listed. Please define connections at first." })}
           </div>
-          <FormStyledButton value={`Refresh list`} skipWidth on:click={handleRefreshPublic} />
+          <FormStyledButton value={_t('publicCloudWidget.refreshList', { defaultMessage: "Refresh list" })} skipWidth on:click={handleRefreshPublic} />
         </div>
       {/if}
     </WidgetsInnerContainer>

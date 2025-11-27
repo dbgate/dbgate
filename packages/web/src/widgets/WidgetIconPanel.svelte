@@ -35,16 +35,16 @@
     getCurrentConfig().storageDatabase && {
       icon: 'icon admin',
       name: 'admin',
-      title: 'Administration',
+      title: _t('widgets.administration', { defaultMessage: 'Administration' }),
     },
     {
       icon: 'icon database',
       name: 'database',
-      title: 'Database connections',
+      title: _t('widgets.databaseConnections', { defaultMessage: 'Database connections' }),
     },
     getCurrentConfig().allowPrivateCloud && {
       name: 'cloud-private',
-      title: 'DbGate Cloud',
+      title: _t('widgets.dbgateCloud', { defaultMessage: 'DbGate Cloud' }),
       icon: 'icon cloud-private',
     },
 
@@ -55,17 +55,17 @@
     {
       icon: 'icon file',
       name: 'file',
-      title: 'Favorites & Saved files',
+      title: _t('widgets.favoritesAndSavedFiles', { defaultMessage: 'Favorites & Saved files' }),
     },
     {
       icon: 'icon history',
       name: 'history',
-      title: 'Query history & Closed tabs',
+      title: _t('widgets.queryHistoryAndClosedTabs', { defaultMessage: 'Query history & Closed tabs' }),
     },
     isProApp() && {
       icon: 'icon archive',
       name: 'archive',
-      title: 'Archive (saved tabular data)',
+      title: _t('widgets.archive', { defaultMessage: 'Archive (saved tabular data)' }),
     },
     // {
     //   icon: 'icon plugin',
@@ -75,17 +75,17 @@
     {
       icon: 'icon cell-data',
       name: 'cell-data',
-      title: 'Selected cell data detail view',
+      title: _t('widgets.selectedCellDataDetailView', { defaultMessage: 'Selected cell data detail view' }),
     },
     {
       name: 'cloud-public',
-      title: 'DbGate Cloud',
+      title: _t('widgets.dbgateCloud', { defaultMessage: 'DbGate Cloud' }),
       icon: 'icon cloud-public',
     },
     {
       icon: 'icon premium',
       name: 'premium',
-      title: 'Premium promo',
+      title: _t('widgets.premiumPromo', { defaultMessage: 'Premium promo' }),
       isPremiumPromo: true,
     },
     // {
@@ -214,7 +214,7 @@
     class="wrapper"
     on:click={() => showModal(NewObjectModal)}
     data-testid="WidgetIconPanel_addButton"
-    title="Add New"
+    title={_t('widgets.addNew', { defaultMessage: 'Add New' })}
   >
     <FontIcon icon="icon add" />
   </div>

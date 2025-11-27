@@ -13,6 +13,7 @@
   import CommandModal from '../modals/CommandModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { commandsCustomized } from '../stores';
+  import { _tval } from '../translations';
 
   $: commandList = _.sortBy(_.values($commandsCustomized), ['category', 'name']);
   let filter;
@@ -27,7 +28,9 @@
   <div class="table-wrapper">
     <TableControl
       clickable
-      rows={commandList.filter(cmd => filterName(filter, cmd['category'], cmd['name'], cmd['keyText'], cmd['id']))}
+      rows={commandList.filter(cmd =>
+        filterName(filter, _tval(cmd['category']), _tval(cmd['name']), _tval(cmd['keyText']), cmd['id'])
+      )}
       columns={[
         { header: 'Category', fieldName: 'category' },
         { header: 'Name', fieldName: 'name' },

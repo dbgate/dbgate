@@ -77,6 +77,7 @@
   import createRef from '../utility/createRef';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import { _t } from '../translations';
 
   // export let uploadedFile = undefined;
   // export let openedFile = undefined;
@@ -211,7 +212,7 @@
   </div>
 
   <div class="m-2">
-    <div class="title"><FontIcon icon="icon tables" /> Map source tables/files</div>
+    <div class="title"><FontIcon icon="icon tables" /> {_t('importExport.mapSourceTablesFiles', { defaultMessage: "Map source tables/files" })}</div>
 
     {#key targetEditKey}
       {#key progressHolder}
@@ -220,34 +221,34 @@
           columns={[
             {
               fieldName: 'source',
-              header: 'Source',
+              header: _t('importExport.source', { defaultMessage: "Source" }),
               component: SourceName,
               getProps: row => ({ name: row }),
             },
             {
               fieldName: 'action',
-              header: 'Action',
+              header: _t('importExport.action', { defaultMessage: "Action" }),
               component: SourceAction,
               getProps: row => ({ name: row, targetDbinfo }),
             },
             {
               fieldName: 'target',
-              header: 'Target',
+              header: _t('importExport.target', { defaultMessage: "Target" }),
               slot: 1,
             },
             supportsPreview && {
               fieldName: 'preview',
-              header: 'Preview',
+              header: _t('importExport.preview', { defaultMessage: "Preview" }),
               slot: 0,
             },
             !!progressHolder && {
               fieldName: 'status',
-              header: 'Status',
+              header: _t('importExport.status', { defaultMessage: "Status" }),
               slot: 3,
             },
             {
               fieldName: 'columns',
-              header: 'Columns',
+              header: _t('importExport.columns', { defaultMessage: "Columns" }),
               slot: 2,
             },
           ]}

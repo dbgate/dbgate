@@ -24,6 +24,7 @@ docker/plugins
 .env.development.local
 .env.test.local
 .env.production.local
+.env.translation
 
 npm-debug.log*
 yarn-debug.log*

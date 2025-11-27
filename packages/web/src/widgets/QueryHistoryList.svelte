@@ -9,6 +9,7 @@
   import openNewTab from '../utility/openNewTab';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall, apiOff, apiOn } from '../utility/api';
+  import { _t } from '../translations';
 
   let filter = '';
   let search = '';
@@ -38,7 +39,7 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search query history" {filter} bind:value={filter} />
+  <SearchInput placeholder={_t('history.searchQueryHistory', { defaultMessage: "Search query history" })} {filter} bind:value={filter} />
   <CloseSearchButton
     bind:filter
     on:click={() => {
@@ -54,7 +55,7 @@
       on:click={() => {
         openNewTab(
           {
-            title: 'Query #',
+            title: _t('database.queryDesigner', { defaultMessage: "Query #" }),
             icon: 'icon sql-file',
             tabComponent: 'QueryTab',
             focused: true,

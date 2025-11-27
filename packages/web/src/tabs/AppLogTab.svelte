@@ -24,6 +24,7 @@
     createQuickExportHandlerRef,
     registerQuickExportHandler,
   } from '../buttons/ToolStripExportButton.svelte';
+  import { _t } from '../translations';
 
   let loadedRows = [];
   let loadedAll = false;
@@ -191,8 +192,8 @@
       <SelectField
         isNative
         options={[
-          { label: 'Recent logs', value: 'recent' },
-          { label: 'Choose date', value: 'date' },
+          { label: _t('logs.recentLogs', { defaultMessage: 'Recent logs' }), value: 'recent' },
+          { label: _t('logs.chooseDate', { defaultMessage: 'Choose date' }), value: 'date' },
         ]}
         value={mode}
         on:change={e => {
@@ -202,7 +203,7 @@
       />
 
       {#if mode === 'recent'}
-        <div class="filter-label ml-2">Auto-scroll</div>
+        <div class="filter-label ml-2">{_t('logs.autoScroll', { defaultMessage: 'Auto-scroll' })}</div>
         <input
           type="checkbox"
           checked={autoScroll}
@@ -213,7 +214,7 @@
       {/if}
 
       {#if mode === 'date'}
-        <div class="filter-label">Date:</div>
+        <div class="filter-label">{_t('logs.date', { defaultMessage: 'Date:' })}</div>
         <DateRangeSelector
           onChange={value => {
             dateFilter = value;
@@ -225,12 +226,12 @@
             data-testid="AdminAuditLogTab_addFilter"
             icon="icon filter"
             menu={[
-              { text: 'Connection ID', onClick: () => filterBy('conid') },
-              { text: 'Database', onClick: () => filterBy('database') },
-              { text: 'Engine', onClick: () => filterBy('engine') },
-              { text: 'Message code', onClick: () => filterBy('msgcode') },
-              { text: 'Caller', onClick: () => filterBy('caller') },
-              { text: 'Name', onClick: () => filterBy('name') },
+              { text: _t('logs.connectionId', { defaultMessage: 'Connection ID' }), onClick: () => filterBy('conid') },
+              { text: _t('logs.database', { defaultMessage: 'Database' }), onClick: () => filterBy('database') },
+              { text: _t('logs.engine', { defaultMessage: 'Engine' }), onClick: () => filterBy('engine') },
+              { text: _t('logs.messageCode', { defaultMessage: 'Message code' }), onClick: () => filterBy('msgcode') },
+              { text: _t('logs.caller', { defaultMessage: 'Caller' }), onClick: () => filterBy('caller') },
+              { text: _t('logs.name', { defaultMessage: 'Name' }), onClick: () => filterBy('name') },
             ]}
           />
         </div>
@@ -259,15 +260,15 @@
       <table>
         <thead>
           <tr>
-            <th style="width:80px">Date</th>
-            <th>Time</th>
-            <th>Code</th>
-            <th>Message</th>
-            <th>Connection</th>
-            <th>Database</th>
-            <th>Engine</th>
-            <th>Caller</th>
-            <th>Name</th>
+            <th style="width:80px">{_t('logs.dateTab', { defaultMessage: 'Date' })}</th>
+            <th>{_t('logs.timeTab', { defaultMessage: 'Time' })}</th>
+            <th>{_t('logs.codeTab', { defaultMessage: 'Code' })}</th>
+            <th>{_t('logs.messageTab', { defaultMessage: 'Message' })}</th>
+            <th>{_t('logs.connectionTab', { defaultMessage: 'Connection' })}</th>
+            <th>{_t('logs.databaseTab', { defaultMessage: 'Database' })}</th>
+            <th>{_t('logs.engineTab', { defaultMessage: 'Engine' })}</th>
+            <th>{_t('logs.callerTab', { defaultMessage: 'Caller' })}</th>
+            <th>{_t('logs.nameTab', { defaultMessage: 'Name' })}</th>
           </tr>
         </thead>
         <tbody>
@@ -299,14 +300,14 @@
                   <TabControl
                     isInline
                     tabs={_.compact([
-                      { label: 'Details', slot: 1 },
+                      { label: _t('logs.details', { defaultMessage: 'Details' }), slot: 1 },
                       { label: 'JSON', slot: 2 },
                     ])}
                   >
                     <svelte:fragment slot="1">
                       <div class="details-wrap">
                         <div class="row">
-                          <div>Message code:</div>
+                          <div>{_t('logs.messageCode', { defaultMessage: 'Message code:' })}</div>
                           {#if mode == 'date'}
                             <Link onClick={() => doSetFilter('msgcode', [row.msgcode])}>{row.msgcode || 'N/A'}</Link>
                           {:else}
@@ -314,15 +315,15 @@
                           {/if}
                         </div>
                         <div class="row">
-                          <div>Message:</div>
+                          <div>{_t('logs.message', { defaultMessage: 'Message:' })}</div>
                           {row.msg}
                         </div>
                         <div class="row">
-                          <div>Time:</div>
+                          <div>{_t('logs.time', { defaultMessage: 'Time:' })}</div>
                           <b>{row.time ? format(new Date(parseInt(row.time)), 'yyyy-MM-dd HH:mm:ss') : ''}</b>
                         </div>
                         <div class="row">
-                          <div>Caller:</div>
+                          <div>{_t('logs.caller', { defaultMessage: 'Caller:' })}</div>
                           {#if mode == 'date'}
                             <Link onClick={() => doSetFilter('caller', [row.caller])}>{row.caller || 'N/A'}</Link>
                           {:else}
@@ -330,7 +331,7 @@
                           {/if}
                         </div>
                         <div class="row">
-                          <div>Name:</div>
+                          <div>{_t('logs.name', { defaultMessage: 'Name:' })}</div>
                           {#if mode == 'date'}
                             <Link onClick={() => doSetFilter('name', [row.name])}>{row.name || 'N/A'}</Link>
                           {:else}
@@ -339,7 +340,7 @@
                         </div>
                         {#if row.conid}
                           <div class="row">
-                            <div>Connection ID:</div>
+                            <div>{_t('logs.connectionId', { defaultMessage: 'Connection ID:' })}</div>
                             {#if mode == 'date'}
                               <Link onClick={() => doSetFilter('conid', [row.conid])}
                                 >{formatPossibleUuid(row.conid)}</Link
@@ -351,7 +352,7 @@
                         {/if}
                         {#if row.database}
                           <div class="row">
-                            <div>Database:</div>
+                            <div>{_t('logs.database', { defaultMessage: 'Database:' })}</div>
                             {#if mode == 'date'}
                               <Link onClick={() => doSetFilter('database', [row.database])}>{row.database}</Link>
                             {:else}
@@ -361,7 +362,7 @@
                         {/if}
                         {#if row.engine}
                           <div class="row">
-                            <div>Engine:</div>
+                            <div>{_t('logs.engine', { defaultMessage: 'Engine:' })}</div>
                             {#if mode == 'date'}
                               <Link onClick={() => doSetFilter('engine', [row.engine])}>{row.engine}</Link>
                             {:else}
@@ -381,13 +382,13 @@
           {/each}
           {#if !loadedRows?.length && mode === 'date'}
             <tr>
-              <td colspan="6">No data for selected date</td>
+              <td colspan="6">{_t('logs.noDataForSelectedDate', { defaultMessage: "No data for selected date" })}</td>
             </tr>
           {/if}
           {#if !loadedAll && mode === 'date'}
             {#key loadedRows}
               <tr>
-                <td colspan="6" bind:this={domLoadNext}>Loading next rows... </td>
+                <td colspan="6" bind:this={domLoadNext}>{_t('logs.loadingNextRows', { defaultMessage: "Loading next rows..." })}</td>
               </tr>
             {/key}
           {/if}
@@ -402,7 +403,7 @@
       data-testid="AdminAuditLogTab_refreshButton"
       on:click={() => {
         reloadData();
-      }}>Refresh</ToolStripButton
+      }}>{_t('logs.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton
     >
     <ToolStripExportButton {quickExportHandlerRef} />
   </svelte:fragment>
