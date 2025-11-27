@@ -3,8 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   moduleFileExtensions: ['js'],
   reporters: [
-    'default',
-    'jest-summary-reporter',
-    'jest-github-actions-reporter',
+    'summary',        // nice overall summary
+    'github-actions', // adds inline annotations in PRs
   ],  
 };
