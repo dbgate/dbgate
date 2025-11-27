@@ -86,7 +86,7 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
     await driver.query(conn, transformSqlForEngine(engine, query));
   }
 
-  const tget = x => x.tables.find(y => y.pureName == changedTable);
+  const tget = x => x?.tables?.find(y => y.pureName == changedTable);
   const structure1Source = await driver.analyseFull(conn);
   const structure1 = generateDbPairingId(extendDatabaseInfo(structure1Source));
   let structure2 = _.cloneDeep(structure1);
