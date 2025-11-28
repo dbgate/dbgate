@@ -31,7 +31,7 @@
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import { getObjectTypeFieldLabel } from '../utility/common';
+  import { getDatabasStatusMenu, getObjectTypeFieldLabel } from '../utility/common';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -120,11 +120,6 @@
   // setInterval(() => (generateIndex += 1), 2000);
   // $: objectList = generateObjectList(generateIndex);
 
-  const handleRefreshDatabase = () => {
-    apiCall('database-connections/refresh', { conid, database });
-    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
-  };
-
   function createAddMenu() {
     const res = [];
     if (driver?.databaseEngineTypes?.includes('document')) {
@@ -145,6 +140,15 @@
         }))
       );
     return res;
+  }
+
+  function createRefreshDatabaseMenu() {
+    return getDatabasStatusMenu({ conid, database });
+  }
+
+  function handleFullRefreshDatabase() {
+    apiCall('database-connections/sync-model', { conid, database, isFullRefresh: true });
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
   }
 
   function createSearchMenu() {
@@ -237,7 +241,18 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo message={$status.message} icon="img error" />
-    <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
+    <InlineButton on:click={handleFullRefreshDatabase}
+      >{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton
+    >
+
+    <DropDownButton
+      menu={createRefreshDatabaseMenu}
+      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
+      square
+      narrow={false}
+      data-testid="SqlObjectList_refreshButton"
+      icon="icon dots-vertical"
+    />
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <SchemaSelector
@@ -298,14 +313,14 @@
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}
-    <InlineButton
-      on:click={handleRefreshDatabase}
+    <DropDownButton
+      menu={createRefreshDatabaseMenu}
       title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
       square
+      narrow={false}
       data-testid="SqlObjectList_refreshButton"
-    >
-      <FontIcon icon="icon refresh" />
-    </InlineButton>
+      icon="icon dots-vertical"
+    />
   </SearchBoxWrapper>
   <SchemaSelector
     schemaList={_.isArray($schemaList) ? $schemaList : null}

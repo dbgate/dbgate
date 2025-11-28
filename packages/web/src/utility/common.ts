@@ -4,6 +4,8 @@ import _ from 'lodash';
 import { getSchemaList } from './metadataLoaders';
 import { showSnackbarError } from './snackbar';
 import { _t } from '../translations';
+import { apiCall } from './api';
+import getElectron from './getElectron';
 
 export class LoadingToken {
   isCanceled = false;
@@ -63,7 +65,8 @@ export function getObjectTypeFieldLabel(objectTypeField, driver?) {
   if (objectTypeField == 'procedures') return _t('dbObject.procedures', { defaultMessage: 'Procedures' });
   if (objectTypeField == 'functions') return _t('dbObject.functions', { defaultMessage: 'Functions' });
   if (objectTypeField == 'triggers') return _t('dbObject.triggers', { defaultMessage: 'Triggers' });
-  if (objectTypeField == 'schedulerEvents') return _t('dbObject.schedulerEvents', { defaultMessage: 'Scheduler Events' });
+  if (objectTypeField == 'schedulerEvents')
+    return _t('dbObject.schedulerEvents', { defaultMessage: 'Scheduler Events' });
   if (objectTypeField == 'matviews') return _t('dbObject.matviews', { defaultMessage: 'Materialized Views' });
   if (objectTypeField == 'collections') return _t('dbObject.collections', { defaultMessage: 'Collections/Containers' });
   return _.startCase(objectTypeField);
@@ -150,4 +153,41 @@ export function getKeyTextFromEvent(e) {
   if (e.altKey) keyText += 'Alt+';
   keyText += e.key;
   return keyText;
+}
+
+export function getDatabasStatusMenu(dbid) {
+  function callSchemalListChanged() {
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', ...dbid });
+  }
+  return [
+    {
+      text: 'Refresh DB structure (incremental)',
+      onClick: () => {
+        apiCall('database-connections/sync-model', dbid);
+        callSchemalListChanged();
+      },
+    },
+    {
+      text: 'Refresh DB structure (full)',
+      onClick: () => {
+        apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
+        callSchemalListChanged();
+      },
+    },
+    {
+      text: 'Reopen connection',
+      onClick: () => {
+        apiCall('database-connections/refresh', dbid);
+        callSchemalListChanged();
+      },
+    },
+    {
+      text: 'Disconnect',
+      onClick: () => {
+        const electron = getElectron();
+        if (electron) apiCall('database-connections/disconnect', dbid);
+        switchCurrentDatabase(null);
+      },
+    },
+  ];
 }
