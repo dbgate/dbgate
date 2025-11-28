@@ -147,11 +147,6 @@ ORDER BY
     margin-top: var(--dim-large-form-margin);
   }
 
-  .tip {
-    margin-left: var(--dim-large-form-margin);
-    margin-top: var(--dim-large-form-margin);
-  }
-
   .themes {
     display: flex;
     flex-wrap: wrap;
