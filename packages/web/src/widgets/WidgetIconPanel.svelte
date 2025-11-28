@@ -113,33 +113,12 @@
   //const handleChangeWidget= e => (selectedWidget.set(item.name))
 
   function handleSettingsMenu() {
-    const rect = domSettings.getBoundingClientRect();
-    const left = rect.right;
-    const top = rect.bottom;
-    const items = [
-      hasPermission('settings/change') && { command: 'settings.show' },
-      hasPermission('settings/change') && { command: 'settings.settingsTab' },
-      { command: 'theme.changeTheme' },
-      hasPermission('settings/change') && { command: 'settings.commands' },
-      hasPermission('widgets/plugins') && {
-        text: _t('widgets.managePlugins', { defaultMessage: 'Manage plugins' }),
-        onClick: () => {
-          $selectedWidget = 'plugins';
-          $visibleWidgetSideBar = true;
-        },
-      },
-      hasPermission('application-log') && {
-        text: _t('widgets.viewApplicationLogs', { defaultMessage: 'View application logs' }),
-        onClick: () => {
-          openNewTab({
-            title: 'Application log',
-            icon: 'img applog',
-            tabComponent: 'AppLogTab',
-          });
-        },
-      },
-    ];
-    currentDropDownMenu.set({ left, top, items });
+    openNewTab({
+      title: 'Settings',
+      icon: 'icon settings',
+      tabComponent: 'SettingsTab',
+      props: {},
+    });
   }
 
   function handleCloudAccountMenu() {

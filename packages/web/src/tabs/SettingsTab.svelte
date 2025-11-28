@@ -1,4 +1,8 @@
-<script>
+<script lang="ts" context="module">
+  export const matchingProps = [];
+</script>
+
+<script lang="ts">
   import SettingsMenuControl from "../elements/SettingsMenuControl.svelte";
   import GeneralSettings from "../settings/GeneralSettings.svelte";
   import SettingsFormProvider from "../forms/SettingsFormProvider.svelte";
