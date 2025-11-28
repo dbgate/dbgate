@@ -161,28 +161,28 @@ export function getDatabasStatusMenu(dbid) {
   }
   return [
     {
-      text: 'Refresh DB structure (incremental)',
+      text: _t('command.database.refreshIncremental', { defaultMessage: 'Refresh DB structure (incremental)' }),
       onClick: () => {
         apiCall('database-connections/sync-model', dbid);
         callSchemalListChanged();
       },
     },
     {
-      text: 'Refresh DB structure (full)',
+      text: _t('command.database.refreshFull', { defaultMessage: 'Refresh DB structure (full)' }),
       onClick: () => {
         apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
         callSchemalListChanged();
       },
     },
     {
-      text: 'Reopen connection',
+      text: _t('command.database.reopenConnection', { defaultMessage: 'Reopen connection' }),
       onClick: () => {
         apiCall('database-connections/refresh', dbid);
         callSchemalListChanged();
       },
     },
     {
-      text: 'Disconnect',
+      text: _t('command.database.disconnect', { defaultMessage: 'Disconnect' }),
       onClick: () => {
         const electron = getElectron();
         if (electron) apiCall('database-connections/disconnect', dbid);
