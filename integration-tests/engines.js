@@ -187,6 +187,7 @@ const mariaDbEngine = {
 /** @type {import('dbgate-types').TestEngineInfo} */
 const postgreSqlEngine = {
   label: 'PostgreSQL',
+  skipIncrementalAnalysis: true,
   connection: {
     engine: 'postgres@dbgate-plugin-postgres',
     password: 'Pwd2020Db',
