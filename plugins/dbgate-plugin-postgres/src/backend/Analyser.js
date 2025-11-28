@@ -99,55 +99,60 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00244 Loading foreign key constraints' });
     // const fk_tableConstraints = await this.analyserQuery('fk_tableConstraints', ['tables']);
 
-    this.feedback({ analysingMessage: 'DBGM-00245 Loading foreign key refs' });
-    const foreignKeys = await this.analyserQuery('foreignKeys', ['tables']);
+    if (this.objectIdConditionApplied(['tables'])) {
+      this.feedback({ analysingMessage: 'DBGM-00000 Loading foreign key refs' });
+      fkColumns = await this.analyserQuery('foreignKeyColumns', ['tables']);
+    } else {
+      this.feedback({ analysingMessage: 'DBGM-00245 Loading foreign key refs' });
+      const foreignKeys = await this.analyserQuery('foreignKeys', ['tables']);
 
-    this.feedback({ analysingMessage: 'DBGM-00246 Loading foreign key columns' });
-    const fk_keyColumnUsage = await this.analyserQuery('fk_keyColumnUsage', ['tables']);
+      this.feedback({ analysingMessage: 'DBGM-00246 Loading foreign key columns' });
+      const fk_keyColumnUsage = await this.analyserQuery('fk_keyColumnUsage', ['tables']);
 
-    // const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
-    const fkRows = [];
-    // const fkConstraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
-    for (const fkRef of foreignKeys.rows) {
-      // const cntBase = fkConstraintDct[cntKey(fkRef)];
-      // const cntRef = fkConstraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
-      // if (!cntBase || !cntRef) continue;
-      const baseCols = _.sortBy(
-        fk_keyColumnUsage.rows.filter(
-          x =>
-            x.table_name == fkRef.table_name &&
-            x.constraint_name == fkRef.constraint_name &&
-            x.table_schema == fkRef.table_schema
-        ),
-        'ordinal_position'
-      );
-      const refCols = _.sortBy(
-        fk_keyColumnUsage.rows.filter(
-          x =>
-            x.table_name == fkRef.ref_table_name &&
-            x.constraint_name == fkRef.unique_constraint_name &&
-            x.table_schema == fkRef.ref_table_schema
-        ),
-        'ordinal_position'
-      );
-      if (baseCols.length != refCols.length) continue;
+      // const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
+      const fkRows = [];
+      // const fkConstraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
+      for (const fkRef of foreignKeys.rows) {
+        // const cntBase = fkConstraintDct[cntKey(fkRef)];
+        // const cntRef = fkConstraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
+        // if (!cntBase || !cntRef) continue;
+        const baseCols = _.sortBy(
+          fk_keyColumnUsage.rows.filter(
+            x =>
+              x.table_name == fkRef.table_name &&
+              x.constraint_name == fkRef.constraint_name &&
+              x.table_schema == fkRef.table_schema
+          ),
+          'ordinal_position'
+        );
+        const refCols = _.sortBy(
+          fk_keyColumnUsage.rows.filter(
+            x =>
+              x.table_name == fkRef.ref_table_name &&
+              x.constraint_name == fkRef.unique_constraint_name &&
+              x.table_schema == fkRef.ref_table_schema
+          ),
+          'ordinal_position'
+        );
+        if (baseCols.length != refCols.length) continue;
 
-      for (let i = 0; i < baseCols.length; i++) {
-        const baseCol = baseCols[i];
-        const refCol = refCols[i];
+        for (let i = 0; i < baseCols.length; i++) {
+          const baseCol = baseCols[i];
+          const refCol = refCols[i];
 
-        fkRows.push({
-          ...fkRef,
-          pure_name: fkRef.table_name,
-          schema_name: fkRef.table_schema,
-          ref_table_name: fkRef.ref_table_name,
-          ref_schema_name: fkRef.ref_table_schema,
-          column_name: baseCol.column_name,
-          ref_column_name: refCol.column_name,
-        });
+          fkRows.push({
+            ...fkRef,
+            pure_name: fkRef.table_name,
+            schema_name: fkRef.table_schema,
+            ref_table_name: fkRef.ref_table_name,
+            ref_schema_name: fkRef.ref_table_schema,
+            column_name: baseCol.column_name,
+            ref_column_name: refCol.column_name,
+          });
+        }
       }
+      fkColumns = { rows: fkRows };
     }
-    fkColumns = { rows: fkRows };
 
     this.feedback({ analysingMessage: 'DBGM-00247 Loading views' });
     const views = await this.analyserQuery('views', ['views']);

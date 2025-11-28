@@ -757,7 +757,7 @@ const enginesOnCi = [
 const enginesOnLocal = [
   // all engines, which would be run on local test
   // cassandraEngine,
-  //mysqlEngine,
+  // mysqlEngine,
   // mariaDbEngine,
   postgreSqlEngine,
   //sqlServerEngine,

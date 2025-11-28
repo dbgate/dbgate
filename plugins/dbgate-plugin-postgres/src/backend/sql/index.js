@@ -16,6 +16,7 @@ const geometryColumns = require('./geometryColumns');
 const geographyColumns = require('./geographyColumns');
 const proceduresParameters = require('./proceduresParameters');
 const foreignKeys = require('./foreignKeys');
+const foreignKeyColumns = require('./foreignKeyColumns');
 const triggers = require('./triggers');
 const listDatabases = require('./listDatabases');
 const listVariables = require('./listVariables');
@@ -30,6 +31,7 @@ module.exports = {
   viewModifications,
   primaryKeys,
   fk_keyColumnUsage,
+  foreignKeyColumns,
   foreignKeys,
   views,
   routines,
