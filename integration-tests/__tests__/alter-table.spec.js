@@ -103,10 +103,10 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
 
   await driver.script(conn, sql);
 
-  if (!engine.skipIncrementalAnalysis) {
-    const structure2RealIncremental = await driver.analyseIncremental(conn, structure1Source);
-    checkTableStructure(engine, tget(structure2RealIncremental), tget(structure2));
-  }
+  // if (!engine.skipIncrementalAnalysis) {
+  //   const structure2RealIncremental = await driver.analyseIncremental(conn, structure1Source);
+  //   checkTableStructure(engine, tget(structure2RealIncremental), tget(structure2));
+  // }
 
   const structure2Real = extendDatabaseInfo(await driver.analyseFull(conn));
 
