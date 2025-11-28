@@ -299,23 +299,6 @@ export class DatabaseAnalyser<TClient = any> {
     }
   }
 
-  objectIdConditionApplied(typeFields) {
-    if (!this.modifications || !typeFields || this.modifications.length == 0) {
-      return false;
-    }
-    if (this.modifications.some(x => typeFields.includes(x.objectTypeField) && x.action == 'all')) {
-      // do not filter objects
-      return false;
-    }
-    const filterIds = this.modifications
-      .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-      .map(x => x.objectId);
-    if (filterIds.length == 0) {
-      return false;
-    }
-    return true;
-  }
-
   async getModifications() {
     const snapshot = await this._getFastSnapshot();
     if (!snapshot) return null;
