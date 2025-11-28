@@ -1086,14 +1086,24 @@
   }
 
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));
+
+  $: backupParsed =
+    data.objectTypeField === 'tables'
+      ? data.pureName.match(/^_(.*)_(\d\d\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)$/)
+      : null;
+  $: backupTitle =
+    backupParsed != null
+      ? `${backupParsed[1]} (${backupParsed[2]}-${backupParsed[3]}-${backupParsed[4]} ${backupParsed[5]}:${backupParsed[6]}:${backupParsed[7]})`
+      : null;
 </script>
 
 <AppObjectCore
   {...$$restProps}
   module={$$props.module}
   {data}
-  title={data.schemaName && !passProps?.hideSchemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
-  icon={databaseObjectIcons[data.objectTypeField]}
+  title={backupTitle ??
+    (data.schemaName && !passProps?.hideSchemaName ? `${data.schemaName}.${data.pureName}` : data.pureName)}
+  icon={backupParsed ? 'img table-backup' : databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={passProps?.ingorePin ? null : isPinned ? null : () => pinnedTables.update(list => [...list, data])}

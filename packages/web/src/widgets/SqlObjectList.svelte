@@ -232,6 +232,15 @@
         $focusedConnectionOrDatabase?.database != extractDbNameFromComposite(database)));
 
   // $: console.log('STATUS', $status);
+
+  function getAppObjectGroup(data) {
+    if (data.objectTypeField == 'tables') {
+      if (data.pureName.match(/^_(.*)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d-\d\d$/)) {
+        return _t('dbObject.tableBackups', { defaultMessage: 'Table Backups' });
+      }
+    }
+    return getObjectTypeFieldLabel(data.objectTypeField, driver);
+  }
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -371,7 +380,7 @@
             .filter(x => x.schemaName == null || ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
-          groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
+          groupFunc={getAppObjectGroup}
           subItemsComponent={(data, { isExpandedBySearch }) =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
               ? isExpandedBySearch
