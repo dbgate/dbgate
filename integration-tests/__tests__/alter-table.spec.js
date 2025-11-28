@@ -26,13 +26,13 @@ function pickImportantTableInfo(engine, table) {
       .map(props =>
         _.omitBy(props, (v, k) => k == 'defaultValue' && v == 'NULL' && engine.setNullDefaultInsteadOfDrop)
       ),
-    foreignKeys: table.foreignKeys
-      .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
-      .map(fk => ({
-        constraintType: fk.constraintType,
-        refTableName: fk.refTableName,
-        columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
-      })),
+    // foreignKeys: table.foreignKeys
+    //   .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
+    //   .map(fk => ({
+    //     constraintType: fk.constraintType,
+    //     refTableName: fk.refTableName,
+    //     columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
+    //   })),
   };
 }
 
