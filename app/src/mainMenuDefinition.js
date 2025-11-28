@@ -76,6 +76,8 @@ module.exports = ({ editMenu, isMac }, currentTranslations = null) => [
       { command: 'app.zoomIn', hideDisabled: true },
       { command: 'app.zoomOut', hideDisabled: true },
       { command: 'app.zoomReset', hideDisabled: true },
+      { divider: true },
+      { command: 'app.showLogs', hideDisabled: true },
     ],
   },
   {
@@ -95,6 +97,8 @@ module.exports = ({ editMenu, isMac }, currentTranslations = null) => [
       { divider: true },
       { command: 'app.exportConnections', hideDisabled: true },
       { command: 'app.importConnections', hideDisabled: true },
+      { divider: true },
+      { command: 'app.managePlugins', hideDisabled: true },
     ],
   },
   ...(isMac

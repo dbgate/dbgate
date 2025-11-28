@@ -11,6 +11,7 @@ import {
   promoWidgetPreview,
   visibleToolbar,
   visibleWidgetSideBar,
+  selectedWidget,
 } from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
@@ -768,6 +769,19 @@ if (isProApp()) {
 
 if (hasPermission('settings/change')) {
   registerCommand({
+    id: 'settings.settingsTab',
+    category: __t('command.settings', { defaultMessage: 'Settings' }),
+    name: __t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+    onClick: () => {
+      openNewTab({
+        title: _t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+        icon: 'icon settings',
+        tabComponent: 'SettingsTab',
+        props: {},
+      });
+    },
+  });
+  registerCommand({
     id: 'settings.commands',
     category: __t('command.settings', { defaultMessage: 'Settings' }),
     name: __t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
@@ -782,14 +796,14 @@ if (hasPermission('settings/change')) {
     testEnabled: () => hasPermission('settings/change'),
   });
 
-  registerCommand({
-    id: 'settings.show',
-    category: __t('command.settings', { defaultMessage: 'Settings' }),
-    name: __t('command.settings.change', { defaultMessage: 'Change' }),
-    toolbarName: __t('command.settings', { defaultMessage: 'Settings' }),
-    onClick: () => showModal(SettingsModal),
-    testEnabled: () => hasPermission('settings/change'),
-  });
+  // registerCommand({
+  //   id: 'settings.show',
+  //   category: __t('command.settings', { defaultMessage: 'Settings' }),
+  //   name: __t('command.settings.change', { defaultMessage: 'Change' }),
+  //   toolbarName: __t('command.settings', { defaultMessage: 'Settings' }),
+  //   onClick: () => showModal(SettingsModal),
+  //   testEnabled: () => hasPermission('settings/change'),
+  // });
 }
 
 registerCommand({
@@ -1209,6 +1223,35 @@ registerCommand({
     }));
   },
 });
+
+if ( hasPermission('application-log'))
+{
+  registerCommand({
+    id: 'app.showLogs',
+    category: __t('command.application', { defaultMessage: 'Application' }),
+    name: __t('command.application.showLogs', { defaultMessage: 'View application logs' }),
+    onClick: () => {
+      openNewTab({
+        title: 'Application log',
+        icon: 'img applog',
+        tabComponent: 'AppLogTab',
+      });
+    },
+  });
+}
+
+if (hasPermission('widgets/plugins'))
+{
+  registerCommand({
+    id: 'app.managePlugins',
+    category: __t('command.application', { defaultMessage: 'Application' }),
+    name: __t('command.application.managePlugins', { defaultMessage: 'Manage plugins' }),
+    onClick: () => {
+      selectedWidget.set('plugins');
+      visibleWidgetSideBar.set(true);
+    },
+  });
+}
 
 const electron = getElectron();
 if (electron) {
