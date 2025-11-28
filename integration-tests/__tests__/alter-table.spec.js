@@ -269,7 +269,7 @@ describe('Alter table', () => {
           tbl.foreignKeys = [
             {
               constraintType: 'foreignKey',
-              pureName: 't2',
+              pureName: 't3',
               refTableName: 't1',
               columns: [
                 {
