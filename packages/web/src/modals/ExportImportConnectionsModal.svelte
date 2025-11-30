@@ -170,9 +170,9 @@
     <div slot="header">
       {mode == 'export' ? 'Export' : 'Import'} connections &amp; settings
       <span class="check-uncheck">
-        <Link onClick={() => handleCheckAll(true)}>Check all</Link>
+        <Link onClick={() => handleCheckAll(true)}>{_t('common.checkAll', { defaultMessage: 'Check all' })}</Link>
         |
-        <Link onClick={() => handleCheckAll(false)}>Uncheck all</Link>
+        <Link onClick={() => handleCheckAll(false)}>{_t('common.uncheckAll', { defaultMessage: 'Uncheck all' })}</Link>
       </span>
     </div>
 

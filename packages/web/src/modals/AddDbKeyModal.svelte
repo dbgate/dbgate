@@ -8,6 +8,7 @@
   import TextField from '../forms/TextField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -26,10 +27,10 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Add key</svelte:fragment>
+    <svelte:fragment slot="header">{_t('addDbKeyModal.addKey', { defaultMessage: 'Add key' })}</svelte:fragment>
 
     <div class="container">
-      <FormFieldTemplateLarge label="Key" type="text" noMargin>
+      <FormFieldTemplateLarge label={_t('addDbKeyModal.key', { defaultMessage: 'Key' })} type="text" noMargin>
         <TextField
           value={keyName}
           on:change={e => {
@@ -41,7 +42,7 @@
 
       <div class="m-3" />
 
-      <FormFieldTemplateLarge label="Type" type="combo" noMargin>
+      <FormFieldTemplateLarge label={_t('addDbKeyModal.type', { defaultMessage: 'Type' })} type="combo" noMargin>
         <SelectField
           options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
           value={type}
@@ -62,8 +63,8 @@
     </div>
 
     <svelte:fragment slot="footer">
-      <FormStyledButton value="OK" on:click={e => handleSubmit()} />
-      <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
+      <FormStyledButton value={_t('common.ok', { defaultMessage: 'OK' })} on:click={e => handleSubmit()} />
+      <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

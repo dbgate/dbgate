@@ -66,7 +66,7 @@
     <div slot="footer" class="footer">
       <div>
         <FormStyledButton
-          value="OK"
+          value={_t('common.ok', { defaultMessage: 'OK' })}
           title="Ctrl+Enter"
           on:click={() => {
             onSave(parseCellValue(textValue, dataEditorTypesBehaviour));

@@ -139,7 +139,7 @@ ORDER BY
           },
           hasPermission('settings/change') && {
             identifier: 'external-tools',
-            label: _t('settings.externalTools', { defaultMessage: 'External tools' }),
+            label: _t('settings.externalTools', { defaultMessage: 'External Tools' }),
             slot: 8,
           },
           hasPermission('settings/change') && {
@@ -438,10 +438,10 @@ ORDER BY
         </svelte:fragment>
 
         <svelte:fragment slot="3">
-          <div class="heading">{_t('settings.appearance', { defaultMessage: 'Application theme' })}</div>
+          <div class="heading">{_t('settings.applicationTheme', { defaultMessage: 'Application theme' })}</div>
 
           <FormFieldTemplateLarge
-            label={_t('settings.appearance.useSystemTheme', { defaultMessage: 'Use system theme' })}
+            label={_t('settings.applicationTheme.useSystemTheme', { defaultMessage: 'Use system theme' })}
             type="checkbox"
             labelProps={{
               onClick: () => {
@@ -541,7 +541,7 @@ ORDER BY
           </div>
         </svelte:fragment>
         <svelte:fragment slot="4">
-          <div class="heading">{_t('settings.defaultActions', { defaultMessage: 'Default actions' })}</div>
+          <div class="heading">{_t('settings.defaultActions', { defaultMessage: 'Default Actions' })}</div>
 
           <FormSelectField
             label={_t('settings.defaultActions.connectionClick', { defaultMessage: 'Connection click' })}
@@ -775,7 +775,7 @@ ORDER BY
         </svelte:fragment>
 
         <svelte:fragment slot="8">
-          <div class="heading">{_t('settings.externalTools', { defaultMessage: 'External tools' })}</div>
+          <div class="heading">{_t('settings.externalTools', { defaultMessage: 'External Tools' })}</div>
           <FormTextField
             name="externalTools.mysqldump"
             label={_t('settings.other.externalTools.mysqldump', {

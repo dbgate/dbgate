@@ -9,6 +9,7 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let script;
   export let onConfirm;
@@ -19,7 +20,7 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <div slot="header">Save changes</div>
+    <div slot="header">{_t('common.saveChanges', { defaultMessage: 'Save changes' })}</div>
 
     <div class="editor">
       <AceEditor mode="javascript" readOnly value={script} />
@@ -28,7 +29,7 @@
     {#if skipConfirmSettingKey}
       <div class="mt-2">
         <TemplatedCheckboxField
-          label="Don't ask again"
+          label={_t('common.dontAskAgain', { defaultMessage: "Don't ask again" })}
           templateProps={{ noMargin: true }}
           checked={dontAskAgain}
           on:change={e => {
@@ -41,16 +42,16 @@
 
     <div slot="footer">
       <FormSubmit
-        value="OK"
+        value={_t('common.ok', { defaultMessage: 'OK' })}
         on:click={() => {
           closeCurrentModal();
           onConfirm();
         }}
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
       <FormStyledButton
         type="button"
-        value="Open script"
+        value={_t('common.openScript', { defaultMessage: 'Open script' })}
         on:click={() => {
           newQuery({
             initialData: script,

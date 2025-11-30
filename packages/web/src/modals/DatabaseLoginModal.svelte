@@ -28,6 +28,7 @@
   import { callServerPing } from '../utility/connectionsPinger';
   import { getConnectionLabel } from 'dbgate-tools';
   import { openedConnections } from '../stores';
+  import { _t } from '../translations';
 
   export let conid;
   export let passwordMode;
@@ -125,11 +126,11 @@
 
 <FormProviderCore {values}>
   <ModalBase {...$$restProps} simple>
-    <svelte:fragment slot="header">Database Log In ({engineTitle})</svelte:fragment>
+    <svelte:fragment slot="header">{_t('databaseLoginModal.header', { defaultMessage: 'Database Log In ({engineTitle})', values: {engineTitle} })}</svelte:fragment>
 
-    <FormTextField label="Connection" name="connectionLabel" disabled />
+    <FormTextField label={_t('databaseLoginModal.connection', { defaultMessage: 'Connection' })} name="connectionLabel" disabled />
     <FormTextField
-      label="Username"
+      label={_t('databaseLoginModal.username', { defaultMessage: 'Username' })}
       name="user"
       autocomplete="username"
       disabled={usedPasswordMode == 'askPassword'}
@@ -138,7 +139,7 @@
       data-testid="DatabaseLoginModal_username"
     />
     <FormPasswordField
-      label="Password"
+      label={_t('databaseLoginModal.password', { defaultMessage: 'Password' })}
       name="password"
       autocomplete="current-password"
       focused={usedPasswordMode == 'askPassword'}
@@ -148,34 +149,34 @@
 
     {#if isTesting}
       <div>
-        <FontIcon icon="icon loading" /> Testing connection
+        <FontIcon icon="icon loading" /> {_t('databaseLoginModal.testingConnection', { defaultMessage: 'Testing connection' })}
       </div>
     {/if}
 
     {#if !isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error'}
       <div class="error-result">
-        Connect failed: <FontIcon icon="img error" />
+        {_t('databaseLoginModal.connectFailed', { defaultMessage: 'Connect failed:' })} <FontIcon icon="img error" />
         {sqlConnectResult.error}
         <Link
           onClick={() =>
             showModal(ErrorMessageModal, {
               message: sqlConnectResult.detail,
               showAsCode: true,
-              title: 'Database connection error',
+              title: _t('databaseLoginModal.connectionError', { defaultMessage: 'Database connection error' }),
             })}
         >
-          Show detail
+          {_t('databaseLoginModal.showDetail', { defaultMessage: 'Show detail' })}
         </Link>
       </div>
     {/if}
 
     <svelte:fragment slot="footer">
       {#if isTesting}
-        <FormStyledButton value="Stop connecting" on:click={handleCancelTest} data-testid="DatabaseLoginModal_stop" />
+        <FormStyledButton value={_t('databaseLoginModal.stopConnecting', { defaultMessage: 'Stop connecting' })} on:click={handleCancelTest} data-testid="DatabaseLoginModal_stop" />
       {:else}
-        <FormSubmit value="Connect" on:click={handleSubmit} data-testid="DatabaseLoginModal_connect" />
+        <FormSubmit value={_t('databaseLoginModal.connect', { defaultMessage: 'Connect' })} on:click={handleSubmit} data-testid="DatabaseLoginModal_connect" />
       {/if}
-      <FormStyledButton value="Close" on:click={closeCurrentModal} data-testid="DatabaseLoginModal_close" />
+      <FormStyledButton value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} data-testid="DatabaseLoginModal_close" />
     </svelte:fragment>
   </ModalBase>
 </FormProviderCore>
