@@ -67,7 +67,7 @@
   import { isProApp } from '../utility/proTools';
   import dragScroll from '../utility/dragScroll';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import { __t } from '../translations';
+  import { __t, _t } from '../translations';
 
   export let value;
   export let onChange;
@@ -849,45 +849,45 @@
       settings?.customizeStyle && [
         { divider: true },
         isProApp() && {
-          text: 'Column properties',
+          text: _t('designer.columnProperties', { defaultMessage: 'Column properties' }),
           submenu: [
             {
-              text: `Nullability: ${value?.style?.showNullability ? 'YES' : 'NO'}`,
+              text: _t('designer.nullabilityYesNo', { defaultMessage: 'Nullability: {show}', values: { show: value?.style?.showNullability ? 'YES' : 'NO' } }),
               onClick: changeStyleFunc('showNullability', !value?.style?.showNullability),
             },
             {
-              text: `Data type: ${value?.style?.showDataType ? 'YES' : 'NO'}`,
+              text: _t('designer.dataTypeYesNo', { defaultMessage: 'Data type: {show}', values: { show: value?.style?.showDataType ? 'YES' : 'NO' } }),
               onClick: changeStyleFunc('showDataType', !value?.style?.showDataType),
             },
           ],
         },
         isProApp() && {
-          text: `Columns - ${_.startCase(value?.style?.filterColumns || 'all')}`,
+          text: _t('designer.columns', { defaultMessage: 'Columns - { filterColumns }', values: { filterColumns: _.startCase(value?.style?.filterColumns || 'all') } }),
           submenu: [
             {
-              text: 'All',
+              text: _t('designer.all', { defaultMessage: 'All' }),
               onClick: changeStyleFunc('filterColumns', ''),
             },
             {
-              text: 'Primary Key',
+              text: _t('designer.primaryKey', { defaultMessage: 'Primary Key' }),
               onClick: changeStyleFunc('filterColumns', 'primaryKey'),
             },
             {
-              text: 'All Keys',
+              text: _t('designer.allKeys', { defaultMessage: 'All Keys' }),
               onClick: changeStyleFunc('filterColumns', 'allKeys'),
             },
             {
-              text: 'Not Null',
+              text: _t('designer.notNull', { defaultMessage: 'Not Null' }),
               onClick: changeStyleFunc('filterColumns', 'notNull'),
             },
             {
-              text: 'Keys And Not Null',
+              text: _t('designer.keysAndNotNull', { defaultMessage: 'Keys And Not Null' }),
               onClick: changeStyleFunc('filterColumns', 'keysAndNotNull'),
             },
           ],
         },
         {
-          text: `Zoom - ${(value?.style?.zoomKoef || 1) * 100}%`,
+          text: _t('designer.zoom', { defaultMessage: 'Zoom - {zoom}%', values: { zoom: ((value?.style?.zoomKoef || 1) * 100) } }),
           submenu: DIAGRAM_ZOOMS.map(koef => ({
             text: `${koef * 100} %`,
             onClick: changeStyleFunc('zoomKoef', koef.toString()),
@@ -1016,11 +1016,11 @@
   use:dragScroll={handleDragScroll}
 >
   {#if !(tables?.length > 0)}
-    <div class="empty">Drag &amp; drop tables or views from left panel here</div>
+    <div class="empty">{_t('designer.dragDropTables', { defaultMessage: 'Drag & drop tables or views from left panel here' })}</div>
 
     {#if allowAddTablesButton}
       <div class="addAllTables">
-        <FormStyledButton value="Add all tables" on:click={handleAddAllTables} />
+        <FormStyledButton value={_t('designer.addAllTables', { defaultMessage: 'Add all tables' })} on:click={handleAddAllTables} />
       </div>
     {/if}
   {/if}
@@ -1119,7 +1119,7 @@
     <div class="panel">
       <DragColumnMemory {settings} {sourceDragColumn$} {targetDragColumn$} />
       <div class="searchbox">
-        <SearchInput bind:value={columnFilter} placeholder="Filter columns" />
+        <SearchInput bind:value={columnFilter} placeholder={_t('designer.filterColumns', { defaultMessage: 'Filter columns' })} />
         <CloseSearchButton bind:filter={columnFilter} />
       </div>
     </div>

@@ -8,6 +8,7 @@
   import { getFormContext } from './FormProviderCore.svelte';
 
   import FormSelectField from './FormSelectField.svelte';
+  import { _t } from '../translations';
 
   export let additionalFolders = [];
   export let name;
@@ -35,7 +36,7 @@
         label: folder,
       })),
     allowCreateNew && {
-      label: '(Create new)',
+      label: _t('archiveFolder.createNew', { defaultMessage: '(Create new)' }),
       value: '@create',
     },
   ];
@@ -48,8 +49,8 @@
   function handleChange(e) {
     if (e.detail == '@create') {
       showModal(InputTextModal, {
-        header: 'Archive',
-        label: 'Name of new archive folder',
+        header: _t('archiveFolder.archive', { defaultMessage: 'Archive' }),
+        label: _t('archiveFolder.nameOfNewArchiveFolder', { defaultMessage: 'Name of new archive folder' }),
         onConfirm: createOption,
       });
     }

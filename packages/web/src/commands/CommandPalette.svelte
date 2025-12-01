@@ -201,7 +201,7 @@
           bind:this={domInput}
           bind:value={filter}
           on:keydown={handleKeyDown}
-          placeholder={parentCommand?.text ||
+          placeholder={_tval(parentCommand?.text) ||
             ($visibleCommandPalette == 'database' ? _t('commandPalette.searchInDatabase', { defaultMessage: 'Search in database' }) : _t('commandPalette.searchInCommands', { defaultMessage: 'Search in commands' }))}
         />
       </div>

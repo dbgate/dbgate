@@ -161,8 +161,8 @@
     const handleRename = () => {
       showModal(InputTextModal, {
         value: folder,
-        label: 'New folder name',
-        header: 'Rename folder',
+        label: _t('connection.newFolderName', { defaultMessage: 'New folder name' }),
+        header: _t('connection.renameFolder', { defaultMessage: 'Rename folder' }),
         onConfirm: async newFolder => {
           emptyConnectionGroupNames.update(folders => _.uniq(folders.map(fld => (fld == folder ? newFolder : fld))));
           apiCall('connections/batch-change-folder', {
@@ -175,7 +175,7 @@
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: `Really delete folder ${folder}? Connections in folder will be moved into root folder.`,
+        message: _t('connection.deleteFolderConfirm', { defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.', values: { folder } }),
         onConfirm: () => {
           emptyConnectionGroupNames.update(folders => folders.filter(fld => fld != folder));
           apiCall('connections/batch-change-folder', {
@@ -187,8 +187,8 @@
     };
 
     return [
-      { text: 'Rename', onClick: handleRename },
-      { text: 'Delete', onClick: handleDelete },
+      { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
+      { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
     ];
   }
 

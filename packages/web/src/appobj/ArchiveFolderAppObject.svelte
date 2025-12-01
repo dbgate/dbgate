@@ -21,14 +21,15 @@
   import { isProApp } from '../utility/proTools';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { saveFileToDisk } from '../utility/exportFileTools';
+  import { _t } from '../translations';
 
   export let data;
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
       message: data.name.endsWith('.link')
-        ? `Really delete link to folder ${data.name}? Folder content remains untouched.`
-        : `Really delete folder ${data.name}?`,
+        ? _t('archiveFolder.deleteLinkConfirm', { defaultMessage: 'Really delete link to folder {folderName}? Folder content remains untouched.', values: { folderName: data.name } })
+        : _t('archiveFolder.deleteFolderConfirm', { defaultMessage: 'Really delete folder {folderName}?', values: { folderName: data.name } }),
       onConfirm: () => {
         apiCall('archive/delete-folder', { folder: data.name });
       },
@@ -42,8 +43,8 @@
 
     showModal(InputTextModal, {
       value: name,
-      label: 'New folder name',
-      header: 'Rename folder',
+      label: _t('archiveFolder.newFolderName', { defaultMessage: 'New folder name' }),
+      header: _t('archiveFolder.renameFolder', { defaultMessage: 'Rename folder' }),
       onConfirm: async newFolder => {
         await apiCall('archive/rename-folder', {
           folder: data.name,
@@ -95,7 +96,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   const handleCompareWithCurrentDb = () => {
     openNewTab(
       {
-        title: 'Compare',
+        title: _t('common.compare', { defaultMessage: 'Compare' }),
         icon: 'img compare',
         tabComponent: 'CompareModelTab',
         props: {
@@ -153,7 +154,7 @@ await dbgateApi.deployDb(${JSON.stringify(
         });
       },
       {
-        formatLabel: 'ZIP files',
+        formatLabel: _t('common.zipFiles', { defaultMessage: 'ZIP files' }),
         formatExtension: 'zip',
         defaultFileName: data.name?.endsWith('.zip') ? data.name : data.name + '.zip',
       }
@@ -162,28 +163,28 @@ await dbgateApi.deployDb(${JSON.stringify(
 
   function createMenu() {
     return [
-      data.name != 'default' && { text: 'Delete', onClick: handleDelete },
-      data.name != 'default' && { text: 'Rename', onClick: handleRename },
-      isProApp() && { text: 'Data deployer', onClick: handleOpenDataDeployTab },
+      data.name != 'default' && { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
+      data.name != 'default' && { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
+      isProApp() && { text: _t('common.dataDeployer', { defaultMessage: 'Data deployer' }), onClick: handleOpenDataDeployTab },
       $currentDatabase && [
-        { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
-        hasPermission(`run-shell-script`) && { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
+        { text: _t('archiveFolder.generateDeployDbSql', { defaultMessage: 'Generate deploy DB SQL' }), onClick: handleGenerateDeploySql },
+        hasPermission(`run-shell-script`) && { text: _t('archiveFolder.shellDeployDb', { defaultMessage: 'Shell: Deploy DB' }), onClick: handleGenerateDeployScript },
       ],
       data.name != 'default' &&
         isProApp() &&
-        data.name.endsWith('.zip') && { text: 'Unpack ZIP', onClick: () => handleZipUnzip('archive/unzip') },
+        data.name.endsWith('.zip') && { text: _t('archiveFolder.unpackZip', { defaultMessage: 'Unpack ZIP' }), onClick: () => handleZipUnzip('archive/unzip') },
       data.name != 'default' &&
         isProApp() &&
-        !data.name.endsWith('.zip') && { text: 'Pack (create ZIP)', onClick: () => handleZipUnzip('archive/zip') },
+        !data.name.endsWith('.zip') && { text: _t('archiveFolder.packZip', { defaultMessage: 'Pack (create ZIP)' }), onClick: () => handleZipUnzip('archive/zip') },
 
-      isProApp() && { text: 'Download ZIP', onClick: handleDownloadZip },
+      isProApp() && { text: _t('archiveFolder.downloadZip', { defaultMessage: 'Download ZIP' }), onClick: handleDownloadZip },
 
       data.name != 'default' &&
         hasPermission('dbops/model/compare') &&
         isProApp() &&
         _.get($currentDatabase, 'connection._id') && {
           onClick: handleCompareWithCurrentDb,
-          text: `Compare with ${_.get($currentDatabase, 'name')}`,
+          text: _t('archiveFolder.compareWithCurrentDb', { defaultMessage: 'Compare with {name}', values: { name: _.get($currentDatabase, 'name') } }),
         },
     ];
   }

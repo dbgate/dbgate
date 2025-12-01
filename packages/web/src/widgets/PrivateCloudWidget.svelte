@@ -115,7 +115,7 @@
         command: 'new.connectionOnCloud',
       },
       {
-        text: 'New SQL script',
+        text: _t('privateCloudWidget.newSqlScript', { defaultMessage: 'New SQL script' }),
         onClick: () => {
           const data = '';
           showModal(SaveFileModal, {
@@ -145,11 +145,11 @@
   function createAddFolderMenu() {
     return [
       isProApp() && {
-        text: 'Create shared folder',
+        text: _t('privateCloudWidget.createSharedFolder', { defaultMessage: 'Create shared folder' }),
         onClick: () => {
           showModal(InputTextModal, {
-            label: 'New folder name',
-            header: 'New shared folder',
+            label: _t('privateCloudWidget.newFolderName', { defaultMessage: 'New folder name' }),
+            header: _t('privateCloudWidget.newSharedFolder', { defaultMessage: 'New shared folder' }),
             onConfirm: async newFolder => {
               apiCall('cloud/create-folder', {
                 name: newFolder,
@@ -159,11 +159,11 @@
         },
       },
       {
-        text: 'Add existing folder (from link)',
+        text: _t('privateCloudWidget.addExistingFolder', { defaultMessage: 'Add existing folder (from link)' }),
         onClick: () => {
           showModal(InputTextModal, {
-            label: 'Your invite link (in form dbgate://folder/xxx)',
-            header: 'Add existing shared folder',
+            label: _t('privateCloudWidget.yourInviteLink', { defaultMessage: 'Your invite link (in form dbgate://folder/xxx)' }),
+            header: _t('privateCloudWidget.addExistingSharedFolder', { defaultMessage: 'Add existing shared folder' }),
             onConfirm: async newFolder => {
               apiCall('cloud/grant-folder', {
                 inviteLink: newFolder,
@@ -179,8 +179,8 @@
     const handleRename = () => {
       showModal(InputTextModal, {
         value: contentGroupMap[folder]?.name,
-        label: 'New folder name',
-        header: 'Rename folder',
+        label: _t('privateCloudWidget.newFolderName', { defaultMessage: 'New folder name' }),
+        header: _t('privateCloudWidget.renameFolder', { defaultMessage: 'Rename folder' }),
         onConfirm: async name => {
           apiCall('cloud/rename-folder', {
             folid: folder,
@@ -192,8 +192,8 @@
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: `Really delete folder ${contentGroupMap[folder]?.name}? All folder content will be deleted!`,
-        header: 'Delete folder',
+        message: _t('privateCloudWidget.deleteFolderConfirm', { defaultMessage: 'Really delete folder {folder}? All folder content will be deleted!', values: { folder: contentGroupMap[folder]?.name } }),
+        header: _t('privateCloudWidget.deleteFolder', { defaultMessage: 'Delete folder' }),
         onConfirm: () => {
           apiCall('cloud/delete-folder', {
             folid: folder,
@@ -204,13 +204,13 @@
 
     return [
       contentGroupMap[folder]?.role == 'admin' && [
-        { text: 'Rename', onClick: handleRename },
-        { text: 'Delete', onClick: handleDelete },
+        { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
+        { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
       ],
       isProApp() &&
         contentGroupMap[folder]?.role == 'admin' &&
         !contentGroupMap[folder]?.isPrivate && {
-          text: 'Administrate access',
+          text: _t('privateCloudWidget.administrateAccess', { defaultMessage: 'Administrate access' }),
           onClick: () => {
             showModal(ConfigureSharedFolderModal, {
               folid: folder,
@@ -249,13 +249,13 @@
     skip={!$cloudSigninTokenHolder}
   >
     <SearchBoxWrapper>
-      <SearchInput placeholder="Search cloud connections and files" bind:value={filter} />
+      <SearchInput placeholder={_t('privateCloudWidget.searchPlaceholder', { defaultMessage: 'Search cloud connections and files' })} bind:value={filter} />
       <CloseSearchButton bind:filter />
-      <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title="Add new connection or file" />
-      <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title="Add new folder" />
+      <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title={_t('privateCloudWidget.addNewConnectionOrFile', { defaultMessage: 'Add new connection or file' })} />
+      <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title={_t('privateCloudWidget.addNewFolder', { defaultMessage: 'Add new folder' })} />
       <InlineButton
         on:click={handleRefreshContent}
-        title="Refresh files"
+        title={_t('privateCloudWidget.refreshFiles', { defaultMessage: 'Refresh files' })}
         data-testid="CloudItemsWidget_buttonRefreshContent"
       >
         <FontIcon icon="icon refresh" />
@@ -289,11 +289,11 @@
       />
 
       {#if !cloudContentFlat?.length}
-        <ErrorInfo message="You have no content on DbGate cloud" icon="img info" />
+        <ErrorInfo message={_t('privateCloudWidget.noContent', { defaultMessage: 'You have no content on DbGate cloud' })} icon="img info" />
         <div class="error-info">
           <div class="m-1"></div>
           <FormStyledButton
-            value="Create connection on DbGate Cloud"
+            value={_t('privateCloudWidget.createConnection', { defaultMessage: 'Create connection on DbGate Cloud' })}
             skipWidth
             on:click={() => {
               runCommand('new.connectionOnCloud');

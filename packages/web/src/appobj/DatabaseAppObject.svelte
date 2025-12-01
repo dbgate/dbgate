@@ -407,8 +407,8 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
     const handleCreateNewApp = () => {
       showModal(InputTextModal, {
-        header: 'New application',
-        label: 'Application name',
+        header: _t('database.newApplication', { defaultMessage: 'New application' }),
+        label: _t('database.applicationName', { defaultMessage: 'Application name' }),
         value: _.startCase(name),
         onConfirm: async appName => {
           const newAppId = await apiCall('apps/create-app-from-db', {

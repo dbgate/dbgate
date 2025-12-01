@@ -15,6 +15,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { apiCall } from '../utility/api';
   import { useConnectionList } from '../utility/metadataLoaders';
+  import { _t } from '../translations';
 
   export let data;
 
@@ -34,8 +35,8 @@
 
     showModal(InputTextModal, {
       value: name,
-      label: 'New application name',
-      header: 'Rename application',
+      label: _t('appFolder.newApplicationName', { defaultMessage: 'New application name' }),
+      header: _t('appFolder.renameApplication', { defaultMessage: 'Rename application' }),
       onConfirm: async newFolder => {
         await apiCall('apps/rename-folder', {
           folder: data.name,
@@ -60,16 +61,16 @@
 
   function createMenu() {
     return [
-      { text: 'Delete', onClick: handleDelete },
-      { text: 'Rename', onClick: handleRename },
+      { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
+      { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
 
       $currentDatabase && [
         !isOnCurrentDb($currentDatabase, $connections) && {
-          text: 'Enable on current database',
+          text: _t('appFolder.enableOnCurrentDatabase', { defaultMessage: 'Enable on current database' }),
           onClick: () => setOnCurrentDb(true),
         },
         isOnCurrentDb($currentDatabase, $connections) && {
-          text: 'Disable on current database',
+          text: _t('appFolder.disableOnCurrentDatabase', { defaultMessage: 'Disable on current database' }),
           onClick: () => setOnCurrentDb(false),
         },
       ],
@@ -90,7 +91,7 @@
   title={data.name}
   icon={'img app'}
   statusIcon={isOnCurrentDb($currentDatabase, $connections) ? 'icon check' : null}
-  statusTitle={`Application ${data.name} is used for database ${$currentDatabase?.name}`}
+  statusTitle={_t('appFolder.applicationUsedForDatabase', { defaultMessage: 'Application {application} is used for database {database}', values: { application: data.name, database: $currentDatabase?.name } })}
   isBold={data.name == $currentApplication}
   on:click={() => ($currentApplication = data.name)}
   menu={createMenu}

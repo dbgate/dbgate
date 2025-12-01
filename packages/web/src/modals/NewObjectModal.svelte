@@ -102,7 +102,7 @@
     {
       icon: 'icon compare',
       colorClass: 'color-icon-red',
-      title: _t('common.compare', { defaultMessage: 'Compare database' }),
+      title: _t('common.compareDatabase', { defaultMessage: 'Compare database' }),
       description: _t('newObject.compareDescription', { defaultMessage: 'Compare database schemas' }),
       command: 'database.compare',
       testid: 'NewObjectModal_databaseCompare',

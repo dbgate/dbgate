@@ -11,6 +11,7 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { apiCall } from '../utility/api';
+  import { _t } from '../translations';
 
   export let value = '';
   export let conid;
@@ -33,8 +34,8 @@
 
   async function handleAddNewApplication() {
     showModal(InputTextModal, {
-      header: 'New application',
-      label: 'Application name',
+      header: _t('database.newApplication', { defaultMessage: 'New application' }),
+      label: _t('database.applicationName', { defaultMessage: 'Application name' }),
       value: _.startCase(database),
       onConfirm: async appName => {
         const newAppId = await apiCall('apps/create-app-from-db', {
