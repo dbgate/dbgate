@@ -286,7 +286,7 @@
       icon="img alert"
     />
     <div class="m-1" />
-    <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
+    <InlineButton on:click={handleFullRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
     {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.table')}
