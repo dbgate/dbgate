@@ -30,6 +30,21 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
     };
   }
 
+  function putTitle(title: string) {
+    dmp.putRaw('\n\n');
+    dmp.comment(`******************** ${title} ********************`);
+    dmp.putRaw('\n');
+  }
+
+  dmp.comment(`Restoring data into table ${originalTable.pureName} from backup table ${backupTable.pureName}`);
+  dmp.putRaw('\n');
+  dmp.comment(`Key columns: ${keyColumns.join(', ')}`);
+  dmp.putRaw('\n');
+  dmp.comment(`Value columns: ${valueColumns.join(', ')}`);
+  dmp.putRaw('\n');
+  dmp.comment(`Follows UPDATE, DELETE, INSERT statements to restore data`);
+  dmp.putRaw('\n');
+
   const update: Update = {
     commandType: 'update',
     from: { name: originalTable },
@@ -71,6 +86,7 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
       },
     },
   };
+  putTitle('UPDATE');
   dumpSqlUpdate(dmp, update);
   dmp.endCommand();
 
@@ -90,6 +106,7 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
       },
     },
   };
+  putTitle('DELETE');
   dumpSqlDelete(dmp, delcmd);
   dmp.endCommand();
 
@@ -109,6 +126,7 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
     },
   };
 
+  putTitle('INSERT');
   dumpSqlInsert(dmp, insert);
   dmp.endCommand();
 }
