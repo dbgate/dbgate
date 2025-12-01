@@ -44,6 +44,7 @@ export interface Insert {
   fields: UpdateField[];
   targetTable: NamedObjectInfo;
   insertWhereNotExistsCondition?: Condition;
+  whereNotExistsSource?: Source;
 }
 
 export interface AllowIdentityInsert {

@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import { copyTextToClipboard } from '../utility/clipboard';
   import { _t, _tval, DefferedTranslationResult } from '../translations';
+  import sqlFormatter from 'sql-formatter';
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
@@ -88,7 +89,8 @@
     isRename?: boolean;
     isTruncate?: boolean;
     isCopyTableName?: boolean;
-    isDuplicateTable?: boolean;
+    isTableBackup?: boolean;
+    isTableRestore?: boolean;
     isDiagram?: boolean;
     functionName?: string;
     isExport?: boolean;
@@ -106,6 +108,8 @@
   }
 
   function createMenusCore(objectTypeField, driver, data): DbObjMenuItem[] {
+    const backupMatch = data.objectTypeField === 'tables' ? data.pureName.match(TABLE_BACKUP_REGEX) : null;
+
     switch (objectTypeField) {
       case 'tables':
         return [
@@ -175,11 +179,18 @@
             isCopyTableName: true,
             requiresWriteAccess: false,
           },
-          hasPermission('dbops/table/backup') && {
-            label: _t('dbObject.createTableBackup', { defaultMessage: 'Create table backup' }),
-            isDuplicateTable: true,
-            requiresWriteAccess: true,
-          },
+          hasPermission('dbops/table/backup') &&
+            !backupMatch && {
+              label: _t('dbObject.createTableBackup', { defaultMessage: 'Create table backup' }),
+              isTableBackup: true,
+              requiresWriteAccess: true,
+            },
+          hasPermission('dbops/table/restore') &&
+            backupMatch && {
+              label: _t('dbObject.createRestoreScript', { defaultMessage: 'Create restore script' }),
+              isTableRestore: true,
+              requiresWriteAccess: true,
+            },
           hasPermission('dbops/model/view') && {
             label: _t('dbObject.showDiagram', { defaultMessage: 'Show diagram' }),
             isDiagram: true,
@@ -637,7 +648,7 @@
           });
         },
       });
-    } else if (menu.isDuplicateTable) {
+    } else if (menu.isTableBackup) {
       const driver = await getDriver();
       const dmp = driver.createDumper();
       const newTable = _.cloneDeep(data);
@@ -671,6 +682,25 @@
         },
         engine: driver.engine,
       });
+    } else if (menu.isTableRestore) {
+      const backupMatch = data.objectTypeField === 'tables' ? data.pureName.match(TABLE_BACKUP_REGEX) : null;
+
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      const db = await getDatabaseInfo(data);
+      if (db) {
+        const originalTable = db?.tables?.find(x => x.pureName == backupMatch[1] && x.schemaName == data.schemaName);
+        if (originalTable) {
+          createTableRestoreScript(data, originalTable, dmp);
+          newQuery({
+            title: _t('dbObject.restoreScript', {
+              defaultMessage: 'Restore {name} #',
+              values: { name: backupMatch[1] },
+            }),
+            initialData: sqlFormatter.format(dmp.s),
+          });
+        }
+      }
     } else if (menu.isImport) {
       const { conid, database } = data;
       openImportExportTab({
@@ -1008,6 +1038,8 @@
 
     return handleDatabaseObjectClick(data, { forceNewTab, tabPreviewMode, focusTab });
   }
+
+  export const TABLE_BACKUP_REGEX = /^_(.*)_(\d\d\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)$/;
 </script>
 
 <script lang="ts">
@@ -1025,7 +1057,7 @@
   } from '../stores';
   import openNewTab from '../utility/openNewTab';
   import { extractDbNameFromComposite, filterNameCompoud, getConnectionLabel } from 'dbgate-tools';
-  import { getConnectionInfo } from '../utility/metadataLoaders';
+  import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
@@ -1047,6 +1079,8 @@
   import { getBoolSettingsValue, getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import { isProApp } from '../utility/proTools';
   import formatFileSize from '../utility/formatFileSize';
+  import { createTableRestoreScript } from '../utility/tableRestoreScript';
+  import newQuery from '../query/newQuery';
 
   export let data;
   export let passProps;
@@ -1087,10 +1121,7 @@
 
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));
 
-  $: backupParsed =
-    data.objectTypeField === 'tables'
-      ? data.pureName.match(/^_(.*)_(\d\d\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)-(\d\d)$/)
-      : null;
+  $: backupParsed = data.objectTypeField === 'tables' ? data.pureName.match(TABLE_BACKUP_REGEX) : null;
   $: backupTitle =
     backupParsed != null
       ? `${backupParsed[1]} (${backupParsed[2]}-${backupParsed[3]}-${backupParsed[4]} ${backupParsed[5]}:${backupParsed[6]}:${backupParsed[7]})`

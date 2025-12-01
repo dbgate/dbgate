@@ -235,7 +235,7 @@
 
   function getAppObjectGroup(data) {
     if (data.objectTypeField == 'tables') {
-      if (data.pureName.match(/^_(.*)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d-\d\d$/)) {
+      if (data.pureName.match(databaseObjectAppObject.TABLE_BACKUP_REGEX)) {
         return _t('dbObject.tableBackups', { defaultMessage: 'Table Backups' });
       }
     }
