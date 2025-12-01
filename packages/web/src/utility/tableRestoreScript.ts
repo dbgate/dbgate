@@ -1,5 +1,5 @@
-import _, { cond } from 'lodash';
-import { Condition, dumpSqlInsert, dumpSqlUpdate, Insert, Update } from 'dbgate-sqltree';
+import _ from 'lodash';
+import { Condition, dumpSqlInsert, dumpSqlUpdate, Insert, Update, Delete, dumpSqlDelete } from 'dbgate-sqltree';
 import { TableInfo, SqlDumper } from 'dbgate-types';
 
 export function createTableRestoreScript(backupTable: TableInfo, originalTable: TableInfo, dmp: SqlDumper) {
@@ -72,6 +72,25 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
     },
   };
   dumpSqlUpdate(dmp, update);
+  dmp.endCommand();
+
+  const delcmd: Delete = {
+    commandType: 'delete',
+    from: { name: originalTable },
+    where: {
+      conditionType: 'notExists',
+      subQuery: {
+        commandType: 'select',
+        from: { name: backupTable, alias: 'bak' },
+        selectAll: true,
+        where: {
+          conditionType: 'and',
+          conditions: keyColumns.map(colName => makeColumnCond(colName)),
+        },
+      },
+    },
+  };
+  dumpSqlDelete(dmp, delcmd);
   dmp.endCommand();
 
   const insert: Insert = {
