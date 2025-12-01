@@ -16,7 +16,6 @@ import {
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
 import AboutModal from '../modals/AboutModal.svelte';
-import SettingsModal from '../settings/SettingsModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery, { newDiagram, newPerspective, newQueryDesign } from '../query/newQuery';
