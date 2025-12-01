@@ -197,6 +197,7 @@ ORDER BY
                 { value: 'it', label: 'Italiano' },
                 { value: 'pt', label: 'Português (Brasil)' },
                 { value: 'sk', label: 'Slovenčina' },
+                { value: 'ja', label: '日本語' },
                 { value: 'zh', label: '中文' },
               ]}
               defaultValue={getSelectedLanguage()}
@@ -366,6 +367,13 @@ ORDER BY
             })}
             defaultValue={false}
           />
+
+          <FormCheckboxField
+            name="sqlEditor.hideColumnsPanel"
+            label={_t('settings.sqlEditor.hideColumnsPanel', { defaultMessage: 'Hide Columns/Filters panel by default' })}
+            defaultValue={false}
+          />
+
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">{_t('settings.connection', { defaultMessage: 'Connection' })}</div>

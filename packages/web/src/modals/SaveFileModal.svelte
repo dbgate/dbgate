@@ -14,6 +14,8 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import { useConfig } from '../utility/metadataLoaders';
+  import { showSnackbarError } from '../utility/snackbar';
 
   export let data;
   export let name;
@@ -24,26 +26,39 @@
   export let onSave = undefined;
   export let folid;
   export let skipLocal = false;
+  export let defaultTeamFolder = false;
   // export let cntid;
 
-  const values = writable({ name, cloudFolder: folid ?? '__local' });
+  const configValue = useConfig();
+
+  const values = writable({
+    name,
+    cloudFolder: folid ?? '__local',
+    saveToTeamFolder: !!(getCurrentConfig()?.storageDatabase && defaultTeamFolder),
+  });
 
   const electron = getElectron();
 
   const handleSubmit = async e => {
     const { name, cloudFolder } = e.detail;
     if ($values['saveToTeamFolder']) {
-      const { teamFileId } = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
-      closeCurrentModal();
-      if (onSave) {
-        onSave(name, {
-          savedFile: name,
-          savedFolder: folder,
-          savedFilePath: null,
-          savedCloudFolderId: null,
-          savedCloudContentId: null,
-          savedTeamFileId: teamFileId,
-        });
+      const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
+      if (resp?.apiErrorMessage) {
+        showSnackbarError(resp.apiErrorMessage);
+      } else if (resp?.teamFileId) {
+        closeCurrentModal();
+        if (onSave) {
+          onSave(name, {
+            savedFile: name,
+            savedFolder: folder,
+            savedFilePath: null,
+            savedCloudFolderId: null,
+            savedCloudContentId: null,
+            savedTeamFileId: resp.teamFileId,
+          });
+        }
+      } else {
+        showSnackbarError('Failed to save to team folder.');
       }
     } else if (cloudFolder === '__local') {
       await apiCall('files/save', { folder, file: name, data, format });
@@ -124,7 +139,7 @@
             ]}
       />
     {/if}
-    {#if getCurrentConfig().storageDatabase}
+    {#if $configValue?.storageDatabase}
       <FormCheckboxField label="Save to team folder" name="saveToTeamFolder" />
     {/if}
 

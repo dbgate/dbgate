@@ -60,7 +60,11 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{constraintInfo ? _t('foreignKeyEditor.editForeignKey', { defaultMessage: 'Edit foreign key' }) : _t('foreignKeyEditor.addForeignKey', { defaultMessage: 'Add foreign key' })}</svelte:fragment>
+    <svelte:fragment slot="header"
+      >{constraintInfo
+        ? _t('foreignKeyEditor.editForeignKey', { defaultMessage: 'Edit foreign key' })
+        : _t('foreignKeyEditor.addForeignKey', { defaultMessage: 'Add foreign key' })}</svelte:fragment
+    >
 
     <div class="largeFormMarker">
       <div class="row">
@@ -92,6 +96,19 @@
                 const name = fullNameFromString(e.detail);
                 refTableName = name.pureName;
                 refSchemaName = name.schemaName;
+                
+                if (!columns?.find(x => x.columnName)) {
+                  const refTable = dbInfo?.tables?.find(
+                    x => x.pureName == refTableName && x.schemaName == refSchemaName
+                  );
+                  if (refTable?.primaryKey) {
+                    columns = refTable.primaryKey.columns.map(col => ({
+                      refColumnName: col.columnName,
+                    }));
+                  } else {
+                    columns = [];
+                  }
+                }
               }
             }}
           />
@@ -135,7 +152,8 @@
           {_t('foreignKeyEditor.baseColumn', { defaultMessage: 'Base column - ' })}{tableInfo.pureName}
         </div>
         <div class="col-5 ml-1">
-          {_t('foreignKeyEditor.refColumn', { defaultMessage: 'Ref column - ' })}{refTableName || _t('foreignKeyEditor.tableNotSet', { defaultMessage: '(table not set)' })}
+          {_t('foreignKeyEditor.refColumn', { defaultMessage: 'Ref column - ' })}{refTableName ||
+            _t('foreignKeyEditor.tableNotSet', { defaultMessage: '(table not set)' })}
         </div>
       </div>
 
@@ -217,7 +235,11 @@
         }}
       />
 
-      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value={_t('common.close', { defaultMessage: 'Close' })}
+        on:click={closeCurrentModal}
+      />
       {#if constraintInfo}
         <FormStyledButton
           type="button"

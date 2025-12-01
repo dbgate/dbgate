@@ -84,9 +84,7 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'DBGM-00241 Loading tables' });
-    const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', [
-      'tables',
-    ]);
+    const tables = await this.analyserQuery('tableList', ['tables']);
 
     this.feedback({ analysingMessage: 'DBGM-00242 Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
@@ -396,9 +394,6 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _getFastSnapshot() {
-    const tableModificationsQueryData = this.driver.dialect.stringAgg
-      ? await this.analyserQuery('tableModifications')
-      : null;
     const viewModificationsQueryData = await this.analyserQuery('viewModifications');
     const matviewModificationsQueryData = this.driver.dialect.materializedViews
       ? await this.analyserQuery('matviewModifications')
@@ -406,15 +401,7 @@ class Analyser extends DatabaseAnalyser {
     const routineModificationsQueryData = await this.analyserQuery('routineModifications');
 
     return {
-      tables: tableModificationsQueryData
-        ? tableModificationsQueryData.rows.map(x => ({
-            objectId: `tables:${x.schema_name}.${x.pure_name}`,
-            pureName: x.pure_name,
-            schemaName: x.schema_name,
-            sizeBytes: x.size_bytes,
-            contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
-          }))
-        : null,
+      tables: null,
       views: viewModificationsQueryData.rows.map(x => ({
         objectId: `views:${x.schema_name}.${x.pure_name}`,
         pureName: x.pure_name,

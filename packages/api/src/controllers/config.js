@@ -71,6 +71,7 @@ module.exports = {
     const isLicenseValid = checkedLicense?.status == 'ok';
     const logoutUrl = storageConnectionError ? null : await authProvider.getLogoutUrl();
     const adminConfig = storageConnectionError ? null : await storage.readConfig({ group: 'admin' });
+    const settingsConfig = storageConnectionError ? null : await storage.readConfig({ group: 'settings' });
 
     storage.startRefreshLicense();
 
@@ -121,6 +122,7 @@ module.exports = {
       allowPrivateCloud: platformInfo.isElectron || !!process.env.ALLOW_DBGATE_PRIVATE_CLOUD,
       ...currentVersion,
       redirectToDbGateCloudLogin: !!process.env.REDIRECT_TO_DBGATE_CLOUD_LOGIN,
+      preferrendLanguage: settingsConfig?.['storage.language'] || process.env.LANGUAGE || null,
     };
 
     return configResult;

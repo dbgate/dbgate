@@ -60,7 +60,7 @@ describe('Data browser data', () => {
     cy.contains('MyChinook').click();
     cy.testid('SqlObjectList_search').clear().type('album');
     cy.contains('Tables (1/11)');
-    cy.contains('347 rows, InnoDB');
+    cy.contains('347 rows, 65.5 KB, InnoDB');
     cy.testid('SqlObjectList_searchMenuDropDown').click();
     cy.contains('Column name').click();
     cy.contains('Tables (2/11)');

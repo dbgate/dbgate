@@ -42,24 +42,6 @@ jobs:
         run: |
           cd packages/tools
           yarn test:ci
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: integration-tests/result.json
-          action-name: Integration tests
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/filterparser/result.json
-          action-name: Filter parser test results
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/datalib/result.json
-          action-name: Datalib (perspectives) test results
     services:
       postgres-integr:
         image: postgres

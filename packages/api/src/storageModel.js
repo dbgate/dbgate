@@ -1533,6 +1533,12 @@ module.exports = {
           "columnName": "name",
           "dataType": "varchar(250)",
           "notNull": true
+        },
+        {
+          "pureName": "team_file_types",
+          "columnName": "format",
+          "dataType": "varchar(50)",
+          "notNull": false
         }
       ],
       "foreignKeys": [],
@@ -1549,7 +1555,38 @@ module.exports = {
       "preloadedRows": [
         {
           "id": -1,
-          "name": "sql"
+          "name": "sql",
+          "format": "text"
+        },
+        {
+          "id": -2,
+          "name": "diagrams",
+          "format": "json"
+        },
+        {
+          "id": -3,
+          "name": "query",
+          "format": "json"
+        },
+        {
+          "id": -4,
+          "name": "perspectives",
+          "format": "json"
+        },
+        {
+          "id": -5,
+          "name": "impexp",
+          "format": "json"
+        },
+        {
+          "id": -6,
+          "name": "shell",
+          "format": "text"
+        },
+        {
+          "id": -7,
+          "name": "dbcompare",
+          "format": "json"
         }
       ]
     },

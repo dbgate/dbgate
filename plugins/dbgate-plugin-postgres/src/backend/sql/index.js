@@ -1,5 +1,4 @@
 const columns = require('./columns');
-const tableModifications = require('./tableModifications');
 const tableList = require('./tableList');
 const viewModifications = require('./viewModifications');
 const matviewModifications = require('./matviewModifications');
@@ -25,7 +24,6 @@ const fk_keyColumnUsage = require('./fk_key_column_usage');
 
 module.exports = {
   columns,
-  tableModifications,
   tableList,
   viewModifications,
   primaryKeys,

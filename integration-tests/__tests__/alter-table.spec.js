@@ -12,6 +12,7 @@ const {
 } = require('dbgate-tools');
 
 function pickImportantTableInfo(engine, table) {
+  if (!table) return table;
   const props = ['columnName', 'defaultValue'];
   if (!engine.skipNullability) props.push('notNull');
   if (!engine.skipAutoIncrement) props.push('autoIncrement');
@@ -25,6 +26,13 @@ function pickImportantTableInfo(engine, table) {
       .map(props =>
         _.omitBy(props, (v, k) => k == 'defaultValue' && v == 'NULL' && engine.setNullDefaultInsteadOfDrop)
       ),
+    // foreignKeys: table.foreignKeys
+    //   .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
+    //   .map(fk => ({
+    //     constraintType: fk.constraintType,
+    //     refTableName: fk.refTableName,
+    //     columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
+    //   })),
   };
 }
 
@@ -33,7 +41,7 @@ function checkTableStructure(engine, t1, t2) {
   expect(pickImportantTableInfo(engine, t1)).toEqual(pickImportantTableInfo(engine, t2));
 }
 
-async function testTableDiff(engine, conn, driver, mangle) {
+async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') {
   const initQuery = formatQueryWithoutParams(driver, `create table ~t0 (~id int not null primary key)`);
   await driver.query(conn, transformSqlForEngine(engine, initQuery));
 
@@ -68,16 +76,37 @@ async function testTableDiff(engine, conn, driver, mangle) {
     await driver.query(conn, transformSqlForEngine(engine, query));
   }
 
-  const tget = x => x.tables.find(y => y.pureName == 't1');
-  const structure1 = generateDbPairingId(extendDatabaseInfo(await driver.analyseFull(conn)));
+  if (!engine.skipReferences) {
+    const query = formatQueryWithoutParams(
+      driver,
+      `create table ~t3 (~id int not null primary key, ~fkval int ${
+        driver.dialect.implicitNullDeclaration ? '' : 'null'
+      })`
+    );
+
+    await driver.query(conn, transformSqlForEngine(engine, query));
+  }
+
+  const tget = x => x?.tables?.find(y => y.pureName == changedTable);
+  const structure1Source = await driver.analyseFull(conn);
+  const structure1 = generateDbPairingId(extendDatabaseInfo(structure1Source));
   let structure2 = _.cloneDeep(structure1);
   mangle(tget(structure2));
   structure2 = extendDatabaseInfo(structure2);
 
   const { sql } = getAlterTableScript(tget(structure1), tget(structure2), {}, structure1, structure2, driver);
+
+  // sleep 1s - some engines have update datetime precision only to seconds
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
   console.log('RUNNING ALTER SQL', driver.engine, ':', sql);
 
   await driver.script(conn, sql);
+
+  // if (!engine.skipIncrementalAnalysis) {
+  //   const structure2RealIncremental = await driver.analyseIncremental(conn, structure1Source);
+  //   checkTableStructure(engine, tget(structure2RealIncremental), tget(structure2));
+  // }
 
   const structure2Real = extendDatabaseInfo(await driver.analyseFull(conn));
 
@@ -211,6 +240,48 @@ describe('Alter table', () => {
       await testTableDiff(engine, conn, driver, tbl => {
         tbl.columns.find(x => x.columnName == 'col_def').defaultValue = '567';
       });
+    })
+  );
+
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
+    'Drop FK - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(
+        engine,
+        conn,
+        driver,
+        tbl => {
+          tbl.foreignKeys = [];
+        },
+        't2'
+      );
+    })
+  );
+
+  test.each(engines.filter(x => !x.skipReferences).map(engine => [engine.label, engine]))(
+    'Create FK - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(
+        engine,
+        conn,
+        driver,
+        tbl => {
+          tbl.foreignKeys = [
+            {
+              constraintType: 'foreignKey',
+              pureName: 't3',
+              refTableName: 't1',
+              columns: [
+                {
+                  columnName: 'fkval',
+                  refColumnName: 'col_ref',
+                },
+              ],
+            },
+          ];
+        },
+        't3'
+      );
     })
   );
 

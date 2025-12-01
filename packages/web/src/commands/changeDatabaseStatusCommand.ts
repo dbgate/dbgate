@@ -3,7 +3,7 @@ import { currentDatabase, getCurrentDatabase } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import { apiCall } from '../utility/api';
-import { switchCurrentDatabase } from '../utility/common';
+import { getDatabasStatusMenu, switchCurrentDatabase } from '../utility/common';
 import { __t } from '../translations';
 
 registerCommand({
@@ -18,33 +18,7 @@ registerCommand({
       conid: connection._id,
       database: name,
     };
-    return [
-      {
-        text: 'Sync model (incremental)',
-        onClick: () => {
-          apiCall('database-connections/sync-model', dbid);
-        },
-      },
-      {
-        text: 'Sync model (full)',
-        onClick: () => {
-          apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
-        },
-      },
-      {
-        text: 'Reopen',
-        onClick: () => {
-          apiCall('database-connections/refresh', dbid);
-        },
-      },
-      {
-        text: 'Disconnect',
-        onClick: () => {
-          const electron = getElectron();
-          if (electron) apiCall('database-connections/disconnect', dbid);
-          switchCurrentDatabase(null);
-        },
-      },
-    ];
+
+    return getDatabasStatusMenu(dbid);
   },
 });

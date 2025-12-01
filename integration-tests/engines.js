@@ -187,6 +187,7 @@ const mariaDbEngine = {
 /** @type {import('dbgate-types').TestEngineInfo} */
 const postgreSqlEngine = {
   label: 'PostgreSQL',
+  skipIncrementalAnalysis: true,
   connection: {
     engine: 'postgres@dbgate-plugin-postgres',
     password: 'Pwd2020Db',
@@ -757,11 +758,11 @@ const enginesOnCi = [
 const enginesOnLocal = [
   // all engines, which would be run on local test
   // cassandraEngine,
-  //mysqlEngine,
+  // mysqlEngine,
   // mariaDbEngine,
-  //postgreSqlEngine,
+  postgreSqlEngine,
   //sqlServerEngine,
-  sqliteEngine,
+  // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
   // libsqlFileEngine,

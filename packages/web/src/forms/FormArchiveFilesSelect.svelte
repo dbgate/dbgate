@@ -7,6 +7,7 @@
   import { getFormContext } from './FormProviderCore.svelte';
 
   import FormSelectField from './FormSelectField.svelte';
+  import { _t } from '../translations';
 
   export let folderName;
   export let name;
@@ -28,10 +29,10 @@
   <div>
     <FormStyledButton
       type="button"
-      value="All files"
+      value={_t('common.allFiles', { defaultMessage: "All files" })}
       on:click={() => setFieldValue(name, _.uniq([...($values[name] || []), ...($files && $files.map(x => x.name))]))}
     />
-    <FormStyledButton type="button" value="Remove all" on:click={() => setFieldValue(name, [])} />
+    <FormStyledButton type="button" value={_t('common.removeAll', { defaultMessage: "Remove all" })} on:click={() => setFieldValue(name, [])} />
   </div>
 </div>
 

@@ -1,17 +1,24 @@
 module.exports = `
-select 
-	table_constraints.constraint_schema as "constraint_schema",
-	table_constraints.constraint_name as "constraint_name",
-	table_constraints.table_schema as "schema_name",
-	table_constraints.table_name as "pure_name",
-	key_column_usage.column_name as "column_name"
-from information_schema.table_constraints
-inner join information_schema.key_column_usage on table_constraints.table_name = key_column_usage.table_name and table_constraints.constraint_name = key_column_usage.constraint_name
-    and table_constraints.table_schema = key_column_usage.table_schema
-where 
-		table_constraints.table_schema !~ '^_timescaledb_' 
-		and table_constraints.constraint_type = 'PRIMARY KEY'
-		and ('tables:' || table_constraints.table_schema || '.' || table_constraints.table_name) =OBJECT_ID_CONDITION
-		and table_constraints.table_schema =SCHEMA_NAME_CONDITION
-order by key_column_usage.ordinal_position
+SELECT
+    n.nspname        AS "constraint_schema",
+    c.conname        AS "constraint_name",
+    n.nspname        AS "schema_name",
+    t.relname        AS "pure_name",
+    a.attname        AS "column_name"
+FROM pg_catalog.pg_constraint AS c
+JOIN pg_catalog.pg_class AS t
+  ON t.oid = c.conrelid
+JOIN pg_catalog.pg_namespace AS n
+  ON n.oid = t.relnamespace
+JOIN LATERAL unnest(c.conkey) WITH ORDINALITY AS cols(attnum, ordinal_position)
+  ON TRUE
+JOIN pg_catalog.pg_attribute AS a
+  ON a.attrelid = t.oid
+ AND a.attnum   = cols.attnum
+WHERE 
+    c.contype = 'p'  -- PRIMARY KEY
+    AND n.nspname !~ '^_timescaledb_' 
+    AND ('tables:' || n.nspname || '.' || t.relname) =OBJECT_ID_CONDITION
+    AND n.nspname =SCHEMA_NAME_CONDITION
+ORDER BY cols.ordinal_position
 `;

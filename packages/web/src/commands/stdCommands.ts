@@ -11,6 +11,7 @@ import {
   promoWidgetPreview,
   visibleToolbar,
   visibleWidgetSideBar,
+  selectedWidget,
 } from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
@@ -115,13 +116,13 @@ registerCommand({
   toolbar: true,
   icon: 'icon new-connection',
   toolbarName: __t('command.new.connection', { defaultMessage: 'Add connection' }),
-  category: __t('command.new', { defaultMessage: 'New'}),
+  category: __t('command.new', { defaultMessage: 'New' }),
   toolbarOrder: 1,
   name: __t('command.new.connection', { defaultMessage: 'Connection' }),
   testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     openNewTab({
-      title: 'New Connection',
+      title: _t('common.newConnection', { defaultMessage: 'New Connection' }),
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
     });
@@ -140,7 +141,7 @@ registerCommand({
     !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase && !!getCloudSigninTokenHolder(),
   onClick: () => {
     openNewTab({
-      title: 'New Connection on Cloud',
+      title: _t('common.newConnectionCloud', { defaultMessage: 'New Connection on Cloud' }),
       icon: 'img cloud-connection',
       tabComponent: 'ConnectionTab',
       props: {
@@ -561,7 +562,10 @@ registerCommand({
   testEnabled: () => true,
   onClick: () => {
     showModal(ConfirmModal, {
-      message: _t('command.file.resetLayoutConfirm', { defaultMessage: 'Really reset layout data? All opened tabs, settings and layout data will be lost. Connections and saved files will be preserved. After this, restart DbGate for applying changes.' }),
+      message: _t('command.file.resetLayoutConfirm', {
+        defaultMessage:
+          'Really reset layout data? All opened tabs, settings and layout data will be lost. Connections and saved files will be preserved. After this, restart DbGate for applying changes.',
+      }),
       onConfirm: async () => {
         await apiCall('config/delete-settings');
         localStorage.clear();
@@ -665,7 +669,9 @@ registerCommand({
       'currentArchive',
     ];
     for (const key of keys) removeLocalStorage(key);
-    showSnackbarSuccess(_t('command.view.restart', { defaultMessage: 'Restart DbGate (or reload on web) for applying changes' }));
+    showSnackbarSuccess(
+      _t('command.view.restart', { defaultMessage: 'Restart DbGate (or reload on web) for applying changes' })
+    );
   },
 });
 
@@ -763,6 +769,19 @@ if (isProApp()) {
 
 if (hasPermission('settings/change')) {
   registerCommand({
+    id: 'settings.settingsTab',
+    category: __t('command.settings', { defaultMessage: 'Settings' }),
+    name: __t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+    onClick: () => {
+      openNewTab({
+        title: _t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
+        icon: 'icon settings',
+        tabComponent: 'SettingsTab',
+        props: {},
+      });
+    },
+  });
+  registerCommand({
     id: 'settings.commands',
     category: __t('command.settings', { defaultMessage: 'Settings' }),
     name: __t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
@@ -777,14 +796,14 @@ if (hasPermission('settings/change')) {
     testEnabled: () => hasPermission('settings/change'),
   });
 
-  registerCommand({
-    id: 'settings.show',
-    category: __t('command.settings', { defaultMessage: 'Settings' }),
-    name: __t('command.settings.change', { defaultMessage: 'Change' }),
-    toolbarName: __t('command.settings', { defaultMessage: 'Settings' }),
-    onClick: () => showModal(SettingsModal),
-    testEnabled: () => hasPermission('settings/change'),
-  });
+  // registerCommand({
+  //   id: 'settings.show',
+  //   category: __t('command.settings', { defaultMessage: 'Settings' }),
+  //   name: __t('command.settings.change', { defaultMessage: 'Change' }),
+  //   toolbarName: __t('command.settings', { defaultMessage: 'Settings' }),
+  //   onClick: () => showModal(SettingsModal),
+  //   testEnabled: () => hasPermission('settings/change'),
+  // });
 }
 
 registerCommand({
@@ -799,7 +818,9 @@ registerCommand({
 registerCommand({
   id: 'file.exit',
   category: __t('command.file', { defaultMessage: 'File' }),
-  name: isMac() ? __t('command.file.quit', { defaultMessage: 'Quit' }) : __t('command.file.exit', { defaultMessage: 'Exit' }),
+  name: isMac()
+    ? __t('command.file.quit', { defaultMessage: 'Quit' })
+    : __t('command.file.exit', { defaultMessage: 'Exit' }),
   // keyText: isMac() ? 'Command+Q' : null,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('quit-app'),
@@ -862,6 +883,7 @@ export function registerFileCommands({
   undoRedo = false,
   executeAdditionalCondition = null,
   copyPaste = false,
+  defaultTeamFolder = false,
 }) {
   if (save) {
     registerCommand({
@@ -874,7 +896,7 @@ export function registerFileCommands({
       toolbar: true,
       isRelatedToTab: true,
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save', folder, format, fileExtension, defaultTeamFolder),
     });
     registerCommand({
       id: idPrefix + '.saveAs',
@@ -882,14 +904,14 @@ export function registerFileCommands({
       category,
       name: __t('command.saveAs', { defaultMessage: 'Save As' }),
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save-as', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-as', folder, format, fileExtension, defaultTeamFolder),
     });
     registerCommand({
       id: idPrefix + '.saveToDisk',
       category,
       name: __t('command.saveToDisk', { defaultMessage: 'Save to disk' }),
       testEnabled: () => getCurrentEditor() != null && getElectron() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), 'save-to-disk', folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-to-disk', folder, format, fileExtension, defaultTeamFolder),
     });
   }
 
@@ -1201,6 +1223,35 @@ registerCommand({
     }));
   },
 });
+
+if ( hasPermission('application-log'))
+{
+  registerCommand({
+    id: 'app.showLogs',
+    category: __t('command.application', { defaultMessage: 'Application' }),
+    name: __t('command.application.showLogs', { defaultMessage: 'View application logs' }),
+    onClick: () => {
+      openNewTab({
+        title: 'Application log',
+        icon: 'img applog',
+        tabComponent: 'AppLogTab',
+      });
+    },
+  });
+}
+
+if (hasPermission('widgets/plugins'))
+{
+  registerCommand({
+    id: 'app.managePlugins',
+    category: __t('command.application', { defaultMessage: 'Application' }),
+    name: __t('command.application.managePlugins', { defaultMessage: 'Manage plugins' }),
+    onClick: () => {
+      selectedWidget.set('plugins');
+      visibleWidgetSideBar.set(true);
+    },
+  });
+}
 
 const electron = getElectron();
 if (electron) {
