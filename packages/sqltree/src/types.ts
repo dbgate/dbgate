@@ -227,6 +227,11 @@ export interface RowNumberExpression {
   orderBy: OrderByExpression[];
 }
 
+export interface SelectExpression {
+  exprType: 'select';
+  select: Select;
+}
+
 export type Expression =
   | ColumnRefExpression
   | ValueExpression
@@ -236,7 +241,8 @@ export type Expression =
   | CallExpression
   | MethodCallExpression
   | TranformExpression
-  | RowNumberExpression;
+  | RowNumberExpression
+  | SelectExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };

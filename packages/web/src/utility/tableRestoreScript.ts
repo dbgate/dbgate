@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { dumpSqlInsert, Insert } from 'dbgate-sqltree';
+import _, { cond } from 'lodash';
+import { Condition, dumpSqlInsert, dumpSqlUpdate, Insert, Update } from 'dbgate-sqltree';
 import { TableInfo, SqlDumper } from 'dbgate-types';
 
 export function createTableRestoreScript(backupTable: TableInfo, originalTable: TableInfo, dmp: SqlDumper) {
@@ -11,6 +11,69 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
     originalTable.primaryKey?.columns?.map(x => x.columnName) || [],
     backupTable.columns.map(x => x.columnName)
   );
+  const valueColumns = _.difference(bothColumns, keyColumns);
+
+  function makeColumnCond(colName: string, operator: '=' | '<>' | '<' | '>' | '<=' | '>=' = '='): Condition {
+    return {
+      conditionType: 'binary',
+      operator,
+      left: {
+        exprType: 'column',
+        columnName: colName,
+        source: { name: originalTable },
+      },
+      right: {
+        exprType: 'column',
+        columnName: colName,
+        source: { alias: 'bak' },
+      },
+    };
+  }
+
+  const update: Update = {
+    commandType: 'update',
+    from: { name: originalTable },
+    fields: valueColumns.map(colName => ({
+      exprType: 'select',
+      select: {
+        commandType: 'select',
+        from: { name: backupTable, alias: 'bak' },
+        columns: [
+          {
+            exprType: 'column',
+            columnName: colName,
+            source: { alias: 'bak' },
+          },
+        ],
+        where: {
+          conditionType: 'and',
+          conditions: keyColumns.map(colName => makeColumnCond(colName)),
+        },
+      },
+      targetColumn: colName,
+    })),
+    where: {
+      conditionType: 'exists',
+      subQuery: {
+        commandType: 'select',
+        from: { name: backupTable, alias: 'bak' },
+        selectAll: true,
+        where: {
+          conditionType: 'and',
+          conditions: [
+            ...keyColumns.map(keyColName => makeColumnCond(keyColName)),
+            {
+              conditionType: 'or',
+              conditions: valueColumns.map(colName => makeColumnCond(colName, '<>')),
+            },
+          ],
+        },
+      },
+    },
+  };
+  dumpSqlUpdate(dmp, update);
+  dmp.endCommand();
+
   const insert: Insert = {
     commandType: 'insert',
     targetTable: originalTable,
@@ -23,20 +86,7 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
     whereNotExistsSource: { name: backupTable, alias: 'bak' },
     insertWhereNotExistsCondition: {
       conditionType: 'and',
-      conditions: keyColumns.map(colName => ({
-        conditionType: 'binary',
-        operator: '=',
-        left: {
-          exprType: 'column',
-          columnName: colName,
-          source: { name: originalTable },
-        },
-        right: {
-          exprType: 'column',
-          columnName: colName,
-          source: { alias: 'bak' },
-        },
-      })),
+      conditions: keyColumns.map(colName => makeColumnCond(colName)),
     },
   };
 
