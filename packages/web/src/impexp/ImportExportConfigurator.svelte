@@ -307,21 +307,21 @@
                   },
                 });
               }}
-              >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
+              >{columnCount > 0 ? _t('importExport.columnsCount', { defaultMessage: '({columnCount} columns)', values: { columnCount } }) : _t('importExport.copyFromSource', { defaultMessage: '(copy from source)' })}
             </Link>
           </svelte:fragment>
           <svelte:fragment slot="3" let:row>
             {#if progressHolder[row]?.status == 'running' && isRunning}
               <FontIcon icon="icon loading" />
               {#if progressHolder[row]?.writtenRowCount}
-                {progressHolder[row]?.writtenRowCount} rows writtem
+                {progressHolder[row]?.writtenRowCount} {_t('importExport.rowsWritten', { defaultMessage: 'rows written' })}
               {:else if progressHolder[row]?.readRowCount}
-                {progressHolder[row]?.readRowCount} rows read
+                {progressHolder[row]?.readRowCount} {_t('importExport.rowsRead', { defaultMessage: 'rows read' })}
               {:else}
-                Running
+                {_t('importExport.running', { defaultMessage: 'Running' })}
               {/if}
             {:else if progressHolder[row]?.status == 'error'}
-              <FontIcon icon="img error" /> Error
+              <FontIcon icon="img error" /> {_t('common.error', { defaultMessage: 'Error' })}
               {#if progressHolder[row]?.errorMessage}
                 <FontIcon
                   icon="img info"
@@ -334,20 +334,20 @@
             {:else if progressHolder[row]?.status == 'done'}
               <FontIcon icon="img ok" />
               {#if progressHolder[row]?.writtenRowCount}
-                {progressHolder[row]?.writtenRowCount} rows written
+                {progressHolder[row]?.writtenRowCount} {_t('importExport.rowsWritten', { defaultMessage: 'rows written' })}
               {:else if progressHolder[row]?.readRowCount}
-                {progressHolder[row]?.readRowCount} rows written
+                {progressHolder[row]?.readRowCount} {_t('importExport.rowsWritten', { defaultMessage: 'rows written' })}
               {:else}
-                Done
+                {_t('common.done', { defaultMessage: 'Done' })}
               {/if}
             {:else}
               <FontIcon icon="icon wait" />
               {#if progressHolder[row]?.writtenRowCount}
-                {progressHolder[row]?.writtenRowCount} rows writtem
+                {progressHolder[row]?.writtenRowCount} {_t('importExport.rowsWritten', { defaultMessage: 'rows written' })}
               {:else if progressHolder[row]?.readRowCount}
-                {progressHolder[row]?.readRowCount} rows read
+                {progressHolder[row]?.readRowCount} {_t('importExport.rowsRead', { defaultMessage: 'rows read' })}
               {:else}
-                Queued
+                {_t('importExport.queued', { defaultMessage: 'Queued' })}
               {/if}
             {/if}
           </svelte:fragment>

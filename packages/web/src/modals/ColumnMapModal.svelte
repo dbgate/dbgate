@@ -137,7 +137,7 @@
         <Link
           onClick={() => {
             value = value.filter((x, i) => i != index);
-          }}>Remove</Link
+          }}>{_t('common.Remove', { defaultMessage: 'Remove' })}</Link
         >
       </svelte:fragment>
     </TableControl>

@@ -9,6 +9,7 @@
   import newQuery from '../query/newQuery';
   import SqlEditor from '../query/SqlEditor.svelte';
   import keycodes from '../utility/keycodes';
+  import { _t } from '../translations';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
@@ -77,24 +78,23 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Generate SQL from data</svelte:fragment>
+    <svelte:fragment slot="header">{_t('generateSqlFromData.generateSqlFromData', { defaultMessage: 'Generate SQL from data' })}</svelte:fragment>
 
     <div class="flex mb-3">
       <div class="m-1 col-4">
-        <div class="m-1">Choose query type</div>
-
+        <div class="m-1">{_t('generateSqlFromData.chooseQueryType', { defaultMessage: 'Choose query type' })}</div>
         <TableControl
           rows={QUERY_TYPES.map(name => ({ name }))}
           bind:selectedIndex={queryTypeIndex}
           bind:domTable={domQueryType}
           focusOnCreate
           selectable
-          columns={[{ fieldName: 'name', header: 'Query type' }]}
+          columns={[{ fieldName: 'name', header: _t('generateSqlFromData.queryType', { defaultMessage: 'Query type' }) }]}
         />
       </div>
 
       <div class="m-1 col-4">
-        <div class="m-1">Value columns</div>
+        <div class="m-1">{_t('generateSqlFromData.valueColumns', { defaultMessage: 'Value columns' })}</div>
 
         <CheckableColumnList
           {allColumns}
@@ -120,13 +120,13 @@
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value="OK"
+        value={_t('common.ok', { defaultMessage: 'OK' })}
         on:click={() => {
           newQuery({ initialData: sqlPreview });
           closeCurrentModal();
         }}
       />
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

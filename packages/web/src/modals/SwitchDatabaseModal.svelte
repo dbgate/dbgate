@@ -19,6 +19,7 @@
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
   import { changeTab } from '../utility/common';
+  import { _t } from '../translations';
 
   export let editingData;
   export let callingTab;
@@ -46,15 +47,15 @@
 
 <FormProvider {initialValues}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Switch database</svelte:fragment>
+    <svelte:fragment slot="header">{_t('switchDatabase.switchDatabase', { defaultMessage: 'Switch database' })}</svelte:fragment>
 
-    <FormConnectionSelect name="conid" label="Server" direction="source" isNative />
-    <FormDatabaseSelect conidName="conid" name="database" label="Database" isNative />
+    <FormConnectionSelect name="conid" label={_t('switchDatabase.server', { defaultMessage: 'Server' })} direction="source" isNative />
+    <FormDatabaseSelect conidName="conid" name="database" label={_t('common.database', { defaultMessage: 'Database' })} isNative />
 
     <svelte:fragment slot="footer">
       <FormValues let:values>
-        <FormSubmit value="OK" on:click={handleSubmit} />
-        <FormButton value="Cancel" on:click={closeCurrentModal} />
+        <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={handleSubmit} />
+        <FormButton value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </FormValues>
     </svelte:fragment>
   </ModalBase>

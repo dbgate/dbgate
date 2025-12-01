@@ -5,6 +5,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { isProApp } from '../utility/proTools';
   import { openWebLink } from '../utility/simpleTools';
+  import { _t } from '../translations';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
@@ -15,7 +16,7 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <div slot="header">License limit error</div>
+    <div slot="header">{_t('licenseLimit.licenseLimitError', { defaultMessage: 'License limit error' })}</div>
 
     <div class="wrapper">
       <div class="icon">
@@ -23,15 +24,15 @@
       </div>
       <div data-testid="LicenseLimitMessageModal_message">
         <p>
-          Cloud operation ended with error:<br />
+          {_t('licenseLimit.cloudOperationEndedWithError', { defaultMessage: 'Cloud operation ended with error:' })}<br />
           {message}
         </p>
 
         <p>
-          This is a limitation of the free version of DbGate. To continue using cloud operations, please {#if !isProApp()}download
-            and{/if} purchase DbGate Premium.
+          {_t('licenseLimit.limitationMessage', { defaultMessage: 'This is a limitation of the free version of DbGate. To continue using cloud operations, please' })} {#if !isProApp()} {_t('licenseLimit.download', { defaultMessage: 'download and' })}
+            {/if} {_t('licenseLimit.purchase', { defaultMessage: 'purchase DbGate Premium.' })}
         </p>
-        <p>Free version limit:</p>
+        <p>{_t('licenseLimit.freeVersionLimit', { defaultMessage: 'Free version limit:' })}</p>
         <ul>
           {#each licenseLimits || [] as limit}
             <li>{limit}</li>
@@ -41,16 +42,16 @@
     </div>
 
     <div slot="footer">
-      <FormSubmit value="Close" on:click={closeCurrentModal} data-testid="LicenseLimitMessageModal_closeButton" />
+      <FormSubmit value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} data-testid="LicenseLimitMessageModal_closeButton" />
       {#if !isProApp()}
         <FormStyledButton
-          value="Download DbGate Premium"
+          value={_t('licenseLimit.downloadDbGatePremium', { defaultMessage: 'Download DbGate Premium' })}
           on:click={() => openWebLink('https://www.dbgate.io/download/')}
           skipWidth
         />
       {/if}
       <FormStyledButton
-        value="Purchase DbGate Premium"
+        value={_t('licenseLimit.purchaseDbGatePremium', { defaultMessage: 'Purchase DbGate Premium' })}
         on:click={() => openWebLink('https://www.dbgate.io/purchase/premium/')}
         skipWidth
       />

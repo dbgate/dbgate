@@ -141,7 +141,7 @@
     <svelte:fragment slot="footer">
       {#if multiselect}
         <FormSubmit
-          value="OK"
+          value={_t('common.ok', { defaultMessage: 'OK' })}
           on:click={() => {
             closeCurrentModal();
             onConfirm(checkedKeys);

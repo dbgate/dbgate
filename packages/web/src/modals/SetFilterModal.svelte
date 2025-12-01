@@ -84,7 +84,7 @@
     </div>
 
     <div slot="footer">
-      <FormSubmit value="OK" on:click={handleOk} />
+      <FormSubmit value={_t('common.ok', {defaultMessage: "OK"})} on:click={handleOk} />
       <FormButton type="button" value={_t('common.close', {defaultMessage: 'Close'})} on:click={closeCurrentModal} />
     </div>
   </ModalBase>

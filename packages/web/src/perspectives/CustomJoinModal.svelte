@@ -20,6 +20,7 @@
   import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveCustomJoinConfig } from 'dbgate-datalib';
   import uuidv1 from 'uuid/v1';
   import TextField from '../forms/TextField.svelte';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -90,7 +91,7 @@
 
   $: connections = useConnectionList();
   $: connectionOptions = [
-    { value: null, label: 'The same as root' },
+    { value: null, label: _t('customJoin.theSameAsRoot', { defaultMessage: 'The same as root' }) },
     ..._.sortBy(
       ($connections || [])
         // .filter(x => !x.unsaved)
@@ -107,7 +108,7 @@
   $: databases = useDatabaseList({ conid: conidOverride || conid });
 
   $: databaseOptions = [
-    { value: null, label: 'The same as root' },
+    { value: null, label: _t('customJoin.theSameAsRoot', { defaultMessage: 'The same as root' }) },
     ..._.sortBy(
       ($databases || []).map(db => ({
         value: db.name,
@@ -147,11 +148,11 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Define custom join</svelte:fragment>
+    <svelte:fragment slot="header">{_t('customJoin.defineCustomJoin', { defaultMessage: 'Define custom join' })}</svelte:fragment>
 
     <div class="largeFormMarker">
       <div class="row">
-        <div class="label col-3">Join name</div>
+        <div class="label col-3">{_t('customJoin.joinName', { defaultMessage: 'Join name' })}</div>
         <div class="col-9">
           <TextField
             value={joinName}
@@ -164,7 +165,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">Base table</div>
+        <div class="label col-3">{_t('customJoin.baseTable', { defaultMessage: 'Base table' })}</div>
         <div class="col-9">
           <SelectField
             value={fromDesignerId}
@@ -181,7 +182,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">Connection</div>
+        <div class="label col-3">{_t('customJoin.connection', { defaultMessage: 'Connection' })}</div>
         <div class="col-9">
           <SelectField
             value={conidOverride}
@@ -195,7 +196,7 @@
       </div>
 
       <div class="row">
-        <div class="label col-3">Database</div>
+        <div class="label col-3">{_t('customJoin.database', { defaultMessage: 'Database' })}</div>
         <div class="col-9">
           <SelectField
             value={databaseOverride}
@@ -212,7 +213,7 @@
       <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" /> -->
 
       <div class="row">
-        <div class="label col-3">Referenced table</div>
+        <div class="label col-3">{_t('customJoin.referencedTable', { defaultMessage: 'Referenced table' })}</div>
         <div class="col-9">
           <SelectField
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
@@ -239,10 +240,10 @@
 
       <div class="row">
         <div class="col-5 mr-1">
-          Base column - {fromTableInfo?.pureName}
+          {_t('customJoin.baseColumn', { defaultMessage: 'Base column' })} - {fromTableInfo?.pureName}
         </div>
         <div class="col-5 ml-1">
-          Ref column - {refTableName || '(table not set)'}
+          {_t('customJoin.refColumn', { defaultMessage: 'Ref column' })} - {refTableName || _t('customJoin.tableNotSet', { defaultMessage: '(table not set)' })}
         </div>
       </div>
 
@@ -286,7 +287,7 @@
           </div>
           <div class="col-2 button">
             <FormStyledButton
-              value="Delete"
+              value={_t('common.delete', { defaultMessage: 'Delete' })}
               on:click={e => {
                 const x = [...columns];
                 x.splice(index, 1);
@@ -299,7 +300,7 @@
 
       <FormStyledButton
         type="button"
-        value="Add column"
+        value={_t('customJoin.addColumn', { defaultMessage: 'Add column' })}
         on:click={() => {
           columns = [
             ...columns,
@@ -314,7 +315,7 @@
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value={'Save'}
+        value={_t('common.save', { defaultMessage: 'Save' })}
         on:click={() => {
           setConfig(cfg => {
             const newNode = createPerspectiveNodeConfig({ pureName: refTableName, schemaName: refSchemaName });
@@ -361,7 +362,7 @@
         }}
       />
 
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

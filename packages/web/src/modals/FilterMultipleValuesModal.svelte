@@ -3,6 +3,7 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let onFilter;
 
@@ -16,35 +17,35 @@
 </script>
 
 <ModalBase {...$$restProps}>
-  <div slot="header">Filter multiple values</div>
+  <div slot="header">{_t('filterMultipleValues.filterMultipleValues', { defaultMessage: 'Filter multiple values' })}</div>
 
   <div class="flex">
     <TextAreaField rows={10} bind:value focused />
     <div>
       <div>
         <input type="radio" bind:group value="is" id="__is" />
-        <label for="__is">Is one of line</label>'
+        <label for="__is">{_t('filterMultipleValues.isOneOfLine', { defaultMessage: 'Is one of line' })}</label>'
       </div>
       <div>
         <input type="radio" bind:group value="is_not" id="__is_not" />
-        <label for="__is_not">Is not one of line</label>'
+        <label for="__is_not">{_t('filterMultipleValues.isNotOneOfLine', { defaultMessage: 'Is not one of line' })}</label>'
       </div>
       <div>
         <input type="radio" bind:group value="contains" id="__contains" />
-        <label for="__contains">Contains</label>'
+        <label for="__contains">{_t('filterMultipleValues.contains', { defaultMessage: 'Contains' })}</label>'
       </div>
       <div>
         <input type="radio" bind:group value="begins" id="__begins" />
-        <label for="__begins">Begins</label>'
+        <label for="__begins">{_t('filterMultipleValues.begins', { defaultMessage: 'Begins' })}</label>'
       </div>
       <div>
         <input type="radio" bind:group value="ends" id="__ends" />
-        <label for="__ends">Ends</label>'
+        <label for="__ends">{_t('filterMultipleValues.ends', { defaultMessage: 'Ends' })}</label>'
       </div>
     </div>
   </div>
   <div slot="footer">
-    <FormStyledButton value="OK" on:click={handleOk} />
-    <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+    <FormStyledButton value={_t('common.ok', { defaultMessage: 'OK' })} on:click={handleOk} />
+    <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
   </div>
 </ModalBase>

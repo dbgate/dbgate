@@ -169,6 +169,7 @@
   import hasPermission from '../utility/hasPermission';
   import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
   import { getCurrentSettings } from '../stores';
+  import { Messages } from 'openai/resources/chat/completions';
 
   export let tabid;
   export let conid;
@@ -765,7 +766,7 @@
         <svelte:fragment slot="2">
           <ResultTabs
             bind:this={domResultTabs}
-            tabs={[{ label: 'Messages', slot: 0 }]}
+            tabs={[{ label: _t('query.Messages', { defaultMessage: 'Messages' }), slot: 0 }]}
             {sessionId}
             {executeNumber}
             bind:resultCount

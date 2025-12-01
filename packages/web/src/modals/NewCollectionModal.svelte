@@ -30,9 +30,9 @@
 
       const { errorMessage } = resp || {};
       if (errorMessage) {
-        showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
+        showModal(ErrorMessageModal, { title: _t('error.executingOperation', { defaultMessage: 'Error when executing operation' }), message: errorMessage });
       } else {
-        showSnackbarSuccess('Saved to database');
+        showSnackbarSuccess(_t('common.savedToDatabase', { defaultMessage: 'Saved to database' }));
         apiCall('database-connections/sync-model', dbid);
         closeCurrentModal();
       }
@@ -51,7 +51,7 @@
     <FormArgumentList args={driver?.newCollectionFormParams} />
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={e => handleSubmit(e.detail)} disabled={isSaving} />
+      <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={e => handleSubmit(e.detail)} disabled={isSaving} />
       <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
