@@ -16,7 +16,6 @@ import {
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
 import AboutModal from '../modals/AboutModal.svelte';
-import SettingsModal from '../settings/SettingsModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery, { newDiagram, newPerspective, newQueryDesign } from '../query/newQuery';
@@ -74,7 +73,14 @@ registerCommand({
   category: __t('command.theme', { defaultMessage: 'Theme' }),
   name: __t('command.theme.change', { defaultMessage: 'Change' }),
   toolbarName: __t('command.theme.changeToolbar', { defaultMessage: 'Change theme' }),
-  onClick: () => showModal(SettingsModal, { selectedTab: 'theme' }),
+  onClick: () => openNewTab({
+      title: 'Settings',
+      icon: 'icon settings',
+      tabComponent: 'SettingsTab',
+      props: {
+        selectedItem: 'theme',
+      },
+    }),
   // getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 

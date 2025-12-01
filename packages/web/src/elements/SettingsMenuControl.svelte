@@ -118,6 +118,10 @@
     transition: background-color 0.2s ease;
   }
 
+  .menu-item:first-child {
+    border-top: 1px solid var(--theme-border);
+  }
+
   .menu-item:hover {
     background-color: var(--theme-bg-hover);
   }

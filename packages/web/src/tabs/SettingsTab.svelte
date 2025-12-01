@@ -11,7 +11,6 @@
   import DefaultActionsSettings from "../settings/DefaultActionsSettings.svelte";
   import BehaviourSettings from "../settings/BehaviourSettings.svelte";
   import ExternalToolsSettings from "../settings/ExternalToolsSettings.svelte";
-  import OtherSettings from "../settings/OtherSettings.svelte";
   import LicenseSettings from "../settings/LicenseSettings.svelte";
   import { isProApp } from "../utility/proTools";
   import { _t } from "../translations";
@@ -19,6 +18,8 @@
   import DataGridSettings from "../settings/DataGridSettings.svelte";
     import SQLEditorSettings from "../settings/SQLEditorSettings.svelte";
     import AiSettingsTab from "../settings/AiSettingsTab.svelte";
+
+    export let selectedItem = 'general';
 
     const menuItems = [
         {
@@ -98,16 +99,7 @@
             props: {},
             testid: 'settings-ai',
         },
-        {
-            label: _t('settings.other', { defaultMessage: 'Other' }),
-            identifier: 'other',
-            component: OtherSettings,
-            props: {},
-            testid: 'settings-other',
-        },
     ];
-
-    let selectedItem = 'general';
 </script>
 
 <SettingsFormProvider>

@@ -49,6 +49,32 @@ label={_t('settings.tabGroup.showServerName', {
 })}
 defaultValue={false}
 />
+
+<FormSelectField
+label={_t('settings.other.autoUpdateApplication', { defaultMessage: 'Auto update application' })}
+name="app.autoUpdateMode"
+isNative
+defaultValue=""
+options={[
+    {
+    value: 'skip',
+    label: _t('settings.other.autoUpdateApplication.skip', {
+        defaultMessage: 'Do not check for new versions',
+    }),
+    },
+    {
+    value: '',
+    label: _t('settings.other.autoUpdateApplication.check', { defaultMessage: 'Check for new versions' }),
+    },
+    {
+    value: 'download',
+    label: _t('settings.other.autoUpdateApplication.download', {
+        defaultMessage: 'Check and download new versions',
+    }),
+    },
+]}
+/>
+
 <div class="heading">{_t('settings.localization', { defaultMessage: 'Localization' })}</div>
 
 <FormFieldTemplateLarge
