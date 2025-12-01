@@ -754,9 +754,8 @@
     const coreMenus = createMenusCore(objectTypeField, driver, data);
 
     const filteredSumenus = coreMenus.map(item => {
+      if (!item) return item;
       if (!item.submenu) {
-        if (!item) return item;
-
         return { ...item, label: _tval(item.label) };
       }
       return {
@@ -773,7 +772,7 @@
       };
     });
 
-    const filteredNoEmptySubmenus = filteredSumenus.filter(x => !x.submenu || x.submenu.length > 0);
+    const filteredNoEmptySubmenus = _.compact(filteredSumenus).filter(x => !x.submenu || x.submenu.length > 0);
 
     return filteredNoEmptySubmenus;
   }
