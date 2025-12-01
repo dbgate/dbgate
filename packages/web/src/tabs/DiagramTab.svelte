@@ -32,7 +32,8 @@
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
   import { isProApp } from '../utility/proTools';
-  import { __t } from '../translations';
+  import { __t, _t } from '../translations';
+  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
 
   export let tabid;
   export let conid;
@@ -124,6 +125,13 @@
   function handleReportCounts(counts) {
     tableCounts = counts;
   }
+
+  function getDiagramExportMenu() {
+    return [
+      { command: 'diagram.export' },
+      { command: 'diagram.exportSvg' },
+    ];
+  }
 </script>
 
 <ToolStripContainer>
@@ -161,6 +169,7 @@
     <ToolStripCommandButton command="designer.arrange" />
     <ToolStripSaveButton idPrefix="diagram" />
     <ToolStripCommandButton command="diagram.export" />
+    <ToolStripDropDownButton menu={getDiagramExportMenu} label={_t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' })} icon="icon report" />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />
     <ToolStripCommandButton command="diagram.deleteSelectedTables" />
