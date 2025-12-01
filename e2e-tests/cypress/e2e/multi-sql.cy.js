@@ -108,7 +108,7 @@ describe('Backup table', () => {
     cy.contains('customers').rightclick();
     cy.contains('Create table backup').click();
     cy.testid('ConfirmSqlModal_okButton').click();
-    cy.contains('_customers').click();
+    cy.contains('customers (').click();
     cy.contains('Rows: 8').should('be.visible');
   });
 });
