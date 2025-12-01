@@ -20,6 +20,8 @@
     import SQLEditorSettings from "../settings/SQLEditorSettings.svelte";
     import AiSettingsTab from "../settings/AiSettingsTab.svelte";
 
+    export let selectedItem = 'general';
+
     const menuItems = [
         {
             label: _t('settings.general', { defaultMessage: 'General' }),
@@ -106,8 +108,6 @@
             testid: 'settings-other',
         },
     ];
-
-    let selectedItem = 'general';
 </script>
 
 <SettingsFormProvider>

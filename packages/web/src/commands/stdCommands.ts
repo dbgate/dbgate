@@ -74,7 +74,14 @@ registerCommand({
   category: __t('command.theme', { defaultMessage: 'Theme' }),
   name: __t('command.theme.change', { defaultMessage: 'Change' }),
   toolbarName: __t('command.theme.changeToolbar', { defaultMessage: 'Change theme' }),
-  onClick: () => showModal(SettingsModal, { selectedTab: 'theme' }),
+  onClick: () => openNewTab({
+      title: 'Settings',
+      icon: 'icon settings',
+      tabComponent: 'SettingsTab',
+      props: {
+        selectedItem: 'theme',
+      },
+    }),
   // getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 
