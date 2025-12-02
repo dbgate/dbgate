@@ -13,6 +13,10 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
   );
   const valueColumns = _.difference(bothColumns, keyColumns);
 
+  if (keyColumns.length === 0) {
+    throw new Error('Cannot create restore script: no key columns found');
+  }
+
   function makeColumnCond(colName: string, operator: '=' | '<>' | '<' | '>' | '<=' | '>=' = '='): Condition {
     return {
       conditionType: 'binary',
@@ -27,6 +31,30 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
         columnName: colName,
         source: { alias: 'bak' },
       },
+    };
+  }
+
+  function makeNullNotNullCond(colName: string, isCond1: boolean): Condition {
+    return {
+      conditionType: 'and',
+      conditions: [
+        {
+          conditionType: 'isNull',
+          expr: {
+            exprType: 'column',
+            columnName: colName,
+            source: isCond1 ? { name: originalTable } : { alias: 'bak' },
+          },
+        },
+        {
+          conditionType: 'isNotNull',
+          expr: {
+            exprType: 'column',
+            columnName: colName,
+            source: isCond1 ? { alias: 'bak' } : { name: originalTable },
+          },
+        },
+      ],
     };
   }
 
@@ -45,50 +73,56 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
   dmp.comment(`Follows UPDATE, DELETE, INSERT statements to restore data`);
   dmp.putRaw('\n');
 
-  const update: Update = {
-    commandType: 'update',
-    from: { name: originalTable },
-    fields: valueColumns.map(colName => ({
-      exprType: 'select',
-      select: {
-        commandType: 'select',
-        from: { name: backupTable, alias: 'bak' },
-        columns: [
-          {
-            exprType: 'column',
-            columnName: colName,
-            source: { alias: 'bak' },
-          },
-        ],
-        where: {
-          conditionType: 'and',
-          conditions: keyColumns.map(colName => makeColumnCond(colName)),
-        },
-      },
-      targetColumn: colName,
-    })),
-    where: {
-      conditionType: 'exists',
-      subQuery: {
-        commandType: 'select',
-        from: { name: backupTable, alias: 'bak' },
-        selectAll: true,
-        where: {
-          conditionType: 'and',
-          conditions: [
-            ...keyColumns.map(keyColName => makeColumnCond(keyColName)),
+  if (valueColumns.length > 0) {
+    const update: Update = {
+      commandType: 'update',
+      from: { name: originalTable },
+      fields: valueColumns.map(colName => ({
+        exprType: 'select',
+        select: {
+          commandType: 'select',
+          from: { name: backupTable, alias: 'bak' },
+          columns: [
             {
-              conditionType: 'or',
-              conditions: valueColumns.map(colName => makeColumnCond(colName, '<>')),
+              exprType: 'column',
+              columnName: colName,
+              source: { alias: 'bak' },
             },
           ],
+          where: {
+            conditionType: 'and',
+            conditions: keyColumns.map(colName => makeColumnCond(colName)),
+          },
+        },
+        targetColumn: colName,
+      })),
+      where: {
+        conditionType: 'exists',
+        subQuery: {
+          commandType: 'select',
+          from: { name: backupTable, alias: 'bak' },
+          selectAll: true,
+          where: {
+            conditionType: 'and',
+            conditions: [
+              ...keyColumns.map(keyColName => makeColumnCond(keyColName)),
+              {
+                conditionType: 'or',
+                conditions: valueColumns.flatMap(colName => [
+                  makeColumnCond(colName, '<>'),
+                  makeNullNotNullCond(colName, true),
+                  makeNullNotNullCond(colName, false),
+                ]),
+              },
+            ],
+          },
         },
       },
-    },
-  };
-  putTitle('UPDATE');
-  dumpSqlUpdate(dmp, update);
-  dmp.endCommand();
+    };
+    putTitle('UPDATE');
+    dumpSqlUpdate(dmp, update);
+    dmp.endCommand();
+  }
 
   const delcmd: Delete = {
     commandType: 'delete',
@@ -127,6 +161,14 @@ export function createTableRestoreScript(backupTable: TableInfo, originalTable: 
   };
 
   putTitle('INSERT');
+
+  const autoinc = originalTable.columns.find(x => x.autoIncrement);
+  if (autoinc) {
+    dmp.allowIdentityInsert(originalTable, true);
+  }
   dumpSqlInsert(dmp, insert);
   dmp.endCommand();
+  if (autoinc) {
+    dmp.allowIdentityInsert(originalTable, false);
+  }
 }

@@ -103,13 +103,70 @@ describe('Transactions', () => {
 
 describe('Backup table', () => {
   multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
+    const implicitTransactions = options.implicitTransactions ?? false;
+
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
-    cy.contains('customers').rightclick();
+    cy.contains('addresses').rightclick();
     cy.contains('Create table backup').click();
     cy.testid('ConfirmSqlModal_okButton').click();
-    cy.contains('customers (').click();
-    cy.contains('Rows: 8').should('be.visible');
+    cy.testid('app-object-group-items-table-backups').contains('addresses').click();
+    cy.contains('Rows: 12').should('be.visible');
+    cy.testid('app-object-group-items-tables').contains('addresses').click();
+
+    cy.contains('Ridgewood').click();
+    cy.testid('TableDataTab_deleteSelectedRows').click();
+    cy.contains('Rosewood').click();
+    cy.testid('TableDataTab_deleteSelectedRows').click();
+
+    cy.contains('Vermont').click();
+    cy.get('body').realType('Wermont{enter}');
+
+    cy.testid('TableDataTab_insertNewRow').click();
+    cy.get('body').realType('Modranska{enter}');
+    cy.realPress(['ArrowLeft']);
+    cy.realPress(['ArrowLeft']);
+    cy.get('body').realType('13{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('1{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.realPress(['ArrowRight']);
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('Prague{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('CZ{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('10000{enter}');
+    cy.realPress(['ArrowRight']);
+    cy.get('body').realType('111222333{enter}');
+
+    cy.testid('TableDataTab_save').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains('Rows: 11').should('be.visible'); // wait for save
+
+    cy.testid('app-object-group-items-table-backups').contains('addresses').rightclick();
+    cy.contains('restore script').click();
+    cy.contains('UPDATE'); // wait for query
+    cy.testid('QueryTab_executeButton').click();
+    cy.contains('Query execution finished');
+
+    if (implicitTransactions) {
+      cy.testid('QueryTab_commitTransactionButton').click();
+      cy.contains('Commit Transaction finished');
+    }
+
+    cy.realPress('F1');
+    cy.realType('Close all');
+    cy.realPress('Enter');
+    // cy.testid('CloseTabModal_buttonConfirm').click();
+    cy.wait(1000);
+
+    cy.testid('app-object-group-items-tables').contains('addresses').click();
+
+    // check whether data was successfully restored
+    cy.contains('Rows: 12').should('be.visible');
+    cy.contains('Ridgewood');
+    cy.contains('Vermont');
   });
 });
 
