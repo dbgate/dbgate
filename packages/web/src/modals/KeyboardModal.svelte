@@ -39,7 +39,7 @@
 </script>
 
 <ModalBase {...$$restProps} simple>
-  <div class="mb-2">_{_t('commandModal.showKeyCombination', { defaultMessage: 'Show desired key combination and press ENTER' })}</div>
+  <div class="mb-2">{_t('commandModal.showKeyCombination', { defaultMessage: 'Show desired key combination and press ENTER' })}</div>
   <div class="largeFormMarker">
     <TextField on:keydown={handleKeyDown} bind:value focused />
   </div>
