@@ -75,6 +75,7 @@
     "translations:remove-unused": "node common/translations-cli/index.js remove-unused",
     "translations:check": "node common/translations-cli/index.js check",
     "translations:sort": "node common/translations-cli/index.js sort",
+    "translations:translate": "node common/translations-cli/translate.js",
     "errors": "node common/assign-dbgm-codes.mjs  ."
   },
   "dependencies": {
