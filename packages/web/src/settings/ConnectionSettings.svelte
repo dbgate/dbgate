@@ -26,7 +26,7 @@
         },
     }}
     >
-    <CheckboxField checked={$lockedDatabaseMode} on:change={e => ($lockedDatabaseMode = e.target.checked)} />
+    <CheckboxField checked={$lockedDatabaseMode} on:change={e => ($lockedDatabaseMode = e.target.checked)} data-testid="ConnectionSettings_lockedDatabaseMode"/>
     </FormFieldTemplateLarge>
 
     <FormCheckboxField
@@ -82,6 +82,14 @@
     margin: 5px;
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
+  }
+
+  .wrapper :global(input){
+    max-width: 400px;
+  }
+
+  .wrapper :global(select){
+    max-width: 400px;
   }
 
 </style>

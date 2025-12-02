@@ -56,6 +56,7 @@
     name="defaultAction.useLastUsedAction"
     label={_t('settings.defaultActions.useLastUsedAction', { defaultMessage: 'Use last used action' })}
     defaultValue={true}
+    data-testid="DefaultActionsSettings_useLastUsedAction"
     />
 
     <FormDefaultActionField
@@ -98,6 +99,10 @@
     margin: 5px;
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
+  }
+
+  .wrapper :global(select){
+    max-width: 400px;
   }
 
 </style>

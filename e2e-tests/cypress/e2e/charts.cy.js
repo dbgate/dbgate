@@ -198,4 +198,74 @@ describe('Charts', () => {
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings');
   });
+
+  it.only('Settings', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.themeshot('app-settings-general');
+
+    cy.contains('Behaviour').click();
+    cy.themeshot('app-settings-behaviour');
+    cy.get('[data-testid=BehaviourSettings_useTabPreviewMode]').uncheck();
+
+    // SQL Editor
+    cy.contains('SQL Editor').click();
+    cy.get('[data-testid=SQLEditorSettings_sqlCommandsCase]').select('lowerCase');
+
+    cy.contains('MySql-connection').click();
+    cy.contains('charts_sample').click();
+    cy.contains('employees').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('SQL template').click();
+    cy.contains('CREATE TABLE').click();
+    cy.contains('create table');
+
+    // Default Actions
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Default Actions').click();
+    cy.get('[data-testid=DefaultActionsSettings_useLastUsedAction]').uncheck();
+
+
+    // Themes
+    cy.contains('Themes').click();
+    cy.themeshot('app-settings-themes');
+    cy.contains('Dark').click();
+    cy.get('body').find('.theme-dark').should('exist');
+    cy.contains('Light').click();
+    cy.get('body').find('.theme-light').should('exist');
+
+    // Connection
+    cy.contains(/^Connection$/).click();
+    cy.contains('charts_sample');
+    cy.get('[data-testid=ConnectionSettings_lockedDatabaseMode]').check();
+    cy.contains('Connections').click();
+    cy.contains('charts_sample').should('not.exist');
+
+    // Datagrid
+    cy.contains('Data grid').click();
+    cy.get('[data-testid=DataGridSettings_showHintColumns]').uncheck();
+    cy.wait(500);
+    cy.contains('Album').click();
+    cy.contains('AC/DC').should('not.exist');
+
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Keyboard shortcuts').click();
+    cy.themeshot('app-settings-keyboard-shortcuts');
+    cy.contains('Chart').click();
+    cy.testid('CommandModal_keyboardButton').click();
+    cy.realPress(['Control', 'g']);
+    cy.realPress('Enter');
+    cy.contains('OK').click();
+    cy.contains('Ctrl+G');
+
+    
+    cy.contains('AI').click();
+    cy.themeshot('app-settings-ai');
+    cy.get('[data-testid=AISettings_addProviderButton]').click();
+    cy.contains('Provider 1');
+    cy.get('[data-testid=AiProviderCard_removeButton]').click();
+    cy.contains('Are you sure you want to remove Provider 1 provider?');
+    cy.contains('OK').click();
+    cy.contains('Provider 1').should('not.exist');
+  });
 });

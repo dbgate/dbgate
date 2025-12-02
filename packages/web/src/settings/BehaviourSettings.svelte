@@ -13,6 +13,7 @@
     name="behaviour.useTabPreviewMode"
     label={_t('settings.behaviour.useTabPreviewMode', { defaultMessage: 'Use tab preview mode' })}
     defaultValue={true}
+    data-testid="BehaviourSettings_useTabPreviewMode"
     />
 
     <FormCheckboxField

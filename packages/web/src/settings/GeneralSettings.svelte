@@ -120,4 +120,8 @@
     margin-top: var(--dim-large-form-margin);
   }
 
+  .wrapper :global(select){
+    max-width: 400px;
+  }
+
 </style>

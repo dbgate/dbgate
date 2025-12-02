@@ -26,6 +26,7 @@
         { value: 'upperCase', label: 'UPPER CASE' },
         { value: 'lowerCase', label: 'lower case' },
     ]}
+    data-testid="SQLEditorSettings_sqlCommandsCase"
     />
 </div>
 <div class="col-3">
@@ -96,5 +97,9 @@ defaultValue={false}
     margin: 5px;
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
+  }
+
+  .wrapper :global(input){
+    max-width: 400px;
   }
 </style>

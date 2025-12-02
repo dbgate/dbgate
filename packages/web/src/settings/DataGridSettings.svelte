@@ -22,6 +22,7 @@ defaultValue="100"
     name="dataGrid.showHintColumns"
     label={_t('settings.dataGrid.showHintColumns', { defaultMessage: 'Show foreign key hints' })}
     defaultValue={true}
+    data-testid="DataGridSettings_showHintColumns"
 />
 {/if}
 <!-- <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} /> -->
@@ -96,5 +97,13 @@ defaultValue={false}
     margin: 5px;
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
+  }
+
+  .wrapper :global(select){
+    max-width: 400px;
+  }
+
+  .wrapper :global(input){
+    max-width: 400px;
   }
 </style>

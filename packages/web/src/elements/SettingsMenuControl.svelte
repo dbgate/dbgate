@@ -137,6 +137,7 @@
     position: relative;
     overflow: hidden;
     height: 100%;
+    background-color: var(--theme-bg-0);
   }
 
   .scrollableContentContainer {
