@@ -143,7 +143,7 @@
   }
 
   function createRefreshDatabaseMenu() {
-    return getDatabasStatusMenu({ conid, database });
+    return getDatabasStatusMenu({ conid, database }, driver);
   }
 
   function handleFullRefreshDatabase() {

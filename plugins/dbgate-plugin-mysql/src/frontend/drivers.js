@@ -184,6 +184,7 @@ const mysqlDriverBase = {
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
   supportsTransactions: true,
+  supportsIncrementalAnalysis: true,
 
   getNewObjectTemplates() {
     return [

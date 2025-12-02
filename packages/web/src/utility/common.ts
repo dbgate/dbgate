@@ -155,12 +155,12 @@ export function getKeyTextFromEvent(e) {
   return keyText;
 }
 
-export function getDatabasStatusMenu(dbid) {
+export function getDatabasStatusMenu(dbid, driver = null) {
   function callSchemalListChanged() {
     apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', ...dbid });
   }
-  return [
-    {
+  return _.compact([
+    driver?.supportsIncrementalAnalysis && {
       text: _t('command.database.refreshIncremental', { defaultMessage: 'Refresh DB structure (incremental)' }),
       onClick: () => {
         apiCall('database-connections/sync-model', dbid);
@@ -168,7 +168,9 @@ export function getDatabasStatusMenu(dbid) {
       },
     },
     {
-      text: _t('command.database.refreshFull', { defaultMessage: 'Refresh DB structure (full)' }),
+      text: driver?.supportsIncrementalAnalysis
+        ? _t('command.database.refreshFull', { defaultMessage: 'Refresh DB structure (full)' })
+        : _t('command.database.refresh', { defaultMessage: 'Refresh DB structure' }),
       onClick: () => {
         apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
         callSchemalListChanged();
@@ -189,5 +191,5 @@ export function getDatabasStatusMenu(dbid) {
         switchCurrentDatabase(null);
       },
     },
-  ];
+  ]);
 }

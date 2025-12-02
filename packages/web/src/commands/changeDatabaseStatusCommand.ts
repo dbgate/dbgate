@@ -1,10 +1,11 @@
 import _ from 'lodash';
-import { currentDatabase, getCurrentDatabase } from '../stores';
+import { currentDatabase, getCurrentDatabase, getExtensions } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import { apiCall } from '../utility/api';
 import { getDatabasStatusMenu, switchCurrentDatabase } from '../utility/common';
 import { __t } from '../translations';
+import { findEngineDriver } from 'dbgate-tools';
 
 registerCommand({
   id: 'database.changeState',
@@ -18,7 +19,8 @@ registerCommand({
       conid: connection._id,
       database: name,
     };
+    const driver = findEngineDriver(connection, getExtensions());
 
-    return getDatabasStatusMenu(dbid);
+    return getDatabasStatusMenu(dbid, driver);
   },
 });

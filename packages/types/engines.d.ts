@@ -238,6 +238,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   supportsDatabaseRestore?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
+  supportsIncrementalAnalysis?: boolean;
   requiresDefaultSortCriteria?: boolean;
   profilerFormatterFunction?: string;
   profilerTimestampFunction?: string;
