@@ -163,41 +163,35 @@ describe('Charts', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Settings').click();
 
     cy.testid('SettingsModal_languageSelect').select('Deutsch');
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Einstellungen').click();
-    cy.contains('Lokalisierung');
+    cy.contains('Sprache');
     cy.themeshot('switch-language-de');
 
     cy.testid('SettingsModal_languageSelect').select('Français');
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Paramètres').click();
-    cy.contains('Localisation');
+    cy.contains('Langue');
     cy.themeshot('switch-language-fr');
 
     cy.testid('SettingsModal_languageSelect').select('Español');
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Configuración').click();
-    cy.contains('Localización');
+    cy.contains('Idioma');
     cy.themeshot('switch-language-es');
 
     cy.testid('SettingsModal_languageSelect').select('Čeština');
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Nastavení').click();
-    cy.contains('Lokalizace');
+    cy.contains('Jazyk');
     cy.themeshot('switch-language-cs');
 
     cy.testid('SettingsModal_languageSelect').select('中文');
     cy.testid('ConfirmModal_okButton').click();
     cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('设置').click();
-    cy.contains('本地化');
+    cy.contains('语言');
     cy.themeshot('switch-language-zh');
 
     cy.testid('SettingsModal_languageSelect').select('English');

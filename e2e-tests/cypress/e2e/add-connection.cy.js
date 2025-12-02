@@ -113,6 +113,18 @@ describe('Add connection', () => {
     cy.contains('performance_schema');
   });
 
+  it('Plugin tab', () => {
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Tools').click();
+    cy.contains('Manage plugins').click();
+    cy.contains('dbgate-plugin-theme-total-white').click();
+    // text from plugin markdown
+    cy.contains('Total white theme');
+    // wait for load logos
+    cy.wait(2000);
+    cy.themeshot('view-plugin-tab');
+  });
+
   it('export connections', () => {
     cy.testid('WidgetIconPanel_menu').click();
     cy.contains('Tools').click();

@@ -44,6 +44,7 @@
     <svelte:fragment slot="footer">
       <FormSubmit
         value={_t('datagrid.closeTabs.close', { defaultMessage: 'Close tabs' })}
+        data-testid="CloseTabModal_buttonConfirm"
         on:click={() => {
           closeCurrentModal();
           onConfirm();
@@ -52,6 +53,7 @@
       <FormStyledButton
         type="button"
         value={_t('common.cancel', { defaultMessage: 'Cancel' })}
+        data-testid="CloseTabModal_buttonCancel"
         on:click={() => {
           closeCurrentModal();
           onCancel();

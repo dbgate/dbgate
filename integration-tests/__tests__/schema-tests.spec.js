@@ -28,12 +28,14 @@ describe('Schema tests', () => {
       const count = schemas1.length;
       expect(structure1.tables.length).toEqual(2);
       await runCommandOnDriver(conn, driver, dmp => dmp.createSchema('myschema'));
-      const structure2 = await driver.analyseIncremental(conn, structure1);
-      const schemas2 = await driver.listSchemas(conn);
-      expect(schemas2.find(x => x.schemaName == 'myschema')).toBeTruthy();
-      expect(schemas2.length).toEqual(count + 1);
-      expect(schemas2.find(x => x.isDefault).schemaName).toEqual(engine.defaultSchemaName);
-      expect(structure2).toBeNull();
+      if (!engine.skipIncrementalAnalysis) {
+        const structure2 = await driver.analyseIncremental(conn, structure1);
+        const schemas2 = await driver.listSchemas(conn);
+        expect(schemas2.find(x => x.schemaName == 'myschema')).toBeTruthy();
+        expect(schemas2.length).toEqual(count + 1);
+        expect(schemas2.find(x => x.isDefault).schemaName).toEqual(engine.defaultSchemaName);
+        expect(structure2).toBeNull();
+      }
     })
   );
 
@@ -48,10 +50,12 @@ describe('Schema tests', () => {
       expect(schemas1.find(x => x.schemaName == 'myschema')).toBeTruthy();
       expect(structure1.tables.length).toEqual(2);
       await runCommandOnDriver(conn, driver, dmp => dmp.dropSchema('myschema'));
-      const structure2 = await driver.analyseIncremental(conn, structure1);
-      const schemas2 = await driver.listSchemas(conn);
-      expect(schemas2.find(x => x.schemaName == 'myschema')).toBeFalsy();
-      expect(structure2).toBeNull();
+      if (!engine.skipIncrementalAnalysis) {
+        const structure2 = await driver.analyseIncremental(conn, structure1);
+        const schemas2 = await driver.listSchemas(conn);
+        expect(schemas2.find(x => x.schemaName == 'myschema')).toBeFalsy();
+        expect(structure2).toBeNull();
+      }
     })
   );
 

@@ -16,6 +16,7 @@ export interface SqlDumper extends AlterProcessor {
   transform(type: TransformType, dumpExpr: () => void);
   createDatabase(name: string);
   dropDatabase(name: string);
+  comment(value: string);
 
   callableTemplate(func: CallableObjectInfo);
 

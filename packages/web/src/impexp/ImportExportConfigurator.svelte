@@ -211,8 +211,11 @@
     />
   </div>
 
-  <div class="m-2">
-    <div class="title"><FontIcon icon="icon tables" /> {_t('importExport.mapSourceTablesFiles', { defaultMessage: "Map source tables/files" })}</div>
+  <div class="m-2" data-testid="ImportExportConfigurator_tableMappingSection">
+    <div class="title">
+      <FontIcon icon="icon tables" />
+      {_t('importExport.mapSourceTablesFiles', { defaultMessage: 'Map source tables/files' })}
+    </div>
 
     {#key targetEditKey}
       {#key progressHolder}
@@ -221,34 +224,34 @@
           columns={[
             {
               fieldName: 'source',
-              header: _t('importExport.source', { defaultMessage: "Source" }),
+              header: _t('importExport.source', { defaultMessage: 'Source' }),
               component: SourceName,
               getProps: row => ({ name: row }),
             },
             {
               fieldName: 'action',
-              header: _t('importExport.action', { defaultMessage: "Action" }),
+              header: _t('importExport.action', { defaultMessage: 'Action' }),
               component: SourceAction,
               getProps: row => ({ name: row, targetDbinfo }),
             },
             {
               fieldName: 'target',
-              header: _t('importExport.target', { defaultMessage: "Target" }),
+              header: _t('importExport.target', { defaultMessage: 'Target' }),
               slot: 1,
             },
             supportsPreview && {
               fieldName: 'preview',
-              header: _t('importExport.preview', { defaultMessage: "Preview" }),
+              header: _t('importExport.preview', { defaultMessage: 'Preview' }),
               slot: 0,
             },
             !!progressHolder && {
               fieldName: 'status',
-              header: _t('importExport.status', { defaultMessage: "Status" }),
+              header: _t('importExport.status', { defaultMessage: 'Status' }),
               slot: 3,
             },
             {
               fieldName: 'columns',
-              header: _t('importExport.columns', { defaultMessage: "Columns" }),
+              header: _t('importExport.columns', { defaultMessage: 'Columns' }),
               slot: 2,
             },
           ]}

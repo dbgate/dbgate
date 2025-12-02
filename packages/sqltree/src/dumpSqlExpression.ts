@@ -2,6 +2,7 @@ import _ from 'lodash';
 import type { SqlDumper } from 'dbgate-types';
 import { Expression, ColumnRefExpression } from './types';
 import { dumpSqlSourceRef } from './dumpSqlSource';
+import { dumpSqlSelect } from './dumpSqlCommand';
 
 export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
   switch (expr.exprType) {
@@ -65,6 +66,12 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
         dumpSqlExpression(dmp, x);
         dmp.put(' %k', x.direction);
       });
+      dmp.put(')');
+      break;
+
+    case 'select':
+      dmp.put('(');
+      dumpSqlSelect(dmp, expr.select);
       dmp.put(')');
       break;
   }

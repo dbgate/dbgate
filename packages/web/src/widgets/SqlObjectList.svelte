@@ -235,7 +235,7 @@
 
   function getAppObjectGroup(data) {
     if (data.objectTypeField == 'tables') {
-      if (data.pureName.match(/^_(.*)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d-\d\d$/)) {
+      if (data.pureName.match(databaseObjectAppObject.TABLE_BACKUP_REGEX)) {
         return _t('dbObject.tableBackups', { defaultMessage: 'Table Backups' });
       }
     }
@@ -286,7 +286,7 @@
       icon="img alert"
     />
     <div class="m-1" />
-    <InlineButton on:click={handleRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
+    <InlineButton on:click={handleFullRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
     {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.table')}
