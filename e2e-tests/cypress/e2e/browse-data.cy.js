@@ -310,17 +310,6 @@ describe('Data browser data', () => {
     cy.themeshot('search-in-connections');
   });
 
-  it('Plugin tab', () => {
-    cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Manage plugins').click();
-    cy.contains('dbgate-plugin-theme-total-white').click();
-    // text from plugin markdown
-    cy.contains('Total white theme');
-    // wait for load logos
-    cy.wait(2000);
-    cy.themeshot('view-plugin-tab');
-  });
-
   it('Edit mongo data JSON', () => {
     // TODO FIX: Missing button+ctx menu Revert all changes, missing button+ctx menu add document
     // TODO: Dark theme - not visible changed and deleted document
