@@ -188,7 +188,7 @@
 
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
-    title={_t('tableEditor.columns', {
+    title={_t('tableEditor.columnsCount', {
       defaultMessage: 'Columns ({columnCount})',
       values: { columnCount: columns?.length || 0 },
     })}
