@@ -253,15 +253,6 @@
     <InlineButton on:click={handleFullRefreshDatabase}
       >{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton
     >
-
-    <DropDownButton
-      menu={createRefreshDatabaseMenu}
-      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
-      square
-      narrow={false}
-      data-testid="SqlObjectList_refreshButton"
-      icon="icon dots-vertical"
-    />
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <SchemaSelector
