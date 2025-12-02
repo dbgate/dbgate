@@ -203,13 +203,14 @@ describe('Import CSV', () => {
     cy.contains('Import').click();
 
     cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
-    cy.contains('customers-20');
+    cy.testid('ImportExportConfigurator_tableMappingSection').contains('customers-20');
     cy.testid('ImportExportTab_preview_content').contains('50ddd99fAdF48B3').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
-    cy.contains('20 rows written').should('be.visible');
+    cy.testid('ImportExportConfigurator_tableMappingSection').contains('20 rows written').should('be.visible');
 
     cy.testid('SqlObjectList_refreshButton').click();
+    cy.contains('Refresh DB structure (incremental)').click();
     cy.testid('SqlObjectList_container').contains('customers-20').click();
     cy.contains('Rows: 20').should('be.visible');
 
