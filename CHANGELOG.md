@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.7.2 - not released
+- CHANGED: Settings modal redesign - now is settings opened in tab instead of modal, similarily as in VSCode
+- FIXED: Fixed search in table shortcuts #1273
+- CHANGED: Improved foreign key editor UX
+- FIXED: Fixed incremental DB structure refresh for PostgreSQL, optimalized slow loading primary keys in PostgreSQL
+- CHANGED: You could now choose, how to refresh structure, added ability to disconnect or reconnect
+- ADDED: Better processing of table backups, generate table restore script #1274
+
 ## 6.7.1
 - ADDED: LANGUAGE environment variable for the web version. #1266
 - ADDED: New localizations (Italian, Portugese (Brazil), Japanese)
