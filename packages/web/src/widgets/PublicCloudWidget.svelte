@@ -27,7 +27,7 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Public Knowledge Base" name="publicCloud" storageName="publicCloudItems">
+  <WidgetColumnBarItem title={_t('publicCloudWidget.publicKnowledgeBase', { defaultMessage: "Public Knowledge Base" })} name="publicCloud" storageName="publicCloudItems">
     <WidgetsInnerContainer>
       <SearchBoxWrapper>
         <SearchInput placeholder={_t('publicCloudWidget.searchPublicFiles', { defaultMessage: "Search public files" })} bind:value={filter} />
@@ -49,7 +49,7 @@
       />
 
       {#if !$publicFiles?.length}
-        <ErrorInfo message="No files found for your configuration" />
+        <ErrorInfo message={_t('publicCloudWidget.noFilesFound', { defaultMessage: "No files found for your configuration" })} />
         <div class="error-info">
           <div class="m-1">
             {_t('publicCloudWidget.onlyRelevantFilesListed', { defaultMessage: "Only files relevant for your connections, platform and DbGate edition are listed. Please define connections at first." })}

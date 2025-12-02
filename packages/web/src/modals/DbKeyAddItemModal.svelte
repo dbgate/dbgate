@@ -5,6 +5,7 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let keyInfo;
   export let label;
@@ -21,7 +22,7 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Add item</svelte:fragment>
+    <svelte:fragment slot="header">{_t('dbKeyAddItemModal.header', { defaultMessage: 'Add item' })}</svelte:fragment>
 
     <div class="container">
       <DbKeyItemDetail
@@ -34,8 +35,8 @@
     </div>
 
     <svelte:fragment slot="footer">
-      <FormStyledButton value="OK" on:click={e => handleSubmit()} />
-      <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
+      <FormStyledButton value={_t('common.ok', { defaultMessage: 'OK' })} on:click={e => handleSubmit()} />
+      <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

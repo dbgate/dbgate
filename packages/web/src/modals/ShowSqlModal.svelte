@@ -14,7 +14,7 @@
 </script>
 
 <ModalBase {...$$restProps}>
-  <div slot="header">SQL Script</div>
+  <div slot="header">{_t('script.sqlScript', { defaultMessage: 'SQL Script' })}</div>
 
   <div class="editor">
     <SqlEditor {engine} value={sql} readOnly />
@@ -29,7 +29,7 @@
     />
     <FormStyledButton
       type="button"
-      value="Open script"
+      value={_t('common.openScript', { defaultMessage: "Open script" })}
       on:click={() => {
         newQuery({
           initialData: sql,

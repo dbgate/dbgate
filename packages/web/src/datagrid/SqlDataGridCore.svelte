@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { __t } from '../translations'
+  import { __t, _t } from '../translations'
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
@@ -127,7 +127,7 @@
   export function openQuery(sql?) {
     openNewTab(
       {
-        title: 'Query #',
+        title: _t('common.queryNumber', { defaultMessage: 'Query #' }),
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
         focused: true,

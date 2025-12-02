@@ -199,12 +199,12 @@
             divider: true,
           },
           hasPermission('dbops/export') && {
-            label: 'Export',
+            label: _t('common.export', { defaultMessage: 'Export' }),
             functionName: 'tableReader',
             isExport: true,
           },
           hasPermission('dbops/import') && {
-            label: 'Import',
+            label: _t('common.import', { defaultMessage: 'Import' }),
             isImport: true,
             requiresWriteAccess: true,
           },
@@ -260,7 +260,7 @@
             divider: true,
           },
           {
-            label: 'Export',
+            label: _t('common.export', { defaultMessage: 'Export' }),
             isExport: true,
             functionName: 'tableReader',
           },
@@ -310,7 +310,7 @@
             divider: true,
           },
           {
-            label: 'Export',
+            label: _t('common.export', { defaultMessage: 'Export' }),
             isExport: true,
             functionName: 'tableReader',
           },
@@ -402,7 +402,7 @@
             icon: 'img perspective',
           },
           hasPermission('dbops/export') && {
-            label: 'Export',
+            label: _t('common.export', { defaultMessage: 'Export' }),
             isExport: true,
             functionName: 'tableReader',
           },

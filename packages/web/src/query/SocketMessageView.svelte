@@ -3,6 +3,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
+  import { _t } from '../translations';
 
   import useEffect from '../utility/useEffect';
 
@@ -75,7 +76,7 @@
 </script>
 
 {#if showNoMessagesAlert && (!displayedMessages || displayedMessages.length == 0)}
-  <ErrorInfo message="No messages" icon="img alert" />
+  <ErrorInfo message={_t('message.NoMessages', { defaultMessage: 'No messages' })} icon="img alert" />
 {:else}
   <MessageView
     items={displayedMessages}

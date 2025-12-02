@@ -8,6 +8,7 @@
   import Link from '../elements/Link.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { isProApp } from '../utility/proTools';
+  import { _t } from '../translations';
 
   const config = useConfig();
   $: version = $config?.version;
@@ -15,18 +16,18 @@
 </script>
 
 <ModalBase {...$$restProps}>
-  <svelte:fragment slot="header">About DbGate</svelte:fragment>
+  <svelte:fragment slot="header">{_t('aboutModal.aboutDbGate', { defaultMessage: 'About DbGate' })}</svelte:fragment>
   <div class="flex">
     <img src="logo192.png" />
     <div class="ml-4">
       <div>
-        Version: <span>{version}</span>
+        {_t('aboutModal.version', { defaultMessage: 'Version' })}: <span>{version}</span>
       </div>
       <div>
-        Build date: <span>{moment(buildTime).format('YYYY-MM-DD')}</span>
+        {_t('aboutModal.buildDate', { defaultMessage: 'Build date' })}: <span>{moment(buildTime).format('YYYY-MM-DD')}</span>
       </div>
       <div>
-        License type: <span
+        {_t('aboutModal.licenseType', { defaultMessage: 'License type' })}: <span
           >{$config?.checkedLicense && $config?.checkedLicense?.type != 'community'
             ? ($config?.checkedLicense?.licenseTypeObj?.name ?? 'Unknown')
             : 'Community'}</span
@@ -34,16 +35,16 @@
       </div>
       {#if $config?.checkedLicense?.users}
         <div>
-          User count: <span>{$config?.checkedLicense?.users}</span>
+          {_t('aboutModal.userCount', { defaultMessage: 'User count' })}: <span>{$config?.checkedLicense?.users}</span>
         </div>
       {/if}
 
       <div class="mt-2">
-        <FontIcon icon="mdi mdi-web color-icon-blue" /> Web: <Link href="https://www.dbgate.io">dbgate.io</Link>
+        <FontIcon icon="mdi mdi-web color-icon-blue" /> {_t('aboutModal.web', { defaultMessage: 'Web' })}: <Link href="https://www.dbgate.io">dbgate.io</Link>
       </div>
       {#if isProApp()}
         <div>
-          <FontIcon icon="mdi mdi-email color-icon-red" /> Support: <Link href="mailto:support@dbgate.io"
+          <FontIcon icon="mdi mdi-email color-icon-red" /> {_t('aboutModal.support', { defaultMessage: 'Support' })}: <Link href="mailto:support@dbgate.io"
             >support@dbgate.io</Link
           >
         </div>
@@ -55,10 +56,10 @@
       </div> -->
 
       <div class="mt-2">
-        Source codes: <Link href="https://github.com/dbgate/dbgate/">GitHub</Link>
+        {_t('aboutModal.sourceCodes', { defaultMessage: 'Source codes' })}: <Link href="https://github.com/dbgate/dbgate/">GitHub</Link>
       </div>
       <div>
-        Docker container: <Link
+        {_t('aboutModal.dockerContainer', { defaultMessage: 'Docker container' })}: <Link
           href={isProApp()
             ? 'https://hub.docker.com/r/dbgate/dbgate-premium'
             : 'https://hub.docker.com/r/dbgate/dbgate'}>Docker Hub</Link
@@ -69,13 +70,13 @@
       </div> -->
 
       <div class="mt-2">
-        Produced by: <span>Sprinx System a.s.</span>
+        {_t('aboutModal.producedBy', { defaultMessage: 'Produced by' })}: <span>Sprinx System a.s.</span>
       </div>
     </div>
   </div>
 
   <svelte:fragment slot="footer">
-    <FormStyledButton value="Close" on:click={closeCurrentModal} />
+    <FormStyledButton value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
   </svelte:fragment>
 </ModalBase>
 

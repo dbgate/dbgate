@@ -29,7 +29,7 @@
     <FormTextField {label} name="value" focused data-testid="InputTextModal_value" />
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={e => handleSubmit(e.detail)} data-testid="InputTextModal_ok" />
+      <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={e => handleSubmit(e.detail)} data-testid="InputTextModal_ok" />
       <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} data-testid="InputTextModal_cancel" />
     </svelte:fragment>
   </ModalBase>

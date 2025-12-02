@@ -125,7 +125,7 @@
     <FormTextField label="File name" name="name" focused />
     {#if $cloudSigninTokenHolder && !$values['saveToTeamFolder']}
       <FormCloudFolderSelect
-        label="Choose cloud folder"
+        label={_t('cloud.chooseCloudFolder', { defaultMessage: "Choose cloud folder" })}
         name="cloudFolder"
         isNative
         requiredRoleVariants={['write', 'admin']}
@@ -134,13 +134,13 @@
           : [
               {
                 folid: '__local',
-                name: "Local folder (don't store on cloud)",
+                name: _t('cloud.localFolder', { defaultMessage: "Local folder (don't store on cloud)" }),
               },
             ]}
       />
     {/if}
     {#if $configValue?.storageDatabase}
-      <FormCheckboxField label="Save to team folder" name="saveToTeamFolder" />
+      <FormCheckboxField label={_t('cloud.saveToTeamFolder', { defaultMessage: "Save to team folder" })} name="saveToTeamFolder" />
     {/if}
 
     <svelte:fragment slot="footer">
@@ -148,12 +148,12 @@
       {#if electron}
         <FormStyledButton
           type="button"
-          value="Save to disk"
+          value={_t('common.saveToDisk', { defaultMessage: 'Save to disk' })}
           on:click={async () => {
             const file = await electron.showSaveDialog({
               filters: [
-                { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
-                { name: `All files`, extensions: ['*'] },
+                { name: _t('common.fileType', { defaultMessage: '{extension} files', values: {extension: fileExtension.toUpperCase()} }), extensions: [fileExtension] },
+                { name: _t('common.allFiles', { defaultMessage: 'All files' }), extensions: ['*'] },
               ],
               defaultPath: filePath || `${name}.${fileExtension}`,
               properties: ['showOverwriteConfirmation'],

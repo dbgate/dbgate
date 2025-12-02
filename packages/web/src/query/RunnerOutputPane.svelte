@@ -3,6 +3,7 @@
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
   import RunnerOutputFiles from './RunnerOutputFiles.svelte';
   import SocketMessageView from './SocketMessageView.svelte';
+  import { _t } from '../translations';
 
   export let runnerId;
   export let executeNumber;
@@ -10,7 +11,7 @@
 
 <HorizontalSplitter>
   <div class="container" slot="1">
-    <WidgetTitle>Messages</WidgetTitle>
+    <WidgetTitle>{_t('query.Messages', { defaultMessage: 'Messages' })}</WidgetTitle>
     <SocketMessageView
       eventName={runnerId ? `runner-info-${runnerId}` : null}
       {executeNumber}
@@ -19,7 +20,7 @@
     />
   </div>
   <div class="container" slot="2">
-    <WidgetTitle>Output files</WidgetTitle>
+    <WidgetTitle>{_t('query.OutputFiles', { defaultMessage: 'Output files' })}</WidgetTitle>
     <RunnerOutputFiles {runnerId} {executeNumber} />
   </div>
 </HorizontalSplitter>

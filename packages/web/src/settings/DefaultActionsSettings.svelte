@@ -10,7 +10,7 @@
 
 <div class="wrapper">
 <FormValues let:values>
-    <div class="heading">{_t('settings.defaultActions', { defaultMessage: 'Default actions' })}</div>
+    <div class="heading">{_t('settings.defaultActions', { defaultMessage: 'Default Actions' })}</div>
 
     <FormSelectField
     label={_t('settings.defaultActions.connectionClick', { defaultMessage: 'Connection click' })}

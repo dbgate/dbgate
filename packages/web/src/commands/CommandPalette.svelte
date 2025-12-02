@@ -81,7 +81,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
-  import { _tval, __t } from '../translations';
+  import { _tval, __t, _t } from '../translations';
 
   let domInput;
   let filter = '';
@@ -181,7 +181,7 @@
           domInput.focus();
         }}
       >
-        <FontIcon icon="icon menu" /> Commands
+        <FontIcon icon="icon menu" /> {_t('commandPalette.commands', { defaultMessage: 'Commands' })}
       </div>
       <div
         class="page"
@@ -191,7 +191,7 @@
           domInput.focus();
         }}
       >
-        <FontIcon icon="icon database" /> Database
+        <FontIcon icon="icon database" /> {_t('common.database', { defaultMessage: 'Database' })}
       </div>
     </div>
     <div class="mainInner">
@@ -201,8 +201,8 @@
           bind:this={domInput}
           bind:value={filter}
           on:keydown={handleKeyDown}
-          placeholder={parentCommand?.text ||
-            ($visibleCommandPalette == 'database' ? 'Search in database' : 'Search in commands')}
+          placeholder={_tval(parentCommand?.text) ||
+            ($visibleCommandPalette == 'database' ? _t('commandPalette.searchInDatabase', { defaultMessage: 'Search in database' }) : _t('commandPalette.searchInCommands', { defaultMessage: 'Search in commands' }))}
         />
       </div>
       <div class="content">

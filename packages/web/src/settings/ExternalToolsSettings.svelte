@@ -4,7 +4,7 @@
 </script>
 
 <div class="wrapper">
-<div class="heading">{_t('settings.externalTools', { defaultMessage: 'External tools' })}</div>
+<div class="heading">{_t('settings.externalTools', { defaultMessage: 'External Tools' })}</div>
 <FormTextField
     name="externalTools.mysqldump"
     label={_t('settings.other.externalTools.mysqldump', {

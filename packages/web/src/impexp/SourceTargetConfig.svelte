@@ -114,8 +114,8 @@
         value={_t('importExport.newArchive', { defaultMessage: "New archive" })}
         on:click={() => {
           showModal(InputTextModal, {
-            header: 'Archive',
-            label: 'Name of new archive folder',
+            header: _t('importExport.archive', { defaultMessage: 'Archive' }),
+            label: _t('importExport.nameOfNewArchiveFolder', { defaultMessage: 'Name of new archive folder' }),
             value: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
             onConfirm: value => {
               values.update(x => ({

@@ -16,6 +16,7 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormButton from '../forms/FormButton.svelte';
   import { apiCall } from '../utility/api';
+  import { _t } from '../translations';
 
   export let editingData;
   export let savingTab;
@@ -113,28 +114,28 @@
 
 <FormProvider {initialValues}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{editingData ? 'Edit favorite' : 'Share / add to favorites'}</svelte:fragment>
+    <svelte:fragment slot="header">{editingData ? _t('favorite.editFavorite', { defaultMessage: 'Edit favorite' }) : _t('favorite.shareAddToFavorites', { defaultMessage: 'Share / add to favorites' })}</svelte:fragment>
 
-    <FormTextField label="Title" name="title" focused />
-    <FormTextField label="Icon" name="icon" />
+    <FormTextField label={_t('favorite.title', { defaultMessage: 'Title' })} name="title" focused />
+    <FormTextField label={_t('favorite.icon', { defaultMessage: 'Icon' })} name="icon" />
 
-    <FormTextField label="URL path" name="urlPath" />
+    <FormTextField label={_t('favorite.urlPath', { defaultMessage: 'URL path' })} name="urlPath" />
     {#if !!savingTab && !electron && canWriteFavorite}
-      <FormCheckboxField label="Share as link" name="shareAsLink" />
+      <FormCheckboxField label={_t('favorite.shareAsLink', { defaultMessage: 'Share as link' })} name="shareAsLink" />
     {/if}
     <FormValues let:values>
       {#if !values.shareAsLink && canWriteFavorite}
-        <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
-        <FormCheckboxField label="Open on startup" name="openOnStartup" />
+        <FormCheckboxField label={_t('favorite.showInToolbar', { defaultMessage: 'Show in toolbar' })} name="showInToolbar" />
+        <FormCheckboxField label={_t('favorite.openOnStartup', { defaultMessage: 'Open on startup' })} name="openOnStartup" />
       {/if}
     </FormValues>
     {#if !!savingTab && !!savedFile}
       <FormSelectField
-        label="What to save"
+        label={_t('favorite.whatToSave', { defaultMessage: 'What to save' })}
         name="whatToSave"
         options={[
-          { label: 'Link to file', value: 'fileName' },
-          { label: 'Content', value: 'content' },
+          { label: _t('favorite.linkToFile', { defaultMessage: 'Link to file' }), value: 'fileName' },
+          { label: _t('favorite.content', { defaultMessage: 'Content' }), value: 'content' },
         ]}
       />
     {/if}
@@ -142,12 +143,12 @@
     <svelte:fragment slot="footer">
       <FormValues let:values>
         {#if !values.shareAsLink && canWriteFavorite}
-          <FormSubmit value="OK" on:click={handleSubmit} />
+          <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={handleSubmit} />
         {/if}
         {#if values.shareAsLink || !canWriteFavorite}
-          <FormButton value="Copy link" on:click={handleCopyLink} />
+          <FormButton value={_t('common.copyLink', { defaultMessage: 'Copy link' })} on:click={handleCopyLink} />
         {/if}
-        <FormButton value="Cancel" on:click={closeCurrentModal} />
+        <FormButton value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </FormValues>
     </svelte:fragment>
   </ModalBase>

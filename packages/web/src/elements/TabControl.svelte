@@ -1,6 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import DropDownButton from '../buttons/DropDownButton.svelte';
+  import { _tval } from '../translations';
 
   interface TabDef {
     label: string;
@@ -46,7 +47,7 @@
         data-testid={tab.testid}
       >
         <span class="ml-2 noselect">
-          {tab.label}
+          {_tval(tab.label)}
         </span>
       </div>
     {/each}

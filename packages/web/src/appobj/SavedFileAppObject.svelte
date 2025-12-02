@@ -193,6 +193,7 @@
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import { showSnackbarError } from '../utility/snackbar';
+  import { _t } from '../translations';
 
   export let data;
 
@@ -214,27 +215,26 @@
 
   function createMenu() {
     return [
-      handler?.tabComponent && { text: 'Open', onClick: openTab },
+      handler?.tabComponent && { text: _t('common.open', { defaultMessage: 'Open' }), onClick: openTab },
 
-      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
-      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Create copy', onClick: handleCopy },
-      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
-
-      data.teamFileId && data.allowWrite && { text: 'Rename', onClick: handleRename },
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: _t('common.createCopy', { defaultMessage: 'Create copy' }), onClick: handleCopy },
+      !data.teamFileId && hasPermission(`files/${data.folder}/write`) && { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
+      data.teamFileId && data.allowWrite && { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
       data.teamFileId &&
         data.allowRead &&
-        hasPermission('all-team-files/create') && { text: 'Create copy', onClick: handleCopy },
-      data.teamFileId && data.allowWrite && { text: 'Delete', onClick: handleDelete },
+        hasPermission('all-team-files/create') && { text: _t('common.createCopy', { defaultMessage: 'Create copy' }), onClick: handleCopy },
+      data.teamFileId && data.allowWrite && { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
 
-      folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
-      !data.teamFileId && { text: 'Download', onClick: handleDownload },
-      data.teamFileId && data.allowRead && { text: 'Download', onClick: handleDownload },
+      folder == 'markdown' && { text: _t('common.showPage', { defaultMessage: 'Show page' }), onClick: showMarkdownPage },
+      !data.teamFileId && { text: _t('common.download', { defaultMessage: 'Download' }), onClick: handleDownload },
+      data.teamFileId && data.allowRead && { text: _t('common.download', { defaultMessage: 'Download' }), onClick: handleDownload },
     ];
   }
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
-      message: `Really delete file ${data.file}?`,
+      message: _t('common.reallyDeleteFile', { defaultMessage: 'Really delete file {file}?', values: { file: data.file } }),
       onConfirm: () => {
         if (data.teamFileId) {
           apiCall('team-files/delete', { teamFileId: data.teamFileId });
@@ -253,8 +253,8 @@
   const handleRename = () => {
     showModal(InputTextModal, {
       value: data.file,
-      label: 'New file name',
-      header: 'Rename file',
+      label: _t('common.newFileName', { defaultMessage: 'New file name' }),
+      header: _t('common.renameFile', { defaultMessage: 'Rename file' }),
       onConfirm: newFile => {
         if (data.teamFileId) {
           apiCall('team-files/update', { teamFileId: data.teamFileId, name: newFile });
@@ -274,8 +274,8 @@
   const handleCopy = () => {
     showModal(InputTextModal, {
       value: data.file,
-      label: 'New file name',
-      header: 'Copy file',
+      label: _t('savedFile.newFileName', { defaultMessage: 'New file name' }),
+      header: _t('savedFile.copyFile', { defaultMessage: 'Copy file' }),
       onConfirm: newFile => {
         if (data.teamFileId) {
           apiCall('team-files/copy', { teamFileId: data.teamFileId, newName: newFile });
@@ -323,12 +323,12 @@
     if (data.teamFileId) {
       if (data?.metadata?.autoExecute) {
         if (!data.allowUse) {
-          showSnackbarError('You do not have permission to use this team file');
+          showSnackbarError(_t('savedFile.noPermissionUseTeamFile', { defaultMessage: 'You do not have permission to use this team file' }));
           return;
         }
       } else {
         if (!data.allowRead) {
-          showSnackbarError('You do not have permission to read this team file');
+          showSnackbarError(_t('savedFile.noPermissionReadTeamFile', { defaultMessage: 'You do not have permission to read this team file' }));
           return;
         }
       }

@@ -172,11 +172,11 @@
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
-      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+      showModal(ErrorMessageModal, { title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }), message: errorMessage });
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       cache.update(reloadDataCacheFunc);
-      showSnackbarSuccess('Saved to database');
+      showSnackbarSuccess(_t('tableData.savedToDatabase', { defaultMessage: 'Saved to database' }));
     }
   }
 
@@ -192,11 +192,11 @@
       });
       const { errorMessage } = resp || {};
       if (errorMessage) {
-        showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+        showModal(ErrorMessageModal, { title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }), message: errorMessage });
       } else {
         dispatchChangeSet({ type: 'reset', value: createChangeSet() });
         cache.update(reloadDataCacheFunc);
-        showSnackbarSuccess('Saved to database');
+        showSnackbarSuccess(_t('tableData.savedToDatabase', { defaultMessage: 'Saved to database' }));
       }
     } else {
       const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
@@ -360,13 +360,13 @@
     >
 
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      buttonLabel={autoRefreshStarted ? _t('tableData.refreshEvery', { defaultMessage: 'Refresh (every {autoRefreshInterval}s)', values: { autoRefreshInterval } }) : null}
       commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshGrid"
     />
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      buttonLabel={autoRefreshStarted ? _t('tableData.refreshEvery', { defaultMessage: 'Refresh (every {autoRefreshInterval}s)', values: { autoRefreshInterval } }) : null}
       commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshForm"

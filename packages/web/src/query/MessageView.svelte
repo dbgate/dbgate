@@ -6,6 +6,7 @@
   import { filterName } from 'dbgate-tools';
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { _t } from '../translations';
 
   export let items: any[];
   export let showProcedure = false;
@@ -49,49 +50,49 @@
         }}
       >
         <FontIcon icon="icon delete" padRight />
-        Clear
+        {_t('messageView.clear', { defaultMessage: "Clear" })}
       </InlineButton>
     {/if}
     <RowsFilterSwitcher
       icon="img debug"
-      label="Debug"
+      label={_t('messageView.debug', { defaultMessage: "Debug" })}
       {values}
       field="hideDebug"
       count={items.filter(x => x.severity == 'debug').length}
     />
     <RowsFilterSwitcher
       icon="img info"
-      label="Info"
+      label={_t('messageView.info', { defaultMessage: "Info" })}
       {values}
       field="hideInfo"
       count={items.filter(x => x.severity == 'info').length}
     />
     <RowsFilterSwitcher
       icon="img error"
-      label="Error"
+      label={_t('messageView.error', { defaultMessage: "Error" })}
       {values}
       field="hideError"
       count={items.filter(x => x.severity == 'error').length}
     />
-    <SearchInput placeholder="Filter log messages" bind:value={filter} />
+    <SearchInput placeholder={_t('messageView.filterLogMessages', { defaultMessage: "Filter log messages" })} bind:value={filter} />
   </div>
   <div class="tablewrap">
     <table>
       <thead>
         <tr>
-          <td class="header">Number</td>
-          <td class="header">Message</td>
-          <td class="header">Time</td>
-          <td class="header">Delta</td>
-          <td class="header">Duration</td>
+          <td class="header">{_t('messageView.number', { defaultMessage: 'Number' })}</td>
+          <td class="header">{_t('messageView.message', { defaultMessage: 'Message' })}</td>
+          <td class="header">{_t('messageView.time', { defaultMessage: 'Time' })}</td>
+          <td class="header">{_t('messageView.delta', { defaultMessage: 'Delta' })}</td>
+          <td class="header">{_t('messageView.duration', { defaultMessage: 'Duration' })}</td>
           {#if showProcedure}
-            <td class="header">Procedure</td>
+            <td class="header">{_t('messageView.procedure', { defaultMessage: 'Procedure' })}</td>
           {/if}
           {#if showLine}
-            <td class="header">Line</td>
+            <td class="header">{_t('messageView.line', { defaultMessage: 'Line' })}</td>
           {/if}
           {#if showCaller}
-            <td class="header">Caller</td>
+            <td class="header">{_t('messageView.caller', { defaultMessage: 'Caller' })}</td>
           {/if}
         </tr>
       </thead>

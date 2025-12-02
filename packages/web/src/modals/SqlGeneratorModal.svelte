@@ -32,6 +32,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
   import { apiCall } from '../utility/api';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -113,7 +114,7 @@
   function editSql() {
     openNewTab(
       {
-        title: 'Query #',
+        title: _t('query.queryNumber', { defaultMessage: 'Query #' }),
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
         focused: true,
@@ -133,7 +134,7 @@
 <FormProviderCore values={valuesStore} template={FormFieldTemplateTiny}>
   <ModalBase {...$$restProps} fullScreen>
     <svelte:fragment slot="header">
-      SQL Generator
+      {_t('sqlGenerator.sqlGenerator', { defaultMessage: 'SQL Generator' })}
       <span class="dbname">
         <FontIcon icon="icon database" />
         {database}
@@ -146,9 +147,9 @@
     <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
       <svelte:fragment slot="1">
         <div class="flexcol flex1">
-          <WidgetTitle>Choose objects</WidgetTitle>
+          <WidgetTitle>{_t('sqlGenerator.chooseObjects', { defaultMessage: 'Choose objects' })}</WidgetTitle>
           <SearchBoxWrapper>
-            <SearchInput placeholder="Search tables or objects" bind:value={objectsFilter} />
+            <SearchInput placeholder={_t('sqlGenerator.searchTablesOrObjects', { defaultMessage: 'Search tables or objects' })} bind:value={objectsFilter} />
           </SearchBoxWrapper>
 
           <WidgetsInnerContainer>
@@ -174,54 +175,53 @@
             {:else}
               <div class="flexcol flex1">
                 {#if truncated}
-                  <ErrorInfo icon="img warn" message="SQL truncated, file size limit exceed" />
+                  <ErrorInfo icon="img warn" message={_t('sqlGenerator.sqlTruncated', { defaultMessage: 'SQL truncated, file size limit exceed' })} />
                 {/if}
                 <div class="relative flex1">
                   <SqlEditor readOnly value={sqlPreview} />
                 </div>
               </div>
               {#if busy}
-                <LoadingInfo wrapper message="Loading SQL preview" />
+                <LoadingInfo wrapper message={_t('sqlGenerator.loadingSqlPreview', { defaultMessage: "Loading SQL preview" })} />
               {/if}
             {/if}
           </svelte:fragment>
           <svelte:fragment slot="2">
             <div class="flexcol flex1">
-              <WidgetTitle>Generator settings</WidgetTitle>
+              <WidgetTitle>{_t('sqlGenerator.generatorSettings', { defaultMessage: 'Generator settings' })}</WidgetTitle>
               <WidgetsInnerContainer>
                 <FormValues let:values>
-                  <div class="obj-heading">Tables</div>
-                  <FormCheckboxField label="Drop tables" name="dropTables" />
+                  <div class="obj-heading">{_t('sqlGenerator.tables', { defaultMessage: 'Tables' })}</div>
+                  <FormCheckboxField label={_t('sqlGenerator.dropTables', { defaultMessage: 'Drop tables' })} name="dropTables" />
                   {#if values.dropTables}
                     <div class="ml-2">
-                      <FormCheckboxField label="Test if exists" name="checkIfTableExists" />
+                      <FormCheckboxField label={_t('sqlGenerator.testIfExists', { defaultMessage: 'Test if exists' })} name="checkIfTableExists" />
                     </div>
                   {/if}
-                  <FormCheckboxField label="Drop references" name="dropReferences" />
+                  <FormCheckboxField label={_t('sqlGenerator.dropReferences', { defaultMessage: 'Drop references' })} name="dropReferences" />
 
-                  <FormCheckboxField label="Create tables" name="createTables" />
-                  <FormCheckboxField label="Create references" name="createReferences" />
-                  <FormCheckboxField label="Create foreign keys" name="createForeignKeys" />
-                  <FormCheckboxField label="Create indexes" name="createIndexes" />
+                  <FormCheckboxField label={_t('sqlGenerator.createTables', { defaultMessage: 'Create tables' })} name="createTables" />
+                  <FormCheckboxField label={_t('sqlGenerator.createReferences', { defaultMessage: 'Create references' })} name="createReferences" />
+                  <FormCheckboxField label={_t('sqlGenerator.createForeignKeys', { defaultMessage: 'Create foreign keys' })} name="createForeignKeys" />
+                  <FormCheckboxField label={_t('sqlGenerator.createIndexes', { defaultMessage: 'Create indexes' })} name="createIndexes" />
 
-                  <FormCheckboxField label="Insert" name="insert" />
+                  <FormCheckboxField label={_t('sqlGenerator.insert', { defaultMessage: 'Insert' })} name="insert" />
                   {#if values.insert}
                     <div class="ml-2">
-                      <FormCheckboxField label="Skip autoincrement column" name="skipAutoincrementColumn" />
-                      <FormCheckboxField label="Disable constraints" name="disableConstraints" />
-                      <FormCheckboxField label="Omit NULL values" name="omitNulls" />
+                      <FormCheckboxField label={_t('sqlGenerator.skipAutoincrementColumn', { defaultMessage: 'Skip autoincrement column' })} name="skipAutoincrementColumn" />
+                      <FormCheckboxField label={_t('sqlGenerator.disableConstraints', { defaultMessage: 'Disable constraints' })} name="disableConstraints" />
+                      <FormCheckboxField label={_t('sqlGenerator.omitNulls', { defaultMessage: 'Omit NULL values' })} name="omitNulls" />
                     </div>
                   {/if}
 
-                  <FormCheckboxField label="Truncate tables (delete all rows)" name="truncate" />
-
+                  <FormCheckboxField label={_t('sqlGenerator.truncate', { defaultMessage: 'Truncate tables (delete all rows)' })} name="truncate" />
                   {#each ['View', 'Matview', 'Procedure', 'Function', 'Trigger', 'SchedulerEvent'] as objtype}
                     <div class="obj-heading">{getObjectTypeFieldLabel(objtype + 's')}</div>
-                    <FormCheckboxField label="Create" name={`create${objtype}s`} />
-                    <FormCheckboxField label="Drop" name={`drop${objtype}s`} />
+                    <FormCheckboxField label={_t('sqlGenerator.create', { defaultMessage: 'Create {objtype}s', values: {objtype} })} name={`create${objtype}s`} />
+                    <FormCheckboxField label={_t('sqlGenerator.drop', { defaultMessage: `Drop ${objtype}s` })} name={`drop${objtype}s`} />
                     {#if values[`drop${objtype}s`]}
                       <div class="ml-2">
-                        <FormCheckboxField label="Check if exists" name={`checkIf${objtype}Exists`} />
+                        <FormCheckboxField label={_t('sqlGenerator.checkIfExists', { defaultMessage: 'Check if exists' })} name={`checkIf${objtype}Exists`} />
                       </div>
                     {/if}
                   {/each}
@@ -241,8 +241,8 @@
 
     <svelte:fragment slot="footer">
       <div class="flex m-2">
-        <LargeButton on:click={editSql} icon="icon sql-file">Edit SQL</LargeButton>
-        <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
+        <LargeButton on:click={editSql} icon="icon sql-file">{_t('sqlGenerator.editSql', { defaultMessage: 'Edit SQL' })}</LargeButton>
+        <LargeButton on:click={closeCurrentModal} icon="icon close">{_t('common.close', { defaultMessage: 'Close' })}</LargeButton>
       </div>
     </svelte:fragment>
   </ModalBase>

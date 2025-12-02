@@ -53,14 +53,15 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
+  import { _t } from '../translations';
 
   export let data;
 
   const handleRename = () => {
     showModal(InputTextModal, {
       value: data.fileName,
-      label: 'New file name',
-      header: 'Rename file',
+      label: _t('appFile.newFileName', { defaultMessage: 'New file name' }),
+      header: _t('appFile.renameFile', { defaultMessage: 'Rename file' }),
       onConfirm: newFile => {
         apiCall('apps/rename-file', {
           file: data.fileName,
@@ -74,7 +75,7 @@
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
-      message: `Really delete file ${data.fileName}?`,
+      message: _t('appFile.deleteFileConfirm', { defaultMessage: 'Really delete file {fileName}?', values: { fileName: data.fileName } }),
       onConfirm: () => {
         apiCall('apps/delete-file', {
           file: data.fileName,
@@ -101,10 +102,10 @@
 
   function createMenu() {
     return [
-      { text: 'Delete', onClick: handleDelete },
-      { text: 'Rename', onClick: handleRename },
-      data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
-      data.fileType.endsWith('.json') && { text: 'Open JSON', onClick: handleOpenJsonFile },
+      { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
+      { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
+      data.fileType.endsWith('.sql') && { text: _t('common.openSql', { defaultMessage: 'Open SQL' }), onClick: handleOpenSqlFile },
+      data.fileType.endsWith('.json') && { text: _t('common.openJson', { defaultMessage: 'Open JSON' }), onClick: handleOpenJsonFile },
 
       // data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];

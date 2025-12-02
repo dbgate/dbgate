@@ -10,6 +10,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let script;
   export let header;
@@ -77,14 +78,14 @@
 
     <svelte:fragment slot="footer">
       {#if isRunning}
-        <FormStyledButton value="Stop" on:click={handleStop} data-testid="RunScriptModal_stop" />
+        <FormStyledButton value={_t('script.stop', { defaultMessage: 'Stop' })} on:click={handleStop} data-testid="RunScriptModal_stop" />
       {:else}
-        <FormStyledButton value="Close" on:click={handleClose} data-testid="RunScriptModal_close" />
+        <FormStyledButton value={_t('common.close', { defaultMessage: 'Close' })} on:click={handleClose} data-testid="RunScriptModal_close" />
       {/if}
 
       {#if onOpenResult && !isRunning}
         <FormStyledButton
-          value={openResultLabel || 'Open result'}
+          value={openResultLabel || _t('script.openResult', { defaultMessage: 'Open result' })}
           on:click={() => {
             closeCurrentModal();
             onOpenResult();
