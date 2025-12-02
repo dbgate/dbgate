@@ -31,7 +31,7 @@
 </script>
 
 <div class="main" class:maxHeight100 class:flex1>
-  <HorizontalSplitter initialValue="20%">
+  <HorizontalSplitter initialValue="170px">
     <svelte:fragment slot="1">
       <div class="menu">
         {#each _.compact(items) as item, index}

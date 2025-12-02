@@ -36,7 +36,7 @@ ORDER BY
 </script>
 
 <div class="wrapper">
-  <div class="heading">{_t('settings.appearance', { defaultMessage: 'Application theme' })}</div>
+  <div class="heading">{_t('settings.applicationTheme', { defaultMessage: 'Application theme' })}</div>
 
   <FormFieldTemplateLarge
   label={_t('settings.appearance.useSystemTheme', { defaultMessage: 'Use system theme' })}
