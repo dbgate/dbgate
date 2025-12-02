@@ -69,7 +69,7 @@
     ...(oneTab && resultInfos.length > 0
       ? [
           {
-            label: __t('resultTabs.results', { defaultMessage: 'Results' }),
+            label: _t('resultTabs.results', { defaultMessage: 'Results' }),
             isResult: true,
             component: AllResultsTab,
             props: {
@@ -78,14 +78,14 @@
           },
         ]
       : resultInfos.map((info, index) => ({
-          label: __t('resultTabs.resultNumber', { defaultMessage: 'Result {number}', values: { number: index + 1 } }),
+          label: _t('resultTabs.resultNumber', { defaultMessage: 'Result {number}', values: { number: index + 1 } }),
           isResult: true,
           component: JslDataGrid,
           resultIndex: info.resultIndex,
           props: { jslid: info.jslid, driver, onOpenChart: () => handleOpenChart(info.resultIndex) },
         }))),
     ...charts.map((info, index) => ({
-      label: __t('resultTabs.chartNumber', { defaultMessage: 'Chart {number}', values: { number: info.resultIndex + 1 } }),
+      label: _t('resultTabs.chartNumber', { defaultMessage: 'Chart {number}', values: { number: info.resultIndex + 1 } }),
       isChart: true,
       resultIndex: info.resultIndex,
       component: JslChart,
