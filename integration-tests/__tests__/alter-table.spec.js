@@ -182,7 +182,15 @@ describe('Alter table', () => {
   )(
     'Drop column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != column)));
+      await testTableDiff(engine, conn, driver, 
+        tbl => {
+          tbl.columns = tbl.columns.filter(x => x.columnName != column);
+          tbl.foreignKeys = tbl.foreignKeys.map(fk => ({
+            ...fk, 
+            columns: fk.columns.filter(col => col.columnName != column)
+          })).filter(fk => fk.columns.length > 0);
+        }
+      );
     })
   );
 
@@ -205,7 +213,11 @@ describe('Alter table', () => {
         engine,
         conn,
         driver,
-        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x)))
+        tbl => {
+          tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x));
+          tbl.foreignKeys = tbl.foreignKeys.map(fk => ({...fk, columns: fk.columns.map(col => col.columnName == column ? { ...col, columnName: 'col_renamed' } : col)
+          }));
+        }
       );
     })
   );
