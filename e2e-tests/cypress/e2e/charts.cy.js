@@ -199,7 +199,7 @@ describe('Charts', () => {
     cy.testid('WidgetIconPanel_settings');
   });
 
-  it.only('Settings', () => {
+  it('Settings', () => {
     cy.testid('WidgetIconPanel_settings').click();
     cy.themeshot('app-settings-general');
 
@@ -234,10 +234,10 @@ describe('Charts', () => {
     cy.contains('Light').click();
     cy.get('body').find('.theme-light').should('exist');
 
-    // Connection
-    cy.contains(/^Connection$/).click();
+    // General
+    cy.contains(/^General$/).click();
     cy.contains('charts_sample');
-    cy.get('[data-testid=ConnectionSettings_lockedDatabaseMode]').check();
+    cy.get('[data-testid=GeneralSettings_lockedDatabaseMode]').check();
     cy.contains('Connections').click();
     cy.contains('charts_sample').should('not.exist');
 

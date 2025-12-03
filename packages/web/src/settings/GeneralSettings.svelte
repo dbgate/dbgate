@@ -95,7 +95,7 @@
     <CheckboxField
       checked={$lockedDatabaseMode}
       on:change={e => ($lockedDatabaseMode = e.target['checked'])}
-      data-testid="ConnectionSettings_lockedDatabaseMode"
+      data-testid="GeneralSettings_lockedDatabaseMode"
     />
   </FormFieldTemplateLarge>
 
