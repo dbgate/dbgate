@@ -1,7 +1,7 @@
 <script lang="ts">
   import _, { isPlainObject } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
-  import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
+  import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse, isTypeNumber } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import CellValue from './CellValue.svelte';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
@@ -80,7 +80,7 @@
   class:isFocusedColumn
   class:hasOverlayValue
   class:isMissingOverlayField
-  class:alignRight={_.isNumber(value) && !showHint}
+  class:alignRight={ (_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint}
   {style}
 >
   {#if hasOverlayValue}
