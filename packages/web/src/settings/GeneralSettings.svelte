@@ -20,7 +20,11 @@
 
 <div class="wrapper">
   <div class="heading">{_t('settings.application', { defaultMessage: 'Application' })}</div>
-  <FormFieldTemplateLarge label={_t('settings.localization.language', { defaultMessage: 'Language' })} type="combo">
+  <FormFieldTemplateLarge
+    label={_t('settings.localization.language', { defaultMessage: 'Language' })}
+    type="combo"
+    labelIcon="mdi mdi-translate"
+  >
     <SelectField
       isNative
       data-testid="SettingsModal_languageSelect"
