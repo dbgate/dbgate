@@ -166,6 +166,7 @@ export function getDatabasStatusMenu(dbid, driver = null) {
         apiCall('database-connections/sync-model', dbid);
         callSchemalListChanged();
       },
+      testid: 'DatabasStatusMenu_refreshIncremental',
     },
     {
       text: driver?.supportsIncrementalAnalysis
@@ -175,6 +176,7 @@ export function getDatabasStatusMenu(dbid, driver = null) {
         apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
         callSchemalListChanged();
       },
+      testid: 'DatabasStatusMenu_refreshFull',
     },
     {
       text: _t('command.database.reopenConnection', { defaultMessage: 'Reopen connection' }),
@@ -182,6 +184,7 @@ export function getDatabasStatusMenu(dbid, driver = null) {
         apiCall('database-connections/refresh', dbid);
         callSchemalListChanged();
       },
+      testid: 'DatabasStatusMenu_reopenConnection',
     },
     {
       text: _t('command.database.disconnect', { defaultMessage: 'Disconnect' }),
@@ -190,6 +193,7 @@ export function getDatabasStatusMenu(dbid, driver = null) {
         if (electron) apiCall('database-connections/disconnect', dbid);
         switchCurrentDatabase(null);
       },
+      testid: 'DatabasStatusMenu_disconnect',
     },
   ]);
 }

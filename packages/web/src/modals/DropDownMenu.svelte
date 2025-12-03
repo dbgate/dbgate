@@ -164,7 +164,12 @@
           changeActiveSubmenu();
         }}
       >
-        <a on:click={e => handleClick(e, item)} class:disabled={item.disabled} class:bold={item.isBold}>
+        <a
+          on:click={e => handleClick(e, item)}
+          class:disabled={item.disabled}
+          class:bold={item.isBold}
+          data-testid={item.testid}
+        >
           <span>
             {#if item.switchValue && item.switchStoreGetter}
               {#key switchIndex}
