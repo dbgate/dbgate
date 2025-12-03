@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.7.2 - not released
+## 6.7.2
 - CHANGED: Settings modal redesign - now is settings opened in tab instead of modal, similarily as in VSCode
 - FIXED: Fixed search in table shortcuts #1273
 - CHANGED: Improved foreign key editor UX
