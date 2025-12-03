@@ -34,6 +34,17 @@ label={_t('settings.dataGrid.thousandsSeparator', {
 })}
 />
 
+<FormSelectField
+label={_t('settings.dataGrid.thousandsSeparator', { defaultMessage: 'Thousands separator for numbers' })}
+name="dataGrid.thousandsSeparatorChar"
+isNative
+defaultValue=""
+options={[
+    { value: '', label: _t('settings.dataGrid.thousandsSeparator.none', { defaultMessage: 'None' }) },
+    { value: ' ', label: _t('settings.dataGrid.thousandsSeparator.space', { defaultMessage: 'Space' }) },
+]}
+/>
+
 <FormTextField
 name="dataGrid.defaultAutoRefreshInterval"
 label={_t('settings.dataGrid.defaultAutoRefreshInterval', {
