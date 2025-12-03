@@ -45,14 +45,15 @@ export function hexStringToArray(inputString) {
 
 export function base64ToHex(base64String) {
   const binaryString = atob(base64String);
-  const hexString = Array.from(binaryString, c =>
-    c.charCodeAt(0).toString(16).padStart(2, '0')
-  ).join('');
+  const hexString = Array.from(binaryString, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
   return '0x' + hexString.toUpperCase();
-};
+}
 
 export function hexToBase64(hexString) {
-  const binaryString = hexString.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
+  const binaryString = hexString
+    .match(/.{1,2}/g)
+    .map(byte => String.fromCharCode(parseInt(byte, 16)))
+    .join('');
   return btoa(binaryString);
 }
 
@@ -68,9 +69,9 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     if (mHex) {
       return {
         $binary: {
-          base64: hexToBase64(value.substring(2))
-        }
-      }
+          base64: hexToBase64(value.substring(2)),
+        },
+      };
     }
   }
 
@@ -201,9 +202,23 @@ function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
 }
 
 function formatNumberCustomSeparator(value, thousandsSeparator) {
-    const [intPart, decPart] = value.split('.');
-    const intPartWithSeparator = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
-    return decPart ? `${intPartWithSeparator}.${decPart}` : intPartWithSeparator;
+  const [intPart, decPart] = value.split('.');
+  const intPartWithSeparator = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+  return decPart ? `${intPartWithSeparator}.${decPart}` : intPartWithSeparator;
+}
+
+function formatCellNumber(value, gridFormattingOptions?: { thousandsSeparator?: string }) {
+  const separator = gridFormattingOptions?.thousandsSeparator;
+  if (_isNumber(value)) {
+    if (separator === 'none' || (value < 1000 && value > -1000)) return value.toString();
+    if (separator === 'system') return value.toLocaleString();
+  }
+  // fallback for system locale
+  if (separator === 'space' || separator === 'system') return formatNumberCustomSeparator(value.toString(), ' ');
+  if (separator === 'narrowspace') return formatNumberCustomSeparator(value.toString(), '\u202F');
+  if (separator === 'comma') return formatNumberCustomSeparator(value.toString(), ',');
+  if (separator === 'dot') return formatNumberCustomSeparator(value.toString(), '.');
+  return value.toString();
 }
 
 export function stringifyCellValue(
@@ -216,7 +231,7 @@ export function stringifyCellValue(
     | 'exportIntent'
     | 'clipboardIntent',
   editorTypes?: DataEditorTypesBehaviour,
-  gridFormattingOptions?: { thousandsSeparator?: string},
+  gridFormattingOptions?: { thousandsSeparator?: string },
   jsonParsedValue?: any
 ): {
   value: string;
@@ -262,7 +277,7 @@ export function stringifyCellValue(
     //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
     // }
   }
-  
+
   if (editorTypes?.parseObjectIdAsDollar) {
     if (value?.$oid) {
       switch (intent) {
@@ -276,13 +291,13 @@ export function stringifyCellValue(
   }
   if (value?.$bigint) {
     return {
-      value: value.$bigint,
+      value: formatCellNumber(value.$bigint, gridFormattingOptions),
       gridStyle: 'valueCellStyle',
     };
   }
   if (typeof value === 'bigint') {
     return {
-      value: value.toString(),
+      value: formatCellNumber(value.toString(), gridFormattingOptions),
       gridStyle: 'valueCellStyle',
     };
   }
@@ -358,14 +373,7 @@ export function stringifyCellValue(
     switch (intent) {
       case 'gridCellIntent':
         const separator = gridFormattingOptions?.thousandsSeparator;
-        let formattedValue;
-        if (separator === 'none' || (value < 1000 && value > -1000)) formattedValue = value.toString();
-        else if (separator === 'system') formattedValue = value.toLocaleString();
-        else if (separator === 'space') formattedValue = formatNumberCustomSeparator(value.toString(), ' ');
-        else if (separator === 'nobreakspace') formattedValue = formatNumberCustomSeparator(value.toString(), '\u202F');
-        else if (separator === 'comma') formattedValue = formatNumberCustomSeparator(value.toString(), ',');
-        else if (separator === 'dot') formattedValue = formatNumberCustomSeparator(value.toString(), '.');
-        return { value: formattedValue, gridStyle: 'valueCellStyle' };
+        return { value: formatCellNumber(value, gridFormattingOptions), gridStyle: 'valueCellStyle' };
       default:
         return { value: value.toString() };
     }
