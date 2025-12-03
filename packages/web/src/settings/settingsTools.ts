@@ -29,6 +29,13 @@ export function getStringSettingsValue(name, defaultValue) {
   return res;
 }
 
+export function getObjectSettingsValue(name, defaultValue) {
+  const settings = getCurrentSettings();
+  const res = settings[name];
+  if (res == null) return defaultValue;
+  return res;
+}
+
 export function getConnectionClickActionSetting(): 'connect' | 'openDetails' | 'none' {
   return getStringSettingsValue('defaultAction.connectionClick', 'connect');
 }

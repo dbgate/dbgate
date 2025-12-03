@@ -289,16 +289,11 @@ module.exports = {
     const res = await lock.acquire('settings', async () => {
       const currentValue = await this.loadSettings();
       try {
-        let updated = currentValue;
+        let updated = {
+          ...currentValue,
+          ...values,
+        };
         if (process.env.STORAGE_DATABASE) {
-          updated = {
-            ...currentValue,
-            ..._.mapValues(values, v => {
-              if (v === true) return 'true';
-              if (v === false) return 'false';
-              return v;
-            }),
-          };
           await storage.writeConfig({
             group: 'settings',
             config: updated,

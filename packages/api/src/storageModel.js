@@ -360,6 +360,12 @@ module.exports = {
           "columnName": "value",
           "dataType": "varchar(1000)",
           "notNull": false
+        },
+        {
+          "pureName": "config",
+          "columnName": "valueType",
+          "dataType": "varchar(50)",
+          "notNull": false
         }
       ],
       "foreignKeys": [],

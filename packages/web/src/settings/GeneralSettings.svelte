@@ -10,6 +10,9 @@
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import hasPermission from '../utility/hasPermission';
+  import CheckboxField from '../forms/CheckboxField.svelte';
+  import { lockedDatabaseMode } from '../stores';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -78,6 +81,24 @@
     />
   {/if}
 
+  <FormFieldTemplateLarge
+    label={_t('settings.connection.showOnlyTabsFromSelectedDatabase', {
+      defaultMessage: 'Show only tabs from selected database',
+    })}
+    type="checkbox"
+    labelProps={{
+      onClick: () => {
+        $lockedDatabaseMode = !$lockedDatabaseMode;
+      },
+    }}
+  >
+    <CheckboxField
+      checked={$lockedDatabaseMode}
+      on:change={e => ($lockedDatabaseMode = e.target['checked'])}
+      data-testid="ConnectionSettings_lockedDatabaseMode"
+    />
+  </FormFieldTemplateLarge>
+
   <div class="heading">{_t('settings.appearance', { defaultMessage: 'Appearance' })}</div>
 
   {#if electron}
@@ -106,6 +127,7 @@
       defaultMessage: 'Show server name alongside database name in title of the tab group',
     })}
     defaultValue={false}
+    disabled={!hasPermission('settings/change')}
   />
 </div>
 
