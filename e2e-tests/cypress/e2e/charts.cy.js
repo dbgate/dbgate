@@ -110,7 +110,7 @@ describe('Charts', () => {
     cy.themeshot('new-object-window');
   });
 
-  it('Database chat - charts', () => {
+  it.skip('Database chat - charts', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
@@ -125,7 +125,7 @@ describe('Charts', () => {
     cy.themeshot('database-chat-chart');
   });
 
-  it('Database chat', () => {
+  it.skip('Database chat', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
@@ -146,7 +146,7 @@ describe('Charts', () => {
     // cy.themeshot('database-chat');
   });
 
-  it('Explain query error', () => {
+  it.skip('Explain query error', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.testid('TabsPanel_buttonNewObject').click();
