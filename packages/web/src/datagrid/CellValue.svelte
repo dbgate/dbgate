@@ -13,7 +13,7 @@
     value,
     'gridCellIntent',
     editorTypes,
-    { thousandsSeparator: getStringSettingsValue('dataGrid.thousandsSeparatorChar', 'system') },
+    { thousandsSeparator: getStringSettingsValue('dataGrid.thousandsSeparatorChar', 'none') },
     jsonParsedValue
   );
 
