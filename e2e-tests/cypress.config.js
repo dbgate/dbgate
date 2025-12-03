@@ -10,6 +10,7 @@ module.exports = defineConfig({
     // baseUrl: 'http://localhost:3000',
     // trashAssetsBeforeRuns: false,
     chromeWebSecurity: false,
+    reporter: process.env.CI ? 'mocha-reporter-gha' : 'spec',
 
     setupNodeEvents(on, config) {
       // implement node event listeners here
