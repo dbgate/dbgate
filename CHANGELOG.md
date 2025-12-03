@@ -8,6 +8,11 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.7.3
+- FIXED: Fixed problem in analyser core - in PostgreSQL, after dropping table, dropped table still appeared in structure
+- FIXED: PostgreSQL numeric columns do not align right #1254
+- ADDED: Custom thousands separator #1213
+
 ## 6.7.2
 - CHANGED: Settings modal redesign - now is settings opened in tab instead of modal, similarily as in VSCode
 - FIXED: Fixed search in table shortcuts #1273
