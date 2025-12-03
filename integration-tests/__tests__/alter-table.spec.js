@@ -26,13 +26,15 @@ function pickImportantTableInfo(engine, table) {
       .map(props =>
         _.omitBy(props, (v, k) => k == 'defaultValue' && v == 'NULL' && engine.setNullDefaultInsteadOfDrop)
       ),
-    // foreignKeys: table.foreignKeys
-    //   .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
-    //   .map(fk => ({
-    //     constraintType: fk.constraintType,
-    //     refTableName: fk.refTableName,
-    //     columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
-    //   })),
+
+      // TODO:
+    foreignKeys: table.foreignKeys
+      .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
+      .map(fk => ({
+        constraintType: fk.constraintType,
+        refTableName: fk.refTableName,
+        columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
+      })),
   };
 }
 
@@ -103,6 +105,7 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
 
   await driver.script(conn, sql);
 
+  // TODO:
   // if (!engine.skipIncrementalAnalysis) {
   //   const structure2RealIncremental = await driver.analyseIncremental(conn, structure1Source);
   //   checkTableStructure(engine, tget(structure2RealIncremental), tget(structure2));
