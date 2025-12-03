@@ -94,7 +94,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipIncrementalAnalysis).map(engine => [engine.label, engine]))(
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Table add - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t2Sql(engine)));
@@ -112,7 +112,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipIncrementalAnalysis).map(engine => [engine.label, engine]))(
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Table remove - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
@@ -130,7 +130,7 @@ describe('Table analyse', () => {
     })
   );
 
-  test.each(engines.filter(x => !x.skipIncrementalAnalysis).map(engine => [engine.label, engine]))(
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Table change - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await runCommandOnDriver(conn, driver, dmp => dmp.put(t1Sql(engine)));
