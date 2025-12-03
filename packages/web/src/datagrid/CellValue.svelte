@@ -1,6 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { getStringSettingsValue } from '../settings/settingsTools';
   import { stringifyCellValue } from 'dbgate-tools';
 
   export let rowData;
@@ -13,7 +13,7 @@
     value,
     'gridCellIntent',
     editorTypes,
-    { useThousandsSeparator: getBoolSettingsValue('dataGrid.thousandsSeparator', false) },
+    { thousandsSeparator: getStringSettingsValue('dataGrid.thousandsSeparatorChar', 'system') },
     jsonParsedValue
   );
 

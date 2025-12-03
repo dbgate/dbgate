@@ -27,11 +27,19 @@ defaultValue="100"
 {/if}
 <!-- <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} /> -->
 
-<FormCheckboxField
-name="dataGrid.thousandsSeparator"
-label={_t('settings.dataGrid.thousandsSeparator', {
-    defaultMessage: 'Use thousands separator for numbers',
-})}
+<FormSelectField
+label={_t('settings.dataGrid.thousandsSeparator', { defaultMessage: 'Thousands separator for numbers' })}
+name="dataGrid.thousandsSeparatorChar"
+isNative
+defaultValue='none'
+options={[
+    { value: 'none', label: _t('settings.dataGrid.thousandsSeparator.none', { defaultMessage: 'None' }) },
+    { value: 'system', label: _t('settings.dataGrid.thousandsSeparator.system', { defaultMessage: 'System' }) },
+    { value: 'space', label: _t('settings.dataGrid.thousandsSeparator.space', { defaultMessage: 'Space' }) },
+    { value: 'nobreakspace', label: _t('settings.dataGrid.thousandsSeparator.narrowNoBreakSpace', { defaultMessage: 'Narrow no-break space' }) },
+    { value: 'comma', label: _t('settings.dataGrid.thousandsSeparator.comma', { defaultMessage: 'Comma (,)' }) },
+    { value: 'dot', label: _t('settings.dataGrid.thousandsSeparator.dot', { defaultMessage: 'Dot (.)' }) },
+]}
 />
 
 <FormTextField

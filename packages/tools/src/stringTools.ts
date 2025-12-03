@@ -200,6 +200,12 @@ function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
   return { value: '(JSON)', gridStyle: 'nullCellStyle' };
 }
 
+function formatNumberCustomSeparator(value, thousandsSeparator) {
+    const [intPart, decPart] = value.split('.');
+    const intPartWithSeparator = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+    return decPart ? `${intPartWithSeparator}.${decPart}` : intPartWithSeparator;
+}
+
 export function stringifyCellValue(
   value,
   intent:
@@ -210,7 +216,7 @@ export function stringifyCellValue(
     | 'exportIntent'
     | 'clipboardIntent',
   editorTypes?: DataEditorTypesBehaviour,
-  gridFormattingOptions?: { useThousandsSeparator?: boolean },
+  gridFormattingOptions?: { thousandsSeparator?: string},
   jsonParsedValue?: any
 ): {
   value: string;
@@ -351,13 +357,15 @@ export function stringifyCellValue(
   if (_isNumber(value)) {
     switch (intent) {
       case 'gridCellIntent':
-        return {
-          value:
-            gridFormattingOptions?.useThousandsSeparator && (value >= 10000 || value <= -10000)
-              ? value.toLocaleString()
-              : value.toString(),
-          gridStyle: 'valueCellStyle',
-        };
+        const separator = gridFormattingOptions?.thousandsSeparator;
+        let formattedValue;
+        if (separator === 'none' || (value < 1000 && value > -1000)) formattedValue = value.toString();
+        else if (separator === 'system') formattedValue = value.toLocaleString();
+        else if (separator === 'space') formattedValue = formatNumberCustomSeparator(value.toString(), ' ');
+        else if (separator === 'nobreakspace') formattedValue = formatNumberCustomSeparator(value.toString(), '\u202F');
+        else if (separator === 'comma') formattedValue = formatNumberCustomSeparator(value.toString(), ',');
+        else if (separator === 'dot') formattedValue = formatNumberCustomSeparator(value.toString(), '.');
+        return { value: formattedValue, gridStyle: 'valueCellStyle' };
       default:
         return { value: value.toString() };
     }
