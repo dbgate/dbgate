@@ -210,7 +210,8 @@ describe('Import CSV', () => {
     cy.testid('ImportExportConfigurator_tableMappingSection').contains('20 rows written').should('be.visible');
 
     cy.testid('SqlObjectList_refreshButton').click();
-    cy.contains('Refresh DB structure (incremental)').click();
+    cy.testid('DatabasStatusMenu_refreshFull').click();
+    // cy.contains('Refresh DB structure (incremental)').click();
     cy.testid('SqlObjectList_container').contains('customers-20').click();
     cy.contains('Rows: 20').should('be.visible');
 

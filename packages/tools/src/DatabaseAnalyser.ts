@@ -164,6 +164,11 @@ export class DatabaseAnalyser<TClient = any> {
 
     const res = {};
     for (const field of STRUCTURE_FIELDS) {
+      const isAll = this.modifications.some(x => x.action == 'all' && x.objectTypeField == field);
+      if (isAll) {
+        res[field] = newlyAnalysed[field] || [];
+        continue;
+      }
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
         .map(x => x.objectId);

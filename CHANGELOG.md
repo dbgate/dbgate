@@ -8,13 +8,19 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 6.7.2 - not released
+## 6.7.3
+- FIXED: Fixed problem in analyser core - in PostgreSQL, after dropping table, dropped table still appeared in structure
+- FIXED: PostgreSQL numeric columns do not align right #1254
+- ADDED: Custom thousands separator #1213
+
+## 6.7.2
 - CHANGED: Settings modal redesign - now is settings opened in tab instead of modal, similarily as in VSCode
 - FIXED: Fixed search in table shortcuts #1273
 - CHANGED: Improved foreign key editor UX
 - FIXED: Fixed incremental DB structure refresh for PostgreSQL, optimalized slow loading primary keys in PostgreSQL
 - CHANGED: You could now choose, how to refresh structure, added ability to disconnect or reconnect
 - ADDED: Better processing of table backups, generate table restore script #1274
+- CHANGED: Improved storage of settings, especially for Team Premium edition
 
 ## 6.7.1
 - ADDED: LANGUAGE environment variable for the web version. #1266

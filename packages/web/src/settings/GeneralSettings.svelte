@@ -10,6 +10,9 @@
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import hasPermission from '../utility/hasPermission';
+  import CheckboxField from '../forms/CheckboxField.svelte';
+  import { lockedDatabaseMode } from '../stores';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -17,7 +20,11 @@
 
 <div class="wrapper">
   <div class="heading">{_t('settings.application', { defaultMessage: 'Application' })}</div>
-  <FormFieldTemplateLarge label={_t('settings.localization.language', { defaultMessage: 'Language' })} type="combo">
+  <FormFieldTemplateLarge
+    label={_t('settings.localization.language', { defaultMessage: 'Language' })}
+    type="combo"
+    labelIcon="mdi mdi-translate"
+  >
     <SelectField
       isNative
       data-testid="SettingsModal_languageSelect"
@@ -78,6 +85,24 @@
     />
   {/if}
 
+  <FormFieldTemplateLarge
+    label={_t('settings.connection.showOnlyTabsFromSelectedDatabase', {
+      defaultMessage: 'Show only tabs from selected database',
+    })}
+    type="checkbox"
+    labelProps={{
+      onClick: () => {
+        $lockedDatabaseMode = !$lockedDatabaseMode;
+      },
+    }}
+  >
+    <CheckboxField
+      checked={$lockedDatabaseMode}
+      on:change={e => ($lockedDatabaseMode = e.target['checked'])}
+      data-testid="GeneralSettings_lockedDatabaseMode"
+    />
+  </FormFieldTemplateLarge>
+
   <div class="heading">{_t('settings.appearance', { defaultMessage: 'Appearance' })}</div>
 
   {#if electron}
@@ -106,6 +131,7 @@
       defaultMessage: 'Show server name alongside database name in title of the tab group',
     })}
     defaultValue={false}
+    disabled={!hasPermission('settings/change')}
   />
 </div>
 

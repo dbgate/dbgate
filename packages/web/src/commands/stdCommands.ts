@@ -40,8 +40,6 @@ import { getSettings } from '../utility/metadataLoaders';
 import { isMac, switchCurrentDatabase } from '../utility/common';
 import { doLogout } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
-import UploadErrorModal from '../modals/UploadErrorModal.svelte';
-import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 import NewCollectionModal from '../modals/NewCollectionModal.svelte';
 import ConfirmModal from '../modals/ConfirmModal.svelte';
 import localforage from 'localforage';
@@ -73,7 +71,8 @@ registerCommand({
   category: __t('command.theme', { defaultMessage: 'Theme' }),
   name: __t('command.theme.change', { defaultMessage: 'Change' }),
   toolbarName: __t('command.theme.changeToolbar', { defaultMessage: 'Change theme' }),
-  onClick: () => openNewTab({
+  onClick: () =>
+    openNewTab({
       title: 'Settings',
       icon: 'icon settings',
       tabComponent: 'SettingsTab',
@@ -1230,8 +1229,7 @@ registerCommand({
   },
 });
 
-if ( hasPermission('application-log'))
-{
+if (hasPermission('application-log')) {
   registerCommand({
     id: 'app.showLogs',
     category: __t('command.application', { defaultMessage: 'Application' }),
@@ -1246,8 +1244,7 @@ if ( hasPermission('application-log'))
   });
 }
 
-if (hasPermission('widgets/plugins'))
-{
+if (hasPermission('widgets/plugins')) {
   registerCommand({
     id: 'app.managePlugins',
     category: __t('command.application', { defaultMessage: 'Application' }),
