@@ -129,6 +129,7 @@ class Analyser extends DatabaseAnalyser {
           updateAction: fkcol.on_update,
           deleteAction: fkcol.on_delete,
           constraintName: `FK_${tableName}_${fkcol.id}`,
+          constraintType: 'foreignKey',
         };
         return fk;
       });
