@@ -46,6 +46,8 @@ const dialect = {
   dropReferencesWhenDropTable: false,
   requireStandaloneSelectForScopeIdentity: true,
 
+  dropColumnDependencies: ['dependencies'],
+
   columnProperties: {
     columnComment: true,
     isUnsigned: true,
