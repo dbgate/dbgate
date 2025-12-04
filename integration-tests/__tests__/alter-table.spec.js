@@ -185,10 +185,12 @@ describe('Alter table', () => {
       await testTableDiff(engine, conn, driver, 
         tbl => {
           tbl.columns = tbl.columns.filter(x => x.columnName != column);
-          tbl.foreignKeys = tbl.foreignKeys.map(fk => ({
-            ...fk, 
-            columns: fk.columns.filter(col => col.columnName != column)
-          })).filter(fk => fk.columns.length > 0);
+          tbl.foreignKeys = tbl.foreignKeys
+            .map(fk => ({
+              ...fk, 
+              columns: fk.columns.filter(col => col.columnName != column)
+            }))
+            .filter(fk => fk.columns.length > 0);
         }
       );
     })
