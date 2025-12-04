@@ -79,7 +79,7 @@ Builds:
 - ADDED: SQL AI assistant - powered by database chat, could help you to write SQL queries (Premium)
 - ADDED: Explain SQL error (powered by AI) (Premium)
 - ADDED: Database chat (and SQL AI Assistant) now supports showing charts (Premium)
-- FIXED: Fxied editing new files and roles (Team Premium)
+- FIXED: Fixed editing new files and roles (Team Premium)
 - FIXED: Connection to standalone database could be now pinned
 - FIXED: Cannot open up large JSON file #1215
 
