@@ -196,7 +196,7 @@ describe('Alter table', () => {
     })
   );
 
-  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipNullable && !x.skipChangeNullability)))(
+  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipNullability && !x.skipChangeNullability)))(
     'Change nullability - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
