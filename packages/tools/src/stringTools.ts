@@ -272,6 +272,13 @@ export function stringifyCellValue(
     };
   }
 
+  if (value?.$decimal) {
+    return {
+      value: formatCellNumber(value.$decimal, gridFormattingOptions),
+      gridStyle: 'valueCellStyle',
+    };
+  }
+
   if (editorTypes?.parseHexAsBuffer) {
     // if (value?.type == 'Buffer' && _isArray(value.data)) {
     //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
