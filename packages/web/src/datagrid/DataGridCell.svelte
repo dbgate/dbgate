@@ -57,7 +57,7 @@
   $: style = computeStyle(maxWidth, col);
 
   $: isJson =
-    _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint;
+    _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint && !value.$decimal;
 
   // don't parse JSON for explicit data types
   $: jsonParsedValue = !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;
