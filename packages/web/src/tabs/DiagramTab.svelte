@@ -116,6 +116,8 @@
       { command: 'diagram.saveAs' },
       { command: 'designer.arrange' },
       { command: 'diagram.export' },
+      { command: 'diagram.exportSvg' },
+      { command: 'diagram.exportPng' },
       { divider: true },
       { command: 'diagram.undo' },
       { command: 'diagram.redo' },
@@ -162,6 +164,8 @@
     <ToolStripCommandButton command="designer.arrange" />
     <ToolStripSaveButton idPrefix="diagram" />
     <ToolStripCommandButton command="diagram.export" />
+    <ToolStripCommandButton command="diagram.exportSvg" />
+    <ToolStripCommandButton command="diagram.exportPng" />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />
     <ToolStripCommandButton command="diagram.deleteSelectedTables" />
