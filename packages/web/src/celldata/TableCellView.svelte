@@ -84,12 +84,16 @@
         editingColumn = null;
         break;
       case keycodes.enter:
-        if (isChangedRef.get()) saveValue(field);
+        if (isChangedRef.get()) {
+          saveValue(field);
+        }
         editingColumn = null;
         event.preventDefault();
         break;
       case keycodes.tab:
-        if (isChangedRef.get()) saveValue(field);
+        if (isChangedRef.get()) {
+          saveValue(field);
+        }
         editingColumn = null;
         event.preventDefault();
         moveToNextField(field, event.shiftKey);
@@ -113,7 +117,9 @@
   }
 
   function handleBlur(field) {
-    if (isChangedRef.get()) saveValue(field);
+    if (isChangedRef.get()) {
+      saveValue(field);
+    }
     editingColumn = null;
   }
 
