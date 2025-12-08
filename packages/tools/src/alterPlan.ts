@@ -504,7 +504,7 @@ export class AlterPlan {
         return [];
       }
 
-      const table = this.wholeNewDb.tables.find(
+      const table = this.wholeOldDb.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );
       this.recreates.tables += 1;
