@@ -725,6 +725,9 @@ export function deserializeJsTypesFromJsonParse(obj) {
     if (value?.$bigint) {
       return BigInt(value.$bigint);
     }
+    if (value?.$decimal) {
+      return value.$decimal;
+    }
   });
 }
 
@@ -738,6 +741,9 @@ export function serializeJsTypesReplacer(key, value) {
 export function deserializeJsTypesReviver(key, value) {
   if (value?.$bigint) {
     return BigInt(value.$bigint);
+  }
+  if (value?.$decimal) {
+    return value.$decimal;
   }
   return value;
 }
