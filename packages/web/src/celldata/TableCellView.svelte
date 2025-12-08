@@ -12,20 +12,14 @@
 
   export let selection;
 
-  // Get first row data
   $: firstSelection = selection?.[0];
   $: rowData = firstSelection?.rowData;
   $: editable = firstSelection?.editable;
   $: editorTypes = firstSelection?.editorTypes;
-
-  // Get columns in display order
   $: columns = selection?.columns || [];
   $: realColumnUniqueNames = selection?.realColumnUniqueNames || [];
-
-  // Get the general setCellValue function
   $: setCellValue = selection?.setCellValue;
 
-  // Build ordered columns with values
   $: orderedFields = realColumnUniqueNames
     .map(colName => {
       const col = columns.find(c => c.uniqueName === colName);
@@ -40,7 +34,6 @@
     })
     .filter(Boolean);
 
-  // Editing state
   let editingColumn = null;
   let editValue = '';
   let domEditor = null;
@@ -51,31 +44,24 @@
       return true;
     }
     if (_.isArray(value)) return true;
-    if (typeof value === 'string' && isJsonLikeLongString(value)) {
-      const parsed = safeJsonParse(value);
-      return parsed !== null && (_.isPlainObject(parsed) || _.isArray(parsed));
-    }
-    return false;
+    if (typeof value !== 'string') return false;
+    if (!isJsonLikeLongString(value)) return false;
+    const parsed = safeJsonParse(value);
+    return parsed !== null && (_.isPlainObject(parsed) || _.isArray(parsed));
   }
 
   function getJsonObject(value) {
     if (_.isPlainObject(value) || _.isArray(value)) return value;
-    if (typeof value === 'string') {
-      return safeJsonParse(value);
-    }
+    if (typeof value === 'string') return safeJsonParse(value);
     return null;
   }
 
   function handleDoubleClick(field) {
     if (!editable || !setCellValue) return;
-    
-    // For JSON values, open the edit modal directly
     if (isJsonValue(field.value)) {
       openEditModal(field);
       return;
     }
-    
-    // For regular values, start inline editing
     startEditing(field);
   }
 
@@ -85,10 +71,9 @@
     editValue = stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
     isChangedRef.set(false);
     tick().then(() => {
-      if (domEditor) {
-        domEditor.focus();
-        domEditor.select();
-      }
+      if (!domEditor) return;
+      domEditor.focus();
+      domEditor.select();
     });
   }
 
@@ -99,39 +84,36 @@
         editingColumn = null;
         break;
       case keycodes.enter:
-        if (isChangedRef.get()) {
-          saveValue(field);
-        }
+        if (isChangedRef.get()) saveValue(field);
         editingColumn = null;
         event.preventDefault();
         break;
       case keycodes.tab:
-        if (isChangedRef.get()) {
-          saveValue(field);
-        }
+        if (isChangedRef.get()) saveValue(field);
         editingColumn = null;
         event.preventDefault();
-        // Move to next field
-        const currentIndex = orderedFields.findIndex(f => f.uniqueName === field.uniqueName);
-        const nextIndex = event.shiftKey ? currentIndex - 1 : currentIndex + 1;
-        if (nextIndex >= 0 && nextIndex < orderedFields.length) {
-          tick().then(() => {
-            const nextField = orderedFields[nextIndex];
-            if (isJsonValue(nextField.value)) {
-              openEditModal(nextField);
-            } else {
-              startEditing(nextField);
-            }
-          });
-        }
+        moveToNextField(field, event.shiftKey);
         break;
     }
   }
 
+  function moveToNextField(field, reverse) {
+    const currentIndex = orderedFields.findIndex(f => f.uniqueName === field.uniqueName);
+    const nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
+    if (nextIndex < 0 || nextIndex >= orderedFields.length) return;
+    
+    tick().then(() => {
+      const nextField = orderedFields[nextIndex];
+      if (isJsonValue(nextField.value)) {
+        openEditModal(nextField);
+      } else {
+        startEditing(nextField);
+      }
+    });
+  }
+
   function handleBlur(field) {
-    if (isChangedRef.get()) {
-      saveValue(field);
-    }
+    if (isChangedRef.get()) saveValue(field);
     editingColumn = null;
   }
 
@@ -153,13 +135,13 @@
 
   function openJsonInNewTab(field) {
     const jsonObj = getJsonObject(field.value);
-    if (jsonObj) {
-      openJsonDocument(jsonObj, undefined, true);
-    }
+    if (jsonObj) openJsonDocument(jsonObj, undefined, true);
   }
 
   function getJsonParsedValue(value) {
-    return !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;
+    if (editorTypes?.explicitDataType) return null;
+    if (!isJsonLikeLongString(value)) return null;
+    return safeJsonParse(value);
   }
 </script>
 

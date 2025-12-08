@@ -1258,21 +1258,21 @@
           condition: display?.getChangeSetCondition(rowData),
           insertedRowIndex: grider?.getInsertedRowIndex(row),
           rowStatus: grider.getRowStatus(row),
-          // Additional data for TableCellView editing support
           onSetValue: value => grider.setCellValue(row, column, value),
           editable: grider.editable,
           editorTypes: display?.driver?.dataEditorTypesBehaviour,
         };
       })
       .filter(x => x.column);
-    // Add columns info for TableCellView (columns in display order)
+
     res.columns = columns;
     res.realColumnUniqueNames = realColumnUniqueNames;
-    // Add a general setCellValue function for editing any column in the first selected row
+
     if (res.length > 0) {
       const firstRow = res[0].row;
       res.setCellValue = (columnName, value) => grider.setCellValue(firstRow, columnName, value);
     }
+
     return res;
   }
 
