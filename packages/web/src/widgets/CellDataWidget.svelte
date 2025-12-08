@@ -16,7 +16,7 @@
     },
     {
       type: 'table',
-      title: 'Table',
+      title: 'Table - Row',
       component: TableCellView,
       single: false,
     },

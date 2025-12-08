@@ -23,17 +23,38 @@
   $: realColumnUniqueNames = selection?.realColumnUniqueNames || [];
   $: setCellValue = selection?.setCellValue;
 
+  $: uniqueRows = _.uniqBy(selection || [], 'row');
+  $: isMultipleRows = uniqueRows.length > 1;
+
+  function areValuesEqual(val1, val2) {
+    if (val1 === val2) return true;
+    if (val1 == null && val2 == null) return true;
+    if (val1 == null || val2 == null) return false;
+    return _.isEqual(val1, val2);
+  }
+
+  function getFieldValue(colName) {
+    if (!isMultipleRows) return { value: rowData?.[colName], hasMultipleValues: false };
+
+    const values = uniqueRows.map(sel => sel.rowData?.[colName]);
+    const firstValue = values[0];
+    const allSame = values.every(v => areValuesEqual(v, firstValue));
+
+    return allSame ? { value: firstValue, hasMultipleValues: false } : { value: null, hasMultipleValues: true };
+  }
+
   let filter = '';
 
   $: orderedFields = realColumnUniqueNames
     .map(colName => {
       const col = columns.find(c => c.uniqueName === colName);
       if (!col) return null;
-      const value = rowData?.[colName];
+      const { value, hasMultipleValues } = getFieldValue(colName);
       return {
         columnName: col.columnName || colName,
         uniqueName: colName,
         value,
+        hasMultipleValues,
         col,
       };
     })
@@ -73,7 +94,7 @@
 
   function handleDoubleClick(field) {
     if (!editable || !setCellValue) return;
-    if (isJsonValue(field.value)) {
+    if (isJsonValue(field.value) && !field.hasMultipleValues) {
       openEditModal(field);
       return;
     }
@@ -83,12 +104,12 @@
   function startEditing(field) {
     if (!editable || !setCellValue) return;
     editingColumn = field.uniqueName;
-    editValue = stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
+    editValue = field.hasMultipleValues ? '' : stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
     isChangedRef.set(false);
     tick().then(() => {
       if (!domEditor) return;
       domEditor.focus();
-      domEditor.select();
+      if (!field.hasMultipleValues) domEditor.select();
     });
   }
 
@@ -206,7 +227,7 @@
                   on:blur={() => handleBlur(field)}
                   class="inline-editor"
                 />
-                {#if editable}
+                {#if editable && !field.hasMultipleValues}
                   <ShowFormButton
                     icon="icon edit"
                     on:click={() => {
@@ -216,6 +237,8 @@
                   />
                 {/if}
               </div>
+            {:else if field.hasMultipleValues}
+              <span class="multiple-values">(Multiple values)</span>
             {:else}
               <CellValue 
                 {rowData} 
@@ -312,5 +335,10 @@
 
   .inline-editor:focus {
     outline: none;
+  }
+
+  .multiple-values {
+    color: var(--theme-font-3);
+    font-style: italic;
   }
 </style>

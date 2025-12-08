@@ -1269,8 +1269,14 @@
     res.realColumnUniqueNames = realColumnUniqueNames;
 
     if (res.length > 0) {
-      const firstRow = res[0].row;
-      res.setCellValue = (columnName, value) => grider.setCellValue(firstRow, columnName, value);
+      const uniqueRowIndices = _.uniq(res.map(x => x.row));
+      res.setCellValue = (columnName, value) => {
+        grider.beginUpdate();
+        for (const row of uniqueRowIndices) {
+          grider.setCellValue(row, columnName, value);
+        }
+        grider.endUpdate();
+      };
     }
 
     return res;
