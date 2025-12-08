@@ -12,6 +12,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+  import { _t } from '../translations'
 
   export let selection;
 
@@ -76,7 +77,7 @@
   const isChangedRef = createRef(false);
 
   function isJsonValue(value) {
-    if (_.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint) {
+    if (_.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint && !value.$decimal) {
       return true;
     }
     if (_.isArray(value)) return true;
@@ -200,14 +201,14 @@
     {#if rowData}
       <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
         <SearchBoxWrapper noMargin>
-          <SearchInput placeholder="Filter columns (regex)" bind:value={filter} />
+          <SearchInput placeholder={_t('tableCell.filterColumns', { defaultMessage: "Filter columns (regex)" })} bind:value={filter} />
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
       </div>
     {/if}
     <div class="inner">
       {#if !rowData}
-        <div class="no-data">No data selected</div>
+        <div class="no-data">{_t('tableCell.noDataSelected', { defaultMessage: "No data selected" })}</div>
       {:else}
         {#each filteredFields as field (field.uniqueName)}
         <div class="field">
@@ -239,7 +240,7 @@
                 {/if}
               </div>
             {:else if field.hasMultipleValues}
-              <span class="multiple-values">(Multiple values)</span>
+              <span class="multiple-values">({_t('tableCell.multipleValues', { defaultMessage: "Multiple values" })})</span>
             {:else}
               <CellValue 
                 {rowData} 
