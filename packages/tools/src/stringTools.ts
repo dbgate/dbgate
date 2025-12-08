@@ -472,6 +472,9 @@ export function shouldOpenMultilineDialog(value) {
   if (value?.$bigint) {
     return false;
   }
+  if (value?.$decimal) {
+    return false;
+  }
   if (_isPlainObject(value) || _isArray(value)) {
     return true;
   }

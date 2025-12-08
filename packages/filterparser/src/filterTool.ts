@@ -21,6 +21,7 @@ export function getFilterValueExpression(value, dataType?) {
   if (value === false) return 'FALSE';
   if (value.$oid) return `ObjectId("${value.$oid}")`;
   if (value.$bigint) return value.$bigint;
+  if (value.$decimal) return value.$decimal;
   if (value.type == 'Buffer' && Array.isArray(value.data)) {
     return '0x' + arrayToHexString(value.data);
   }
