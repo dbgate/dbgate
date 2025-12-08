@@ -87,6 +87,7 @@ export class SqlDumper implements AlterProcessor {
       this.putByteArrayValue(bytes);
     }
     else if (value?.$bigint) this.putRaw(value?.$bigint);
+    else if (value?.$decimal) this.putRaw(value?.$decimal);
     else if (_isPlainObject(value) || _isArray(value)) this.putStringValue(JSON.stringify(value));
     else this.put('^null');
   }

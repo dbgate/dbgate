@@ -19,6 +19,7 @@ function isLike(value, test) {
 function extractRawValue(value) {
   if (value?.$bigint) return value.$bigint;
   if (value?.$oid) return value.$oid;
+  if (value?.$decimal) return value.$decimal;
   return value;
 }
 

@@ -26,8 +26,11 @@ pg.types.setTypeParser(1184, 'text', val => val); // timestamp
 pg.types.setTypeParser(20, 'text', val => {
   const parsed = parseInt(val);
   if (Number.isSafeInteger(parsed)) return parsed;
-  return BigInt(val);
+  return { $bigint: val };
 }); // timestamp
+pg.types.setTypeParser(1700, 'text', val => {
+  return { $decimal: val };
+}); // numeric
 
 function extractGeographyDate(value) {
   try {

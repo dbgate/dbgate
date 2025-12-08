@@ -272,6 +272,13 @@ export function stringifyCellValue(
     };
   }
 
+  if (value?.$decimal) {
+    return {
+      value: formatCellNumber(value.$decimal, gridFormattingOptions),
+      gridStyle: 'valueCellStyle',
+    };
+  }
+
   if (editorTypes?.parseHexAsBuffer) {
     // if (value?.type == 'Buffer' && _isArray(value.data)) {
     //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
@@ -463,6 +470,9 @@ export function shouldOpenMultilineDialog(value) {
     return false;
   }
   if (value?.$bigint) {
+    return false;
+  }
+  if (value?.$decimal) {
     return false;
   }
   if (_isPlainObject(value) || _isArray(value)) {
@@ -715,6 +725,9 @@ export function deserializeJsTypesFromJsonParse(obj) {
     if (value?.$bigint) {
       return BigInt(value.$bigint);
     }
+    if (value?.$decimal) {
+      return value.$decimal;
+    }
   });
 }
 
@@ -728,6 +741,9 @@ export function serializeJsTypesReplacer(key, value) {
 export function deserializeJsTypesReviver(key, value) {
   if (value?.$bigint) {
     return BigInt(value.$bigint);
+  }
+  if (value?.$decimal) {
+    return value.$decimal;
   }
   return value;
 }
