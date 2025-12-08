@@ -119,6 +119,7 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
 
 const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
 // const TESTED_COLUMNS = ['col_pk'];
+// const TESTED_COLUMNS = ['col_fk'];
 // const TESTED_COLUMNS = ['col_idx'];
 // const TESTED_COLUMNS = ['col_def'];
 // const TESTED_COLUMNS = ['col_std'];
