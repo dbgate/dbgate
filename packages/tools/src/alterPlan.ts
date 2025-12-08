@@ -523,6 +523,54 @@ export class AlterPlan {
     return null;
   }
 
+  _removeRecreatedTableAlters(): AlterOperation[] {
+    const res: AlterOperation[] = [];
+    const recreates = new Set<string>();
+    for (const op of this.operations) {
+      if (op.operationType == 'recreateTable' && op.oldTable && op.newTable) {
+        const key = `${op.oldTable.schemaName}||${op.oldTable.pureName}`;
+        recreates.add(key);
+      }
+    }
+
+    for (const op of this.operations) {
+      switch (op.operationType) {
+        case 'createColumn':
+        case 'createConstraint':
+          {
+            const key = `${op.newObject.schemaName}||${op.newObject.pureName}`;
+            if (recreates.has(key)) {
+              // skip create inside recreated table
+              continue;
+            }
+          }
+          break;
+        case 'dropColumn':
+        case 'dropConstraint':
+        case 'changeColumn':
+          {
+            const key = `${op.oldObject.schemaName}||${op.oldObject.pureName}`;
+            if (recreates.has(key)) {
+              // skip drop/change inside recreated table
+              continue;
+            }
+          }
+          break;
+        case 'renameColumn':
+          {
+            const key = `${op.object.schemaName}||${op.object.pureName}`;
+            if (recreates.has(key)) {
+              // skip rename inside recreated table
+              continue;
+            }
+          }
+          break;
+      }
+      res.push(op);
+    }
+    return res;
+  }
+
   _groupTableRecreations(): AlterOperation[] {
     const res = [];
     const recreates = new Set<string>();
@@ -636,6 +684,8 @@ export class AlterPlan {
     this.operations = this._groupTableRecreations();
 
     // console.log('*****************OPERATIONS3', this.operations);
+
+    this.operations = this._removeRecreatedTableAlters();
 
     this.operations = this._moveForeignKeysToLast();
 
