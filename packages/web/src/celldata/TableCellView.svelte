@@ -9,6 +9,9 @@
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
+  import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
   export let selection;
 
@@ -19,6 +22,8 @@
   $: columns = selection?.columns || [];
   $: realColumnUniqueNames = selection?.realColumnUniqueNames || [];
   $: setCellValue = selection?.setCellValue;
+
+  let filter = '';
 
   $: orderedFields = realColumnUniqueNames
     .map(colName => {
@@ -33,6 +38,16 @@
       };
     })
     .filter(Boolean);
+
+  $: filteredFields = orderedFields.filter(field => {
+    if (!filter) return true;
+    try {
+      const regex = new RegExp(filter, 'i');
+      return regex.test(field.columnName);
+    } catch (e) {
+      return field.columnName.toLowerCase().includes(filter.toLowerCase());
+    }
+  });
 
   let editingColumn = null;
   let editValue = '';
@@ -102,18 +117,26 @@
   }
 
   function moveToNextField(field, reverse) {
-    const currentIndex = orderedFields.findIndex(f => f.uniqueName === field.uniqueName);
+    const currentIndex = filteredFields.findIndex(f => f.uniqueName === field.uniqueName);
     const nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
-    if (nextIndex < 0 || nextIndex >= orderedFields.length) return;
+    if (nextIndex < 0 || nextIndex >= filteredFields.length) return;
     
     tick().then(() => {
-      const nextField = orderedFields[nextIndex];
+      const nextField = filteredFields[nextIndex];
       if (isJsonValue(nextField.value)) {
         openEditModal(nextField);
       } else {
         startEditing(nextField);
       }
     });
+  }
+
+  function handleSearchKeyDown(e) {
+    if (e.keyCode === keycodes.backspace && (e.metaKey || e.ctrlKey)) {
+      filter = '';
+      e.stopPropagation();
+      e.preventDefault();
+    }
   }
 
   function handleBlur(field) {
@@ -152,11 +175,19 @@
 </script>
 
 <div class="outer">
+  {#if rowData}
+    <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
+      <SearchBoxWrapper noMargin>
+        <SearchInput placeholder="Filter columns (regex)" bind:value={filter} />
+        <CloseSearchButton bind:filter />
+      </SearchBoxWrapper>
+    </div>
+  {/if}
   <div class="inner">
     {#if !rowData}
       <div class="no-data">No data selected</div>
     {:else}
-      {#each orderedFields as field (field.uniqueName)}
+      {#each filteredFields as field (field.uniqueName)}
         <div class="field">
           <div class="field-name">{field.columnName}</div>
           <div 
@@ -210,15 +241,17 @@
   .outer {
     flex: 1;
     position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-wrapper {
+    padding: 4px 4px 0 4px;
   }
 
   .inner {
     overflow: auto;
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    flex: 1;
     padding: 4px;
   }
 
