@@ -524,9 +524,22 @@ export class AlterPlan {
   }
 
   _groupTableRecreations(): AlterOperation[] {
-    return this.operations;
+    const res = [];
+    const recreates = new Set<string>();
+    for (const op of this.operations) {
+      if (op.operationType == 'recreateTable' && op.oldTable && op.newTable) {
+        const key = `${op.oldTable.schemaName}||${op.oldTable.pureName}`;
+        if (recreates.has(key)) {
+          // prevent duplicate recreates
+          continue;
+        }
+        recreates.add(key);
+      }
 
-    // this is not implemented now
+      res.push(op);
+    }
+    return res;
+
     // const res = [];
     // const recreates = {};
     // for (const op of this.operations) {
