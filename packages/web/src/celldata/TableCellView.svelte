@@ -196,19 +196,20 @@
 </script>
 
 <div class="outer">
-  {#if rowData}
-    <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
-      <SearchBoxWrapper noMargin>
-        <SearchInput placeholder="Filter columns (regex)" bind:value={filter} />
-        <CloseSearchButton bind:filter />
-      </SearchBoxWrapper>
-    </div>
-  {/if}
-  <div class="inner">
-    {#if !rowData}
-      <div class="no-data">No data selected</div>
-    {:else}
-      {#each filteredFields as field (field.uniqueName)}
+  <div class="content">
+    {#if rowData}
+      <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
+        <SearchBoxWrapper noMargin>
+          <SearchInput placeholder="Filter columns (regex)" bind:value={filter} />
+          <CloseSearchButton bind:filter />
+        </SearchBoxWrapper>
+      </div>
+    {/if}
+    <div class="inner">
+      {#if !rowData}
+        <div class="no-data">No data selected</div>
+      {:else}
+        {#each filteredFields as field (field.uniqueName)}
         <div class="field">
           <div class="field-name">{field.columnName}</div>
           <div 
@@ -256,7 +257,8 @@
           </div>
         </div>
       {/each}
-    {/if}
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -264,12 +266,21 @@
   .outer {
     flex: 1;
     position: relative;
+  }
+
+  .content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
   }
 
   .search-wrapper {
     padding: 4px 4px 0 4px;
+    flex-shrink: 0;
   }
 
   .inner {
