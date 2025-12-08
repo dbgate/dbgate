@@ -44,7 +44,7 @@ services:
   #     - 15942:9042
   #
   # clickhouse:
-  #   image: bitnami/clickhouse:24.8.4
+  #   image: bitnamilegacy/clickhouse:24.8.4
   #   restart: always
   #   ports:
   #     - 15005:8123
