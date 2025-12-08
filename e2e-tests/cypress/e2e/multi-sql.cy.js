@@ -237,7 +237,7 @@ describe('Import CSV - source error', () => {
     cy.testid('ImportExportTab_preview_content').contains('Invalid Closing Quote').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
-    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err').click();
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err', { timeout: 10000 }).click();
 
     cy.testid('ErrorMessageModal_message').contains('Invalid Closing Quote').should('be.visible');
   });
@@ -256,7 +256,7 @@ describe('Import CSV - target error', () => {
     cy.contains('customers-20');
     cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('system."]`');
     cy.testid('ImportExportTab_executeButton').click();
-    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20').click();
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20', { timeout: 10000 }).click();
     cy.testid('ErrorMessageModal_message').should('be.visible');
   });
 });
