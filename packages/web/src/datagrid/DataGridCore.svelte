@@ -1258,9 +1258,27 @@
           condition: display?.getChangeSetCondition(rowData),
           insertedRowIndex: grider?.getInsertedRowIndex(row),
           rowStatus: grider.getRowStatus(row),
+          onSetValue: value => grider.setCellValue(row, column, value),
+          editable: grider.editable,
+          editorTypes: display?.driver?.dataEditorTypesBehaviour,
         };
       })
       .filter(x => x.column);
+
+    res.columns = columns;
+    res.realColumnUniqueNames = realColumnUniqueNames;
+
+    if (res.length > 0) {
+      const uniqueRowIndices = _.uniq(res.map(x => x.row));
+      res.setCellValue = (columnName, value) => {
+        grider.beginUpdate();
+        for (const row of uniqueRowIndices) {
+          grider.setCellValue(row, columnName, value);
+        }
+        grider.endUpdate();
+      };
+    }
+
     return res;
   }
 
