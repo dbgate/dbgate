@@ -337,13 +337,14 @@ export class AlterPlan {
             return opRes;
           }),
           op,
-        ].filter(op => {
-          // filter duplicated drops
-          const existingDrop = this.operations.find(
-            o => o.operationType == 'dropConstraint' && o.oldObject === op['oldObject']
-          );
-          return existingDrop == null;
-        });
+        ];
+        // .filter(op => {
+        //   // filter duplicated drops
+        //   const existingDrop = this.operations.find(
+        //     o => o.operationType == 'dropConstraint' && o.oldObject === op['oldObject']
+        //   );
+        //   return existingDrop == null;
+        // })
         return res;
       }
 
