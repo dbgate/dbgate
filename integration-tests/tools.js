@@ -22,7 +22,9 @@ async function connect(engine, database) {
   if (engine.generateDbFile) {
     const conn = await driver.connect({
       ...connection,
-      databaseFile: (engine.databaseFileLocationOnServer ?? 'dbtemp/') + database,
+      databaseFile:
+        (engine.databaseFileLocationOnServer ?? (process.env.CITEST ? 'dbtemp/' : 'integration-tests/dbtemp/')) +
+        database,
     });
     return conn;
   } else {

@@ -26,13 +26,15 @@ function pickImportantTableInfo(engine, table) {
       .map(props =>
         _.omitBy(props, (v, k) => k == 'defaultValue' && v == 'NULL' && engine.setNullDefaultInsteadOfDrop)
       ),
-    // foreignKeys: table.foreignKeys
-    //   .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
-    //   .map(fk => ({
-    //     constraintType: fk.constraintType,
-    //     refTableName: fk.refTableName,
-    //     columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
-    //   })),
+
+      // TODO:
+    foreignKeys: table.foreignKeys
+      .sort((a, b) => a.refTableName.localeCompare(b.refTableName))
+      .map(fk => ({
+        constraintType: fk.constraintType,
+        refTableName: fk.refTableName,
+        columns: fk.columns.map(col => ({ columnName: col.columnName, refColumnName: col.refColumnName })),
+      })),
   };
 }
 
@@ -103,6 +105,7 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
 
   await driver.script(conn, sql);
 
+  // TODO:
   // if (!engine.skipIncrementalAnalysis) {
   //   const structure2RealIncremental = await driver.analyseIncremental(conn, structure1Source);
   //   checkTableStructure(engine, tget(structure2RealIncremental), tget(structure2));
@@ -116,6 +119,7 @@ async function testTableDiff(engine, conn, driver, mangle, changedTable = 't1') 
 
 const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
 // const TESTED_COLUMNS = ['col_pk'];
+// const TESTED_COLUMNS = ['col_fk'];
 // const TESTED_COLUMNS = ['col_idx'];
 // const TESTED_COLUMNS = ['col_def'];
 // const TESTED_COLUMNS = ['col_std'];
@@ -179,11 +183,25 @@ describe('Alter table', () => {
   )(
     'Drop column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
-      await testTableDiff(engine, conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != column)));
+      await testTableDiff(engine, conn, driver, 
+        tbl => {
+          tbl.columns = tbl.columns.filter(x => x.columnName != column);
+          tbl.foreignKeys = tbl.foreignKeys
+            .map(fk => ({
+              ...fk, 
+              columns: fk.columns.filter(col => col.columnName != column)
+            }))
+            .filter(fk => fk.columns.length > 0);
+        }
+      );
     })
   );
 
-  test.each(createEnginesColumnsSource(engines.filter(x => !x.skipNullable && !x.skipChangeNullability)))(
+  test.each(
+    createEnginesColumnsSource(engines.filter(x => !x.skipNullability && !x.skipChangeNullability)).filter(
+      ([_label, col]) => !col.endsWith('_pk')
+    )
+  )(
     'Change nullability - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
@@ -202,7 +220,11 @@ describe('Alter table', () => {
         engine,
         conn,
         driver,
-        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x)))
+        tbl => {
+          tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x));
+          tbl.foreignKeys = tbl.foreignKeys.map(fk => ({...fk, columns: fk.columns.map(col => col.columnName == column ? { ...col, columnName: 'col_renamed' } : col)
+          }));
+        }
       );
     })
   );

@@ -64,6 +64,21 @@ class Dumper extends SqlDumper {
     this.putCmd('^alter ^table %f ^rename ^column %i ^to %i', column, column.columnName, newcol);
   }
 
+  createForeignKeyFore(fk) {
+    if (fk.constraintName != null && !this.dialect.anonymousForeignKey) {
+      this.put('^constraint %i ', fk.constraintName);
+    }
+    this.put(
+      '^foreign ^key (%,i) ^references %f (%,i)',
+      fk.columns.map(x => x.columnName),
+      { schemaName: fk.refSchemaName, pureName: fk.refTableName },
+      fk.columns.map(x => x.refColumnName)
+    );
+    if (fk.deleteAction && fk.deleteAction.toUpperCase() !== 'NO ACTION') {
+      this.put(' ^on ^delete %k', fk.deleteAction);
+    }
+  }
+
   // dropTable(obj, options = {}) {
   //   this.put('^drop ^table');
   //   if (options.testIfExists) this.put(' ^if ^exists');
