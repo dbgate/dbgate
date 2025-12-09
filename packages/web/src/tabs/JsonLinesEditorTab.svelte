@@ -16,7 +16,7 @@
   registerCommand({
     id: 'jsonl.save',
     group: 'save',
-    category: 'JSON Lines editor',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
     name: __t('command.jsonl.save', { defaultMessage: 'Save' }),
     toolbar: true,
     isRelatedToTab: true,
@@ -27,7 +27,7 @@
 
   registerCommand({
     id: 'jsonl.preview',
-    category: 'JSON Lines editor',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
     name: __t('command.jsonl.preview', { defaultMessage: 'Preview' }),
     icon: 'icon preview',
     keyText: 'F5',
@@ -37,7 +37,7 @@
 
   registerCommand({
     id: 'jsonl.previewNewTab',
-    category: 'JSON Lines editor',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
     name: __t('command.jsonl.previewNewTab', { defaultMessage: 'Preview in new tab' }),
     icon: 'icon preview',
     testEnabled: () => getCurrentEditor() != null,
@@ -46,7 +46,7 @@
 
   registerCommand({
     id: 'jsonl.closePreview',
-    category: 'JSON Lines editor',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
     name: __t('command.jsonl.closePreview', { defaultMessage: 'Close preview' }),
     icon: 'icon close',
     testEnabled: () => getCurrentEditor()?.isPreview(),

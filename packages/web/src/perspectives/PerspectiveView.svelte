@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'perspective.customJoin',
-    category: 'Perspective',
-    name: 'Custom join',
+    category: __t('perspective.category', { defaultMessage: 'Perspective' }),
+    name: __t('perspective.customJoin', { defaultMessage: 'Custom join' }),
     keyText: 'CtrlOrCommand+J',
     isRelatedToTab: true,
     icon: 'icon custom-join',
@@ -65,6 +65,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import { usePerspectiveDataPatterns } from '../utility/usePerspectiveDataPatterns';
+  import { _t, __t } from '../translations';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -168,7 +169,7 @@
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize} allowCollapseChild1>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height={'70%'}>
+      <WidgetColumnBarItem title={_t('perspective.chooseData', { defaultMessage: "Choose data" })} name="perspectiveTree" height={'70%'}>
         {#if tempRoot && tempRoot != root}
           <div class="temp-root">
             <div>
@@ -184,7 +185,7 @@
         {/if}
 
         <SearchBoxWrapper>
-          <SearchInput placeholder="Search column or table" bind:value={filter} />
+          <SearchInput placeholder={_t('perspective.searchColumnOrTable', { defaultMessage: "Search column or table" })} bind:value={filter} />
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
 
@@ -195,7 +196,7 @@
         </ManagerInnerContainer>
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Filters" name="tableFilters">
+      <WidgetColumnBarItem title={_t('perspective.filters', { defaultMessage: "Filters" })} name="tableFilters">
         <PerspectiveFilters {managerSize} {config} {setConfig} {conid} {database} {driver} {root} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
