@@ -51,25 +51,34 @@
   function handleAddKey() {
     const connection = $currentDatabase?.connection;
     const database = $currentDatabase?.name;
-    const driver = findEngineDriver(connection, getExtensions());
 
-    showModal(AddDbKeyModal, {
-      conid: connection._id,
-      database,
-      driver,
-      onConfirm: async item => {
-        const type = driver.supportedKeyTypes.find(x => x.name == item.type);
-
-        await apiCall('database-connections/call-method', {
-          conid: connection._id,
-          database,
-          method: type.addMethod,
-          args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
-        });
-
-        reloadModel();
+    openNewTab({
+      tabComponent: 'DbKeyTab',
+      title: 'Add key',
+      icon: 'img keydb',
+      props: {
+        conid: connection?._id,
+        database,
       },
     });
+
+    // showModal(AddDbKeyModal, {
+    //   conid: connection._id,
+    //   database,
+    //   driver,
+    //   onConfirm: async item => {
+    //     const type = driver.supportedKeyTypes.find(x => x.name == item.type);
+
+    //     await apiCall('database-connections/call-method', {
+    //       conid: connection._id,
+    //       database,
+    //       method: type.addMethod,
+    //       args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
+    //     });
+
+    //     reloadModel();
+    //   },
+    // });
   }
 
   $: differentFocusedDb =
