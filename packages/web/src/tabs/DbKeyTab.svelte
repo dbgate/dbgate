@@ -16,12 +16,13 @@
   export let conid;
   export let database;
   export let tabid;
+  export let initialKeyName = '';
 
   $: connection = useConnectionInfo({ conid });
   $: driver = $connection && findEngineDriver($connection, getExtensions());
 
   let item = {};
-  let keyName = '';
+  let keyName = initialKeyName || '';
   $: type = driver?.supportedKeyTypes?.[0]?.name || '';
 
   $: console.log('DbKeyTab debug:', { conid, database, connection: $connection, driver, hasTypes: driver?.supportedKeyTypes?.length });

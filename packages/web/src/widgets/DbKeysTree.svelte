@@ -51,6 +51,19 @@
   function handleAddKey() {
     const connection = $currentDatabase?.connection;
     const database = $currentDatabase?.name;
+    const focusedKey = $focusedTreeDbKey;
+    
+    let initialKeyName = '';
+    if (focusedKey) {
+      if (focusedKey.type === 'dir' && focusedKey.key) {
+        initialKeyName = focusedKey.key + treeKeySeparator;
+      } else if (focusedKey.key) {
+        const lastSeparatorIndex = focusedKey.key.lastIndexOf(treeKeySeparator);
+        if (lastSeparatorIndex !== -1) {
+          initialKeyName = focusedKey.key.substring(0, lastSeparatorIndex + 1);
+        }
+      }
+    }
 
     openNewTab({
       tabComponent: 'DbKeyTab',
@@ -59,6 +72,7 @@
       props: {
         conid: connection?._id,
         database,
+        initialKeyName,
       },
     });
 
