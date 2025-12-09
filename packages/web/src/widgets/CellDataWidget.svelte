@@ -15,6 +15,12 @@
       single: false,
     },
     {
+      type: 'table',
+      title: 'Table - Row',
+      component: TableCellView,
+      single: false,
+    },
+    {
       type: 'json',
       title: 'Json',
       component: JsonCellView,
@@ -92,6 +98,7 @@
   import JsonRowView from '../celldata/JsonRowView.svelte';
   import MapCellView from '../celldata/MapCellView.svelte';
   import PictureCellView from '../celldata/PictureCellView.svelte';
+  import TableCellView from '../celldata/TableCellView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
