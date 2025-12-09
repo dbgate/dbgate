@@ -26,6 +26,7 @@ import _isDate from 'lodash/isDate';
 import _isArray from 'lodash/isArray';
 import _isPlainObject from 'lodash/isPlainObject';
 import _keys from 'lodash/keys';
+import _cloneDeep from 'lodash/cloneDeep';
 import uuidv1 from 'uuid/v1';
 
 export class SqlDumper implements AlterProcessor {
@@ -666,6 +667,68 @@ export class SqlDumper implements AlterProcessor {
     }
   }
 
+  sanitizeTableConstraints(table: TableInfo): TableInfo {
+    // Create a deep copy of the table
+    const sanitized = _cloneDeep(table);
+    
+    // Get the set of existing column names
+    const existingColumns = new Set(sanitized.columns.map(col => col.columnName));
+    
+    // Filter primary key columns to only include existing columns
+    if (sanitized.primaryKey) {
+      const validPkColumns = sanitized.primaryKey.columns.filter(col => existingColumns.has(col.columnName));
+      if (validPkColumns.length === 0) {
+        // If no valid columns remain, remove the primary key entirely
+        sanitized.primaryKey = null;
+      } else if (validPkColumns.length < sanitized.primaryKey.columns.length) {
+        // Update primary key with only valid columns
+        sanitized.primaryKey = {
+          ...sanitized.primaryKey,
+          columns: validPkColumns
+        };
+      }
+    }
+    
+    // Filter sorting key columns to only include existing columns
+    if (sanitized.sortingKey) {
+      const validSkColumns = sanitized.sortingKey.columns.filter(col => existingColumns.has(col.columnName));
+      if (validSkColumns.length === 0) {
+        sanitized.sortingKey = null;
+      } else if (validSkColumns.length < sanitized.sortingKey.columns.length) {
+        sanitized.sortingKey = {
+          ...sanitized.sortingKey,
+          columns: validSkColumns
+        };
+      }
+    }
+    
+    // Filter foreign keys to only include those with all columns present
+    if (sanitized.foreignKeys) {
+      sanitized.foreignKeys = sanitized.foreignKeys.filter(fk =>
+        fk.columns.every(col => existingColumns.has(col.columnName))
+      );
+    }
+    
+    // Filter indexes to only include those with all columns present
+    if (sanitized.indexes) {
+      sanitized.indexes = sanitized.indexes.filter(idx =>
+        idx.columns.every(col => existingColumns.has(col.columnName))
+      );
+    }
+    
+    // Filter unique constraints to only include those with all columns present
+    if (sanitized.uniques) {
+      sanitized.uniques = sanitized.uniques.filter(uq =>
+        uq.columns.every(col => existingColumns.has(col.columnName))
+      );
+    }
+    
+    // Filter dependencies (references from other tables) - these should remain as-is
+    // since they don't affect the CREATE TABLE statement for this table
+    
+    return sanitized;
+  }
+
   recreateTable(oldTable: TableInfo, newTable: TableInfo) {
     if (!oldTable.pairingId || !newTable.pairingId || oldTable.pairingId != newTable.pairingId) {
       throw new Error('Recreate is not possible: oldTable.paringId != newTable.paringId');
@@ -680,48 +743,51 @@ export class SqlDumper implements AlterProcessor {
       }))
       .filter(x => x.newcol);
 
+    // Create a sanitized version of newTable with constraints that only reference existing columns
+    const sanitizedNewTable = this.sanitizeTableConstraints(newTable);
+
     if (this.driver.supportsTransactions) {
       this.dropConstraints(oldTable, true);
       this.renameTable(oldTable, tmpTable);
 
-      this.createTable(newTable);
+      this.createTable(sanitizedNewTable);
 
-      const autoinc = newTable.columns.find(x => x.autoIncrement);
+      const autoinc = sanitizedNewTable.columns.find(x => x.autoIncrement);
       if (autoinc) {
-        this.allowIdentityInsert(newTable, true);
+        this.allowIdentityInsert(sanitizedNewTable, true);
       }
 
       this.putCmd(
         '^insert ^into %f (%,i) select %,i ^from %f',
-        newTable,
+        sanitizedNewTable,
         columnPairs.map(x => x.newcol.columnName),
         columnPairs.map(x => x.oldcol.columnName),
         { ...oldTable, pureName: tmpTable }
       );
 
       if (autoinc) {
-        this.allowIdentityInsert(newTable, false);
+        this.allowIdentityInsert(sanitizedNewTable, false);
       }
 
       if (this.dialect.dropForeignKey) {
-        newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
+        sanitizedNewTable.dependencies.forEach(cnt => this.createConstraint(cnt));
       }
 
       this.dropTable({ ...oldTable, pureName: tmpTable });
     } else {
       // we have to preserve old table as long as possible
-      this.createTable({ ...newTable, pureName: tmpTable });
+      this.createTable({ ...sanitizedNewTable, pureName: tmpTable });
 
       this.putCmd(
         '^insert ^into %f (%,i) select %,s ^from %f',
-        { ...newTable, pureName: tmpTable },
+        { ...sanitizedNewTable, pureName: tmpTable },
         columnPairs.map(x => x.newcol.columnName),
         columnPairs.map(x => x.oldcol.columnName),
         oldTable
       );
 
       this.dropTable(oldTable);
-      this.renameTable({ ...newTable, pureName: tmpTable }, newTable.pureName);
+      this.renameTable({ ...sanitizedNewTable, pureName: tmpTable }, newTable.pureName);
     }
   }
 
