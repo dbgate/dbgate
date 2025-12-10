@@ -128,7 +128,7 @@
     <div class="top-panel">
       <div class="type">
         <FontIcon icon={getIconForRedisType(keyInfo.type)} padRight />
-        {keyInfo.type}
+        {keyInfo.keyType?.label || keyInfo.type}
       </div>
       <div class="key-name">
         <TextField value={key} readOnly />
