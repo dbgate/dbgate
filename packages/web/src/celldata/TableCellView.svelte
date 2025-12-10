@@ -20,8 +20,8 @@
   $: rowData = firstSelection?.rowData;
   $: editable = firstSelection?.editable;
   $: editorTypes = firstSelection?.editorTypes;
-  $: columns = selection?.columns || [];
-  $: realColumnUniqueNames = selection?.realColumnUniqueNames || [];
+  $: displayColumns = firstSelection?.displayColumns || [];
+  $: realColumnUniqueNames = firstSelection?.realColumnUniqueNames || [];
   $: setCellValue = selection?.setCellValue;
 
   $: uniqueRows = _.uniqBy(selection || [], 'row');
@@ -48,7 +48,7 @@
 
   $: orderedFields = realColumnUniqueNames
     .map(colName => {
-      const col = columns.find(c => c.uniqueName === colName);
+      const col = displayColumns.find(c => c.uniqueName === colName);
       if (!col) return null;
       const { value, hasMultipleValues } = getFieldValue(colName);
       return {

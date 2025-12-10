@@ -1248,6 +1248,8 @@
       engine: display?.driver,
       editable: grider.editable,
       editorTypes: display?.driver?.dataEditorTypesBehaviour,
+      displayColumns: columns,
+      realColumnUniqueNames,
     };
 
     const rowIndexes = _.sortBy(_.uniq(regular.map(x => x[0])));
@@ -1285,9 +1287,6 @@
         };
       })
       .filter(x => x.column);
-
-    res.columns = columns;
-    res.realColumnUniqueNames = realColumnUniqueNames;
 
     if (res.length > 0) {
       const uniqueRowIndices = _.uniq(res.map(x => x.row));
