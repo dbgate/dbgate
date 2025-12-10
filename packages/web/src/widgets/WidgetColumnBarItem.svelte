@@ -35,6 +35,7 @@
     height,
     skip,
     positiveCondition,
+    minimalHeight,
   });
 
   $: updateWidgetItemDefinition(name, { collapsed: !visible, height, skip, positiveCondition });

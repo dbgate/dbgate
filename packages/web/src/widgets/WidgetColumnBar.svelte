@@ -58,38 +58,97 @@
 
     const computed = {};
 
+    // First pass: calculate base heights and collect info
     let totalFixedHeight = 0;
     let totalFlexibleItems = 0;
+    const itemBaseHeights = {};
+    const itemMinHeights = {};
+    
     for (const key of visibleItems) {
       const def = defs[key];
+      const minHeight = def.minimalHeight || 0;
+      itemMinHeights[key] = minHeight;
+      
       if (def.height != null) {
         let height = 0;
         if (_.isString(def.height) && def.height.endsWith('px')) height = parseInt(def.height.slice(0, -2));
         else if (_.isString(def.height) && def.height.endsWith('%'))
           height = (clientHeight * parseFloat(def.height.slice(0, -1))) / 100;
         else height = parseInt(def.height);
+        
+        height = Math.max(height, minHeight);
+        itemBaseHeights[key] = height;
         totalFixedHeight += height;
       } else {
         totalFlexibleItems++;
+        itemBaseHeights[key] = minHeight; // Start with minimum
       }
     }
 
-    const remainingHeight = clientHeight - totalFixedHeight;
+    // Calculate total minimum height needed
+    let totalMinHeight = 0;
+    for (const key of visibleItems) {
+      totalMinHeight += itemMinHeights[key];
+    }
+
+    // Second pass: distribute space
+    const itemHeights = {};
+    
+    if (totalMinHeight > clientHeight) {
+      // Scale proportionally - all items get their minimum height scaled down
+      const scale = clientHeight / totalMinHeight;
+      for (const key of visibleItems) {
+        itemHeights[key] = itemMinHeights[key] * scale;
+      }
+      // Clear deltaHeights as they cannot be applied
+      deltaHeights = {};
+    } else if (totalFixedHeight > clientHeight) {
+      // Total fixed heights exceed available space - scale proportionally
+      const scale = clientHeight / totalFixedHeight;
+      for (const key of visibleItems) {
+        const scaledHeight = itemBaseHeights[key] * scale;
+        itemHeights[key] = Math.max(scaledHeight, itemMinHeights[key] * scale);
+      }
+      // Clear deltaHeights as they cannot be applied reliably
+      deltaHeights = {};
+    } else {
+      // Distribute remaining space among flexible items
+      const remainingHeight = clientHeight - totalFixedHeight;
+      const flexibleSpace = totalFlexibleItems > 0 ? remainingHeight / totalFlexibleItems : 0;
+      
+      for (const key of visibleItems) {
+        if (itemBaseHeights[key] === itemMinHeights[key] && totalFlexibleItems > 0) {
+          // Flexible item
+          itemHeights[key] = Math.max(flexibleSpace, itemMinHeights[key]);
+        } else {
+          // Fixed item
+          itemHeights[key] = itemBaseHeights[key];
+        }
+      }
+      
+      // Apply deltaHeights while respecting minimum heights
+      const newDeltaHeights = {};
+      for (const key of visibleItems) {
+        const delta = deltaHeights[key] || 0;
+        const proposedHeight = itemHeights[key] + delta;
+        
+        if (proposedHeight >= itemMinHeights[key]) {
+          itemHeights[key] = proposedHeight;
+          newDeltaHeights[key] = delta;
+        } else {
+          // Delta would violate minimum height, clamp to minimum
+          itemHeights[key] = itemMinHeights[key];
+          // Don't preserve this delta
+        }
+      }
+      deltaHeights = newDeltaHeights;
+    }
+
+    // Build computed result
     let visibleIndex = 0;
     for (const key of visibleItems) {
-      const def = defs[key];
-      let size = 0;
-      if (def.height != null) {
-        if (_.isString(def.height) && def.height.endsWith('px')) size = parseInt(def.height.slice(0, -2));
-        else if (_.isString(def.height) && def.height.endsWith('%'))
-          size = (clientHeight * parseFloat(def.height.slice(0, -1))) / 100;
-        else size = parseInt(def.height);
-      } else {
-        size = remainingHeight / totalFlexibleItems;
-      }
-      size += deltaHeights[key] || 0;
       computed[key] = {
-        size,
+        size: itemHeights[key],
         splitterVisible: visibleItemsCount > 1 && visibleIndex < visibleItemsCount - 1,
         visibleItemsCount,
       };
