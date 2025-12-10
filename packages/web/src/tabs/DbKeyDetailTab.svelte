@@ -211,7 +211,7 @@
         >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
       {/if}
       {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
-        <ToolStripButton icon="icon add" on:click={() => addItem(keyInfo)}>Add item</ToolStripButton>
+        <ToolStripButton icon="icon add" on:click={() => addItem(keyInfo)}>Add field</ToolStripButton>
       {/if}
       <ToolStripButton icon="icon refresh" on:click={refresh}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton>
     </svelte:fragment>
