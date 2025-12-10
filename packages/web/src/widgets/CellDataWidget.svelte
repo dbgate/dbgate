@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-
   const formats = [
     {
       type: 'textWrap',
@@ -64,10 +63,13 @@
   ];
 
   function autodetect(selection) {
+    if (selection[0]?.isSelectedFullRow) {
+      return 'table';
+    }
+
     if (selectionCouldBeShownOnMap(selection)) {
       return 'map';
     }
-
     if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
       return 'jsonRow';
     }
@@ -121,7 +123,7 @@
 </script>
 
 <div class="wrapper">
-  <WidgetTitle {onClose}>{_t('cellDataWidget.title', { defaultMessage: "Cell data view" })}</WidgetTitle>
+  <WidgetTitle {onClose}>{_t('cellDataWidget.title', { defaultMessage: 'Cell data view' })}</WidgetTitle>
   <div class="main">
     <div class="toolbar">
       Format:<span>&nbsp;</span>
@@ -131,18 +133,30 @@
         on:change={e => (selectedFormatType = e.detail)}
         data-testid="CellDataWidget_selectFormat"
         options={[
-          { value: 'autodetect', label: _t('cellDataWidget.autodetect', { defaultMessage: "Autodetect - {autoDetectTitle}", values : { autoDetectTitle: autodetectFormat.title } }) },
+          {
+            value: 'autodetect',
+            label: _t('cellDataWidget.autodetect', {
+              defaultMessage: 'Autodetect - {autoDetectTitle}',
+              values: { autoDetectTitle: autodetectFormat.title },
+            }),
+          },
           ...formats.map(fmt => ({ label: fmt.title, value: fmt.type })),
         ]}
       />
     </div>
     <div class="data">
       {#if usedFormat.single && selection?.length != 1}
-        <ErrorInfo message={_t('cellDataWidget.mustSelectOneCell', { defaultMessage: "Must be selected one cell" })} alignTop />
+        <ErrorInfo
+          message={_t('cellDataWidget.mustSelectOneCell', { defaultMessage: 'Must be selected one cell' })}
+          alignTop
+        />
       {:else if usedFormat == null}
-        <ErrorInfo message={_t('cellDataWidget.formatNotSelected', { defaultMessage: "Format not selected" })} alignTop />
+        <ErrorInfo
+          message={_t('cellDataWidget.formatNotSelected', { defaultMessage: 'Format not selected' })}
+          alignTop
+        />
       {:else if !selection || selection.length == 0}
-        <ErrorInfo message={_t('cellDataWidget.noDataSelected', { defaultMessage: "No data selected" })} alignTop />
+        <ErrorInfo message={_t('cellDataWidget.noDataSelected', { defaultMessage: 'No data selected' })} alignTop />
       {:else}
         <svelte:component this={usedFormat?.component} {selection} />
       {/if}

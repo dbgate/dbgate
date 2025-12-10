@@ -217,7 +217,7 @@
   registerCommand({
     id: 'dataGrid.filterSelected',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.filterSelected', { defaultMessage : 'Filter selected value'}),
+    name: __t('command.datagrid.filterSelected', { defaultMessage: 'Filter selected value' }),
     keyText: 'CtrlOrCommand+Shift+F',
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
@@ -225,7 +225,7 @@
   registerCommand({
     id: 'dataGrid.findColumn',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.findColumn', { defaultMessage: 'Find column'}),
+    name: __t('command.datagrid.findColumn', { defaultMessage: 'Find column' }),
     keyText: 'CtrlOrCommand+F',
     testEnabled: () => getCurrentDataGrid() != null,
     getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
@@ -241,7 +241,7 @@
   registerCommand({
     id: 'dataGrid.clearFilter',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.clearFilter', { defaultMessage : 'Clear filter'}),
+    name: __t('command.datagrid.clearFilter', { defaultMessage: 'Clear filter' }),
     keyText: 'CtrlOrCommand+Shift+E',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
@@ -249,7 +249,7 @@
   registerCommand({
     id: 'dataGrid.generateSqlFromData',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.generateSql', { defaultMessage: 'Generate SQL'}),
+    name: __t('command.datagrid.generateSql', { defaultMessage: 'Generate SQL' }),
     keyText: 'CtrlOrCommand+G',
     testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
     onClick: () => getCurrentDataGrid().generateSqlFromData(),
@@ -257,14 +257,14 @@
   registerCommand({
     id: 'dataGrid.openFreeTable',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.editSelection', { defaultMessage: 'Edit selection as table'}),
+    name: __t('command.datagrid.editSelection', { defaultMessage: 'Edit selection as table' }),
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().openFreeTable(),
   });
   registerCommand({
     id: 'dataGrid.newJson',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.addJsonDocument', { defaultMessage: 'Add JSON document'}),
+    name: __t('command.datagrid.addJsonDocument', { defaultMessage: 'Add JSON document' }),
     testEnabled: () => getCurrentDataGrid()?.addJsonDocumentEnabled(),
     onClick: () => getCurrentDataGrid().addJsonDocument(),
   });
@@ -759,7 +759,7 @@
 
   export function saveCellToFileEnabled() {
     const value = getSelectedExportableCell();
-    return _.isString(value) || (value?.type == 'Buffer' && _.isArray(value?.data)) || (value?.$binary?.base64);
+    return _.isString(value) || (value?.type == 'Buffer' && _.isArray(value?.data)) || value?.$binary?.base64;
   }
 
   export async function saveCellToFile() {
@@ -1243,23 +1243,45 @@
 
   function getCellsPublished(cells) {
     const regular = cellsToRegularCells(cells);
+
+    const commonInfo = {
+      engine: display?.driver,
+      editable: grider.editable,
+      editorTypes: display?.driver?.dataEditorTypesBehaviour,
+    };
+
+    const rowIndexes = _.sortBy(_.uniq(regular.map(x => x[0])));
+    const fullRowIndexes = new Set(cells.filter(x => x[1] == 'header').map(x => x[0]));
+    const rowInfos = rowIndexes.map(row => {
+      const rowData = grider.getRowData(row);
+
+      return {
+        row,
+        rowData,
+        condition: display?.getChangeSetCondition(rowData),
+        insertedRowIndex: grider?.getInsertedRowIndex(row),
+        rowStatus: grider.getRowStatus(row),
+        isSelectedFullRow: fullRowIndexes.has(row),
+      };
+    });
+
+    const rowInfoByIndex = _.zipObject(
+      rowIndexes.map(x => x.toString()),
+      rowInfos
+    );
+
     const res = regular
       .map(cell => {
         const row = cell[0];
-        const rowData = grider.getRowData(row);
         const column = realColumnUniqueNames[cell[1]];
+        const rowData = rowInfoByIndex[row].rowData;
+
         return {
-          row,
-          rowData,
+          ...commonInfo,
+          ...rowInfoByIndex[row],
           column,
           value: rowData && rowData[column],
-          engine: display?.driver,
-          condition: display?.getChangeSetCondition(rowData),
-          insertedRowIndex: grider?.getInsertedRowIndex(row),
-          rowStatus: grider.getRowStatus(row),
           onSetValue: value => grider.setCellValue(row, column, value),
-          editable: grider.editable,
-          editorTypes: display?.driver?.dataEditorTypesBehaviour,
         };
       })
       .filter(x => x.column);
@@ -1813,7 +1835,7 @@
     { command: 'dataGrid.refresh' },
     { placeTag: 'copy' },
     {
-      text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced'}),
+      text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced' }),
       submenu: [
         _.keys(copyRowsFormatDefs).map(format => ({
           text: _tval(copyRowsFormatDefs[format].label),
@@ -1821,7 +1843,7 @@
         })),
         { divider: true },
         _.keys(copyRowsFormatDefs).map(format => ({
-          text: _t('datagrid.setFormat', { defaultMessage: 'Set format: ' }) + (_tval(copyRowsFormatDefs[format].name)),
+          text: _t('datagrid.setFormat', { defaultMessage: 'Set format: ' }) + _tval(copyRowsFormatDefs[format].name),
           onClick: () => ($copyRowsFormat = format),
         })),
 

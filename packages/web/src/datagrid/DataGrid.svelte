@@ -278,6 +278,9 @@
                   if (onPublishedCellsChanged) {
                     onPublishedCellsChanged(value);
                   }
+                  if (value[0]?.isSelectedFullRow && !isFormView) {
+                    cellDataViewVisible = true;
+                  }
                 }}
                 onChangeSelectedColumns={cols => {
                   if (domColumnManager) domColumnManager.setSelectedColumns(cols);
