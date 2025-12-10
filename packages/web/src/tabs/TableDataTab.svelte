@@ -23,7 +23,7 @@
       time: 60,
       name: __t('command.datagrid.setAutoRefresh.60', { defaultMessage: 'Refresh every 60 seconds' }),
     },
-  ]
+  ];
 
   registerCommand({
     id: 'tableData.save',
@@ -172,7 +172,10 @@
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
-      showModal(ErrorMessageModal, { title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }), message: errorMessage });
+      showModal(ErrorMessageModal, {
+        title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),
+        message: errorMessage,
+      });
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       cache.update(reloadDataCacheFunc);
@@ -192,7 +195,10 @@
       });
       const { errorMessage } = resp || {};
       if (errorMessage) {
-        showModal(ErrorMessageModal, { title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }), message: errorMessage });
+        showModal(ErrorMessageModal, {
+          title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),
+          message: errorMessage,
+        });
       } else {
         dispatchChangeSet({ type: 'reset', value: createChangeSet() });
         cache.update(reloadDataCacheFunc);
@@ -284,7 +290,10 @@
       { command: 'tableData.stopAutoRefresh', hideDisabled: true },
       { command: 'tableData.startAutoRefresh', hideDisabled: true },
       'tableData.setAutoRefresh.1',
-      ...INTERVALS.map(seconds => ({ command: `tableData.setAutoRefresh.${seconds}`, text: `...${seconds}` + ' ' + _t('command.datagrid.autoRefresh.seconds', { defaultMessage: 'seconds' }) })),
+      ...INTERVALS.map(seconds => ({
+        command: `tableData.setAutoRefresh.${seconds}`,
+        text: `...${seconds}` + ' ' + _t('command.datagrid.autoRefresh.seconds', { defaultMessage: 'seconds' }),
+      })),
     ];
   }
 </script>
@@ -360,13 +369,23 @@
     >
 
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? _t('tableData.refreshEvery', { defaultMessage: 'Refresh (every {autoRefreshInterval}s)', values: { autoRefreshInterval } }) : null}
+      buttonLabel={autoRefreshStarted
+        ? _t('tableData.refreshEvery', {
+            defaultMessage: 'Refresh (every {autoRefreshInterval}s)',
+            values: { autoRefreshInterval },
+          })
+        : null}
       commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshGrid"
     />
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? _t('tableData.refreshEvery', { defaultMessage: 'Refresh (every {autoRefreshInterval}s)', values: { autoRefreshInterval } }) : null}
+      buttonLabel={autoRefreshStarted
+        ? _t('tableData.refreshEvery', {
+            defaultMessage: 'Refresh (every {autoRefreshInterval}s)',
+            values: { autoRefreshInterval },
+          })
+        : null}
       commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshForm"
@@ -402,7 +421,14 @@
 
     <ToolStripButton
       icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
-      on:click={() => collapsedLeftColumnStore.update(x => !x)}>{_t('tableData.viewColumns', { defaultMessage: 'View columns' })}</ToolStripButton
+      on:click={() => collapsedLeftColumnStore.update(x => !x)}
+      >{_t('tableData.viewColumns', { defaultMessage: 'View columns' })}</ToolStripButton
     >
+
+    <ToolStripCommandButton
+      command="dataGrid.toggleCellDataView"
+      hideDisabled
+      data-testid="TableDataTab_toggleCellDataView"
+    />
   </svelte:fragment>
 </ToolStripContainer>

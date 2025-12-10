@@ -40,6 +40,17 @@
     onClick: () => getCurrentEditor().toggleLeftPanel(),
   });
 
+  registerCommand({
+    id: 'dataGrid.toggleCellDataView',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.toggleCellDataView', { defaultMessage: 'Toggle cell data view' }),
+    toolbarName: __t('command.datagrid.toggleCellDataView.toolbar', { defaultMessage: 'Cell Data' }),
+    menuName: __t('command.datagrid.toggleCellDataView.menu', { defaultMessage: 'Show Cell Data' }),
+    icon: 'icon cell-data',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().toggleCellDataView(),
+  });
+
   function extractMacroValuesForMacro(macroValues, macro) {
     // return {};
     if (!macro) return {};
@@ -92,7 +103,7 @@
   export let hasMultiColumnFilter = false;
   export let setLoadedRows = null;
   export let hideGridLeftColumn = false;
-  export let cellDataViewVisible = true;
+  export let cellDataViewVisible = false;
 
   export let onPublishedCellsChanged;
 
@@ -150,6 +161,10 @@
 
   export function toggleLeftPanel() {
     collapsedLeftColumnStore.update(x => !x);
+  }
+
+  export function toggleCellDataView() {
+    cellDataViewVisible = !cellDataViewVisible;
   }
 
   registerMenu(

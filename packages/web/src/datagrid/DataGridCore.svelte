@@ -1858,6 +1858,7 @@
     { command: 'dataGrid.openJsonArrayInSheet', hideDisabled: true },
     { command: 'dataGrid.saveCellToFile', hideDisabled: true },
     { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
+    { command: 'dataGrid.toggleCellDataView', hideDisabled: true },
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
