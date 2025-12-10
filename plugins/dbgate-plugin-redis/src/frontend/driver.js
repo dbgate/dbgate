@@ -76,6 +76,12 @@ const driver = {
       addMethod: 'xaddjson',
       showItemList: true,
     },
+    {
+      name: 'json',
+      label: 'JSON',
+      dbKeyFields: [{ name: 'value' }],
+      addMethod: 'json.set',
+    }
   ],
 
   showConnectionField: (field, values) => {

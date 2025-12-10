@@ -451,6 +451,14 @@ const driver = {
       case 'string':
         res.value = await dbhan.client.get(key);
         break;
+      case 'ReJSON-RL':
+        res.type = 'json';
+        try {
+          res.value = JSON.stringify(await dbhan.client.call('JSON.GET', key), null, 2);
+        } catch (e) {
+          res.value = '';
+        }
+        break;
       // case 'list':
       //   res.tableColumns = [{ name: 'value' }];
       //   res.addMethod = 'rpush';
@@ -489,6 +497,8 @@ const driver = {
         return await this.deleteBranch(dbhan, args[0]);
       case 'zadd':
         return await dbhan.client.zadd(args[0], args[2], args[1]);
+      case 'json.set':
+        return await dbhan.client.call('JSON.SET', args[0], '$', args[1]);
       case 'xaddjson':
         let json;
         try {
