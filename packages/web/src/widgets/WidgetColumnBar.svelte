@@ -4,9 +4,11 @@
   import _ from 'lodash';
 
   export let hidden = false;
+  export let storageName = null;
 
-  let definitions = [];
+  let definitions = {};
   let clientHeight;
+  let definitionCount = 0;
 
   // const widgetColumnBarHeight = writable(0);
   const widgetColumnBarComputed = writable({});
@@ -19,11 +21,13 @@
       [name]: {
         ...item,
         name,
-        index: definitions.length,
+        index: definitionCount,
       },
     };
+    definitionCount += 1;
   });
   setContext('updateWidgetItemDefinition', (name, item) => {
+    // console.log('WidgetColumnBar updateWidgetItemDefinition', name, item);
     definitions = {
       ...definitions,
       [name]: { ...definitions[name], ...item },
@@ -43,8 +47,8 @@
   $: recompute(definitions);
 
   function recompute(defs: any) {
-    const visibleItems = _.values(defs)
-      .filter(x => !x.collapsed && !x.skip)
+    const visibleItems = _.orderBy(_.values(defs), ['index'])
+      .filter(x => !x.collapsed && !x.skip && x.positiveCondition)
       .map(x => x.name);
     const visibleItemsCount = visibleItems.length;
 
@@ -88,6 +92,8 @@
       visibleIndex++;
     }
 
+    // console.log('WidgetColumnBar definitions', defs);
+    // console.log('WidgetColumnBar recompute', computed);
     $widgetColumnBarComputed = computed;
   }
 

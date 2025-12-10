@@ -46,7 +46,7 @@
   title={driver?.databaseEngineTypes?.includes('document')
     ? _t('widget.collectionsContainers', { defaultMessage: 'Collections/containers' })
     : _t('widget.tablesViewsFunctions', { defaultMessage: 'Tables, views, functions' })}
-  name="dbObjects"
+  name="dbObjectsSql"
   storageName="dbObjectsWidget"
   skip={!(
     conid &&
@@ -60,7 +60,7 @@
 
 <WidgetColumnBarItem
   title={_t('widget.keys', { defaultMessage: 'Keys' })}
-  name="dbObjects"
+  name="dbObjectsKeyValue"
   storageName="dbObjectsWidget"
   skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
   positiveCondition={correctCloudStatus}
@@ -70,7 +70,7 @@
 
 <WidgetColumnBarItem
   title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
-  name="dbObjects"
+  name="dbObjectsFocused"
   storageName="dbObjectsWidget"
   skip={conid && (database || singleDatabase)}
   positiveCondition={correctCloudStatus}
@@ -84,7 +84,7 @@
 
 <WidgetColumnBarItem
   title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
-  name="dbObjects"
+  name="dbObjectsError"
   storageName="dbObjectsWidget"
   skip={!(conid && (database || singleDatabase) && !driver)}
   positiveCondition={correctCloudStatus}
