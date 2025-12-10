@@ -36,6 +36,8 @@
   import SelectField from '../forms/SelectField.svelte';
   import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
   import { _t } from '../translations';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
 
   export let tabid;
   export let conid;
@@ -124,59 +126,69 @@
 {#await apiCall('database-connections/load-key-info', { conid, database, key, refreshToken })}
   <LoadingInfo message="Loading key details" wrapper />
 {:then keyInfo}
-  <div class="container">
-    <div class="top-panel">
-      <div class="type">
-        <FontIcon icon={getIconForRedisType(keyInfo.type)} padRight />
-        {keyInfo.keyType?.label || keyInfo.type}
+  <ToolStripContainer>
+    <div class="container">
+      <div class="top-panel">
+        <div class="type">
+          <FontIcon icon={getIconForRedisType(keyInfo.type)} padRight />
+          {keyInfo.keyType?.label || keyInfo.type}
+        </div>
+        <div class="key-name">
+          <TextField value={key} readOnly />
+        </div>
+        <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
       </div>
-      <div class="key-name">
-        <TextField value={key} readOnly />
-      </div>
-      <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
-      {#if keyInfo.type == 'string'}
-        <FormStyledButton
-          value={_t('common.save', { defaultMessage: 'Save' })}
-          on:click={saveString}
-          disabled={!editedValue}
-        />
-      {/if}
-      {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
-        <FormStyledButton value="Add item" on:click={() => addItem(keyInfo)} />
-      {/if}
-      <FormStyledButton value={_t('common.refresh', { defaultMessage: 'Refresh' })} on:click={refresh} />
-    </div>
 
-    <div class="content">
-      {#if keyInfo.keyType?.dbKeyFields && keyInfo.keyType?.showItemList}
-        <VerticalSplitter>
-          <svelte:fragment slot="1">
-            <DbKeyTableControl
-              {conid}
-              {database}
-              {keyInfo}
-              onChangeSelected={row => {
-                currentRow = row;
+      <div class="content">
+        {#if keyInfo.keyType?.dbKeyFields && keyInfo.keyType?.showItemList}
+          <VerticalSplitter>
+            <svelte:fragment slot="1">
+              <DbKeyTableControl
+                {conid}
+                {database}
+                {keyInfo}
+                onChangeSelected={row => {
+                  currentRow = row;
+                }}
+              />
+            </svelte:fragment>
+            <svelte:fragment slot="2">
+              <DbKeyItemDetail 
+                dbKeyFields={keyInfo.type === 'hash' 
+                  ? keyInfo.keyType.dbKeyFields.filter(f => f.name === 'value')
+                  : keyInfo.keyType.dbKeyFields} 
+                item={currentRow} 
+              />
+            </svelte:fragment>
+          </VerticalSplitter>
+        {:else}
+          <div class="value-holder">
+            <DbKeyValueDetail
+              columnTitle="Value"
+              value={editedValue || keyInfo.value}
+              onChangeValue={value => {
+                editedValue = value;
               }}
             />
-          </svelte:fragment>
-          <svelte:fragment slot="2">
-            <DbKeyItemDetail dbKeyFields={keyInfo.keyType.dbKeyFields} item={currentRow} />
-          </svelte:fragment>
-        </VerticalSplitter>
-      {:else}
-        <div class="value-holder">
-          <DbKeyValueDetail
-            columnTitle="Value"
-            value={editedValue || keyInfo.value}
-            onChangeValue={value => {
-              editedValue = value;
-            }}
-          />
-        </div>
-      {/if}
+          </div>
+        {/if}
+      </div>
     </div>
-  </div>
+    
+    <svelte:fragment slot="toolstrip">
+      {#if keyInfo.type == 'string'}
+        <ToolStripButton
+          icon="icon save"
+          on:click={saveString}
+          disabled={!editedValue}
+        >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
+      {/if}
+      {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
+        <ToolStripButton icon="icon add" on:click={() => addItem(keyInfo)}>Add item</ToolStripButton>
+      {/if}
+      <ToolStripButton icon="icon refresh" on:click={refresh}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton>
+    </svelte:fragment>
+  </ToolStripContainer>
 {/await}
 
 <style>
