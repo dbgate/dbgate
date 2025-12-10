@@ -17,55 +17,45 @@
 
   export let storageName = null;
   export let onClose = null;
+  export let minimalHeight = 100;
+  export let name;
 
-  let size = 0;
+  // let size = 0;
 
-  const dynamicProps = writable({
-    splitterVisible: false,
-    visibleItemsCount: 0,
-  });
+  // const dynamicProps = writable({
+  //   splitterVisible: false,
+  //   visibleItemsCount: 0,
+  // });
 
   const pushWidgetItemDefinition = getContext('pushWidgetItemDefinition') as any;
   const updateWidgetItemDefinition = getContext('updateWidgetItemDefinition') as any;
-  const widgetColumnBarHeight = getContext('widgetColumnBarHeight') as any;
-  const widgetItemIndex = pushWidgetItemDefinition(
-    {
-      collapsed,
-      height,
-      skip,
-      positiveCondition,
-    },
-    dynamicProps
-  );
+  // const widgetColumnBarHeight = getContext('widgetColumnBarHeight') as any;
+  const widgetResizeItem = getContext('widgetResizeItem') as any;
+  const widgetColumnBarComputed = getContext('widgetColumnBarComputed') as any;
+  pushWidgetItemDefinition(name, {
+    collapsed,
+    height,
+    skip,
+    positiveCondition,
+  });
 
-  $: updateWidgetItemDefinition(widgetItemIndex, { collapsed: !visible, height, skip, positiveCondition });
+  $: updateWidgetItemDefinition(name, { collapsed: !visible, height, skip, positiveCondition });
 
-  $: setInitialSize(height, $widgetColumnBarHeight);
+  // $: setInitialSize(height, $widgetColumnBarHeight);
 
-  $: if (storageName && $widgetColumnBarHeight > 0) {
-    setLocalStorage(storageName, { relativeHeight: size / $widgetColumnBarHeight, visible });
-  }
-
-  function setInitialSize(initialSize, parentHeight) {
-    if (storageName) {
-      const storage = getLocalStorage(storageName);
-      if (storage) {
-        size = parentHeight * storage.relativeHeight;
-        return;
-      }
-    }
-    if (_.isString(initialSize) && initialSize.endsWith('px')) size = parseInt(initialSize.slice(0, -2));
-    else if (_.isString(initialSize) && initialSize.endsWith('%'))
-      size = (parentHeight * parseFloat(initialSize.slice(0, -1))) / 100;
-    else size = parentHeight / 3;
-  }
+  // $: if (storageName && $widgetColumnBarHeight > 0) {
+  //   setLocalStorage(storageName, { relativeHeight: size / $widgetColumnBarHeight, visible });
+  // }
 
   let visible =
     storageName && getLocalStorage(storageName) && getLocalStorage(storageName).visible != null
       ? getLocalStorage(storageName).visible
       : !collapsed;
 
-  $: collapsible = $dynamicProps.visibleItemsCount != 1 || !visible;
+  $: computed = $widgetColumnBarComputed[name] || {};
+  $: collapsible = computed.visibleItemsCount != 1 || !visible;
+  $: size = computed.size ?? 100;
+  $: splitterVisible = computed.splitterVisible;
 </script>
 
 {#if !skip && positiveCondition}
@@ -79,14 +69,18 @@
   {#if visible}
     <div
       class="wrapper"
-      style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}
+      style={splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}
       data-testid={$$props['data-testid'] ? `${$$props['data-testid']}_content` : undefined}
     >
       <slot />
     </div>
 
-    {#if $dynamicProps.splitterVisible}
-      <div class="vertical-split-handle" use:splitterDrag={'clientY'} on:resizeSplitter={e => (size += e.detail)} />
+    {#if splitterVisible}
+      <div
+        class="vertical-split-handle"
+        use:splitterDrag={'clientY'}
+        on:resizeSplitter={e => widgetResizeItem(name, e.detail)}
+      />
     {/if}
   {/if}
 {/if}
