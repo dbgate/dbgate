@@ -87,6 +87,32 @@
     });
   }
 
+  function handleKeyRename(keyInfo) {
+    showModal(InputTextModal, {
+      value: keyInfo.key,
+      label: 'New key name',
+      header: `Rename key ${keyInfo.key}`,
+      onConfirm: async value => {
+        const res = await apiCall('database-connections/call-method', {
+          conid,
+          database,
+          method: 'rename',
+          args: [keyInfo.key, value],
+        });
+        
+        if (res.errorMessage) {
+          showModal(ErrorMessageModal, { message: res.errorMessage });
+          return;
+        }
+        
+        activeDbKeysStore.update(store => ({
+          ...store,
+          [`${conid}:${database}`]: value,
+        }));
+      },
+    });
+  }
+
   function refresh() {
     editedValue = null;
     refreshToken += 1;
@@ -136,6 +162,7 @@
         <div class="key-name">
           <TextField value={key} readOnly />
         </div>
+        <FormStyledButton value="Rename Key" on:click={() => handleKeyRename(keyInfo)} />
         <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
       </div>
 
