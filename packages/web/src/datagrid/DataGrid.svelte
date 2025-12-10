@@ -24,7 +24,7 @@
   registerCommand({
     id: 'dataGrid.switchToTable',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.datagrid.witchToTable', { defaultMessage: 'Switch to table'}),
+    name: __t('command.datagrid.witchToTable', { defaultMessage: 'Switch to table' }),
     icon: 'icon table',
     keyText: 'F4',
     testEnabled: () => getCurrentEditor()?.switchViewEnabled('table'),
@@ -70,6 +70,7 @@
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import { __t, _t } from '../translations';
   import { isProApp } from '../utility/proTools';
+  import CellDataWidget from '../widgets/CellDataWidget.svelte';
 
   export let config;
   export let setConfig;
@@ -91,6 +92,7 @@
   export let hasMultiColumnFilter = false;
   export let setLoadedRows = null;
   export let hideGridLeftColumn = false;
+  export let cellDataViewVisible = true;
 
   export let onPublishedCellsChanged;
 
@@ -107,6 +109,7 @@
   setContext('macroValues', macroValues);
 
   let managerSize;
+  let cellViewWidth;
   const collapsedLeftColumnStore =
     getContext('collapsedLeftColumnStore') || writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
 
@@ -157,6 +160,7 @@
   );
 
   $: if (managerSize) setLocalStorage('dataGridManagerWidth', managerSize);
+  $: if (cellViewWidth) setLocalStorage('dataGridCellViewWidth', cellViewWidth);
 
   function getInitialManagerSize() {
     const width = getLocalStorage('dataGridManagerWidth');
@@ -164,6 +168,14 @@
       return `${width}px`;
     }
     return '300px';
+  }
+
+  function getInitialCellViewWidth() {
+    const width = getLocalStorage('dataGridCellViewWidth');
+    if (_.isNumber(width) && width > 30 && width < 500) {
+      return width;
+    }
+    return 300;
   }
 </script>
 
@@ -227,30 +239,45 @@
   <svelte:fragment slot="2">
     <VerticalSplitter initialValue="70%" isSplitter={!!$selectedMacro && !isFormView && showMacros}>
       <svelte:fragment slot="1">
-        {#if isFormView}
-          <svelte:component this={formViewComponent} {...$$props} />
-        {:else if isJsonView}
-          <svelte:component this={jsonViewComponent} {...$$props} {setLoadedRows} />
-        {:else}
-          <svelte:component
-            this={gridCoreComponent}
-            {...$$props}
-            {collapsedLeftColumnStore}
-            formViewAvailable={!!formViewComponent}
-            macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
-            macroPreview={$selectedMacro}
-            {setLoadedRows}
-            onPublishedCellsChanged={value => {
-              publishedCells = value;
-              if (onPublishedCellsChanged) {
-                onPublishedCellsChanged(value);
-              }
-            }}
-            onChangeSelectedColumns={cols => {
-              if (domColumnManager) domColumnManager.setSelectedColumns(cols);
-            }}
-          />
-        {/if}
+        <HorizontalSplitter
+          initialSizeRight={getInitialCellViewWidth()}
+          onChangeSize={value => (cellViewWidth = value)}
+          isSplitter={cellDataViewVisible && !isFormView}
+        >
+          <svelte:fragment slot="1">
+            {#if isFormView}
+              <svelte:component this={formViewComponent} {...$$props} />
+            {:else if isJsonView}
+              <svelte:component this={jsonViewComponent} {...$$props} {setLoadedRows} />
+            {:else}
+              <svelte:component
+                this={gridCoreComponent}
+                {...$$props}
+                {collapsedLeftColumnStore}
+                formViewAvailable={!!formViewComponent}
+                macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
+                macroPreview={$selectedMacro}
+                {setLoadedRows}
+                onPublishedCellsChanged={value => {
+                  publishedCells = value;
+                  if (onPublishedCellsChanged) {
+                    onPublishedCellsChanged(value);
+                  }
+                }}
+                onChangeSelectedColumns={cols => {
+                  if (domColumnManager) domColumnManager.setSelectedColumns(cols);
+                }}
+              />
+            {/if}
+          </svelte:fragment>
+          <svelte:fragment slot="2">
+            <CellDataWidget
+              onClose={() => {
+                cellDataViewVisible = false;
+              }}
+            />
+          </svelte:fragment>
+        </HorizontalSplitter>
       </svelte:fragment>
 
       <svelte:fragment slot="2">

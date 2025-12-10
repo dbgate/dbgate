@@ -73,11 +73,6 @@
     //   title: 'Extensions & Plugins',
     // },
     {
-      icon: 'icon cell-data',
-      name: 'cell-data',
-      title: _t('widgets.selectedCellDataDetailView', { defaultMessage: 'Selected cell data detail view' }),
-    },
-    {
       name: 'cloud-public',
       title: _t('widgets.dbgateCloud', { defaultMessage: 'DbGate Cloud' }),
       icon: 'icon cloud-public',

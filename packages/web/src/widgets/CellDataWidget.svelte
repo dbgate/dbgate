@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-  import { isWktGeometry } from 'dbgate-tools';
 
   const formats = [
     {
@@ -110,9 +109,9 @@
   import XmlCellView from '../celldata/XmlCellView.svelte';
   import { _t } from '../translations';
 
-  let selectedFormatType = 'autodetect';
+  export let onClose;
 
-  export let selection = undefined;
+  let selectedFormatType = 'autodetect';
 
   $: autodetectFormatType = autodetect(selection);
   $: autodetectFormat = formats.find(x => x.type == autodetectFormatType);
@@ -124,7 +123,7 @@
 </script>
 
 <div class="wrapper">
-  <WidgetTitle>{_t('cellDataWidget.title', { defaultMessage: "Cell data view" })}</WidgetTitle>
+  <WidgetTitle {onClose}>{_t('cellDataWidget.title', { defaultMessage: "Cell data view" })}</WidgetTitle>
   <div class="main">
     <div class="toolbar">
       Format:<span>&nbsp;</span>
