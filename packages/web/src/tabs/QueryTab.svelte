@@ -800,6 +800,7 @@
           onClose={() => {
             isAiAssistantVisible = false;
           }}
+          name='aiAssistant'
         >
           <WidgetsInnerContainer skipDefineWidth flexContainer>
             <QueryAiAssistant

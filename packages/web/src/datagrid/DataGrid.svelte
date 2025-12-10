@@ -246,6 +246,7 @@
         skip={!(showMacros && isProApp())}
         collapsed={!expandMacros}
         data-testid="DataGrid_itemMacros"
+        height="20%"
       >
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
