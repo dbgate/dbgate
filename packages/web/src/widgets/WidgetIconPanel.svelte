@@ -62,7 +62,7 @@
       name: 'history',
       title: _t('widgets.queryHistoryAndClosedTabs', { defaultMessage: 'Query history & Closed tabs' }),
     },
-    isProApp() && {
+    {
       icon: 'icon archive',
       name: 'archive',
       title: _t('widgets.archive', { defaultMessage: 'Archive (saved tabular data)' }),
