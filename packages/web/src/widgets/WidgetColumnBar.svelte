@@ -58,62 +58,72 @@
 
     const computed = {};
 
-    // First pass: calculate base heights and collect info
+    // First pass: calculate base heights
     let totalFixedHeight = 0;
     let totalFlexibleItems = 0;
     const itemHeights = {};
+    const isResized = {};
 
     for (const key of visibleItems) {
       const def = defs[key];
       const minHeight = def.minimalHeight || 100;
 
-      if (def.height != null) {
+      // Check if this item has a user-resized height
+      if (key in resizedHeights) {
+        itemHeights[key] = Math.max(resizedHeights[key], minHeight);
+        isResized[key] = true;
+        totalFixedHeight += itemHeights[key];
+      } else if (def.height != null) {
         let height = 0;
         if (_.isString(def.height) && def.height.endsWith('px')) height = parseInt(def.height.slice(0, -2));
         else if (_.isString(def.height) && def.height.endsWith('%'))
           height = (clientHeight * parseFloat(def.height.slice(0, -1))) / 100;
         else height = parseInt(def.height);
 
-        if (key in resizedHeights) height = resizedHeights[key];
-        if (height < minHeight) height = minHeight;
+        height = Math.max(height, minHeight);
         itemHeights[key] = height;
+        isResized[key] = false;
         totalFixedHeight += height;
       } else {
+        isResized[key] = false;
         totalFlexibleItems++;
       }
     }
 
+    // Second pass: distribute remaining space to flexible items
     const availableHeightForFlexible = clientHeight - totalFixedHeight;
-
-    // Second pass: distribute space
     for (const key of visibleItems) {
-      const def = defs[key];
-      const minHeight = def.minimalHeight || 100;
-      if (def.height == null) {
-        let height = availableHeightForFlexible / totalFlexibleItems;
-        if (height < minHeight) height = minHeight;
+      if (!(key in itemHeights)) {
+        const def = defs[key];
+        const minHeight = def.minimalHeight || 100;
+        let height = totalFlexibleItems > 0 ? availableHeightForFlexible / totalFlexibleItems : minHeight;
+        height = Math.max(height, minHeight);
         itemHeights[key] = height;
       }
     }
 
-    const sumHeight = _.sum(Object.values(itemHeights));
-
-    const ratio = clientHeight / sumHeight;
-    for (const key of visibleItems) {
-      itemHeights[key] = itemHeights[key] * ratio;
-    }
-
-    // third pass - overwrite with resized heights
-    for (const key of visibleItems) {
-      if (key in resizedHeights) {
-        itemHeights[key] = resizedHeights[key];
+    // Third pass: scale all non-resized items proportionally to fill clientHeight exactly
+    const totalHeight = _.sum(Object.values(itemHeights));
+    const resizedKeys = Object.keys(isResized).filter(k => isResized[k]);
+    const nonResizedKeys = visibleItems.filter(k => !isResized[k]);
+    
+    if (totalHeight !== clientHeight && nonResizedKeys.length > 0) {
+      const totalResizedHeight = _.sum(resizedKeys.map(k => itemHeights[k]));
+      const totalNonResizedHeight = _.sum(nonResizedKeys.map(k => itemHeights[k]));
+      const availableForNonResized = clientHeight - totalResizedHeight;
+      
+      if (totalNonResizedHeight > 0 && availableForNonResized > 0) {
+        const ratio = availableForNonResized / totalNonResizedHeight;
+        for (const key of nonResizedKeys) {
+          itemHeights[key] = itemHeights[key] * ratio;
+        }
       }
-    }
-
-    // fix total height again
-    const ratio2 = clientHeight / _.sum(Object.values(itemHeights));
-    for (const key of visibleItems) {
-      itemHeights[key] = itemHeights[key] * ratio2;
+    } else if (totalHeight !== clientHeight && nonResizedKeys.length === 0) {
+      // All items are resized, scale proportionally
+      const ratio = clientHeight / totalHeight;
+      for (const key of visibleItems) {
+        itemHeights[key] = itemHeights[key] * ratio;
+      }
     }
 
     // Build computed result
@@ -127,8 +137,7 @@
       visibleIndex++;
     }
 
-    // console.log('WidgetColumnBar definitions', defs);
-    // console.log('WidgetColumnBar recompute', computed);
+    // Clean up resizedHeights - remove entries for items that no longer exist
     resizedHeights = _.pickBy(
       _.mapValues(resizedHeights, (v, k) => {
         if (k in itemHeights) return v;
