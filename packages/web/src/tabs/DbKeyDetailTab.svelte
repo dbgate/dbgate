@@ -193,6 +193,7 @@
             <DbKeyValueDetail
               columnTitle="Value"
               value={editedValue || keyInfo.value}
+              keyType={keyInfo.type}
               onChangeValue={value => {
                 editedValue = value;
               }}

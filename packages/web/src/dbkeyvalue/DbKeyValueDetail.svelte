@@ -12,6 +12,7 @@
   export let columnTitle;
   export let value;
   export let onChangeValue = null;
+  export let keyType = null;
 </script>
 
 <div class="colnamewrap">
@@ -33,6 +34,7 @@
     <AceEditor
       readOnly={!onChangeValue}
       {value}
+      mode={keyType === 'JSON' ? 'json' : undefined}
       on:input={e => {
         onChangeValue?.(e.detail);
       }}
