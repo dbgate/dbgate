@@ -7,7 +7,7 @@ import { isProApp } from './proTools';
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
   return [
-    isProApp() && {
+    {
       text: _t('export.exportAdvanced', { defaultMessage : 'Export advanced...'}),
       ...advancedExportMenuItem,
     },

@@ -703,7 +703,7 @@ registerCommand({
   name: __t('command.database.export', { defaultMessage: 'Export database' }),
   toolbar: true,
   icon: 'icon export',
-  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/export`) && isProApp(),
+  testEnabled: () => getCurrentDatabase() != null && hasPermission(`dbops/export`),
   onClick: () => {
     openImportExportTab({
       targetStorageType: getDefaultFileFormat(getExtensions()).storageType,

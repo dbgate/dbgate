@@ -95,7 +95,6 @@
       title: _t('common.exportDatabase', { defaultMessage: 'Export database' }),
       description: _t('newObject.exportDescription', { defaultMessage: 'Export to file like CSV, JSON, Excel, or other DB' }),
       command: 'database.export',
-      isProFeature: true,
       testid: 'NewObjectModal_databaseExport',
       disabledMessage: _t('newObject.exportDisabled', { defaultMessage: 'Export is not available for current database' }),
     },
