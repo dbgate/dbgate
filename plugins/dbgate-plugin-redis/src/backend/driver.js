@@ -538,9 +538,23 @@ const driver = {
       }
       case 'hash': {
         const res = await dbhan.client.hscan(key, cursor, 'COUNT', count);
+        const fields = _.chunk(res[1], 2);
+        
+        // Get TTL for each hash field (Redis 7.4+)
+        const items = await Promise.all(
+          fields.map(async ([fieldKey, fieldValue]) => {
+            try {
+              const ttl = await dbhan.client.call('HTTL', key, 'FIELDS', 1, fieldKey);
+              return { key: fieldKey, value: fieldValue, TTL: ttl && ttl[0] !== undefined ? ttl[0] : null };
+            } catch (e) {
+              return { key: fieldKey, value: fieldValue };
+            }
+          })
+        );
+        
         return {
           cursor: parseInt(res[0]),
-          items: _.chunk(res[1], 2).map((item) => ({ key: item[0], value: item[1] })),
+          items,
         };
       }
       case 'stream': {

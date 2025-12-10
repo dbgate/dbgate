@@ -63,7 +63,7 @@ const driver = {
     {
       name: 'hash',
       label: 'Hash',
-      dbKeyFields: [{ name: 'key' }, { name: 'value' }],
+      dbKeyFields: [{ name: 'key' }, { name: 'value' }, { name: 'TTL' }],
       keyColumn: 'key',
       addMethod: 'hset',
       showItemList: true,
