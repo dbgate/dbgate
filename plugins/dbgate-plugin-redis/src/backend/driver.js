@@ -452,9 +452,10 @@ const driver = {
         res.value = await dbhan.client.get(key);
         break;
       case 'ReJSON-RL':
-        res.type = 'json';
+        res.type = 'JSON';
         try {
-          res.value = JSON.stringify(await dbhan.client.call('JSON.GET', key), null, 2);
+          const jsonData = await dbhan.client.call('JSON.GET', key);
+          res.value = JSON.stringify(JSON.parse(jsonData), null, 2);
         } catch (e) {
           res.value = '';
         }
