@@ -388,7 +388,7 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { copyRowsFormat, currentArchive, selectedCellsCallback } from '../stores';
+  import { copyRowsFormat, currentArchive } from '../stores';
   import {
     copyRowsFormatDefs,
     copyRowsToClipboard,
@@ -1203,7 +1203,6 @@
         if (rowIndexes.every(x => grider.getRowData(x))) {
           lastPublishledSelectedCellsRef.set(stringified);
           changeSetValueRef.set($changeSetStore?.value);
-          $selectedCellsCallback = () => getCellsPublished(selectedCells);
 
           if (onChangeSelectedColumns) {
             onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));

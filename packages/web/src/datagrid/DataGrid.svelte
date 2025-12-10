@@ -275,6 +275,7 @@
               onClose={() => {
                 cellDataViewVisible = false;
               }}
+              selection={publishedCells}
             />
           </svelte:fragment>
         </HorizontalSplitter>

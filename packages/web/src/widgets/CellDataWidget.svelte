@@ -103,13 +103,13 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import SelectField from '../forms/SelectField.svelte';
-  import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
   import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
   import XmlCellView from '../celldata/XmlCellView.svelte';
   import { _t } from '../translations';
 
   export let onClose;
+  export let selection;
 
   let selectedFormatType = 'autodetect';
 
@@ -118,8 +118,6 @@
 
   $: usedFormatType = selectedFormatType == 'autodetect' ? autodetectFormatType : selectedFormatType;
   $: usedFormat = formats.find(x => x.type == usedFormatType);
-
-  $: selection = $selectedCellsCallback ? $selectedCellsCallback() : [];
 </script>
 
 <div class="wrapper">
