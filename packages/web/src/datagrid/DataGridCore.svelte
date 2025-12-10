@@ -380,7 +380,17 @@
     filterCellsForRow,
   } from './gridutil';
   import HorizontalScrollBar from './HorizontalScrollBar.svelte';
-  import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
+  import {
+    cellFromEvent,
+    emptyCellArray,
+    getCellRange,
+    isColumnHeaderCell,
+    isRegularCell,
+    isRowHeaderCell,
+    isTableHeaderCell,
+    nullCell,
+    topLeftCell,
+  } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
@@ -1305,7 +1315,7 @@
   function scrollIntoView(cell) {
     const [row, col] = cell;
 
-    if (row != null) {
+    if (_.isNumber(row)) {
       let newRow = null;
       const rowCount = grider.rowCount;
       if (rowCount == 0) return;
@@ -1323,7 +1333,7 @@
       }
     }
 
-    if (col != null) {
+    if (_.isNumber(col)) {
       if (col >= columnSizes.frozenCount) {
         let newColumn = columnSizes.scrollInView(
           firstVisibleColumnScrollIndex,
@@ -1553,7 +1563,11 @@
     }
 
     if (event.shiftKey) {
-      if (!isRegularCell(shiftDragStartCell)) {
+      if (
+        !isRegularCell(shiftDragStartCell) &&
+        !isColumnHeaderCell(shiftDragStartCell) &&
+        !isRowHeaderCell(shiftDragStartCell)
+      ) {
         shiftDragStartCell = currentCell;
       }
     } else {
@@ -1581,7 +1595,13 @@
   }
 
   function handleCursorMove(event) {
-    if (!isRegularCell(currentCell)) return null;
+    if (
+      !isRegularCell(currentCell) &&
+      !isColumnHeaderCell(currentCell) &&
+      !isRowHeaderCell(currentCell) &&
+      !isTableHeaderCell(currentCell)
+    )
+      return null;
     let rowCount = grider.rowCount;
     if (isCtrlOrCommandKey(event)) {
       switch (event.keyCode) {
@@ -1608,24 +1628,36 @@
       switch (event.keyCode) {
         case keycodes.upArrow:
           if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
-          return moveCurrentCell(currentCell[0] - 1, currentCell[1], event);
+          return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] - 1, currentCell[1], event) : null;
         case keycodes.downArrow:
-          return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+          if (currentCell[0] == 'header') return focusFilterEditor(currentCell[1]);
+          return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
         case keycodes.enter:
-          if (!grider.editable) return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+          if (!grider.editable)
+            return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
           break;
         case keycodes.leftArrow:
-          return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+          return _.isNumber(currentCell[1])
+            ? moveCurrentCell(currentCell[0], currentCell[1] == 0 ? 'header' : currentCell[1] - 1, event)
+            : null;
         case keycodes.rightArrow:
-          return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+          return currentCell[1] == 'header'
+            ? moveCurrentCell(currentCell[0], 0, event)
+            : _.isNumber(currentCell[1])
+              ? moveCurrentCell(currentCell[0], currentCell[1] + 1, event)
+              : null;
         case keycodes.home:
           return moveCurrentCell(currentCell[0], 0, event);
         case keycodes.end:
           return moveCurrentCell(currentCell[0], columnSizes.realCount - 1, event);
         case keycodes.pageUp:
-          return moveCurrentCell(currentCell[0] - visibleRowCountLowerBound, currentCell[1], event);
+          return _.isNumber(currentCell[0])
+            ? moveCurrentCell(currentCell[0] - visibleRowCountLowerBound, currentCell[1], event)
+            : null;
         case keycodes.pageDown:
-          return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
+          return _.isNumber(currentCell[0])
+            ? moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event)
+            : null;
         case keycodes.tab: {
           return moveCurrentCellWithTabKey(event.shiftKey);
         }
@@ -1659,10 +1691,14 @@
   function moveCurrentCell(row, col, event = null) {
     const rowCount = grider.rowCount;
 
-    if (row < 0) row = 0;
-    if (row >= rowCount) row = rowCount - 1;
-    if (col < 0) col = 0;
-    if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
+    if (_.isNumber(row)) {
+      if (row < 0) row = 0;
+      if (row >= rowCount) row = rowCount - 1;
+    }
+    if (_.isNumber(col)) {
+      if (col < 0) col = 0;
+      if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
+    }
     currentCell = [row, col];
     // setSelectedCells([...(event.ctrlKey ? selectedCells : []), [row, col]]);
     selectedCells = [[row, col]];
@@ -1775,6 +1811,17 @@
     const modelIndex = columns.findIndex(x => x.uniquePath == uniquePath);
     const realIndex = columnSizes.modelToReal(modelIndex);
     let cell = [firstVisibleRowScrollIndex, realIndex];
+    // @ts-ignore
+    currentCell = cell;
+    // @ts-ignore
+    selectedCells = [cell];
+    if (domFocusField) domFocusField.focus();
+  };
+
+  const selectColumnHeaderCell = uniquePath => {
+    const modelIndex = columns.findIndex(x => x.uniquePath == uniquePath);
+    const realIndex = columnSizes.modelToReal(modelIndex);
+    let cell = ['header', realIndex];
     // @ts-ignore
     currentCell = cell;
     // @ts-ignore
@@ -2031,6 +2078,7 @@
               data-row="header"
               data-col={col.colIndex}
               style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+              class:active-header-cell={currentCell && currentCell[0] == 'header' && currentCell[1] == col.colIndex}
             >
               <ColumnHeaderControl
                 column={col}
@@ -2104,6 +2152,9 @@
                   }}
                   onFocusGrid={() => {
                     selectTopmostCell(col.uniqueName);
+                  }}
+                  onFocusGridHeader={() => {
+                    selectColumnHeaderCell(col.uniqueName);
                   }}
                   dataType={col.dataType}
                   filterDisabled={display.isFilterDisabled(col.uniqueName)}
@@ -2230,6 +2281,9 @@
     margin: 0;
     background-color: var(--theme-bg-1);
     overflow: hidden;
+  }
+  :global(.data-grid-focused) .active-header-cell {
+    background-color: var(--theme-bg-selected);
   }
   .filter-cell {
     text-align: left;

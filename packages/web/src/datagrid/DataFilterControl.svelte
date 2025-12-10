@@ -25,6 +25,7 @@
   export let setFilter;
   export let showResizeSplitter = false;
   export let onFocusGrid = null;
+  export let onFocusGridHeader = null;
   export let onGetReference = null;
   export let foreignKey = null;
   export let conid = null;
@@ -201,6 +202,11 @@
     }
     if (ev.keyCode == keycodes.downArrow) {
       if (onFocusGrid) onFocusGrid();
+      // ev.stopPropagation();
+      ev.preventDefault();
+    }
+    if (ev.keyCode == keycodes.upArrow) {
+      if (onFocusGridHeader) onFocusGridHeader();
       // ev.stopPropagation();
       ev.preventDefault();
     }
