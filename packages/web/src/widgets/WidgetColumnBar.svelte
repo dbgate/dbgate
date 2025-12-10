@@ -14,9 +14,9 @@
   // const widgetColumnBarHeight = writable(0);
   const widgetColumnBarComputed = writable({});
   const fromStorage = getLocalStorage(storageName);
-  let deltaHeights = fromStorage?.deltaHeights || {};
+  let resizedHeights = fromStorage?.resizedHeights || {};
 
-  $: setLocalStorage(storageName, { deltaHeights });
+  $: setLocalStorage(storageName, { resizedHeights });
 
   // setContext('widgetColumnBarHeight', widgetColumnBarHeight);
   setContext('pushWidgetItemDefinition', (name, item) => {
@@ -37,10 +37,10 @@
       [name]: { ...definitions[name], ...item },
     };
   });
-  setContext('widgetResizeItem', (name, deltaHeight) => {
-    deltaHeights = {
-      ...deltaHeights,
-      [name]: (deltaHeights[name] || 0) + deltaHeight,
+  setContext('widgetResizeItem', (name, newHeight) => {
+    resizedHeights = {
+      ...resizedHeights,
+      [name]: newHeight,
     };
     recompute(definitions);
   });
@@ -74,7 +74,7 @@
           height = (clientHeight * parseFloat(def.height.slice(0, -1))) / 100;
         else height = parseInt(def.height);
 
-        height = Math.max(height, minHeight) + (deltaHeights[key] || 0);
+        if (key in resizedHeights) height = resizedHeights[key];
         if (height < minHeight) height = minHeight;
         itemHeights[key] = height;
         totalFixedHeight += height;
@@ -103,6 +103,19 @@
       itemHeights[key] = itemHeights[key] * ratio;
     }
 
+    // third pass - overwrite with resized heights
+    for (const key of visibleItems) {
+      if (key in resizedHeights) {
+        itemHeights[key] = resizedHeights[key];
+      }
+    }
+
+    // fix total height again
+    const ratio2 = clientHeight / _.sum(Object.values(itemHeights));
+    for (const key of visibleItems) {
+      itemHeights[key] = itemHeights[key] * ratio2;
+    }
+
     // Build computed result
     let visibleIndex = 0;
     for (const key of visibleItems) {
@@ -116,6 +129,13 @@
 
     // console.log('WidgetColumnBar definitions', defs);
     // console.log('WidgetColumnBar recompute', computed);
+    resizedHeights = _.pickBy(
+      _.mapValues(resizedHeights, (v, k) => {
+        if (k in itemHeights) return v;
+        return undefined;
+      }),
+      v => v != null
+    );
     $widgetColumnBarComputed = computed;
   }
 

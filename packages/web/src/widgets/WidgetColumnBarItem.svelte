@@ -78,7 +78,7 @@
       <div
         class="vertical-split-handle"
         use:splitterDrag={'clientY'}
-        on:resizeSplitter={e => widgetResizeItem(name, e.detail)}
+        on:resizeSplitter={e => widgetResizeItem(name, size + e.detail)}
       />
     {/if}
   {/if}
