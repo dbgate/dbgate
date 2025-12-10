@@ -10,7 +10,6 @@
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let title;
-  export let name;
   export let skip = false;
   export let positiveCondition = true;
   export let height = null;

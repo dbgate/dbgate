@@ -170,6 +170,9 @@
   import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
   import { getCurrentSettings } from '../stores';
   import { Messages } from 'openai/resources/chat/completions';
+  import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
+  import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
+  import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
 
   export let tabid;
   export let conid;
@@ -791,33 +794,44 @@
       </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <QueryAiAssistant
-        bind:this={domAiAssistant}
-        {conid}
-        {database}
-        {driver}
-        onClose={() => {
-          isAiAssistantVisible = false;
-        }}
-        text={$editorValue}
-        getLine={() => domEditor.getEditor().getSelectionRange().start.row}
-        onInsertAtCursor={text => {
-          const editor = domEditor.getEditor();
-          editor.session.insert(editor.getCursorPosition(), text);
-          domEditor?.getEditor()?.focus();
-        }}
-        getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
-        onSetSelectedText={text => {
-          const editor = domEditor.getEditor();
-          if (editor.getSelectedText()) {
-            const range = editor.selection.getRange();
-            editor.session.replace(range, text);
-          } else {
-            editor.setValue(text);
-          }
-        }}
-        {tabid}
-      />
+      <WidgetColumnBar>
+        <WidgetColumnBarItem
+          title={_t('query.AiAssistant', { defaultMessage: 'AI Assistant' })}
+          onClose={() => {
+            isAiAssistantVisible = false;
+          }}
+        >
+          <WidgetsInnerContainer skipDefineWidth flexContainer>
+            <QueryAiAssistant
+              bind:this={domAiAssistant}
+              {conid}
+              {database}
+              {driver}
+              onClose={() => {
+                isAiAssistantVisible = false;
+              }}
+              text={$editorValue}
+              getLine={() => domEditor.getEditor().getSelectionRange().start.row}
+              onInsertAtCursor={text => {
+                const editor = domEditor.getEditor();
+                editor.session.insert(editor.getCursorPosition(), text);
+                domEditor?.getEditor()?.focus();
+              }}
+              getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
+              onSetSelectedText={text => {
+                const editor = domEditor.getEditor();
+                if (editor.getSelectedText()) {
+                  const range = editor.selection.getRange();
+                  editor.session.replace(range, text);
+                } else {
+                  editor.setValue(text);
+                }
+              }}
+              {tabid}
+            />
+          </WidgetsInnerContainer>
+        </WidgetColumnBarItem>
+      </WidgetColumnBar>
     </svelte:fragment>
   </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
@@ -839,11 +853,17 @@
             },
           })}
       >
-        {queryRowsLimit ? _t('query.limitRows', { defaultMessage: 'Limit {queryRowsLimit} rows', values: { queryRowsLimit } }) : _t('query.unlimitedRows', { defaultMessage: 'Unlimited rows' })}</ToolStripButton
+        {queryRowsLimit
+          ? _t('query.limitRows', { defaultMessage: 'Limit {queryRowsLimit} rows', values: { queryRowsLimit } })
+          : _t('query.unlimitedRows', { defaultMessage: 'Unlimited rows' })}</ToolStripButton
       >
     {/if}
     {#if resultCount == 1}
-      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label={_t('export.result', { defaultMessage: 'Export result' })} />
+      <ToolStripExportButton
+        command="jslTableGrid.export"
+        {quickExportHandlerRef}
+        label={_t('export.result', { defaultMessage: 'Export result' })}
+      />
     {/if}
     <ToolStripDropDownButton
       menu={() =>
