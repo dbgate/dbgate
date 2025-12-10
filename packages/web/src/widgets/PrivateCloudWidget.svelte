@@ -162,7 +162,9 @@
         text: _t('privateCloudWidget.addExistingFolder', { defaultMessage: 'Add existing folder (from link)' }),
         onClick: () => {
           showModal(InputTextModal, {
-            label: _t('privateCloudWidget.yourInviteLink', { defaultMessage: 'Your invite link (in form dbgate://folder/xxx)' }),
+            label: _t('privateCloudWidget.yourInviteLink', {
+              defaultMessage: 'Your invite link (in form dbgate://folder/xxx)',
+            }),
             header: _t('privateCloudWidget.addExistingSharedFolder', { defaultMessage: 'Add existing shared folder' }),
             onConfirm: async newFolder => {
               apiCall('cloud/grant-folder', {
@@ -192,7 +194,10 @@
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: _t('privateCloudWidget.deleteFolderConfirm', { defaultMessage: 'Really delete folder {folder}? All folder content will be deleted!', values: { folder: contentGroupMap[folder]?.name } }),
+        message: _t('privateCloudWidget.deleteFolderConfirm', {
+          defaultMessage: 'Really delete folder {folder}? All folder content will be deleted!',
+          values: { folder: contentGroupMap[folder]?.name },
+        }),
         header: _t('privateCloudWidget.deleteFolder', { defaultMessage: 'Delete folder' }),
         onConfirm: () => {
           apiCall('cloud/delete-folder', {
@@ -240,19 +245,26 @@
   }
 </script>
 
-<WidgetColumnBar>
-  <WidgetColumnBarItem
-    title="DbGate Cloud"
-    name="privateCloud"
-    height="50%"
-    storageName="privateCloudItems"
-    skip={!$cloudSigninTokenHolder}
-  >
+<WidgetColumnBar storageName="privateCloudItems">
+  <WidgetColumnBarItem title="DbGate Cloud" name="privateCloud" height="50%" skip={!$cloudSigninTokenHolder}>
     <SearchBoxWrapper>
-      <SearchInput placeholder={_t('privateCloudWidget.searchPlaceholder', { defaultMessage: 'Search cloud connections and files' })} bind:value={filter} />
+      <SearchInput
+        placeholder={_t('privateCloudWidget.searchPlaceholder', {
+          defaultMessage: 'Search cloud connections and files',
+        })}
+        bind:value={filter}
+      />
       <CloseSearchButton bind:filter />
-      <DropDownButton icon="icon plus-thick" menu={createAddItemMenu} title={_t('privateCloudWidget.addNewConnectionOrFile', { defaultMessage: 'Add new connection or file' })} />
-      <DropDownButton icon="icon add-folder" menu={createAddFolderMenu} title={_t('privateCloudWidget.addNewFolder', { defaultMessage: 'Add new folder' })} />
+      <DropDownButton
+        icon="icon plus-thick"
+        menu={createAddItemMenu}
+        title={_t('privateCloudWidget.addNewConnectionOrFile', { defaultMessage: 'Add new connection or file' })}
+      />
+      <DropDownButton
+        icon="icon add-folder"
+        menu={createAddFolderMenu}
+        title={_t('privateCloudWidget.addNewFolder', { defaultMessage: 'Add new folder' })}
+      />
       <InlineButton
         on:click={handleRefreshContent}
         title={_t('privateCloudWidget.refreshFiles', { defaultMessage: 'Refresh files' })}
@@ -289,7 +301,10 @@
       />
 
       {#if !cloudContentFlat?.length}
-        <ErrorInfo message={_t('privateCloudWidget.noContent', { defaultMessage: 'You have no content on DbGate cloud' })} icon="img info" />
+        <ErrorInfo
+          message={_t('privateCloudWidget.noContent', { defaultMessage: 'You have no content on DbGate cloud' })}
+          icon="img info"
+        />
         <div class="error-info">
           <div class="m-1"></div>
           <FormStyledButton

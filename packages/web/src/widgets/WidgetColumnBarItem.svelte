@@ -3,8 +3,6 @@
 
   import { getContext } from 'svelte';
 
-  import { writable } from 'svelte/store';
-
   import WidgetTitle from './WidgetTitle.svelte';
   import splitterDrag from '../utility/splitterDrag';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';

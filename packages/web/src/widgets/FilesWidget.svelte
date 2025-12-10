@@ -18,13 +18,13 @@
   $: favorites = useFavorites();
 </script>
 
-<WidgetColumnBar>
-  <WidgetColumnBarItem title={_t('files.savedFiles', { defaultMessage: "Saved files" })} name="files" height="70%" storageName="savedFilesWidget">
+<WidgetColumnBar storageName="filesWidget">
+  <WidgetColumnBarItem title={_t('files.savedFiles', { defaultMessage: 'Saved files' })} name="files" height="70%">
     <SavedFilesList />
   </WidgetColumnBarItem>
 
   {#if hasPermission('files/favorites/read')}
-    <WidgetColumnBarItem title={_t('files.favorites', { defaultMessage: "Favorites" })} name="favorites" storageName="favoritesWidget">
+    <WidgetColumnBarItem title={_t('files.favorites', { defaultMessage: 'Favorites' })} name="favorites">
       <WidgetsInnerContainer>
         <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
       </WidgetsInnerContainer>

@@ -2,6 +2,7 @@
   import { onMount, setContext } from 'svelte';
   import { writable } from 'svelte/store';
   import _ from 'lodash';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let hidden = false;
   export let storageName = null;
@@ -12,7 +13,10 @@
 
   // const widgetColumnBarHeight = writable(0);
   const widgetColumnBarComputed = writable({});
-  let deltaHeights = {};
+  const fromStorage = getLocalStorage(storageName);
+  let deltaHeights = fromStorage?.deltaHeights || {};
+
+  $: setLocalStorage(storageName, { deltaHeights });
 
   // setContext('widgetColumnBarHeight', widgetColumnBarHeight);
   setContext('pushWidgetItemDefinition', (name, item) => {

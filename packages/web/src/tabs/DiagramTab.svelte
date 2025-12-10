@@ -141,11 +141,10 @@
       />
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <WidgetColumnBar>
+      <WidgetColumnBar storageName="diagramSettingsWidget">
         <WidgetColumnBarItem
           title="Settings"
           name="diagramSettings"
-          storageName="diagramSettingsWidget"
           onClose={() => {
             styleStore.update(x => ({ ...x, settingsVisible: false }));
           }}

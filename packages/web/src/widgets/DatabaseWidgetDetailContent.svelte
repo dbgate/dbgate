@@ -34,7 +34,6 @@
   title={_t('widget.pinned', { defaultMessage: 'Pinned' })}
   name="pinned"
   height="15%"
-  storageName="pinnedItemsWidget"
   skip={!_.compact($pinnedDatabases).length &&
     !$pinnedTables.some(x => x && x.conid == conid && x.database == $currentDatabase?.name)}
   positiveCondition={correctCloudStatus}
@@ -47,7 +46,6 @@
     ? _t('widget.collectionsContainers', { defaultMessage: 'Collections/containers' })
     : _t('widget.tablesViewsFunctions', { defaultMessage: 'Tables, views, functions' })}
   name="dbObjectsSql"
-  storageName="dbObjectsWidget"
   skip={!(
     conid &&
     (database || singleDatabase) &&
@@ -61,7 +59,6 @@
 <WidgetColumnBarItem
   title={_t('widget.keys', { defaultMessage: 'Keys' })}
   name="dbObjectsKeyValue"
-  storageName="dbObjectsWidget"
   skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
   positiveCondition={correctCloudStatus}
 >
@@ -71,7 +68,6 @@
 <WidgetColumnBarItem
   title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
   name="dbObjectsFocused"
-  storageName="dbObjectsWidget"
   skip={conid && (database || singleDatabase)}
   positiveCondition={correctCloudStatus}
 >
@@ -85,7 +81,6 @@
 <WidgetColumnBarItem
   title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
   name="dbObjectsError"
-  storageName="dbObjectsWidget"
   skip={!(conid && (database || singleDatabase) && !driver)}
   positiveCondition={correctCloudStatus}
 >
@@ -102,7 +97,6 @@
   title={_t('widget.databaseContent', { defaultMessage: 'Database content' })}
   name="incorrectClaudStatus"
   height="15%"
-  storageName="incorrectClaudStatusWidget"
   skip={correctCloudStatus}
 >
   <WidgetsInnerContainer>
