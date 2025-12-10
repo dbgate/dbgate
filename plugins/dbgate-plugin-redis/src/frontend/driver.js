@@ -55,8 +55,8 @@ const driver = {
     {
       name: 'zset',
       label: 'Sorted Set',
-      dbKeyFields: [{ name: 'score' }, { name: 'value' }],
-      keyColumn: 'value',
+      dbKeyFields: [{ name: 'member' }, { name: 'score' }],
+      keyColumn: 'member',
       addMethod: 'zadd',
       showItemList: true,
     },

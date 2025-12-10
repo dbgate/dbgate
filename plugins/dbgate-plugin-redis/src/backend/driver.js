@@ -487,6 +487,8 @@ const driver = {
     switch (method) {
       case 'mdel':
         return await this.deleteBranch(dbhan, args[0]);
+      case 'zadd':
+        return await dbhan.client.zadd(args[0], args[2], args[1]);
       case 'xaddjson':
         let json;
         try {
@@ -520,7 +522,7 @@ const driver = {
         const res = await dbhan.client.zscan(key, cursor, 'COUNT', count);
         return {
           cursor: parseInt(res[0]),
-          items: _.chunk(res[1], 2).map((item) => ({ value: item[0], score: item[1] })),
+          items: _.chunk(res[1], 2).map((item) => ({ member: item[0], score: item[1] })),
         };
       }
       case 'hash': {
