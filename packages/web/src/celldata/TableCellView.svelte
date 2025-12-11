@@ -12,7 +12,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
-  import { _t } from '../translations'
+  import { _t } from '../translations';
 
   export let selection;
 
@@ -22,7 +22,7 @@
   $: editorTypes = firstSelection?.editorTypes;
   $: displayColumns = firstSelection?.displayColumns || [];
   $: realColumnUniqueNames = firstSelection?.realColumnUniqueNames || [];
-  $: setCellValue = selection?.setCellValue;
+  $: grider = firstSelection?.grider;
 
   $: uniqueRows = _.uniqBy(selection || [], 'row');
   $: isMultipleRows = uniqueRows.length > 1;
@@ -77,7 +77,13 @@
   const isChangedRef = createRef(false);
 
   function isJsonValue(value) {
-    if (_.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint && !value.$decimal) {
+    if (
+      _.isPlainObject(value) &&
+      !(value?.type == 'Buffer' && _.isArray(value.data)) &&
+      !value.$oid &&
+      !value.$bigint &&
+      !value.$decimal
+    ) {
       return true;
     }
     if (_.isArray(value)) return true;
@@ -94,7 +100,7 @@
   }
 
   function handleDoubleClick(field) {
-    if (!editable || !setCellValue) return;
+    if (!editable || !grider) return;
     if (isJsonValue(field.value) && !field.hasMultipleValues) {
       openEditModal(field);
       return;
@@ -103,7 +109,7 @@
   }
 
   function startEditing(field) {
-    if (!editable || !setCellValue) return;
+    if (!editable || !grider) return;
     editingColumn = field.uniqueName;
     editValue = field.hasMultipleValues ? '' : stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
     isChangedRef.set(false);
@@ -142,7 +148,7 @@
     const currentIndex = filteredFields.findIndex(f => f.uniqueName === field.uniqueName);
     const nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
     if (nextIndex < 0 || nextIndex >= filteredFields.length) return;
-    
+
     tick().then(() => {
       const nextField = filteredFields[nextIndex];
       if (isJsonValue(nextField.value)) {
@@ -168,15 +174,28 @@
     editingColumn = null;
   }
 
+  function setCellValue(fieldName, value) {
+    if (!grider) return;
+
+    if (selection.length > 0) {
+      const uniqueRowIndices = _.uniq(selection.map(x => x.row));
+      grider.beginUpdate();
+      for (const row of uniqueRowIndices) {
+        grider.setCellValue(row, fieldName, value);
+      }
+      grider.endUpdate();
+    }
+  }
+
   function saveValue(field) {
-    if (!setCellValue) return;
+    if (!grider) return;
     const parsedValue = parseCellValue(editValue, editorTypes);
     setCellValue(field.uniqueName, parsedValue);
     isChangedRef.set(false);
   }
 
   function openEditModal(field) {
-    if (!setCellValue) return;
+    if (!grider) return;
     showModal(EditCellDataModal, {
       value: field.value,
       dataEditorTypesBehaviour: editorTypes,
@@ -201,63 +220,61 @@
     {#if rowData}
       <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
         <SearchBoxWrapper noMargin>
-          <SearchInput placeholder={_t('tableCell.filterColumns', { defaultMessage: "Filter columns (regex)" })} bind:value={filter} />
+          <SearchInput
+            placeholder={_t('tableCell.filterColumns', { defaultMessage: 'Filter columns (regex)' })}
+            bind:value={filter}
+          />
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
       </div>
     {/if}
     <div class="inner">
       {#if !rowData}
-        <div class="no-data">{_t('tableCell.noDataSelected', { defaultMessage: "No data selected" })}</div>
+        <div class="no-data">{_t('tableCell.noDataSelected', { defaultMessage: 'No data selected' })}</div>
       {:else}
         {#each filteredFields as field (field.uniqueName)}
-        <div class="field">
-          <div class="field-name">{field.columnName}</div>
-          <div 
-            class="field-value"
-            class:editable
-            on:dblclick={() => handleDoubleClick(field)}
-          >
-            {#if editingColumn === field.uniqueName}
-              <div class="editor-wrapper">
-                <input
-                  type="text"
-                  bind:this={domEditor}
-                  bind:value={editValue}
-                  on:input={() => isChangedRef.set(true)}
-                  on:keydown={e => handleKeyDown(e, field)}
-                  on:blur={() => handleBlur(field)}
-                  class="inline-editor"
-                />
-                {#if editable && !field.hasMultipleValues}
-                  <ShowFormButton
-                    icon="icon edit"
-                    on:click={() => {
-                      editingColumn = null;
-                      openEditModal(field);
-                    }}
+          <div class="field">
+            <div class="field-name">{field.columnName}</div>
+            <div class="field-value" class:editable on:dblclick={() => handleDoubleClick(field)}>
+              {#if editingColumn === field.uniqueName}
+                <div class="editor-wrapper">
+                  <input
+                    type="text"
+                    bind:this={domEditor}
+                    bind:value={editValue}
+                    on:input={() => isChangedRef.set(true)}
+                    on:keydown={e => handleKeyDown(e, field)}
+                    on:blur={() => handleBlur(field)}
+                    class="inline-editor"
                   />
-                {/if}
-              </div>
-            {:else if field.hasMultipleValues}
-              <span class="multiple-values">({_t('tableCell.multipleValues', { defaultMessage: "Multiple values" })})</span>
-            {:else}
-              <CellValue 
-                {rowData} 
-                value={field.value} 
-                jsonParsedValue={getJsonParsedValue(field.value)}
-                {editorTypes}
-              />
-              {#if isJsonValue(field.value)}
-                <ShowFormButton 
-                  icon="icon open-in-new" 
-                  on:click={() => openJsonInNewTab(field)} 
+                  {#if editable && !field.hasMultipleValues}
+                    <ShowFormButton
+                      icon="icon edit"
+                      on:click={() => {
+                        editingColumn = null;
+                        openEditModal(field);
+                      }}
+                    />
+                  {/if}
+                </div>
+              {:else if field.hasMultipleValues}
+                <span class="multiple-values"
+                  >({_t('tableCell.multipleValues', { defaultMessage: 'Multiple values' })})</span
+                >
+              {:else}
+                <CellValue
+                  {rowData}
+                  value={field.value}
+                  jsonParsedValue={getJsonParsedValue(field.value)}
+                  {editorTypes}
                 />
+                {#if isJsonValue(field.value)}
+                  <ShowFormButton icon="icon open-in-new" on:click={() => openJsonInNewTab(field)} />
+                {/if}
               {/if}
-            {/if}
+            </div>
           </div>
-        </div>
-      {/each}
+        {/each}
       {/if}
     </div>
   </div>

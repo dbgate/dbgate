@@ -1260,6 +1260,7 @@
       editorTypes: display?.driver?.dataEditorTypesBehaviour,
       displayColumns: columns,
       realColumnUniqueNames,
+      grider,
     };
 
     const rowIndexes = _.sortBy(_.uniq(regular.map(x => x[0])));
@@ -1297,17 +1298,6 @@
         };
       })
       .filter(x => x.column);
-
-    if (res.length > 0) {
-      const uniqueRowIndices = _.uniq(res.map(x => x.row));
-      res.setCellValue = (columnName, value) => {
-        grider.beginUpdate();
-        for (const row of uniqueRowIndices) {
-          grider.setCellValue(row, columnName, value);
-        }
-        grider.endUpdate();
-      };
-    }
 
     return res;
   }
