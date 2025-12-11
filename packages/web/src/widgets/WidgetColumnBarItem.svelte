@@ -21,6 +21,7 @@
   export let positiveCondition = true;
   export let height = null;
   export let collapsed = null;
+  export let storeHeight = false;
 
   // export let storageName = null;
   export let onClose = null;
@@ -47,9 +48,8 @@
     height,
     skip: skip || !positiveCondition,
     minimalContentHeight: minimalHeight,
+    storeHeight,
   });
-
-
 
   $: updateWidgetItemDefinition(name, { collapsed, height, skip: skip || !positiveCondition });
 

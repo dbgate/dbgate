@@ -5,6 +5,7 @@
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import {
     computeInitialWidgetBarProps,
+    extractStoredWidgetBarProps,
     handleResizeWidgetBar,
     toggleCollapseWidgetBar,
     WidgetBarItemDefinition,
@@ -18,15 +19,17 @@
 
   // const widgetColumnBarHeight = writable(0);
   const widgetColumnBarComputed = writable({});
-  let storedProps = getLocalStorage(storageName) || {};
-
-  $: setLocalStorage(storageName, storedProps);
 
   $: containerProps = {
     clientHeight,
     titleHeight: 30,
     splitterHeight: 3,
   };
+
+  function saveStorage() {
+    if (!storageName) return;
+    setLocalStorage(storageName, extractStoredWidgetBarProps(definitions, $widgetColumnBarComputed));
+  }
 
   // setContext('widgetColumnBarHeight', widgetColumnBarHeight);
   setContext('pushWidgetItemDefinition', item => {
@@ -45,9 +48,11 @@
       name,
       deltaY
     );
+    saveStorage();
   });
   setContext('toggleWidgetCollapse', name => {
     $widgetColumnBarComputed = toggleCollapseWidgetBar(containerProps, definitions, $widgetColumnBarComputed, name);
+    saveStorage();
   });
 
   // $: $widgetColumnBarHeight = clientHeight;
@@ -55,7 +60,8 @@
   $: recompute(definitions);
 
   function recompute(defs: WidgetBarItemDefinition[]) {
-    $widgetColumnBarComputed = computeInitialWidgetBarProps(containerProps, defs, storedProps);
+    $widgetColumnBarComputed = computeInitialWidgetBarProps(containerProps, defs, getLocalStorage(storageName) || {});
+    saveStorage();
   }
 
   onMount(() => {

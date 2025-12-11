@@ -1,9 +1,12 @@
 import _ from 'lodash';
-import is from 'zod/v4/locales/is.cjs';
 
 export interface WidgetBarStoredProps {
   contentHeight: number;
   collapsed: boolean;
+}
+
+export interface WidgetBarStoredPropsResult {
+  [name: string]: WidgetBarStoredProps;
 }
 
 export interface WidgetBarComputedProps {
@@ -24,6 +27,7 @@ export interface WidgetBarItemDefinition {
   collapsed: boolean; // initial value of collapsing status
   skip: boolean;
   minimalContentHeight: number;
+  storeHeight: boolean;
 }
 
 export type PushWidgetBarItemDefinitionFunction = (def: WidgetBarItemDefinition) => void;
@@ -85,11 +89,15 @@ export function computeInitialWidgetBarProps(
 
   // First pass: calculate base heights
   let totalContentHeight = 0;
-  let totalFlexibleItems = 0;
   const itemHeights = {};
 
+  const flexibleItems = [];
   for (const def of expandedItems) {
-    if (def.height) {
+    if (def.storeHeight && currentProps[def.name]?.contentHeight > 0) {
+      const storedHeight = currentProps[def.name].contentHeight;
+      itemHeights[def.name] = storedHeight;
+      totalContentHeight += storedHeight;
+    } else if (def.height) {
       let height = 0;
       if (_.isString(def.height) && def.height.endsWith('px')) {
         height = parseInt(def.height.slice(0, -2));
@@ -104,19 +112,17 @@ export function computeInitialWidgetBarProps(
       totalContentHeight += height;
       itemHeights[def.name] = height;
     } else {
-      totalFlexibleItems += 1;
+      flexibleItems.push(def);
     }
   }
 
   // Second pass - distribute remaining height
-  if (totalFlexibleItems > 0) {
+  if (flexibleItems.length > 0) {
     let remainingHeight = availableContentHeight - totalContentHeight;
-    for (const def of expandedItems) {
-      if (!def.height) {
-        let height = remainingHeight / totalFlexibleItems;
-        if (height < def.minimalContentHeight) height = def.minimalContentHeight;
-        itemHeights[def.name] = height;
-      }
+    for (const def of flexibleItems) {
+      let height = remainingHeight / flexibleItems.length;
+      if (height < def.minimalContentHeight) height = def.minimalContentHeight;
+      itemHeights[def.name] = height;
     }
   }
 
@@ -225,4 +231,22 @@ export function toggleCollapseWidgetBar(
   const res = _.cloneDeep(currentProps);
   res[toggledItemName].collapsed = !res[toggledItemName].collapsed;
   return computeInitialWidgetBarProps(container, definitions, res);
+}
+
+export function extractStoredWidgetBarProps(
+  definitions: WidgetBarItemDefinition[],
+  currentProps: WidgetBarComputedResult
+): WidgetBarStoredPropsResult {
+  const res: WidgetBarStoredPropsResult = {};
+  for (const key in currentProps) {
+    const def = definitions.find(d => d.name === key);
+    if (!def) continue;
+    res[key] = {
+      contentHeight:
+        def.storeHeight && currentProps[key]?.contentHeight > 0 ? currentProps[key]?.contentHeight : undefined,
+      collapsed: currentProps[key]?.collapsed,
+    };
+  }
+
+  return res;
 }

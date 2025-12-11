@@ -27,6 +27,7 @@
       title={_t('common.connections', { defaultMessage: 'Connections' })}
       name="connections"
       height="35%"
+      storeHeight
     >
       <ConnectionList
         passProps={{
