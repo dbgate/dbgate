@@ -436,6 +436,7 @@
   import { isProApp } from '../utility/proTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import hasPermission from '../utility/hasPermission';
+  import macros from '../macro/macros';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1917,6 +1918,13 @@
     { command: 'dataGrid.saveCellToFile', hideDisabled: true },
     { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
     { command: 'dataGrid.toggleCellDataView', hideDisabled: true },
+    isProApp() && {
+      text: _t('datagrid.runMacro', { defaultMessage: 'Run macro' }),
+      submenu: macros.map(macro => ({
+        text: macro.name,
+        onClick: () => {},
+      })),
+    },
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
