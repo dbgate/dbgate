@@ -1,3 +1,4 @@
+import { newMatcherFn } from 'diff2html/lib/rematch';
 import _ from 'lodash';
 
 export interface WidgetBarStoredProps {
@@ -11,6 +12,7 @@ export interface WidgetBarStoredPropsResult {
 
 export interface WidgetBarComputedProps {
   contentHeight: number;
+  storedHeight?: number;
   visibleItemsCount: number;
   splitterVisible: boolean;
   collapsed: boolean;
@@ -62,6 +64,9 @@ export function computeInitialWidgetBarProps(
   definitions: WidgetBarItemDefinition[],
   currentProps: WidgetBarComputedResult
 ): WidgetBarComputedResult {
+  if (!container.clientHeight) {
+    return currentProps;
+  }
   const visibleItems = definitions.filter(def => !def.skip);
   const expandedItems = visibleItems.filter(def => !(currentProps[def.name]?.collapsed ?? def.collapsed));
   const res: WidgetBarComputedResult = {};
@@ -78,6 +83,7 @@ export function computeInitialWidgetBarProps(
       const isExpanded = def.name === expandedItem?.name;
       res[def.name] = {
         contentHeight: isExpanded ? availableContentHeight : 0,
+        storedHeight: currentProps[def.name]?.contentHeight,
         visibleItemsCount: visibleItems.length,
         splitterVisible: false,
         collapsed: !isExpanded,
@@ -93,8 +99,8 @@ export function computeInitialWidgetBarProps(
 
   const flexibleItems = [];
   for (const def of expandedItems) {
-    if (def.storeHeight && currentProps[def.name]?.contentHeight > 0) {
-      const storedHeight = currentProps[def.name].contentHeight;
+    if (def.storeHeight && currentProps[def.name]?.storedHeight > 0) {
+      const storedHeight = currentProps[def.name].storedHeight;
       itemHeights[def.name] = storedHeight;
       totalContentHeight += storedHeight;
     } else if (def.height) {
@@ -143,6 +149,7 @@ export function computeInitialWidgetBarProps(
       visibleItemsCount: visibleItems.length,
       splitterVisible: visibleItems.length > 1 && visibleIndex < visibleItems.length - 1,
       collapsed: !expandedItems.includes(def),
+      storedHeight: currentProps[def.name]?.storedHeight,
       clickableTitle: true,
     };
     visibleIndex += 1;
@@ -160,47 +167,78 @@ export function handleResizeWidgetBar(
 ): WidgetBarComputedResult {
   const res = _.cloneDeep(currentProps);
   const visibleItems = definitions.filter(def => !def.skip);
-  const resizedItemDef = definitions.find(def => def.name === resizedItemName);
-  if (!resizedItemDef || resizedItemDef.collapsed) return res;
-  const resizedItemProps = res[resizedItemName];
+  const currentItemDef = definitions.find(def => def.name === resizedItemName);
+  if (!currentItemDef || currentItemDef.collapsed) return res;
+  const currentItemProps = res[resizedItemName];
+  let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName);
+  const itemProps = res[currentItemDef.name];
+  const nextItemDef = visibleItems[itemIndex + 1];
+  const currentHeight = itemProps.contentHeight;
+  const nextItemProps = res[nextItemDef.name];
+  if (!nextItemDef) return res;
 
   if (deltaY < 0) {
-    // moving up - reduce height of resized item, if too small, reduce height of previous items
-    let remainingDeltaY = -deltaY;
-    let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName);
-    while (remainingDeltaY > 0 && itemIndex >= 0) {
-      const itemDef = visibleItems[itemIndex];
-      const itemProps = res[itemDef.name];
-      const currentHeight = itemProps.contentHeight;
-      const minimalHeight = itemDef.minimalContentHeight;
-      const reducibleHeight = currentHeight - minimalHeight;
-      if (reducibleHeight > 0) {
-        const reduction = Math.min(reducibleHeight, remainingDeltaY);
-        itemProps.contentHeight -= reduction;
-        remainingDeltaY -= reduction;
-      }
-      itemIndex -= 1;
+    let newHeight = currentHeight + deltaY;
+    if (newHeight < currentItemDef.minimalContentHeight) {
+      newHeight = currentItemDef.minimalContentHeight;
     }
+    const actualDeltaY = newHeight - currentHeight;
+    nextItemProps.contentHeight -= actualDeltaY;
+    currentItemProps.contentHeight += actualDeltaY;
+
+    // // moving up - reduce height of resized item, if too small, reduce height of previous items
+    // let remainingDeltaY = -deltaY;
+    // let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName);
+    // while (remainingDeltaY > 0 && itemIndex >= 0) {
+    //   const itemDef = visibleItems[itemIndex];
+    //   const itemProps = res[itemDef.name];
+    //   const currentHeight = itemProps.contentHeight;
+    //   const minimalHeight = itemDef.minimalContentHeight;
+    //   const reducibleHeight = currentHeight - minimalHeight;
+    //   if (reducibleHeight > 0) {
+    //     const reduction = Math.min(reducibleHeight, remainingDeltaY);
+    //     itemProps.contentHeight -= reduction;
+    //     remainingDeltaY -= reduction;
+    //   }
+    //   itemIndex -= 1;
+    // }
   } else {
+    let newHeight = nextItemProps.contentHeight - deltaY;
+    if (newHeight < nextItemDef.minimalContentHeight) {
+      newHeight = nextItemDef.minimalContentHeight;
+    }
+    const actualDeltaY = nextItemProps.contentHeight - newHeight;
+    nextItemProps.contentHeight -= actualDeltaY;
+    currentItemProps.contentHeight += actualDeltaY;
+
     // moving down - increase height of resized item, reduce size of next item, if too small, reduce size of further items
     // if all items below are at minimal height, stop
-    let remainingDeltaY = deltaY;
-    let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName) + 1;
-    while (remainingDeltaY > 0 && itemIndex < visibleItems.length) {
-      const itemDef = visibleItems[itemIndex];
-      const itemProps = res[itemDef.name];
-      const currentHeight = itemProps.contentHeight;
-      const minimalHeight = itemDef.minimalContentHeight;
-      const reducibleHeight = currentHeight - minimalHeight;
-      if (reducibleHeight > 0) {
-        const reduction = Math.min(reducibleHeight, remainingDeltaY);
-        itemProps.contentHeight -= reduction;
-        resizedItemProps.contentHeight += reduction;
-        remainingDeltaY -= reduction;
-      }
-      itemIndex += 1;
-    }
+    // let remainingDeltaY = deltaY;
+    // let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName);
+    // while (remainingDeltaY > 0 && itemIndex < visibleItems.length) {
+    //   const itemDef = visibleItems[itemIndex];
+    //   const itemProps = res[itemDef.name];
+    //   const currentHeight = itemProps.contentHeight;
+    //   const minimalHeight = itemDef.minimalContentHeight;
+    //   const reducibleHeight = currentHeight - minimalHeight;
+    //   if (reducibleHeight > 0) {
+    //     const reduction = Math.min(reducibleHeight, remainingDeltaY);
+    //     itemProps.contentHeight -= reduction;
+    //     resizedItemProps.contentHeight += reduction;
+    //     remainingDeltaY -= reduction;
+    //   }
+    //   itemIndex += 1;
+    // }
   }
+
+  if (currentItemDef.storeHeight) {
+    currentItemProps.storedHeight = currentItemProps.contentHeight;
+  }
+
+  if (nextItemDef.storeHeight) {
+    nextItemProps.storedHeight = nextItemProps.contentHeight;
+  }
+
   return res;
 }
 
@@ -242,11 +280,29 @@ export function extractStoredWidgetBarProps(
     const def = definitions.find(d => d.name === key);
     if (!def) continue;
     res[key] = {
-      contentHeight:
-        def.storeHeight && currentProps[key]?.contentHeight > 0 ? currentProps[key]?.contentHeight : undefined,
+      contentHeight: def.storeHeight ? currentProps[key]?.storedHeight : undefined,
       collapsed: currentProps[key]?.collapsed,
     };
   }
 
+  return res;
+}
+
+export function createWidgetBarComputedResultFromStored(stored: WidgetBarStoredPropsResult): WidgetBarComputedResult {
+  const res: WidgetBarComputedResult = {};
+  if (!stored) return res;
+  let visibleIndex = 0;
+  const visibleCount = Object.keys(stored).length;
+  for (const key in stored) {
+    res[key] = {
+      storedHeight: stored[key]?.contentHeight,
+      contentHeight: 0,
+      collapsed: stored[key]?.collapsed,
+      clickableTitle: false,
+      splitterVisible: visibleCount > 1 && visibleIndex < visibleCount - 1,
+      visibleItemsCount: 0,
+    };
+    visibleIndex += 1;
+  }
   return res;
 }

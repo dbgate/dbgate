@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount, setContext } from 'svelte';
   import { writable } from 'svelte/store';
-  import _ from 'lodash';
+  import _, { get } from 'lodash';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import {
     computeInitialWidgetBarProps,
+    createWidgetBarComputedResultFromStored,
     extractStoredWidgetBarProps,
     handleResizeWidgetBar,
     toggleCollapseWidgetBar,
@@ -18,7 +19,7 @@
   let clientHeight;
 
   // const widgetColumnBarHeight = writable(0);
-  const widgetColumnBarComputed = writable({});
+  const widgetColumnBarComputed = writable(createWidgetBarComputedResultFromStored(getLocalStorage(storageName)));
 
   $: containerProps = {
     clientHeight,
@@ -57,15 +58,19 @@
 
   // $: $widgetColumnBarHeight = clientHeight;
 
-  $: recompute(definitions);
+  $: {
+    definitions;
+    containerProps;
+    recompute();
+  }
 
-  function recompute(defs: WidgetBarItemDefinition[]) {
-    $widgetColumnBarComputed = computeInitialWidgetBarProps(containerProps, defs, getLocalStorage(storageName) || {});
+  function recompute() {
+    $widgetColumnBarComputed = computeInitialWidgetBarProps(containerProps, definitions, $widgetColumnBarComputed);
     saveStorage();
   }
 
   onMount(() => {
-    recompute(definitions);
+    recompute();
   });
 </script>
 
