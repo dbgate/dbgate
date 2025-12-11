@@ -59,7 +59,7 @@ export function computeInitialWidgetBarProps(
   currentProps: WidgetBarComputedResult
 ): WidgetBarComputedResult {
   const visibleItems = definitions.filter(def => !def.skip);
-  const expandedItems = visibleItems.filter(def => currentProps[def.name]?.collapsed ?? def.collapsed);
+  const expandedItems = visibleItems.filter(def => !(currentProps[def.name]?.collapsed ?? def.collapsed));
   const res: WidgetBarComputedResult = {};
 
   const availableContentHeight =
@@ -91,11 +91,16 @@ export function computeInitialWidgetBarProps(
   for (const def of expandedItems) {
     if (def.height) {
       let height = 0;
-      if (_.isString(def.height) && def.height.endsWith('px')) height = parseInt(def.height.slice(0, -2));
-      else if (_.isString(def.height) && def.height.endsWith('%'))
+      if (_.isString(def.height) && def.height.endsWith('px')) {
+        height = parseInt(def.height.slice(0, -2));
+      } else if (_.isString(def.height) && def.height.endsWith('%'))
         height = (availableContentHeight * parseFloat(def.height.slice(0, -1))) / 100;
-      else height = parseInt(def.height);
-      if (height < def.minimalContentHeight) height = def.minimalContentHeight;
+      else {
+        height = parseInt(def.height);
+      }
+      if (height < def.minimalContentHeight) {
+        height = def.minimalContentHeight;
+      }
       totalContentHeight += height;
       itemHeights[def.name] = height;
     } else {
@@ -107,7 +112,7 @@ export function computeInitialWidgetBarProps(
   if (totalFlexibleItems > 0) {
     let remainingHeight = availableContentHeight - totalContentHeight;
     for (const def of expandedItems) {
-      if (def.height) {
+      if (!def.height) {
         let height = remainingHeight / totalFlexibleItems;
         if (height < def.minimalContentHeight) height = def.minimalContentHeight;
         itemHeights[def.name] = height;
