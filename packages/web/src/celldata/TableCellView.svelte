@@ -95,6 +95,15 @@
     return null;
   }
 
+  function handleClick(field) {
+    if (!editable || !grider) return;
+    if (isJsonValue(field.value) && !field.hasMultipleValues) {
+      openEditModal(field);
+      return;
+    }
+    startEditing(field);
+  }
+
   function handleDoubleClick(field) {
     if (!editable || !grider) return;
     if (isJsonValue(field.value) && !field.hasMultipleValues) {
@@ -130,12 +139,15 @@
         event.preventDefault();
         break;
       case keycodes.tab:
+      case keycodes.upArrow:
+      case keycodes.downArrow:
+        const reverse = event.keyCode === keycodes.upArrow || (event.keyCode === keycodes.tab && event.shiftKey);
         if (isChangedRef.get()) {
           saveValue(field);
         }
         editingColumn = null;
         event.preventDefault();
-        moveToNextField(field, event.shiftKey);
+        moveToNextField(field, reverse)
         break;
     }
   }
@@ -231,7 +243,7 @@
         {#each filteredFields as field (field.uniqueName)}
           <div class="field">
             <div class="field-name"><ColumnLabel {...field} showDataType /></div>
-            <div class="field-value" class:editable on:dblclick={() => handleDoubleClick(field)}>
+            <div class="field-value" class:editable on:click={() => handleClick(field)}>
               {#if editingColumn === field.uniqueName}
                 <div class="editor-wrapper">
                   <input
@@ -335,10 +347,6 @@
 
   .field-value.editable {
     cursor: text;
-  }
-
-  .field-value.editable:hover {
-    background: var(--theme-bg-hover);
   }
 
   .editor-wrapper {
