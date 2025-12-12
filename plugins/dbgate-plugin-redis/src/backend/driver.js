@@ -264,7 +264,15 @@ const driver = {
   async listDatabases(dbhan) {
     const info = await this.info(dbhan);
 
-    return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
+    let databaseCount = 16; 
+    try {
+      const configResult = await dbhan.client.config('GET', 'databases');
+      if (Array.isArray(configResult) && configResult.length >= 2) {
+        databaseCount = parseInt(configResult[1], 10) || 16;
+      }
+    } catch {}
+
+    return _.range(databaseCount).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
   async scanKeys(dbhan, pattern, cursor = 0, count) {
