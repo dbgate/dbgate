@@ -45,7 +45,7 @@
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.toggleCellDataView', { defaultMessage: 'Toggle cell data view' }),
     toolbarName: __t('command.datagrid.toggleCellDataView.toolbar', { defaultMessage: 'Cell Data' }),
-    menuName: __t('command.datagrid.toggleCellDataView.menu', { defaultMessage: 'Show Cell Data' }),
+    menuName: __t('command.datagrid.toggleCellDataView.menu', { defaultMessage: 'Show cell data' }),
     icon: 'icon cell-data',
     testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().toggleCellDataView(),

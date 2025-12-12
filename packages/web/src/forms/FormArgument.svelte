@@ -7,6 +7,7 @@
   import FormStringList from './FormStringList.svelte';
   import FormDropDownTextField from './FormDropDownTextField.svelte';
   import { getFormContext } from './FormProviderCore.svelte';
+  import { _tval } from '../translations';
 
   export let arg;
   export let namePrefix;
@@ -18,7 +19,7 @@
 
 {#if arg.type == 'text'}
   <FormTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
     focused={arg.focused}
@@ -26,10 +27,15 @@
     disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {:else if arg.type == 'stringlist'}
-  <FormStringList label={arg.label} addButtonLabel={arg.addButtonLabel} {name} placeholder={arg.placeholder} />
+  <FormStringList
+    label={_tval(arg.label)}
+    addButtonLabel={_tval(arg.addButtonLabel)}
+    {name}
+    placeholder={arg.placeholder}
+  />
 {:else if arg.type == 'number'}
   <FormTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     type="number"
     {name}
     defaultValue={arg.default}
@@ -39,14 +45,14 @@
   />
 {:else if arg.type == 'checkbox'}
   <FormCheckboxField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
     disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
   />
 {:else if arg.type == 'select'}
   <FormSelectField
-    label={arg.label}
+    label={_tval(arg.label)}
     isNative
     {name}
     defaultValue={arg.default}
@@ -57,7 +63,7 @@
   />
 {:else if arg.type == 'dropdowntext'}
   <FormDropDownTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
     menu={() => {

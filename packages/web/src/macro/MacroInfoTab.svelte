@@ -5,7 +5,7 @@
 
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
   import MacroParameters from './MacroParameters.svelte';
-  import { _t } from '../translations';
+  import { _t, _tval } from '../translations';
 
   const selectedMacro = getContext('selectedMacro') as any;
 
@@ -31,7 +31,7 @@
 
   <div class="section">
     <WidgetTitle>{_t('common.description', { defaultMessage: 'Description' })}</WidgetTitle>
-    <div class="m-1">{$selectedMacro?.description}</div>
+    <div class="m-1">{_tval($selectedMacro?.description)}</div>
   </div>
 </div>
 

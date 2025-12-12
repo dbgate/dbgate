@@ -354,7 +354,7 @@
 </script>
 
 <script lang="ts">
-  import { GridDisplay } from 'dbgate-datalib';
+  import { GridDisplay, MacroDefinition } from 'dbgate-datalib';
   import {
     driverBase,
     parseCellValue,
@@ -364,6 +364,7 @@
     base64ToHex,
   } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
+  import { type Writable } from 'svelte/store';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
@@ -476,6 +477,7 @@
   export let overlayDefinition = null;
   export let onGetSelectionMenu = null;
   export let onOpenChart = null;
+  export let macroCondition = null;
 
   export const activator = createActivator('DataGridCore', false);
 
@@ -507,6 +509,7 @@
   let selectionMenu = null;
 
   const tabid = getContext('tabid');
+  const selectedMacro = getContext('selectedMacro') as Writable<MacroDefinition>;
 
   let unsubscribeDbRefresh;
 
@@ -1919,11 +1922,15 @@
     { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
     { command: 'dataGrid.toggleCellDataView', hideDisabled: true },
     isProApp() && {
-      text: _t('datagrid.runMacro', { defaultMessage: 'Run macro' }),
-      submenu: macros.map(macro => ({
-        text: macro.name,
-        onClick: () => {},
-      })),
+      text: _t('datagrid.useMacro', { defaultMessage: 'Use macro' }),
+      submenu: macros
+        .filter(macro => !macroCondition || macroCondition(macro))
+        .map(macro => ({
+          text: _tval(macro.title),
+          onClick: () => {
+            selectedMacro.set(macro);
+          },
+        })),
     },
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },

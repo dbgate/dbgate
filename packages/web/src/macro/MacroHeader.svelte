@@ -2,7 +2,7 @@
   import { getContext } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import ToolbarButton from '../buttons/ToolbarButton.svelte';
-  import { _t } from '../translations';
+  import { _t, _tval } from '../translations';
 
   export let onExecute;
 
@@ -13,7 +13,7 @@
   <div class="header">
     <FontIcon icon="img macro" />
     <div class="ml-2">
-      {$selectedMacro?.title}
+      {_tval($selectedMacro?.title)}
     </div>
   </div>
   <div class="buttons">
