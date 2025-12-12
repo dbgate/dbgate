@@ -2,7 +2,7 @@
   import _ from 'lodash';
   import { tick } from 'svelte';
   import CellValue from '../datagrid/CellValue.svelte';
-  import { isJsonLikeLongString, safeJsonParse, parseCellValue, stringifyCellValue } from 'dbgate-tools';
+  import { isJsonLikeLongString, safeJsonParse, parseCellValue, stringifyCellValue, filterName } from 'dbgate-tools';
   import keycodes from '../utility/keycodes';
   import createRef from '../utility/createRef';
   import { showModal } from '../modals/modalTools';
@@ -13,6 +13,7 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { _t } from '../translations';
+  import ColumnLabel from '../elements/ColumnLabel.svelte';
 
   export let selection;
 
@@ -52,24 +53,19 @@
       if (!col) return null;
       const { value, hasMultipleValues } = getFieldValue(colName);
       return {
-        columnName: col.columnName || colName,
-        uniqueName: colName,
+        ...col,
         value,
         hasMultipleValues,
-        col,
+        // columnName: col.columnName || colName,
+        // uniqueName: colName,
+        // value,
+        // hasMultipleValues,
+        // col,
       };
     })
     .filter(Boolean);
 
-  $: filteredFields = orderedFields.filter(field => {
-    if (!filter) return true;
-    try {
-      const regex = new RegExp(filter, 'i');
-      return regex.test(field.columnName);
-    } catch (e) {
-      return field.columnName.toLowerCase().includes(filter.toLowerCase());
-    }
-  });
+  $: filteredFields = orderedFields.filter(field => filterName(filter, field.columnName));
 
   let editingColumn = null;
   let editValue = '';
@@ -221,7 +217,7 @@
       <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
         <SearchBoxWrapper noMargin>
           <SearchInput
-            placeholder={_t('tableCell.filterColumns', { defaultMessage: 'Filter columns (regex)' })}
+            placeholder={_t('tableCell.filterColumns', { defaultMessage: 'Filter columns' })}
             bind:value={filter}
           />
           <CloseSearchButton bind:filter />
@@ -234,7 +230,7 @@
       {:else}
         {#each filteredFields as field (field.uniqueName)}
           <div class="field">
-            <div class="field-name">{field.columnName}</div>
+            <div class="field-name"><ColumnLabel {...field} showDataType /></div>
             <div class="field-value" class:editable on:dblclick={() => handleDoubleClick(field)}>
               {#if editingColumn === field.uniqueName}
                 <div class="editor-wrapper">
