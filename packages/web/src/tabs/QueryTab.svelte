@@ -131,7 +131,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { currentEditorWrapEnabled, extensions, getCurrentDatabase } from '../stores';
+  import { extensions, getCurrentDatabase } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved, sleep } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
@@ -267,7 +267,7 @@
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
-  $: enableWrap = $currentEditorWrapEnabled || false;
+  $: enableWrap = $settingsValue?.['sqlEditor.wordWrap'] || false;
 
   $: effect = useEffect(() => {
     return onSession(sessionId);

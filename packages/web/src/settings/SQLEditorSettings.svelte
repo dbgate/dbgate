@@ -6,7 +6,7 @@
   import FormTextField from "../forms/FormTextField.svelte";
   import SelectField from "../forms/SelectField.svelte";
   import { EDITOR_KEYBINDINGS_MODES } from "../query/AceEditor.svelte";
-  import { currentEditorKeybindigMode, currentEditorWrapEnabled } from "../stores";
+  import { currentEditorKeybindigMode } from "../stores";
   import { _t } from "../translations";
 
 
@@ -44,15 +44,11 @@
     </FormFieldTemplateLarge>
 </div>
 <div class="col-3">
-    <FormFieldTemplateLarge
+    <FormCheckboxField
+    name="sqlEditor.wordWrap"
     label={_t('settings.editor.wordWrap', { defaultMessage: 'Enable word wrap' })}
-    type="combo"
-    >
-    <CheckboxField
-        checked={$currentEditorWrapEnabled}
-        on:change={e => ($currentEditorWrapEnabled = e.target.checked)}
+    defaultValue={false}
     />
-    </FormFieldTemplateLarge>
 </div>
 </div>
 
