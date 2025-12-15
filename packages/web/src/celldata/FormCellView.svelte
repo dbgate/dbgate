@@ -7,7 +7,6 @@
   import createRef from '../utility/createRef';
   import { showModal } from '../modals/modalTools';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
-  import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -224,11 +223,6 @@
       dataEditorTypesBehaviour: editorTypes,
       onSave: value => setCellValue(field.uniqueName, value),
     });
-  }
-
-  function openJsonInNewTab(field) {
-    const jsonObj = getJsonObject(field.value);
-    if (jsonObj) openJsonDocument(jsonObj, undefined, true);
   }
 
   function getJsonParsedValue(value) {
