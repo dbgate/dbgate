@@ -9,6 +9,9 @@ name: Cypress tests with screenshots PREMIUM
       - develop
       - feature/**
       - hotfix/**
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
