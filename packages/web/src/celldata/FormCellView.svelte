@@ -14,6 +14,8 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { _t } from '../translations';
   import ColumnLabel from '../elements/ColumnLabel.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let selection;
 
@@ -46,6 +48,7 @@
   }
 
   let filter = '';
+  let notNull = getLocalStorage('dataGridCellDataFormNotNull') === 'true';
 
   $: orderedFields = realColumnUniqueNames
     .map(colName => {
@@ -65,7 +68,14 @@
     })
     .filter(Boolean);
 
-  $: filteredFields = orderedFields.filter(field => filterName(filter, field.columnName));
+  $: filteredFields = orderedFields
+    .filter(field => filterName(filter, field.columnName))
+    .filter(field => {
+      if (notNull) {
+        return field.value != null;
+      }
+      return true;
+    });
 
   let editingColumn = null;
   let editValue = '';
@@ -142,12 +152,8 @@
       case keycodes.upArrow:
       case keycodes.downArrow:
         const reverse = event.keyCode === keycodes.upArrow || (event.keyCode === keycodes.tab && event.shiftKey);
-        if (isChangedRef.get()) {
-          saveValue(field);
-        }
-        editingColumn = null;
         event.preventDefault();
-        moveToNextField(field, reverse)
+        moveToNextField(field, reverse);
         break;
     }
   }
@@ -155,10 +161,16 @@
   function moveToNextField(field, reverse) {
     const currentIndex = filteredFields.findIndex(f => f.uniqueName === field.uniqueName);
     const nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
+    const nextField = filteredFields[nextIndex];
+    if (!nextField) return;
+
+    if (isChangedRef.get()) {
+      saveValue(field);
+    }
+    editingColumn = null;
     if (nextIndex < 0 || nextIndex >= filteredFields.length) return;
 
     tick().then(() => {
-      const nextField = filteredFields[nextIndex];
       if (isJsonValue(nextField.value)) {
         openEditModal(nextField);
       } else {
@@ -234,6 +246,14 @@
           />
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
+        <CheckboxField
+          on:change={e => {
+            // @ts-ignore
+            notNull = e.target.checked;
+            setLocalStorage('dataGridCellDataFormNotNull', notNull ? 'true' : 'false');
+          }}
+        />
+        {_t('tableCell.notNull', { defaultMessage: 'Not null' })}
       </div>
     {/if}
     <div class="inner">
@@ -307,6 +327,8 @@
   .search-wrapper {
     padding: 4px 4px 0 4px;
     flex-shrink: 0;
+    border: 1px solid var(--theme-border);
+    border-bottom: none;
   }
 
   .inner {

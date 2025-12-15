@@ -13,9 +13,9 @@
       single: false,
     },
     {
-      type: 'table',
-      title: 'Table - Row',
-      component: TableCellView,
+      type: 'form',
+      title: 'Form',
+      component: FormCellView,
       single: false,
     },
     {
@@ -64,7 +64,7 @@
 
   function autodetect(selection) {
     if (selection[0]?.isSelectedFullRow) {
-      return 'table';
+      return 'form';
     }
 
     if (selectionCouldBeShownOnMap(selection)) {
@@ -99,7 +99,7 @@
   import JsonRowView from '../celldata/JsonRowView.svelte';
   import MapCellView from '../celldata/MapCellView.svelte';
   import PictureCellView from '../celldata/PictureCellView.svelte';
-  import TableCellView from '../celldata/TableCellView.svelte';
+  import FormCellView from '../celldata/FormCellView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
