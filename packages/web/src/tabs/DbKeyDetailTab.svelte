@@ -38,6 +38,7 @@
   import { _t } from '../translations';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import type { ChangeSetRedis, ChangeSetRedisType } from 'dbgate-datalib';
 
   export let tabid;
   export let conid;
@@ -46,12 +47,25 @@
   export let isDefaultBrowser = false;
 
   export const activator = createActivator('DbKeyDetailTab', true);
+  
+  export function getChangeSetRedis(): ChangeSetRedis {
+    return changeSetRedis;
+  }
+
+  export function hasChanges(): boolean {
+    return changeSetRedis.changes.length > 0;
+  }
+  
+  export function resetChangeSet() {
+    changeSetRedis = { changes: [] };
+  }
 
   let currentRow;
 
   $: key = $activeDbKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
   let editedValue = null;
+  let changeSetRedis: ChangeSetRedis = { changes: [] };
 
   $: changeTab(tabid, tab => ({
     ...tab,
@@ -113,8 +127,83 @@
     });
   }
 
+  function addOrUpdateChange(change: ChangeSetRedisType) {
+    const existingIndex = changeSetRedis.changes.findIndex(
+      c => c.key === change.key && c.type === change.type
+    );
+    
+    if (existingIndex >= 0) {
+      changeSetRedis.changes = changeSetRedis.changes.map((c, idx) => 
+        idx === existingIndex ? change : c
+      );
+    } else {
+      changeSetRedis.changes = [...changeSetRedis.changes, change];
+    }
+    
+    console.log('ChangeSetRedis updated:', JSON.stringify(changeSetRedis, null, 2));
+  }
+
+  function getDisplayRow(row, keyInfo) {
+    if (!row) return row;
+    
+    const existingChange = changeSetRedis.changes.find(
+      c => c.key === keyInfo.key && c.type === keyInfo.type
+    );
+    
+    if (!existingChange) return row;
+    
+    // Pre hash - skontroluj či existuje update pre tento key
+    if (keyInfo.type === 'hash') {
+      // @ts-ignore
+      const update = existingChange.updates?.find(u => u.key === row.key);
+      if (update) {
+        return { ...row, value: update.value };
+      }
+    } else if (keyInfo.type === 'list') {
+      // @ts-ignore
+      const update = existingChange.updates?.find(u => u.index === row.rowNumber);
+      if (update) {
+        return { ...row, value: update.value };
+      }
+    } else if (keyInfo.type === 'zset') {
+      // @ts-ignore
+      const update = existingChange.updates?.find(u => u.member === row.member);
+      if (update) {
+        return { ...row, score: update.score };
+      }
+    }
+    
+    return row;
+  }
+
+  function getDisplayValue(keyInfo) {
+    if (editedValue !== null) return editedValue;
+    
+    const existingChange = changeSetRedis.changes.find(
+      c => c.key === keyInfo.key && c.type === keyInfo.type
+    );
+    
+    if (existingChange && (keyInfo.type === 'string' || keyInfo.type === 'json')) {
+      // @ts-ignore
+      return existingChange.value || keyInfo.value;
+    }
+    
+    return keyInfo.value;
+  }
+
   function refresh() {
     editedValue = null;
+    refreshToken += 1;
+  }
+
+  async function saveAll() {
+    console.log('Saving all changes:', changeSetRedis);
+    await apiCall('database-connections/apply-redis-change-set', {
+      conid,
+      database,
+      changeSet: changeSetRedis,
+    });
+    changeSetRedis = { changes: [] };
     refreshToken += 1;
   }
 
@@ -125,13 +214,45 @@
       method: 'set',
       args: [key, editedValue],
     });
-    refresh();
+    
+    editedValue = null;
+    refreshToken += 1;
   }
 
   async function addItem(keyInfo) {
     showModal(DbKeyAddItemModal, {
       keyInfo,
       onConfirm: async row => {
+        const existingChange = changeSetRedis.changes.find(
+          c => c.key === keyInfo.key && c.type === keyInfo.type
+        );
+        
+        if (keyInfo.type === 'hash') {
+          // @ts-ignore
+          const hashChange = existingChange || { key: keyInfo.key, type: 'hash', inserts: [], updates: [], deletes: [] };
+          // @ts-ignore
+          hashChange.inserts = [...(hashChange.inserts || []), { key: row.key, value: row.value, ttl: keyInfo.ttl }];
+          addOrUpdateChange(hashChange);
+        } else if (keyInfo.type === 'list') {
+          // @ts-ignore
+          const listChange = existingChange || { key: keyInfo.key, type: 'list', inserts: [], updates: [], deletes: [] };
+          // @ts-ignore
+          listChange.inserts = [...(listChange.inserts || []), { index: row.rowNumber, value: row.value }];
+          addOrUpdateChange(listChange);
+        } else if (keyInfo.type === 'set') {
+          // @ts-ignore
+          const setChange = existingChange || { key: keyInfo.key, type: 'set', inserts: [], deletes: [] };
+          // @ts-ignore
+          setChange.inserts = [...(setChange.inserts || []), row.member];
+          addOrUpdateChange(setChange);
+        } else if (keyInfo.type === 'zset') {
+          // @ts-ignore
+          const zsetChange = existingChange || { key: keyInfo.key, type: 'zset', inserts: [], updates: [], deletes: [] };
+          // @ts-ignore
+          zsetChange.inserts = [...(zsetChange.inserts || []), { member: row.member, score: row.score }];
+          addOrUpdateChange(zsetChange);
+        }
+        
         const res = await apiCall('database-connections/call-method', {
           conid,
           database,
@@ -142,7 +263,8 @@
           showModal(ErrorMessageModal, { message: res.errorMessage });
           return false;
         }
-        refresh();
+        
+        refreshToken += 1;
         return true;
       },
     });
@@ -174,9 +296,11 @@
                 {conid}
                 {database}
                 {keyInfo}
+                {changeSetRedis}
                 onChangeSelected={row => {
                   currentRow = row;
                 }}
+                modifyRow={row => getDisplayRow(row, keyInfo)}
               />
             </svelte:fragment>
             <svelte:fragment slot="2">
@@ -184,7 +308,53 @@
                 dbKeyFields={keyInfo.type === 'hash' 
                   ? keyInfo.keyType.dbKeyFields.filter(f => f.name === 'value')
                   : keyInfo.keyType.dbKeyFields} 
-                item={currentRow} 
+                item={getDisplayRow(currentRow, keyInfo)}
+                onChangeItem={item => {
+                  const existingChange = changeSetRedis.changes.find(
+                    c => c.key === keyInfo.key && c.type === keyInfo.type
+                  );
+                  
+                  if (keyInfo.type === 'hash') {
+                    // @ts-ignore
+                    const hashChange = existingChange || { key: keyInfo.key, type: 'hash', inserts: [], updates: [], deletes: [] };
+                    // @ts-ignore
+                    const updateIndex = hashChange.updates?.findIndex(u => u.key === item.key) ?? -1;
+                    if (updateIndex >= 0) {
+                      // @ts-ignore
+                      hashChange.updates[updateIndex] = { key: item.key, value: item.value, ttl: keyInfo.ttl };
+                    } else {
+                      // @ts-ignore
+                      hashChange.updates = [...(hashChange.updates || []), { key: item.key, value: item.value, ttl: keyInfo.ttl }];
+                    }
+                    addOrUpdateChange(hashChange);
+                  } else if (keyInfo.type === 'list') {
+                    // @ts-ignore
+                    const listChange = existingChange || { key: keyInfo.key, type: 'list', inserts: [], updates: [], deletes: [] };
+                    // @ts-ignore
+                    const updateIndex = listChange.updates?.findIndex(u => u.index === item.rowNumber) ?? -1;
+                    if (updateIndex >= 0) {
+                      // @ts-ignore
+                      listChange.updates[updateIndex] = { index: item.rowNumber, value: item.value };
+                    } else {
+                      // @ts-ignore
+                      listChange.updates = [...(listChange.updates || []), { index: item.rowNumber, value: item.value }];
+                    }
+                    addOrUpdateChange(listChange);
+                  } else if (keyInfo.type === 'zset') {
+                    // @ts-ignore
+                    const zsetChange = existingChange || { key: keyInfo.key, type: 'zset', inserts: [], updates: [], deletes: [] };
+                    // @ts-ignore
+                    const updateIndex = zsetChange.updates?.findIndex(u => u.member === item.member) ?? -1;
+                    if (updateIndex >= 0) {
+                      // @ts-ignore
+                      zsetChange.updates[updateIndex] = { member: item.member, score: item.score };
+                    } else {
+                      // @ts-ignore
+                      zsetChange.updates = [...(zsetChange.updates || []), { member: item.member, score: item.score }];
+                    }
+                    addOrUpdateChange(zsetChange);
+                  }
+                }}
               />
             </svelte:fragment>
           </VerticalSplitter>
@@ -192,10 +362,24 @@
           <div class="value-holder">
             <DbKeyValueDetail
               columnTitle="Value"
-              value={editedValue || keyInfo.value}
+              value={getDisplayValue(keyInfo)}
               keyType={keyInfo.type}
               onChangeValue={value => {
                 editedValue = value;
+                
+                if (keyInfo.type === 'string') {
+                  addOrUpdateChange({
+                    key: key,
+                    type: 'string',
+                    value: value,
+                  });
+                } else if (keyInfo.type === 'json') {
+                  addOrUpdateChange({
+                    key: key,
+                    type: 'json',
+                    value: value,
+                  });
+                }
               }}
             />
           </div>
@@ -204,6 +388,11 @@
     </div>
     
     <svelte:fragment slot="toolstrip">
+      <ToolStripButton
+        icon="icon save"
+        on:click={saveAll}
+        disabled={!hasChanges()}
+      >Save All Changes</ToolStripButton>
       {#if keyInfo.type == 'string'}
         <ToolStripButton
           icon="icon save"

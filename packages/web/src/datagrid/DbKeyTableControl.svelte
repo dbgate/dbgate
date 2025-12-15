@@ -9,6 +9,8 @@
   export let database;
   export let keyInfo;
   export let onChangeSelected;
+  export let modifyRow = null;
+  export let changeSetRedis = null;
 
   let rows = [];
   let cursor = 0;
@@ -73,6 +75,12 @@
   onMount(() => {
     loadNextRows();
   });
+
+  $: displayRows = modifyRow ? rows.map(row => modifyRow(row)) : rows;
+  $: {
+    changeSetRedis;
+    displayRows = modifyRow ? rows.map(row => modifyRow(row)) : rows;
+  }
 </script>
 
 <ScrollableTableControl
@@ -87,7 +95,7 @@
       header: column.name,
     })),
   ]}
-  {rows}
+  rows={displayRows}
   onLoadNext={isLoadedAll ? null : loadNextRows}
   selectable
   singleLineRow
