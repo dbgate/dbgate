@@ -720,9 +720,6 @@
                 ...driver?.getQuerySplitterOptions('editor'),
                 splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
               }}
-              options={{
-                wrap: enableWrap,
-              }}
               value={$editorState.value || ''}
               menu={createMenu()}
               on:input={e => {

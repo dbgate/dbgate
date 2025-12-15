@@ -12,7 +12,7 @@
   import useEffect from '../utility/useEffect';
   import { getContext } from 'svelte';
   import { mountCodeCompletion } from './codeCompletion';
-  import { getCurrentSettings } from '../stores';
+  import { currentEditorWrapEnabled, getCurrentSettings } from '../stores';
   export let engine = null;
   export let conid = null;
   export let database = null;
@@ -28,6 +28,8 @@
     const match = (engine || '').match(/^([^@]*)@/);
     mode = engineToMode[match ? match[1] : engine] || 'sql';
   }
+
+  $: enableWrap = $currentEditorWrapEnabled || false;
 
   export function getEditor(): ace.Editor {
     return domEditor.getEditor();
@@ -63,5 +65,6 @@
   options={{
     ...$$props.options,
     enableBasicAutocompletion: true,
+    wrap: enableWrap,
   }}
 />
