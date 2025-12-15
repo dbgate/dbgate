@@ -13,7 +13,6 @@
   import { getContext } from 'svelte';
   import { mountCodeCompletion } from './codeCompletion';
   import { getCurrentSettings } from '../stores';
-  import { useSettings } from '../utility/metadataLoaders';
   export let engine = null;
   export let conid = null;
   export let database = null;
@@ -24,14 +23,11 @@
   let mode;
 
   const tabVisible: any = getContext('tabVisible');
-  const settings = useSettings();
 
   $: {
     const match = (engine || '').match(/^([^@]*)@/);
     mode = engineToMode[match ? match[1] : engine] || 'sql';
   }
-
-  $: enableWrap = $settings?.['sqlEditor.wordWrap'] || false;
 
   export function getEditor(): ace.Editor {
     return domEditor.getEditor();
@@ -66,7 +62,6 @@
   bind:this={domEditor}
   options={{
     ...$$props.options,
-    wrap: enableWrap,
     enableBasicAutocompletion: true,
   }}
 />
