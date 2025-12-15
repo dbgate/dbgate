@@ -8,6 +8,10 @@ on:
       - 'feature/**'
       - hotfix/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   all-tests:
     runs-on: ubuntu-latest
