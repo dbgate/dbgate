@@ -202,7 +202,7 @@ describe('Data browser data', () => {
     cy.themeshot('query-editor-join-wizard');
   });
 
-  it('Mongo JSON data view', () => {
+  it('Mongo query JSON data view', () => {
     cy.contains('Mongo-connection').click();
     cy.contains('MgChinook').click();
     cy.contains('Customer').click();
@@ -213,9 +213,10 @@ describe('Data browser data', () => {
     cy.contains('Open query').click();
     cy.wait(1000);
     cy.contains('Execute').click();
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.testid('TabContent_1').contains('Leonie').rightclick();
+    cy.contains('Show cell data').click();
     // test JSON view
-    cy.contains('Country: "Brazil"');
+    cy.contains('Country: "Germany"');
     cy.themeshot('mongo-query-json-view');
   });
 
@@ -293,7 +294,8 @@ describe('Data browser data', () => {
     // cy.contains('location').click();
     cy.contains('14.2').click();
     cy.contains('13.9').click({ shiftKey: true });
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('TableDataTab_toggleCellDataView').click();
     cy.wait(2000);
     cy.themeshot('cell-map-view');
   });
@@ -337,7 +339,7 @@ describe('Data browser data', () => {
     cy.themeshot('save-changes-mongodb');
   });
 
-  it('Edit mongo data JSON', () => {
+  it('Mongo JSON cell view', () => {
     // TODO FIX: Auto expand cell view
     cy.contains('Mongo-connection').click();
     cy.contains('MgRivers').click();
@@ -347,7 +349,8 @@ describe('Data browser data', () => {
     cy.testid('ColumnManagerRow_checkbox_countries.1').click();
     cy.testid('ColumnManagerRow_checkbox__id').click();
     cy.testid('DataFilterControl_input_countries.1').type('EXISTS{enter}');
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.contains('Austria').click();
+    cy.testid('CollectionDataTab_toggleCellDataView').click();
     cy.themeshot('mongodb-json-cell-view');
   });
 
@@ -471,5 +474,14 @@ describe('Data browser data', () => {
     cy.contains('Finished job script');
     cy.testid('DataDeployTab_importIntoDb').click();
     cy.themeshot('data-replicator');
+  });
+
+  it('Form cell view', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Invoice').click();
+    cy.get('[data-row="0"][data-col="header"]').click();
+    cy.contains('Autodetect - Form');
+    cy.themeshot('form-cell-view');
   });
 });

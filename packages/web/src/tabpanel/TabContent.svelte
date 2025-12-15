@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+  let tabContentCounter = 0;
+</script>
+
 <script lang="ts">
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
@@ -19,7 +23,7 @@
   $: tabFocusedStore.set(tabFocused);
 </script>
 
-<div class:tabVisible>
+<div class:tabVisible data-testid={`TabContent_${tabContentCounter++}`}>
   <svelte:component this={tabComponent} {...$$restProps} {tabid} {tabVisible} {tabFocused} {tabPreviewMode} />
 </div>
 
