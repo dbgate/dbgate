@@ -13,8 +13,8 @@ export interface ChangeSetRedis_JSON {
 export interface ChangeSetRedis_Hash {
     key: string;
     type: 'hash';
-    inserts: { field: string; value: string, ttl: number }[];
-    updates: { field: string; value: string, ttl: number }[];
+    inserts: { key: string; value: string, ttl: number }[];
+    updates: { key: string; value: string, ttl: number }[];
     deletes: string[];
 }
 
