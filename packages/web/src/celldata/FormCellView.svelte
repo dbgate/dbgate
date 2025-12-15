@@ -7,7 +7,6 @@
   import createRef from '../utility/createRef';
   import { showModal } from '../modals/modalTools';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
-  import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -16,6 +15,8 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import JSONTree from '../jsontree/JSONTree.svelte';
+  import Link from '../elements/Link.svelte';
 
   export let selection;
 
@@ -107,10 +108,11 @@
 
   function handleClick(field) {
     if (!editable || !grider) return;
-    if (isJsonValue(field.value) && !field.hasMultipleValues) {
-      openEditModal(field);
-      return;
-    }
+    if (isJsonValue(field.value)) return;
+    // if (isJsonValue(field.value) && !field.hasMultipleValues) {
+    //   openEditModal(field);
+    //   return;
+    // }
     startEditing(field);
   }
 
@@ -171,11 +173,12 @@
     if (nextIndex < 0 || nextIndex >= filteredFields.length) return;
 
     tick().then(() => {
-      if (isJsonValue(nextField.value)) {
-        openEditModal(nextField);
-      } else {
-        startEditing(nextField);
-      }
+      startEditing(nextField);
+      // if (isJsonValue(nextField.value)) {
+      //   openEditModal(nextField);
+      // } else {
+      //   startEditing(nextField);
+      // }
     });
   }
 
@@ -233,6 +236,11 @@
     if (!isJsonLikeLongString(value)) return null;
     return safeJsonParse(value);
   }
+
+  function handleEdit(field) {
+    editingColumn = null;
+    openEditModal(field);
+  }
 </script>
 
 <div class="outer">
@@ -247,13 +255,14 @@
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
         <CheckboxField
+          defaultChecked={notNull}
           on:change={e => {
             // @ts-ignore
             notNull = e.target.checked;
             setLocalStorage('dataGridCellDataFormNotNull', notNull ? 'true' : 'false');
           }}
         />
-        {_t('tableCell.notNull', { defaultMessage: 'Not null' })}
+        {_t('tableCell.hideNullValues', { defaultMessage: 'Hide NULL values' })}
       </div>
     {/if}
     <div class="inner">
@@ -262,7 +271,11 @@
       {:else}
         {#each filteredFields as field (field.uniqueName)}
           <div class="field">
-            <div class="field-name"><ColumnLabel {...field} showDataType /></div>
+            <div class="field-name">
+              <ColumnLabel {...field} showDataType /><Link onClick={() => handleEdit(field)}
+                >{_t('tableCell.edit', { defaultMessage: 'Edit' })}
+              </Link>
+            </div>
             <div class="field-value" class:editable on:click={() => handleClick(field)}>
               {#if editingColumn === field.uniqueName}
                 <div class="editor-wrapper">
@@ -275,20 +288,13 @@
                     on:blur={() => handleBlur(field)}
                     class="inline-editor"
                   />
-                  {#if editable && !field.hasMultipleValues}
-                    <ShowFormButton
-                      icon="icon edit"
-                      on:click={() => {
-                        editingColumn = null;
-                        openEditModal(field);
-                      }}
-                    />
-                  {/if}
                 </div>
               {:else if field.hasMultipleValues}
                 <span class="multiple-values"
                   >({_t('tableCell.multipleValues', { defaultMessage: 'Multiple values' })})</span
                 >
+              {:else if isJsonValue(field.value)}
+                <JSONTree value={getJsonParsedValue(field.value)} />
               {:else}
                 <CellValue
                   {rowData}
@@ -296,9 +302,6 @@
                   jsonParsedValue={getJsonParsedValue(field.value)}
                   {editorTypes}
                 />
-                {#if isJsonValue(field.value)}
-                  <ShowFormButton icon="icon open-in-new" on:click={() => openJsonInNewTab(field)} />
-                {/if}
               {/if}
             </div>
           </div>
@@ -357,6 +360,8 @@
     font-size: 11px;
     color: var(--theme-font-2);
     border-bottom: 1px solid var(--theme-border);
+    display: flex;
+    justify-content: space-between;
   }
 
   .field-value {
