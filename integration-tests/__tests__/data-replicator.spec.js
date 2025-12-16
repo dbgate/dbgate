@@ -303,4 +303,52 @@ describe('Data replicator', () => {
     }),
     15 * 1000
   );
+
+  test.each(engines.filter(x => !x.skipDataReplicator).map(engine => [engine.label, engine]))(
+    'Skip columns for update - %s',
+    testWrapper(async (conn, driver, engine) => {
+      runCommandOnDriver(conn, driver, dmp =>
+        dmp.createTable({
+          pureName: 't1',
+          columns: [
+            { columnName: 'id', dataType: 'int', autoIncrement: true, notNull: true },
+            { columnName: 'key', dataType: 'varchar(50)', notNull: true },
+            { columnName: 'val', dataType: 'varchar(50)' },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+        })
+      );
+
+      const getcfg = (v1 = 'v1') => ({
+        systemConnection: conn,
+        driver,
+        items: [
+          {
+            name: 't1',
+            matchColumns: ['key'],
+            skipUpdateColumns: ['val'],
+            findExisting: true,
+            updateExisting: true,
+            createNew: true,
+            jsonArray: [
+              { key: '1', val: v1 },
+              { key: '2', val: 'v2' },
+              { key: '3', val: 'v3' },
+            ],
+          },
+        ],
+      });
+
+      await dataReplicator(getcfg('v1'));
+
+      const res1 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select ~val from ~t1 where ~key='1'`));
+      expect(res1.rows[0].val).toEqual('v1');
+
+      await dataReplicator(getcfg('v2'));
+      const res2 = await runQueryOnDriver(conn, driver, dmp => dmp.put(`select ~val from ~t1 where ~key='1'`));
+      expect(res2.rows[0].val).toEqual('v1');
+    })
+  );
 });
