@@ -72,7 +72,7 @@
     .filter(field => filterName(filter, field.columnName))
     .filter(field => {
       if (notNull) {
-        return field.value != null;
+        return field.value != null || field.hasMultipleValues;
       }
       return true;
     });
