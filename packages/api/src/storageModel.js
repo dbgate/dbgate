@@ -686,9 +686,34 @@ module.exports = {
           "columnName": "connectionDefinition",
           "dataType": "text",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
-      "foreignKeys": [],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_connections_import_source_id",
+          "pureName": "connections",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "connections",
         "constraintType": "primaryKey",
@@ -791,6 +816,41 @@ module.exports = {
       ]
     },
     {
+      "pureName": "import_sources",
+      "columns": [
+        {
+          "pureName": "import_sources",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "import_sources",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "import_sources",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_import_sources",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "env"
+        }
+      ]
+    },
+    {
       "pureName": "roles",
       "columns": [
         {
@@ -805,9 +865,34 @@ module.exports = {
           "columnName": "name",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "roles",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "roles",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
-      "foreignKeys": [],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_roles_import_source_id",
+          "pureName": "roles",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "roles",
         "constraintType": "primaryKey",
@@ -854,6 +939,12 @@ module.exports = {
           "columnName": "connection_id",
           "dataType": "int",
           "notNull": true
+        },
+        {
+          "pureName": "role_connections",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -879,6 +970,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "connection_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_connections_import_source_id",
+          "pureName": "role_connections",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
               "refColumnName": "id"
             }
           ]
@@ -934,6 +1037,18 @@ module.exports = {
           "columnName": "database_permission_role_id",
           "dataType": "int",
           "notNull": true
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -971,6 +1086,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "database_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_databases_import_source_id",
+          "pureName": "role_databases",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
               "refColumnName": "id"
             }
           ]
@@ -1087,6 +1214,12 @@ module.exports = {
           "columnName": "permission",
           "dataType": "varchar(250)",
           "notNull": true
+        },
+        {
+          "pureName": "role_permissions",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -1099,6 +1232,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_permissions_import_source_id",
+          "pureName": "role_permissions",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
               "refColumnName": "id"
             }
           ]
@@ -1184,6 +1329,18 @@ module.exports = {
           "columnName": "table_permission_scope_id",
           "dataType": "int",
           "notNull": true
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -1233,6 +1390,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "table_permission_scope_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_import_source_id",
+          "pureName": "role_tables",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
               "refColumnName": "id"
             }
           ]

@@ -14,6 +14,8 @@
   import { extensions, openedConnections, openedSingleDatabaseConnections } from '../stores';
   import { _t } from '../translations';
 
+  export let isFormReadOnly;
+
   const { values, setFieldValue } = getFormContext();
   const electron = getElectron();
 
@@ -30,9 +32,9 @@
 </script>
 
 <FormCheckboxField
-  label={_t('connection.sshTunnel.use', {defaultMessage: "Use SSH tunnel"})}
+  label={_t('connection.sshTunnel.use', { defaultMessage: 'Use SSH tunnel' })}
   name="useSshTunnel"
-  disabled={isConnected}
+  disabled={isConnected || isFormReadOnly}
   data-testid="ConnectionSshTunnelFields_useSshTunnel"
 />
 
@@ -41,7 +43,7 @@
     <FormTextField
       label="Host"
       name="sshHost"
-      disabled={isConnected || !useSshTunnel}
+      disabled={isConnected || !useSshTunnel || isFormReadOnly}
       templateProps={{ noMargin: true }}
       data-testid="ConnectionSshTunnelFields_sshHost"
     />
@@ -50,23 +52,30 @@
     <FormTextField
       label="Port"
       name="sshPort"
-      disabled={isConnected || !useSshTunnel}
+      disabled={isConnected || !useSshTunnel || isFormReadOnly}
       templateProps={{ noMargin: true }}
       placeholder="22"
       data-testid="ConnectionSshTunnelFields_sshPort"
     />
   </div>
 </div>
-<FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={isConnected || !useSshTunnel} />
+<FormTextField
+  label="Bastion host (Jump host)"
+  name="sshBastionHost"
+  disabled={isConnected || !useSshTunnel || isFormReadOnly}
+/>
 
 <FormSelectField
-  label={_t('connection.sshTunnel.authentication', {defaultMessage: "SSH Authentication"})}
+  label={_t('connection.sshTunnel.authentication', { defaultMessage: 'SSH Authentication' })}
   name="sshMode"
   isNative
   defaultSelectValue="userPassword"
-  disabled={isConnected || !useSshTunnel}
+  disabled={isConnected || !useSshTunnel || isFormReadOnly}
   options={[
-    { value: 'userPassword', label: _t('connection.sshTunnel.authMethod.userPassword', {defaultMessage: "Username & password"}) },
+    {
+      value: 'userPassword',
+      label: _t('connection.sshTunnel.authMethod.userPassword', { defaultMessage: 'Username & password' }),
+    },
     { value: 'agent', label: 'SSH agent' },
     { value: 'keyFile', label: 'Key file' },
   ]}
@@ -77,7 +86,7 @@
   <FormTextField
     label="Login"
     name="sshLogin"
-    disabled={isConnected || !useSshTunnel}
+    disabled={isConnected || !useSshTunnel || isFormReadOnly}
     data-testid="ConnectionSshTunnelFields_sshLogin"
   />
 {/if}
@@ -88,16 +97,16 @@
       <FormTextField
         label="Login"
         name="sshLogin"
-        disabled={isConnected || !useSshTunnel}
+        disabled={isConnected || !useSshTunnel || isFormReadOnly}
         templateProps={{ noMargin: true }}
         data-testid="ConnectionSshTunnelFields_sshLogin"
       />
     </div>
     <div class="col-6">
       <FormPasswordField
-        label={_t('connection.password', {defaultMessage: 'Password'})}
+        label={_t('connection.password', { defaultMessage: 'Password' })}
         name="sshPassword"
-        disabled={isConnected || !useSshTunnel}
+        disabled={isConnected || !useSshTunnel || isFormReadOnly}
         templateProps={{ noMargin: true }}
         data-testid="ConnectionSshTunnelFields_sshPassword"
       />
@@ -110,18 +119,18 @@
     <div class="col-6 mr-1">
       {#if electron}
         <FormElectronFileSelector
-          label={_t('connection.sshTunnel.privateKeyFile', {defaultMessage: "Private key file"})}
+          label={_t('connection.sshTunnel.privateKeyFile', { defaultMessage: 'Private key file' })}
           name="sshKeyfile"
-          disabled={isConnected || !useSshTunnel}
+          disabled={isConnected || !useSshTunnel || isFormReadOnly}
           templateProps={{ noMargin: true }}
           defaultFileName={$platformInfo?.defaultKeyfile}
           data-testid="ConnectionSshTunnelFields_sshKeyfile"
         />
       {:else}
         <FormTextField
-          label={_t('connection.sshTunnel.privateKeyFilePath', {defaultMessage: "Private key file (path on server)"})}
+          label={_t('connection.sshTunnel.privateKeyFilePath', { defaultMessage: 'Private key file (path on server)' })}
           name="sshKeyfile"
-          disabled={isConnected || !useSshTunnel}
+          disabled={isConnected || !useSshTunnel || isFormReadOnly}
           templateProps={{ noMargin: true }}
           placeholder={$platformInfo?.defaultKeyfile}
           data-testid="ConnectionSshTunnelFields_sshKeyfile"
@@ -130,9 +139,9 @@
     </div>
     <div class="col-6">
       <FormPasswordField
-        label={_t('connection.sshTunnel.keyFilePassphrase', {defaultMessage: "Key file passphrase"})}
+        label={_t('connection.sshTunnel.keyFilePassphrase', { defaultMessage: 'Key file passphrase' })}
         name="sshKeyfilePassword"
-        disabled={isConnected || !useSshTunnel}
+        disabled={isConnected || !useSshTunnel || isFormReadOnly}
         templateProps={{ noMargin: true }}
         data-testid="ConnectionSshTunnelFields_sshKeyfilePassword"
       />
@@ -143,9 +152,10 @@
 {#if useSshTunnel && $values.sshMode == 'agent'}
   <div class="ml-3 mb-3">
     {#if $platformInfo && $platformInfo.sshAuthSock}
-      <FontIcon icon="img ok" /> {_t('connection.sshTunnel.agentFound', {defaultMessage: "SSH Agent found"})}
+      <FontIcon icon="img ok" /> {_t('connection.sshTunnel.agentFound', { defaultMessage: 'SSH Agent found' })}
     {:else}
-      <FontIcon icon="img error" /> {_t('connection.sshTunnel.agentNotFound', {defaultMessage: "SSH Agent not found"})}
+      <FontIcon icon="img error" />
+      {_t('connection.sshTunnel.agentNotFound', { defaultMessage: 'SSH Agent not found' })}
     {/if}
   </div>
 {/if}

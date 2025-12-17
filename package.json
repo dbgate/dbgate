@@ -22,6 +22,7 @@
     "start:api:auth": "yarn workspace dbgate-api start:auth | pino-pretty",
     "start:api:dblogin": "yarn workspace dbgate-api start:dblogin | pino-pretty",
     "start:api:storage": "yarn workspace dbgate-api start:storage | pino-pretty",
+    "start:api:sfill": "yarn workspace dbgate-api start:sfill | pino-pretty",
     "start:api:storage:built": "yarn workspace dbgate-api start:storage:built | pino-pretty",
     "start:api:azure": "yarn workspace dbgate-api start:azure | pino-pretty",
     "start:api:e2e:team": "yarn workspace dbgate-api start:e2e:team | pino-pretty",

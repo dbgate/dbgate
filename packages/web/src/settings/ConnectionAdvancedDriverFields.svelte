@@ -6,6 +6,8 @@
   import FormArgumentList from '../forms/FormArgumentList.svelte';
   import { _t } from '../translations';
 
+  export let isFormReadOnly;
+
   const { values } = getFormContext();
 
   $: engine = $values.engine;
@@ -17,9 +19,18 @@
   $: advancedFields = driver?.getAdvancedConnectionFields ? driver?.getAdvancedConnectionFields() : null;
 </script>
 
-<FormTextAreaField label={_t('connection.allowedDatabases', { defaultMessage: 'Allowed databases, one per line' })} name="allowedDatabases" disabled={isConnected} rows={8} />
-<FormTextField label={_t('connection.allowedDatabasesRegex', { defaultMessage: 'Allowed databases regular expression' })} name="allowedDatabasesRegex" disabled={isConnected} />
+<FormTextAreaField
+  label={_t('connection.allowedDatabases', { defaultMessage: 'Allowed databases, one per line' })}
+  name="allowedDatabases"
+  disabled={isConnected || isFormReadOnly}
+  rows={8}
+/>
+<FormTextField
+  label={_t('connection.allowedDatabasesRegex', { defaultMessage: 'Allowed databases regular expression' })}
+  name="allowedDatabasesRegex"
+  disabled={isConnected || isFormReadOnly}
+/>
 
 {#if advancedFields}
-  <FormArgumentList args={advancedFields} />
+  <FormArgumentList args={advancedFields} isReadOnly={isFormReadOnly} />
 {/if}

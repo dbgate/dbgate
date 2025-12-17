@@ -124,7 +124,7 @@ export function __t(key: string, options: TranslateOptions): DefferedTranslation
   };
 }
 
-export function _tval(x: string | DefferedTranslationResult): string {
+export function _tval(x: any | DefferedTranslationResult): string {
   if (typeof x === 'string') return x;
   if (typeof x?._transKey === 'string') {
     return _t(x._transKey, x._transOptions);
@@ -132,7 +132,7 @@ export function _tval(x: string | DefferedTranslationResult): string {
   if (typeof x?._transCallback === 'function') {
     return x._transCallback();
   }
-  return '';
+  return x?.toString() || '';
 }
 
 export function isDefferedTranslationResult(x: string | DefferedTranslationResult): x is DefferedTranslationResult {
