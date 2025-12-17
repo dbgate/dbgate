@@ -7,6 +7,7 @@
   export let onSetPermission;
   export let label;
   export let folder;
+  export let disabled = false;
 </script>
 
 <PermissionCheckBox
@@ -15,6 +16,7 @@
   permissions={$values.permissions}
   basePermissions={$values.basePermissions}
   {onSetPermission}
+  {disabled}
 />
 
 <div class="ml-4">
@@ -24,6 +26,7 @@
     permissions={$values.permissions}
     basePermissions={$values.basePermissions}
     {onSetPermission}
+    {disabled}
   />
   <PermissionCheckBox
     label="Write"
@@ -31,5 +34,6 @@
     permissions={$values.permissions}
     basePermissions={$values.basePermissions}
     {onSetPermission}
+    {disabled}
   />
 </div>
