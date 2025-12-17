@@ -8,6 +8,24 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.8.0
+- ADDED: Form cell view for detailed data inspection and editing in data grids, with multi-row bulk editing support
+- CHANGED: Cell data sidebar moved to right side, now is part of data grid
+- FIXED: Improved widget resizing algorithm
+- FIXED: Word wrap feature in SQL editor
+- CHANGED: Data grid keyboard navigation improvements
+- CHANGED: Improved PostgreSQL decimal type support in data grid #1214
+- ADDED: Retrieve number of databases from Redis configuration #1278
+- ADDED: Run macro context menu (Premium)
+- ADDED: Support for skip update columns in replicator
+- FIXED: UTF-8 BOM handling in CSV input
+- CHANGED: Advanced export is now part of Community edition
+- FIXED: SQLite foreign key constraint types
+- FIXED: Double drop constraint issue
+- CHANGED: Improved map view lat/lon field autodetection
+- FIXED: Alter table operations and constraint sanitization
+- ADDED: Import connections from environment variables (Team Premium)
+
 ## 6.7.3
 - FIXED: Fixed problem in analyser core - in PostgreSQL, after dropping table, dropped table still appeared in structure
 - FIXED: PostgreSQL numeric columns do not align right #1254
