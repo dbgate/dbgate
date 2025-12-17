@@ -3,6 +3,8 @@ const Dumper = require('./Dumper');
 const { mysqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const _cloneDeepWith = require('lodash/cloneDeepWith');
 
+const clickhouseIcon = '<svg height="2500" viewBox="0 0 150 150" width="2500" xmlns="http://www.w3.org/2000/svg"><path d="m0 0h150v150h-150z" fill="#f9ff69"/><path d="m30 28.3c0-.6.5-1.1 1.1-1.1h8.4c.6 0 1.1.5 1.1 1.1v93.3c0 .6-.5 1.1-1.1 1.1h-8.4c-.6 0-1.1-.5-1.1-1.1zm21.2 0c0-.6.5-1.1 1.1-1.1h8.4c.6 0 1.1.5 1.1 1.1v93.3c0 .6-.5 1.1-1.1 1.1h-8.4c-.6 0-1.1-.5-1.1-1.1zm21.2 0c0-.6.5-1.1 1.1-1.1h8.4c.6 0 1.1.5 1.1 1.1v93.3c0 .6-.5 1.1-1.1 1.1h-8.4c-.6 0-1.1-.5-1.1-1.1zm21.3 0c0-.6.5-1.1 1.1-1.1h8.4c.6 0 1.1.5 1.1 1.1v93.3c0 .6-.5 1.1-1.1 1.1h-8.4c-.6 0-1.1-.5-1.1-1.1zm21.2 37.2c0-.6.5-1.1 1.1-1.1h8.4c.6 0 1.1.5 1.1 1.1v19c0 .6-.5 1.1-1.1 1.1h-8.4c-.6 0-1.1-.5-1.1-1.1z" fill="#161616"/></svg>';
+
 const clickhouseEngines = [
   'MergeTree',
   'ReplacingMergeTree',
@@ -148,6 +150,7 @@ const driver = {
   engine: 'clickhouse@dbgate-plugin-clickhouse',
   title: 'ClickHouse',
   supportsIncrementalAnalysis: true,
+  icon: clickhouseIcon,
   showConnectionField: (field, values) => {
     return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'user', 'password'].includes(field);
   },
