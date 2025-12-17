@@ -431,13 +431,14 @@
   }
 
   $: apps = useAllApps();
+  $: driver = $extensions.drivers.find(x => x.engine == data.engine);
 </script>
 
 <AppObjectCore
   {...$$restProps}
   {data}
   title={getConnectionLabel(data, { showUnsaved: true })}
-  icon={data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server'}
+  icon={driver?.icon || (data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server')}
   isBold={data.singleDatabase
     ? $currentDatabase?.connection?._id == data._id && $currentDatabase?.name == data.defaultDatabase
     : $currentDatabase?.connection?._id == data._id}
