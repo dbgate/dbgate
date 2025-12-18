@@ -1,5 +1,6 @@
 <script lang="ts">
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
   import FormFieldTemplateLarge from "../forms/FormFieldTemplateLarge.svelte";
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
@@ -71,36 +72,50 @@
   <FormProvider>
     <div class="wrapper">
       <div class="container">
-        <FormFieldTemplateLarge label={_t('addDbKeyModal.key', { defaultMessage: 'Key' })} type="text" noMargin>
-          <TextField
-            value={keyName}
-            on:change={e => {
-              // @ts-ignore
-              keyName = e.target.value;
+        <div class="flex flex-gap">
+          <div class="col-9">
+            <FormFieldTemplateLarge label={_t('addDbKeyModal.key', { defaultMessage: 'Key' })} type="text" noMargin>
+              <TextField
+                value={keyName}
+                on:change={e => {
+                  // @ts-ignore
+                  keyName = e.target.value;
+                }}
+              />
+            </FormFieldTemplateLarge>
+          </div>
+
+          <div class="col-3">
+            <FormFieldTemplateLarge label={_t('addDbKeyModal.type', { defaultMessage: 'Type' })} type="combo" noMargin>
+              <SelectField
+                options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
+                value={type}
+                isNative
+                on:change={e => {
+                  type = e.detail;
+                }}
+              />
+            </FormFieldTemplateLarge>
+          </div>
+        </div>
+
+        {#if type === 'hash'}
+          <DbKeyValueHashEdit
+            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+            {item}
+            onChangeItem={value => {
+              item = value;
             }}
           />
-        </FormFieldTemplateLarge>
-
-        <div class="m-3" />
-
-        <FormFieldTemplateLarge label={_t('addDbKeyModal.type', { defaultMessage: 'Type' })} type="combo" noMargin>
-          <SelectField
-            options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
-            value={type}
-            isNative
-            on:change={e => {
-              type = e.detail;
+        {:else}
+          <DbKeyItemDetail
+            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+            {item}
+            onChangeItem={value => {
+              item = value;
             }}
           />
-        </FormFieldTemplateLarge>
-
-        <DbKeyItemDetail
-          dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-          {item}
-          onChangeItem={value => {
-            item = value;
-          }}
-        />
+        {/if}
 
         <div class="m-3" />
 
@@ -136,11 +151,17 @@
     flex-direction: column;
     padding: 20px;
     overflow: hidden;
+    gap: 10px;
   }
 
   .button-container {
     display: flex;
     gap: 10px;
     margin-top: 10px;
+  }
+
+  .flex-gap {
+    gap: 10px;
+    padding-bottom: 10px;
   }
 </style>
