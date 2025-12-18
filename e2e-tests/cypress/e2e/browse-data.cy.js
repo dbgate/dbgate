@@ -485,7 +485,7 @@ describe('Data browser data', () => {
     cy.themeshot('form-cell-view');
   });
 
-  it.only('Group by', () => {
+  it('Group by', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Album').click();
@@ -494,5 +494,17 @@ describe('Data browser data', () => {
     cy.contains('Group by').click();
     cy.testid('ColumnHeaderControl_dropdown_Title').first().click();
     cy.themeshot('data-browser-group-by');
+  });
+
+  it('Filter by expanded column', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('ColumnManagerRow_expand_ArtistId').click();
+    cy.testid('ColumnManagerRow_checkbox_ArtistId.Name').click();
+    cy.testid('ColumnManagerRow_checkbox_ArtistId').click();
+    cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');
+    cy.themeshot('data-browser-filter-by-expanded');
   });
 });
