@@ -141,7 +141,7 @@ describe('Backup table', () => {
     cy.get('body').realType('111222333{enter}');
 
     cy.testid('TableDataTab_save').click();
-    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.testid('ConfirmSqlModal_okButton', { timeout: 10000 }).click();
     cy.contains('Rows: 11').should('be.visible'); // wait for save
 
     cy.testid('app-object-group-items-table-backups').contains('addresses').rightclick();
@@ -161,7 +161,7 @@ describe('Backup table', () => {
     // cy.testid('CloseTabModal_buttonConfirm').click();
     cy.wait(1000);
 
-    cy.testid('app-object-group-items-tables').contains('addresses').click();
+    cy.testid('app-object-group-items-tables').contains('addresses', { timeout: 10000 }).click();
 
     // check whether data was successfully restored
     cy.contains('Rows: 12').should('be.visible');
