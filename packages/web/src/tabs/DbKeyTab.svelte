@@ -9,7 +9,8 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import TextField from "../forms/TextField.svelte";
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
   import { showSnackbarSuccess } from '../utility/snackbar';
@@ -136,7 +137,7 @@
 
 {#if driver && driver.supportedKeyTypes && driver.supportedKeyTypes.length > 0}
   <FormProvider>
-    <div class="wrapper">
+    <ToolStripContainer>
       <div class="container">
         <div class="flex flex-gap">
           <div class="col-9">
@@ -214,18 +215,16 @@
             }}
           />
         {/if}
-
-        <div class="m-3" />
-
-        <div class="button-container">
-          <FormStyledButton 
-            value={_t('common.save', { defaultMessage: 'Save' })} 
-            on:click={handleSave}
-            disabled={!keyName || keyName.trim() === ''}
-          />
-        </div>
       </div>
-    </div>
+
+      <svelte:fragment slot="toolstrip">
+        <ToolStripButton
+          icon="icon save"
+          on:click={handleSave}
+          disabled={!keyName || keyName.trim() === ''}
+        >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
+      </svelte:fragment>
+    </ToolStripContainer>
   </FormProvider>
 {:else}
   <div class="wrapper">
