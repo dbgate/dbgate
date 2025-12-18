@@ -484,4 +484,15 @@ describe('Data browser data', () => {
     cy.contains('Autodetect - Form');
     cy.themeshot('form-cell-view');
   });
+
+  it.only('Group by', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('ColumnHeaderControl_dropdown_ArtistId').click();
+    cy.contains('Group by').click();
+    cy.testid('ColumnHeaderControl_dropdown_Title').first().click();
+    cy.themeshot('data-browser-group-by');
+  });
 });

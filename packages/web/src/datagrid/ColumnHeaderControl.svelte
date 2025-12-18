@@ -137,7 +137,7 @@
       {/if}
     </span>
   {/if}
-  <DropDownButton menu={getMenu} narrow />
+  <DropDownButton menu={getMenu} narrow data-testid={`ColumnHeaderControl_dropdown_${column?.uniqueName}`} />
   <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
 </div>
 
