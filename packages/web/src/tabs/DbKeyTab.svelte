@@ -75,20 +75,15 @@
         });
       }
     } else if (type === 'zset' && item.records && Array.isArray(item.records)) {
-      const pairs = [];
-      item.records.forEach(record => {
+      for (const record of item.records) {
         if (record.member && record.score) {
-          pairs.push(record.score, record.member);
+          await apiCall('database-connections/call-method', {
+            conid,
+            database,
+            method: typeConfig.addMethod,
+            args: [keyName, record.member, parseFloat(record.score)],
+          });
         }
-      });
-      
-      if (pairs.length > 0) {
-        await apiCall('database-connections/call-method', {
-          conid,
-          database,
-          method: typeConfig.addMethod,
-          args: [keyName, ...pairs],
-        });
       }
     } else if (type === 'stream' && item.records && Array.isArray(item.records)) {
       for (const record of item.records) {
