@@ -29,7 +29,7 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
-  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyItemEdit from '../dbkeyvalue/DbKeyItemEdit.svelte';
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
@@ -304,7 +304,7 @@
               />
             </svelte:fragment>
             <svelte:fragment slot="2">
-              <DbKeyItemDetail 
+              <DbKeyItemEdit 
                 dbKeyFields={keyInfo.type === 'hash' 
                   ? keyInfo.keyType.dbKeyFields.filter(f => f.name === 'value')
                   : keyInfo.keyType.dbKeyFields} 
