@@ -1,6 +1,10 @@
 <script lang="ts">
-  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
   import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
+  import DbKeyValueListEdit from '../dbkeyvalue/DbKeyValueListEdit.svelte';
+  import DbKeyValueSetEdit from '../dbkeyvalue/DbKeyValueSetEdit.svelte';
+  import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
+  import DbKeyValueStreamEdit from '../dbkeyvalue/DbKeyValueStreamEdit.svelte';
   import FormFieldTemplateLarge from "../forms/FormFieldTemplateLarge.svelte";
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
@@ -33,12 +37,79 @@
     
     const typeConfig = driver.supportedKeyTypes.find(x => x.name == type);
     
-    await apiCall('database-connections/call-method', {
-      conid,
-      database,
-      method: typeConfig.addMethod,
-      args: [keyName, ...typeConfig.dbKeyFields.map(fld => item[fld.name])],
-    });
+    if (type === 'hash' && item.records && Array.isArray(item.records)) {
+      for (const record of item.records) {
+        if (record.key && record.value) {
+          await apiCall('database-connections/call-method', {
+            conid,
+            database,
+            method: typeConfig.addMethod,
+            args: [keyName, record.key, record.value],
+          });
+        }
+      }
+    } else if (type === 'list' && item.records && Array.isArray(item.records)) {
+      const values = item.records
+        .map(record => record.value)
+        .filter(value => value);
+      
+      if (values.length > 0) {
+        await apiCall('database-connections/call-method', {
+          conid,
+          database,
+          method: typeConfig.addMethod,
+          args: [keyName, ...values],
+        });
+      }
+    } else if (type === 'set' && item.records && Array.isArray(item.records)) {
+      const values = item.records
+        .map(record => record.value)
+        .filter(value => value);
+      
+      if (values.length > 0) {
+        await apiCall('database-connections/call-method', {
+          conid,
+          database,
+          method: typeConfig.addMethod,
+          args: [keyName, ...values],
+        });
+      }
+    } else if (type === 'zset' && item.records && Array.isArray(item.records)) {
+      const pairs = [];
+      item.records.forEach(record => {
+        if (record.member && record.score) {
+          pairs.push(record.score, record.member);
+        }
+      });
+      
+      if (pairs.length > 0) {
+        await apiCall('database-connections/call-method', {
+          conid,
+          database,
+          method: typeConfig.addMethod,
+          args: [keyName, ...pairs],
+        });
+      }
+    } else if (type === 'stream' && item.records && Array.isArray(item.records)) {
+      for (const record of item.records) {
+        if (record.value) {
+          const streamId = record.id || '*';
+          await apiCall('database-connections/call-method', {
+            conid,
+            database,
+            method: typeConfig.addMethod,
+            args: [keyName, streamId, record.value],
+          });
+        }
+      }
+    } else {
+      await apiCall('database-connections/call-method', {
+        conid,
+        database,
+        method: typeConfig.addMethod,
+        args: [keyName, ...typeConfig.dbKeyFields.map(fld => item[fld.name])],
+      });
+    }
 
     showSnackbarSuccess('Key created successfully');
 
@@ -107,12 +178,44 @@
               item = value;
             }}
           />
-        {:else}
-          <DbKeyItemDetail
+        {:else if type === 'list'}
+          <DbKeyValueListEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
               item = value;
+            }}
+          />
+        {:else if type === 'set'}
+          <DbKeyValueSetEdit
+            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+            {item}
+            onChangeItem={value => {
+              item = value;
+            }}
+          />
+        {:else if type === 'zset'}
+          <DbKeyValueZSetEdit
+            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+            {item}
+            onChangeItem={value => {
+              item = value;
+            }}
+          />
+        {:else if type === 'stream'}
+          <DbKeyValueStreamEdit
+            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+            {item}
+            onChangeItem={value => {
+              item = value;
+            }}
+          />
+        {:else}
+          <DbKeyValueDetail
+            columnTitle="Value"
+            value={item.value}
+            onChangeValue={value => {
+              item = { ...item, value };
             }}
           />
         {/if}
