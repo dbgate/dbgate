@@ -29,7 +29,7 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
-  import DbKeyItemEdit from '../dbkeyvalue/DbKeyItemEdit.svelte';
+  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
@@ -51,10 +51,6 @@
   export function getChangeSetRedis(): ChangeSetRedis {
     return changeSetRedis;
   }
-
-  export function hasChanges(): boolean {
-    return changeSetRedis.changes.length > 0;
-  }
   
   export function resetChangeSet() {
     changeSetRedis = { changes: [] };
@@ -64,8 +60,9 @@
 
   $: key = $activeDbKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
-  let editedValue = null;
   let changeSetRedis: ChangeSetRedis = { changes: [] };
+  
+  $: hasChanges = changeSetRedis.changes.length > 0;
 
   $: changeTab(tabid, tab => ({
     ...tab,
@@ -133,11 +130,17 @@
     );
     
     if (existingIndex >= 0) {
-      changeSetRedis.changes = changeSetRedis.changes.map((c, idx) => 
-        idx === existingIndex ? change : c
-      );
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: changeSetRedis.changes.map((c, idx) => 
+          idx === existingIndex ? change : c
+        )
+      };
     } else {
-      changeSetRedis.changes = [...changeSetRedis.changes, change];
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: [...changeSetRedis.changes, change]
+      };
     }
     
     console.log('ChangeSetRedis updated:', JSON.stringify(changeSetRedis, null, 2));
@@ -152,7 +155,6 @@
     
     if (!existingChange) return row;
     
-    // Pre hash - skontroluj či existuje update pre tento key
     if (keyInfo.type === 'hash') {
       // @ts-ignore
       const update = existingChange.updates?.find(u => u.key === row.key);
@@ -177,8 +179,6 @@
   }
 
   function getDisplayValue(keyInfo) {
-    if (editedValue !== null) return editedValue;
-    
     const existingChange = changeSetRedis.changes.find(
       c => c.key === keyInfo.key && c.type === keyInfo.type
     );
@@ -192,7 +192,7 @@
   }
 
   function refresh() {
-    editedValue = null;
+    changeSetRedis = { changes: [] };
     refreshToken += 1;
   }
 
@@ -205,69 +205,6 @@
     });
     changeSetRedis = { changes: [] };
     refreshToken += 1;
-  }
-
-  async function saveString() {
-    await apiCall('database-connections/call-method', {
-      conid,
-      database,
-      method: 'set',
-      args: [key, editedValue],
-    });
-    
-    editedValue = null;
-    refreshToken += 1;
-  }
-
-  async function addItem(keyInfo) {
-    showModal(DbKeyAddItemModal, {
-      keyInfo,
-      onConfirm: async row => {
-        const existingChange = changeSetRedis.changes.find(
-          c => c.key === keyInfo.key && c.type === keyInfo.type
-        );
-        
-        if (keyInfo.type === 'hash') {
-          // @ts-ignore
-          const hashChange = existingChange || { key: keyInfo.key, type: 'hash', inserts: [], updates: [], deletes: [] };
-          // @ts-ignore
-          hashChange.inserts = [...(hashChange.inserts || []), { key: row.key, value: row.value, ttl: keyInfo.ttl }];
-          addOrUpdateChange(hashChange);
-        } else if (keyInfo.type === 'list') {
-          // @ts-ignore
-          const listChange = existingChange || { key: keyInfo.key, type: 'list', inserts: [], updates: [], deletes: [] };
-          // @ts-ignore
-          listChange.inserts = [...(listChange.inserts || []), { index: row.rowNumber, value: row.value }];
-          addOrUpdateChange(listChange);
-        } else if (keyInfo.type === 'set') {
-          // @ts-ignore
-          const setChange = existingChange || { key: keyInfo.key, type: 'set', inserts: [], deletes: [] };
-          // @ts-ignore
-          setChange.inserts = [...(setChange.inserts || []), row.member];
-          addOrUpdateChange(setChange);
-        } else if (keyInfo.type === 'zset') {
-          // @ts-ignore
-          const zsetChange = existingChange || { key: keyInfo.key, type: 'zset', inserts: [], updates: [], deletes: [] };
-          // @ts-ignore
-          zsetChange.inserts = [...(zsetChange.inserts || []), { member: row.member, score: row.score }];
-          addOrUpdateChange(zsetChange);
-        }
-        
-        const res = await apiCall('database-connections/call-method', {
-          conid,
-          database,
-          method: keyInfo.keyType.addMethod,
-          args: [keyInfo.key, ...keyInfo.keyType.dbKeyFields.map(col => row[col.name])],
-        });
-        if (res.errorMessage) {
-          showModal(ErrorMessageModal, { message: res.errorMessage });
-          return false;
-        }
-        
-        refreshToken += 1;
-        return true;
-      },
-    });
   }
 </script>
 
@@ -304,17 +241,15 @@
               />
             </svelte:fragment>
             <svelte:fragment slot="2">
-              <DbKeyItemEdit 
-                dbKeyFields={keyInfo.type === 'hash' 
-                  ? keyInfo.keyType.dbKeyFields.filter(f => f.name === 'value')
-                  : keyInfo.keyType.dbKeyFields} 
+              <DbKeyItemDetail 
+                dbKeyFields={keyInfo.keyType.dbKeyFields} 
                 item={getDisplayRow(currentRow, keyInfo)}
                 onChangeItem={item => {
-                  const existingChange = changeSetRedis.changes.find(
-                    c => c.key === keyInfo.key && c.type === keyInfo.type
-                  );
-                  
-                  if (keyInfo.type === 'hash') {
+                    const existingChange = changeSetRedis.changes.find(
+                      c => c.key === keyInfo.key && c.type === keyInfo.type
+                    );
+                    
+                    if (keyInfo.type === 'hash') {
                     // @ts-ignore
                     const hashChange = existingChange || { key: keyInfo.key, type: 'hash', inserts: [], updates: [], deletes: [] };
                     // @ts-ignore
@@ -365,8 +300,6 @@
               value={getDisplayValue(keyInfo)}
               keyType={keyInfo.type}
               onChangeValue={value => {
-                editedValue = value;
-                
                 if (keyInfo.type === 'string') {
                   addOrUpdateChange({
                     key: key,
@@ -391,15 +324,8 @@
       <ToolStripButton
         icon="icon save"
         on:click={saveAll}
-        disabled={!hasChanges()}
-      >Save All Changes</ToolStripButton>
-      {#if keyInfo.type == 'string'}
-        <ToolStripButton
-          icon="icon save"
-          on:click={saveString}
-          disabled={!editedValue}
-        >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
-      {/if}
+        disabled={!hasChanges}
+      >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
       {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
         <ToolStripButton icon="icon add" on:click={() => addItem(keyInfo)}>Add field</ToolStripButton>
       {/if}
