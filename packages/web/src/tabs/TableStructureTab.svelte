@@ -6,8 +6,8 @@
   registerCommand({
     id: 'tableStructure.save',
     group: 'save',
-    category: 'Table editor',
-    name: 'Save',
+    category: __t('command.tableEditor', { defaultMessage: 'Table editor' }),
+    name: __t('command.tableEditor.save', { defaultMessage: 'Save' }),
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon save',
@@ -17,8 +17,8 @@
 
   registerCommand({
     id: 'tableStructure.reset',
-    category: 'Table editor',
-    name: 'Reset changes',
+    category: __t('command.tableEditor', { defaultMessage: 'Table editor' }),
+    name: __t('command.tableEditor.reset', { defaultMessage: 'Reset changes' }),
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon close',
@@ -57,6 +57,7 @@
   import hasPermission from '../utility/hasPermission';
   import { changeTab, markTabSaved, markTabUnsaved } from '../utility/common';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { _t, __t } from '../translations';
 
   export let tabid;
   export let conid;
@@ -197,7 +198,7 @@
             defaultActionId: 'openTable',
           },
         });
-      }}>Data</ToolStripButton
+      }}>{_t('common.data', { defaultMessage: 'Data' })}</ToolStripButton
     >
 
     <ToolStripButton
@@ -230,7 +231,7 @@
 
     <ToolStripCommandButton
       command="tableStructure.save"
-      buttonLabel={$editorValue?.base ? 'Alter table' : 'Create table'}
+      buttonLabel={$editorValue?.base ? _t('tableStructure.alter', { defaultMessage: 'Alter table' }) : _t('tableStructure.create', { defaultMessage: 'Create table' })}
     />
     <ToolStripCommandButton command="tableStructure.reset" />
     <ToolStripCommandButton command="tableEditor.addColumn" />

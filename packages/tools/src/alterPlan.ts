@@ -91,8 +91,8 @@ interface AlterOperation_RenameConstraint {
 }
 interface AlterOperation_RecreateTable {
   operationType: 'recreateTable';
-  table: TableInfo;
-  operations: AlterOperation[];
+  oldTable: TableInfo;
+  newTable: TableInfo;
 }
 interface AlterOperation_FillPreloadedRows {
   operationType: 'fillPreloadedRows';
@@ -249,11 +249,11 @@ export class AlterPlan {
     });
   }
 
-  recreateTable(table: TableInfo, operations: AlterOperation[]) {
+  recreateTable(oldTable: TableInfo, newTable: TableInfo) {
     this.operations.push({
       operationType: 'recreateTable',
-      table,
-      operations,
+      oldTable,
+      newTable,
     });
     this.recreates.tables += 1;
   }
@@ -337,7 +337,13 @@ export class AlterPlan {
             return opRes;
           }),
           op,
-        ];
+        ].filter(op => {
+          // filter duplicated drops
+          const existingDrop = this.operations.find(
+            o => o.operationType == 'dropConstraint' && o.oldObject === op['oldObject']
+          );
+          return existingDrop == null;
+        });
         return res;
       }
 
@@ -498,51 +504,119 @@ export class AlterPlan {
         return [];
       }
 
-      const table = this.wholeNewDb.tables.find(
+      const oldTable = this.wholeOldDb.tables.find(
+        x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
+      );
+      const newTable = this.wholeNewDb.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );
       this.recreates.tables += 1;
       return [
         {
           operationType: 'recreateTable',
-          table,
-          operations: [op],
+          oldTable,
+          newTable,
+          // operations: [op],
         },
       ];
     }
     return null;
   }
 
-  _groupTableRecreations(): AlterOperation[] {
-    const res = [];
-    const recreates = {};
+  _removeRecreatedTableAlters(): AlterOperation[] {
+    const res: AlterOperation[] = [];
+    const recreates = new Set<string>();
     for (const op of this.operations) {
-      if (op.operationType == 'recreateTable' && op.table) {
-        const existingRecreate = recreates[`${op.table.schemaName}||${op.table.pureName}`];
-        if (existingRecreate) {
-          existingRecreate.operations.push(...op.operations);
-        } else {
-          const recreate = {
-            ...op,
-            operations: [...op.operations],
-          };
-          res.push(recreate);
-          recreates[`${op.table.schemaName}||${op.table.pureName}`] = recreate;
-        }
-      } else {
-        // @ts-ignore
-        const oldObject: TableInfo = op.oldObject || op.object;
-        if (oldObject) {
-          const recreated = recreates[`${oldObject.schemaName}||${oldObject.pureName}`];
-          if (recreated) {
-            recreated.operations.push(op);
-            continue;
-          }
-        }
-        res.push(op);
+      if (op.operationType == 'recreateTable' && op.oldTable && op.newTable) {
+        const key = `${op.oldTable.schemaName}||${op.oldTable.pureName}`;
+        recreates.add(key);
       }
     }
+
+    for (const op of this.operations) {
+      switch (op.operationType) {
+        case 'createColumn':
+        case 'createConstraint':
+          {
+            const key = `${op.newObject.schemaName}||${op.newObject.pureName}`;
+            if (recreates.has(key)) {
+              // skip create inside recreated table
+              continue;
+            }
+          }
+          break;
+        case 'dropColumn':
+        case 'dropConstraint':
+        case 'changeColumn':
+          {
+            const key = `${op.oldObject.schemaName}||${op.oldObject.pureName}`;
+            if (recreates.has(key)) {
+              // skip drop/change inside recreated table
+              continue;
+            }
+          }
+          break;
+        case 'renameColumn':
+          {
+            const key = `${op.object.schemaName}||${op.object.pureName}`;
+            if (recreates.has(key)) {
+              // skip rename inside recreated table
+              continue;
+            }
+          }
+          break;
+      }
+      res.push(op);
+    }
     return res;
+  }
+
+  _groupTableRecreations(): AlterOperation[] {
+    const res = [];
+    const recreates = new Set<string>();
+    for (const op of this.operations) {
+      if (op.operationType == 'recreateTable' && op.oldTable && op.newTable) {
+        const key = `${op.oldTable.schemaName}||${op.oldTable.pureName}`;
+        if (recreates.has(key)) {
+          // prevent duplicate recreates
+          continue;
+        }
+        recreates.add(key);
+      }
+
+      res.push(op);
+    }
+    return res;
+
+    // const res = [];
+    // const recreates = {};
+    // for (const op of this.operations) {
+    //   if (op.operationType == 'recreateTable' && op.table) {
+    //     const existingRecreate = recreates[`${op.table.schemaName}||${op.table.pureName}`];
+    //     if (existingRecreate) {
+    //       existingRecreate.operations.push(...op.operations);
+    //     } else {
+    //       const recreate = {
+    //         ...op,
+    //         operations: [...op.operations],
+    //       };
+    //       res.push(recreate);
+    //       recreates[`${op.table.schemaName}||${op.table.pureName}`] = recreate;
+    //     }
+    //   } else {
+    //     // @ts-ignore
+    //     const oldObject: TableInfo = op.oldObject || op.object;
+    //     if (oldObject) {
+    //       const recreated = recreates[`${oldObject.schemaName}||${oldObject.pureName}`];
+    //       if (recreated) {
+    //         recreated.operations.push(op);
+    //         continue;
+    //       }
+    //     }
+    //     res.push(op);
+    //   }
+    // }
+    // return res;
   }
 
   _moveForeignKeysToLast(): AlterOperation[] {
@@ -611,6 +685,8 @@ export class AlterPlan {
 
     // console.log('*****************OPERATIONS3', this.operations);
 
+    this.operations = this._removeRecreatedTableAlters();
+
     this.operations = this._moveForeignKeysToLast();
 
     // console.log('*****************OPERATIONS4', this.operations);
@@ -673,16 +749,16 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'recreateTable':
       {
-        const oldTable = generateTablePairingId(op.table);
-        const newTable = _.cloneDeep(oldTable);
-        const newDb = DatabaseAnalyser.createEmptyStructure();
-        newDb.tables.push(newTable);
-        // console.log('////////////////////////////newTable1', newTable);
-        op.operations.forEach(child => runAlterOperation(child, new DatabaseInfoAlterProcessor(newDb)));
-        // console.log('////////////////////////////op.operations', op.operations);
-        // console.log('////////////////////////////op.table', op.table);
-        // console.log('////////////////////////////newTable2', newTable);
-        processor.recreateTable(oldTable, newTable);
+        // const oldTable = generateTablePairingId(op.table);
+        // const newTable = _.cloneDeep(oldTable);
+        // const newDb = DatabaseAnalyser.createEmptyStructure();
+        // newDb.tables.push(newTable);
+        // // console.log('////////////////////////////newTable1', newTable);
+        // op.operations.forEach(child => runAlterOperation(child, new DatabaseInfoAlterProcessor(newDb)));
+        // // console.log('////////////////////////////op.operations', op.operations);
+        // // console.log('////////////////////////////op.table', op.table);
+        // // console.log('////////////////////////////newTable2', newTable);
+        processor.recreateTable(op.oldTable, op.newTable);
       }
       break;
   }

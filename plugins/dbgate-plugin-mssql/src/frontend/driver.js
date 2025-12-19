@@ -131,6 +131,7 @@ const dialect = {
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
+  supportsServerSummary: true,
   dumperClass: MsSqlDumper,
   dialect,
   readOnlySessions: false,
@@ -170,6 +171,7 @@ const driver = {
   defaultPort: 1433,
   defaultAuthTypeName: 'tedious',
   supportsTransactions: true,
+  supportsIncrementalAnalysis: true,
   // databaseUrlPlaceholder: 'e.g. server=localhost&authentication.type=default&authentication.type.user=myuser&authentication.type.password=pwd&options.database=mydb',
 
   getNewObjectTemplates() {

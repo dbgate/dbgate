@@ -9,13 +9,15 @@
   import { editorAddConstraint, editorDeleteConstraint, editorModifyConstraint } from 'dbgate-tools';
   import TextField from '../forms/TextField.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import { _t, __t } from '../translations';
+  import _ from 'lodash';
 
   export let constraintInfo;
   export let setTableInfo;
   export let tableInfo;
   export let constraintLabel;
   export let constraintType;
-  export let constraintNameLabel = 'Constraint name';
+  export let constraintNameLabel = _t('tableEditor.constraintName', { defaultMessage: 'Constraint name' });
   export let getExtractConstraintProps;
   export let hideConstraintName = false;
 
@@ -41,7 +43,7 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
-      >{constraintInfo ? `Edit ${constraintLabel}` : `Add ${constraintLabel}`}</svelte:fragment
+      >{constraintInfo ? _t('tableEdit.editConstraintLabel', { defaultMessage: 'Edit {constraintLabel}', values: { constraintLabel } }) : _t('tableEdit.addConstraintLabel', { defaultMessage: 'Add {constraintLabel}', values: { constraintLabel } })}</svelte:fragment
     >
 
     <div class="largeFormMarker">
@@ -65,7 +67,7 @@
 
       {#each columns as column, index}
         <div class="row">
-          <div class="label col-3">Column {index + 1}</div>
+          <div class="label col-3">{_t('common.column', { defaultMessage: 'Column ' })}{index + 1}</div>
           <div class={$$slots.column ? 'col-3' : 'col-6'}>
             {#key column.columnName}
               <SelectField
@@ -91,7 +93,7 @@
           {/if}
           <div class="col-3 button">
             <FormStyledButton
-              value="Delete"
+              value={_t('common.delete', { defaultMessage: 'Delete' })}
               disabled={isReadOnly}
               on:click={e => {
                 const x = [...columns];
@@ -104,11 +106,11 @@
       {/each}
 
       <div class="row">
-        <div class="label col-3">Add new column</div>
+        <div class="label col-3">{_t('columnsConstraintEditor.addNewColumn', { defaultMessage: 'Add new column' })}</div>
         <div class="col-9">
           {#key columns.length}
             <SelectField
-              placeholder="Select column"
+              placeholder={_t('columnsConstraintEditor.selectColumn', { defaultMessage: 'Select column' })}
               disabled={isReadOnly}
               value={''}
               on:change={e => {
@@ -123,7 +125,7 @@
               isNative
               options={[
                 {
-                  label: 'Choose column',
+                  label: _t('columnsConstraintEditor.chooseColumn', { defaultMessage: 'Choose column' })  ,
                   value: '',
                 },
                 ...(tableInfo?.columns?.map(col => ({
@@ -139,7 +141,7 @@
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value={'Save'}
+        value={_t('common.save', { defaultMessage: 'Save' })}
         disabled={isReadOnly}
         on:click={() => {
           closeCurrentModal();
@@ -151,11 +153,11 @@
         }}
       />
 
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
       {#if constraintInfo}
         <FormStyledButton
           type="button"
-          value="Remove"
+          value={_t('common.remove', { defaultMessage: 'Remove' })}
           disabled={isReadOnly}
           on:click={() => {
             closeCurrentModal();

@@ -64,6 +64,7 @@ async function dataReplicator({
           createNew: compileOperationFunction(item.createNew, item.createCondition),
           updateExisting: compileOperationFunction(item.updateExisting, item.updateCondition),
           deleteMissing: !!item.deleteMissing,
+          skipUpdateColumns: item.skipUpdateColumns,
           deleteRestrictionColumns: item.deleteRestrictionColumns ?? [],
           openStream: item.openStream
             ? item.openStream

@@ -24,6 +24,15 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
   return res;
 }
 
+function modifyRow(row, columns) {
+  columns.forEach((col) => {
+    if (Buffer.isBuffer(row[col.columnName])) {
+      row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
+    }
+  });
+  return row;
+}
+
 async function getDefaultAzureSqlToken() {
   const credential = new ManagedIdentityCredential();
   const tokenResponse = await credential.getToken('https://database.windows.net/.default');
@@ -69,7 +78,11 @@ async function tediousConnect(storedConnection) {
     const [host, instance] = (server || '').split('\\');
     const connectionOptions = {
       instanceName: instance,
-      encrypt: !!ssl || authType == 'msentra' || authType == 'azureManagedIdentity',
+      encrypt:
+        !!ssl ||
+        authType == 'msentra' ||
+        authType == 'azureManagedIdentity' ||
+        server?.endsWith('.database.windows.net'),
       cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
       trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
       enableArithAbort: true,
@@ -121,14 +134,18 @@ async function tediousQueryCore(dbhan, sql, options) {
     });
     request.on('row', function (columns) {
       result.rows.push(
-        _.zipObject(
-          result.columns.map(x => x.columnName),
-          columns.map(x => x.value)
+        modifyRow(
+          _.zipObject(
+            result.columns.map(x => x.columnName),
+            columns.map(x => x.value)
+          ),
+          result.columns
         )
       );
     });
-    if (discardResult) dbhan.client.execSqlBatch(request);
-    else dbhan.client.execSql(request);
+    dbhan.client.execSqlBatch(request);
+    // if (discardResult) dbhan.client.execSqlBatch(request);
+    // else dbhan.client.execSql(request);
   });
 }
 
@@ -147,13 +164,17 @@ async function tediousReadQuery(dbhan, sql, structure) {
     currentColumns = extractTediousColumns(columns);
     pass.write({
       __isStreamHeader: true,
+      engine: 'mssql@dbgate-plugin-mssql',
       ...(structure || { columns: currentColumns }),
     });
   });
   request.on('row', function (columns) {
-    const row = _.zipObject(
-      currentColumns.map(x => x.columnName),
-      columns.map(x => x.value)
+    const row = modifyRow(
+      _.zipObject(
+        currentColumns.map(x => x.columnName),
+        columns.map(x => x.value)
+      ),
+      currentColumns
     );
     pass.write(row);
   });
@@ -164,6 +185,7 @@ async function tediousReadQuery(dbhan, sql, structure) {
 
 async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
+  let skipAffectedMessage = false;
 
   const handleInfo = info => {
     const { message, lineNumber, procName } = info;
@@ -185,7 +207,11 @@ async function tediousStream(dbhan, sql, options) {
       severity: 'error',
     });
   };
+  const handleDatabaseChange = database => {
+    options.changedCurrentDatabase(database);
+  };
 
+  dbhan.client.on('databaseChange', handleDatabaseChange);
   dbhan.client.on('infoMessage', handleInfo);
   dbhan.client.on('errorMessage', handleError);
   const request = new tedious.Request(sql, (err, rowCount) => {
@@ -195,22 +221,29 @@ async function tediousStream(dbhan, sql, options) {
     dbhan.client.off('infoMessage', handleInfo);
     dbhan.client.off('errorMessage', handleError);
 
-    options.info({
-      message: `${rowCount} rows affected`,
-      time: new Date(),
-      severity: 'info',
-    });
+    if (!skipAffectedMessage) {
+      options.info({
+        message: `${rowCount} rows affected`,
+        time: new Date(),
+        severity: 'info',
+        rowsAffected: rowCount,
+      });
+    }
   });
   request.on('columnMetadata', function (columns) {
     currentColumns = extractTediousColumns(columns);
-    options.recordset(currentColumns);
+    options.recordset(currentColumns, { engine: 'mssql@dbgate-plugin-mssql' });
   });
   request.on('row', function (columns) {
-    const row = _.zipObject(
-      currentColumns.map(x => x.columnName),
-      columns.map(x => x.value)
+    const row = modifyRow(
+      _.zipObject(
+        currentColumns.map(x => x.columnName),
+        columns.map(x => x.value)
+      ),
+      currentColumns
     );
     options.row(row);
+    skipAffectedMessage = true;
   });
   dbhan.client.execSqlBatch(request);
 }

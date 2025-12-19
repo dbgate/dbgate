@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { filterName, isTableColumnUnique } from 'dbgate-tools';
+import { filterName, isTableColumnUnique, shortenIdentifier } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
 import type {
   TableInfo,
@@ -39,7 +39,8 @@ export class TableGridDisplay extends GridDisplay {
     public getDictionaryDescription: DictionaryDescriptionFunc = null,
     isReadOnly = false,
     public isRawMode = false,
-    public currentSettings = null
+    public currentSettings = null,
+    public areReferencesAllowed = true
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
 
@@ -93,7 +94,7 @@ export class TableGridDisplay extends GridDisplay {
     );
   }
 
-  getDisplayColumns(table: TableInfo, parentPath: string[]) {
+  getDisplayColumns(table: TableInfo, parentPath: string[]): DisplayColumn[] {
     return (
       table?.columns
         ?.map(col => this.getDisplayColumn(table, col, parentPath))
@@ -101,11 +102,12 @@ export class TableGridDisplay extends GridDisplay {
           ...col,
           isChecked: this.isColumnChecked(col),
           hintColumnNames:
-            this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)?.columns?.map(
-              columnName => `hint_${col.uniqueName}_${columnName}`
+            this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)?.columns?.map(columnName =>
+              shortenIdentifier(`hint_${col.uniqueName}_${columnName}`, this.driver?.dialect?.maxIdentifierLength)
             ) || null,
           hintColumnDelimiter: this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)
             ?.delimiter,
+          uniqueNameShorten: shortenIdentifier(col.uniqueName, this.driver?.dialect?.maxIdentifierLength),
           isExpandable: !!col.foreignKey,
         })) || []
     );
@@ -116,7 +118,7 @@ export class TableGridDisplay extends GridDisplay {
       if (this.isExpandedColumn(column.uniqueName)) {
         const table = this.getFkTarget(column);
         if (table) {
-          const childAlias = `${column.uniqueName}_ref`;
+          const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
 
           this.addReferenceToSelect(select, parentAlias, column);
@@ -129,7 +131,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
-    const childAlias = `${column.uniqueName}_ref`;
+    const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
     if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
     const table = this.getFkTarget(column);
     if (table && table.primaryKey) {
@@ -191,15 +193,24 @@ export class TableGridDisplay extends GridDisplay {
           const hintDescription = this.getDictionaryDescription(table);
           if (hintDescription) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
-            this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
-            const childAlias = `${column.uniqueName}_ref`;
+            this.addReferenceToSelect(
+              select,
+              parentUniqueName
+                ? shortenIdentifier(`${parentUniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength)
+                : 'basetbl',
+              column
+            );
+            const childAlias = shortenIdentifier(`${column.uniqueName}_ref`, this.driver?.dialect?.maxIdentifierLength);
             select.columns.push(
               ...hintDescription.columns.map(
                 columnName =>
                   ({
                     exprType: 'column',
                     columnName,
-                    alias: `hint_${column.uniqueName}_${columnName}`,
+                    alias: shortenIdentifier(
+                      `hint_${column.uniqueName}_${columnName}`,
+                      this.driver?.dialect?.maxIdentifierLength
+                    ),
                     source: { alias: childAlias },
                   } as ColumnRefExpression)
               )
@@ -230,7 +241,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   getFkTarget(column: DisplayColumn) {
-    const { uniqueName, foreignKey, isForeignKeyUnique } = column;
+    const { foreignKey, isForeignKeyUnique } = column;
     if (!isForeignKeyUnique) return null;
     const pureName = foreignKey.refTableName;
     const schemaName = foreignKey.refSchemaName;
@@ -238,6 +249,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {
+    if (!this.areReferencesAllowed) return;
     this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
     if (!options.isExport && this.displayOptions.showHintColumns) {
       this.addHintsToSelect(select);
@@ -298,7 +310,12 @@ export class TableGridDisplay extends GridDisplay {
     for (const column of columns) {
       if (this.addAllExpandedColumnsToSelected || this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push(
-          this.createColumnExpression(column, { name: column, alias: parentAlias }, column.uniqueName, 'view')
+          this.createColumnExpression(
+            column,
+            { name: column, alias: parentAlias },
+            column.uniqueNameShorten ?? column.uniqueName,
+            'view'
+          )
         );
         displayedColumnInfo[column.uniqueName] = {
           ...column,

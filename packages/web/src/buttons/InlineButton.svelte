@@ -3,6 +3,7 @@
   export let square = false;
   export let narrow = false;
   export let title = null;
+  export let inlineBlock=false;
 
   let domButton;
 
@@ -17,6 +18,7 @@
   class:disabled
   class:square
   class:narrow
+  class:inlineBlock
   on:click
   bind:this={domButton}
   data-testid={$$props['data-testid']}
@@ -70,5 +72,9 @@
 
   .square {
     width: 18px;
+  }
+
+  .inlineBlock {
+    display: inline-block;
   }
 </style>

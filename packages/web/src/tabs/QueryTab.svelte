@@ -2,36 +2,46 @@
   import registerCommand from '../commands/registerCommand';
   import { copyTextToClipboard } from '../utility/clipboard';
   import yaml from 'js-yaml';
+  import { __t, _t } from '../translations';
 
   const getCurrentEditor = () => getActiveComponent('QueryTab');
 
   registerCommand({
     id: 'query.formatCode',
-    category: 'Query',
-    name: 'Format code',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.formatCode', { defaultMessage: 'Format code' }),
     keyText: 'Shift+Alt+F',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().formatCode(),
   });
   registerCommand({
+    id: 'query.switchAiAssistant',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.AiAssistant', { defaultMessage: 'AI Assistant' }),
+    keyText: 'Shift+Alt+A',
+    icon: 'icon ai',
+    testEnabled: () => isProApp(),
+    onClick: () => getCurrentEditor().toggleAiAssistant(),
+  });
+  registerCommand({
     id: 'query.insertSqlJoin',
-    category: 'Query',
-    name: 'Insert SQL Join',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.insertSqlJoin', { defaultMessage: 'Insert SQL Join' }),
     keyText: 'CtrlOrCommand+J',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
   registerCommand({
     id: 'query.toggleVisibleResultTabs',
-    category: 'Query',
-    name: 'Toggle visible result tabs',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleVisibleResultTabs', { defaultMessage: 'Toggle visible result tabs' }),
     keyText: 'CtrlOrCommand+Shift+R',
     testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().toggleVisibleResultTabs(),
   });
   registerFileCommands({
     idPrefix: 'query',
-    category: 'Query',
+    category: __t('command.query', { defaultMessage: 'Query' }),
     getCurrentEditor,
     folder: 'sql',
     format: 'text',
@@ -40,13 +50,14 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
-    executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
+    executeAdditionalCondition: () => getCurrentEditor()?.hasConnection() && hasPermission('dbops/query'),
     copyPaste: true,
+    defaultTeamFolder: true,
   });
   registerCommand({
     id: 'query.executeCurrent',
-    category: 'Query',
-    name: 'Execute current',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.executeCurrent', { defaultMessage: 'Execute current' }),
     keyText: 'CtrlOrCommand+Shift+Enter',
     testEnabled: () =>
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
@@ -54,56 +65,56 @@
   });
   registerCommand({
     id: 'query.toggleAutoExecute',
-    category: 'Query',
-    name: 'Toggle auto execute',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleAutoExecute', { defaultMessage: 'Toggle auto execute' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().toggleAutoExecute(),
   });
   registerCommand({
     id: 'query.toggleFixedConnection',
-    category: 'Query',
-    name: 'Toggle fixed connection',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.toggleFixedConnection', { defaultMessage: 'Toggle fixed connection' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().toggleFixedConnection(),
   });
   registerCommand({
     id: 'query.beginTransaction',
-    category: 'Query',
-    name: 'Begin transaction',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.beginTransaction', { defaultMessage: 'Begin transaction' }),
     icon: 'icon transaction',
     testEnabled: () => getCurrentEditor()?.beginTransactionEnabled(),
     onClick: () => getCurrentEditor().beginTransaction(),
   });
   registerCommand({
     id: 'query.autocommitOffSwitch',
-    category: 'Query',
-    name: 'Auto commit: OFF',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.autocommitOffSwitch', { defaultMessage: 'Auto commit: OFF' }),
     icon: 'icon autocommit-off',
     testEnabled: () => getCurrentEditor()?.autocommitOffSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOffSwitch(),
   });
   registerCommand({
     id: 'query.autocommitOnSwitch',
-    category: 'Query',
-    name: 'Auto commit: ON',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.autocommitOnSwitch', { defaultMessage: 'Auto commit: ON' }),
     icon: 'icon autocommit-on',
     testEnabled: () => getCurrentEditor()?.autocommitOnSwitchEnabled(),
     onClick: () => getCurrentEditor().autocommitOnSwitch(),
   });
   registerCommand({
     id: 'query.commitTransaction',
-    category: 'Query',
-    name: 'Commit transaction',
-    toolbarName: 'Commit',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.commitTransaction', { defaultMessage: 'Commit transaction' }),
+    toolbarName: __t('command.query.commitTransactionToolbar', { defaultMessage: 'Commit' }),
     icon: 'icon commit',
     testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().commitTransaction(),
   });
   registerCommand({
     id: 'query.rollbackTransaction',
-    category: 'Query',
-    name: 'Rollback transaction',
-    toolbarName: 'Rollback',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.rollbackTransaction', { defaultMessage: 'Rollback transaction' }),
+    toolbarName: __t('command.query.rollbackTransactionToolbar', { defaultMessage: 'Rollback' }),
     icon: 'icon rollback',
     testEnabled: () => getCurrentEditor()?.endTransactionEnabled(),
     onClick: () => getCurrentEditor().rollbackTransaction(),
@@ -113,8 +124,9 @@
 </script>
 
 <script lang="ts">
-  import { getContext, onDestroy, onMount, tick } from 'svelte';
+  import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
+  import { writable } from 'svelte/store';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
@@ -155,38 +167,48 @@
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
   import hasPermission from '../utility/hasPermission';
+  import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
+  import { getCurrentSettings } from '../stores';
+  import { Messages } from 'openai/resources/chat/completions';
+  import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
+  import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
+  import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
 
   export let tabid;
   export let conid;
   export let database;
   export let initialArgs;
+  export let hideEditor;
 
   export const activator = createActivator('QueryTab', false);
+
+  const collapsedLeftColumnStore = writable(getCurrentSettings()['sqlEditor.hideColumnsPanel'] ?? false);
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 
   const QUERY_PARAMETER_STYLES = [
     {
       value: '',
-      text: '(no parameters)',
+      text: _t('query.noParameters', { defaultMessage: '(no parameters)' }),
     },
     {
       value: '?',
-      text: '? (positional)',
+      text: _t('query.positional', { defaultMessage: '? (positional)' }),
     },
     {
       value: '@',
-      text: '@variable',
+      text: _t('query.variable', { defaultMessage: '@variable' }),
     },
     {
       value: ':',
-      text: ':variable',
+      text: _t('query.named', { defaultMessage: ':variable' }),
     },
     {
       value: '$',
-      text: '$variable',
+      text: _t('query.variable', { defaultMessage: '$variable' }),
     },
     {
       value: '#',
-      text: '#variable',
+      text: _t('query.variable', { defaultMessage: '#variable' }),
     },
   ];
 
@@ -226,6 +248,9 @@
   let queryRowsLimit = getInitialRowsLimit();
   $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
 
+  let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
+  let domAiAssistant;
+
   onMount(() => {
     intervalId = setInterval(() => {
       if (!driver?.singleConnectionOnly && sessionId) {
@@ -251,9 +276,11 @@
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
       apiOn(`session-closed-${sid}`, handleSessionClosed);
+      apiOn(`session-changedb-${sid}`, handleChangedDatabase);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
         apiOff(`session-closed-${sid}`, handleSessionClosed);
+        apiOff(`session-changedb-${sid}`, handleChangedDatabase);
       };
     }
     return () => {};
@@ -298,6 +325,10 @@
 
   export function toggleVisibleResultTabs() {
     visibleResultTabs = !visibleResultTabs;
+  }
+
+  export function toggleAiAssistant() {
+    isAiAssistantVisible = !isAiAssistantVisible;
   }
 
   function getParameterSplitterOptions() {
@@ -548,6 +579,17 @@
     handleSessionDone();
   };
 
+  const handleChangedDatabase = async props => {
+    changeTab(tabid, tab => ({
+      ...tab,
+      props: {
+        ...tab.props,
+        conid,
+        database: props.database,
+      },
+    }));
+  };
+
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     loadFromArgs:
@@ -568,6 +610,16 @@
 
   function handleChangeErrors(errors) {
     errorMessages = errors;
+  }
+
+  async function handleExplainError(errorObject) {
+    if (!isProApp()) return;
+    isAiAssistantVisible = true;
+    await tick();
+    domAiAssistant?.explainError({
+      userQuery: $editorValue,
+      errorObject,
+    });
   }
 
   function handleSetFrontMatterField(field, value) {
@@ -650,91 +702,136 @@
     localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
     initialArgs?.queryParameterStyle ??
     (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : '');
+
+  $: localStorage.setItem(`tabdata_isAiAssistantVisible_${tabid}`, isAiAssistantVisible ? 'true' : 'false');
 </script>
 
-<ToolStripContainer bind:this={domToolStrip}>
-  <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue}>
+<ToolStripContainer bind:this={domToolStrip} hideToolStrip={hideEditor}>
+  <HorizontalSplitter isSplitter={isAiAssistantVisible} initialSizeRight={300}>
     <svelte:fragment slot="1">
-      {#if driver?.databaseEngineTypes?.includes('sql')}
-        <SqlEditor
-          engine={$connection && $connection.engine}
-          {conid}
-          {database}
-          splitterOptions={{
-            ...driver?.getQuerySplitterOptions('editor'),
-            splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
-          }}
-          options={{
-            wrap: enableWrap,
-          }}
-          value={$editorState.value || ''}
-          menu={createMenu()}
-          on:input={e => {
-            setEditorData(e.detail);
-            if (isInitialized) {
-              markTabUnsaved(tabid);
-            }
-            errorMessages = [];
-          }}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-            setTimeout(() => {
-              isInitialized = true;
-            }, 100);
-          }}
-          bind:this={domEditor}
-          onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
-          {errorMessages}
-        />
-      {:else}
-        <AceEditor
-          mode={driver?.editorMode || 'sql'}
-          value={$editorState.value || ''}
-          splitterOptions={{
-            ...driver?.getQuerySplitterOptions('editor'),
-            splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
-          }}
-          options={{
-            wrap: enableWrap,
-          }}
-          menu={createMenu()}
-          on:input={e => setEditorData(e.detail)}
-          on:focus={() => {
-            activator.activate();
-            domToolStrip?.activate();
-            invalidateCommands();
-          }}
-          bind:this={domEditor}
-        />
-      {/if}
+      <VerticalSplitter isSplitter={visibleResultTabs} initialValue={splitterInitialValue} hideFirst={hideEditor}>
+        <svelte:fragment slot="1">
+          {#if driver?.databaseEngineTypes?.includes('sql')}
+            <SqlEditor
+              engine={$connection && $connection.engine}
+              {conid}
+              {database}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
+              value={$editorState.value || ''}
+              menu={createMenu()}
+              on:input={e => {
+                setEditorData(e.detail);
+                if (isInitialized) {
+                  markTabUnsaved(tabid);
+                }
+                errorMessages = [];
+              }}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+                setTimeout(() => {
+                  isInitialized = true;
+                }, 100);
+              }}
+              bind:this={domEditor}
+              onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
+              {errorMessages}
+            />
+          {:else}
+            <AceEditor
+              mode={driver?.editorMode || 'sql'}
+              value={$editorState.value || ''}
+              splitterOptions={{
+                ...driver?.getQuerySplitterOptions('editor'),
+                splitByEmptyLine: !$settingsValue?.['sqlEditor.disableSplitByEmptyLine'],
+              }}
+              options={{
+                wrap: enableWrap,
+              }}
+              menu={createMenu()}
+              on:input={e => setEditorData(e.detail)}
+              on:focus={() => {
+                activator.activate();
+                domToolStrip?.activate();
+                invalidateCommands();
+              }}
+              bind:this={domEditor}
+            />
+          {/if}
+        </svelte:fragment>
+        <svelte:fragment slot="2">
+          <ResultTabs
+            bind:this={domResultTabs}
+            tabs={[{ label: _t('query.Messages', { defaultMessage: 'Messages' }), slot: 0 }]}
+            {sessionId}
+            {executeNumber}
+            bind:resultCount
+            {driver}
+            onSetFrontMatterField={handleSetFrontMatterField}
+            onGetFrontMatter={() => getSqlFrontMatter($editorValue, yaml)}
+          >
+            <svelte:fragment slot="0">
+              <SocketMessageView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
+                onMessageClick={handleMesageClick}
+                startLine={executeStartLine}
+                showProcedure
+                showLine
+                onChangeErrors={handleChangeErrors}
+                onExplainError={isProApp() ? handleExplainError : null}
+                engine={$connection && $connection.engine}
+              />
+            </svelte:fragment>
+          </ResultTabs>
+        </svelte:fragment>
+      </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <ResultTabs
-        bind:this={domResultTabs}
-        tabs={[{ label: 'Messages', slot: 0 }]}
-        {sessionId}
-        {executeNumber}
-        bind:resultCount
-        {driver}
-        onSetFrontMatterField={handleSetFrontMatterField}
-        onGetFrontMatter={() => getSqlFrontMatter($editorValue, yaml)}
-      >
-        <svelte:fragment slot="0">
-          <SocketMessageView
-            eventName={sessionId ? `session-info-${sessionId}` : null}
-            onMessageClick={handleMesageClick}
-            {executeNumber}
-            startLine={executeStartLine}
-            showProcedure
-            showLine
-            onChangeErrors={handleChangeErrors}
-          />
-        </svelte:fragment>
-      </ResultTabs>
+      <WidgetColumnBar>
+        <WidgetColumnBarItem
+          title={_t('query.AiAssistant', { defaultMessage: 'AI Assistant' })}
+          onClose={() => {
+            isAiAssistantVisible = false;
+          }}
+          name='aiAssistant'
+        >
+          <WidgetsInnerContainer skipDefineWidth flexContainer>
+            <QueryAiAssistant
+              bind:this={domAiAssistant}
+              {conid}
+              {database}
+              {driver}
+              onClose={() => {
+                isAiAssistantVisible = false;
+              }}
+              text={$editorValue}
+              getLine={() => domEditor.getEditor().getSelectionRange().start.row}
+              onInsertAtCursor={text => {
+                const editor = domEditor.getEditor();
+                editor.session.insert(editor.getCursorPosition(), text);
+                domEditor?.getEditor()?.focus();
+              }}
+              getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
+              onSetSelectedText={text => {
+                const editor = domEditor.getEditor();
+                if (editor.getSelectedText()) {
+                  const range = editor.selection.getRange();
+                  editor.session.replace(range, text);
+                } else {
+                  editor.setValue(text);
+                }
+              }}
+              {tabid}
+            />
+          </WidgetsInnerContainer>
+        </WidgetColumnBarItem>
+      </WidgetColumnBar>
     </svelte:fragment>
-  </VerticalSplitter>
+  </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandSplitButton
       commands={['query.execute', 'query.executeCurrent']}
@@ -754,11 +851,17 @@
             },
           })}
       >
-        {queryRowsLimit ? `Limit ${queryRowsLimit} rows` : 'Unlimited rows'}</ToolStripButton
+        {queryRowsLimit
+          ? _t('query.limitRows', { defaultMessage: 'Limit {queryRowsLimit} rows', values: { queryRowsLimit } })
+          : _t('query.unlimitedRows', { defaultMessage: 'Unlimited rows' })}</ToolStripButton
       >
     {/if}
     {#if resultCount == 1}
-      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
+      <ToolStripExportButton
+        command="jslTableGrid.export"
+        {quickExportHandlerRef}
+        label={_t('export.result', { defaultMessage: 'Export result' })}
+      />
     {/if}
     <ToolStripDropDownButton
       menu={() =>
@@ -773,6 +876,11 @@
       icon="icon at"
       title="Query parameter style"
     />
+    <ToolStripCommandButton
+      command="query.switchAiAssistant"
+      hideDisabled
+      data-testid="QueryTab_switchAiAssistantButton"
+    ></ToolStripCommandButton>
     <ToolStripCommandButton
       command="query.beginTransaction"
       data-testid="QueryTab_beginTransactionButton"
@@ -803,7 +911,7 @@
           domResultTabs?.openCurrentChart();
         }}
       >
-        Open chart</ToolStripButton
+        {_t('chart.open', { defaultMessage: 'Open chart' })}</ToolStripButton
       >
     {/if}
     {#if isProApp() && !visibleResultTabs && hasPermission('dbops/charts')}
@@ -814,7 +922,7 @@
           autoDetectCharts = !autoDetectCharts;
         }}
       >
-        Detect chart<FontIcon
+        {_t('chart.detect', { defaultMessage: 'Detect chart' })}<FontIcon
           icon={autoDetectCharts ? 'icon checkbox-marked' : 'icon checkbox-blank'}
           padLeft
         /></ToolStripButton

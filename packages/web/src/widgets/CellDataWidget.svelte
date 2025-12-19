@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-  import { isWktGeometry } from 'dbgate-tools';
-
   const formats = [
     {
       type: 'textWrap',
@@ -12,6 +10,12 @@
       type: 'text',
       title: 'Text (no wrap)',
       component: TextCellViewNoWrap,
+      single: false,
+    },
+    {
+      type: 'form',
+      title: 'Form',
+      component: FormCellView,
       single: false,
     },
     {
@@ -59,10 +63,13 @@
   ];
 
   function autodetect(selection) {
+    if (selection[0]?.isSelectedFullRow) {
+      return 'form';
+    }
+
     if (selectionCouldBeShownOnMap(selection)) {
       return 'map';
     }
-
     if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
       return 'jsonRow';
     }
@@ -92,31 +99,31 @@
   import JsonRowView from '../celldata/JsonRowView.svelte';
   import MapCellView from '../celldata/MapCellView.svelte';
   import PictureCellView from '../celldata/PictureCellView.svelte';
+  import FormCellView from '../celldata/FormCellView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import SelectField from '../forms/SelectField.svelte';
-  import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
   import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
   import XmlCellView from '../celldata/XmlCellView.svelte';
+  import { _t } from '../translations';
+
+  export let onClose;
+  export let selection;
 
   let selectedFormatType = 'autodetect';
-
-  export let selection = undefined;
 
   $: autodetectFormatType = autodetect(selection);
   $: autodetectFormat = formats.find(x => x.type == autodetectFormatType);
 
   $: usedFormatType = selectedFormatType == 'autodetect' ? autodetectFormatType : selectedFormatType;
   $: usedFormat = formats.find(x => x.type == usedFormatType);
-
-  $: selection = $selectedCellsCallback ? $selectedCellsCallback() : [];
 </script>
 
 <div class="wrapper">
-  <WidgetTitle>Cell data view</WidgetTitle>
+  <WidgetTitle {onClose}>{_t('cellDataWidget.title', { defaultMessage: 'Cell data view' })}</WidgetTitle>
   <div class="main">
     <div class="toolbar">
       Format:<span>&nbsp;</span>
@@ -126,18 +133,30 @@
         on:change={e => (selectedFormatType = e.detail)}
         data-testid="CellDataWidget_selectFormat"
         options={[
-          { value: 'autodetect', label: `Autodetect - ${autodetectFormat.title}` },
+          {
+            value: 'autodetect',
+            label: _t('cellDataWidget.autodetect', {
+              defaultMessage: 'Autodetect - {autoDetectTitle}',
+              values: { autoDetectTitle: autodetectFormat.title },
+            }),
+          },
           ...formats.map(fmt => ({ label: fmt.title, value: fmt.type })),
         ]}
       />
     </div>
     <div class="data">
       {#if usedFormat.single && selection?.length != 1}
-        <ErrorInfo message="Must be selected one cell" alignTop />
+        <ErrorInfo
+          message={_t('cellDataWidget.mustSelectOneCell', { defaultMessage: 'Must be selected one cell' })}
+          alignTop
+        />
       {:else if usedFormat == null}
-        <ErrorInfo message="Format not selected" alignTop />
+        <ErrorInfo
+          message={_t('cellDataWidget.formatNotSelected', { defaultMessage: 'Format not selected' })}
+          alignTop
+        />
       {:else if !selection || selection.length == 0}
-        <ErrorInfo message="No data selected" alignTop />
+        <ErrorInfo message={_t('cellDataWidget.noDataSelected', { defaultMessage: 'No data selected' })} alignTop />
       {:else}
         <svelte:component this={usedFormat?.component} {selection} />
       {/if}

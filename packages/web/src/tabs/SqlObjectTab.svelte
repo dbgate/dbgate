@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'sqlObject.find',
-    category: 'SQL Object',
-    name: 'Find',
+    category: __t('command.sqlObject', { defaultMessage: 'SQL Object' }),
+    name: __t('command.sqlObject.find', { defaultMessage: 'Find' }),
     keyText: 'CtrlOrCommand+F',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().find(),
@@ -31,6 +31,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import openNewTab from '../utility/openNewTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { __t } from '../translations';
 
   export let tabid;
   export let appObjectData;

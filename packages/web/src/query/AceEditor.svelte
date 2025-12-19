@@ -130,6 +130,7 @@
     currentEditorTheme,
     currentThemeDefinition,
     currentEditorKeybindigMode,
+    getCurrentSettings
   } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
@@ -212,11 +213,18 @@
         line: editor.getSelectionRange().start.row,
       };
     }
-    const line = editor.getSelectionRange().start.row;
+    if (!getCurrentSettings()['sqlEditor.disableExecuteCurrentLine']){
+      const line = editor.getSelectionRange().start.row;
+      return {
+        text: editor.session.getLine(line),
+        line,
+      };
+    }
+    
     return {
-      text: editor.session.getLine(line),
-      line,
+      text: editor.getValue(),
     };
+    
   }
 
   export function getCodeCompletionCommandText() {

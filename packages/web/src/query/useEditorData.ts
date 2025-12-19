@@ -21,8 +21,8 @@ function getParsedLocalStorage(key) {
 
 const saveHandlersList = [];
 
-export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null, onInitialData = null }) {
-  const localStorageKey = `tabdata_editor_${tabid}`;
+export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null, onInitialData = null, editorKeyword = 'editor' }) {
+  const localStorageKey = `tabdata_${editorKeyword}_${tabid}`;
   let changeCounter = 0;
   let savedCounter = 0;
 

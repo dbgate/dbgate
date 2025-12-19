@@ -17,13 +17,14 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const generateDeploySql = require('../shell/generateDeploySql');
-const { dumpSqlSelect } = require('dbgate-sqltree');
+const { dumpSqlSelect, scriptToSql } = require('dbgate-sqltree');
 const { allowExecuteCustomScript, handleQueryStream } = require('../utility/handleQueryStream');
 const dbgateApi = require('../shell');
 const requirePlugin = require('../shell/requirePlugin');
 const path = require('path');
 const { rundir } = require('../utility/directories');
 const fs = require('fs-extra');
+const { changeSetToSql } = require('dbgate-datalib');
 
 const logger = getLogger('dbconnProcess');
 
@@ -348,6 +349,25 @@ async function handleUpdateCollection({ msgid, changeSet }) {
   }
 }
 
+async function handleSaveTableData({ msgid, changeSet }) {
+  await waitStructure();
+  try {
+    const driver = requireEngineDriver(storedConnection);
+    const script = driver.createSaveChangeSetScript(changeSet, analysedStructure, () =>
+      changeSetToSql(changeSet, analysedStructure, driver.dialect)
+    );
+    const sql = scriptToSql(driver, script);
+    await driver.script(dbhan, sql, { useTransaction: true });
+    process.send({ msgtype: 'response', msgid });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
+    });
+  }
+}
+
 async function handleSqlPreview({ msgid, objects, options }) {
   await waitStructure();
   const driver = requireEngineDriver(storedConnection);
@@ -464,6 +484,7 @@ const messageHandlers = {
   runScript: handleRunScript,
   runOperation: handleRunOperation,
   updateCollection: handleUpdateCollection,
+  saveTableData: handleSaveTableData,
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,
   scanKeys: handleScanKeys,

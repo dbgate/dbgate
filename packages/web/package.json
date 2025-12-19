@@ -9,6 +9,10 @@
     "build:index": "node build-index.js",
     "prepublishOnly": "yarn build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
   "files": [
     "public"
   ],
@@ -28,7 +32,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "cross-env": "^7.0.3",
     "dbgate-datalib": "^6.0.0-alpha.1",
-    "dbgate-query-splitter": "^4.11.5",
+    "dbgate-query-splitter": "^4.11.9",
     "dbgate-sqltree": "^6.0.0-alpha.1",
     "dbgate-tools": "^6.0.0-alpha.1",
     "dbgate-types": "^6.0.0-alpha.1",
@@ -60,6 +64,9 @@
     "uuid": "^3.4.0"
   },
   "dependencies": {
+    "@langchain/core": "^0.3.72",
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/openai": "^0.6.9",
     "@messageformat/core": "^3.4.0",
     "chartjs-plugin-zoom": "^1.2.0",
     "date-fns": "^4.1.0",
@@ -71,6 +78,7 @@
     "leaflet": "^1.8.0",
     "openai": "^5.10.1",
     "wellknown": "^0.5.0",
-    "xml-formatter": "^3.6.4"
+    "xml-formatter": "^3.6.4",
+    "zod": "^4.1.5"
   }
 }

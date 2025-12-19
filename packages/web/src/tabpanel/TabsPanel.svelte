@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-  import { _t } from '../translations';
-
   const getCurrentValueMarker: any = {};
 
   export function shouldShowTab(tab, lockedDbModeArg = getCurrentValueMarker, currentDbArg = getCurrentValueMarker) {
@@ -171,6 +169,10 @@
       (x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex,
       tabs => tabs.map(x => (x.selected ? { ...x, tabPreviewMode: false } : x))
     );
+  const closeRightTabs = multiTabIndex =>
+    closeTabFunc(
+      (x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex && x.tabOrder > active.tabOrder
+    );
   const reopenClosedTab = () => {
     const lastClosedTabId = getOpenedTabs()
       .filter(x => x.closedTime)
@@ -235,8 +237,8 @@
 
   registerCommand({
     id: 'tabs.nextTab',
-    category: 'Tabs',
-    name: _t('command.tabs.nextTab', { defaultMessage: 'Next tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.nextTab', { defaultMessage: 'Next tab' }),
     keyText: 'Ctrl+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => switchTabByOrder(false),
@@ -244,8 +246,8 @@
 
   registerCommand({
     id: 'tabs.previousTab',
-    category: 'Tabs',
-    name: _t('command.tabs.previousTab', { defaultMessage: 'Previous tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.previousTab', { defaultMessage: 'Previous tab' }),
     keyText: 'Ctrl+Shift+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => switchTabByOrder(true),
@@ -253,16 +255,16 @@
 
   registerCommand({
     id: 'tabs.closeAll',
-    category: 'Tabs',
-    name: _t('command.tabs.closeAll', { defaultMessage: 'Close all tabs' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeAll', { defaultMessage: 'Close all tabs' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
     onClick: closeAll,
   });
 
   registerCommand({
     id: 'tabs.closeTab',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTab', { defaultMessage: 'Close tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTab', { defaultMessage: 'Close tab' }),
     keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : 'Alt+W',
     testEnabled: () => {
       const hasAnyOtherTab = getOpenedTabs().filter(x => !x.closedTime).length >= 1;
@@ -275,24 +277,24 @@
 
   registerCommand({
     id: 'tabs.closeTabsWithCurrentDb',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTabsWithCurrentDb', { defaultMessage: 'Close tabs with current DB' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTabsWithCurrentDb', { defaultMessage: 'Close tabs with current DB' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsWithCurrentDb,
   });
 
   registerCommand({
     id: 'tabs.closeTabsButCurrentDb',
-    category: 'Tabs',
-    name: _t('command.tabs.closeTabsButCurrentDb', { defaultMessage: 'Close tabs but current DB' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.closeTabsButCurrentDb', { defaultMessage: 'Close tabs but current DB' }),
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
     onClick: closeTabsButCurrentDb,
   });
 
   registerCommand({
     id: 'tabs.reopenClosedTab',
-    category: 'Tabs',
-    name: _t('command.tabs.reopenClosedTab', { defaultMessage: 'Reopen closed tab' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.reopenClosedTab', { defaultMessage: 'Reopen closed tab' }),
     keyText: 'CtrlOrCommand+Shift+T',
     testEnabled: () => getOpenedTabs().filter(x => x.closedTime).length >= 1,
     onClick: reopenClosedTab,
@@ -300,8 +302,8 @@
 
   registerCommand({
     id: 'tabs.addToFavorites',
-    category: 'Tabs',
-    name: _t('command.tabs.addToFavorites', { defaultMessage: 'Add current tab to favorites' }),
+    category: __t('command.tabs', { defaultMessage: 'Tabs' }),
+    name: __t('command.tabs.addToFavorites', { defaultMessage: 'Add current tab to favorites' }),
     // icon: 'icon favorite',
     // toolbar: true,
     testEnabled: () =>
@@ -354,6 +356,9 @@
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
+  import { isProApp } from '../utility/proTools';
+  import { openWebLink } from '../utility/simpleTools';
+  import { __t, _t } from '../translations';
 
   export let multiTabIndex;
   export let shownTab;
@@ -430,23 +435,27 @@
 
     return [
       tab.tabPreviewMode && {
-        text: 'Pin tab',
+        text: _t('tabsPanel.pinTab', { defaultMessage: 'Pin tab' }),
         onClick: () => pinTab(tabid),
       },
       {
-        text: 'Close',
+        text: _t('common.close', { defaultMessage: 'Close' }),
         onClick: () => closeTab(tabid),
       },
       {
-        text: 'Close all',
+        text: _t('tabsPanel.closeAll', { defaultMessage: 'Close all' }),
         onClick: () => closeAll(multiTabIndex),
       },
       {
-        text: 'Close others',
+        text: _t('tabsPanel.closeOthers', { defaultMessage: 'Close others' }),
         onClick: () => closeOthersInMultiTab(multiTabIndex)(tabid),
       },
       {
-        text: 'Duplicate',
+        text: _t('tabsPanel.closeToTheRight', { defaultMessage: 'Close to the right' }),
+        onClick: () => closeRightTabs(multiTabIndex)(tabid),
+      },
+      {
+        text: _t('tabsPanel.duplicate', { defaultMessage: 'Duplicate' }),
         onClick: () => duplicateTab(tab),
       },
       tabComponent &&
@@ -455,7 +464,7 @@
         tabs[tabComponent].allowAddToFavorites(props) && [
           { divider: true },
           {
-            text: 'Add to favorites',
+            text: _t('tabsPanel.addToFavorites', { defaultMessage: 'Add to favorites' }),
             onClick: () => showModal(FavoriteModal, { savingTab: tab }),
           },
         ],
@@ -465,7 +474,7 @@
         tabs[tabComponent].allowSwitchDatabase(props) && [
           { divider: true },
           {
-            text: 'Switch database',
+            text: _t('tabsPanel.switchDatabase', { defaultMessage: 'Switch database' }),
             onClick: () => showModal(SwitchDatabaseModal, { callingTab: tab }),
           },
         ],
@@ -488,11 +497,17 @@
       conid &&
         database && [
           {
-            text: `Close tabs with DB ${database}`,
+            text: _t('tabsPanel.closeTabsWithDb', {
+              defaultMessage: 'Close tabs with DB {database}',
+              values: { database },
+            }),
             onClick: () => closeWithSameDb(tabid),
           },
           {
-            text: `Close tabs with other DB than ${database}`,
+            text: _t('tabsPanel.closeTabsWithOtherDb', {
+              defaultMessage: `Close tabs with other DB than {database}`,
+              values: { database },
+            }),
             onClick: () => closeWithOtherDb(tabid),
           },
         ],
@@ -567,15 +582,31 @@
   let domTabs;
 
   function handleTabsWheel(e) {
-    if (!e.shiftKey) {
+    // if (!e.shiftKey) {
+    //   e.preventDefault();
+    //   domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+    // }
+
+    // Handle horizontal scrolling from trackpad gestures (deltaX)
+    // or vertical scrolling converted to horizontal (deltaY with Shift)
+
+    const scrollAmount = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? 0 : e.deltaY;
+
+    if (scrollAmount !== 0) {
       e.preventDefault();
-      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+      domTabs.scrollBy({ left: scrollAmount, behavior: 'auto' });
     }
   }
 </script>
 
 <div class="root">
-  <div class="tabs" class:can-split={allowSplitTab} on:wheel={handleTabsWheel} bind:this={domTabs}>
+  <div
+    class="tabs"
+    class:can-split={allowSplitTab && isProApp()}
+    class:tabs-upgrade-button={!isProApp()}
+    on:wheel={handleTabsWheel}
+    bind:this={domTabs}
+  >
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
         {#if !$lockedDatabaseMode}
@@ -705,7 +736,7 @@
     {/each}
   </div>
   <div class="icons-wrapper">
-    {#if allowSplitTab}
+    {#if allowSplitTab && isProApp()}
       <div
         class="icon-button"
         on:click={() => splitTab(multiTabIndex)}
@@ -715,6 +746,22 @@
         <FontIcon icon="icon split" />
       </div>
     {/if}
+
+    {#if !isProApp()}
+      <div
+        class="upgrade-button"
+        on:click={() => {
+          openWebLink(
+            `https://www.dbgate.io/purchase/${isElectronAvailable() ? 'premium' : 'team-premium'}/?utm_campaign=premiumUpgradeButton`
+          );
+        }}
+        title="Upgrade to Premium"
+        data-testid="TabsPanel_buttonUpgrade"
+      >
+        <FontIcon icon="icon premium" /> Upgrade
+      </div>
+    {/if}
+
     <div
       class="icon-button"
       on:click={() => showModal(NewObjectModal, { multiTabIndex })}
@@ -748,6 +795,21 @@
     color: var(--theme-font-2);
     cursor: pointer;
   }
+  .upgrade-button {
+    background: linear-gradient(135deg, #1686c8, #8a25b1);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 10pt;
+    padding: 5px;
+    margin-top: 3px;
+    margin-right: 3px;
+    font-size: 8pt;    
+  }
+  .upgrade-button:hover {
+    background: linear-gradient(135deg, #0f5a85, #5c1870);
+  }
   .icon-button:hover {
     color: var(--theme-font-1);
   }
@@ -760,6 +822,10 @@
     top: 0;
     right: 35px;
     bottom: 0;
+  }
+
+  .tabs-upgrade-button {
+    right: 110px;
   }
   .tabs.can-split {
     right: 60px;

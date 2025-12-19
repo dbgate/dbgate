@@ -168,11 +168,11 @@
 <FormProvider>
   <ModalBase {...$$restProps} fullScreen>
     <div slot="header">
-      {mode == 'export' ? 'Export' : 'Import'} connections &amp; settings
+      {mode == 'export' ? 'Export' : 'Import'} {_t('importExport.connectionsSettings', { defaultMessage: 'connections & settings' })}
       <span class="check-uncheck">
-        <Link onClick={() => handleCheckAll(true)}>Check all</Link>
+        <Link onClick={() => handleCheckAll(true)}>{_t('common.checkAll', { defaultMessage: 'Check all' })}</Link>
         |
-        <Link onClick={() => handleCheckAll(false)}>Uncheck all</Link>
+        <Link onClick={() => handleCheckAll(false)}>{_t('common.uncheckAll', { defaultMessage: 'Uncheck all' })}</Link>
       </span>
     </div>
 
@@ -180,16 +180,16 @@
       <TabControl
         tabs={_.compact([
           connections?.length && {
-            label: `Connections (${checkedConnections?.length}/${connections?.length})`,
+            label: _t('importExport.connectionsNum', { defaultMessage:'Connections ({checkedConnections}/{connections})', values: { checkedConnections: checkedConnections?.length, connections: connections?.length } }),
             slot: 1,
           },
-          users?.length && { label: `Users (${checkedUsers?.length}/${users?.length})`, slot: 2 },
-          roles?.length && { label: `Roles (${checkedRoles?.length}/${roles?.length})`, slot: 3 },
+          users?.length && { label: _t('importExport.usersNum', { defaultMessage:'Users ({checkedUsers}/{users})', values: { checkedUsers: checkedUsers?.length, users: users?.length } }), slot: 2 },
+          roles?.length && { label: _t('importExport.rolesNum', { defaultMessage:'Roles ({checkedRoles}/{roles})', values: { checkedRoles: checkedRoles?.length, roles: roles?.length } }), slot: 3 },
           authMethods?.length && {
-            label: `Auth methods (${checkedAuthMethods?.length}/${authMethods?.length})`,
+            label: _t('importExport.authMethodsNum', { defaultMessage:'Auth methods ({checkedAuthMethods}/{authMethods})', values: { checkedAuthMethods: checkedAuthMethods?.length, authMethods: authMethods?.length } }),
             slot: 4,
           },
-          config?.length && { label: `Config (${checkedConfig?.length}/${config?.length})`, slot: 5 },
+          config?.length && { label: _t('importExport.configNum', { defaultMessage:'Config ({checkedConfig}/{config})', values: { checkedConfig: checkedConfig?.length, config: config?.length } }), slot: 5 },
         ])}
       >
         <svelte:fragment slot="1">
@@ -199,10 +199,10 @@
               stickyHeader
               columns={[
                 { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
-                { header: 'Display name', fieldName: 'displayName', sortable: true, filterable: true },
-                { header: 'Engine', fieldName: 'engine', sortable: true, filterable: true },
-                { header: 'Server', fieldName: 'server', sortable: true, filterable: true },
-                { header: 'User', fieldName: 'user', sortable: true, filterable: true },
+                { header: _t('importExport.displayName', { defaultMessage: 'Display name' }), fieldName: 'displayName', sortable: true, filterable: true },
+                { header: _t('importExport.engine', { defaultMessage: 'Engine' }), fieldName: 'engine', sortable: true, filterable: true },
+                { header: _t('importExport.server', { defaultMessage: 'Server' }), fieldName: 'server', sortable: true, filterable: true },
+                { header: _t('importExport.user', { defaultMessage: 'User' }), fieldName: 'user', sortable: true, filterable: true },
               ]}
               clickable
               rows={connections}
@@ -225,8 +225,8 @@
               stickyHeader
               columns={[
                 { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
-                { header: 'Login', fieldName: 'login', sortable: true, filterable: true },
-                { header: 'E-mail', fieldName: 'email', sortable: true, filterable: true },
+                { header: _t('importExport.login', { defaultMessage: 'Login' }), fieldName: 'login', sortable: true, filterable: true },
+                { header: _t('importExport.email', { defaultMessage: 'E-mail' }), fieldName: 'email', sortable: true, filterable: true },
               ]}
               clickable
               rows={users}
@@ -249,7 +249,7 @@
               stickyHeader
               columns={[
                 { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
-                { header: 'Name', fieldName: 'name', sortable: true, filterable: true },
+                { header: _t('importExport.name', { defaultMessage: 'Name' }), fieldName: 'name', sortable: true, filterable: true },
               ]}
               clickable
               rows={roles}
@@ -272,8 +272,8 @@
               stickyHeader
               columns={[
                 { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
-                { header: 'Name', fieldName: 'name', sortable: true, filterable: true },
-                { header: 'Type', fieldName: 'type', sortable: true, filterable: true },
+                { header: _t('importExport.name', { defaultMessage: 'Name' }), fieldName: 'name', sortable: true, filterable: true },
+                { header: _t('importExport.type', { defaultMessage: 'Type' }), fieldName: 'type', sortable: true, filterable: true },
               ]}
               clickable
               rows={authMethods}
@@ -296,9 +296,9 @@
               stickyHeader
               columns={[
                 { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
-                { header: 'Group', fieldName: 'group', sortable: true, filterable: true },
-                { header: 'Key', fieldName: 'key', sortable: true, filterable: true },
-                { header: 'Value', fieldName: 'value', sortable: true, filterable: true },
+                { header: _t('importExport.group', { defaultMessage: 'Group' }), fieldName: 'group', sortable: true, filterable: true },
+                { header: _t('importExport.key', { defaultMessage: 'Key' }), fieldName: 'key', sortable: true, filterable: true },
+                { header: _t('importExport.value', { defaultMessage: 'Value' }), fieldName: 'value', sortable: true, filterable: true },
               ]}
               clickable
               rows={config}
@@ -340,7 +340,7 @@
           >
         {/if}
         <LargeButton icon="icon close" on:click={closeCurrentModal} data-testid="EditJsonModal_closeButton"
-          >Close</LargeButton
+          >{_t('common.close', { defaultMessage: 'Close' })}</LargeButton
         >
       </div>
     </div>

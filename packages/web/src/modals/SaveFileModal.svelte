@@ -4,7 +4,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import { cloudSigninTokenHolder } from '../stores';
+  import { cloudSigninTokenHolder, getCurrentConfig } from '../stores';
   import { _t } from '../translations';
   import { apiCall } from '../utility/api';
   import { writable } from 'svelte/store';
@@ -13,6 +13,9 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
+  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import { useConfig } from '../utility/metadataLoaders';
+  import { showSnackbarError } from '../utility/snackbar';
 
   export let data;
   export let name;
@@ -23,15 +26,41 @@
   export let onSave = undefined;
   export let folid;
   export let skipLocal = false;
+  export let defaultTeamFolder = false;
   // export let cntid;
 
-  const values = writable({ name, cloudFolder: folid ?? '__local' });
+  const configValue = useConfig();
+
+  const values = writable({
+    name,
+    cloudFolder: folid ?? '__local',
+    saveToTeamFolder: !!(getCurrentConfig()?.storageDatabase && defaultTeamFolder),
+  });
 
   const electron = getElectron();
 
   const handleSubmit = async e => {
     const { name, cloudFolder } = e.detail;
-    if (cloudFolder === '__local') {
+    if ($values['saveToTeamFolder']) {
+      const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
+      if (resp?.apiErrorMessage) {
+        showSnackbarError(resp.apiErrorMessage);
+      } else if (resp?.teamFileId) {
+        closeCurrentModal();
+        if (onSave) {
+          onSave(name, {
+            savedFile: name,
+            savedFolder: folder,
+            savedFilePath: null,
+            savedCloudFolderId: null,
+            savedCloudContentId: null,
+            savedTeamFileId: resp.teamFileId,
+          });
+        }
+      } else {
+        showSnackbarError('Failed to save to team folder.');
+      }
+    } else if (cloudFolder === '__local') {
       await apiCall('files/save', { folder, file: name, data, format });
       closeCurrentModal();
       if (onSave) {
@@ -41,6 +70,7 @@
           savedFilePath: null,
           savedCloudFolderId: null,
           savedCloudContentId: null,
+          savedTeamFileId: null,
         });
       }
     } else {
@@ -61,6 +91,7 @@
             savedFilePath: null,
             savedCloudFolderId: cloudFolder,
             savedCloudContentId: resp.cntid,
+            savedTeamFileId: null,
           });
         }
       }
@@ -82,6 +113,7 @@
         savedFilePath: filePath,
         savedCloudFolderId: null,
         savedCloudContentId: null,
+        savedTeamFileId: null,
       });
     }
   };
@@ -91,9 +123,9 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
-    {#if $cloudSigninTokenHolder}
+    {#if $cloudSigninTokenHolder && !$values['saveToTeamFolder']}
       <FormCloudFolderSelect
-        label="Choose cloud folder"
+        label={_t('cloud.chooseCloudFolder', { defaultMessage: "Choose cloud folder" })}
         name="cloudFolder"
         isNative
         requiredRoleVariants={['write', 'admin']}
@@ -102,10 +134,13 @@
           : [
               {
                 folid: '__local',
-                name: "Local folder (don't store on cloud)",
+                name: _t('cloud.localFolder', { defaultMessage: "Local folder (don't store on cloud)" }),
               },
             ]}
       />
+    {/if}
+    {#if $configValue?.storageDatabase}
+      <FormCheckboxField label={_t('cloud.saveToTeamFolder', { defaultMessage: "Save to team folder" })} name="saveToTeamFolder" />
     {/if}
 
     <svelte:fragment slot="footer">
@@ -113,12 +148,12 @@
       {#if electron}
         <FormStyledButton
           type="button"
-          value="Save to disk"
+          value={_t('common.saveToDisk', { defaultMessage: 'Save to disk' })}
           on:click={async () => {
             const file = await electron.showSaveDialog({
               filters: [
-                { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
-                { name: `All files`, extensions: ['*'] },
+                { name: _t('common.fileType', { defaultMessage: '{extension} files', values: {extension: fileExtension.toUpperCase()} }), extensions: [fileExtension] },
+                { name: _t('common.allFiles', { defaultMessage: 'All files' }), extensions: ['*'] },
               ],
               defaultPath: filePath || `${name}.${fileExtension}`,
               properties: ['showOverwriteConfirmation'],

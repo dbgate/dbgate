@@ -1,6 +1,10 @@
-module.exports = ({ editMenu, isMac }) => [
+function _t(key, { defaultMessage, currentTranslations } = {}) {
+  return (currentTranslations || global.TRANSLATION_DATA)?.[key] || defaultMessage;
+}
+
+module.exports = ({ editMenu, isMac }, currentTranslations = null) => [
   {
-    label: 'File',
+    label: _t('menu.file', { defaultMessage: 'File', currentTranslations }),
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },
@@ -10,6 +14,7 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'new.queryDesign', hideDisabled: true },
       { command: 'new.diagram', hideDisabled: true },
       { command: 'new.perspective', hideDisabled: true },
+      { command: 'new.application', hideDisabled: true },
       { command: 'new.shell', hideDisabled: true },
       { command: 'new.jsonl', hideDisabled: true },
       { command: 'new.modelTransform', hideDisabled: true },
@@ -27,7 +32,7 @@ module.exports = ({ editMenu, isMac }) => [
   },
   editMenu
     ? {
-        label: 'Edit',
+        label: _t('menu.edit', { defaultMessage: 'Edit', currentTranslations }),
         submenu: [
           { command: 'edit.undo' },
           { command: 'edit.redo' },
@@ -52,7 +57,7 @@ module.exports = ({ editMenu, isMac }) => [
   //   ],
   // },
   {
-    label: 'View',
+    label: _t('menu.view', { defaultMessage: 'View', currentTranslations }),
     submenu: [
       { command: 'app.reload', hideDisabled: true },
       { command: 'app.toggleDevTools', hideDisabled: true },
@@ -71,10 +76,12 @@ module.exports = ({ editMenu, isMac }) => [
       { command: 'app.zoomIn', hideDisabled: true },
       { command: 'app.zoomOut', hideDisabled: true },
       { command: 'app.zoomReset', hideDisabled: true },
+      { divider: true },
+      { command: 'app.showLogs', hideDisabled: true },
     ],
   },
   {
-    label: 'Tools',
+    label: _t('menu.tools', { defaultMessage: 'Tools', currentTranslations }),
     submenu: [
       { command: 'database.search', hideDisabled: true },
       { command: 'commandPalette.show', hideDisabled: true },
@@ -86,11 +93,12 @@ module.exports = ({ editMenu, isMac }) => [
       { divider: true },
       { command: 'folder.showLogs', hideDisabled: true },
       { command: 'folder.showData', hideDisabled: true },
-      { command: 'new.gist', hideDisabled: true },
       { command: 'app.resetSettings', hideDisabled: true },
       { divider: true },
       { command: 'app.exportConnections', hideDisabled: true },
       { command: 'app.importConnections', hideDisabled: true },
+      { divider: true },
+      { command: 'app.managePlugins', hideDisabled: true },
     ],
   },
   ...(isMac
@@ -102,19 +110,19 @@ module.exports = ({ editMenu, isMac }) => [
       ]
     : []),
   {
-    label: 'Help',
+    label: _t('menu.help', { defaultMessage: 'Help', currentTranslations }),
     submenu: [
       { command: 'app.openDocs', hideDisabled: true },
       { command: 'app.openWeb', hideDisabled: true },
       { command: 'app.openIssue', hideDisabled: true },
       { command: 'app.openSponsoring', hideDisabled: true },
-      { command: 'app.giveFeedback', hideDisabled: true },
+      // { command: 'app.giveFeedback', hideDisabled: true },
       { divider: true },
       { command: 'settings.commands', hideDisabled: true },
       { command: 'tabs.changelog', hideDisabled: true },
       { command: 'about.show', hideDisabled: true },
       { divider: true },
-      { command: 'file.checkForUpdates', hideDisabled: true },
+      { command: 'app.checkForUpdates', hideDisabled: true },
     ],
   },
 ];

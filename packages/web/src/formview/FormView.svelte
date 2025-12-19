@@ -14,8 +14,8 @@
 
   registerCommand({
     id: 'dataForm.refresh',
-    category: 'Data form',
-    name: _t('common.refresh', { defaultMessage: 'Refresh' }),
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('common.refresh', { defaultMessage: 'Refresh' }),
     keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
@@ -26,8 +26,8 @@
 
   registerCommand({
     id: 'dataForm.copyToClipboard',
-    category: 'Data form',
-    name: 'Copy to clipboard',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.copyToClipboard', { defaultMessage: 'Copy to clipboard' }),
     keyText: 'CtrlOrCommand+C',
     disableHandleKeyText: 'CtrlOrCommand+C',
     testEnabled: () => getCurrentDataForm() != null,
@@ -36,8 +36,8 @@
 
   registerCommand({
     id: 'dataForm.revertRowChanges',
-    category: 'Data form',
-    name: 'Revert row changes',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.revertRowChanges', { defaultMessage: 'Revert row changes' }),
     keyText: 'CtrlOrCommand+U',
     testEnabled: () => getCurrentDataForm()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataForm().getGrider().revertRowChanges(0),
@@ -45,8 +45,8 @@
 
   registerCommand({
     id: 'dataForm.setNull',
-    category: 'Data form',
-    name: 'Set NULL',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.setNull', { defaultMessage: 'Set NULL' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () => getCurrentDataForm() != null && !getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataForm().setFixedValue(null),
@@ -54,8 +54,8 @@
 
   registerCommand({
     id: 'dataForm.removeField',
-    category: 'Data form',
-    name: 'Remove field',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.removeField', { defaultMessage: 'Remove field' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () => getCurrentDataForm() != null && getCurrentDataForm()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataForm().setFixedValue(undefined),
@@ -63,8 +63,8 @@
 
   registerCommand({
     id: 'dataForm.undo',
-    category: 'Data form',
-    name: 'Undo',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.undo', { defaultMessage: 'Undo' }),
     group: 'undo',
     icon: 'icon undo',
     toolbar: true,
@@ -75,8 +75,8 @@
 
   registerCommand({
     id: 'dataForm.redo',
-    category: 'Data form',
-    name: 'Redo',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.redo', { defaultMessage: 'Redo' }),
     group: 'redo',
     icon: 'icon redo',
     toolbar: true,
@@ -87,16 +87,16 @@
 
   registerCommand({
     id: 'dataForm.reconnect',
-    category: 'Data grid',
-    name: 'Reconnect',
+    category: __t('command.dataGrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.dataGrid.reconnect', { defaultMessage: 'Reconnect' }),
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().reconnect(),
   });
 
   registerCommand({
     id: 'dataForm.filterSelected',
-    category: 'Data form',
-    name: 'Filter this value',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.filterSelected', { defaultMessage: 'Filter this value' }),
     keyText: 'CtrlOrCommand+Shift+F',
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().filterSelectedValue(),
@@ -104,16 +104,16 @@
 
   registerCommand({
     id: 'dataForm.addToFilter',
-    category: 'Data form',
-    name: 'Add to filter',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.addToFilter', { defaultMessage: 'Add to filter' }),
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().addToFilter(),
   });
 
   registerCommand({
     id: 'dataForm.goToFirst',
-    category: 'Data form',
-    name: 'First',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.goToFirst', { defaultMessage: 'First' }),
     keyText: 'CtrlOrCommand+Home',
     toolbar: true,
     isRelatedToTab: true,
@@ -124,8 +124,8 @@
 
   registerCommand({
     id: 'dataForm.goToPrevious',
-    category: 'Data form',
-    name: 'Previous',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.goToPrevious', { defaultMessage: 'Previous' }),
     keyText: 'CtrlOrCommand+ArrowUp',
     toolbar: true,
     isRelatedToTab: true,
@@ -136,8 +136,8 @@
 
   registerCommand({
     id: 'dataForm.goToNext',
-    category: 'Data form',
-    name: 'Next',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.goToNext', { defaultMessage: 'Next' }),
     keyText: 'CtrlOrCommand+ArrowDown',
     toolbar: true,
     isRelatedToTab: true,
@@ -148,8 +148,8 @@
 
   registerCommand({
     id: 'dataForm.goToLast',
-    category: 'Data form',
-    name: 'Last',
+    category: __t('command.dataForm', { defaultMessage: 'Data form' }),
+    name: __t('command.dataForm.goToLast', { defaultMessage: 'Last' }),
     keyText: 'CtrlOrCommand+End',
     toolbar: true,
     isRelatedToTab: true,
@@ -197,7 +197,7 @@
   import resizeObserver from '../utility/resizeObserver';
   import openReferenceForm from './openReferenceForm';
   import { useSettings } from '../utility/metadataLoaders';
-  import { _t } from '../translations';
+  import { _t, __t } from '../translations';
 
   export let conid;
   export let database;
@@ -243,20 +243,16 @@
 
   function getRowCountInfo(allRowCount) {
     if (rowCountNotAvailable) {
-      return `Row: ${((display.config.formViewRecordNumber || 0) + 1).toLocaleString()} / ???`;
+      return _t('dataForm.rowCount', { defaultMessage: 'Row: {rowCount} / ???', values: { rowCount: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString() } });
     }
     if (rowData == null) {
       if (allRowCount != null) {
-        return `Out of bounds: ${(
-          (display.config.formViewRecordNumber || 0) + 1
-        ).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+        return _t('dataForm.outOfBounds', { defaultMessage: 'Out of bounds: {current} / {total}', values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(), total: allRowCount.toLocaleString() } });
       }
-      return 'No data';
+      return _t('dataForm.noData', { defaultMessage: 'No data' });
     }
-    if (allRowCount == null || display == null) return 'Loading row count...';
-    return `Row: ${(
-      (display.config.formViewRecordNumber || 0) + 1
-    ).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+    if (allRowCount == null || display == null) return _t('dataForm.loadingRowCount', { defaultMessage: 'Loading row count...' });
+    return _t('dataForm.rowCount', { defaultMessage: 'Row: {current} / {total}', values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(), total: allRowCount.toLocaleString() } });
   }
 
   export function getGrider() {
@@ -720,7 +716,7 @@
 </div>
 
 {#if isLoading}
-  <LoadingInfo wrapper message="Loading data" />
+  <LoadingInfo wrapper message={_t('common.loadingData', { defaultMessage: 'Loading data' })} />
 {/if}
 
 <style>

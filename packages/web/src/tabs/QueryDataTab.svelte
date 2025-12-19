@@ -5,8 +5,8 @@
 
   registerCommand({
     id: 'queryData.stopLoading',
-    category: 'Query data',
-    name: 'Stop loading',
+    category: __t('command.queryData', { defaultMessage: 'Query data' }),
+    name: __t('command.queryData.stopLoading', { defaultMessage: 'Stop loading' }),
     icon: 'icon stop',
     testEnabled: () => getCurrentEditor()?.isLoading(),
     onClick: () => getCurrentEditor().stopLoading(),
@@ -28,6 +28,11 @@
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import useEffect from '../utility/useEffect';
+  import { getSqlFrontMatter } from 'dbgate-tools';
+  import yaml from 'js-yaml';
+  import JslChart from '../charts/JslChart.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import { __t } from '../translations';
 
   export const activator = createActivator('QueryDataTab', true);
 
@@ -39,6 +44,8 @@
 
   let jslid;
   let loading = false;
+
+  $: frontMatter = getSqlFrontMatter(sql, yaml);
 
   async function loadData(conid, database, sql) {
     const resp = await apiCall('sessions/execute-reader', {
@@ -96,17 +103,30 @@
     }
   }
   $: $effect;
+
+  $: selectedChart = frontMatter?.['selected-chart'];
+  $: fixedChartDefinition = selectedChart && frontMatter ? frontMatter?.[`chart-${selectedChart}`] : null;
 </script>
 
 <ToolStripContainer>
-  {#if jslid}
-    <JslDataGrid {jslid} listenInitializeFile onCustomGridRefresh={handleRefresh} focusOnVisible />
-  {:else}
+  {#if loading}
     <LoadingInfo message="Loading data..." />
+  {:else if jslid}
+    {#if fixedChartDefinition}
+      <JslChart {jslid} fixedDefinition={fixedChartDefinition} />
+    {:else}
+      <JslDataGrid {jslid} listenInitializeFile onCustomGridRefresh={handleRefresh} focusOnVisible />
+    {/if}
   {/if}
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="dataGrid.refresh" />
+    {#if fixedChartDefinition}
+      <ToolStripButton on:click={handleRefresh} icon="icon refresh">Refresh</ToolStripButton>
+    {:else}
+      <ToolStripCommandButton command="dataGrid.refresh" />
+    {/if}
     <ToolStripCommandButton command="queryData.stopLoading" />
-    <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />
+    {#if !fixedChartDefinition}
+      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>

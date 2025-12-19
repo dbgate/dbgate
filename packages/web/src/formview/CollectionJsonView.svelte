@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'collectionJsonView.expandAll',
-    category: 'Collection data',
-    name: 'Expand all',
+    category: __t('command.collectionData', { defaultMessage: 'Collection data' }),
+    name: __t('command.collectionData.expandAll', { defaultMessage: 'Expand all' }),
     isRelatedToTab: true,
     icon: 'icon expand-all',
     onClick: () => getCurrentEditor().handleExpandAll(),
@@ -12,8 +12,8 @@
   });
   registerCommand({
     id: 'collectionJsonView.collapseAll',
-    category: 'Collection data',
-    name: 'Collapse all',
+    category: __t('command.collectionData', { defaultMessage: 'Collection data' }),
+    name: __t('command.collectionData.collapseAll', { defaultMessage: 'Collapse all' }),
     isRelatedToTab: true,
     icon: 'icon collapse-all',
     onClick: () => getCurrentEditor().handleCollapseAll(),
@@ -37,6 +37,7 @@
   import CollectionJsonRow from './CollectionJsonRow.svelte';
   import { getIntSettingsValue } from '../settings/settingsTools';
   import invalidateCommands from '../commands/invalidateCommands';
+  import { __t } from '../translations';
 
   export let conid;
   export let database;

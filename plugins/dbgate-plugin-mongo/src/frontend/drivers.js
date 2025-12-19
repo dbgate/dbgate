@@ -15,7 +15,13 @@ function mongoReplacer(key, value) {
 function jsonStringifyWithObjectId(obj) {
   return JSON.stringify(obj, mongoReplacer, 2)
     .replace(/\{\s*\"\$oid\"\s*\:\s*\"([0-9a-f]+)\"\s*\}/g, (m, id) => `ObjectId("${id}")`)
-    .replace(/\{\s*\"\$bigint\"\s*\:\s*\"([0-9]+)\"\s*\}/g, (m, num) => `${num}n`);
+    .replace(/\{\s*\"\$bigint\"\s*\:\s*\"([0-9]+)\"\s*\}/g, (m, num) => `${num}n`)
+    .replace(
+      /\{\s*"\$binary"\s*:\s*\{\s*"base64"\s*:\s*"([^"]+)"(?:\s*,\s*"subType"\s*:\s*"([0-9a-fA-F]{2})")?\s*\}\s*\}/g,
+      (m, base64, subType) => {
+        return `BinData(${parseInt(subType || '00', 16)}, "${base64}")`;
+      }
+    );
 }
 
 /** @type {import('dbgate-types').SqlDialect} */
@@ -31,7 +37,7 @@ const dialect = {
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const mongoDriverBase = {
   ...driverBase,
   dumperClass: Dumper,
   databaseEngineTypes: ['document'],
@@ -129,7 +135,7 @@ const driver = {
 
   getCollectionExportQueryScript(collection, condition, sort) {
     return `db.getCollection('${collection}')
-  .find(${JSON.stringify(convertToMongoCondition(condition) || {})})
+  .find(${jsonStringifyWithObjectId(convertToMongoCondition(condition) || {})})
   .sort(${JSON.stringify(convertToMongoSort(sort) || {})})`;
   },
   getCollectionExportQueryJson(collection, condition, sort) {
@@ -148,6 +154,7 @@ const driver = {
     parseJsonObject: true,
     parseObjectIdAsDollar: true,
     parseDateAsDollar: true,
+    parseHexAsBuffer: true,
 
     explicitDataType: true,
     supportNumberType: true,
@@ -189,4 +196,16 @@ const driver = {
   },
 };
 
-module.exports = driver;
+const mongoDriver = {
+  ...mongoDriverBase,
+};
+
+const legacyMongoDriver = {
+  ...mongoDriverBase,
+  engine: 'mongo-legacy@dbgate-plugin-mongo',
+  title: 'MongoDB 4 - Legacy',
+  premiumOnly: true,
+  useLegacyDriver: true,
+};
+
+module.exports = [mongoDriver, legacyMongoDriver];

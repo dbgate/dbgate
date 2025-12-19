@@ -113,10 +113,35 @@ describe('Add connection', () => {
     cy.contains('performance_schema');
   });
 
+  it('Plugin tab', () => {
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Tools').click();
+    cy.contains('Manage plugins').click();
+    cy.contains('dbgate-plugin-theme-total-white').click();
+    // text from plugin markdown
+    cy.contains('Total white theme');
+    // wait for load logos
+    cy.wait(2000);
+    cy.themeshot('view-plugin-tab');
+  });
+
   it('export connections', () => {
     cy.testid('WidgetIconPanel_menu').click();
     cy.contains('Tools').click();
     cy.contains('Export connections').click();
     cy.themeshot('export-connections');
+  });
+
+  it('configure LLM provider', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Settings').click();
+    cy.contains('AI').click();
+    cy.testid('AiSupportedProvidersInfo_add_OpenRouter').click();
+    cy.testid('AiProviderCard_apikey_OpenRouter').clear().type('xxx');
+    cy.testid('AiProviderCard_testButton_OpenRouter').click();
+    cy.testid('AiProviderCard_statusValid_OpenRouter').should('exist');
+    cy.testid('AiProviderCard_editButton_OpenRouter').click();
+    cy.wait(1000);
+    cy.themeshot('llm-providers-settings');
   });
 });

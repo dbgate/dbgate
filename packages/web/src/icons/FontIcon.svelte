@@ -74,6 +74,9 @@
     'icon arrow-link': 'mdi mdi-arrow-top-right-thick',
     'icon reset': 'mdi mdi-cancel',
     'icon send': 'mdi mdi-send',
+    'icon regex': 'mdi mdi-regex',
+    'icon list': 'mdi mdi-format-list-bulleted-triangle',
+    'icon help': 'mdi mdi-help',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-maximize': 'mdi mdi-window-maximize',
@@ -117,6 +120,7 @@
     'icon structure': 'mdi mdi-tools',
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
+    'icon team-file': 'mdi mdi-account-file',
 
     'icon cloud-account': 'mdi mdi-account-remove-outline',
     'icon cloud-account-connected': 'mdi mdi-account-check-outline',
@@ -160,6 +164,7 @@
     'icon parent-filter-outline': 'mdi mdi-home-alert-outline',
     'icon download': 'mdi mdi-download',
     'icon text': 'mdi mdi-text',
+    'icon ai-provider': 'mdi mdi-cloud-cog',
     'icon ai': 'mdi mdi-head-lightbulb',
     'icon wait': 'mdi mdi-timer-sand',
     'icon more': 'mdi mdi-more',
@@ -224,6 +229,7 @@
     'icon type-unknown': 'mdi mdi-help-box',
     'icon equal': 'mdi mdi-equal',
     'icon not-equal': 'mdi mdi-not-equal-variant',
+    'icon warn': 'mdi mdi-alert',
 
     'icon at': 'mdi mdi-at',
     'icon expand-all': 'mdi mdi-expand-all',
@@ -284,6 +290,7 @@
     'img auth': 'mdi mdi-account-key color-icon-blue',
     'img cloud-connection': 'mdi mdi-cloud-lock color-icon-blue',
     'img ai': 'mdi mdi-head-lightbulb color-icon-yellow',
+    'img ai-provider': 'mdi mdi-head-lightbulb color-icon-blue',
     'img run': 'mdi mdi-play color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
@@ -345,6 +352,8 @@
     'img settings': 'mdi mdi-cog color-icon-blue',
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
     'img arrow-start-here': 'mdi mdi-arrow-down-bold-circle color-icon-green',
+    'img team-file': 'mdi mdi-account-file color-icon-red',
+    'img table-backup': 'mdi mdi-cube color-icon-yellow',
   };
 </script>
 

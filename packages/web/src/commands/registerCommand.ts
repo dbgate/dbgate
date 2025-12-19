@@ -1,5 +1,7 @@
 import { commands } from '../stores';
 import { invalidateCommandDefinitions } from './invalidateCommands';
+import _ from 'lodash';
+import { _tval, DefferedTranslationResult, isDefferedTranslationResult } from '../translations';
 
 export interface SubCommand {
   text: string;
@@ -8,10 +10,10 @@ export interface SubCommand {
 
 export interface GlobalCommand {
   id: string;
-  category: string; // null for group commands
+  category: string | DefferedTranslationResult; // null for group commands
   isGroupCommand?: boolean;
-  name: string;
-  text?: string /* category: name */;
+  name: string | DefferedTranslationResult;
+  text?: string | DefferedTranslationResult;
   keyText?: string;
   keyTextFromGroup?: string; // automatically filled from group
   group?: string;
@@ -23,11 +25,11 @@ export interface GlobalCommand {
   toolbar?: boolean;
   enabled?: boolean;
   showDisabled?: boolean;
-  toolbarName?: string;
-  menuName?: string;
+  toolbarName?: string | DefferedTranslationResult;
+  menuName?: string | DefferedTranslationResult;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
-  isRelatedToTab?: boolean,
+  isRelatedToTab?: boolean;
   systemCommand?: boolean;
 }
 
@@ -41,7 +43,12 @@ export default function registerCommand(command: GlobalCommand) {
     return {
       ...x,
       [command.id]: {
-        text: `${command.category}: ${command.name}`,
+        text:
+          isDefferedTranslationResult(command.category) || isDefferedTranslationResult(command.name)
+            ? {
+                _transCallback: () => `${_tval(command.category)}: ${_tval(command.name)}`,
+              }
+            : `${command.category}: ${command.name}`,
         ...command,
         enabled: !testEnabled,
       },

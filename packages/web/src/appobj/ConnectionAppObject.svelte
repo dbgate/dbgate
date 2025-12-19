@@ -122,6 +122,7 @@
     getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
+    pinnedDatabases,
   } from '../stores';
   import { filterName, filterNameCompoud } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
@@ -130,7 +131,7 @@
   import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
-  import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
+  import { getDatabaseList, useAllApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall, removeVolatileMapping } from '../utility/api';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
@@ -151,6 +152,8 @@
   let extInfo = null;
   let engineStatusIcon = null;
   let engineStatusTitle = null;
+
+  $: isPinned = data.singleDatabase && !!$pinnedDatabases.find(x => x?.connection?._id == data?._id);
 
   const electron = getElectron();
 
@@ -276,7 +279,7 @@
       showModal(InputTextModal, {
         header: _t('connection.createDatabase', { defaultMessage: 'Create database' }),
         value: 'newdb',
-        label: _t('connection.databaseName', { defaultMessage: 'Database name' }),
+        label: _t('connection.database', { defaultMessage: 'Database name' }),
         onConfirm: name =>
           apiCall('server-connections/create-database', {
             conid: data._id,
@@ -382,7 +385,8 @@
           $extensions,
           $currentDatabase,
           $apps,
-          $openedSingleDatabaseConnections
+          $openedSingleDatabaseConnections,
+          data.databasePermissionRole
         ),
       ],
 
@@ -426,7 +430,7 @@
     }
   }
 
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
 </script>
 
 <AppObjectCore
@@ -454,6 +458,19 @@
       .find(x => x.isNewQuery)
       .onClick();
   }}
+  onPin={!isPinned && data.singleDatabase
+    ? () =>
+        pinnedDatabases.update(list => [
+          ...list,
+          {
+            name: data.defaultDatabase,
+            connection: data,
+          },
+        ])
+    : null}
+  onUnpin={isPinned && data.singleDatabase
+    ? () => pinnedDatabases.update(list => list.filter(x => x?.connection?._id != data?._id))
+    : null}
   isChoosed={data._id == $focusedConnectionOrDatabase?.conid &&
     (data.singleDatabase
       ? $focusedConnectionOrDatabase?.database == data.defaultDatabase

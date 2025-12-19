@@ -13,11 +13,12 @@ const socket = require('./socket');
 const config = require('../controllers/config');
 const simpleEncryptor = require('simple-encryptor');
 const currentVersion = require('../currentVersion');
-const { getPublicIpInfo } = require('./hardwareFingerprint');
 
 const logger = getLogger('cloudIntf');
 
 let cloudFiles = null;
+let promoWidgetData = null;
+let promoWidgetDataLoaded = false;
 
 const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   ? 'http://localhost:3103'
@@ -192,15 +193,13 @@ async function getCloudSigninHeaders(holder = null) {
   return null;
 }
 
-async function updateCloudFiles(isRefresh) {
+async function updateCloudFiles(isRefresh, language) {
   let lastCloudFilesTags;
   try {
     lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');
   } catch (err) {
     lastCloudFilesTags = '';
   }
-
-  const ipInfo = await getPublicIpInfo();
 
   const tags = (await collectCloudFilesSearchTags()).join(',');
   let lastCheckedTm = 0;
@@ -213,12 +212,13 @@ async function updateCloudFiles(isRefresh) {
   const resp = await axios.default.get(
     `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
       isRefresh ? 1 : 0
-    }&country=${ipInfo?.country || ''}`,
+    }`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
+        'x-app-language': language || 'en',
       },
     }
   );
@@ -262,14 +262,61 @@ async function getPublicFileData(path) {
   return resp.data;
 }
 
-async function refreshPublicFiles(isRefresh) {
+async function ensurePromoWidgetDataLoaded() {
+  if (promoWidgetDataLoaded) {
+    return;
+  }
+  try {
+    const fileContent = await fs.readFile(path.join(datadir(), 'promo-widget.json'), 'utf-8');
+    promoWidgetData = JSON.parse(fileContent);
+  } catch (err) {
+    promoWidgetData = null;
+  }
+  promoWidgetDataLoaded = true;
+}
+
+async function updatePremiumPromoWidget(language) {
+  await ensurePromoWidgetDataLoaded();
+
+  const tags = (await collectCloudFilesSearchTags()).join(',');
+
+  const resp = await axios.default.get(
+    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
+    {
+      headers: {
+        ...getLicenseHttpHeaders(),
+        ...(await getCloudInstanceHeaders()),
+        'x-app-version': currentVersion.version,
+        'x-app-language': language || 'en',
+      },
+    }
+  );
+
+  if (!resp.data || resp.data?.state == 'unchanged') {
+    return;
+  }
+
+  promoWidgetData = resp.data;
+  await fs.writeFile(path.join(datadir(), 'promo-widget.json'), JSON.stringify(promoWidgetData, null, 2));
+
+  socket.emitChanged(`promo-widget-changed`);
+}
+
+async function refreshPublicFiles(isRefresh, uiLanguage) {
+  const language = platformInfo.isElectron
+    ? (await config.getCachedSettings())?.['localization.language'] || 'en'
+    : uiLanguage;
   if (!cloudFiles) {
     await loadCloudFiles();
   }
   try {
-    await updateCloudFiles(isRefresh);
+    await updateCloudFiles(isRefresh, language);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
+  }
+  const configSettings = await config.get();
+  if (!isProApp() || configSettings?.trialDaysLeft != null) {
+    await updatePremiumPromoWidget(language);
   }
 }
 
@@ -423,6 +470,33 @@ function removeCloudCachedConnection(folid, cntid) {
   delete cloudConnectionCache[cacheKey];
 }
 
+async function getPublicIpInfo() {
+  try {
+    const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/ipinfo`);
+    if (!resp.data?.ip) {
+      return { ip: 'unknown-ip' };
+    }
+    return resp.data;
+  } catch (err) {
+    return { ip: 'unknown-ip' };
+  }
+}
+
+async function getPromoWidgetData() {
+  await ensurePromoWidgetDataLoaded();
+  return promoWidgetData;
+}
+
+async function getPromoWidgetPreview(campaign, variant) {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`);
+  return resp.data;
+}
+
+async function getPromoWidgetList() {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`);
+  return resp.data;
+}
+
 module.exports = {
   createDbGateIdentitySession,
   startCloudTokenChecking,
@@ -439,4 +513,8 @@ module.exports = {
   removeCloudCachedConnection,
   readCloudTokenHolder,
   readCloudTestTokenHolder,
+  getPublicIpInfo,
+  getPromoWidgetData,
+  getPromoWidgetPreview,
+  getPromoWidgetList,
 };

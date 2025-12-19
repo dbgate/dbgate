@@ -4,6 +4,7 @@ const volatilePackages = [
   '@clickhouse/client',
   'bson', // this package is already bundled and is used in mongodb
   'mongodb',
+  'mongodb-old',
   'mongodb-client-encryption',
   'tedious',
   'msnodesqlv8',

@@ -7,7 +7,7 @@ const socket = require('../utility/socket');
 const compareVersions = require('compare-versions');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
-const { hasPermission } = require('../utility/hasPermission');
+const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
 const _ = require('lodash');
 const packagedPluginsContent = require('../packagedPluginsContent');
 
@@ -118,7 +118,8 @@ module.exports = {
 
   install_meta: true,
   async install({ packageName }, req) {
-    if (!hasPermission(`plugins/install`, req)) return;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`plugins/install`, loadedPermissions)) return;
     const dir = path.join(pluginsdir(), packageName);
     // @ts-ignore
     if (!(await fs.exists(dir))) {
@@ -132,7 +133,8 @@ module.exports = {
 
   uninstall_meta: true,
   async uninstall({ packageName }, req) {
-    if (!hasPermission(`plugins/install`, req)) return;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`plugins/install`, loadedPermissions)) return;
     const dir = path.join(pluginsdir(), packageName);
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
@@ -143,7 +145,8 @@ module.exports = {
 
   upgrade_meta: true,
   async upgrade({ packageName }, req) {
-    if (!hasPermission(`plugins/install`, req)) return;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`plugins/install`, loadedPermissions)) return;
     const dir = path.join(pluginsdir(), packageName);
     // @ts-ignore
     if (await fs.exists(dir)) {

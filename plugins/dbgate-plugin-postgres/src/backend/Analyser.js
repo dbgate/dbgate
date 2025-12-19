@@ -84,9 +84,7 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'DBGM-00241 Loading tables' });
-    const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', [
-      'tables',
-    ]);
+    const tables = await this.analyserQuery('tableList', ['tables']);
 
     this.feedback({ analysingMessage: 'DBGM-00242 Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
@@ -255,6 +253,7 @@ class Analyser extends DatabaseAnalyser {
         const newTable = {
           pureName: table.pure_name,
           schemaName: table.schema_name,
+          sizeBytes: table.size_bytes,
           objectId: `tables:${table.schema_name}.${table.pure_name}`,
           contentHash: table.hash_code_columns ? `${table.hash_code_columns}-${table.hash_code_constraints}` : null,
         };
@@ -376,6 +375,7 @@ class Analyser extends DatabaseAnalyser {
 
     this.logger.debug(
       {
+        ...this.getLogDbInfo(),
         tables: res.tables?.length,
         columns: _.sum(res.tables?.map(x => x.columns?.length)),
         primaryKeys: res.tables?.filter(x => x.primaryKey)?.length,
@@ -394,9 +394,6 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _getFastSnapshot() {
-    const tableModificationsQueryData = this.driver.dialect.stringAgg
-      ? await this.analyserQuery('tableModifications')
-      : null;
     const viewModificationsQueryData = await this.analyserQuery('viewModifications');
     const matviewModificationsQueryData = this.driver.dialect.materializedViews
       ? await this.analyserQuery('matviewModifications')
@@ -404,14 +401,7 @@ class Analyser extends DatabaseAnalyser {
     const routineModificationsQueryData = await this.analyserQuery('routineModifications');
 
     return {
-      tables: tableModificationsQueryData
-        ? tableModificationsQueryData.rows.map(x => ({
-            objectId: `tables:${x.schema_name}.${x.pure_name}`,
-            pureName: x.pure_name,
-            schemaName: x.schema_name,
-            contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
-          }))
-        : null,
+      tables: null,
       views: viewModificationsQueryData.rows.map(x => ({
         objectId: `views:${x.schema_name}.${x.pure_name}`,
         pureName: x.pure_name,

@@ -9,6 +9,7 @@
   export let title = null;
   export let skipWidth = false;
   export let outline = false;
+  export let colorClass = '';
 
   function handleClick() {
     if (!disabled) dispatch('click');
@@ -31,6 +32,8 @@
   bind:this={domButton}
   class:skipWidth
   class:outline
+  class={colorClass}
+  class:setBackgroundColor={!colorClass}
 />
 
 <style>
@@ -38,19 +41,26 @@
     border: 1px solid var(--theme-bg-button-inv-2);
     padding: 5px;
     margin: 2px;
-    background-color: var(--theme-bg-button-inv);
     color: var(--theme-font-inv-1);
     border-radius: 2px;
+  }
+
+  .setBackgroundColor {
+    background-color: var(--theme-bg-button-inv);
   }
 
   input:not(.skipWidth) {
     width: 100px;
   }
 
-  input:hover:not(.disabled):not(.outline) {
+  input:not(.setBackgroundColor) {
+    cursor: pointer;
+  }
+
+  input.setBackgroundColor:hover:not(.disabled):not(.outline) {
     background-color: var(--theme-bg-button-inv-2);
   }
-  input:active:not(.disabled):not(.outline) {
+  input.setBackgroundColor:active:not(.disabled):not(.outline) {
     background-color: var(--theme-bg-button-inv-3);
   }
   input.disabled {

@@ -46,7 +46,8 @@
     $extensions,
     $currentDatabase,
     $apps,
-    $openedSingleDatabaseConnections
+    $openedSingleDatabaseConnections,
+    databasePermissionRole
   ) {
     const apps = filterAppsForDatabase(connection, name, $apps);
     const handleNewQuery = () => {
@@ -404,19 +405,36 @@ await dbgateApi.executeQuery(${JSON.stringify(
       });
     };
 
+    const handleCreateNewApp = () => {
+      showModal(InputTextModal, {
+        header: _t('database.newApplication', { defaultMessage: 'New application' }),
+        label: _t('database.applicationName', { defaultMessage: 'Application name' }),
+        value: _.startCase(name),
+        onConfirm: async appName => {
+          const newAppId = await apiCall('apps/create-app-from-db', {
+            appName,
+            server: connection?.server,
+            database: name,
+          });
+          openApplicationEditor(newAppId);
+        },
+      });
+    };
+
     const driver = findEngineDriver(connection, getExtensions());
 
-    const commands = _.flatten((apps || []).map(x => x.commands || []));
+    const commands = _.flatten((apps || []).map(x => Object.values(x.files || {}).filter(x => x.type == 'command')));
 
     const isSqlOrDoc =
       driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
 
     return [
-      hasPermission(`dbops/query`) && {
-        onClick: handleNewQuery,
-        text: _t('database.newQuery', { defaultMessage: 'New query' }),
-        isNewQuery: true,
-      },
+      hasPermission(`dbops/query`) &&
+        isAllowedDatabaseRunScript(databasePermissionRole) && {
+          onClick: handleNewQuery,
+          text: _t('database.newQuery', { defaultMessage: 'New query' }),
+          isNewQuery: true,
+        },
       hasPermission(`dbops/model/edit`) &&
         !connection.isReadOnly &&
         driver?.databaseEngineTypes?.includes('sql') && {
@@ -428,8 +446,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
           text: _t('database.newCollection', {
-            defaultMessage: 'New {collectionLabel}',
-            values: { collectionLabel: driver?.collectionSingularLabel ?? 'collection/container' },
+            defaultMessage: 'New collection/container'
           }),
         },
       hasPermission(`dbops/query`) &&
@@ -545,12 +562,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
       { divider: true },
 
       driver?.databaseEngineTypes?.includes('sql') &&
+        hasPermission(`run-shell-script`) &&
         hasPermission(`dbops/dropdb`) && {
           onClick: handleGenerateDropAllObjectsScript,
           text: _t('database.shellDropAllObjects', { defaultMessage: 'Shell: Drop all objects' }),
         },
 
-      {
+      hasPermission(`run-shell-script`) && {
         onClick: handleGenerateRunScript,
         text: _t('database.shellRunScript', { defaultMessage: 'Shell: Run script' }),
       },
@@ -561,11 +579,26 @@ await dbgateApi.executeQuery(${JSON.stringify(
           text: _t('database.dataDeployer', { defaultMessage: 'Data deployer' }),
         },
 
+      isProApp() &&
+        hasPermission(`files/apps/write`) && {
+          onClick: handleCreateNewApp,
+          text: _t('database.createNewApplication', { defaultMessage: 'Create new application' }),
+        },
+
+      isProApp() &&
+        apps?.length > 0 && {
+          text: _t('database.editApplications', { defaultMessage: 'Edit application' }),
+          submenu: apps.map((app: any) => ({
+            text: app.applicationName,
+            onClick: () => openApplicationEditor(app.appid),
+          })),
+        },
+
       { divider: true },
 
       commands.length > 0 && [
         commands.map((cmd: any) => ({
-          text: cmd.name,
+          text: cmd.label,
           onClick: () => {
             showModal(ConfirmSqlModal, {
               sql: cmd.sql,
@@ -615,17 +648,17 @@ await dbgateApi.executeQuery(${JSON.stringify(
     getConnectionLabel,
   } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useAllApps, useDatabaseInfoPeek } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmSqlModal, { runOperationOnDatabase, saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
-  import { filterAppsForDatabase } from '../utility/appTools';
+  import { filterAppsForDatabase, openApplicationEditor } from '../utility/appTools';
   import newQuery from '../query/newQuery';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import NewCollectionModal from '../modals/NewCollectionModal.svelte';
-  import hasPermission from '../utility/hasPermission';
+  import hasPermission, { isAllowedDatabaseRunScript } from '../utility/hasPermission';
   import { openImportExportTab } from '../utility/importExportTools';
   import newTable from '../tableeditor/newTable';
   import { loadSchemaList, switchCurrentDatabase } from '../utility/common';
@@ -636,6 +669,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { getDatabaseClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
+  import { tick } from 'svelte';
 
   export let data;
   export let passProps;
@@ -647,13 +681,19 @@ await dbgateApi.executeQuery(${JSON.stringify(
       $extensions,
       $currentDatabase,
       $apps,
-      $openedSingleDatabaseConnections
+      $openedSingleDatabaseConnections,
+      data.databasePermissionRole
     );
   }
 
   $: isPinned = !!$pinnedDatabases.find(x => x?.name == data.name && x?.connection?._id == data.connection?._id);
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
   $: isLoadingSchemas = $loadingSchemaLists[`${data?.connection?._id}::${data?.name}`];
+  $: dbInfo = useDatabaseInfoPeek({ conid: data?.connection?._id, database: data?.name });
+
+  $: appsForDb = filterAppsForDatabase(data?.connection, data?.name, $apps, $dbInfo);
+
+  // $: console.log('AppsForDB:', data?.name, appsForDb);
 </script>
 
 <AppObjectCore
@@ -676,6 +716,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
       switchCurrentDatabase(data);
     }
   }}
+  additionalIcons={appsForDb?.length > 0
+    ? appsForDb.map(ic => ({
+        icon: ic.applicationIcon || 'img app',
+        title: ic.applicationName,
+        colorClass: ic.applicationColor ? `color-icon-${ic.applicationColor}` : undefined,
+      }))
+    : null}
   on:mousedown={() => {
     $focusedConnectionOrDatabase = { conid: data.connection?._id, database: data.name, connection: data.connection };
   }}
@@ -697,6 +744,9 @@ await dbgateApi.executeQuery(${JSON.stringify(
           ).length
         )
       : ''}
+  statusIconBefore={data.databasePermissionRole == 'read_content' || data.databasePermissionRole == 'view'
+    ? 'icon lock'
+    : null}
   menu={createMenu}
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}

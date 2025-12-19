@@ -9,6 +9,7 @@ import { safeJsonParse } from 'dbgate-tools';
 import { apiCall } from './utility/api';
 import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
 import { switchCurrentDatabase } from './utility/common';
+import { tick } from 'svelte';
 
 export interface TabDefinition {
   title: string;
@@ -167,7 +168,6 @@ export const nullStore = readable(null, () => {});
 export const currentArchive = writableWithStorage('default', 'currentArchive');
 export const currentApplication = writableWithStorage(null, 'currentApplication');
 export const isFileDragActive = writable(false);
-export const selectedCellsCallback = writable(null);
 export const loadingPluginStore = writable({
   loaded: false,
   loadingPackageName: null,
@@ -183,8 +183,11 @@ export const focusedConnectionOrDatabase = writable<{ conid: string; database?: 
 export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
 export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
+export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumPromoWidget');
 
 export const cloudConnectionsStore = writable({});
+
+export const promoWidgetPreview = writable(null);
 
 export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   pureName: true,
@@ -195,6 +198,8 @@ export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   columnComment: false,
   sqlObjectText: false,
   tableEngine: false,
+  tablesWithRows: false,
+  sortBy: undefined as string
 };
 
 export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {
@@ -215,11 +220,19 @@ export const connectionAppObjectSearchSettings = writableWithStorage(
   'connectionAppObjectSearchSettings2'
 );
 
+export const serverSummarySelectedTab = writableWithStorage(0, 'serverSummary.selectedTab');
+
 let currentThemeValue = null;
 currentTheme.subscribe(value => {
   currentThemeValue = value;
 });
 export const getCurrentTheme = () => currentThemeValue;
+
+let extensionsValue: ExtensionsDirectory = null;
+extensions.subscribe(value => {
+  extensionsValue = value;
+});
+export const getExtensions = () => extensionsValue;
 
 export const currentThemeDefinition = derived(
   [currentTheme, extensions, systemThemeStore],
@@ -232,7 +245,9 @@ currentThemeDefinition.subscribe(value => {
   if (value?.themeType && getCurrentTheme()) {
     localStorage.setItem('currentThemeType', value?.themeType);
   } else {
-    localStorage.removeItem('currentThemeType');
+    if (extensionsValue?.themes?.length > 0) {
+      localStorage.removeItem('currentThemeType');
+    }
   }
 });
 export const openedConnectionsWithTemporary = derived(
@@ -303,16 +318,39 @@ openedTabs.subscribe(value => {
 });
 export const getOpenedTabs = () => openedTabsValue;
 
+let openedModalsValue = [];
+openedModals.subscribe(value => {
+  openedModalsValue = value;
+
+  tick().then(() => {
+    dispatchUpdateCommands();
+  });
+});
+export const getOpenedModals = () => openedModalsValue;
+
 let commandsValue = null;
 commands.subscribe(value => {
   commandsValue = value;
 
-  const electron = getElectron();
-  if (electron) {
-    electron.send('update-commands', JSON.stringify(value));
-  }
+  tick().then(() => {
+    dispatchUpdateCommands();
+  });
 });
 export const getCommands = () => commandsValue;
+
+function dispatchUpdateCommands() {
+  const electron = getElectron();
+  if (electron) {
+    electron.send(
+      'update-commands',
+      JSON.stringify({
+        isModalOpened: openedModalsValue?.length > 0,
+        commands: commandsValue,
+        dbgatePage: window['dbgate_page'],
+      })
+    );
+  }
+}
 
 let activeTabValue = null;
 activeTab.subscribe(value => {
@@ -359,12 +397,6 @@ export const getCurrentDatabase = () => currentDatabaseValue;
 let currentSettingsValue = null;
 export const getCurrentSettings = () => currentSettingsValue || {};
 
-let extensionsValue: ExtensionsDirectory = null;
-extensions.subscribe(value => {
-  extensionsValue = value;
-});
-export const getExtensions = () => extensionsValue;
-
 let openedConnectionsValue = null;
 openedConnections.subscribe(value => {
   openedConnectionsValue = value;
@@ -410,12 +442,6 @@ selectedDatabaseObjectAppObject.subscribe(value => {
   selectedDatabaseObjectAppObjectValue = value;
 });
 export const getSelectedDatabaseObjectAppObject = () => selectedDatabaseObjectAppObjectValue;
-
-let openedModalsValue = [];
-openedModals.subscribe(value => {
-  openedModalsValue = value;
-});
-export const getOpenedModals = () => openedModalsValue;
 
 let focusedConnectionOrDatabaseValue = null;
 focusedConnectionOrDatabase.subscribe(value => {

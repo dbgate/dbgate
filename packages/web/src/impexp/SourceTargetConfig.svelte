@@ -73,19 +73,19 @@
 <div class="column">
   {#if direction == 'source'}
     <div class="title">
-      <FontIcon icon="icon import" /> Source configuration
+      <FontIcon icon="icon import" /> {_t('importExport.sourceConfiguration', { defaultMessage: 'Source configuration' })}
     </div>
   {/if}
   {#if direction == 'target'}
     <div class="title">
-      <FontIcon icon="icon export" /> Target configuration
+      <FontIcon icon="icon export" /> {_t('importExport.targetConfiguration', { defaultMessage: 'Target configuration' })}
     </div>
   {/if}
 
   <div class="buttons">
     {#if $currentDatabase}
       <FormStyledButton
-        value="Current DB"
+        value={_t('importExport.currentDatabase', { defaultMessage: "Current DB" })}
         on:click={() => {
           values.update(x => ({
             ...x,
@@ -97,7 +97,7 @@
       />
     {/if}
     <FormStyledButton
-      value="Current archive"
+      value={_t('importExport.currentArchive', { defaultMessage: "Current archive" })}
       data-testid={direction == 'source'
         ? 'SourceTargetConfig_buttonCurrentArchive_source'
         : 'SourceTargetConfig_buttonCurrentArchive_target'}
@@ -111,11 +111,11 @@
     />
     {#if direction == 'target'}
       <FormStyledButton
-        value="New archive"
+        value={_t('importExport.newArchive', { defaultMessage: "New archive" })}
         on:click={() => {
           showModal(InputTextModal, {
-            header: 'Archive',
-            label: 'Name of new archive folder',
+            header: _t('importExport.archive', { defaultMessage: 'Archive' }),
+            label: _t('importExport.nameOfNewArchiveFolder', { defaultMessage: 'Name of new archive folder' }),
             value: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
             onConfirm: value => {
               values.update(x => ({
@@ -133,7 +133,7 @@
   <FormSelectField
     options={types.filter(x => x.directions.includes(direction))}
     name={storageTypeField}
-    label="Storage type"
+    label={_t('importExport.storageType', { defaultMessage: "Storage type" })}
   />
 
   {#if format && isProApp()}
@@ -172,9 +172,9 @@
   {/if}
 
   {#if storageType == 'database' || storageType == 'query'}
-    <FormConnectionSelect name={connectionIdField} label="Server" {direction} />
+    <FormConnectionSelect name={connectionIdField} label={_t('common.server', { defaultMessage: 'Server' })} {direction} />
     {#if !$connectionInfo?.singleDatabase}
-      <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" />
+      <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label={_t('common.database', { defaultMessage: 'Database' })} />
     {/if}
   {/if}
   {#if storageType == 'database'}
@@ -210,7 +210,7 @@
 
   {#if storageType == 'archive'}
     <FormArchiveFolderSelect
-      label="Archive folder"
+      label={_t('importExport.archiveFolder', { defaultMessage: "Archive folder" })}
       name={archiveFolderField}
       additionalFolders={_.compact([$values[archiveFolderField]])}
       allowCreateNew={direction == 'target'}

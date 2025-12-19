@@ -22,7 +22,7 @@ export interface ColumnsConstraintInfo extends ConstraintInfo {
   columns: ColumnReference[];
 }
 
-export interface PrimaryKeyInfo extends ColumnsConstraintInfo {}
+export interface PrimaryKeyInfo extends ColumnsConstraintInfo { }
 
 export interface ForeignKeyInfo extends ColumnsConstraintInfo {
   refSchemaName?: string;
@@ -39,7 +39,7 @@ export interface IndexInfo extends ColumnsConstraintInfo {
   filterDefinition?: string;
 }
 
-export interface UniqueInfo extends ColumnsConstraintInfo {}
+export interface UniqueInfo extends ColumnsConstraintInfo { }
 
 export interface CheckInfo extends ConstraintInfo {
   definition: string;
@@ -77,6 +77,7 @@ export interface DatabaseObjectInfo extends NamedObjectInfo {
   hashCode?: string;
   objectTypeField?: string;
   objectComment?: string;
+  tablePermissionRole?: 'read' | 'update_only' | 'create_update_delete' | 'deny';
 }
 
 export interface SqlObjectInfo extends DatabaseObjectInfo {
@@ -134,7 +135,7 @@ export interface CallableObjectInfo extends SqlObjectInfo {
   parameters?: ParameterInfo[];
 }
 
-export interface ProcedureInfo extends CallableObjectInfo {}
+export interface ProcedureInfo extends CallableObjectInfo { }
 
 export interface FunctionInfo extends CallableObjectInfo {
   returnType?: string;
@@ -145,17 +146,17 @@ export interface TriggerInfo extends SqlObjectInfo {
   functionName?: string;
   tableName?: string;
   triggerTiming?:
-    | 'BEFORE'
-    | 'AFTER'
-    | 'INSTEAD OF'
-    | 'BEFORE EACH ROW'
-    | 'INSTEAD OF'
-    | 'AFTER EACH ROW'
-    | 'AFTER STATEMENT'
-    | 'BEFORE STATEMENT'
-    | 'AFTER EVENT'
-    | 'BEFORE EVENT'
-    | null;
+  | 'BEFORE'
+  | 'AFTER'
+  | 'INSTEAD OF'
+  | 'BEFORE EACH ROW'
+  | 'INSTEAD OF'
+  | 'AFTER EACH ROW'
+  | 'AFTER STATEMENT'
+  | 'BEFORE STATEMENT'
+  | 'AFTER EVENT'
+  | 'BEFORE EVENT'
+  | null;
   triggerLevel?: 'ROW' | 'STATEMENT';
   eventType?: 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE';
 }

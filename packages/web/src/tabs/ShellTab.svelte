@@ -12,13 +12,14 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
+    defaultTeamFolder: true,
     executeAdditionalCondition: () => getCurrentConfig().allowShellScripting,
   });
 
   registerCommand({
     id: 'shell.copyNodeScript',
     category: 'Shell',
-    name: 'Copy nodejs script',
+    name: __t('command.shell.copyNodeScript', { defaultMessage: 'Copy nodejs script' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().copyNodeScript(),
   });
@@ -49,6 +50,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
+  import { __t } from '../translations';
   
   export let tabid;
 

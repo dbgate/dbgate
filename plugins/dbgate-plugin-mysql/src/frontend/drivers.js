@@ -46,6 +46,8 @@ const dialect = {
   dropReferencesWhenDropTable: false,
   requireStandaloneSelectForScopeIdentity: true,
 
+  dropColumnDependencies: ['dependencies'],
+
   columnProperties: {
     columnComment: true,
     isUnsigned: true,
@@ -184,6 +186,7 @@ const mysqlDriverBase = {
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
   supportsTransactions: true,
+  supportsIncrementalAnalysis: true,
 
   getNewObjectTemplates() {
     return [
@@ -385,6 +388,7 @@ const mysqlDriverBase = {
 /** @type {import('dbgate-types').EngineDriver} */
 const mysqlDriver = {
   ...mysqlDriverBase,
+  supportsServerSummary: true,
   dialect: mysqlDialect,
   engine: 'mysql@dbgate-plugin-mysql',
   title: 'MySQL',
@@ -425,6 +429,7 @@ const mariaDbDialect = {
 /** @type {import('dbgate-types').EngineDriver} */
 const mariaDriver = {
   ...mysqlDriverBase,
+  supportsServerSummary: true,
   dialect: mariaDbDialect,
   engine: 'mariadb@dbgate-plugin-mysql',
   title: 'MariaDB',

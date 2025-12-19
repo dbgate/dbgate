@@ -7,7 +7,7 @@
   "homepage": "https://dbgate.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rinie/dbgate-plugin-oracle"
+    "url": "https://github.com/dbgate/dbgate.git"
   },
   "author": "Rinie Kervel",
   "keywords": [
@@ -35,7 +35,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "dbgate-query-splitter": "^4.11.5",
+    "dbgate-query-splitter": "^4.11.9",
     "dbgate-tools": "^6.0.0-alpha.1",
     "lodash": "^4.17.21"
   },

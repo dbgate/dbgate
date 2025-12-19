@@ -8,6 +8,8 @@
 
   export let label;
 
+  export let disabled = false;
+
   $: renderedValue = value ?? inheritedValue;
   $: isInherited = inheritedValue != null && value == null;
 
@@ -30,11 +32,12 @@
 <div
   class="wrapper"
   on:click|preventDefault|stopPropagation={() => {
+    if (disabled) return;
     onChange(getNextValue());
   }}
 >
-  <div class="checkbox" {...$$restProps} class:checked={!!renderedValue} class:isInherited />
-  <div class="label">
+  <div class="checkbox" {...$$restProps} class:checked={!!renderedValue} class:isInherited class:disabled />
+  <div class="label" class:disabled>
     {label}
   </div>
 </div>
@@ -49,6 +52,11 @@
 
   .label {
     user-select: none;
+  }
+
+  .label.disabled {
+    cursor: not-allowed;
+    color: var(--theme-font-3);
   }
 
   .checkbox {
@@ -75,5 +83,10 @@
 
   .isInherited {
     background: var(--theme-bg-2) !important;
+  }
+
+  .checkbox.disabled {
+    background: var(--theme-bg-2) !important;
+    cursor: not-allowed;
   }
 </style>

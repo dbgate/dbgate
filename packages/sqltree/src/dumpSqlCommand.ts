@@ -1,7 +1,7 @@
 import type { SqlDumper } from 'dbgate-types';
 import { Command, Select, Update, Delete, Insert } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
-import { dumpSqlFromDefinition, dumpSqlSourceRef } from './dumpSqlSource';
+import { dumpSqlFromDefinition, dumpSqlSourceDef, dumpSqlSourceRef } from './dumpSqlSource';
 import { dumpSqlCondition } from './dumpSqlCondition';
 
 export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
@@ -115,7 +115,10 @@ export function dumpSqlInsert(dmp: SqlDumper, cmd: Insert) {
       cmd.fields.map(x => x.targetColumn)
     );
     dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
-    if (dmp.dialect.requireFromDual) {
+    if (cmd.whereNotExistsSource) {
+      dmp.put(' ^from ');
+      dumpSqlSourceDef(dmp, cmd.whereNotExistsSource);
+    } else if (dmp.dialect.requireFromDual) {
       dmp.put(' ^from ^dual ');
     }
     dmp.put(' ^where ^not ^exists (^select * ^from %f ^where ', cmd.targetTable);

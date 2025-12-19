@@ -147,6 +147,7 @@ const driver = {
   dialect,
   engine: 'clickhouse@dbgate-plugin-clickhouse',
   title: 'ClickHouse',
+  supportsIncrementalAnalysis: true,
   showConnectionField: (field, values) => {
     return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'user', 'password'].includes(field);
   },

@@ -1,14 +1,16 @@
 import _ from 'lodash';
-import { currentDatabase, getCurrentDatabase } from '../stores';
+import { currentDatabase, getCurrentDatabase, getExtensions } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import { apiCall } from '../utility/api';
-import { switchCurrentDatabase } from '../utility/common';
+import { getDatabasStatusMenu, switchCurrentDatabase } from '../utility/common';
+import { __t } from '../translations';
+import { findEngineDriver } from 'dbgate-tools';
 
 registerCommand({
   id: 'database.changeState',
-  category: 'Database',
-  name: 'Change status',
+  category: __t('command.database', { defaultMessage: 'Database' }),
+  name: __t('command.database.changeStatus', { defaultMessage: 'Change status' }),
   getSubCommands: () => {
     const current = getCurrentDatabase();
     if (!current) return [];
@@ -17,33 +19,8 @@ registerCommand({
       conid: connection._id,
       database: name,
     };
-    return [
-      {
-        text: 'Sync model (incremental)',
-        onClick: () => {
-          apiCall('database-connections/sync-model', dbid);
-        },
-      },
-      {
-        text: 'Sync model (full)',
-        onClick: () => {
-          apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
-        },
-      },
-      {
-        text: 'Reopen',
-        onClick: () => {
-          apiCall('database-connections/refresh', dbid);
-        },
-      },
-      {
-        text: 'Disconnect',
-        onClick: () => {
-          const electron = getElectron();
-          if (electron) apiCall('database-connections/disconnect', dbid);
-          switchCurrentDatabase(null);
-        },
-      },
-    ];
+    const driver = findEngineDriver(connection, getExtensions());
+
+    return getDatabasStatusMenu(dbid, driver);
   },
 });

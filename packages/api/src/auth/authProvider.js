@@ -10,6 +10,7 @@ const logger = getLogger('authProvider');
 
 class AuthProviderBase {
   amoid = 'none';
+  skipInList = false;
 
   async login(login, password, options = undefined, req = undefined) {
     return {
@@ -36,10 +37,26 @@ class AuthProviderBase {
     return !!req?.user || !!req?.auth;
   }
 
-  getCurrentPermissions(req) {
+  async getCurrentPermissions(req) {
     const login = this.getCurrentLogin(req);
     const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
     return permissions || process.env.PERMISSIONS;
+  }
+
+  async checkCurrentConnectionPermission(req, conid) {
+    return true;
+  }
+
+  async getCurrentDatabasePermissions(req) {
+    return [];
+  }
+
+  async getCurrentTablePermissions(req) {
+    return [];
+  }
+
+  async getCurrentFilePermissions(req) {
+    return [];
   }
 
   getLoginPageConnections() {

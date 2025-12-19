@@ -49,6 +49,32 @@ class StreamHandler {
   }
 }
 
+class BinaryTestStreamHandler {
+  constructor(resolve, reject, expectedValue) {
+    this.resolve = resolve;
+    this.reject = reject;
+    this.expectedValue = expectedValue;
+    this.rowsReceived = [];
+  }
+  row(row) {
+    try {
+      this.rowsReceived.push(row);
+      if (this.expectedValue) {
+        expect(row).toEqual(this.expectedValue);
+      }
+    } catch (error) {
+      this.reject(error);
+      return;
+    }
+  }
+  recordset(columns) {}
+  done(result) {
+    this.resolve(this.rowsReceived);
+  }
+  info(msg) {}
+}
+
+
 function executeStreamItem(driver, conn, sql) {
   return new Promise(resolve => {
     const handler = new StreamHandler(resolve);
@@ -221,6 +247,53 @@ describe('Query', () => {
       const keys = Object.keys(row);
       expect(keys.length).toEqual(1);
       expect(row[keys[0]] == 1).toBeTruthy();
+    })
+  );
+
+  test.each(engines.filter(x => x.binaryDataType).map(engine => [engine.label, engine]))(
+    'Binary - %s',
+    testWrapper(async (dbhan, driver, engine) => {
+      await runCommandOnDriver(dbhan, driver, dmp =>
+        dmp.createTable({
+          pureName: 't1',
+          columns: [
+            { columnName: 'id', dataType: 'int', notNull: true, autoIncrement: true },
+            { columnName: 'val', dataType: engine.binaryDataType },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+        })
+      );
+      const structure = await driver.analyseFull(dbhan);
+      const table = structure.tables.find(x => x.pureName == 't1');
+
+      const dmp = driver.createDumper();
+      dmp.putCmd("INSERT INTO ~t1 (~val) VALUES (%v)", {
+        $binary: { base64: 'iVBORw0KWgo=' },
+      });
+      await driver.query(dbhan, dmp.s, {discardResult: true});
+      
+      const dmp2 = driver.createDumper();
+      dmp2.put('SELECT ~val FROM ~t1');
+      const res = await driver.query(dbhan, dmp2.s);
+      
+      const row = res.rows[0];
+      const keys = Object.keys(row);
+      expect(keys.length).toEqual(1);
+      expect(row[keys[0]]).toEqual({$binary: {base64: 'iVBORw0KWgo='}});
+
+      const res2 = await driver.readQuery(dbhan, dmp2.s);
+      const rows = await Array.fromAsync(res2);
+      const rowsVal = rows.filter(r => r.val != null);
+
+      expect(rowsVal.length).toEqual(1);
+      expect(rowsVal[0].val).toEqual({$binary: {base64: 'iVBORw0KWgo='}});
+
+      const res3 = await new Promise((resolve, reject) => {
+        const handler = new BinaryTestStreamHandler(resolve, reject, {val: {$binary: {base64: 'iVBORw0KWgo='}}});
+        driver.stream(dbhan, dmp2.s, handler);
+      });
     })
   );
 });

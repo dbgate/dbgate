@@ -10,6 +10,8 @@
     lockedDatabaseMode,
     getCurrentConfig,
     cloudSigninTokenHolder,
+    seenPremiumPromoWidget,
+    promoWidgetPreview,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -20,25 +22,29 @@
   import { showModal } from '../modals/modalTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { useConfig, usePromoWidget } from '../utility/metadataLoaders';
+  import { _t, getCurrentTranslations } from '../translations';
 
   let domSettings;
   let domCloudAccount;
   let domMainMenu;
 
+  const promoWidget = usePromoWidget({});
+
   const widgets = [
     getCurrentConfig().storageDatabase && {
       icon: 'icon admin',
       name: 'admin',
-      title: 'Administration',
+      title: _t('widgets.administration', { defaultMessage: 'Administration' }),
     },
     {
       icon: 'icon database',
       name: 'database',
-      title: 'Database connections',
+      title: _t('widgets.databaseConnections', { defaultMessage: 'Database connections' }),
     },
     getCurrentConfig().allowPrivateCloud && {
       name: 'cloud-private',
-      title: 'DbGate Cloud',
+      title: _t('widgets.dbgateCloud', { defaultMessage: 'DbGate Cloud' }),
       icon: 'icon cloud-private',
     },
 
@@ -49,17 +55,17 @@
     {
       icon: 'icon file',
       name: 'file',
-      title: 'Favorites & Saved files',
+      title: _t('widgets.favoritesAndSavedFiles', { defaultMessage: 'Favorites & Saved files' }),
     },
     {
       icon: 'icon history',
       name: 'history',
-      title: 'Query history & Closed tabs',
+      title: _t('widgets.queryHistoryAndClosedTabs', { defaultMessage: 'Query history & Closed tabs' }),
     },
-    {
+    isProApp() && {
       icon: 'icon archive',
       name: 'archive',
-      title: 'Archive (saved tabular data)',
+      title: _t('widgets.archive', { defaultMessage: 'Archive (saved tabular data)' }),
     },
     // {
     //   icon: 'icon plugin',
@@ -67,19 +73,14 @@
     //   title: 'Extensions & Plugins',
     // },
     {
-      icon: 'icon cell-data',
-      name: 'cell-data',
-      title: 'Selected cell data detail view',
-    },
-    {
       name: 'cloud-public',
-      title: 'DbGate Cloud',
+      title: _t('widgets.dbgateCloud', { defaultMessage: 'DbGate Cloud' }),
       icon: 'icon cloud-public',
     },
     {
       icon: 'icon premium',
       name: 'premium',
-      title: 'Premium promo',
+      title: _t('widgets.premiumPromo', { defaultMessage: 'Premium promo' }),
       isPremiumPromo: true,
     },
     // {
@@ -98,44 +99,21 @@
     } else {
       $selectedWidget = name;
       $visibleWidgetSideBar = true;
+
+      if (name == 'premium') {
+        $seenPremiumPromoWidget = $promoWidget?.identifier || '';
+      }
     }
   }
   //const handleChangeWidget= e => (selectedWidget.set(item.name))
 
   function handleSettingsMenu() {
-    const rect = domSettings.getBoundingClientRect();
-    const left = rect.right;
-    const top = rect.bottom;
-    const items = [
-      { command: 'settings.show' },
-      { command: 'theme.changeTheme' },
-      { command: 'settings.commands' },
-      {
-        text: 'View applications',
-        onClick: () => {
-          $selectedWidget = 'app';
-          $visibleWidgetSideBar = true;
-        },
-      },
-      {
-        text: 'Manage plugins',
-        onClick: () => {
-          $selectedWidget = 'plugins';
-          $visibleWidgetSideBar = true;
-        },
-      },
-      {
-        text: 'View application logs',
-        onClick: () => {
-          openNewTab({
-            title: 'Application log',
-            icon: 'img applog',
-            tabComponent: 'AppLogTab',
-          });
-        },
-      },
-    ];
-    currentDropDownMenu.set({ left, top, items });
+    openNewTab({
+      title: 'Settings',
+      icon: 'icon settings',
+      tabComponent: 'SettingsTab',
+      props: {},
+    });
   }
 
   function handleCloudAccountMenu() {
@@ -150,7 +128,7 @@
     const rect = domMainMenu.getBoundingClientRect();
     const left = rect.right;
     const top = rect.top;
-    const items = mainMenuDefinition({ editMenu: false });
+    const items = mainMenuDefinition({ editMenu: false }, getCurrentTranslations());
     currentDropDownMenu.set({ left, top, items });
   }
 
@@ -166,6 +144,9 @@
       openWebLink(url, true);
     }
   }
+
+  $: promoWidgetData = $promoWidgetPreview || $promoWidget;
+  $: config = useConfig();
 </script>
 
 <div class="main">
@@ -176,7 +157,7 @@
   {/if}
   {#each widgets
     .filter(x => x && hasPermission(`widgets/${x.name}`))
-    .filter(x => !x.isPremiumPromo || !isProApp())
+    .filter(x => !x.isPremiumPromo || (($config?.trialDaysLeft != null || !isProApp()) && promoWidgetData?.state == 'data'))
     // .filter(x => !x.isPremiumOnly || isProApp())
     .filter(x => x.name != 'cloud-private' || $cloudSigninTokenHolder) as item}
     <div
@@ -185,9 +166,20 @@
       data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
-      <FontIcon icon={item.icon} title={item.title} />
+      {#if item.isPremiumPromo && promoWidgetData?.isColoredIcon}
+        <FontIcon
+          icon={item.icon}
+          title={item.title}
+          colorClass="premium-background-gradient widget-icon-panel-rounded"
+        />
+      {:else}
+        <FontIcon icon={item.icon} title={item.title} />
+      {/if}
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
+        {#if promoWidgetData?.identifier != $seenPremiumPromoWidget}
+          <div class="premium-promo-not-seen">•</div>
+        {/if}
       {/if}
     </div>
   {/each}
@@ -196,7 +188,7 @@
     class="wrapper"
     on:click={() => showModal(NewObjectModal)}
     data-testid="WidgetIconPanel_addButton"
-    title="Add New"
+    title={_t('widgets.addNew', { defaultMessage: 'Add New' })}
   >
     <FontIcon icon="icon add" />
   </div>
@@ -268,5 +260,18 @@
     padding: 1px 3px;
     border-radius: 3px;
     bottom: 0;
+  }
+
+  .premium-promo-not-seen {
+    position: absolute;
+    font-size: 16pt;
+    color: var(--theme-icon-yellow);
+    top: -5px;
+    right: 5px;
+  }
+
+  :global(.widget-icon-panel-rounded) {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 </style>

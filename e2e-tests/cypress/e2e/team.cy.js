@@ -21,14 +21,17 @@ describe('Team edition tests', () => {
     cy.testid('AdminMenuWidget_itemConnections').click();
     cy.contains('New connection').click();
     cy.testid('ConnectionDriverFields_connectionType').select('PostgreSQL');
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('connection-administration');
 
     cy.testid('AdminMenuWidget_itemRoles').click();
     cy.contains('logged-user').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('role-administration');
 
     cy.testid('AdminMenuWidget_itemUsers').click();
     cy.contains('New user').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('user-administration');
 
     cy.testid('AdminMenuWidget_itemAuthentication').click();
@@ -36,6 +39,7 @@ describe('Team edition tests', () => {
     cy.contains('Use database login').click();
     cy.contains('Add authentication').click();
     cy.contains('OAuth 2.0').click();
+    cy.contains('not granted').should('not.exist');
     cy.themeshot('authentication-administration');
   });
 
@@ -118,5 +122,30 @@ describe('Team edition tests', () => {
     cy.testid('AdminAuditLogTab_refreshButton').click();
     cy.contains('Exporting query').click();
     cy.themeshot('auditlog');
+  });
+
+  it('Edit database permissions', () => {
+    cy.testid('LoginPage_linkAdmin').click();
+    cy.testid('LoginPage_password').type('adminpwd');
+    cy.testid('LoginPage_submitLogin').click();
+
+    cy.testid('AdminMenuWidget_itemRoles').click();
+    cy.testid('AdminRolesTab_table').contains('superadmin').click();
+    cy.testid('AdminRolesTab_databases').click();
+
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    cy.testid('AdminDatabasesPermissionsGrid_addButton').click();
+    
+    cy.testid('AdminListOrRegexEditor_1_regexInput').type('^Chinook[\\d]*$');
+    cy.testid('AdminListOrRegexEditor_2_listSwitch').click();
+    cy.testid('AdminListOrRegexEditor_2_listInput').type('Nortwind\nSales');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_0').select('-2');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_1').select('-3');
+    cy.testid('AdminDatabasesPermissionsGrid_roleSelect_2').select('-4');
+
+    cy.contains('not granted').should('not.exist');
+
+    cy.themeshot('database-permissions');
   });
 });

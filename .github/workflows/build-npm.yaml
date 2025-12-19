@@ -7,6 +7,9 @@ name: NPM packages
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+
+permissions:
+  id-token: write
+  contents: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -26,108 +29,107 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - name: Configure NPM token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: yarn install
         run: |
           yarn install
       - name: setCurrentVersion
         run: |
           yarn setCurrentVersion
-      - name: printSecrets
+      - name: Compute npm dist-tag
         run: |
-          yarn printSecrets
-        env:
-          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
+          if [[ "${GITHUB_REF_NAME}" =~ -alpha\. ]]; then
+            echo "NPM_TAG=alpha" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          fi
       - name: Publish types
         working-directory: packages/types
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish tools
         working-directory: packages/tools
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish sqltree
         working-directory: packages/sqltree
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
                     
       - name: Publish api
         working-directory: packages/api
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish datalib
         working-directory: packages/datalib
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish filterparser
         working-directory: packages/filterparser
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish web
         working-directory: packages/web
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-serve
         working-directory: packages/serve
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbmodel
         working-directory: packages/dbmodel
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-csv
         working-directory: plugins/dbgate-plugin-csv
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-xml
         working-directory: plugins/dbgate-plugin-xml
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-excel
         working-directory: plugins/dbgate-plugin-excel
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-mssql
         working-directory: plugins/dbgate-plugin-mssql
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-mysql
         working-directory: plugins/dbgate-plugin-mysql
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-mongo
         working-directory: plugins/dbgate-plugin-mongo
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-postgres
         working-directory: plugins/dbgate-plugin-postgres
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-sqlite
         working-directory: plugins/dbgate-plugin-sqlite
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-redis
         working-directory: plugins/dbgate-plugin-redis
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-oracle
         working-directory: plugins/dbgate-plugin-oracle
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-clickhouse
         working-directory: plugins/dbgate-plugin-clickhouse
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-dbf
         working-directory: plugins/dbgate-plugin-dbf
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"
       - name: Publish dbgate-plugin-cassandra
         working-directory: plugins/dbgate-plugin-cassandra
         run: |
-          npm publish
+          npm publish --tag "$NPM_TAG"

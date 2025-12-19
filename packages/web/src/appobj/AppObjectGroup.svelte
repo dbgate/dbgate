@@ -77,7 +77,7 @@
     </div>
   {/if}
 
-  <div on:drop={handleDrop}>
+  <div on:drop={handleDrop} data-testid={`app-object-group-items-${_.kebabCase(group)}`}>
     {#each items as item}
       <AppObjectListItem
         isHidden={!item.isMatched}

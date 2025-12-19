@@ -3,6 +3,7 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
+const fs = require('fs');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErrorLogData } =
   global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -14,11 +15,21 @@ function extractColumns(fields) {
   if (fields) {
     const res = fields.map(col => ({
       columnName: col.name,
+      pureName: col.orgTable,
     }));
     makeUniqueColumnNames(res);
     return res;
   }
   return null;
+}
+
+function modifyRow(row, columns) {
+  columns.forEach((col) => {
+    if (Buffer.isBuffer(row[col.columnName])) {
+      row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
+    }
+  });
+  return row;
 }
 
 function zipDataRow(rowArray, columns) {
@@ -53,6 +64,7 @@ const drivers = driverBases.map(driverBase => ({
       supportBigNumbers: true,
       bigNumberStrings: true,
       dateStrings: true,
+      infileStreamFactory: path => fs.createReadStream(path),
       // TODO: test following options
       // multipleStatements: true,
     };
@@ -96,8 +108,8 @@ const drivers = driverBases.map(driverBase => ({
     return new Promise((resolve, reject) => {
       dbhan.client.query(sql, function (error, results, fields) {
         if (error) reject(error);
-        const columns = extractColumns(fields);
-        resolve({ rows: results && columns && results.map && results.map(row => zipDataRow(row, columns)), columns });
+        const columns = extractColumns(fields);   
+        resolve({ rows: results && columns && results.map && results.map(row => modifyRow(zipDataRow(row, columns), columns)), columns });
       });
     });
   },
@@ -126,17 +138,21 @@ const drivers = driverBases.map(driverBase => ({
           message: `${row.affectedRows} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: row.affectedRows,
         });
+        if (row.stateChanges?.schema) {
+          options.changedCurrentDatabase(row.stateChanges.schema);
+        }
       } else {
         if (columns) {
-          options.row(zipDataRow(row, columns));
+          options.row(modifyRow(zipDataRow(row, columns), columns));
         }
       }
     };
 
     const handleFields = fields => {
       columns = extractColumns(fields);
-      if (columns) options.recordset(columns);
+      if (columns) options.recordset(columns, { engine: driverBase.engine });
     };
 
     const handleError = error => {
@@ -170,10 +186,11 @@ const drivers = driverBases.map(driverBase => ({
         columns = extractColumns(fields);
         pass.write({
           __isStreamHeader: true,
+          engine: driverBase.engine,
           ...(structure || { columns }),
         });
       })
-      .on('result', row => pass.write(zipDataRow(row, columns)))
+      .on('result', row => pass.write(modifyRow(zipDataRow(row, columns), columns)))
       .on('end', () => pass.end());
 
     return pass;
@@ -200,6 +217,69 @@ const drivers = driverBases.map(driverBase => ({
     const { rows } = await this.query(dbhan, 'show databases');
     return rows.map(x => ({ name: x.Database }));
   },
+
+  async listVariables(dbhan) {
+    const { rows } = await this.query(dbhan, 'SHOW VARIABLES');
+    return rows.map(row => ({
+      variable: row.Variable_name,
+      value: row.Value,
+    }));
+  },
+
+  async listProcesses(dbhan) {
+    const { rows } = await this.query(dbhan, 'SHOW FULL PROCESSLIST');
+    return rows.map(row => ({
+      processId: row.Id,
+      connectionId: null,
+      client: row.Host,
+      operation: row.Info,
+      namespace: row.Database,
+      runningTime: row.Time,
+      state: row.State,
+      waitingFor: row.State && row.State.includes('Waiting'),
+    }));
+  },
+
+  async killProcess(dbhan, processId) {
+    await this.query(dbhan, `KILL ${processId}`);
+  },
+
+  async serverSummary(dbhan) {
+    const [variables, processes, databases] = await Promise.all([
+      this.listVariables(dbhan),
+      this.listProcesses(dbhan),
+      this.listDatabases(dbhan),
+    ]);
+
+    return {
+      variables,
+      processes: processes.map(p => ({
+        processId: p.processId,
+        connectionId: p.connectionId,
+        client: p.client,
+        operation: p.operation,
+        namespace: p.namespace,
+        runningTime: p.runningTime,
+        state: p.state,
+        waitingFor: p.waitingFor,
+      })),
+      databases: {
+        rows: databases.map(db => ({
+          name: db.name,
+        })),
+        columns: [
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Database',
+            fieldName: 'name',
+            type: 'data',
+          },
+        ],
+      },
+    };
+  },
+
   async writeTable(dbhan, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);

@@ -9,6 +9,7 @@
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import PerspectiveFiltersColumn from './PerspectiveFiltersColumn.svelte';
+  import { _t } from '../translations';
 
   export let managerSize;
   export let config: PerspectiveConfig;
@@ -25,8 +26,8 @@
 <ManagerInnerContainer width={managerSize} isFlex={filterCount == 0}>
   {#if filterCount == 0}
     <div class="msg">
-      <div class="mb-3 bold">No Filters defined</div>
-      <div><FontIcon icon="img info" /> Use context menu, command "Add to filter" in table or in tree</div>
+      <div class="mb-3 bold">{_t('perspective.noFiltersDefined', { defaultMessage: "No Filters defined" })}</div>
+      <div><FontIcon icon="img info" /> {_t('perspective.useContextMenuAddToFilter', { defaultMessage: 'Use context menu, command "Add to filter" in table or in tree' })}</div>
     </div>
   {:else}
     {#each config.nodes as nodeConfig}

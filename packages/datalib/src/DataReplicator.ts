@@ -23,6 +23,7 @@ export interface DataReplicatorItem {
   deleteMissing: boolean;
   deleteRestrictionColumns: string[];
   matchColumns: string[];
+  skipUpdateColumns?: string[];
 }
 
 export interface DataReplicatorOptions {
@@ -151,7 +152,12 @@ class ReplicatorItemHolder {
         chunk,
         this.table.columns.map(x => x.columnName)
       ),
-      [this.autoColumn, ...this.backReferences.map(x => x.columnName), ...this.references.map(x => x.columnName)]
+      [
+        this.autoColumn,
+        ...this.backReferences.map(x => x.columnName),
+        ...this.references.map(x => x.columnName),
+        ...(this.item.skipUpdateColumns || []),
+      ]
     );
 
     return res;

@@ -7,11 +7,11 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
 </script>
 
-<WidgetColumnBar>
-  <WidgetColumnBarItem title="Archive folders, DB models" name="folders" height="50%" storageName='archiveFoldersWidget'>
+<WidgetColumnBar storageName="archiveWidget">
+  <WidgetColumnBarItem title="Archive folders, DB models" name="folders" height="50%">
     <ArchiveFolderList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Files, Tables, Views, Functions" name="files" storageName='archiveFilesWidget'>
+  <WidgetColumnBarItem title="Files, Tables, Views, Functions" name="files">
     <ArchiveFilesList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

@@ -1,4 +1,4 @@
-import { arrayToHexString, evalFilterBehaviour, isTypeDateTime } from 'dbgate-tools';
+import { arrayToHexString, base64ToHex, evalFilterBehaviour, isTypeDateTime } from 'dbgate-tools';
 import { format, toDate } from 'date-fns';
 import _isString from 'lodash/isString';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
@@ -21,10 +21,13 @@ export function getFilterValueExpression(value, dataType?) {
   if (value === false) return 'FALSE';
   if (value.$oid) return `ObjectId("${value.$oid}")`;
   if (value.$bigint) return value.$bigint;
+  if (value.$decimal) return value.$decimal;
   if (value.type == 'Buffer' && Array.isArray(value.data)) {
     return '0x' + arrayToHexString(value.data);
   }
-
+  if (value?.$binary?.base64) {
+    return base64ToHex(value.$binary.base64);
+  }
   return `="${value}"`;
 }
 

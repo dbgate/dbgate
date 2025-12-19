@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { loadCachedValue, subscribeCacheChange, unsubscribeCacheChange } from './cache';
+import {
+  getCachedValue,
+  loadCachedValue,
+  subscribeCacheChange,
+  subscribeCachePeek,
+  unsubscribeCacheChange,
+  unsubscribeCachePeek,
+} from './cache';
 import stableStringify from 'json-stable-stringify';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
@@ -107,17 +114,17 @@ const archiveFilesLoader = ({ folder }) => ({
   reloadTrigger: { key: `archive-files-changed`, folder },
 });
 
-const appFoldersLoader = () => ({
-  url: 'apps/folders',
-  params: {},
-  reloadTrigger: { key: `app-folders-changed` },
-});
+// const appFoldersLoader = () => ({
+//   url: 'apps/folders',
+//   params: {},
+//   reloadTrigger: { key: `app-folders-changed` },
+// });
 
-const appFilesLoader = ({ folder }) => ({
-  url: 'apps/files',
-  params: { folder },
-  reloadTrigger: { key: `app-files-changed`, app: folder },
-});
+// const appFilesLoader = ({ folder }) => ({
+//   url: 'apps/files',
+//   params: { folder },
+//   reloadTrigger: { key: `app-files-changed`, app: folder },
+// });
 
 // const dbAppsLoader = ({ conid, database }) => ({
 //   url: 'apps/get-apps-for-db',
@@ -125,10 +132,10 @@ const appFilesLoader = ({ folder }) => ({
 //   reloadTrigger: `db-apps-changed-${conid}-${database}`,
 // });
 
-const usedAppsLoader = ({ conid, database }) => ({
-  url: 'apps/get-used-apps',
+const allAppsLoader = () => ({
+  url: 'apps/get-all-apps',
   params: {},
-  reloadTrigger: { key: `used-apps-changed` },
+  reloadTrigger: { key: `files-changed`, folder: 'apps' },
 });
 
 const serverStatusLoader = () => ({
@@ -175,6 +182,16 @@ const cloudContentListLoader = () => ({
   url: 'cloud/content-list',
   params: {},
   reloadTrigger: { key: `cloud-content-changed` },
+});
+const teamFilesLoader = () => ({
+  url: 'team-files/list',
+  params: {},
+  reloadTrigger: { key: `team-files-changed` },
+});
+const promoWidgetLoader = () => ({
+  url: 'cloud/premium-promo-widget',
+  params: {},
+  reloadTrigger: { key: `promo-widget-changed` },
 });
 
 async function getCore(loader, args) {
@@ -227,6 +244,37 @@ function useCore(loader, args) {
   };
 }
 
+function useCorePeek(loader, args) {
+  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
+  const cacheKey = stableStringify({ url, ...params });
+  let openedCount = 0;
+
+  return {
+    subscribe: onChange => {
+      async function handlePeek() {
+        const res = getCachedValue(cacheKey);
+        if (openedCount > 0) {
+          onChange(res);
+        }
+      }
+      openedCount += 1;
+      handlePeek();
+
+      if (reloadTrigger) {
+        subscribeCachePeek(cacheKey, handlePeek);
+        return () => {
+          openedCount -= 1;
+          unsubscribeCachePeek(cacheKey, handlePeek);
+        };
+      } else {
+        return () => {
+          openedCount -= 1;
+        };
+      }
+    },
+  };
+}
+
 /** @returns {Promise<import('dbgate-types').DatabaseInfo>} */
 export function getDatabaseInfo(args) {
   return getCore(databaseInfoLoader, args);
@@ -235,6 +283,10 @@ export function getDatabaseInfo(args) {
 /** @returns {import('dbgate-types').DatabaseInfo} */
 export function useDatabaseInfo(args) {
   return useCore(databaseInfoLoader, args);
+}
+
+export function useDatabaseInfoPeek(args) {
+  return useCorePeek(databaseInfoLoader, args);
 }
 
 export async function getDbCore(args, objectTypeField = undefined) {
@@ -392,25 +444,25 @@ export function useArchiveFolders(args = {}) {
   return useCore(archiveFoldersLoader, args);
 }
 
-export function getAppFiles(args) {
-  return getCore(appFilesLoader, args);
-}
-export function useAppFiles(args) {
-  return useCore(appFilesLoader, args);
-}
+// export function getAppFiles(args) {
+//   return getCore(appFilesLoader, args);
+// }
+// export function useAppFiles(args) {
+//   return useCore(appFilesLoader, args);
+// }
 
-export function getAppFolders(args = {}) {
-  return getCore(appFoldersLoader, args);
-}
-export function useAppFolders(args = {}) {
-  return useCore(appFoldersLoader, args);
-}
+// export function getAppFolders(args = {}) {
+//   return getCore(appFoldersLoader, args);
+// }
+// export function useAppFolders(args = {}) {
+//   return useCore(appFoldersLoader, args);
+// }
 
-export function getUsedApps(args = {}) {
-  return getCore(usedAppsLoader, args);
+export function getAllApps(args = {}) {
+  return getCore(allAppsLoader, args);
 }
-export function useUsedApps(args = {}) {
-  return useCore(usedAppsLoader, args);
+export function useAllApps(args = {}) {
+  return useCore(allAppsLoader, args);
 }
 
 // export function getDbApps(args = {}) {
@@ -480,4 +532,18 @@ export function getCloudContentList(args) {
 }
 export function useCloudContentList(args = {}) {
   return useCore(cloudContentListLoader, args);
+}
+
+export function getTeamFiles(args) {
+  return getCore(teamFilesLoader, args);
+}
+export function useTeamFiles(args) {
+  return useCore(teamFilesLoader, args);
+}
+
+export function getPromoWidget(args) {
+  return getCore(promoWidgetLoader, args);
+}
+export function usePromoWidget(args) {
+  return useCore(promoWidgetLoader, args);
 }

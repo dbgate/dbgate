@@ -4,6 +4,7 @@ export type ChartXTransformFunction =
   | 'date:minute'
   | 'date:hour'
   | 'date:day'
+  | 'date:week'
   | 'date:month'
   | 'date:year';
 export type ChartYAggregateFunction = 'sum' | 'first' | 'last' | 'min' | 'max' | 'count' | 'avg';
@@ -70,6 +71,7 @@ export interface ChartDateParsed {
   minute?: number;
   second?: number;
   fraction?: string;
+  week?: number;
 }
 
 export interface ChartAvailableColumn {

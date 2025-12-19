@@ -8,6 +8,9 @@ const {
   getCloudContent,
   putCloudContent,
   removeCloudCachedConnection,
+  getPromoWidgetData,
+  getPromoWidgetList,
+  getPromoWidgetPreview,
 } = require('../utility/cloudIntf');
 const connections = require('./connections');
 const socket = require('../utility/socket');
@@ -32,8 +35,8 @@ module.exports = {
   },
 
   refreshPublicFiles_meta: true,
-  async refreshPublicFiles({ isRefresh }) {
-    await refreshPublicFiles(isRefresh);
+  async refreshPublicFiles({ isRefresh }, req) {
+    await refreshPublicFiles(isRefresh, req?.headers?.['x-ui-language']);
     return {
       status: 'ok',
     };
@@ -281,6 +284,28 @@ module.exports = {
   getAiGateway_meta: true,
   async getAiGateway() {
     return getAiGatewayServer();
+  },
+
+  premiumPromoWidget_meta: true,
+  async premiumPromoWidget() {
+    const data = await getPromoWidgetData();
+    if (data?.state != 'data') {
+      return null;
+    }
+    if (data.validTo && new Date().getTime() > new Date(data.validTo).getTime()) {
+      return null;
+    }
+    return data;
+  },
+
+  promoWidgetList_meta: true,
+  async promoWidgetList() {
+    return getPromoWidgetList();
+  },
+
+  promoWidgetPreview_meta: true,
+  async promoWidgetPreview({ campaign, variant }) {
+    return getPromoWidgetPreview(campaign, variant);
   },
 
   // chatStream_meta: {

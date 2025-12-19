@@ -6,6 +6,7 @@ import { getExtensions } from '../stores';
 import { getConnectionInfo, getDatabaseInfo } from './metadataLoaders';
 import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
 import { apiCall } from './api';
+import { _t } from '../translations';
 
 export async function alterDatabaseDialog(conid, database, updateFunc) {
   const conn = await getConnectionInfo({ conid });
@@ -30,8 +31,8 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
 export async function renameDatabaseObjectDialog(conid, database, oldName, updateFunc) {
   showModal(InputTextModal, {
     value: oldName,
-    label: 'New name',
-    header: 'Rename object',
+    label: _t('renameDatabaseObject.newName', { defaultMessage: 'New name' }),
+    header: _t('renameDatabaseObject.header', { defaultMessage: 'Rename object' }),
     onConfirm: newName => {
       alterDatabaseDialog(conid, database, db => updateFunc(db, newName));
     },

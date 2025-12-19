@@ -1,5 +1,6 @@
 const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
+const { firebirdSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
@@ -17,6 +18,7 @@ const dialect = {
   renameColumnDependencies: ['dependencies', 'foreignKeys', 'uniques'],
   defaultValueBeforeNullability: true,
   useServerDatabaseFile: true,
+  maxIdentifierLength: 31,
 
   quoteIdentifier(s) {
     return `"${s}"`;
@@ -44,43 +46,17 @@ const dialect = {
   disableRenameTable: true,
 };
 
-const firebirdSplitterOptions = {
-  stringsBegins: ["'", '"'],
-  stringsEnds: {
-    "'": "'",
-    '"': '"',
-  },
-  stringEscapes: {
-    "'": "'", // Single quote is escaped by another single quote
-    '"': '"', // Double quote is escaped by another double quote
-  },
-  allowSemicolon: true,
-  allowCustomDelimiter: false,
-  allowCustomSqlTerminator: false,
-  allowGoDelimiter: false,
-  allowSlashDelimiter: false,
-  allowDollarDollarString: false,
-  noSplit: false,
-  doubleDashComments: true,
-  multilineComments: true,
-  javaScriptComments: false,
-  skipSeparatorBeginEnd: false,
-  ignoreComments: false,
-  preventSingleLineSplit: false,
-  adaptiveGoSplit: false,
-  returnRichInfo: false,
-  splitByLines: false,
-  splitByEmptyLine: false,
-  copyFromStdin: false,
-  queryParameterStyle: ':', // Firebird uses colon-prefixed parameters (:param_name)
-};
-
 /** @type {import('dbgate-types').EngineDriver} */
 const firebirdDriverBase = {
   ...driverBase,
   defaultPort: 3050,
   showConnectionField: field => ['port', 'user', 'password', 'server', 'databaseFile'].includes(field),
-  getQuerySplitterOptions: () => firebirdSplitterOptions,
+
+  getQuerySplitterOptions: (usage) =>
+    usage == 'editor'
+      ? { ...firebirdSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : firebirdSplitterOptions,
+
   beforeConnectionSave: connection => {
     const { databaseFile } = connection;
     return {

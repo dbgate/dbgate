@@ -1,4 +1,44 @@
 <script lang="ts" context="module">
+  const LAT_PRIORITY_PATTERNS = [
+    /^lat$/i,
+    /^latitude$/i,
+    /latitude$/i,
+    /lat$/i,
+    /latitude/i,
+    /lat/i,
+  ];
+
+  const LON_PRIORITY_PATTERNS = [
+    /^lon$/i,
+    /^lng$/i,
+    /^longitude$/i,
+    /longitude$/i,
+    /lon$/i,
+    /lng$/i,
+    /longitude/i,
+    /lon|lng/i,
+  ];
+
+  function getFieldName(fieldPath) {
+    return fieldPath.split('.').pop() || fieldPath;
+  }
+
+  function getFieldPriority(fieldPath, patterns) {
+    const name = getFieldName(fieldPath);
+    for (let i = 0; i < patterns.length; i++) {
+      if (patterns[i].test(name)) return i;
+    }
+    return patterns.length;
+  }
+
+  function sortByPriorityThenLength(paths, patterns) {
+    return paths.sort((a, b) => {
+      const priorityDiff = getFieldPriority(a, patterns) - getFieldPriority(b, patterns);
+      if (priorityDiff !== 0) return priorityDiff;
+      return getFieldName(a).length - getFieldName(b).length;
+    });
+  }
+
   function findLatLonPaths(obj, attrTest, res = [], prefix = '') {
     for (const key of Object.keys(obj)) {
       if (attrTest(key, obj[key])) {
@@ -10,11 +50,15 @@
     }
     return res;
   }
+
   export function findLatPaths(obj) {
-    return findLatLonPaths(obj, x => x.toLowerCase()?.includes('lat'));
+    const paths = findLatLonPaths(obj, x => x.toLowerCase()?.includes('lat'));
+    return sortByPriorityThenLength(paths, LAT_PRIORITY_PATTERNS);
   }
+
   export function findLonPaths(obj) {
-    return findLatLonPaths(obj, x => x.toLowerCase()?.includes('lon') || x.toLowerCase()?.includes('lng'));
+    const paths = findLatLonPaths(obj, x => x.toLowerCase()?.includes('lon') || x.toLowerCase()?.includes('lng'));
+    return sortByPriorityThenLength(paths, LON_PRIORITY_PATTERNS);
   }
   export function findAllObjectPaths(obj) {
     return findLatLonPaths(obj, (_k, v) => v != null && !_.isNaN(Number(v)));

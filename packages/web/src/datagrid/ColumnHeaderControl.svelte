@@ -10,6 +10,9 @@
   import { copyTextToClipboard } from '../utility/clipboard';
   import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import DefineDictionaryDescriptionModal from '../modals/DefineDictionaryDescriptionModal.svelte';
+  import { sleep } from '../utility/common';
+  import { isProApp } from '../utility/proTools';
 
   export let column;
   export let conid = undefined;
@@ -24,6 +27,7 @@
   export let allowDefineVirtualReferences = false;
   export let setGrouping;
   export let seachInColumns = '';
+  export let onReload = undefined;
 
   const openReferencedTable = () => {
     openDatabaseObjectDetail('TableDataTab', null, {
@@ -45,6 +49,19 @@
     });
   };
 
+  const handleCustomizeDescriptions = () => {
+    showModal(DefineDictionaryDescriptionModal, {
+      conid,
+      database,
+      schemaName: column.foreignKey.refSchemaName,
+      pureName: column.foreignKey.refTableName,
+      onConfirm: async () => {
+        await sleep(100);
+        onReload?.();
+      },
+    });
+  };
+
   function getMenu() {
     return [
       setSort && { onClick: () => setSort('ASC'), text: 'Sort ascending' },
@@ -56,26 +73,35 @@
 
       column.foreignKey && [{ divider: true }, { onClick: openReferencedTable, text: column.foreignKey.refTableName }],
 
-      setGrouping && { divider: true },
-      setGrouping && { onClick: () => setGrouping('GROUP'), text: 'Group by' },
-      setGrouping && { onClick: () => setGrouping('MAX'), text: 'MAX' },
-      setGrouping && { onClick: () => setGrouping('MIN'), text: 'MIN' },
-      setGrouping && { onClick: () => setGrouping('SUM'), text: 'SUM' },
-      setGrouping && { onClick: () => setGrouping('AVG'), text: 'AVG' },
-      setGrouping && { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
-      setGrouping && { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
+      isProApp() &&
+        setGrouping && [
+          { divider: true },
+          { onClick: () => setGrouping('GROUP'), text: 'Group by' },
+          { onClick: () => setGrouping('MAX'), text: 'MAX' },
+          { onClick: () => setGrouping('MIN'), text: 'MIN' },
+          { onClick: () => setGrouping('SUM'), text: 'SUM' },
+          { onClick: () => setGrouping('AVG'), text: 'AVG' },
+          { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
+          { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
+        ],
 
-      isTypeDateTime(column.dataType) && [
-        { divider: true },
-        { onClick: () => setGrouping('GROUP:YEAR'), text: 'Group by YEAR' },
-        { onClick: () => setGrouping('GROUP:MONTH'), text: 'Group by MONTH' },
-        { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
-      ],
+      isProApp() &&
+        isTypeDateTime(column.dataType) && [
+          { divider: true },
+          { onClick: () => setGrouping('GROUP:YEAR'), text: 'Group by YEAR' },
+          { onClick: () => setGrouping('GROUP:MONTH'), text: 'Group by MONTH' },
+          { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
+        ],
 
-      allowDefineVirtualReferences && [
-        { divider: true },
-        { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
-      ],
+      { divider: true },
+
+      isProApp() &&
+        allowDefineVirtualReferences && { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      column.foreignKey &&
+        isProApp() && {
+          onClick: handleCustomizeDescriptions,
+          text: 'Customize description',
+        },
     ];
   }
 </script>
@@ -111,7 +137,7 @@
       {/if}
     </span>
   {/if}
-  <DropDownButton menu={getMenu} narrow />
+  <DropDownButton menu={getMenu} narrow data-testid={`ColumnHeaderControl_dropdown_${column?.uniqueName}`} />
   <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
 </div>
 

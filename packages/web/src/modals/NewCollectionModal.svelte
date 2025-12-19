@@ -10,6 +10,7 @@
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let driver;
   export let dbid;
@@ -29,9 +30,9 @@
 
       const { errorMessage } = resp || {};
       if (errorMessage) {
-        showModal(ErrorMessageModal, { title: 'Error when executing operation', message: errorMessage });
+        showModal(ErrorMessageModal, { title: _t('error.executingOperation', { defaultMessage: 'Error when executing operation' }), message: errorMessage });
       } else {
-        showSnackbarSuccess('Saved to database');
+        showSnackbarSuccess(_t('common.savedToDatabase', { defaultMessage: 'Saved to database' }));
         apiCall('database-connections/sync-model', dbid);
         closeCurrentModal();
       }
@@ -44,14 +45,14 @@
 <FormProvider initialValues={{ name: '' }}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">
-      Create {driver?.collectionSingularLabel ?? 'collection/container'}
+      {_t('dbObject.createCollection', { defaultMessage: 'Create collection/container'})}
     </svelte:fragment>
 
     <FormArgumentList args={driver?.newCollectionFormParams} />
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={e => handleSubmit(e.detail)} disabled={isSaving} />
-      <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
+      <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={e => handleSubmit(e.detail)} disabled={isSaving} />
+      <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

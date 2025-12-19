@@ -19,6 +19,7 @@
   import _ from 'lodash';
   import openNewTab from '../utility/openNewTab';
   import { showSnackbarError } from '../utility/snackbar';
+  import { _t } from '../translations';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
 
@@ -43,10 +44,10 @@
     return [
       item.key != null &&
         !connection?.isReadOnly && {
-          label: 'Delete key',
+          label: _t('dbKeysTreeNode.deleteKey', { defaultMessage: 'Delete key' }),
           onClick: () => {
             showModal(ConfirmModal, {
-              message: `Really delete key ${item.key}?`,
+              message: _t('dbKeysTreeNode.deleteKeyConfirm', { defaultMessage: 'Really delete key {key}?', values: { key: item.key } }),
               onConfirm: async () => {
                 await apiCall('database-connections/call-method', {
                   conid,
@@ -62,12 +63,12 @@
         },
       item.key != null &&
         !connection?.isReadOnly && {
-          label: 'Rename key',
+          label: _t('dbKeysTreeNode.renameKey', { defaultMessage: 'Rename key' }),
           onClick: () => {
             showModal(InputTextModal, {
               value: item.key,
-              label: 'New name',
-              header: 'Rename key',
+              label: _t('dbKeysTreeNode.newName', { defaultMessage: 'New name' }),
+              header: _t('dbKeysTreeNode.renameKey', { defaultMessage: 'Rename key' }),
               onConfirm: async newName => {
                 await apiCall('database-connections/call-method', {
                   conid,
@@ -90,11 +91,11 @@
       //   },
       item.type == 'dir' &&
         !connection?.isReadOnly && {
-          label: 'Delete branch',
+          label: _t('dbKeysTreeNode.deleteBranch', { defaultMessage: 'Delete branch' }),
           onClick: () => {
             const branch = `${item.key}:*`;
             showModal(ConfirmModal, {
-              message: `Really delete branch ${branch} with all keys?`,
+              message: _t('dbKeysTreeNode.deleteBranchConfirm', { defaultMessage: 'Really delete branch {branch} with all keys?', values: { branch } }),
               onConfirm: async () => {
                 await apiCall('database-connections/call-method', {
                   conid,
@@ -110,7 +111,7 @@
         },
       ,
       {
-        label: 'Generate script',
+        label: _t('dbKeysTreeNode.generateScript', { defaultMessage: 'Generate script' }),
         onClick: async () => {
           const data = await apiCall('database-connections/export-keys', {
             conid,
@@ -126,7 +127,7 @@
           }
 
           newQuery({
-            title: 'Export #',
+            title: _t('dbKeysTreeNode.exportTitle', { defaultMessage: 'Export #' }),
             initialData: data,
           });
         },
@@ -137,7 +138,7 @@
 
 <AppObjectCore
   icon={getIconForRedisType(item.type)}
-  title={item.text || '(no name)'}
+  title={item.text || _t('dbKeysTreeNode.noName', { defaultMessage: '(no name)' })}
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
     if (item.type == 'dir') {
@@ -150,7 +151,7 @@
     } else {
       openNewTab({
         tabComponent: 'DbKeyDetailTab',
-        title: item.text || '(no name)',
+        title: item.text || _t('dbKeysTreeNode.noName', { defaultMessage: '(no name)' }),
         icon: 'img keydb',
         props: {
           isDefaultBrowser: true,

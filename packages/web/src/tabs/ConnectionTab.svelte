@@ -59,6 +59,8 @@
       }
     );
 
+  $: isFormReadOnly = !!$values.import_source_id;
+
   // $: console.log('ConnectionTab.$values', $values);
   // $: console.log('ConnectionTab.driver', driver);
 
@@ -300,24 +302,27 @@
       contentTestId="ConnectionTab_tabControlContent"
       tabs={[
         {
-          label: 'General',
+          label: _t('common.general', { defaultMessage: 'General' }),
           component: ConnectionDriverFields,
-          props: { getDatabaseList, currentConnection },
+          props: { getDatabaseList, currentConnection, isFormReadOnly },
           testid: 'ConnectionTab_tabGeneral',
         },
         driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
           component: ConnectionSshTunnelFields,
+          props: { isFormReadOnly },
           testid: 'ConnectionTab_tabSshTunnel',
         },
         driver?.showConnectionTab('ssl', $values) && {
           label: 'SSL',
           component: ConnectionSslFields,
+          props: { isFormReadOnly },
           testid: 'ConnectionTab_tabSsl',
         },
         {
-          label: 'Advanced',
+          label: _t('common.advanced', { defaultMessage: 'Advanced' }),
           component: ConnectionAdvancedDriverFields,
+          props: { isFormReadOnly },
           testid: 'ConnectionTab_tabAdvanced',
         },
       ]}
@@ -383,7 +388,8 @@
           {/if}
           {#if isTesting}
             <div>
-              <FontIcon icon="icon loading" /> Testing connection
+              <FontIcon icon="icon loading" />
+              {_t('common.testingConnection', { defaultMessage: 'Testing connection' })}
             </div>
           {/if}
         </div>

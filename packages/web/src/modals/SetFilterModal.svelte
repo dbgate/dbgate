@@ -10,6 +10,7 @@
   import { closeCurrentModal } from './modalTools';
   import FormRadioGroupItem from '../forms/FormRadioGroupItem.svelte';
   import FormValues from '../forms/FormValues.svelte';
+  import { _t } from '../translations';
 
   export let condition1;
   export let onFilter;
@@ -44,10 +45,10 @@
 
 <FormProvider initialValues={{ condition1, condition2: '=', joinOperator: ' ' }} template={FormFieldTemplateLarge}>
   <ModalBase {...$$restProps}>
-    <div slot="header">Set filter</div>
+    <div slot="header">{_t('filter.setFilter', {defaultMessage: 'Set filter'})}</div>
 
     <div class="largeFormMarker">
-      <div class="row">Show rows where</div>
+      <div class="row">{_t('filter.showRowsWhere', {defaultMessage: 'Show rows where'})}</div>
       <div class="row">
         <div class="col-6 mr-1">
           <SetFilterModal_Select {filterBehaviour} name="condition1" />
@@ -62,9 +63,9 @@
       </div>
 
       <div class="row">
-        <FormRadioGroupItem name="joinOperator" value=" " text="And" />
+        <FormRadioGroupItem name="joinOperator" value=" " text={_t('filter.and', {defaultMessage: 'And'})} />
         {#if !filterBehaviour.disableOr}
-          <FormRadioGroupItem name="joinOperator" value="," text="Or" />
+          <FormRadioGroupItem name="joinOperator" value="," text={_t('filter.or', {defaultMessage: 'Or'})} />
         {/if}
       </div>
 
@@ -83,8 +84,8 @@
     </div>
 
     <div slot="footer">
-      <FormSubmit value="OK" on:click={handleOk} />
-      <FormButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormSubmit value={_t('common.ok', {defaultMessage: "OK"})} on:click={handleOk} />
+      <FormButton type="button" value={_t('common.close', {defaultMessage: 'Close'})} on:click={closeCurrentModal} />
     </div>
   </ModalBase>
 </FormProvider>

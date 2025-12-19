@@ -17,6 +17,7 @@
   import SelectField from '../forms/SelectField.svelte';
   import ColumnEditorModal from '../tableeditor/ColumnEditorModal.svelte';
   import { tick } from 'svelte';
+  import { _t } from '../translations';
 
   export let managerSize;
   export let display: GridDisplay;
@@ -154,8 +155,8 @@
       class="colmode"
       value={isDynamicStructure ? 'variable' : 'fixed'}
       options={[
-        { label: 'Fixed columns (like SQL)', value: 'fixed' },
-        { label: 'Variable columns (like MongoDB)', value: 'variable' },
+        { label: _t('column.fixed', {defaultMessage: 'Fixed columns (like SQL)'}), value: 'fixed' },
+        { label: _t('column.variable', {defaultMessage: 'Variable columns (like MongoDB)'}) , value: 'variable' },
       ]}
       on:change={e => {
         dispatchChangeSet({
@@ -175,7 +176,7 @@
 {/if}
 <SearchBoxWrapper>
   <SearchInput
-    placeholder="Search columns"
+    placeholder={_t('column.search', {defaultMessage: 'Search columns'})}
     value={currentFilter}
     onChange={value => display.setSearchInColumns(value)}
     data-testid="ColumnManager_searchColumns"
@@ -186,8 +187,8 @@
       on:click={() => {
         showModal(InputTextModal, {
           value: '',
-          label: 'Column name',
-          header: 'Add new column',
+          label: _t('column.name', {defaultMessage: 'Column name'}),
+          header: _t('column.addNew', {defaultMessage: 'Add new column'}),
           onConfirm: name => {
             display.addDynamicColumn(name);
             tick().then(() => {

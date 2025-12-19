@@ -7,6 +7,7 @@
 
   export let extraIcon = null;
   export let extraIconTooltip = null;
+  export let isSelected = false;
 
   let mouseIn = false;
 </script>
@@ -14,6 +15,7 @@
 <td
   data-row={rowIndex}
   data-col="header"
+  class:selected={isSelected}
   on:mouseenter={() => (mouseIn = true)}
   on:mouseleave={() => (mouseIn = false)}
 >
@@ -42,5 +44,8 @@
     position: absolute;
     right: 0px;
     top: 1px;
+  }
+  :global(.data-grid-focused) td.selected {
+    background-color: var(--theme-bg-selected);
   }
 </style>

@@ -16,8 +16,8 @@
   registerCommand({
     id: 'jsonl.save',
     group: 'save',
-    category: 'JSON Lines editor',
-    name: 'Save',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
+    name: __t('command.jsonl.save', { defaultMessage: 'Save' }),
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon save',
@@ -27,8 +27,8 @@
 
   registerCommand({
     id: 'jsonl.preview',
-    category: 'JSON Lines editor',
-    name: 'Preview',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
+    name: __t('command.jsonl.preview', { defaultMessage: 'Preview' }),
     icon: 'icon preview',
     keyText: 'F5',
     testEnabled: () => getCurrentEditor() != null,
@@ -37,8 +37,8 @@
 
   registerCommand({
     id: 'jsonl.previewNewTab',
-    category: 'JSON Lines editor',
-    name: 'Preview in new tab',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
+    name: __t('command.jsonl.previewNewTab', { defaultMessage: 'Preview in new tab' }),
     icon: 'icon preview',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().previewMewTab(),
@@ -46,8 +46,8 @@
 
   registerCommand({
     id: 'jsonl.closePreview',
-    category: 'JSON Lines editor',
-    name: 'Close preview',
+    category: __t('command.jsonl', { defaultMessage: 'JSON Lines editor' }),
+    name: __t('command.jsonl.closePreview', { defaultMessage: 'Close preview' }),
     icon: 'icon close',
     testEnabled: () => getCurrentEditor()?.isPreview(),
     onClick: () => getCurrentEditor().closePreview(),
@@ -74,6 +74,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
+  import { __t } from '../translations';
 
   export let tabid;
   export let archiveFolder;

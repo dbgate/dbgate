@@ -8,6 +8,8 @@
   import keycodes from '../utility/keycodes';
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
   import { stringFilterBehaviour } from 'dbgate-tools';
+  import CheckboxField from '../forms/CheckboxField.svelte';
+  import { _t } from '../translations';
   // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
   export let managerSize;
@@ -35,7 +37,7 @@
 
 {#if isFormView}
   <div class="m-1">
-    <div>Column name filter</div>
+    <div>{_t('datagrid.columnNameFilter', { defaultMessage: 'Column name filter' })}</div>
     <div class="flex">
       <input
         type="text"
@@ -62,8 +64,15 @@
 {#if hasMultiColumnFilter}
   <div class="m-1">
     <div class="space-between">
-      <span>Multi column filter</span>
+      <span>{_t('dataGrid.multiColumnFilter', { defaultMessage: 'Multi column filter' })}</span>
       {#if multiColumnFilter}
+      <div class="flex items-center gap-2">
+        <CheckboxField
+          checked={!display.isMultiColumnFilterDisabled()}
+          on:change={() => {
+            display.toggleMultiColumnFilterEnabled();
+          }}
+        />
         <InlineButton
           square
           narrow
@@ -73,6 +82,7 @@
         >
           <FontIcon icon="icon close" />
         </InlineButton>
+      </div>
       {/if}
     </div>
 
@@ -85,6 +95,7 @@
       {database}
       {schemaName}
       {pureName}
+      filterDisabled={display.isMultiColumnFilterDisabled()}
     />
   </div>
 {/if}

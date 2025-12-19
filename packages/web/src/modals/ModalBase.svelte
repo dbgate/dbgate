@@ -11,6 +11,7 @@
   export let simple = false;
   export let simplefix = false;
   export let modalId;
+  export let fixedHeight = false;
 
   function handleCloseModal() {
     if (modalId == getActiveModalId()) {
@@ -45,6 +46,7 @@
     class:fullScreen
     class:simple
     class:simplefix
+    class:fixedHeight
     use:clickOutside
     on:clickOutside={handleClickOutside}
     data-testid="ModalBase_window"
@@ -100,6 +102,10 @@
     margin-top: 15vh;
     max-height: 70vh;
     width: 50%;
+  }
+
+  .window:not(.fullScreen):not(.simple):not(.simplefix).fixedHeight {
+    height: 70vh;
   }
 
   .window.fullScreen {
@@ -182,5 +188,11 @@
     bottom: 0px;
     border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
+  }
+
+  @media (max-width: 1280px) {
+    .window:not(.fullScreen):not(.simple):not(.simplefix) {
+      width: 75%;
+    }
   }
 </style>

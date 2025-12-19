@@ -4,13 +4,19 @@
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
+
+  import { _t } from '../translations';
 </script>
 
-<WidgetColumnBar>
-  <WidgetColumnBarItem title="Installed extensions" name="installed" height="50%" storageName='installedPluginsWidget'>
+<WidgetColumnBar storageName="pluginsWidget">
+  <WidgetColumnBarItem
+    title={_t('widgets.installedExtensions', { defaultMessage: 'Installed extensions' })}
+    name="installed"
+    height="50%"
+  >
     <InstalledPluginsList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Available extensions" name="all" storageName='allPluginsWidget'>
+  <WidgetColumnBarItem title={_t('widgets.availableExtensions', { defaultMessage: 'Available extensions' })} name="all">
     <AvailablePluginsList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

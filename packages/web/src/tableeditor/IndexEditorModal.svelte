@@ -3,6 +3,7 @@
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import TextField from '../forms/TextField.svelte';
+  import { _t } from '../translations';
 
   import ColumnsConstraintEditorModal from './ColumnsConstraintEditorModal.svelte';
 
@@ -29,7 +30,7 @@
   {...$$restProps}
   constraintLabel="index"
   constraintType="index"
-  constraintNameLabel="Index name"
+  constraintNameLabel={_t('indexEditor.indexName', { defaultMessage: 'Index name' })}
   {constraintInfo}
   {setTableInfo}
   {tableInfo}
@@ -61,15 +62,14 @@
   <svelte:fragment slot="constraintProps">
     <div class="largeFormMarker">
       <div class="row">
-        <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} disabled={isReadOnly} /> Is unique
-        index
+        <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} disabled={isReadOnly} /> {_t('indexEditor.isUnique', { defaultMessage: 'Is unique index' })}
       </div>
     </div>
 
     <div class="largeFormMarker">
       {#if driver?.dialect?.filteredIndexes}
         <div class="row">
-          <div class="label col-3">Filtered index condition</div>
+          <div class="label col-3">{_t('indexEditor.filteredIndexCondition', { defaultMessage: 'Filtered index condition' })}</div>
           <div class="col-9">
             <TextField
               value={filterDefinition}

@@ -1,9 +1,9 @@
-import driver from './driver';
+import drivers from './drivers';
 import { formatProfilerEntry, extractProfileTimestamp, aggregateProfileChartEntry } from './profilerFunctions';
 
 export default {
   packageName: 'dbgate-plugin-mongo',
-  drivers: [driver],
+  drivers,
   functions: {
     formatProfilerEntry,
     extractProfileTimestamp,

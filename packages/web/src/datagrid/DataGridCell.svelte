@@ -1,7 +1,7 @@
 <script lang="ts">
   import _, { isPlainObject } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
-  import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
+  import { detectTypeIcon, getConvertValueMenu, isJsonLikeLongString, safeJsonParse, isTypeNumber } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import CellValue from './CellValue.svelte';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
@@ -38,7 +38,9 @@
   export let overlayValue = null;
   export let isMissingOverlayField = false;
 
-  $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
+  $: value = col.isStructured
+    ? _.get(rowData || {}, col.uniquePath)
+    : (rowData || {})[col.uniqueNameShorten ?? col.uniqueName];
 
   function computeStyle(maxWidth, col) {
     let res = '';
@@ -55,7 +57,11 @@
   $: style = computeStyle(maxWidth, col);
 
   $: isJson =
-    _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid && !value.$bigint;
+    _.isPlainObject(value) &&
+    !(value?.type == 'Buffer' && _.isArray(value.data)) &&
+    !value.$oid &&
+    !value.$bigint &&
+    !value.$decimal;
 
   // don't parse JSON for explicit data types
   $: jsonParsedValue = !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;
@@ -78,7 +84,7 @@
   class:isFocusedColumn
   class:hasOverlayValue
   class:isMissingOverlayField
-  class:alignRight={_.isNumber(value) && !showHint}
+  class:alignRight={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && !isModifiedCell}
   {style}
 >
   {#if hasOverlayValue}

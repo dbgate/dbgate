@@ -186,6 +186,7 @@ export async function apiCall(
       headers: {
         'Content-Type': 'application/json',
         'x-api-session-id': getApiSessionId(),
+        'x-ui-language': localStorage.getItem('selectedLanguage') || 'en',
         ...resolveApiHeaders(),
       },
       body: JSON.stringify(args, serializeJsTypesReplacer),

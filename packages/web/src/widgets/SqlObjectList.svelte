@@ -17,11 +17,11 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import {
+    useAllApps,
     useConnectionInfo,
     useDatabaseInfo,
     useDatabaseStatus,
     useSchemaList,
-    useUsedApps,
   } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
@@ -31,7 +31,7 @@
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import { getObjectTypeFieldLabel } from '../utility/common';
+  import { getDatabasStatusMenu, getObjectTypeFieldLabel } from '../utility/common';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -56,6 +56,7 @@
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import SubProcedureParamList from '../appobj/SubProcedureParamList.svelte';
   import SubProcedureLineList from '../appobj/SubProcedureLineList.svelte';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;
@@ -73,38 +74,51 @@
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
 
-  $: apps = useUsedApps();
-
-  $: dbApps = filterAppsForDatabase($currentDatabase?.connection, $currentDatabase?.name, $apps || []);
+  $: apps = useAllApps();
+  $: appsForDb = filterAppsForDatabase($connection, database, $apps || [], $objects);
 
   // $: console.log('OBJECTS', $objects);
+
+  $: sortArgs =
+    $databaseObjectAppObjectSearchSettings.sortBy == 'rowCount'
+      ? [
+          ['rowCount', 'sizeBytes', 'schemaName', 'pureName'],
+          ['desc', 'desc', 'asc', 'asc'],
+        ]
+      : $databaseObjectAppObjectSearchSettings.sortBy == 'sizeBytes'
+        ? [
+            ['sizeBytes', 'rowCount', 'schemaName', 'pureName'],
+            ['desc', 'desc', 'asc', 'asc'],
+          ]
+        : [
+            ['schemaName', 'pureName'],
+            ['asc', 'asc'],
+          ];
 
   $: objectList = _.flatten([
     ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(
       objectTypeField =>
-        _.sortBy(
+        _.orderBy(
           (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
-          ['schemaName', 'pureName']
+          sortArgs[0],
+          // @ts-ignore
+          sortArgs[1]
         )
     ),
-    ...dbApps.map(app =>
-      app.queries.map(query => ({
-        objectTypeField: 'queries',
-        pureName: query.name,
-        schemaName: app.name,
-        sql: query.sql,
-      }))
+    ...appsForDb.map(app =>
+      Object.values(app.files || {})
+        .filter(x => x.type == 'query')
+        .map(query => ({
+          objectTypeField: 'queries',
+          pureName: query.label,
+          sql: query.sql,
+        }))
     ),
   ]);
 
   // let generateIndex = 0;
   // setInterval(() => (generateIndex += 1), 2000);
   // $: objectList = generateObjectList(generateIndex);
-
-  const handleRefreshDatabase = () => {
-    apiCall('database-connections/refresh', { conid, database });
-    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
-  };
 
   function createAddMenu() {
     const res = [];
@@ -128,22 +142,75 @@
     return res;
   }
 
+  function createRefreshDatabaseMenu() {
+    return getDatabasStatusMenu({ conid, database }, driver);
+  }
+
+  function handleFullRefreshDatabase() {
+    apiCall('database-connections/sync-model', { conid, database, isFullRefresh: true });
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', conid, database });
+  }
+
   function createSearchMenu() {
     const res = [];
-    res.push({ label: 'Search by:', isBold: true, disabled: true });
+    res.push({ label: _t('sqlObject.searchBy', { defaultMessage: 'Search by:' }), isBold: true, disabled: true });
     if (driver?.databaseEngineTypes?.includes('document')) {
-      res.push({ label: 'Collection name', switchValue: 'pureName' });
+      res.push({
+        label: _t('sqlObject.collectionName', { defaultMessage: 'Collection name' }),
+        switchValue: 'pureName',
+      });
     }
     if (driver?.databaseEngineTypes?.includes('sql')) {
-      res.push({ label: 'Table/view/procedure name', switchValue: 'pureName' });
-      res.push({ label: 'Schema', switchValue: 'schemaName' });
-      res.push({ label: 'Column name', switchValue: 'columnName' });
-      res.push({ label: 'Column data type', switchValue: 'columnDataType' });
-      res.push({ label: 'Table comment', switchValue: 'tableComment' });
-      res.push({ label: 'Column comment', switchValue: 'columnComment' });
-      res.push({ label: 'View/procedure/trigger text', switchValue: 'sqlObjectText' });
-      res.push({ label: 'Table engine', switchValue: 'tableEngine' });
+      res.push({
+        label: _t('sqlObject.tableViewProcedureName', { defaultMessage: 'Table/view/procedure name' }),
+        switchValue: 'pureName',
+      });
+      res.push({ label: _t('sqlObject.schemaName', { defaultMessage: 'Schema' }), switchValue: 'schemaName' });
+      res.push({ label: _t('sqlObject.columnName', { defaultMessage: 'Column name' }), switchValue: 'columnName' });
+      res.push({
+        label: _t('sqlObject.columnDataType', { defaultMessage: 'Column data type' }),
+        switchValue: 'columnDataType',
+      });
+      res.push({
+        label: _t('sqlObject.tableComment', { defaultMessage: 'Table comment' }),
+        switchValue: 'tableComment',
+      });
+      res.push({
+        label: _t('sqlObject.columnComment', { defaultMessage: 'Column comment' }),
+        switchValue: 'columnComment',
+      });
+      res.push({
+        label: _t('sqlObject.viewProcedureTriggerText', { defaultMessage: 'View/procedure/trigger text' }),
+        switchValue: 'sqlObjectText',
+      });
+      res.push({ label: _t('sqlObject.tableEngine', { defaultMessage: 'Table engine' }), switchValue: 'tableEngine' });
+      res.push({
+        label: _t('sqlObject.tablesWithRows', { defaultMessage: 'Only tables with rows' }),
+        switchValue: 'tablesWithRows',
+      });
     }
+
+    res.push({ label: _t('sqlObject.sortBy', { defaultMessage: 'Sort by:' }), isBold: true, disabled: true });
+    res.push({
+      label: _t('sqlObject.name', { defaultMessage: 'Name' }),
+      switchOption: 'sortBy',
+      switchOptionValue: 'name',
+      switchOptionIsDefault: true,
+      closeOnSwitchClick: true,
+    });
+    res.push({
+      label: _t('sqlObject.rowCount', { defaultMessage: 'Row count' }),
+      switchOption: 'sortBy',
+      switchOptionValue: 'rowCount',
+      closeOnSwitchClick: true,
+    });
+    res.push({
+      label: _t('sqlObject.sizeBytes', { defaultMessage: 'Size (bytes)' }),
+      switchOption: 'sortBy',
+      switchOptionValue: 'sizeBytes',
+      closeOnSwitchClick: true,
+    });
+
     return res.map(item => ({
       ...item,
       switchStore: databaseObjectAppObjectSearchSettings,
@@ -165,6 +232,15 @@
         $focusedConnectionOrDatabase?.database != extractDbNameFromComposite(database)));
 
   // $: console.log('STATUS', $status);
+
+  function getAppObjectGroup(data) {
+    if (data.objectTypeField == 'tables') {
+      if (data.pureName.match(databaseObjectAppObject.TABLE_BACKUP_REGEX)) {
+        return _t('dbObject.tableBackups', { defaultMessage: 'Table Backups' });
+      }
+    }
+    return getObjectTypeFieldLabel(data.objectTypeField, driver);
+  }
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -174,7 +250,9 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo message={$status.message} icon="img error" />
-    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    <InlineButton on:click={handleFullRefreshDatabase}
+      >{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton
+    >
   </WidgetsInnerContainer>
 {:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <SchemaSelector
@@ -191,26 +269,32 @@
 
   <WidgetsInnerContainer hideContent={differentFocusedDb}>
     <ErrorInfo
-      message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
+      message={_t('sqlObject.databaseEmpty', {
+        defaultMessage:
+          'Database {database} is empty or structure is not loaded, press Refresh button to reload structure',
+        values: { database },
+      })}
       icon="img alert"
     />
     <div class="m-1" />
-    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    <InlineButton on:click={handleFullRefreshDatabase}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton>
     {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
-      <InlineButton on:click={() => runCommand('new.table')}>New table</InlineButton>
+      <InlineButton on:click={() => runCommand('new.table')}
+        >{_t('database.newTable', { defaultMessage: 'New table' })}</InlineButton
+      >
     {/if}
     {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.collection')}
-        >New {driver?.collectionSingularLabel ?? 'collection/container'}</InlineButton
+        >{_t('sqlObject.newCollection', { defaultMessage: 'New collection/container' })}</InlineButton
       >
     {/if}
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
     <SearchInput
-      placeholder="Search in tables, views, procedures"
+      placeholder={_t('sqlObject.search.placeholder', { defaultMessage: 'Search in tables, views, procedures' })}
       bind:value={filter}
       bind:this={domFilter}
       onFocusFilteredList={() => {
@@ -229,14 +313,14 @@
     {#if !filter}
       <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     {/if}
-    <InlineButton
-      on:click={handleRefreshDatabase}
-      title="Refresh database connection and object list"
+    <DropDownButton
+      menu={createRefreshDatabaseMenu}
+      title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
       square
+      narrow={false}
       data-testid="SqlObjectList_refreshButton"
-    >
-      <FontIcon icon="icon refresh" />
-    </InlineButton>
+      icon="icon dots-vertical"
+    />
   </SearchBoxWrapper>
   <SchemaSelector
     schemaList={_.isArray($schemaList) ? $schemaList : null}
@@ -258,7 +342,10 @@
     data-testid="SqlObjectList_container"
   >
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
-      <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
+      <LoadingInfo
+        message={$status?.feedback?.analysingMessage ||
+          _t('sqlObject.loadingStructure', { defaultMessage: 'Loading database structure' })}
+      />
     {:else}
       <AppObjectListHandler
         bind:this={domListHandler}
@@ -281,10 +368,10 @@
       >
         <AppObjectList
           list={objectList
-            .filter(x => ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
+            .filter(x => x.schemaName == null || ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
             .map(x => ({ ...x, conid, database }))}
           module={databaseObjectAppObject}
-          groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField, driver)}
+          groupFunc={getAppObjectGroup}
           subItemsComponent={(data, { isExpandedBySearch }) =>
             data.objectTypeField == 'procedures' || data.objectTypeField == 'functions'
               ? isExpandedBySearch

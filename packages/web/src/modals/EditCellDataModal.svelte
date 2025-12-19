@@ -13,6 +13,7 @@
   import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
   import { showSnackbarError } from '../utility/snackbar';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
+  import { _t } from '../translations';
   
   export let onSave;
   export let value;
@@ -49,14 +50,14 @@
     if (parsed) {
       textValue = JSON.stringify(parsed, null, 2);
     } else {
-      showModal(ErrorMessageModal, { message: 'Not valid JSON' });
+      showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
     }
   }
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <div slot="header">Edit cell value</div>
+    <div slot="header">{_t('dataGrid.editCellValue', { defaultMessage: 'Edit cell value' })}</div>
 
     <div class="editor">
       <AceEditor bind:value={textValue} bind:this={editor} onKeyDown={handleKeyDown} mode={syntaxMode} />
@@ -65,28 +66,28 @@
     <div slot="footer" class="footer">
       <div>
         <FormStyledButton
-          value="OK"
+          value={_t('common.ok', { defaultMessage: 'OK' })}
           title="Ctrl+Enter"
           on:click={() => {
             onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
             closeCurrentModal();
           }}
         />
-        <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
+        <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </div>
 
       <div>
-        <FormStyledButton type="button" value="Format JSON" on:click={handleFormatJson} />
+        <FormStyledButton type="button" skipWidth={true} value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })} on:click={handleFormatJson} />
 
-        Code highlighting:
+        {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
         <SelectField
           isNative
           value={syntaxMode}
           on:change={e => (syntaxMode = e.detail)}
           options={[
-            { value: 'text', label: 'None (raw text)' },
+            { value: 'text', label: _t('dataGrid.codeHighlighting.none', { defaultMessage: 'None (raw text)' }) },
             { value: 'json', label: 'JSON' },
-            { value: 'html', label: 'HTML' },
+            { value: 'html', label: 'HTML'},
             { value: 'xml', label: 'XML' },
           ]}
         />

@@ -44,6 +44,7 @@ const mysqlEngine = {
   supportRenameSqlObject: false,
   dbSnapshotBySeconds: true,
   dumpFile: 'data/chinook-mysql.sql',
+  binaryDataType: 'blob',
   dumpChecks: [
     {
       sql: 'select count(*) as res from genre',
@@ -186,6 +187,7 @@ const mariaDbEngine = {
 /** @type {import('dbgate-types').TestEngineInfo} */
 const postgreSqlEngine = {
   label: 'PostgreSQL',
+  skipIncrementalAnalysis: true,
   connection: {
     engine: 'postgres@dbgate-plugin-postgres',
     password: 'Pwd2020Db',
@@ -216,6 +218,7 @@ const postgreSqlEngine = {
   supportSchemas: true,
   supportRenameSqlObject: true,
   defaultSchemaName: 'public',
+  binaryDataType: 'bytea',
   dumpFile: 'data/chinook-postgre.sql',
   dumpChecks: [
     {
@@ -446,6 +449,7 @@ const sqlServerEngine = {
   supportTableComments: true,
   supportColumnComments: true,
   // skipSeparateSchemas: true,
+  binaryDataType: 'varbinary(100)',
   triggers: [
     {
       testName: 'triggers before each row',
@@ -506,6 +510,7 @@ const sqliteEngine = {
       },
     },
   ],
+  binaryDataType: 'blob',
 };
 
 const libsqlFileEngine = {
@@ -619,6 +624,7 @@ const oracleEngine = {
       },
     },
   ],
+  binaryDataType: 'blob',
 };
 
 /** @type {import('dbgate-types').TestEngineInfo} */
@@ -754,16 +760,16 @@ const enginesOnLocal = [
   // cassandraEngine,
   // mysqlEngine,
   // mariaDbEngine,
-  // postgreSqlEngine,
-  // sqlServerEngine,
+  postgreSqlEngine,
+  //sqlServerEngine,
   // sqliteEngine,
   // cockroachDbEngine,
   // clickhouseEngine,
   // libsqlFileEngine,
   // libsqlWsEngine,
-  // oracleEngine,
+  //oracleEngine,
   // duckdbEngine,
-  firebirdEngine,
+  //firebirdEngine,
 ];
 
 /** @type {import('dbgate-types').TestEngineInfo[] & Record<string, import('dbgate-types').TestEngineInfo>} */

@@ -57,6 +57,12 @@ export function compilePermissions(permissions: string[] | string): CompiledPerm
   return res;
 }
 
+export function getPermissionsCacheKey(permissions: string[] | string) {
+  if (!permissions) return null;
+  if (_isString(permissions)) return permissions;
+  return permissions.join('|');
+}
+
 export function testPermission(tested: string, permissions: CompiledPermissions) {
   let allow = true;
 
@@ -103,9 +109,25 @@ export function getPredefinedPermissions(predefinedRoleName: string) {
     case 'superadmin':
       return ['*', '~widgets/*', 'widgets/admin', 'widgets/database', '~all-connections'];
     case 'logged-user':
-      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections'];
+      return [
+        '*',
+        '~widgets/admin',
+        '~admin/*',
+        '~internal-storage',
+        '~all-connections',
+        '~run-shell-script',
+        '~all-team-files/*',
+      ];
     case 'anonymous-user':
-      return ['*', '~widgets/admin', '~admin/*', '~internal-storage', '~all-connections'];
+      return [
+        '*',
+        '~widgets/admin',
+        '~admin/*',
+        '~internal-storage',
+        '~all-connections',
+        '~run-shell-script',
+        '~all-team-files/*',
+      ];
     default:
       return null;
   }

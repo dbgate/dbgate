@@ -12,6 +12,7 @@
   export let addButtonLabel;
   export let placeholder;
   export let templateProps;
+  export let isReadOnly = false;
 
   const { template, values, setFieldValue } = getFormContext();
 
@@ -20,7 +21,7 @@
 
 <svelte:component this={template} type="text" {label} {...templateProps}>
   {#each stringList as value, index}
-    <div class='input-line-flex'>
+    <div class="input-line-flex">
       <TextField
         {value}
         {placeholder}
@@ -28,12 +29,14 @@
           const newValues = stringList.map((v, i) => (i === index ? e.target['value'] : v));
           setFieldValue(name, newValues);
         }}
+        disabled={isReadOnly}
       />
 
       <InlineButton
         on:click={() => {
           setFieldValue(name, [...stringList.slice(0, index), ...stringList.slice(index + 1)]);
         }}
+        disabled={isReadOnly}
       >
         <FontIcon icon="icon delete" />
       </InlineButton>
@@ -45,11 +48,12 @@
     on:click={() => {
       setFieldValue(name, [...stringList, '']);
     }}
+    disabled={isReadOnly}
   />
 </svelte:component>
 
 <style>
-    .input-line-flex {
-        display: flex;
-    }
+  .input-line-flex {
+    display: flex;
+  }
 </style>

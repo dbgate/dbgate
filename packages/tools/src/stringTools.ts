@@ -9,6 +9,7 @@ import _isEmpty from 'lodash/isEmpty';
 import _omitBy from 'lodash/omitBy';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
 import isPlainObject from 'lodash/isPlainObject';
+import md5 from 'blueimp-md5';
 
 export const MAX_GRID_TEXT_LENGTH = 1000; // maximum length of text in grid cell, longer text is truncated
 
@@ -42,6 +43,20 @@ export function hexStringToArray(inputString) {
   return res;
 }
 
+export function base64ToHex(base64String) {
+  const binaryString = atob(base64String);
+  const hexString = Array.from(binaryString, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  return '0x' + hexString.toUpperCase();
+}
+
+export function hexToBase64(hexString) {
+  const binaryString = hexString
+    .match(/.{1,2}/g)
+    .map(byte => String.fromCharCode(parseInt(byte, 16)))
+    .join('');
+  return btoa(binaryString);
+}
+
 export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
@@ -53,8 +68,9 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
       return {
-        type: 'Buffer',
-        data: hexStringToArray(value.substring(2)),
+        $binary: {
+          base64: hexToBase64(value.substring(2)),
+        },
       };
     }
   }
@@ -185,6 +201,26 @@ function stringifyJsonToGrid(value): ReturnType<typeof stringifyCellValue> {
   return { value: '(JSON)', gridStyle: 'nullCellStyle' };
 }
 
+function formatNumberCustomSeparator(value, thousandsSeparator) {
+  const [intPart, decPart] = value.split('.');
+  const intPartWithSeparator = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+  return decPart ? `${intPartWithSeparator}.${decPart}` : intPartWithSeparator;
+}
+
+function formatCellNumber(value, gridFormattingOptions?: { thousandsSeparator?: string }) {
+  const separator = gridFormattingOptions?.thousandsSeparator;
+  if (_isNumber(value)) {
+    if (separator === 'none' || (value < 1000 && value > -1000)) return value.toString();
+    if (separator === 'system') return value.toLocaleString();
+  }
+  // fallback for system locale
+  if (separator === 'space' || separator === 'system') return formatNumberCustomSeparator(value.toString(), ' ');
+  if (separator === 'narrowspace') return formatNumberCustomSeparator(value.toString(), '\u202F');
+  if (separator === 'comma') return formatNumberCustomSeparator(value.toString(), ',');
+  if (separator === 'dot') return formatNumberCustomSeparator(value.toString(), '.');
+  return value.toString();
+}
+
 export function stringifyCellValue(
   value,
   intent:
@@ -195,7 +231,7 @@ export function stringifyCellValue(
     | 'exportIntent'
     | 'clipboardIntent',
   editorTypes?: DataEditorTypesBehaviour,
-  gridFormattingOptions?: { useThousandsSeparator?: boolean },
+  gridFormattingOptions?: { thousandsSeparator?: string },
   jsonParsedValue?: any
 ): {
   value: string;
@@ -229,11 +265,26 @@ export function stringifyCellValue(
   if (value === true) return { value: 'true', gridStyle: 'valueCellStyle' };
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
 
-  if (editorTypes?.parseHexAsBuffer) {
-    if (value?.type == 'Buffer' && _isArray(value.data)) {
-      return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
-    }
+  if (value?.$binary?.base64) {
+    return {
+      value: base64ToHex(value.$binary.base64),
+      gridStyle: 'valueCellStyle',
+    };
   }
+
+  if (value?.$decimal) {
+    return {
+      value: formatCellNumber(value.$decimal, gridFormattingOptions),
+      gridStyle: 'valueCellStyle',
+    };
+  }
+
+  if (editorTypes?.parseHexAsBuffer) {
+    // if (value?.type == 'Buffer' && _isArray(value.data)) {
+    //   return { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
+    // }
+  }
+
   if (editorTypes?.parseObjectIdAsDollar) {
     if (value?.$oid) {
       switch (intent) {
@@ -247,13 +298,13 @@ export function stringifyCellValue(
   }
   if (value?.$bigint) {
     return {
-      value: value.$bigint,
+      value: formatCellNumber(value.$bigint, gridFormattingOptions),
       gridStyle: 'valueCellStyle',
     };
   }
   if (typeof value === 'bigint') {
     return {
-      value: value.toString(),
+      value: formatCellNumber(value.toString(), gridFormattingOptions),
       gridStyle: 'valueCellStyle',
     };
   }
@@ -328,13 +379,8 @@ export function stringifyCellValue(
   if (_isNumber(value)) {
     switch (intent) {
       case 'gridCellIntent':
-        return {
-          value:
-            gridFormattingOptions?.useThousandsSeparator && (value >= 10000 || value <= -10000)
-              ? value.toLocaleString()
-              : value.toString(),
-          gridStyle: 'valueCellStyle',
-        };
+        const separator = gridFormattingOptions?.thousandsSeparator;
+        return { value: formatCellNumber(value, gridFormattingOptions), gridStyle: 'valueCellStyle' };
       default:
         return { value: value.toString() };
     }
@@ -386,6 +432,9 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
   if (_isArray(json) || _isPlainObject(json)) {
     return json;
   }
+  if (!json) {
+    return defaultValue;
+  }
   try {
     return JSON.parse(json);
   } catch (err) {
@@ -421,6 +470,9 @@ export function shouldOpenMultilineDialog(value) {
     return false;
   }
   if (value?.$bigint) {
+    return false;
+  }
+  if (value?.$decimal) {
     return false;
   }
   if (_isPlainObject(value) || _isArray(value)) {
@@ -477,6 +529,9 @@ export function arrayBufferToBase64(buffer) {
 export function getAsImageSrc(obj) {
   if (obj?.type == 'Buffer' && _isArray(obj?.data)) {
     return `data:image/png;base64, ${arrayBufferToBase64(obj?.data)}`;
+  }
+  if (obj?.$binary?.base64) {
+    return `data:image/png;base64, ${obj.$binary.base64}`;
   }
 
   if (_isString(obj) && (obj.startsWith('http://') || obj.startsWith('https://'))) {
@@ -670,6 +725,9 @@ export function deserializeJsTypesFromJsonParse(obj) {
     if (value?.$bigint) {
       return BigInt(value.$bigint);
     }
+    if (value?.$decimal) {
+      return value.$decimal;
+    }
   });
 }
 
@@ -683,6 +741,9 @@ export function serializeJsTypesReplacer(key, value) {
 export function deserializeJsTypesReviver(key, value) {
   if (value?.$bigint) {
     return BigInt(value.$bigint);
+  }
+  if (value?.$decimal) {
+    return value.$decimal;
   }
   return value;
 }
@@ -733,4 +794,13 @@ export function setSqlFrontMatter(text: string, data: { [key: string]: any }, ya
     .join('\n');
   const frontMatterContent = `-- >>>\n${yamlContentMapped}\n-- <<<\n`;
   return frontMatterContent + (textClean || '');
+}
+
+export function shortenIdentifier(s: string, maxLength?: number) {
+  if (!maxLength || maxLength < 10) return s;
+  if (s.length <= maxLength) return s;
+  const hash = md5(s).substring(0, 8);
+  const partLength = Math.floor((maxLength - 9) / 2);
+  const restLength = maxLength - 10 - partLength;
+  return s.substring(0, partLength) + '_' + hash + '_' + s.substring(s.length - restLength);
 }

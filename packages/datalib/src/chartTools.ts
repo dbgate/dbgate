@@ -9,7 +9,7 @@ import {
   ChartYFieldDefinition,
   ProcessedChart,
 } from './chartDefinitions';
-import { addMinutes, addHours, addDays, addMonths, addYears } from 'date-fns';
+import { addMinutes, addHours, addDays, addMonths, addWeeks, addYears, getWeek } from 'date-fns';
 
 export function getChartDebugPrint(chart: ProcessedChart) {
   let res = '';
@@ -29,6 +29,7 @@ export function tryParseChartDate(dateInput: any): ChartDateParsed | null {
     return {
       year: dateInput.getFullYear(),
       month: dateInput.getMonth() + 1,
+      week: getWeek(dateInput),
       day: dateInput.getDate(),
       hour: dateInput.getHours(),
       minute: dateInput.getMinutes(),
@@ -42,15 +43,21 @@ export function tryParseChartDate(dateInput: any): ChartDateParsed | null {
     /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})?)?$/
   );
   const monthMatch = dateInput.match(/^(\d{4})-(\d{2})$/);
+  const weekMatch = dateInput.match(/^(\d{4})\@(\d{2})$/);
   // const yearMatch = dateInput.match(/^(\d{4})$/);
 
   if (dateMatch) {
-    const [_notUsed, year, month, day, hour, minute, second, fraction] = dateMatch;
+    const [_notUsed, yearStr, monthStr, dayStr, hour, minute, second, fraction] = dateMatch;
+
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    const day = parseInt(dayStr, 10);
 
     return {
-      year: parseInt(year, 10),
-      month: parseInt(month, 10),
-      day: parseInt(day, 10),
+      year,
+      month,
+      week: getWeek(new Date(year, month - 1, day)),
+      day,
       hour: parseInt(hour, 10) || 0,
       minute: parseInt(minute, 10) || 0,
       second: parseInt(second, 10) || 0,
@@ -63,6 +70,19 @@ export function tryParseChartDate(dateInput: any): ChartDateParsed | null {
     return {
       year: parseInt(year, 10),
       month: parseInt(month, 10),
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      fraction: undefined,
+    };
+  }
+
+  if (weekMatch) {
+    const [_notUsed, year, week] = weekMatch;
+    return {
+      year: parseInt(year, 10),
+      week: parseInt(week, 10),
       day: 1,
       hour: 0,
       minute: 0,
@@ -97,6 +117,8 @@ export function stringifyChartDate(value: ChartDateParsed, transform: ChartXTran
       return `${value.year}`;
     case 'date:month':
       return `${value.year}-${pad2Digits(value.month)}`;
+    case 'date:week':
+      return `${value.year}@${pad2Digits(getWeek(new Date(value.year, (value.month ?? 1) - 1, value.day ?? 1)))}`;
     case 'date:day':
       return `${value.year}-${pad2Digits(value.month)}-${pad2Digits(value.day)}`;
     case 'date:hour':
@@ -126,6 +148,9 @@ export function incrementChartDate(value: ChartDateParsed, transform: ChartXTran
     case 'date:month':
       newDateRepresentation = addMonths(dateRepresentation, 1);
       break;
+    case 'date:week':
+      newDateRepresentation = addWeeks(dateRepresentation, 1);
+      break;
     case 'date:day':
       newDateRepresentation = addDays(dateRepresentation, 1);
       break;
@@ -143,6 +168,11 @@ export function incrementChartDate(value: ChartDateParsed, transform: ChartXTran
       return {
         year: newDateRepresentation.getFullYear(),
         month: newDateRepresentation.getMonth() + 1,
+      };
+    case 'date:week':
+      return {
+        year: newDateRepresentation.getFullYear(),
+        week: getWeek(newDateRepresentation),
       };
     case 'date:day':
       return {
@@ -175,6 +205,8 @@ export function runTransformFunction(value: string, transformFunction: ChartXTra
       return dateParsed ? `${dateParsed.year}` : null;
     case 'date:month':
       return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}` : null;
+    case 'date:week':
+      return dateParsed ? `${dateParsed.year}@${pad2Digits(dateParsed.week)}` : null;
     case 'date:day':
       return dateParsed ? `${dateParsed.year}-${pad2Digits(dateParsed.month)}-${pad2Digits(dateParsed.day)}` : null;
     case 'date:hour':
@@ -209,6 +241,14 @@ export function computeChartBucketKey(
         {
           year: dateParsed.year,
           month: dateParsed.month,
+        },
+      ];
+    case 'date:week':
+      return [
+        dateParsed ? `${dateParsed.year}@${pad2Digits(dateParsed.week)}` : null,
+        {
+          year: dateParsed.year,
+          week: dateParsed.week,
         },
       ];
     case 'date:day':
@@ -265,6 +305,8 @@ export function computeDateBucketDistance(
       return end.year - begin.year;
     case 'date:month':
       return (end.year - begin.year) * 12 + (end.month - begin.month);
+    case 'date:week':
+      return (end.year - begin.year) * 52 + (end.week - begin.week);
     case 'date:day':
       return (
         (end.year - begin.year) * 365 +
@@ -302,6 +344,8 @@ export function compareChartDatesParsed(
       return a.year - b.year;
     case 'date:month':
       return a.year === b.year ? a.month - b.month : a.year - b.year;
+    case 'date:week':
+      return a.year === b.year ? a.week - b.week : a.year - b.year;
     case 'date:day':
       return a.year === b.year && a.month === b.month
         ? a.day - b.day
@@ -356,6 +400,8 @@ function getParentDateBucketKey(
       return null; // no parent for year
     case 'date:month':
       return bucketKey.slice(0, 4);
+    case 'date:week':
+      return bucketKey.slice(0, 4);
     case 'date:day':
       return bucketKey.slice(0, 7);
     case 'date:hour':
@@ -370,6 +416,8 @@ function getParentDateBucketTransform(transform: ChartXTransformFunction): Chart
     case 'date:year':
       return null; // no parent for year
     case 'date:month':
+      return 'date:year';
+    case 'date:week':
       return 'date:year';
     case 'date:day':
       return 'date:month';
@@ -388,6 +436,8 @@ function getParentKeyParsed(date: ChartDateParsed, transform: ChartXTransformFun
       return null; // no parent for year
     case 'date:month':
       return { year: date.year };
+    case 'date:week':
+      return { year: date.week };
     case 'date:day':
       return { year: date.year, month: date.month };
     case 'date:hour':

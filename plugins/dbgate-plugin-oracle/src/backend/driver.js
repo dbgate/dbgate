@@ -37,6 +37,15 @@ function zipDataRow(rowArray, columns) {
   return obj;
 }
 
+function modifyRow(row, columns) {
+  columns.forEach(col => {
+    if (Buffer.isBuffer(row[col.columnName])) {
+      row[col.columnName] = { $binary: { base64: row[col.columnName].toString('base64') } };
+    }
+  });
+  return row;
+}
+
 let oracleClientInitialized = false;
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -106,7 +115,7 @@ const driver = {
     const res = await dbhan.client.execute(sql);
     try {
       const columns = extractOracleColumns(res.metaData);
-      return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+      return { rows: (res.rows || []).map(row => modifyRow(zipDataRow(row, columns), columns)), columns };
     } catch (err) {
       return {
         rows: [],
@@ -134,7 +143,7 @@ const driver = {
         if (!wasHeader) {
           columns = extractOracleColumns(row);
           if (columns && columns.length > 0) {
-            options.recordset(columns);
+            options.recordset(columns, { engine: driverBase.engine });
           }
           wasHeader = true;
         }
@@ -147,11 +156,11 @@ const driver = {
         if (!wasHeader) {
           columns = extractOracleColumns(row);
           if (columns && columns.length > 0) {
-            options.recordset(columns);
+            options.recordset(columns, { engine: driverBase.engine });
           }
           wasHeader = true;
         }
-        options.row(zipDataRow(row, columns));
+        options.row(modifyRow(zipDataRow(row, columns), columns));
       });
 
       query.on('end', () => {
@@ -214,15 +223,16 @@ const driver = {
 
           if (rows && metaData) {
             const columns = extractOracleColumns(metaData);
-            options.recordset(columns);
+            options.recordset(columns, { engine: driverBase.engine });
             for (const row of rows) {
-              options.row(zipDataRow(row, columns));
+              options.row(modifyRow(zipDataRow(row, columns), columns));
             }
           } else if (rowsAffected) {
             options.info({
               message: `${rowsAffected} rows affected`,
               time: new Date(),
               severity: 'info',
+              rowsAffected,
             });
           }
         }
@@ -302,6 +312,7 @@ const driver = {
         if (columns && columns.length > 0) {
           pass.write({
             __isStreamHeader: true,
+            engine: driverBase.engine,
             ...(structure || { columns }),
           });
         }
@@ -310,7 +321,7 @@ const driver = {
     });
 
     query.on('data', row => {
-      pass.write(zipDataRow(row, columns));
+      pass.write(modifyRow(zipDataRow(row, columns), columns));
     });
 
     query.on('end', () => {

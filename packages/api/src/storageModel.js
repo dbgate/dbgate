@@ -360,6 +360,12 @@ module.exports = {
           "columnName": "value",
           "dataType": "varchar(1000)",
           "notNull": false
+        },
+        {
+          "pureName": "config",
+          "columnName": "valueType",
+          "dataType": "varchar(50)",
+          "notNull": false
         }
       ],
       "foreignKeys": [],
@@ -680,9 +686,34 @@ module.exports = {
           "columnName": "connectionDefinition",
           "dataType": "text",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
-      "foreignKeys": [],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_connections_import_source_id",
+          "pureName": "connections",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "connections",
         "constraintType": "primaryKey",
@@ -693,6 +724,131 @@ module.exports = {
           }
         ]
       }
+    },
+    {
+      "pureName": "database_permission_roles",
+      "columns": [
+        {
+          "pureName": "database_permission_roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "database_permission_roles",
+          "columnName": "name",
+          "dataType": "varchar(100)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "database_permission_roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_database_permission_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "view"
+        },
+        {
+          "id": -2,
+          "name": "read_content"
+        },
+        {
+          "id": -3,
+          "name": "write_data"
+        },
+        {
+          "id": -4,
+          "name": "run_script"
+        },
+        {
+          "id": -5,
+          "name": "deny"
+        }
+      ]
+    },
+    {
+      "pureName": "file_permission_roles",
+      "columns": [
+        {
+          "pureName": "file_permission_roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "file_permission_roles",
+          "columnName": "name",
+          "dataType": "varchar(100)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "file_permission_roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_file_permission_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "allow"
+        },
+        {
+          "id": -2,
+          "name": "deny"
+        }
+      ]
+    },
+    {
+      "pureName": "import_sources",
+      "columns": [
+        {
+          "pureName": "import_sources",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "import_sources",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "import_sources",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_import_sources",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "env"
+        }
+      ]
     },
     {
       "pureName": "roles",
@@ -709,9 +865,34 @@ module.exports = {
           "columnName": "name",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "roles",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "roles",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
-      "foreignKeys": [],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_roles_import_source_id",
+          "pureName": "roles",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
       "primaryKey": {
         "pureName": "roles",
         "constraintType": "primaryKey",
@@ -758,6 +939,12 @@ module.exports = {
           "columnName": "connection_id",
           "dataType": "int",
           "notNull": true
+        },
+        {
+          "pureName": "role_connections",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -786,12 +973,219 @@ module.exports = {
               "refColumnName": "id"
             }
           ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_connections_import_source_id",
+          "pureName": "role_connections",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
         }
       ],
       "primaryKey": {
         "pureName": "role_connections",
         "constraintType": "primaryKey",
         "constraintName": "PK_role_connections",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "role_databases",
+      "columns": [
+        {
+          "pureName": "role_databases",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "connection_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "database_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "database_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "database_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_databases",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_databases_role_id",
+          "pureName": "role_databases",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_databases_connection_id",
+          "pureName": "role_databases",
+          "refTableName": "connections",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "connection_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_databases_database_permission_role_id",
+          "pureName": "role_databases",
+          "refTableName": "database_permission_roles",
+          "columns": [
+            {
+              "columnName": "database_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_databases_import_source_id",
+          "pureName": "role_databases",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_databases",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_databases",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "role_files",
+      "columns": [
+        {
+          "pureName": "role_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "folder_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_files",
+          "columnName": "file_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_files_role_id",
+          "pureName": "role_files",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_files_file_permission_role_id",
+          "pureName": "role_files",
+          "refTableName": "file_permission_roles",
+          "columns": [
+            {
+              "columnName": "file_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_files",
         "columns": [
           {
             "columnName": "id"
@@ -820,6 +1214,12 @@ module.exports = {
           "columnName": "permission",
           "dataType": "varchar(250)",
           "notNull": true
+        },
+        {
+          "pureName": "role_permissions",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -835,6 +1235,18 @@ module.exports = {
               "refColumnName": "id"
             }
           ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_permissions_import_source_id",
+          "pureName": "role_permissions",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
         }
       ],
       "primaryKey": {
@@ -847,6 +1259,511 @@ module.exports = {
           }
         ]
       }
+    },
+    {
+      "pureName": "role_tables",
+      "columns": [
+        {
+          "pureName": "role_tables",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "connection_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "database_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "database_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "schema_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "schema_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "table_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "table_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "table_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "table_permission_scope_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_tables",
+          "columnName": "id_original",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_role_id",
+          "pureName": "role_tables",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_connection_id",
+          "pureName": "role_tables",
+          "refTableName": "connections",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "connection_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_table_permission_role_id",
+          "pureName": "role_tables",
+          "refTableName": "table_permission_roles",
+          "columns": [
+            {
+              "columnName": "table_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_table_permission_scope_id",
+          "pureName": "role_tables",
+          "refTableName": "table_permission_scopes",
+          "columns": [
+            {
+              "columnName": "table_permission_scope_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_tables_import_source_id",
+          "pureName": "role_tables",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_tables",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_tables",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "role_team_files",
+      "columns": [
+        {
+          "pureName": "role_team_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_files",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_files",
+          "columnName": "team_file_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_files",
+          "columnName": "allow_read",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_team_files",
+          "columnName": "allow_write",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_team_files",
+          "columnName": "allow_use",
+          "dataType": "int",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_team_files_role_id",
+          "pureName": "role_team_files",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_team_files_team_file_id",
+          "pureName": "role_team_files",
+          "refTableName": "team_files",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "team_file_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_team_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_team_files",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "table_permission_roles",
+      "columns": [
+        {
+          "pureName": "table_permission_roles",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "table_permission_roles",
+          "columnName": "name",
+          "dataType": "varchar(100)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "table_permission_roles",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_table_permission_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "read"
+        },
+        {
+          "id": -2,
+          "name": "update_only"
+        },
+        {
+          "id": -3,
+          "name": "create_update_delete"
+        },
+        {
+          "id": -4,
+          "name": "run_script"
+        },
+        {
+          "id": -5,
+          "name": "deny"
+        }
+      ]
+    },
+    {
+      "pureName": "table_permission_scopes",
+      "columns": [
+        {
+          "pureName": "table_permission_scopes",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "table_permission_scopes",
+          "columnName": "name",
+          "dataType": "varchar(100)",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "table_permission_scopes",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_table_permission_scopes",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "all_objects"
+        },
+        {
+          "id": -2,
+          "name": "tables"
+        },
+        {
+          "id": -3,
+          "name": "views"
+        },
+        {
+          "id": -4,
+          "name": "tables_views_collections"
+        },
+        {
+          "id": -5,
+          "name": "procedures"
+        },
+        {
+          "id": -6,
+          "name": "functions"
+        },
+        {
+          "id": -7,
+          "name": "triggers"
+        },
+        {
+          "id": -8,
+          "name": "sql_objects"
+        },
+        {
+          "id": -9,
+          "name": "collections"
+        }
+      ]
+    },
+    {
+      "pureName": "team_files",
+      "columns": [
+        {
+          "pureName": "team_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "file_name",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "file_content",
+          "dataType": "text",
+          "notNull": false
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "file_type_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "owner_user_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "metadata",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_team_files_file_type_id",
+          "pureName": "team_files",
+          "refTableName": "team_file_types",
+          "columns": [
+            {
+              "columnName": "file_type_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_team_files_owner_user_id",
+          "pureName": "team_files",
+          "refTableName": "users",
+          "columns": [
+            {
+              "columnName": "owner_user_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "team_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_team_files",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "team_file_types",
+      "columns": [
+        {
+          "pureName": "team_file_types",
+          "columnName": "id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "team_file_types",
+          "columnName": "name",
+          "dataType": "varchar(250)",
+          "notNull": true
+        },
+        {
+          "pureName": "team_file_types",
+          "columnName": "format",
+          "dataType": "varchar(50)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "team_file_types",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_team_file_types",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "name": "sql",
+          "format": "text"
+        },
+        {
+          "id": -2,
+          "name": "diagrams",
+          "format": "json"
+        },
+        {
+          "id": -3,
+          "name": "query",
+          "format": "json"
+        },
+        {
+          "id": -4,
+          "name": "perspectives",
+          "format": "json"
+        },
+        {
+          "id": -5,
+          "name": "impexp",
+          "format": "json"
+        },
+        {
+          "id": -6,
+          "name": "shell",
+          "format": "text"
+        },
+        {
+          "id": -7,
+          "name": "dbcompare",
+          "format": "json"
+        }
+      ]
     },
     {
       "pureName": "users",
@@ -944,6 +1861,177 @@ module.exports = {
         "pureName": "user_connections",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_connections",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_databases",
+      "columns": [
+        {
+          "pureName": "user_databases",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_databases",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_databases",
+          "columnName": "connection_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_databases",
+          "columnName": "database_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_databases",
+          "columnName": "database_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_databases",
+          "columnName": "database_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_databases_user_id",
+          "pureName": "user_databases",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_databases_connection_id",
+          "pureName": "user_databases",
+          "refTableName": "connections",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "connection_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_databases_database_permission_role_id",
+          "pureName": "user_databases",
+          "refTableName": "database_permission_roles",
+          "columns": [
+            {
+              "columnName": "database_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_databases",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_databases",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_files",
+      "columns": [
+        {
+          "pureName": "user_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "folder_name",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_files",
+          "columnName": "file_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_files_user_id",
+          "pureName": "user_files",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_files_file_permission_role_id",
+          "pureName": "user_files",
+          "refTableName": "file_permission_roles",
+          "columns": [
+            {
+              "columnName": "file_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_files",
         "columns": [
           {
             "columnName": "id"
@@ -1055,6 +2143,220 @@ module.exports = {
         "pureName": "user_roles",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_roles",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_tables",
+      "columns": [
+        {
+          "pureName": "user_tables",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "connection_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "database_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "database_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "schema_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "schema_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "table_names_list",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "table_names_regex",
+          "dataType": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "table_permission_role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_tables",
+          "columnName": "table_permission_scope_id",
+          "dataType": "int",
+          "notNull": true
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_tables_user_id",
+          "pureName": "user_tables",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_tables_connection_id",
+          "pureName": "user_tables",
+          "refTableName": "connections",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "connection_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_tables_table_permission_role_id",
+          "pureName": "user_tables",
+          "refTableName": "table_permission_roles",
+          "columns": [
+            {
+              "columnName": "table_permission_role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_tables_table_permission_scope_id",
+          "pureName": "user_tables",
+          "refTableName": "table_permission_scopes",
+          "columns": [
+            {
+              "columnName": "table_permission_scope_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_tables",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_tables",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_team_files",
+      "columns": [
+        {
+          "pureName": "user_team_files",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_files",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_files",
+          "columnName": "team_file_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_files",
+          "columnName": "allow_read",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_team_files",
+          "columnName": "allow_write",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_team_files",
+          "columnName": "allow_use",
+          "dataType": "int",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_team_files_user_id",
+          "pureName": "user_team_files",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_team_files_team_file_id",
+          "pureName": "user_team_files",
+          "refTableName": "team_files",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "team_file_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_team_files",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_team_files",
         "columns": [
           {
             "columnName": "id"

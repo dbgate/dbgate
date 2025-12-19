@@ -3,6 +3,10 @@
   "name": "dbgate-datalib",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",

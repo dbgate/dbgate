@@ -13,13 +13,16 @@
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
+  import { _t } from '../translations';
 
   $: favorites = useFavorites();
-
 </script>
 
-<WidgetColumnBar>
-  <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" storageName='closedTabsWidget'>
+<WidgetColumnBar storageName="historyWidget">
+  <WidgetColumnBarItem
+    title={_t('history.recentlyClosedTabs', { defaultMessage: 'Recently closed tabs' })}
+    name="closedTabs"
+  >
     <WidgetsInnerContainer>
       <AppObjectList
         list={_.sortBy(
@@ -30,7 +33,7 @@
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Query history" name="queryHistory" storageName='queryHistoryWidget'>
+  <WidgetColumnBarItem title={_t('history.queryHistory', { defaultMessage: 'Query history' })} name="queryHistory">
     <QueryHistoryList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

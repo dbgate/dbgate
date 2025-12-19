@@ -1,0 +1,1 @@
+This component is only for Premium edition

@@ -1,4 +1,5 @@
 import _cloneDeep from 'lodash/cloneDeep';
+import _uniq from 'lodash/uniq';
 import _isString from 'lodash/isString';
 import type {
   ColumnInfo,
@@ -75,9 +76,27 @@ export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo | s
   return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column.columnName));
 }
 
+export function getConflictingColumnNames(columns: ColumnInfo[]): Set<string> {
+  const conflictingNames = new Set(
+    _uniq(columns.map(x => x.columnName).filter((item, index, arr) => arr.indexOf(item) !== index))
+  );
+  return conflictingNames;
+}
+
 export function makeUniqueColumnNames(res: ColumnInfo[]) {
   const usedNames = new Set();
+  const conflictingNames = getConflictingColumnNames(res);
   for (let i = 0; i < res.length; i++) {
+    if (
+      conflictingNames.has(res[i].columnName) &&
+      res[i].pureName &&
+      !usedNames.has(`${res[i].pureName}_${res[i].columnName}`)
+    ) {
+      res[i].columnName = `${res[i].pureName}_${res[i].columnName}`;
+      usedNames.add(res[i].columnName);
+      continue;
+    }
+
     if (usedNames.has(res[i].columnName)) {
       let suffix = 2;
       while (usedNames.has(`${res[i].columnName}${suffix}`)) suffix++;
@@ -111,3 +130,20 @@ export function fillConstraintNames(table: TableInfo, dialect: SqlDialect) {
   }
   return res;
 }
+
+export const DATA_FOLDER_NAMES = [
+  { name: 'sql', label: 'SQL scripts' },
+  { name: 'shell', label: 'Shell scripts' },
+  { name: 'markdown', label: 'Markdown files' },
+  { name: 'charts', label: 'Charts' },
+  { name: 'query', label: 'Query designs' },
+  { name: 'sqlite', label: 'SQLite files' },
+  { name: 'duckdb', label: 'DuckDB files' },
+  { name: 'diagrams', label: 'Diagrams' },
+  { name: 'perspectives', label: 'Perspectives' },
+  { name: 'impexp', label: 'Import/Export jobs' },
+  { name: 'modtrans', label: 'Model transforms' },
+  { name: 'datadeploy', label: 'Data deploy jobs' },
+  { name: 'dbcompare', label: 'Database compare jobs' },
+  { name: 'apps', label: 'Applications' },
+];

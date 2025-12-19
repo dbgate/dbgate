@@ -3,7 +3,7 @@
 
   registerFileCommands({
     idPrefix: 'favoriteJsonEditor',
-    category: 'Favorite JSON editor',
+    category: __t('command.favoriteJsonEditor', { defaultMessage: 'Favorite JSON editor' }),
     getCurrentEditor,
     folder: null,
     format: null,
@@ -15,15 +15,15 @@
   registerCommand({
     id: 'favoriteJsonEditor.save',
     group: 'save',
-    name: 'Save',
-    category: 'Favorite JSON editor',
+    name: __t('command.favoriteJsonEditor.save', { defaultMessage: 'Save' }),
+    category: __t('command.favoriteJsonEditor', { defaultMessage: 'Favorite JSON editor' }),
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().save(),
   });
   registerCommand({
     id: 'favoriteJsonEditor.preview',
-    name: 'Preview',
-    category: 'Favorite JSON editor',
+    name: __t('command.favoriteJsonEditor.preview', { defaultMessage: 'Preview' }),
+    category: __t('command.favoriteJsonEditor', { defaultMessage: 'Favorite JSON editor' }),
     keyText: 'F5 | CtrlOrCommand+Enter',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
@@ -43,6 +43,7 @@
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { apiCall } from '../utility/api';
+  import { __t } from '../translations';
 
   export let tabid;
   export let savedFile;

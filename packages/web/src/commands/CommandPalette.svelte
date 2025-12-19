@@ -1,9 +1,9 @@
 <script context="module">
   registerCommand({
     id: 'commandPalette.show',
-    category: 'Command palette',
-    name: 'Show',
-    toolbarName: 'Command palette',
+    category: __t('command.commandPalette', { defaultMessage: 'Command palette' }),
+    name: __t('command.commandPalette.show', { defaultMessage: 'Show' }),
+    toolbarName: __t('command.commandPalette', { defaultMessage: 'Command palette' }),
     toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
@@ -15,9 +15,9 @@
 
   registerCommand({
     id: 'database.search',
-    category: 'Database',
-    toolbarName: 'Database search',
-    name: 'Search',
+    category: __t('command.database', { defaultMessage: 'Database' }),
+    toolbarName: __t('command.database.databaseSearch', { defaultMessage: 'Database search' }),
+    name: __t('command.database.search', { defaultMessage: 'Search' }),
     keyText: isElectronAvailable() ? 'CtrlOrCommand+P' : 'F3',
     onClick: () => visibleCommandPalette.set('database'),
     testEnabled: () => getVisibleCommandPalette() != 'database',
@@ -81,6 +81,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
+  import { _tval, __t, _t } from '../translations';
 
   let domInput;
   let filter = '';
@@ -113,11 +114,11 @@
       ($visibleCommandPalette == 'database'
         ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
         : parentCommand
-        ? parentCommand.getSubCommands()
-        : sortedComands
+          ? parentCommand.getSubCommands()
+          : sortedComands
       ).filter(x => !x.isGroupCommand),
       {
-        extract: x => x.text,
+        extract: x => _tval(x.text),
         pre: '<b>',
         post: '</b>',
       }
@@ -162,10 +163,10 @@
   on:clickOutside={() => {
     $visibleCommandPalette = null;
   }}
-  data-testid='CommandPalette_main'
+  data-testid="CommandPalette_main"
 >
-  <div 
-    class="overlay" 
+  <div
+    class="overlay"
     on:click={() => {
       $visibleCommandPalette = null;
     }}
@@ -180,7 +181,7 @@
           domInput.focus();
         }}
       >
-        <FontIcon icon="icon menu" /> Commands
+        <FontIcon icon="icon menu" /> {_t('commandPalette.commands', { defaultMessage: 'Commands' })}
       </div>
       <div
         class="page"
@@ -190,7 +191,7 @@
           domInput.focus();
         }}
       >
-        <FontIcon icon="icon database" /> Database
+        <FontIcon icon="icon database" /> {_t('common.database', { defaultMessage: 'Database' })}
       </div>
     </div>
     <div class="mainInner">
@@ -200,8 +201,8 @@
           bind:this={domInput}
           bind:value={filter}
           on:keydown={handleKeyDown}
-          placeholder={parentCommand?.text ||
-            ($visibleCommandPalette == 'database' ? 'Search in database' : 'Search in commands')}
+          placeholder={_tval(parentCommand?.text) ||
+            ($visibleCommandPalette == 'database' ? _t('commandPalette.searchInDatabase', { defaultMessage: 'Search in database' }) : _t('commandPalette.searchInCommands', { defaultMessage: 'Search in commands' }))}
         />
       </div>
       <div class="content">

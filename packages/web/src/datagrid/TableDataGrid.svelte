@@ -15,13 +15,13 @@
   import stableStringify from 'json-stable-stringify';
 
   import {
+    useAllApps,
     useConnectionInfo,
     useConnectionList,
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
     useSettings,
-    useUsedApps,
   } from '../utility/metadataLoaders';
 
   import DataGrid from './DataGrid.svelte';
@@ -30,6 +30,7 @@
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
+  import { isProApp } from '../utility/proTools';
 
   export let conid;
   export let database;
@@ -53,7 +54,7 @@
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
-  $: apps = useUsedApps();
+  $: apps = useAllApps();
   $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
   $: connections = useConnectionList();
   const settingsValue = useSettings();
@@ -77,9 +78,13 @@
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          forceReadOnly || $connection?.isReadOnly,
+          forceReadOnly ||
+            $connection?.isReadOnly ||
+            extendedDbInfo?.tables?.find(x => x.pureName == pureName && x.schemaName == schemaName)
+              ?.tablePermissionRole == 'read',
           isRawMode,
-          $settingsValue
+          $settingsValue,
+          isProApp()
         )
       : null;
 

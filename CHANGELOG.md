@@ -8,6 +8,126 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.8.0
+- ADDED: Form cell view for detailed data inspection and editing in data grids, with multi-row bulk editing support
+- CHANGED: Cell data sidebar moved to right side, now is part of data grid
+- FIXED: Improved widget resizing algorithm
+- FIXED: Word wrap feature in SQL editor
+- CHANGED: Data grid keyboard navigation improvements
+- CHANGED: Improved PostgreSQL decimal type support in data grid #1214
+- ADDED: Retrieve number of databases from Redis configuration #1278
+- ADDED: Run macro context menu (Premium)
+- ADDED: Support for skip update columns in replicator
+- FIXED: UTF-8 BOM handling in CSV input
+- CHANGED: Advanced export is now part of Community edition
+- FIXED: SQLite foreign key constraint types
+- FIXED: Double drop constraint issue
+- CHANGED: Improved map view lat/lon field autodetection
+- FIXED: Alter table operations and constraint sanitization
+- ADDED: Import connections from environment variables (Team Premium)
+
+## 6.7.3
+- FIXED: Fixed problem in analyser core - in PostgreSQL, after dropping table, dropped table still appeared in structure
+- FIXED: PostgreSQL numeric columns do not align right #1254
+- ADDED: Custom thousands separator #1213
+
+## 6.7.2
+- CHANGED: Settings modal redesign - now is settings opened in tab instead of modal, similarily as in VSCode
+- FIXED: Fixed search in table shortcuts #1273
+- CHANGED: Improved foreign key editor UX
+- FIXED: Fixed incremental DB structure refresh for PostgreSQL, optimalized slow loading primary keys in PostgreSQL
+- CHANGED: You could now choose, how to refresh structure, added ability to disconnect or reconnect
+- ADDED: Better processing of table backups, generate table restore script #1274
+- CHANGED: Improved storage of settings, especially for Team Premium edition
+
+## 6.7.1
+- ADDED: LANGUAGE environment variable for the web version. #1266
+- ADDED: New localizations (Italian, Portugese (Brazil), Japanese)
+- ADDED: Option to detect language from browser settings in web version
+- FIXED: Check updates option no longer available in 6.7.0 #1263
+- FIXED: A MERGE statement must be terminated by a semi-colon (;), but dbgate stripped it. #1257
+- ADDED: Show table size #552
+- ADDED: Sort tables by size and by row count
+- ADDED: Connect to Legacy MongoDB (Premium) #540
+- FIXED: Fixed problems in saving team files in Team Premium edition
+- CHANGED: Files are by default saved to team folders in Team Premium edition
+- ADDED: Other files types supported in Team Premium edition (diagrams, query design, perspectives, import/export jobs, shell scripts, database compare jobs)
+
+## 6.7.0
+- ADDED: Added localization support, now you can use DbGate in multiple languages (French, Spanish, German, Czech, Slovak, Simplified Chinese) #347 #705 #939 #1079
+- CHANGED: Solved many issues with binary fields, huge performance improvements in binary fields processing
+- FIXED: Export to CSV produces empty file #1247
+- CHANGED: Upgraded electron to version 38 #1243
+- FIXED: PostgreSQL export to SQL and XML doesn't include bytea field contents #1228
+- FIXED: Export CSV broken #1080
+- FIXED: Inconsistent handling of hex-like strings #680
+- FIXED: Export mongodb binary cell as binary file #292
+- CHANGED: SSL is used automatically for connections to Azure databases
+- ADDED: New export formats CSV for Excel, TSV
+- FIXED: Horizontal scrolling on macOS trackpad/Magic Mouse #1250
+
+## 6.6.12
+- FIXED: Cannot paste license key on Mac (special commands like copy/paste were disabled on license screen)
+
+## 6.6.11
+- FIXED: Fixed theming on application startup
+- CHANGED: Improved licensing page
+
+## 6.6.10
+- FIXED: License from environment variable is not refreshed #1245
+- FIXED: connection closing / reconnecting #1237
+- ADDED: retain history across multiple queries #1236
+- ADDED: load CSVs to temp tables #1235
+- FIXED: Not possible to scroll the data view horizontally by pressing shift and scroll mouse middle button on Mac #453
+- FIXED: Expired trial workflow (Premium)
+- ADDED: Column name collision resolving #1234 (MySQL)
+ 
+## 6.6.8
+- CHANGED: Windows executable now uses Azure trusted signing certificate
+- CHANGED: NPM packages now use GitHub OIDC provenance signing for better security
+- CHANGED: Some features moved to Premium edition (master/detail views, FK lookups, column expansion, split view, advanced export/import, data archives, grouping, macros)
+
+## 6.6.6
+- ADDED: Allow disable/re-enable filter #1174
+- ADDED: Close right side tabs #1219
+- ADDED: Ability disable execute current line in query editor #1209
+- ADDED: Support for Redis Cluster #1204 (Premium)
+
+## 6.6.5
+- ADDED: SQL AI assistant - powered by database chat, could help you to write SQL queries (Premium)
+- ADDED: Explain SQL error (powered by AI) (Premium)
+- ADDED: Database chat (and SQL AI Assistant) now supports showing charts (Premium)
+- FIXED: Fixed editing new files and roles (Team Premium)
+- FIXED: Connection to standalone database could be now pinned
+- FIXED: Cannot open up large JSON file #1215
+
+## 6.6.4
+- ADDED: AI Database chat now supports much more LLM models. (Premium)
+- ADDED: Possibility to use your own API key with OPENAI-compatible providers (OpenRouter, Antropic...)
+- ADDED: Possibility to use self-hosted own LLM (eg. Llama)
+- ADDED: Team files - save SQL files and define shared charts, assign roles and users to these objects (Team Premium)
+- FIXED: BUG: does no longer work with Cockroach DB #1202
+- FIXED: DbGate Web UI Connections do not display 'Databases' #1199
+- CHANGED: Redesign fof applications. Applications are now storted in single JSON file
+- ADDED: Application editor (Premium)
+- ADDED: Posibility to filter only tables with rows
+- FIXED: Fixed several issues with large Firebird databases
+- CHANGED: Community edition now supports shared folders in read-only mode
+
+## 6.6.3
+- FIXED: Error “db.getCollection(…).renameCollection is not a function” when renaming collection in dbGate #1198
+- FIXED: Can't list databases from Azure SQL SERVER #1197
+- ADDED: Save zoom level in electron apps
+
+## 6.6.2
+- ADDED: List of processes, ability to kill process (Server summary) #1178
+- ADDED: Database and table permissions (Team Premium edition)
+- ADDED: Redis search box - Scan all #1191
+- FIXED: Optimalized loading SQL server with descriptions #1187
+- CHANGED: Allow a much greater page size #1185
+- FIXED: Optimalized loading SQL server with descriptions #1187
+- FIXED: Executing queries for SQLite crash #1195
+
 ## 6.6.1
 - ADDED: Support for Mongo shell (Premium) - #1114
 - FIXED: Support for BLOB in Oracle #1181

@@ -65,6 +65,8 @@ async function copyStream(input, output, options) {
       });
     }
   } catch (err) {
+    logger.error(extractErrorLogData(err, { progressName }), 'DBGM-00157 Import/export job failed');
+
     process.send({
       msgtype: 'copyStreamError',
       copyStreamError: {
@@ -82,8 +84,6 @@ async function copyStream(input, output, options) {
         errorMessage: extractErrorMessage(err),
       });
     }
-
-    logger.error(extractErrorLogData(err, { progressName }), 'DBGM-00157 Import/export job failed');
     // throw err;
   }
 }

@@ -11,6 +11,7 @@
   import AllResultsTab from './AllResultsTab.svelte';
   import JslChart from '../charts/JslChart.svelte';
   import { isProApp } from '../utility/proTools';
+  import { __t, _t } from '../translations';
 
   export let tabs = [];
   export let sessionId;
@@ -68,7 +69,7 @@
     ...(oneTab && resultInfos.length > 0
       ? [
           {
-            label: 'Results',
+            label: _t('resultTabs.results', { defaultMessage: 'Results' }),
             isResult: true,
             component: AllResultsTab,
             props: {
@@ -77,14 +78,14 @@
           },
         ]
       : resultInfos.map((info, index) => ({
-          label: `Result ${index + 1}`,
+          label: _t('resultTabs.resultNumber', { defaultMessage: 'Result {number}', values: { number: index + 1 } }),
           isResult: true,
           component: JslDataGrid,
           resultIndex: info.resultIndex,
           props: { jslid: info.jslid, driver, onOpenChart: () => handleOpenChart(info.resultIndex) },
         }))),
     ...charts.map((info, index) => ({
-      label: `Chart ${info.resultIndex + 1}`,
+      label: _t('resultTabs.chartNumber', { defaultMessage: 'Chart {number}', values: { number: info.resultIndex + 1 } }),
       isChart: true,
       resultIndex: info.resultIndex,
       component: JslChart,
@@ -174,8 +175,8 @@
   tabs={allTabs}
   menu={resultInfos.length > 0 && [
     oneTab
-      ? { text: 'Every result in single tab', onClick: () => setOneTabValue(false) }
-      : { text: 'All results in one tab', onClick: () => setOneTabValue(true) },
+      ? { text: _t('resultTabs.everyResultInSingleTab', { defaultMessage: 'Every result in single tab' }), onClick: () => setOneTabValue(false) }
+      : { text: _t('resultTabs.allResultsInOneTab', { defaultMessage: 'All results in one tab' }), onClick: () => setOneTabValue(true) },
   ]}
   onUserChange={value => {
     if (allTabs[value].isChart) {

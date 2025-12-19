@@ -8,7 +8,13 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const lock = new AsyncLock();
 const config = require('./config');
 const processArgs = require('../utility/processArgs');
-const { testConnectionPermission } = require('../utility/hasPermission');
+const {
+  testConnectionPermission,
+  loadPermissionsFromRequest,
+  hasPermission,
+  loadDatabasePermissionsFromRequest,
+  getDatabasePermissionRole,
+} = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
@@ -135,7 +141,7 @@ module.exports = {
 
   disconnect_meta: true,
   async disconnect({ conid }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     await this.close(conid, true);
     return { status: 'ok' };
   },
@@ -144,7 +150,9 @@ module.exports = {
   async listDatabases({ conid }, req) {
     if (!conid) return [];
     if (conid == '__model') return [];
-    testConnectionPermission(conid, req);
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+
+    await testConnectionPermission(conid, req, loadedPermissions);
     const opened = await this.ensureOpened(conid);
     sendToAuditLog(req, {
       category: 'serverop',
@@ -157,12 +165,29 @@ module.exports = {
       sessionGroup: 'listDatabases',
       message: `Loaded databases for connection`,
     });
+
+    if (process.env.STORAGE_DATABASE && !hasPermission(`all-databases`, loadedPermissions)) {
+      // filter databases by permissions
+      const databasePermissions = await loadDatabasePermissionsFromRequest(req);
+      const res = [];
+      for (const db of opened?.databases ?? []) {
+        const databasePermissionRole = getDatabasePermissionRole(db.id, db.name, databasePermissions);
+        if (databasePermissionRole != 'deny') {
+          res.push({
+            ...db,
+            databasePermissionRole,
+          });
+        }
+      }
+      return res;
+    }
+
     return opened?.databases ?? [];
   },
 
   version_meta: true,
   async version({ conid }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     return opened?.version ?? null;
   },
@@ -184,11 +209,11 @@ module.exports = {
           return Promise.resolve();
         }
         this.lastPinged[conid] = new Date().getTime();
-        const opened = await this.ensureOpened(conid);
-        if (!opened) {
-          return Promise.resolve();
-        }
         try {
+          const opened = await this.ensureOpened(conid);
+          if (!opened) {
+            return Promise.resolve();
+          }
           opened.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
           logger.error(extractErrorLogData(err), 'DBGM-00121 Error pinging server connection');
@@ -202,7 +227,7 @@ module.exports = {
 
   refresh_meta: true,
   async refresh({ conid, keepOpen }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     if (!keepOpen) this.close(conid);
 
     await this.ensureOpened(conid);
@@ -210,7 +235,7 @@ module.exports = {
   },
 
   async sendDatabaseOp({ conid, msgtype, name }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     if (!opened) {
       return null;
@@ -252,7 +277,7 @@ module.exports = {
   },
 
   async loadDataCore(msgtype, { conid, ...args }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     if (!opened) {
       return null;
@@ -270,13 +295,43 @@ module.exports = {
 
   serverSummary_meta: true,
   async serverSummary({ conid }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
+    logger.info({ conid }, 'DBGM-00260 Processing server summary');
     return this.loadDataCore('serverSummary', { conid });
+  },
+
+  listDatabaseProcesses_meta: true,
+  async listDatabaseProcesses(ctx, req) {
+    const { conid } = ctx;
+    // logger.info({ conid }, 'DBGM-00261 Listing processes of database server');
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'listDatabaseProcesses' });
+  },
+
+  killDatabaseProcess_meta: true,
+  async killDatabaseProcess(ctx, req) {
+    const { conid, pid } = ctx;
+    testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid);
+    if (!opened) {
+      return null;
+    }
+    if (opened.connection.isReadOnly) return false;
+
+    return this.sendRequest(opened, { msgtype: 'killDatabaseProcess', pid });
   },
 
   summaryCommand_meta: true,
   async summaryCommand({ conid, command, row }, req) {
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     if (!opened) {
       return null;

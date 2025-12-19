@@ -13,6 +13,24 @@ export function isRegularCell(cell: CellAddress): cell is RegularCellAddress {
   return _.isNumber(row) && _.isNumber(col);
 }
 
+export function isRowHeaderCell(cell: CellAddress): boolean {
+  if (!cell) return false;
+  const [row, col] = cell;
+  return col === 'header' && _.isNumber(row);
+}
+
+export function isColumnHeaderCell(cell: CellAddress): boolean {
+  if (!cell) return false;
+  const [row, col] = cell;
+  return row === 'header' && _.isNumber(col);
+}
+
+export function isTableHeaderCell(cell: CellAddress): boolean {
+  if (!cell) return false;
+  const [row, col] = cell;
+  return row === 'header' && col === 'header';
+}
+
 function normalizeHeaderForSelection(addr: CellAddress): CellAddress {
   if (addr[0] == 'filter') return ['header', addr[1]];
   return addr;

@@ -26,12 +26,23 @@
 
     <script lang="javascript">
       window.dbgate_page = '{{page}}';
-    </script>
 
+      if (localStorage.getItem('currentThemeType') == 'dark') {
+        document.documentElement.style.setProperty('--theme-background', '#111');
+        document.documentElement.style.setProperty('--theme-foreground', '#e3e3e3');
+      } else {
+        document.documentElement.style.setProperty('--theme-background', '#fff');
+        document.documentElement.style.setProperty('--theme-foreground', '#262626');
+      }
+    </script>
 
     <script defer src="build/bundle.js"></script>
 
     <style>
+      body {
+        background-color: var(--theme-background);
+      }
+
       .lds-ellipsis {
         display: inline-block;
         position: relative;
@@ -44,7 +55,7 @@
         width: 13px;
         height: 13px;
         border-radius: 50%;
-        background: #000;
+        background: var(--theme-foreground);
         animation-timing-function: cubic-bezier(0, 1, 1, 0);
       }
       .lds-ellipsis div:nth-child(1) {

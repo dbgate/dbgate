@@ -1,11 +1,29 @@
 import cs from '../../../translations/cs.json';
+import sk from '../../../translations/sk.json';
+import de from '../../../translations/de.json';
+import fr from '../../../translations/fr.json';
+import es from '../../../translations/es.json';
+import zh from '../../../translations/zh.json';
+import pt from '../../../translations/pt.json';
+import it from '../../../translations/it.json';
+import ja from '../../../translations/ja.json';
 
 import MessageFormat, { MessageFunction } from '@messageformat/core';
 import { getStringSettingsValue } from './settings/settingsTools';
+import getElectron from './utility/getElectron';
+import { apiCall } from './utility/api';
 
 const translations = {
   en: {},
   cs,
+  sk,
+  de,
+  fr,
+  zh,
+  es,
+  pt,
+  it,
+  ja,
 };
 const supportedLanguages = Object.keys(translations);
 
@@ -13,23 +31,42 @@ const compiledMessages: Partial<Record<string, Record<string, MessageFunction<'s
 
 const defaultLanguage = 'en';
 
-export function getSelectedLanguage(): string {
-  const borwserLanguage = getBrowserLanguage();
-  const selectedLanguage = getStringSettingsValue('localization.language', borwserLanguage);
+let selectedLanguageCache: string | null = null;
 
-  if (!supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
+export function getSelectedLanguage(preferrendLanguage?: string): string {
+  if (selectedLanguageCache) return selectedLanguageCache;
 
+  if (preferrendLanguage == 'auto') {
+    preferrendLanguage = getBrowserLanguage();
+  }
+
+  const selectedLanguage = getElectron()
+    ? getStringSettingsValue('localization.language', preferrendLanguage)
+    : localStorage.getItem('selectedLanguage') ?? preferrendLanguage;
+
+  if (!selectedLanguage || !supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
   return selectedLanguage;
 }
 
+export async function setSelectedLanguage(language: string) {
+  if (getElectron()) {
+    await apiCall('config/update-settings', { 'localization.language': language });
+  } else {
+    localStorage.setItem('selectedLanguage', language);
+  }
+}
+
+export function saveSelectedLanguageToCache(preferrendLanguage?: string) {
+  selectedLanguageCache = getSelectedLanguage(preferrendLanguage);
+}
+
 export function getBrowserLanguage(): string {
-  return 'en';
-  // if (typeof window !== 'undefined') {
-  //   return (
-  //     (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
-  //   );
-  // }
-  // return defaultLanguage;
+  if (typeof window !== 'undefined') {
+    return (
+      (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
+    );
+  }
+  return defaultLanguage;
 }
 
 type TranslateOptions = {
@@ -49,8 +86,13 @@ function getTranslation(key: string, defaultMessage: string, language: string) {
   return translation;
 }
 
+export function getCurrentTranslations(): Record<string, string> {
+  const selectedLanguage = getSelectedLanguage();
+  return translations[selectedLanguage] || {};
+}
+
 export function _t(key: string, options: TranslateOptions): string {
-  const { defaultMessage, values } = options;
+  const { defaultMessage, values } = options || {};
 
   const selectedLanguage = getSelectedLanguage();
 
@@ -67,4 +109,32 @@ export function _t(key: string, options: TranslateOptions): string {
   const compliledTranslation = compiledMessages[selectedLanguage][key];
 
   return compliledTranslation(values ?? {});
+}
+
+export type DefferedTranslationResult = {
+  _transKey?: string;
+  _transOptions?: TranslateOptions;
+  _transCallback?: () => string;
+};
+
+export function __t(key: string, options: TranslateOptions): DefferedTranslationResult {
+  return {
+    _transKey: key,
+    _transOptions: options,
+  };
+}
+
+export function _tval(x: any | DefferedTranslationResult): string {
+  if (typeof x === 'string') return x;
+  if (typeof x?._transKey === 'string') {
+    return _t(x._transKey, x._transOptions);
+  }
+  if (typeof x?._transCallback === 'function') {
+    return x._transCallback();
+  }
+  return x?.toString() || '';
+}
+
+export function isDefferedTranslationResult(x: string | DefferedTranslationResult): x is DefferedTranslationResult {
+  return typeof x !== 'string' && typeof x?._transKey === 'string';
 }

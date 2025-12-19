@@ -17,14 +17,9 @@
   $: cloudContentList = useCloudContentList();
 </script>
 
-<WidgetColumnBar {hidden}>
+<WidgetColumnBar {hidden} storageName="databaseWidget">
   {#if $config?.singleConnection}
-    <WidgetColumnBarItem
-      title={_t('widget.databases', { defaultMessage: 'Databases' })}
-      name="databases"
-      height="35%"
-      storageName="databasesWidget"
-    >
+    <WidgetColumnBarItem title={_t('widget.databases', { defaultMessage: 'Databases' })} name="databases" height="35%">
       <SingleConnectionDatabaseList connection={$config?.singleConnection} />
     </WidgetColumnBarItem>
   {:else if !$config?.singleDbConnection}
@@ -32,7 +27,7 @@
       title={_t('common.connections', { defaultMessage: 'Connections' })}
       name="connections"
       height="35%"
-      storageName="connectionsWidget"
+      storeHeight
     >
       <ConnectionList
         passProps={{

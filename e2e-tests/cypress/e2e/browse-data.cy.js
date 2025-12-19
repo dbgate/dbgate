@@ -60,7 +60,7 @@ describe('Data browser data', () => {
     cy.contains('MyChinook').click();
     cy.testid('SqlObjectList_search').clear().type('album');
     cy.contains('Tables (1/11)');
-    cy.contains('347 rows, InnoDB');
+    cy.contains('347 rows, 65.5 KB, InnoDB');
     cy.testid('SqlObjectList_searchMenuDropDown').click();
     cy.contains('Column name').click();
     cy.contains('Tables (2/11)');
@@ -202,7 +202,7 @@ describe('Data browser data', () => {
     cy.themeshot('query-editor-join-wizard');
   });
 
-  it('Mongo JSON data view', () => {
+  it('Mongo query JSON data view', () => {
     cy.contains('Mongo-connection').click();
     cy.contains('MgChinook').click();
     cy.contains('Customer').click();
@@ -213,9 +213,10 @@ describe('Data browser data', () => {
     cy.contains('Open query').click();
     cy.wait(1000);
     cy.contains('Execute').click();
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.testid('TabContent_1').contains('Leonie').rightclick();
+    cy.contains('Show cell data').click();
     // test JSON view
-    cy.contains('Country: "Brazil"');
+    cy.contains('Country: "Germany"');
     cy.themeshot('mongo-query-json-view');
   });
 
@@ -277,6 +278,14 @@ describe('Data browser data', () => {
     cy.testid('CommandPalette_main').themeshot('command-palette', { padding: 50 });
   });
 
+  it('About window', () => {
+    cy.contains('Connections');
+    cy.testid('WidgetIconPanel_menu').click();
+    cy.contains('Help').click();
+    cy.contains('About').click();
+    cy.testid('ModalBase_window').themeshot('about-window', { padding: 50 });
+  });
+
   it('Show map', () => {
     cy.contains('Postgres-connection').click();
     cy.contains('PgGeoData').click();
@@ -285,7 +294,8 @@ describe('Data browser data', () => {
     // cy.contains('location').click();
     cy.contains('14.2').click();
     cy.contains('13.9').click({ shiftKey: true });
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('TableDataTab_toggleCellDataView').click();
     cy.wait(2000);
     cy.themeshot('cell-map-view');
   });
@@ -300,17 +310,6 @@ describe('Data browser data', () => {
     cy.testid('SqlObjectList_searchMenuDropDown').click();
     cy.contains('Column name').click();
     cy.themeshot('search-in-connections');
-  });
-
-  it('Plugin tab', () => {
-    cy.testid('WidgetIconPanel_settings').click();
-    cy.contains('Manage plugins').click();
-    cy.contains('dbgate-plugin-theme-total-white').click();
-    // text from plugin markdown
-    cy.contains('Total white theme');
-    // wait for load logos
-    cy.wait(2000);
-    cy.themeshot('view-plugin-tab');
   });
 
   it('Edit mongo data JSON', () => {
@@ -340,7 +339,7 @@ describe('Data browser data', () => {
     cy.themeshot('save-changes-mongodb');
   });
 
-  it('Edit mongo data JSON', () => {
+  it('Mongo JSON cell view', () => {
     // TODO FIX: Auto expand cell view
     cy.contains('Mongo-connection').click();
     cy.contains('MgRivers').click();
@@ -350,7 +349,8 @@ describe('Data browser data', () => {
     cy.testid('ColumnManagerRow_checkbox_countries.1').click();
     cy.testid('ColumnManagerRow_checkbox__id').click();
     cy.testid('DataFilterControl_input_countries.1').type('EXISTS{enter}');
-    cy.testid('WidgetIconPanel_cell-data').click();
+    cy.contains('Austria').click();
+    cy.testid('CollectionDataTab_toggleCellDataView').click();
     cy.themeshot('mongodb-json-cell-view');
   });
 
@@ -379,27 +379,6 @@ describe('Data browser data', () => {
     cy.contains('Settings').click();
     cy.testid('CompareModelTab_tabOperations').click();
     cy.themeshot('compare-database-settings');
-  });
-
-  it('Database chat', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_databaseChat').click();
-    cy.wait(1000);
-    cy.get('body').realType('find most popular artist');
-    cy.get('body').realPress('{enter}');
-    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 20000 }).click();
-    cy.wait(20000);
-    // cy.contains('Iron Maiden');
-    cy.themeshot('database-chat');
-
-    // cy.testid('DatabaseChatTab_promptInput').click();
-    // cy.get('body').realType('I need top 10 songs with the biggest income');
-    // cy.get('body').realPress('{enter}');
-    // cy.contains('Hot Girl', { timeout: 20000 });
-    // cy.wait(1000);
-    // cy.themeshot('database-chat');
   });
 
   it('Modify data', () => {
@@ -495,5 +474,37 @@ describe('Data browser data', () => {
     cy.contains('Finished job script');
     cy.testid('DataDeployTab_importIntoDb').click();
     cy.themeshot('data-replicator');
+  });
+
+  it('Form cell view', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Invoice').click();
+    cy.get('[data-row="0"][data-col="header"]').click();
+    cy.contains('Autodetect - Form');
+    cy.themeshot('form-cell-view');
+  });
+
+  it('Group by', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('ColumnHeaderControl_dropdown_ArtistId').click();
+    cy.contains('Group by').click();
+    cy.testid('ColumnHeaderControl_dropdown_Title').first().click();
+    cy.themeshot('data-browser-group-by');
+  });
+
+  it('Filter by expanded column', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Album').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('ColumnManagerRow_expand_ArtistId').click();
+    cy.testid('ColumnManagerRow_checkbox_ArtistId.Name').click();
+    cy.testid('ColumnManagerRow_checkbox_ArtistId').click();
+    cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');
+    cy.themeshot('data-browser-filter-by-expanded');
   });
 });

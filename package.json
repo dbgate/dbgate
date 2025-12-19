@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "6.6.1",
+  "version": "6.8.0",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -22,6 +22,7 @@
     "start:api:auth": "yarn workspace dbgate-api start:auth | pino-pretty",
     "start:api:dblogin": "yarn workspace dbgate-api start:dblogin | pino-pretty",
     "start:api:storage": "yarn workspace dbgate-api start:storage | pino-pretty",
+    "start:api:sfill": "yarn workspace dbgate-api start:sfill | pino-pretty",
     "start:api:storage:built": "yarn workspace dbgate-api start:storage:built | pino-pretty",
     "start:api:azure": "yarn workspace dbgate-api start:azure | pino-pretty",
     "start:api:e2e:team": "yarn workspace dbgate-api start:e2e:team | pino-pretty",
@@ -52,6 +53,7 @@
     "generatePadFile": "node generatePadFile",
     "fillPackagedPlugins": "node fillPackagedPlugins",
     "resetPackagedPlugins": "node resetPackagedPlugins",
+    "fixYmlHashes": "cd common && yarn init -y && yarn add yaml -W && cd .. && node common/fixYmlHashes.js app/dist",
     "prettier": "prettier --write packages/api/src && prettier --write packages/datalib/src && prettier --write packages/filterparser/src && prettier --write packages/sqltree/src && prettier --write packages/tools/src && prettier --write packages/types && prettier --write packages/web/src && prettier --write app/src",
     "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/public/* docker -u 2 && copyfiles \"packages/web/public/**/*\" docker -u 2 && copyfiles \"plugins/dist/**/*\" docker/plugins -u 2",
     "copy:packer:build": "copyfiles packages/api/dist/* packer/build -f && copyfiles packages/web/public/* packer/build -u 2 && copyfiles \"packages/web/public/**/*\" packer/build -u 2 && copyfiles \"plugins/dist/**/*\" packer/build/plugins -u 2 && copyfiles packer/install-packages.sh packer/build -f && yarn install:drivers:packer",
@@ -73,6 +75,8 @@
     "translations:add-missing": "node common/translations-cli/index.js add-missing",
     "translations:remove-unused": "node common/translations-cli/index.js remove-unused",
     "translations:check": "node common/translations-cli/index.js check",
+    "translations:sort": "node common/translations-cli/index.js sort",
+    "translations:translate": "node common/translations-cli/translate.js",
     "errors": "node common/assign-dbgm-codes.mjs  ."
   },
   "dependencies": {

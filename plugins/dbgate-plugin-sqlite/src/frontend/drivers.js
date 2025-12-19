@@ -48,6 +48,7 @@ const sqliteDriverBase = {
   dialect,
   readOnlySessions: true,
   supportsTransactions: true,
+  supportsIncrementalAnalysis: true,
 
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'

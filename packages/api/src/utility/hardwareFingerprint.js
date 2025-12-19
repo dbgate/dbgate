@@ -3,18 +3,6 @@ const os = require('os');
 const crypto = require('crypto');
 const platformInfo = require('./platformInfo');
 
-async function getPublicIpInfo() {
-  try {
-    const resp = await axios.default.get('https://ipinfo.io/json');
-    if (!resp.data?.ip) {
-      return { ip: 'unknown-ip' };
-    }
-    return resp.data;
-  } catch (err) {
-    return { ip: 'unknown-ip' };
-  }
-}
-
 function getMacAddress() {
   try {
     const interfaces = os.networkInterfaces();
@@ -32,6 +20,7 @@ function getMacAddress() {
 }
 
 async function getHardwareFingerprint() {
+  const { getPublicIpInfo } = require('./cloudIntf');
   const publicIpInfo = await getPublicIpInfo();
   const macAddress = getMacAddress();
   const platform = os.platform();
@@ -42,8 +31,6 @@ async function getHardwareFingerprint() {
   return {
     publicIp: publicIpInfo.ip,
     country: publicIpInfo.country,
-    region: publicIpInfo.region,
-    city: publicIpInfo.city,
     macAddress,
     platform,
     release,
@@ -68,9 +55,7 @@ async function getPublicHardwareFingerprint() {
     hash,
     payload: {
       platform: fingerprint.platform,
-      city: fingerprint.city,
       country: fingerprint.country,
-      region: fingerprint.region,
       isDocker: platformInfo.isDocker,
       isAwsUbuntuLayout: platformInfo.isAwsUbuntuLayout,
       isAzureUbuntuLayout: platformInfo.isAzureUbuntuLayout,
@@ -87,5 +72,4 @@ module.exports = {
   getHardwareFingerprint,
   getHardwareFingerprintHash,
   getPublicHardwareFingerprint,
-  getPublicIpInfo,
 };

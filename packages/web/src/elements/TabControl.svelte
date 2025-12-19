@@ -1,6 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import DropDownButton from '../buttons/DropDownButton.svelte';
+  import { _tval } from '../translations';
 
   interface TabDef {
     label: string;
@@ -8,14 +9,19 @@
     component?: any;
     props?: any;
     testid?: string;
+    identifier?: string;
   }
 
   export let tabs: TabDef[];
-  export let value = 0;
+  export let value: string | number = 0;
   export let menu = null;
   export let isInline = false;
   export let containerMaxWidth = undefined;
+  export let containerMaxHeight = undefined;
   export let flex1 = true;
+  export let flexColContainer = false;
+  export let maxHeight100 = false;
+  export let scrollableContentContainer = false;
   export let contentTestId = undefined;
   export let inlineTabs = false;
   export let onUserChange = null;
@@ -28,20 +34,20 @@
   }
 </script>
 
-<div class="main" class:flex1>
+<div class="main" class:maxHeight100 class:flex1>
   <div class="tabs" class:inlineTabs>
     {#each _.compact(tabs) as tab, index}
       <div
         class="tab-item"
-        class:selected={value == index}
+        class:selected={value == (tab.identifier ?? index)}
         on:click={() => {
-          value = index;
-          onUserChange?.(index);
+          value = tab.identifier ?? index;
+          onUserChange?.(tab.identifier ?? index);
         }}
         data-testid={tab.testid}
       >
         <span class="ml-2 noselect">
-          {tab.label}
+          {_tval(tab.label)}
         </span>
       </div>
     {/each}
@@ -50,10 +56,27 @@
     {/if}
   </div>
 
-  <div class="content-container" data-testid={contentTestId}>
+  <div
+    class="content-container"
+    class:scrollableContentContainer
+    style:max-height={containerMaxHeight}
+    data-testid={contentTestId}
+  >
     {#each _.compact(tabs) as tab, index}
-      <div class="container" class:isInline class:tabVisible={index == value} style:max-width={containerMaxWidth}>
-        <svelte:component this={tab.component} {...tab.props} tabControlHiddenTab={index != value} />
+      <div
+        class="container"
+        class:flexColContainer
+        class:maxHeight100
+        class:isInline
+        class:tabVisible={(tab.identifier ?? index) == value}
+        style:max-width={containerMaxWidth}
+      >
+        <svelte:component
+          this={tab.component}
+          {...tab.props}
+          tabVisible={(tab.identifier ?? index) == value}
+          tabControlHiddenTab={(tab.identifier ?? index) != value}
+        />
         {#if tab.slot != null}
           {#if tab.slot == 0}<slot name="0" />
           {:else if tab.slot == 1}<slot name="1" />
@@ -83,6 +106,10 @@
     max-width: 100%;
   }
 
+  .main.maxHeight100 {
+    max-height: 100%;
+  }
+
   .tabs {
     display: flex;
     height: var(--dim-tabs-height);
@@ -109,6 +136,7 @@
   }
 
   .tab-item {
+    white-space: nowrap;
     padding-left: 15px;
     padding-right: 15px;
     display: flex;
@@ -130,6 +158,19 @@
   .content-container {
     flex: 1;
     position: relative;
+  }
+
+  .scrollableContentContainer {
+    overflow-y: auto;
+  }
+
+  .container.maxHeight100 {
+    max-height: 100%;
+  }
+
+  .container.flexColContainer {
+    display: flex;
+    flex-direction: column;
   }
 
   .container:not(.isInline) {

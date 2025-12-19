@@ -1,12 +1,35 @@
 <script lang="ts" context="module">
   const getCurrentEditor = () => getActiveComponent('TableDataTab');
-  const INTERVALS = [5, 10, 15, 13, 60];
+  const INTERVALS = [5, 10, 15, 30, 60];
+
+  const INTERVAL_COMMANDS = [
+    {
+      time: 5,
+      name: __t('command.datagrid.setAutoRefresh.5', { defaultMessage: 'Refresh every 5 seconds' }),
+    },
+    {
+      time: 10,
+      name: __t('command.datagrid.setAutoRefresh.10', { defaultMessage: 'Refresh every 10 seconds' }),
+    },
+    {
+      time: 15,
+      name: __t('command.datagrid.setAutoRefresh.15', { defaultMessage: 'Refresh every 15 seconds' }),
+    },
+    {
+      time: 30,
+      name: __t('command.datagrid.setAutoRefresh.30', { defaultMessage: 'Refresh every 30 seconds' }),
+    },
+    {
+      time: 60,
+      name: __t('command.datagrid.setAutoRefresh.60', { defaultMessage: 'Refresh every 60 seconds' }),
+    },
+  ];
 
   registerCommand({
     id: 'tableData.save',
     group: 'save',
-    category: 'Table data',
-    name: 'Save',
+    category: __t('command.tableData', { defaultMessage: 'Table data' }),
+    name: __t('command.tableData.save', { defaultMessage: 'Save' }),
     // keyText: 'CtrlOrCommand+S',
     toolbar: true,
     isRelatedToTab: true,
@@ -17,28 +40,28 @@
 
   registerCommand({
     id: 'tableData.setAutoRefresh.1',
-    category: 'Data grid',
-    name: 'Refresh every 1 second',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.setAutoRefresh.1', { defaultMessage: 'Refresh every 1 second' }),
     isRelatedToTab: true,
     testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().setAutoRefresh(1),
   });
 
-  for (const seconds of INTERVALS) {
+  for (const { time, name } of INTERVAL_COMMANDS) {
     registerCommand({
-      id: `tableData.setAutoRefresh.${seconds}`,
-      category: 'Data grid',
-      name: `Refresh every ${seconds} seconds`,
+      id: `tableData.setAutoRefresh.${time}`,
+      category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+      name,
       isRelatedToTab: true,
       testEnabled: () => !!getCurrentEditor(),
-      onClick: () => getCurrentEditor().setAutoRefresh(seconds),
+      onClick: () => getCurrentEditor().setAutoRefresh(time),
     });
   }
 
   registerCommand({
     id: 'tableData.stopAutoRefresh',
-    category: 'Data grid',
-    name: 'Stop auto refresh',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.stopAutoRefresh', { defaultMessage: 'Stop auto refresh' }),
     isRelatedToTab: true,
     keyText: 'CtrlOrCommand+Shift+R',
     testEnabled: () => getCurrentEditor()?.isAutoRefresh() === true,
@@ -47,8 +70,8 @@
 
   registerCommand({
     id: 'tableData.startAutoRefresh',
-    category: 'Data grid',
-    name: 'Start auto refresh',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.startAutoRefresh', { defaultMessage: 'Start auto refresh' }),
     isRelatedToTab: true,
     keyText: 'CtrlOrCommand+Shift+R',
     testEnabled: () => getCurrentEditor()?.isAutoRefresh() === false,
@@ -80,7 +103,7 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { getTableInfo, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { scriptToSql } from 'dbgate-sqltree';
   import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
@@ -101,6 +124,7 @@
   import { markTabSaved, markTabUnsaved } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
+  import { __t, _t } from '../translations';
 
   export let tabid;
   export let conid;
@@ -148,38 +172,61 @@
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
-      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+      showModal(ErrorMessageModal, {
+        title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),
+        message: errorMessage,
+      });
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       cache.update(reloadDataCacheFunc);
-      showSnackbarSuccess('Saved to database');
+      showSnackbarSuccess(_t('tableData.savedToDatabase', { defaultMessage: 'Saved to database' }));
     }
   }
 
-  export function save() {
+  export async function save() {
     const driver = findEngineDriver($connection, $extensions);
+    const tablePermissionRole = (await getTableInfo({ conid, database, schemaName, pureName }))?.tablePermissionRole;
 
-    const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
-      changeSetToSql($changeSetStore?.value, $dbinfo, driver.dialect)
-    );
-
-    const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
-    const sql = scriptToSql(driver, script);
-    const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({
-      title,
-      script: scriptToSql(driver, commands),
-    }));
-    // console.log('deleteCascadesScripts', deleteCascadesScripts);
-    if (getBoolSettingsValue('skipConfirm.tableDataSave', false) && !deleteCascadesScripts?.length) {
-      handleConfirmSql(sql);
-    } else {
-      showModal(ConfirmSqlModal, {
-        sql,
-        onConfirm: confirmedSql => handleConfirmSql(confirmedSql),
-        engine: driver.engine,
-        deleteCascadesScripts,
-        skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
+    if (tablePermissionRole == 'create_update_delete' || tablePermissionRole == 'update_only') {
+      const resp = await apiCall('database-connections/save-table-data', {
+        conid,
+        database,
+        changeSet: $changeSetStore?.value,
       });
+      const { errorMessage } = resp || {};
+      if (errorMessage) {
+        showModal(ErrorMessageModal, {
+          title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),
+          message: errorMessage,
+        });
+      } else {
+        dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+        cache.update(reloadDataCacheFunc);
+        showSnackbarSuccess(_t('tableData.savedToDatabase', { defaultMessage: 'Saved to database' }));
+      }
+    } else {
+      const script = driver.createSaveChangeSetScript($changeSetStore?.value, $dbinfo, () =>
+        changeSetToSql($changeSetStore?.value, $dbinfo, driver.dialect)
+      );
+
+      const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
+      const sql = scriptToSql(driver, script);
+      const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({
+        title,
+        script: scriptToSql(driver, commands),
+      }));
+      // console.log('deleteCascadesScripts', deleteCascadesScripts);
+      if (getBoolSettingsValue('skipConfirm.tableDataSave', false) && !deleteCascadesScripts?.length) {
+        handleConfirmSql(sql);
+      } else {
+        showModal(ConfirmSqlModal, {
+          sql,
+          onConfirm: confirmedSql => handleConfirmSql(confirmedSql),
+          engine: driver.engine,
+          deleteCascadesScripts,
+          skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
+        });
+      }
     }
   }
 
@@ -243,7 +290,10 @@
       { command: 'tableData.stopAutoRefresh', hideDisabled: true },
       { command: 'tableData.startAutoRefresh', hideDisabled: true },
       'tableData.setAutoRefresh.1',
-      ...INTERVALS.map(seconds => ({ command: `tableData.setAutoRefresh.${seconds}`, text: `...${seconds} seconds` })),
+      ...INTERVALS.map(seconds => ({
+        command: `tableData.setAutoRefresh.${seconds}`,
+        text: `...${seconds}` + ' ' + _t('command.datagrid.autoRefresh.seconds', { defaultMessage: 'seconds' }),
+      })),
     ];
   }
 </script>
@@ -287,7 +337,7 @@
             defaultActionId: 'openStructure',
           },
         });
-      }}>Structure</ToolStripButton
+      }}>{_t('datagrid.structure', { defaultMessage: 'Structure' })}</ToolStripButton
     >
 
     <ToolStripButton
@@ -319,13 +369,23 @@
     >
 
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      buttonLabel={autoRefreshStarted
+        ? _t('tableData.refreshEvery', {
+            defaultMessage: 'Refresh (every {autoRefreshInterval}s)',
+            values: { autoRefreshInterval },
+          })
+        : null}
       commands={['dataGrid.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshGrid"
     />
     <ToolStripCommandSplitButton
-      buttonLabel={autoRefreshStarted ? `Refresh (every ${autoRefreshInterval}s)` : null}
+      buttonLabel={autoRefreshStarted
+        ? _t('tableData.refreshEvery', {
+            defaultMessage: 'Refresh (every {autoRefreshInterval}s)',
+            values: { autoRefreshInterval },
+          })
+        : null}
       commands={['dataForm.refresh', ...createAutoRefreshMenu()]}
       hideDisabled
       data-testid="TableDataTab_refreshForm"
@@ -361,7 +421,14 @@
 
     <ToolStripButton
       icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
-      on:click={() => collapsedLeftColumnStore.update(x => !x)}>View columns</ToolStripButton
+      on:click={() => collapsedLeftColumnStore.update(x => !x)}
+      >{_t('tableData.viewColumns', { defaultMessage: 'View columns' })}</ToolStripButton
     >
+
+    <ToolStripCommandButton
+      command="dataGrid.toggleCellDataView"
+      hideDisabled
+      data-testid="TableDataTab_toggleCellDataView"
+    />
   </svelte:fragment>
 </ToolStripContainer>

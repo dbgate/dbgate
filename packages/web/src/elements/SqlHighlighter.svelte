@@ -5,6 +5,8 @@
   import { onMount, afterUpdate } from 'svelte';
 
   export let code = '';
+  export let inline = false;
+  export let onClick = null;
 
   let domCode;
 
@@ -29,7 +31,11 @@
     The `sql` class hints the language; highlight.js will
     read it even though we register the grammar explicitly.
   -->
-  <pre bind:this={domCode} class="sql">{code}</pre>
+  {#if inline}
+    <span bind:this={domCode} class="sql" class:clickable={!!onClick} on:click={onClick}>{code}</span>
+  {:else}
+    <pre bind:this={domCode} class="sql" class:clickable={!!onClick} on:click={onClick}>{code}</pre>
+  {/if}
 {/key}
 
 <style>
@@ -37,5 +43,9 @@
     margin: 0;
     padding: 0;
     padding: 0.5em;
+  }
+
+  .clickable {
+    cursor: pointer;
   }
 </style>

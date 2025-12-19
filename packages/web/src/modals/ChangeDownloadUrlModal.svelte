@@ -6,6 +6,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let onConfirm;
   export let url;
@@ -18,13 +19,13 @@
 
 <FormProvider initialValues={{ url }}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Download imported file from web</svelte:fragment>
+    <svelte:fragment slot="header">{_t('changeDownloadUrlModal.header', { defaultMessage: 'Download imported file from web' })}</svelte:fragment>
 
-    <FormTextField label="URL" name="url" style={{ width: '30vw' }} focused />
+    <FormTextField label={_t('changeDownloadUrlModal.urlLabel', { defaultMessage: 'URL' })} name="url" style={{ width: '30vw' }} focused />
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={handleSubmit} />
-      <FormStyledButton value="Cancel" on:click={closeCurrentModal} />
+      <FormSubmit value={_t('common.ok', { defaultMessage: 'OK' })} on:click={handleSubmit} />
+      <FormStyledButton value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

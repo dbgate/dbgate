@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { arrayToHexString, stringifyCellValue } from 'dbgate-tools';
 import yaml from 'js-yaml';
 import { DataEditorTypesBehaviour } from 'dbgate-types';
+import { __t, _t } from '../translations'
 
 export function copyTextToClipboard(text) {
   const oldFocus = document.activeElement;
@@ -157,53 +158,53 @@ export function copyRowsToClipboard(format, columns, rows, options) {
 
 export const copyRowsFormatDefs = {
   textWithHeaders: {
-    label: 'Copy with headers',
-    name: 'With headers',
+    label: __t('clipboard.copyWithHeaders', { defaultMessage : 'Copy with headers' }),
+    name: __t('clipboard.withHeaders', { defaultMessage: 'With headers' }),
     formatter: clipboardTextFormatter('\t', true),
   },
   textWithoutHeaders: {
-    label: 'Copy without headers',
-    name: 'Without headers',
+    label: __t('clipboard.copyWithoutHeaders', { defaultMessage : 'Copy without headers' }),
+    name: __t('clipboard.withoutHeaders', { defaultMessage: 'Without headers' }),
     formatter: clipboardTextFormatter('\t', false),
   },
   headers: {
-    label: 'Copy only headers',
-    name: 'Only Headers',
+    label: __t('clipboard.copyOnlyHeadres', { defaultMessage : 'Copy only headers'}),
+    name: __t('clipboard.onlyHeaders', { defaultMessage : 'Only Headers' }),
     formatter: clipboardHeadersFormatter('\t'),
   },
   csv: {
-    label: 'Copy as CSV',
+    label: __t('clipboard.copyCSV', { defaultMessage : 'Copy as CSV'}),
     name: 'CSV',
     formatter: clipboardTextFormatter(',', true),
   },
   json: {
-    label: 'Copy as JSON',
+    label: __t('clipboard.copyJSON', { defaultMessage: 'Copy as JSON'}),
     name: 'JSON',
     formatter: clipboardJsonFormatter(),
   },
   jsonLines: {
-    label: 'Copy as JSON lines/NDJSON',
+    label: __t('clipboard.copyJSONLines', { defaultMessage : 'Copy as JSON lines/NDJSON' }),
     name: 'JSON lines/NDJSON',
     formatter: clipboardJsonLinesFormatter(),
   },
   yaml: {
-    label: 'Copy as YAML',
+    label: __t('clipboard.copyYAML', { defaultMessage : 'Copy as YAML'}),
     name: 'YAML',
     formatter: clipboardYamlFormatter(),
   },
   inserts: {
-    label: 'Copy as SQL INSERTs',
-    name: 'SQL INSERTs',
+    label: __t('clipboard.copySQLInsert', { defaultMessage : 'Copy as SQL INSERTs'}),
+    name: __t('clipboard.SQLInsert', { defaultMessage : 'SQL INSERTs' }),
     formatter: clipboardInsertsFormatter(),
   },
   updates: {
-    label: 'Copy as SQL UPDATEs',
-    name: 'SQL UPDATEs',
+    label: __t('clipboard.copySQLUpdate', { defaultMessage : 'Copy as SQL UPDATEs'}),
+    name: __t('clipboard.SQLUpdate', { defaultMessage : 'SQL UPDATEs' }),
     formatter: clipboardUpdatesFormatter(),
   },
   mongoInsert: {
-    label: 'Copy as Mongo INSERTs',
-    name: 'Mongo INSERTs',
+    label: __t('clipboard.copyMongoInsert', { defaultMessage : 'Copy as Mongo INSERTs' }),
+    name: __t('clipboard.mongoInsert', { defaultMessage : 'Mongo INSERTs' }),
     formatter: clipboardMongoInsertFormatter(),
   },
 };

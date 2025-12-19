@@ -39,6 +39,24 @@ const fileFormat = {
       apiName: 'header',
       default: true,
     },
+    {
+      type: 'checkbox',
+      name: 'writeBom',
+      label: 'Write BOM (Byte Order Mark)',
+      apiName: 'writeBom',
+      direction: 'target',
+    },
+    {
+      type: 'select',
+      name: 'recordDelimiter',
+      label: 'Record Delimiter',
+      options: [
+        { name: 'CR', value: '\r' },
+        { name: 'CRLF', value: '\r\n' },
+      ],
+      apiName: 'recordDelimiter',
+      direction: 'target',
+    },
   ],
 };
 
@@ -65,6 +83,32 @@ export default {
         props: {
           fileName,
           delimiter: ';',
+        },
+      }),
+    },
+    {
+      label: 'CSV file for MS Excel',
+      extension: 'csv',
+      createWriter: (fileName) => ({
+        functionName: 'writer@dbgate-plugin-csv',
+        props: {
+          fileName,
+          delimiter: ';',
+          recordDelimiter: '\r\n',
+          encoding: 'utf16le',
+          writeSepHeader: true,
+          writeBom: true,
+        },
+      }),
+    },
+    {
+      label: 'TSV file (tab separated)',
+      extension: 'tsv',
+      createWriter: (fileName) => ({
+        functionName: 'writer@dbgate-plugin-csv',
+        props: {
+          fileName,
+          delimiter: '\t',
         },
       }),
     },

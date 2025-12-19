@@ -6,12 +6,14 @@ const Analyser = require('./Analyser');
 const wkx = require('wkx');
 const pg = require('pg');
 const pgCopyStreams = require('pg-copy-streams');
+const sql = require('./sql');
 const {
   getLogger,
   createBulkInsertStreamBase,
   makeUniqueColumnNames,
   extractDbNameFromComposite,
   extractErrorLogData,
+  getConflictingColumnNames,
 } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 let authProxy;
@@ -24,8 +26,11 @@ pg.types.setTypeParser(1184, 'text', val => val); // timestamp
 pg.types.setTypeParser(20, 'text', val => {
   const parsed = parseInt(val);
   if (Number.isSafeInteger(parsed)) return parsed;
-  return BigInt(val);
+  return { $bigint: val };
 }); // timestamp
+pg.types.setTypeParser(1700, 'text', val => {
+  return { $decimal: val };
+}); // numeric
 
 function extractGeographyDate(value) {
   try {
@@ -46,6 +51,9 @@ function transformRow(row, columnsToTransform) {
     if (dataTypeName == 'geography') {
       row[columnName] = extractGeographyDate(row[columnName]);
     }
+    else if (dataTypeName == 'bytea' && row[columnName]) {
+      row[columnName] = { $binary: { base64: Buffer.from(row[columnName]).toString('base64') } };
+    }
   }
 
   return row;
@@ -59,7 +67,23 @@ function extractPostgresColumns(result, dbhan) {
     columnName: fld.name,
     dataTypeId: fld.dataTypeID,
     dataTypeName: typeIdToName[fld.dataTypeID],
+    tableId: fld.tableID,
   }));
+
+  // const conflictingNames = getConflictingColumnNames(res);
+  // if (conflictingNames.size > 0) {
+  //   const requiredTableIds = res.filter(x => conflictingNames.has(x.columnName)).map(x => x.tableId);
+  //   const tableIdResult = await dbhan.client.query(
+  //     `SELECT DISTINCT c.oid AS table_id, c.relname AS table_name
+  //      FROM pg_class c
+  //      WHERE c.oid IN (${requiredTableIds.join(',')})`
+  //   );
+  //   const tableIdToTableName = _.fromPairs(tableIdResult.rows.map(cur => [cur.table_id, cur.table_name]));
+  //   for (const col of res) {
+  //     col.pureName = tableIdToTableName[col.tableId];
+  //   }
+  // }
+
   makeUniqueColumnNames(res);
   return res;
 }
@@ -141,7 +165,7 @@ const drivers = driverBases.map(driverBase => ({
       conid,
     };
 
-    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography')`);
+    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography', 'bytea')`);
     const typeIdToName = _.fromPairs(datatypes.rows.map(cur => [cur.oid, cur.typname]));
     dbhan['typeIdToName'] = typeIdToName;
 
@@ -163,7 +187,14 @@ const drivers = driverBases.map(driverBase => ({
     }
     const res = await dbhan.client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res, dbhan);
-    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+
+    const transormableTypeNames = Object.values(dbhan.typeIdToName ?? {});
+    const columnsToTransform = columns.filter(x => transormableTypeNames.includes(x.dataTypeName));
+
+    const zippedRows = (res.rows || []).map(row => zipDataRow(row, columns));
+    const transformedRows = zippedRows.map(row => transformRow(row, columnsToTransform));
+
+    return { rows: transformedRows, columns };
   },
   stream(dbhan, sql, options) {
     const handleNotice = notice => {
@@ -190,7 +221,7 @@ const drivers = driverBases.map(driverBase => ({
       if (!wasHeader) {
         columns = extractPostgresColumns(query._result, dbhan);
         if (columns && columns.length > 0) {
-          options.recordset(columns);
+          options.recordset(columns, { engine: driverBase.engine });
         }
         wasHeader = true;
       }
@@ -214,6 +245,7 @@ const drivers = driverBases.map(driverBase => ({
           message: `${rowCount} rows affected`,
           time: new Date(),
           severity: 'info',
+          rowsAffected: rowCount,
         });
       }
 
@@ -309,6 +341,7 @@ const drivers = driverBases.map(driverBase => ({
         columns = extractPostgresColumns(query._result, dbhan);
         pass.write({
           __isStreamHeader: true,
+          engine: driverBase.engine,
           ...(structure || { columns }),
         });
         wasHeader = true;
@@ -351,9 +384,68 @@ const drivers = driverBases.map(driverBase => ({
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, dbhan, name, options);
   },
+
+  async serverSummary(dbhan) {
+    const [processes, variables, databases] = await Promise.all([
+      this.listProcesses(dbhan),
+      this.listVariables(dbhan),
+      this.listDatabasesFull(dbhan),
+    ]);
+
+    /** @type {import('dbgate-types').ServerSummary} */
+    const data = {
+      processes,
+      variables,
+      databases: {
+        rows: databases,
+        columns: [
+          { header: 'Name', fieldName: 'name', type: 'data' },
+          { header: 'Size on disk', fieldName: 'sizeOnDisk', type: 'fileSize' },
+        ],
+      },
+    };
+
+    return data;
+  },
+
+  async killProcess(dbhan, pid) {
+    const result = await this.query(dbhan, `SELECT pg_terminate_backend(${parseInt(pid)})`);
+    return result;
+  },
+
+  async listDatabasesFull(dbhan) {
+    const { rows } = await this.query(dbhan, sql.listDatabases);
+    return rows;
+  },
+
   async listDatabases(dbhan) {
     const { rows } = await this.query(dbhan, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
+  },
+
+  async listVariables(dbhan) {
+    const result = await this.query(dbhan, sql.listVariables);
+    return result.rows.map(row => ({
+      variable: row.variable,
+      value: row.value,
+    }));
+  },
+
+  async listProcesses(dbhan) {
+    const result = await this.query(dbhan, sql.listProcesses);
+    return result.rows.map(row => ({
+      processId: row.processId,
+      connectionId: row.connectionId,
+      client: row.client,
+      operation: row.operation,
+      namespace: null,
+      command: row.operation,
+      runningTime: row.runningTime ? Math.max(Number(row.runningTime), 0) : null,
+      state: row.state,
+      waitingFor: row.waitingFor,
+      locks: null,
+      progress: null,
+    }));
   },
 
   getAuthTypes() {

@@ -8,10 +8,12 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
-  import { useFiles } from '../utility/metadataLoaders';
+  import { useFiles, useTeamFiles } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { isProApp } from '../utility/proTools';
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
+  import { DATA_FOLDER_NAMES } from 'dbgate-tools';
+  import { _t } from '../translations';
 
   let filter = '';
 
@@ -27,6 +29,8 @@
   const dbCompareJobFiles = useFiles({ folder: 'dbcompare' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
+  const appFiles = useFiles({ folder: 'apps' });
+  const teamFiles = useTeamFiles({});
 
   $: files = [
     ...($sqlFiles || []),
@@ -41,32 +45,19 @@
     ...($modelTransformFiles || []),
     ...((isProApp() && $dataDeployJobFiles) || []),
     ...((isProApp() && $dbCompareJobFiles) || []),
+    ...((isProApp() && $appFiles) || []),
+    ...($teamFiles || []),
   ];
 
   function handleRefreshFiles() {
     apiCall('files/refresh', {
-      folders: [
-        'sql',
-        'shell',
-        'markdown',
-        'charts',
-        'query',
-        'sqlite',
-        'diagrams',
-        'perspectives',
-        'impexp',
-        'modtrans',
-        'datadeploy',
-        'dbcompare',
-      ],
+      folders: DATA_FOLDER_NAMES.map(folder => folder.name),
     });
   }
 
   function dataFolderTitle(folder) {
-    if (folder == 'modtrans') return 'Model transforms';
-    if (folder == 'datadeploy') return 'Data deploy jobs';
-    if (folder == 'dbcompare') return 'Database compare jobs';
-    return _.startCase(folder);
+    const foundFolder = DATA_FOLDER_NAMES.find(f => f.name === folder);
+    return foundFolder ? foundFolder.label : _.startCase(folder);
   }
 
   async function handleUploadedFile(filePath, fileName) {
@@ -75,23 +66,28 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search saved files" bind:value={filter} />
+  <SearchInput placeholder={_t('files.searchSavedFiles', { defaultMessage: "Search saved files" })} bind:value={filter} />
   <CloseSearchButton bind:filter />
   <InlineUploadButton
     filters={[
       {
-        name: `All supported files`,
+        name: _t('files.allSupportedFiles', { defaultMessage: "All supported files" }),
         extensions: ['sql'],
       },
-      { name: `SQL files`, extensions: ['sql'] },
+      { name: _t('files.sqlFiles', { defaultMessage: "SQL files" }), extensions: ['sql'] },
     ]}
     onProcessFile={handleUploadedFile}
   />
-  <InlineButton on:click={handleRefreshFiles} title="Refresh files" data-testid="SavedFileList_buttonRefresh">
+  <InlineButton on:click={handleRefreshFiles} title={_t('files.refreshFiles', { defaultMessage: "Refresh files" })} data-testid="SavedFileList_buttonRefresh">
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
 
 <WidgetsInnerContainer>
-  <AppObjectList list={files} module={savedFileAppObject} groupFunc={data => dataFolderTitle(data.folder)} {filter} />
+  <AppObjectList
+    list={files}
+    module={savedFileAppObject}
+    groupFunc={data => (data.teamFileId ? _t('files.teamFiles', { defaultMessage: "Team files" }) : dataFolderTitle(data.folder))}
+    {filter}
+  />
 </WidgetsInnerContainer>

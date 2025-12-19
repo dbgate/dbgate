@@ -3,6 +3,9 @@ import { currentDatabase, getExtensions, getOpenedTabs, loadingSchemaLists, open
 import _ from 'lodash';
 import { getSchemaList } from './metadataLoaders';
 import { showSnackbarError } from './snackbar';
+import { _t } from '../translations';
+import { apiCall } from './api';
+import getElectron from './getElectron';
 
 export class LoadingToken {
   isCanceled = false;
@@ -57,8 +60,15 @@ export function setSelectedTab(tabid) {
 }
 
 export function getObjectTypeFieldLabel(objectTypeField, driver?) {
-  if (objectTypeField == 'matviews') return 'Materialized Views';
-  if (objectTypeField == 'collections') return _.startCase(driver?.collectionPluralLabel) ?? 'Collections/Containers';
+  if (objectTypeField == 'tables') return _t('dbObject.tables', { defaultMessage: 'Tables' });
+  if (objectTypeField == 'views') return _t('dbObject.views', { defaultMessage: 'Views' });
+  if (objectTypeField == 'procedures') return _t('dbObject.procedures', { defaultMessage: 'Procedures' });
+  if (objectTypeField == 'functions') return _t('dbObject.functions', { defaultMessage: 'Functions' });
+  if (objectTypeField == 'triggers') return _t('dbObject.triggers', { defaultMessage: 'Triggers' });
+  if (objectTypeField == 'schedulerEvents')
+    return _t('dbObject.schedulerEvents', { defaultMessage: 'Scheduler Events' });
+  if (objectTypeField == 'matviews') return _t('dbObject.matviews', { defaultMessage: 'Materialized Views' });
+  if (objectTypeField == 'collections') return _t('dbObject.collections', { defaultMessage: 'Collections/Containers' });
   return _.startCase(objectTypeField);
 }
 
@@ -143,4 +153,47 @@ export function getKeyTextFromEvent(e) {
   if (e.altKey) keyText += 'Alt+';
   keyText += e.key;
   return keyText;
+}
+
+export function getDatabasStatusMenu(dbid, driver = null) {
+  function callSchemalListChanged() {
+    apiCall('database-connections/dispatch-database-changed-event', { event: 'schema-list-changed', ...dbid });
+  }
+  return _.compact([
+    driver?.supportsIncrementalAnalysis && {
+      text: _t('command.database.refreshIncremental', { defaultMessage: 'Refresh DB structure (incremental)' }),
+      onClick: () => {
+        apiCall('database-connections/sync-model', dbid);
+        callSchemalListChanged();
+      },
+      testid: 'DatabasStatusMenu_refreshIncremental',
+    },
+    {
+      text: driver?.supportsIncrementalAnalysis
+        ? _t('command.database.refreshFull', { defaultMessage: 'Refresh DB structure (full)' })
+        : _t('command.database.refresh', { defaultMessage: 'Refresh DB structure' }),
+      onClick: () => {
+        apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
+        callSchemalListChanged();
+      },
+      testid: 'DatabasStatusMenu_refreshFull',
+    },
+    {
+      text: _t('command.database.reopenConnection', { defaultMessage: 'Reopen connection' }),
+      onClick: () => {
+        apiCall('database-connections/refresh', dbid);
+        callSchemalListChanged();
+      },
+      testid: 'DatabasStatusMenu_reopenConnection',
+    },
+    {
+      text: _t('command.database.disconnect', { defaultMessage: 'Disconnect' }),
+      onClick: () => {
+        const electron = getElectron();
+        if (electron) apiCall('database-connections/disconnect', dbid);
+        switchCurrentDatabase(null);
+      },
+      testid: 'DatabasStatusMenu_disconnect',
+    },
+  ]);
 }

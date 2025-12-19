@@ -76,6 +76,7 @@
     onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
     extraIcon={overlayDefinition ? OVERLAY_STATUS_ICONS[rowStatus.status] : null}
     extraIconTooltip={overlayDefinition ? OVERLAY_STATUS_TOOLTIPS[rowStatus.status] : null}
+    isSelected={frameSelection ? false : !!selectedCells?.find(cell => cell[0] == rowIndex && cell[1] == 'header')}
   />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}

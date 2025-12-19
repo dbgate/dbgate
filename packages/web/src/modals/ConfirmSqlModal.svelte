@@ -54,6 +54,7 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let sql;
   export let onConfirm;
@@ -81,7 +82,7 @@
 
 <FormProviderCore {values}>
   <ModalBase {...$$restProps}>
-    <div slot="header">Save changes</div>
+    <div slot="header">{_t('common.saveChanges', { defaultMessage: 'Save changes' })}</div>
 
     <div class="editor">
       <SqlEditor {engine} value={currentScript} readOnly />
@@ -91,7 +92,7 @@
       <div class="mt-2">
         <FormCheckboxField
           templateProps={{ noMargin: true }}
-          label="Delete references CASCADE"
+          label={_t('sqlModal.deleteReferencesCascade', { defaultMessage: 'Delete references CASCADE' })}
           name="deleteReferencesCascade"
           data-testid="ConfirmSqlModal_deleteReferencesCascade"
         />
@@ -101,13 +102,13 @@
     {#if $values.deleteReferencesCascade}
       <div class="form-margin flex">
         <FormStyledButton
-          value="Check all"
+          value={_t('common.checkAll', { defaultMessage: 'Check all' })}
           on:click={() => {
             $values = _.omitBy($values, (v, k) => k.startsWith('deleteReferencesFor_'));
           }}
         />
         <FormStyledButton
-          value="Uncheck all"
+          value={_t('common.uncheckAll', { defaultMessage: 'Uncheck all' })}
           on:click={() => {
             const newValues = { ...$values };
             for (const item of deleteCascadesScripts) {
@@ -135,12 +136,11 @@
     {#if isRecreated}
       <div class="form-margin">
         <div>
-          <FontIcon icon="img warn" /> This operation is not directly supported by SQL engine. DbGate can emulate it, but
-          please check the generated SQL script.
+          <FontIcon icon="img warn" /> {_t('sqlModal.recreateWarning', { defaultMessage: "This operation is not directly supported by SQL engine. DbGate can emulate it, but please check the generated SQL script." })}
         </div>
         <FormCheckboxField
           templateProps={{ noMargin: true }}
-          label="Allow recreate (don't use on production databases)"
+          label={_t('sqlModal.allowRecreate', { defaultMessage: "Allow recreate (don't use on production databases)" })}
           name="allowRecreate"
         />
       </div>
@@ -149,7 +149,7 @@
     {#if skipConfirmSettingKey}
       <div class="mt-2">
         <TemplatedCheckboxField
-          label="Don't ask again"
+          label={_t('common.dontAskAgain', { defaultMessage: "Don't ask again" })}
           templateProps={{ noMargin: true }}
           checked={dontAskAgain}
           on:change={e => {
@@ -162,7 +162,7 @@
 
     <div slot="footer">
       <FormSubmit
-        value="OK"
+        value={_t('common.ok', { defaultMessage: 'OK' })}
         disabled={isRecreated && !$values.allowRecreate}
         on:click={e => {
           closeCurrentModal();
@@ -172,13 +172,13 @@
       />
       <FormStyledButton
         type="button"
-        value="Close"
+        value={_t('common.close', { defaultMessage: 'Close' })}
         on:click={closeCurrentModal}
         data-testid="ConfirmSqlModal_closeButton"
       />
       <FormStyledButton
         type="button"
-        value="Open script"
+        value={_t('common.openScript', { defaultMessage: 'Open script' })}
         on:click={() => {
           newQuery({
             initialData: currentScript,

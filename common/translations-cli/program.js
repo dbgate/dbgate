@@ -160,4 +160,31 @@ program
     }
   });
 
+program
+  .command('sort')
+  .description('Sort translation files by keys')
+  .action(() => {
+    try {
+      const languages = getAllNonDefaultLanguages();
+      for (const language of languages) {
+        const filePath = `./translations/${language}.json`;
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const translations = JSON.parse(content);
+        const sortedTranslations = {};
+        Object.keys(translations)
+          .sort()
+          .forEach(key => {
+            // @ts-ignore
+            sortedTranslations[key] = translations[key];
+          });
+        fs.writeFileSync(filePath, JSON.stringify(sortedTranslations, null, 2), 'utf-8');
+        console.log(`Sorted translations for language: ${language}`);
+      }
+    } catch (error) {
+      console.error(error);
+      console.error('Error during sort:', error.message);
+      process.exit(1);
+    }
+  });
+
 module.exports = { program };

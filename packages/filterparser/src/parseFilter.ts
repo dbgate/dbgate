@@ -2,7 +2,7 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
-import { hexStringToArray, parseNumberSafe } from 'dbgate-tools';
+import { hexToBase64, parseNumberSafe } from 'dbgate-tools';
 import { FilterBehaviour, TransformType } from 'dbgate-types';
 
 const binaryCondition =
@@ -385,10 +385,7 @@ const createParser = (filterBehaviour: FilterBehaviour) => {
 
     hexstring: () =>
       token(P.regexp(/0x(([0-9a-fA-F][0-9a-fA-F])+)/, 1))
-        .map(x => ({
-          type: 'Buffer',
-          data: hexStringToArray(x),
-        }))
+        .map(x => ({ $binary: { base64: hexToBase64(x) } }))
         .desc('hex string'),
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),

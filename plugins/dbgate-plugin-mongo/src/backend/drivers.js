@@ -1,12 +1,13 @@
 const _ = require('lodash');
 const { EventEmitter } = require('events');
 const stream = require('stream');
-const driverBase = require('../frontend/driver');
+const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
-const { MongoClient, ObjectId, AbstractCursor, Long } = require('mongodb');
+const mongodb = require('mongodb');
+const { ObjectId } = require('mongodb');
 const { EJSON } = require('bson');
-const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse } = require('dbgate-tools');
+const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse, getLogger } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
   convertToMongoCondition,
@@ -16,7 +17,10 @@ const {
 
 let isProApp;
 
-function serializeMongoData(row) {
+const logger = getLogger('mongoDriver');
+
+function serializeMongoData(row, driverBase) {
+  const { Long } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
   return EJSON.serialize(
     serializeJsTypesForJsonStringify(row, (value) => {
       if (value instanceof Long) {
@@ -31,10 +35,10 @@ function serializeMongoData(row) {
   );
 }
 
-async function readCursor(cursor, options) {
+async function readCursor(cursor, options, driverBase) {
   options.recordset({ __isDynamicStructure: true });
   await cursor.forEach((row) => {
-    options.row(serializeMongoData(row));
+    options.row(serializeMongoData(row, driverBase));
   });
 }
 
@@ -47,6 +51,10 @@ function findArrayResult(resValue) {
   const arrays = _.values(resValue).filter((x) => _.isArray(x));
   if (arrays.length == 1) return arrays[0];
   return null;
+}
+
+function BinData(_subType, base64) {
+  return Buffer.from(base64, 'base64');
 }
 
 async function getScriptableDb(dbhan) {
@@ -80,8 +88,8 @@ async function getScriptableDb(dbhan) {
 //   }
 // }
 
-/** @type {import('dbgate-types').EngineDriver<MongoClient>} */
-const driver = {
+/** @type {import('dbgate-types').EngineDriver<import('mongodb').MongoClient, import('mongodb').Db>} */
+const drivers = driverBases.map((driverBase) => ({
   ...driverBase,
   analyserClass: Analyser,
   async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl, useSshTunnel }) {
@@ -113,6 +121,8 @@ const driver = {
       // options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
+
+    const { MongoClient } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
 
     const client = new MongoClient(mongoUrl, options);
     await client.connect();
@@ -154,9 +164,9 @@ const driver = {
     //   return printable;
     // }
     let func;
-    func = eval(`(db,ObjectId) => ${sql}`);
+    func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
-    const res = func(db, ObjectId.createFromHexString);
+    const res = func(db, ObjectId.createFromHexString, BinData);
     if (isPromise(res)) await res;
   },
   async operation(dbhan, operation, options) {
@@ -165,21 +175,35 @@ const driver = {
       case 'createCollection':
         await this.script(dbhan, `db.createCollection('${operation.collection.name}')`);
         break;
+      // case 'dropCollection':
+      //   await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
+      //   break;
+      // case 'renameCollection':
+      //   await this.script(
+      //     dbhan,
+      //     `db.getCollection('${operation.collection}').renameCollection('${operation.newName}')`
+      //   );
+      //   break;
+      // case 'cloneCollection':
+      //   await this.script(
+      //     dbhan,
+      //     `db.getCollection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+      //   );
+      //   break;
+
       case 'dropCollection':
-        await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
+        await this.script(dbhan, `db.dropCollection('${operation.collection}')`);
         break;
       case 'renameCollection':
-        await this.script(
-          dbhan,
-          `db.getCollection('${operation.collection}').renameCollection('${operation.newName}')`
-        );
+        await this.script(dbhan, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
         break;
       case 'cloneCollection':
         await this.script(
           dbhan,
-          `db.getCollection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
+          `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
         );
         break;
+
       default:
         throw new Error(`Operation type ${type} not supported`);
     }
@@ -193,7 +217,10 @@ const driver = {
       let exprValue;
 
       try {
-        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), { productDocsLink: '', productName: 'DbGate' });
+        const serviceProvider = new NodeDriverServiceProvider(dbhan.client, new EventEmitter(), {
+          productDocsLink: '',
+          productName: 'DbGate',
+        });
         const runtime = new ElectronRuntime(serviceProvider);
         await runtime.evaluate(`use ${dbhan.database}`);
         exprValue = await runtime.evaluate(sql);
@@ -266,7 +293,7 @@ const driver = {
     } else {
       let func;
       try {
-        func = eval(`(db,ObjectId) => ${sql}`);
+        func = eval(`(db,ObjectId,BinData) => ${sql}`);
       } catch (err) {
         options.info({
           message: 'Error compiling expression: ' + err.message,
@@ -280,7 +307,7 @@ const driver = {
 
       let exprValue;
       try {
-        exprValue = func(db, ObjectId.createFromHexString);
+        exprValue = func(db, ObjectId.createFromHexString, BinData);
       } catch (err) {
         options.info({
           message: 'Error evaluating expression: ' + err.message,
@@ -291,8 +318,10 @@ const driver = {
         return;
       }
 
+      const { AbstractCursor } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
+
       if (exprValue instanceof AbstractCursor) {
-        await readCursor(exprValue, options);
+        await readCursor(exprValue, options, driverBase);
       } else if (isPromise(exprValue)) {
         try {
           const resValue = await exprValue;
@@ -392,9 +421,9 @@ const driver = {
     //   highWaterMark: 100,
     // });
 
-    func = eval(`(db,ObjectId) => ${sql}`);
+    func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
-    exprValue = func(db, ObjectId.createFromHexString);
+    exprValue = func(db, ObjectId.createFromHexString, BinData);
 
     const pass = new stream.PassThrough({
       objectMode: true,
@@ -404,7 +433,7 @@ const driver = {
     const cursorStream = exprValue.stream();
 
     cursorStream.on('data', (row) => {
-      pass.write(serializeMongoData(row));
+      pass.write(serializeMongoData(row, driverBase));
     });
 
     // propagate error
@@ -464,10 +493,12 @@ const driver = {
         let cursor = await collection.aggregate(deserializeMongoData(convertToMongoAggregate(options.aggregate)));
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(serializeMongoData).map((x) => ({
-            ...x._id,
-            ..._.omit(x, ['_id']),
-          })),
+          rows: rows
+            .map((row) => serializeMongoData(row, driverBase))
+            .map((x) => ({
+              ...x._id,
+              ..._.omit(x, ['_id']),
+            })),
         };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
@@ -477,7 +508,7 @@ const driver = {
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();
         return {
-          rows: rows.map(serializeMongoData),
+          rows: rows.map((row) => serializeMongoData(row, driverBase)),
         };
       }
     } catch (err) {
@@ -590,10 +621,12 @@ const driver = {
       ]);
       const rows = await cursor.toArray();
       return _.uniqBy(
-        rows.map(serializeMongoData).map(({ _id }) => {
-          if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
-          return { value: _id };
-        }),
+        rows
+          .map((row) => serializeMongoData(row, driverBase))
+          .map(({ _id }) => {
+            if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
+            return { value: _id };
+          }),
         (x) => x.value
       );
     } catch (err) {
@@ -629,90 +662,111 @@ const driver = {
   },
 
   async serverSummary(dbhan) {
-    const res = await dbhan.getDatabase().admin().listDatabases();
-    const profiling = await Promise.all(res.databases.map((x) => dbhan.client.db(x.name).command({ profile: -1 })));
+    const [processes, variables, databases] = await Promise.all([
+      this.listProcesses(dbhan),
+      this.listVariables(dbhan),
+      this.listDatabases(dbhan),
+    ]);
 
-    function formatProfiling(info) {
-      switch (info.was) {
-        case 0:
-          return 'No profiling';
-        case 1:
-          return `Filtered (>${info.slowms} ms)`;
-        case 2:
-          return 'Profile all';
-        default:
-          return '???';
-      }
-    }
-
-    return {
-      columns: [
-        {
-          fieldName: 'name',
-          columnType: 'string',
-          header: 'Name',
-        },
-        {
-          fieldName: 'sizeOnDisk',
-          columnType: 'bytes',
-          header: 'Size',
-        },
-        {
-          fieldName: 'profiling',
-          columnType: 'string',
-          header: 'Profiling',
-        },
-        {
-          fieldName: 'setProfile',
-          columnType: 'actions',
-          header: 'Profiling actions',
-          actions: [
-            {
-              header: 'Off',
-              command: 'profileOff',
-            },
-            {
-              header: 'Filtered',
-              command: 'profileFiltered',
-            },
-            {
-              header: 'All',
-              command: 'profileAll',
-            },
-            // {
-            //   header: 'View',
-            //   openQuery: "db['system.profile'].find()",
-            //   tabTitle: 'Profile data',
-            // },
-            {
-              header: 'View',
-              openTab: {
-                title: 'system.profile',
-                icon: 'img collection',
-                tabComponent: 'CollectionDataTab',
-                props: {
-                  pureName: 'system.profile',
-                },
-              },
-              addDbProps: true,
-            },
-          ],
-        },
-      ],
-      databases: res.databases.map((db, i) => ({
-        ...db,
-        profiling: formatProfiling(profiling[i]),
-      })),
+    /** @type {import('dbgate-types').ServerSummary} */
+    const data = {
+      processes,
+      variables,
+      databases: {
+        rows: databases,
+        columns: [
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Name',
+            fieldName: 'name',
+            type: 'data',
+          },
+          {
+            sortable: true,
+            header: 'Size on disk',
+            fieldName: 'sizeOnDisk',
+            type: 'fileSize',
+          },
+          {
+            filterable: true,
+            sortable: true,
+            header: 'Empty',
+            fieldName: 'empty',
+            type: 'data',
+          },
+        ],
+      },
     };
+
+    return data;
   },
 
   async close(dbhan) {
     return dbhan.client.close();
   },
-};
 
-driver.initialize = (dbgateEnv) => {
+  async listProcesses(dbhan) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const currentOp = await adminDb.command({
+      currentOp: {
+        $all: true,
+        active: true,
+        idle: true,
+        system: true,
+        killPending: true,
+      },
+    });
+
+    const processes = currentOp.inprog.map((op) => ({
+      processId: op.opid,
+      connectionId: op.connectionId,
+      client: op.client,
+      operation: op.op,
+      namespace: op.ns,
+      command: op.command,
+      runningTime: op.secs_running,
+      state: op.state,
+      waitingFor: op.waitingForLock,
+      locks: op.locks,
+      progress: op.progress,
+    }));
+
+    return processes;
+  },
+
+  async listVariables(dbhan) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const variables = await adminDb
+      .command({ getParameter: '*' })
+      .then((params) =>
+        Object.entries(params).map(([key, value]) => ({ variable: key, value: value?.value || value }))
+      );
+
+    return variables;
+  },
+
+  async killProcess(dbhan, processId) {
+    const db = dbhan.getDatabase();
+    const adminDb = db.admin();
+
+    const result = await adminDb.command({
+      killOp: 1,
+      op: processId,
+    });
+
+    logger.info(`Killed process with ID ${processId}`, result);
+
+    return result;
+  },
+}));
+
+drivers.initialize = (dbgateEnv) => {
   isProApp = dbgateEnv.isProApp;
 };
 
-module.exports = driver;
+module.exports = drivers;

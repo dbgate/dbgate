@@ -7,9 +7,11 @@
   import FormStringList from './FormStringList.svelte';
   import FormDropDownTextField from './FormDropDownTextField.svelte';
   import { getFormContext } from './FormProviderCore.svelte';
+  import { _tval } from '../translations';
 
   export let arg;
   export let namePrefix;
+  export let isReadOnly = false;
 
   $: name = `${namePrefix}${arg.name}`;
 
@@ -18,46 +20,52 @@
 
 {#if arg.type == 'text'}
   <FormTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
     focused={arg.focused}
     placeholder={arg.placeholder}
-    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+    disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
   />
 {:else if arg.type == 'stringlist'}
-  <FormStringList label={arg.label} addButtonLabel={arg.addButtonLabel} {name} placeholder={arg.placeholder} />
+  <FormStringList
+    label={_tval(arg.label)}
+    addButtonLabel={_tval(arg.addButtonLabel)}
+    {name}
+    placeholder={arg.placeholder}
+    isReadOnly={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
+  />
 {:else if arg.type == 'number'}
   <FormTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     type="number"
     {name}
     defaultValue={arg.default}
     focused={arg.focused}
     placeholder={arg.placeholder}
-    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+    disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
   />
 {:else if arg.type == 'checkbox'}
   <FormCheckboxField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
-    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+    disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
   />
 {:else if arg.type == 'select'}
   <FormSelectField
-    label={arg.label}
+    label={_tval(arg.label)}
     isNative
     {name}
     defaultValue={arg.default}
     options={arg.options.map(opt =>
       _.isString(opt) ? { label: opt, value: opt } : { label: opt.name, value: opt.value }
     )}
-    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+    disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
   />
 {:else if arg.type == 'dropdowntext'}
   <FormDropDownTextField
-    label={arg.label}
+    label={_tval(arg.label)}
     {name}
     defaultValue={arg.default}
     menu={() => {
@@ -66,6 +74,6 @@
         onClick: () => setFieldValue(name, _.isString(opt) ? opt : opt.value),
       }));
     }}
-    disabled={arg.disabledFn ? arg.disabledFn($values) : arg.disabled}
+    disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
   />
 {/if}

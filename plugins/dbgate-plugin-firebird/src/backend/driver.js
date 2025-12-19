@@ -1,10 +1,10 @@
 const _ = require('lodash');
-const { splitQuery } = require('dbgate-query-splitter');
+const { splitQuery, firebirdSplitterOptions } = require('dbgate-query-splitter');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Firebird = require('node-firebird');
-const { normalizeRow, createFirebirdInsertStream } = require('./helpers');
+const { createFirebirdInsertStream } = require('./helpers');
 const { getLogger, extractErrorLogData, createBulkInsertStreamBase } = require('dbgate-tools');
 const sql = require('./sql');
 
@@ -21,6 +21,7 @@ const driver = {
       database: databaseFile,
       user,
       password,
+      blobAsText: true,
     };
 
     /**@type {Firebird.Database} */
@@ -63,7 +64,7 @@ const driver = {
     const columns = res?.[0] ? Object.keys(res[0]).map(i => ({ columnName: i })) : [];
 
     return {
-      rows: res ? await Promise.all(res.map(normalizeRow)) : [],
+      rows: res || [],
       columns,
     };
   },
@@ -112,7 +113,7 @@ const driver = {
   async script(dbhan, sql, { useTransaction } = {}) {
     if (useTransaction) return this.runSqlInTransaction(dbhan, sql);
 
-    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+    const sqlItems = splitQuery(sql, firebirdSplitterOptions);
     for (const sqlItem of sqlItems) {
       await this.query(dbhan, sqlItem, { discardResult: true });
     }
@@ -183,7 +184,7 @@ const driver = {
   async runSqlInTransaction(dbhan, sql) {
     /** @type {Firebird.Transaction} */
     let transactionPromise;
-    const sqlItems = splitQuery(sql, driver.sqlSplitterOptions);
+    const sqlItems = splitQuery(sql, firebirdSplitterOptions);
 
     try {
       transactionPromise = await new Promise((resolve, reject) => {

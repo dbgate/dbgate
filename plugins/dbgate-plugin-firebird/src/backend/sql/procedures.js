@@ -3,7 +3,7 @@ SELECT
     TRIM(P.RDB$PROCEDURE_NAME) AS "pureName",
     TRIM('PROCEDURE') AS "objectTypeField",
     TRIM(P.RDB$DESCRIPTION) AS "objectComment",
-    P.RDB$PROCEDURE_SOURCE AS "createSql",       -- Contains the PSQL body
+    CAST(SUBSTRING(P.RDB$PROCEDURE_SOURCE FROM 1 FOR 5000) AS VARCHAR(5000)) AS "createSql",
     FALSE AS "requiresFormat"
 FROM
     RDB$PROCEDURES P

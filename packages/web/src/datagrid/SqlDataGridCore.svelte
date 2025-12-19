@@ -1,18 +1,19 @@
 <script context="module" lang="ts">
+  import { __t, _t } from '../translations'
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
     id: 'sqlDataGrid.openQuery',
-    category: 'Data grid',
-    name: 'Open query',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.openQuery', { defaultMessage : 'Open query' }),
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/query'),
     onClick: () => getCurrentEditor().openQuery(),
   });
 
   registerCommand({
     id: 'sqlDataGrid.export',
-    category: 'Data grid',
-    name: 'Export',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('common.export', { defaultMessage : 'Export' }),
     icon: 'icon export',
     keyText: 'CtrlOrCommand+E',
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/export'),
@@ -126,7 +127,7 @@
   export function openQuery(sql?) {
     openNewTab(
       {
-        title: 'Query #',
+        title: _t('common.queryNumber', { defaultMessage: 'Query #' }),
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
         focused: true,
@@ -144,7 +145,7 @@
   }
 
   function openQueryOnError() {
-    openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)));
+    openQuery(display.getPageQueryText(0, getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000)));
   }
 
   const quickExportHandler = fmt => async () => {

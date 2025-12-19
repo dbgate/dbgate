@@ -109,4 +109,163 @@ describe('Charts', () => {
     cy.contains('Compare database');
     cy.themeshot('new-object-window');
   });
+
+  it.skip('Database chat - charts', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_databaseChat').click();
+    cy.wait(1000);
+    cy.get('body').realType('show me chart of most popular genres');
+    cy.get('body').realPress('{enter}');
+    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
+    cy.testid('chart-canvas', { timeout: 30000 }).should($c =>
+      expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/)
+    );
+    cy.themeshot('database-chat-chart');
+  });
+
+  it.skip('Database chat', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_databaseChat').click();
+    cy.wait(1000);
+    cy.get('body').realType('find most popular artist');
+    cy.get('body').realPress('{enter}');
+    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
+    cy.wait(30000);
+    // cy.contains('Iron Maiden');
+    cy.themeshot('database-chat');
+
+    // cy.testid('DatabaseChatTab_promptInput').click();
+    // cy.get('body').realType('I need top 10 songs with the biggest income');
+    // cy.get('body').realPress('{enter}');
+    // cy.contains('Hot Girl', { timeout: 20000 });
+    // cy.wait(1000);
+    // cy.themeshot('database-chat');
+  });
+
+  it.skip('Explain query error', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
+    cy.wait(1000);
+    cy.get('body').realType('select * from Invoice2');
+    cy.contains('Execute').click();
+    cy.testid('MessageViewRow-explainErrorButton-1').click();
+    cy.testid('ChatCodeRenderer_useSqlButton', { timeout: 30000 });
+    cy.themeshot('explain-query-error');
+  });
+
+  it('Switch language', () => {
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.testid('WidgetIconPanel_settings').click();
+
+    cy.testid('SettingsModal_languageSelect').select('Deutsch');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Sprache');
+    cy.themeshot('switch-language-de');
+
+    cy.testid('SettingsModal_languageSelect').select('Français');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Langue');
+    cy.themeshot('switch-language-fr');
+
+    cy.testid('SettingsModal_languageSelect').select('Español');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Idioma');
+    cy.themeshot('switch-language-es');
+
+    cy.testid('SettingsModal_languageSelect').select('Čeština');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Jazyk');
+    cy.themeshot('switch-language-cs');
+
+    cy.testid('SettingsModal_languageSelect').select('中文');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('语言');
+    cy.themeshot('switch-language-zh');
+
+    cy.testid('SettingsModal_languageSelect').select('English');
+    cy.testid('ConfirmModal_okButton').click();
+    cy.testid('WidgetIconPanel_settings');
+  });
+
+  it('Settings', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.themeshot('app-settings-general');
+
+    cy.contains('Behaviour').click();
+    cy.themeshot('app-settings-behaviour');
+    cy.get('[data-testid=BehaviourSettings_useTabPreviewMode]').uncheck();
+
+    // SQL Editor
+    cy.contains('SQL Editor').click();
+    cy.get('[data-testid=SQLEditorSettings_sqlCommandsCase]').select('lowerCase');
+
+    cy.contains('MySql-connection').click();
+    cy.contains('charts_sample').click();
+    cy.contains('employees').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').rightclick();
+    cy.contains('SQL template').click();
+    cy.contains('CREATE TABLE').click();
+    cy.contains('create table');
+
+    // Default Actions
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Default Actions').click();
+    cy.get('[data-testid=DefaultActionsSettings_useLastUsedAction]').uncheck();
+
+
+    // Themes
+    cy.contains('Themes').click();
+    cy.themeshot('app-settings-themes');
+    cy.contains('Dark').click();
+    cy.get('body').find('.theme-dark').should('exist');
+    cy.contains('Light').click();
+    cy.get('body').find('.theme-light').should('exist');
+
+    // General
+    cy.contains(/^General$/).click();
+    cy.contains('charts_sample');
+    cy.get('[data-testid=GeneralSettings_lockedDatabaseMode]').check();
+    cy.contains('Connections').click();
+    cy.contains('charts_sample').should('not.exist');
+
+    // Datagrid
+    cy.contains('Data grid').click();
+    cy.get('[data-testid=DataGridSettings_showHintColumns]').uncheck();
+    cy.wait(500);
+    cy.contains('Album').click();
+    cy.contains('AC/DC').should('not.exist');
+
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Keyboard shortcuts').click();
+    cy.themeshot('app-settings-keyboard-shortcuts');
+    cy.contains('Chart').click();
+    cy.testid('CommandModal_keyboardButton').click();
+    cy.realPress(['Control', 'g']);
+    cy.realPress('Enter');
+    cy.contains('OK').click();
+    cy.contains('Ctrl+G');
+
+    
+    cy.contains('AI').click();
+    cy.themeshot('app-settings-ai');
+    cy.get('[data-testid=AISettings_addProviderButton]').click();
+    cy.contains('Provider 1');
+    cy.get('[data-testid=AiProviderCard_removeButton]').click();
+    cy.contains('Are you sure you want to remove Provider 1 provider?');
+    cy.contains('OK').click();
+    cy.contains('Provider 1').should('not.exist');
+  });
 });

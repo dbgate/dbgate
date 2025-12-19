@@ -51,6 +51,7 @@ function authMiddleware(req, res, next) {
     '/auth/oauth-token',
     '/auth/login',
     '/auth/redirect',
+    '/redirect',
     '/stream',
     '/storage/get-connections-for-login-page',
     '/storage/set-admin-password',
@@ -139,9 +140,9 @@ module.exports = {
         const accessToken = jwt.sign(
           {
             login: 'superadmin',
-            permissions: await storage.loadSuperadminPermissions(),
             roleId: -3,
             licenseUid,
+            amoid: 'superadmin',
           },
           getTokenSecret(),
           {
@@ -173,7 +174,9 @@ module.exports = {
   getProviders_meta: true,
   getProviders() {
     return {
-      providers: getAuthProviders().map(x => x.toJson()),
+      providers: getAuthProviders()
+        .filter(x => !x.skipInList)
+        .map(x => x.toJson()),
       default: getDefaultAuthProvider()?.amoid,
     };
   },

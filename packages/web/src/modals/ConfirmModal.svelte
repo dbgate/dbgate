@@ -5,17 +5,18 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import { _t } from '../translations';
 
   export let message;
   export let onConfirm;
-  export let confirmLabel = 'OK';
+  export let confirmLabel = _t('common.ok', { defaultMessage: 'OK' });
   export let header = null;
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">
-      {header || 'Confirm'}
+      {header || _t('common.confirm', { defaultMessage: 'Confirm' })}
     </svelte:fragment>
 
     {message}
@@ -31,7 +32,7 @@
       />
       <FormStyledButton
         type="button"
-        value="Close"
+        value={_t('common.close', { defaultMessage: 'Close' })}
         on:click={closeCurrentModal}
         data-testid="ConfirmModal_closeButton"
       />

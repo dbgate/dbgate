@@ -27,6 +27,7 @@
   import { evaluateCondition } from 'dbgate-sqltree';
   import { compileCompoudEvalCondition } from 'dbgate-filterparser';
   import { chevronExpandIcon } from '../icons/expandIcons';
+  import { _tval } from '../translations';
 
   export let columns: (TableControlColumn | false)[];
   export let rows = null;
@@ -199,6 +200,7 @@
   tabindex={selectable ? -1 : undefined}
   on:keydown={handleKeyDown}
   class:stickyHeader
+  data-testid={$$props['data-testid']}
 >
   <thead class:stickyHeader>
     <tr>
@@ -350,7 +352,7 @@
                 {#if col.component}
                   <svelte:component this={col.component} {...rowProps} />
                 {:else if col.formatter}
-                  {col.formatter(row)}
+                  {col.formatter(row, col)}
                 {:else if col.slot != null}
                   {#key row[col.slotKey] || 'key'}
                     {#if col.slot == -1}<slot name="-1" {row} {col} {index} />
@@ -367,7 +369,7 @@
                     {/if}
                   {/key}
                 {:else}
-                  {row[col.fieldName] || ''}
+                  { _tval(row[col.fieldName]) || '' }
                 {/if}
               </td>
             {/each}

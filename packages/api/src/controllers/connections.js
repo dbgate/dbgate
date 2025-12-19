@@ -14,11 +14,16 @@ const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 const processArgs = require('../utility/processArgs');
 const { safeJsonParse, getLogger, extractErrorLogData } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
-const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
+const {
+  connectionHasPermission,
+  testConnectionPermission,
+  loadPermissionsFromRequest,
+} = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { getAuthProviderById } = require('../auth/authProvider');
 const { startTokenChecking } = require('../utility/authProxy');
+const { extractConnectionsFromEnv } = require('../utility/envtools');
 
 const logger = getLogger('connections');
 
@@ -57,55 +62,7 @@ function getDatabaseFileLabel(databaseFile) {
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
-    const connections = _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
-      _id: id,
-      engine: process.env[`ENGINE_${id}`],
-      server: process.env[`SERVER_${id}`],
-      user: process.env[`USER_${id}`],
-      password: process.env[`PASSWORD_${id}`],
-      passwordMode: process.env[`PASSWORD_MODE_${id}`],
-      port: process.env[`PORT_${id}`],
-      databaseUrl: process.env[`URL_${id}`],
-      useDatabaseUrl: !!process.env[`URL_${id}`],
-      databaseFile: process.env[`FILE_${id}`]?.replace(
-        '%%E2E_TEST_DATA_DIRECTORY%%',
-        path.join(path.dirname(path.dirname(__dirname)), 'e2e-tests', 'tmpdata')
-      ),
-      socketPath: process.env[`SOCKET_PATH_${id}`],
-      serviceName: process.env[`SERVICE_NAME_${id}`],
-      authType: process.env[`AUTH_TYPE_${id}`] || (process.env[`SOCKET_PATH_${id}`] ? 'socket' : undefined),
-      defaultDatabase:
-        process.env[`DATABASE_${id}`] ||
-        (process.env[`FILE_${id}`] ? getDatabaseFileLabel(process.env[`FILE_${id}`]) : null),
-      singleDatabase: !!process.env[`DATABASE_${id}`] || !!process.env[`FILE_${id}`],
-      displayName: process.env[`LABEL_${id}`],
-      isReadOnly: process.env[`READONLY_${id}`],
-      databases: process.env[`DBCONFIG_${id}`] ? safeJsonParse(process.env[`DBCONFIG_${id}`]) : null,
-      allowedDatabases: process.env[`ALLOWED_DATABASES_${id}`]?.replace(/\|/g, '\n'),
-      allowedDatabasesRegex: process.env[`ALLOWED_DATABASES_REGEX_${id}`],
-      parent: process.env[`PARENT_${id}`] || undefined,
-      useSeparateSchemas: !!process.env[`USE_SEPARATE_SCHEMAS_${id}`],
-      localDataCenter: process.env[`LOCAL_DATA_CENTER_${id}`],
-
-      // SSH tunnel
-      useSshTunnel: process.env[`USE_SSH_${id}`],
-      sshHost: process.env[`SSH_HOST_${id}`],
-      sshPort: process.env[`SSH_PORT_${id}`],
-      sshMode: process.env[`SSH_MODE_${id}`],
-      sshLogin: process.env[`SSH_LOGIN_${id}`],
-      sshPassword: process.env[`SSH_PASSWORD_${id}`],
-      sshKeyfile: process.env[`SSH_KEY_FILE_${id}`],
-      sshKeyfilePassword: process.env[`SSH_KEY_FILE_PASSWORD_${id}`],
-
-      // SSL
-      useSsl: process.env[`USE_SSL_${id}`],
-      sslCaFile: process.env[`SSL_CA_FILE_${id}`],
-      sslCertFile: process.env[`SSL_CERT_FILE_${id}`],
-      sslCertFilePassword: process.env[`SSL_CERT_FILE_PASSWORD_${id}`],
-      sslKeyFile: process.env[`SSL_KEY_FILE_${id}`],
-      sslRejectUnauthorized: process.env[`SSL_REJECT_UNAUTHORIZED_${id}`],
-      trustServerCertificate: process.env[`SSL_TRUST_CERTIFICATE_${id}`],
-    }));
+    const connections = extractConnectionsFromEnv(process.env);
 
     for (const conn of connections) {
       for (const prop in process.env) {
@@ -116,7 +73,10 @@ function getPortalCollections() {
       }
     }
 
-    logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'DBGM-00005 Using connections from ENV variables');
+    logger.info(
+      { connections: connections.map(pickSafeConnectionInfo) },
+      'DBGM-00005 Using connections from ENV variables'
+    );
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       logger.warn(
@@ -222,11 +182,21 @@ module.exports = {
       );
     }
     await this.checkUnsavedConnectionsLimit();
+
+    if (process.env.STORAGE_DATABASE && process.env.CONNECTIONS) {
+      const storage = require('./storage');
+      try {
+        await storage.fillStorageConnectionsFromEnv();
+      } catch (err) {
+        logger.error(extractErrorLogData(err), 'DBGM-00268 Error filling storage connections from env');
+      }
+    }
   },
 
   list_meta: true,
   async list(_params, req) {
     const storage = require('./storage');
+    const loadedPermissions = await loadPermissionsFromRequest(req);
 
     const storageConnections = await storage.connections(req);
     if (storageConnections) {
@@ -234,9 +204,9 @@ module.exports = {
     }
     if (portalConnections) {
       if (platformInfo.allowShellConnection) return portalConnections;
-      return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, req));
+      return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, loadedPermissions));
     }
-    return (await this.datastore.find()).filter(x => connectionHasPermission(x, req));
+    return (await this.datastore.find()).filter(x => connectionHasPermission(x, loadedPermissions));
   },
 
   async getUsedEngines() {
@@ -375,7 +345,7 @@ module.exports = {
   update_meta: true,
   async update({ _id, values }, req) {
     if (portalConnections) return;
-    testConnectionPermission(_id, req);
+    await testConnectionPermission(_id, req);
     const res = await this.datastore.patch(_id, values);
     socket.emitChanged('connection-list-changed');
     return res;
@@ -392,7 +362,7 @@ module.exports = {
   updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }, req) {
     if (portalConnections) return;
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     const conn = await this.datastore.get(conid);
     let databases = (conn && conn.databases) || [];
     if (databases.find(x => x.name == database)) {
@@ -410,7 +380,7 @@ module.exports = {
   delete_meta: true,
   async delete(connection, req) {
     if (portalConnections) return;
-    testConnectionPermission(connection, req);
+    await testConnectionPermission(connection, req);
     const res = await this.datastore.remove(connection._id);
     socket.emitChanged('connection-list-changed');
     return res;
@@ -452,7 +422,7 @@ module.exports = {
         _id: '__model',
       };
     }
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
     return this.getCore({ conid, mask: true });
   },
 
@@ -501,7 +471,11 @@ module.exports = {
       state,
       client: 'web',
     });
-    res.redirect(authResp.url);
+    if (authResp?.url) {
+      res.redirect(authResp.url);
+      return;
+    }
+    res.json({ error: 'No URL returned from auth provider' });
   },
 
   dbloginApp_meta: true,

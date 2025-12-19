@@ -22,3 +22,8 @@ export function subscribePermissionCompiler() {
 export function setConfigForPermissions(config) {
   compiled = compilePermissions(config?.permissions || []);
 }
+
+export function isAllowedDatabaseRunScript(databasePermissionRole) {
+  return !databasePermissionRole || databasePermissionRole == 'run_script';
+}
+  

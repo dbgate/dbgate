@@ -29,6 +29,8 @@ const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
+const teamFiles = require('./controllers/teamFiles');
+
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
@@ -264,6 +266,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/apps', apps);
   useController(app, electron, '/auth', auth);
   useController(app, electron, '/cloud', cloud);
+  useController(app, electron, '/team-files', teamFiles);
 }
 
 function setElectronSender(electronSender) {

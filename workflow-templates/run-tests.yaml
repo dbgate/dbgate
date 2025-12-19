@@ -8,6 +8,10 @@ on:
       - 'feature/**'
       - hotfix/**
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   all-tests:
     runs-on: ubuntu-latest
@@ -49,26 +53,26 @@ jobs:
           cd packages/tools
           yarn test:ci
 
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: integration-tests/result.json
-          action-name: Integration tests
+      # - uses: tanmen/jest-reporter@v1
+      #   if: always()
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     result-file: integration-tests/result.json
+      #     action-name: Integration tests
 
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/filterparser/result.json
-          action-name: Filter parser test results
+      # - uses: tanmen/jest-reporter@v1
+      #   if: always()
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     result-file: packages/filterparser/result.json
+      #     action-name: Filter parser test results
 
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/datalib/result.json
-          action-name: Datalib (perspectives) test results
+      # - uses: tanmen/jest-reporter@v1
+      #   if: always()
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     result-file: packages/datalib/result.json
+      #     action-name: Datalib (perspectives) test results
 
     services:
       postgres-integr:
@@ -100,7 +104,7 @@ jobs:
           - 15002:1433
 
       clickhouse-integr:
-        image: bitnami/clickhouse:24.8.4
+        image: bitnamilegacy/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
         ports:

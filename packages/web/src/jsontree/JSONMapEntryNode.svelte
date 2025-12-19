@@ -3,6 +3,8 @@
 
   export let key, value, isParentExpanded, isParentArray;
   export let expanded = false;
+  export let hideKey = false;
+  export let labelOverride = null;
 
   const keys = ['key', 'value'];
 
@@ -17,7 +19,9 @@
   key={isParentExpanded ? String(key) : value.key}
   {keys}
   {getValue}
-  label={isParentExpanded ? 'Entry ' : '=> '}
+  label={labelOverride || (isParentExpanded ? 'Entry ' : '=> ')}
   bracketOpen={'{'}
   bracketClose={'}'}
+  {labelOverride}
+  {hideKey}
 />

@@ -11,15 +11,18 @@ import getElectron from './getElectron';
 //   return derived(editorStore, editor => editor != null);
 // }
 
-export default async function saveTabFile(editor, saveMode, folder, format, fileExtension) {
+export default async function saveTabFile(editor, saveMode, folder, format, fileExtension, defaultTeamFolder) {
   const tabs = get(openedTabs);
   const tabid = editor.activator.tabid;
   const data = editor.getData();
-  const { savedFile, savedFilePath, savedFolder, savedCloudFolderId, savedCloudContentId } =
+  const { savedFile, savedFilePath, savedFolder, savedCloudFolderId, savedCloudContentId, savedTeamFileId } =
     tabs.find(x => x.tabid == tabid).props || {};
 
   const handleSave = async () => {
-    if (savedCloudFolderId && savedCloudContentId) {
+    if (savedTeamFileId) {
+      const resp = await apiCall('team-files/update', { teamFileId: savedTeamFileId, data });
+      markTabSaved(tabid);
+    } else if (savedCloudFolderId && savedCloudContentId) {
       const resp = await apiCall('cloud/save-file', {
         folid: savedCloudFolderId,
         fileName: savedFile,
@@ -91,6 +94,7 @@ export default async function saveTabFile(editor, saveMode, folder, format, file
       filePath: savedFilePath,
       onSave,
       folid: savedCloudFolderId,
+      defaultTeamFolder,
       // cntid: savedCloudContentId,
     });
   }

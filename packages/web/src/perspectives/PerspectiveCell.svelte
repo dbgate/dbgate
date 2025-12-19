@@ -15,6 +15,9 @@
     if (force && value?.type == 'Buffer' && _.isArray(value.data)) {
       return String.fromCharCode.apply(String, value.data);
     }
+    else if (force && value?.$binary?.base64) {
+      return atob(value.$binary.base64);
+    }
     return stringifyCellValue(value, 'gridCellIntent').value;
   }
 </script>

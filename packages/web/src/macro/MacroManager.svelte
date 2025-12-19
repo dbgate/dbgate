@@ -8,6 +8,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import macros from './macros';
+  import { _t } from '../translations';
 
   let filter = '';
   export let managerSize;
@@ -16,7 +17,7 @@
 
 <ManagerInnerContainer width={managerSize}>
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search macros" bind:value={filter} />
+    <SearchInput placeholder={_t('datagrid.searchMacros', { defaultMessage: "Search macros"})} bind:value={filter} />
   </SearchBoxWrapper>
   <AppObjectList
     list={_.sortBy(macros, 'title').filter(x => (macroCondition ? macroCondition(x) : true))}

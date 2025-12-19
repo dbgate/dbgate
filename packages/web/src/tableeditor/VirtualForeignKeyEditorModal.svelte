@@ -12,7 +12,9 @@
   import { onMount, tick } from 'svelte';
   import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
   import { apiCall } from '../utility/api';
-  import { saveDbToApp } from '../utility/appTools';
+  import { _t } from '../translations';
+  // import { apiCall } from '../utility/api';
+  // import { saveDbToApp } from '../utility/appTools';
 
   export let conid;
   export let database;
@@ -69,11 +71,11 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Virtual foreign key</svelte:fragment>
+    <svelte:fragment slot="header">{_t('virtualForeignKey.virtualForeignKey', { defaultMessage: 'Virtual foreign key' })}</svelte:fragment>
 
     <div class="largeFormMarker">
       <div class="row">
-        <div class="label col-3">Referenced table</div>
+        <div class="label col-3">{_t('virtualForeignKey.referencedTable', { defaultMessage: 'Referenced table' })}</div>
         <div class="col-9">
           <SelectField
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
@@ -104,10 +106,10 @@
 
       <div class="row">
         <div class="col-5 mr-1">
-          Base column - {$tableInfo?.pureName}
+          {_t('virtualForeignKey.baseColumn', { defaultMessage: 'Base column' })} - {$tableInfo?.pureName}
         </div>
         <div class="col-5 ml-1">
-          Ref column - {refTableName || '(table not set)'}
+          {_t('virtualForeignKey.refColumn', { defaultMessage: 'Ref column' })} - {refTableName || _t('virtualForeignKey.tableNotSet', { defaultMessage: '(table not set)' })}
         </div>
       </div>
 
@@ -151,7 +153,7 @@
           </div>
           <div class="col-2 button">
             <FormStyledButton
-              value="Delete"
+              value={_t('common.delete', { defaultMessage: 'Delete' })}
               on:click={e => {
                 const x = [...columns];
                 x.splice(index, 1);
@@ -164,27 +166,27 @@
 
       <FormStyledButton
         type="button"
-        value="Add column"
+        value={_t('virtualForeignKey.addColumn', { defaultMessage: 'Add column' })}
         on:click={() => {
           columns = [...columns, {}];
         }}
       />
 
       <div class="row">
-        <div class="label col-3">Target application</div>
+        <div class="label col-3">{_t('virtualForeignKey.targetApplication', { defaultMessage: 'Target application' })}</div>
         <div class="col-9">
-          <TargetApplicationSelect bind:value={dstApp} />
+          <TargetApplicationSelect bind:value={dstApp} {conid} {database} />
         </div>
       </div>
     </div>
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value={'Save'}
+        value={_t('common.save', { defaultMessage: 'Save' })}
+        disabled={!dstApp}
         on:click={async () => {
-          const appFolder = await saveDbToApp(conid, database, dstApp);
           await apiCall('apps/save-virtual-reference', {
-            appFolder,
+            appid: dstApp,
             schemaName,
             pureName,
             refSchemaName,
@@ -195,7 +197,7 @@
         }}
       />
 
-      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

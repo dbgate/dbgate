@@ -8,10 +8,13 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, removeSqlFrontMatter } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { testStandardPermission, testDatabaseRolePermission } = require('../utility/hasPermission');
+const { getStaticTokenSecret } = require('../auth/authCommon');
+const jwt = require('jsonwebtoken');
 
 const logger = getLogger('sessions');
 
@@ -80,6 +83,16 @@ module.exports = {
     socket.emit(`session-recordset-${sesid}`, { jslid, resultIndex });
   },
 
+  handle_endrecordset(sesid, props) {
+    const { jslid, rowCount, durationMs } = props;
+    this.dispatchMessage(sesid, {
+      message: `Query returned ${rowCount} rows in ${durationMs} ms`,
+      rowCount,
+      durationMs,
+      jslid,
+    });
+  },
+
   handle_stats(sesid, stats) {
     jsldata.notifyChangedStats(stats);
   },
@@ -92,6 +105,12 @@ module.exports = {
   handle_initializeFile(sesid, props) {
     const { jslid } = props;
     socket.emit(`session-initialize-file-${jslid}`);
+  },
+
+  handle_changedCurrentDatabase(sesid, props) {
+    const { database } = props;
+    this.dispatchMessage(sesid, `Current database changed to ${database}`);
+    socket.emit(`session-changedb-${sesid}`, { database });
   },
 
   handle_ping() {},
@@ -148,9 +167,22 @@ module.exports = {
 
   executeQuery_meta: true,
   async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
+    let useTokenIsOk = false;
+    if (frontMatter?.useToken) {
+      const decoded = jwt.verify(frontMatter.useToken, getStaticTokenSecret());
+      if (decoded?.['contentHash'] == crypto.createHash('md5').update(removeSqlFrontMatter(sql)).digest('hex')) {
+        useTokenIsOk = true;
+      }
+    }
+    if (!useTokenIsOk) {
+      await testStandardPermission('dbops/query', req);
+    }
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
+    }
+    if (!useTokenIsOk) {
+      await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
     }
 
     sendToAuditLog(req, {
@@ -166,7 +198,10 @@ module.exports = {
     });
 
     logger.info({ sesid, sql }, 'DBGM-00019 Processing query');
-    this.dispatchMessage(sesid, 'Query execution started');
+    this.dispatchMessage(sesid, {
+      message: 'Query execution started',
+      sql,
+    });
     session.subprocess.send({
       msgtype: 'executeQuery',
       sql,

@@ -49,6 +49,8 @@ export class DatabaseAnalyser<TClient = any> {
   singleObjectId: string = null;
   dialect: SqlDialect;
   logger: Logger;
+  startedTm = Date.now();
+  analyseIdentifier = Math.random().toString().substring(2);
 
   constructor(public dbhan: DatabaseHandle<TClient>, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
@@ -78,14 +80,24 @@ export class DatabaseAnalyser<TClient = any> {
   }
 
   getLogDbInfo() {
-    return this.driver.getLogDbInfo(this.dbhan);
+    return {
+      ...this.driver.getLogDbInfo(this.dbhan),
+      analyserTime: Date.now() - this.startedTm,
+      analyseIdentifier: this.analyseIdentifier,
+    };
   }
 
   async fullAnalysis() {
     logger.debug(this.getLogDbInfo(), 'DBGM-00126 Performing full analysis');
-    const res = this.addEngineField(await this._runAnalysis());
+    try {
+      const res = this.addEngineField(await this._runAnalysis());
+      logger.debug(this.getLogDbInfo(), 'DBGM-00271 Full analysis finished successfully');
+      return res;
+    } catch (err) {
+      logger.error(extractErrorLogData(err, this.getLogDbInfo()), 'DBGM-00272 Error during full analysis');
+      throw err;
+    }
     // console.log('FULL ANALYSIS', res);
-    return res;
   }
 
   async singleObjectAnalysis(name, typeField) {
@@ -106,31 +118,40 @@ export class DatabaseAnalyser<TClient = any> {
     logger.info(this.getLogDbInfo(), 'DBGM-00127 Performing incremental analysis');
     this.structure = structure;
 
-    const modifications = await this.getModifications();
-    if (modifications == null) {
-      // modifications not implemented, perform full analysis
-      this.structure = null;
-      return this.addEngineField(await this._runAnalysis());
-    }
-    const structureModifications = modifications.filter(x => x.action != 'setTableRowCounts');
-    const setTableRowCounts = modifications.find(x => x.action == 'setTableRowCounts');
-
-    let structureWithRowCounts = null;
-    if (setTableRowCounts) {
-      const newStructure = mergeTableRowCounts(structure, setTableRowCounts.rowCounts);
-      if (areDifferentRowCounts(structure, newStructure)) {
-        structureWithRowCounts = newStructure;
+    try {
+      const modifications = await this.getModifications();
+      if (modifications == null) {
+        // modifications not implemented, perform full analysis
+        this.structure = null;
+        return this.addEngineField(await this._runAnalysis());
       }
-    }
+      const structureModifications = modifications.filter(x => x.action != 'setTableRowCounts');
+      const setTableRowCounts = modifications.find(x => x.action == 'setTableRowCounts');
 
-    if (structureModifications.length == 0) {
-      return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
-    }
+      let structureWithRowCounts = null;
+      if (setTableRowCounts) {
+        const newStructure = mergeTableRowCounts(structure, setTableRowCounts.rowCounts);
+        if (areDifferentRowCounts(structure, newStructure)) {
+          structureWithRowCounts = newStructure;
+        }
+      }
 
-    this.modifications = structureModifications;
-    if (structureWithRowCounts) this.structure = structureWithRowCounts;
-    logger.info({ ...this.getLogDbInfo(), modifications: this.modifications }, 'DBGM-00128 DB modifications detected');
-    return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
+      if (structureModifications.length == 0) {
+        logger.debug(this.getLogDbInfo(), 'DBGM-00267 No changes in database structure detected');
+        return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
+      }
+
+      this.modifications = structureModifications;
+      if (structureWithRowCounts) this.structure = structureWithRowCounts;
+      logger.info(
+        { ...this.getLogDbInfo(), modifications: this.modifications },
+        'DBGM-00128 DB modifications detected'
+      );
+      return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
+    } catch (err) {
+      logger.error(extractErrorLogData(err, this.getLogDbInfo()), 'DBGM-00273 Error during incremental analysis');
+      throw err;
+    }
   }
 
   mergeAnalyseResult(newlyAnalysed) {
@@ -143,6 +164,11 @@ export class DatabaseAnalyser<TClient = any> {
 
     const res = {};
     for (const field of STRUCTURE_FIELDS) {
+      const isAll = this.modifications.some(x => x.action == 'all' && x.objectTypeField == field);
+      if (isAll) {
+        res[field] = newlyAnalysed[field] || [];
+        continue;
+      }
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
         .map(x => x.objectId);

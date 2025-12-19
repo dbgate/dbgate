@@ -3,11 +3,12 @@
 
   registerFileCommands({
     idPrefix: 'diagram',
-    category: 'Diagram',
+    category: __t('command.diagram', { defaultMessage: 'Diagram' }),
     getCurrentEditor,
     folder: 'diagrams',
     format: 'json',
     fileExtension: 'diagram',
+    defaultTeamFolder: true,
 
     undoRedo: true,
   });
@@ -32,6 +33,7 @@
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
   import { isProApp } from '../utility/proTools';
+  import { __t } from '../translations';
 
   export let tabid;
   export let conid;
@@ -139,11 +141,10 @@
       />
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <WidgetColumnBar>
+      <WidgetColumnBar storageName="diagramSettingsWidget">
         <WidgetColumnBarItem
           title="Settings"
           name="diagramSettings"
-          storageName="diagramSettingsWidget"
           onClose={() => {
             styleStore.update(x => ({ ...x, settingsVisible: false }));
           }}

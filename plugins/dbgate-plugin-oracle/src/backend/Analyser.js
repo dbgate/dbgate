@@ -131,6 +131,8 @@ class Analyser extends DatabaseAnalyser {
           // schemaName: table.schema_name,
           objectId: `tables:${table.pure_name}`,
           contentHash: table.hash_code_columns ? `${table.hash_code_columns}-${table.hash_code_constraints}` : null,
+          sizeBytes: table.size_bytes,
+          tableRowCount: table.table_row_count,
         };
         return {
           ...newTable,

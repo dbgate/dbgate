@@ -3,6 +3,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
+  import { _t } from '../translations';
 
   import useEffect from '../utility/useEffect';
 
@@ -12,11 +13,13 @@
   export let showLine = false;
   export let showCaller = false;
   export let eventName;
-  export let executeNumber;
+  export let executeNumber = null;
   export let showNoMessagesAlert = false;
   export let startLine = 0;
   export let onChangeErrors = null;
   export let onMessageClick = null;
+  export let onExplainError = null;
+  export let engine = null;
 
   const cachedMessagesRef = createRef([]);
   const lastErrorMessageCountRef = createRef(0);
@@ -41,6 +44,11 @@
     }
     return () => {};
   });
+
+  function handleClearMessages() {
+    cachedMessagesRef.set([]);
+    displayedMessages = [];
+  }
 
   $: {
     if (executeNumber >= 0) {
@@ -68,7 +76,17 @@
 </script>
 
 {#if showNoMessagesAlert && (!displayedMessages || displayedMessages.length == 0)}
-  <ErrorInfo message="No messages" icon="img alert" />
+  <ErrorInfo message={_t('message.NoMessages', { defaultMessage: 'No messages' })} icon="img alert" />
 {:else}
-  <MessageView items={displayedMessages} {onMessageClick} {showProcedure} {showLine} {showCaller} {startLine} />
+  <MessageView
+    items={displayedMessages}
+    {onMessageClick}
+    {showProcedure}
+    {showLine}
+    {showCaller}
+    {startLine}
+    {onExplainError}
+    {engine}
+    onClear={executeNumber == null ? handleClearMessages : null}
+  />
 {/if}

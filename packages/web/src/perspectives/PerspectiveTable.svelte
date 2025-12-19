@@ -3,8 +3,8 @@
 
   registerCommand({
     id: 'perspective.openJson',
-    category: 'Perspective',
-    name: 'Open JSON',
+    category: __t('command.perspective', { defaultMessage: 'Perspective' }),
+    name: __t('command.perspective.openJson', { defaultMessage: 'Open JSON' }),
     isRelatedToTab: true,
     testEnabled: () => getCurrentEditor()?.openJsonEnabled(),
     onClick: () => getCurrentEditor().openJson(),
@@ -40,6 +40,7 @@
   import openNewTab from '../utility/openNewTab';
   import { getFilterValueExpression } from 'dbgate-filterparser';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import { __t } from '../translations';
 
   const TABS_BY_FIELD = {
     tables: {

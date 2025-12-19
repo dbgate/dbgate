@@ -31,6 +31,16 @@ let mainModule;
 let appUpdateStatus = '';
 let settingsJson = {};
 
+function getTranslated(key) {
+  if (typeof key === 'string' && global.TRANSLATION_DATA?.[key]) {
+    return global.TRANSLATION_DATA?.[key];
+  }
+  if (typeof key?._transKey === 'string') {
+    return global.TRANSLATION_DATA?.[key._transKey] ?? key._transOptions?.defaultMessage;
+  }
+  return key;
+}
+
 process.on('uncaughtException', function (error) {
   console.error('uncaughtException', error);
 });
@@ -63,6 +73,7 @@ try {
 let mainWindow;
 let mainMenu;
 let runCommandOnLoad = null;
+let mainWindowMenuSet = false;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -85,17 +96,22 @@ function formatKeyText(keyText) {
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
-function commandItem(item) {
+function commandItem(item, disableAll = false) {
   const id = item.command;
   const command = commands[id];
   if (item.skipInApp) {
     return { skip: true };
   }
+  if (!command) {
+    return { skip: true };
+  }
   return {
     id,
-    label: command ? command.menuName || command.toolbarName || command.name : id,
+    label: command
+      ? getTranslated(command.menuName) || getTranslated(command.toolbarName) || getTranslated(command.name)
+      : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
-    enabled: command ? command.enabled : false,
+    enabled: command ? command.enabled && (!disableAll || command.systemCommand) : false,
     click() {
       if (mainWindow) {
         mainWindow.webContents.send('run-command', id);
@@ -107,14 +123,14 @@ function commandItem(item) {
   };
 }
 
-function buildMenu() {
+function buildMenu(disableAll = false) {
   let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true, isMac: isMac() }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
 
     if (item.command) {
-      return commandItem(item);
+      return commandItem(item, disableAll);
     }
   });
 
@@ -129,7 +145,7 @@ function buildMenu() {
       {
         label: 'DbGate',
         submenu: [
-          commandItem({ command: 'about.show' }),
+          commandItem({ command: 'about.show' }, disableAll),
           { role: 'services' },
           { role: 'hide' },
           { role: 'hideOthers' },
@@ -145,22 +161,28 @@ function buildMenu() {
 }
 
 ipcMain.on('update-commands', async (event, arg) => {
-  commands = JSON.parse(arg);
+  const parsed = JSON.parse(arg);
+  commands = parsed.commands;
+  const isModalOpened = parsed.isModalOpened;
+  const dbgatePage = parsed.dbgatePage;
   for (const key of Object.keys(commands)) {
     const menu = mainMenu.getMenuItemById(key);
     if (!menu) continue;
     const command = commands[key];
 
     // rebuild menu
-    if (menu.label != command.text || menu.accelerator != command.keyText) {
-      mainMenu = buildMenu();
+    if (global.TRANSLATION_DATA && (menu.label != command.text || menu.accelerator != command.keyText)) {
+      mainMenu = buildMenu(isModalOpened || !!dbgatePage);
 
       Menu.setApplicationMenu(mainMenu);
-      // mainWindow.setMenu(mainMenu);
+      if (!mainWindowMenuSet) {
+        mainWindow.setMenu(mainMenu);
+        mainWindowMenuSet = true;
+      }
       return;
     }
 
-    menu.enabled = command.enabled;
+    menu.enabled = command.enabled && !isModalOpened && !dbgatePage;
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {
@@ -211,6 +233,10 @@ ipcMain.on('app-started', async (event, arg) => {
       autoUpdater.autoDownload = settingsJson['app.autoUpdateMode'] == 'download';
       autoUpdater.checkForUpdates();
     }
+  }
+
+  if (initialConfig['winZoomLevel'] != null) {
+    mainWindow.webContents.zoomLevel = initialConfig['winZoomLevel'];
   }
 });
 ipcMain.on('window-action', async (event, arg) => {
@@ -299,6 +325,12 @@ ipcMain.on('check-for-updates', async (event, url) => {
   autoUpdater.autoDownload = false;
   autoUpdater.checkForUpdates();
 });
+ipcMain.on('translation-data', async (event, arg) => {
+  global.TRANSLATION_DATA = JSON.parse(arg);
+  mainMenu = buildMenu();
+  Menu.setApplicationMenu(mainMenu);
+  mainWindow.setMenu(mainMenu);
+});
 
 function fillMissingSettings(value) {
   const res = {
@@ -375,8 +407,8 @@ function createWindow() {
     mainWindow.setFullScreen(true);
   }
 
-  mainMenu = buildMenu();
-  mainWindow.setMenu(mainMenu);
+  // mainMenu = buildMenu();
+  // mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
     const startUrl =
@@ -394,6 +426,7 @@ function createWindow() {
             JSON.stringify({
               winBounds: mainWindow.getBounds(),
               winIsMaximized: mainWindow.isMaximized(),
+              winZoomLevel: mainWindow.webContents.zoomLevel,
             }),
             'utf-8'
           );

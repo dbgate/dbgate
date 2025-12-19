@@ -14,9 +14,10 @@ class QueryStreamTableWriter {
     this.currentChangeIndex = 1;
     this.initializedFile = false;
     this.sesid = sesid;
+    this.started = new Date().getTime();
   }
 
-  initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false) {
+  initializeFromQuery(structure, resultIndex, chartDefinition, autoDetectCharts = false, options = {}) {
     this.jslid = crypto.randomUUID();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     fs.writeFileSync(
@@ -24,6 +25,7 @@ class QueryStreamTableWriter {
       JSON.stringify({
         ...structure,
         __isStreamHeader: true,
+        ...options
       }) + '\n'
     );
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
@@ -118,6 +120,13 @@ class QueryStreamTableWriter {
               this.chartProcessor = null;
             }
           }
+          process.send({
+            msgtype: 'endrecordset',
+            jslid: this.jslid,
+            rowCount: this.currentRowCount,
+            sesid: this.sesid,
+            durationMs: new Date().getTime() - this.started,
+          });
           resolve();
         });
       } else {
@@ -148,6 +157,7 @@ class StreamHandler {
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
     this.info = this.info.bind(this);
+    this.changedCurrentDatabase = this.changedCurrentDatabase.bind(this);
 
     // use this for cancelling - not implemented
     // this.stream = null;
@@ -166,7 +176,11 @@ class StreamHandler {
     }
   }
 
-  recordset(columns) {
+  changedCurrentDatabase(database) {
+    process.send({ msgtype: 'changedCurrentDatabase', database, sesid: this.sesid });
+  }
+
+  recordset(columns, options) {
     if (this.rowsLimitOverflow) {
       return;
     }
@@ -176,7 +190,8 @@ class StreamHandler {
       Array.isArray(columns) ? { columns } : columns,
       this.queryStreamInfoHolder.resultIndex,
       this.frontMatter?.[`chart-${this.queryStreamInfoHolder.resultIndex + 1}`],
-      this.autoDetectCharts
+      this.autoDetectCharts,
+      options
     );
     this.queryStreamInfoHolder.resultIndex += 1;
     this.rowCounter = 0;

@@ -24,10 +24,10 @@
 
 <FormProvider initialValues={{ file, folder }}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Save to archive</svelte:fragment>
+    <svelte:fragment slot="header">{_t('archive.saveToArchive', { defaultMessage: 'Save to archive' })}</svelte:fragment>
 
-    <FormArchiveFolderSelect label="Folder" name="folder" isNative allowCreateNew skipZipFiles />
-    <FormTextField label="File name" name="file" disabled={fileIsReadOnly} />
+    <FormArchiveFolderSelect label={_t('archive.folder', { defaultMessage: 'Folder' })} name="folder" isNative allowCreateNew skipZipFiles />
+    <FormTextField label={_t('archive.fileName', { defaultMessage: 'File name' })} name="file" disabled={fileIsReadOnly} />
 
     <svelte:fragment slot="footer">
       <FormSubmit value={_t('common.save', { defaultMessage: 'Save' })} on:click={handleSubmit} />

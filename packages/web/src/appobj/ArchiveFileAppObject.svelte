@@ -82,6 +82,7 @@
   import { apiCall } from '../utility/api';
   import { openImportExportTab } from '../utility/importExportTools';
   import { isProApp } from '../utility/proTools';
+  import { _t } from '../translations';
 
   export let data;
   $: isZipped = data.folderName?.endsWith('.zip');
@@ -89,8 +90,8 @@
   const handleRename = () => {
     showModal(InputTextModal, {
       value: data.fileName,
-      label: 'New file name',
-      header: 'Rename file',
+      label: _t('archiveFile.newFileName', { defaultMessage: 'New file name' }),
+      header: _t('archiveFile.renameFile', { defaultMessage: 'Rename file' }),
       onConfirm: newFile => {
         apiCall('archive/rename-file', {
           file: data.fileName,
@@ -104,7 +105,7 @@
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
-      message: `Really delete file ${data.fileName}?`,
+      message: _t('archiveFile.deleteFileConfirm', { defaultMessage: 'Really delete file {fileName}?', values: { fileName: data.fileName } }),
       onConfirm: () => {
         apiCall('archive/delete-file', {
           file: data.fileName,
@@ -147,10 +148,10 @@
     }
 
     return [
-      data.fileType == 'jsonl' && { text: 'Open', onClick: handleOpenArchive },
-      data.fileType == 'jsonl' && { text: 'Open in text editor', onClick: handleOpenJsonLinesText },
-      !isZipped && { text: 'Delete', onClick: handleDelete },
-      !isZipped && { text: 'Rename', onClick: handleRename },
+      data.fileType == 'jsonl' && { text: _t('common.open', { defaultMessage: 'Open' }), onClick: handleOpenArchive },
+      data.fileType == 'jsonl' && { text: _t('common.openInTextEditor', { defaultMessage: 'Open in text editor' }), onClick: handleOpenJsonLinesText },
+      !isZipped && { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
+      !isZipped && { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
       data.fileType == 'jsonl' &&
         createQuickExportMenu(
           fmt => async () => {
@@ -185,19 +186,19 @@
             },
           }
         ),
-      data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
-      data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
+      data.fileType.endsWith('.sql') && { text: _t('common.openSql', { defaultMessage: 'Open SQL' }), onClick: handleOpenSqlFile },
+      data.fileType.endsWith('.yaml') && { text: _t('common.openYaml', { defaultMessage: 'Open YAML' }), onClick: handleOpenYamlFile },
       !isZipped &&
         isProApp() &&
         data.fileType == 'jsonl' && {
-          text: 'Open in profiler',
+          text: _t('common.openInProfiler', { defaultMessage: 'Open in profiler' }),
           submenu: getExtensions()
             .drivers.filter(eng => eng.profilerFormatterFunction)
             .map(eng => ({
               text: eng.title,
               onClick: () => {
                 openNewTab({
-                  title: 'Profiler',
+                  title: _t('common.profiler', { defaultMessage: 'Profiler' }),
                   icon: 'img profiler',
                   tabComponent: 'ProfilerTab',
                   props: {
