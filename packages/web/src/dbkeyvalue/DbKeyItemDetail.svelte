@@ -28,9 +28,9 @@
   .props {
     flex: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
     padding: 10px;
-    overflow: hidden;
+    overflow: auto;
   }
 </style>

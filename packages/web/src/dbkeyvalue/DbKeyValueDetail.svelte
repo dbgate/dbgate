@@ -31,14 +31,16 @@
 </div>
 <div class="colvalue">
   {#if display == 'text'}
-    <AceEditor
-      readOnly={!onChangeValue}
-      {value}
-      mode={keyType === 'JSON' ? 'json' : undefined}
-      on:input={e => {
-        onChangeValue?.(e.detail);
-      }}
-    />
+    <div class="editor-wrapper">
+      <AceEditor
+        readOnly={!onChangeValue}
+        {value}
+        mode={keyType === 'JSON' ? 'json' : undefined}
+        on:input={e => {
+          onChangeValue?.(e.detail);
+        }}
+      />
+    </div>
   {/if}
   {#if display == 'json'}
     <div class="outer">
@@ -66,6 +68,13 @@
     justify-content: space-between;
   }
 
+  .editor-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 60px;
+    max-height: 1000px;
+  }
+  
   .outer {
     flex: 1;
     position: relative;
