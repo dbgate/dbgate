@@ -391,6 +391,7 @@
     width: 1.125em;
     height: 1.125em;
     vertical-align: middle;
+    overflow: visible;
   }
   .padLeft {
     margin-left: 0.25rem;

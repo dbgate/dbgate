@@ -1,7 +1,7 @@
 const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
 const Dumper = require('./Dumper');
 const { oracleSplitterOptions } = require('dbgate-query-splitter/lib/options');
-const oracleIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><path d="M0 0h64v64H0z" fill="#e30613"/><path d="M20.2 52.2C8.93 52.2 0 43.056 0 32c0-11.27 9.143-20.2 20.2-20.2h23.6C55.07 11.8 64 20.944 64 32c0 11.27-9.143 20.2-20.2 20.2zm23.176-7.23c7.23 0 13.183-5.953 13.183-13.183s-5.953-13.183-13.183-13.183H20.837c-7.23 0-13.183 5.953-13.183 13.183S13.608 44.97 20.837 44.97z" fill="#fff"/></svg>';
+const oracleIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1333.31 843.16" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd"><path d="M421.65 843.16C188.89 843.16 0 654.74 0 421.91 0 189.09 188.89 0 421.65 0h490.08c232.83 0 421.58 189.09 421.58 421.91 0 232.83-188.75 421.25-421.58 421.25H421.65zm479.18-148.72c150.8 0 272.94-121.79 272.94-272.53 0-150.73-122.14-273.2-272.94-273.2H432.48c-150.73 0-272.94 122.47-272.94 273.2 0 150.74 122.2 272.53 272.94 272.53h468.35z" fill="#c74634" fill-rule="nonzero"/></svg>';
 
 const spatialTypes = ['GEOGRAPHY'];
 
