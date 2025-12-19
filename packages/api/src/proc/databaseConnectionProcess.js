@@ -379,6 +379,32 @@ async function handleSaveRedisData({ msgid, changeSet }) {
     for (const change of changeSet.changes) {
       if (change.type === 'string') {
         await driver.query(dbhan, `SET "${change.key}" "${change.value}"`);
+      } else if (change.type === 'json') {
+        await driver.query(dbhan, `JSON.SET "${change.key}" $ '${change.value.replace(/'/g, "\\'")}'`);
+      } else if (change.type === 'hash') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `HSET "${change.key}" "${update.key}" "${update.value}"`);
+          
+            if (update.ttl !== undefined && update.ttl !== null && update.ttl !== -1) {
+              try {
+                await dbhan.client.call('HEXPIRE', change.key, update.ttl, 'FIELDS', 1, update.key);
+              } catch (e) {}
+            }
+          }
+        }
+      } else if (change.type === 'zset') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `ZADD "${change.key}" ${update.score} "${update.member}"`);
+          }
+        }
+      } else if (change.type === 'list') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `LSET "${change.key}" ${update.index} "${update.value}"`);
+          }
+        }
       }
     }
 
