@@ -30,6 +30,11 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyValueListEdit from '../dbkeyvalue/DbKeyValueListEdit.svelte';
+  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
+  import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
+  import DbKeyValueSetEdit from '../dbkeyvalue/DbKeyValueSetEdit.svelte';
+  import DbKeyValueStreamEdit from '../dbkeyvalue/DbKeyValueStreamEdit.svelte';
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
@@ -57,6 +62,7 @@
   }
 
   let currentRow;
+  let showAddForm = false;
 
   $: key = $activeDbKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
@@ -236,15 +242,69 @@
                 {changeSetRedis}
                 onChangeSelected={row => {
                   currentRow = row;
+                  showAddForm = false;
                 }}
                 modifyRow={row => getDisplayRow(row, keyInfo)}
               />
             </svelte:fragment>
             <svelte:fragment slot="2">
-              <DbKeyItemDetail 
-                dbKeyFields={keyInfo.keyType.dbKeyFields} 
-                item={getDisplayRow(currentRow, keyInfo)}
-                onChangeItem={item => {
+              {#if showAddForm}
+                {#if keyInfo.type === 'list'}
+                  <DbKeyValueListEdit
+                    dbKeyFields={keyInfo.keyType.dbKeyFields}
+                    item={null}
+                    keyColumn={null}
+                    onChangeItem={item => {
+                      console.log('Add item:', item);
+                      showAddForm = false;
+                    }}
+                  />
+                {:else if keyInfo.type === 'hash'}
+                  <DbKeyValueHashEdit
+                    dbKeyFields={keyInfo.keyType.dbKeyFields}
+                    item={null}
+                    keyColumn={null}
+                    onChangeItem={item => {
+                      console.log('Add item:', item);
+                      showAddForm = false;
+                    }}
+                  />
+                {:else if keyInfo.type === 'zset'}
+                  <DbKeyValueZSetEdit
+                    dbKeyFields={keyInfo.keyType.dbKeyFields}
+                    item={null}
+                    keyColumn={null}
+                    onChangeItem={item => {
+                      console.log('Add item:', item);
+                      showAddForm = false;
+                    }}
+                  />
+                {:else if keyInfo.type === 'set'}
+                  <DbKeyValueSetEdit
+                    dbKeyFields={keyInfo.keyType.dbKeyFields}
+                    item={null}
+                    keyColumn={null}
+                    onChangeItem={item => {
+                      console.log('Add item:', item);
+                      showAddForm = false;
+                    }}
+                  />
+                {:else if keyInfo.type === 'stream'}
+                  <DbKeyValueStreamEdit
+                    dbKeyFields={keyInfo.keyType.dbKeyFields}
+                    item={null}
+                    keyColumn={null}
+                    onChangeItem={item => {
+                      console.log('Add item:', item);
+                      showAddForm = false;
+                    }}
+                  />
+                {/if}
+              {:else}
+                <DbKeyItemDetail 
+                  dbKeyFields={keyInfo.keyType.dbKeyFields} 
+                  item={getDisplayRow(currentRow, keyInfo)}
+                  onChangeItem={item => {
                     const existingChange = changeSetRedis.changes.find(
                       c => c.key === keyInfo.key && c.type === keyInfo.type
                     );
@@ -290,7 +350,8 @@
                     addOrUpdateChange(zsetChange);
                   }
                 }}
-              />
+                />
+              {/if}
             </svelte:fragment>
           </VerticalSplitter>
         {:else}
