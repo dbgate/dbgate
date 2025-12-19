@@ -55,7 +55,7 @@ const driver = {
     {
       name: 'zset',
       label: 'Sorted Set',
-      dbKeyFields: [{ name: 'member' }, { name: 'score' }],
+      dbKeyFields: [{ name: 'member', readOnly: true }, { name: 'score' }],
       keyColumn: 'member',
       addMethod: 'zadd',
       showItemList: true,
@@ -63,7 +63,7 @@ const driver = {
     {
       name: 'hash',
       label: 'Hash',
-      dbKeyFields: [{ name: 'key' }, { name: 'value' }, { name: 'TTL' }],
+      dbKeyFields: [{ name: 'key', readOnly: true }, { name: 'value' }, { name: 'TTL' }],
       keyColumn: 'key',
       addMethod: 'hset',
       showItemList: true,
@@ -71,7 +71,7 @@ const driver = {
     {
       name: 'stream',
       label: 'Stream',
-      dbKeyFields: [{ name: 'id' }, { name: 'value' }],
+      dbKeyFields: [{ name: 'id', readOnly: true }, { name: 'value' }],
       keyColumn: 'id',
       addMethod: 'xaddjson',
       showItemList: true,

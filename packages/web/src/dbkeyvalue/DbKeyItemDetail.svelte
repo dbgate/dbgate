@@ -12,7 +12,7 @@
     <DbKeyValueDetail
       value={item && item[column.name]}
       columnTitle={_.startCase(column.name)}
-      onChangeValue={onChangeItem
+      onChangeValue={onChangeItem && !column.readOnly
         ? value => {
             onChangeItem?.({
               ...item,
