@@ -368,6 +368,30 @@ async function handleSaveTableData({ msgid, changeSet }) {
   }
 }
 
+async function handleSaveRedisData({ msgid, changeSet }) {
+  try {
+    const driver = requireEngineDriver(storedConnection);
+    
+    if (!changeSet || !changeSet.changes || !Array.isArray(changeSet.changes)) {
+      throw new Error('Invalid changeSet structure');
+    }
+
+    for (const change of changeSet.changes) {
+      if (change.type === 'string') {
+        await driver.query(dbhan, `SET "${change.key}" "${change.value}"`);
+      }
+    }
+
+    process.send({ msgtype: 'response', msgid });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error saving Redis data'),
+    });
+  }
+}
+
 async function handleSqlPreview({ msgid, objects, options }) {
   await waitStructure();
   const driver = requireEngineDriver(storedConnection);
@@ -501,6 +525,7 @@ const messageHandlers = {
   schemaList: handleSchemaList,
   executeSessionQuery: handleExecuteSessionQuery,
   evalJsonScript: handleEvalJsonScript,
+  saveRedisData: handleSaveRedisData,
   // runCommand: handleRunCommand,
 };
 

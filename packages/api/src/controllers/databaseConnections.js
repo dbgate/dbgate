@@ -494,6 +494,20 @@ module.exports = {
     return res.result || null;
   },
 
+  saveRedisData_meta: true,
+  async saveRedisData({ conid, database, changeSet }, req) {
+    await testConnectionPermission(conid, req);
+
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'saveRedisData', changeSet });
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || null;
+  },
+
   status_meta: true,
   async status({ conid, database }, req) {
     if (!conid) {

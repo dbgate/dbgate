@@ -198,7 +198,7 @@
 
   async function saveAll() {
     console.log('Saving all changes:', changeSetRedis);
-    await apiCall('database-connections/apply-redis-change-set', {
+    await apiCall('database-connections/save-redis-data', {
       conid,
       database,
       changeSet: changeSetRedis,
