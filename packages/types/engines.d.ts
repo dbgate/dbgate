@@ -253,6 +253,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   collectionPluralLabel?: string;
   collectionNameLabel?: string;
   newCollectionFormParams?: any[];
+  icon?: any;
 
   supportedCreateDatabase?: boolean;
   showConnectionField?: (
