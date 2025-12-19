@@ -47,7 +47,7 @@ const driver = {
     {
       name: 'set',
       label: 'Set',
-      dbKeyFields: [{ name: 'value' }],
+      dbKeyFields: [{ name: 'value', readOnly: true }],
       keyColumn: 'value',
       addMethod: 'sadd',
       showItemList: true,
@@ -71,7 +71,7 @@ const driver = {
     {
       name: 'stream',
       label: 'Stream',
-      dbKeyFields: [{ name: 'id', readOnly: true }, { name: 'value' }],
+      dbKeyFields: [{ name: 'id', readOnly: true }, { name: 'value', readOnly: true }],
       keyColumn: 'id',
       addMethod: 'xaddjson',
       showItemList: true,
