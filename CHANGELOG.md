@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.8.1
+- FIXED: Won't navigate to the relevant field on click of a field in columns #1303
+
 ## 6.8.0
 - ADDED: Form cell view for detailed data inspection and editing in data grids, with multi-row bulk editing support
 - CHANGED: Cell data sidebar moved to right side, now is part of data grid
