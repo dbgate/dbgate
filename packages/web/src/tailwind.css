@@ -1,0 +1,7 @@
+@layer theme, base, components, utilities;
+
+/* Keep theme variables (recommended) */
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+
+/* Utilities only — NO preflight import */
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);

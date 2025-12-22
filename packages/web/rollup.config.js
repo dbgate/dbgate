@@ -9,6 +9,7 @@ import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
 import css from 'rollup-plugin-css-only';
 import json from '@rollup/plugin-json';
+import postcss from 'rollup-plugin-postcss';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -34,6 +35,21 @@ function serve() {
 }
 
 export default [
+  // Separate entry for Tailwind CSS processing
+  {
+    input: 'src/tailwind.css',
+    output: {
+      file: 'public/build/tailwind.css',
+    },
+    plugins: [
+      postcss({
+        extract: true,
+        minimize: production,
+        sourceMap: !production,
+      }),
+    ],
+  },
+
   {
     input: 'src/query/QueryParserWorker.js',
     output: {

@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="dimensions.css" />
     <link rel="stylesheet" href="bulma.css" />
     <link rel="stylesheet" href="icon-colors.css" />
+    <link rel="stylesheet" href="build/tailwind.css" />
     <link rel="stylesheet" href="build/bundle.css" />
     <link rel="stylesheet" href="build/fonts/materialdesignicons.css" />
     <link rel="stylesheet" href="build/diff2html.min.css" />

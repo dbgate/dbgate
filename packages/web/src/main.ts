@@ -1,3 +1,4 @@
+import './tailwind.css';
 import App from './App.svelte';
 import './utility/connectionsPinger';
 import './utility/changeCurrentDbByTab';
