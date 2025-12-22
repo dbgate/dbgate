@@ -912,7 +912,7 @@
       await tick();
       const invMap = _.invert(realColumnUniqueNames);
       const colIndex = invMap[uniquePath.join('.')];
-      scrollIntoView([null, colIndex]);
+      scrollIntoView([null, parseInt(colIndex)]);
 
       currentCell = [currentCell[0], parseInt(colIndex)];
       selectedCells = [currentCell];
@@ -1168,7 +1168,7 @@
         const invMap = _.invert(realColumnUniqueNames);
         const colIndex = invMap[display.focusedColumns[0]];
         if (colIndex) {
-          scrollIntoView([null, colIndex]);
+          scrollIntoView([null, parseInt(colIndex)]);
         }
       }
     });
