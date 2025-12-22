@@ -3,6 +3,7 @@ name: Cypress tests with screenshots PREMIUM
 on:
   push:
     branches:
+      - stable
       - master
       - develop
       - 'feature/**'
@@ -67,7 +68,7 @@ jobs:
           path: screenshots
 
       - name: Push E2E screenshots
-        if: ${{ github.ref_name == 'master' }}
+        if: ${{ github.ref_name == 'stable' }}
         run: |
           git config --global user.email "info@dbgate.info"
           git config --global user.name "GitHub Actions"
