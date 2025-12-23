@@ -1,6 +1,5 @@
 <script lang="ts">
     import _ from 'lodash';
-    import { onMount } from 'svelte';
     import TextField from '../forms/TextField.svelte';
     import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
     import FontIcon from '../icons/FontIcon.svelte';
@@ -46,6 +45,12 @@
 
     function addRecord() {
         records = [...records, { key: '', value: '', ttl: '' }];
+        if (onChangeItem) {
+            onChangeItem({
+                ...item,
+                records: records,
+            });
+        }
     }
 </script>
 
@@ -82,6 +87,12 @@
             <div class="delete-wrapper col-1">
                 <button class="delete-button" on:click={() => {
                         records = records.filter((_, idx) => idx !== index);
+                        if (onChangeItem) {
+                            onChangeItem({
+                                ...item,
+                                records: records,
+                            });
+                        }
                     }}>
                     <FontIcon icon="icon delete" />
                 </button>

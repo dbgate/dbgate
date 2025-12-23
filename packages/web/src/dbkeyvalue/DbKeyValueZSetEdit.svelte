@@ -43,6 +43,12 @@
 
   function addRecord() {
     records = [...records, { member: '', score: '' }];
+    if (onChangeItem) {
+      onChangeItem({
+        ...item,
+        records: records,
+      });
+    }
   }
 </script>
 
@@ -70,6 +76,12 @@
       <div class="delete-wrapper col-1">
         <button class="delete-button" on:click={() => {
             records = records.filter((_, idx) => idx !== index);
+            if (onChangeItem) {
+              onChangeItem({
+                ...item,
+                records: records,
+              });
+            }
           }}>
           <FontIcon icon="icon delete" />
         </button>
