@@ -39,8 +39,6 @@
 <style>
     .props {
         flex: 1;
-        display: flex;
-        flex-direction: row;
         gap: 10px;
         padding: 10px;
         overflow: hidden;
@@ -49,8 +47,6 @@
     .field-wrapper {
         flex: 1;
         min-width: 0;
-        display: flex;
-        flex-direction: column;
         overflow: hidden;
         max-height: 100px;
     }

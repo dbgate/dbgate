@@ -165,7 +165,7 @@
       // @ts-ignore
       const update = existingChange.updates?.find(u => u.key === row.key);
       if (update) {
-        return { ...row, value: update.value };
+        return { ...row, value: update.value, TTL: update.ttl !== undefined ? update.ttl : row.TTL };
       }
     } else if (keyInfo.type === 'list') {
       // @ts-ignore
@@ -189,7 +189,7 @@
       c => c.key === keyInfo.key && c.type === keyInfo.type
     );
     
-    if (existingChange && (keyInfo.type === 'string' || keyInfo.type === 'json')) {
+    if (existingChange && (keyInfo.type === 'string' || keyInfo.type === 'JSON')) {
       // @ts-ignore
       return existingChange.value || keyInfo.value;
     }
@@ -316,10 +316,10 @@
                     const updateIndex = hashChange.updates?.findIndex(u => u.key === item.key) ?? -1;
                     if (updateIndex >= 0) {
                       // @ts-ignore
-                      hashChange.updates[updateIndex] = { key: item.key, value: item.value, ttl: keyInfo.ttl };
+                      hashChange.updates[updateIndex] = { key: item.key, value: item.value, ttl: item.TTL };
                     } else {
                       // @ts-ignore
-                      hashChange.updates = [...(hashChange.updates || []), { key: item.key, value: item.value, ttl: keyInfo.ttl }];
+                      hashChange.updates = [...(hashChange.updates || []), { key: item.key, value: item.value, ttl: item.TTL }];
                     }
                     addOrUpdateChange(hashChange);
                   } else if (keyInfo.type === 'list') {
@@ -367,7 +367,7 @@
                     type: 'string',
                     value: value,
                   });
-                } else if (keyInfo.type === 'json') {
+                } else if (keyInfo.type === 'JSON') {
                   addOrUpdateChange({
                     key: key,
                     type: 'json',
@@ -388,7 +388,7 @@
         disabled={!hasChanges}
       >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
       {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
-        <ToolStripButton icon="icon add" on:click={() => addItem(keyInfo)}>Add field</ToolStripButton>
+        <ToolStripButton icon="icon add" on:click={() => { showAddForm = true; }}>Add field</ToolStripButton>
       {/if}
       <ToolStripButton icon="icon refresh" on:click={refresh}>{_t('common.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton>
     </svelte:fragment>

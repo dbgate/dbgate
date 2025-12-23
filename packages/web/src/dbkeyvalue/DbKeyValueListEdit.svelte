@@ -10,6 +10,16 @@
     export let keyColumn = null;
 
     let records = [{ value: '' }];
+    let lastItem = null;
+
+    $: if (item !== lastItem) {
+        if (item?.records && Array.isArray(item.records)) {
+            records = [...item.records];
+        } else if (!item) {
+            records = [{ value: '' }];
+        }
+        lastItem = item;
+    }
 
     $: console.log('DbKeyValueListEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
 
@@ -34,7 +44,7 @@
 <div class="container">
     {#each records as record, index}
         <div class="props flex">
-            <div class="field-wrapper col-12">
+            <div class="field-wrapper col-11">
                 <FormFieldTemplateLarge label="Value" type="text" noMargin>
                     <TextField 
                         value={record.value}
@@ -42,6 +52,13 @@
                         disabled={keyColumn === 'value'}
                     />
                 </FormFieldTemplateLarge>
+            </div>
+            <div class="delete-wrapper col-1">
+                <button class="delete-button" on:click={() => {
+                        records = records.filter((_, idx) => idx !== index);
+                    }}>
+                    <FontIcon icon="icon delete" />
+                </button>
             </div>
         </div>
     {/each}
@@ -73,6 +90,31 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
+    }
+
+    .delete-wrapper {
+        display: flex;
+        align-items: center;   
+        justify-content: center; 
+        margin-top: 10px;
+    }
+
+    .delete-button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: var(--theme-font-3);
+        transition: color 0.2s;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .delete-button:hover {
+        color: var(--theme-font-hover);
     }
 
     .add-button-wrapper {

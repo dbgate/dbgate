@@ -1,6 +1,7 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
@@ -53,13 +54,23 @@
         />
       </FormFieldTemplateLarge>
 
-      <DbKeyItemDetail
-        dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-        {item}
-        onChangeItem={value => {
-          item = value;
-        }}
-      />
+      {#if type === 'hash'}
+        <DbKeyValueHashEdit
+          dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+          {item}
+          onChangeItem={value => {
+            item = value;
+          }}
+        />
+      {:else}
+        <DbKeyItemDetail
+          dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+          {item}
+          onChangeItem={value => {
+            item = value;
+          }}
+        />
+      {/if}
     </div>
 
     <svelte:fragment slot="footer">

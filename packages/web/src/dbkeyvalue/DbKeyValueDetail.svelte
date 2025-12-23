@@ -34,7 +34,7 @@
     <div class="editor-wrapper">
       <AceEditor
         readOnly={!onChangeValue}
-        {value}
+        value={value != null ? String(value) : ''}
         mode={keyType === 'JSON' ? 'json' : undefined}
         on:input={e => {
           onChangeValue?.(e.detail);

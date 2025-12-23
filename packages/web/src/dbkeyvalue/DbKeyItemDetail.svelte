@@ -10,7 +10,7 @@
 <div class="props">
   {#each dbKeyFields as column}
     <DbKeyValueDetail
-      value={item && item[column.name]}
+      value={item && item[column.name] != null ? String(item[column.name]) : ''}
       columnTitle={_.startCase(column.name)}
       onChangeValue={onChangeItem && !column.readOnly
         ? value => {

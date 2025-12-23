@@ -10,6 +10,16 @@
   export let keyColumn = null;
 
   let records = [{ id: '', value: '' }];
+  let lastItem = null;
+
+  $: if (item !== lastItem) {
+    if (item?.records && Array.isArray(item.records)) {
+      records = [...item.records];
+    } else if (!item) {
+      records = [{ id: '', value: '' }];
+    }
+    lastItem = item;
+  }
 
   $: console.log('DbKeyValueStreamEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
 
@@ -49,7 +59,7 @@
           />
         </FormFieldTemplateLarge>
       </div>
-      <div class="field-wrapper col-9">
+      <div class="field-wrapper col-8">
         <FormFieldTemplateLarge label="Value" type="text" noMargin>
           <TextField
             value={record.value}
@@ -57,6 +67,13 @@
             disabled={keyColumn === 'value'}
           />
         </FormFieldTemplateLarge>
+      </div>
+      <div class="delete-wrapper col-1">
+        <button class="delete-button" on:click={() => {
+            records = records.filter((_, idx) => idx !== index);
+          }}>
+          <FontIcon icon="icon delete" />
+        </button>
       </div>
     </div>
   {/each}
@@ -88,6 +105,31 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
+  }
+
+  .delete-wrapper {
+    display: flex;
+    align-items: center;   
+    justify-content: center; 
+    margin-top: 10px;
+  }
+
+  .delete-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--theme-font-3);
+    transition: color 0.2s;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .delete-button:hover {
+    color: var(--theme-font-hover);
   }
 
   .add-button-wrapper {
