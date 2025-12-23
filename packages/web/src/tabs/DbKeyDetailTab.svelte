@@ -182,8 +182,6 @@
         changes: [...changeSetRedis.changes, change]
       };
     }
-    
-    console.log('ChangeSetRedis updated:', JSON.stringify(changeSetRedis, null, 2));
   }
 
   function getDisplayRow(row, keyInfo) {
@@ -236,23 +234,36 @@
       c => c.key === keyInfo.key && c.type === keyInfo.type
     );
     
-    if (!existingChange || !existingChange.inserts) {
-      return null;
+    let records = [];
+    
+    // Add existing inserts if any
+    if (existingChange && existingChange.inserts) {
+      // @ts-ignore
+      records = existingChange.inserts.map(insert => {
+        if (keyInfo.type === 'hash') {
+          return { key: insert.key || '', value: insert.value || '', ttl: insert.ttl ? String(insert.ttl) : '' };
+        } else if (keyInfo.type === 'list' || keyInfo.type === 'set') {
+          return { value: insert.value || '' };
+        } else if (keyInfo.type === 'zset') {
+          return { member: insert.member || '', score: insert.score ? String(insert.score) : '' };
+        } else if (keyInfo.type === 'stream') {
+          return { id: insert.id || '', value: insert.value || '' };
+        }
+        return insert;
+      });
     }
     
-    // @ts-ignore
-    const records = existingChange.inserts.map(insert => {
+    if (records.length === 0) {
       if (keyInfo.type === 'hash') {
-        return { key: insert.key || '', value: insert.value || '', ttl: insert.ttl ? String(insert.ttl) : '' };
+        records.push({ key: '', value: '', ttl: '' });
       } else if (keyInfo.type === 'list' || keyInfo.type === 'set') {
-        return { value: insert.value || '' };
+        records.push({ value: '' });
       } else if (keyInfo.type === 'zset') {
-        return { member: insert.member || '', score: insert.score ? String(insert.score) : '' };
+        records.push({ member: '', score: '' });
       } else if (keyInfo.type === 'stream') {
-        return { id: insert.id || '', value: insert.value || '' };
+        records.push({ id: '', value: '' });
       }
-      return insert;
-    });
+    }
     
     return { records };
   }
@@ -264,7 +275,6 @@
   }
 
   async function saveAll() {
-    console.log('Saving all changes:', changeSetRedis);
     await apiCall('database-connections/save-redis-data', {
       conid,
       database,
