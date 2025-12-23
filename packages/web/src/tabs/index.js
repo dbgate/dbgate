@@ -18,6 +18,7 @@ import * as JsonTab from './JsonTab.svelte';
 import * as ChangelogTab from './ChangelogTab.svelte';
 import * as DiagramTab from './DiagramTab.svelte';
 import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
+import * as DbKeyTab from './DbKeyTab.svelte';
 import * as QueryDataTab from './QueryDataTab.svelte';
 import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
@@ -50,6 +51,7 @@ export default {
   ChangelogTab,
   DiagramTab,
   DbKeyDetailTab,
+  DbKeyTab,
   QueryDataTab,
   ConnectionTab,
   MapTab,

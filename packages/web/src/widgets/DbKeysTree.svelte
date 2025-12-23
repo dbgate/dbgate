@@ -51,25 +51,48 @@
   function handleAddKey() {
     const connection = $currentDatabase?.connection;
     const database = $currentDatabase?.name;
-    const driver = findEngineDriver(connection, getExtensions());
+    const focusedKey = $focusedTreeDbKey;
+    
+    let initialKeyName = '';
+    if (focusedKey) {
+      if (focusedKey.type === 'dir' && focusedKey.key) {
+        initialKeyName = focusedKey.key + treeKeySeparator;
+      } else if (focusedKey.key) {
+        const lastSeparatorIndex = focusedKey.key.lastIndexOf(treeKeySeparator);
+        if (lastSeparatorIndex !== -1) {
+          initialKeyName = focusedKey.key.substring(0, lastSeparatorIndex + 1);
+        }
+      }
+    }
 
-    showModal(AddDbKeyModal, {
-      conid: connection._id,
-      database,
-      driver,
-      onConfirm: async item => {
-        const type = driver.supportedKeyTypes.find(x => x.name == item.type);
-
-        await apiCall('database-connections/call-method', {
-          conid: connection._id,
-          database,
-          method: type.addMethod,
-          args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
-        });
-
-        reloadModel();
+    openNewTab({
+      tabComponent: 'DbKeyTab',
+      title: 'Add key',
+      icon: 'img keydb',
+      props: {
+        conid: connection?._id,
+        database,
+        initialKeyName,
       },
     });
+
+    // showModal(AddDbKeyModal, {
+    //   conid: connection._id,
+    //   database,
+    //   driver,
+    //   onConfirm: async item => {
+    //     const type = driver.supportedKeyTypes.find(x => x.name == item.type);
+
+    //     await apiCall('database-connections/call-method', {
+    //       conid: connection._id,
+    //       database,
+    //       method: type.addMethod,
+    //       args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
+    //     });
+
+    //     reloadModel();
+    //   },
+    // });
   }
 
   $: differentFocusedDb =

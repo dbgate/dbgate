@@ -459,6 +459,15 @@ const driver = {
       case 'string':
         res.value = await dbhan.client.get(key);
         break;
+      case 'ReJSON-RL':
+        res.type = 'JSON';
+        try {
+          const jsonData = await dbhan.client.call('JSON.GET', key);
+          res.value = JSON.stringify(JSON.parse(jsonData), null, 2);
+        } catch (e) {
+          res.value = '';
+        }
+        break;
       // case 'list':
       //   res.tableColumns = [{ name: 'value' }];
       //   res.addMethod = 'rpush';
@@ -495,6 +504,10 @@ const driver = {
     switch (method) {
       case 'mdel':
         return await this.deleteBranch(dbhan, args[0]);
+      case 'zadd':
+        return await dbhan.client.zadd(args[0], args[2], args[1]);
+      case 'json.set':
+        return await dbhan.client.call('JSON.SET', args[0], '$', args[1]);
       case 'xaddjson':
         let json;
         try {
@@ -528,14 +541,28 @@ const driver = {
         const res = await dbhan.client.zscan(key, cursor, 'COUNT', count);
         return {
           cursor: parseInt(res[0]),
-          items: _.chunk(res[1], 2).map((item) => ({ value: item[0], score: item[1] })),
+          items: _.chunk(res[1], 2).map((item) => ({ member: item[0], score: item[1] })),
         };
       }
       case 'hash': {
         const res = await dbhan.client.hscan(key, cursor, 'COUNT', count);
+        const fields = _.chunk(res[1], 2);
+        
+        // Get TTL for each hash field (Redis 7.4+)
+        const items = await Promise.all(
+          fields.map(async ([fieldKey, fieldValue]) => {
+            try {
+              const ttl = await dbhan.client.call('HTTL', key, 'FIELDS', 1, fieldKey);
+              return { key: fieldKey, value: fieldValue, TTL: ttl && ttl[0] !== undefined ? ttl[0] : null };
+            } catch (e) {
+              return { key: fieldKey, value: fieldValue };
+            }
+          })
+        );
+        
         return {
           cursor: parseInt(res[0]),
-          items: _.chunk(res[1], 2).map((item) => ({ key: item[0], value: item[1] })),
+          items,
         };
       }
       case 'stream': {

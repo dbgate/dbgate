@@ -337,7 +337,7 @@
     'img type-zset': 'mdi mdi-format-list-checks  color-icon-blue',
     'img type-stream': 'mdi mdi-view-stream color-icon-blue',
     'img type-binary': 'mdi mdi-file color-icon-blue',
-    'img type-rejson': 'mdi mdi-color-json color-icon-blue',
+    'img type-rejson': 'mdi mdi-code-json color-icon-blue',
     'img keydb': 'mdi mdi-key color-icon-blue',
 
     'img replicator': 'mdi mdi-content-duplicate color-icon-green',

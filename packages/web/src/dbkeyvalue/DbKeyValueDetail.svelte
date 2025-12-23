@@ -12,6 +12,7 @@
   export let columnTitle;
   export let value;
   export let onChangeValue = null;
+  export let keyType = null;
 </script>
 
 <div class="colnamewrap">
@@ -30,13 +31,16 @@
 </div>
 <div class="colvalue">
   {#if display == 'text'}
-    <AceEditor
-      readOnly={!onChangeValue}
-      {value}
-      on:input={e => {
-        onChangeValue?.(e.detail);
-      }}
-    />
+    <div class="editor-wrapper">
+      <AceEditor
+        readOnly={!onChangeValue}
+        value={value != null ? String(value) : ''}
+        mode={keyType === 'JSON' ? 'json' : undefined}
+        on:input={e => {
+          onChangeValue?.(e.detail);
+        }}
+      />
+    </div>
   {/if}
   {#if display == 'json'}
     <div class="outer">
@@ -64,6 +68,13 @@
     justify-content: space-between;
   }
 
+  .editor-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 60px;
+    max-height: 1000px;
+  }
+  
   .outer {
     flex: 1;
     position: relative;

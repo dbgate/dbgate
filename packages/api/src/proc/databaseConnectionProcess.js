@@ -368,6 +368,90 @@ async function handleSaveTableData({ msgid, changeSet }) {
   }
 }
 
+async function handleSaveRedisData({ msgid, changeSet }) {
+  try {
+    const driver = requireEngineDriver(storedConnection);
+    
+    if (!changeSet || !changeSet.changes || !Array.isArray(changeSet.changes)) {
+      throw new Error('Invalid changeSet structure');
+    }
+
+    for (const change of changeSet.changes) {
+      if (change.type === 'string') {
+        await driver.query(dbhan, `SET "${change.key}" "${change.value}"`);
+      } else if (change.type === 'json') {
+        await driver.query(dbhan, `JSON.SET "${change.key}" $ '${change.value.replace(/'/g, "\\'")}'`);
+      } else if (change.type === 'hash') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `HSET "${change.key}" "${update.key}" "${update.value}"`);
+          
+            if (update.ttl !== undefined && update.ttl !== null && update.ttl !== -1) {
+              try {
+                await dbhan.client.call('HEXPIRE', change.key, update.ttl, 'FIELDS', 1, update.key);
+              } catch (e) {}
+            }
+          }
+        }
+        if (change.inserts && Array.isArray(change.inserts)) {
+          for (const insert of change.inserts) {
+            await driver.query(dbhan, `HSET "${change.key}" "${insert.key}" "${insert.value}"`);
+            
+            if (insert.ttl !== undefined && insert.ttl !== null && insert.ttl !== -1) {
+              try {
+                await dbhan.client.call('HEXPIRE', change.key, insert.ttl, 'FIELDS', 1, insert.key);
+              } catch (e) {}
+            }
+          }
+        }
+      } else if (change.type === 'zset') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `ZADD "${change.key}" ${update.score} "${update.member}"`);
+          }
+        }
+        if (change.inserts && Array.isArray(change.inserts)) {
+          for (const insert of change.inserts) {
+            await driver.query(dbhan, `ZADD "${change.key}" ${insert.score} "${insert.member}"`);
+          }
+        }
+      } else if (change.type === 'list') {
+        if (change.updates && Array.isArray(change.updates)) {
+          for (const update of change.updates) {
+            await driver.query(dbhan, `LSET "${change.key}" ${update.index} "${update.value}"`);
+          }
+        }
+        if (change.inserts && Array.isArray(change.inserts)) {
+          for (const insert of change.inserts) {
+            await driver.query(dbhan, `RPUSH "${change.key}" "${insert.value}"`);
+          }
+        }
+      } else if (change.type === 'set') {
+        if (change.inserts && Array.isArray(change.inserts)) {
+          for (const insert of change.inserts) {
+            await driver.query(dbhan, `SADD "${change.key}" "${insert.value}"`);
+          }
+        }
+      } else if (change.type === 'stream') {
+        if (change.inserts && Array.isArray(change.inserts)) {
+          for (const insert of change.inserts) {
+            const streamId = insert.id === '*' || !insert.id ? '*' : insert.id;
+            await driver.query(dbhan, `XADD "${change.key}" ${streamId} value "${insert.value}"`);
+          }
+        }
+      }
+    }
+
+    process.send({ msgtype: 'response', msgid });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'Error saving Redis data'),
+    });
+  }
+}
+
 async function handleSqlPreview({ msgid, objects, options }) {
   await waitStructure();
   const driver = requireEngineDriver(storedConnection);
@@ -501,6 +585,7 @@ const messageHandlers = {
   schemaList: handleSchemaList,
   executeSessionQuery: handleExecuteSessionQuery,
   evalJsonScript: handleEvalJsonScript,
+  saveRedisData: handleSaveRedisData,
   // runCommand: handleRunCommand,
 };
 

@@ -504,6 +504,7 @@ export function getIconForRedisType(type) {
     case 'binary':
       return 'img type-binary';
     case 'ReJSON-RL':
+    case 'JSON':
       return 'img type-rejson';
     default:
       return null;
