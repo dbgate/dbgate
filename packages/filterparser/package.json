@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "tsc --watch",
     "test": "jest",
-    "test:ci": "jest --json --outputFile=result.json --testLocationInResults"
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults --passWithNoTests"
   },
   "files": [
     "lib"

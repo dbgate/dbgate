@@ -2694,7 +2694,7 @@
   resolved "https://registry.npmjs.org/@types/minimist/-/minimist-1.2.5.tgz"
   integrity sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==
 
-"@types/node@*", "@types/node@^24.1.0", "@types/node@>=18":
+"@types/node@*", "@types/node@^24.1.0", "@types/node@>=18", "@types/node@>=8":
   version "24.1.0"
   resolved "https://registry.npmmirror.com/@types/node/-/node-24.1.0.tgz"
   integrity sha512-ut5FthK5moxFKH2T1CUOC6ctR67rQRvvHdFLCD2Ql6KXmMuCrjsSsRI9UsLCm9M18BMwClv4pn327UvB7eeO1w==
@@ -2705,13 +2705,6 @@
   version "13.13.52"
   resolved "https://registry.npmjs.org/@types/node/-/node-13.13.52.tgz"
   integrity sha512-s3nugnZumCC//n4moGGe6tkNMyYEdaDBitVjwPxXmR5lnMG5dHePinH2EdxkG3Rh1ghFHHixAG4NJhpJW1rthQ==
-
-"@types/node@>=8":
-  version "22.10.5"
-  resolved "https://registry.npmjs.org/@types/node/-/node-22.10.5.tgz"
-  integrity sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==
-  dependencies:
-    undici-types "~6.20.0"
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.4"
@@ -2784,10 +2777,17 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@types/yargs@^16.0.0", "@types/yargs@^17.0.8":
+"@types/yargs@^16.0.0":
   version "16.0.9"
   resolved "https://registry.npmjs.org/@types/yargs/-/yargs-16.0.9.tgz"
   integrity sha512-tHhzvkFXZQeTECenFoRljLBYPZJ7jAVxqqtEI0qTLOmuultnFp4I9yKE17vTuhf7BkhCu7I4XuemPgikDVuYqA==
+  dependencies:
+    "@types/yargs-parser" "*"
+
+"@types/yargs@^17.0.8":
+  version "17.0.33"
+  resolved "https://registry.npmmirror.com/@types/yargs/-/yargs-17.0.33.tgz"
+  integrity sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==
   dependencies:
     "@types/yargs-parser" "*"
 
@@ -3385,21 +3385,7 @@ b4a@^1.6.4:
   resolved "https://registry.npmjs.org/b4a/-/b4a-1.6.7.tgz"
   integrity sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==
 
-babel-jest@^27.5.1:
-  version "27.5.1"
-  resolved "https://registry.npmjs.org/babel-jest/-/babel-jest-27.5.1.tgz"
-  integrity sha512-cdQ5dXjGRd0IBRATiQ4mZGlGlRE8kJpjPOixdNRdT+m3UcNqmYWN6rK6nvtXYfY3D76cb8s/O1Ss8ea24PIwcg==
-  dependencies:
-    "@jest/transform" "^27.5.1"
-    "@jest/types" "^27.5.1"
-    "@types/babel__core" "^7.1.14"
-    babel-plugin-istanbul "^6.1.1"
-    babel-preset-jest "^27.5.1"
-    chalk "^4.0.0"
-    graceful-fs "^4.2.9"
-    slash "^3.0.0"
-
-babel-jest@^28.0.0, babel-jest@^29.7.0:
+babel-jest@^27.5.1, babel-jest@^28.0.0:
   version "27.5.1"
   resolved "https://registry.npmjs.org/babel-jest/-/babel-jest-27.5.1.tgz"
   integrity sha512-cdQ5dXjGRd0IBRATiQ4mZGlGlRE8kJpjPOixdNRdT+m3UcNqmYWN6rK6nvtXYfY3D76cb8s/O1Ss8ea24PIwcg==
@@ -3422,6 +3408,19 @@ babel-jest@^28.1.3:
     "@types/babel__core" "^7.1.14"
     babel-plugin-istanbul "^6.1.1"
     babel-preset-jest "^28.1.3"
+    chalk "^4.0.0"
+    graceful-fs "^4.2.9"
+    slash "^3.0.0"
+
+babel-jest@^29.7.0:
+  version "29.7.0"
+  resolved "https://registry.npmmirror.com/babel-jest/-/babel-jest-29.7.0.tgz"
+  integrity sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==
+  dependencies:
+    "@jest/transform" "^29.7.0"
+    "@types/babel__core" "^7.1.14"
+    babel-plugin-istanbul "^6.1.1"
+    babel-preset-jest "^29.6.3"
     chalk "^4.0.0"
     graceful-fs "^4.2.9"
     slash "^3.0.0"
@@ -3451,6 +3450,16 @@ babel-plugin-jest-hoist@^28.1.3:
   version "28.1.3"
   resolved "https://registry.npmjs.org/babel-plugin-jest-hoist/-/babel-plugin-jest-hoist-28.1.3.tgz"
   integrity sha512-Ys3tUKAmfnkRUpPdpa98eYrAR0nV+sSFUZZEGuQ2EbFd1y4SOLtD5QDNHAq+bb9a+bbXvYQC4b+ID/THIMcU6Q==
+  dependencies:
+    "@babel/template" "^7.3.3"
+    "@babel/types" "^7.3.3"
+    "@types/babel__core" "^7.1.14"
+    "@types/babel__traverse" "^7.0.6"
+
+babel-plugin-jest-hoist@^29.6.3:
+  version "29.6.3"
+  resolved "https://registry.npmmirror.com/babel-plugin-jest-hoist/-/babel-plugin-jest-hoist-29.6.3.tgz"
+  integrity sha512-ESAc/RJvGTFEzRwOTT4+lNDk/GNHMkKbNzsvT0qKRfDyyYTskxB5rnU2njIDYVxXCBHHEI1c0YwHob3WaYujOg==
   dependencies:
     "@babel/template" "^7.3.3"
     "@babel/types" "^7.3.3"
@@ -3489,6 +3498,14 @@ babel-preset-jest@^28.1.3:
   integrity sha512-L+fupJvlWAHbQfn74coNX3zf60LXMJsezNvvx8eIh7iOR1luJ1poxYgQk1F8PYtNq/6QODDHCqsSnTFSWC491A==
   dependencies:
     babel-plugin-jest-hoist "^28.1.3"
+    babel-preset-current-node-syntax "^1.0.0"
+
+babel-preset-jest@^29.6.3:
+  version "29.6.3"
+  resolved "https://registry.npmmirror.com/babel-preset-jest/-/babel-preset-jest-29.6.3.tgz"
+  integrity sha512-0B3bhxR6snWXJZtR/RliHTDPRgn1sNHOR0yVtq/IiQFyuOVjFS+wuio/R4gSNkyYmKmJB4wGZv2NZanmKmTnNA==
+  dependencies:
+    babel-plugin-jest-hoist "^29.6.3"
     babel-preset-current-node-syntax "^1.0.0"
 
 backoff@^2.5.0:
@@ -4013,12 +4030,12 @@ chokidar@^4.0.0:
 
 chownr@^1.0.1:
   version "1.1.4"
-  resolved "https://registry.npmjs.org/chownr/-/chownr-1.1.4.tgz"
+  resolved "https://registry.npmmirror.com/chownr/-/chownr-1.1.4.tgz"
   integrity sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==
 
 chownr@^1.1.1:
   version "1.1.4"
-  resolved "https://registry.npmmirror.com/chownr/-/chownr-1.1.4.tgz"
+  resolved "https://registry.npmjs.org/chownr/-/chownr-1.1.4.tgz"
   integrity sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==
 
 chownr@^2.0.0:
@@ -4564,7 +4581,7 @@ dbffile@^1.12.0:
   dependencies:
     iconv-lite "^0.4.24"
 
-dbgate-api@^6.0.0-alpha.1, "dbgate-api@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\api":
+dbgate-api@^6.0.0-alpha.1, "dbgate-api@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\api":
   version "6.0.0-alpha.1"
   resolved "file:packages/api"
   dependencies:
@@ -4614,7 +4631,7 @@ dbgate-api@^6.0.0-alpha.1, "dbgate-api@file:D:\\POCs\\dbGate-new\\dbgate\\packag
     tar "^6.0.5"
     yauzl "^3.2.0"
 
-dbgate-datalib@^6.0.0-alpha.1, "dbgate-datalib@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\datalib":
+dbgate-datalib@^6.0.0-alpha.1, "dbgate-datalib@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\datalib":
   version "6.0.0-alpha.1"
   resolved "file:packages/datalib"
   dependencies:
@@ -4623,7 +4640,7 @@ dbgate-datalib@^6.0.0-alpha.1, "dbgate-datalib@file:D:\\POCs\\dbGate-new\\dbgate
     dbgate-tools "^6.0.0-alpha.1"
     uuid "^3.4.0"
 
-dbgate-filterparser@^6.0.0-alpha.1, "dbgate-filterparser@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\filterparser":
+dbgate-filterparser@^6.0.0-alpha.1, "dbgate-filterparser@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\filterparser":
   version "6.0.0-alpha.1"
   resolved "file:packages/filterparser"
   dependencies:
@@ -4634,11 +4651,11 @@ dbgate-filterparser@^6.0.0-alpha.1, "dbgate-filterparser@file:D:\\POCs\\dbGate-n
     moment "^2.24.0"
     parsimmon "^1.13.0"
 
-"dbgate-integration-tests@file:D:\\POCs\\dbGate-new\\dbgate\\integration-tests":
+"dbgate-integration-tests@file:D:\\Gerges Files\\SAKR\\dbgate\\integration-tests":
   version "6.0.0-alpha.1"
   resolved "file:integration-tests"
 
-"dbgate-plugin-cassandra@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-cassandra":
+"dbgate-plugin-cassandra@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-cassandra":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-cassandra"
   dependencies:
@@ -4647,7 +4664,7 @@ dbgate-filterparser@^6.0.0-alpha.1, "dbgate-filterparser@file:D:\\POCs\\dbGate-n
     json-stable-stringify "^1.0.1"
     lodash "^4.17.21"
 
-dbgate-plugin-clickhouse@^6.0.0-alpha.1, "dbgate-plugin-clickhouse@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-clickhouse":
+dbgate-plugin-clickhouse@^6.0.0-alpha.1, "dbgate-plugin-clickhouse@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-clickhouse":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-clickhouse"
   dependencies:
@@ -4656,7 +4673,7 @@ dbgate-plugin-clickhouse@^6.0.0-alpha.1, "dbgate-plugin-clickhouse@file:D:\\POCs
     json-stable-stringify "^1.0.1"
     lodash "^4.17.21"
 
-dbgate-plugin-csv@^6.0.0-alpha.1, "dbgate-plugin-csv@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-csv":
+dbgate-plugin-csv@^6.0.0-alpha.1, "dbgate-plugin-csv@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-csv":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-csv"
   dependencies:
@@ -4664,7 +4681,7 @@ dbgate-plugin-csv@^6.0.0-alpha.1, "dbgate-plugin-csv@file:D:\\POCs\\dbGate-new\\
     line-reader "^0.4.0"
     lodash "^4.17.21"
 
-"dbgate-plugin-db2@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-db2":
+"dbgate-plugin-db2@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-db2":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-db2"
   dependencies:
@@ -4672,14 +4689,14 @@ dbgate-plugin-csv@^6.0.0-alpha.1, "dbgate-plugin-csv@file:D:\\POCs\\dbGate-new\\
     dbgate-types "*"
     ibm_db "^3.1.0"
 
-"dbgate-plugin-dbf@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-dbf":
+"dbgate-plugin-dbf@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-dbf":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-dbf"
   dependencies:
     dbffile "^1.12.0"
     lodash "^4.17.21"
 
-"dbgate-plugin-duckdb@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-duckdb":
+"dbgate-plugin-duckdb@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-duckdb":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-duckdb"
   dependencies:
@@ -4689,14 +4706,14 @@ dbgate-plugin-csv@^6.0.0-alpha.1, "dbgate-plugin-csv@file:D:\\POCs\\dbGate-new\\
   optionalDependencies:
     "@duckdb/node-api" "^1.2.1-alpha.16"
 
-dbgate-plugin-excel@^6.0.0-alpha.1, "dbgate-plugin-excel@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-excel":
+dbgate-plugin-excel@^6.0.0-alpha.1, "dbgate-plugin-excel@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-excel":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-excel"
   dependencies:
     lodash "^4.17.21"
     xlsx "0.16.9"
 
-dbgate-plugin-mongo@^6.0.0-alpha.1, "dbgate-plugin-mongo@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-mongo":
+dbgate-plugin-mongo@^6.0.0-alpha.1, "dbgate-plugin-mongo@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-mongo":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-mongo"
   dependencies:
@@ -4709,7 +4726,7 @@ dbgate-plugin-mongo@^6.0.0-alpha.1, "dbgate-plugin-mongo@file:D:\\POCs\\dbGate-n
   optionalDependencies:
     mongodb-client-encryption "^6.1.1"
 
-dbgate-plugin-mssql@^6.0.0-alpha.1, "dbgate-plugin-mssql@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-mssql":
+dbgate-plugin-mssql@^6.0.0-alpha.1, "dbgate-plugin-mssql@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-mssql":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-mssql"
   dependencies:
@@ -4722,7 +4739,7 @@ dbgate-plugin-mssql@^6.0.0-alpha.1, "dbgate-plugin-mssql@file:D:\\POCs\\dbGate-n
   optionalDependencies:
     msnodesqlv8 "^4.2.1"
 
-dbgate-plugin-mysql@^6.0.0-alpha.1, "dbgate-plugin-mysql@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-mysql":
+dbgate-plugin-mysql@^6.0.0-alpha.1, "dbgate-plugin-mysql@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-mysql":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-mysql"
   dependencies:
@@ -4731,7 +4748,7 @@ dbgate-plugin-mysql@^6.0.0-alpha.1, "dbgate-plugin-mysql@file:D:\\POCs\\dbGate-n
     lodash "^4.17.21"
     mysql2 "^3.11.3"
 
-dbgate-plugin-oracle@^6.0.0-alpha.1, "dbgate-plugin-oracle@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-oracle":
+dbgate-plugin-oracle@^6.0.0-alpha.1, "dbgate-plugin-oracle@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-oracle":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-oracle"
   dependencies:
@@ -4741,7 +4758,7 @@ dbgate-plugin-oracle@^6.0.0-alpha.1, "dbgate-plugin-oracle@file:D:\\POCs\\dbGate
   optionalDependencies:
     oracledb "^6.6.0"
 
-dbgate-plugin-postgres@^6.0.0-alpha.1, "dbgate-plugin-postgres@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-postgres":
+dbgate-plugin-postgres@^6.0.0-alpha.1, "dbgate-plugin-postgres@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-postgres":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-postgres"
   dependencies:
@@ -4752,7 +4769,7 @@ dbgate-plugin-postgres@^6.0.0-alpha.1, "dbgate-plugin-postgres@file:D:\\POCs\\db
     pg-copy-streams "^6.0.6"
     wkx "^0.5.0"
 
-dbgate-plugin-redis@^6.0.0-alpha.1, "dbgate-plugin-redis@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-redis":
+dbgate-plugin-redis@^6.0.0-alpha.1, "dbgate-plugin-redis@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-redis":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-redis"
   dependencies:
@@ -4763,7 +4780,7 @@ dbgate-plugin-redis@^6.0.0-alpha.1, "dbgate-plugin-redis@file:D:\\POCs\\dbGate-n
     lodash "^4.17.21"
     node-redis-dump2 "^0.5.0"
 
-dbgate-plugin-sqlite@^6.0.0-alpha.1, "dbgate-plugin-sqlite@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-sqlite":
+dbgate-plugin-sqlite@^6.0.0-alpha.1, "dbgate-plugin-sqlite@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-sqlite":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-sqlite"
   dependencies:
@@ -4783,7 +4800,7 @@ dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0
     pacote "^11.1.13"
     rimraf "^3.0.2"
 
-dbgate-plugin-xml@^6.0.0-alpha.1, "dbgate-plugin-xml@file:D:\\POCs\\dbGate-new\\dbgate\\plugins\\dbgate-plugin-xml":
+dbgate-plugin-xml@^6.0.0-alpha.1, "dbgate-plugin-xml@file:D:\\Gerges Files\\SAKR\\dbgate\\plugins\\dbgate-plugin-xml":
   version "6.0.0-alpha.1"
   resolved "file:plugins/dbgate-plugin-xml"
   dependencies:
@@ -4794,7 +4811,7 @@ dbgate-query-splitter@^4.11.5:
   resolved "https://registry.npmjs.org/dbgate-query-splitter/-/dbgate-query-splitter-4.11.5.tgz"
   integrity sha512-xr4rWhuLeaaDdfdDpMOesCAnZGPUKTH9WPU/GSCHzoKR6NI60IyPjMccShLY+rPIsNw2SZQtbic2aCoFcwI4kg==
 
-"dbgate-serve@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\serve":
+"dbgate-serve@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\serve":
   version "6.0.0-alpha.1"
   resolved "file:packages/serve"
   dependencies:
@@ -4813,13 +4830,13 @@ dbgate-query-splitter@^4.11.5:
     dbgate-web "^6.0.0-alpha.1"
     dotenv "^16.0.0"
 
-dbgate-sqltree@^6.0.0-alpha.1, "dbgate-sqltree@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\sqltree":
+dbgate-sqltree@^6.0.0-alpha.1, "dbgate-sqltree@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\sqltree":
   version "6.0.0-alpha.1"
   resolved "file:packages/sqltree"
   dependencies:
     lodash "^4.17.21"
 
-dbgate-tools@^6.0.0-alpha.1, "dbgate-tools@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\tools":
+dbgate-tools@^6.0.0-alpha.1, "dbgate-tools@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\tools":
   version "6.0.0-alpha.1"
   resolved "file:packages/tools"
   dependencies:
@@ -4832,16 +4849,11 @@ dbgate-tools@^6.0.0-alpha.1, "dbgate-tools@file:D:\\POCs\\dbGate-new\\dbgate\\pa
     toposort "^2.0.2"
     uuid "^3.4.0"
 
-dbgate-types@*:
-  version "6.4.2"
-  resolved "https://registry.npmmirror.com/dbgate-types/-/dbgate-types-6.4.2.tgz"
-  integrity sha512-8WJ/kN42AJz+WZyhdLyQ3REVo7vuVbhh3ccE7AmbeX8QV1swWS26Nq4R0bCPvCBM4WrWXpLjiULnkRx6Sw9hcA==
-
-dbgate-types@^6.0.0-alpha.1, "dbgate-types@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\types":
+dbgate-types@*, dbgate-types@^6.0.0-alpha.1, "dbgate-types@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\types":
   version "6.0.0-alpha.1"
   resolved "file:packages/types"
 
-dbgate-web@^6.0.0-alpha.1, "dbgate-web@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\web":
+dbgate-web@^6.0.0-alpha.1, "dbgate-web@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\web":
   version "6.0.0-alpha.1"
   resolved "file:packages/web"
   dependencies:
@@ -4856,7 +4868,7 @@ dbgate-web@^6.0.0-alpha.1, "dbgate-web@file:D:\\POCs\\dbGate-new\\dbgate\\packag
     wellknown "^0.5.0"
     xml-formatter "^3.6.4"
 
-"dbmodel@file:D:\\POCs\\dbGate-new\\dbgate\\packages\\dbmodel":
+"dbmodel@file:D:\\Gerges Files\\SAKR\\dbgate\\packages\\dbmodel":
   version "6.0.0-alpha.1"
   resolved "file:packages/dbmodel"
   dependencies:
@@ -8223,7 +8235,7 @@ jest-snapshot@^29.7.0:
     pretty-format "^29.7.0"
     semver "^7.5.3"
 
-jest-util@^27.5.1, jest-util@^29.7.0:
+jest-util@^27.5.1:
   version "27.5.1"
   resolved "https://registry.npmjs.org/jest-util/-/jest-util-27.5.1.tgz"
   integrity sha512-Kv2o/8jNvX1MQ0KGtw480E/w4fBCDOnH6+6DmeKi6LZUIlKA5kwY0YNdlzaWTiVgxqAqik11QyxDOKk543aKXw==
@@ -8253,6 +8265,18 @@ jest-util@^28.1.3:
   integrity sha512-XdqfpHwpcSRko/C35uLYFM2emRAltIIKZiJ9eAmhjsj0CqZMa0p1ib0R5fWIqGhn1a103DebTbpqIaP1qCQ6tQ==
   dependencies:
     "@jest/types" "^28.1.3"
+    "@types/node" "*"
+    chalk "^4.0.0"
+    ci-info "^3.2.0"
+    graceful-fs "^4.2.9"
+    picomatch "^2.2.3"
+
+jest-util@^29.7.0:
+  version "29.7.0"
+  resolved "https://registry.npmmirror.com/jest-util/-/jest-util-29.7.0.tgz"
+  integrity sha512-z6EbKajIpqGKU56y5KBUgy1dt1ihhQJgWzUlZHArA/+X2ad7Cb5iF+AK1EWVL/Bo7Rz9uurpqw6SiBCefUbCGA==
+  dependencies:
+    "@jest/types" "^29.6.3"
     "@types/node" "*"
     chalk "^4.0.0"
     ci-info "^3.2.0"
@@ -9376,14 +9400,6 @@ moment@^2.10.2, moment@^2.24.0:
   resolved "https://registry.npmjs.org/moment/-/moment-2.30.1.tgz"
   integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
 
-mongodb-client-encryption@^6.1.1, "mongodb-client-encryption@>=6.0.0 <7":
-  version "6.1.1"
-  resolved "https://registry.npmjs.org/mongodb-client-encryption/-/mongodb-client-encryption-6.1.1.tgz"
-  integrity sha512-hqy68WWNZmkoqldFlpw8TQNaJUOor4YCM/FuxETZTeTZpGEbQwkTwdrQlgiV14qyOizPw8abbAxGi3zX+raA9w==
-  dependencies:
-    node-addon-api "^4.3.0"
-    prebuild-install "^7.1.2"
-
 mongodb-connection-string-url@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/mongodb-connection-string-url/-/mongodb-connection-string-url-3.0.0.tgz"
@@ -9530,11 +9546,6 @@ node-abi@^3.3.0, node-abi@^3.60.0:
   integrity sha512-CPMcGa+y33xuL1E0TcNIu4YyaZCxnnvkVaEXrsosR3FxN+fV8xvb7Mzpb7IgKler10qeMkE6+Dp8qJhpzdq35g==
   dependencies:
     semver "^7.3.5"
-
-node-addon-api@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-4.3.0.tgz"
-  integrity sha512-73sE9+3UaLYYFmDsFZnqCInzPyh3MqIwZO9cw58yIqAZhONrrabrYyYe3TuIqtIiOuTXVhsGau8hcrhhwSsDIQ==
 
 node-addon-api@^7.0.0:
   version "7.1.1"
@@ -9890,26 +9901,19 @@ os-tmpdir@~1.0.2:
   resolved "https://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.2.tgz"
   integrity sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==
 
-p-limit@^2.0.0:
+p-limit@^2.0.0, p-limit@^2.2.0, p-limit@^2.2.1:
   version "2.3.0"
   resolved "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz"
   integrity sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==
   dependencies:
     p-try "^2.0.0"
 
-p-limit@^2.2.0, p-limit@^3.1.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz"
-  integrity sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==
+p-limit@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.npmjs.org/p-limit/-/p-limit-3.1.0.tgz"
+  integrity sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==
   dependencies:
-    p-try "^2.0.0"
-
-p-limit@^2.2.1:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz"
-  integrity sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==
-  dependencies:
-    p-try "^2.0.0"
+    yocto-queue "^0.1.0"
 
 p-locate@^3.0.0:
   version "3.0.0"
@@ -10557,9 +10561,9 @@ react-is@^17.0.1:
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
 react-is@^18.0.0:
-  version "17.0.2"
-  resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
-  integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+  version "18.3.1"
+  resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
+  integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
 read-package-json-fast@^2.0.1:
   version "2.0.3"
@@ -11499,7 +11503,7 @@ source-map-resolve@^0.5.0:
     source-map-url "^0.4.0"
     urix "^0.1.0"
 
-source-map-support@^0.5.6:
+source-map-support@^0.5.6, source-map-support@~0.5.20:
   version "0.5.21"
   resolved "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.21.tgz"
   integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
@@ -11507,10 +11511,10 @@ source-map-support@^0.5.6:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
 
-source-map-support@~0.5.20, source-map-support@0.5.13:
-  version "0.5.21"
-  resolved "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.21.tgz"
-  integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
+source-map-support@0.5.13:
+  version "0.5.13"
+  resolved "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.13.tgz"
+  integrity sha512-SHSKFHadjVA5oR4PPqhtAVdcBWwRYVd6g6cAXnIbRiIwc2EhPrTuKUBdSLvlEKyIP3GCf89fltvcZiP9MMFA1w==
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
@@ -11532,7 +11536,7 @@ source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.1:
 
 source-map@^0.7.3:
   version "0.7.4"
-  resolved "https://registry.npmmirror.com/source-map/-/source-map-0.7.4.tgz"
+  resolved "https://registry.npmjs.org/source-map/-/source-map-0.7.4.tgz"
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
 
 source-map@^0.7.4:
@@ -12538,11 +12542,6 @@ underscore@~1.13.2:
   resolved "https://registry.npmjs.org/underscore/-/underscore-1.13.7.tgz"
   integrity sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==
 
-undici-types@~6.20.0:
-  version "6.20.0"
-  resolved "https://registry.npmjs.org/undici-types/-/undici-types-6.20.0.tgz"
-  integrity sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==
-
 undici-types@~7.8.0:
   version "7.8.0"
   resolved "https://registry.npmmirror.com/undici-types/-/undici-types-7.8.0.tgz"
@@ -12572,7 +12571,7 @@ unique-slug@^2.0.0:
   dependencies:
     imurmurhash "^0.1.4"
 
-universalify@^0.1.0, universalify@^2.0.0:
+universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.npmjs.org/universalify/-/universalify-0.1.2.tgz"
   integrity sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==
@@ -12581,6 +12580,11 @@ universalify@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/universalify/-/universalify-0.2.0.tgz"
   integrity sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==
+
+universalify@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.npmmirror.com/universalify/-/universalify-2.0.1.tgz"
+  integrity sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==
 
 unpipe@~1.0.0, unpipe@1.0.0:
   version "1.0.0"
@@ -13036,7 +13040,7 @@ wrappy@1:
   resolved "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-write-file-atomic@^3.0.0, write-file-atomic@^4.0.2:
+write-file-atomic@^3.0.0:
   version "3.0.3"
   resolved "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-3.0.3.tgz"
   integrity sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q==
@@ -13049,6 +13053,14 @@ write-file-atomic@^3.0.0, write-file-atomic@^4.0.2:
 write-file-atomic@^4.0.1:
   version "4.0.2"
   resolved "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-4.0.2.tgz"
+  integrity sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==
+  dependencies:
+    imurmurhash "^0.1.4"
+    signal-exit "^3.0.7"
+
+write-file-atomic@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.npmmirror.com/write-file-atomic/-/write-file-atomic-4.0.2.tgz"
   integrity sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==
   dependencies:
     imurmurhash "^0.1.4"

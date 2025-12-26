@@ -5,11 +5,11 @@ name: Cloud images PREMIUM
 'on':
   push:
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+
-      - v[0-9]+.[0-9]+.[0-9]+-packer-beta.[0-9]+
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-packer-beta.[0-9]+'
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: '${{ matrix.os }}'
     strategy:
       matrix:
         os:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Context
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_CONTEXT: '${{ toJson(github) }}'
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: ${{ secrets.GH_TOKEN }}
+          token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
           ref: fe0399b3cc319a2f751451d7b56b0bdf222662a5
       - name: Merge dbgate/dbgate-pro
@@ -72,7 +72,7 @@ jobs:
           cd dbgate-merged
             yarn printSecrets
         env:
-          GIST_UPLOAD_SECRET: ${{secrets.GIST_UPLOAD_SECRET}}
+          GIST_UPLOAD_SECRET: '${{secrets.GIST_UPLOAD_SECRET}}'
       - name: Prepare packer build
         run: |
           cd ..
@@ -87,16 +87,16 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}
+          name: '${{ matrix.os }}'
           path: artifacts
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: 'startsWith(github.ref, ''refs/tags/'')'
         with:
           files: artifacts/**
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - name: Run `packer init` for Azure
         run: |
           cd ../dbgate-merged/packer
@@ -110,33 +110,33 @@ jobs:
           cd ../dbgate-merged/packer
           packer init ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
+          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
+          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
       - name: Run `packer build` for AWS
         run: |
           cd ../dbgate-merged/packer
           packer build ./aws-ubuntu.pkr.hcl
         env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
+          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
+          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'
       - name: Delete old Azure VMs
         run: |
           cd ../dbgate-merged/packer
           chmod +x delete-old-azure-images.sh
           ./delete-old-azure-images.sh
         env:
-          AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
-          AZURE_CLIENT_SECRET: ${{secrets.AZURE_CLIENT_SECRET}}
-          AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
-          AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+          AZURE_CLIENT_ID: '${{secrets.AZURE_CLIENT_ID}}'
+          AZURE_CLIENT_SECRET: '${{secrets.AZURE_CLIENT_SECRET}}'
+          AZURE_TENANT_ID: '${{secrets.AZURE_TENANT_ID}}'
+          AZURE_SUBSCRIPTION_ID: '${{secrets.AZURE_SUBSCRIPTION_ID}}'
       - name: Delete old AMIs (AWS)
         run: |
           cd ../dbgate-merged/packer
           chmod +x delete-old-amis.sh
           ./delete-old-amis.sh
         env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+          AWS_ACCESS_KEY_ID: '${{secrets.AWS_ACCESS_KEY_ID}}'
+          AWS_SECRET_ACCESS_KEY: '${{secrets.AWS_SECRET_ACCESS_KEY}}'
+          AWS_DEFAULT_REGION: '${{secrets.AWS_DEFAULT_REGION}}'

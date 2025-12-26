@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: dbgate/dbgate-pro
-          token: ${{ secrets.GH_TOKEN }}
+          token: '${{ secrets.GH_TOKEN }}'
           path: dbgate-pro
           ref: fe0399b3cc319a2f751451d7b56b0bdf222662a5
       - name: Merge dbgate/dbgate-pro
@@ -70,7 +70,7 @@ jobs:
           name: screenshots
           path: screenshots
       - name: Push E2E screenshots
-        if: ${{ github.ref_name == 'master' }}
+        if: '${{ github.ref_name == ''master'' }}'
         run: |
           git config --global user.email "info@dbgate.info"
           git config --global user.name "GitHub Actions"
@@ -89,25 +89,25 @@ jobs:
         ports:
           - '16000:5432'
       mysql-cypress:
-        image: mysql:8.0.18
+        image: 'mysql:8.0.18'
         ports:
           - '16004:3306'
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
       mysql-ssh-login:
-        image: ghcr.io/dbgate/mysql-ssh-login:latest
+        image: 'ghcr.io/dbgate/mysql-ssh-login:latest'
         ports:
           - '16012:22'
       mysql-ssh-keyfile:
-        image: ghcr.io/dbgate/mysql-ssh-keyfile:latest
+        image: 'ghcr.io/dbgate/mysql-ssh-keyfile:latest'
         ports:
           - '16008:22'
       dex:
-        image: ghcr.io/dbgate/dex:latest
+        image: 'ghcr.io/dbgate/dex:latest'
         ports:
           - '16009:5556'
       mongo:
-        image: mongo:4.0.12
+        image: 'mongo:4.0.12'
         env:
           MONGO_INITDB_ROOT_USERNAME: root
           MONGO_INITDB_ROOT_PASSWORD: Pwd2020Db
@@ -126,7 +126,7 @@ jobs:
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
       oracle:
-        image: gvenzl/oracle-xe:21-slim
+        image: 'gvenzl/oracle-xe:21-slim'
         env:
           ORACLE_PASSWORD: Pwd2020Db
         ports:
