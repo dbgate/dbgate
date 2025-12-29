@@ -23,7 +23,7 @@
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });
 
-  function extractDbItems(db, dbConnectionInfo, connectionList) {
+  function extractDbItems(db, dbConnectionInfo, connectionList, $extensions) {
     const objectList = _.flatten(
       ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
         _.sortBy(
@@ -42,10 +42,14 @@
       if (connection.singleDatabase) continue;
       if (getCurrentConfig()?.singleDbConnection) continue;
       const databases = getLocalStorage(`database_list_${conid}`) || [];
+      
+      const driver = findEngineDriver(connection, $extensions);
+      const connectionIcon = driver?.icon || 'img database';
+      
       for (const db of databases) {
         databaseList.push({
           text: `${db.name} on ${getConnectionLabel(connection)}`,
-          icon: 'img database',
+          icon: connectionIcon,
           onClick: () => switchCurrentDatabase({ connection, name: db.name }),
         });
       }
@@ -60,7 +64,7 @@
 </script>
 
 <script>
-  import { filterName, getConnectionLabel } from 'dbgate-tools';
+  import { filterName, getConnectionLabel, findEngineDriver } from 'dbgate-tools';
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
@@ -73,6 +77,7 @@
     getCurrentConfig,
     getVisibleCommandPalette,
     visibleCommandPalette,
+    extensions,
   } from '../stores';
   import clickOutside from '../utility/clickOutside';
   import { isElectronAvailable } from '../utility/getElectron';
@@ -112,7 +117,7 @@
     .filter(
       filter,
       ($visibleCommandPalette == 'database'
-        ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
+        ? extractDbItems($databaseInfo, { conid, database }, $connectionList, $extensions)
         : parentCommand
           ? parentCommand.getSubCommands()
           : sortedComands
