@@ -25,3 +25,4 @@ export * from './CustomGridDisplay';
 export * from './ScriptDrivedDeployer';
 export * from './chartDefinitions';
 export * from './chartProcessor';
+export * from './ChangeSetRedis';

@@ -49,7 +49,7 @@ const driver = {
     {
       name: 'set',
       label: 'Set',
-      dbKeyFields: [{ name: 'value' }],
+      dbKeyFields: [{ name: 'value', readOnly: true }],
       keyColumn: 'value',
       addMethod: 'sadd',
       showItemList: true,
@@ -57,15 +57,15 @@ const driver = {
     {
       name: 'zset',
       label: 'Sorted Set',
-      dbKeyFields: [{ name: 'score' }, { name: 'value' }],
-      keyColumn: 'value',
+      dbKeyFields: [{ name: 'member', readOnly: true }, { name: 'score' }],
+      keyColumn: 'member',
       addMethod: 'zadd',
       showItemList: true,
     },
     {
       name: 'hash',
       label: 'Hash',
-      dbKeyFields: [{ name: 'key' }, { name: 'value' }],
+      dbKeyFields: [{ name: 'key', readOnly: true }, { name: 'value' }, { name: 'TTL' }],
       keyColumn: 'key',
       addMethod: 'hset',
       showItemList: true,
@@ -73,11 +73,17 @@ const driver = {
     {
       name: 'stream',
       label: 'Stream',
-      dbKeyFields: [{ name: 'id' }, { name: 'value' }],
+      dbKeyFields: [{ name: 'id', readOnly: true }, { name: 'value', readOnly: true }],
       keyColumn: 'id',
       addMethod: 'xaddjson',
       showItemList: true,
     },
+    {
+      name: 'json',
+      label: 'JSON',
+      dbKeyFields: [{ name: 'value' }],
+      addMethod: 'json.set',
+    }
   ],
 
   showConnectionField: (field, values) => {
