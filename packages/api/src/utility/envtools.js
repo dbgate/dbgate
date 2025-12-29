@@ -69,6 +69,15 @@ function extractImportEntitiesFromEnv(env) {
     conid: crypto.randomUUID(),
     _id: undefined,
     id: index + 1, // autoincrement id
+
+    useDatabaseUrl: conn.useDatabaseUrl ? 1 : 0,
+    isReadOnly: conn.isReadOnly ? 1 : 0,
+    useSeparateSchemas: conn.useSeparateSchemas ? 1 : 0,
+    trustServerCertificate: conn.trustServerCertificate ? 1 : 0,
+    singleDatabase: conn.singleDatabase ? 1 : 0,
+    useSshTunnel: conn.useSshTunnel ? 1 : 0,
+    useSsl: conn.useSsl ? 1 : 0,
+    sslRejectUnauthorized: conn.sslRejectUnauthorized ? 1 : 0,
   }));
 
   const connectionEnvIdToDbId = {};
