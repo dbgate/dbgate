@@ -8,6 +8,9 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 6.8.2
+- FIXED: Initialize storage database from envoronment variables failed with PostgreSQL
+
 ## 6.8.1
 - FIXED: Won't navigate to the relevant field on click of a field in columns #1303
 
