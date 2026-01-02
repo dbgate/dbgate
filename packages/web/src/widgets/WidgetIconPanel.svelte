@@ -166,15 +166,7 @@
       data-testid={`WidgetIconPanel_${item.name}`}
       on:click={() => handleChangeWidget(item.name)}
     >
-      {#if item.isPremiumPromo && promoWidgetData?.isColoredIcon}
-        <FontIcon
-          icon={item.icon}
-          title={item.title}
-          colorClass="premium-background-gradient widget-icon-panel-rounded"
-        />
-      {:else}
-        <FontIcon icon={item.icon} title={item.title} />
-      {/if}
+      <FontIcon icon={item.icon} title={item.title} />
       {#if item.isPremiumPromo}
         <div class="premium-promo">Premium</div>
         {#if promoWidgetData?.identifier != $seenPremiumPromoWidget}
@@ -258,11 +250,16 @@
     position: absolute;
     text-transform: uppercase;
     font-size: 6pt;
-    background: var(--theme-widget-panel-background);
     color: var(--theme-widget-panel-foreground);
     padding: 1px 3px;
     border-radius: 3px;
     bottom: 0;
+  }
+  .wrapper:hover .premium-promo {
+    color: var(--theme-widget-icon-active-foreground);
+  }
+  .wrapper.selected .premium-promo {
+    color: var(--theme-widget-icon-active-foreground);
   }
 
   .premium-promo-not-seen {

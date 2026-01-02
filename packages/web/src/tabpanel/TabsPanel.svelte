@@ -798,7 +798,7 @@
   }
   .upgrade-button {
     background: linear-gradient(135deg, #1686c8, #8a25b1);
-    border: 1px solid var(--theme-border);
+    border: 1px solid color-mix(in rgb, #1686c8 50%, #8a25b1 50%);
     border-radius: 10px;
     color: white;
     cursor: pointer;
