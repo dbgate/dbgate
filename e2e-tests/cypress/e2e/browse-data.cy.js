@@ -85,14 +85,16 @@ describe('Data browser data', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Album').click();
+
+    // hide what is not needed
+    cy.testid('WidgetIconPanel_database').click();
+    cy.testid('DataGrid_itemReferences').click();
+
     cy.testid('DataFilterControl_input_Title').type('Rock{enter}');
     cy.contains('Rows: 7');
     cy.testid('DataFilterControl_input_AlbumId').type('>10xxx{enter}');
     cy.contains('Rows: 7');
-    cy.testid('DataFilterControl_filtermenu_Title').click();
-    // hide what is not needed
-    cy.testid('WidgetIconPanel_database').click();
-    cy.testid('DataGrid_itemReferences').click();
+    cy.testid('DataFilterControl_filtermenu_ArtistId').click();
     cy.themeshot('data-browser-filter');
     cy.testid('DataGridCore_button_clearFilters').click();
     cy.contains('Rows: 347');
@@ -480,6 +482,9 @@ describe('Data browser data', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();
     cy.contains('Invoice').click();
+    cy.contains('Rows: 412');
+    cy.get('[data-row="0"][data-col="header"]').click();
+    cy.get('[data-row="1"][data-col="header"]').click();
     cy.get('[data-row="0"][data-col="header"]').click();
     cy.contains('Autodetect - Form');
     cy.themeshot('form-cell-view');
