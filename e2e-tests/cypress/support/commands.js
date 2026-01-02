@@ -37,7 +37,7 @@ Cypress.Commands.add(
   },
   (subject, file, options) => {
     cy.window().then(win => {
-      win.__changeCurrentTheme('theme-dark');
+      win.__changeCurrentTheme('dark');
     });
 
     // cy.screenshot(`${file}-dark`, {
@@ -64,7 +64,7 @@ Cypress.Commands.add(
     // });
 
     cy.window().then(win => {
-      win.__changeCurrentTheme('theme-light');
+      win.__changeCurrentTheme('light');
     });
 
     if (subject) {

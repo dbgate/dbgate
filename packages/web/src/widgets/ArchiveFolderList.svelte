@@ -30,7 +30,7 @@
   }
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput placeholder="Search archive folders" bind:value={filter} />
   <CloseSearchButton bind:filter />
 

@@ -1,34 +1,29 @@
 <script lang="ts">
   import type { ThemeDefinition } from 'dbgate-types';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { currentTheme } from '../stores';
-  import _ from 'lodash';
-
-  function extractThemeColors(theme: ThemeDefinition) {
-    if (!theme.themeCss) return {};
-
-    return _.fromPairs(
-      [...theme.themeCss.matchAll(/(--theme-[a-z0-9\-]+)\s*\:\s*(\#[0-9a-fA-F]{6})/g)].map(x => [x[1], x[2]])
-    );
-  }
+  import { currentThemeDefinition, currentThemeType, getCompleteThemeVariables } from '../plugins/themes';
+  import { apiCall } from '../utility/api';
 
   export let theme: ThemeDefinition;
 
-  $: colors = extractThemeColors(theme);
-  $: cssVarColors = Object.entries(colors)
+  $: cssVarColors = Object.entries(getCompleteThemeVariables(theme))
     .map(([key, value]) => `${key}:${value}`)
     .join(';');
+
+  async function handleApplyTheme() {
+    if (theme.themePublicCloudPath) {
+      const fileData = await apiCall('cloud/public-file-data', { path: theme.themePublicCloudPath });
+      const themeJson = JSON.parse(fileData.text);
+      $currentThemeDefinition = themeJson;
+      return;
+    }
+    $currentThemeDefinition = theme;
+  }
 </script>
 
-<div
-  style={cssVarColors}
-  class={`container ${theme.themeClassName}`}
-  on:click={() => {
-    $currentTheme = theme.themeClassName;
-  }}
->
-  <div class="iconbar-settings-modal">
-    <div class="icon">
+<div style={cssVarColors} class="container" on:click={handleApplyTheme}>
+  <div class="iconbar">
+    <div class="icon selected-icon">
       <FontIcon icon="icon database" />
     </div>
     <div class="icon"><FontIcon icon="icon file" /></div>
@@ -37,12 +32,11 @@
     <div class="icon"><FontIcon icon="icon plugin" /></div>
   </div>
 
-  <div class="titlebar-settings-modal" />
+  <div class="titlebar" />
 
   <div class="content">
-    <div class:current={$currentTheme == theme.themeClassName}>
-      {theme.themeName}
-    </div>
+    {theme.themeName}<br />
+    {theme.isBuiltInTheme ? '(built-in)' : theme.themePublicCloudPath ? '(cloud)' : '(file)'}
   </div>
 </div>
 
@@ -56,24 +50,23 @@
     margin: 10px;
     cursor: pointer;
   }
-  .iconbar-settings-modal {
+  .iconbar {
     position: absolute;
     display: flex;
     flex-direction: column;
-    align-items: center;
     left: 0;
     top: 0;
     bottom: 0;
     width: 30px;
-    background: var(--theme-bg-inv-1);
-    color: var(--theme-font-inv-2);
+    background: var(--theme-widget-panel-background);
+    color: var(--theme-widget-panel-foreground);
   }
-  .titlebar-settings-modal {
+  .titlebar {
     left: 0;
     top: 0;
     right: 0;
     height: 10px;
-    background: var(--theme-bg-2);
+    background: var(--theme-tabs-panel-background);
   }
   .content {
     position: absolute;
@@ -82,17 +75,25 @@
     top: 10px;
     bottom: 0;
     right: 0;
-    background: var(--theme-bg-1);
+    background: var(--theme-content-background);
 
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--theme-font-1);
-  }
-  .current {
-    font-weight: bold;
+    color: var(--theme-generic-font);
   }
   .icon {
-    margin: 5px 0px;
+    padding: 5px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon:hover {
+    color: var(--theme-widget-icon-active-foreground);
+  }
+  .selected-icon {
+    border-left: 1px solid var(--theme-widget-icon-active-foreground);
+    color: var(--theme-widget-icon-active-foreground);
+    background: var(--theme-widget-icon-active-background);
   }
 </style>

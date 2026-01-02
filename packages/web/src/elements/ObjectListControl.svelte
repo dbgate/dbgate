@@ -118,7 +118,7 @@
   }
 
   .header {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-object-header-background);
     padding: 5px;
   }
 
@@ -136,7 +136,6 @@
   }
 
   .collapse:hover {
-    color: var(--theme-font-hover);
-    background: var(--theme-bg-3);
+    color: var(--theme-generic-font-hover);
   }
 </style>

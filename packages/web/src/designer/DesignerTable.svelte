@@ -10,7 +10,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { currentThemeDefinition } from '../stores';
+  import { currentThemeDefinition } from '../plugins/themes';
   import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
   import { isCtrlOrCommandKey } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
@@ -345,8 +345,8 @@
 <style>
   .wrapper {
     position: absolute;
-    background-color: var(--theme-bg-0);
-    border: 1px solid var(--theme-border);
+    background-color: var(--theme-designer-item-background);
+    border: var(--theme-designer-item-border);
   }
   /* :global(.dbgate-screen) .isSelectedTable {
     border: 3px solid var(--theme-border);
@@ -356,7 +356,7 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: var(--theme-font-1);
+    background: var(--theme-designer-selection-marker);
   }
   .selection-marker.lt {
     left: -3px;
@@ -385,7 +385,7 @@
     font-weight: bold;
     text-align: center;
     padding: 2px;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-designer-item-border);
     display: flex;
     justify-content: space-between;
   }
@@ -394,26 +394,26 @@
   }
 
   .header.isTable {
-    background: var(--theme-bg-blue);
+    background: var(--theme-designer-header-background-1);
   }
   .header.isView {
-    background: var(--theme-bg-magenta);
+    background: var(--theme-designer-header-background-2);
   }
   .header.isCollection {
-    background: var(--theme-bg-red);
+    background: var(--theme-designer-header-background-3);
   }
 
   .header.isGrayed {
-    background: var(--theme-bg-2);
+    background: var(--theme-designer-header-background-grayed);
   }
   .close {
-    background: var(--theme-bg-1);
+    background: var(--theme-designer-close-background);
   }
   .close:hover {
-    background: var(--theme-bg-2);
+    background: var(--theme-designer-close-background-hover);
   }
   .close:active:hover {
-    background: var(--theme-bg-3);
+    background: var(--theme-designer-close-background-active);
   }
   .columns {
     width: calc(100% - 10px);

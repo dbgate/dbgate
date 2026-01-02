@@ -80,7 +80,7 @@
 
 <style>
   .msg {
-    background: var(--theme-bg-1);
+    background: var(--theme-altsidebar-background-grayed);
     flex: 1;
     padding: 10px;
   }

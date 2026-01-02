@@ -1,0 +1,288 @@
+/* Force all Tailwind color variables to be included in build */
+body {
+    /* Slate */
+    --tw-copy-slate-50: var(--tw-color-slate-50);
+    --tw-copy-slate-100: var(--tw-color-slate-100);
+    --tw-copy-slate-200: var(--tw-color-slate-200);
+    --tw-copy-slate-300: var(--tw-color-slate-300);
+    --tw-copy-slate-400: var(--tw-color-slate-400);
+    --tw-copy-slate-500: var(--tw-color-slate-500);
+    --tw-copy-slate-600: var(--tw-color-slate-600);
+    --tw-copy-slate-700: var(--tw-color-slate-700);
+    --tw-copy-slate-800: var(--tw-color-slate-800);
+    --tw-copy-slate-900: var(--tw-color-slate-900);
+    --tw-copy-slate-950: var(--tw-color-slate-950);
+    
+    /* Gray */
+    --tw-copy-gray-50: var(--tw-color-gray-50);
+    --tw-copy-gray-100: var(--tw-color-gray-100);
+    --tw-copy-gray-200: var(--tw-color-gray-200);
+    --tw-copy-gray-300: var(--tw-color-gray-300);
+    --tw-copy-gray-400: var(--tw-color-gray-400);
+    --tw-copy-gray-500: var(--tw-color-gray-500);
+    --tw-copy-gray-600: var(--tw-color-gray-600);
+    --tw-copy-gray-700: var(--tw-color-gray-700);
+    --tw-copy-gray-800: var(--tw-color-gray-800);
+    --tw-copy-gray-900: var(--tw-color-gray-900);
+    --tw-copy-gray-950: var(--tw-color-gray-950);
+    
+    /* Zinc */
+    --tw-copy-zinc-50: var(--tw-color-zinc-50);
+    --tw-copy-zinc-100: var(--tw-color-zinc-100);
+    --tw-copy-zinc-200: var(--tw-color-zinc-200);
+    --tw-copy-zinc-300: var(--tw-color-zinc-300);
+    --tw-copy-zinc-400: var(--tw-color-zinc-400);
+    --tw-copy-zinc-500: var(--tw-color-zinc-500);
+    --tw-copy-zinc-600: var(--tw-color-zinc-600);
+    --tw-copy-zinc-700: var(--tw-color-zinc-700);
+    --tw-copy-zinc-800: var(--tw-color-zinc-800);
+    --tw-copy-zinc-900: var(--tw-color-zinc-900);
+    --tw-copy-zinc-950: var(--tw-color-zinc-950);
+    
+    /* Neutral */
+    --tw-copy-neutral-50: var(--tw-color-neutral-50);
+    --tw-copy-neutral-100: var(--tw-color-neutral-100);
+    --tw-copy-neutral-200: var(--tw-color-neutral-200);
+    --tw-copy-neutral-300: var(--tw-color-neutral-300);
+    --tw-copy-neutral-400: var(--tw-color-neutral-400);
+    --tw-copy-neutral-500: var(--tw-color-neutral-500);
+    --tw-copy-neutral-600: var(--tw-color-neutral-600);
+    --tw-copy-neutral-700: var(--tw-color-neutral-700);
+    --tw-copy-neutral-800: var(--tw-color-neutral-800);
+    --tw-copy-neutral-900: var(--tw-color-neutral-900);
+    --tw-copy-neutral-950: var(--tw-color-neutral-950);
+    
+    /* Stone */
+    --tw-copy-stone-50: var(--tw-color-stone-50);
+    --tw-copy-stone-100: var(--tw-color-stone-100);
+    --tw-copy-stone-200: var(--tw-color-stone-200);
+    --tw-copy-stone-300: var(--tw-color-stone-300);
+    --tw-copy-stone-400: var(--tw-color-stone-400);
+    --tw-copy-stone-500: var(--tw-color-stone-500);
+    --tw-copy-stone-600: var(--tw-color-stone-600);
+    --tw-copy-stone-700: var(--tw-color-stone-700);
+    --tw-copy-stone-800: var(--tw-color-stone-800);
+    --tw-copy-stone-900: var(--tw-color-stone-900);
+    --tw-copy-stone-950: var(--tw-color-stone-950);
+    
+    /* Red */
+    --tw-copy-red-50: var(--tw-color-red-50);
+    --tw-copy-red-100: var(--tw-color-red-100);
+    --tw-copy-red-200: var(--tw-color-red-200);
+    --tw-copy-red-300: var(--tw-color-red-300);
+    --tw-copy-red-400: var(--tw-color-red-400);
+    --tw-copy-red-500: var(--tw-color-red-500);
+    --tw-copy-red-600: var(--tw-color-red-600);
+    --tw-copy-red-700: var(--tw-color-red-700);
+    --tw-copy-red-800: var(--tw-color-red-800);
+    --tw-copy-red-900: var(--tw-color-red-900);
+    --tw-copy-red-950: var(--tw-color-red-950);
+    
+    /* Orange */
+    --tw-copy-orange-50: var(--tw-color-orange-50);
+    --tw-copy-orange-100: var(--tw-color-orange-100);
+    --tw-copy-orange-200: var(--tw-color-orange-200);
+    --tw-copy-orange-300: var(--tw-color-orange-300);
+    --tw-copy-orange-400: var(--tw-color-orange-400);
+    --tw-copy-orange-500: var(--tw-color-orange-500);
+    --tw-copy-orange-600: var(--tw-color-orange-600);
+    --tw-copy-orange-700: var(--tw-color-orange-700);
+    --tw-copy-orange-800: var(--tw-color-orange-800);
+    --tw-copy-orange-900: var(--tw-color-orange-900);
+    --tw-copy-orange-950: var(--tw-color-orange-950);
+    
+    /* Amber */
+    --tw-copy-amber-50: var(--tw-color-amber-50);
+    --tw-copy-amber-100: var(--tw-color-amber-100);
+    --tw-copy-amber-200: var(--tw-color-amber-200);
+    --tw-copy-amber-300: var(--tw-color-amber-300);
+    --tw-copy-amber-400: var(--tw-color-amber-400);
+    --tw-copy-amber-500: var(--tw-color-amber-500);
+    --tw-copy-amber-600: var(--tw-color-amber-600);
+    --tw-copy-amber-700: var(--tw-color-amber-700);
+    --tw-copy-amber-800: var(--tw-color-amber-800);
+    --tw-copy-amber-900: var(--tw-color-amber-900);
+    --tw-copy-amber-950: var(--tw-color-amber-950);
+    
+    /* Yellow */
+    --tw-copy-yellow-50: var(--tw-color-yellow-50);
+    --tw-copy-yellow-100: var(--tw-color-yellow-100);
+    --tw-copy-yellow-200: var(--tw-color-yellow-200);
+    --tw-copy-yellow-300: var(--tw-color-yellow-300);
+    --tw-copy-yellow-400: var(--tw-color-yellow-400);
+    --tw-copy-yellow-500: var(--tw-color-yellow-500);
+    --tw-copy-yellow-600: var(--tw-color-yellow-600);
+    --tw-copy-yellow-700: var(--tw-color-yellow-700);
+    --tw-copy-yellow-800: var(--tw-color-yellow-800);
+    --tw-copy-yellow-900: var(--tw-color-yellow-900);
+    --tw-copy-yellow-950: var(--tw-color-yellow-950);
+    
+    /* Lime */
+    --tw-copy-lime-50: var(--tw-color-lime-50);
+    --tw-copy-lime-100: var(--tw-color-lime-100);
+    --tw-copy-lime-200: var(--tw-color-lime-200);
+    --tw-copy-lime-300: var(--tw-color-lime-300);
+    --tw-copy-lime-400: var(--tw-color-lime-400);
+    --tw-copy-lime-500: var(--tw-color-lime-500);
+    --tw-copy-lime-600: var(--tw-color-lime-600);
+    --tw-copy-lime-700: var(--tw-color-lime-700);
+    --tw-copy-lime-800: var(--tw-color-lime-800);
+    --tw-copy-lime-900: var(--tw-color-lime-900);
+    --tw-copy-lime-950: var(--tw-color-lime-950);
+    
+    /* Green */
+    --tw-copy-green-50: var(--tw-color-green-50);
+    --tw-copy-green-100: var(--tw-color-green-100);
+    --tw-copy-green-200: var(--tw-color-green-200);
+    --tw-copy-green-300: var(--tw-color-green-300);
+    --tw-copy-green-400: var(--tw-color-green-400);
+    --tw-copy-green-500: var(--tw-color-green-500);
+    --tw-copy-green-600: var(--tw-color-green-600);
+    --tw-copy-green-700: var(--tw-color-green-700);
+    --tw-copy-green-800: var(--tw-color-green-800);
+    --tw-copy-green-900: var(--tw-color-green-900);
+    --tw-copy-green-950: var(--tw-color-green-950);
+    
+    /* Emerald */
+    --tw-copy-emerald-50: var(--tw-color-emerald-50);
+    --tw-copy-emerald-100: var(--tw-color-emerald-100);
+    --tw-copy-emerald-200: var(--tw-color-emerald-200);
+    --tw-copy-emerald-300: var(--tw-color-emerald-300);
+    --tw-copy-emerald-400: var(--tw-color-emerald-400);
+    --tw-copy-emerald-500: var(--tw-color-emerald-500);
+    --tw-copy-emerald-600: var(--tw-color-emerald-600);
+    --tw-copy-emerald-700: var(--tw-color-emerald-700);
+    --tw-copy-emerald-800: var(--tw-color-emerald-800);
+    --tw-copy-emerald-900: var(--tw-color-emerald-900);
+    --tw-copy-emerald-950: var(--tw-color-emerald-950);
+    
+    /* Teal */
+    --tw-copy-teal-50: var(--tw-color-teal-50);
+    --tw-copy-teal-100: var(--tw-color-teal-100);
+    --tw-copy-teal-200: var(--tw-color-teal-200);
+    --tw-copy-teal-300: var(--tw-color-teal-300);
+    --tw-copy-teal-400: var(--tw-color-teal-400);
+    --tw-copy-teal-500: var(--tw-color-teal-500);
+    --tw-copy-teal-600: var(--tw-color-teal-600);
+    --tw-copy-teal-700: var(--tw-color-teal-700);
+    --tw-copy-teal-800: var(--tw-color-teal-800);
+    --tw-copy-teal-900: var(--tw-color-teal-900);
+    --tw-copy-teal-950: var(--tw-color-teal-950);
+    
+    /* Cyan */
+    --tw-copy-cyan-50: var(--tw-color-cyan-50);
+    --tw-copy-cyan-100: var(--tw-color-cyan-100);
+    --tw-copy-cyan-200: var(--tw-color-cyan-200);
+    --tw-copy-cyan-300: var(--tw-color-cyan-300);
+    --tw-copy-cyan-400: var(--tw-color-cyan-400);
+    --tw-copy-cyan-500: var(--tw-color-cyan-500);
+    --tw-copy-cyan-600: var(--tw-color-cyan-600);
+    --tw-copy-cyan-700: var(--tw-color-cyan-700);
+    --tw-copy-cyan-800: var(--tw-color-cyan-800);
+    --tw-copy-cyan-900: var(--tw-color-cyan-900);
+    --tw-copy-cyan-950: var(--tw-color-cyan-950);
+    
+    /* Sky */
+    --tw-copy-sky-50: var(--tw-color-sky-50);
+    --tw-copy-sky-100: var(--tw-color-sky-100);
+    --tw-copy-sky-200: var(--tw-color-sky-200);
+    --tw-copy-sky-300: var(--tw-color-sky-300);
+    --tw-copy-sky-400: var(--tw-color-sky-400);
+    --tw-copy-sky-500: var(--tw-color-sky-500);
+    --tw-copy-sky-600: var(--tw-color-sky-600);
+    --tw-copy-sky-700: var(--tw-color-sky-700);
+    --tw-copy-sky-800: var(--tw-color-sky-800);
+    --tw-copy-sky-900: var(--tw-color-sky-900);
+    --tw-copy-sky-950: var(--tw-color-sky-950);
+    
+    /* Blue */
+    --tw-copy-blue-50: var(--tw-color-blue-50);
+    --tw-copy-blue-100: var(--tw-color-blue-100);
+    --tw-copy-blue-200: var(--tw-color-blue-200);
+    --tw-copy-blue-300: var(--tw-color-blue-300);
+    --tw-copy-blue-400: var(--tw-color-blue-400);
+    --tw-copy-blue-500: var(--tw-color-blue-500);
+    --tw-copy-blue-600: var(--tw-color-blue-600);
+    --tw-copy-blue-700: var(--tw-color-blue-700);
+    --tw-copy-blue-800: var(--tw-color-blue-800);
+    --tw-copy-blue-900: var(--tw-color-blue-900);
+    --tw-copy-blue-950: var(--tw-color-blue-950);
+    
+    /* Indigo */
+    --tw-copy-indigo-50: var(--tw-color-indigo-50);
+    --tw-copy-indigo-100: var(--tw-color-indigo-100);
+    --tw-copy-indigo-200: var(--tw-color-indigo-200);
+    --tw-copy-indigo-300: var(--tw-color-indigo-300);
+    --tw-copy-indigo-400: var(--tw-color-indigo-400);
+    --tw-copy-indigo-500: var(--tw-color-indigo-500);
+    --tw-copy-indigo-600: var(--tw-color-indigo-600);
+    --tw-copy-indigo-700: var(--tw-color-indigo-700);
+    --tw-copy-indigo-800: var(--tw-color-indigo-800);
+    --tw-copy-indigo-900: var(--tw-color-indigo-900);
+    --tw-copy-indigo-950: var(--tw-color-indigo-950);
+    
+    /* Violet */
+    --tw-copy-violet-50: var(--tw-color-violet-50);
+    --tw-copy-violet-100: var(--tw-color-violet-100);
+    --tw-copy-violet-200: var(--tw-color-violet-200);
+    --tw-copy-violet-300: var(--tw-color-violet-300);
+    --tw-copy-violet-400: var(--tw-color-violet-400);
+    --tw-copy-violet-500: var(--tw-color-violet-500);
+    --tw-copy-violet-600: var(--tw-color-violet-600);
+    --tw-copy-violet-700: var(--tw-color-violet-700);
+    --tw-copy-violet-800: var(--tw-color-violet-800);
+    --tw-copy-violet-900: var(--tw-color-violet-900);
+    --tw-copy-violet-950: var(--tw-color-violet-950);
+    
+    /* Purple */
+    --tw-copy-purple-50: var(--tw-color-purple-50);
+    --tw-copy-purple-100: var(--tw-color-purple-100);
+    --tw-copy-purple-200: var(--tw-color-purple-200);
+    --tw-copy-purple-300: var(--tw-color-purple-300);
+    --tw-copy-purple-400: var(--tw-color-purple-400);
+    --tw-copy-purple-500: var(--tw-color-purple-500);
+    --tw-copy-purple-600: var(--tw-color-purple-600);
+    --tw-copy-purple-700: var(--tw-color-purple-700);
+    --tw-copy-purple-800: var(--tw-color-purple-800);
+    --tw-copy-purple-900: var(--tw-color-purple-900);
+    --tw-copy-purple-950: var(--tw-color-purple-950);
+    
+    /* Fuchsia */
+    --tw-copy-fuchsia-50: var(--tw-color-fuchsia-50);
+    --tw-copy-fuchsia-100: var(--tw-color-fuchsia-100);
+    --tw-copy-fuchsia-200: var(--tw-color-fuchsia-200);
+    --tw-copy-fuchsia-300: var(--tw-color-fuchsia-300);
+    --tw-copy-fuchsia-400: var(--tw-color-fuchsia-400);
+    --tw-copy-fuchsia-500: var(--tw-color-fuchsia-500);
+    --tw-copy-fuchsia-600: var(--tw-color-fuchsia-600);
+    --tw-copy-fuchsia-700: var(--tw-color-fuchsia-700);
+    --tw-copy-fuchsia-800: var(--tw-color-fuchsia-800);
+    --tw-copy-fuchsia-900: var(--tw-color-fuchsia-900);
+    --tw-copy-fuchsia-950: var(--tw-color-fuchsia-950);
+    
+    /* Pink */
+    --tw-copy-pink-50: var(--tw-color-pink-50);
+    --tw-copy-pink-100: var(--tw-color-pink-100);
+    --tw-copy-pink-200: var(--tw-color-pink-200);
+    --tw-copy-pink-300: var(--tw-color-pink-300);
+    --tw-copy-pink-400: var(--tw-color-pink-400);
+    --tw-copy-pink-500: var(--tw-color-pink-500);
+    --tw-copy-pink-600: var(--tw-color-pink-600);
+    --tw-copy-pink-700: var(--tw-color-pink-700);
+    --tw-copy-pink-800: var(--tw-color-pink-800);
+    --tw-copy-pink-900: var(--tw-color-pink-900);
+    --tw-copy-pink-950: var(--tw-color-pink-950);
+    
+    /* Rose */
+    --tw-copy-rose-50: var(--tw-color-rose-50);
+    --tw-copy-rose-100: var(--tw-color-rose-100);
+    --tw-copy-rose-200: var(--tw-color-rose-200);
+    --tw-copy-rose-300: var(--tw-color-rose-300);
+    --tw-copy-rose-400: var(--tw-color-rose-400);
+    --tw-copy-rose-500: var(--tw-color-rose-500);
+    --tw-copy-rose-600: var(--tw-color-rose-600);
+    --tw-copy-rose-700: var(--tw-color-rose-700);
+    --tw-copy-rose-800: var(--tw-color-rose-800);
+    --tw-copy-rose-900: var(--tw-color-rose-900);
+    --tw-copy-rose-950: var(--tw-color-rose-950);
+}

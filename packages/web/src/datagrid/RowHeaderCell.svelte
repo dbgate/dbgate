@@ -33,10 +33,13 @@
 
 <style>
   td {
-    border: 1px solid var(--theme-border);
+    border-top: var(--theme-datagrid-border-horizontal);
+    border-bottom: var(--theme-datagrid-border-horizontal);
+    border-left: var(--theme-datagrid-border-vertical);
+    border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 2px;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-datagrid-headercell-background);
     overflow: hidden;
     position: relative;
   }
@@ -46,6 +49,6 @@
     top: 1px;
   }
   :global(.data-grid-focused) td.selected {
-    background-color: var(--theme-bg-selected);
+    background-color: var(--theme-datagrid-focused-cell-background);
   }
 </style>

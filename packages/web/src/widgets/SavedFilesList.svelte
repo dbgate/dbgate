@@ -29,6 +29,7 @@
   const dbCompareJobFiles = useFiles({ folder: 'dbcompare' });
   const perspectiveFiles = useFiles({ folder: 'perspectives' });
   const modelTransformFiles = useFiles({ folder: 'modtrans' });
+  const themeFiles = useFiles({ folder: 'themes' });
   const appFiles = useFiles({ folder: 'apps' });
   const teamFiles = useTeamFiles({});
 
@@ -43,6 +44,7 @@
     ...($perspectiveFiles || []),
     ...($importExportJobFiles || []),
     ...($modelTransformFiles || []),
+    ...($themeFiles || []),
     ...((isProApp() && $dataDeployJobFiles) || []),
     ...((isProApp() && $dbCompareJobFiles) || []),
     ...((isProApp() && $appFiles) || []),
@@ -65,7 +67,7 @@
   }
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput placeholder={_t('files.searchSavedFiles', { defaultMessage: "Search saved files" })} bind:value={filter} />
   <CloseSearchButton bind:filter />
   <InlineUploadButton

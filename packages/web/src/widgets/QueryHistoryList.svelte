@@ -38,7 +38,7 @@
   });
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput placeholder={_t('history.searchQueryHistory', { defaultMessage: "Search query history" })} {filter} bind:value={filter} />
   <CloseSearchButton
     bind:filter

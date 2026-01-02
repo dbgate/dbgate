@@ -12,21 +12,47 @@ body {
 }
 
 .horizontal-split-handle {
-  background-color: var(--theme-border);
-  width: var(--dim-splitter-thickness);
+  width: 0px;
+  position: relative;
   cursor: col-resize;
 }
-.horizontal-split-handle:hover {
-  background-color: var(--theme-bg-2);
+.horizontal-split-handle::before {
+  content: '';
+  position: absolute;
+  cursor: col-resize;
+  left: -1px;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: var(--dim-splitter-thickness);
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  z-index: 200;
+}
+.horizontal-split-handle:hover::before {
+  background-color: var(--theme-splitter-active);
 }
 
 .vertical-split-handle {
-  background-color: var(--theme-border);
-  height: var(--dim-splitter-thickness);
+  height: 0px;
+  position: relative;
   cursor: row-resize;
 }
-.vertical-split-handle:hover {
-  background-color: var(--theme-bg-2);
+.vertical-split-handle::before {
+  content: '';
+  position: absolute;
+  cursor: row-resize;
+  top: -1px;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: var(--dim-splitter-thickness);
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  z-index: 200;
+}
+.vertical-split-handle:hover::before {
+  background-color: var(--theme-splitter-active);
 }
 
 .icon-invisible {
@@ -117,13 +143,17 @@ body {
   max-width: 16.6666%;
 }
 
-.largeFormMarker input[type='text'], .largeFormMarker input[type='number'], .largeFormMarker input[type='password'], .largeFormMarker textarea  {
+.largeFormMarker input[type='text'],
+.largeFormMarker input[type='number'],
+.largeFormMarker input[type='password'],
+.largeFormMarker textarea {
   width: 100%;
   padding: 10px 10px;
   font-size: 14px;
   box-sizing: border-box;
   border-radius: 4px;
-  border: 1px solid var(--theme-border);
+  border: var(--theme-input-border);
+  background: var(--theme-input-background);
 }
 
 .input1 {
@@ -131,7 +161,8 @@ body {
   font-size: 14px;
   box-sizing: border-box;
   border-radius: 4px;
-  border: 1px solid var(--theme-border);
+  border: var(--theme-input-border);
+  background: var(--theme-input-background);
 }
 
 .largeFormMarker select {
@@ -148,40 +179,52 @@ body *::-webkit-scrollbar {
 }
 body *::-webkit-scrollbar-track {
   border-radius: 1px;
-  background-color: var(--theme-bg-1);
+  background: var(--theme-scrollbar-background);
 }
 body *::-webkit-scrollbar-corner {
   border-radius: 1px;
-  background-color: var(--theme-bg-2);
+  background: var(--theme-scrollbar-corner-background);
 }
 
 body *::-webkit-scrollbar-thumb {
   border-radius: 1px;
-  background-color: var(--theme-bg-3);
+  background: var(--theme-scrollbar-thumb-background);
 }
 
 body *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--theme-bg-4);
+  background: var(--theme-scrollbar-thumb-background-hover);
 }
 
 input {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
+  background: var(--theme-input-background);
+  color: var(--theme-generic-font);
+  border: var(--theme-input-border);
 }
 
 input[disabled] {
-  background-color: var(--theme-bg-1);
+  background: var(--theme-input-background-disabled);
+  color: var(--theme-input-foreground-disabled);  
+}
+
+.largeFormMarker input[disabled] {
+  background: var(--theme-input-background-disabled);
+  color: var(--theme-input-foreground-disabled);  
 }
 
 select {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
+  background: var(--theme-input-background);
+  color: var(--theme-generic-font);
+  border: var(--theme-input-border);
 }
 
 select[disabled] {
-  background-color: var(--theme-bg-1);
+  background: var(--theme-input-background-disabled);
+  color: var(--theme-input-foreground-disabled);
+}
+
+.largeFormMarker select[disabled] {
+  background: var(--theme-input-background-disabled);
+  color: var(--theme-input-foreground-disabled);  
 }
 
 .classicform select {
@@ -189,13 +232,14 @@ select[disabled] {
 }
 
 textarea {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
+  background: var(--theme-input-background);
+  color: var(--theme-generic-font);
+  border: var(--theme-input-border);
 }
 
 textarea[disabled] {
-  background-color: var(--theme-bg-1);
+  background: var(--theme-input-background-disabled);
+  color: var(--theme-input-foreground-disabled);
 }
 
 .ace_gutter-cell.ace-gutter-sql-run {
@@ -219,11 +263,42 @@ textarea[disabled] {
 }
 
 .ace_gutter-cell.ace-gutter-sql-run:hover {
-   background-color: var(--theme-bg-2);
+  background-color: var(--theme-bg-2);
 }
 
 .ace_gutter-cell.ace-gutter-current-part {
-   /* background-color: var(--theme-bg-2); */
-   font-weight: bold;
-   color: var(--theme-font-hover);
+  /* background-color: var(--theme-bg-2); */
+  font-weight: bold;
+  color: var(--theme-font-hover);
 }
+
+input[type='checkbox'] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: var(--theme-checkbox-border);
+  border-radius: 4px;
+  background: transparent;
+  display: inline-grid;
+  place-content: center;
+}
+input[type='checkbox']:checked {
+  background: var(--theme-checkbox-background);
+  border-color: var(--theme-checkbox-background);
+}
+input[type='checkbox']:checked::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+  background: var(--theme-checkbox-mark);
+}
+input[type='checkbox']:not(:checked)::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+}
+/* input[type='checkbox']:focus-visible{
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+} */

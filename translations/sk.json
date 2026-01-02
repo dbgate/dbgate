@@ -1264,7 +1264,6 @@
   "settings.appearance": "Vzhľad aplikácie",
   "settings.appearance.afterInstalling": "Po nainštalovaní (skúste vyhľadať \"themes\" v dostupných rozšíreniach) budú nové témy k dispozícii tu.",
   "settings.appearance.customSize": "Vlastná veľkosť",
-  "settings.appearance.editorTheme": "Téma",
   "settings.appearance.editorTheme.default": "(použiť predvolenú tému)",
   "settings.appearance.fontFamily": "Písmo editora",
   "settings.appearance.fontSize": "Veľkosť písma",

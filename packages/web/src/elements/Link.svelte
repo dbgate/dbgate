@@ -25,7 +25,7 @@
   a {
     text-decoration: none;
     cursor: pointer;
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
   }
   a:hover {
     text-decoration: underline;

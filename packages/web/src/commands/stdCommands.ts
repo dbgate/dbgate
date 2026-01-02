@@ -1,7 +1,6 @@
 import {
   cloudSigninTokenHolder,
   currentDatabase,
-  currentTheme,
   emptyConnectionGroupNames,
   extensions,
   getAppUpdaterActive,
@@ -651,9 +650,11 @@ registerCommand({
   onClick: () => {
     const keys = [
       'leftPanelWidth',
+      'rightPanelWidth',
       'visibleToolbar',
       'selectedWidget',
-      'currentTheme',
+      'currentThemeType',
+      'currentThemeVariables',
 
       'connectionsWidget',
       'pinnedItemsWidget',

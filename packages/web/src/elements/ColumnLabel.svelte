@@ -79,6 +79,6 @@
   .extinfo {
     font-weight: normal;
     margin-left: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-datagrid-foreground-grayed);
   }
 </style>

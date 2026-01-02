@@ -193,6 +193,11 @@ const promoWidgetLoader = () => ({
   params: {},
   reloadTrigger: { key: `promo-widget-changed` },
 });
+const fileThemesLoader = () => ({
+  url: 'files/get-file-themes',
+  params: {},
+  reloadTrigger: { key: `file-themes-changed` },
+});
 
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform, onLoaded, errorValue } = loader(args);
@@ -546,4 +551,11 @@ export function getPromoWidget(args) {
 }
 export function usePromoWidget(args) {
   return useCore(promoWidgetLoader, args);
+}
+
+export function getFileThemes(args = {}) {
+  return getCore(fileThemesLoader, args);
+}
+export function useFileThemes(args = {}) {
+  return useCore(fileThemesLoader, args);
 }

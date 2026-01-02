@@ -34,7 +34,7 @@
     type={isCrypted || showPassword ? 'text' : 'password'}
   />
   {#if !isCrypted}
-    <InlineButton on:click={() => (showPassword = !showPassword)} {disabled}>
+    <InlineButton on:click={() => (showPassword = !showPassword)} {disabled} useBorder>
       <FontIcon icon="icon eye" />
     </InlineButton>
   {/if}

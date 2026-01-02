@@ -335,13 +335,13 @@
     border-radius: 5px;
     cursor: pointer;
 
-    border: 1px solid var(--theme-bg-button-inv-3);
-    background-color: var(--theme-bg-button-inv-2);
-    color: var(--theme-font-inv-1);
+    border: var(--theme-formbutton-border);
+    background: var(--theme-formbutton-background);
+    color: var(--theme-formbutton-foreground);
   }
 
   .loginButton:hover {
-    background-color: var(--theme-bg-button-inv-3);
+    background: var(--theme-formbutton-background-hover);
   }
 
   .login-link {

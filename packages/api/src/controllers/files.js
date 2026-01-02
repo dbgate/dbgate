@@ -68,6 +68,9 @@ module.exports = {
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
+    if (folder == 'themes') {
+      socket.emitChanged(`file-themes-changed`);
+    }
     return true;
   },
 
@@ -173,6 +176,9 @@ module.exports = {
       if (folder == 'shell') {
         scheduler.reload();
       }
+      if (folder == 'themes') {
+        socket.emitChanged(`file-themes-changed`);
+      }
       return true;
     }
   },
@@ -240,8 +246,8 @@ module.exports = {
   },
 
   exportDiagram_meta: true,
-  async exportDiagram({ filePath, html, css, themeType, themeClassName, watermark }) {
-    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName, watermark));
+  async exportDiagram({ filePath, html, css, themeType, themeVariables, watermark }) {
+    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeVariables, watermark));
     return true;
   },
 
@@ -343,6 +349,22 @@ module.exports = {
     const res = getRecentAppLogRecords();
     if (limit) {
       return res.slice(-limit);
+    }
+    return res;
+  },
+
+  getFileThemes_meta: true,
+  async getFileThemes(_params, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`files/themes/read`, loadedPermissions)) return [];
+    const dir = path.join(filesdir(), 'themes');
+    if (!(await fs.exists(dir))) return [];
+    const files = await fs.readdir(dir);
+    const res = [];
+    for (const file of files) {
+      const filePath = path.join(dir, file);
+      const text = await fs.readFile(filePath, { encoding: 'utf-8' });
+      res.push(JSON.parse(text));
     }
     return res;
   },

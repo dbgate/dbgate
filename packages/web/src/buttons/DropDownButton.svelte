@@ -12,6 +12,8 @@
   export let square = true;
   export let disabled = false;
   export let title = undefined;
+  export let circleHover = false;
+  export let useBorder = false;
 
   let domButton;
   let isLoading = false;
@@ -42,6 +44,8 @@
   {disabled}
   data-testid={$$props['data-testid']}
   {title}
+  {circleHover}
+  {useBorder}
 >
   <FontIcon icon={isLoading ? 'icon loading' : icon} />
 </InlineButton>

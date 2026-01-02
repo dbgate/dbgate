@@ -20,7 +20,7 @@
   // $: setDebouncedFilter(filter);
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput placeholder={_t('plugins.searchExtensionsOnWeb', { defaultMessage: 'Search extensions on web' })} {filter} bind:value={filter} />
 </SearchBoxWrapper>
 <WidgetsInnerContainer>

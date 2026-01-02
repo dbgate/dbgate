@@ -17,7 +17,6 @@
 
   $: value = $values[name];
   $: isCrypted = value && value.startsWith('crypt:');
-
 </script>
 
 <div class="flex">
@@ -27,5 +26,5 @@
     value={$values[name] ?? defaultValue}
     on:input={e => setFieldValue(name, e.target['value'])}
   />
-  <DropDownButton {menu} {asyncMenu} {disabled} />
+  <DropDownButton {menu} {asyncMenu} {disabled} useBorder />
 </div>

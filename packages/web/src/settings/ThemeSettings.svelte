@@ -1,23 +1,26 @@
 <script lang="ts">
-    import Link from "../elements/Link.svelte";
-    import CheckboxField from "../forms/CheckboxField.svelte";
-    import FormFieldTemplateLarge from "../forms/FormFieldTemplateLarge.svelte";
-    import SelectField from "../forms/SelectField.svelte";
-    import { currentEditorFontSize, currentEditorTheme, currentTheme, extensions, getSystemTheme, selectedWidget, visibleWidgetSideBar } from "../stores";
-    import { _t } from "../translations";
-    import ThemeSkeleton from "./ThemeSkeleton.svelte";
-    import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
-    import { closeCurrentModal } from "../modals/modalTools";
-    import TextField from "../forms/TextField.svelte";
-    import FormTextField from "../forms/FormTextField.svelte";
-    import SqlEditor from "../query/SqlEditor.svelte";
-
-    function openThemePlugins() {
-        closeCurrentModal();
-        $selectedWidget = 'plugins';
-        $visibleWidgetSideBar = true;
-    }
-
+  import CheckboxField from '../forms/CheckboxField.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
+  import SelectField from '../forms/SelectField.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import {
+    currentEditorFontSize,
+    currentEditorTheme,
+    rightPanelWidget,
+  } from '../stores';
+  import { _t } from '../translations';
+  import ThemeSkeleton from './ThemeSkeleton.svelte';
+  import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
+  import TextField from '../forms/TextField.svelte';
+  import FormTextField from '../forms/FormTextField.svelte';
+  import SqlEditor from '../query/SqlEditor.svelte';
+  import { isProApp } from '../utility/proTools';
+  import { currentThemeDefinition, getBuiltInTheme, getSystemThemeType, getBuiltInThemes, saveThemeToLocalFile } from '../plugins/themes';
+  import { apiCall } from '../utility/api';
+  import { showModal } from '../modals/modalTools';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import { useFileThemes, usePublicCloudFiles } from '../utility/metadataLoaders';
+  
     const sqlPreview = `-- example query
 SELECT
   MAX(Album.AlbumId) AS max_album,
@@ -33,113 +36,145 @@ GROUP BY
 ORDER BY
   Artist.Name ASC
   `;
+
+  function handleSaveTheme() {
+    saveThemeToLocalFile();
+  }
+
+  const fileThemes = useFileThemes();
+  const publicCloudFiles = usePublicCloudFiles();
+  $: allThemes = [
+    ...getBuiltInThemes(),
+    ...($fileThemes || []),
+    ...($publicCloudFiles || [])
+      ?.filter(x => x.type == 'theme')
+      ?.map(x => ({
+        themeName: x.title,
+        themePublicCloudPath: x.path,
+        ...x.attributes,
+      })),
+  ];
+
+  // $: console.log(
+  //   'THEME CLOUD',
+  //   ($publicCloudFiles || [])?.filter(x => x.type == 'theme')
+  // );
 </script>
 
 <div class="wrapper">
   <div class="heading">{_t('settings.applicationTheme', { defaultMessage: 'Application theme' })}</div>
 
   <FormFieldTemplateLarge
-  label={_t('settings.appearance.useSystemTheme', { defaultMessage: 'Use system theme' })}
-  type="checkbox"
-  labelProps={{
+    label={_t('settings.appearance.useSystemTheme', { defaultMessage: 'Use system theme' })}
+    type="checkbox"
+    labelProps={{
       onClick: () => {
-      if ($currentTheme) {
-          $currentTheme = null;
-      } else {
-          $currentTheme = getSystemTheme();
-      }
+        if ($currentThemeDefinition) {
+          $currentThemeDefinition = null;
+        } else {
+          $currentThemeDefinition = getBuiltInTheme(getSystemThemeType());
+        }
       },
-  }}
+    }}
   >
-  <CheckboxField
-      checked={!$currentTheme}
+    <CheckboxField
+      checked={!$currentThemeDefinition}
       on:change={e => {
-      if (e.target['checked']) {
-          $currentTheme = null;
-      } else {
-          $currentTheme = getSystemTheme();
-      }
+        if (e.target['checked']) {
+          $currentThemeDefinition = null;
+        } else {
+          $currentThemeDefinition = getBuiltInTheme(getSystemThemeType());
+        }
       }}
-  />
+    />
   </FormFieldTemplateLarge>
 
   <div class="themes">
-  {#each $extensions.themes as theme}
+    {#each allThemes as theme}
       <ThemeSkeleton {theme} />
-  {/each}
+    {/each}
   </div>
 
-  <div class="m-5">
-  {_t('settings.appearance.moreThemes', { defaultMessage: 'More themes are available as' })}
-  <Link onClick={openThemePlugins}>plugins</Link>
-  <br />
-  {_t('settings.appearance.afterInstalling', {
-      defaultMessage:
-      'After installing theme plugin (try search "theme" in available extensions) new themes will be available here.',
-  })}
+  <div class="buttonline">
+    <FormStyledButton
+      skipWidth
+      value={_t('theme.saveCurrentTheme', { defaultMessage: 'Save current theme' })}
+      on:click={handleSaveTheme}
+    />
+
+    {#if isProApp()}
+      <FormStyledButton
+        skipWidth
+        value={_t('theme.customizeWithAi', { defaultMessage: 'Customize with AI Assistant' })}
+        on:click={() => {
+          $rightPanelWidget = 'themeAiAssistant';
+        }}
+      />
+    {/if}
   </div>
 
   <div class="heading">{_t('settings.appearance.editorTheme', { defaultMessage: 'Editor theme' })}</div>
 
   <div class="flex">
-  <div class="col-3">
+    <div class="col-3">
       <FormFieldTemplateLarge
-      label={_t('settings.appearance.editorTheme', { defaultMessage: 'Theme' })}
-      type="combo"
+        label={_t('settings.appearance.editorTheme', { defaultMessage: 'Editor theme' })}
+        type="combo"
       >
-      <SelectField
+        <SelectField
           isNative
           notSelected={_t('settings.appearance.editorTheme.default', { defaultMessage: '(use theme default)' })}
           options={EDITOR_THEMES.map(theme => ({ label: theme, value: theme }))}
           value={$currentEditorTheme}
           on:change={e => ($currentEditorTheme = e.detail)}
-      />
+        />
       </FormFieldTemplateLarge>
-  </div>
+    </div>
 
-  <div class="col-3">
-      <FormFieldTemplateLarge
-      label={_t('settings.appearance.fontSize', { defaultMessage: 'Font size' })}
-      type="combo"
-      >
-      <SelectField
+    <div class="col-3">
+      <FormFieldTemplateLarge label={_t('settings.appearance.fontSize', { defaultMessage: 'Font size' })} type="combo">
+        <SelectField
           isNative
           notSelected="(default)"
           options={FONT_SIZES}
           value={FONT_SIZES.find(x => x.value == $currentEditorFontSize) ? $currentEditorFontSize : 'custom'}
           on:change={e => ($currentEditorFontSize = e.detail)}
-      />
+        />
       </FormFieldTemplateLarge>
-  </div>
+    </div>
 
-  <div class="col-3">
+    <div class="col-3">
       <FormFieldTemplateLarge
-      label={_t('settings.appearance.customSize', { defaultMessage: 'Custom size' })}
-      type="text"
+        label={_t('settings.appearance.customSize', { defaultMessage: 'Custom size' })}
+        type="text"
       >
-      <TextField
+        <TextField
           value={$currentEditorFontSize == 'custom' ? '' : $currentEditorFontSize}
           on:change={e => ($currentEditorFontSize = e.target['value'])}
-          disabled={!!FONT_SIZES.find(x => x.value == $currentEditorFontSize) &&
-          $currentEditorFontSize != 'custom'}
-      />
+          disabled={!!FONT_SIZES.find(x => x.value == $currentEditorFontSize) && $currentEditorFontSize != 'custom'}
+        />
       </FormFieldTemplateLarge>
-  </div>
+    </div>
 
-  <div class="col-3">
+    <div class="col-3">
       <FormTextField
-      name="editor.fontFamily"
-      label={_t('settings.appearance.fontFamily', { defaultMessage: 'Editor font family' })}
+        name="editor.fontFamily"
+        label={_t('settings.appearance.fontFamily', { defaultMessage: 'Editor font family' })}
       />
-  </div>
+    </div>
   </div>
 
   <div class="editor">
-  <SqlEditor value={sqlPreview} readOnly />
+    <SqlEditor value={sqlPreview} readOnly />
   </div>
 </div>
 
 <style>
+  .buttonline {
+    margin-left: var(--dim-large-form-margin);
+    margin-top: var(--dim-large-form-margin);
+  }
+
   .heading {
     font-size: 20px;
     margin: 5px;
@@ -160,5 +195,12 @@ ORDER BY
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
     margin-bottom: var(--dim-large-form-margin);
+  }
+
+  .ai-assistant-panel {
+    flex: 1;
+    display: flex;
+    background-color: var(--theme-altsidebar-background);
+    border-left: var(--theme-altsidebar-border);
   }
 </style>

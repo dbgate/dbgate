@@ -8,12 +8,12 @@
 
 <style>
   label {
-    border: 1px solid var(--theme-bg-button-inv-2);
+    border: var(--theme-formbutton-border);
     padding: 4px;
     margin: 2px;
     width: 100px;
-    background-color: var(--theme-bg-button-inv);
-    color: var(--theme-font-inv-1);
+    background: var(--theme-formbutton-background);
+    color: var(--theme-formbutton-foreground);
     border-radius: 2px;
     position: relative;
     top: 3px;
@@ -21,13 +21,13 @@
   }
 
   label:hover:not(.disabled) {
-    background-color: var(--theme-bg-button-inv-2);
+    background: var(--theme-formbutton-background-hover);
   }
   label:active:not(.disabled) {
-    background-color: var(--theme-bg-button-inv-3);
+    background: var(--theme-formbutton-background-active);
   }
   label.disabled {
-    background-color: var(--theme-bg-button-inv-3);
-    color: var(--theme-font-inv-3);
+    background: var(--theme-formbutton-background-disabled);
+    color: var(--theme-formbutton-foreground-disabled);
   }
 </style>

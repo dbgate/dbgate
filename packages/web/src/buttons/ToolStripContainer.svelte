@@ -13,16 +13,23 @@
 
   export let scrollContent = false;
   export let hideToolStrip = false;
+  export let toolstripPosition = 'top'; // 'top' | 'bottom'
 
   $: isComponentActive = showAlways || ($isComponentActiveStore('ToolStripContainer', thisInstance) && !hideToolStrip);
 </script>
 
 <div class="wrapper">
+  {#if isComponentActive && toolstripPosition === 'top'}
+    <div class="toolstrip">
+      <slot name="toolstrip" />
+    </div>
+  {/if}
+
   <div class="content" class:scrollContent class:isComponentActive>
     <slot />
   </div>
 
-  {#if isComponentActive}
+  {#if isComponentActive && toolstripPosition === 'bottom'}
     <div class="toolstrip">
       <slot name="toolstrip" />
     </div>
@@ -36,7 +43,6 @@
     flex-direction: column;
   }
   .content {
-    border-bottom: 1px solid var(--theme-border);
     display: flex;
     flex: 1;
     position: relative;
@@ -44,13 +50,20 @@
   }
 
   .content.isComponentActive {
-    max-height: calc(100% - 30px);
+    max-height: calc(100% - 32px);
   }
 
   .toolstrip {
     display: flex;
     flex-wrap: wrap;
-    background: var(--theme-bg-1);
+    align-items: center;
+    background: var(--theme-toolstrip-background);
+    border-top: var(--theme-toolstrip-border);
+    border-bottom: var(--theme-toolstrip-border);
+    padding: 2px 6px;
+    gap: 2px;
+    min-height: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   .scrollContent {

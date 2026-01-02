@@ -47,7 +47,7 @@
   }
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput
     placeholder="Search connection or database"
     bind:value={filter}

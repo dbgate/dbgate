@@ -75,31 +75,31 @@
 
 <style>
   .file-input-btn {
-    border: 1px solid var(--theme-bg-button-inv-2);
+    border: var(--theme-formbutton-border);
     padding: 5px;
     margin: 2px;
-    background-color: var(--theme-bg-button-inv);
-    color: var(--theme-font-inv-1);
+    background: var(--theme-formbutton-background);
+    color: var(--theme-formbutton-foreground);
     border-radius: 2px;
     cursor: pointer;
   }
 
   .file-input-btn:hover:not(:disabled) {
-    background-color: var(--theme-bg-button-inv-2);
+    background: var(--theme-formbutton-background-hover);
   }
 
   .file-input-btn:active:not(:disabled) {
-    background-color: var(--theme-bg-button-inv-3);
+    background: var(--theme-formbutton-background-active);
   }
 
   .file-input-btn:focus {
-    outline: 2px solid var(--theme-bg-button-inv-2);
+    outline: var(--theme-formbutton-border-active);
     outline-offset: 2px;
   }
 
   .file-input-btn:disabled {
-    background-color: var(--theme-bg-button-inv-3);
-    color: var(--theme-font-inv-3);
+    background: var(--theme-formbutton-background-disabled);
+    color: var(--theme-formbutton-foreground-disabled);
     cursor: not-allowed;
   }
 </style>

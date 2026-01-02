@@ -97,7 +97,7 @@
   }
 
   .window:not(.fullScreen):not(.simple):not(.simplefix) {
-    border-radius: 10px;
+    border-radius: 5px;
     margin: auto;
     margin-top: 15vh;
     max-height: 70vh;
@@ -135,30 +135,33 @@
   }
 
   .close:hover {
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-modal-close-hover-background);
   }
 
   .header {
-    font-size: 15pt;
-    padding: 15px;
+    font-size: 12pt;
+    padding: 5px;
+    padding-left: 15px;
     display: flex;
     justify-content: space-between;
-    background-color: var(--theme-bg-modalheader);
+    background-color: var(--theme-modal-header-background);
+    align-items: center;
   }
 
   .header.fullScreen {
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-modal-border);
   }
 
   .content {
     max-height: 100%;
     overflow-y: auto;
     flex-grow: 1;
+    background: var(--theme-modal-background);
   }
 
   .content:not(.fullScreen) {
-    border-bottom: 1px solid var(--theme-border);
-    border-top: 1px solid var(--theme-border);
+    border-bottom: var(--theme-modal-border);
+    border-top: var(--theme-modal-border);
   }
 
   .content:not(.noPadding):not(.fullScreen) {
@@ -175,9 +178,9 @@
   }
 
   .footer:not(.fullScreen) {
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-modal-border);
     padding: 15px;
-    background-color: var(--theme-bg-modalheader);
+    background: var(--theme-modal-footer-background);
   }
 
   .footer.fullScreen {
@@ -186,8 +189,8 @@
     left: 0;
     right: 0;
     bottom: 0px;
-    border-top: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-modalheader);
+    border-top: var(--theme-modal-border);
+    background: var(--theme-modal-footer-background);
   }
 
   @media (max-width: 1280px) {

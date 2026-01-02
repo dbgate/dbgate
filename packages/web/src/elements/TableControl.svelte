@@ -252,6 +252,7 @@
           <td class="filter-cell" class:empty-cell={!col.filterable}>
             {#if col.filterable}
               <DataFilterControl
+                noMargin
                 filterBehaviour={evalFilterBehaviour}
                 filter={$filters[col.fieldName]}
                 setFilter={value => filters.update(f => ({ ...f, [col.fieldName]: value }))}
@@ -397,25 +398,25 @@
     user-select: none;
   }
   tbody tr {
-    background: var(--theme-bg-0);
+    background: var(--theme-table-cell-background);
   }
   tbody tr.selected {
-    background: var(--theme-bg-3);
+    background: var(--theme-table-selected-background);
   }
   table:focus tbody tr.selected {
-    background: var(--theme-bg-selected);
+    background: var(--theme-table-selected-background);
   }
   tbody tr.clickable:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-table-hover-background);
   }
 
   thead th {
-    border: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-1);
+    border: var(--theme-table-border);
+    background-color: var(--theme-table-header-background);
     padding: 5px;
   }
   tbody td {
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
   }
 
   tbody td:not(.noCellPadding) {
@@ -423,7 +424,7 @@
   }
 
   td.isHighlighted {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-table-active-background);
   }
 
   td.clickable {
@@ -434,7 +435,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    border-top: 1px solid var(--theme-border);
+    border-top: var(--theme-table-border);
   }
 
   table.stickyHeader th {
@@ -442,19 +443,19 @@
   }
 
   thead.stickyHeader :global(tr:first-child) :global(th) {
-    border-top: 1px solid var(--theme-border);
+    border-top: var(--theme-table-border);
   }
 
   table.stickyHeader td {
     border: 0px;
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
+    border-right: var(--theme-table-border);
   }
 
   table.stickyHeader {
     border-spacing: 0;
     border-collapse: separate;
-    border-left: 1px solid var(--theme-border);
+    border-left: var(--theme-table-border);
   }
 
   .filter-cell {
@@ -462,14 +463,16 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+    border-left: var(--theme-table-border);
+    border-right: var(--theme-table-border);
   }
 
   .empty-cell {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-table-header-background);
   }
 
   .groupcell {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-table-header-background);
     cursor: pointer;
   }
 </style>

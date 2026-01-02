@@ -23,12 +23,12 @@
 }
 
 
-.color-icon-inv-green {
-  color: var(--theme-icon-inv-green);
+.color-icon-statusbar-red {
+  color: var(--theme-statusbar-icon-error);
 }
 
-.color-icon-inv-red {
-  color: var(--theme-icon-inv-red);
+.color-icon-statusbar-green {
+  color: var(--theme-statusbar-icon-ok);
 }
 
 .premium-background-gradient {

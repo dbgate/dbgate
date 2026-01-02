@@ -791,45 +791,48 @@
       </VerticalSplitter>
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <WidgetColumnBar>
-        <WidgetColumnBarItem
-          title={_t('query.AiAssistant', { defaultMessage: 'AI Assistant' })}
-          onClose={() => {
-            isAiAssistantVisible = false;
-          }}
-          name='aiAssistant'
-        >
-          <WidgetsInnerContainer skipDefineWidth flexContainer>
-            <QueryAiAssistant
-              bind:this={domAiAssistant}
-              {conid}
-              {database}
-              {driver}
-              onClose={() => {
-                isAiAssistantVisible = false;
-              }}
-              text={$editorValue}
-              getLine={() => domEditor.getEditor().getSelectionRange().start.row}
-              onInsertAtCursor={text => {
-                const editor = domEditor.getEditor();
-                editor.session.insert(editor.getCursorPosition(), text);
-                domEditor?.getEditor()?.focus();
-              }}
-              getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
-              onSetSelectedText={text => {
-                const editor = domEditor.getEditor();
-                if (editor.getSelectedText()) {
-                  const range = editor.selection.getRange();
-                  editor.session.replace(range, text);
-                } else {
-                  editor.setValue(text);
-                }
-              }}
-              {tabid}
-            />
-          </WidgetsInnerContainer>
-        </WidgetColumnBarItem>
-      </WidgetColumnBar>
+      <div class="ai-assistant-panel">
+        <WidgetColumnBar>
+          <WidgetColumnBarItem
+            title={_t('query.AiAssistant', { defaultMessage: 'AI Assistant' })}
+            onClose={() => {
+              isAiAssistantVisible = false;
+            }}
+            name="aiAssistant"
+            altsidebar
+          >
+            <WidgetsInnerContainer skipDefineWidth flexContainer>
+              <QueryAiAssistant
+                bind:this={domAiAssistant}
+                {conid}
+                {database}
+                {driver}
+                onClose={() => {
+                  isAiAssistantVisible = false;
+                }}
+                text={$editorValue}
+                getLine={() => domEditor.getEditor().getSelectionRange().start.row}
+                onInsertAtCursor={text => {
+                  const editor = domEditor.getEditor();
+                  editor.session.insert(editor.getCursorPosition(), text);
+                  domEditor?.getEditor()?.focus();
+                }}
+                getTextOrSelectedText={() => domEditor.getEditor().getSelectedText() || $editorValue}
+                onSetSelectedText={text => {
+                  const editor = domEditor.getEditor();
+                  if (editor.getSelectedText()) {
+                    const range = editor.selection.getRange();
+                    editor.session.replace(range, text);
+                  } else {
+                    editor.setValue(text);
+                  }
+                }}
+                {tabid}
+              />
+            </WidgetsInnerContainer>
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
+      </div>
     </svelte:fragment>
   </HorizontalSplitter>
   <svelte:fragment slot="toolstrip">
@@ -934,3 +937,12 @@
 {#if sessionId}
   <StatusBarTabItem icon={busy ? 'icon loading' : 'icon check'} text={busy ? 'Running...' : 'Finished'} />
 {/if}
+
+<style>
+  .ai-assistant-panel {
+    flex: 1;
+    display: flex;
+    background-color: var(--theme-altsidebar-background);
+    border-left: var(--theme-altsidebar-border);
+  }
+</style>

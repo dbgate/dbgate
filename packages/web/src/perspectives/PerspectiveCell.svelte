@@ -49,25 +49,25 @@
   td {
     font-weight: normal;
     /* border: 1px solid var(--theme-border); */
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-table-cell-background);
     padding: 2px;
     position: relative;
     overflow: hidden;
     vertical-align: top;
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
+    border-right: var(--theme-table-border);
   }
 
   td.isEmpty {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-table-cell-empty-background);
   }
 
   td:global(.highlight) {
-    border: 3px solid var(--theme-icon-blue);
+    border: var(--theme-cell-active-border);
     padding: 0px;
   }
   .null {
-    color: var(--theme-font-3);
+    color: var(--theme-table-cell-empty-foreground);
     font-style: italic;
   }
 </style>

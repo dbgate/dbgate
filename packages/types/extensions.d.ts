@@ -23,10 +23,11 @@ export interface FileFormatDefinition {
 }
 
 export interface ThemeDefinition {
-  themeClassName: string;
   themeName: string;
   themeType: 'light' | 'dark';
-  themeCss?: string;
+  isBuiltInTheme?: boolean;
+  themeVariables?: { [key: string]: string };
+  themePublicCloudPath?: string;
 }
 
 export interface PluginDefinition {
@@ -47,5 +48,4 @@ export interface ExtensionsDirectory {
   fileFormats: FileFormatDefinition[];
   quickExports: QuickExportDefinition[];
   drivers: EngineDriver[];
-  themes: ThemeDefinition[];
 }

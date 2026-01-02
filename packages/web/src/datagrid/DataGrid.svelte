@@ -207,6 +207,7 @@
         height="45%"
         skip={isFormView}
         data-testid="DataGrid_itemColumns"
+        altsidebar
       >
         <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
@@ -218,6 +219,7 @@
         skip={!display?.filterable}
         collapsed={isDetailView}
         data-testid="DataGrid_itemFilters"
+        altsidebar
       >
         <FormViewFilters
           {...$$props}
@@ -236,6 +238,7 @@
         collapsed={isDetailView}
         skip={!(showReferences && display?.hasReferences && isProApp())}
         data-testid="DataGrid_itemReferences"
+        altsidebar
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
@@ -247,6 +250,7 @@
         collapsed={!expandMacros}
         data-testid="DataGrid_itemMacros"
         height="20%"
+        altsidebar
       >
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
@@ -313,6 +317,7 @@
   .left {
     display: flex;
     flex: 1;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-altsidebar-background);
+    border-right: var(--theme-altsidebar-border);
   }
 </style>

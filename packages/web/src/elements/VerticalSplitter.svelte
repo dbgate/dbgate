@@ -136,15 +136,15 @@
     right: 16px;
     width: 40px;
     height: 16px;
-    background: var(--theme-bg-2);
+    background: var(--theme-splitter-button-background);
     display: flex;
     justify-content: center;
     z-index: 100;
   }
 
   .collapse:hover {
-    color: var(--theme-font-hover);
-    background: var(--theme-bg-3);
+    color: var(--theme-splitter-button-foreground);
+    background: var(--theme-splitter-button-background-active);
     cursor: pointer;
   }
 </style>

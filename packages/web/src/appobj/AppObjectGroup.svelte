@@ -106,7 +106,7 @@
   }
 
   .group:hover {
-    background-color: var(--theme-bg-hover);
+    background-color: var(--theme-sidebar-background-hover);
   }
   .expand-icon {
     margin-right: 3px;

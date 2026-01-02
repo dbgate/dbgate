@@ -1,7 +1,8 @@
 import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
 import { derived } from 'svelte/store';
-import { cloudConnectionsStore, currentThemeDefinition } from '../stores';
+import { cloudConnectionsStore } from '../stores';
 import { useCloudContentList, useConnectionList } from '../utility/metadataLoaders';
+import { currentThemeDefinition } from '../plugins/themes';
 
 export function getConnectionColor(
   connections,

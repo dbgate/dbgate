@@ -145,7 +145,7 @@
   // $: console.log('DbKeysTree MODEL', model);
 </script>
 
-<SearchBoxWrapper noMargin>
+<SearchBoxWrapper noMargin {filter}>
   <SearchInput
     placeholder="Redis pattern or key part"
     bind:value={filter}

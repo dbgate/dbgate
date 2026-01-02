@@ -148,7 +148,7 @@
       <svelte:fragment slot="1">
         <div class="flexcol flex1">
           <WidgetTitle>{_t('sqlGenerator.chooseObjects', { defaultMessage: 'Choose objects' })}</WidgetTitle>
-          <SearchBoxWrapper>
+          <SearchBoxWrapper filter={objectsFilter}>
             <SearchInput placeholder={_t('sqlGenerator.searchTablesOrObjects', { defaultMessage: 'Search tables or objects' })} bind:value={objectsFilter} />
           </SearchBoxWrapper>
 

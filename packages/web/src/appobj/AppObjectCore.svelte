@@ -213,7 +213,7 @@
     position: relative;
   }
   .main:hover:not(.disableHover) {
-    background-color: var(--theme-bg-hover);
+    background-color: var(--theme-sidebar-background-hover);
   }
   .isBold {
     font-weight: bold;
@@ -223,10 +223,10 @@
   }
 
   .isChoosed {
-    background-color: var(--theme-bg-3);
+    background-color: var(--theme-sidebar-background-active);
   }
   :global(.app-object-list-focused) .isChoosed {
-    background-color: var(--theme-bg-selected);
+    background-color: var(--theme-sidebar-background-focused);
   }
   .status {
     margin-left: 5px;
@@ -234,7 +234,7 @@
   .ext-info {
     font-weight: normal;
     margin-left: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-sidebar-foreground-grayed);
   }
   .expand-icon {
     margin-right: 3px;
@@ -247,10 +247,10 @@
     right: 0;
   }
   .pin {
-    color: var(--theme-font-2);
+    color: var(--theme-sidebar-foreground-button);
   }
   .pin:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-sidebar-foreground-hover);
   }
   .main .pin {
     visibility: hidden;
@@ -260,13 +260,13 @@
   }
 
   .unpin {
-    color: var(--theme-font-2);
+    color: var(--theme-sidebar-foreground-button);
   }
   .unpin:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-sidebar-foreground-hover);
   }
 
   .pin-active {
-    color: var(--theme-font-2);
+    color: var(--theme-sidebar-foreground-button);
   }
 </style>

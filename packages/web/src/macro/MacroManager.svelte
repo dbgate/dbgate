@@ -16,8 +16,12 @@
 </script>
 
 <ManagerInnerContainer width={managerSize}>
-  <SearchBoxWrapper>
-    <SearchInput placeholder={_t('datagrid.searchMacros', { defaultMessage: "Search macros"})} bind:value={filter} />
+  <SearchBoxWrapper altsearchbox {filter}>
+    <SearchInput
+      placeholder={_t('datagrid.searchMacros', { defaultMessage: 'Search macros' })}
+      bind:value={filter}
+      altsearchbox
+    />
   </SearchBoxWrapper>
   <AppObjectList
     list={_.sortBy(macros, 'title').filter(x => (macroCondition ? macroCondition(x) : true))}

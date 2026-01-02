@@ -241,7 +241,7 @@
   <div class="content">
     {#if rowData}
       <div class="search-wrapper" on:keydown={handleSearchKeyDown}>
-        <SearchBoxWrapper noMargin>
+        <SearchBoxWrapper noMargin {filter}>
           <SearchInput
             placeholder={_t('tableCell.filterColumns', { defaultMessage: 'Filter columns' })}
             bind:value={filter}

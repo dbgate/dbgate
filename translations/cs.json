@@ -1264,7 +1264,6 @@
   "settings.appearance": "Vzhled aplikace",
   "settings.appearance.afterInstalling": "Po instalaci pluginu témat (zkuste vyhledat \"theme\" v dostupných rozšířeních) zde budou k dispozici nová témata.",
   "settings.appearance.customSize": "Vlastní velikost",
-  "settings.appearance.editorTheme": "Téma",
   "settings.appearance.editorTheme.default": "(použít výchozí téma)",
   "settings.appearance.fontFamily": "Písmo editoru",
   "settings.appearance.fontSize": "Velikost fontu",

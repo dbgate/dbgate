@@ -22,6 +22,7 @@
   export let height = null;
   export let collapsed = null;
   export let storeHeight = false;
+  export let altsidebar = false;
 
   // export let storageName = null;
   export let onClose = null;
@@ -67,6 +68,7 @@
     clickable={computed.clickableTitle}
     on:click={computed.clickableTitle ? () => toggleWidgetCollapse(name) : null}
     data-testid={$$props['data-testid']}
+    {altsidebar}
     {onClose}>{title}</WidgetTitle
   >
 

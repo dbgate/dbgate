@@ -37,6 +37,7 @@
   export let customCommandTooltip = null;
   export let formatterFunction = null;
   export let filterDisabled = false;
+  export let noMargin = false;
 
   export let pureName = null;
   export let schemaName = null;
@@ -67,29 +68,44 @@
   function createMenu() {
     const res = [
       { onClick: () => setFilter(''), text: _t('filter.clear', { defaultMessage: 'Clear Filter' }) },
-      { onClick: () => filterMultipleValues(), text: _t('filter.multipleValues', { defaultMessage: 'Filter multiple values' }) },
+      {
+        onClick: () => filterMultipleValues(),
+        text: _t('filter.multipleValues', { defaultMessage: 'Filter multiple values' }),
+      },
     ];
 
     if (filterBehaviour.supportEquals) {
       res.push(
         { onClick: () => openFilterWindow('='), text: _t('filter.equals', { defaultMessage: 'Equals...' }) },
-        { onClick: () => openFilterWindow('<>'), text: _t('filter.doesNotEqual', { defaultMessage: 'Does Not Equal...' }) }
+        {
+          onClick: () => openFilterWindow('<>'),
+          text: _t('filter.doesNotEqual', { defaultMessage: 'Does Not Equal...' }),
+        }
       );
     }
 
     if (filterBehaviour.supportExistsTesting) {
       res.push(
         { onClick: () => setFilter('EXISTS'), text: _t('filter.fieldExists', { defaultMessage: 'Field exists' }) },
-        { onClick: () => setFilter('NOT EXISTS'), text: _t('filter.fieldDoesNotExist', { defaultMessage: 'Field does not exist' }) }
+        {
+          onClick: () => setFilter('NOT EXISTS'),
+          text: _t('filter.fieldDoesNotExist', { defaultMessage: 'Field does not exist' }),
+        }
       );
     }
 
     if (filterBehaviour.supportNotEmptyArrayTesting) {
-      res.push({ onClick: () => setFilter('NOT EMPTY ARRAY'), text: _t('filter.arrayIsNotEmpty', { defaultMessage: 'Array is not empty' }) });
+      res.push({
+        onClick: () => setFilter('NOT EMPTY ARRAY'),
+        text: _t('filter.arrayIsNotEmpty', { defaultMessage: 'Array is not empty' }),
+      });
     }
 
     if (filterBehaviour.supportEmptyArrayTesting) {
-      res.push({ onClick: () => setFilter('EMPTY ARRAY'), text: _t('filter.arrayIsEmpty', { defaultMessage: 'Array is empty' }) });
+      res.push({
+        onClick: () => setFilter('EMPTY ARRAY'),
+        text: _t('filter.arrayIsEmpty', { defaultMessage: 'Array is empty' }),
+      });
     }
 
     if (filterBehaviour.supportNullTesting) {
@@ -101,8 +117,14 @@
 
     if (filterBehaviour.supportEmpty) {
       res.push(
-        { onClick: () => setFilter('EMPTY, NULL'), text: _t('filter.isEmptyOrNull', { defaultMessage: 'Is Empty Or Null' }) },
-        { onClick: () => setFilter('NOT EMPTY NOT NULL'), text: _t('filter.hasNotEmptyValue', { defaultMessage: 'Has Not Empty Value' }) }
+        {
+          onClick: () => setFilter('EMPTY, NULL'),
+          text: _t('filter.isEmptyOrNull', { defaultMessage: 'Is Empty Or Null' }),
+        },
+        {
+          onClick: () => setFilter('NOT EMPTY NOT NULL'),
+          text: _t('filter.hasNotEmptyValue', { defaultMessage: 'Has Not Empty Value' }),
+        }
       );
     }
 
@@ -111,9 +133,15 @@
         { divider: true },
 
         { onClick: () => openFilterWindow('>'), text: _t('filter.greaterThan', { defaultMessage: 'Greater Than...' }) },
-        { onClick: () => openFilterWindow('>='), text: _t('filter.greaterThanOrEqualTo', { defaultMessage: 'Greater Than Or Equal To...' }) },
+        {
+          onClick: () => openFilterWindow('>='),
+          text: _t('filter.greaterThanOrEqualTo', { defaultMessage: 'Greater Than Or Equal To...' }),
+        },
         { onClick: () => openFilterWindow('<'), text: _t('filter.lessThan', { defaultMessage: 'Less Than...' }) },
-        { onClick: () => openFilterWindow('<='), text: _t('filter.lessThanOrEqualTo', { defaultMessage: 'Less Than Or Equal To...' }) }
+        {
+          onClick: () => openFilterWindow('<='),
+          text: _t('filter.lessThanOrEqualTo', { defaultMessage: 'Less Than Or Equal To...' }),
+        }
       );
     }
 
@@ -122,11 +150,20 @@
         { divider: true },
 
         { onClick: () => openFilterWindow('+'), text: _t('filter.contains', { defaultMessage: 'Contains...' }) },
-        { onClick: () => openFilterWindow('~'), text: _t('filter.doesNotContain', { defaultMessage: 'Does Not Contain...' }) },
+        {
+          onClick: () => openFilterWindow('~'),
+          text: _t('filter.doesNotContain', { defaultMessage: 'Does Not Contain...' }),
+        },
         { onClick: () => openFilterWindow('^'), text: _t('filter.beginsWith', { defaultMessage: 'Begins With...' }) },
-        { onClick: () => openFilterWindow('!^'), text: _t('filter.doesNotBeginWith', { defaultMessage: 'Does Not Begin With...' }) },
+        {
+          onClick: () => openFilterWindow('!^'),
+          text: _t('filter.doesNotBeginWith', { defaultMessage: 'Does Not Begin With...' }),
+        },
         { onClick: () => openFilterWindow('$'), text: _t('filter.endsWith', { defaultMessage: 'Ends With...' }) },
-        { onClick: () => openFilterWindow('!$'), text: _t('filter.doesNotEndWith', { defaultMessage: 'Does Not End With...' }) }
+        {
+          onClick: () => openFilterWindow('!$'),
+          text: _t('filter.doesNotEndWith', { defaultMessage: 'Does Not End With...' }),
+        }
       );
     }
 
@@ -139,8 +176,14 @@
 
     if (filterBehaviour.supportBooleanOrNull) {
       res.push(
-        { onClick: () => setFilter('TRUE, NULL'), text: _t('filter.isTrueOrNull', { defaultMessage: 'Is True or NULL' }) },
-        { onClick: () => setFilter('FALSE, NULL'), text: _t('filter.isFalseOrNull', { defaultMessage: 'Is False or NULL' }) }
+        {
+          onClick: () => setFilter('TRUE, NULL'),
+          text: _t('filter.isTrueOrNull', { defaultMessage: 'Is True or NULL' }),
+        },
+        {
+          onClick: () => setFilter('FALSE, NULL'),
+          text: _t('filter.isFalseOrNull', { defaultMessage: 'Is False or NULL' }),
+        }
       );
     }
 
@@ -184,8 +227,14 @@
     if (filterBehaviour.supportSqlCondition) {
       res.push(
         { divider: true },
-        { onClick: () => openFilterWindow('sql'), text: _t('filter.sqlCondition', { defaultMessage: 'SQL condition ...' }) },
-        { onClick: () => openFilterWindow('sqlRight'), text: _t('filter.sqlConditionRight', { defaultMessage: 'SQL condition - right side ...' }) }
+        {
+          onClick: () => openFilterWindow('sql'),
+          text: _t('filter.sqlCondition', { defaultMessage: 'SQL condition ...' }),
+        },
+        {
+          onClick: () => openFilterWindow('sqlRight'),
+          text: _t('filter.sqlConditionRight', { defaultMessage: 'SQL condition - right side ...' }),
+        }
       );
     }
 
@@ -198,7 +247,10 @@
       applyFilter();
     }
     if (ev.keyCode == keycodes.escape) {
-      setFilter('');
+      value = '';
+      if (filter) {
+        setFilter('');
+      }
     }
     if (ev.keyCode == keycodes.downArrow) {
       if (onFocusGrid) onFocusGrid();
@@ -277,6 +329,11 @@
     }
   }
 
+  function handleBlur(e) {
+    if (isReadOnly) return;
+    applyFilter();
+  }
+
   function applyFilter() {
     if ((filter || '') == (value || '')) return;
     setFilter(value);
@@ -285,7 +342,7 @@
   // $: if (value != filter) setFilter(value);
 </script>
 
-<div class="flex">
+<div class="wrapper" class:isError class:isOk class:useMargin={!noMargin}>
   <input
     bind:this={domInput}
     type="text"
@@ -293,11 +350,11 @@
     readOnly={isReadOnly}
     bind:value
     on:keydown={handleKeyDown}
-    on:blur={applyFilter}
+    on:blur={handleBlur}
     on:paste={handlePaste}
+    class:isDisabled
     class:isError
     class:isOk
-    class:isDisabled
     {placeholder}
     data-testid={`DataFilterControl_input_${uniqueName}`}
   />
@@ -306,55 +363,84 @@
       <FontIcon icon={customCommandIcon} />
     </InlineButton>
   {/if}
-  {#if conid && database && driver}
-    {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
-      <InlineButton
-        on:click={handleShowDictionary}
-        narrow
-        square
-        data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
-      >
-        <FontIcon icon="icon dots-horizontal" />
-      </InlineButton>
-    {:else if (pureName && columnName) || (pureName && uniqueName && driver?.databaseEngineTypes?.includes('document'))}
-      <InlineButton
-        on:click={handleShowValuesModal}
-        narrow
-        square
-        data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
-      >
+  {#if value}
+    <InlineButton
+      on:mousedown={() => {
+        value = '';
+        if (filter) {
+          setFilter('');
+        }
+      }}
+      narrow
+      square
+    >
+      <FontIcon icon="icon close" />
+    </InlineButton>
+  {:else}
+    {#if conid && database && driver}
+      {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
+        <InlineButton
+          on:click={handleShowDictionary}
+          narrow
+          square
+          data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
+        >
+          <FontIcon icon="icon dots-horizontal" />
+        </InlineButton>
+      {:else if (pureName && columnName) || (pureName && uniqueName && driver?.databaseEngineTypes?.includes('document'))}
+        <InlineButton
+          on:click={handleShowValuesModal}
+          narrow
+          square
+          data-testid={`DataFilterControl_choosevalues_${uniqueName}`}
+        >
+          <FontIcon icon="icon dots-vertical" />
+        </InlineButton>
+      {/if}
+    {:else if jslid}
+      <InlineButton on:click={handleShowValuesModal} narrow square>
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     {/if}
-  {:else if jslid}
-    <InlineButton on:click={handleShowValuesModal} narrow square>
-      <FontIcon icon="icon dots-vertical" />
-    </InlineButton>
+    <DropDownButton
+      icon="icon filter"
+      menu={createMenu}
+      narrow
+      data-testid={`DataFilterControl_filtermenu_${uniqueName}`}
+    />
   {/if}
-  <DropDownButton
-    icon="icon filter"
-    menu={createMenu}
-    narrow
-    data-testid={`DataFilterControl_filtermenu_${uniqueName}`}
-  />
   {#if showResizeSplitter}
     <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
   {/if}
 </div>
 
 <style>
+  .wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background-color: var(--theme-datagrid-filter-background);
+  }
+  .wrapper.useMargin {
+    border: var(--theme-datagrid-filter-border);
+    border-radius: 4px;
+    margin: 2px 3px;
+  }
   input {
     flex: 1;
     min-width: 10px;
     width: 1px;
+    background-color: var(--theme-datagrid-filter-background);
+    border: none;
+    outline: none;
   }
 
-  input.isError {
-    background-color: var(--theme-bg-red);
+  .isError {
+    background-color: var(--theme-datagrid-filter-error-background);
   }
 
-  input.isOk {
-    background-color: var(--theme-bg-green);
+  .isOk {
+    background-color: var(--theme-datagrid-filter-ok-background);
   }
 
   input.isDisabled {

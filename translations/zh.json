@@ -1264,7 +1264,6 @@
   "settings.appearance": "应用程序主题",
   "settings.appearance.afterInstalling": "安装主题插件后（尝试在可用扩展中搜索\"主题\"），新主题将在此处可用。",
   "settings.appearance.customSize": "自定义大小",
-  "settings.appearance.editorTheme": "主题",
   "settings.appearance.editorTheme.default": "（使用主题默认）",
   "settings.appearance.fontFamily": "编辑器字体",
   "settings.appearance.fontSize": "字体大小",

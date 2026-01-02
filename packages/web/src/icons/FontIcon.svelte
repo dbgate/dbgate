@@ -171,6 +171,8 @@
     'icon more': 'mdi mdi-more',
     'icon copy': 'mdi mdi-content-copy',
     'icon arrow-start-here': 'mdi mdi-arrow-down-bold-circle',
+    'icon show': 'mdi mdi-eye',
+    'icon hide': 'mdi mdi-eye-off',
 
     'icon run': 'mdi mdi-play',
     'icon run-settings': 'mdi mdi-cog-play',
@@ -251,10 +253,10 @@
     'icon diagram': 'mdi mdi-graph',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
-    'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
+    'img ok-statusbar': 'mdi mdi-check-circle color-icon-statusbar-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',
     'img error': 'mdi mdi-close-circle color-icon-red',
-    'img error-inv': 'mdi mdi-close-circle color-icon-inv-red',
+    'img error-statusbar': 'mdi mdi-close-circle color-icon-statusbar-red',
     'img warn': 'mdi mdi-alert color-icon-gold',
     'img info': 'mdi mdi-information color-icon-blue',
     'img debug': 'mdi mdi-monitor color-icon-green',
@@ -344,6 +346,7 @@
     'img import': 'mdi mdi-database-import color-icon-green',
     'img export': 'mdi mdi-database-export color-icon-green',
     'img transform': 'mdi mdi-rotate-orbit color-icon-blue',
+    'img theme': 'mdi mdi-brightness-6 color-icon-magenta',
     'img tip': 'mdi mdi-lightbulb-on color-icon-yellow',
 
     'img filter-active': 'mdi mdi-filter-cog color-icon-blue',

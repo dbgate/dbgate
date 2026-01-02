@@ -2,14 +2,21 @@
   --dim-widget-icon-size: 50px;
   --dim-statusbar-height: 22px;
   --dim-left-panel-width: 300px;
+  --dim-right-panel-width: 300px;
   --dim-tabs-height: 33px;
   --dim-tabs-panel-height: calc( var(--dim-visible-tabs-databases) * 20px + var(--dim-tabs-height) );
-  --dim-splitter-thickness: 3px;
+  --dim-splitter-thickness: 4px;
 
   --dim-visible-left-panel: 1; /* set from JS */
   --dim-content-left: calc(
     var(--dim-widget-icon-size) + var(--dim-visible-left-panel) *
-      (var(--dim-left-panel-width) + var(--dim-splitter-thickness))
+      (var(--dim-left-panel-width))
+  );
+
+  --dim-visible-right-panel: 0; /* set from JS */
+  --dim-content-right: calc(
+    var(--dim-visible-right-panel) *
+      (var(--dim-right-panel-width))
   );
 
   --dim-visible-toolbar: 0; /* set from JS */

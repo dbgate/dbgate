@@ -2,8 +2,6 @@
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
   import {
-    currentTheme,
-    currentThemeDefinition,
     isFileDragActive,
     leftPanelWidth,
     openedSnackbars,
@@ -12,10 +10,9 @@
     visibleCommandPalette,
     visibleTitleBar,
     visibleToolbar,
-    systemThemeStore,
+    rightPanelWidget,
+    rightPanelWidth,
   } from './stores';
-  import TabsPanel from './tabpanel/TabsPanel.svelte';
-  import TabRegister from './tabpanel/TabRegister.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
@@ -28,21 +25,14 @@
   import TitleBar from './widgets/TitleBar.svelte';
   import FontIcon from './icons/FontIcon.svelte';
   import getElectron from './utility/getElectron';
-  import TabsContainer from './tabpanel/TabsContainer.svelte';
   import MultiTabsContainer from './tabpanel/MultiTabsContainer.svelte';
+  import { currentThemeType } from './plugins/themes';
+  import RightWidgetContainer from './widgets/RightWidgetContainer.svelte';
 
-  $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
-
-  $: themeStyle = `<st` + `yle id="themePlugin">${$currentThemeDefinition?.themeCss}</st` + `yle>`;
+  $: currentThemeTypeClass = $currentThemeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
   const isElectron = !!getElectron();
 </script>
-
-<svelte:head>
-  {#if $currentThemeDefinition?.themeCss}
-    {@html themeStyle}
-  {/if}
-</svelte:head>
 
 <div class="not-supported" class:isElectron>
   <div class="m-5 big-icon"><FontIcon icon="img warn" /></div>
@@ -51,7 +41,7 @@
 </div>
 
 <div
-  class={`${$currentTheme ?? $systemThemeStore} ${currentThemeType} root dbgate-screen`}
+  class={`${currentThemeTypeClass} root dbgate-screen`}
   class:isElectron
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
@@ -77,10 +67,22 @@
   </div>
   {#if $selectedWidget && $visibleWidgetSideBar}
     <div
-      class="horizontal-split-handle splitter"
+      class="horizontal-split-handle left-splitter"
       use:splitterDrag={'clientX'}
       on:resizeSplitter={e => leftPanelWidth.update(x => x + e.detail)}
     />
+  {/if}
+  {#if $rightPanelWidget}
+    <div
+      class="horizontal-split-handle right-splitter"
+      use:splitterDrag={'clientX'}
+      on:resizeSplitter={e => rightPanelWidth.update(x => x - e.detail)}
+    />
+  {/if}
+  {#if $rightPanelWidget}
+    <div class="rightpanel">
+      <RightWidgetContainer />
+    </div>
   {/if}
   {#if $visibleCommandPalette}
     <div class="commads">
@@ -106,7 +108,7 @@
 
 <style>
   .root {
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
   }
   .iconbar {
     position: fixed;
@@ -115,11 +117,11 @@
     top: var(--dim-header-top);
     bottom: var(--dim-statusbar-height);
     width: var(--dim-widget-icon-size);
-    background: var(--theme-bg-inv-1);
+    background: var(--theme-widget-panel-background);
   }
   .statusbar {
     position: fixed;
-    background: var(--theme-bg-statusbar-inv);
+    background: var(--theme-statusbar-background);
     height: var(--dim-statusbar-height);
     left: 0;
     right: 0;
@@ -132,8 +134,22 @@
     left: var(--dim-widget-icon-size);
     bottom: var(--dim-statusbar-height);
     width: var(--dim-left-panel-width);
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-sidebar-background);
+    color: var(--theme-sidebar-foreground);
     display: flex;
+    border-right: var(--theme-sidebar-border);
+  }
+
+  .rightpanel {
+    position: fixed;
+    top: var(--dim-header-top);
+    right: 0;
+    bottom: var(--dim-statusbar-height);
+    width: var(--dim-right-panel-width);
+    background-color: var(--theme-altsidebar-background);
+    color: var(--theme-altsidebar-foreground);
+    display: flex;
+    border-left: var(--theme-altsidebar-border);
   }
   .commads {
     position: fixed;
@@ -149,11 +165,18 @@
     background: var(--theme-bg-1);
   }
 
-  .splitter {
+  .left-splitter {
     position: absolute;
     top: var(--dim-header-top);
     bottom: var(--dim-statusbar-height);
     left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width));
+  }
+
+  .right-splitter {
+    position: absolute;
+    top: var(--dim-header-top);
+    bottom: var(--dim-statusbar-height);
+    right: var(--dim-content-right);
   }
 
   .snackbar-container {
@@ -197,7 +220,7 @@
     top: var(--dim-header-top);
     left: var(--dim-content-left);
     bottom: var(--dim-statusbar-height);
-    right: 0;
-    background-color: var(--theme-bg-1);
+    right: var(--dim-content-right);
+    background-color: var(--theme-content-background);
   }
 </style>

@@ -44,8 +44,8 @@
     left: 0;
     height: var(--dim-tabs-panel-height);
     right: 0;
-    background-color: var(--theme-bg-1);
-    border-top: 1px solid var(--theme-border);
+    background-color: var(--theme-tabs-panel-background);
+    border-top: var(--theme-tabs-panel-border);
   }
   .content {
     position: absolute;
@@ -53,6 +53,6 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-content-background);
   }
 </style>

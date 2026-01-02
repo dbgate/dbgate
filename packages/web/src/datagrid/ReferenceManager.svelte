@@ -25,8 +25,8 @@
   $: dependencies = display?.baseTable?.dependencies || [];
 </script>
 
-<SearchBoxWrapper>
-  <SearchInput placeholder={_t('dataGrid.searchReferences', { defaultMessage: 'Search references' })} bind:value={filter} />
+<SearchBoxWrapper altsearchbox {filter}>
+  <SearchInput placeholder={_t('dataGrid.searchReferences', { defaultMessage: 'Search references' })} bind:value={filter} altsearchbox/>
   <CloseSearchButton bind:filter />
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
@@ -81,7 +81,7 @@
 
 <style>
   .link {
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
     margin: 5px;
     cursor: pointer;
     display: flex;

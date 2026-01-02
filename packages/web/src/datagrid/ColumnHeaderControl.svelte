@@ -137,7 +137,12 @@
       {/if}
     </span>
   {/if}
-  <DropDownButton menu={getMenu} narrow data-testid={`ColumnHeaderControl_dropdown_${column?.uniqueName}`} />
+  <DropDownButton
+    menu={getMenu}
+    narrow
+    data-testid={`ColumnHeaderControl_dropdown_${column?.uniqueName}`}
+    circleHover
+  />
   <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
 </div>
 
@@ -159,6 +164,8 @@
     padding: 2px;
     margin: auto;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .icon {
     margin-left: 3px;

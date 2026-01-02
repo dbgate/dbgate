@@ -347,7 +347,12 @@
       });
       let count = selectedCells.length;
       let rowCount = selectedRowData.length;
-      return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
+      // return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
+      return {
+        rowCount,
+        count,
+        sum,
+      };
     }
     return null;
   }
@@ -2242,7 +2247,20 @@
       </div>
     {:else if selectedCellsInfo}
       <div class="row-count-label">
-        {selectedCellsInfo}
+        <table>
+          <tr>
+            <td>{_t('datagrid.selectedInfo.rows', { defaultMessage: 'Rows' })}:</td>
+            <td>{selectedCellsInfo.rowCount}</td>
+          </tr>
+          <tr>
+            <td>{_t('datagrid.selectedInfo.count', { defaultMessage: 'Count' })}:</td>
+            <td>{selectedCellsInfo.count}</td>
+          </tr>
+          <tr>
+            <td>{_t('datagrid.selectedInfo.sum', { defaultMessage: 'Sum' })}:</td>
+            <td>{selectedCellsInfo.sum}</td>
+          </tr>
+        </table>
       </div>
     {:else if allRowCount != null && multipleGridsOnTab}
       <div class="row-count-label">
@@ -2269,6 +2287,7 @@
     bottom: 0;
     user-select: none;
     overflow: hidden;
+    background: var(--theme-datagrid-background);
   }
   .table {
     position: absolute;
@@ -2280,15 +2299,18 @@
     outline: none;
   }
   .header-cell {
-    border: 1px solid var(--theme-border);
+    border-top: var(--theme-datagrid-border-horizontal);
+    border-bottom: var(--theme-datagrid-border-horizontal);
+    border-left: var(--theme-datagrid-border-vertical);
+    border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 0;
     margin: 0;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-datagrid-headercell-background);
     overflow: hidden;
   }
   :global(.data-grid-focused) .active-header-cell {
-    background-color: var(--theme-bg-selected);
+    background-color: var(--theme-datagrid-focused-cell-background);
   }
   .filter-cell {
     text-align: left;
@@ -2303,14 +2325,22 @@
   }
   .row-count-label {
     position: absolute;
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-datagrid-corner-label-background);
+    border: var(--theme-datagrid-corner-label-border);
+    padding: 3px;
     right: 40px;
     bottom: 20px;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+  }
+
+  .row-count-label:hover {
+    opacity: 1;
   }
 
   .selection-menu {
     position: absolute;
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-datagrid-corner-label-background);
     right: 40px;
     bottom: 20px;
   }

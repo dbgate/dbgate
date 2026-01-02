@@ -1260,7 +1260,6 @@
   "settings.appearance": "Appearance",
   "settings.appearance.afterInstalling": "After installing theme plugin (try search \"theme\" in available extensions) new themes will be available here.",
   "settings.appearance.customSize": "Custom size",
-  "settings.appearance.editorTheme": "Theme",
   "settings.appearance.editorTheme.default": "(use theme default)",
   "settings.appearance.fontFamily": "Editor font family",
   "settings.appearance.fontSize": "Font size",

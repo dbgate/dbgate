@@ -58,7 +58,7 @@
   import { rectanglesHaveIntersection } from './designerMath';
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
-  import { currentThemeDefinition } from '../stores';
+  import { currentThemeDefinition } from '../plugins/themes';
   import { chooseTopTables, DIAGRAM_DEFAULT_WATERMARK, DIAGRAM_ZOOMS, extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -814,10 +814,6 @@
       if (css) css += '\n';
       css += cssItem;
     }
-    if ($currentThemeDefinition?.themeCss) {
-      if (css) css += '\n';
-      css += $currentThemeDefinition?.themeCss;
-    }
     css += ' body { overflow: scroll; }';
     saveFileToDisk(async filePath => {
       await apiCall('files/export-diagram', {
@@ -825,7 +821,7 @@
         html: domCanvas.outerHTML,
         css,
         themeType: $currentThemeDefinition?.themeType,
-        themeClassName: $currentThemeDefinition?.themeClassName,
+        themeVariables: $currentThemeDefinition?.themeVariables,
         watermark: getWatermarkHtml(),
       });
     });
@@ -1129,7 +1125,7 @@
 <style>
   .wrapper {
     flex: 1;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-designer-background);
     overflow: scroll;
   }
   .empty {
@@ -1176,7 +1172,7 @@
   }
   :global(.dbgate-screen) svg.drag-rect polyline {
     fill: none;
-    stroke: var(--theme-bg-4);
+    stroke: var(--theme-designer-select-reactangle-foreground);
     stroke-width: 2;
   }
 </style>

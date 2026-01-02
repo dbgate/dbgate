@@ -11,10 +11,12 @@
 <script lang="ts">
   import { apiCall } from '../utility/api';
   import newQuery from '../query/newQuery';
-  import { filterName, getSqlFrontMatter, setSqlFrontMatter } from 'dbgate-tools';
+  import { filterName, getSqlFrontMatter, safeJsonParse, setSqlFrontMatter } from 'dbgate-tools';
   import { currentActiveCloudTags } from '../stores';
   import _ from 'lodash';
   import yaml from 'js-yaml';
+  import { _t } from '../translations';
+  import { currentThemeDefinition } from '../plugins/themes';
 
   export let data;
 
@@ -33,8 +35,28 @@
     });
   }
 
+  async function handleUseTheme() {
+    const fileData = await apiCall('cloud/public-file-data', { path: data.path });
+    $currentThemeDefinition = safeJsonParse(fileData.text);
+  }
+
   function createMenu() {
-    return [{ text: 'Open', onClick: handleOpenSqlFile }];
+    if (data?.type == 'sql') {
+      return [{ text: _t('common.open', { defaultMessage: 'Open' }), onClick: handleOpenSqlFile }];
+    }
+    if (data?.type == 'theme') {
+      return [{ text: _t('theme.useTheme', { defaultMessage: 'Use theme' }), onClick: handleUseTheme }];
+    }
+    return [];
+  }
+
+  function handleOpenFile() {
+    if (data?.type == 'sql') {
+      handleOpenSqlFile();
+    }
+    if (data?.type == 'theme') {
+      handleUseTheme();
+    }
   }
 
   $: relatedToCurrentConnection = _.intersection($currentActiveCloudTags, data.tags || []).length > 0;
@@ -43,10 +65,10 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  icon={data.icon ?? 'img sql-file'}
+  icon={data.icon ?? (data.type == 'sql' ? 'img sql-file' : 'img theme')}
   title={data.title}
   menu={createMenu}
-  on:click={handleOpenSqlFile}
+  on:click={handleOpenFile}
   isGrayed={!relatedToCurrentConnection}
   data-testid={`public-cloud-file-${data.path}`}
 >

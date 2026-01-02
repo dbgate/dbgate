@@ -27,20 +27,6 @@ export interface TabDefinition {
   focused?: boolean;
 }
 
-const darkModeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-
-export const systemThemeStore = writable(darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light');
-
-if (darkModeMediaQuery) {
-  darkModeMediaQuery.addEventListener('change', e => {
-    systemThemeStore.set(e.matches ? 'theme-dark' : 'theme-light');
-  });
-}
-
-export function getSystemTheme() {
-  return darkModeMediaQuery?.matches ? 'theme-dark' : 'theme-light';
-}
-
 export function writableWithStorage<T>(defaultValue: T, storageName, removeCondition?: (value: T) => boolean) {
   const init = localStorage.getItem(storageName);
   const res = writable<T>(init ? safeJsonParse(init, defaultValue, true) : defaultValue);
@@ -118,9 +104,8 @@ export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRow
 export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
 export const commands = writable({});
-export const currentTheme = getElectron()
-  ? writableSettingsValue(null, 'currentTheme')
-  : writableWithStorage(null, 'currentTheme', x => x == null);
+export const rightPanelWidget = writableWithStorage(null, 'rightPanelWidget');
+
 export const currentEditorTheme = getElectron()
   ? writableSettingsValue(null, 'currentEditorTheme')
   : writableWithStorage(null, 'currentEditorTheme');
@@ -160,6 +145,7 @@ export const draggingDbGroupTarget = writable(null);
 // export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const visibleToolbar = writable(false);
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
+export const rightPanelWidth = writableWithStorage(300, 'rightPanelWidth');
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
 export const draggedPinnedObject = writable(null);
@@ -199,7 +185,7 @@ export const DEFAULT_OBJECT_SEARCH_SETTINGS = {
   sqlObjectText: false,
   tableEngine: false,
   tablesWithRows: false,
-  sortBy: undefined as string
+  sortBy: undefined as string,
 };
 
 export const DEFAULT_CONNECTION_SEARCH_SETTINGS = {
@@ -222,34 +208,12 @@ export const connectionAppObjectSearchSettings = writableWithStorage(
 
 export const serverSummarySelectedTab = writableWithStorage(0, 'serverSummary.selectedTab');
 
-let currentThemeValue = null;
-currentTheme.subscribe(value => {
-  currentThemeValue = value;
-});
-export const getCurrentTheme = () => currentThemeValue;
-
 let extensionsValue: ExtensionsDirectory = null;
 extensions.subscribe(value => {
   extensionsValue = value;
 });
 export const getExtensions = () => extensionsValue;
 
-export const currentThemeDefinition = derived(
-  [currentTheme, extensions, systemThemeStore],
-  ([$currentTheme, $extensions, $systemTheme]) => {
-    const usedTheme = $currentTheme ?? $systemTheme;
-    return $extensions?.themes?.find(x => x.themeClassName == usedTheme);
-  }
-);
-currentThemeDefinition.subscribe(value => {
-  if (value?.themeType && getCurrentTheme()) {
-    localStorage.setItem('currentThemeType', value?.themeType);
-  } else {
-    if (extensionsValue?.themes?.length > 0) {
-      localStorage.removeItem('currentThemeType');
-    }
-  }
-});
 export const openedConnectionsWithTemporary = derived(
   [openedConnections, temporaryOpenedConnections, openedSingleDatabaseConnections],
   ([$openedConnections, $temporaryOpenedConnections, $openedSingleDatabaseConnections]) =>
@@ -286,9 +250,11 @@ export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
 subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 // subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
+subscribeCssVariable(rightPanelWidth, x => `${x}px`, '--dim-right-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
 subscribeCssVariable(lockedDatabaseMode, x => (x ? 0 : 1), '--dim-visible-tabs-databases');
 subscribeCssVariable(alignDataGridNumbersToRight, x => (x ? 'right' : 'left'), '--data-grid-numbers-align');
+subscribeCssVariable(rightPanelWidget, x => (x ? 1 : 0), '--dim-visible-right-panel');
 
 let activeTabIdValue = null;
 activeTabId.subscribe(value => {
@@ -517,4 +483,3 @@ cloudSigninTokenHolder.subscribe(value => {
 });
 export const getCloudSigninTokenHolder = () => cloudSigninTokenHolderValue;
 
-window['__changeCurrentTheme'] = theme => currentTheme.set(theme);

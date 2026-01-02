@@ -40,5 +40,5 @@
 
 <div class="flex">
   <TextField {...$$restProps} value={$values[name] || defaultFileName} on:click={handleBrowse} readOnly {disabled} />
-  <InlineButton on:click={handleBrowse} {disabled}>Browse</InlineButton>
+  <InlineButton on:click={handleBrowse} {disabled} useBorder>Browse</InlineButton>
 </div>

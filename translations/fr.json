@@ -1264,7 +1264,6 @@
   "settings.appearance": "Thème de l'application",
   "settings.appearance.afterInstalling": "Après l'installation du plugin de thème (essayez de rechercher \"theme\" dans les extensions disponibles), de nouveaux thèmes seront disponibles ici.",
   "settings.appearance.customSize": "Taille personnalisée",
-  "settings.appearance.editorTheme": "Thème",
   "settings.appearance.editorTheme.default": "(utiliser le thème par défaut)",
   "settings.appearance.fontFamily": "Famille de police de l'éditeur",
   "settings.appearance.fontSize": "Taille de police",

@@ -38,12 +38,12 @@
 
 <style>
   div {
-    border: 1px solid var(--theme-bg-button-inv-2);
+    border: var(--theme-formbutton-border);
     padding: 2px;
     padding-bottom: 4px;
     margin: 2px;
-    background-color: var(--theme-bg-button-inv);
-    color: var(--theme-font-inv-1);
+    background: var(--theme-formbutton-background);
+    color: var(--theme-formbutton-foreground);
     border-radius: 2px;
     display: inline-block;
     cursor: pointer;
@@ -54,25 +54,25 @@
   }
 
   div:hover:not(.disabled):not(.outline) {
-    background-color: var(--theme-bg-button-inv-2);
+    background: var(--theme-formbutton-background-hover);
   }
   div:active:not(.disabled):not(.outline) {
-    background-color: var(--theme-bg-button-inv-3);
+    background: var(--theme-formbutton-background-active);
   }
   div.disabled {
-    background-color: var(--theme-bg-button-inv-3);
-    color: var(--theme-font-inv-3);
+    background: var(--theme-formbutton-background-disabled);
+    color: var(--theme-formbutton-foreground-disabled);
   }
 
   div.outline {
     background-color: transparent;
-    color: var(--theme-font-2);
-    border: 1px solid var(--theme-bg-button-inv-2);
+    color: var(--theme-outlinebutton-foreground);
+    border: var(--theme-outlinebutton-border);
   }
 
   input.outline:hover:not(.disabled) {
-    color: var(--theme-bg-button-inv-3);
-    border: 2px solid var(--theme-bg-button-inv-3);
+    color: var(--theme-outlinebutton-hover-foreground);
+    border: var(--theme-outlinebutton-hover-border);
     margin: 1px;
   }
 </style>

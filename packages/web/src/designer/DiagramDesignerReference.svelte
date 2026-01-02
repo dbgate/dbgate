@@ -101,11 +101,11 @@
   }
   polyline {
     fill: none;
-    stroke: var(--theme-bg-4);
+    stroke: var(--theme-designer-stroke-color);
     stroke-width: 2;
   }
 
   polygon {
-    fill: var(--theme-font-1);
+    fill: var(--theme-designer-arrow-color);
   }
 </style>

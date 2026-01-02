@@ -643,7 +643,7 @@
   } */
 
   thead :global(tr:first-child) :global(th) {
-    border-top: 1px solid var(--theme-border);
+    border-top: var(--theme-table-border);
   }
 
   /* 

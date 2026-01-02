@@ -4,6 +4,7 @@
 
   export let placeholder;
   export let value;
+  export let altsearchbox = false;
 
   $: searchValue = value || '';
   export let isDebounced = false;
@@ -57,6 +58,8 @@
   bind:this={domInput}
   on:focus={e => domInput.select()}
   data-testid={$$props['data-testid']}
+  class:altsearchbox
+  class:hasFilter={!!value}
 />
 
 <style>
@@ -66,5 +69,22 @@
     min-height: 22px;
     width: 10px;
     border: none;
+    outline: none;
+    background-color: var(--theme-searchbox-background);
+  }
+
+  input.altsearchbox {
+    background-color: var(--theme-altsearchbox-background);
+  }
+
+  input::placeholder {
+    color: var(--theme-searchbox-placeholder);
+  }
+  input.altsearchbox::placeholder {
+    color: var(--theme-altsearchbox-placeholder);
+  }
+
+  input.hasFilter {
+    background-color: var(--theme-searchbox-background-filtered);
   }
 </style>

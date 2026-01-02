@@ -780,6 +780,7 @@
     top: 0;
     right: 0;
     bottom: 0;
+    color: var(--theme-tabs-panel-foreground);
   }
   .icons-wrapper {
     position: absolute;
@@ -792,7 +793,7 @@
     display: flex;
   }
   .icon-button {
-    color: var(--theme-font-2);
+    color: var(--theme-tabs-panel-foreground);
     cursor: pointer;
   }
   .upgrade-button {
@@ -811,7 +812,7 @@
     background: linear-gradient(135deg, #0f5a85, #5c1870);
   }
   .icon-button:hover {
-    color: var(--theme-font-1);
+    color: var(--theme-tabs-panel-active-foreground);
   }
   .tabs {
     height: var(--dim-tabs-panel-height);
@@ -845,11 +846,12 @@
     align-items: stretch;
   }
   .db-name {
+    background-color: var(--theme-tabs-panel-item-background);
     display: flex;
     text-align: center;
     font-size: 8pt;
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
+    border-bottom: var(--theme-tabs-panel-border);
+    border-right: var(--theme-tabs-panel-border);
     cursor: pointer;
     user-select: none;
     padding: 1px;
@@ -866,11 +868,14 @@
     background-color: var(--theme-bg-3);
   } */
   .db-name.selected {
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-tabs-panel-active-background);
+    color: var(--theme-tabs-panel-active-foreground);
+    border-top: var(--theme-tabs-panel-active-border-db);
   }
   .file-tab-item {
-    border-right: 1px solid var(--theme-border);
-    border-bottom: 2px solid var(--theme-border);
+    background-color: var(--theme-tabs-panel-item-background);
+    border-bottom: var(--theme-tabs-panel-border);
+    border-right: var(--theme-tabs-panel-border);
     padding-left: 15px;
     padding-right: 15px;
     flex-shrink: 1;
@@ -882,7 +887,9 @@
     user-select: none;
   }
   .file-tab-item.selected {
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-tabs-panel-active-background);
+    color: var(--theme-tabs-panel-active-foreground);
+    border-top: var(--theme-tabs-panel-active-border);
   }
   .file-tab-item.preview {
     font-style: italic;
@@ -895,20 +902,20 @@
   .tab-group-buttons {
     margin-left: 5px;
     margin-right: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-tabs-panel-foreground);
     display: flex;
   }
 
   .tab-group-button:hover {
-    color: var(--theme-font-1);
+    color: var(--theme-tabs-panel-active-foreground);
   }
 
   .pin-button {
-    color: var(--theme-font-3);
+    color: var(--theme-tabs-panel-foreground);
     cursor: pointer;
   }
 
   .pin-button:hover {
-    color: var(--theme-font-1);
+    color: var(--theme-tabs-panel-active-foreground);
   }
 </style>

@@ -128,10 +128,10 @@
     currentEditorFontSize,
     currentEditorFont,
     currentEditorTheme,
-    currentThemeDefinition,
     currentEditorKeybindigMode,
-    getCurrentSettings
+    getCurrentSettings,
   } from '../stores';
+  import { currentThemeDefinition } from '../plugins/themes';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
@@ -213,18 +213,17 @@
         line: editor.getSelectionRange().start.row,
       };
     }
-    if (!getCurrentSettings()['sqlEditor.disableExecuteCurrentLine']){
+    if (!getCurrentSettings()['sqlEditor.disableExecuteCurrentLine']) {
       const line = editor.getSelectionRange().start.row;
       return {
         text: editor.session.getLine(line),
         line,
       };
     }
-    
+
     return {
       text: editor.getValue(),
     };
-    
   }
 
   export function getCodeCompletionCommandText() {

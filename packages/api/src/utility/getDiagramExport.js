@@ -1,4 +1,4 @@
-const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
+const getDiagramExport = (html, css, themeType, themeVariables, watermark) => {
   const watermarkHtml = watermark
     ? `
         <div style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 12px; color: var(--theme-font-2); background-color: var(--theme-bg-2); border-top-left-radius: 5px; border: 1px solid var(--theme-border);">
@@ -6,11 +6,19 @@ const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
       </div>
   `
     : '';
+  
+  // Convert theme variables object to CSS custom properties
+  const themeVariablesCSS = themeVariables 
+    ? `:root {\n${Object.entries(themeVariables).map(([key, value]) => `  ${key}: ${value};`).join('\n')}\n}`
+    : '';
+  
   return `<html>
   <meta charset='utf-8'>
   
   <head>
       <style>
+        ${themeVariablesCSS}
+        
         ${css}
 
         body {
@@ -55,7 +63,7 @@ const getDiagramExport = (html, css, themeType, themeClassName, watermark) => {
       </script>
   </head>
   
-  <body class='${themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light'} ${themeClassName}' style='user-select:none; cursor:pointer'>
+  <body class='${themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light'}' style='user-select:none; cursor:pointer'>
       ${html}
       ${watermarkHtml}
   </body>

@@ -176,7 +176,10 @@
 <style>
   td {
     font-weight: normal;
-    border: 1px solid var(--theme-border);
+    border-top: var(--theme-datagrid-border-horizontal);
+    border-bottom: var(--theme-datagrid-border-horizontal);
+    border-left: var(--theme-datagrid-border-vertical);
+    border-right: var(--theme-datagrid-border-vertical);
     padding: 2px;
     white-space: nowrap;
     position: relative;
@@ -191,28 +194,32 @@
     outline-offset: -3px;
   }
   td.isFocusedColumn {
-    background: var(--theme-bg-alt);
+    background: var(--theme-datagrid-focused-cell-background);
   }
   td.isModifiedRow {
-    background: var(--theme-bg-gold);
+    background: var(--theme-datagrid-modified-row-background);
   }
   td.isModifiedCell {
-    background: var(--theme-bg-orange);
+    background: var(--theme-datagrid-modified-cell-background);
   }
   td.isInserted {
-    background: var(--theme-bg-green);
+    background: var(--theme-datagrid-inserted-row-background);
   }
   td.isDeleted {
-    background: var(--theme-bg-volcano);
+    background: var(--theme-datagrid-deleted-row-background);
   }
   td.isMissing {
-    background: var(--theme-bg-volcano);
+    background: var(--theme-datagrid-deleted-row-background);
   }
   td.isSelected {
-    background: var(--theme-bg-3);
+    background: var(--theme-datagrid-selected-cell-background);
   }
   :global(.data-grid-focused) td.isSelected {
-    background: var(--theme-bg-selected);
+    background: var(--theme-datagrid-focused-cell-background);
+    border-top: var(--theme-datagrid-focused-cell-border-horizontal);
+    border-bottom: var(--theme-datagrid-focused-cell-border-horizontal);
+    border-left: var(--theme-datagrid-focused-cell-border-vertical);
+    border-right: var(--theme-datagrid-focused-cell-border-vertical);
   }
   td.isDeleted {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==') !important;
@@ -221,7 +228,7 @@
   }
 
   .hint {
-    color: var(--theme-font-3);
+    color: var(--theme-datagrid-foreground-grayed);
     margin-left: 5px;
   }
 

@@ -12,10 +12,10 @@
     cloudSigninTokenHolder,
     currentArchive,
     currentDatabase,
-    currentThemeDefinition,
     selectedWidget,
     visibleCommandPalette,
   } from '../stores';
+  import { currentThemeDefinition } from '../plugins/themes';
   import { getConnectionLabel } from 'dbgate-tools';
   import {
     useConfig,
@@ -123,9 +123,9 @@
         {:else if $status.name == 'loadStructure'}
           <FontIcon icon="icon loading" padRight /> Loading model
         {:else if $status.name == 'ok'}
-          <FontIcon icon="img ok-inv" padRight /> Connected
+          <FontIcon icon="img ok-statusbar" padRight /> Connected
         {:else if $status.name == 'error'}
-          <FontIcon icon="img error-inv" padRight /> Error
+          <FontIcon icon="img error-statusbar" padRight /> Error
         {/if}
       </div>
     {/if}
@@ -205,7 +205,7 @@
 <style>
   .main {
     display: flex;
-    color: var(--theme-font-inv-15);
+    color: var(--theme-statusbar-foreground);
     align-items: stretch;
     justify-content: space-between;
     cursor: default;
@@ -233,13 +233,13 @@
     cursor: pointer;
   }
   .clickable:hover {
-    background-color: var(--theme-bg-statusbar-inv-hover);
+    background-color: var(--theme-statusbar-background-hover);
   }
 
   .colorbox {
     padding: 0px 3px;
     border-radius: 2px;
-    color: var(--theme-bg-statusbar-inv-font);
-    background: var(--theme-bg-statusbar-inv-bg);
+    color: var(--theme-statusbar-button-foreground);
+    background: var(--theme-statusbar-button-background);
   }
 </style>

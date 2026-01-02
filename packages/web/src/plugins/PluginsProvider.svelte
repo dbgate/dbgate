@@ -50,7 +50,6 @@
     const extensions = {
       plugins,
       fileFormats: filterByEdition(buildFileFormats(plugins)),
-      themes: filterByEdition(buildThemes(plugins)),
       drivers: filterByEdition(buildDrivers(plugins)),
       quickExports: filterByEdition(buildQuickExports(plugins)),
     };
@@ -63,7 +62,6 @@
   import { extensions, loadingPluginStore } from '../stores';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats, buildQuickExports } from './fileformats';
-  import { buildThemes } from './themes';
   import * as dbgateTools from 'dbgate-tools';
   import * as sqlTree from 'dbgate-sqltree';
   import { apiCall } from '../utility/api';

@@ -130,23 +130,24 @@
     justify-content: space-between;
   }
   .row:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-altsidebar-background-hover);
   }
 
   .row.isSelected {
-    background: var(--theme-bg-3);
+    background: var(--theme-altsidebar-background-active);
   }
 
   .row.isSelected.isFocused {
-    background: var(--theme-bg-selected);
+    background: var(--theme-altsidebar-background-focused);
   }
 
   .icon {
     position: relative;
+    color: var(--theme-altsidebar-foreground-button);
     /* top: 5px;
     padding: 5px; */
   }
   .icon:hover {
-    background-color: var(--theme-bg-3);
+    color: var(--theme-altsidebar-foreground-hover);
   }
 </style>

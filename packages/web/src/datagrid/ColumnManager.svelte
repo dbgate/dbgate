@@ -18,6 +18,7 @@
   import ColumnEditorModal from '../tableeditor/ColumnEditorModal.svelte';
   import { tick } from 'svelte';
   import { _t } from '../translations';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let managerSize;
   export let display: GridDisplay;
@@ -155,8 +156,8 @@
       class="colmode"
       value={isDynamicStructure ? 'variable' : 'fixed'}
       options={[
-        { label: _t('column.fixed', {defaultMessage: 'Fixed columns (like SQL)'}), value: 'fixed' },
-        { label: _t('column.variable', {defaultMessage: 'Variable columns (like MongoDB)'}) , value: 'variable' },
+        { label: _t('column.fixed', { defaultMessage: 'Fixed columns (like SQL)' }), value: 'fixed' },
+        { label: _t('column.variable', { defaultMessage: 'Variable columns (like MongoDB)' }), value: 'variable' },
       ]}
       on:change={e => {
         dispatchChangeSet({
@@ -174,12 +175,13 @@
     />
   </div>
 {/if}
-<SearchBoxWrapper>
+<SearchBoxWrapper altsearchbox filter={currentFilter}>
   <SearchInput
-    placeholder={_t('column.search', {defaultMessage: 'Search columns'})}
+    placeholder={_t('column.search', { defaultMessage: 'Search columns' })}
     value={currentFilter}
     onChange={value => display.setSearchInColumns(value)}
     data-testid="ColumnManager_searchColumns"
+    altsearchbox
   />
   <CloseSearchButton filter={currentFilter} onClearFilter={() => display.setSearchInColumns('')} />
   {#if isDynamicStructure && !isJsonView}
@@ -187,8 +189,8 @@
       on:click={() => {
         showModal(InputTextModal, {
           value: '',
-          label: _t('column.name', {defaultMessage: 'Column name'}),
-          header: _t('column.addNew', {defaultMessage: 'Add new column'}),
+          label: _t('column.name', { defaultMessage: 'Column name' }),
+          header: _t('column.addNew', { defaultMessage: 'Add new column' }),
           onConfirm: name => {
             display.addDynamicColumn(name);
             tick().then(() => {
@@ -206,8 +208,8 @@
   {#if allowChangeChangeSetStructure && !isDynamicStructure}
     <InlineButton on:click={handleAddColumn}>Add</InlineButton>
   {/if}
-  <InlineButton on:click={() => display.hideAllColumns()}>Hide</InlineButton>
-  <InlineButton on:click={() => display.showAllColumns()}>Show</InlineButton>
+  <InlineButton on:click={() => display.hideAllColumns()}><FontIcon icon="icon hide" /></InlineButton>
+  <InlineButton on:click={() => display.showAllColumns()}><FontIcon icon="icon show" /></InlineButton>
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
   <input

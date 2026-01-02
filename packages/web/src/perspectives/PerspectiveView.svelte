@@ -184,7 +184,7 @@
           </div>
         {/if}
 
-        <SearchBoxWrapper>
+        <SearchBoxWrapper {filter}>
           <SearchInput placeholder={_t('perspective.searchColumnOrTable', { defaultMessage: "Search column or table" })} bind:value={filter} />
           <CloseSearchButton bind:filter />
         </SearchBoxWrapper>
@@ -231,12 +231,13 @@
   .left {
     display: flex;
     flex: 1;
-    background-color: var(--theme-bg-0);
+    background: var(--theme-altsidebar-background);
+    border-right: var(--theme-altsidebar-border);
   }
 
   .temp-root {
-    border: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-1);
+    border: var(--theme-altsearchbox-border);
+    background: var(--theme-altsearchbox-background);
     display: flex;
     justify-content: space-between;
     align-items: center;

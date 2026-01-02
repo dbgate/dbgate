@@ -292,7 +292,7 @@
     {/if}
   </WidgetsInnerContainer>
 {:else}
-  <SearchBoxWrapper>
+  <SearchBoxWrapper {filter}>
     <SearchInput
       placeholder={_t('sqlObject.search.placeholder', { defaultMessage: 'Search in tables, views, procedures' })}
       bind:value={filter}
@@ -306,7 +306,6 @@
     <DropDownButton
       icon={filter ? 'img filter-active' : 'icon filter'}
       menu={createSearchMenu}
-      square={!!filter}
       narrow={false}
       data-testid="SqlObjectList_searchMenuDropDown"
     />
@@ -316,7 +315,6 @@
     <DropDownButton
       menu={createRefreshDatabaseMenu}
       title={_t('sqlObjectList.refreshDatabase', { defaultMessage: 'Refresh database connection and object list' })}
-      square
       narrow={false}
       data-testid="SqlObjectList_refreshButton"
       icon="icon dots-vertical"

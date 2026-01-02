@@ -208,7 +208,7 @@
   }
 </script>
 
-<SearchBoxWrapper>
+<SearchBoxWrapper {filter}>
   <SearchInput
     placeholder= {_t('connection.search.placeholder', { defaultMessage: 'Search connection or database' })}
     bind:value={filter}

@@ -247,7 +247,7 @@
 
 <WidgetColumnBar storageName="privateCloudItems">
   <WidgetColumnBarItem title="DbGate Cloud" name="privateCloud" height="50%" skip={!$cloudSigninTokenHolder}>
-    <SearchBoxWrapper>
+    <SearchBoxWrapper {filter}>
       <SearchInput
         placeholder={_t('privateCloudWidget.searchPlaceholder', {
           defaultMessage: 'Search cloud connections and files',

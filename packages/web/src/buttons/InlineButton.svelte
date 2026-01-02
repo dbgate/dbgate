@@ -3,7 +3,9 @@
   export let square = false;
   export let narrow = false;
   export let title = null;
-  export let inlineBlock=false;
+  export let inlineBlock = false;
+  export let useBorder = false;
+  export let circleHover = false;
 
   let domButton;
 
@@ -19,7 +21,10 @@
   class:square
   class:narrow
   class:inlineBlock
+  class:useBorder
+  class:circleHover
   on:click
+  on:mousedown
   bind:this={domButton}
   data-testid={$$props['data-testid']}
 >
@@ -30,16 +35,10 @@
 
 <style>
   .outer {
-    --bg-1: var(--theme-bg-1);
-    --bg-2: var(--theme-bg-3);
-
-    background: linear-gradient(to bottom, var(--bg-1) 5%, var(--bg-2) 100%);
-    background-color: var(--bg-1);
-    border: 1px solid var(--bg-2);
     display: inline-block;
     cursor: pointer;
     vertical-align: middle;
-    color: var(--theme-font-1);
+    color: var(--theme-inlinebutton-foreground);
     font-size: 12px;
     padding: 3px;
     margin: 0;
@@ -47,21 +46,39 @@
     display: flex;
   }
 
+  .outer.circleHover:hover:not(.disabled) {
+    border-radius: 50%;
+    background-color: var(--theme-inlinebutton-circle-hover-background);
+    width: 18px;
+  }
+
+  .outer:not(.useBorder) {
+    font-size: 14px;
+  }
+
+  .outer.useBorder {
+    --bg-1: var(--theme-bg-1);
+    --bg-2: var(--theme-bg-3);
+
+    background: var(--theme-inlinebutton-bordered-background);
+    border: var(--theme-inlinebutton-bordered-border);
+  }
+
   .narrow {
     padding: 3px 1px;
   }
 
   .outer.disabled {
-    color: var(--theme-font-3);
+    color: var(--theme-inlinebutton-foreground-disabled);
+  }
+
+  .outer.useBorder:hover:not(.disabled) {
+    border: var(--theme-inlinebutton-bordered-hover-border);
+    background: var(--theme-inlinebutton-bordered-hover-background);
   }
 
   .outer:hover:not(.disabled) {
-    border: 1px solid var(--theme-font-1);
-  }
-
-  .outer:active:not(.disabled) {
-    background: linear-gradient(to bottom, var(--bg-2) 5%, var(--bg-1) 100%);
-    background-color: var(--bg-2);
+    color: var(--theme-inlinebutton-foreground-hover);
   }
 
   .inner {
@@ -70,7 +87,7 @@
     text-align: center;
   }
 
-  .square {
+  .square.useBorder {
     width: 18px;
   }
 

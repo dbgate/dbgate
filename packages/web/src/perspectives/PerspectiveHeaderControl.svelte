@@ -82,14 +82,14 @@
     text-align: left;
     padding: 2px;
     margin: 0;
-    background-color: var(--theme-bg-1);
+    background: var(--theme-table-header-background);
     overflow: hidden;
     vertical-align: center;
     z-index: 100;
     font-weight: normal;
 
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
+    border-right: var(--theme-table-border);
   }
 
   th.tableHeader {
@@ -101,7 +101,7 @@
   }
 
   th:global(.highlight) {
-    border: 3px solid var(--theme-icon-blue);
+    border: var(--theme-cell-active-border);
     padding: 0px;
   }
 </style>

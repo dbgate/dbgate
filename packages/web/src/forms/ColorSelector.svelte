@@ -2,7 +2,7 @@
   import _ from 'lodash';
   import { presetPrimaryColors } from '@ant-design/colors';
   import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
-  import { currentThemeDefinition } from '../stores';
+  import { currentThemeDefinition } from '../plugins/themes';
   import FontIcon from '../icons/FontIcon.svelte';
   import { createEventDispatcher } from 'svelte';
 

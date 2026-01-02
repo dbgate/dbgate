@@ -1264,7 +1264,6 @@
   "settings.appearance": "Anwendungs-Design",
   "settings.appearance.afterInstalling": "Nach der Installation des Design-Plugins (versuchen Sie, \"theme\" in verfügbaren Erweiterungen zu suchen) sind hier neue Designs verfügbar.",
   "settings.appearance.customSize": "Benutzerdefinierte Größe",
-  "settings.appearance.editorTheme": "Design",
   "settings.appearance.editorTheme.default": "(Standarddesign verwenden)",
   "settings.appearance.fontFamily": "Editor-Schriftfamilie",
   "settings.appearance.fontSize": "Schriftgröße",

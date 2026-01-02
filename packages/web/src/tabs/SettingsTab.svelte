@@ -21,6 +21,7 @@
   import hasPermission from '../utility/hasPermission';
 
   export let selectedItem = 'general';
+  export let tabid = null;
 
   const menuItems = [
     {
@@ -55,7 +56,7 @@
       label: _t('settings.theme', { defaultMessage: 'Themes' }),
       identifier: 'theme',
       component: ThemeSettings,
-      props: {},
+      props: { tabid },
       testid: 'settings-themes',
     },
     hasPermission('settings/change') && {

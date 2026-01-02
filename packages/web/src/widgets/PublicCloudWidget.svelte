@@ -32,7 +32,7 @@
     name="publicCloud"
   >
     <WidgetsInnerContainer>
-      <SearchBoxWrapper>
+      <SearchBoxWrapper {filter}>
         <SearchInput
           placeholder={_t('publicCloudWidget.searchPublicFiles', { defaultMessage: 'Search public files' })}
           bind:value={filter}

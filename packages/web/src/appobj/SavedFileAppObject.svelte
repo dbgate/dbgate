@@ -142,6 +142,16 @@
     label: 'Model transform file',
   };
 
+  const themes: FileTypeHandler = {
+    icon: 'img theme',
+    format: 'text',
+    tabComponent: 'JsonEditorTab',
+    folder: 'themes',
+    currentConnection: false,
+    extension: 'json',
+    label: 'Theme file',
+  };
+
   const apps: FileTypeHandler = isProApp()
     ? {
         icon: 'img app',
@@ -164,6 +174,7 @@
     perspectives,
     impexp,
     modtrans,
+    themes,
     datadeploy,
     dbcompare,
     apps,

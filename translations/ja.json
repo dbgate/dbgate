@@ -1264,7 +1264,6 @@
   "settings.appearance": "アプリケーションテーマ",
   "settings.appearance.afterInstalling": "テーマプラグインをインストールすると（利用可能な拡張機能で\"theme\"を検索）、新しいテーマがここに表示されます。",
   "settings.appearance.customSize": "カスタムサイズ",
-  "settings.appearance.editorTheme": "テーマ",
   "settings.appearance.editorTheme.default": "(テーマのデフォルトを使用)",
   "settings.appearance.fontFamily": "エディターのフォントファミリー",
   "settings.appearance.fontSize": "フォントサイズ",

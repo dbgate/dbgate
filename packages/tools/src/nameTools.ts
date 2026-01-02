@@ -146,4 +146,5 @@ export const DATA_FOLDER_NAMES = [
   { name: 'datadeploy', label: 'Data deploy jobs' },
   { name: 'dbcompare', label: 'Database compare jobs' },
   { name: 'apps', label: 'Applications' },
+  { name: 'themes', label: 'Themes' },
 ];
