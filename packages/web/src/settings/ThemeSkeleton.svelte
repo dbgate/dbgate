@@ -89,11 +89,11 @@
     justify-content: center;
   }
   .icon:hover {
-    color: var(--theme-widget-icon-active-foreground);
+    color: var(--theme-widget-icon-foreground-hover);
   }
   .selected-icon {
-    border-left: 1px solid var(--theme-widget-icon-active-foreground);
-    color: var(--theme-widget-icon-active-foreground);
-    background: var(--theme-widget-icon-active-background);
+    border-left: var(--theme-widget-icon-border-active);
+    color: var(--theme-widget-icon-foreground-active);
+    background: var(--theme-widget-icon-background-active);
   }
 </style>
