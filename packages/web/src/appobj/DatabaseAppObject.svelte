@@ -674,6 +674,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   export let passProps;
   export let passExtInfo = undefined;
   export let passIcon = undefined;
+  export let passColorMark = undefined;
 
   function createMenu() {
     return getDatabaseMenuItems(
@@ -703,8 +704,9 @@ await dbgateApi.executeQuery(${JSON.stringify(
   title={data.name}
   extInfo={passExtInfo ?? data.extInfo}
   icon={passIcon || 'img database'}
-  colorMark={passProps?.connectionColorFactory &&
-    passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false)}
+  colorMark={passColorMark ||
+    (passProps?.connectionColorFactory &&
+      passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false))}
   isBold={$currentDatabase?.connection?._id == data?.connection?._id &&
     extractDbNameFromComposite($currentDatabase?.name) == data.name}
   on:dblclick={() => {

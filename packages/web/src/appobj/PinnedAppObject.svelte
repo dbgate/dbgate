@@ -31,6 +31,7 @@
   import { getConnectionLabel } from 'dbgate-tools';
 
   export let data;
+  export let passProps;
 </script>
 
 {#if data}
@@ -73,6 +74,7 @@
       }}
       passExtInfo={getConnectionLabel(data.connection)}
       passIcon={$extensions.drivers.find(x => x.engine == data.connection.engine)?.icon}
+      passColorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data.connection._id })}
     />
   {/if}
 {/if}
