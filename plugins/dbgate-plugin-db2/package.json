@@ -1,0 +1,52 @@
+{
+  "name": "dbgate-plugin-db2",
+  "version": "6.0.0-alpha.1",
+  "main": "dist/backend.js",
+  "description": "DB2 plugin for DbGate",
+  "homepage": "https://dbgate.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate"
+  },
+  "author": "Gerges Bernaba",
+  "license": "GPL-3.0",
+  "keywords": [
+    "db2",
+    "database",
+    "dbgate",
+    "dbgatebuiltin"
+  ],
+  "files": [
+    "dist",
+    "icon.svg"
+  ],  "scripts": {
+    "build": "yarn build:frontend && yarn build:backend",
+    "build:frontend": "webpack --config webpack-frontend.config.js",
+    "build:frontend:watch": "webpack --config webpack-frontend.config.js --watch",
+    "build:backend": "webpack --config webpack-backend.config.js",
+    "watch": "yarn watch:frontend & yarn watch:backend",    
+    "watch:frontend": "webpack --config webpack-frontend.config.js --watch",
+    "watch:backend": "webpack --config webpack-backend.config.js --watch",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-db2",
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-db2",    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "test:ui": "node ui-field-mapping-test.js",
+    "test:procedure-function": "node test-procedure-function-display-fix.js"
+  },
+  "dependencies": {
+    "ibm_db": "^3.1.0",
+    "dbgate-tools": "^6.0.0-alpha.1",
+    "dbgate-types": "*"
+  },
+  "devDependencies": {
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11"
+  },
+  "peerDependencies": {
+    "dbgate-tools": "^6.0.0-alpha.1"
+  }
+}
