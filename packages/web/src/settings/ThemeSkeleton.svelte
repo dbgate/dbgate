@@ -21,7 +21,12 @@
   }
 </script>
 
-<div style={cssVarColors} class="container" on:click={handleApplyTheme}>
+<div
+  style={cssVarColors}
+  class="container"
+  on:click={handleApplyTheme}
+  data-testid={`ThemeSkeleton-${theme.themeName}-${theme.isBuiltInTheme ? 'built-in' : theme.themePublicCloudPath ? 'cloud' : 'file'}`}
+>
   <div class="iconbar">
     <div class="icon selected-icon">
       <FontIcon icon="icon database" />

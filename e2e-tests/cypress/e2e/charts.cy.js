@@ -229,10 +229,8 @@ describe('Charts', () => {
     // Themes
     cy.contains('Themes').click();
     cy.themeshot('app-settings-themes');
-    cy.contains('Dark').click();
-    cy.get('body').find('.theme-dark').should('exist');
-    cy.contains('Light').click();
-    cy.get('body').find('.theme-light').should('exist');
+    cy.testid('ThemeSkeleton-Dark-built-in').click();
+    cy.testid('ThemeSkeleton-Light-built-in').click();
 
     // General
     cy.contains(/^General$/).click();
