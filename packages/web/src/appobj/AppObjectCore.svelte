@@ -241,7 +241,8 @@
   }
 
   .pin,
-  .pin-active {
+  .pin-active,
+  .unpin {
     z-index: 150;
     position: absolute;
     right: 0;

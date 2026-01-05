@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import DatabaseAppObject from './DatabaseAppObject.svelte';
   import DatabaseObjectAppObject from './DatabaseObjectAppObject.svelte';
+  import { extensions } from '../stores';
 
   export const extractKey = data => {
     if (data.objectTypeField) {
@@ -27,6 +28,7 @@
 <script lang="ts">
   import _, { values } from 'lodash';
   import { draggedPinnedObject, pinnedDatabases, pinnedTables } from '../stores';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   export let data;
 </script>
@@ -69,6 +71,8 @@
       on:dragend={() => {
         $draggedPinnedObject = null;
       }}
+      passExtInfo={getConnectionLabel(data.connection)}
+      passIcon={$extensions.drivers.find(x => x.engine == data.connection.engine)?.icon}
     />
   {/if}
 {/if}
