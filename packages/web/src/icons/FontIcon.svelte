@@ -97,6 +97,7 @@
     'icon form': 'mdi mdi-form-select',
     'icon archive': 'mdi mdi-archive',
     'icon file': 'mdi mdi-file',
+    'icon opened-tabs': 'mdi mdi-book-open-blank-variant-outline',
     'icon loading': 'mdi mdi-loading mdi-spin',
     'icon close': 'mdi mdi-close',
     'icon unsaved': 'mdi mdi-record',
