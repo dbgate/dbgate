@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import { _t, _tval } from '../translations';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   export let onExecute;
 
@@ -17,8 +17,12 @@
     </div>
   </div>
   <div class="buttons">
-    <ToolbarButton icon="icon run" on:click={onExecute}>{_t('common.execute', { defaultMessage: 'Execute' })}</ToolbarButton>
-    <ToolbarButton icon="icon close" on:click={() => ($selectedMacro = null)}>{_t('common.close', { defaultMessage: 'Close' })}</ToolbarButton>
+    <InlineButton on:click={onExecute}>
+      <FontIcon icon="icon run" /> {_t('common.execute', { defaultMessage: 'Execute' })}
+    </InlineButton>
+    <InlineButton on:click={() => ($selectedMacro = null)}>
+      <FontIcon icon="icon close" /> {_t('common.close', { defaultMessage: 'Close' })}
+    </InlineButton>
   </div>
 </div>
 
@@ -27,12 +31,12 @@
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    background: var(--theme-bg-modalheader);
+    background: var(--theme-datagrid-detail-header-background);
     height: var(--dim-toolbar-height);
     min-height: var(--dim-toolbar-height);
     overflow: hidden;
-    border-top: 1px solid var(--theme-border);
-    border-bottom: 1px solid var(--theme-border);
+    border-top: var(--theme-datagrid-detail-header-border);
+    border-bottom: var(--theme-datagrid-detail-header-border);
   }
 
   .header {
@@ -45,5 +49,6 @@
   .buttons {
     display: flex;
     align-items: stretch;
+    margin-right: 10px;
   }
 </style>

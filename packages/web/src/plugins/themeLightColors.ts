@@ -95,6 +95,8 @@ export const themeLightColors = {
   '--theme-datagrid-selected-point-marker': 'var(--tw-color-sky-500)',
   '--theme-datagrid-corner-label-background': 'var(--tw-color-sky-200)',
   '--theme-datagrid-corner-label-border': '1px solid var(--tw-color-sky-300)',
+  '--theme-datagrid-detail-header-background': 'var(--tw-color-blue-100)',
+  '--theme-datagrid-detail-header-border': '1px solid var(--tw-color-blue-200)',
   '--theme-checkbox-check': 'var(--tw-color-zinc-200)',
   '--theme-checkbox-background': 'var(--tw-color-sky-600)',
   '--theme-checkbox-border': '2px solid var(--tw-color-zinc-700)',
