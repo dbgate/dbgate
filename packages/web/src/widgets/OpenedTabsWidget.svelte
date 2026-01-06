@@ -17,6 +17,9 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import runCommand from '../commands/runCommand';
 
   let openedTabsfilter;
   let closedTabsFilter;
@@ -29,6 +32,14 @@
     <SearchBoxWrapper filter={openedTabsfilter}>
       <SearchInput placeholder={_t('common.search', { defaultMessage: 'Search' })} bind:value={openedTabsfilter} />
       <CloseSearchButton bind:filter={openedTabsfilter} />
+      <InlineButton
+        title={_t('tabsWidget.closeAllTabs', { defaultMessage: 'Close all tabs' })}
+        on:click={() => {
+          runCommand('tabs.closeAll');
+        }}
+      >
+        <FontIcon icon="icon close-all" />
+      </InlineButton>
     </SearchBoxWrapper>
 
     <WidgetsInnerContainer>

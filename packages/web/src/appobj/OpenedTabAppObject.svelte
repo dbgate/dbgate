@@ -12,8 +12,11 @@
 <script lang="ts">
   import { openedTabs } from '../stores';
   import { setSelectedTabFunc } from '../utility/common';
+  import tabs from '../tabs';
+  import uuidv1 from 'uuid/v1';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { apiCall } from '../utility/api';
 
   export let data;
 
@@ -28,6 +31,17 @@
   const onClick = () => {
     openedTabs.update(files => setSelectedTabFunc(files, data.tabid));
   };
+
+  function handlePin() {
+    apiCall('files/save', {
+      folder: 'favorites',
+      file: uuidv1(),
+      format: 'json',
+      data,
+    });
+  }
+
+  $: tabComponent = data.tabComponent;
 </script>
 
 <AppObjectCore
@@ -39,6 +53,12 @@
   on:click={onClick}
   isBusy={data.busy}
   menu={createMenu}
+  onPin={tabComponent &&
+    tabs[tabComponent] &&
+    tabs[tabComponent].allowAddToFavorites &&
+    tabs[tabComponent].allowAddToFavorites(data) &&
+    handlePin}
+  on:middleclick={handleClose}
 />
 
 <style>

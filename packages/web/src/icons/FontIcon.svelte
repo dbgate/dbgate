@@ -98,8 +98,10 @@
     'icon archive': 'mdi mdi-archive',
     'icon file': 'mdi mdi-file',
     'icon opened-tabs': 'mdi mdi-book-open-blank-variant-outline',
+    'icon stars': 'mdi mdi-creation',
     'icon loading': 'mdi mdi-loading mdi-spin',
     'icon close': 'mdi mdi-close',
+    'icon close-all': 'mdi mdi-close-box-multiple-outline',
     'icon unsaved': 'mdi mdi-record',
     'icon stop': 'mdi mdi-close-octagon',
     'icon play': 'mdi mdi-play',
@@ -363,15 +365,7 @@
 </script>
 
 {#if isSvgString}
-  <span
-    class="svg-inline"
-    class:padLeft
-    class:padRight
-    {title}
-    {style}
-    on:click
-    data-testid={$$props['data-testid']}
-  >
+  <span class="svg-inline" class:padLeft class:padRight {title} {style} on:click data-testid={$$props['data-testid']}>
     {@html icon}
   </span>
 {:else}
