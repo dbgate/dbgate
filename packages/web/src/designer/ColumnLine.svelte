@@ -1,7 +1,5 @@
 <script lang="ts">
   import { findForeignKeyForColumn } from 'dbgate-tools';
-  import InlineButton from '../buttons/InlineButton.svelte';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
 

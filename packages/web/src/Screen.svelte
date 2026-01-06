@@ -9,12 +9,10 @@
     visibleWidgetSideBar,
     visibleCommandPalette,
     visibleTitleBar,
-    visibleToolbar,
     rightPanelWidget,
     rightPanelWidth,
   } from './stores';
   import CommandPalette from './commands/CommandPalette.svelte';
-  import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
   import StatusBar from './widgets/StatusBar.svelte';
@@ -87,11 +85,6 @@
   {#if $visibleCommandPalette}
     <div class="commads">
       <CommandPalette />
-    </div>
-  {/if}
-  {#if $visibleToolbar}
-    <div class="toolbar">
-      <Toolbar />
     </div>
   {/if}
   <CurrentDropDownMenu />

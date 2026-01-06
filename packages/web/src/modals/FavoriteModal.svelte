@@ -22,7 +22,7 @@
   export let savingTab;
 
   const electron = getElectron();
-  const savedProperties = ['title', 'icon', 'showInToolbar', 'openOnStartup', 'urlPath'];
+  const savedProperties = ['title', 'icon', 'openOnStartup', 'urlPath'];
   $: initialValues = savingTab
     ? {
         title: savingTab.title,
@@ -125,7 +125,6 @@
     {/if}
     <FormValues let:values>
       {#if !values.shareAsLink && canWriteFavorite}
-        <FormCheckboxField label={_t('favorite.showInToolbar', { defaultMessage: 'Show in toolbar' })} name="showInToolbar" />
         <FormCheckboxField label={_t('favorite.openOnStartup', { defaultMessage: 'Open on startup' })} name="openOnStartup" />
       {/if}
     </FormValues>

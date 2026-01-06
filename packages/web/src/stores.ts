@@ -142,8 +142,6 @@ export const draggingTabTarget = writable(null);
 export const draggingDbGroup = writable(null);
 export const draggingDbGroupTarget = writable(null);
 
-// export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
-export const visibleToolbar = writable(false);
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
 export const rightPanelWidth = writableWithStorage(300, 'rightPanelWidth');
 export const currentDropDownMenu = writable(null);
@@ -248,7 +246,6 @@ export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
 });
 
 subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
-// subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(rightPanelWidth, x => `${x}px`, '--dim-right-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
@@ -269,13 +266,6 @@ visibleCommandPalette.subscribe(value => {
   invalidateCommands();
 });
 export const getVisibleCommandPalette = () => visibleCommandPaletteValue;
-
-let visibleToolbarValue = null;
-visibleToolbar.subscribe(value => {
-  visibleToolbarValue = value;
-  invalidateCommands();
-});
-export const getVisibleToolbar = () => visibleToolbarValue;
 
 let openedTabsValue = null;
 openedTabs.subscribe(value => {
