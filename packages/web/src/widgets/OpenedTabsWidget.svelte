@@ -14,12 +14,23 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { _t } from '../translations';
+  import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+
+  let openedTabsfilter;
+  let closedTabsFilter;
 
   $: favorites = useFavorites();
 </script>
 
 <WidgetColumnBar storageName="openedTabsWidget">
   <WidgetColumnBarItem title={_t('tabsWidget.openedTabs', { defaultMessage: 'Opened tabs' })} name="openedTabs">
+    <SearchBoxWrapper filter={openedTabsfilter}>
+      <SearchInput placeholder={_t('common.search', { defaultMessage: 'Search' })} bind:value={openedTabsfilter} />
+      <CloseSearchButton bind:filter={openedTabsfilter} />
+    </SearchBoxWrapper>
+
     <WidgetsInnerContainer>
       <AppObjectList
         list={_.sortBy(
@@ -27,6 +38,7 @@
           x => x.tabOrder
         )}
         module={openedTabAppObject}
+        filter={openedTabsfilter}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
@@ -43,6 +55,11 @@
     title={_t('tabsWidget.recentlyClosedTabs', { defaultMessage: 'Recently closed tabs' })}
     name="closedTabs"
   >
+    <SearchBoxWrapper filter={closedTabsFilter}>
+      <SearchInput placeholder={_t('common.search', { defaultMessage: 'Search' })} bind:value={closedTabsFilter} />
+      <CloseSearchButton bind:filter={closedTabsFilter} />
+    </SearchBoxWrapper>
+
     <WidgetsInnerContainer>
       <AppObjectList
         list={_.sortBy(
@@ -50,6 +67,7 @@
           x => -x.closedTime
         )}
         module={closedTabAppObject}
+        filter={closedTabsFilter}
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>

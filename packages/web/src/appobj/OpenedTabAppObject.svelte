@@ -1,5 +1,12 @@
 <script lang="ts" context="module">
+  import { filterName } from 'dbgate-tools';
+
   export const extractKey = data => data.tabid;
+
+  export const createMatcher =
+    filter =>
+    ({ title }) =>
+      filterName(filter, title);
 </script>
 
 <script lang="ts">

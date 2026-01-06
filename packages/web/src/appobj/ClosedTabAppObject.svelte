@@ -1,5 +1,10 @@
 <script lang="ts" context="module">
   export const extractKey = data => data.tabid;
+
+  export const createMatcher =
+    filter =>
+    ({ title }) =>
+      filterName(filter, title);
 </script>
 
 <script lang="ts">
@@ -9,6 +14,7 @@
   import moment from 'moment';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { filterName } from 'dbgate-tools';
 
   export let data;
 
