@@ -30,6 +30,9 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyValueHashDetail from '../dbkeyvalue/DbKeyValueHashDetail.svelte';
+  import DbKeyValueZSetDetail from '../dbkeyvalue/DbKeyValueZSetDetail.svelte';
+  import DbKeyValueStreamDetail from '../dbkeyvalue/DbKeyValueStreamDetail.svelte';
   import DbKeyValueListEdit from '../dbkeyvalue/DbKeyValueListEdit.svelte';
   import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
   import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
@@ -195,9 +198,10 @@
     
     if (keyInfo.type === 'hash') {
       // @ts-ignore
-      const update = existingChange.updates?.find(u => u.key === row.key);
+      const originalKey = row._originalKey || row.key;
+      const update = existingChange.updates?.find(u => u.originalKey === originalKey);
       if (update) {
-        return { ...row, value: update.value, TTL: update.ttl !== undefined ? update.ttl : row.TTL };
+        return { ...row, _originalKey: originalKey, key: update.key, value: update.value, TTL: update.ttl !== undefined ? update.ttl : row.TTL };
       }
     } else if (keyInfo.type === 'list') {
       // @ts-ignore
@@ -268,6 +272,37 @@
     return { records };
   }
 
+  function handleRemoveItem(row, keyInfo) {
+    const existingChange = changeSetRedis.changes.find(
+      c => c.key === keyInfo.key && c.type === keyInfo.type
+    );
+    
+    let change;
+    if (existingChange) {
+      change = { ...existingChange };
+    } else {
+      // @ts-ignore
+      change = { key: keyInfo.key, type: keyInfo.type, inserts: [], updates: [], deletes: [] };
+    }
+
+    // Add the item to the deletes array based on the type
+    if (keyInfo.type === 'hash') {
+      // @ts-ignore
+      change.deletes = [...(change.deletes || []), row.key];
+    } else if (keyInfo.type === 'set') {
+      // @ts-ignore  
+      change.deletes = [...(change.deletes || []), row.value];
+    } else if (keyInfo.type === 'zset') {
+      // @ts-ignore
+      change.deletes = [...(change.deletes || []), row.member];
+    } else if (keyInfo.type === 'stream') {
+      // @ts-ignore
+      change.deletes = [...(change.deletes || []), row.id];
+    }
+
+    addOrUpdateChange(change);
+  }
+
   function refresh() {
     changeSetRedis = { changes: [] };
     setEditorData({ changes: [] });
@@ -317,6 +352,7 @@
                   showAddForm = false;
                 }}
                 modifyRow={row => getDisplayRow(row, keyInfo)}
+                onRemoveItem={row => handleRemoveItem(row, keyInfo)}
               />
             </svelte:fragment>
             <svelte:fragment slot="2">
@@ -406,63 +442,131 @@
                         // @ts-ignore
                         const streamChange = existingChange || { key: keyInfo.key, type: 'stream', inserts: [], updates: [], deletes: [] };
                         // @ts-ignore
-                        streamChange.inserts = item.records.filter(r => r.value.trim() !== '').map(r => ({ id: r.id.trim() || '*', value: r.value }));
+                        streamChange.inserts = item.records.filter(r => r.value && r.value.trim() !== '').map(r => ({ id: r.id && r.id.trim() ? r.id.trim() : '*', value: r.value }));
                         addOrUpdateChange(streamChange);
                       }
                     }}
                   />
                 {/if}
               {:else}
-                <DbKeyItemDetail 
-                  dbKeyFields={keyInfo.keyType.dbKeyFields} 
-                  item={getDisplayRow(currentRow, keyInfo)}
-                  onChangeItem={item => {
-                    const existingChange = changeSetRedis.changes.find(
-                      c => c.key === keyInfo.key && c.type === keyInfo.type
-                    );
-                    
-                    if (keyInfo.type === 'hash') {
-                    // @ts-ignore
-                    const hashChange = existingChange || { key: keyInfo.key, type: 'hash', inserts: [], updates: [], deletes: [] };
-                    // @ts-ignore
-                    const updateIndex = hashChange.updates?.findIndex(u => u.key === item.key) ?? -1;
-                    if (updateIndex >= 0) {
-                      // @ts-ignore
-                      hashChange.updates[updateIndex] = { key: item.key, value: item.value, ttl: item.TTL };
-                    } else {
-                      // @ts-ignore
-                      hashChange.updates = [...(hashChange.updates || []), { key: item.key, value: item.value, ttl: item.TTL }];
-                    }
-                    addOrUpdateChange(hashChange);
-                  } else if (keyInfo.type === 'list') {
-                    // @ts-ignore
-                    const listChange = existingChange || { key: keyInfo.key, type: 'list', inserts: [], updates: [], deletes: [] };
-                    // @ts-ignore
-                    const updateIndex = listChange.updates?.findIndex(u => u.index === item.rowNumber) ?? -1;
-                    if (updateIndex >= 0) {
-                      // @ts-ignore
-                      listChange.updates[updateIndex] = { index: item.rowNumber, value: item.value };
-                    } else {
-                      // @ts-ignore
-                      listChange.updates = [...(listChange.updates || []), { index: item.rowNumber, value: item.value }];
-                    }
-                    addOrUpdateChange(listChange);
-                  } else if (keyInfo.type === 'zset') {
-                    // @ts-ignore
-                    const zsetChange = existingChange || { key: keyInfo.key, type: 'zset', inserts: [], updates: [], deletes: [] };
-                    // @ts-ignore
-                    const updateIndex = zsetChange.updates?.findIndex(u => u.member === item.member) ?? -1;
-                    if (updateIndex >= 0) {
-                      // @ts-ignore
-                      zsetChange.updates[updateIndex] = { member: item.member, score: item.score };
-                    } else {
-                      // @ts-ignore
-                      zsetChange.updates = [...(zsetChange.updates || []), { member: item.member, score: item.score }];
-                    }
-                    addOrUpdateChange(zsetChange);
-                  }
-                }}
-                />
+                {#if keyInfo.type === 'hash'}
+                  <DbKeyValueHashDetail 
+                    item={getDisplayRow(currentRow, keyInfo)}
+                    onChangeItem={item => {
+                      if (!currentRow) return;
+                      
+                      const existingChange = changeSetRedis.changes.find(
+                        c => c.key === keyInfo.key && c.type === keyInfo.type
+                      );
+                      
+                      const originalKey = currentRow._originalKey || currentRow.key;
+                      let hashChange;
+                      if (existingChange) {
+                        // @ts-ignore
+                        const updateIndex = existingChange.updates?.findIndex(u => u.originalKey === originalKey) ?? -1;
+                        const newUpdate = { originalKey: originalKey, key: item.key, value: item.value, ttl: item.TTL };
+                        
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          hashChange = {
+                            ...existingChange,
+                            updates: existingChange.updates.map((u, idx) => idx === updateIndex ? newUpdate : u)
+                          };
+                        } else {
+                          // @ts-ignore
+                          hashChange = {
+                            ...existingChange,
+                            updates: [...(existingChange.updates || []), newUpdate]
+                          };
+                        }
+                      } else {
+                        // @ts-ignore
+                        hashChange = { 
+                          key: keyInfo.key, 
+                          type: 'hash', 
+                          inserts: [], 
+                          updates: [{ originalKey: originalKey, key: item.key, value: item.value, ttl: item.TTL }], 
+                          deletes: [] 
+                        };
+                      }
+                      
+                      addOrUpdateChange(hashChange);
+                      
+                      currentRow = { ...currentRow, _originalKey: originalKey, key: item.key, value: item.value, TTL: item.TTL };
+                    }}
+                  />        
+                {:else if keyInfo.type === 'zset'}
+                  <DbKeyValueZSetDetail 
+                    item={getDisplayRow(currentRow, keyInfo)}
+                    onChangeItem={item => {
+                      const existingChange = changeSetRedis.changes.find(
+                        c => c.key === keyInfo.key && c.type === keyInfo.type
+                      );
+                      
+                      let zsetChange;
+                      if (existingChange) {
+                        // @ts-ignore
+                        const updateIndex = existingChange.updates?.findIndex(u => u.member === currentRow.member) ?? -1;
+                        const newUpdate = { member: item.member, score: item.score };
+                        
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          zsetChange = {
+                            ...existingChange,
+                            updates: existingChange.updates.map((u, idx) => idx === updateIndex ? newUpdate : u)
+                          };
+                        } else {
+                          // @ts-ignore
+                          zsetChange = {
+                            ...existingChange,
+                            updates: [...(existingChange.updates || []), newUpdate]
+                          };
+                        }
+                      } else {
+                        // @ts-ignore
+                        zsetChange = { 
+                          key: keyInfo.key, 
+                          type: 'zset', 
+                          inserts: [], 
+                          updates: [{ member: item.member, score: item.score }], 
+                          deletes: [] 
+                        };
+                      }
+                      
+                      addOrUpdateChange(zsetChange);
+                      currentRow = { ...currentRow, member: item.member, score: item.score };
+                    }}
+                  />
+                {:else if keyInfo.type === 'stream'}
+                  <DbKeyValueStreamDetail 
+                    item={getDisplayRow(currentRow, keyInfo)}
+                  />
+                {:else}
+                  <DbKeyItemDetail 
+                    dbKeyFields={keyInfo.keyType.dbKeyFields} 
+                    item={getDisplayRow(currentRow, keyInfo)}
+                    onChangeItem={item => {
+                      const existingChange = changeSetRedis.changes.find(
+                        c => c.key === keyInfo.key && c.type === keyInfo.type
+                      );
+                      
+                      if (keyInfo.type === 'list') {
+                        // @ts-ignore
+                        const listChange = existingChange || { key: keyInfo.key, type: 'list', inserts: [], updates: [], deletes: [] };
+                        // @ts-ignore
+                        const updateIndex = listChange.updates?.findIndex(u => u.index === item.rowNumber) ?? -1;
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          listChange.updates[updateIndex] = { index: item.rowNumber, value: item.value };
+                        } else {
+                          // @ts-ignore
+                          listChange.updates = [...(listChange.updates || []), { index: item.rowNumber, value: item.value }];
+                        }
+                        addOrUpdateChange(listChange);
+                      }
+                    }}
+                  />
+                {/if}
               {/if}
             </svelte:fragment>
           </VerticalSplitter>

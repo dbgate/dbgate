@@ -404,6 +404,11 @@ async function handleSaveRedisData({ msgid, changeSet }) {
             }
           }
         }
+        if (change.deletes && Array.isArray(change.deletes)) {
+          for (const delKey of change.deletes) {
+            await driver.query(dbhan, `HDEL "${change.key}" "${delKey}"`);
+          }
+        }
       } else if (change.type === 'zset') {
         if (change.updates && Array.isArray(change.updates)) {
           for (const update of change.updates) {
@@ -413,6 +418,11 @@ async function handleSaveRedisData({ msgid, changeSet }) {
         if (change.inserts && Array.isArray(change.inserts)) {
           for (const insert of change.inserts) {
             await driver.query(dbhan, `ZADD "${change.key}" ${insert.score} "${insert.member}"`);
+          }
+        }
+        if (change.deletes && Array.isArray(change.deletes)) {
+          for (const delMember of change.deletes) {
+            await driver.query(dbhan, `ZREM "${change.key}" "${delMember}"`);
           }
         }
       } else if (change.type === 'list') {
@@ -432,11 +442,21 @@ async function handleSaveRedisData({ msgid, changeSet }) {
             await driver.query(dbhan, `SADD "${change.key}" "${insert.value}"`);
           }
         }
+        if (change.deletes && Array.isArray(change.deletes)) {
+          for (const delValue of change.deletes) {
+            await driver.query(dbhan, `SREM "${change.key}" "${delValue}"`);
+          }
+        }
       } else if (change.type === 'stream') {
         if (change.inserts && Array.isArray(change.inserts)) {
           for (const insert of change.inserts) {
             const streamId = insert.id === '*' || !insert.id ? '*' : insert.id;
             await driver.query(dbhan, `XADD "${change.key}" ${streamId} value "${insert.value}"`);
+          }
+        }
+        if (change.deletes && Array.isArray(change.deletes)) {
+          for (const delId of change.deletes) {
+            await driver.query(dbhan, `XDEL "${change.key}" "${delId}"`);
           }
         }
       }
