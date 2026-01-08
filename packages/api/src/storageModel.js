@@ -1499,6 +1499,86 @@ module.exports = {
       }
     },
     {
+      "pureName": "role_team_folders",
+      "columns": [
+        {
+          "pureName": "role_team_folders",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "team_folder_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "allow_read_files",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "allow_write_files",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "allow_use_files",
+          "dataType": "int",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_team_folders_role_id",
+          "pureName": "role_team_folders",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_team_folders_team_folder_id",
+          "pureName": "role_team_folders",
+          "refTableName": "team_folders",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "team_folder_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "role_team_folders",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_role_team_folders",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
       "pureName": "table_permission_roles",
       "columns": [
         {
@@ -1655,6 +1735,14 @@ module.exports = {
           "columnName": "metadata",
           "dataType": "varchar(1000)",
           "notNull": false
+        },
+        {
+          "pureName": "team_files",
+          "columnName": "team_folder_id",
+          "dataType": "int",
+          "notNull": true,
+          "defaultValue": -1,
+          "defaultConstraint": "DF_team_files_team_folder_id"
         }
       ],
       "foreignKeys": [
@@ -1678,6 +1766,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "owner_user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_team_files_team_folder_id",
+          "pureName": "team_files",
+          "refTableName": "team_folders",
+          "columns": [
+            {
+              "columnName": "team_folder_id",
               "refColumnName": "id"
             }
           ]
@@ -1762,6 +1862,41 @@ module.exports = {
           "id": -7,
           "name": "dbcompare",
           "format": "json"
+        }
+      ]
+    },
+    {
+      "pureName": "team_folders",
+      "columns": [
+        {
+          "pureName": "team_folders",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "team_folders",
+          "columnName": "folder_name",
+          "dataType": "varchar(250)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [],
+      "primaryKey": {
+        "pureName": "team_folders",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_team_folders",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      },
+      "preloadedRows": [
+        {
+          "id": -1,
+          "folder_name": "default"
         }
       ]
     },
@@ -2357,6 +2492,86 @@ module.exports = {
         "pureName": "user_team_files",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_team_files",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_team_folders",
+      "columns": [
+        {
+          "pureName": "user_team_folders",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_folders",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_folders",
+          "columnName": "team_folder_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_team_folders",
+          "columnName": "allow_read_files",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_team_folders",
+          "columnName": "allow_write_files",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "user_team_folders",
+          "columnName": "allow_use_files",
+          "dataType": "int",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_team_folders_user_id",
+          "pureName": "user_team_folders",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_team_folders_team_folder_id",
+          "pureName": "user_team_folders",
+          "refTableName": "team_folders",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "team_folder_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_team_folders",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_team_folders",
         "columns": [
           {
             "columnName": "id"
