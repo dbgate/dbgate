@@ -157,12 +157,18 @@ body {
 }
 
 .input1 {
-  padding: 5px 5px;
+  padding: 5px 2px;
   font-size: 14px;
   box-sizing: border-box;
   border-radius: 4px;
   border: var(--theme-input-border);
   background: var(--theme-input-background);
+}
+
+.input1:focus {
+  outline: none;
+  border-color: var(--theme-input-border-focus);
+  box-shadow: var(--theme-input-focus-ring);
 }
 
 .largeFormMarker select {

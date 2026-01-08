@@ -24,7 +24,7 @@
 {#if isNative}
   <select
     value={options.find(x => x.value == value) ? value : defaultValue}
-    class={selectClass}
+    class="native-select {selectClass}"
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);
@@ -69,26 +69,62 @@
   </div>
 {/if}
 
-<style>
-  .select {
-    --border: 1px solid var(--theme-border);
-    --placeholderColor: var(--theme-font-2);
-    --background: var(--theme-bg-0);
-    --listBackground: var(--theme-bg-1);
-    --itemActiveBackground: var(--theme-bg-selected);
-    --itemIsActiveBG: var(--theme-bg-selected);
-    --itemHoverBG: var(--theme-bg-hover);
-    --itemColor: var(--theme-font-1);
-    --listEmptyColor: var(--theme-bg-0);
 
-    --multiClearBG: var(--theme-bg-3);
-    --multiClearFill: var(--theme-font-2);
-    --multiClearHoverBG: var(--theme-bg-hover);
-    --multiClearHoverFill: var(--theme-font-hover);
-    --multiItemActiveBG: var(--theme-bg-1);
-    --multiItemActiveColor: var(--theme-font-1);
-    --multiItemBG: var(--theme-bg-1);
-    --multiItemDisabledHoverBg: var(--theme-bg-1);
-    --multiItemDisabledHoverColor: var(--theme-bg-1);
+<style>
+  .native-select {
+    padding: 10px 12px;
+    border: var(--theme-input-border);
+    border-radius: 4px;
+    background-color: var(--theme-input-background);
+    color: var(--theme-input-foreground);
+    font-size: 13px;
+    transition: all 0.15s ease;
+    font-family: inherit;
   }
+
+  .native-select:hover {
+    border-color: var(--theme-input-border-hover);
+  }
+
+  .native-select:focus {
+    outline: none;
+    border-color: var(--theme-input-border-focus);
+    box-shadow: var(--theme-input-focus-ring);
+  }
+
+  .native-select:disabled {
+    background-color: var(--theme-input-background-disabled);
+    color: var(--theme-input-foreground-disabled);
+    cursor: not-allowed;
+    border-color: var(--theme-input-border-disabled);
+  }
+
+
+  .select {
+    --border: var(--theme-input-border);
+    --borderRadius: 4px;
+    --placeholderColor: var(--theme-input-placeholder);
+    --background: var(--theme-input-background);
+    --listBackground: var(--theme-input-list-background);
+    --itemActiveBackground: var(--theme-input-item-active-background);
+    --itemIsActiveBG: var(--theme-input-item-active-background);
+    --itemHoverBG: var(--theme-input-item-hover-background);
+    --itemColor: var(--theme-input-item-foreground);
+    --listEmptyColor: var(--theme-input-background);
+    --height: 40px;
+    --inputPadding: 10px 12px;
+    --clearSelectWidth: 18px;
+    --clearSelectPadding: 0 8px;
+
+    --multiClearBG: var(--theme-input-multi-clear-background);
+    --multiClearFill: var(--theme-input-multi-clear-foreground);
+    --multiClearHoverBG: var(--theme-input-multi-clear-hover);
+    --multiClearHoverFill: var(--theme-input-multi-clear-foreground);
+    --multiItemActiveBG: var(--theme-input-multi-item-background);
+    --multiItemActiveColor: var(--theme-input-multi-item-foreground);
+    --multiItemBG: var(--theme-input-multi-item-background);
+    --multiItemDisabledHoverBg: var(--theme-input-multi-item-background);
+    --multiItemDisabledHoverColor: var(--theme-input-multi-item-foreground);
+  }
+
 </style>
