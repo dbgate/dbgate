@@ -20,9 +20,26 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Install ODBC
-        run: sudo apt-get update && sudo apt-get install -y unixodbc-dev
+      - name: Install DB2 and ODBC dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev build-essential python3-dev wget
+          
+          # Download IBM Data Server Driver Package (DSDRIVER)
+          wget -q https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/linuxx64_odbc_cli.tar.gz
+          tar -xzf linuxx64_odbc_cli.tar.gz
+          sudo mkdir -p /opt/ibm
+          sudo cp -r clidriver /opt/ibm/
+          
+          # Set environment variables
+          export IBM_DB_HOME=/opt/ibm/clidriver
+          echo "IBM_DB_HOME=/opt/ibm/clidriver" >> $GITHUB_ENV
+          export LD_LIBRARY_PATH=/opt/ibm/clidriver/lib:$LD_LIBRARY_PATH
+          echo "LD_LIBRARY_PATH=/opt/ibm/clidriver/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       - name: yarn install
+        env:
+          IBM_DB_HOME: /opt/ibm/clidriver
+          LD_LIBRARY_PATH: /opt/ibm/clidriver/lib
         run: |
           yarn install
       - name: Integration tests
