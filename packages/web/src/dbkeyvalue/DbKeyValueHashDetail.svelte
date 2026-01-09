@@ -32,36 +32,50 @@
       <FormFieldTemplateLarge label="Key" type="text" noMargin>
         <TextField
           value={key}
-          on:input={e => handleKeyChange(e.target.value)}
+          on:input={e => {
+            if (e.target.value != key) {
+              handleKeyChange(e.target.value);
+            }
+          }}
           disabled={true}
         />
       </FormFieldTemplateLarge>
     </div>
     <div class="field-group col-6">
       <FormFieldTemplateLarge label="TTL" type="text" noMargin>
-        <TextField
-          value={ttl}
-          on:input={e => handleTtlChange(e.target.value)}
-          disabled={!onChangeItem}
-          placeholder="Leave empty for no expiration"
-        />
+        {#key key}
+          <TextField
+            value={ttl}
+            on:input={e => {
+              if (e.target.value != ttl) {
+                handleTtlChange(e.target.value);
+              }
+            }}
+            disabled={!onChangeItem}
+            placeholder="Leave empty for no expiration"
+          />
+        {/key}
       </FormFieldTemplateLarge>
     </div>
   </div>
 
   <div class="value-section">
-    <DbKeyValueDetail
-      value={item?.value || ''}
-      columnTitle="Value"
-      onChangeValue={onChangeItem
-        ? value => {
-            onChangeItem?.({
-              ...item,
-              value: value,
-            });
-          }
-        : null}
-    />
+    {#key key}
+      <DbKeyValueDetail
+        value={item?.value || ''}
+        columnTitle="Value"
+        onChangeValue={onChangeItem
+          ? value => {
+              if (value != item?.value) {
+                onChangeItem?.({
+                  ...item,
+                  value: value,
+                });
+              }
+            }
+          : null}
+      />
+    {/key}
   </div>
 </div>
 

@@ -494,12 +494,12 @@ module.exports = {
     return res.result || null;
   },
 
-  saveRedisData_meta: true,
-  async saveRedisData({ conid, database, changeSet }, req) {
+  multiCallMethod_meta: true,
+  async multiCallMethod({ conid, database, callList }, req) {
     await testConnectionPermission(conid, req);
 
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'saveRedisData', changeSet });
+    const res = await this.sendRequest(opened, { msgtype: 'multiCallMethod', callList });
     if (res.errorMessage) {
       return {
         errorMessage: res.errorMessage,

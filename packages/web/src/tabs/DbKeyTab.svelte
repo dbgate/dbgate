@@ -1,3 +1,24 @@
+<script lang="ts" context="module">
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+
+  const getCurrentEditor = () => getActiveComponent('DbKeyTab');
+
+  export const allowAddToFavorites = props => false;
+
+  registerCommand({
+    id: 'redisLikeData.saveNew',
+    group: 'save',
+    category: __t('command.redisLikeData', { defaultMessage: 'Redis like data' }),
+    name: __t('command.redisLikeData.save', { defaultMessage: 'Save' }),
+    // keyText: 'CtrlOrCommand+S',
+    toolbar: true,
+    isRelatedToTab: true,
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor()?.canSave(),
+    onClick: () => getCurrentEditor().save(),
+  });
+</script>
+
 <script lang="ts">
   import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
   import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
@@ -5,19 +26,26 @@
   import DbKeyValueSetEdit from '../dbkeyvalue/DbKeyValueSetEdit.svelte';
   import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
   import DbKeyValueStreamEdit from '../dbkeyvalue/DbKeyValueStreamEdit.svelte';
-  import FormFieldTemplateLarge from "../forms/FormFieldTemplateLarge.svelte";
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
-  import TextField from "../forms/TextField.svelte";
+  import TextField from '../forms/TextField.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
-  import { _t } from '../translations';
+  import { __t, _t } from '../translations';
   import { apiCall } from '../utility/api';
-  import { showSnackbarSuccess } from '../utility/snackbar';
+  import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
   import { activeDbKeysStore, getExtensions, openedTabs } from '../stores';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
+  import { convertRedisCallListToScript } from 'dbgate-datalib';
+  import registerCommand from '../commands/registerCommand';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let conid;
   export let database;
@@ -31,46 +59,50 @@
   let keyName = initialKeyName || '';
   $: type = driver?.supportedKeyTypes?.[0]?.name || '';
 
-  $: console.log('DbKeyTab debug:', { conid, database, connection: $connection, driver, hasTypes: driver?.supportedKeyTypes?.length });
+  $: console.log('DbKeyTab debug:', {
+    conid,
+    database,
+    connection: $connection,
+    driver,
+    hasTypes: driver?.supportedKeyTypes?.length,
+  });
 
-  async function handleSave() {
+  export function canSave() {
+    return keyName && keyName.trim() !== '';
+  }
+
+  export const activator = createActivator('DbKeyTab', true);
+
+  export async function save() {
     if (!driver) return;
-    
+
     const typeConfig = driver.supportedKeyTypes.find(x => x.name == type);
-    
+
+    const calls = [];
+
     if (type === 'hash' && item.records && Array.isArray(item.records)) {
       for (const record of item.records) {
         if (record.key && record.value) {
-          await apiCall('database-connections/call-method', {
-            conid,
-            database,
+          calls.push({
             method: typeConfig.addMethod,
             args: [keyName, record.key, record.value],
           });
         }
       }
     } else if (type === 'list' && item.records && Array.isArray(item.records)) {
-      const values = item.records
-        .map(record => record.value)
-        .filter(value => value);
-      
+      const values = item.records.map(record => record.value).filter(value => value);
+
       if (values.length > 0) {
-        await apiCall('database-connections/call-method', {
-          conid,
-          database,
+        calls.push({
           method: typeConfig.addMethod,
           args: [keyName, ...values],
         });
       }
     } else if (type === 'set' && item.records && Array.isArray(item.records)) {
-      const values = item.records
-        .map(record => record.value)
-        .filter(value => value);
-      
+      const values = item.records.map(record => record.value).filter(value => value);
+
       if (values.length > 0) {
-        await apiCall('database-connections/call-method', {
-          conid,
-          database,
+        calls.push({
           method: typeConfig.addMethod,
           args: [keyName, ...values],
         });
@@ -78,9 +110,7 @@
     } else if (type === 'zset' && item.records && Array.isArray(item.records)) {
       for (const record of item.records) {
         if (record.member && record.score) {
-          await apiCall('database-connections/call-method', {
-            conid,
-            database,
+          calls.push({
             method: typeConfig.addMethod,
             args: [keyName, record.member, parseFloat(record.score)],
           });
@@ -90,21 +120,41 @@
       for (const record of item.records) {
         if (record.value) {
           const streamId = record.id || '*';
-          await apiCall('database-connections/call-method', {
-            conid,
-            database,
+          calls.push({
             method: typeConfig.addMethod,
             args: [keyName, streamId, record.value],
           });
         }
       }
     } else {
-      await apiCall('database-connections/call-method', {
-        conid,
-        database,
+      calls.push({
         method: typeConfig.addMethod,
         args: [keyName, ...typeConfig.dbKeyFields.map(fld => item[fld.name])],
       });
+    }
+
+    const callList = { calls };
+
+    if (getBoolSettingsValue('skipConfirm.redisLikeDataSave', false)) {
+      saveDataCore(callList);
+    } else {
+      showModal(ConfirmNoSqlModal, {
+        script: convertRedisCallListToScript(callList),
+        onConfirm: () => saveDataCore(callList),
+        skipConfirmSettingKey: 'skipConfirm.redisLikeDataSave',
+      });
+    }
+  }
+
+  async function saveDataCore(callList) {
+    const resp = await apiCall('database-connections/multi-call-method', {
+      conid,
+      database,
+      callList,
+    });
+    if (resp?.errorMessage) {
+      showSnackbarError(resp.errorMessage);
+      return;
     }
 
     showSnackbarSuccess('Key created successfully');
@@ -114,12 +164,8 @@
       [`${conid}:${database}`]: keyName,
     };
 
-    openedTabs.update(tabs => 
-      tabs.map(tab => 
-        tab.tabid === tabid 
-          ? { ...tab, closedTime: new Date().getTime(), selected: false }
-          : tab
-      )
+    openedTabs.update(tabs =>
+      tabs.map(tab => (tab.tabid === tabid ? { ...tab, closedTime: new Date().getTime(), selected: false } : tab))
     );
 
     openNewTab({
@@ -144,9 +190,10 @@
             <FormFieldTemplateLarge label={_t('addDbKeyModal.key', { defaultMessage: 'Key' })} type="text" noMargin>
               <TextField
                 value={keyName}
-                on:change={e => {
+                on:input={e => {
                   // @ts-ignore
                   keyName = e.target.value;
+                  invalidateCommands();
                 }}
               />
             </FormFieldTemplateLarge>
@@ -218,11 +265,7 @@
       </div>
 
       <svelte:fragment slot="toolstrip">
-        <ToolStripButton
-          icon="icon save"
-          on:click={handleSave}
-          disabled={!keyName || keyName.trim() === ''}
-        >{_t('common.save', { defaultMessage: 'Save' })}</ToolStripButton>
+        <ToolStripCommandButton command="redisLikeData.saveNew" />
       </svelte:fragment>
     </ToolStripContainer>
   </FormProvider>

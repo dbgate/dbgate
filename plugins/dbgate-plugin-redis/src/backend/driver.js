@@ -264,7 +264,7 @@ const driver = {
   async listDatabases(dbhan) {
     const info = await this.info(dbhan);
 
-    let databaseCount = 16; 
+    let databaseCount = 16;
     try {
       const configResult = await dbhan.client.config('GET', 'databases');
       if (Array.isArray(configResult) && configResult.length >= 2) {
@@ -272,7 +272,11 @@ const driver = {
       }
     } catch {}
 
-    return _.range(databaseCount).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
+    return _.range(databaseCount).map((index) => ({
+      name: `db${index}`,
+      extInfo: info[`db${index}`],
+      sortOrder: index,
+    }));
   },
 
   async scanKeys(dbhan, pattern, cursor = 0, count) {
@@ -547,7 +551,7 @@ const driver = {
       case 'hash': {
         const res = await dbhan.client.hscan(key, cursor, 'COUNT', count);
         const fields = _.chunk(res[1], 2);
-        
+
         // Get TTL for each hash field (Redis 7.4+)
         const items = await Promise.all(
           fields.map(async ([fieldKey, fieldValue]) => {
@@ -559,7 +563,7 @@ const driver = {
             }
           })
         );
-        
+
         return {
           cursor: parseInt(res[0]),
           items,
@@ -597,6 +601,14 @@ const driver = {
       ];
     }
     return null;
+  },
+
+  async invokeMethodCallList(dbhan, callList) {
+    const pipeline = dbhan.client.pipeline();
+    for (const call of callList.calls) {
+      pipeline.call(call.method, ...call.args);
+    }
+    await pipeline.exec();
   },
 };
 

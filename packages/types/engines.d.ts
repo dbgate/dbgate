@@ -224,6 +224,15 @@ export interface RestoreDatabaseSettings extends BackupRestoreSettingsBase {
   inputFile: string;
 }
 
+export interface DatabaseMethodCallItem {
+  method: string;
+  args: any[];
+}
+
+export interface DatabaseMethodCallList {
+  calls: DatabaseMethodCallItem[];
+}
+
 export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBehaviourProvider {
   engine: string;
   title: string;
@@ -338,6 +347,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   readCollection(dbhan: DatabaseHandle<TClient, TDataBase>, options: ReadCollectionOptions): Promise<any>;
   updateCollection(dbhan: DatabaseHandle<TClient, TDataBase>, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any, collectionInfo: CollectionInfo): string;
+  getKeyValueMethodCallList(changeSet: any): DatabaseMethodCallList;
+  invokeMethodCallList(dbhan: DatabaseHandle<TClient, TDataBase>, callList: DatabaseMethodCallList): Promise<void>;
   createDatabase(dbhan: DatabaseHandle<TClient, TDataBase>, name: string): Promise;
   dropDatabase(dbhan: DatabaseHandle<TClient, TDataBase>, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor' | 'import'): any;
