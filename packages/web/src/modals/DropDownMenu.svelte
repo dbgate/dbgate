@@ -228,9 +228,9 @@
   ul {
     position: absolute;
     list-style: none;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-toolstrip-button-background);
     border-radius: 4px;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-toolstrip-button-border-hover);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     padding: 5px 0;
     margin: 2px 0 0;
@@ -256,13 +256,13 @@
     padding: 3px 20px;
     line-height: 1.42;
     white-space: nop-wrap;
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
     display: flex;
     justify-content: space-between;
   }
 
   a.disabled {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   a.bold {
@@ -270,15 +270,15 @@
   }
 
   a:hover:not(.disabled) {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-toolstrip-button-background-active);
     text-decoration: none;
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
   }
 
   .divider {
     margin: 9px 0px 9px 0px;
-    border-top: 1px solid var(--theme-border);
-    border-bottom: 1px solid var(--theme-bg-0);
+    border-top: var(--theme-toolstrip-button-border-hover);
+    border-bottom: 1px solid var(--theme-toolstrip-button-background);
   }
 
   .menu-right {
@@ -291,6 +291,6 @@
   }
 
   .alt-icon:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-dropdown-icon-hover);
   }
 </style>

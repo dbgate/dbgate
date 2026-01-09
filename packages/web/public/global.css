@@ -167,7 +167,7 @@ body {
 
 .input1:focus {
   outline: none;
-  border-color: var(--theme-input-border-focus);
+  border: var(--theme-input-border-focus);
   box-shadow: var(--theme-input-focus-ring);
 }
 
@@ -218,14 +218,31 @@ input[disabled] {
 }
 
 select {
-  background: var(--theme-input-background);
-  color: var(--theme-generic-font);
-  border: var(--theme-input-border);
+  padding: 10px 12px;
+    border: var(--theme-input-border);
+    border-radius: 4px;
+    background-color: var(--theme-input-background);
+    color: var(--theme-input-foreground);
+    font-size: 13px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+select:hover {
+  border: var(--theme-input-border-hover);
+}
+
+select:focus {
+  outline: none;
+  border: var(--theme-input-border-focus);
+  box-shadow: var(--theme-input-focus-ring);
 }
 
 select[disabled] {
-  background: var(--theme-input-background-disabled);
+  background-color: var(--theme-input-background-disabled);
   color: var(--theme-input-foreground-disabled);
+  cursor: not-allowed;
+  border: var(--theme-input-border-disabled);
 }
 
 .largeFormMarker select[disabled] {
@@ -235,6 +252,10 @@ select[disabled] {
 
 .classicform select {
   padding: 5px 5px 4px;
+}
+
+.selectContainer.focused {
+  box-shadow: var(--theme-input-focus-ring);
 }
 
 textarea {
@@ -282,29 +303,57 @@ input[type='checkbox'] {
   appearance: none;
   width: 16px;
   height: 16px;
-  border: var(--theme-checkbox-border);
+
   border-radius: 4px;
-  background: transparent;
+  border: var(--theme-checkbox-border);
+  background-color: var(--theme-input-background);
+
   display: inline-grid;
   place-content: center;
+
+  cursor: pointer;
 }
+
+input[type='checkbox']:hover:not(:disabled) {
+  border: 1px solid var(--theme-checkbox-hover-not-disabled);
+}
+
+input[type='checkbox']:checked:hover {
+  border: 1px solid var(--theme-checkbox-background);
+}
+
 input[type='checkbox']:checked {
-  background: var(--theme-checkbox-background);
-  border-color: var(--theme-checkbox-background);
+  background-color: var(--theme-checkbox-background);
+  border: var(--theme-checkbox-border);
 }
+
+input[type='checkbox']::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: transform 120ms ease;
+  background-color: var(--theme-checkbox-mark);
+  clip-path: polygon(
+    14% 44%,
+    0 65%,
+    50% 100%,
+    100% 16%,
+    80% 0,
+    43% 62%
+  );
+}
+
 input[type='checkbox']:checked::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
-  background: var(--theme-checkbox-mark);
+  transform: scale(1);
 }
-input[type='checkbox']:not(:checked)::before {
-  content: '';
-  width: 10px;
-  height: 10px;
+
+input[type='checkbox']:disabled {
+  cursor: not-allowed;
+  background-color: var(--theme-checkbox-background-disabled);
+  border: var(--theme-checkbox-border);
 }
-/* input[type='checkbox']:focus-visible{
-  outline: 2px solid #93c5fd;
-  outline-offset: 2px;
-} */
+
+input[type='checkbox']:disabled::before {
+  background-color: var(--theme-checkbox-background-disabled-before);
+}

@@ -240,7 +240,7 @@
     </HorizontalSplitter>
 
     <svelte:fragment slot="footer">
-      <div class="flex m-2">
+      <div class="flex m-2 button-container">
         <LargeButton on:click={editSql} icon="icon sql-file">{_t('sqlGenerator.editSql', { defaultMessage: 'Edit SQL' })}</LargeButton>
         <LargeButton on:click={closeCurrentModal} icon="icon close">{_t('common.close', { defaultMessage: 'Close' })}</LargeButton>
       </div>
@@ -257,5 +257,9 @@
 
   .dbname {
     color: var(--theme-font-3);
+  }
+
+  .button-container {
+    gap: 12px;
   }
 </style>

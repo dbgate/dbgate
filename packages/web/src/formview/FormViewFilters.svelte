@@ -41,6 +41,7 @@
     <div class="flex">
       <input
         type="text"
+        class="column-name-filter"
         value={display?.config?.searchInColumns || ''}
         on:keydown={e => {
           if (e.keyCode == keycodes.escape) {
@@ -116,3 +117,18 @@
     />
   {/each}
 </ManagerInnerContainer>
+
+<style>
+  .column-name-filter {
+    flex: 1;
+    min-width: 10px;
+    width: 1px;
+    background-color: var(--theme-datagrid-filter-background);
+    outline: none;
+    padding: 2px 4px;
+    border: var(--theme-datagrid-filter-border);
+    border-radius: 4px;
+    margin: 2px 3px;
+    height: 20px;
+  }
+</style>

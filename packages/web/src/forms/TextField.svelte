@@ -43,13 +43,13 @@
   }
 
   .text-input:hover {
-    border-color: var(--theme-input-border-hover);
+    border: var(--theme-input-border-hover);
     box-shadow: var(--theme-input-shadow-hover);
   }
 
   .text-input:focus {
     outline: none;
-    border-color: var(--theme-input-border-focus);
+    border: var(--theme-input-border-focus);
     box-shadow: var(--theme-input-focus-ring), var(--theme-input-shadow-focus);
   }
 
@@ -57,7 +57,7 @@
     background-color: var(--theme-input-background-disabled);
     color: var(--theme-input-foreground-disabled);
     cursor: not-allowed;
-    border-color: var(--theme-input-border-disabled);
+    border: var(--theme-input-border-disabled);
     box-shadow: none;
   }
 </style>

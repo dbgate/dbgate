@@ -324,7 +324,7 @@
   .search-wrapper {
     padding: 4px 4px 0 4px;
     flex-shrink: 0;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
     border-bottom: none;
   }
 
@@ -335,32 +335,32 @@
   }
 
   .no-data {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     font-style: italic;
     padding: 8px;
   }
 
   .field {
     margin-bottom: 8px;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
     border-radius: 3px;
     overflow: hidden;
   }
 
   .field-name {
-    background: var(--theme-bg-1);
+    background: var(--theme-table-header-background);
     padding: 4px 8px;
     font-weight: 500;
     font-size: 11px;
-    color: var(--theme-font-2);
-    border-bottom: 1px solid var(--theme-border);
+    color: var(--theme-generic-font-grayed);
+    border-bottom: var(--theme-table-border);
     display: flex;
     justify-content: space-between;
   }
 
   .field-value {
     padding: 6px 8px;
-    background: var(--theme-bg-0);
+    background: var(--theme-table-cell-background);
     min-height: 20px;
     word-break: break-all;
     position: relative;
@@ -379,8 +379,8 @@
     flex: 1;
     border: none;
     outline: none;
-    background: var(--theme-bg-0);
-    color: var(--theme-font-1);
+    background: var(--theme-table-cell-background);
+    color: var(--theme-generic-font);
     padding: 0;
     margin: 0;
     font-family: inherit;
@@ -392,7 +392,7 @@
   }
 
   .multiple-values {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     font-style: italic;
   }
 </style>

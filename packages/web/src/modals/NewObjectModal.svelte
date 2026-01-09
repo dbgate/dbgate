@@ -158,16 +158,19 @@
 
 <style>
   .wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
-  }
-  .create-header {
-    text-transform: uppercase;
-    color: var(--theme-font-3);
-    font-size: 150%;
-    text-align: center;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.create-header {
+  font-size: 150%;
+  text-transform: uppercase;
+  color: var(--theme-generic-font-grayed);
+  text-align: center;
+  margin: 12px 0 4px;
+}
 </style>

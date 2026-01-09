@@ -189,7 +189,7 @@
     border: none;
   }
 
-  .wrapper :global(.schema-select.native-select) {
+  .wrapper :global(select) {
     flex: 1 1 0%;
     min-width: 0;
     padding: 0;

@@ -24,7 +24,7 @@
 {#if isNative}
   <select
     value={options.find(x => x.value == value) ? value : defaultValue}
-    class="native-select {selectClass}"
+    class="{selectClass}"
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);
@@ -45,10 +45,10 @@
   <div class="select">
     <SvelteSelect
       {...$$restProps}
-      items={options}
+      items={options ?? []}
       value={isMulti
-        ? _.compact(value?.map(item => options.find(x => x.value == item)) ?? [])
-        : (options.find(x => x.value == value) ?? null)}
+        ? _.compact((value && Array.isArray(value)) ? value.map(item => options?.find(x => x.value == item)) : [])
+        : (options?.find(x => x.value == value) ?? null)}
       on:select={e => {
         if (isMulti) {
           dispatch(
@@ -71,40 +71,13 @@
 
 
 <style>
-  .native-select {
-    padding: 10px 12px;
-    border: var(--theme-input-border);
-    border-radius: 4px;
-    background-color: var(--theme-input-background);
-    color: var(--theme-input-foreground);
-    font-size: 13px;
-    transition: all 0.15s ease;
-    font-family: inherit;
-  }
-
-  .native-select:hover {
-    border-color: var(--theme-input-border-hover);
-  }
-
-  .native-select:focus {
-    outline: none;
-    border-color: var(--theme-input-border-focus);
-    box-shadow: var(--theme-input-focus-ring);
-  }
-
-  .native-select:disabled {
-    background-color: var(--theme-input-background-disabled);
-    color: var(--theme-input-foreground-disabled);
-    cursor: not-allowed;
-    border-color: var(--theme-input-border-disabled);
-  }
-
-
   .select {
     --border: var(--theme-input-border);
     --borderRadius: 4px;
     --placeholderColor: var(--theme-input-placeholder);
     --background: var(--theme-input-background);
+    --borderHoverColor: var(--theme-input-border-hover-color);
+    --borderFocusColor: var(--theme-input-border-focus-color);
     --listBackground: var(--theme-input-list-background);
     --itemActiveBackground: var(--theme-input-item-active-background);
     --itemIsActiveBG: var(--theme-input-item-active-background);

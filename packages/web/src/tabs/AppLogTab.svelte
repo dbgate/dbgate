@@ -521,7 +521,7 @@
     font-size: 13px;
   }
 
-  .toolstrip-inline-controls :global(.native-select) {
+  .toolstrip-inline-controls :global(select) {
     padding: 2px 5px;
   }
 
