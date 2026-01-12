@@ -19,19 +19,15 @@
 
 <style>
   div {
-    color: var(--theme-font-3);
-    text-align: center;
-    /* position: absolute;
-    left: 0px;
-    top: 4px;
-    background-color: var(--theme-bg-1);
-    border: 1px solid var(--theme-bg-1); */
-    margin: 1px;
-  }
+  color: var(--theme-generic-font-grayed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1px;
+  cursor: pointer;
+}
 
-  div:hover {
-    color: var(--theme-font-hover);
-    border: 1px solid var(--theme-font-1);
-    margin: 0px;
-  }
+div:hover {
+  color: var(--theme-generic-font);
+}
 </style>

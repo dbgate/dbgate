@@ -457,7 +457,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-content-background);
     overflow: auto;
   }
 </style>

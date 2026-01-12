@@ -516,7 +516,7 @@
 
   .filter-label {
     margin-right: 5px;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
     font-weight: 500;
     font-size: 13px;
   }
@@ -541,7 +541,7 @@
   .details-wrap .row div:first-child {
     width: 150px;
     font-weight: 600;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
   }
 
   pre {

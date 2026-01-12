@@ -745,37 +745,37 @@
   }
 
   tr {
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-datagrid-cell-background);
   }
   tr.coloring-mode-36:nth-child(6n + 3) {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-datagrid-cell-background-alt);
   }
   tr.coloring-mode-36:nth-child(6n + 6) {
-    background-color: var(--theme-bg-alt);
+    background-color: var(--theme-datagrid-cell-background-alt2);
   }
 
   tr.coloring-mode-2-primary:nth-child(2n + 1) {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-datagrid-cell-background-alt);
   }
 
   tr.coloring-mode-2-secondary:nth-child(2n + 1) {
-    background-color: var(--theme-bg-alt);
+    background-color: var(--theme-datagrid-cell-background-alt2);
   }
 
   .header-cell {
-    border: 1px solid var(--theme-border);
+    border: var(--theme-datagrid-border-horizontal);
     text-align: left;
     padding: 0;
     margin: 0;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-datagrid-headercell-background);
     overflow: hidden;
   }
   .header-cell.isSelected {
-    background: var(--theme-bg-3);
+    background: var(--theme-datagrid-selected-cell-background);
   }
 
   :global(.data-grid-focused) .header-cell.isSelected {
-    background: var(--theme-bg-selected);
+    background: var(--theme-datagrid-selected-cell-background);
   }
 
   .header-cell-inner {
@@ -790,12 +790,12 @@
 
   .row-count-label {
     position: absolute;
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-datagrid-selected-cell-background);
     right: 40px;
     bottom: 20px;
   }
 
   .columnFiltered {
-    background: var(--theme-bg-green);
+    background: var(--theme-datagrid-inserted-row-background);
   }
 </style>

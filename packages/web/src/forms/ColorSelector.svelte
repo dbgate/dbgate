@@ -54,7 +54,7 @@
   .item {
     flex-grow: 1;
     margin: 3px;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-input-border);
     border-radius: 4px;
     font-size: 12pt;
     display: flex;
@@ -63,11 +63,11 @@
   }
 
   .item:hover:not(.disabled) {
-    border: 1px solid var(--theme-font-2);
+    border: var(--theme-input-border-hover);
   }
 
   .item.selected {
-    border: 2px solid var(--theme-font-1);
+    border: var(--theme-color-selected-border);
     margin: 2px;
   }
 </style>

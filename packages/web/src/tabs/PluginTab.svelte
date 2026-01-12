@@ -83,14 +83,14 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-content-background);
     overflow: auto;
     padding: 10px;
   }
 
   .header {
     display: flex;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
     margin-bottom: 20px;
     padding-bottom: 20px;
   }

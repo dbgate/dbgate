@@ -124,24 +124,26 @@
 
   td.header {
     text-align: left;
-    border-bottom: 2px solid var(--theme-border);
-    background-color: var(--theme-bg-1);
+    border-bottom: var(--theme-datagrid-border-horizontal);
+    background-color: var(--theme-datagrid-headercell-background);
     padding: 5px;
+    font-weight: 500;
   }
-  td:not(.header) {
-    border-top: 1px solid var(--theme-border);
+  td {
+    border-bottom: var(--theme-datagrid-border-horizontal);
     padding: 5px;
+    background-color: var(--theme-datagrid-cell-background);
   }
   tr.isActive {
     cursor: pointer;
   }
   tr.isActive:hover {
-    background: var(--theme-bg-2);
+    background: var(--theme-datagrid-cell-background-alt);
   }
   tr.isError {
     color: var(--theme-icon-red);
   }
   tr.isDebug {
-    color: var(--theme-font-3);
+    color: var(--theme-datagrid-foreground-grayed);
   }
 </style>

@@ -367,6 +367,6 @@
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-content-background);
   }
 </style>

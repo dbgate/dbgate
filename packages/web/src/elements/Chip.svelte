@@ -16,18 +16,18 @@
     display: inline-block;
     padding: 0.25em 0.5em;
     border-radius: 1em;
-    background-color: var(--theme-bg-2);
-    color: var(--theme-font-1);
+    background-color: var(--theme-chip-background);
+    color: var(--theme-generic-font);
     font-size: 0.875em;
     cursor: pointer;
     margin: 2px;
   }
   .chip .close {
     margin-left: 0.2em;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
     cursor: pointer;
   }
   .chip .close:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-generic-font-hover);
   }
 </style>
