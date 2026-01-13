@@ -198,10 +198,10 @@
     border: none;
     cursor: pointer;
     padding: 2px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
   
   .delete-button:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-generic-font-hover);
   }
 </style>

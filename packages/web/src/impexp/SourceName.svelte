@@ -40,10 +40,10 @@
 <style>
   .icon {
     cursor: pointer;
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
     margin-left: 5px;
   }
   .icon:hover {
-    background-color: var(--theme-bg-2);
+    color: var(--theme-generic-font-hover);
   }
 </style>

@@ -180,15 +180,26 @@
 
   .toolbar {
     display: flex;
-    background: var(--theme-bg-1);
+    gap: 8px;
+    background: var(--theme-toolstrip-background);
     align-items: center;
-    border-bottom: 1px solid var(--thene-border);
-    margin: 2px;
+    border-bottom: var(--theme-toolstrip-border);
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .toolbar :global(select) {
+    height: 28px;
+    line-height: 1.4;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
   }
 
   .data {
     display: flex;
     flex: 1;
     position: relative;
+    overflow: hidden;
   }
 </style>

@@ -194,7 +194,6 @@
 
   code {
     font-family: monospace;
-    background: var(--theme-bg-1);
     padding: 2px 4px;
     border-radius: 3px;
   }

@@ -60,8 +60,8 @@
 <style>
   .wrapper {
     width: 400px;
-    border: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-2);
+    border: 1px solid var(--theme-card-border);
+    background-color: var(--theme-card-background);
     margin: 10px;
     position: relative;
   }
@@ -78,7 +78,7 @@
   }
 
   .close:hover {
-    color: var(--theme-font-hover);
+    color: var(--theme-generic-font-hover);
   }
 
   .buttons {
@@ -91,7 +91,7 @@
   }
 
   .progress-message {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     margin: 10px;
     margin-left: 30px;
   }

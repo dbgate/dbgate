@@ -121,11 +121,18 @@
 
 <style>
   .toolbar {
-    background: var(--theme-bg-1);
+    background: var(--theme-toolstrip-background);
     display: flex;
-    border-bottom: 1px solid var(--theme-border);
-    border-top: 2px solid var(--theme-border);
+    border-bottom: var(--theme-toolstrip-border);
+    border-top: var(--theme-toolstrip-border);
     margin-bottom: 3px;
+    
+  }
+
+  .toolbar :global(input){
+    margin-top: 3px;
+    margin-bottom: 3px;
+    height: 26px;
   }
 
   .json {

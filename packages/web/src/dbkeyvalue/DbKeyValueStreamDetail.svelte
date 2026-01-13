@@ -78,7 +78,7 @@
   }
 
   .colname {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .colvalue {

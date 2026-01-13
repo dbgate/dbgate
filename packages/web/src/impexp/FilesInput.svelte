@@ -65,7 +65,7 @@
 <style>
   .wrapper {
     padding: 10px;
-    background: var(--theme-bg-2);
+    background: var(--theme-card-background);
   }
 
   .main {

@@ -130,17 +130,13 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     transition: color 0.2s;
     font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 10px;
-  }
-
-  .delete-button:hover {
-    color: var(--theme-font-hover);
   }
 
   .add-button-wrapper {
@@ -154,12 +150,8 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     transition: color 0.2s;
     font-size: 24px;
-  }
-
-  .add-button:hover {
-    color: var(--theme-font-hover);
   }
 </style>

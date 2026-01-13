@@ -375,7 +375,7 @@
 
 <style>
   .br {
-    background: var(--theme-bg-2);
+    background: var(--theme-card-background);
     height: 1px;
     margin: 5px 10px;
   }

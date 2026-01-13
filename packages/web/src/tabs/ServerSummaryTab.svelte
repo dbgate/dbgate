@@ -142,7 +142,7 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-content-background);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -160,8 +160,8 @@
   }
 
   .error-message {
-    background: var(--theme-bg-1);
-    border: 1px solid var(--theme-border);
+    background: var(--theme-card-background);
+    border: var(--theme-card-border);
     border-radius: 4px;
     padding: 20px;
     max-width: 500px;
@@ -169,7 +169,7 @@
   }
 
   .error-message h3 {
-    color: var(--theme-font-error);
+    color: var(--theme-generic-font);
     margin-top: 0;
   }
 </style>

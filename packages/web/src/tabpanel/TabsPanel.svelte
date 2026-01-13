@@ -864,9 +864,7 @@
     justify-content: center;
     flex-grow: 1;
   }
-  /* .db-name:hover {
-    background-color: var(--theme-bg-3);
-  } */
+  
   .db-name.selected {
     background-color: var(--theme-tabs-panel-active-background);
     color: var(--theme-tabs-panel-active-foreground);
