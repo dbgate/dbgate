@@ -71,6 +71,6 @@
 <style>
   .info {
     margin-left: 30px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

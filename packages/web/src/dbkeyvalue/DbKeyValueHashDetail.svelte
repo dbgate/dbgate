@@ -84,10 +84,12 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 10px;
-    gap: 15px;
+    padding: 16px;
+    gap: 16px;
     width: 100%;
     overflow: auto;
+    background-color: var(--theme-dbkey-background);
+    border-top: var(--theme-dbkey-border);
   }
 
   .value-section {
@@ -98,6 +100,6 @@
 
   .top-section {
     display: flex;
-    gap: 10px;
+    gap: 16px;
   }
 </style>

@@ -292,6 +292,7 @@
     padding: 20px;
     overflow: hidden;
     gap: 10px;
+    background-color: var(--theme-dbkey-background);
   }
 
   .button-container {

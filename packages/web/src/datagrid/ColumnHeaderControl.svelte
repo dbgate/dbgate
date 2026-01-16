@@ -179,10 +179,10 @@
     z-index: 1;
   } */
   .grouping {
-    color: var(--theme-font-alt);
+    color: var(--theme-datagrid-cell-foreground-value-green);
     white-space: nowrap;
   }
   .data-type {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

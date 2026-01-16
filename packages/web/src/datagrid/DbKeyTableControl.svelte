@@ -197,7 +197,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 2px;
+    padding: 4px;
     color: var(--theme-generic-font-grayed);
   }
   

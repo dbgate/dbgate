@@ -219,7 +219,7 @@
     font-weight: bold;
   }
   .isGrayed {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .isChoosed {

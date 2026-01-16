@@ -64,10 +64,12 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 10px;
-    gap: 15px;
+    padding: 16px;
+    gap: 16px;
     width: 100%;
     overflow: auto;
+    background-color: var(--theme-dbkey-background);
+    border-top: var(--theme-dbkey-border);
   }
 
   .value-section {
@@ -92,6 +94,10 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 5px;
+  }
+  
+  .colnamewrap :global(select){
+    padding: 2px 4px;
   }
 
   .outer {

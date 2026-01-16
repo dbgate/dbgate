@@ -65,7 +65,7 @@
           />
         </FormFieldTemplateLarge>
       </div>
-      <div class="field-wrapper col-8">
+      <div class="field-wrapper col-9">
         <FormFieldTemplateLarge label="Value" type="text" noMargin>
           <TextField
             value={record.value}
@@ -102,14 +102,15 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     overflow-y: auto;
   }
 
   .props {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 8px;
+    align-items: center;
   }
 
   .field-wrapper {
@@ -121,9 +122,8 @@
 
   .delete-wrapper {
     display: flex;
-    align-items: center;   
-    justify-content: center; 
-    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
   }
 
   .delete-button {
@@ -137,13 +137,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 20px;
+  }
+
+  .delete-button:hover {
+    color: var(--theme-dbkey-icon-hover);
   }
 
   .add-button-wrapper {
     display: flex;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 4px;
   }
 
   .add-button {
@@ -154,5 +158,9 @@
     color: var(--theme-generic-font-grayed);
     transition: color 0.2s;
     font-size: 24px;
+  }
+
+  .add-button:hover {
+    color: var(--theme-dbkey-icon-hover);
   }
 </style>

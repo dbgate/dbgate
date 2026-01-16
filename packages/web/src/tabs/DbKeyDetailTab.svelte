@@ -383,7 +383,7 @@
           {keyInfo.keyType?.label || keyInfo.type}
         </div>
         <div class="key-name">
-          <TextField value={key} readOnly />
+          {key}
         </div>
         <FormStyledButton value="Rename Key" on:click={() => handleKeyRename(keyInfo)} />
         <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
@@ -408,6 +408,7 @@
             </svelte:fragment>
             <svelte:fragment slot="2">
               {#if showAddForm}
+                <div class="add-field">
                 {#if keyInfo.type === 'list'}
                   <DbKeyValueListEdit
                     dbKeyFields={keyInfo.keyType.dbKeyFields}
@@ -539,6 +540,7 @@
                     }}
                   />
                 {/if}
+                </div>
               {:else if keyInfo.type === 'hash'}
                 <DbKeyValueHashDetail
                   item={getDisplayRow(currentRow, keyInfo)}
@@ -746,25 +748,43 @@
     position: relative;
   }
 
-  .top-panel {
+    .top-panel {
     display: flex;
-    background: var(--theme-bg-2);
+    align-items: center;
+    gap: 12px;
+
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background: var(--theme-tabs-control-background);
+    border-bottom: var(--theme-panel-border-subtle);
+    transition: all 0.2s ease;
   }
 
   .type {
-    font-weight: bold;
-    margin-right: 10px;
-    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--theme-panel-type-label-color);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .key-name {
     flex-grow: 1;
     display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    
+    font-size: 14px;
+    color: var(--theme-generic-font);
   }
 
-  .key-name :global(input) {
-    flex-grow: 1;
-  }
 
   .value-holder {
     position: absolute;
@@ -772,8 +792,19 @@
     top: 0;
     right: 0;
     bottom: 0;
+    padding: 16px;
+    background-color: var(--theme-dbkey-background);
 
     display: flex;
     flex-direction: column;
+  }
+
+  .add-field {
+    padding: 16px;
+    background-color: var(--theme-dbkey-background);
+    height: 100%;
+    width: 100%;
+    border-top: var(--theme-dbkey-border);
+    overflow-y: auto;
   }
 </style>

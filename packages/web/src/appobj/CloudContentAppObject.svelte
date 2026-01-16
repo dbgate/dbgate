@@ -135,7 +135,7 @@
   .info {
     margin-left: 30px;
     margin-right: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     white-space: nowrap;
   }
 </style>

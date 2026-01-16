@@ -68,6 +68,10 @@
     justify-content: space-between;
   }
 
+  .colnamewrap :global(select){
+    padding: 2px 4px;
+  }
+
   .editor-wrapper {
     flex: 1;
     position: relative;

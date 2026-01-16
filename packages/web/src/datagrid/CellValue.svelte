@@ -28,11 +28,11 @@
 
 <style>
   .nullCellStyle {
-    color: var(--theme-font-3);
+    color: var(--theme-datagrid-foreground-grayed);
     font-style: italic;
   }
   .valueCellStyle {
-    color: var(--theme-icon-green);
+    color: var(--theme-datagrid-cell-foreground-value-green);
   }
 
   .rightMargin {
