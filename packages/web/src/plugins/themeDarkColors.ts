@@ -167,6 +167,7 @@ export const themeDarkColors = {
   '--theme-titlebar-button-hover': 'var(--tw-color-zinc-600)',
   '--theme-card-background': 'var(--tw-color-zinc-600)',
   '--theme-card-border': '1px solid var(--tw-color-zinc-800)',
+  '--theme-content-hover-background': 'var(--tw-color-zinc-800)',
   '--theme-toolstrip-background': 'var(--tw-color-zinc-900)',
   '--theme-toolstrip-border': '1px solid var(--tw-color-zinc-800)',
   '--theme-toolstrip-button-foreground': 'var(--tw-color-zinc-200)',

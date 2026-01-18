@@ -69,7 +69,7 @@
     left: 1rem;
     font-size: 30pt;
     font-family: monospace;
-    color: var(--theme-bg-2);
+    color: var(--theme-card-background);
     text-transform: uppercase;
   }
 
@@ -78,10 +78,10 @@
   }
 
   .root {
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
     display: flex;
     justify-content: center;
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-content-background);
     align-items: baseline;
     position: fixed;
     top: 0;
@@ -95,9 +95,9 @@
     max-width: 80vw;
     /* max-width: 600px;
         width: 40vw; */
-    border: 1px solid var(--theme-border);
+    border: var(--theme-card-border);
     border-radius: 4px;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-content-background);
     position: relative;
   }
 

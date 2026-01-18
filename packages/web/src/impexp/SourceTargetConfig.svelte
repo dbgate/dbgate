@@ -268,14 +268,14 @@
     width: 20vw;
     margin-left: var(--dim-large-form-margin);
     margin-bottom: var(--dim-large-form-margin);
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
   }
 
   .label {
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
     margin-bottom: 3px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .buttons {

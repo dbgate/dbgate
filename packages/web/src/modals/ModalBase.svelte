@@ -88,8 +88,8 @@
   }
 
   .window {
-    background-color: var(--theme-bg-0);
-    border: 1px solid var(--theme-border);
+    background-color: var(--theme-content-background);
+    border: var(--theme-content-border);
     overflow: auto;
     outline: none;
     display: flex;

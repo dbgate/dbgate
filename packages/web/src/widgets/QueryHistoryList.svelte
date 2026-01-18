@@ -85,12 +85,12 @@
     padding: 5px;
   }
   .wrapper:hover {
-    background-color: var(--theme-bg-hover);
+    background-color: var(--theme-content-hover-background);
   }
   .info {
     margin-left: 30px;
     margin-top: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
   .sql {
     white-space: nowrap;

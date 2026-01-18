@@ -224,6 +224,7 @@ export const themeLightColors = {
   '--theme-titlebar-button-hover': 'var(--tw-color-zinc-400)',
   '--theme-card-background': 'var(--tw-color-zinc-200)',
   '--theme-card-border': '1px solid var(--tw-color-zinc-300)',
+  '--theme-content-hover-background': 'var(--tw-color-zinc-100)',
   '--theme-font-1': '#262626',
   '--theme-font-2': '#4d4d4d',
   '--theme-font-3': '#808080',

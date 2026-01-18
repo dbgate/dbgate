@@ -45,12 +45,8 @@
   }
 
   .outer.useBorder {
-    --bg-1: var(--theme-bg-1);
-    --bg-2: var(--theme-bg-3);
-
-    background: linear-gradient(to bottom, var(--bg-1) 5%, var(--bg-2) 100%);
-    background-color: var(--bg-1);
-    border: 1px solid var(--bg-2);
+    background-color: var(--theme-inlinebutton-bordered-background);
+    border: var(--theme-inlinebutton-bordered-border);
   }
 
   .narrow {
@@ -62,7 +58,7 @@
   }
 
   .outer.useBorder:hover:not(.disabled) {
-    border: 1px solid var(--theme-font-1);
+    border: var(--theme-inlinebutton-bordered-hover-border);
   }
 
   .outer:hover:not(.disabled) {
@@ -70,8 +66,8 @@
   }
 
   .outer.useBorder:active:not(.disabled) {
-    background: linear-gradient(to bottom, var(--bg-2) 5%, var(--bg-1) 100%);
-    background-color: var(--bg-2);
+    border: var(--theme-inlinebutton-bordered-hover-border);
+    background: var(--theme-inlinebutton-bordered-hover-background);
   }
 
   .inner {
