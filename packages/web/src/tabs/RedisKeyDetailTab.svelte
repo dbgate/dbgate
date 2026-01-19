@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
-  const getCurrentEditor = () => getActiveComponent('DbKeyDetailTab');
+  const getCurrentEditor = () => getActiveComponent('RedisKeyDetailTab');
 
   export const matchingProps = ['conid', 'database', 'isDefaultBrowser'];
   export const allowAddToFavorites = props => false;
@@ -28,7 +28,7 @@
 </script>
 
 <script lang="ts">
-  import { activeDbKeysStore, extensions } from '../stores';
+  import { activeRedisKeysStore, extensions } from '../stores';
   import { apiCall } from '../utility/api';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -40,20 +40,20 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
-  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
-  import DbKeyValueHashDetail from '../dbkeyvalue/DbKeyValueHashDetail.svelte';
-  import DbKeyValueZSetDetail from '../dbkeyvalue/DbKeyValueZSetDetail.svelte';
-  import DbKeyValueStreamDetail from '../dbkeyvalue/DbKeyValueStreamDetail.svelte';
-  import DbKeyValueListEdit from '../dbkeyvalue/DbKeyValueListEdit.svelte';
-  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
-  import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
-  import DbKeyValueSetEdit from '../dbkeyvalue/DbKeyValueSetEdit.svelte';
-  import DbKeyValueStreamEdit from '../dbkeyvalue/DbKeyValueStreamEdit.svelte';
-  import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
+  import RedisItemDetail from '../redis/RedisItemDetail.svelte';
+  import RedisValueHashDetail from '../redis/RedisValueHashDetail.svelte';
+  import RedisValueZSetDetail from '../redis/RedisValueZSetDetail.svelte';
+  import RedisValueStreamDetail from '../redis/RedisValueStreamDetail.svelte';
+  import RedisValueListEdit from '../redis/RedisValueListEdit.svelte';
+  import RedisValueHashEdit from '../redis/RedisValueHashEdit.svelte';
+  import RedisValueZSetEdit from '../redis/RedisValueZSetEdit.svelte';
+  import RedisValueSetEdit from '../redis/RedisValueSetEdit.svelte';
+  import RedisValueStreamEdit from '../redis/RedisValueStreamEdit.svelte';
+  import RedisAddItemModal from '../modals/RedisAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
   import SelectField from '../forms/SelectField.svelte';
-  import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
+  import RedisValueDetail from '../redis/RedisValueDetail.svelte';
   import { __t, _t } from '../translations';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
@@ -75,7 +75,7 @@
   export let key;
   export let isDefaultBrowser = false;
 
-  export const activator = createActivator('DbKeyDetailTab', true);
+  export const activator = createActivator('RedisKeyDetailTab', true);
 
   export function getChangeSetRedis(): ChangeSetRedis {
     return changeSetRedis;
@@ -90,7 +90,7 @@
   let previousKey = null;
   $: connection = useConnectionInfo({ conid });
 
-  $: key = $activeDbKeysStore[`${conid}:${database}`];
+  $: key = $activeRedisKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
 
   const { editorState, editorValue, setEditorData } = useEditorData({
@@ -184,7 +184,7 @@
           return;
         }
 
-        activeDbKeysStore.update(store => ({
+        activeRedisKeysStore.update(store => ({
           ...store,
           [`${conid}:${database}`]: value,
         }));
@@ -416,7 +416,7 @@
               {#if showAddForm}
                 <div class="add-field">
                   {#if keyInfo.type === 'list'}
-                    <DbKeyValueListEdit
+                    <RedisValueListEdit
                       dbKeyFields={keyInfo.keyType.dbKeyFields}
                       item={getExistingInserts(keyInfo)}
                       keyColumn={null}
@@ -442,7 +442,7 @@
                       }}
                     />
                   {:else if keyInfo.type === 'hash'}
-                    <DbKeyValueHashEdit
+                    <RedisValueHashEdit
                       dbKeyFields={keyInfo.keyType.dbKeyFields}
                       item={getExistingInserts(keyInfo)}
                       keyColumn={null}
@@ -468,7 +468,7 @@
                       }}
                     />
                   {:else if keyInfo.type === 'zset'}
-                    <DbKeyValueZSetEdit
+                    <RedisValueZSetEdit
                       dbKeyFields={keyInfo.keyType.dbKeyFields}
                       item={getExistingInserts(keyInfo)}
                       keyColumn={null}
@@ -494,7 +494,7 @@
                       }}
                     />
                   {:else if keyInfo.type === 'set'}
-                    <DbKeyValueSetEdit
+                    <RedisValueSetEdit
                       dbKeyFields={keyInfo.keyType.dbKeyFields}
                       item={getExistingInserts(keyInfo)}
                       keyColumn={null}
@@ -520,7 +520,7 @@
                       }}
                     />
                   {:else if keyInfo.type === 'stream'}
-                    <DbKeyValueStreamEdit
+                    <RedisValueStreamEdit
                       dbKeyFields={keyInfo.keyType.dbKeyFields}
                       item={getExistingInserts(keyInfo)}
                       keyColumn={null}
@@ -548,7 +548,7 @@
                   {/if}
                 </div>
               {:else if keyInfo.type === 'hash'}
-                <DbKeyValueHashDetail
+                <RedisValueHashDetail
                   item={getDisplayRow(currentRow, keyInfo)}
                   onChangeItem={item => {
                     if (!currentRow) return;
@@ -600,7 +600,7 @@
                   }}
                 />
               {:else if keyInfo.type === 'zset'}
-                <DbKeyValueZSetDetail
+                <RedisValueZSetDetail
                   item={getDisplayRow(currentRow, keyInfo)}
                   onChangeItem={item => {
                     const existingChange = changeSetRedis.changes.find(
@@ -642,9 +642,9 @@
                   }}
                 />
               {:else if keyInfo.type === 'stream'}
-                <DbKeyValueStreamDetail item={getDisplayRow(currentRow, keyInfo)} />
+                <RedisValueStreamDetail item={getDisplayRow(currentRow, keyInfo)} />
               {:else}
-                <DbKeyItemDetail
+                <RedisItemDetail
                   dbKeyFields={keyInfo.keyType.dbKeyFields}
                   item={getDisplayRow(currentRow, keyInfo)}
                   onChangeItem={item => {
@@ -682,7 +682,7 @@
           </VerticalSplitter>
         {:else}
           <div class="value-holder">
-            <DbKeyValueDetail
+            <RedisValueDetail
               columnTitle="Value"
               value={getDisplayValue(keyInfo)}
               keyType={keyInfo.type}
@@ -729,7 +729,7 @@
             changeSetRedis.changes.map(item => ({
               label: item.key,
               onClick: () => {
-                activeDbKeysStore.update(store => ({
+                activeRedisKeysStore.update(store => ({
                   ...store,
                   [`${conid}:${database}`]: item.key,
                 }));

@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import RedisItemDetail from '../redis/RedisItemDetail.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import ModalBase from './ModalBase.svelte';
@@ -25,7 +25,7 @@
     <svelte:fragment slot="header">{_t('dbKeyAddItemModal.header', { defaultMessage: 'Add item' })}</svelte:fragment>
 
     <div class="container">
-      <DbKeyItemDetail
+      <RedisItemDetail
         dbKeyFields={keyInfo.keyType.dbKeyFields}
         {item}
         onChangeItem={value => {

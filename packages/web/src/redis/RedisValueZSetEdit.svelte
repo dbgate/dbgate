@@ -21,8 +21,6 @@
     lastItem = item;
   }
 
-  $: console.log('DbKeyValueZSetEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
-
   function getValueAsString(value) {
     if (value === null || value === undefined) return '';
     if (typeof value === 'string') return value;

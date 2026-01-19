@@ -1,13 +1,11 @@
 <script lang="ts">
     import _ from 'lodash';
-    import DbKeyValueDetail from './DbKeyValueDetail.svelte';
+    import RedisValueDetail from './RedisValueDetail.svelte';
 
     export let dbKeyFields;
     export let item;
     export let onChangeItem = null;
     export let keyColumn = null;
-
-    $: console.log('DbKeyItemEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
 
     function getValueAsString(value) {
         if (value === null || value === undefined) return undefined;
@@ -20,7 +18,7 @@
 <div class="props">
     {#each dbKeyFields as column}
         <div class="field-wrapper">
-            <DbKeyValueDetail
+            <RedisValueDetail
                 value={getValueAsString(item?.[column.name])}
                 columnTitle={_.startCase(column.name)}
                 onChangeValue={onChangeItem && column.name !== keyColumn

@@ -17,8 +17,8 @@ import * as JsonLinesEditorTab from './JsonLinesEditorTab.svelte';
 import * as JsonTab from './JsonTab.svelte';
 import * as ChangelogTab from './ChangelogTab.svelte';
 import * as DiagramTab from './DiagramTab.svelte';
-import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
-import * as DbKeyTab from './DbKeyTab.svelte';
+import * as RedisKeyDetailTab from './RedisKeyDetailTab.svelte';
+import * as NewRedisKeyTab from './NewRedisKeyTab.svelte';
 import * as QueryDataTab from './QueryDataTab.svelte';
 import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
@@ -50,8 +50,8 @@ export default {
   JsonTab,
   ChangelogTab,
   DiagramTab,
-  DbKeyDetailTab,
-  DbKeyTab,
+  RedisKeyDetailTab,
+  NewRedisKeyTab,
   QueryDataTab,
   ConnectionTab,
   MapTab,

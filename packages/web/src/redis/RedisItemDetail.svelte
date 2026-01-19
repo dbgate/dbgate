@@ -1,6 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import DbKeyValueDetail from './DbKeyValueDetail.svelte';
+  import RedisValueDetail from './RedisValueDetail.svelte';
 
   export let dbKeyFields;
   export let item;
@@ -9,7 +9,7 @@
 
 <div class="props">
   {#each dbKeyFields as column}
-    <DbKeyValueDetail
+    <RedisValueDetail
       value={item && item[column.name] != null ? String(item[column.name]) : ''}
       columnTitle={_.startCase(column.name)}
       onChangeValue={onChangeItem && !column.readOnly

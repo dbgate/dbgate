@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
-    dbKeys_clearLoadedData,
-    dbKeys_markNodeExpanded,
-    DbKeysChangeModelFunction,
-    DbKeysTreeModel,
+    redis_clearLoadedData,
+    redis_markNodeExpanded,
+    RedisChangeModelFunction,
+    RedisTreeModel,
     getIconForRedisType,
   } from 'dbgate-tools';
 
@@ -13,7 +13,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
-  import { activeDbKeysStore, focusedTreeDbKey } from '../stores';
+  import { activeRedisKeysStore, focusedTreeRedisKey } from '../stores';
   import { apiCall } from '../utility/api';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import _ from 'lodash';
@@ -21,7 +21,7 @@
   import { showSnackbarError } from '../utility/snackbar';
   import { _t } from '../translations';
 
-  import DbKeysSubTree from './DbKeysSubTree.svelte';
+  import RedisKeysSubTree from './RedisKeysSubTree.svelte';
 
   export let conid;
   export let database;
@@ -34,8 +34,8 @@
   export let filter;
   export let parentRoots = [];
 
-  export let model: DbKeysTreeModel;
-  export let changeModel: DbKeysChangeModelFunction;
+  export let model: RedisTreeModel;
+  export let changeModel: RedisChangeModelFunction;
 
   $: isExpanded = model.dirStateByKey[item.key]?.isExpanded;
 
@@ -56,7 +56,7 @@
                   args: [item.key],
                 });
 
-                changeModel(m => dbKeys_clearLoadedData(m), true);
+                changeModel(m => redis_clearLoadedData(m), true);
               },
             });
           },
@@ -77,7 +77,7 @@
                   args: [item.key, newName],
                 });
 
-                changeModel(m => dbKeys_clearLoadedData(m), true);
+                changeModel(m => redis_clearLoadedData(m), true);
               },
             });
           },
@@ -86,7 +86,7 @@
       //   !connection?.isReadOnly && {
       //     label: 'Reload',
       //     onClick: () => {
-      //       changeModel(m => dbKeys_clearLoadedData(m), true);
+      //       changeModel(m => redis_clearLoadedData(m), true);
       //     },
       //   },
       item.type == 'dir' &&
@@ -104,7 +104,7 @@
                   args: [branch],
                 });
 
-                changeModel(m => dbKeys_clearLoadedData(m), true);
+                changeModel(m => redis_clearLoadedData(m), true);
               },
             });
           },
@@ -142,15 +142,15 @@
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
     if (item.type == 'dir') {
-      changeModel(tree => dbKeys_markNodeExpanded(tree, item.key, !isExpanded), false);
+      changeModel(tree => redis_markNodeExpanded(tree, item.key, !isExpanded), false);
     }
   }}
   on:click={() => {
     if (item.type == 'dir') {
-      changeModel(tree => dbKeys_markNodeExpanded(tree, item.key, !isExpanded), false);
+      changeModel(tree => redis_markNodeExpanded(tree, item.key, !isExpanded), false);
     } else {
       openNewTab({
-        tabComponent: 'DbKeyDetailTab',
+        tabComponent: 'RedisKeyDetailTab',
         title: item.text || _t('dbKeysTreeNode.noName', { defaultMessage: '(no name)' }),
         icon: 'img keydb',
         props: {
@@ -159,22 +159,22 @@
           database,
         },
       });
-      $activeDbKeysStore = {
-        ...$activeDbKeysStore,
+      $activeRedisKeysStore = {
+        ...$activeRedisKeysStore,
         [`${conid}:${database}`]: item.key,
       };
     }
   }}
   on:mousedown={() => {
-    $focusedTreeDbKey = _.pick(item, ['type', 'key', 'root', 'text']);
+    $focusedTreeRedisKey = _.pick(item, ['type', 'key', 'root', 'text']);
   }}
   extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
   menu={createMenu}
-  isChoosed={$focusedTreeDbKey &&
-    item.key == $focusedTreeDbKey.key &&
-    item.root == $focusedTreeDbKey.root &&
-    item.type == $focusedTreeDbKey.type}
+  isChoosed={$focusedTreeRedisKey &&
+    item.key == $focusedTreeRedisKey.key &&
+    item.root == $focusedTreeRedisKey.root &&
+    item.type == $focusedTreeRedisKey.type}
 />
 <!-- <div on:click={() => (isExpanded = !isExpanded)}>
   <FontIcon icon={} />
@@ -182,7 +182,7 @@
 </div> -->
 
 {#if isExpanded && !parentRoots.includes(item.root)}
-  <DbKeysSubTree
+  <RedisKeysSubTree
     {conid}
     {database}
     key={item.key}

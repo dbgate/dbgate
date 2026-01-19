@@ -2,7 +2,7 @@
   import _ from 'lodash';
   import TextField from '../forms/TextField.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
-  import DbKeyValueDetail from './DbKeyValueDetail.svelte';
+  import RedisValueDetail from './RedisValueDetail.svelte';
 
   export let item;
   export let onChangeItem = null;
@@ -61,7 +61,7 @@
 
   <div class="value-section">
     {#key key}
-      <DbKeyValueDetail
+      <RedisValueDetail
         value={item?.value || ''}
         columnTitle="Value"
         onChangeValue={onChangeItem

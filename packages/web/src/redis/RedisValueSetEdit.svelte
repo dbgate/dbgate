@@ -21,8 +21,6 @@
         lastItem = item;
     }
 
-    $: console.log('DbKeyValueListEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
-
     function handleFieldChange(index, fieldName, value) {
         records = records.map((record, idx) => 
             idx === index ? { ...record, [fieldName]: value } : record

@@ -156,7 +156,7 @@ export const loadingPluginStore = writable({
   loaded: false,
   loadingPackageName: null,
 });
-export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
+export const activeRedisKeysStore = writableWithStorage({}, 'activeRedisKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultActions');
@@ -164,7 +164,7 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
-export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
+export const focusedTreeRedisKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
 export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
 export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumPromoWidget');
@@ -433,11 +433,11 @@ connectionAppObjectSearchSettings.subscribe(value => {
 });
 export const getConnectionAppObjectSearchSettings = () => connectionAppObjectSearchSettingsValue;
 
-let focusedTreeDbKeyValue = null;
-focusedTreeDbKey.subscribe(value => {
-  focusedTreeDbKeyValue = value;
+let focusedTreeRedisKeyValue = null;
+focusedTreeRedisKey.subscribe(value => {
+  focusedTreeRedisKeyValue = value;
 });
-export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
+export const getFocusedTreeRedisKey = () => focusedTreeRedisKeyValue;
 
 let cloudConnectionsStoreValue = {};
 cloudConnectionsStore.subscribe(value => {

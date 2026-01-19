@@ -1,7 +1,7 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
-  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
+  import RedisItemDetail from '../redis/RedisItemDetail.svelte';
+  import RedisValueHashEdit from '../redis/RedisValueHashEdit.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
@@ -55,7 +55,7 @@
       </FormFieldTemplateLarge>
 
       {#if type === 'hash'}
-        <DbKeyValueHashEdit
+        <RedisValueHashEdit
           dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
           {item}
           onChangeItem={value => {
@@ -63,7 +63,7 @@
           }}
         />
       {:else}
-        <DbKeyItemDetail
+        <RedisItemDetail
           dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
           {item}
           onChangeItem={value => {

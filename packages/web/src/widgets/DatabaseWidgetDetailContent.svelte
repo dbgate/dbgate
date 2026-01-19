@@ -9,7 +9,7 @@
 
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
-  import DbKeysTree from './DbKeysTree.svelte';
+  import RedisKeysTree from './RedisKeysTree.svelte';
   import _ from 'lodash';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import { _t } from '../translations';
@@ -62,7 +62,7 @@
   skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
   positiveCondition={correctCloudStatus}
 >
-  <DbKeysTree {conid} {database} treeKeySeparator={$connection?.treeKeySeparator || ':'} />
+  <RedisKeysTree {conid} {database} treeKeySeparator={$connection?.treeKeySeparator || ':'} />
 </WidgetColumnBarItem>
 
 <WidgetColumnBarItem

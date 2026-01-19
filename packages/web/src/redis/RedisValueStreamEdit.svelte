@@ -21,8 +21,6 @@
     lastItem = item;
   }
 
-  $: console.log('DbKeyValueStreamEdit', { item, dbKeyFields, keyColumn, onChangeItem: !!onChangeItem });
-
   function getValueAsString(value) {
     if (value === null || value === undefined) return '';
     if (typeof value === 'string') return value;

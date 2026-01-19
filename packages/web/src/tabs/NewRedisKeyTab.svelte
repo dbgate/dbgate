@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
-  const getCurrentEditor = () => getActiveComponent('DbKeyTab');
+  const getCurrentEditor = () => getActiveComponent('NewRedisKeyTab');
 
   export const allowAddToFavorites = props => false;
 
@@ -20,12 +20,12 @@
 </script>
 
 <script lang="ts">
-  import DbKeyValueDetail from '../dbkeyvalue/DbKeyValueDetail.svelte';
-  import DbKeyValueHashEdit from '../dbkeyvalue/DbKeyValueHashEdit.svelte';
-  import DbKeyValueListEdit from '../dbkeyvalue/DbKeyValueListEdit.svelte';
-  import DbKeyValueSetEdit from '../dbkeyvalue/DbKeyValueSetEdit.svelte';
-  import DbKeyValueZSetEdit from '../dbkeyvalue/DbKeyValueZSetEdit.svelte';
-  import DbKeyValueStreamEdit from '../dbkeyvalue/DbKeyValueStreamEdit.svelte';
+  import RedisValueDetail from '../redis/RedisValueDetail.svelte';
+  import RedisValueHashEdit from '../redis/RedisValueHashEdit.svelte';
+  import RedisValueListEdit from '../redis/RedisValueListEdit.svelte';
+  import RedisValueSetEdit from '../redis/RedisValueSetEdit.svelte';
+  import RedisValueZSetEdit from '../redis/RedisValueZSetEdit.svelte';
+  import RedisValueStreamEdit from '../redis/RedisValueStreamEdit.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
@@ -36,7 +36,7 @@
   import { apiCall } from '../utility/api';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
-  import { activeDbKeysStore, getExtensions, openedTabs } from '../stores';
+  import { activeRedisKeysStore, getExtensions, openedTabs } from '../stores';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
@@ -59,19 +59,11 @@
   let keyName = initialKeyName || '';
   $: type = driver?.supportedKeyTypes?.[0]?.name || '';
 
-  $: console.log('DbKeyTab debug:', {
-    conid,
-    database,
-    connection: $connection,
-    driver,
-    hasTypes: driver?.supportedKeyTypes?.length,
-  });
-
   export function canSave() {
     return keyName && keyName.trim() !== '';
   }
 
-  export const activator = createActivator('DbKeyTab', true);
+  export const activator = createActivator('NewRedisKeyTab', true);
 
   export async function save() {
     if (!driver) return;
@@ -159,8 +151,8 @@
 
     showSnackbarSuccess('Key created successfully');
 
-    $activeDbKeysStore = {
-      ...$activeDbKeysStore,
+    $activeRedisKeysStore = {
+      ...$activeRedisKeysStore,
       [`${conid}:${database}`]: keyName,
     };
 
@@ -171,7 +163,7 @@
     );
 
     openNewTab({
-      tabComponent: 'DbKeyDetailTab',
+      tabComponent: 'RedisKeyDetailTab',
       title: keyName || '(no name)',
       icon: 'img keydb',
       props: {
@@ -216,7 +208,7 @@
         </div>
 
         {#if type === 'hash'}
-          <DbKeyValueHashEdit
+          <RedisValueHashEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
@@ -224,7 +216,7 @@
             }}
           />
         {:else if type === 'list'}
-          <DbKeyValueListEdit
+          <RedisValueListEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
@@ -232,7 +224,7 @@
             }}
           />
         {:else if type === 'set'}
-          <DbKeyValueSetEdit
+          <RedisValueSetEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
@@ -240,7 +232,7 @@
             }}
           />
         {:else if type === 'zset'}
-          <DbKeyValueZSetEdit
+          <RedisValueZSetEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
@@ -248,7 +240,7 @@
             }}
           />
         {:else if type === 'stream'}
-          <DbKeyValueStreamEdit
+          <RedisValueStreamEdit
             dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
             {item}
             onChangeItem={value => {
@@ -256,7 +248,7 @@
             }}
           />
         {:else}
-          <DbKeyValueDetail
+          <RedisValueDetail
             columnTitle="Value"
             value={item.value}
             onChangeValue={value => {
