@@ -21,6 +21,10 @@ jobs:
           - windows-2022
           - ubuntu-22.04
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip setuptools
       - name: Install python 3.11 (MacOS)
         if: matrix.os == 'macos-14'
         run: |
