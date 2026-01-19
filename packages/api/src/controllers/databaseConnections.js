@@ -393,6 +393,12 @@ module.exports = {
     return null;
   },
 
+  dispatchRedisKeysChanged_meta: true,
+  dispatchRedisKeysChanged({ conid, database }) {
+    socket.emit(`redis-keys-changed-${conid}-${database}`);
+    return null;
+  },
+
   loadKeys_meta: true,
   async loadKeys({ conid, database, root, filter, limit }, req) {
     await testConnectionPermission(conid, req);

@@ -188,6 +188,7 @@
           ...store,
           [`${conid}:${database}`]: value,
         }));
+        await refreshKeys();
       },
     });
   }
@@ -368,7 +369,12 @@
       changeSetRedis = { changes: [] };
       setEditorData({ changes: [] });
       refreshToken += 1;
+      await refreshKeys();
     }
+  }
+
+  async function refreshKeys() {
+    await apiCall('database-connections/dispatch-redis-keys-changed', { conid, database });
   }
 </script>
 
@@ -409,137 +415,137 @@
             <svelte:fragment slot="2">
               {#if showAddForm}
                 <div class="add-field">
-                {#if keyInfo.type === 'list'}
-                  <DbKeyValueListEdit
-                    dbKeyFields={keyInfo.keyType.dbKeyFields}
-                    item={getExistingInserts(keyInfo)}
-                    keyColumn={null}
-                    onChangeItem={item => {
-                      if (item && item.records && item.records.length > 0) {
-                        const existingChange = changeSetRedis.changes.find(
-                          c => c.key === keyInfo.key && c.type === keyInfo.type
-                        );
-                        // @ts-ignore
-                        const listChange = existingChange || {
-                          key: keyInfo.key,
-                          type: 'list',
-                          inserts: [],
-                          updates: [],
-                          deletes: [],
-                        };
-                        // @ts-ignore
-                        listChange.inserts = item.records
-                          .filter(r => r.value.trim() !== '')
-                          .map(r => ({ value: r.value }));
-                        addOrUpdateChange(listChange);
-                      }
-                    }}
-                  />
-                {:else if keyInfo.type === 'hash'}
-                  <DbKeyValueHashEdit
-                    dbKeyFields={keyInfo.keyType.dbKeyFields}
-                    item={getExistingInserts(keyInfo)}
-                    keyColumn={null}
-                    onChangeItem={item => {
-                      if (item && item.records && item.records.length > 0) {
-                        const existingChange = changeSetRedis.changes.find(
-                          c => c.key === keyInfo.key && c.type === keyInfo.type
-                        );
-                        // @ts-ignore
-                        const hashChange = existingChange || {
-                          key: keyInfo.key,
-                          type: 'hash',
-                          inserts: [],
-                          updates: [],
-                          deletes: [],
-                        };
-                        // @ts-ignore
-                        hashChange.inserts = item.records
-                          .filter(r => r.key.trim() !== '' && r.value.trim() !== '')
-                          .map(r => ({ key: r.key, value: r.value, ttl: r.ttl ? parseInt(r.ttl) : undefined }));
-                        addOrUpdateChange(hashChange);
-                      }
-                    }}
-                  />
-                {:else if keyInfo.type === 'zset'}
-                  <DbKeyValueZSetEdit
-                    dbKeyFields={keyInfo.keyType.dbKeyFields}
-                    item={getExistingInserts(keyInfo)}
-                    keyColumn={null}
-                    onChangeItem={item => {
-                      if (item && item.records && item.records.length > 0) {
-                        const existingChange = changeSetRedis.changes.find(
-                          c => c.key === keyInfo.key && c.type === keyInfo.type
-                        );
-                        // @ts-ignore
-                        const zsetChange = existingChange || {
-                          key: keyInfo.key,
-                          type: 'zset',
-                          inserts: [],
-                          updates: [],
-                          deletes: [],
-                        };
-                        // @ts-ignore
-                        zsetChange.inserts = item.records
-                          .filter(r => r.member.trim() !== '' && r.score.trim() !== '')
-                          .map(r => ({ member: r.member, score: parseFloat(r.score) }));
-                        addOrUpdateChange(zsetChange);
-                      }
-                    }}
-                  />
-                {:else if keyInfo.type === 'set'}
-                  <DbKeyValueSetEdit
-                    dbKeyFields={keyInfo.keyType.dbKeyFields}
-                    item={getExistingInserts(keyInfo)}
-                    keyColumn={null}
-                    onChangeItem={item => {
-                      if (item && item.records && item.records.length > 0) {
-                        const existingChange = changeSetRedis.changes.find(
-                          c => c.key === keyInfo.key && c.type === keyInfo.type
-                        );
-                        // @ts-ignore
-                        const setChange = existingChange || {
-                          key: keyInfo.key,
-                          type: 'set',
-                          inserts: [],
-                          updates: [],
-                          deletes: [],
-                        };
-                        // @ts-ignore
-                        setChange.inserts = item.records
-                          .filter(r => r.value.trim() !== '')
-                          .map(r => ({ value: r.value }));
-                        addOrUpdateChange(setChange);
-                      }
-                    }}
-                  />
-                {:else if keyInfo.type === 'stream'}
-                  <DbKeyValueStreamEdit
-                    dbKeyFields={keyInfo.keyType.dbKeyFields}
-                    item={getExistingInserts(keyInfo)}
-                    keyColumn={null}
-                    onChangeItem={item => {
-                      if (item && item.records && item.records.length > 0) {
-                        const existingChange = changeSetRedis.changes.find(
-                          c => c.key === keyInfo.key && c.type === keyInfo.type
-                        );
-                        // @ts-ignore
-                        const streamChange = existingChange || {
-                          key: keyInfo.key,
-                          type: 'stream',
-                          inserts: [],
-                          updates: [],
-                          deletes: [],
-                        };
-                        // @ts-ignore
-                        streamChange.inserts = item.records
-                          .filter(r => r.value && r.value.trim() !== '')
-                          .map(r => ({ id: r.id && r.id.trim() ? r.id.trim() : '*', value: r.value }));
-                        addOrUpdateChange(streamChange);
-                      }
-                    }}
-                  />
-                {/if}
+                  {#if keyInfo.type === 'list'}
+                    <DbKeyValueListEdit
+                      dbKeyFields={keyInfo.keyType.dbKeyFields}
+                      item={getExistingInserts(keyInfo)}
+                      keyColumn={null}
+                      onChangeItem={item => {
+                        if (item && item.records && item.records.length > 0) {
+                          const existingChange = changeSetRedis.changes.find(
+                            c => c.key === keyInfo.key && c.type === keyInfo.type
+                          );
+                          // @ts-ignore
+                          const listChange = existingChange || {
+                            key: keyInfo.key,
+                            type: 'list',
+                            inserts: [],
+                            updates: [],
+                            deletes: [],
+                          };
+                          // @ts-ignore
+                          listChange.inserts = item.records
+                            .filter(r => r.value.trim() !== '')
+                            .map(r => ({ value: r.value }));
+                          addOrUpdateChange(listChange);
+                        }
+                      }}
+                    />
+                  {:else if keyInfo.type === 'hash'}
+                    <DbKeyValueHashEdit
+                      dbKeyFields={keyInfo.keyType.dbKeyFields}
+                      item={getExistingInserts(keyInfo)}
+                      keyColumn={null}
+                      onChangeItem={item => {
+                        if (item && item.records && item.records.length > 0) {
+                          const existingChange = changeSetRedis.changes.find(
+                            c => c.key === keyInfo.key && c.type === keyInfo.type
+                          );
+                          // @ts-ignore
+                          const hashChange = existingChange || {
+                            key: keyInfo.key,
+                            type: 'hash',
+                            inserts: [],
+                            updates: [],
+                            deletes: [],
+                          };
+                          // @ts-ignore
+                          hashChange.inserts = item.records
+                            .filter(r => r.key.trim() !== '' && r.value.trim() !== '')
+                            .map(r => ({ key: r.key, value: r.value, ttl: r.ttl ? parseInt(r.ttl) : undefined }));
+                          addOrUpdateChange(hashChange);
+                        }
+                      }}
+                    />
+                  {:else if keyInfo.type === 'zset'}
+                    <DbKeyValueZSetEdit
+                      dbKeyFields={keyInfo.keyType.dbKeyFields}
+                      item={getExistingInserts(keyInfo)}
+                      keyColumn={null}
+                      onChangeItem={item => {
+                        if (item && item.records && item.records.length > 0) {
+                          const existingChange = changeSetRedis.changes.find(
+                            c => c.key === keyInfo.key && c.type === keyInfo.type
+                          );
+                          // @ts-ignore
+                          const zsetChange = existingChange || {
+                            key: keyInfo.key,
+                            type: 'zset',
+                            inserts: [],
+                            updates: [],
+                            deletes: [],
+                          };
+                          // @ts-ignore
+                          zsetChange.inserts = item.records
+                            .filter(r => r.member.trim() !== '' && r.score.trim() !== '')
+                            .map(r => ({ member: r.member, score: parseFloat(r.score) }));
+                          addOrUpdateChange(zsetChange);
+                        }
+                      }}
+                    />
+                  {:else if keyInfo.type === 'set'}
+                    <DbKeyValueSetEdit
+                      dbKeyFields={keyInfo.keyType.dbKeyFields}
+                      item={getExistingInserts(keyInfo)}
+                      keyColumn={null}
+                      onChangeItem={item => {
+                        if (item && item.records && item.records.length > 0) {
+                          const existingChange = changeSetRedis.changes.find(
+                            c => c.key === keyInfo.key && c.type === keyInfo.type
+                          );
+                          // @ts-ignore
+                          const setChange = existingChange || {
+                            key: keyInfo.key,
+                            type: 'set',
+                            inserts: [],
+                            updates: [],
+                            deletes: [],
+                          };
+                          // @ts-ignore
+                          setChange.inserts = item.records
+                            .filter(r => r.value.trim() !== '')
+                            .map(r => ({ value: r.value }));
+                          addOrUpdateChange(setChange);
+                        }
+                      }}
+                    />
+                  {:else if keyInfo.type === 'stream'}
+                    <DbKeyValueStreamEdit
+                      dbKeyFields={keyInfo.keyType.dbKeyFields}
+                      item={getExistingInserts(keyInfo)}
+                      keyColumn={null}
+                      onChangeItem={item => {
+                        if (item && item.records && item.records.length > 0) {
+                          const existingChange = changeSetRedis.changes.find(
+                            c => c.key === keyInfo.key && c.type === keyInfo.type
+                          );
+                          // @ts-ignore
+                          const streamChange = existingChange || {
+                            key: keyInfo.key,
+                            type: 'stream',
+                            inserts: [],
+                            updates: [],
+                            deletes: [],
+                          };
+                          // @ts-ignore
+                          streamChange.inserts = item.records
+                            .filter(r => r.value && r.value.trim() !== '')
+                            .map(r => ({ id: r.id && r.id.trim() ? r.id.trim() : '*', value: r.value }));
+                          addOrUpdateChange(streamChange);
+                        }
+                      }}
+                    />
+                  {/if}
                 </div>
               {:else if keyInfo.type === 'hash'}
                 <DbKeyValueHashDetail
@@ -748,7 +754,7 @@
     position: relative;
   }
 
-    .top-panel {
+  .top-panel {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -780,11 +786,10 @@
     display: flex;
     align-items: center;
     padding: 8px 12px;
-    
+
     font-size: 14px;
     color: var(--theme-generic-font);
   }
-
 
   .value-holder {
     position: absolute;

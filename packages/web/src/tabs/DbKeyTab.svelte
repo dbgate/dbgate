@@ -164,6 +164,8 @@
       [`${conid}:${database}`]: keyName,
     };
 
+    await apiCall('database-connections/dispatch-redis-keys-changed', { conid, database });
+
     openedTabs.update(tabs =>
       tabs.map(tab => (tab.tabid === tabid ? { ...tab, closedTime: new Date().getTime(), selected: false } : tab))
     );

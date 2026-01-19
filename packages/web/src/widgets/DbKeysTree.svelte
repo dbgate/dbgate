@@ -24,7 +24,7 @@
     getExtensions,
     getFocusedTreeDbKey,
   } from '../stores';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
   import { useConnectionInfo } from '../utility/metadataLoaders';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
@@ -34,6 +34,7 @@
   import { getOpenDetailOnArrowsSettings } from '../settings/settingsTools';
   import openNewTab from '../utility/openNewTab';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   export let conid;
   export let database;
@@ -52,7 +53,7 @@
     const connection = $currentDatabase?.connection;
     const database = $currentDatabase?.name;
     const focusedKey = $focusedTreeDbKey;
-    
+
     let initialKeyName = '';
     if (focusedKey) {
       if (focusedKey.type === 'dir' && focusedKey.key) {
@@ -134,6 +135,13 @@
   function reloadModel() {
     changeModel(model => dbKeys_clearLoadedData(model), true);
   }
+
+  onMount(() => {
+    apiOn(`redis-keys-changed-${conid}-${database}`, reloadModel);
+  });
+  onDestroy(() => {
+    apiOff(`redis-keys-changed-${conid}-${database}`, reloadModel);
+  });
 
   $: {
     conid;
