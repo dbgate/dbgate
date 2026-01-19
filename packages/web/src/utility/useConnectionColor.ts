@@ -2,7 +2,7 @@ import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
 import { derived } from 'svelte/store';
 import { cloudConnectionsStore } from '../stores';
 import { useCloudContentList, useConnectionList } from '../utility/metadataLoaders';
-import { currentThemeDefinition } from '../plugins/themes';
+import { currentThemeDefinition, systemThemeTypeStore } from '../plugins/themes';
 
 export function getConnectionColor(
   connections,
@@ -49,16 +49,18 @@ export function useConnectionColor(
   useConnectionFallback = true
 ) {
   const connections = useConnectionList();
-  return derived([connections, currentThemeDefinition, cloudConnectionsStore], ([$connections, $themeDef, $cloudConnectionsStore]) =>
-    getConnectionColor(
-      $connections,
-      $cloudConnectionsStore,
-      dbid,
-      themeType ?? $themeDef?.themeType,
-      colorIndex,
-      backgroundStyle,
-      useConnectionFallback
-    )
+  return derived(
+    [connections, currentThemeDefinition, cloudConnectionsStore],
+    ([$connections, $themeDef, $cloudConnectionsStore]) =>
+      getConnectionColor(
+        $connections,
+        $cloudConnectionsStore,
+        dbid,
+        themeType ?? $themeDef?.themeType,
+        colorIndex,
+        backgroundStyle,
+        useConnectionFallback
+      )
   );
 }
 
@@ -70,14 +72,14 @@ export function useConnectionColorFactory(
 ) {
   const connections = useConnectionList();
   return derived(
-    [connections, currentThemeDefinition, cloudConnectionsStore],
-    ([$connections, $themeDef, $cloudConnectionsStore]) =>
+    [connections, currentThemeDefinition, cloudConnectionsStore, systemThemeTypeStore],
+    ([$connections, $themeDef, $cloudConnectionsStore, $systemThemeTypeStore]) =>
       (dbid, colorIndexOverride = null, backgroundStyleOverride = null, useConnectionFallbackOverride = null) =>
         getConnectionColor(
           $connections,
           $cloudConnectionsStore,
           dbid,
-          themeType ?? $themeDef?.themeType,
+          themeType ?? $themeDef?.themeType ?? $systemThemeTypeStore,
           colorIndexOverride ?? colorIndex,
           backgroundStyleOverride ?? backgroundStyle,
           useConnectionFallbackOverride ?? useConnectionFallback
