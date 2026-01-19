@@ -151,7 +151,7 @@ export const themeDarkColors = {
     '--theme-icon-picker-hover': 'var(--tw-color-zinc-800)',
     '--theme-icon-picker-selected': 'var(--tw-color-sky-900)',
   '--theme-dbkey-background': 'var(--tw-color-zinc-900)',
-  '--theme-dbkey-border': '2px solid var(--tw-color-zinc-700)',
+  '--theme-dbkey-border': '1px solid var(--tw-color-zinc-700)',
   '--theme-dbkey-icon-hover': 'var(--tw-color-zinc-500)',
   '--theme-outlinebutton-foreground': 'var(--tw-color-zinc-50)',
   '--theme-outlinebutton-border': '1px solid var(--tw-color-sky-700)',

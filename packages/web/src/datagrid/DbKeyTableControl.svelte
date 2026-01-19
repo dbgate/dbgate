@@ -195,6 +195,7 @@
       selectable
       singleLineRow
       bind:selectedIndex
+      disableFocusOutline
     >
       <div slot="0" let:row>
         <button 

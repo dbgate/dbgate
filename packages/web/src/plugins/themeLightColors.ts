@@ -217,7 +217,7 @@ export const themeLightColors = {
   '--theme-icon-picker-hover': 'var(--tw-color-zinc-300)',
   '--theme-icon-picker-selected' : 'var(--tw-color-sky-300)',
   '--theme-dbkey-background': 'var(--tw-color-zinc-50)',
-  '--theme-dbkey-border': '2px solid var(--tw-color-zinc-200)',
+  '--theme-dbkey-border': '1px solid var(--tw-color-zinc-200)',
   '--theme-dbkey-icon-hover': 'var(--tw-color-zinc-400)',
   '--theme-chip-background': 'var(--tw-color-zinc-300)',
   '--theme-titlebar-background': 'var(--tw-color-zinc-300)',

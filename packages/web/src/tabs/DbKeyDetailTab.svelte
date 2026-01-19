@@ -807,9 +807,9 @@
   .add-field {
     padding: 16px;
     background-color: var(--theme-dbkey-background);
-    height: 100%;
-    width: 100%;
     border-top: var(--theme-dbkey-border);
     overflow-y: auto;
+    position: absolute;
+    inset: 0;
   }
 </style>

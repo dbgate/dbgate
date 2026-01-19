@@ -295,4 +295,10 @@
   tr.isDeleted {
     background: var(--theme-table-deleted-background);
   }
+
+  tr.isDeleted td {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==') !important;
+    background-repeat: repeat-x !important;
+    background-position: 50% 50% !important;
+  }
 </style>
