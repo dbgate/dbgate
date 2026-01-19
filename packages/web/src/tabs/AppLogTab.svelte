@@ -434,7 +434,6 @@
   table {
     border-collapse: collapse;
     width: 100%;
-    border-radius: 8px;
     overflow: hidden;
   }
   table.selectable {

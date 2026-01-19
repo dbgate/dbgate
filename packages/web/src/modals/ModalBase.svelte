@@ -89,7 +89,7 @@
 
   .window {
     background-color: var(--theme-content-background);
-    border: var(--theme-content-border);
+    border: var(--theme-modal-border);
     overflow: auto;
     outline: none;
     display: flex;

@@ -85,7 +85,7 @@
     padding: 5px;
   }
   .wrapper:hover {
-    background-color: var(--theme-content-hover-background);
+    background-color: var(--theme-content-background-hover);
   }
   .info {
     margin-left: 30px;

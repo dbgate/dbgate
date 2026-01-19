@@ -45,7 +45,7 @@
   }
 
   .outer.useBorder {
-    background-color: var(--theme-inlinebutton-bordered-background);
+    background: var(--theme-inlinebutton-bordered-background);
     border: var(--theme-inlinebutton-bordered-border);
   }
 

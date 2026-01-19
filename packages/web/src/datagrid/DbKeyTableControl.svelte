@@ -108,6 +108,26 @@
             return isDeleted ? { ...row, __isDeleted: true } : row;
           });
         }
+
+        // Mark rows updated in the changeset
+        if (existingChange.updates) {
+          result = result.map(row => {
+            let isChanged = false;
+
+            if (keyInfoParam.type === 'hash') {
+              const originalKey = row._originalKey || row.key;
+              isChanged = existingChange.updates.some(update => update.originalKey === originalKey);
+            } else if (keyInfoParam.type === 'list') {
+              isChanged = existingChange.updates.some(update => update.index === row.rowNumber);
+            } else if (keyInfoParam.type === 'zset') {
+              isChanged = existingChange.updates.some(update => update.member === row.member);
+            } else if (keyInfoParam.type === 'stream') {
+              isChanged = existingChange.updates.some(update => update.id === row.id);
+            }
+
+            return isChanged ? { ...row, __isChanged: true } : row;
+          });
+        }
         
         // Add inserted rows from changeset
         if (existingChange.inserts) {
@@ -151,46 +171,54 @@
   }
 </script>
 
-<ScrollableTableControl
-  columns={[
-    {
-      fieldName: 'rowNumber',
-      header: 'num',
-      width: '60px',
-    },
-    ...keyInfo.keyType.dbKeyFields.map(column => ({
-      fieldName: column.name,
-      header: column.name,
-    })),
-    ...(shouldShowRemoveColumn ? [{
-      fieldName: '__remove',
-      header: '',
-      width: '30px',
-      slot: 0
-    }] : []),
-  ]}
-  rows={displayRows}
-  onLoadNext={isLoadedAll ? null : loadNextRows}
-  selectable
-  singleLineRow
-  bind:selectedIndex
->
-  <div slot="0" let:row>
-    <button 
-      class="delete-button" 
-      on:click={() => handleRemoveItem(row)}
+<div class="table-wrapper">
+    <ScrollableTableControl
+      columns={[
+        {
+          fieldName: 'rowNumber',
+          header: 'num',
+          width: '60px',
+        },
+        ...keyInfo.keyType.dbKeyFields.map(column => ({
+          fieldName: column.name,
+          header: column.name,
+        })),
+        ...(shouldShowRemoveColumn ? [{
+          fieldName: '__remove',
+          header: '',
+          width: '30px',
+          slot: 0
+        }] : []),
+      ]}
+      rows={displayRows}
+      onLoadNext={isLoadedAll ? null : loadNextRows}
+      selectable
+      singleLineRow
+      bind:selectedIndex
     >
-      <FontIcon icon="icon delete" />
-    </button>
-  </div>
-</ScrollableTableControl>
+      <div slot="0" let:row>
+        <button 
+          class="delete-button" 
+          on:click={() => handleRemoveItem(row)}
+        >
+          <FontIcon icon="icon delete" />
+        </button>
+      </div>
+    </ScrollableTableControl>
+</div>
 
 <style>
-  :global(tr.isDeleted td) {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==') !important;
-    background-repeat: repeat-x !important;
-    background-position: 50% 50% !important;
-    opacity: 0.7;
+  .table-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    padding: 8px 16px;
+    width: 100%;
+  }
+  
+  .table-wrapper :global(.wrapper) {
+    position: relative !important;
+    height: 100%;
   }
   
   .delete-button {

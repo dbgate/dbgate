@@ -60,10 +60,11 @@
 <style>
   .wrapper {
     width: 400px;
-    border: 1px solid var(--theme-card-border);
+    border: var(--theme-card-border);
     background-color: var(--theme-card-background);
     margin: 10px;
     position: relative;
+    padding: 3px;
   }
 
   .message {

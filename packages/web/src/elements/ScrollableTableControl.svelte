@@ -221,6 +221,7 @@
   table {
     width: 100%;
     flex: 1;
+    background-color: var(--theme-table-header-background);
   }
 
   table thead,
@@ -274,7 +275,9 @@
     padding: 5px;
   }
   tbody td {
-    border: var(--theme-table-border);
+    border-left: var(--theme-table-border);
+    border-right: var(--theme-table-border);
+    border-bottom: var(--theme-table-border);
     padding: 5px;
   }
 
