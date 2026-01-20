@@ -348,9 +348,6 @@
     background-color: var(--theme-designer-item-background);
     border: var(--theme-designer-item-border);
   }
-  /* :global(.dbgate-screen) .isSelectedTable {
-    border: 3px solid var(--theme-border);
-  } */
   .selection-marker {
     display: none;
     position: absolute;

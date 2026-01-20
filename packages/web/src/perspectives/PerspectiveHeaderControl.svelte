@@ -69,16 +69,8 @@
     align-self: center;
     font-size: 18px;
   }
-  /* .grouping {
-    color: var(--theme-font-alt);
-    white-space: nowrap;
-  }
-  .data-type {
-    color: var(--theme-font-3);
-  } */
 
   th {
-    /* border: 1px solid var(--theme-border); */
     text-align: left;
     padding: 2px;
     margin: 0;

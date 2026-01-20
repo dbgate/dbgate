@@ -56,7 +56,7 @@
 
   .label.disabled {
     cursor: not-allowed;
-    color: var(--theme-font-3);
+    color: var(--theme-input-foreground-disabled);
   }
 
   .checkbox {
@@ -67,26 +67,26 @@
     -moz-appearance: none;
     -o-appearance: none;
     appearance: none;
-    outline: 1px solid var(--theme-border);
+    outline: var(--theme-input-border);
     box-shadow: none;
     font-size: 0.8em;
     text-align: center;
     line-height: 1em;
-    background: var(--theme-bg-0);
+    background: var(--theme-input-background);
   }
 
   .checked:after {
     content: '✔';
-    color: var(--theme-font-1);
+    color: var(--theme-input-foreground);
     font-weight: bold;
   }
 
   .isInherited {
-    background: var(--theme-bg-2) !important;
+    background: var(--theme-checkbox-background-inherited) !important;
   }
 
   .checkbox.disabled {
-    background: var(--theme-bg-2) !important;
+    background: var(--theme-input-background-disabled) !important;
     cursor: not-allowed;
   }
 </style>

@@ -136,10 +136,10 @@
   .load-more {
     margin-left: 2em;
     font-style: italic;
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
   }
   .load-more a {
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
     text-decoration: none;
     cursor: pointer;
   }

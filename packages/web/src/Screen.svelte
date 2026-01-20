@@ -155,7 +155,7 @@
     height: var(--dim-toolbar-height);
     left: 0;
     right: 0;
-    background: var(--theme-bg-1);
+    background: var(--theme-toolstrip-background);
   }
 
   .left-splitter {

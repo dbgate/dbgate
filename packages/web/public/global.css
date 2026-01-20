@@ -91,19 +91,7 @@ body {
   overflow: scroll;
 }
 .bg-0 {
-  background-color: var(--theme-bg-0);
-}
-.bg-1 {
-  background-color: var(--theme-bg-1);
-}
-.bg-2 {
-  background-color: var(--theme-bg-2);
-}
-.bg-3 {
-  background-color: var(--theme-bg-3);
-}
-.bg-4 {
-  background-color: var(--theme-bg-4);
+  background-color: var(--theme-content-background);
 }
 
 .col-10 {
@@ -290,13 +278,12 @@ textarea[disabled] {
 }
 
 .ace_gutter-cell.ace-gutter-sql-run:hover {
-  background-color: var(--theme-bg-2);
+  background-color: var(--theme-datagrid-cell-background-alt);
 }
 
 .ace_gutter-cell.ace-gutter-current-part {
-  /* background-color: var(--theme-bg-2); */
   font-weight: bold;
-  color: var(--theme-font-hover);
+  color: var(--theme-generic-font-hover);
 }
 
 input[type='checkbox'] {

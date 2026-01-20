@@ -166,9 +166,10 @@
 <style>
   .wrapper {
     display: flex;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-card-border);
     margin-bottom: 5px;
     align-items: center;
+    padding-left: 5px;
   }
 
   .negativeMarginTop {

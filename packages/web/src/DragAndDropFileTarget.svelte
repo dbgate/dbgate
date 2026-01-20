@@ -41,7 +41,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--theme-bg-selected);
+    background: var(--theme-table-selected-background);
     align-items: center;
     justify-content: space-around;
     z-index: 1000;

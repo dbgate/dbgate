@@ -48,7 +48,6 @@
 <style>
   td {
     font-weight: normal;
-    /* border: 1px solid var(--theme-border); */
     background-color: var(--theme-table-cell-background);
     padding: 2px;
     position: relative;

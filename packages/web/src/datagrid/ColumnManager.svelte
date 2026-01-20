@@ -305,6 +305,6 @@
   }
 
   .selectwrap {
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
   }
 </style>
