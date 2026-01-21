@@ -26,11 +26,7 @@
 
 <div class="container">
   <FormFieldTemplateLarge label="Score" type="text" noMargin>
-    <TextField
-      value={score}
-      on:input={e => handleScoreChange(e.target.value)}
-      disabled={!onChangeItem}
-    />
+    <TextField value={score} on:input={e => handleScoreChange(e.target.value)} disabled={!onChangeItem} />
   </FormFieldTemplateLarge>
 
   <div class="value-section">
@@ -51,10 +47,7 @@
     <div class="colvalue">
       {#if display == 'text'}
         <div class="editor-wrapper">
-          <AceEditor
-            readOnly={true}
-            value={member}
-          />
+          <AceEditor readOnly={true} value={member} />
         </div>
       {/if}
       {#if display == 'json'}
@@ -103,8 +96,8 @@
     margin: 20px 5px 5px 5px;
     justify-content: space-between;
   }
-  
-  .colnamewrap :global(select){
+
+  .colnamewrap :global(select) {
     padding: 2px 4px;
   }
 
@@ -114,12 +107,12 @@
     min-height: 60px;
     max-height: 1000px;
   }
-  
+
   .outer {
     flex: 1;
     position: relative;
   }
-  
+
   .inner {
     overflow: scroll;
     position: absolute;

@@ -5,6 +5,7 @@
     redis_getFlatList,
     redis_markNodeExpanded,
     redis_mergeNextPage,
+    supportedRedisKeyTypes,
   } from 'dbgate-tools';
 
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -13,7 +14,6 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import AddDbKeyModal from '../modals/AddRedisModal.svelte';
   import { showModal } from '../modals/modalTools';
   import {
     activeRedisKeysStore,
@@ -34,6 +34,7 @@
   import openNewTab from '../utility/openNewTab';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { onDestroy, onMount } from 'svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
   export let conid;
   export let database;
@@ -48,7 +49,7 @@
 
   let model = redis_createNewModel(treeKeySeparator);
 
-  function handleAddKey() {
+  function handleAddKey(initialKeyType) {
     const connection = $currentDatabase?.connection;
     const database = $currentDatabase?.name;
     const focusedKey = $focusedTreeRedisKey;
@@ -73,26 +74,18 @@
         conid: connection?._id,
         database,
         initialKeyName,
+        initialKeyType,
       },
     });
+  }
 
-    // showModal(AddDbKeyModal, {
-    //   conid: connection._id,
-    //   database,
-    //   driver,
-    //   onConfirm: async item => {
-    //     const type = driver.supportedKeyTypes.find(x => x.name == item.type);
-
-    //     await apiCall('database-connections/call-method', {
-    //       conid: connection._id,
-    //       database,
-    //       method: type.addMethod,
-    //       args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
-    //     });
-
-    //     reloadModel();
-    //   },
-    // });
+  function createAddKeyMenu() {
+    return supportedRedisKeyTypes.map(type => ({
+      label: type.label,
+      onClick: () => {
+        handleAddKey(type.name);
+      },
+    }));
   }
 
   $: differentFocusedDb =
@@ -163,9 +156,13 @@
     }}
   />
   <CloseSearchButton bind:filter />
-  <InlineButton on:click={handleAddKey} title="Add new key">
-    <FontIcon icon="icon plus-thick" />
-  </InlineButton>
+  <DropDownButton
+    icon="icon plus-thick"
+    menu={createAddKeyMenu}
+    narrow={false}
+    data-testid="RedisKeysTree_addKeyDropdown"
+    title="Add new key"
+  />
   <InlineButton on:click={reloadModel} title="Refresh key list">
     <FontIcon icon="icon refresh" />
   </InlineButton>

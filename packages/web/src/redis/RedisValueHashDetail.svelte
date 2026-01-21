@@ -8,7 +8,7 @@
   export let onChangeItem = null;
 
   $: key = item?.key || '';
-  $: ttl = item?.TTL != null ? String(item.TTL) : '';
+  $: ttl = item?.ttl != null ? String(item.ttl) : '';
 
   function handleKeyChange(newKey) {
     onChangeItem?.({
@@ -18,10 +18,10 @@
   }
 
   function handleTtlChange(newTtl) {
-    const ttlValue = newTtl.trim() === '' ? undefined : parseInt(newTtl);
+    const ttlValue = newTtl.trim() ? newTtl : undefined;
     onChangeItem?.({
       ...item,
-      TTL: ttlValue,
+      ttl: ttlValue,
     });
   }
 </script>
@@ -83,7 +83,6 @@
   .container {
     display: flex;
     flex-direction: column;
-    height: 100%;
     padding: 16px;
     gap: 16px;
     width: 100%;

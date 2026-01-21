@@ -29,10 +29,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
     padding: 16px;
     gap: 16px;
-    width: 100%;
     overflow: auto;
     background-color: var(--theme-dbkey-background);
     border-top: var(--theme-dbkey-border);

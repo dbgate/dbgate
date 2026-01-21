@@ -21,11 +21,6 @@
 
 <script lang="ts">
   import RedisValueDetail from '../redis/RedisValueDetail.svelte';
-  import RedisValueHashEdit from '../redis/RedisValueHashEdit.svelte';
-  import RedisValueListEdit from '../redis/RedisValueListEdit.svelte';
-  import RedisValueSetEdit from '../redis/RedisValueSetEdit.svelte';
-  import RedisValueZSetEdit from '../redis/RedisValueZSetEdit.svelte';
-  import RedisValueStreamEdit from '../redis/RedisValueStreamEdit.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
@@ -35,7 +30,7 @@
   import { __t, _t } from '../translations';
   import { apiCall } from '../utility/api';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { findEngineDriver, findSupportedRedisKeyType, supportedRedisKeyTypes } from 'dbgate-tools';
   import { activeRedisKeysStore, getExtensions, openedTabs } from '../stores';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
@@ -46,18 +41,23 @@
   import registerCommand from '../commands/registerCommand';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
+  import RedisValueListLikeEdit from '../redis/RedisValueListLikeEdit.svelte';
 
   export let conid;
   export let database;
   export let tabid;
   export let initialKeyName = '';
+  export let initialKeyType = 'string';
 
   $: connection = useConnectionInfo({ conid });
   $: driver = $connection && findEngineDriver($connection, getExtensions());
 
-  let item = {};
+  let item: any = {
+    records: [{}],
+  };
   let keyName = initialKeyName || '';
-  $: type = driver?.supportedKeyTypes?.[0]?.name || '';
+  let type = initialKeyType || 'string';
+  $: keyType = findSupportedRedisKeyType(type);
 
   export function canSave() {
     return keyName && keyName.trim() !== '';
@@ -68,15 +68,13 @@
   export async function save() {
     if (!driver) return;
 
-    const typeConfig = driver.supportedKeyTypes.find(x => x.name == type);
-
     const calls = [];
 
     if (type === 'hash' && item.records && Array.isArray(item.records)) {
       for (const record of item.records) {
         if (record.key && record.value) {
           calls.push({
-            method: typeConfig.addMethod,
+            method: 'hset',
             args: [keyName, record.key, record.value],
           });
         }
@@ -86,7 +84,7 @@
 
       if (values.length > 0) {
         calls.push({
-          method: typeConfig.addMethod,
+          method: 'rpush',
           args: [keyName, ...values],
         });
       }
@@ -95,7 +93,7 @@
 
       if (values.length > 0) {
         calls.push({
-          method: typeConfig.addMethod,
+          method: 'sadd',
           args: [keyName, ...values],
         });
       }
@@ -103,26 +101,36 @@
       for (const record of item.records) {
         if (record.member && record.score) {
           calls.push({
-            method: typeConfig.addMethod,
-            args: [keyName, record.member, parseFloat(record.score)],
+            method: 'zadd',
+            args: [keyName, parseFloat(record.score), record.member],
           });
         }
       }
     } else if (type === 'stream' && item.records && Array.isArray(item.records)) {
+      const args = [keyName, item.generatedId || '*'];
       for (const record of item.records) {
-        if (record.value) {
-          const streamId = record.id || '*';
-          calls.push({
-            method: typeConfig.addMethod,
-            args: [keyName, streamId, record.value],
-          });
+        if (record.field && record.value) {
+          args.push(record.field);
+          args.push(record.value);
         }
       }
-    } else {
       calls.push({
-        method: typeConfig.addMethod,
-        args: [keyName, ...typeConfig.dbKeyFields.map(fld => item[fld.name])],
+        method: 'xadd',
+        args,
       });
+    } else if (type == 'string') {
+      calls.push({
+        method: 'set',
+        args: [keyName, item.value],
+      });
+    } else if (type == 'json') {
+      calls.push({
+        method: 'json.set',
+        args: [keyName, '$', item.value],
+      });
+    } else {
+      showSnackbarError(`Unsupported key type: ${type}`);
+      return;
     }
 
     const callList = { calls };
@@ -175,7 +183,7 @@
   }
 </script>
 
-{#if driver && driver.supportedKeyTypes && driver.supportedKeyTypes.length > 0}
+{#if driver}
   <FormProvider>
     <ToolStripContainer>
       <div class="container">
@@ -196,7 +204,7 @@
           <div class="col-3">
             <FormFieldTemplateLarge label={_t('addDbKeyModal.type', { defaultMessage: 'Type' })} type="combo" noMargin>
               <SelectField
-                options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
+                options={supportedRedisKeyTypes.map(t => ({ value: t.name, label: t.label }))}
                 value={type}
                 isNative
                 on:change={e => {
@@ -207,44 +215,24 @@
           </div>
         </div>
 
-        {#if type === 'hash'}
-          <RedisValueHashEdit
-            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-            {item}
-            onChangeItem={value => {
-              item = value;
-            }}
-          />
-        {:else if type === 'list'}
-          <RedisValueListEdit
-            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-            {item}
-            onChangeItem={value => {
-              item = value;
-            }}
-          />
-        {:else if type === 'set'}
-          <RedisValueSetEdit
-            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-            {item}
-            onChangeItem={value => {
-              item = value;
-            }}
-          />
-        {:else if type === 'zset'}
-          <RedisValueZSetEdit
-            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-            {item}
-            onChangeItem={value => {
-              item = value;
-            }}
-          />
-        {:else if type === 'stream'}
-          <RedisValueStreamEdit
-            dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
-            {item}
-            onChangeItem={value => {
-              item = value;
+        {#if keyType?.showGeneratedId}
+          <FormFieldTemplateLarge label="ID" type="text" noMargin>
+            <TextField
+              placeholder="* for auto"
+              value={item.generatedId}
+              on:input={e => {
+                item = { ...item, generatedId: e.target['value'] };
+              }}
+            />
+          </FormFieldTemplateLarge>
+        {/if}
+
+        {#if keyType?.showItemList}
+          <RedisValueListLikeEdit
+            {type}
+            records={item.records || []}
+            onChangeRecords={value => {
+              item = { ...item, records: value };
             }}
           />
         {:else}
@@ -260,6 +248,18 @@
 
       <svelte:fragment slot="toolstrip">
         <ToolStripCommandButton command="redisLikeData.saveNew" />
+
+        {#if keyType?.showItemList}
+          <ToolStripButton
+            icon="icon add"
+            on:click={() => {
+              item = {
+                ...item,
+                records: [...(item.records || []), {}],
+              };
+            }}>Add field</ToolStripButton
+          >
+        {/if}
       </svelte:fragment>
     </ToolStripContainer>
   </FormProvider>

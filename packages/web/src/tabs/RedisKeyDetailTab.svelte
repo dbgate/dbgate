@@ -34,9 +34,15 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FontIcon, { getNumberIcon } from '../icons/FontIcon.svelte';
-  import { findEngineDriver, getIconForRedisType } from 'dbgate-tools';
+  import {
+    findEngineDriver,
+    findSupportedRedisKeyType,
+    getIconForRedisType,
+    SupportedRedisKeyType,
+    supportedRedisKeyTypes,
+  } from 'dbgate-tools';
   import TextField from '../forms/TextField.svelte';
-  import DbKeyTableControl from '../datagrid/DbKeyTableControl.svelte';
+  import RedisTableControl from '../datagrid/RedisTableControl.svelte';
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
@@ -44,15 +50,8 @@
   import RedisValueHashDetail from '../redis/RedisValueHashDetail.svelte';
   import RedisValueZSetDetail from '../redis/RedisValueZSetDetail.svelte';
   import RedisValueStreamDetail from '../redis/RedisValueStreamDetail.svelte';
-  import RedisValueListEdit from '../redis/RedisValueListEdit.svelte';
-  import RedisValueHashEdit from '../redis/RedisValueHashEdit.svelte';
-  import RedisValueZSetEdit from '../redis/RedisValueZSetEdit.svelte';
-  import RedisValueSetEdit from '../redis/RedisValueSetEdit.svelte';
-  import RedisValueStreamEdit from '../redis/RedisValueStreamEdit.svelte';
-  import RedisAddItemModal from '../modals/RedisAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
-  import SelectField from '../forms/SelectField.svelte';
   import RedisValueDetail from '../redis/RedisValueDetail.svelte';
   import { __t, _t } from '../translations';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
@@ -68,6 +67,9 @@
   import registerCommand from '../commands/registerCommand';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
+  import RedisValueListLikeEdit from '../redis/RedisValueListLikeEdit.svelte';
+  import uuidv1 from 'uuid/v1';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   export let tabid;
   export let conid;
@@ -194,7 +196,7 @@
   }
 
   function addOrUpdateChange(change: ChangeSetRedisType) {
-    const existingIndex = changeSetRedis.changes.findIndex(c => c.key === change.key && c.type === change.type);
+    const existingIndex = changeSetRedis.changes.findIndex(c => c.key === change.key);
 
     if (existingIndex >= 0) {
       changeSetRedis = {
@@ -209,10 +211,80 @@
     }
   }
 
+  function updateInsertedRecords(key: string, type: string, records) {
+    if (changeSetRedis.changes.find(c => c.key === key)) {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: changeSetRedis.changes.map(c => (c.key == key ? { ...c, inserts: records } : c)),
+      };
+    } else {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: [
+          ...changeSetRedis.changes,
+          {
+            key,
+            type: type as any,
+            inserts: records,
+            updates: [],
+            deletes: [],
+          },
+        ],
+      };
+    }
+  }
+
+  function updateGeneratedId(key: string, type: string, generatedId: string) {
+    if (changeSetRedis.changes.find(c => c.key === key)) {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: changeSetRedis.changes.map(c => (c.key == key ? { ...c, generatedId } : c)),
+      };
+    } else {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: [
+          ...changeSetRedis.changes,
+          {
+            key,
+            type: type as any,
+            generatedId,
+            deletes: [],
+            updates: [],
+            inserts: [],
+          },
+        ],
+      };
+    }
+  }
+
+  function appendInsertedRecords(key: string, type: string, records) {
+    if (changeSetRedis.changes.find(c => c.key === key)) {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: changeSetRedis.changes.map(c => (c.key == key ? { ...c, inserts: [...c.inserts, ...records] } : c)),
+      };
+    } else {
+      changeSetRedis = {
+        ...changeSetRedis,
+        changes: [
+          ...changeSetRedis.changes,
+          {
+            key,
+            type: type as any,
+            inserts: records,
+            updates: [],
+            deletes: [],
+          },
+        ],
+      };
+    }
+  }
+
   function getDisplayRow(row, keyInfo) {
     if (!row) return row;
 
-    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key && c.type === keyInfo.type);
+    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key);
 
     if (!existingChange) return row;
 
@@ -226,7 +298,7 @@
           _originalKey: originalKey,
           key: update.key,
           value: update.value,
-          TTL: update.ttl !== undefined ? update.ttl : row.TTL,
+          ttl: update.ttl !== undefined ? update.ttl : row.ttl,
         };
       }
     } else if (keyInfo.type === 'list') {
@@ -247,7 +319,7 @@
   }
 
   function getDisplayValue(keyInfo) {
-    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key && c.type === keyInfo.type);
+    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key);
 
     if (existingChange && (keyInfo.type === 'string' || keyInfo.type === 'JSON')) {
       // @ts-ignore
@@ -257,67 +329,32 @@
     return keyInfo.value;
   }
 
-  function getExistingInserts(keyInfo) {
-    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key && c.type === keyInfo.type);
-
-    let records = [];
-
-    // Add existing inserts if any
-    if (existingChange && existingChange.inserts) {
-      // @ts-ignore
-      records = existingChange.inserts.map(insert => {
-        if (keyInfo.type === 'hash') {
-          return { key: insert.key || '', value: insert.value || '', ttl: insert.ttl ? String(insert.ttl) : '' };
-        } else if (keyInfo.type === 'list' || keyInfo.type === 'set') {
-          return { value: insert.value || '' };
-        } else if (keyInfo.type === 'zset') {
-          return { member: insert.member || '', score: insert.score ? String(insert.score) : '' };
-        } else if (keyInfo.type === 'stream') {
-          return { id: insert.id || '', value: insert.value || '' };
-        }
-        return insert;
-      });
-    }
-
-    if (records.length === 0) {
-      if (keyInfo.type === 'hash') {
-        records.push({ key: '', value: '', ttl: '' });
-      } else if (keyInfo.type === 'list' || keyInfo.type === 'set') {
-        records.push({ value: '' });
-      } else if (keyInfo.type === 'zset') {
-        records.push({ member: '', score: '' });
-      } else if (keyInfo.type === 'stream') {
-        records.push({ id: '', value: '' });
-      }
-    }
-
-    return { records };
-  }
-
-  function handleRemoveItem(row, keyInfo) {
-    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key && c.type === keyInfo.type);
+  function handleRemoveItem(row, keyInfo, keyType: SupportedRedisKeyType) {
+    const existingChange = changeSetRedis.changes.find(c => c.key === keyInfo.key);
 
     let change;
     if (existingChange) {
-      change = { ...existingChange };
+      change = existingChange;
     } else {
       // @ts-ignore
       change = { key: keyInfo.key, type: keyInfo.type, inserts: [], updates: [], deletes: [] };
     }
 
-    // Add the item to the deletes array based on the type
-    if (keyInfo.type === 'hash') {
-      // @ts-ignore
-      change.deletes = [...(change.deletes || []), row.key];
-    } else if (keyInfo.type === 'set') {
-      // @ts-ignore
-      change.deletes = [...(change.deletes || []), row.value];
-    } else if (keyInfo.type === 'zset') {
-      // @ts-ignore
-      change.deletes = [...(change.deletes || []), row.member];
-    } else if (keyInfo.type === 'stream') {
-      // @ts-ignore
-      change.deletes = [...(change.deletes || []), row.id];
+    const existingInsert = change.inserts?.find(insert => insert.editorRowId === row.editorRowId);
+    if (existingInsert) {
+      change = {
+        ...change,
+        inserts: change.inserts.filter(insert => insert.editorRowId !== row.editorRowId),
+      };
+      addOrUpdateChange(change);
+      return;
+    }
+
+    if (keyType.showItemList) {
+      change = {
+        ...change,
+        deletes: [...(change.deletes || []), row[keyType.keyColumn]],
+      };
     }
 
     addOrUpdateChange(change);
@@ -369,6 +406,8 @@
       changeSetRedis = { changes: [] };
       setEditorData({ changes: [] });
       refreshToken += 1;
+      currentRow = null;
+      showAddForm = false;
       await refreshKeys();
     }
   }
@@ -381,365 +420,265 @@
 {#await apiCall('database-connections/load-key-info', { conid, database, key, refreshToken })}
   <LoadingInfo message="Loading key details" wrapper />
 {:then keyInfo}
-  <ToolStripContainer>
-    <div class="container">
-      <div class="top-panel">
-        <div class="type">
-          <FontIcon icon={getIconForRedisType(keyInfo.type)} padRight />
-          {keyInfo.keyType?.label || keyInfo.type}
-        </div>
-        <div class="key-name">
-          {key}
-        </div>
-        <FormStyledButton value="Rename Key" on:click={() => handleKeyRename(keyInfo)} />
-        <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
-      </div>
-
-      <div class="content">
-        {#if keyInfo.keyType?.dbKeyFields && keyInfo.keyType?.showItemList}
-          <VerticalSplitter>
-            <svelte:fragment slot="1">
-              <DbKeyTableControl
-                {conid}
-                {database}
-                {keyInfo}
-                {changeSetRedis}
-                onChangeSelected={row => {
-                  currentRow = row;
-                  showAddForm = false;
-                }}
-                modifyRow={row => getDisplayRow(row, keyInfo)}
-                onRemoveItem={row => handleRemoveItem(row, keyInfo)}
-              />
-            </svelte:fragment>
-            <svelte:fragment slot="2">
-              {#if showAddForm}
-                <div class="add-field">
-                  {#if keyInfo.type === 'list'}
-                    <RedisValueListEdit
-                      dbKeyFields={keyInfo.keyType.dbKeyFields}
-                      item={getExistingInserts(keyInfo)}
-                      keyColumn={null}
-                      onChangeItem={item => {
-                        if (item && item.records && item.records.length > 0) {
-                          const existingChange = changeSetRedis.changes.find(
-                            c => c.key === keyInfo.key && c.type === keyInfo.type
-                          );
-                          // @ts-ignore
-                          const listChange = existingChange || {
-                            key: keyInfo.key,
-                            type: 'list',
-                            inserts: [],
-                            updates: [],
-                            deletes: [],
-                          };
-                          // @ts-ignore
-                          listChange.inserts = item.records
-                            .filter(r => r.value.trim() !== '')
-                            .map(r => ({ value: r.value }));
-                          addOrUpdateChange(listChange);
-                        }
-                      }}
-                    />
-                  {:else if keyInfo.type === 'hash'}
-                    <RedisValueHashEdit
-                      dbKeyFields={keyInfo.keyType.dbKeyFields}
-                      item={getExistingInserts(keyInfo)}
-                      keyColumn={null}
-                      onChangeItem={item => {
-                        if (item && item.records && item.records.length > 0) {
-                          const existingChange = changeSetRedis.changes.find(
-                            c => c.key === keyInfo.key && c.type === keyInfo.type
-                          );
-                          // @ts-ignore
-                          const hashChange = existingChange || {
-                            key: keyInfo.key,
-                            type: 'hash',
-                            inserts: [],
-                            updates: [],
-                            deletes: [],
-                          };
-                          // @ts-ignore
-                          hashChange.inserts = item.records
-                            .filter(r => r.key.trim() !== '' && r.value.trim() !== '')
-                            .map(r => ({ key: r.key, value: r.value, ttl: r.ttl ? parseInt(r.ttl) : undefined }));
-                          addOrUpdateChange(hashChange);
-                        }
-                      }}
-                    />
-                  {:else if keyInfo.type === 'zset'}
-                    <RedisValueZSetEdit
-                      dbKeyFields={keyInfo.keyType.dbKeyFields}
-                      item={getExistingInserts(keyInfo)}
-                      keyColumn={null}
-                      onChangeItem={item => {
-                        if (item && item.records && item.records.length > 0) {
-                          const existingChange = changeSetRedis.changes.find(
-                            c => c.key === keyInfo.key && c.type === keyInfo.type
-                          );
-                          // @ts-ignore
-                          const zsetChange = existingChange || {
-                            key: keyInfo.key,
-                            type: 'zset',
-                            inserts: [],
-                            updates: [],
-                            deletes: [],
-                          };
-                          // @ts-ignore
-                          zsetChange.inserts = item.records
-                            .filter(r => r.member.trim() !== '' && r.score.trim() !== '')
-                            .map(r => ({ member: r.member, score: parseFloat(r.score) }));
-                          addOrUpdateChange(zsetChange);
-                        }
-                      }}
-                    />
-                  {:else if keyInfo.type === 'set'}
-                    <RedisValueSetEdit
-                      dbKeyFields={keyInfo.keyType.dbKeyFields}
-                      item={getExistingInserts(keyInfo)}
-                      keyColumn={null}
-                      onChangeItem={item => {
-                        if (item && item.records && item.records.length > 0) {
-                          const existingChange = changeSetRedis.changes.find(
-                            c => c.key === keyInfo.key && c.type === keyInfo.type
-                          );
-                          // @ts-ignore
-                          const setChange = existingChange || {
-                            key: keyInfo.key,
-                            type: 'set',
-                            inserts: [],
-                            updates: [],
-                            deletes: [],
-                          };
-                          // @ts-ignore
-                          setChange.inserts = item.records
-                            .filter(r => r.value.trim() !== '')
-                            .map(r => ({ value: r.value }));
-                          addOrUpdateChange(setChange);
-                        }
-                      }}
-                    />
-                  {:else if keyInfo.type === 'stream'}
-                    <RedisValueStreamEdit
-                      dbKeyFields={keyInfo.keyType.dbKeyFields}
-                      item={getExistingInserts(keyInfo)}
-                      keyColumn={null}
-                      onChangeItem={item => {
-                        if (item && item.records && item.records.length > 0) {
-                          const existingChange = changeSetRedis.changes.find(
-                            c => c.key === keyInfo.key && c.type === keyInfo.type
-                          );
-                          // @ts-ignore
-                          const streamChange = existingChange || {
-                            key: keyInfo.key,
-                            type: 'stream',
-                            inserts: [],
-                            updates: [],
-                            deletes: [],
-                          };
-                          // @ts-ignore
-                          streamChange.inserts = item.records
-                            .filter(r => r.value && r.value.trim() !== '')
-                            .map(r => ({ id: r.id && r.id.trim() ? r.id.trim() : '*', value: r.value }));
-                          addOrUpdateChange(streamChange);
-                        }
-                      }}
-                    />
-                  {/if}
-                </div>
-              {:else if keyInfo.type === 'hash'}
-                <RedisValueHashDetail
-                  item={getDisplayRow(currentRow, keyInfo)}
-                  onChangeItem={item => {
-                    if (!currentRow) return;
-
-                    const existingChange = changeSetRedis.changes.find(
-                      c => c.key === keyInfo.key && c.type === keyInfo.type
-                    );
-
-                    const originalKey = currentRow._originalKey || currentRow.key;
-                    let hashChange;
-                    if (existingChange) {
-                      // @ts-ignore
-                      const updateIndex = existingChange.updates?.findIndex(u => u.originalKey === originalKey) ?? -1;
-                      const newUpdate = { originalKey: originalKey, key: item.key, value: item.value, ttl: item.TTL };
-
-                      if (updateIndex >= 0) {
-                        // @ts-ignore
-                        hashChange = {
-                          ...existingChange,
-                          updates: existingChange.updates.map((u, idx) => (idx === updateIndex ? newUpdate : u)),
-                        };
-                      } else {
-                        // @ts-ignore
-                        hashChange = {
-                          ...existingChange,
-                          updates: [...(existingChange.updates || []), newUpdate],
-                        };
-                      }
-                    } else {
-                      // @ts-ignore
-                      hashChange = {
-                        key: keyInfo.key,
-                        type: 'hash',
-                        inserts: [],
-                        updates: [{ originalKey: originalKey, key: item.key, value: item.value, ttl: item.TTL }],
-                        deletes: [],
-                      };
-                    }
-
-                    addOrUpdateChange(hashChange);
-
-                    currentRow = {
-                      ...currentRow,
-                      _originalKey: originalKey,
-                      key: item.key,
-                      value: item.value,
-                      TTL: item.TTL,
-                    };
-                  }}
-                />
-              {:else if keyInfo.type === 'zset'}
-                <RedisValueZSetDetail
-                  item={getDisplayRow(currentRow, keyInfo)}
-                  onChangeItem={item => {
-                    const existingChange = changeSetRedis.changes.find(
-                      c => c.key === keyInfo.key && c.type === keyInfo.type
-                    );
-
-                    let zsetChange;
-                    if (existingChange) {
-                      // @ts-ignore
-                      const updateIndex = existingChange.updates?.findIndex(u => u.member === currentRow.member) ?? -1;
-                      const newUpdate = { member: item.member, score: item.score };
-
-                      if (updateIndex >= 0) {
-                        // @ts-ignore
-                        zsetChange = {
-                          ...existingChange,
-                          updates: existingChange.updates.map((u, idx) => (idx === updateIndex ? newUpdate : u)),
-                        };
-                      } else {
-                        // @ts-ignore
-                        zsetChange = {
-                          ...existingChange,
-                          updates: [...(existingChange.updates || []), newUpdate],
-                        };
-                      }
-                    } else {
-                      // @ts-ignore
-                      zsetChange = {
-                        key: keyInfo.key,
-                        type: 'zset',
-                        inserts: [],
-                        updates: [{ member: item.member, score: item.score }],
-                        deletes: [],
-                      };
-                    }
-
-                    addOrUpdateChange(zsetChange);
-                    currentRow = { ...currentRow, member: item.member, score: item.score };
-                  }}
-                />
-              {:else if keyInfo.type === 'stream'}
-                <RedisValueStreamDetail item={getDisplayRow(currentRow, keyInfo)} />
-              {:else}
-                <RedisItemDetail
-                  dbKeyFields={keyInfo.keyType.dbKeyFields}
-                  item={getDisplayRow(currentRow, keyInfo)}
-                  onChangeItem={item => {
-                    const existingChange = changeSetRedis.changes.find(
-                      c => c.key === keyInfo.key && c.type === keyInfo.type
-                    );
-
-                    if (keyInfo.type === 'list') {
-                      // @ts-ignore
-                      const listChange = existingChange || {
-                        key: keyInfo.key,
-                        type: 'list',
-                        inserts: [],
-                        updates: [],
-                        deletes: [],
-                      };
-                      // @ts-ignore
-                      const updateIndex = listChange.updates?.findIndex(u => u.index === item.rowNumber) ?? -1;
-                      if (updateIndex >= 0) {
-                        // @ts-ignore
-                        listChange.updates[updateIndex] = { index: item.rowNumber, value: item.value };
-                      } else {
-                        // @ts-ignore
-                        listChange.updates = [
-                          ...(listChange.updates || []),
-                          { index: item.rowNumber, value: item.value },
-                        ];
-                      }
-                      addOrUpdateChange(listChange);
-                    }
-                  }}
-                />
-              {/if}
-            </svelte:fragment>
-          </VerticalSplitter>
-        {:else}
-          <div class="value-holder">
-            <RedisValueDetail
-              columnTitle="Value"
-              value={getDisplayValue(keyInfo)}
-              keyType={keyInfo.type}
-              onChangeValue={value => {
-                if (keyInfo.type === 'string') {
-                  addOrUpdateChange({
-                    key: key,
-                    type: 'string',
-                    value: value,
-                  });
-                } else if (keyInfo.type === 'JSON') {
-                  addOrUpdateChange({
-                    key: key,
-                    type: 'json',
-                    value: value,
-                  });
-                }
-              }}
-            />
+  {#if keyInfo?.key == key}
+    {@const keyType = findSupportedRedisKeyType(keyInfo?.type) || null}
+    <ToolStripContainer>
+      <div class="container">
+        <div class="top-panel">
+          <div class="type">
+            <FontIcon icon={getIconForRedisType(keyInfo.type)} padRight />
+            {keyType?.label || keyInfo.type}
           </div>
-        {/if}
-      </div>
-    </div>
+          <div class="key-name">
+            {key}
+          </div>
+          <FormStyledButton value="Rename Key" on:click={() => handleKeyRename(keyInfo)} />
+          <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
+        </div>
 
-    <svelte:fragment slot="toolstrip">
-      <ToolStripCommandButton command="redisLikeData.save" />
-      {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
-        <ToolStripButton
-          icon="icon add"
-          on:click={() => {
-            showAddForm = true;
-          }}>Add field</ToolStripButton
+        <div class="content">
+          {#if keyType?.dbKeyFields && keyType?.showItemList}
+            <VerticalSplitter>
+              <svelte:fragment slot="1">
+                <RedisTableControl
+                  {conid}
+                  {database}
+                  {keyInfo}
+                  {changeSetRedis}
+                  onChangeSelected={row => {
+                    currentRow = row;
+                    showAddForm = !!row.__isAdded;
+                  }}
+                  modifyRow={row => getDisplayRow(row, keyInfo)}
+                  onRemoveItem={row => handleRemoveItem(row, keyInfo, keyType)}
+                />
+              </svelte:fragment>
+              <svelte:fragment slot="2">
+                {#if showAddForm}
+                  <div class="add-field">
+                    {#if keyType?.showGeneratedId}
+                      <FormFieldTemplateLarge label="ID" type="text" noMargin>
+                        <TextField
+                          placeholder="* for auto"
+                          value={changeSetRedis.changes.find(c => c.key === keyInfo.key)?.generatedId}
+                          on:input={e => {
+                            updateGeneratedId(keyInfo.key, keyInfo.type, e.target['value']);
+                          }}
+                        />
+                      </FormFieldTemplateLarge>
+                    {/if}
+
+                    {#if keyType?.showItemList}
+                      <RedisValueListLikeEdit
+                        type={keyInfo.type}
+                        records={changeSetRedis.changes.find(c => c.key === keyInfo.key)?.inserts || []}
+                        keyColumn={null}
+                        onChangeRecords={records => updateInsertedRecords(keyInfo.key, keyInfo.type, records)}
+                      />
+                    {/if}
+                  </div>
+                {:else if keyInfo.type === 'hash'}
+                  <RedisValueHashDetail
+                    item={getDisplayRow(currentRow, keyInfo)}
+                    onChangeItem={item => {
+                      if (!currentRow) return;
+
+                      const existingChange = changeSetRedis.changes.find(
+                        c => c.key === keyInfo.key && c.type === keyInfo.type
+                      );
+
+                      const originalKey = currentRow._originalKey || currentRow.key;
+                      let hashChange;
+                      if (existingChange) {
+                        // @ts-ignore
+                        const updateIndex = existingChange.updates?.findIndex(u => u.originalKey === originalKey) ?? -1;
+                        const newUpdate = { originalKey: originalKey, key: item.key, value: item.value, ttl: item.ttl };
+
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          hashChange = {
+                            ...existingChange,
+                            updates: existingChange.updates.map((u, idx) => (idx === updateIndex ? newUpdate : u)),
+                          };
+                        } else {
+                          // @ts-ignore
+                          hashChange = {
+                            ...existingChange,
+                            updates: [...(existingChange.updates || []), newUpdate],
+                          };
+                        }
+                      } else {
+                        // @ts-ignore
+                        hashChange = {
+                          key: keyInfo.key,
+                          type: 'hash',
+                          inserts: [],
+                          updates: [{ originalKey: originalKey, key: item.key, value: item.value, ttl: item.ttl }],
+                          deletes: [],
+                        };
+                      }
+
+                      addOrUpdateChange(hashChange);
+
+                      currentRow = {
+                        ...currentRow,
+                        _originalKey: originalKey,
+                        key: item.key,
+                        value: item.value,
+                        ttl: item.ttl,
+                      };
+                    }}
+                  />
+                {:else if keyInfo.type === 'zset'}
+                  <RedisValueZSetDetail
+                    item={getDisplayRow(currentRow, keyInfo)}
+                    onChangeItem={item => {
+                      const existingChange = changeSetRedis.changes.find(
+                        c => c.key === keyInfo.key && c.type === keyInfo.type
+                      );
+
+                      let zsetChange;
+                      if (existingChange) {
+                        // @ts-ignore
+                        const updateIndex =
+                          existingChange.updates?.findIndex(u => u.member === currentRow.member) ?? -1;
+                        const newUpdate = { member: item.member, score: item.score };
+
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          zsetChange = {
+                            ...existingChange,
+                            updates: existingChange.updates.map((u, idx) => (idx === updateIndex ? newUpdate : u)),
+                          };
+                        } else {
+                          // @ts-ignore
+                          zsetChange = {
+                            ...existingChange,
+                            updates: [...(existingChange.updates || []), newUpdate],
+                          };
+                        }
+                      } else {
+                        // @ts-ignore
+                        zsetChange = {
+                          key: keyInfo.key,
+                          type: 'zset',
+                          inserts: [],
+                          updates: [{ member: item.member, score: item.score }],
+                          deletes: [],
+                        };
+                      }
+
+                      addOrUpdateChange(zsetChange);
+                      currentRow = { ...currentRow, member: item.member, score: item.score };
+                    }}
+                  />
+                {:else if keyInfo.type === 'stream'}
+                  <RedisValueStreamDetail item={getDisplayRow(currentRow, keyInfo)} />
+                {:else if keyInfo.type === 'list'}
+                  {#key `${currentRow?.rowNumber}||${refreshToken}||${keyInfo.key}||${key}`}
+                    <RedisItemDetail
+                      dbKeyFields={keyType.dbKeyFields}
+                      item={getDisplayRow(currentRow, keyInfo)}
+                      onChangeItem={item => {
+                        // console.log('list item changed !!!', item, key);
+
+                        const existingChange = changeSetRedis.changes.find(
+                          c => c.key === keyInfo.key && c.type === keyInfo.type
+                        );
+
+                        // @ts-ignore
+                        const listChange = existingChange || {
+                          key: keyInfo.key,
+                          type: 'list',
+                          inserts: [],
+                          updates: [],
+                          deletes: [],
+                        };
+                        // @ts-ignore
+                        const updateIndex = listChange.updates?.findIndex(u => u.index === item.rowNumber) ?? -1;
+                        if (updateIndex >= 0) {
+                          // @ts-ignore
+                          listChange.updates[updateIndex] = { index: item.rowNumber, value: item.value };
+                        } else {
+                          // @ts-ignore
+                          listChange.updates = [
+                            ...(listChange.updates || []),
+                            { index: item.rowNumber, value: item.value },
+                          ];
+                        }
+                        addOrUpdateChange(listChange);
+                      }}
+                    />
+                  {/key}
+                {/if}
+              </svelte:fragment>
+            </VerticalSplitter>
+          {:else}
+            <div class="value-holder">
+              <RedisValueDetail
+                columnTitle="Value"
+                value={getDisplayValue(keyInfo)}
+                keyType={keyInfo.type}
+                onChangeValue={value => {
+                  if (keyInfo.type === 'string') {
+                    addOrUpdateChange({
+                      key: key,
+                      type: 'string',
+                      value: value,
+                    });
+                  } else if (keyInfo.type === 'JSON') {
+                    addOrUpdateChange({
+                      key: key,
+                      type: 'json',
+                      value: value,
+                    });
+                  }
+                }}
+              />
+            </div>
+          {/if}
+        </div>
+      </div>
+
+      <svelte:fragment slot="toolstrip">
+        <ToolStripCommandButton command="redisLikeData.save" />
+        {#if keyType?.showItemList}
+          <ToolStripButton
+            icon="icon add"
+            on:click={() => {
+              appendInsertedRecords(keyInfo.key, keyInfo.type, [
+                {
+                  editorRowId: uuidv1(),
+                },
+              ]);
+              showAddForm = true;
+            }}>Add field</ToolStripButton
+          >
+        {/if}
+        <ToolStripButton icon="icon refresh" on:click={refresh}
+          >{_t('common.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton
         >
-      {/if}
-      <ToolStripButton icon="icon refresh" on:click={refresh}
-        >{_t('common.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton
-      >
-      {#if changeSetRedis?.changes?.length > 0}
-        <ToolStripButton icon="icon close" on:click={resetChanges}>Reset changes</ToolStripButton>
-        <ToolStripDropDownButton
-          icon="icon edit"
-          label="Changed keys"
-          menu={() =>
-            changeSetRedis.changes.map(item => ({
-              label: item.key,
-              onClick: () => {
-                activeRedisKeysStore.update(store => ({
-                  ...store,
-                  [`${conid}:${database}`]: item.key,
-                }));
-              },
-            }))}
-          iconAfter={getNumberIcon(changeSetRedis.changes.length)}
-        />
-      {/if}
-    </svelte:fragment>
-  </ToolStripContainer>
+        {#if changeSetRedis?.changes?.length > 0}
+          <ToolStripButton icon="icon close" on:click={resetChanges}>Reset changes</ToolStripButton>
+          <ToolStripDropDownButton
+            icon="icon edit"
+            label="Changed keys"
+            menu={() =>
+              changeSetRedis.changes.map(item => ({
+                label: item.key,
+                onClick: () => {
+                  activeRedisKeysStore.update(store => ({
+                    ...store,
+                    [`${conid}:${database}`]: item.key,
+                  }));
+                },
+              }))}
+            iconAfter={getNumberIcon(changeSetRedis.changes.length)}
+          />
+        {/if}
+      </svelte:fragment>
+    </ToolStripContainer>
+  {/if}
 {/await}
 
 <style>

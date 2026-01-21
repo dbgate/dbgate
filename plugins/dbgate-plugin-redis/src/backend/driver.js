@@ -472,28 +472,7 @@ const driver = {
           res.value = '';
         }
         break;
-      // case 'list':
-      //   res.tableColumns = [{ name: 'value' }];
-      //   res.addMethod = 'rpush';
-      //   break;
-      // case 'set':
-      //   res.tableColumns = [{ name: 'value' }];
-      //   res.keyColumn = 'value';
-      //   res.addMethod = 'sadd';
-      //   break;
-      // case 'zset':
-      //   res.tableColumns = [{ name: 'score' }, { name: 'value' }];
-      //   res.keyColumn = 'value';
-      //   res.addMethod = 'zadd';
-      //   break;
-      // case 'hash':
-      //   res.tableColumns = [{ name: 'key' }, { name: 'value' }];
-      //   res.keyColumn = 'key';
-      //   res.addMethod = 'hset';
-      //   break;
     }
-
-    res.keyType = this.supportedKeyTypes.find((x) => x.name == type);
 
     return res;
   },
@@ -508,18 +487,18 @@ const driver = {
     switch (method) {
       case 'mdel':
         return await this.deleteBranch(dbhan, args[0]);
-      case 'zadd':
-        return await dbhan.client.zadd(args[0], args[2], args[1]);
-      case 'json.set':
-        return await dbhan.client.call('JSON.SET', args[0], '$', args[1]);
-      case 'xaddjson':
-        let json;
-        try {
-          json = JSON.parse(args[2]);
-        } catch (e) {
-          throw new Error('Value must be valid JSON. ' + e.message);
-        }
-        return await dbhan.client.xadd(args[0], args[1] || '*', ..._.flatten(_.toPairs(json)));
+      // case 'zadd':
+      //   return await dbhan.client.zadd(args[0], args[2], args[1]);
+      // case 'json.set':
+      //   return await dbhan.client.call('JSON.SET', args[0], '$', args[1]);
+      // case 'xaddjson':
+      //   let json;
+      //   try {
+      //     json = JSON.parse(args[2]);
+      //   } catch (e) {
+      //     throw new Error('Value must be valid JSON. ' + e.message);
+      //   }
+      //   return await dbhan.client.xadd(args[0], args[1] || '*', ..._.flatten(_.toPairs(json)));
     }
     return await dbhan.client[method](...args);
   },
@@ -557,7 +536,7 @@ const driver = {
           fields.map(async ([fieldKey, fieldValue]) => {
             try {
               const ttl = await dbhan.client.call('HTTL', key, 'FIELDS', 1, fieldKey);
-              return { key: fieldKey, value: fieldValue, TTL: ttl && ttl[0] !== undefined ? ttl[0] : null };
+              return { key: fieldKey, value: fieldValue, ttl: ttl && ttl[0] !== undefined ? ttl[0] : null };
             } catch (e) {
               return { key: fieldKey, value: fieldValue };
             }

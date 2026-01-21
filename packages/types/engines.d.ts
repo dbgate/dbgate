@@ -242,7 +242,6 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   databaseEngineTypes: string[];
   editorMode?: string;
   readOnlySessions: boolean;
-  supportedKeyTypes: SupportedDbKeyType[];
   dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
   supportsDatabaseBackup?: boolean;

@@ -6,6 +6,7 @@
   import JsonTree from '../jsontree/JSONTree.svelte';
 
   import AceEditor from '../query/AceEditor.svelte';
+  import createRef from '../utility/createRef';
 
   let display = 'text';
 
@@ -13,6 +14,9 @@
   export let value;
   export let onChangeValue = null;
   export let keyType = null;
+
+  const isFirstChangeRef = createRef(true);
+  const createdTime = Date.now();
 </script>
 
 <div class="colnamewrap">
@@ -37,7 +41,15 @@
         value={value != null ? String(value) : ''}
         mode={keyType === 'JSON' ? 'json' : undefined}
         on:input={e => {
-          onChangeValue?.(e.detail);
+          if (e.detail == '' && isFirstChangeRef.get() && Date.now() - createdTime < 100) {
+            isFirstChangeRef.set(false);
+            return;
+          }
+          isFirstChangeRef.set(false);
+          // console.log('AceEditor input event', e, 'VALUE', value);
+          if (value != e.detail) {
+            onChangeValue?.(e.detail);
+          }
         }}
       />
     </div>
@@ -68,7 +80,7 @@
     justify-content: space-between;
   }
 
-  .colnamewrap :global(select){
+  .colnamewrap :global(select) {
     padding: 2px 4px;
   }
 
@@ -78,7 +90,7 @@
     min-height: 60px;
     max-height: 1000px;
   }
-  
+
   .outer {
     flex: 1;
     position: relative;

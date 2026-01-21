@@ -34,62 +34,6 @@ const driver = {
   authTypeLabel: 'Connection mode',
   defaultAuthTypeName: 'node',
   icon: redisIcon,
-  supportedKeyTypes: [
-    {
-      name: 'string',
-      label: 'String',
-      dbKeyFields: [{ name: 'value' }],
-      addMethod: 'set',
-    },
-    {
-      name: 'list',
-      label: 'List',
-      dbKeyFields: [{ name: 'value' }],
-      addMethod: 'rpush',
-      showItemList: true,
-    },
-    {
-      name: 'set',
-      label: 'Set',
-      dbKeyFields: [{ name: 'value', readOnly: true }],
-      keyColumn: 'value',
-      addMethod: 'sadd',
-      showItemList: true,
-    },
-    {
-      name: 'zset',
-      label: 'Sorted Set',
-      dbKeyFields: [{ name: 'member', readOnly: true }, { name: 'score' }],
-      keyColumn: 'member',
-      addMethod: 'zadd',
-      showItemList: true,
-    },
-    {
-      name: 'hash',
-      label: 'Hash',
-      dbKeyFields: [{ name: 'key', readOnly: true }, { name: 'value' }, { name: 'TTL' }],
-      keyColumn: 'key',
-      addMethod: 'hset',
-      showItemList: true,
-    },
-    {
-      name: 'stream',
-      label: 'Stream',
-      dbKeyFields: [
-        { name: 'id', readOnly: true },
-        { name: 'value', readOnly: true },
-      ],
-      keyColumn: 'id',
-      addMethod: 'xaddjson',
-      showItemList: true,
-    },
-    {
-      name: 'json',
-      label: 'JSON',
-      dbKeyFields: [{ name: 'value' }],
-      addMethod: 'json.set',
-    },
-  ],
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return values.authType != 'cluster';

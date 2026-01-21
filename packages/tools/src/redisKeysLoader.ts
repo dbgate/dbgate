@@ -60,10 +60,7 @@ export interface RedisLoadResult {
   dbsize: number;
 }
 
-export type RedisChangeModelFunction = (
-  func: (model: RedisTreeModel) => RedisTreeModel,
-  loadNextPage: boolean
-) => void;
+export type RedisChangeModelFunction = (func: (model: RedisTreeModel) => RedisTreeModel, loadNextPage: boolean) => void;
 
 export function redis_mergeNextPage(tree: RedisTreeModel, nextPage: RedisLoadResult): RedisTreeModel {
   const keyObjectsByKey = { ...tree.keyObjectsByKey };
@@ -243,4 +240,89 @@ export function redis_getFlatList(tree: RedisTreeModel) {
   const res: RedisNodeModel[] = [];
   addFlatItems(tree, '', res);
   return res;
+}
+
+export interface SupportedRedisKeyType {
+  name: string;
+  label: string;
+  dbKeyFields: {
+    name: string;
+    cols?: number;
+    label?: string;
+    placeholder?: string;
+  }[];
+  dbKeyFieldsForGrid?: {
+    name: string;
+    cols?: number;
+    label?: string;
+  }[];
+  keyColumn?: string;
+  showItemList?: boolean;
+  showGeneratedId?: boolean;
+}
+
+export const supportedRedisKeyTypes: SupportedRedisKeyType[] = [
+  {
+    name: 'string',
+    label: 'String',
+    dbKeyFields: [{ name: 'value' }],
+  },
+  {
+    name: 'list',
+    label: 'List',
+    dbKeyFields: [{ name: 'value', cols: 12 }],
+    showItemList: true,
+  },
+  {
+    name: 'set',
+    label: 'Set',
+    dbKeyFields: [{ name: 'value', cols: 12 }],
+    keyColumn: 'value',
+    showItemList: true,
+  },
+  {
+    name: 'zset',
+    label: 'Sorted Set',
+    dbKeyFields: [
+      { name: 'member', cols: 8 },
+      { name: 'score', cols: 4 },
+    ],
+    keyColumn: 'member',
+    showItemList: true,
+  },
+  {
+    name: 'hash',
+    label: 'Hash',
+    dbKeyFields: [
+      { name: 'key', cols: 3, label: 'Field' },
+      { name: 'value', cols: 7 },
+      { name: 'ttl', cols: 2, label: 'TTL' },
+    ],
+    keyColumn: 'key',
+    showItemList: true,
+  },
+  {
+    name: 'stream',
+    label: 'Stream',
+    dbKeyFields: [
+      { name: 'field', cols: 6 },
+      { name: 'value', cols: 6 },
+    ],
+    dbKeyFieldsForGrid: [
+      { name: 'id', cols: 6 },
+      { name: 'value', cols: 6 },
+    ],
+    keyColumn: 'id',
+    showItemList: true,
+    showGeneratedId: true,
+  },
+  {
+    name: 'json',
+    label: 'JSON',
+    dbKeyFields: [{ name: 'value' }],
+  },
+];
+
+export function findSupportedRedisKeyType(type: string): SupportedRedisKeyType | undefined {
+  return supportedRedisKeyTypes.find(t => t.name === type);
 }

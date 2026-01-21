@@ -15,7 +15,7 @@ export interface ChangeSetRedis_JSON {
 export interface ChangeSetRedis_Hash {
   key: string;
   type: 'hash';
-  inserts: { key: string; value: string; ttl: number }[];
+  inserts: { key: string; value: string; ttl: number; editorRowId: string }[];
   updates: { key: string; value: string; ttl: number }[];
   deletes: string[];
 }
@@ -23,7 +23,7 @@ export interface ChangeSetRedis_Hash {
 export interface ChangeSetRedis_List {
   key: string;
   type: 'list';
-  inserts: { index: number; value: string }[];
+  inserts: { value: string; editorRowId: string }[];
   updates: { index: number; value: string }[];
   deletes: number[];
 }
@@ -31,15 +31,23 @@ export interface ChangeSetRedis_List {
 export interface ChangeSetRedis_Set {
   key: string;
   type: 'set';
-  inserts: string[];
+  inserts: { value: string; editorRowId: string }[];
   deletes: string[];
 }
 
 export interface ChangeSetRedis_ZSet {
   key: string;
   type: 'zset';
-  inserts: { member: string; score: number }[];
+  inserts: { member: string; score: number; editorRowId: string }[];
   updates: { member: string; score: number }[];
+  deletes: string[];
+}
+
+export interface ChangeSetRedis_Stream {
+  key: string;
+  type: 'stream';
+  generatedId?: string;
+  inserts: { field: string; value: string; editorRowId: string }[];
   deletes: string[];
 }
 
@@ -49,7 +57,8 @@ export type ChangeSetRedisType =
   | ChangeSetRedis_Hash
   | ChangeSetRedis_List
   | ChangeSetRedis_Set
-  | ChangeSetRedis_ZSet;
+  | ChangeSetRedis_ZSet
+  | ChangeSetRedis_Stream;
 
 export interface ChangeSetRedis {
   changes: ChangeSetRedisType[];
@@ -160,7 +169,7 @@ export function redisChangeSetToRedisCommands(changeSet: ChangeSetRedis): Databa
         for (const insert of change.inserts) {
           calls.push({
             method: 'SADD',
-            args: [change.key, insert],
+            args: [change.key, insert.value],
           });
         }
       }
@@ -173,6 +182,19 @@ export function redisChangeSetToRedisCommands(changeSet: ChangeSetRedis): Databa
           });
         }
       }
+    } else if (change.type === 'stream') {
+      if (change.inserts.length > 0) {
+        calls.push({
+          method: 'XADD',
+          args: [change.key, change.generatedId || '*', ...change.inserts.flatMap(f => [f.field, f.value])],
+        });
+      }
+      for (const delValue of change.deletes) {
+        calls.push({
+          method: 'XDEL',
+          args: [change.key, delValue],
+        });
+      }
     }
   }
 
@@ -182,7 +204,7 @@ export function redisChangeSetToRedisCommands(changeSet: ChangeSetRedis): Databa
 export function convertRedisCallListToScript(callList: DatabaseMethodCallList): string {
   let script = '';
   for (const call of callList.calls) {
-    script += `${call.method} ${call.args.map((arg) => (typeof arg === 'string' ? `"${arg}"` : arg)).join(' ')}\n`;
+    script += `${call.method} ${call.args.map(arg => (typeof arg === 'string' ? `"${arg}"` : arg)).join(' ')}\n`;
   }
   return script;
-} 
+}

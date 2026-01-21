@@ -18,10 +18,7 @@
 
 <div class="container">
   <FormFieldTemplateLarge label="ID" type="text" noMargin>
-    <TextField
-      value={id}
-      disabled={true}
-    />
+    <TextField value={id} disabled={true} />
   </FormFieldTemplateLarge>
 
   <div class="value-section">
@@ -42,10 +39,7 @@
     <div class="colvalue">
       {#if display == 'text'}
         <div class="editor-wrapper">
-          <AceEditor
-            readOnly={true}
-            value={value}
-          />
+          <AceEditor readOnly={true} {value} />
         </div>
       {/if}
       {#if display == 'json'}
@@ -63,10 +57,9 @@
   .container {
     display: flex;
     flex-direction: column;
-    height: 100%;
     padding: 16px;
     gap: 16px;
-    width: 100%;
+    flex: 1;
     overflow: auto;
     background-color: var(--theme-dbkey-background);
     border-top: var(--theme-dbkey-border);
@@ -95,8 +88,8 @@
     align-items: center;
     margin-bottom: 5px;
   }
-  
-  .colnamewrap :global(select){
+
+  .colnamewrap :global(select) {
     padding: 2px 4px;
   }
 
