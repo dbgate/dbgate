@@ -69,7 +69,8 @@
     on:click={computed.clickableTitle ? () => toggleWidgetCollapse(name) : null}
     data-testid={$$props['data-testid']}
     {altsidebar}
-    {onClose}>{title}</WidgetTitle
+    {onClose}
+    collapsed={computed.collapsed}>{title}</WidgetTitle
   >
 
   {#if !computed.collapsed}
