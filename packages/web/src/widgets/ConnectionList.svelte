@@ -375,7 +375,7 @@
 
 <style>
   .br {
-    background: var(--theme-card-background);
+    background: var(--theme-searchbox-background);
     height: 1px;
     margin: 5px 10px;
   }

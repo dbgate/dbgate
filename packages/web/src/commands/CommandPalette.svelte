@@ -23,7 +23,7 @@
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });
 
-  function extractDbItems(db, dbConnectionInfo, connectionList, $extensions) {
+  function extractDbItems(db, dbConnectionInfo, connectionList, $extensions, currentThemeType) {
     const objectList = _.flatten(
       ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
         _.sortBy(
@@ -44,7 +44,8 @@
       const databases = getLocalStorage(`database_list_${conid}`) || [];
       
       const driver = findEngineDriver(connection, $extensions);
-      const connectionIcon = driver?.icon || 'img database';
+      const driverIcon = getDriverIcon(driver, currentThemeType);
+      const connectionIcon = driverIcon || 'img database';
       
       for (const db of databases) {
         databaseList.push({
@@ -87,6 +88,8 @@
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
   import { _tval, __t, _t } from '../translations';
+  import { getDriverIcon } from '../utility/driverIcons';
+  import { currentThemeType } from '../plugins/themes';
 
   let domInput;
   let filter = '';
@@ -117,7 +120,7 @@
     .filter(
       filter,
       ($visibleCommandPalette == 'database'
-        ? extractDbItems($databaseInfo, { conid, database }, $connectionList, $extensions)
+        ? extractDbItems($databaseInfo, { conid, database }, $connectionList, $extensions, $currentThemeType)
         : parentCommand
           ? parentCommand.getSubCommands()
           : sortedComands

@@ -1,7 +1,6 @@
 <script lang="ts" context="module">
   import DatabaseAppObject from './DatabaseAppObject.svelte';
   import DatabaseObjectAppObject from './DatabaseObjectAppObject.svelte';
-  import { extensions } from '../stores';
 
   export const extractKey = data => {
     if (data.objectTypeField) {
@@ -27,11 +26,19 @@
 
 <script lang="ts">
   import _, { values } from 'lodash';
-  import { draggedPinnedObject, pinnedDatabases, pinnedTables } from '../stores';
+  import { draggedPinnedObject, extensions, pinnedDatabases, pinnedTables } from '../stores';
   import { getConnectionLabel } from 'dbgate-tools';
+  import { currentThemeType } from '../plugins/themes';
+  import { getDriverIcon } from '../utility/driverIcons';
 
   export let data;
   export let passProps;
+
+  let pinnedDriver = null;
+  let pinnedDriverIcon = null;
+
+  $: pinnedDriver = $extensions?.drivers?.find(x => x.engine == data?.connection?.engine);
+  $: pinnedDriverIcon = getDriverIcon(pinnedDriver, $currentThemeType);
 </script>
 
 {#if data}
@@ -73,7 +80,7 @@
         $draggedPinnedObject = null;
       }}
       passExtInfo={getConnectionLabel(data.connection)}
-      passIcon={$extensions.drivers.find(x => x.engine == data.connection.engine)?.icon}
+      passIcon={pinnedDriverIcon}
       passColorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data.connection._id })}
     />
   {/if}

@@ -15,6 +15,8 @@ import {
 } from './dbinfo';
 import { FilterBehaviour } from './filter-type';
 
+export type EngineDriverIcon = string | { light: string; dark?: string };
+
 export interface StreamOptions {
   recordset: (columns) => void;
   row: (row) => void;
@@ -262,7 +264,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   collectionPluralLabel?: string;
   collectionNameLabel?: string;
   newCollectionFormParams?: any[];
-  icon?: any;
+  icon?: EngineDriverIcon;
 
   supportedCreateDatabase?: boolean;
   showConnectionField?: (

@@ -143,6 +143,8 @@
   import { getConnectionClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
+  import { currentThemeType } from '../plugins/themes';
+  import { getDriverIcon } from '../utility/driverIcons';
 
   export let data;
   export let passProps;
@@ -152,6 +154,8 @@
   let extInfo = null;
   let engineStatusIcon = null;
   let engineStatusTitle = null;
+  let driverIcon = null;
+  let connectionIcon = null;
 
   $: isPinned = data.singleDatabase && !!$pinnedDatabases.find(x => x?.connection?._id == data?._id);
 
@@ -432,13 +436,17 @@
 
   $: apps = useAllApps();
   $: driver = $extensions.drivers.find(x => x.engine == data.engine);
+  $: driverIcon = getDriverIcon(driver, $currentThemeType);
+  $: connectionIcon =
+    driverIcon ||
+    (data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server');
 </script>
 
 <AppObjectCore
   {...$$restProps}
   {data}
   title={getConnectionLabel(data, { showUnsaved: true })}
-  icon={driver?.icon || (data._id.startsWith('cloud://') ? 'img cloud-connection' : data.singleDatabase ? 'img database' : 'img server')}
+  icon={connectionIcon}
   isBold={data.singleDatabase
     ? $currentDatabase?.connection?._id == data._id && $currentDatabase?.name == data.defaultDatabase
     : $currentDatabase?.connection?._id == data._id}

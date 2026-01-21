@@ -32,7 +32,8 @@
   export let padRight = false;
   export let style = null;
   export let colorClass = null;
-  $: isSvgString = icon && icon.trim().startsWith('<svg');
+  $: iconValue = typeof icon === 'string' ? icon : icon?.light || icon?.dark || '';
+  $: isSvgString = iconValue.trim().startsWith('<svg');
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -368,11 +369,11 @@
 
 {#if isSvgString}
   <span class="svg-inline" class:padLeft class:padRight {title} {style} on:click data-testid={$$props['data-testid']}>
-    {@html icon}
+    {@html iconValue}
   </span>
 {:else}
   <span
-    class={`${iconNames[icon] || icon} ${colorClass || ''}`}
+    class={`${iconNames[iconValue] || iconValue} ${colorClass || ''}`}
     {title}
     class:padLeft
     class:padRight
@@ -388,8 +389,8 @@
     line-height: 1;
   }
   .svg-inline :global(svg) {
-    width: 1.125em;
-    height: 1.125em;
+    width: 18px;
+    height: 18px;
     vertical-align: middle;
     overflow: visible;
   }
