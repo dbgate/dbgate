@@ -512,4 +512,15 @@ describe('Data browser data', () => {
     cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');
     cy.themeshot('data-browser-filter-by-expanded');
   });
+
+  describe('Data browser data', () => {
+    it('Export window', () => {
+      cy.contains('Redis-connection').click();
+      cy.contains('db0').click();
+      cy.contains('actor:*').click();
+      cy.contains('1000').click();
+      cy.contains('Sandra');
+      cy.themeshot('data-browser-redis-hash');
+    });
+  });
 });
