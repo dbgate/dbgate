@@ -29,14 +29,14 @@
     display: flex;
     width: 100%;
     height: calc(50% - 2px);
-    border-bottom: var(--theme-dbkey-border);
+    border-bottom: var(--theme-redis-border);
   }
   .main3 .wrapper {
     position: relative;
     display: flex;
     width: 100%;
     height: 40%;
-    border-bottom: var(--theme-dbkey-border);
+    border-bottom: var(--theme-redis-border);
   }
   .main {
     position: absolute;

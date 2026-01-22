@@ -105,6 +105,6 @@
   }
 
   .delete-button:hover {
-    color: var(--theme-dbkey-icon-hover);
+    color: var(--theme-redis-icon-hover);
   }
 </style>

@@ -286,7 +286,7 @@
     padding: 20px;
     overflow: hidden;
     gap: 10px;
-    background-color: var(--theme-dbkey-background);
+    background-color: var(--theme-redis-background);
   }
 
   .button-container {

@@ -737,7 +737,7 @@
     right: 0;
     bottom: 0;
     padding: 16px;
-    background-color: var(--theme-dbkey-background);
+    background-color: var(--theme-redis-background);
 
     display: flex;
     flex-direction: column;
@@ -745,8 +745,8 @@
 
   .add-field {
     padding: 16px;
-    background-color: var(--theme-dbkey-background);
-    border-top: var(--theme-dbkey-border);
+    background-color: var(--theme-redis-background);
+    border-top: var(--theme-redis-border);
     overflow-y: auto;
     position: absolute;
     inset: 0;

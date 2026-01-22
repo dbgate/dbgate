@@ -32,7 +32,7 @@
     padding: 16px;
     gap: 16px;
     overflow: auto;
-    background-color: var(--theme-dbkey-background);
-    border-top: var(--theme-dbkey-border);
+    background-color: var(--theme-redis-background);
+    border-top: var(--theme-redis-border);
   }
 </style>

@@ -61,8 +61,8 @@
     gap: 16px;
     flex: 1;
     overflow: auto;
-    background-color: var(--theme-dbkey-background);
-    border-top: var(--theme-dbkey-border);
+    background-color: var(--theme-redis-background);
+    border-top: var(--theme-redis-border);
   }
 
   .value-section {
