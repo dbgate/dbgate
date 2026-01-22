@@ -1,5 +1,5 @@
 {
-  "version": "6.0.0-alpha.1",
+  "version": "7.0.0-alpha.1",
   "name": "dbgate-tools",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -26,7 +26,7 @@
   ],
   "devDependencies": {
     "@types/node": "^13.7.0",
-    "dbgate-types": "^6.0.0-alpha.1",
+    "dbgate-types": "^7.0.0-alpha.1",
     "jest": "^28.1.3",
     "ts-jest": "^28.0.7",
     "typescript": "^4.4.3"
@@ -34,7 +34,7 @@
   "dependencies": {
     "blueimp-md5": "^2.19.0",
     "dbgate-query-splitter": "^4.11.9",
-    "dbgate-sqltree": "^6.0.0-alpha.1",
+    "dbgate-sqltree": "^7.0.0-alpha.1",
     "debug": "^4.3.4",
     "json-stable-stringify": "^1.0.1",
     "lodash": "^4.17.21",
