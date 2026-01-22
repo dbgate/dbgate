@@ -8,6 +8,19 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.0
+- CHANGED: New design of application, new theme system
+- ADDED: Theme AI assistant - create custom themes using AI (Premium)
+- CHANGED: Themes are now defined in JSON files, custom themes could be shared via DbGate Cloud
+- REMOVED: Custom themes are no longer part of plugins
+- CHANGED: Huge improvements of Redis support
+- ADDED: Support for Redis JSON and Stream types
+- ADDED: Editing Redis values (Strings, Hashes, Lists, Sets, Sorted Sets, JSON, Streams)
+- ADDED: Support for Team Folders (Team Premium)
+- CHANGED: Upgraded Svelte to version 4
+- ADDED: Differentiate pinned database with same name #1306
+- ADDED: Database icons/logos for faster visual recognition #1222
+
 ## 6.8.2
 - FIXED: Initialize storage database from envoronment variables failed with PostgreSQL
 
