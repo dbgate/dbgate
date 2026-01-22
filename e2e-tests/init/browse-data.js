@@ -162,7 +162,18 @@ async function initRedisDatabase(inputDirectory, inputDirectory2) {
       database: 1,
     },
     sqlFile: path.join(inputDirectory2, 'redis-db1.redis'),
-    // logScriptItems: true,
+  });
+
+  await dbgateApi.executeQuery({
+    connection: {
+      server: process.env.SERVER_redis,
+      user: process.env.USER_redis,
+      password: process.env.PASSWORD_redis,
+      port: process.env.PORT_redis,
+      engine: 'redis@dbgate-plugin-redis',
+      database: 2,
+    },
+    sqlFile: path.join(inputDirectory2, 'redis-db2.redis'),
   });
 
   // await dbgateApi.importDatabase({

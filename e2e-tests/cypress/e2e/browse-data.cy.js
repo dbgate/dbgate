@@ -513,12 +513,11 @@ describe('Data browser data', () => {
     cy.themeshot('data-browser-filter-by-expanded');
   });
 
-  it('Export window', () => {
+  it('Redis test', () => {
     cy.contains('Redis-connection').click();
-    cy.contains('db1').click();
-    cy.contains('actor:*').click();
-    cy.contains('1000').click();
-    cy.contains('Sandra');
+    cy.contains('db2').click();
+    cy.contains('Card122').click();
+    cy.contains('credit');
     cy.themeshot('data-browser-redis-hash');
   });
 });
