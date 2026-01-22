@@ -199,7 +199,6 @@
   }
 
   .waiting {
-    color: var(--theme-font-warning);
     font-weight: bold;
   }
 </style>
