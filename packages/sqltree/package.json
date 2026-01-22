@@ -27,7 +27,7 @@
   ],
   "devDependencies": {
     "@types/node": "^13.7.0",
-    "dbgate-types": "^6.0.0-alpha.1",
+    "dbgate-types": "^7.0.0-alpha.1",
     "typescript": "^4.4.3"
   },
   "dependencies": {

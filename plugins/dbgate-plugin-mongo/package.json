@@ -38,7 +38,7 @@
   "dependencies": {
     "bson": "^6.8.0",
     "dbgate-query-splitter": "^4.11.9",
-    "dbgate-tools": "^6.0.0-alpha.1",
+    "dbgate-tools": "^7.0.0-alpha.1",
     "is-promise": "^4.0.0",
     "lodash": "^4.17.21",
     "mongodb": "^6.3.0",

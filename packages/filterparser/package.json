@@ -17,7 +17,7 @@
     "lib"
   ],
   "devDependencies": {
-    "dbgate-types": "^6.0.0-alpha.1",
+    "dbgate-types": "^7.0.0-alpha.1",
     "@types/jest": "^25.1.4",
     "@types/node": "^13.7.0",
     "jest": "^28.1.3",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@types/parsimmon": "^1.10.1",
-    "dbgate-tools": "^6.0.0-alpha.1",
+    "dbgate-tools": "^7.0.0-alpha.1",
     "lodash": "^4.17.21",
     "date-fns": "^4.1.0",
     "moment": "^2.24.0",
