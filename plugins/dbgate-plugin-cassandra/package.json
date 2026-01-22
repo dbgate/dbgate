@@ -34,7 +34,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "dbgate-tools": "^7.0.0-alpha.1",
+    "dbgate-tools": "^6.0.0-alpha.1",
     "json-stable-stringify": "^1.0.1",
     "lodash": "^4.17.21",
     "cassandra-driver": "^4.7.2"
