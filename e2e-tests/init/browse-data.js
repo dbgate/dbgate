@@ -125,7 +125,7 @@ async function initMongoDatabase(dbname, inputDirectory) {
   // });
 }
 
-async function initRedisDatabase(inputDirectory) {
+async function initRedisDatabase(inputDirectory, inputDirectory2) {
   await dbgateApi.executeQuery({
     connection: {
       server: process.env.SERVER_redis,
@@ -151,6 +151,19 @@ async function initRedisDatabase(inputDirectory) {
       // logScriptItems: true,
     });
   }
+
+  await dbgateApi.executeQuery({
+    connection: {
+      server: process.env.SERVER_redis,
+      user: process.env.USER_redis,
+      password: process.env.PASSWORD_redis,
+      port: process.env.PORT_redis,
+      engine: 'redis@dbgate-plugin-redis',
+      database: 1,
+    },
+    sqlFile: path.join(inputDirectory2, 'redis-db1.redis'),
+    // logScriptItems: true,
+  });
 
   // await dbgateApi.importDatabase({
   //   connection: {
@@ -188,7 +201,10 @@ async function run() {
   await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
   await initMongoDatabase('MgRivers', path.resolve(path.join(__dirname, '../data/rivers-jsonl')));
 
-  await initRedisDatabase(path.resolve(path.join(__dirname, '../data/redis')));
+  await initRedisDatabase(
+    path.resolve(path.join(__dirname, '../data/redis')),
+    path.resolve(path.join(__dirname, '../data'))
+  );
 
   await copyFolder(
     path.resolve(path.join(__dirname, '../data/chinook-jsonl')),
