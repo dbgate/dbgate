@@ -89,7 +89,7 @@ ORDER BY
     />
   </FormFieldTemplateLarge>
 
-  <div class="themes">
+  <div class="themes" data-testid="ThemeSettings-themeList">
     {#each allThemes as theme}
       <ThemeSkeleton {theme} />
     {/each}

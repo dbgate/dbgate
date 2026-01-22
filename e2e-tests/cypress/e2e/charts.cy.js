@@ -225,7 +225,6 @@ describe('Charts', () => {
     cy.contains('Default Actions').click();
     cy.get('[data-testid=DefaultActionsSettings_useLastUsedAction]').uncheck();
 
-
     // Themes
     cy.contains('Themes').click();
     cy.themeshot('app-settings-themes');
@@ -256,7 +255,6 @@ describe('Charts', () => {
     cy.contains('OK').click();
     cy.contains('Ctrl+G');
 
-    
     cy.contains('AI').click();
     cy.themeshot('app-settings-ai');
     cy.get('[data-testid=AISettings_addProviderButton]').click();
@@ -265,5 +263,13 @@ describe('Charts', () => {
     cy.contains('Are you sure you want to remove Provider 1 provider?');
     cy.contains('OK').click();
     cy.contains('Provider 1').should('not.exist');
+  });
+
+  it('Custom theme', () => {
+    cy.testid('WidgetIconPanel_settings').click();
+    cy.contains('Themes').click();
+    cy.testid('ThemeSettings-themeList').contains('Green-Sample').click();
+    cy.testid('WidgetIconPanel_file').click();
+    cy.themeshot('green-theme', { keepTheme: true });
   });
 });

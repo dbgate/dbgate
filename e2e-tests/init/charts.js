@@ -90,6 +90,11 @@ async function run() {
     path.join(baseDir, 'files-e2etests', 'sql')
   );
 
+  await copyFolder(
+    path.resolve(path.join(__dirname, '../data/files/themes')),
+    path.join(baseDir, 'files-e2etests', 'themes')
+  );
+
   await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
 }
 
