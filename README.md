@@ -61,7 +61,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * Edit table schema, indexes, primary and foreign keys
 * Compare and synchronize database structure
 * ER diagram
-* Light and dark theme, next themes available as plugins from github community
+* Light and dark theme, next themes available from DbGate Cloud
 * Huge support for work with related data - master/detail views, foreign key lookups, expanding columns from related tables in flat data view
 * Query designer - visual SQL query builder without writing SQL code. Complex conditions like WHERE NOT EXISTS.
 * Query perspectives – innovative nested table view over complex relational data, something like query designer on MongoDB databases
@@ -94,7 +94,8 @@ Any contributions are welcome. If you want to contribute without coding, conside
 * Create some tutorial video on [youtube](https://www.youtube.com/playlist?list=PLCo7KjCVXhr0RfUSjM9wJMsp_ShL1q61A)
 * Become a backer on [GitHub sponsors](https://github.com/sponsors/dbgate) or [Open collective](https://opencollective.com/dbgate)
 * Add a SQL script to [Public Knowledge Base](https://github.com/dbgate/dbgate-knowledge-base)
-* Where a small coding is acceptable for you, you could [create plugin](https://docs.dbgate.io/plugin-development). Plugins for new themes can be created actually without JS coding
+* Where a small coding is acceptable for you, you could [create plugin](https://docs.dbgate.io/plugin-development)
+* Create a new custom theme and share it on [DbGate Cloud](https://github.com/dbgate/dbgate-knowledge-base/tree/master/folder-Themes)
 
 Thank you!
 
