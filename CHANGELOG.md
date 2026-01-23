@@ -20,6 +20,8 @@ Builds:
 - CHANGED: Upgraded Svelte to version 4
 - ADDED: Differentiate pinned database with same name #1306
 - ADDED: Database icons/logos for faster visual recognition #1222
+- CHANGED: Reorganized left sidebar widgets
+- ADDED: Widget for currently opened tabs
 
 ## 6.8.2
 - FIXED: Initialize storage database from envoronment variables failed with PostgreSQL
