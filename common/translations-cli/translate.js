@@ -15,6 +15,7 @@ const languageNames = {
     'fr.json': 'French',
     'it.json': 'Italian',
     'ja.json': 'Japanese',
+    'ko.json': 'Korean',
     'pt.json': 'Portuguese',
     'sk.json': 'Slovak',
     'zh.json': 'Chinese'
