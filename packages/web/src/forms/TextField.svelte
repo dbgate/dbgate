@@ -5,22 +5,37 @@
   export let focused = false;
   export let domEditor = undefined;
   export let autocomplete = 'new-password';
+  export let isTextArea = false;
 
   if (focused) onMount(() => domEditor.focus());
 </script>
 
-<input
-  class="text-input"
-  type="text"
-  {...$$restProps}
-  bind:value
-  on:change
-  on:input
-  on:click
-  bind:this={domEditor}
-  on:keydown
-  {autocomplete}
-/>
+{#if isTextArea}
+  <textarea
+    class="text-input"
+    {...$$restProps}
+    bind:value
+    on:change
+    on:input
+    on:click
+    bind:this={domEditor}
+    on:keydown
+    {autocomplete}
+  ></textarea>
+{:else}
+  <input
+    class="text-input text-input-one-line"
+    type="text"
+    {...$$restProps}
+    bind:value
+    on:change
+    on:input
+    on:click
+    bind:this={domEditor}
+    on:keydown
+    {autocomplete}
+  />
+{/if}
 
 <style>
   .text-input {
@@ -32,10 +47,12 @@
     font-size: 13px;
     transition: all 0.15s ease;
     font-family: inherit;
-    height: 40px;
     box-shadow: var(--theme-input-shadow);
     width: 100%;
     box-sizing: border-box;
+  }
+  .text-input-one-line {
+    height: 40px;
   }
 
   .text-input::placeholder {
