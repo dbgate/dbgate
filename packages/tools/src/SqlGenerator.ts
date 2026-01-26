@@ -27,6 +27,7 @@ interface SqlGeneratorOptions {
   createIndexes: boolean;
   insert: boolean;
   skipAutoincrementColumn: boolean;
+  skipComputedColumns: boolean;
   disableConstraints: boolean;
   omitNulls: boolean;
   truncate: boolean;
@@ -260,9 +261,12 @@ export class SqlGenerator {
   }
 
   processReadable(table: TableInfo, readable) {
-    const columnsFiltered = this.options.skipAutoincrementColumn
+    const columnsFilteredPre = this.options.skipAutoincrementColumn
       ? table.columns.filter(x => !x.autoIncrement)
       : table.columns;
+    const columnsFiltered = this.options.skipComputedColumns
+      ? columnsFilteredPre.filter(x => !x.computedExpression)
+      : columnsFilteredPre;
     const columnNames = columnsFiltered.map(x => x.columnName);
     let isClosed = false;
     let isHeaderRead = false;

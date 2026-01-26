@@ -209,6 +209,7 @@
                   {#if values.insert}
                     <div class="ml-2">
                       <FormCheckboxField label={_t('sqlGenerator.skipAutoincrementColumn', { defaultMessage: 'Skip autoincrement column' })} name="skipAutoincrementColumn" />
+                      <FormCheckboxField label={_t('sqlGenerator.skipComputedColumns', { defaultMessage: 'Skip computed columns' })} name="skipComputedColumns" />
                       <FormCheckboxField label={_t('sqlGenerator.disableConstraints', { defaultMessage: 'Disable constraints' })} name="disableConstraints" />
                       <FormCheckboxField label={_t('sqlGenerator.omitNulls', { defaultMessage: 'Omit NULL values' })} name="omitNulls" />
                     </div>
