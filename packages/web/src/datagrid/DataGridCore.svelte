@@ -1993,7 +1993,7 @@
   {#if $databaseStatus?.name == 'pending' || $databaseStatus?.name == 'checkStructure' || $databaseStatus?.name == 'loadStructure'}
     <LoadingInfo wrapper message={_t('datagrid.structure.waiting', { defaultMessage: 'Waiting for structure' })} />
   {:else}
-    <ErrorInfo alignTop message={_t('datagrid.structure.notLoaded', { defaultMessage: 'No structure was loaded, probably table doesn\\'t exist in current database' })} />
+    <ErrorInfo alignTop message={_t('datagrid.structure.notLoaded', { defaultMessage: "No structure was loaded, probably table doesn't exist in current database" })} />
   {/if}
 {:else if errorMessage}
   <div>
