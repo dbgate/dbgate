@@ -227,6 +227,7 @@
 
   function getJsonParsedValue(value) {
     if (editorTypes?.explicitDataType) return null;
+    if (_.isPlainObject(value) || _.isArray(value)) return value;
     if (!isJsonLikeLongString(value)) return null;
     return safeJsonParse(value);
   }
