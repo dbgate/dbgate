@@ -271,5 +271,15 @@ describe('Charts', () => {
     cy.testid('ThemeSettings-themeList').contains('Green-Sample').click();
     cy.testid('WidgetIconPanel_file').click();
     cy.themeshot('green-theme', { keepTheme: true });
+
+    cy.testid('ThemeSettings-themeList').contains('Solarized-light').click();
+    cy.testid('WidgetIconPanel_database').click();
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+    cy.contains('Customer').click();
+    cy.contains('Leonie');
+    cy.testid('WidgetIconPanel_file').click();
+
+    cy.themeshot('solarized-theme', { keepTheme: true });
   });
 });
