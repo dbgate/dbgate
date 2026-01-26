@@ -142,6 +142,8 @@ class Analyser extends DatabaseAnalyser {
           ref_schema_name: fkRef.ref_table_schema,
           column_name: baseCol.column_name,
           ref_column_name: refCol.column_name,
+          update_action: fkRef.update_action,
+          delete_action: fkRef.delete_action,
         });
       }
     }
