@@ -148,11 +148,6 @@ async function run() {
   await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
   await initMongoDatabase('MgRivers', path.resolve(path.join(__dirname, '../data/rivers-jsonl')));
 
-  await initRedisDatabase(
-    path.resolve(path.join(__dirname, '../data/redis')),
-    path.resolve(path.join(__dirname, '../data'))
-  );
-
   await copyFolder(
     path.resolve(path.join(__dirname, '../data/chinook-jsonl')),
     path.join(baseDir, 'archive-e2etests', 'default')
