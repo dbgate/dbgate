@@ -1,13 +1,13 @@
 ---
 name: Bug report
-about: Create a report to help us improve DbGate
+about: Create a report to help us improve DbGate (in ENGLISH)
 title: 'BUG: Say something here'
 labels: ''
 assignees: ''
 
 ---
 
-**Please keep communication in English to reach more contributors.**
+Please keep communication in ENGLISH to reach more contributors.
 
 **Describe the bug**
 A clear and concise description of what the bug is.

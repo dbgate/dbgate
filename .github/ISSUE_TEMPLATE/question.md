@@ -1,13 +1,13 @@
 ---
 name: Question
-about: Ask a question about how to do something
+about: Ask a question about how to do something (in ENGLISH)
 title: 'QUESTION: Summary of your question'
 labels: ''
 assignees: ''
 
 ---
 
-**Please keep communication in English to reach more contributors.**
+Please keep communication in ENGLISH to reach more contributors.
 
 **Details:**
 Details about your question
