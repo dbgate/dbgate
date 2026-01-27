@@ -197,6 +197,7 @@
                   keyName = e.target.value;
                   invalidateCommands();
                 }}
+                data-testid="NewRedisKeyTab_keyName"
               />
             </FormFieldTemplateLarge>
           </div>

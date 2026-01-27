@@ -512,12 +512,4 @@ describe('Data browser data', () => {
     cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');
     cy.themeshot('data-browser-filter-by-expanded');
   });
-
-  it('Redis test', () => {
-    cy.contains('Redis-connection').click();
-    cy.contains('db2').click();
-    cy.contains('Card122').click();
-    cy.contains('credit');
-    cy.themeshot('data-browser-redis-hash');
-  });
 });

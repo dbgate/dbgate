@@ -432,7 +432,11 @@
           <div class="key-name">
             {key}
           </div>
-          <FormStyledButton value="Rename Key" on:click={() => handleKeyRename(keyInfo)} />
+          <FormStyledButton
+            value="Rename Key"
+            on:click={() => handleKeyRename(keyInfo)}
+            data-testid="RedisKeyDetailTab_RenameKeyButton"
+          />
           <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
         </div>
 

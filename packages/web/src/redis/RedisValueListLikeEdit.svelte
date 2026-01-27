@@ -34,6 +34,7 @@
                   }
                 }}
                 disabled={keyColumn === field.name}
+                data-testid={`RedisValueListLikeEdit_${field.name}`}
               />
             </FormFieldTemplateLarge>
           </div>

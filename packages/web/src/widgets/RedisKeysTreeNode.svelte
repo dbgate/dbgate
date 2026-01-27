@@ -47,7 +47,10 @@
           label: _t('dbKeysTreeNode.deleteKey', { defaultMessage: 'Delete key' }),
           onClick: () => {
             showModal(ConfirmModal, {
-              message: _t('dbKeysTreeNode.deleteKeyConfirm', { defaultMessage: 'Really delete key {key}?', values: { key: item.key } }),
+              message: _t('dbKeysTreeNode.deleteKeyConfirm', {
+                defaultMessage: 'Really delete key {key}?',
+                values: { key: item.key },
+              }),
               onConfirm: async () => {
                 await apiCall('database-connections/call-method', {
                   conid,
@@ -95,7 +98,10 @@
           onClick: () => {
             const branch = `${item.key}:*`;
             showModal(ConfirmModal, {
-              message: _t('dbKeysTreeNode.deleteBranchConfirm', { defaultMessage: 'Really delete branch {branch} with all keys?', values: { branch } }),
+              message: _t('dbKeysTreeNode.deleteBranchConfirm', {
+                defaultMessage: 'Really delete branch {branch} with all keys?',
+                values: { branch },
+              }),
               onConfirm: async () => {
                 await apiCall('database-connections/call-method', {
                   conid,

@@ -31,11 +31,12 @@
       { label: 'Text', value: 'text' },
       { label: 'JSON view', value: 'json' },
     ]}
+    data-testid="RedisValueDetail_displaySelect"
   />
 </div>
 <div class="colvalue">
   {#if display == 'text'}
-    <div class="editor-wrapper">
+    <div class="editor-wrapper" data-testid="RedisValueDetail_AceEditor">
       <AceEditor
         readOnly={!onChangeValue}
         value={value != null ? String(value) : ''}

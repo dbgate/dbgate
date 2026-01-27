@@ -26,7 +26,12 @@
 
 <div class="container">
   <FormFieldTemplateLarge label="Score" type="text" noMargin>
-    <TextField value={score} on:input={e => handleScoreChange(e.target.value)} disabled={!onChangeItem} />
+    <TextField
+      value={score}
+      on:input={e => handleScoreChange(e.target.value)}
+      disabled={!onChangeItem}
+      data-testid="RedisValueZSetDetail_score"
+    />
   </FormFieldTemplateLarge>
 
   <div class="value-section">

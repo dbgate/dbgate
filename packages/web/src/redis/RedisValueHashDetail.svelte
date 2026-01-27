@@ -59,7 +59,7 @@
     </div>
   </div>
 
-  <div class="value-section">
+  <div class="value-section" data-testid="RedisValueHashDetail_ValueSection">
     {#key key}
       <RedisValueDetail
         value={item?.value || ''}
