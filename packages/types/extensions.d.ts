@@ -28,6 +28,7 @@ export interface ThemeDefinition {
   isBuiltInTheme?: boolean;
   themeVariables?: { [key: string]: string };
   themePublicCloudPath?: string;
+  editorTheme?: string;
 }
 
 export interface PluginDefinition {
