@@ -42,7 +42,7 @@
     "test:cloud": "start-server-and-test start:cloud http://localhost:3000 cy:run:cloud",
     "test:charts": "start-server-and-test start:charts http://localhost:3000 cy:run:charts",
     "test:redis": "start-server-and-test start:redis http://localhost:3000 cy:run:redis",
-    "test": "yarn test:add-connection && yarn test:portal && yarn test:oauth && yarn test:browse-data && yarn test:team && yarn test:multi-sql && yarn test:cloud && yarn test:charts",
+    "test": "yarn test:add-connection && yarn test:portal && yarn test:oauth && yarn test:browse-data && yarn test:team && yarn test:multi-sql && yarn test:cloud && yarn test:charts && yarn test:redis",
     "test:ci": "yarn test"
   },
   "dependencies": {}
