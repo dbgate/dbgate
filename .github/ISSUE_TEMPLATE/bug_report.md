@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+**Please keep communication in English to reach more contributors.**
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 

@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+**Please keep communication in English to reach more contributors.**
+
 **Details:**
 Details about your question
 
