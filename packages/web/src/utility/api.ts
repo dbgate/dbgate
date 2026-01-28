@@ -87,6 +87,7 @@ async function processApiResponse(route, args, resp) {
   //   console.log('<<< API RESPONSE', route, args, resp);
   // }
 
+  // Handle old format: missingCredentials as exception wrapper
   if (resp?.missingCredentials) {
     if (resp.detail.redirectToDbLogin) {
       const volatile = await apiCall('connections/volatile-dblogin-from-auth', { conid: resp.detail.conid });
@@ -116,7 +117,7 @@ async function processApiResponse(route, args, resp) {
     } else if (!isDatabaseLoginVisible()) {
       showModal(DatabaseLoginModal, resp.detail);
     }
-    return null;
+    return resp?.detail?.keepErrorResponseFromApi ? resp : null;
     // return {
     //   errorMessage: resp.apiErrorMessage,
     //   missingCredentials: true,

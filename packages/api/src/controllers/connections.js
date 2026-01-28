@@ -24,10 +24,12 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const { getAuthProviderById } = require('../auth/authProvider');
 const { startTokenChecking } = require('../utility/authProxy');
 const { extractConnectionsFromEnv } = require('../utility/envtools');
+const { MissingCredentialsError } = require('../utility/exceptions');
 
 const logger = getLogger('connections');
 
 let volatileConnections = {};
+let pendingTestSubprocesses = {}; // Map of conid -> subprocess for MS Entra auth flows
 
 function getNamedArgs() {
   const res = {};
@@ -239,14 +241,60 @@ module.exports = {
     );
     pipeForkLogs(subprocess);
     subprocess.send({ ...connection, requestDbList });
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+      let isWaitingForVolatile = false;
+      
+      const cleanup = () => {
+        if (connection._id && pendingTestSubprocesses[connection._id]) {
+          delete pendingTestSubprocesses[connection._id];
+        }
+      };
+      
       subprocess.on('message', resp => {
         if (handleProcessCommunication(resp, subprocess)) return;
         // @ts-ignore
-        const { msgtype } = resp;
+        const { msgtype, missingCredentialsDetail } = resp;
         if (msgtype == 'connected' || msgtype == 'error') {
+          cleanup();
           resolve(resp);
         }
+        if (msgtype == 'missingCredentials') {
+          if (missingCredentialsDetail?.redirectToDbLogin) {
+            // Store the subprocess for later when volatile connection is ready
+            isWaitingForVolatile = true;
+            pendingTestSubprocesses[connection._id] = {
+              subprocess,
+              requestDbList,
+            };
+            // Return immediately with redirectToDbLogin status in the old format
+            resolve({
+              missingCredentials: true,
+              detail: {
+                ...missingCredentialsDetail,
+                keepErrorResponseFromApi: true,
+              },
+            });
+            return;
+          }
+          reject(new MissingCredentialsError(missingCredentialsDetail));
+        }
+      });
+      
+      subprocess.on('exit', (code) => {
+        // If exit happens while waiting for volatile, that's expected
+        if (isWaitingForVolatile && code === 0) {
+          cleanup();
+          return;
+        }
+        cleanup();
+        if (code !== 0) {
+          reject(new Error(`Test subprocess exited with code ${code}`));
+        }
+      });
+      
+      subprocess.on('error', (err) => {
+        cleanup();
+        reject(err);
       });
     });
   },
@@ -279,6 +327,38 @@ module.exports = {
       return testRes;
     } else {
       volatileConnections[res._id] = res;
+      
+      // Check if there's a pending test subprocess waiting for this volatile connection
+      const pendingTest = pendingTestSubprocesses[conid];
+      if (pendingTest) {
+        const { subprocess, requestDbList } = pendingTest;
+        try {
+          // Send the volatile connection to the waiting subprocess
+          subprocess.send({ ...res, requestDbList, isVolatileResolved: true });
+          
+          // Wait for the test result and emit it as an event
+          subprocess.once('message', resp => {
+            if (handleProcessCommunication(resp, subprocess)) return;
+            const { msgtype } = resp;
+            if (msgtype == 'connected' || msgtype == 'error') {
+              // Emit SSE event with test result
+              socket.emit(`connection-test-result-${conid}`, {
+                ...resp,
+                volatileConId: res._id,
+              });
+              delete pendingTestSubprocesses[conid];
+            }
+          });
+        } catch (err) {
+          logger.error(extractErrorLogData(err), 'DBGM-00118 Error sending volatile connection to test subprocess');
+          socket.emit(`connection-test-result-${conid}`, {
+            msgtype: 'error',
+            error: err.message,
+          });
+          delete pendingTestSubprocesses[conid];
+        }
+      }
+      
       return res;
     }
   },
