@@ -14,7 +14,9 @@ Builds:
 - FIXED: The JsonB field in the cell data view always displays as null. #1320
 - ADDED: Possibility to skip computed coumn in SQL generator
 - ADDED: Improved team file editing, move between team folders
-
+- ADDED: Korean localization
+- FIXED: Added missing localization strings
+- ADDED: Default editor theme is part of application theme now
 
 ## 7.0.0
 - CHANGED: New design of application, new theme system
