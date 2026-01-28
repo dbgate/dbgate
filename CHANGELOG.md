@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.1
+- FIXED: Foreign key actions not detected on PostgreSQL #1323
+- FIXED: Vulnerabilities in bundled dependencies: axios, cross-spawn, glob #1322
+- FIXED: The JsonB field in the cell data view always displays as null. #1320
+- ADDED: Possibility to skip computed coumn in SQL generator
+- ADDED: Improved team file editing, move between team folders
+
+
 ## 7.0.0
 - CHANGED: New design of application, new theme system
 - ADDED: Theme AI assistant - create custom themes using AI (Premium)
