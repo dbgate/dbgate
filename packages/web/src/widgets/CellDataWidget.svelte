@@ -63,13 +63,14 @@
   ];
 
   function autodetect(selection) {
+    if (selectionCouldBeShownOnMap(selection)) {
+      return 'map';
+    }
+    
     if (selection[0]?.isSelectedFullRow) {
       return 'form';
     }
 
-    if (selectionCouldBeShownOnMap(selection)) {
-      return 'map';
-    }
     if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
       return 'jsonRow';
     }
