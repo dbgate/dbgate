@@ -1,23 +1,29 @@
 <script lang="ts" context="module">
-  import { cloudConnectionsStore } from '../stores';
+  import { cloudConnectionsStore, DEFAULT_CONNECTION_SEARCH_SETTINGS } from '../stores';
   import { apiCall } from '../utility/api';
   import AppObjectCore from './AppObjectCore.svelte';
 
   export const extractKey = data => data.cntid;
+
   export const createMatcher =
-    filter =>
-    ({ name }) =>
-      filterName(filter, name);
+    (filter, cfg = DEFAULT_CONNECTION_SEARCH_SETTINGS) =>
+    props => {
+      const { conid, name } = props;
+      const databases = getLocalStorage(`database_list_${conid}`) || [];
+
+      return filterNameCompoud(filter, [name], cfg.database ? databases.map(x => x.name) : []);
+    };
 </script>
 
 <script lang="ts">
-  import { filterName, getConnectionLabel } from 'dbgate-tools';
+  import { filterNameCompoud } from 'dbgate-tools';
   import ConnectionAppObject, { openConnection } from './ConnectionAppObject.svelte';
   import { _t } from '../translations';
   import openNewTab from '../utility/openNewTab';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import SavedFileAppObject from './SavedFileAppObject.svelte';
+  import { getLocalStorage } from '../utility/storageCache';
 
   export let data;
   export let passProps;
