@@ -1,8 +1,10 @@
 <script lang="ts">
   import { get_current_component } from 'svelte/internal';
   import createActivator, { isComponentActiveStore } from '../utility/createActivator';
+  import { useSettings } from '../utility/metadataLoaders';
 
   const thisInstance = get_current_component();
+  const settings = useSettings();
 
   export let showAlways = false;
   export const activator = showAlways ? null : createActivator('ToolStripContainer', true);
@@ -13,13 +15,19 @@
 
   export let scrollContent = false;
   export let hideToolStrip = false;
-  export let toolstripPosition = 'top'; // 'top' | 'bottom'
+  export let toolstripPosition = 'auto'; // 'top' | 'bottom'
 
   $: isComponentActive = showAlways || ($isComponentActiveStore('ToolStripContainer', thisInstance) && !hideToolStrip);
+
+  $: realToolstripPosition =
+    toolstripPosition == 'auto' ? ($settings?.['settings.toolbarPosition'] ?? 'top') : toolstripPosition;
+
+  $: realToolstripPositionFixed =
+    realToolstripPosition == 'top' || realToolstripPosition == 'bottom' ? realToolstripPosition : 'top';
 </script>
 
 <div class="wrapper">
-  {#if isComponentActive && toolstripPosition === 'top'}
+  {#if isComponentActive && realToolstripPositionFixed === 'top'}
     <div class="toolstrip">
       <slot name="toolstrip" />
     </div>
@@ -29,7 +37,7 @@
     <slot />
   </div>
 
-  {#if isComponentActive && toolstripPosition === 'bottom'}
+  {#if isComponentActive && realToolstripPositionFixed === 'bottom'}
     <div class="toolstrip">
       <slot name="toolstrip" />
     </div>

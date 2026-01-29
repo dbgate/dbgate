@@ -134,6 +134,25 @@
     defaultValue={false}
     disabled={!hasPermission('settings/change')}
   />
+
+  <FormSelectField
+    label={_t('settings.other.toolBarPosition', { defaultMessage: 'Tool bar position' })}
+    name="settings.toolbarPosition"
+    isNative
+    defaultValue="top"
+    options={[
+      {
+        value: 'top',
+        label: _t('settings.other.toolBarPosition.top', {
+          defaultMessage: 'Top',
+        }),
+      },
+      {
+        value: 'bottom',
+        label: _t('settings.other.toolBarPosition.bottom', { defaultMessage: 'Bottom' }),
+      },
+    ]}
+  />
 </div>
 
 <style>
