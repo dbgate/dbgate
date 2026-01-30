@@ -57,11 +57,12 @@ class RecodeTransform extends stream.Transform {
 const INFER_STRUCTURE_ROWS = 100;
 
 class CsvPrepareStream extends stream.Transform {
-  constructor({ header }) {
+  constructor({ header, booleanFormat }) {
     super({ objectMode: true });
     this.columns = null;
     this.header = header;
     this.cachedRows = null;
+    this.booleanFormat = booleanFormat || 'true_false';
   }
 
   _extractValue(value) {
@@ -74,8 +75,12 @@ class CsvPrepareStream extends stream.Transform {
     if (value && typeof value === 'object' && value.$binary && value.$binary.base64) {
       return value.$binary.base64;
     }
-    if (typeof value === 'boolean') {
-      return value ? 1 : 0;
+    if (value && typeof value === 'boolean') {
+      if (this.booleanFormat === 'true_false') {
+        return value ? 'true' : 'false';
+      } else {
+        return value ? 1 : 0;
+      }
     }
     return value;
   }
@@ -140,9 +145,10 @@ async function writer({
   writeBom,
   writeSepHeader,
   recordDelimiter,
+  booleanFormat,
 }) {
   logger.info(`DBGM-00133 Writing file ${fileName}`);
-  const csvPrepare = new CsvPrepareStream({ header });
+  const csvPrepare = new CsvPrepareStream({ header, booleanFormat });
   const csvStream = csv.stringify({ delimiter, quoted, record_delimiter: recordDelimiter || undefined });
   const fileStream = fs.createWriteStream(fileName, encoding);
   if (writeBom) {
