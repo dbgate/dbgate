@@ -155,7 +155,7 @@
     }
   };
 
-  const connectionColorFactory = useConnectionColorFactory(3);
+  const connectionColorFactory = useConnectionColorFactory();
 
   function createGroupContextMenu(folder) {
     const handleRename = () => {
@@ -175,7 +175,10 @@
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: _t('connection.deleteFolderConfirm', { defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.', values: { folder } }),
+        message: _t('connection.deleteFolderConfirm', {
+          defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.',
+          values: { folder },
+        }),
         onConfirm: () => {
           emptyConnectionGroupNames.update(folders => folders.filter(fld => fld != folder));
           apiCall('connections/batch-change-folder', {
@@ -210,7 +213,7 @@
 
 <SearchBoxWrapper {filter}>
   <SearchInput
-    placeholder= {_t('connection.search.placeholder', { defaultMessage: 'Search connection or database' })}
+    placeholder={_t('connection.search.placeholder', { defaultMessage: 'Search connection or database' })}
     bind:value={filter}
     bind:this={domFilter}
     onFocusFilteredList={() => {
@@ -233,11 +236,17 @@
     >
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
-    <InlineButton on:click={() => runCommand('new.connection.folder')} title={_t('connection.new.folder.title', { defaultMessage: 'Add new connection folder' })}>
+    <InlineButton
+      on:click={() => runCommand('new.connection.folder')}
+      title={_t('connection.new.folder.title', { defaultMessage: 'Add new connection folder' })}
+    >
       <FontIcon icon="icon add-folder" />
     </InlineButton>
   {/if}
-  <InlineButton on:click={handleRefreshConnections} title={_t('connection.refresh.title', { defaultMessage: 'Refresh connection list' })}>
+  <InlineButton
+    on:click={handleRefreshConnections}
+    title={_t('connection.refresh.title', { defaultMessage: 'Refresh connection list' })}
+  >
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>

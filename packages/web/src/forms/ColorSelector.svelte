@@ -1,18 +1,11 @@
 <script lang="ts">
   import _ from 'lodash';
   import { presetPrimaryColors } from '@ant-design/colors';
-  import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
-  import { currentThemeDefinition } from '../plugins/themes';
   import FontIcon from '../icons/FontIcon.svelte';
   import { createEventDispatcher } from 'svelte';
 
   export let value;
   export let disabled = false;
-
-  function colorValue(color, colorIndex, themeDef) {
-    const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-    return palettes[color][colorIndex];
-  }
 
   const dispatch = createEventDispatcher();
 </script>
@@ -30,7 +23,7 @@
   </div>
   {#each _.keys(presetPrimaryColors) as color}
     <div
-      style={`background:${colorValue(color, 3, $currentThemeDefinition)}`}
+      style={`background: var(--theme-connection-${color})`}
       class="item"
       class:disabled
       class:selected={color == value}

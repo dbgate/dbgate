@@ -1,15 +1,12 @@
-import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
 import { derived } from 'svelte/store';
 import { cloudConnectionsStore } from '../stores';
 import { useCloudContentList, useConnectionList } from '../utility/metadataLoaders';
-import { currentThemeDefinition, systemThemeTypeStore } from '../plugins/themes';
 
 export function getConnectionColor(
   connections,
   cloudConnectionsStore,
   dbid,
-  themeType,
-  colorIndex,
+  connectionColor = true,
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
@@ -22,42 +19,35 @@ export function getConnectionColor(
     colorName = dbConfig.connectionColor;
   }
   if (!colorName) return undefined;
-  const palettes = themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-  if (colorIndex == null) return colorName;
-  const color = palettes[colorName][colorIndex];
-  if (backgroundStyle) return `background:${color}`;
-  return color;
+  const style = backgroundStyle ? 'background: ' : '';
+  if (connectionColor) return `${style}var(--theme-connection-${colorName})`;
+  return `${style}var(--theme-statusbar-${colorName})`;
 }
 
-export function getCloudContentColor(cloudContent, { cntid, folid }, themeType, colorIndex, backgroundStyle = false) {
+export function getCloudContentColor(cloudContent, { cntid, folid }, backgroundStyle = false) {
   if (!cntid || !folid || !cloudContent) return undefined;
   const current = cloudContent.flatMap(x => x.items).find(x => x.cntid == cntid && x.folid == folid);
   const colorName = current?.contentAttributes?.connectionColor;
   if (!colorName) return undefined;
-  const palettes = themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-  if (colorIndex == null) return colorName;
-  const color = palettes[colorName][colorIndex];
-  if (backgroundStyle) return `background:${color}`;
-  return color;
+  const style = backgroundStyle ? 'background: ' : '';
+  return `${style}var(--theme-connection-${colorName})`;
 }
 
 export function useConnectionColor(
   dbid,
-  colorIndex,
-  themeType = null,
+  connectionColor = true,
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
   const connections = useConnectionList();
   return derived(
-    [connections, currentThemeDefinition, cloudConnectionsStore],
-    ([$connections, $themeDef, $cloudConnectionsStore]) =>
+    [connections, cloudConnectionsStore],
+    ([$connections, $cloudConnectionsStore]) =>
       getConnectionColor(
         $connections,
         $cloudConnectionsStore,
         dbid,
-        themeType ?? $themeDef?.themeType,
-        colorIndex,
+        connectionColor,
         backgroundStyle,
         useConnectionFallback
       )
@@ -65,39 +55,35 @@ export function useConnectionColor(
 }
 
 export function useConnectionColorFactory(
-  colorIndex,
-  themeType = null,
+  connectionColor = true,
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
   const connections = useConnectionList();
   return derived(
-    [connections, currentThemeDefinition, cloudConnectionsStore, systemThemeTypeStore],
-    ([$connections, $themeDef, $cloudConnectionsStore, $systemThemeTypeStore]) =>
-      (dbid, colorIndexOverride = null, backgroundStyleOverride = null, useConnectionFallbackOverride = null) =>
+    [connections, cloudConnectionsStore],
+    ([$connections, $cloudConnectionsStore]) =>
+      (dbid = null, backgroundStyleOverride = null, useConnectionFallbackOverride = null) =>
         getConnectionColor(
           $connections,
           $cloudConnectionsStore,
           dbid,
-          themeType ?? $themeDef?.themeType ?? $systemThemeTypeStore,
-          colorIndexOverride ?? colorIndex,
+          connectionColor,
           backgroundStyleOverride ?? backgroundStyle,
           useConnectionFallbackOverride ?? useConnectionFallback
         )
   );
 }
 
-export function useCloudContentColorFactory(colorIndex, themeType = null, backgroundStyle = false) {
+export function useCloudContentColorFactory(backgroundStyle = false) {
   const contentList = useCloudContentList();
   return derived(
-    [contentList, currentThemeDefinition],
-    ([$contentList, $themeDef]) =>
-      (idpack, colorIndexOverride = null, backgroundStyleOverride = null) =>
+    [contentList],
+    ([$contentList]) =>
+      (idpack, backgroundStyleOverride = null) =>
         getCloudContentColor(
           $contentList,
           idpack,
-          themeType ?? $themeDef?.themeType,
-          colorIndexOverride ?? colorIndex,
           backgroundStyleOverride ?? backgroundStyle
         )
   );
