@@ -68,6 +68,12 @@ class CsvPrepareStream extends stream.Transform {
     if (value && typeof value === 'object' && value.$decimal !== undefined) {
       return value.$decimal;
     }
+    if (value && typeof value === 'object' && value.$bigint !== undefined) {
+      return value.$bigint;
+    }
+    if (value && typeof value === 'object' && value.$binary && value.$binary.base64) {
+      return value.$binary.base64;
+    }
     if (typeof value === 'boolean') {
       return value ? 1 : 0;
     }
