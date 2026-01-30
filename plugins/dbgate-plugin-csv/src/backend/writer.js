@@ -63,9 +63,19 @@ class CsvPrepareStream extends stream.Transform {
     this.header = header;
     this.cachedRows = null;
   }
+
+  _extractValue(value) {
+    if (value && typeof value === 'object' && value.$decimal !== undefined) {
+      return value.$decimal;
+    }
+    if (typeof value === 'boolean') {
+      return value ? 1 : 0;
+    }
+    return value;
+  }
   _transform(chunk, encoding, done) {
     if (this.columns) {
-      this.push(this.columns.map((col) => chunk[col]));
+      this.push(this.columns.map((col) => this._extractValue(chunk[col])));
       done();
     } else {
       if (chunk.__isStreamHeader && chunk.columns?.length > 0) {
@@ -102,7 +112,7 @@ class CsvPrepareStream extends stream.Transform {
       this.push(this.columns);
     }
     for (const row of this.cachedRows) {
-      this.push(this.columns.map((col) => row[col]));
+      this.push(this.columns.map((col) => this._extractValue(row[col])));
     }
     this.cachedRows = null;
   }
