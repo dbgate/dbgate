@@ -562,6 +562,13 @@
     previousMultiColumnFilter = currentMultiColumnFilter;
   }
 
+  $: if (grider && grider.rowCount === 0 && isLoadedAll) {
+    if (currentCell && _.isNumber(currentCell[0])) {
+      currentCell = nullCell;
+      selectedCells = [];
+    }
+  }
+
   export function refresh() {
     if (onCustomGridRefresh) onCustomGridRefresh();
     else display.reload();
