@@ -363,8 +363,10 @@
     padding: 6px 8px;
     background: var(--theme-table-cell-background);
     min-height: 20px;
-    word-break: break-all;
     position: relative;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .field-value.editable {

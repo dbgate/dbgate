@@ -260,6 +260,7 @@ textarea[disabled] {
 .ace_gutter-cell.ace-gutter-sql-run {
   background-repeat: no-repeat;
   background-position: 2px center;
+  background-size: 12px 12px;
 
   /* content: '▶';
   margin-right: 3px; */
