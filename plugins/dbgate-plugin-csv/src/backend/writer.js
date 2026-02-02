@@ -78,6 +78,8 @@ class CsvPrepareStream extends stream.Transform {
     if (value && typeof value === 'boolean') {
       if (this.booleanFormat === 'true_false') {
         return value ? 'true' : 'false';
+      } else if (this.booleanFormat === 'true_false_upper') {
+        return value ? 'TRUE' : 'FALSE';
       } else {
         return value ? 1 : 0;
       }

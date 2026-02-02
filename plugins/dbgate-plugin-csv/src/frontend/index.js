@@ -63,6 +63,7 @@ const fileFormat = {
       label: 'Boolean Format',
       options: [
         { name: 'true/false', value: 'true_false' },
+        { name: 'TRUE/FALSE', value: 'true_false_upper' },
         { name: '1/0', value: '1_0' },
       ],
       apiName: 'booleanFormat',
@@ -111,7 +112,7 @@ export default {
           encoding: 'utf16le',
           writeSepHeader: true,
           writeBom: true,
-          booleanFormat: 'true_false',
+          booleanFormat: 'true_false_upper',
         },
       }),
     },
