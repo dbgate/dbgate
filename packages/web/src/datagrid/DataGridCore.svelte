@@ -510,6 +510,11 @@
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
 
+  function clearSelection() {
+    currentCell = topLeftCell;
+    selectedCells = [topLeftCell];
+  }
+
   let isGridFocused = false;
   let selectionMenu = null;
 
@@ -539,6 +544,23 @@
   const settingsValue = useSettings();
 
   $: gridColoringMode = $settingsValue?.['dataGrid.coloringMode'];
+
+  let previousFilters = '';
+  let previousMultiColumnFilter = undefined;
+
+  $: if (display?.config) {
+    const currentFilters = JSON.stringify(display.config.filters);
+    const currentMultiColumnFilter = display.config.multiColumnFilter;
+    if (
+      previousFilters !== '' &&
+      (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter)
+    ) {
+      clearSelection();
+    }
+
+    previousFilters = currentFilters;
+    previousMultiColumnFilter = currentMultiColumnFilter;
+  }
 
   export function refresh() {
     if (onCustomGridRefresh) onCustomGridRefresh();
