@@ -158,6 +158,13 @@
         editingColumn = null;
         event.preventDefault();
         break;
+      case keycodes.n0:
+        if (event.ctrlKey || event.metaKey) {
+          setCellValue(field.uniqueName, null);
+          editingColumn = null;
+          event.preventDefault();
+        }
+        break;
       case keycodes.tab:
       case keycodes.upArrow:
       case keycodes.downArrow:
