@@ -126,6 +126,15 @@
 
   function startEditing(field) {
     if (!editable || !grider) return;
+
+    if (editingColumn === field.uniqueName) {
+      tick().then(() => {
+        if (!domEditor) return;
+        domEditor.focus();
+      });
+      return;
+    }
+
     editingColumn = field.uniqueName;
     editValue = field.hasMultipleValues ? '' : stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
     isChangedRef.set(false);
