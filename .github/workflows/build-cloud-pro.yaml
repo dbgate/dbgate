@@ -39,7 +39,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: ee7f0398bbcaf57db379734136458525b11ca974
+          ref: dd44744f66839c0fce8ebafc449d35fd563dad7a
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -90,14 +90,6 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run `packer init` for Azure
-        run: |
-          cd ../dbgate-merged/packer
-          packer init ./azure-ubuntu.pkr.hcl
-      - name: Run `packer build` for Azure
-        run: |
-          cd ../dbgate-merged/packer
-          packer build ./azure-ubuntu.pkr.hcl
       - name: Run `packer init` for AWS
         run: |
           cd ../dbgate-merged/packer
@@ -114,16 +106,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
-      - name: Delete old Azure VMs
-        run: |
-          cd ../dbgate-merged/packer
-          chmod +x delete-old-azure-images.sh
-          ./delete-old-azure-images.sh
-        env:
-          AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
-          AZURE_CLIENT_SECRET: ${{secrets.AZURE_CLIENT_SECRET}}
-          AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
-          AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
       - name: Delete old AMIs (AWS)
         run: |
           cd ../dbgate-merged/packer
