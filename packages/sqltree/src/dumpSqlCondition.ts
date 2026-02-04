@@ -20,11 +20,7 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       break;
     case 'isEmpty':
       // Use DATALENGTH for MSSQL TEXT/NTEXT/IMAGE columns to avoid TRIM error
-      if (
-        dmp.dialect.useDatalengthForEmptyString &&
-        condition.expr['dataType'] &&
-        ['text', 'ntext', 'image'].includes(condition.expr['dataType'].toLowerCase())
-      ) {
+      if (dmp.dialect.useDatalengthForEmptyString?.(condition.expr?.['dataType'])) {
         dmp.put('^datalength(');
         dumpSqlExpression(dmp, condition.expr);
         dmp.put(') = 0');
@@ -36,11 +32,7 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       break;
     case 'isNotEmpty':
       // Use DATALENGTH for MSSQL TEXT/NTEXT/IMAGE columns to avoid TRIM error
-      if (
-        dmp.dialect.useDatalengthForEmptyString &&
-        condition.expr['dataType'] &&
-        ['text', 'ntext', 'image'].includes(condition.expr['dataType'].toLowerCase())
-      ) {
+      if (dmp.dialect.useDatalengthForEmptyString?.(condition.expr?.['dataType'])) {
         dmp.put('^datalength(');
         dumpSqlExpression(dmp, condition.expr);
         dmp.put(') > 0');

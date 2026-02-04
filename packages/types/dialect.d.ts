@@ -10,7 +10,7 @@ export interface SqlDialect {
   offsetFetchRangeSyntax?: boolean;
   offsetFirstSkipSyntax?: boolean;
   offsetNotSupported?: boolean;
-  useDatalengthForEmptyString?: boolean;
+  useDatalengthForEmptyString?(dataType: string): boolean;
   quoteIdentifier(s: string): string;
   fallbackDataType?: string;
   explicitDropConstraint?: boolean;

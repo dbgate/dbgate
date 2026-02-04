@@ -12,7 +12,9 @@ const dialect = {
   topRecords: true,
   offsetFetchRangeSyntax: true,
   rowNumberOverPaging: true,
-  useDatalengthForEmptyString: true,
+  useDatalengthForEmptyString(dataType) {
+    return dataType && ['text', 'ntext', 'image'].includes(dataType.toLowerCase());
+  },
   defaultSchemaName: 'dbo',
   multipleSchema: true,
   stringEscapeChar: "'",
