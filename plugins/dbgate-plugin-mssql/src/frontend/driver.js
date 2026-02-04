@@ -12,6 +12,7 @@ const dialect = {
   topRecords: true,
   offsetFetchRangeSyntax: true,
   rowNumberOverPaging: true,
+  useDatalengthForEmptyString: true,
   defaultSchemaName: 'dbo',
   multipleSchema: true,
   stringEscapeChar: "'",

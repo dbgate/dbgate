@@ -19,14 +19,36 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       dmp.put(' ^is ^not ^null');
       break;
     case 'isEmpty':
-      dmp.put('^trim(');
-      dumpSqlExpression(dmp, condition.expr);
-      dmp.put(") = ''");
+      // Use DATALENGTH for MSSQL TEXT/NTEXT/IMAGE columns to avoid TRIM error
+      if (
+        dmp.dialect.useDatalengthForEmptyString &&
+        condition.expr['dataType'] &&
+        ['text', 'ntext', 'image'].includes(condition.expr['dataType'].toLowerCase())
+      ) {
+        dmp.put('^datalength(');
+        dumpSqlExpression(dmp, condition.expr);
+        dmp.put(') = 0');
+      } else {
+        dmp.put('^trim(');
+        dumpSqlExpression(dmp, condition.expr);
+        dmp.put(") = ''");
+      }
       break;
     case 'isNotEmpty':
-      dmp.put('^trim(');
-      dumpSqlExpression(dmp, condition.expr);
-      dmp.put(") <> ''");
+      // Use DATALENGTH for MSSQL TEXT/NTEXT/IMAGE columns to avoid TRIM error
+      if (
+        dmp.dialect.useDatalengthForEmptyString &&
+        condition.expr['dataType'] &&
+        ['text', 'ntext', 'image'].includes(condition.expr['dataType'].toLowerCase())
+      ) {
+        dmp.put('^datalength(');
+        dumpSqlExpression(dmp, condition.expr);
+        dmp.put(') > 0');
+      } else {
+        dmp.put('^trim(');
+        dumpSqlExpression(dmp, condition.expr);
+        dmp.put(") <> ''");
+      }
       break;
     case 'and':
     case 'or':
