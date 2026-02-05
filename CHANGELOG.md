@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-## 7.0.2 - not released
+## 7.0.3
 - FIXED: Optimalized loading MySQL primary keys #1261
 - FIXED: Test connection now works for MS Entra authentication #1315
 - FIXED: SQL Server - Unable to use 'Is Empty or Null' or 'Has Not Empty Value' filters on a field with data type TEXT #1338
