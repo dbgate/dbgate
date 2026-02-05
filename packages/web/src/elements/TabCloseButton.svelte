@@ -22,10 +22,10 @@
 <style>
   .close-button {
     margin-left: 5px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .close-button:hover {
-    color: var(--theme-font-1);
+    color: var(--theme-tabs-panel-foreground);
   }
 </style>

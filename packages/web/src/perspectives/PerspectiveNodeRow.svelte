@@ -94,10 +94,6 @@
     white-space: nowrap;
   }
   .row:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-table-hover-background);
   }
-
-  /* .row.isSelected {
-    background: var(--theme-bg-selected);
-  } */
 </style>

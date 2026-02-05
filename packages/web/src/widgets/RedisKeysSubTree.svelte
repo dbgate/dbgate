@@ -3,12 +3,12 @@
 
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
 
-  import DbKeysTreeNode from './DbKeysTreeNode.svelte';
+  import RedisKeysTreeNode from './RedisKeysTreeNode.svelte';
   import {
     DB_KEYS_SHOW_INCREMENT,
-    dbKeys_showNextItems,
-    DbKeysChangeModelFunction,
-    DbKeysTreeModel,
+    redis_showNextItems,
+    RedisChangeModelFunction,
+    RedisTreeModel,
   } from 'dbgate-tools';
 
   export let key;
@@ -19,8 +19,8 @@
 
   export let filter;
 
-  export let model: DbKeysTreeModel;
-  export let changeModel: DbKeysChangeModelFunction;
+  export let model: RedisTreeModel;
+  export let changeModel: RedisChangeModelFunction;
 
   export let parentRoots = [];
 
@@ -29,7 +29,7 @@
 </script>
 
 {#each items.slice(0, visibleCount) as item}
-  <DbKeysTreeNode
+  <RedisKeysTreeNode
     {conid}
     {database}
     {key}
@@ -50,7 +50,7 @@
     icon="icon dots-horizontal"
     expandIcon="icon invisible-box"
     on:click={() => {
-      changeModel(model => dbKeys_showNextItems(model, key), false);
+      changeModel(model => redis_showNextItems(model, key), false);
     }}
   />
 {/if}

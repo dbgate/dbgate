@@ -25,7 +25,7 @@
     openedTabs,
   } from '../stores';
   import _, { Dictionary } from 'lodash';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOn, apiOff } from '../utility/api';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { changeTab } from '../utility/common';
   import { getConnectionLabel } from 'dbgate-tools';
@@ -92,6 +92,23 @@
     const testid = testIdRef.get();
     const resp = await apiCall('connections/test', { connection, requestDbList });
     if (testIdRef.get() != testid) return;
+
+    // If redirectToDbLogin, wait for the async test result via event
+    if (resp?.missingCredentials && resp?.detail?.redirectToDbLogin) {
+      // Keep isTesting = true, wait for the event
+      const eventName = `connection-test-result-${connection._id}`;
+      const handleTestResult = (result) => {
+        if (testIdRef.get() != testid) {
+          apiOff(eventName, handleTestResult);
+          return;
+        }
+        isTesting = false;
+        sqlConnectResult = result;
+        apiOff(eventName, handleTestResult);
+      };
+      apiOn(eventName, handleTestResult);
+      return resp;
+    }
 
     isTesting = false;
     sqlConnectResult = resp;

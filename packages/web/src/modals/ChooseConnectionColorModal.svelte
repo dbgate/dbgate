@@ -9,7 +9,7 @@
   export let header;
   export let text;
 
-  const initialColor = useConnectionColor({ conid, database }, null, null, false, false);
+  const initialColor = useConnectionColor({ conid, database }, false, false, false);
 
   $: value = $initialColor;
 </script>

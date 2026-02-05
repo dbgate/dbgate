@@ -27,7 +27,7 @@
 <style>
   .label {
     margin-bottom: 3px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
   .checkLabel {
     cursor: default;
@@ -37,6 +37,6 @@
     margin: var(--dim-large-form-margin);
   }
   .disabled {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

@@ -32,7 +32,8 @@
   export let padRight = false;
   export let style = null;
   export let colorClass = null;
-  $: isSvgString = icon && icon.trim().startsWith('<svg');
+  $: iconValue = typeof icon === 'string' ? icon : icon?.light || icon?.dark || '';
+  $: isSvgString = iconValue.trim().startsWith('<svg');
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -97,8 +98,11 @@
     'icon form': 'mdi mdi-form-select',
     'icon archive': 'mdi mdi-archive',
     'icon file': 'mdi mdi-file',
+    'icon opened-tabs': 'mdi mdi-book-open-blank-variant-outline',
+    'icon stars': 'mdi mdi-creation',
     'icon loading': 'mdi mdi-loading mdi-spin',
     'icon close': 'mdi mdi-close',
+    'icon close-all': 'mdi mdi-close-box-multiple-outline',
     'icon unsaved': 'mdi mdi-record',
     'icon stop': 'mdi mdi-close-octagon',
     'icon play': 'mdi mdi-play',
@@ -122,6 +126,7 @@
     'icon square': 'mdi mdi-square',
     'icon data-deploy': 'mdi mdi-database-settings',
     'icon team-file': 'mdi mdi-account-file',
+    'icon team-folder': 'mdi mdi-account-details',
 
     'icon cloud-account': 'mdi mdi-account-remove-outline',
     'icon cloud-account-connected': 'mdi mdi-account-check-outline',
@@ -357,25 +362,18 @@
     'img data-deploy': 'mdi mdi-database-settings color-icon-green',
     'img arrow-start-here': 'mdi mdi-arrow-down-bold-circle color-icon-green',
     'img team-file': 'mdi mdi-account-file color-icon-red',
+    'img team-folder': 'mdi mdi-account-details color-icon-blue',
     'img table-backup': 'mdi mdi-cube color-icon-yellow',
   };
 </script>
 
 {#if isSvgString}
-  <span
-    class="svg-inline"
-    class:padLeft
-    class:padRight
-    {title}
-    {style}
-    on:click
-    data-testid={$$props['data-testid']}
-  >
-    {@html icon}
+  <span class="svg-inline" class:padLeft class:padRight {title} {style} on:click data-testid={$$props['data-testid']}>
+    {@html iconValue}
   </span>
 {:else}
   <span
-    class={`${iconNames[icon] || icon} ${colorClass || ''}`}
+    class={`${iconNames[iconValue] || iconValue} ${colorClass || ''}`}
     {title}
     class:padLeft
     class:padRight
@@ -391,8 +389,8 @@
     line-height: 1;
   }
   .svg-inline :global(svg) {
-    width: 1.125em;
-    height: 1.125em;
+    width: 18px;
+    height: 18px;
     vertical-align: middle;
     overflow: visible;
   }

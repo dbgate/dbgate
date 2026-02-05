@@ -335,7 +335,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
   }
   .icon-field-container {
     position: relative;
@@ -345,27 +345,28 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem;
-    border: 1px solid var(--theme-border);
+    min-height: 32px;
+    padding: 0.35rem 0.5rem;
+    border: var(--theme-input-border);
     border-radius: 4px;
-    background: var(--theme-bg-0);
+    background: var(--theme-input-background);
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .selected-icon:hover {
-    border-color: var(--theme-border-hover);
+    border: var(--theme-input-border-hover);
   }
 
   .selected-icon:focus {
     outline: none;
-    border-color: var(--theme-font-link);
-    box-shadow: 0 0 0 2px var(--theme-font-link-opacity);
+    border: var(--theme-input-border-focus);
+    box-shadow: var(--theme-input-focus-ring);
   }
 
   .icon-name {
     flex: 1;
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
   }
 
   .icon-picker {
@@ -374,8 +375,8 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    background: var(--theme-bg-0);
-    border: 1px solid var(--theme-border);
+    background: var(--theme-content-background);
+    border: var(--theme-icon-picker-border);
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     max-height: 400px;
@@ -389,8 +390,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem;
-    border-bottom: 1px solid var(--theme-border);
-    background: var(--theme-bg-1);
+    border-bottom: var(--theme-icon-picker-border);
+    background: var(--theme-icon-picker-background);
     font-weight: 500;
   }
 
@@ -416,29 +417,29 @@
   }
 
   .icon-option:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-icon-picker-hover);
   }
 
   .icon-option.selected {
-    background: var(--theme-bg-selected);
-    color: var(--theme-font-link);
+    background: var(--theme-icon-picker-selected);
+    color: var(--theme-link-foreground);
   }
 
   .icon-option:focus {
     outline: none;
-    background: var(--theme-bg-hover);
+    background: var(--theme-icon-picker-hover);
     box-shadow: 0 0 0 2px var(--theme-font-link-opacity);
   }
 
   .icon-label {
     font-size: 0.75rem;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
     line-height: 1.2;
     word-break: break-word;
   }
 
   .icon-option.selected .icon-label {
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
     font-weight: 500;
   }
 </style>

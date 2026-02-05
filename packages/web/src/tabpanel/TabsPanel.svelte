@@ -394,7 +394,7 @@
 
   $: settings = useSettings();
 
-  const connectionColorFactory = useConnectionColorFactory(3, null, true);
+  const connectionColorFactory = useConnectionColorFactory();
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -806,7 +806,7 @@
     padding: 5px;
     margin-top: 3px;
     margin-right: 3px;
-    font-size: 8pt;    
+    font-size: 8pt;
   }
   .upgrade-button:hover {
     background: linear-gradient(135deg, #0f5a85, #5c1870);
@@ -864,9 +864,7 @@
     justify-content: center;
     flex-grow: 1;
   }
-  /* .db-name:hover {
-    background-color: var(--theme-bg-3);
-  } */
+
   .db-name.selected {
     background-color: var(--theme-tabs-panel-active-background);
     color: var(--theme-tabs-panel-active-foreground);

@@ -11,6 +11,7 @@
   import PrivateCloudWidget from './PrivateCloudWidget.svelte';
   import hasPermission from '../utility/hasPermission';
   import { isProApp } from '../utility/proTools';
+  import OpenedTabsWidget from './OpenedTabsWidget.svelte';
 </script>
 
 {#if hasPermission('widgets/database')}
@@ -21,6 +22,9 @@
 {/if}
 {#if $visibleSelectedWidget == 'history' && hasPermission('widgets/history')}
   <HistoryWidget />
+{/if}
+{#if $visibleSelectedWidget == 'opened-tabs' && hasPermission('widgets/opened-tabs')}
+  <OpenedTabsWidget />
 {/if}
 {#if $visibleSelectedWidget == 'archive' && hasPermission('widgets/archive') && isProApp()}
   <ArchiveWidget />

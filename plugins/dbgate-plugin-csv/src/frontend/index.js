@@ -57,6 +57,18 @@ const fileFormat = {
       apiName: 'recordDelimiter',
       direction: 'target',
     },
+    {
+      type: 'select',
+      name: 'booleanFormat',
+      label: 'Boolean Format',
+      options: [
+        { name: 'true/false', value: 'true_false' },
+        { name: 'TRUE/FALSE', value: 'true_false_upper' },
+        { name: '1/0', value: '1_0' },
+      ],
+      apiName: 'booleanFormat',
+      direction: 'target',
+    },
   ],
 };
 
@@ -72,6 +84,7 @@ export default {
         props: {
           fileName,
           delimiter: ',',
+          booleanFormat: 'true_false',
         },
       }),
     },
@@ -83,6 +96,7 @@ export default {
         props: {
           fileName,
           delimiter: ';',
+          booleanFormat: 'true_false',
         },
       }),
     },
@@ -98,6 +112,7 @@ export default {
           encoding: 'utf16le',
           writeSepHeader: true,
           writeBom: true,
+          booleanFormat: 'true_false_upper',
         },
       }),
     },
@@ -109,6 +124,7 @@ export default {
         props: {
           fileName,
           delimiter: '\t',
+          booleanFormat: 'true_false',
         },
       }),
     },

@@ -134,6 +134,7 @@
     options={types.filter(x => x.directions.includes(direction))}
     name={storageTypeField}
     label={_t('importExport.storageType', { defaultMessage: "Storage type" })}
+    isNative={true}
   />
 
   {#if format && isProApp()}
@@ -148,6 +149,7 @@
           name={archiveFolderField}
           additionalFolders={_.compact([$values[archiveFolderField]])}
           zipFilesOnly
+          isNative={true}
         />
       {/if}
     {/if}
@@ -172,9 +174,9 @@
   {/if}
 
   {#if storageType == 'database' || storageType == 'query'}
-    <FormConnectionSelect name={connectionIdField} label={_t('common.server', { defaultMessage: 'Server' })} {direction} />
+    <FormConnectionSelect name={connectionIdField} label={_t('common.server', { defaultMessage: 'Server' })} {direction}  isNative={true} />
     {#if !$connectionInfo?.singleDatabase}
-      <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label={_t('common.database', { defaultMessage: 'Database' })} />
+      <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label={_t('common.database', { defaultMessage: 'Database' })}  isNative={true} />
     {/if}
   {/if}
   {#if storageType == 'database'}
@@ -183,6 +185,7 @@
       databaseName={databaseNameField}
       name={schemaNameField}
       label={_t('common.schema', { defaultMessage: 'Schema' })}
+      isNative={true}
     />
     {#if tablesField}
       <FormTablesSelect
@@ -214,10 +217,11 @@
       name={archiveFolderField}
       additionalFolders={_.compact([$values[archiveFolderField]])}
       allowCreateNew={direction == 'target'}
+      isNative={true}
     />
   {/if}
 
-  {#if direction == 'source' && (storageType == 'archive' || $values.importFromZipFile)}
+  {#if direction == 'source' && (storageType == 'archive' || (format && $values.importFromZipFile))}
     <FormArchiveFilesSelect
       label={_t('importExport.sourceFiles', { defaultMessage: 'Source files' })}
       folderName={$values[archiveFolderField]}
@@ -264,14 +268,14 @@
     width: 20vw;
     margin-left: var(--dim-large-form-margin);
     margin-bottom: var(--dim-large-form-margin);
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
   }
 
   .label {
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
     margin-bottom: 3px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .buttons {

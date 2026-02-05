@@ -3,6 +3,7 @@
     window['DBGATE_PACKAGES'] = {
       'dbgate-tools': dbgateTools,
       'dbgate-sqltree': sqlTree,
+      'dbgate-datalib': dataLib,
     };
 
     // neccessary for older plugins
@@ -64,6 +65,7 @@
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import * as dbgateTools from 'dbgate-tools';
   import * as sqlTree from 'dbgate-sqltree';
+  import * as dataLib from 'dbgate-datalib';
   import { apiCall } from '../utility/api';
   import { isProApp } from '../utility/proTools';
 

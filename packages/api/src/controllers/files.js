@@ -68,9 +68,7 @@ module.exports = {
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
-    if (folder == 'themes') {
-      socket.emitChanged(`file-themes-changed`);
-    }
+    this.emitChangedFolder(folder);
     return true;
   },
 
@@ -143,6 +141,15 @@ module.exports = {
     return deserialize(format, text);
   },
 
+  emitChangedFolder(folder) {
+    if (folder == 'themes') {
+      socket.emitChanged(`file-themes-changed`);
+    }
+    if (folder == 'favorites') {
+      socket.emitChanged('files-changed-favorites');
+    }
+  },
+
   save_meta: true,
   async save({ folder, file, data, format }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -176,9 +183,8 @@ module.exports = {
       if (folder == 'shell') {
         scheduler.reload();
       }
-      if (folder == 'themes') {
-        socket.emitChanged(`file-themes-changed`);
-      }
+      this.emitChangedFolder(folder);
+
       return true;
     }
   },

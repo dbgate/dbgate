@@ -21,6 +21,6 @@
 
 <style>
   .highlight {
-    background-color: var(--theme-bg-orange);
+    background-color: var(--theme-searchbox-background-filtered);
   }
 </style>

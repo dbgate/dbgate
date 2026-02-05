@@ -43,37 +43,46 @@
 <div class="main">
   <div class="topbar">
     {#if onClear}
-      <InlineButton
-        icon="img clear"
-        on:click={() => {
-          onClear();
-        }}
-      >
-        <FontIcon icon="icon delete" padRight />
-        {_t('messageView.clear', { defaultMessage: "Clear" })}
-      </InlineButton>
+      <div class="topbar-btn">
+        <InlineButton
+          icon="img clear"
+          on:click={() => {
+            onClear();
+          }}
+        >
+          <FontIcon icon="icon delete" padRight />
+          {_t('messageView.clear', { defaultMessage: "Clear" })}
+        </InlineButton>
+      </div>
     {/if}
-    <RowsFilterSwitcher
-      icon="img debug"
-      label={_t('messageView.debug', { defaultMessage: "Debug" })}
-      {values}
-      field="hideDebug"
-      count={items.filter(x => x.severity == 'debug').length}
-    />
-    <RowsFilterSwitcher
-      icon="img info"
-      label={_t('messageView.info', { defaultMessage: "Info" })}
-      {values}
-      field="hideInfo"
-      count={items.filter(x => x.severity == 'info').length}
-    />
-    <RowsFilterSwitcher
-      icon="img error"
-      label={_t('messageView.error', { defaultMessage: "Error" })}
-      {values}
-      field="hideError"
-      count={items.filter(x => x.severity == 'error').length}
-    />
+    <div class="topbar-btn">
+      <RowsFilterSwitcher
+        icon="img debug"
+        label={_t('messageView.debug', { defaultMessage: "Debug" })}
+        {values}
+        field="hideDebug"
+        count={items.filter(x => x.severity == 'debug').length}
+      />
+    </div>
+    <div class="topbar-btn">
+      <RowsFilterSwitcher
+        icon="img info"
+        label={_t('messageView.info', { defaultMessage: "Info" })}
+        {values}
+        field="hideInfo"
+        count={items.filter(x => x.severity == 'info').length}
+      />
+    </div>
+    <div class="topbar-btn">
+      <RowsFilterSwitcher
+        icon="img error"
+        label={_t('messageView.error', { defaultMessage: "Error" })}
+        {values}
+        field="hideError"
+        count={items.filter(x => x.severity == 'error').length}
+      />
+    </div>
+    <div class="topbar-spacer" />
     <SearchInput placeholder={_t('messageView.filterLogMessages', { defaultMessage: "Filter log messages" })} bind:value={filter} />
   </div>
   <div class="tablewrap">
@@ -120,7 +129,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-datagrid-background);
+    color: var(--theme-datagrid-foreground);
   }
   .tablewrap {
     flex: 1;
@@ -137,15 +147,35 @@
     border-spacing: 0;
     border-collapse: collapse;
     overflow: scroll;
+    background-color: var(--theme-datagrid-cell-background);
   }
   .topbar {
     display: flex;
-    width: 100%;
+    align-items: center;
+    gap: 2px;
+    background-color: var(--theme-datagrid-background);
+    border-bottom: var(--theme-datagrid-border-horizontal);
+    border-top: var(--theme-datagrid-border-horizontal);
   }
+
+  .topbar-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+  }
+
+  .topbar-btn:hover {
+    background-color: var(--theme-datagrid-selected-cell-background);
+  }
+
+  .topbar-spacer {
+    flex: 1;
+  }
+
   table thead {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--theme-bg-1);
+    background: var(--theme-datagrid-headercell-background);
   }
 </style>

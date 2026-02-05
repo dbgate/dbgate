@@ -112,10 +112,10 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    background-color: var(--theme-bg-alt);
+    background-color: var(--theme-toolstrip-button-background);
     max-height: 150px;
     overflow: auto;
-    box-shadow: 0 1px 10px 1px var(--theme-bg-inv-3);
+    box-shadow: var(--theme-input-inplace-select-shadow);
   }
 
   .value {
@@ -124,7 +124,7 @@
     left: 0;
     z-index: 20;
     min-height: 17px;
-    background-color: var(--theme-bg-0);
+    background-color: var(--theme-toolstrip-button-background);
     height: 100%;
     width: calc(100% - 4px);
     padding: 0 2px;
@@ -146,12 +146,12 @@
 
   label {
     padding: 2px 3px;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-toolstrip-button-border);
     display: block;
     min-height: 16px;
   }
 
   label:hover {
-    background-color: var(--theme-bg-hover);
+    background-color: var(--theme-toolstrip-button-background-hover);
   }
 </style>

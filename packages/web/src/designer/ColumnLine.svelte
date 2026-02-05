@@ -1,7 +1,5 @@
 <script lang="ts">
   import { findForeignKeyForColumn } from 'dbgate-tools';
-  import InlineButton from '../buttons/InlineButton.svelte';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
 
@@ -215,13 +213,13 @@
 
 <style>
   :global(.dbgate-screen) .line.canSelectColumns:hover {
-    background: var(--theme-bg-1);
+    background: var(--theme-designer-select-column-background);
   }
   :global(.dbgate-screen) .line.isDragSource {
-    background: var(--theme-bg-gold);
+    background: var(--theme-designer-drag-column-background);
   }
   :global(.dbgate-screen) .line.isDragTarget {
-    background: var(--theme-bg-gold);
+    background: var(--theme-designer-drag-column-background);
   }
   .line {
     display: flex;
@@ -235,15 +233,15 @@
     cursor: pointer;
   }
   .icon-button:hover {
-    background: var(--theme-bg-2);
-    color: var(--theme-font-hover);
+    background: var(--theme-designer-close-background-hover);
+    color: var(--theme-generic-font-hover);
   }
 
   .nullability {
-    color: var(--theme-font-4);
+    color: var(--theme-datagrid-foreground-grayed);
   }
 
   .data-type {
-    color: var(--theme-font-4);
+    color: var(--theme-datagrid-foreground-grayed);
   }
 </style>

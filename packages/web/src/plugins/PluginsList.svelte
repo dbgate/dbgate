@@ -46,7 +46,7 @@
     align-items: center;
   }
   .wrapper:hover {
-    background-color: var(--theme-bg-selected);
+    background-color: var(--theme-titlebar-button-hover);
   }
   .icon {
     width: 50px;
@@ -54,6 +54,6 @@
   }
 
   .builtin {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

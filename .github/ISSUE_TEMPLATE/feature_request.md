@@ -1,11 +1,13 @@
 ---
 name: Feature request
-about: Suggest an idea for DbGate
+about: Suggest an idea for DbGate (in ENGLISH)
 title: 'FEAT: '
 labels: ''
 assignees: ''
 
 ---
+
+Please keep communication in ENGLISH to reach more contributors.
 
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]

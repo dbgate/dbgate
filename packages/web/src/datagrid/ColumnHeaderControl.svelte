@@ -172,17 +172,11 @@
     align-self: center;
     font-size: 18px;
   }
-  /* .resizer {
-    background-color: var(--theme-border);
-    width: 2px;
-    cursor: col-resize;
-    z-index: 1;
-  } */
   .grouping {
-    color: var(--theme-font-alt);
+    color: var(--theme-datagrid-cell-foreground-value-green);
     white-space: nowrap;
   }
   .data-type {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

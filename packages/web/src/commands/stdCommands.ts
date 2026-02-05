@@ -6,9 +6,7 @@ import {
   getAppUpdaterActive,
   getCloudSigninTokenHolder,
   getExtensions,
-  getVisibleToolbar,
   promoWidgetPreview,
-  visibleToolbar,
   visibleWidgetSideBar,
   selectedWidget,
 } from '../stores';
@@ -80,22 +78,6 @@ registerCommand({
       },
     }),
   // getSubCommands: () => get(extensions).themes.map(themeCommand),
-});
-
-registerCommand({
-  id: 'toolbar.show',
-  category: __t('command.toolbar', { defaultMessage: 'Toolbar' }),
-  name: __t('command.toolbar.show', { defaultMessage: 'Show' }),
-  onClick: () => visibleToolbar.set(true),
-  testEnabled: () => !getVisibleToolbar(),
-});
-
-registerCommand({
-  id: 'toolbar.hide',
-  category: __t('command.toolbar', { defaultMessage: 'Toolbar' }),
-  name: __t('command.toolbar.hide', { defaultMessage: 'Hide' }),
-  onClick: () => visibleToolbar.set(false),
-  testEnabled: () => getVisibleToolbar(),
 });
 
 registerCommand({
@@ -651,7 +633,6 @@ registerCommand({
     const keys = [
       'leftPanelWidth',
       'rightPanelWidth',
-      'visibleToolbar',
       'selectedWidget',
       'currentThemeType',
       'currentThemeVariables',

@@ -5,13 +5,14 @@
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
+  import { _t } from '../translations';  
 </script>
 
 <WidgetColumnBar storageName="archiveWidget">
-  <WidgetColumnBarItem title="Archive folders, DB models" name="folders" height="50%">
+  <WidgetColumnBarItem title={_t('archiveWidget.folders', { defaultMessage: 'Archive folders, DB models' })} name="folders" height="50%">
     <ArchiveFolderList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Files, Tables, Views, Functions" name="files">
+  <WidgetColumnBarItem title={_t('archiveWidget.files', { defaultMessage: 'Files, Tables, Views, Functions' })} name="files">
     <ArchiveFilesList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

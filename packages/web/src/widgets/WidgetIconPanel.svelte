@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import {
     currentDropDownMenu,
@@ -7,7 +6,6 @@
     visibleSelectedWidget,
     visibleWidgetSideBar,
     visibleHamburgerMenuWidget,
-    lockedDatabaseMode,
     getCurrentConfig,
     cloudSigninTokenHolder,
     seenPremiumPromoWidget,
@@ -41,6 +39,11 @@
       icon: 'icon database',
       name: 'database',
       title: _t('widgets.databaseConnections', { defaultMessage: 'Database connections' }),
+    },
+    {
+      icon: 'icon opened-tabs',
+      name: 'opened-tabs',
+      title: _t('widgets.openedTabs', { defaultMessage: 'Opened tabs' }),
     },
     getCurrentConfig().allowPrivateCloud && {
       name: 'cloud-private',

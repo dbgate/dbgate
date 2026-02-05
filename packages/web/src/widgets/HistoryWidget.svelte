@@ -19,20 +19,6 @@
 </script>
 
 <WidgetColumnBar storageName="historyWidget">
-  <WidgetColumnBarItem
-    title={_t('history.recentlyClosedTabs', { defaultMessage: 'Recently closed tabs' })}
-    name="closedTabs"
-  >
-    <WidgetsInnerContainer>
-      <AppObjectList
-        list={_.sortBy(
-          $openedTabs.filter(x => x.closedTime),
-          x => -x.closedTime
-        )}
-        module={closedTabAppObject}
-      />
-    </WidgetsInnerContainer>
-  </WidgetColumnBarItem>
   <WidgetColumnBarItem title={_t('history.queryHistory', { defaultMessage: 'Query history' })} name="queryHistory">
     <QueryHistoryList />
   </WidgetColumnBarItem>

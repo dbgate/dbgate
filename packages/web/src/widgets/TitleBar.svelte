@@ -59,8 +59,8 @@
     height: var(--dim-titlebar-height);
     display: flex;
     align-items: center;
-    background: var(--theme-bg-2);
-    color: var(--theme-font-1);
+    background: var(--theme-titlebar-background);
+    color: var(--theme-generic-font);
   }
 
   .title {
@@ -79,7 +79,7 @@
   }
 
   .button:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-titlebar-button-hover);
   }
 
   .close-button:hover {

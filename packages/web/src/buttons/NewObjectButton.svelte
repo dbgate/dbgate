@@ -37,51 +37,54 @@
 
 <style>
   .new-object-button {
-    width: 150px;
-    height: 150px;
-    background-color: var(--theme-bg-1);
-    border-radius: 4px;
-    border: 1px solid var(--theme-border);
+  height: 114px;
+  padding: 10px 8px;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  background-color: var(--theme-new-object-button-background);
+  border: var(--theme-inlinebutton-bordered-border);
+  border-radius: 6px;
 
-  .new-object-button.enabled {
-    cursor: pointer;
-  }
-  .new-object-button.enabled:hover {
-    background-color: var(--theme-bg-2);
-  }
-  .icon {
-    font-size: 3em;
-    margin-top: 20px;
-    color: var(--theme-font-1);
-  }
-  .title {
-    margin-top: 0.2em;
-    font-weight: bold;
-  }
-  .description {
-    margin-top: 0.2em;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-    font-size: 0.9em;
-    color: var(--theme-font-2);
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
-  .new-object-button.disabled .title {
-    color: var(--theme-font-2);
-  }
-  .new-object-button.disabled .description {
-    color: var(--theme-font-2);
-  }
-  .new-object-button.disabled .icon {
-    color: var(--theme-font-2);
-  }
-  .new-object-button.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+.new-object-button.enabled {
+  cursor: pointer;
+}
+
+.new-object-button.enabled:hover {
+  background-color: var(--theme-new-object-button-background-hover);
+}
+
+.icon {
+  font-size: 2.5em;
+  margin: 6px 0 6px;
+  color: var(--theme-generic-font);
+}
+
+.title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 0.7rem;
+  color: var(--theme-generic-font-grayed);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.new-object-button.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.new-object-button.disabled .icon,
+.new-object-button.disabled .title,
+.new-object-button.disabled .description {
+  color: var(--theme-generic-font);
+}
 </style>

@@ -795,7 +795,7 @@
     const replaceLinks = text =>
       text.replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
-        '<a href="$2" style="color: var(--theme-font-link)" target="_blank">$1</a>'
+        '<a href="$2" style="color: var(--theme-link-foreground)" target="_blank">$1</a>'
       );
 
     if (value?.style?.omitExportWatermark) return null;

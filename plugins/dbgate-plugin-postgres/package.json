@@ -1,7 +1,7 @@
 {
   "name": "dbgate-plugin-postgres",
   "main": "dist/backend.js",
-  "version": "6.0.0-alpha.1",
+  "version": "7.0.0-alpha.1",
   "license": "GPL-3.0",
   "description": "PostgreSQL connector plugin for DbGate",
   "homepage": "https://dbgate.org",
@@ -38,7 +38,7 @@
     "wkx": "^0.5.0",
     "pg-copy-streams": "^6.0.6",
     "dbgate-query-splitter": "^4.11.9",
-    "dbgate-tools": "^6.0.0-alpha.1",
+    "dbgate-tools": "^7.0.0-alpha.1",
     "lodash": "^4.17.21",
     "pg": "^8.11.5"
   }

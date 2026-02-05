@@ -47,8 +47,8 @@
     justify-content: space-around;
   }
   .box {
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-card-background);
     padding: 10px;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-card-border);
   }
 </style>

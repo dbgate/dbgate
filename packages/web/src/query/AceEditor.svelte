@@ -190,7 +190,10 @@
     showPrintMargin: false,
   };
 
-  $: theme = $currentEditorTheme || ($currentThemeDefinition?.themeType == 'dark' ? 'merbivore' : 'github');
+  $: theme =
+    $currentEditorTheme ||
+    $currentThemeDefinition?.editorTheme ||
+    ($currentThemeDefinition?.themeType == 'dark' ? 'merbivore' : 'github');
   $: keyBindingMode = $currentEditorKeybindigMode || null;
   $: watchEditorFontSize($currentEditorFontSize);
 

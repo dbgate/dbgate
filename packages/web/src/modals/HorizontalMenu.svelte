@@ -63,10 +63,10 @@
   }
 
   .item:hover {
-    background: var(--theme-bg-3);
+    background: var(--theme-titlebar-button-hover);
   }
 
   .item.opened {
-    background: var(--theme-bg-3);
+    background: var(--theme-titlebar-button-hover);
   }
 </style>

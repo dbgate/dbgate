@@ -3,6 +3,7 @@ const engines = require('./engines');
 global.DBGATE_PACKAGES = {
   'dbgate-tools': require('dbgate-tools'),
   'dbgate-sqltree': require('dbgate-sqltree'),
+  'dbgate-datalib': require('dbgate-datalib'),
 };
 
 async function connectEngine(engine) {

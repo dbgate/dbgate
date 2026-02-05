@@ -15,7 +15,6 @@
     selectedWidget,
     visibleCommandPalette,
   } from '../stores';
-  import { currentThemeDefinition } from '../plugins/themes';
   import { getConnectionLabel } from 'dbgate-tools';
   import {
     useConfig,
@@ -39,9 +38,9 @@
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
-  $: connectionBackground = useConnectionColor(dbid, 3, 'dark', true);
-  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, 6, 'dark', true);
-  $: databaseButtonBackground = useConnectionColor(dbid, 6, 'dark', true, false);
+  $: connectionBackground = useConnectionColor(dbid, false, true, true);
+  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, true, true);
+  $: databaseButtonBackground = useConnectionColor(dbid, true, true, false);
 
   let timerValue = 1;
 

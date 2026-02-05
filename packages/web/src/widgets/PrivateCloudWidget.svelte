@@ -47,8 +47,8 @@
 
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
-  const cloudContentColorFactory = useCloudContentColorFactory(3);
-  const connectionColorFactory = useConnectionColorFactory(3);
+  const cloudContentColorFactory = useCloudContentColorFactory();
+  const connectionColorFactory = useConnectionColorFactory();
 
   $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
   $: cloudContentFlat = _.sortBy(

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -16,7 +16,11 @@
       {reference.columns.map(x => x.baseName).join(', ')}]
     </div>
   </div>
-  <ToolbarButton icon="icon close" on:click={() => dispatch('close')}>Close</ToolbarButton>
+  <div class="mr-2">
+    <InlineButton on:click={() => dispatch('close')}>
+      <FontIcon icon="icon close" /> Close
+    </InlineButton>
+  </div>
 </div>
 
 <style>
@@ -24,12 +28,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--theme-bg-modalheader);
+    background: var(--theme-datagrid-detail-header-background);
     height: var(--dim-toolbar-height);
     min-height: var(--dim-toolbar-height);
     overflow: hidden;
-    border-top: 1px solid var(--theme-border);
-    border-bottom: 1px solid var(--theme-border);
+    border-top: var(--theme-datagrid-detail-header-border);
+    border-bottom: var(--theme-datagrid-detail-header-border);
   }
   .header {
     font-weight: bold;

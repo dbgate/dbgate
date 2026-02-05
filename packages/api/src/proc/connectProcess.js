@@ -18,13 +18,36 @@ Platform: ${process.platform}
 
 function start() {
   childProcessChecker();
-  process.on('message', async connection => {
+
+  let isWaitingForVolatile = false;
+
+  const handleConnection = async connection => {
     // @ts-ignore
     const { requestDbList } = connection;
     if (handleProcessCommunication(connection)) return;
+
     try {
       const driver = requireEngineDriver(connection);
-      const dbhan = await connectUtility(driver, connection, 'app');
+      const connectionChanged = driver?.beforeConnectionSave ? driver.beforeConnectionSave(connection) : connection;
+
+      if (!connection.isVolatileResolved) {
+        if (connectionChanged.useRedirectDbLogin) {
+          process.send({
+            msgtype: 'missingCredentials',
+            missingCredentialsDetail: {
+              // @ts-ignore
+              conid: connection._id,
+              redirectToDbLogin: true,
+              keepErrorResponseFromApi: true,
+            },
+          });
+          // Don't exit - wait for volatile connection to be sent
+          isWaitingForVolatile = true;
+          return;
+        }
+      }
+
+      const dbhan = await connectUtility(driver, connectionChanged, 'app');
       let version = {
         version: 'Unknown',
       };
@@ -45,6 +68,16 @@ function start() {
     }
 
     process.exit(0);
+  };
+
+  process.on('message', async connection => {
+    // If we're waiting for volatile and receive a new connection, use it
+    if (isWaitingForVolatile) {
+      isWaitingForVolatile = false;
+      await handleConnection(connection);
+    } else {
+      await handleConnection(connection);
+    }
   });
 }
 

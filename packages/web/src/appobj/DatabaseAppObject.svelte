@@ -446,7 +446,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
           text: _t('database.newCollection', {
-            defaultMessage: 'New collection/container'
+            defaultMessage: 'New collection/container',
           }),
         },
       hasPermission(`dbops/query`) &&
@@ -669,10 +669,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { getDatabaseClickActionSetting } from '../settings/settingsTools';
   import { _t } from '../translations';
-  import { tick } from 'svelte';
 
   export let data;
   export let passProps;
+  export let passExtInfo = undefined;
+  export let passIcon = undefined;
+  export let passColorMark = undefined;
 
   function createMenu() {
     return getDatabaseMenuItems(
@@ -700,10 +702,11 @@ await dbgateApi.executeQuery(${JSON.stringify(
   {...$$restProps}
   {data}
   title={data.name}
-  extInfo={data.extInfo}
-  icon="img database"
-  colorMark={passProps?.connectionColorFactory &&
-    passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false)}
+  extInfo={passExtInfo ?? data.extInfo}
+  icon={passIcon || 'img database'}
+  colorMark={passColorMark ||
+    (passProps?.connectionColorFactory &&
+      passProps?.connectionColorFactory({ conid: data?.connection?._id, database: data.name }, null, null, false))}
   isBold={$currentDatabase?.connection?._id == data?.connection?._id &&
     extractDbNameFromComposite($currentDatabase?.name) == data.name}
   on:dblclick={() => {

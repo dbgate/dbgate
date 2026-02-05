@@ -22,7 +22,7 @@
   export let savingTab;
 
   const electron = getElectron();
-  const savedProperties = ['title', 'icon', 'showInToolbar', 'openOnStartup', 'urlPath'];
+  const savedProperties = ['title', 'icon', 'openOnStartup', 'urlPath'];
   $: initialValues = savingTab
     ? {
         title: savingTab.title,
@@ -114,7 +114,11 @@
 
 <FormProvider {initialValues}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{editingData ? _t('favorite.editFavorite', { defaultMessage: 'Edit favorite' }) : _t('favorite.shareAddToFavorites', { defaultMessage: 'Share / add to favorites' })}</svelte:fragment>
+    <svelte:fragment slot="header"
+      >{editingData
+        ? _t('favorite.editFavorite', { defaultMessage: 'Edit favorite' })
+        : _t('favorite.shareAddToFavorites', { defaultMessage: 'Share / add to favorites' })}</svelte:fragment
+    >
 
     <FormTextField label={_t('favorite.title', { defaultMessage: 'Title' })} name="title" focused />
     <FormTextField label={_t('favorite.icon', { defaultMessage: 'Icon' })} name="icon" />
@@ -125,8 +129,10 @@
     {/if}
     <FormValues let:values>
       {#if !values.shareAsLink && canWriteFavorite}
-        <FormCheckboxField label={_t('favorite.showInToolbar', { defaultMessage: 'Show in toolbar' })} name="showInToolbar" />
-        <FormCheckboxField label={_t('favorite.openOnStartup', { defaultMessage: 'Open on startup' })} name="openOnStartup" />
+        <FormCheckboxField
+          label={_t('favorite.openOnStartup', { defaultMessage: 'Open on startup' })}
+          name="openOnStartup"
+        />
       {/if}
     </FormValues>
     {#if !!savingTab && !!savedFile}

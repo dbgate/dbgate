@@ -30,14 +30,14 @@
     position: absolute;
     right: 0px;
     top: 1px;
-    color: var(--theme-font-3);
-    background-color: var(--theme-bg-1);
-    border: 1px solid var(--theme-bg-1);
+    color: var(--theme-generic-font-grayed);
+    background-color: var(--theme-toolstrip-button-background-active);
+    border: var(--theme-toolstrip-button-border);
   }
 
   div:hover {
-    color: var(--theme-font-hover);
-    border: var(--theme-border);
+    color: var(--theme-generic-font);
+    border: var(--theme-toolstrip-button-border);
     top: 1px;
     right: 0px;
   }

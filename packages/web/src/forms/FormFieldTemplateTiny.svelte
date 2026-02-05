@@ -28,14 +28,14 @@
   }
   .label {
     margin-bottom: 3px;
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
   .checkLabel {
     cursor: default;
     user-select: none;
   }
   .disabled {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
   .value {
     margin-left: 15px;

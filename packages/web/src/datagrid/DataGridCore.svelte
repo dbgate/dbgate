@@ -599,8 +599,8 @@
   export function addNewColumn() {
     showModal(InputTextModal, {
       value: '',
-      label: 'Column name',
-      header: 'Add new column',
+      label: _t('datagrid.columnName', { defaultMessage: 'Column name' }),
+      header: _t('datagrid.addNewColumn', { defaultMessage: 'Add new column' }),
       onConfirm: name => {
         display.addDynamicColumn(name);
         tick().then(() => {
@@ -744,19 +744,19 @@
   export function openSelectionInMap() {
     const selection = getCellsPublished(selectedCells);
     if (!selectionCouldBeShownOnMap(selection)) {
-      showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
+      showModal(ErrorMessageModal, { message: _t('datagrid.mapError.noSelection', { defaultMessage: 'There is nothing to be shown on map' }) });
       return;
     }
 
     const geoJson = createGeoJsonFromSelection(selection);
     if (!geoJson) {
-      showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
+      showModal(ErrorMessageModal, { message: _t('datagrid.mapError.noGeoJson', { defaultMessage: 'There is nothing to be shown on map' }) });
       return;
     }
 
     openNewTab(
       {
-        title: 'Map',
+        title: _t('tabs.map', { defaultMessage: 'Map' }),
         icon: 'img map',
         tabComponent: 'MapTab',
       },
@@ -806,7 +806,7 @@
     const electron = getElectron();
     const files = await electron.showOpenDialog({
       properties: ['showHiddenFiles', 'openFile'],
-      filters: [{ name: 'All Files', extensions: ['*'] }],
+      filters: [{ name: _t('common.files.allFiles', { defaultMessage: 'All Files' }), extensions: ['*'] }],
     });
     const file = files && files[0];
     if (file) {
@@ -1955,7 +1955,7 @@
     isProApp() &&
       hasPermission('dbops/charts') &&
       onOpenChart && {
-        text: 'Open chart',
+        text: _t('datagrid.openChart', { defaultMessage: 'Open chart' }),
         onClick: () => onOpenChart(),
       },
     { command: 'dataGrid.generateSqlFromData' },
@@ -1991,17 +1991,17 @@
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
   {#if $databaseStatus?.name == 'pending' || $databaseStatus?.name == 'checkStructure' || $databaseStatus?.name == 'loadStructure'}
-    <LoadingInfo wrapper message="Waiting for structure" />
+    <LoadingInfo wrapper message={_t('datagrid.structure.waiting', { defaultMessage: 'Waiting for structure' })} />
   {:else}
-    <ErrorInfo alignTop message="No structure was loaded, probably table doesn't exist in current database" />
+    <ErrorInfo alignTop message={_t('datagrid.structure.notLoaded', { defaultMessage: "No structure was loaded, probably table doesn't exist in current database" })} />
   {/if}
 {:else if errorMessage}
   <div>
     <ErrorInfo message={errorMessage} alignTop />
-    <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
-    <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
+    <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
+    <FormStyledButton value={_t('datagrid.resetView', { defaultMessage: 'Reset view' })} on:click={() => display.resetConfig()} />
     {#if onOpenQueryOnError ?? onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={() => (onOpenQueryOnError ?? onOpenQuery)()} />
+      <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => (onOpenQueryOnError ?? onOpenQuery)()} />
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
@@ -2009,17 +2009,17 @@
     <ErrorInfo
       alignTop
       message={grider.editable
-        ? 'No rows loaded, check filter or add new documents. You could copy documents from other collections/tables with Copy advanved/Copy as JSON command.'
-        : 'No rows loaded'}
+        ? _t('datagrid.noRows.withEditable', { defaultMessage: 'No rows loaded, check filter or add new documents. You could copy documents from other collections/tables with Copy advanved/Copy as JSON command.' })
+        : _t('datagrid.noRows', { defaultMessage: 'No rows loaded' })}
     />
     {#if display.filterCount > 0}
-      <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
+      <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
     {/if}
     {#if grider.editable}
-      <FormStyledButton value="Add document" on:click={addJsonDocument} />
+      <FormStyledButton value={_t('datagrid.addDocument', { defaultMessage: 'Add document' })} on:click={addJsonDocument} />
     {/if}
     {#if onOpenQuery}
-      <FormStyledButton value="Open Query" on:click={() => onOpenQuery()} />
+      <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => onOpenQuery()} />
     {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
@@ -2205,16 +2205,16 @@
     {#if !isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
       <div class="no-rows-info ml-2">
         <div class="mb-3">
-          <ErrorInfo alignTop message="No rows loaded" icon="img info" />
+          <ErrorInfo alignTop message={_t('datagrid.noRows', { defaultMessage: 'No rows loaded' })} icon="img info" />
         </div>
         {#if display.filterCount > 0}
-          <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
+          <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
         {/if}
         {#if grider.editable}
-          <FormStyledButton value="Add row" on:click={insertNewRow} />
+          <FormStyledButton value={_t('datagrid.addRow', { defaultMessage: 'Add row' })} on:click={insertNewRow} />
         {/if}
         {#if onOpenQuery}
-          <FormStyledButton value="Open Query" on:click={() => onOpenQuery()} />
+          <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => onOpenQuery()} />
         {/if}
       </div>
     {/if}
@@ -2264,7 +2264,7 @@
       </div>
     {:else if allRowCount != null && multipleGridsOnTab}
       <div class="row-count-label">
-        Rows: {allRowCount.toLocaleString()}
+        {_t('datagrid.rows', { defaultMessage: 'Rows' })}: {allRowCount.toLocaleString()}
       </div>
     {/if}
 
@@ -2273,7 +2273,7 @@
     {/if}
 
     {#if !tabControlHiddenTab && !multipleGridsOnTab && allRowCount != null}
-      <StatusBarTabItem text={`Rows: ${allRowCount.toLocaleString()}`} />
+      <StatusBarTabItem text={`${_t('datagrid.rows', { defaultMessage: 'Rows' })}: ${allRowCount.toLocaleString()}`} />
     {/if}
   </div>
 {/if}

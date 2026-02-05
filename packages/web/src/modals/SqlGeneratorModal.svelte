@@ -209,6 +209,7 @@
                   {#if values.insert}
                     <div class="ml-2">
                       <FormCheckboxField label={_t('sqlGenerator.skipAutoincrementColumn', { defaultMessage: 'Skip autoincrement column' })} name="skipAutoincrementColumn" />
+                      <FormCheckboxField label={_t('sqlGenerator.skipComputedColumns', { defaultMessage: 'Skip computed columns' })} name="skipComputedColumns" />
                       <FormCheckboxField label={_t('sqlGenerator.disableConstraints', { defaultMessage: 'Disable constraints' })} name="disableConstraints" />
                       <FormCheckboxField label={_t('sqlGenerator.omitNulls', { defaultMessage: 'Omit NULL values' })} name="omitNulls" />
                     </div>
@@ -240,7 +241,7 @@
     </HorizontalSplitter>
 
     <svelte:fragment slot="footer">
-      <div class="flex m-2">
+      <div class="flex m-2 button-container">
         <LargeButton on:click={editSql} icon="icon sql-file">{_t('sqlGenerator.editSql', { defaultMessage: 'Edit SQL' })}</LargeButton>
         <LargeButton on:click={closeCurrentModal} icon="icon close">{_t('common.close', { defaultMessage: 'Close' })}</LargeButton>
       </div>
@@ -256,6 +257,10 @@
   }
 
   .dbname {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
+  }
+
+  .button-container {
+    gap: 12px;
   }
 </style>

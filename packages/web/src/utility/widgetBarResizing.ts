@@ -1,4 +1,3 @@
-import { newMatcherFn } from 'diff2html/lib/rematch';
 import _ from 'lodash';
 
 export interface WidgetBarStoredProps {
@@ -134,21 +133,40 @@ export function computeInitialWidgetBarProps(
 
   // Third pass - update heights to match available height
   totalContentHeight = _.sum(Object.values(itemHeights));
-  if (totalContentHeight != availableContentHeight) {
+  if (totalContentHeight > 0 && totalContentHeight != availableContentHeight) {
     const scale = availableContentHeight / totalContentHeight;
     for (const def of expandedItems) {
       itemHeights[def.name] = itemHeights[def.name] * scale;
+    }
+  }
+  
+  // Fourth pass - ensure minimal heights are respected and redistribute if needed
+  totalContentHeight = 0;
+  for (const def of expandedItems) {
+    if (itemHeights[def.name] < def.minimalContentHeight) {
+      itemHeights[def.name] = def.minimalContentHeight;
+    }
+    totalContentHeight += itemHeights[def.name];
+  }
+  
+  // Fifth pass - if we're below available height, distribute extra to flexible items
+  if (totalContentHeight < availableContentHeight && flexibleItems.length > 0) {
+    const extraHeight = availableContentHeight - totalContentHeight;
+    for (const def of flexibleItems) {
+      itemHeights[def.name] += extraHeight / flexibleItems.length;
     }
   }
 
   // Final assembly of results
   let visibleIndex = 0;
   for (const def of visibleItems) {
+    const isExpanded = expandedItems.includes(def);
+    const expandedIndex = expandedItems.indexOf(def);
     res[def.name] = {
       contentHeight: Math.round(itemHeights[def.name] || 0),
       visibleItemsCount: visibleItems.length,
-      splitterVisible: visibleItems.length > 1 && visibleIndex < visibleItems.length - 1,
-      collapsed: !expandedItems.includes(def),
+      splitterVisible: isExpanded && expandedItems.length > 1 && expandedIndex < expandedItems.length - 1,
+      collapsed: !isExpanded,
       storedHeight: currentProps[def.name]?.storedHeight,
       clickableTitle: true,
     };
@@ -172,9 +190,19 @@ export function handleResizeWidgetBar(
   const currentItemProps = res[resizedItemName];
   let itemIndex = visibleItems.findIndex(def => def.name === resizedItemName);
   const itemProps = res[currentItemDef.name];
-  const nextItemDef = visibleItems[itemIndex + 1];
+  
+  // Find next expanded item to resize
+  let nextItemDef = null;
+  let nextItemProps = null;
+  for (let i = itemIndex + 1; i < visibleItems.length; i++) {
+    const def = visibleItems[i];
+    if (!res[def.name].collapsed) {
+      nextItemDef = def;
+      nextItemProps = res[def.name];
+      break;
+    }
+  }
   const currentHeight = itemProps.contentHeight;
-  const nextItemProps = res[nextItemDef.name];
   if (!nextItemDef) return res;
 
   if (deltaY < 0) {
@@ -237,6 +265,21 @@ export function handleResizeWidgetBar(
 
   if (nextItemDef.storeHeight) {
     nextItemProps.storedHeight = nextItemProps.contentHeight;
+  }
+
+  // Auto-collapse widgets that are too small
+  let hasCollapsedItems = false;
+  for (const def of visibleItems) {
+    const itemProps = res[def.name];
+    if (!itemProps.collapsed && itemProps.contentHeight <= def.minimalContentHeight) {
+      itemProps.collapsed = true;
+      hasCollapsedItems = true;
+    }
+  }
+
+  // If we auto-collapsed items, recalculate heights to redistribute space
+  if (hasCollapsedItems) {
+    return computeInitialWidgetBarProps(container, definitions, res);
   }
 
   return res;

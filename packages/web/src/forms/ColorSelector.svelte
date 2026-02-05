@@ -1,18 +1,11 @@
 <script lang="ts">
   import _ from 'lodash';
   import { presetPrimaryColors } from '@ant-design/colors';
-  import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
-  import { currentThemeDefinition } from '../plugins/themes';
   import FontIcon from '../icons/FontIcon.svelte';
   import { createEventDispatcher } from 'svelte';
 
   export let value;
   export let disabled = false;
-
-  function colorValue(color, colorIndex, themeDef) {
-    const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-    return palettes[color][colorIndex];
-  }
 
   const dispatch = createEventDispatcher();
 </script>
@@ -30,7 +23,7 @@
   </div>
   {#each _.keys(presetPrimaryColors) as color}
     <div
-      style={`background:${colorValue(color, 3, $currentThemeDefinition)}`}
+      style={`background: var(--theme-connection-${color})`}
       class="item"
       class:disabled
       class:selected={color == value}
@@ -54,7 +47,7 @@
   .item {
     flex-grow: 1;
     margin: 3px;
-    border: 1px solid var(--theme-border);
+    border: var(--theme-input-border);
     border-radius: 4px;
     font-size: 12pt;
     display: flex;
@@ -63,11 +56,11 @@
   }
 
   .item:hover:not(.disabled) {
-    border: 1px solid var(--theme-font-2);
+    border: var(--theme-input-border-hover);
   }
 
   .item.selected {
-    border: 2px solid var(--theme-font-1);
+    border: var(--theme-color-selected-border);
     margin: 2px;
   }
 </style>

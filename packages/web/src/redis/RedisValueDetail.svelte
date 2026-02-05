@@ -6,6 +6,7 @@
   import JsonTree from '../jsontree/JSONTree.svelte';
 
   import AceEditor from '../query/AceEditor.svelte';
+  import createRef from '../utility/createRef';
 
   let display = 'text';
 
@@ -13,6 +14,9 @@
   export let value;
   export let onChangeValue = null;
   export let keyType = null;
+
+  const isFirstChangeRef = createRef(true);
+  const createdTime = Date.now();
 </script>
 
 <div class="colnamewrap">
@@ -27,17 +31,26 @@
       { label: 'Text', value: 'text' },
       { label: 'JSON view', value: 'json' },
     ]}
+    data-testid="RedisValueDetail_displaySelect"
   />
 </div>
 <div class="colvalue">
   {#if display == 'text'}
-    <div class="editor-wrapper">
+    <div class="editor-wrapper" data-testid="RedisValueDetail_AceEditor">
       <AceEditor
         readOnly={!onChangeValue}
         value={value != null ? String(value) : ''}
         mode={keyType === 'JSON' ? 'json' : undefined}
         on:input={e => {
-          onChangeValue?.(e.detail);
+          if (e.detail == '' && isFirstChangeRef.get() && Date.now() - createdTime < 100) {
+            isFirstChangeRef.set(false);
+            return;
+          }
+          isFirstChangeRef.set(false);
+          // console.log('AceEditor input event', e, 'VALUE', value);
+          if (value != e.detail) {
+            onChangeValue?.(e.detail);
+          }
         }}
       />
     </div>
@@ -53,7 +66,7 @@
 
 <style>
   .colname {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
   }
 
   .colvalue {
@@ -68,13 +81,17 @@
     justify-content: space-between;
   }
 
+  .colnamewrap :global(select) {
+    padding: 2px 4px;
+  }
+
   .editor-wrapper {
     flex: 1;
     position: relative;
     min-height: 60px;
     max-height: 1000px;
   }
-  
+
   .outer {
     flex: 1;
     position: relative;

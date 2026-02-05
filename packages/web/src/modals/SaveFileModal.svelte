@@ -14,8 +14,9 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import FormCloudFolderSelect from '../forms/FormCloudFolderSelect.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
-  import { useConfig } from '../utility/metadataLoaders';
+  import { useConfig, useTeamFolders } from '../utility/metadataLoaders';
   import { showSnackbarError } from '../utility/snackbar';
+  import FormTeamFolderSelect from '../forms/FormTeamFolderSelect.svelte';
 
   export let data;
   export let name;
@@ -29,20 +30,24 @@
   export let defaultTeamFolder = false;
   // export let cntid;
 
+  const teamFolders = useTeamFolders();
+  $: enabledTeamFolders = ($teamFolders || []).some(folder => folder.allowCreate || folder.allowWrite);
+
   const configValue = useConfig();
 
   const values = writable({
     name,
     cloudFolder: folid ?? '__local',
     saveToTeamFolder: !!(getCurrentConfig()?.storageDatabase && defaultTeamFolder),
+    teamFolderId: '-1',
   });
 
   const electron = getElectron();
 
   const handleSubmit = async e => {
-    const { name, cloudFolder } = e.detail;
-    if ($values['saveToTeamFolder']) {
-      const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data });
+    const { name, cloudFolder, teamFolderId, saveToTeamFolder } = e.detail;
+    if (saveToTeamFolder && enabledTeamFolders) {
+      const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data, teamFolderId });
       if (resp?.apiErrorMessage) {
         showSnackbarError(resp.apiErrorMessage);
       } else if (resp?.teamFileId) {
@@ -123,9 +128,9 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Save file</svelte:fragment>
     <FormTextField label="File name" name="name" focused />
-    {#if $cloudSigninTokenHolder && !$values['saveToTeamFolder']}
+    {#if $cloudSigninTokenHolder && !($values['saveToTeamFolder'] && enabledTeamFolders)}
       <FormCloudFolderSelect
-        label={_t('cloud.chooseCloudFolder', { defaultMessage: "Choose cloud folder" })}
+        label={_t('cloud.chooseCloudFolder', { defaultMessage: 'Choose cloud folder' })}
         name="cloudFolder"
         isNative
         requiredRoleVariants={['write', 'admin']}
@@ -139,8 +144,19 @@
             ]}
       />
     {/if}
-    {#if $configValue?.storageDatabase}
-      <FormCheckboxField label={_t('cloud.saveToTeamFolder', { defaultMessage: "Save to team folder" })} name="saveToTeamFolder" />
+    {#if $configValue?.storageDatabase && enabledTeamFolders}
+      <FormCheckboxField
+        label={_t('cloud.saveToTeamFolder', { defaultMessage: 'Save to team folder' })}
+        name="saveToTeamFolder"
+      />
+      {#if $values.saveToTeamFolder}
+        <FormTeamFolderSelect
+          isNative
+          label={_t('cloud.chooseTeamFolder', { defaultMessage: 'Choose team folder' })}
+          name="teamFolderId"
+          folderFilter={folder => folder.allowCreate || folder.allowWrite}
+        />
+      {/if}
     {/if}
 
     <svelte:fragment slot="footer">
@@ -152,7 +168,13 @@
           on:click={async () => {
             const file = await electron.showSaveDialog({
               filters: [
-                { name: _t('common.fileType', { defaultMessage: '{extension} files', values: {extension: fileExtension.toUpperCase()} }), extensions: [fileExtension] },
+                {
+                  name: _t('common.fileType', {
+                    defaultMessage: '{extension} files',
+                    values: { extension: fileExtension.toUpperCase() },
+                  }),
+                  extensions: [fileExtension],
+                },
                 { name: _t('common.allFiles', { defaultMessage: 'All files' }), extensions: ['*'] },
               ],
               defaultPath: filePath || `${name}.${fileExtension}`,

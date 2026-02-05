@@ -142,8 +142,6 @@ export const draggingTabTarget = writable(null);
 export const draggingDbGroup = writable(null);
 export const draggingDbGroupTarget = writable(null);
 
-// export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
-export const visibleToolbar = writable(false);
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
 export const rightPanelWidth = writableWithStorage(300, 'rightPanelWidth');
 export const currentDropDownMenu = writable(null);
@@ -158,7 +156,7 @@ export const loadingPluginStore = writable({
   loaded: false,
   loadingPackageName: null,
 });
-export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
+export const activeRedisKeysStore = writableWithStorage({}, 'activeRedisKeysStore');
 export const appliedCurrentSchema = writable<string>(null);
 export const loadingSchemaLists = writable({}); // dict [`${conid}::${database}`]: true
 export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultActions');
@@ -166,7 +164,7 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
-export const focusedTreeDbKey = writable<{ key: string; root: string; type: string; text: string }>(null);
+export const focusedTreeRedisKey = writable<{ key: string; root: string; type: string; text: string }>(null);
 
 export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
 export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumPromoWidget');
@@ -248,7 +246,6 @@ export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
 });
 
 subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
-// subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(rightPanelWidth, x => `${x}px`, '--dim-right-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
@@ -269,13 +266,6 @@ visibleCommandPalette.subscribe(value => {
   invalidateCommands();
 });
 export const getVisibleCommandPalette = () => visibleCommandPaletteValue;
-
-let visibleToolbarValue = null;
-visibleToolbar.subscribe(value => {
-  visibleToolbarValue = value;
-  invalidateCommands();
-});
-export const getVisibleToolbar = () => visibleToolbarValue;
 
 let openedTabsValue = null;
 openedTabs.subscribe(value => {
@@ -443,11 +433,11 @@ connectionAppObjectSearchSettings.subscribe(value => {
 });
 export const getConnectionAppObjectSearchSettings = () => connectionAppObjectSearchSettingsValue;
 
-let focusedTreeDbKeyValue = null;
-focusedTreeDbKey.subscribe(value => {
-  focusedTreeDbKeyValue = value;
+let focusedTreeRedisKeyValue = null;
+focusedTreeRedisKey.subscribe(value => {
+  focusedTreeRedisKeyValue = value;
 });
-export const getFocusedTreeDbKey = () => focusedTreeDbKeyValue;
+export const getFocusedTreeRedisKey = () => focusedTreeRedisKeyValue;
 
 let cloudConnectionsStoreValue = {};
 cloudConnectionsStore.subscribe(value => {

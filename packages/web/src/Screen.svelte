@@ -9,12 +9,10 @@
     visibleWidgetSideBar,
     visibleCommandPalette,
     visibleTitleBar,
-    visibleToolbar,
     rightPanelWidget,
     rightPanelWidth,
   } from './stores';
   import CommandPalette from './commands/CommandPalette.svelte';
-  import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
   import StatusBar from './widgets/StatusBar.svelte';
@@ -89,11 +87,6 @@
       <CommandPalette />
     </div>
   {/if}
-  {#if $visibleToolbar}
-    <div class="toolbar">
-      <Toolbar />
-    </div>
-  {/if}
   <CurrentDropDownMenu />
   <ModalLayer />
   {#if $isFileDragActive}
@@ -162,7 +155,7 @@
     height: var(--dim-toolbar-height);
     left: 0;
     right: 0;
-    background: var(--theme-bg-1);
+    background: var(--theme-toolstrip-background);
   }
 
   .left-splitter {

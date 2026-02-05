@@ -1,7 +1,7 @@
 const getDiagramExport = (html, css, themeType, themeVariables, watermark) => {
   const watermarkHtml = watermark
     ? `
-        <div style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 12px; color: var(--theme-font-2); background-color: var(--theme-bg-2); border-top-left-radius: 5px; border: 1px solid var(--theme-border);">
+        <div style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 12px; color: var(--theme-generic-font-grayed); background-color: var(--theme-datagrid-background); border-top-left-radius: 5px; border: var(--theme-card-border);">
         ${watermark}
       </div>
   `
@@ -22,8 +22,8 @@ const getDiagramExport = (html, css, themeType, themeVariables, watermark) => {
         ${css}
 
         body {
-          background: var(--theme-bg-1);
-          color: var(--theme-font-1);
+          background: var(--theme-datagrid-background);
+          color: var(--theme-generic-font);
         }
       </style>
 

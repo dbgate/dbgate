@@ -1,0 +1,15 @@
+HSET "actor:1000" "first_name" "Sandra"
+HSET "actor:1000" "last_name" "Bullock"
+HSET "actor:1000" "date_of_birth" "1964"
+
+HSET "actor:1001" "first_name" "Jon"
+HSET "actor:1001" "last_name" "Hamm"
+HSET "actor:1001" "date_of_birth" "1971"
+
+HSET "actor:1002" "first_name" "Allison"
+HSET "actor:1002" "last_name" "Janney"
+HSET "actor:1002" "date_of_birth" "1959"
+
+HSET "actor:1003" "first_name" "Steve"
+HSET "actor:1003" "last_name" "Coogan"
+HSET "actor:1003" "date_of_birth" "1965"

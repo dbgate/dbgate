@@ -318,7 +318,7 @@
     </div>
 
     <div slot="footer">
-      <div class="flex m-2">
+      <div class="flex m-2 button-container">
         {#if mode == 'export'}
           <LargeButton
             data-testid="ExportImportConnectionsModal_exportButton"
@@ -362,5 +362,9 @@
   .check-uncheck {
     margin-left: 1rem;
     font-size: 0.8rem;
+  }
+
+  .button-container {
+    gap: 12px;
   }
 </style>

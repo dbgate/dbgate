@@ -17,7 +17,7 @@
   }
 
   .header {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-content-background);
     padding: 5px;
   }
 

@@ -23,7 +23,7 @@
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });
 
-  function extractDbItems(db, dbConnectionInfo, connectionList, $extensions) {
+  function extractDbItems(db, dbConnectionInfo, connectionList, $extensions, currentThemeType) {
     const objectList = _.flatten(
       ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
         _.sortBy(
@@ -44,7 +44,8 @@
       const databases = getLocalStorage(`database_list_${conid}`) || [];
       
       const driver = findEngineDriver(connection, $extensions);
-      const connectionIcon = driver?.icon || 'img database';
+      const driverIcon = getDriverIcon(driver, currentThemeType);
+      const connectionIcon = driverIcon || 'img database';
       
       for (const db of databases) {
         databaseList.push({
@@ -87,6 +88,8 @@
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
   import { _tval, __t, _t } from '../translations';
+  import { getDriverIcon } from '../utility/driverIcons';
+  import { currentThemeType } from '../plugins/themes';
 
   let domInput;
   let filter = '';
@@ -117,7 +120,7 @@
     .filter(
       filter,
       ($visibleCommandPalette == 'database'
-        ? extractDbItems($databaseInfo, { conid, database }, $connectionList, $extensions)
+        ? extractDbItems($databaseInfo, { conid, database }, $connectionList, $extensions, $currentThemeType)
         : parentCommand
           ? parentCommand.getSubCommands()
           : sortedComands
@@ -245,6 +248,7 @@
     justify-content: center;
     align-items: flex-start;
     padding-top: 100px;
+    z-index: 1000;
   }
 
   .overlay {
@@ -253,7 +257,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--theme-modal-overlay-background);
     z-index: 1;
   }
 
@@ -261,84 +265,109 @@
     position: relative;
     z-index: 2;
     width: 600px;
-    background: var(--theme-bg-2);
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: var(--theme-modal-background);
+    border: var(--theme-modal-border);
+    border-radius: 6px;
+    box-shadow: var(--theme-modal-shadow);
+    overflow: hidden;
   }
 
   .mainInner {
-    padding: 8px;
+    padding: 0;
   }
 
   .content {
     max-height: 500px;
     overflow-y: auto;
-    margin-top: 8px;
   }
 
   .search {
     display: flex;
-    margin-bottom: 8px;
+    padding: 12px;
+    background: var(--theme-modal-background);
+    border-bottom: var(--theme-table-border);
   }
 
   input {
     width: 100%;
-    padding: 8px;
-    background: var(--theme-bg-1);
-    border: 1px solid var(--theme-border);
-    border-radius: 4px;
-    color: var(--theme-font);
+    padding: 10px 12px;
+    background: var(--theme-input-background);
+    border: var(--theme-input-border);
+    border-radius: 6px;
+    color: var(--theme-input-foreground);
     font-size: 14px;
+    font-weight: 500;
+  }
+
+  input::placeholder {
+    color: var(--theme-input-placeholder);
+  }
+
+  input:hover {
+    border: var(--theme-input-border-hover);
   }
 
   input:focus {
     outline: none;
-    border-color: var(--theme-accent);
+    border: var(--theme-input-border-focus);
+    box-shadow: var(--theme-input-focus-ring);
   }
 
   .command {
-    padding: 8px 12px;
+    padding: 10px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 0;
+    color: var(--theme-generic-font);
+    transition: background-color 150ms ease-in-out;
   }
 
   .command:hover {
-    background: var(--theme-bg-3);
+    background: var(--theme-table-hover-background);
   }
 
   .command.selected {
-    background: var(--theme-bg-selected);
+    background: var(--theme-table-selected-background);
+    color: var(--theme-generic-font);
   }
 
   .shortcut {
-    background: var(--theme-bg-3);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 12px;
-    color: var(--theme-font-dimmed);
+    background: var(--theme-input-background);
+    border: var(--theme-input-border);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--theme-generic-font-grayed);
+    font-weight: 500;
+    margin-left: 12px;
   }
 
   .pages {
     display: flex;
-    border-bottom: 1px solid var(--theme-border);
+    background: var(--theme-modal-background);
+    border-bottom: var(--theme-table-border);
   }
 
   .page {
-    padding: 8px 16px;
+    padding: 12px 16px;
     cursor: pointer;
-    color: var(--theme-font-dimmed);
+    color: var(--theme-generic-font-grayed);
     border-bottom: 2px solid transparent;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 150ms ease-in-out, border-color 150ms ease-in-out;
   }
 
   .page:hover {
-    color: var(--theme-font);
+    color: var(--theme-generic-font-hover);
   }
 
   .page.selected {
-    color: var(--theme-font);
-    border-bottom-color: var(--theme-accent);
+    color: var(--theme-generic-font);
+    border-bottom-color: var(--theme-link-foreground);
   }
 </style>

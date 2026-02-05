@@ -187,55 +187,8 @@
 
 <ToolStripContainer>
   <div class="wrapper classicform">
-    <div class="filters">
-      <div class="filter-label">Mode:</div>
-      <SelectField
-        isNative
-        options={[
-          { label: _t('logs.recentLogs', { defaultMessage: 'Recent logs' }), value: 'recent' },
-          { label: _t('logs.chooseDate', { defaultMessage: 'Choose date' }), value: 'date' },
-        ]}
-        value={mode}
-        on:change={e => {
-          mode = e.detail;
-          reloadData();
-        }}
-      />
-
-      {#if mode === 'recent'}
-        <div class="filter-label ml-2">{_t('logs.autoScroll', { defaultMessage: 'Auto-scroll' })}</div>
-        <input
-          type="checkbox"
-          checked={autoScroll}
-          on:change={e => {
-            autoScroll = e.target['checked'];
-          }}
-        />
-      {/if}
-
-      {#if mode === 'date'}
-        <div class="filter-label">{_t('logs.date', { defaultMessage: 'Date:' })}</div>
-        <DateRangeSelector
-          onChange={value => {
-            dateFilter = value;
-            reloadData();
-          }}
-        />
-        <div class="ml-2">
-          <DropDownButton
-            data-testid="AdminAuditLogTab_addFilter"
-            icon="icon filter"
-            menu={[
-              { text: _t('logs.connectionId', { defaultMessage: 'Connection ID' }), onClick: () => filterBy('conid') },
-              { text: _t('logs.database', { defaultMessage: 'Database' }), onClick: () => filterBy('database') },
-              { text: _t('logs.engine', { defaultMessage: 'Engine' }), onClick: () => filterBy('engine') },
-              { text: _t('logs.messageCode', { defaultMessage: 'Message code' }), onClick: () => filterBy('msgcode') },
-              { text: _t('logs.caller', { defaultMessage: 'Caller' }), onClick: () => filterBy('caller') },
-              { text: _t('logs.name', { defaultMessage: 'Name' }), onClick: () => filterBy('name') },
-            ]}
-          />
-        </div>
-
+    {#if mode === 'date' && Object.keys(filters).length}
+      <div class="filters">
         {#each Object.keys(filters) as filterKey}
           <div class="ml-2">
             <span class="filter-label">{ColumnNamesMap[filterKey] || filterKey}:</span>
@@ -254,8 +207,8 @@
             {/each}
           </div>
         {/each}
-      {/if}
-    </div>
+      </div>
+    {/if}
     <div class="tablewrap" bind:this={domTable}>
       <table>
         <thead>
@@ -406,6 +359,58 @@
       }}>{_t('logs.refresh', { defaultMessage: 'Refresh' })}</ToolStripButton
     >
     <ToolStripExportButton {quickExportHandlerRef} />
+
+    <div class="toolstrip-inline-controls" style="display:flex;align-items:center;gap:8px;margin-left:8px;">
+        <div class="filter-label">Mode:</div>
+        <SelectField
+          isNative
+          options={[
+            { label: _t('logs.recentLogs', { defaultMessage: 'Recent logs' }), value: 'recent' },
+            { label: _t('logs.chooseDate', { defaultMessage: 'Choose date' }), value: 'date' },
+          ]}
+          value={mode}
+          on:change={e => {
+            mode = e.detail;
+            reloadData();
+          }}
+        />
+      
+
+      {#if mode === 'recent'}
+        <div class="filter-label ml-2">{_t('logs.autoScroll', { defaultMessage: 'Auto-scroll' })}</div>
+        <input
+          type="checkbox"
+          checked={autoScroll}
+          on:change={e => {
+            autoScroll = e.target['checked'];
+          }}
+        />
+      {/if}
+
+      {#if mode === 'date'}
+        <div class="filter-label ml-2">{_t('logs.date', { defaultMessage: 'Date:' })}</div>
+          <DateRangeSelector
+            onChange={value => {
+              dateFilter = value;
+              reloadData();
+            }}
+          />
+        <div class="ml-2">
+          <DropDownButton
+            data-testid="AdminAuditLogTab_addFilter"
+            icon="icon filter"
+            menu={[
+              { text: _t('logs.connectionId', { defaultMessage: 'Connection ID' }), onClick: () => filterBy('conid') },
+              { text: _t('logs.database', { defaultMessage: 'Database' }), onClick: () => filterBy('database') },
+              { text: _t('logs.engine', { defaultMessage: 'Engine' }), onClick: () => filterBy('engine') },
+              { text: _t('logs.messageCode', { defaultMessage: 'Message code' }), onClick: () => filterBy('msgcode') },
+              { text: _t('logs.caller', { defaultMessage: 'Caller' }), onClick: () => filterBy('caller') },
+              { text: _t('logs.name', { defaultMessage: 'Name' }), onClick: () => filterBy('name') },
+            ]}
+          />
+        </div>
+      {/if}
+    </div>
   </svelte:fragment>
 </ToolStripContainer>
 
@@ -416,6 +421,7 @@
   .tablewrap {
     overflow: auto;
     flex: 1;
+    padding: 8px;
   }
   .wrapper {
     flex: 1;
@@ -428,36 +434,41 @@
   table {
     border-collapse: collapse;
     width: 100%;
+    overflow: hidden;
   }
   table.selectable {
     user-select: none;
   }
   tbody tr {
-    background: var(--theme-bg-0);
+    background: var(--theme-table-cell-background);
+    transition: background-color 0.15s ease;
   }
   tbody tr.selected {
-    background: var(--theme-bg-3);
+    background: var(--theme-table-active-background);
   }
   table:focus tbody tr.selected {
-    background: var(--theme-bg-selected);
+    background: var(--theme-table-active-background);
   }
   tbody tr.clickable:hover {
-    background: var(--theme-bg-hover);
+    background: var(--theme-table-hover-background);
   }
 
   thead th {
-    border: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-1);
-    padding: 5px;
+    border: var(--theme-table-border);
+    background-color: var(--theme-table-header-background);
+    color: var(--theme-generic-font);
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: left;
   }
   tbody td {
-    border: 1px solid var(--theme-border);
-  }
-  tbody td {
-    padding: 5px;
+    border: var(--theme-table-border);
+    padding: 8px 12px;
+    font-size: 13px;
   }
   td.isHighlighted {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-applog-details-background);
   }
 
   td.clickable {
@@ -468,7 +479,6 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    border-top: 1px solid var(--theme-border);
   }
 
   table th {
@@ -476,52 +486,70 @@
   }
 
   thead :global(tr:first-child) :global(th) {
-    border-top: 1px solid var(--theme-border);
+    border-top: var(--theme-table-border);
   }
 
   table td {
     border: 0px;
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
+    border-bottom: var(--theme-table-border);
+    border-right: var(--theme-table-border);
   }
 
   table {
     border-spacing: 0;
     border-collapse: separate;
-    border-left: 1px solid var(--theme-border);
-  }
-
-  .empty-cell {
-    background-color: var(--theme-bg-1);
+    border-left: var(--theme-table-border);
   }
 
   .filters {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    padding: 12px;
+    background: var(--theme-content-background);
+    border: var(--theme-table-border);
+    border-radius: 8px;
+    margin: 8px;
+    gap: 8px;
   }
 
   .filter-label {
     margin-right: 5px;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .toolstrip-inline-controls :global(select) {
+    padding: 2px 5px;
   }
 
   .details-wrap {
-    padding: 10px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    background: var(--theme-applog-details-background);
   }
 
   .details-wrap .row {
     display: flex;
+    gap: 12px;
   }
 
   .details-wrap .row div:first-child {
     width: 150px;
+    font-weight: 600;
+    color: var(--theme-generic-font-grayed);
   }
 
   pre {
     overflow: auto;
-    max-width: 50vw;
+    max-width: 100%;
+    background: var(--theme-applog-details-background);
+    padding: 12px;
+    border-radius: 0;
+    font-size: 12px;
+    margin: 0;
   }
 </style>

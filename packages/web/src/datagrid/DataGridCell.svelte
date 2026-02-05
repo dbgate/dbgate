@@ -186,11 +186,11 @@
     overflow: hidden;
   }
   td.isFrameSelected {
-    outline: 3px solid var(--theme-bg-selected);
+    outline: 3px solid var(--theme-table-selected-background);
     outline-offset: -3px;
   }
   td.isAutofillSelected {
-    outline: 3px solid var(--theme-bg-selected);
+    outline: 3px solid var(--theme-table-selected-background);
     outline-offset: -3px;
   }
   td.isFocusedColumn {
@@ -235,7 +235,7 @@
   .autoFillMarker {
     width: 8px;
     height: 8px;
-    background: var(--theme-bg-selected-point);
+    background: var(--theme-datagrid-selected-point-marker);
     position: absolute;
     right: 0px;
     bottom: 0px;
@@ -268,7 +268,7 @@
   }
 
   td.isMissingOverlayField {
-    background: var(--theme-bg-orange);
+    background: var(--theme-datagrid-modified-cell-background);
 
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
     background-repeat: repeat-x;

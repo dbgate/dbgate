@@ -30,7 +30,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: c5fc139cb494e51a3423ccfe341576af2c6fe7c7
+          ref: dd44744f66839c0fce8ebafc449d35fd563dad7a
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -73,7 +73,7 @@ jobs:
         with:
           name: screenshots
           path: screenshots
-      - name: Push E2E screenshots
+      - name: Push E2E screenshots - stable
         if: ${{ github.ref_name == 'stable' }}
         run: |
           git config --global user.email "info@dbgate.info"
@@ -81,6 +81,17 @@ jobs:
           git clone https://${{ secrets.DIFLOW_GIT_SECRET }}@github.com/dbgate/dbgate-img.git
           cp ../dbgate-merged/e2e-tests/screenshots/*.png dbgate-img/static/img
           cd dbgate-img/static/img
+          git add .
+          git commit --amend --no-edit
+          git push --force
+      - name: Push E2E screenshots - master
+        if: ${{ github.ref_name == 'master' }}
+        run: |
+          git config --global user.email "info@dbgate.info"
+          git config --global user.name "GitHub Actions"
+          git clone https://${{ secrets.DIFLOW_GIT_SECRET }}@github.com/dbgate/dbgate-img.git
+          cp ../dbgate-merged/e2e-tests/screenshots/*.png dbgate-img/static/img-dev
+          cd dbgate-img/static/img-dev
           git add .
           git commit --amend --no-edit
           git push --force

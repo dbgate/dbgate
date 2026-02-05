@@ -36,9 +36,11 @@ Cypress.Commands.add(
     prevSubject: 'optional',
   },
   (subject, file, options) => {
-    cy.window().then(win => {
-      win.__changeCurrentTheme('dark');
-    });
+    if (!options?.keepTheme) {
+      cy.window().then(win => {
+        win.__changeCurrentTheme('dark');
+      });
+    }
 
     // cy.screenshot(`${file}-dark`, {
     //   onAfterScreenshot: (doc, props) => {
@@ -63,9 +65,11 @@ Cypress.Commands.add(
     //   });
     // });
 
-    cy.window().then(win => {
-      win.__changeCurrentTheme('light');
-    });
+    if (!options?.keepTheme) {
+      cy.window().then(win => {
+        win.__changeCurrentTheme('light');
+      });
+    }
 
     if (subject) {
       cy.wrap(subject).screenshot(`${file}-light`, options);

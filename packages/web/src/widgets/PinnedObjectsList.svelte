@@ -6,7 +6,7 @@
   import * as pinnedAppObject from '../appobj/PinnedAppObject.svelte';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
 
-  const connectionColorFactory = useConnectionColorFactory(3);
+  const connectionColorFactory = useConnectionColorFactory();
 
   $: filteredTables = $pinnedTables.filter(
     x => x?.conid == $currentDatabase?.connection?._id && x?.database == $currentDatabase?.name

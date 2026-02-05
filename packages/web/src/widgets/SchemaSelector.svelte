@@ -136,48 +136,66 @@
       selectClass="schema-select"
     />
 
-    {#if selectedSchema != null}
-      <InlineButton
-        on:click={() => {
-          selectedSchema = null;
-          localStorage.removeItem(valueStorageKey);
-        }}
-        title={_t('schema.resetToDefault', { defaultMessage: 'Reset to default' })}
-      >
-        <FontIcon icon="icon close" />
+    <div class="buttons">
+      {#if selectedSchema != null}
+        <InlineButton
+          on:click={() => {
+            selectedSchema = null;
+            localStorage.removeItem(valueStorageKey);
+          }}
+          title={_t('schema.resetToDefault', { defaultMessage: 'Reset to default' })}
+        >
+          <FontIcon icon="icon close" />
+        </InlineButton>
+      {/if}
+      <InlineButton on:click={handleCreateSchema} title={_t('schema.add', { defaultMessage: 'Add new schema' })} square>
+        <FontIcon icon="icon plus-thick" />
       </InlineButton>
-    {/if}
-    <InlineButton on:click={handleCreateSchema} title={_t('schema.add', { defaultMessage: 'Add new schema' })} square>
-      <FontIcon icon="icon plus-thick" />
-    </InlineButton>
-    <InlineButton
-      on:click={handleDropSchema}
-      title={_t('schema.delete', { defaultMessage: 'Delete schema' })}
-      square
-      disabled={!$appliedCurrentSchema}
-    >
-      <FontIcon icon="icon minus-thick" />
-    </InlineButton>
+      <InlineButton
+        on:click={handleDropSchema}
+        title={_t('schema.delete', { defaultMessage: 'Delete schema' })}
+        square
+        disabled={!$appliedCurrentSchema}
+      >
+        <FontIcon icon="icon minus-thick" />
+      </InlineButton>
+    </div>
   </div>
 {/if}
 
 <style>
   .wrapper {
     display: flex;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: var(--theme-card-border);
     margin-bottom: 5px;
     align-items: center;
+    padding-left: 5px;
   }
 
   .negativeMarginTop {
-    margin-top: -5px;
+    margin-top: -3px;
   }
 
-  :global(.schema-select) {
-    flex: 1;
-    min-width: 10px;
-    min-height: 22px;
-    width: 10px;
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .schema-select {
+    font-size: 20px;
+    height: 24px;
     border: none;
+  }
+
+  .wrapper :global(select) {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: 0;
+    background-color: var(--theme-searchbox-background);
+    border: var(--theme-searchbox-border);
+    box-shadow: none;
   }
 </style>

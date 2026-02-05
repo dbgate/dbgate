@@ -4,10 +4,16 @@
   export let clickable = false;
   export let onClose = null;
   export let altsidebar = false;
+  export let collapsed = false;
 </script>
 
 <div on:click class:clickable {...$$restProps} class="wrapper" class:altsidebar>
-  <slot />
+  <div class="title-content">
+    {#if clickable}
+      <FontIcon icon={collapsed ? "icon chevron-right" : "icon chevron-down"} />
+    {/if}
+    <slot />
+  </div>
   {#if onClose}
     <div class="close" on:click={onClose}>
       <FontIcon icon="icon close" />
@@ -35,6 +41,12 @@
     border: var(--theme-altsidebar-section-border);
     border-top: var(--theme-altsidebar-section-border-top);
     color: var(--theme-altsidebar-section-foreground);
+  }
+
+  .title-content {
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
   .close {

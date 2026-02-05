@@ -47,8 +47,8 @@
 
 <style>
   .wrapper {
-    border: 1px solid var(--theme-border);
+    border: var(--theme-table-border);
     padding: 3px;
-    color: var(--theme-font-2);
+    color: var(--theme-generic-font-grayed);
   }
 </style>

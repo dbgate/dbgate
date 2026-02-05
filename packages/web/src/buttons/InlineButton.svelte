@@ -57,9 +57,6 @@
   }
 
   .outer.useBorder {
-    --bg-1: var(--theme-bg-1);
-    --bg-2: var(--theme-bg-3);
-
     background: var(--theme-inlinebutton-bordered-background);
     border: var(--theme-inlinebutton-bordered-border);
   }

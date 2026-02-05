@@ -8,6 +8,42 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.3
+- FIXED: Optimalized loading MySQL primary keys #1261
+- FIXED: Test connection now works for MS Entra authentication #1315
+- FIXED: SQL Server - Unable to use 'Is Empty or Null' or 'Has Not Empty Value' filters on a field with data type TEXT #1338
+- FIXED: Play triangle too large for text-wrapped queries #1337
+- FIXED: Text wraps mid-word in form view, making it illegible #1333
+- FIXED: Cell View autodetects Form instead of Map for geometry/geography #1330
+- FIXED: Search for database in cloud connection #1329
+- ADDED: Toolstrip could be configured to the bottom of the tab #1326
+- CHANGED: Upgraded node for DbGate AWS distribution
+
+## 7.0.1
+- FIXED: Foreign key actions not detected on PostgreSQL #1323
+- FIXED: Vulnerabilities in bundled dependencies: axios, cross-spawn, glob #1322
+- FIXED: The JsonB field in the cell data view always displays as null. #1320
+- ADDED: Possibility to skip computed coumn in SQL generator
+- ADDED: Improved team file editing, move between team folders
+- ADDED: Korean localization
+- FIXED: Added missing localization strings
+- ADDED: Default editor theme is part of application theme now
+
+## 7.0.0
+- CHANGED: New design of application, new theme system
+- ADDED: Theme AI assistant - create custom themes using AI (Premium)
+- CHANGED: Themes are now defined in JSON files, custom themes could be shared via DbGate Cloud
+- REMOVED: Custom themes are no longer part of plugins
+- CHANGED: Huge improvements of Redis support
+- ADDED: Support for Redis JSON and Stream types
+- ADDED: Editing Redis values (Strings, Hashes, Lists, Sets, Sorted Sets, JSON, Streams)
+- ADDED: Support for Team Folders (Team Premium)
+- CHANGED: Upgraded Svelte to version 4
+- ADDED: Differentiate pinned database with same name #1306
+- ADDED: Database icons/logos for faster visual recognition #1222
+- CHANGED: Reorganized left sidebar widgets
+- ADDED: Widget for currently opened tabs
+
 ## 6.8.2
 - FIXED: Initialize storage database from envoronment variables failed with PostgreSQL
 

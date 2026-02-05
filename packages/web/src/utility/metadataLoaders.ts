@@ -188,6 +188,11 @@ const teamFilesLoader = () => ({
   params: {},
   reloadTrigger: { key: `team-files-changed` },
 });
+const teamFoldersLoader = () => ({
+  url: 'team-files/list-folders',
+  params: {},
+  reloadTrigger: { key: `team-folders-changed` },
+});
 const promoWidgetLoader = () => ({
   url: 'cloud/premium-promo-widget',
   params: {},
@@ -544,6 +549,13 @@ export function getTeamFiles(args) {
 }
 export function useTeamFiles(args) {
   return useCore(teamFilesLoader, args);
+}
+
+export function getTeamFolders(args = {}) {
+  return getCore(teamFoldersLoader, args);
+}
+export function useTeamFolders(args = {}) {
+  return useCore(teamFoldersLoader, args);
 }
 
 export function getPromoWidget(args) {

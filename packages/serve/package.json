@@ -1,6 +1,6 @@
 {
   "name": "dbgate-serve",
-  "version": "6.0.0-alpha.1",
+  "version": "7.0.0-alpha.1",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -18,19 +18,19 @@
     "web"
   ],
   "dependencies": {
-    "dbgate-api": "^6.0.0-alpha.1",
-    "dbgate-plugin-clickhouse": "^6.0.0-alpha.1",
-    "dbgate-plugin-csv": "^6.0.0-alpha.1",
-    "dbgate-plugin-excel": "^6.0.0-alpha.1",
-    "dbgate-plugin-mongo": "^6.0.0-alpha.1",
-    "dbgate-plugin-mssql": "^6.0.0-alpha.1",
-    "dbgate-plugin-mysql": "^6.0.0-alpha.1",
-    "dbgate-plugin-oracle": "^6.0.0-alpha.1",
-    "dbgate-plugin-postgres": "^6.0.0-alpha.1",
-    "dbgate-plugin-redis": "^6.0.0-alpha.1",
-    "dbgate-plugin-sqlite": "^6.0.0-alpha.1",
-    "dbgate-plugin-xml": "^6.0.0-alpha.1",
-    "dbgate-web": "^6.0.0-alpha.1",
+    "dbgate-api": "^7.0.0-alpha.1",
+    "dbgate-plugin-clickhouse": "^7.0.0-alpha.1",
+    "dbgate-plugin-csv": "^7.0.0-alpha.1",
+    "dbgate-plugin-excel": "^7.0.0-alpha.1",
+    "dbgate-plugin-mongo": "^7.0.0-alpha.1",
+    "dbgate-plugin-mssql": "^7.0.0-alpha.1",
+    "dbgate-plugin-mysql": "^7.0.0-alpha.1",
+    "dbgate-plugin-oracle": "^7.0.0-alpha.1",
+    "dbgate-plugin-postgres": "^7.0.0-alpha.1",
+    "dbgate-plugin-redis": "^7.0.0-alpha.1",
+    "dbgate-plugin-sqlite": "^7.0.0-alpha.1",
+    "dbgate-plugin-xml": "^7.0.0-alpha.1",
+    "dbgate-web": "^7.0.0-alpha.1",
     "dotenv": "^16.0.0"
   }
 }

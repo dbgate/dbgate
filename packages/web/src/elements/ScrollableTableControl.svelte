@@ -221,6 +221,7 @@
   table {
     width: 100%;
     flex: 1;
+    background-color: var(--theme-table-header-background);
   }
 
   table thead,
@@ -274,7 +275,9 @@
     padding: 5px;
   }
   tbody td {
-    border: var(--theme-table-border);
+    border-left: var(--theme-table-border);
+    border-right: var(--theme-table-border);
+    border-bottom: var(--theme-table-border);
     padding: 5px;
   }
 
@@ -291,5 +294,11 @@
 
   tr.isDeleted {
     background: var(--theme-table-deleted-background);
+  }
+
+  tr.isDeleted td {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==') !important;
+    background-repeat: repeat-x !important;
+    background-position: 50% 50% !important;
   }
 </style>

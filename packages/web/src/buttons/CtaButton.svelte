@@ -26,7 +26,7 @@
     border: none;
     padding: 0;
     margin: 0;
-    color: var(--theme-font-link);
+    color: var(--theme-link-foreground);
     text-decoration: underline;
     cursor: pointer;
     font-size: inherit;
@@ -35,11 +35,11 @@
   }
 
   .cta-button:hover:not(:disabled) {
-    color: var(--theme-font-hover);
+    color: var(--theme-generic-font-hover);
   }
 
   .cta-button:disabled {
-    color: var(--theme-font-3);
+    color: var(--theme-generic-font-grayed);
     cursor: not-allowed;
     text-decoration: none;
   }

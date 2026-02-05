@@ -38,6 +38,7 @@
         { value: 'pt', label: 'Português (Brasil)' },
         { value: 'sk', label: 'Slovenčina' },
         { value: 'ja', label: '日本語' },
+        { value: 'ko', label: '한국어' },
         { value: 'zh', label: '中文' },
       ]}
       defaultValue={getSelectedLanguage()}
@@ -132,6 +133,25 @@
     })}
     defaultValue={false}
     disabled={!hasPermission('settings/change')}
+  />
+
+  <FormSelectField
+    label={_t('settings.other.toolBarPosition', { defaultMessage: 'Tool bar position' })}
+    name="settings.toolbarPosition"
+    isNative
+    defaultValue="top"
+    options={[
+      {
+        value: 'top',
+        label: _t('settings.other.toolBarPosition.top', {
+          defaultMessage: 'Top',
+        }),
+      },
+      {
+        value: 'bottom',
+        label: _t('settings.other.toolBarPosition.bottom', { defaultMessage: 'Bottom' }),
+      },
+    ]}
   />
 </div>
 
