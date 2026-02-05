@@ -551,15 +551,22 @@
       previousFilters !== '' &&
       (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter)
     ) {
+      const pkColumns = display?.baseTable?.primaryKey?.columns?.map(col => col.columnName) || [];
+      const usePK = pkColumns.length > 0;
+
       selectedRows = selectedCells
         .map(cell => {
           const rowIndex = _.isNumber(cell?.[0]) ? cell[0] : null;
+          const rowData = _.isNumber(rowIndex) && grider ? grider.getRowData(rowIndex) : null;
+          if (!rowData) return null;
+
           return {
-            rowData: _.isNumber(rowIndex) ? grider.getRowData(rowIndex) : null,
+            rowData: usePK ? _.pick(rowData, pkColumns) : rowData,
             columnIndex: cell?.[1],
+            usePK,
           };
         })
-        .filter(item => item.rowData !== null);
+        .filter(item => item !== null);
     }
 
     previousFilters = currentFilters;
@@ -572,7 +579,11 @@
     for (const selectedItem of selectedRows) {
       for (let i = 0; i < grider.rowCount; i++) {
         const rowData = grider.getRowData(i);
-        if (rowData && _.isEqual(rowData, selectedItem.rowData)) {
+        if (!rowData) continue;
+
+        const dataToCompare = selectedItem.usePK ? _.pick(rowData, _.keys(selectedItem.rowData)) : rowData;
+
+        if (_.isEqual(dataToCompare, selectedItem.rowData)) {
           foundCells.push([i, selectedItem.columnIndex || 0]);
           break;
         }
