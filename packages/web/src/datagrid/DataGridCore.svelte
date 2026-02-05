@@ -542,7 +542,7 @@
 
   let previousFilters = '';
   let previousMultiColumnFilter = undefined;
-  let selectedRow = null;
+  let selectedRows = [];
 
   $: if (display?.config) {
     const currentFilters = JSON.stringify(display.config.filters);
@@ -551,33 +551,43 @@
       previousFilters !== '' &&
       (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter)
     ) {
-      const selectedRowIndex = _.isNumber(currentCell?.[0]) ? currentCell[0] : null;
-      selectedRow = _.isNumber(selectedRowIndex) ? grider.getRowData(selectedRowIndex) : null;
+      selectedRows = selectedCells
+        .map(cell => {
+          const rowIndex = _.isNumber(cell?.[0]) ? cell[0] : null;
+          return {
+            rowData: _.isNumber(rowIndex) ? grider.getRowData(rowIndex) : null,
+            columnIndex: cell?.[1],
+          };
+        })
+        .filter(item => item.rowData !== null);
     }
 
     previousFilters = currentFilters;
     previousMultiColumnFilter = currentMultiColumnFilter;
   }
 
-  $: if (selectedRow && loadedTime && grider && grider.rowCount > 0) {
-    let foundRowIndex = null;
-    for (let i = 0; i < grider.rowCount; i++) {
-      const rowData = grider.getRowData(i);
-      if (rowData && _.isEqual(rowData, selectedRow)) {
-        foundRowIndex = i;
-        break;
+  $: if (selectedRows.length > 0 && loadedTime && grider && grider.rowCount > 0) {
+    const foundCells = [];
+
+    for (const selectedItem of selectedRows) {
+      for (let i = 0; i < grider.rowCount; i++) {
+        const rowData = grider.getRowData(i);
+        if (rowData && _.isEqual(rowData, selectedItem.rowData)) {
+          foundCells.push([i, selectedItem.columnIndex || 0]);
+          break;
+        }
       }
     }
 
-    if (foundRowIndex !== null) {
-      currentCell = [foundRowIndex, currentCell?.[1] || 0];
-      selectedCells = [currentCell];
+    if (foundCells.length > 0) {
+      currentCell = foundCells[0];
+      selectedCells = foundCells;
     } else {
       currentCell = topLeftCell;
       selectedCells = [topLeftCell];
     }
 
-    selectedRow = null;
+    selectedRows = [];
   }
 
   $: if (grider && grider.rowCount === 0 && isLoadedAll) {
