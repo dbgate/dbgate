@@ -588,6 +588,10 @@
           break;
         }
       }
+
+      if (foundCells.length === selectedRows.length) {
+        break;
+      }
     }
 
     if (foundCells.length > 0) {
