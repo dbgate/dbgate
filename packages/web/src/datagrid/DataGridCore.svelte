@@ -510,11 +510,6 @@
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
 
-  function clearSelection() {
-    currentCell = topLeftCell;
-    selectedCells = [topLeftCell];
-  }
-
   let isGridFocused = false;
   let selectionMenu = null;
 
@@ -547,6 +542,7 @@
 
   let previousFilters = '';
   let previousMultiColumnFilter = undefined;
+  let selectedRow = null;
 
   $: if (display?.config) {
     const currentFilters = JSON.stringify(display.config.filters);
@@ -555,11 +551,33 @@
       previousFilters !== '' &&
       (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter)
     ) {
-      clearSelection();
+      const selectedRowIndex = _.isNumber(currentCell?.[0]) ? currentCell[0] : null;
+      selectedRow = _.isNumber(selectedRowIndex) ? grider.getRowData(selectedRowIndex) : null;
     }
 
     previousFilters = currentFilters;
     previousMultiColumnFilter = currentMultiColumnFilter;
+  }
+
+  $: if (selectedRow && loadedTime && grider && grider.rowCount > 0) {
+    let foundRowIndex = null;
+    for (let i = 0; i < grider.rowCount; i++) {
+      const rowData = grider.getRowData(i);
+      if (rowData && _.isEqual(rowData, selectedRow)) {
+        foundRowIndex = i;
+        break;
+      }
+    }
+
+    if (foundRowIndex !== null) {
+      currentCell = [foundRowIndex, currentCell?.[1] || 0];
+      selectedCells = [currentCell];
+    } else {
+      currentCell = topLeftCell;
+      selectedCells = [topLeftCell];
+    }
+
+    selectedRow = null;
   }
 
   $: if (grider && grider.rowCount === 0 && isLoadedAll) {
@@ -773,13 +791,17 @@
   export function openSelectionInMap() {
     const selection = getCellsPublished(selectedCells);
     if (!selectionCouldBeShownOnMap(selection)) {
-      showModal(ErrorMessageModal, { message: _t('datagrid.mapError.noSelection', { defaultMessage: 'There is nothing to be shown on map' }) });
+      showModal(ErrorMessageModal, {
+        message: _t('datagrid.mapError.noSelection', { defaultMessage: 'There is nothing to be shown on map' }),
+      });
       return;
     }
 
     const geoJson = createGeoJsonFromSelection(selection);
     if (!geoJson) {
-      showModal(ErrorMessageModal, { message: _t('datagrid.mapError.noGeoJson', { defaultMessage: 'There is nothing to be shown on map' }) });
+      showModal(ErrorMessageModal, {
+        message: _t('datagrid.mapError.noGeoJson', { defaultMessage: 'There is nothing to be shown on map' }),
+      });
       return;
     }
 
@@ -2022,15 +2044,29 @@
   {#if $databaseStatus?.name == 'pending' || $databaseStatus?.name == 'checkStructure' || $databaseStatus?.name == 'loadStructure'}
     <LoadingInfo wrapper message={_t('datagrid.structure.waiting', { defaultMessage: 'Waiting for structure' })} />
   {:else}
-    <ErrorInfo alignTop message={_t('datagrid.structure.notLoaded', { defaultMessage: "No structure was loaded, probably table doesn't exist in current database" })} />
+    <ErrorInfo
+      alignTop
+      message={_t('datagrid.structure.notLoaded', {
+        defaultMessage: "No structure was loaded, probably table doesn't exist in current database",
+      })}
+    />
   {/if}
 {:else if errorMessage}
   <div>
     <ErrorInfo message={errorMessage} alignTop />
-    <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
-    <FormStyledButton value={_t('datagrid.resetView', { defaultMessage: 'Reset view' })} on:click={() => display.resetConfig()} />
+    <FormStyledButton
+      value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
+      on:click={() => display.clearFilters()}
+    />
+    <FormStyledButton
+      value={_t('datagrid.resetView', { defaultMessage: 'Reset view' })}
+      on:click={() => display.resetConfig()}
+    />
     {#if onOpenQueryOnError ?? onOpenQuery}
-      <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => (onOpenQueryOnError ?? onOpenQuery)()} />
+      <FormStyledButton
+        value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })}
+        on:click={() => (onOpenQueryOnError ?? onOpenQuery)()}
+      />
     {/if}
   </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
@@ -2038,17 +2074,29 @@
     <ErrorInfo
       alignTop
       message={grider.editable
-        ? _t('datagrid.noRows.withEditable', { defaultMessage: 'No rows loaded, check filter or add new documents. You could copy documents from other collections/tables with Copy advanved/Copy as JSON command.' })
+        ? _t('datagrid.noRows.withEditable', {
+            defaultMessage:
+              'No rows loaded, check filter or add new documents. You could copy documents from other collections/tables with Copy advanved/Copy as JSON command.',
+          })
         : _t('datagrid.noRows', { defaultMessage: 'No rows loaded' })}
     />
     {#if display.filterCount > 0}
-      <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
+      <FormStyledButton
+        value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
+        on:click={() => display.clearFilters()}
+      />
     {/if}
     {#if grider.editable}
-      <FormStyledButton value={_t('datagrid.addDocument', { defaultMessage: 'Add document' })} on:click={addJsonDocument} />
+      <FormStyledButton
+        value={_t('datagrid.addDocument', { defaultMessage: 'Add document' })}
+        on:click={addJsonDocument}
+      />
     {/if}
     {#if onOpenQuery}
-      <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => onOpenQuery()} />
+      <FormStyledButton
+        value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })}
+        on:click={() => onOpenQuery()}
+      />
     {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
@@ -2237,13 +2285,19 @@
           <ErrorInfo alignTop message={_t('datagrid.noRows', { defaultMessage: 'No rows loaded' })} icon="img info" />
         </div>
         {#if display.filterCount > 0}
-          <FormStyledButton value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })} on:click={() => display.clearFilters()} />
+          <FormStyledButton
+            value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
+            on:click={() => display.clearFilters()}
+          />
         {/if}
         {#if grider.editable}
           <FormStyledButton value={_t('datagrid.addRow', { defaultMessage: 'Add row' })} on:click={insertNewRow} />
         {/if}
         {#if onOpenQuery}
-          <FormStyledButton value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })} on:click={() => onOpenQuery()} />
+          <FormStyledButton
+            value={_t('datagrid.openQuery', { defaultMessage: 'Open Query' })}
+            on:click={() => onOpenQuery()}
+          />
         {/if}
       </div>
     {/if}
