@@ -66,22 +66,22 @@ class CsvPrepareStream extends stream.Transform {
   }
 
   _extractValue(value) {
-    if (value && typeof value === 'object' && value.$decimal !== undefined) {
+    if (value?.$decimal !== undefined) {
       return value.$decimal;
     }
-    if (value && typeof value === 'object' && value.$bigint !== undefined) {
+    if (value?.$bigint !== undefined) {
       return value.$bigint;
     }
-    if (value && typeof value === 'object' && value.$binary && value.$binary.base64) {
+    if (value?.$binary?.base64) {
       return value.$binary.base64;
     }
-    if (value && typeof value === 'boolean') {
-      if (this.booleanFormat === 'true_false') {
-        return value ? 'true' : 'false';
+    if (typeof value === 'boolean') {
+      if (this.booleanFormat === '1_0') {
+        return value ? 1 : 0;
       } else if (this.booleanFormat === 'true_false_upper') {
         return value ? 'TRUE' : 'FALSE';
       } else {
-        return value ? 1 : 0;
+        return value ? 'true' : 'false';
       }
     }
     return value;
