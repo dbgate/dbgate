@@ -57,15 +57,38 @@ class RecodeTransform extends stream.Transform {
 const INFER_STRUCTURE_ROWS = 100;
 
 class CsvPrepareStream extends stream.Transform {
-  constructor({ header }) {
+  constructor({ header, booleanFormat }) {
     super({ objectMode: true });
     this.columns = null;
     this.header = header;
     this.cachedRows = null;
+    this.booleanFormat = booleanFormat || 'true_false';
+  }
+
+  _extractValue(value) {
+    if (value?.$decimal !== undefined) {
+      return value.$decimal;
+    }
+    if (value?.$bigint !== undefined) {
+      return value.$bigint;
+    }
+    if (value?.$binary?.base64) {
+      return value.$binary.base64;
+    }
+    if (typeof value === 'boolean') {
+      if (this.booleanFormat === '1_0') {
+        return value ? 1 : 0;
+      } else if (this.booleanFormat === 'true_false_upper') {
+        return value ? 'TRUE' : 'FALSE';
+      } else {
+        return value ? 'true' : 'false';
+      }
+    }
+    return value;
   }
   _transform(chunk, encoding, done) {
     if (this.columns) {
-      this.push(this.columns.map((col) => chunk[col]));
+      this.push(this.columns.map((col) => this._extractValue(chunk[col])));
       done();
     } else {
       if (chunk.__isStreamHeader && chunk.columns?.length > 0) {
@@ -102,7 +125,7 @@ class CsvPrepareStream extends stream.Transform {
       this.push(this.columns);
     }
     for (const row of this.cachedRows) {
-      this.push(this.columns.map((col) => row[col]));
+      this.push(this.columns.map((col) => this._extractValue(row[col])));
     }
     this.cachedRows = null;
   }
@@ -124,9 +147,10 @@ async function writer({
   writeBom,
   writeSepHeader,
   recordDelimiter,
+  booleanFormat,
 }) {
   logger.info(`DBGM-00133 Writing file ${fileName}`);
-  const csvPrepare = new CsvPrepareStream({ header });
+  const csvPrepare = new CsvPrepareStream({ header, booleanFormat });
   const csvStream = csv.stringify({ delimiter, quoted, record_delimiter: recordDelimiter || undefined });
   const fileStream = fs.createWriteStream(fileName, encoding);
   if (writeBom) {

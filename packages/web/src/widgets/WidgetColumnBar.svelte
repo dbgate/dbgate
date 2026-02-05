@@ -23,8 +23,8 @@
 
   $: containerProps = {
     clientHeight,
-    titleHeight: 30,
-    splitterHeight: 3,
+    titleHeight: 27,
+    splitterHeight: 1,
   };
 
   function saveStorage() {
@@ -88,6 +88,7 @@
     flex: 1;
     flex-direction: column;
     user-select: none;
+    overflow: hidden;
   }
 
   .main-container:not(.hidden) {

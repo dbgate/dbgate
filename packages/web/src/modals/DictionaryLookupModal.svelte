@@ -127,15 +127,20 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{_t('dictionaryLookupModal.header', { defaultMessage: 'Lookup from {pureName}', values: {pureName} })}</svelte:fragment>
+    <svelte:fragment slot="header"
+      >{_t('dictionaryLookupModal.header', {
+        defaultMessage: 'Lookup from {pureName}',
+        values: { pureName },
+      })}</svelte:fragment
+    >
 
     <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
     <div class="largeFormMarker">
-      <SearchInput placeholder={_t("common.search", { defaultMessage: "Search" })} bind:value={search} isDebounced />
+      <SearchInput placeholder={_t('common.search', { defaultMessage: 'Search' })} bind:value={search} isDebounced />
     </div>
 
     {#if isLoading}
-      <LoadingInfo message={_t('dictionaryLookupModal.loadingData', { defaultMessage: "Loading data" })} />
+      <LoadingInfo message={_t('dictionaryLookupModal.loadingData', { defaultMessage: 'Loading data' })} />
     {/if}
 
     {#if !isLoading && tableInfo && description && rows && tableInfo?.primaryKey?.columns?.length == 1}
@@ -202,8 +207,16 @@
           }}
         />
       {/if}
-      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
-      <FormStyledButton type="button" value={_t('dictionaryLookupModal.customize', { defaultMessage: 'Customize' })} on:click={defineDescription} />
+      <FormStyledButton
+        type="button"
+        value={_t('common.close', { defaultMessage: 'Close' })}
+        on:click={closeCurrentModal}
+      />
+      <FormStyledButton
+        type="button"
+        value={_t('dictionaryLookupModal.customize', { defaultMessage: 'Customize' })}
+        on:click={defineDescription}
+      />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

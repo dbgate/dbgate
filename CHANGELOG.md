@@ -8,6 +8,17 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.3
+- FIXED: Optimalized loading MySQL primary keys #1261
+- FIXED: Test connection now works for MS Entra authentication #1315
+- FIXED: SQL Server - Unable to use 'Is Empty or Null' or 'Has Not Empty Value' filters on a field with data type TEXT #1338
+- FIXED: Play triangle too large for text-wrapped queries #1337
+- FIXED: Text wraps mid-word in form view, making it illegible #1333
+- FIXED: Cell View autodetects Form instead of Map for geometry/geography #1330
+- FIXED: Search for database in cloud connection #1329
+- ADDED: Toolstrip could be configured to the bottom of the tab #1326
+- CHANGED: Upgraded node for DbGate AWS distribution
+
 ## 7.0.1
 - FIXED: Foreign key actions not detected on PostgreSQL #1323
 - FIXED: Vulnerabilities in bundled dependencies: axios, cross-spawn, glob #1322
