@@ -38,9 +38,9 @@
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
-  $: connectionBackground = useConnectionColor(dbid, false, true, true);
-  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, true, true);
-  $: databaseButtonBackground = useConnectionColor(dbid, true, true, false);
+  $: connectionBackground = useConnectionColor(dbid, 'statusbar', true, true);
+  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, 'foreground', true);
+  $: databaseButtonBackground = useConnectionColor(dbid, 'foreground', true, false);
 
   let timerValue = 1;
 

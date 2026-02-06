@@ -6,7 +6,7 @@ export function getConnectionColor(
   connections,
   cloudConnectionsStore,
   dbid,
-  connectionColor = true,
+  userColorTarget = 'foreground',
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
@@ -20,8 +20,7 @@ export function getConnectionColor(
   }
   if (!colorName) return undefined;
   const style = backgroundStyle ? 'background: ' : '';
-  if (connectionColor) return `${style}var(--theme-connection-${colorName})`;
-  return `${style}var(--theme-statusbar-${colorName})`;
+  return `${style}var(--theme-usercolor-${userColorTarget}-${colorName})`;
 }
 
 export function getCloudContentColor(cloudContent, { cntid, folid }, backgroundStyle = false) {
@@ -30,32 +29,30 @@ export function getCloudContentColor(cloudContent, { cntid, folid }, backgroundS
   const colorName = current?.contentAttributes?.connectionColor;
   if (!colorName) return undefined;
   const style = backgroundStyle ? 'background: ' : '';
-  return `${style}var(--theme-connection-${colorName})`;
+  return `${style}var(--theme-usercolor-foreground-${colorName})`;
 }
 
 export function useConnectionColor(
   dbid,
-  connectionColor = true,
+  userColorTarget: 'foreground' | 'background' | 'statusbar' = 'foreground',
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
   const connections = useConnectionList();
-  return derived(
-    [connections, cloudConnectionsStore],
-    ([$connections, $cloudConnectionsStore]) =>
-      getConnectionColor(
-        $connections,
-        $cloudConnectionsStore,
-        dbid,
-        connectionColor,
-        backgroundStyle,
-        useConnectionFallback
-      )
+  return derived([connections, cloudConnectionsStore], ([$connections, $cloudConnectionsStore]) =>
+    getConnectionColor(
+      $connections,
+      $cloudConnectionsStore,
+      dbid,
+      userColorTarget,
+      backgroundStyle,
+      useConnectionFallback
+    )
   );
 }
 
 export function useConnectionColorFactory(
-  connectionColor = true,
+  userColorTarget = 'foreground',
   backgroundStyle = false,
   useConnectionFallback = true
 ) {
@@ -68,7 +65,7 @@ export function useConnectionColorFactory(
           $connections,
           $cloudConnectionsStore,
           dbid,
-          connectionColor,
+          userColorTarget,
           backgroundStyleOverride ?? backgroundStyle,
           useConnectionFallbackOverride ?? useConnectionFallback
         )
@@ -81,10 +78,6 @@ export function useCloudContentColorFactory(backgroundStyle = false) {
     [contentList],
     ([$contentList]) =>
       (idpack, backgroundStyleOverride = null) =>
-        getCloudContentColor(
-          $contentList,
-          idpack,
-          backgroundStyleOverride ?? backgroundStyle
-        )
+        getCloudContentColor($contentList, idpack, backgroundStyleOverride ?? backgroundStyle)
   );
 }
