@@ -125,7 +125,16 @@
   }
 
   function startEditing(field) {
+    if (editingColumn === field.uniqueName) {
+      tick().then(() => {
+        if (!domEditor) return;
+        domEditor.focus();
+      });
+      return;
+    }
+
     if (!editable || !grider) return;
+
     editingColumn = field.uniqueName;
     editValue = field.hasMultipleValues ? '' : stringifyCellValue(field.value, 'inlineEditorIntent', editorTypes).value;
     isChangedRef.set(false);
@@ -148,6 +157,13 @@
         }
         editingColumn = null;
         event.preventDefault();
+        break;
+      case keycodes.n0:
+        if (event.ctrlKey || event.metaKey) {
+          setCellValue(field.uniqueName, null);
+          editingColumn = null;
+          event.preventDefault();
+        }
         break;
       case keycodes.tab:
       case keycodes.upArrow:

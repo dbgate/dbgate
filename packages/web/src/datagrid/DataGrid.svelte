@@ -298,7 +298,10 @@
               onClose={() => {
                 cellDataViewVisible = false;
               }}
-              selection={publishedCells}
+              selection={publishedCells.map(cell => ({
+                ...cell,
+                value: cell.value?.$bigint ?? cell.value?.$decimal ?? cell.value,
+              }))}
             />
           </svelte:fragment>
         </HorizontalSplitter>
