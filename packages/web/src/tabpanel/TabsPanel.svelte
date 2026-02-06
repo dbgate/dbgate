@@ -394,7 +394,7 @@
 
   $: settings = useSettings();
 
-  const connectionColorFactory = useConnectionColorFactory();
+  const connectionColorFactory = useConnectionColorFactory('background', 'background: ');
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -623,12 +623,7 @@
               }
             }}
             use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
-            style={$connectionColorFactory(
-              tabGroup.tabs[0].props,
-              ($draggingDbGroup ? tabGroup.grpid == $draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
-                ? 2
-                : 3
-            )}
+            style={$connectionColorFactory(tabGroup.tabs[0].props)}
             draggable={true}
             on:dragstart={e => {
               $draggingDbGroup = tabGroup;

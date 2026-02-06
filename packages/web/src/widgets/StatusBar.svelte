@@ -38,9 +38,9 @@
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
-  $: connectionBackground = useConnectionColor(dbid, false, true, true);
-  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, true, true);
-  $: databaseButtonBackground = useConnectionColor(dbid, true, true, false);
+  $: connectionBackground = useConnectionColor(dbid, 'statusbar', 'background: ', true);
+  $: connectionButtonForeground = useConnectionColor(dbid ? { conid: dbid.conid } : null, 'foreground', 'color: ', true);
+  $: databaseButtonForeground = useConnectionColor(dbid, 'foreground', 'color: ', false);
 
   let timerValue = 1;
 
@@ -78,7 +78,7 @@
             });
           }}
         >
-          <div style={$databaseButtonBackground} class="colorbox">
+          <div style={$databaseButtonForeground} class="colorbox">
             <FontIcon icon="icon palette" />
           </div>
         </div>
@@ -101,7 +101,7 @@
             });
           }}
         >
-          <div style={$connectionButtonBackground} class="colorbox">
+          <div style={$connectionButtonForeground} class="colorbox">
             <FontIcon icon="icon palette" />
           </div>
         </div>

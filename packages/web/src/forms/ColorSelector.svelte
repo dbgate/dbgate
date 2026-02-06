@@ -23,7 +23,7 @@
   </div>
   {#each _.keys(presetPrimaryColors) as color}
     <div
-      style={`background: var(--theme-connection-${color})`}
+      style={`background: var(--theme-usercolor-background-${color})`}
       class="item"
       class:disabled
       class:selected={color == value}
