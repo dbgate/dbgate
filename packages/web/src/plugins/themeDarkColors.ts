@@ -217,7 +217,7 @@ export const themeDarkColors = {
   '--theme-designer-drag-column-background': 'var(--tw-color-yellow-900)',
   '--theme-designer-select-column-background': 'var(--tw-color-zinc-800)',
   '--theme-statusbar-background': 'var(--tw-color-sky-700)',
-  '--theme-statusbar-foreground': 'var(--tw-white)',
+  '--theme-statusbar-foreground': 'var(--tw-color-zinc-100)',
   '--theme-statusbar-background-hover': 'color-mix(in srgb, black 20%, transparent)',
   '--theme-statusbar-button-background': 'var(--tw-color-zinc-300)',
   '--theme-statusbar-button-foreground': 'var(--tw-color-zinc-800)',

@@ -58,15 +58,17 @@ export function useConnectionColorFactory(
   return derived(
     [connections, cloudConnectionsStore],
     ([$connections, $cloudConnectionsStore]) =>
-      (dbid = null, cssStylePrefixOverride = null, useConnectionFallbackOverride = null) =>
-        getConnectionColor(
+      (dbid = null, cssStylePrefixOverride = null, useConnectionFallbackOverride = null) => {
+        const res = getConnectionColor(
           $connections,
           $cloudConnectionsStore,
           dbid,
           userColorTarget,
           cssStylePrefixOverride ?? cssStylePrefix,
           useConnectionFallbackOverride ?? useConnectionFallback
-        )
+        );
+        return res;
+      }
   );
 }
 

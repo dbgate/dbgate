@@ -176,7 +176,7 @@ export const themeLightColors = {
   '--theme-designer-close-background-active': 'var(--tw-color-zinc-400)',
   '--theme-designer-drag-column-background': 'var(--tw-color-yellow-200)',
   '--theme-designer-select-column-background': 'var(--tw-color-zinc-200)',
-  '--theme-statusbar-background': 'var(--tw-color-sky-600)',
+  '--theme-statusbar-background': 'var(--tw-color-sky-700)',
   '--theme-statusbar-foreground': 'var(--tw-color-zinc-100)',
   '--theme-statusbar-background-hover': 'color-mix(in srgb, white 20%, transparent)',
   '--theme-statusbar-button-background': 'var(--tw-color-zinc-300)',
