@@ -394,7 +394,7 @@
 
   $: settings = useSettings();
 
-  const connectionColorFactory = useConnectionColorFactory('background', 'background:');
+  const connectionColorFactory = useConnectionColorFactory('background', 'background: ');
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
