@@ -3,8 +3,8 @@
 
   import FormSelectField from './FormSelectField.svelte';
   import ColorSelector from './ColorSelector.svelte';
-  import { presetPrimaryColors } from '@ant-design/colors';
   import { getFormContext } from './FormProviderCore.svelte';
+  import { USER_COLOR_NAMES } from '../utility/userColors';
 
   export let emptyLabel;
   export let useSelector = false;
@@ -37,7 +37,7 @@
     {name}
     options={[
       { value: '', label: emptyLabel },
-      ..._.keys(presetPrimaryColors).map(color => ({ value: color, label: _.startCase(color) })),
+      ...USER_COLOR_NAMES.map(color => ({ value: color, label: _.startCase(color) })),
     ]}
   />
 {/if}

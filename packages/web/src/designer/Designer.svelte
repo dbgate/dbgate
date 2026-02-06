@@ -453,6 +453,7 @@
 
   const handleChangeTableColor = table => {
     showModal(ChooseColorModal, {
+      header: _t('designer.chooseTableColor', { defaultMessage: 'Choose table color' }),
       onChange: color => {
         callChange(current => {
           return {
@@ -848,17 +849,26 @@
           text: _t('designer.columnProperties', { defaultMessage: 'Column properties' }),
           submenu: [
             {
-              text: _t('designer.nullabilityYesNo', { defaultMessage: 'Nullability: {show}', values: { show: value?.style?.showNullability ? 'YES' : 'NO' } }),
+              text: _t('designer.nullabilityYesNo', {
+                defaultMessage: 'Nullability: {show}',
+                values: { show: value?.style?.showNullability ? 'YES' : 'NO' },
+              }),
               onClick: changeStyleFunc('showNullability', !value?.style?.showNullability),
             },
             {
-              text: _t('designer.dataTypeYesNo', { defaultMessage: 'Data type: {show}', values: { show: value?.style?.showDataType ? 'YES' : 'NO' } }),
+              text: _t('designer.dataTypeYesNo', {
+                defaultMessage: 'Data type: {show}',
+                values: { show: value?.style?.showDataType ? 'YES' : 'NO' },
+              }),
               onClick: changeStyleFunc('showDataType', !value?.style?.showDataType),
             },
           ],
         },
         isProApp() && {
-          text: _t('designer.columns', { defaultMessage: 'Columns - { filterColumns }', values: { filterColumns: _.startCase(value?.style?.filterColumns || 'all') } }),
+          text: _t('designer.columns', {
+            defaultMessage: 'Columns - { filterColumns }',
+            values: { filterColumns: _.startCase(value?.style?.filterColumns || 'all') },
+          }),
           submenu: [
             {
               text: _t('designer.all', { defaultMessage: 'All' }),
@@ -883,7 +893,10 @@
           ],
         },
         {
-          text: _t('designer.zoom', { defaultMessage: 'Zoom - {zoom}%', values: { zoom: ((value?.style?.zoomKoef || 1) * 100) } }),
+          text: _t('designer.zoom', {
+            defaultMessage: 'Zoom - {zoom}%',
+            values: { zoom: (value?.style?.zoomKoef || 1) * 100 },
+          }),
           submenu: DIAGRAM_ZOOMS.map(koef => ({
             text: `${koef * 100} %`,
             onClick: changeStyleFunc('zoomKoef', koef.toString()),
@@ -1012,11 +1025,16 @@
   use:dragScroll={handleDragScroll}
 >
   {#if !(tables?.length > 0)}
-    <div class="empty">{_t('designer.dragDropTables', { defaultMessage: 'Drag & drop tables or views from left panel here' })}</div>
+    <div class="empty">
+      {_t('designer.dragDropTables', { defaultMessage: 'Drag & drop tables or views from left panel here' })}
+    </div>
 
     {#if allowAddTablesButton}
       <div class="addAllTables">
-        <FormStyledButton value={_t('designer.addAllTables', { defaultMessage: 'Add all tables' })} on:click={handleAddAllTables} />
+        <FormStyledButton
+          value={_t('designer.addAllTables', { defaultMessage: 'Add all tables' })}
+          on:click={handleAddAllTables}
+        />
       </div>
     {/if}
   {/if}
@@ -1115,7 +1133,10 @@
     <div class="panel">
       <DragColumnMemory {settings} {sourceDragColumn$} {targetDragColumn$} />
       <div class="searchbox">
-        <SearchInput bind:value={columnFilter} placeholder={_t('designer.filterColumns', { defaultMessage: 'Filter columns' })} />
+        <SearchInput
+          bind:value={columnFilter}
+          placeholder={_t('designer.filterColumns', { defaultMessage: 'Filter columns' })}
+        />
         <CloseSearchButton bind:filter={columnFilter} />
       </div>
     </div>

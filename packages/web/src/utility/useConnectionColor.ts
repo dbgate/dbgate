@@ -1,6 +1,7 @@
 import { derived } from 'svelte/store';
 import { cloudConnectionsStore } from '../stores';
 import { useCloudContentList, useConnectionList } from '../utility/metadataLoaders';
+import { getNormalizedUserColorName } from './userColors';
 
 export function getConnectionColor(
   connections,
@@ -18,15 +19,23 @@ export function getConnectionColor(
   if (dbConfig?.connectionColor) {
     colorName = dbConfig.connectionColor;
   }
+  colorName = getNormalizedUserColorName(colorName);
   if (!colorName) return undefined;
+  if (cssStylePrefix === '@rawColorWithoutVariable') {
+    return colorName;
+  }
   return `${cssStylePrefix}var(--theme-usercolor-${userColorTarget}-${colorName})`;
 }
 
 export function getCloudContentColor(cloudContent, { cntid, folid }, cssStylePrefix = '') {
   if (!cntid || !folid || !cloudContent) return undefined;
   const current = cloudContent.flatMap(x => x.items).find(x => x.cntid == cntid && x.folid == folid);
-  const colorName = current?.contentAttributes?.connectionColor;
+  let colorName = current?.contentAttributes?.connectionColor;
+  colorName = getNormalizedUserColorName(colorName);
   if (!colorName) return undefined;
+  if (cssStylePrefix === '@rawColorWithoutVariable') {
+    return colorName;
+  }
   return `${cssStylePrefix}var(--theme-usercolor-foreground-${colorName})`;
 }
 

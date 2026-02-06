@@ -1,8 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { presetPrimaryColors } from '@ant-design/colors';
   import FontIcon from '../icons/FontIcon.svelte';
   import { createEventDispatcher } from 'svelte';
+  import { USER_COLOR_NAMES } from '../utility/userColors';
 
   export let value;
   export let disabled = false;
@@ -21,7 +21,7 @@
   >
     <FontIcon icon={value ? 'icon palette' : 'icon no-color'} />
   </div>
-  {#each _.keys(presetPrimaryColors) as color}
+  {#each USER_COLOR_NAMES as color}
     <div
       style={`background: var(--theme-usercolor-background-${color})`}
       class="item"

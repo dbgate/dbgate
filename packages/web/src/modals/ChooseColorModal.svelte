@@ -4,7 +4,6 @@
 
   export let color;
   export let header;
-  export let text;
   export let onChange;
 
   $: value = color;
@@ -12,10 +11,6 @@
 
 <ModalBase {...$$restProps}>
   <svelte:fragment slot="header">{header}</svelte:fragment>
-
-  <div class="m-2">
-    {text}
-  </div>
 
   <ColorSelector
     {value}

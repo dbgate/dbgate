@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
   import { filterName, stringFilterBehaviour } from 'dbgate-tools';
 
   import { tick } from 'svelte';
@@ -10,7 +9,6 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { currentThemeDefinition } from '../plugins/themes';
   import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
   import { isCtrlOrCommandKey } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
@@ -18,6 +16,7 @@
   import ColumnLine from './ColumnLine.svelte';
   import DomTableRef from './DomTableRef';
   import { _t } from '../translations';
+  import { getNormalizedUserColorName } from '../utility/userColors';
 
   export let conid;
   export let database;
@@ -169,12 +168,9 @@
     }
   }
 
-  function getTableColorStyle(themeDef, table, colorIndex = 3) {
+  function getTableColorStyle(table) {
     if (!table?.tableColor) return null;
-    const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-    const palette = palettes[table?.tableColor];
-    if (!palette) return null;
-    return `background: ${palette[colorIndex]}`;
+    return `background: var(--theme-usercolor-background-${getNormalizedUserColorName(table?.tableColor)})`;
   }
 
   export function getDomTable() {
@@ -215,7 +211,10 @@
       { divider: true },
       settings?.allowTableAlias &&
         !isMultipleTableSelection && [
-          { text: _t('designerTable.setTableAlias', { defaultMessage: 'Set table alias' }), onClick: handleSetTableAlias },
+          {
+            text: _t('designerTable.setTableAlias', { defaultMessage: 'Set table alias' }),
+            onClick: handleSetTableAlias,
+          },
           alias && {
             text: _t('designerTable.removeTableAlias', { defaultMessage: 'Remove table alias' }),
             onClick: () =>
@@ -226,8 +225,14 @@
           },
         ],
       settings?.allowAddAllReferences &&
-        !isMultipleTableSelection && { text: _t('designerTable.addReferences', { defaultMessage: 'Add references' }), onClick: () => onAddAllReferences(table) },
-      settings?.allowChangeColor && { text: _t('designerTable.changeColor', { defaultMessage: 'Change color' }), onClick: () => onChangeTableColor(table) },
+        !isMultipleTableSelection && {
+          text: _t('designerTable.addReferences', { defaultMessage: 'Add references' }),
+          onClick: () => onAddAllReferences(table),
+        },
+      settings?.allowChangeColor && {
+        text: _t('designerTable.changeColor', { defaultMessage: 'Change color' }),
+        onClick: () => onChangeTableColor(table),
+      },
       settings?.allowDefineVirtualReferences &&
         !isMultipleTableSelection && {
           text: _t('designerTable.defineVirtualForeignKey', { defaultMessage: 'Define virtual foreign key' }),
@@ -267,7 +272,7 @@
     class:isCollection={objectTypeField == 'collections'}
     use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
     use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
-    style={getTableColorStyle($currentThemeDefinition, table)}
+    style={getTableColorStyle(table)}
     on:click={settings?.onClickTableHeader ? () => settings?.onClickTableHeader(designerId) : null}
   >
     <div>
