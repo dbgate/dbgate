@@ -120,6 +120,33 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
     connection.port = driver.defaultPort.toString();
   }
 
+  // For MongoDB with Database URL and SSH tunnel, extract server and port from databaseUrl
+  // to enable SSH tunnel creation
+  if (connection.useSshTunnel && connection.useDatabaseUrl && connection.databaseUrl && !connection.server) {
+    try {
+      // Extract first host:port from MongoDB connection string
+      // Format: mongodb://[user:pass@]host1[:port1][,host2[:port2],...][/database][?options]
+      const urlPart = connection.databaseUrl.replace(/^mongodb(\+srv)?:\/\//, '');
+      const atIndex = urlPart.indexOf('@');
+      const hostsStart = atIndex !== -1 ? atIndex + 1 : 0;
+      const hostsStr = urlPart.substring(hostsStart).split(/[/?]/)[0];
+      const firstHost = hostsStr.split(',')[0].trim();
+      
+      if (firstHost) {
+        const [host, port] = firstHost.split(':');
+        connection.server = host;
+        if (port) {
+          connection.port = port;
+        } else if (!connection.port && driver.defaultPort) {
+          connection.port = driver.defaultPort.toString();
+        }
+      }
+    } catch (err) {
+      // If parsing fails, continue without server/port - will likely fail later
+      console.warn('Failed to extract server/port from databaseUrl for SSH tunnel:', err.message);
+    }
+  }
+
   if (connection.useSshTunnel) {
     const tunnel = await getSshTunnelProxy(connection);
     if (tunnel.state == 'error') {

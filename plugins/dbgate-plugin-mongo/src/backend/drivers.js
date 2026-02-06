@@ -97,10 +97,48 @@ const drivers = driverBases.map((driverBase) => ({
 
     if (useDatabaseUrl) {
       if (useSshTunnel) {
-        // change port to ssh tunnel port
-        const url = new URL(databaseUrl);
-        url.port = port;
-        mongoUrl = url.href;
+        // For SSH tunnel, replace all hosts with tunnel endpoint (localhost:port)
+        // MongoDB URL can have multiple hosts: mongodb://user:pass@host1:27017,host2:27017,host3:27017/db
+        // We need to replace them with a single localhost:port for the SSH tunnel
+        
+        // Extract protocol (mongodb:// or mongodb+srv://)
+        const protocolMatch = databaseUrl.match(/^mongodb(\+srv)?:\/\//);
+        const protocol = protocolMatch ? protocolMatch[0] : 'mongodb://';
+        const afterProtocol = databaseUrl.substring(protocol.length);
+        
+        // Split into auth@hosts/database?options parts
+        const atIndex = afterProtocol.indexOf('@');
+        let authPart = '';
+        let remainder = afterProtocol;
+        
+        if (atIndex !== -1) {
+          authPart = afterProtocol.substring(0, atIndex + 1); // includes @
+          remainder = afterProtocol.substring(atIndex + 1);
+        }
+        
+        // Find where hosts end (at / or ? or end of string)
+        const slashIndex = remainder.indexOf('/');
+        const questionIndex = remainder.indexOf('?');
+        let hostsEndIndex = remainder.length;
+        
+        if (slashIndex !== -1 && questionIndex !== -1) {
+          hostsEndIndex = Math.min(slashIndex, questionIndex);
+        } else if (slashIndex !== -1) {
+          hostsEndIndex = slashIndex;
+        } else if (questionIndex !== -1) {
+          hostsEndIndex = questionIndex;
+        }
+        
+        const dbAndOptions = remainder.substring(hostsEndIndex);
+        
+        // Build new URL with tunnel endpoint
+        mongoUrl = `${protocol}${authPart}127.0.0.1:${port}${dbAndOptions}`;
+        
+        // Add directConnection=true if not already present
+        if (!mongoUrl.includes('directConnection=')) {
+          const separator = mongoUrl.includes('?') ? '&' : (mongoUrl.includes('/') ? '?' : '/?');
+          mongoUrl += `${separator}directConnection=true`;
+        }
       } else {
         mongoUrl = databaseUrl;
       }
@@ -121,6 +159,18 @@ const drivers = driverBases.map((driverBase) => ({
       // options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
       options.tlsInsecure = !ssl.rejectUnauthorized;
     }
+
+    // When using SSH tunnel, force direct connection to prevent replica set discovery
+    // which would fail as other replica set members are not accessible through the tunnel
+    if (useSshTunnel) {
+      options.directConnection = true;
+      logger.info('DBGM-00199 MongoDB SSH tunnel mode: enabling directConnection to prevent replica set discovery');
+      // Mask password in log - replace anything between :// and @ with ***
+      const maskedUrl = mongoUrl.replace(/(mongodb(?:\+srv)?:\/\/)([^@]+)@/, '$1***@');
+      logger.info(`DBGM-00200 SSH tunnel connection string: ${maskedUrl}`);
+    }
+
+    logger.info(`DBGM-00201 MongoDB connection options: ${JSON.stringify(options)}`);
 
     const { MongoClient } = driverBase.useLegacyDriver ? require('mongodb-old') : mongodb;
 
