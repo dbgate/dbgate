@@ -12,9 +12,41 @@
   export let tableInfo;
   export let driver;
 
+  function getIndexTypeValue(constraintInfo, indexTypeOptions) {
+    if (!indexTypeOptions?.length) return null;
+    const indexType = constraintInfo?.indexType?.toString()?.toUpperCase();
+    if (indexType === 'FULLTEXT') {
+      return indexTypeOptions.find(option => option.indexType?.toString()?.toUpperCase() === 'FULLTEXT')?.value;
+    }
+    if (constraintInfo?.isUnique) {
+      return indexTypeOptions.find(option => option.isUnique)?.value || indexTypeOptions[0].value;
+    }
+    return indexTypeOptions[0].value;
+  }
+
   let isUnique = constraintInfo?.isUnique;
+  let indexTypeValue = getIndexTypeValue(constraintInfo, driver?.dialect?.indexTypes);
 
   function getExtractConstraintProps() {
+    const indexTypeOptions = driver?.dialect?.indexTypes;
+    if (indexTypeOptions?.length) {
+      const selected = indexTypeOptions.find(option => option.value === indexTypeValue) || indexTypeOptions[0];
+      let nextIndexType = selected?.indexType;
+      if (selected?.isUnique) {
+        nextIndexType = undefined;
+      } else if (!nextIndexType) {
+        const currentIndexType = constraintInfo?.indexType?.toString()?.toUpperCase();
+        if (currentIndexType && currentIndexType !== 'FULLTEXT') {
+          nextIndexType = constraintInfo?.indexType;
+        }
+      }
+
+      return {
+        isUnique: !!selected?.isUnique,
+        indexType: nextIndexType,
+        filterDefinition,
+      };
+    }
     return {
       isUnique,
       filterDefinition,
@@ -24,6 +56,10 @@
   let filterDefinition = constraintInfo?.filterDefinition;
 
   $: isReadOnly = !setTableInfo;
+  $: indexTypeOptions = driver?.dialect?.indexTypes;
+  $: if (!indexTypeValue && indexTypeOptions?.length) {
+    indexTypeValue = getIndexTypeValue(constraintInfo, indexTypeOptions);
+  }
 </script>
 
 <ColumnsConstraintEditorModal
@@ -61,9 +97,29 @@
   </svelte:fragment>
   <svelte:fragment slot="constraintProps">
     <div class="largeFormMarker">
-      <div class="row">
-        <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} disabled={isReadOnly} /> {_t('indexEditor.isUnique', { defaultMessage: 'Is unique index' })}
-      </div>
+      {#if indexTypeOptions?.length}
+        <div class="row">
+          <div class="label col-3">{_t('indexEditor.indexType', { defaultMessage: 'Index type' })}</div>
+          <div class="col-9">
+            <SelectField
+              value={indexTypeValue}
+              isNative
+              disabled={isReadOnly}
+              options={indexTypeOptions.map(option => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              on:change={e => {
+                if (e.detail) indexTypeValue = e.detail;
+              }}
+            />
+          </div>
+        </div>
+      {:else}
+        <div class="row">
+          <CheckboxField checked={isUnique} on:change={e => (isUnique = e.target.checked)} disabled={isReadOnly} /> {_t('indexEditor.isUnique', { defaultMessage: 'Is unique index' })}
+        </div>
+      {/if}
     </div>
 
     <div class="largeFormMarker">

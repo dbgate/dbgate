@@ -154,6 +154,14 @@
     });
   }
 
+  function getIndexTypeLabel(row) {
+    const indexType = row?.indexType?.toString()?.toUpperCase();
+    if (indexType === 'FULLTEXT') return 'FULLTEXT';
+    if (row?.isUnique) return 'UNIQUE';
+    if (indexType) return indexType;
+    return 'INDEX';
+  }
+
   $: columns = tableInfo?.columns;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
@@ -357,10 +365,9 @@
           sortable: true,
         },
         {
-          fieldName: 'unique',
-          header: _t('tableEditor.unique', { defaultMessage: 'Unique' }),
+          fieldName: 'indexType',
+          header: _t('tableEditor.indexType', { defaultMessage: 'Type' }),
           slot: 1,
-          sortable: true,
         },
         isWritable
           ? {
@@ -372,11 +379,7 @@
     >
       <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
       <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-      <svelte:fragment slot="1" let:row
-        >{row?.isUnique
-          ? _t('tableEditor.yes', { defaultMessage: 'YES' })
-          : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment
-      >
+      <svelte:fragment slot="1" let:row>{getIndexTypeLabel(row)}</svelte:fragment>
       <svelte:fragment slot="2" let:row
         ><Link
           onClick={e => {

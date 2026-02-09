@@ -100,6 +100,17 @@ class Dumper extends SqlDumper {
     this.put('^select ^last_insert_id()');
   }
 
+  indexType(ix) {
+    if (ix.isUnique) {
+      this.put(' ^unique');
+      return;
+    }
+    if (ix.indexType?.toLowerCase() == 'fulltext') {
+      this.put(' ^fulltext');
+      return;
+    }
+  }
+
   callableTemplate(func) {
     const parameters = (func.parameters || []).filter(x => x.parameterMode != 'RETURN');
 

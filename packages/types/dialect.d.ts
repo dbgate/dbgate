@@ -50,6 +50,12 @@ export interface SqlDialect {
   multipleSchema?: boolean;
   filteredIndexes?: boolean;
   namedDefaultConstraint?: boolean;
+  indexTypes?: {
+    value: string;
+    label: string;
+    isUnique?: boolean;
+    indexType?: string;
+  }[];
 
   specificNullabilityImplementation?: boolean;
   implicitNullDeclaration?: boolean;
