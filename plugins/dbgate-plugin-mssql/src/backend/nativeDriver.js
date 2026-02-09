@@ -58,6 +58,8 @@ async function connectWithDriver({ server, port, user, password, database, authT
   if (authType == 'sspi') connectionString += ';Trusted_Connection=Yes';
   else connectionString += `;UID=${user};PWD=${password}`;
   if (database) connectionString += `;Database=${extractDbNameFromComposite(database)}`;
+  // Add UTF-8 character set to properly handle non-ASCII characters (e.g., Chinese)
+  connectionString += ';CHARSET=UTF8';
   return new Promise((resolve, reject) => {
     getMsnodesqlv8().open(connectionString, (err, conn) => {
       if (err) {
