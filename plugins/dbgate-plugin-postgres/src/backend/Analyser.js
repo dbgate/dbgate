@@ -11,7 +11,7 @@ function normalizeTypeName(dataType) {
 }
 
 function getColumnInfo(
-  { is_nullable, column_name, data_type, char_max_length, numeric_precision, numeric_ccale, default_value },
+  { is_nullable, column_name, data_type, char_max_length, numeric_precision, numeric_scale, default_value },
   table = undefined,
   geometryColumns = undefined,
   geographyColumns = undefined
@@ -19,8 +19,8 @@ function getColumnInfo(
   const normDataType = normalizeTypeName(data_type);
   let fullDataType = normDataType;
   if (char_max_length && isTypeString(normDataType)) fullDataType = `${normDataType}(${char_max_length})`;
-  if (numeric_precision && numeric_ccale && isTypeNumeric(normDataType))
-    fullDataType = `${normDataType}(${numeric_precision},${numeric_ccale})`;
+  if (numeric_precision && numeric_scale && isTypeNumeric(normDataType))
+    fullDataType = `${normDataType}(${numeric_precision},${numeric_scale})`;
   const autoIncrement = !!(default_value && default_value.startsWith('nextval('));
   if (
     table &&
