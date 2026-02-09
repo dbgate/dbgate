@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.4
+- FIXED: MS SQL server export to CSV does not convert bit FALSE to 0 #1276
+- ADDED: MySQL FULLTEXT support #1305
+- FIXED: Error messages in Chinese will display garbled characters(MS SQL over ODBC) #1321
+- FIXED: Table's Show SQL fails to display precision and scale for NUMERIC/DECIMAL types in PostgreSQL #1325
+- FIXED: Export to Excel/CSV is broken for certain data types in v7.0.0 #1327
+- ADDED: Null value with keyboard shortcut in form view #1332
+- FIXED: Clicking into active form cell discards changes #1334
+- FIXED: Remember selection after filtering #1335
+- FIXED: Unable to use 'Group By' or one of the aggregate functions on tables containing text columns #1348
+- CHANGED: Improved custom connection color palette
+
 ## 7.0.3
 - FIXED: Optimalized loading MySQL primary keys #1261
 - FIXED: Test connection now works for MS Entra authentication #1315
