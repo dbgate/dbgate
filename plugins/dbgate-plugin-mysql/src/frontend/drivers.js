@@ -88,6 +88,12 @@ const dialect = {
     'year',
   ],
 
+  indexTypes: [
+    { value: 'normal', label: 'Normal' },
+    { value: 'unique', label: 'Unique', isUnique: true },
+    { value: 'fulltext', label: 'Fulltext', indexType: 'FULLTEXT' },
+  ],
+
   createColumnViewExpression(columnName, dataType, source, alias) {
     if (dataType && spatialTypes.includes(dataType.toUpperCase())) {
       return {
