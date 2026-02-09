@@ -368,7 +368,6 @@
           fieldName: 'indexType',
           header: _t('tableEditor.indexType', { defaultMessage: 'Type' }),
           slot: 1,
-          sortable: true,
         },
         isWritable
           ? {
