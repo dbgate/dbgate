@@ -28,6 +28,7 @@
   export let setGrouping;
   export let seachInColumns = '';
   export let onReload = undefined;
+  export let driver = null;
 
   const openReferencedTable = () => {
     openDatabaseObjectDetail('TableDataTab', null, {
@@ -74,7 +75,8 @@
       column.foreignKey && [{ divider: true }, { onClick: openReferencedTable, text: column.foreignKey.refTableName }],
 
       isProApp() &&
-        setGrouping && [
+        setGrouping &&
+        !driver?.dialect?.disableGroupingForDataType?.(column.dataType) && [
           { divider: true },
           { onClick: () => setGrouping('GROUP'), text: 'Group by' },
           { onClick: () => setGrouping('MAX'), text: 'MAX' },

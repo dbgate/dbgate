@@ -451,7 +451,7 @@ export abstract class GridDisplay {
       ...cfg,
       filters: _.omit(cfg.filters, [uniqueName]),
       formFilterColumns: (cfg.formFilterColumns || []).filter(x => x != uniqueName),
-      disabledFilterColumns: (cfg.disabledFilterColumns).filter(x => x != uniqueName),
+      disabledFilterColumns: cfg.disabledFilterColumns.filter(x => x != uniqueName),
     }));
     this.reload();
   }
@@ -541,6 +541,7 @@ export abstract class GridDisplay {
       const column = (this.baseTable || this.baseView)?.columns?.find(x => x.columnName == uniqueName);
       if (isTypeLogical(column?.dataType)) return 'COUNT DISTINCT';
       if (column?.autoIncrement) return 'COUNT';
+      if (this.driver?.dialect?.disableGroupingForDataType?.(column?.dataType)) return 'NULL';
       return 'MAX';
     }
     return null;

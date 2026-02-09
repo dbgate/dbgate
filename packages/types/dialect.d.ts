@@ -11,6 +11,7 @@ export interface SqlDialect {
   offsetFirstSkipSyntax?: boolean;
   offsetNotSupported?: boolean;
   useDatalengthForEmptyString?(dataType: string): boolean;
+  disableGroupingForDataType?(dataType: string): boolean;
   quoteIdentifier(s: string): string;
   fallbackDataType?: string;
   explicitDropConstraint?: boolean;

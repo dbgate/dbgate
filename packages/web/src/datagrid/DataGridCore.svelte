@@ -2211,6 +2211,7 @@
                 {allowDefineVirtualReferences}
                 seachInColumns={display.config?.searchInColumns}
                 onReload={refresh}
+                driver={display?.driver}
               />
             </td>
           {/each}

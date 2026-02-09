@@ -13,7 +13,10 @@ const dialect = {
   offsetFetchRangeSyntax: true,
   rowNumberOverPaging: true,
   useDatalengthForEmptyString(dataType) {
-    return dataType && ['text', 'ntext', 'image'].includes(dataType.toLowerCase());
+    return !!dataType && ['text', 'ntext', 'image'].includes(dataType.toLowerCase());
+  },
+  disableGroupingForDataType(dataType) {
+    return !!dataType && ['text', 'ntext', 'image'].includes(dataType.toLowerCase());
   },
   defaultSchemaName: 'dbo',
   multipleSchema: true,
