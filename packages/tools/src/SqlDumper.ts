@@ -546,8 +546,7 @@ export class SqlDumper implements AlterProcessor {
   }
   indexType(ix: IndexInfo) {
     if (ix.isUnique) {
-      if (ix.isUnique) this.put(' ^unique');
-      return;
+      this.put(' ^unique');
     }
   }
   createIndex(ix: IndexInfo) {
