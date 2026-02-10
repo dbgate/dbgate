@@ -11,6 +11,8 @@ import ErrorPage from './ErrorPage.svelte';
 import EnterLicensePage from './EnterLicensePage.svelte';
 import SetAdminPasswordPage from './SetAdminPasswordPage.svelte';
 import RedirectPage from './RedirectPage.svelte';
+import ForgotPasswordPage from './ForgotPasswordPage.svelte';
+import ResetPasswordPage from './ResetPasswordPage.svelte';
 
 const isOauthCallback = handleOauthCallback();
 
@@ -58,6 +60,16 @@ function createApp() {
       });
     case 'set-admin-password':
       return new SetAdminPasswordPage({
+        target: document.body,
+        props: {},
+      });
+    case 'forgot-password':
+      return new ForgotPasswordPage({
+        target: document.body,
+        props: {},
+      });
+    case 'reset-password':
+      return new ResetPasswordPage({
         target: document.body,
         props: {},
       });

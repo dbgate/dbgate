@@ -55,6 +55,8 @@ function authMiddleware(req, res, next) {
     '/stream',
     '/storage/get-connections-for-login-page',
     '/storage/set-admin-password',
+    '/storage/request-password-reset',
+    '/storage/reset-password',
     '/auth/get-providers',
     '/connections/dblogin-web',
     '/connections/dblogin-app',

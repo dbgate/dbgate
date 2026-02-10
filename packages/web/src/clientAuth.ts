@@ -212,7 +212,14 @@ export async function handleAuthOnStartup(config) {
   if (page == 'set-admin-password') return;
   if (checkAdminPasswordSet()) return;
 
-  if (page == 'login' || page == 'admin-login' || page == 'not-logged') return;
+  if (
+    page == 'login' ||
+    page == 'admin-login' ||
+    page == 'not-logged' ||
+    page == 'forgot-password' ||
+    page == 'reset-password'
+  )
+    return;
   if (checkLoggedUser()) return;
 
   if (page == 'license' || page == 'admin-license') return;
@@ -277,7 +284,13 @@ export async function redirectToLogin(config = null, force = false) {
   if (getAuthCategory(config) == 'token') {
     if (!force) {
       const page = window['dbgate_page'];
-      if (page == 'login' || page == 'admin-login' || page == 'not-logged') {
+      if (
+        page == 'login' ||
+        page == 'admin-login' ||
+        page == 'not-logged' ||
+        page == 'forgot-password' ||
+        page == 'reset-password'
+      ) {
         return;
       }
     }

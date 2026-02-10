@@ -13,6 +13,8 @@ for (const page of [
   'admin-license',
   'set-admin-password',
   'redirect',
+  'forgot-password',
+  'reset-password',
 ]) {
   const text = template.replace(/{{page}}/g, page);
   fs.writeFileSync(`public/${page || 'index'}.html`, text);

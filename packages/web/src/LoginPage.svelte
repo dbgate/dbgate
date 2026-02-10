@@ -5,7 +5,7 @@
   import FormSubmit from './forms/FormSubmit.svelte';
   import FormTextField from './forms/FormTextField.svelte';
   import { apiCall, enableApi, strmid } from './utility/api';
-  import { useConfig } from './utility/metadataLoaders';
+  import { useConfig, useSettings } from './utility/metadataLoaders';
   import ErrorInfo from './elements/ErrorInfo.svelte';
   import FormSelectField from './forms/FormSelectField.svelte';
   import { writable } from 'svelte/store';
@@ -18,6 +18,7 @@
   export let isAdminPage;
 
   const config = useConfig();
+  const settings = useSettings();
 
   let availableConnections = null;
   let availableProviders = [];
@@ -199,6 +200,13 @@
           saveOnInput
           data-testid="LoginPage_password"
         />
+        {#if selectedProvider?.type == 'local' && $settings?.['storage.allowForgottenPasswordReset']}
+          <div class="forgot-password-link">
+            <Link internalRedirect="/forgot-password.html" data-testid="LoginPage_forgotPassword">
+              Don't remember your password?
+            </Link>
+          </div>
+        {/if}
       {/if}
     {/if}
 
@@ -348,5 +356,12 @@
     position: absolute;
     top: 10px;
     right: 10px;
+  }
+
+  .forgot-password-link {
+    margin: var(--dim-large-form-margin);
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 0.9em;
   }
 </style>
