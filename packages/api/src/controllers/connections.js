@@ -205,7 +205,7 @@ module.exports = {
       return storageConnections;
     }
     if (portalConnections) {
-      if (platformInfo.allowShellConnection) return portalConnections;
+      if (platformInfo.allowShellConnection) return portalConnections.map(x => encryptConnection(x));
       return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, loadedPermissions));
     }
     return (await this.datastore.find()).filter(x => connectionHasPermission(x, loadedPermissions));
@@ -243,13 +243,13 @@ module.exports = {
     subprocess.send({ ...connection, requestDbList });
     return new Promise((resolve, reject) => {
       let isWaitingForVolatile = false;
-      
+
       const cleanup = () => {
         if (connection._id && pendingTestSubprocesses[connection._id]) {
           delete pendingTestSubprocesses[connection._id];
         }
       };
-      
+
       subprocess.on('message', resp => {
         if (handleProcessCommunication(resp, subprocess)) return;
         // @ts-ignore
@@ -279,8 +279,8 @@ module.exports = {
           reject(new MissingCredentialsError(missingCredentialsDetail));
         }
       });
-      
-      subprocess.on('exit', (code) => {
+
+      subprocess.on('exit', code => {
         // If exit happens while waiting for volatile, that's expected
         if (isWaitingForVolatile && code === 0) {
           cleanup();
@@ -291,8 +291,8 @@ module.exports = {
           reject(new Error(`Test subprocess exited with code ${code}`));
         }
       });
-      
-      subprocess.on('error', (err) => {
+
+      subprocess.on('error', err => {
         cleanup();
         reject(err);
       });
@@ -327,7 +327,7 @@ module.exports = {
       return testRes;
     } else {
       volatileConnections[res._id] = res;
-      
+
       // Check if there's a pending test subprocess waiting for this volatile connection
       const pendingTest = pendingTestSubprocesses[conid];
       if (pendingTest) {
@@ -335,7 +335,7 @@ module.exports = {
         try {
           // Send the volatile connection to the waiting subprocess
           subprocess.send({ ...res, requestDbList, isVolatileResolved: true });
-          
+
           // Wait for the test result and emit it as an event
           subprocess.once('message', resp => {
             if (handleProcessCommunication(resp, subprocess)) return;
@@ -358,7 +358,7 @@ module.exports = {
           delete pendingTestSubprocesses[conid];
         }
       }
-      
+
       return res;
     }
   },
@@ -489,7 +489,7 @@ module.exports = {
 
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
-      return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;
+      return mask && !platformInfo.allowShellConnection ? maskConnection(res) : encryptConnection(res);
     }
     const res = await this.datastore.get(conid);
     return res || null;
