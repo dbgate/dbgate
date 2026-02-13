@@ -147,7 +147,7 @@
     background-color: var(--theme-bg-green);
     border: 1px solid var(--theme-border);
     border-radius: 4px;
-    color: var(--theme-font-1);
+    color: var(--theme-generic-font);
   }
 
   .back-link {
