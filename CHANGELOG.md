@@ -8,6 +8,10 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.0.6
+- ADDED: Reset password for Team Premium edition
+- ADDED: Encrypting passwords sent to frontend when using SHELL_CONNECTION=1 in Docker Community edition #1357
+
 ## 7.0.4
 - FIXED: MS SQL server export to CSV does not convert bit FALSE to 0 #1276
 - ADDED: MySQL FULLTEXT support #1305
