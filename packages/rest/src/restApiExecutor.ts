@@ -88,9 +88,10 @@ export async function executeRestApiEndpoint(
     }
   }
 
-  if (query.size > 0) {
+  const queryString = query.toString();
+  if (queryString) {
     const separator = url.includes('?') ? '&' : '?';
-    url += separator + query.toString();
+    url += separator + queryString;
   }
 
   if (cookies.length > 0) {
