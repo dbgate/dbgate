@@ -102,6 +102,26 @@ function decryptObjectPasswordField(obj, field, encryptor = null) {
 }
 
 const fieldsToEncrypt = ['password', 'sshPassword', 'sshKeyfilePassword', 'connectionDefinition'];
+const additionalFieldsToMask = [
+  'databaseUrl',
+  'server',
+  'port',
+  'user',
+  'sshBastionHost',
+  'sshHost',
+  'sshKeyFile',
+  'sshLogin',
+  'sshMode',
+  'sshPort',
+  'sslCaFile',
+  'sslCertFilePassword',
+  'sslKeyFile',
+  'sslRejectUnauthorized',
+  'secretAccessKey',
+  'accessKeyId',
+  'endpoint',
+  'endpointKey',
+];
 
 function encryptConnection(connection, encryptor = null) {
   if (connection.passwordMode != 'saveRaw') {
@@ -114,7 +134,7 @@ function encryptConnection(connection, encryptor = null) {
 
 function maskConnection(connection) {
   if (!connection) return connection;
-  return _.omit(connection, [...fieldsToEncrypt, 'databaseUrl', 'server', 'port', 'user']);
+  return _.omit(connection, [...fieldsToEncrypt, ...additionalFieldsToMask]);
 }
 
 function decryptConnection(connection) {

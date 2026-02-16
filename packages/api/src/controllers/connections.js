@@ -202,7 +202,7 @@ module.exports = {
 
     const storageConnections = await storage.connections(req);
     if (storageConnections) {
-      return storageConnections;
+      return storageConnections.map(maskConnection);
     }
     if (portalConnections) {
       if (platformInfo.allowShellConnection) return portalConnections.map(x => encryptConnection(x));
@@ -484,7 +484,7 @@ module.exports = {
 
     const storageConnection = await storage.getConnection({ conid });
     if (storageConnection) {
-      return storageConnection;
+      return mask ? maskConnection(storageConnection) : storageConnection;
     }
 
     if (portalConnections) {
