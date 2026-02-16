@@ -354,6 +354,7 @@
       });
       let count = selectedCells.length;
       let rowCount = selectedRowData.length;
+      sum = Math.round(sum * 1e10) / 1e10;
       // return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
       return {
         rowCount,
