@@ -38,7 +38,7 @@
     "build:filterparser": "yarn workspace dbgate-filterparser build",
     "build:tools": "yarn workspace dbgate-tools build",
     "build:rest": "yarn workspace dbgate-rest build",
-    "build:lib": "yarn build:sqltree && yarn build:tools && yarn build:filterparser && yarn build:datalib",
+    "build:lib": "yarn build:sqltree && yarn build:tools && yarn build:filterparser && yarn build:datalib && yarn build:rest",
     "build:app": "yarn plugins:copydist && cd app && yarn install && yarn build",
     "build:api": "yarn workspace dbgate-api build",
     "build:api:doc": "yarn workspace dbgate-api build:doc",
