@@ -114,7 +114,7 @@ function encryptConnection(connection, encryptor = null) {
 
 function maskConnection(connection) {
   if (!connection) return connection;
-  return _.omit(connection, fieldsToEncrypt);
+  return _.omit(connection, [...fieldsToEncrypt, 'databaseUrl', 'server', 'port', 'user']);
 }
 
 function decryptConnection(connection) {
