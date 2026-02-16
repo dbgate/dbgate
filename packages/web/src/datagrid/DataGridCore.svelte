@@ -339,7 +339,7 @@
             let data = row[colName];
             if (!data) return 0;
 
-            if (_.isObject(data)) {
+            if (_.isPlainObject(data)) {
               if (data.$decimal) data = data.$decimal;
               else if (data.$bigint) data = data.$bigint;
               else return 0;
