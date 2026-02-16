@@ -271,8 +271,6 @@ class MsSqlDumper extends SqlDumper {
    * @param {import('dbgate-types').TableInfo} table
    */
   tableOptions(table) {
-    this.endCommand();
-
     const options = this.driver?.dialect?.getTableFormOptions?.('sqlCreateTable') || [];
     for (const option of options) {
       const { name, sqlFormatString } = option;
