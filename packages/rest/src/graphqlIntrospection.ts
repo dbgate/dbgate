@@ -225,6 +225,6 @@ export async function fetchGraphQLSchema(
 
     return response.data.data as GraphQLIntrospectionResult;
   } catch (err: any) {
-    throw new Error(`DBGM-00000 Could not fetch GraphQL schema: ${err.message}`);
+    throw new Error(`DBGM-00312 Could not fetch GraphQL schema: ${err.message}`);
   }
 }

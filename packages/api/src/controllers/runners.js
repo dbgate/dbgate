@@ -172,7 +172,7 @@ module.exports = {
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', code => {
       // console.log('... EXITED', code);
-      this.rejectRequest(runid, { message: 'DBGM-00000 No data returned, maybe input data source is too big' });
+      this.rejectRequest(runid, { message: 'DBGM-00281 No data returned, maybe input data source is too big' });
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00016 Exited process');
       socket.emit(`runner-done-${runid}`, code);
       this.opened = this.opened.filter(x => x.runid != runid);
@@ -225,7 +225,7 @@ module.exports = {
     subprocess.on('exit', code => {
       console.log('... EXITED', code);
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
-      this.dispatchMessage(runid, `DBGM-00000 Finished external process with code ${code}`);
+      this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${code}`);
       socket.emit(`runner-done-${runid}`, code);
       if (onFinished) {
         onFinished();
@@ -233,7 +233,7 @@ module.exports = {
       this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('spawn', () => {
-      this.dispatchMessage(runid, `DBGM-00000 Started external process ${command}`);
+      this.dispatchMessage(runid, `DBGM-00283 Started external process ${command}`);
     });
     subprocess.on('error', error => {
       console.log('... ERROR subprocess', error);
@@ -279,7 +279,7 @@ module.exports = {
     if (script.type == 'json') {
       if (!platformInfo.isElectron) {
         if (!checkSecureDirectoriesInScript(script)) {
-          return { errorMessage: 'DBGM-00000 Unallowed directories in script' };
+          return { errorMessage: 'DBGM-00284 Unallowed directories in script' };
         }
       }
 
@@ -299,10 +299,10 @@ module.exports = {
         action: 'script',
         severity: 'warn',
         detail: script,
-        message: 'DBGM-00000 Scripts are not allowed',
+        message: 'DBGM-00285 Scripts are not allowed',
       });
 
-      return { errorMessage: 'DBGM-00000 Shell scripting is not allowed' };
+      return { errorMessage: 'DBGM-00286 Shell scripting is not allowed' };
     }
 
     sendToAuditLog(req, {
@@ -312,7 +312,7 @@ module.exports = {
       action: 'script',
       severity: 'info',
       detail: script,
-      message: 'DBGM-00000 Running JS script',
+      message: 'DBGM-00287 Running JS script',
     });
 
     return this.startCore(runid, scriptTemplate(script, false));
@@ -327,7 +327,7 @@ module.exports = {
   async cancel({ runid }) {
     const runner = this.opened.find(x => x.runid == runid);
     if (!runner) {
-      throw new Error('DBGM-00000 Invalid runner');
+      throw new Error('DBGM-00288 Invalid runner');
     }
     runner.subprocess.kill();
     return { state: 'ok' };
@@ -353,7 +353,7 @@ module.exports = {
   async loadReader({ functionName, props }) {
     if (!platformInfo.isElectron) {
       if (props?.fileName && !checkSecureDirectories(props.fileName)) {
-        return { errorMessage: 'DBGM-00000 Unallowed file' };
+        return { errorMessage: 'DBGM-00289 Unallowed file' };
       }
     }
     const prefix = extractShellApiPlugins(functionName)
@@ -371,7 +371,7 @@ module.exports = {
   scriptResult_meta: true,
   async scriptResult({ script }) {
     if (script.type != 'json') {
-      return { errorMessage: 'DBGM-00000 Only JSON scripts are allowed' };
+      return { errorMessage: 'DBGM-00290 Only JSON scripts are allowed' };
     }
 
     const promise = new Promise(async (resolve, reject) => {

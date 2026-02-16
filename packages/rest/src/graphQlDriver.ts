@@ -4,7 +4,7 @@ import { apiDriverBase } from './restDriverBase';
 
 async function loadGraphQlSchema(dbhan: any) {
   if (!dbhan?.connection?.apiServerUrl1) {
-    throw new Error('DBGM-00000 GraphQL endpoint URL is not configured');
+    throw new Error('DBGM-00310 GraphQL endpoint URL is not configured');
   }
 
   const introspectionResult = await fetchGraphQLSchema(
@@ -14,7 +14,7 @@ async function loadGraphQlSchema(dbhan: any) {
   );
 
   if (!introspectionResult || typeof introspectionResult !== 'object') {
-    throw new Error('DBGM-00000 GraphQL schema is empty or could not be loaded');
+    throw new Error('DBGM-00311 GraphQL schema is empty or could not be loaded');
   }
 
   return introspectionResult;

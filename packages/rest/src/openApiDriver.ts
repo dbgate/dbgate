@@ -4,7 +4,7 @@ import { apiDriverBase } from './restDriverBase';
 
 async function loadOpenApiDefinition(dbhan: any) {
   if (!dbhan?.connection?.apiServerUrl1) {
-    throw new Error('DBGM-00000 REST connection URL is not configured');
+    throw new Error('DBGM-00313 REST connection URL is not configured');
   }
 
   const response = await dbhan.axios.get(dbhan.connection.apiServerUrl1);
@@ -20,7 +20,7 @@ async function loadOpenApiDefinition(dbhan: any) {
   }
 
   if (!openApiDefinition || typeof openApiDefinition !== 'object') {
-    throw new Error('DBGM-00000 API documentation is empty or could not be parsed');
+    throw new Error('DBGM-00314 API documentation is empty or could not be parsed');
   }
 
   return openApiDefinition;
