@@ -336,8 +336,15 @@
         if (row) {
           const colName = realColumnUniqueNames[cell[1]];
           if (colName) {
-            const data = row[colName];
+            let data = row[colName];
             if (!data) return 0;
+
+            if (_.isPlainObject(data)) {
+              if (data.$decimal) data = data.$decimal;
+              else if (data.$bigint) data = data.$bigint;
+              else return 0;
+            }
+
             let num = +data;
             if (_.isNaN(num)) return 0;
             return num;
@@ -347,6 +354,7 @@
       });
       let count = selectedCells.length;
       let rowCount = selectedRowData.length;
+      sum = Math.round(sum * 1e10) / 1e10;
       // return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
       return {
         rowCount,
