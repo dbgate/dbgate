@@ -4,9 +4,9 @@ SELECT
     pureName = FK.TABLE_NAME,
     columnName = CU.COLUMN_NAME,
 
-    refSchemaName = ISNULL(IXS.name, PK.TABLE_SCHEMA),
-    refTableName = ISNULL(IXT.name, PK.TABLE_NAME),
-    refColumnName = IXCC.name,
+    refSchemaName = PK.TABLE_SCHEMA,
+    refTableName = PK.TABLE_NAME,
+    refColumnName = RCU.COLUMN_NAME,
 
     constraintName = C.CONSTRAINT_NAME,
     updateAction = rc.UPDATE_RULE,
@@ -26,27 +26,14 @@ LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE CU
     ON C.CONSTRAINT_NAME = CU.CONSTRAINT_NAME
     AND C.CONSTRAINT_SCHEMA = CU.CONSTRAINT_SCHEMA
 
+LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE RCU 
+    ON C.UNIQUE_CONSTRAINT_NAME = RCU.CONSTRAINT_NAME
+    AND C.UNIQUE_CONSTRAINT_SCHEMA = RCU.CONSTRAINT_SCHEMA
+    AND CU.ORDINAL_POSITION = RCU.ORDINAL_POSITION
+
 INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc 
     ON FK.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
     AND FK.CONSTRAINT_SCHEMA = rc.CONSTRAINT_SCHEMA
-
-LEFT JOIN sys.indexes IX 
-    ON IX.name = C.UNIQUE_CONSTRAINT_NAME
-    AND IX.object_id = OBJECT_ID(PK.TABLE_SCHEMA + '.' + PK.TABLE_NAME)
-
-LEFT JOIN sys.objects IXT 
-    ON IXT.object_id = IX.object_id
-
-LEFT JOIN sys.index_columns IXC 
-    ON IX.object_id = IXC.object_id 
-    AND IX.index_id = IXC.index_id
-
-LEFT JOIN sys.columns IXCC 
-    ON IXCC.object_id = IXC.object_id
-    AND IXCC.column_id = IXC.column_id
-
-LEFT JOIN sys.schemas IXS 
-    ON IXT.schema_id = IXS.schema_id
 
 INNER JOIN sys.objects o 
     ON o.name = FK.TABLE_NAME
@@ -57,4 +44,5 @@ INNER JOIN sys.schemas s
     AND s.name = FK.TABLE_SCHEMA
 
 where o.object_id =OBJECT_ID_CONDITION and s.name =SCHEMA_NAME_CONDITION
+ORDER BY CU.ORDINAL_POSITION
 `;
