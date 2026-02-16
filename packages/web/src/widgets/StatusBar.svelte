@@ -12,15 +12,17 @@
     cloudSigninTokenHolder,
     currentArchive,
     currentDatabase,
+    extensions,
     selectedWidget,
     visibleCommandPalette,
   } from '../stores';
-  import { getConnectionLabel } from 'dbgate-tools';
+  import { findEngineDriver, getConnectionLabel } from 'dbgate-tools';
   import {
     useConfig,
     useConnectionList,
     useDatabaseServerVersion,
     useDatabaseStatus,
+    useRestStatus,
   } from '../utility/metadataLoaders';
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';
@@ -30,8 +32,12 @@
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
+  $: driver = findEngineDriver(connection, $extensions);
+  $: isRestConnection = driver?.databaseEngineTypes?.includes('rest');
   $: dbid = connection ? { conid: connection._id, database: databaseName } : null;
-  $: status = useDatabaseStatus(dbid || {});
+  $: databaseStatus = useDatabaseStatus(dbid || {});
+  $: restStatus = useRestStatus(connection ? { conid: connection._id } : {});
+  $: status = isRestConnection ? restStatus : databaseStatus;
   $: serverVersion = useDatabaseServerVersion(dbid || {});
   $: config = useConfig();
 
@@ -39,7 +45,12 @@
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
   $: connectionBackground = useConnectionColor(dbid, 'statusbar', 'background: ', true);
-  $: connectionButtonForeground = useConnectionColor(dbid ? { conid: dbid.conid } : null, 'foreground', 'color: ', true);
+  $: connectionButtonForeground = useConnectionColor(
+    dbid ? { conid: dbid.conid } : null,
+    'foreground',
+    'color: ',
+    true
+  );
   $: databaseButtonForeground = useConnectionColor(dbid, 'foreground', 'color: ', false);
 
   let timerValue = 1;
@@ -57,7 +68,7 @@
 
 <div class="main" style={$connectionBackground}>
   <div class="container">
-    {#if databaseName}
+    {#if databaseName && databaseName != '_api_database_'}
       <div class="item">
         {#if connection?.isReadOnly}
           <FontIcon icon="icon lock" padRight />
@@ -66,7 +77,7 @@
         {/if}
         {databaseName}
       </div>
-      {#if dbid}
+      {#if dbid && databaseName != '_api_database_'}
         <div
           class="item clickable"
           title="Database color. Overrides connection color"
@@ -86,7 +97,7 @@
     {/if}
     {#if connectionLabel}
       <div class="item">
-        <FontIcon icon="icon server" padRight />
+        <FontIcon icon={databaseName == '_api_database_' ? 'icon api' : 'icon server'} padRight />
         {connectionLabel}
       </div>
       {#if dbid}

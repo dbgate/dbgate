@@ -186,6 +186,7 @@ export function getTabDbKey(tab) {
     return 'admin.';
   }
   if (tab.props && tab.props.conid && tab.props.database) {
+    if (tab.props.database == '_api_database_') return `api://${tab.props.conid}`;
     return `database://${tab.props.database}-${tab.props.conid}`;
   }
   if (tab.props && tab.props.conid) {

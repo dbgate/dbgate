@@ -14,6 +14,7 @@ const socket = require('./utility/socket');
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
+const restConnections = require('./controllers/restConnections');
 const metadata = require('./controllers/metadata');
 const sessions = require('./controllers/sessions');
 const runners = require('./controllers/runners');
@@ -267,6 +268,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/auth', auth);
   useController(app, electron, '/cloud', cloud);
   useController(app, electron, '/team-files', teamFiles);
+  useController(app, electron, '/rest-connections', restConnections);
 }
 
 function setElectronSender(electronSender) {

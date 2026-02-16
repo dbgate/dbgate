@@ -190,7 +190,9 @@
   function getTabDbName(tab, connectionList, cloudConnectionsStore) {
     if (tab.tabComponent == 'ConnectionTab') return _t('common.connections', { defaultMessage: 'Connections' });
     if (tab.tabComponent?.startsWith('Admin')) return _t('tab.administration', { defaultMessage: 'Administration' });
-    if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
+    if (tab.props && tab.props.conid && tab.props.database && tab.props.database != '_api_database_') {
+      return tab.props.database;
+    }
     if (tab.props && tab.props.conid) {
       const connection =
         connectionList?.find(x => x._id == tab.props.conid) ?? cloudConnectionsStore?.[tab.props.conid];
@@ -202,7 +204,7 @@
   }
 
   function getTabDbServer(tab, connectionList, cloudConnectionsStore) {
-    if (tab.props && tab.props.conid && tab.props.database) {
+    if (tab.props && tab.props.conid && tab.props.database && tab.props.database != '_api_database_') {
       const connection =
         connectionList?.find(x => x._id == tab.props.conid) ?? cloudConnectionsStore?.[tab.props.conid];
       if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
@@ -214,6 +216,7 @@
   function getDbIcon(key) {
     if (key) {
       if (key.startsWith('database://')) return 'icon database';
+      if (key.startsWith('api://')) return 'icon api';
       if (key.startsWith('archive://')) return 'icon archive';
       if (key.startsWith('server://')) return 'icon server';
       if (key.startsWith('connections.')) return 'icon connection';
@@ -369,7 +372,9 @@
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
-      ? `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
+      ? $currentDatabase.name == '_api_database_'
+        ? `api://${$currentDatabase.connection._id}`
+        : `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
       : $currentDatabase && $currentDatabase.connection
         ? `server://${$currentDatabase.connection._id}`
         : '_no';

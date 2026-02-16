@@ -4,7 +4,8 @@ const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../uti
 const platformInfo = require('../utility/platformInfo');
 const authProxy = require('../utility/authProxy');
 const { getLogger } = require('dbgate-tools');
-// 
+const { openApiDriver, graphQlDriver } = require('dbgate-rest');
+//
 const logger = getLogger('requirePlugin');
 
 const loadedPlugins = {};
@@ -13,16 +14,21 @@ const dbgateEnv = {
   dbgateApi: null,
   platformInfo,
   authProxy,
-  isProApp: () =>{
+  isProApp: () => {
     const { isProApp } = require('../utility/checkLicense');
     return isProApp();
-  }
+  },
 };
 function requirePlugin(packageName, requiredPlugin = null) {
   if (!packageName) throw new Error('Missing packageName in plugin');
   if (loadedPlugins[packageName]) return loadedPlugins[packageName];
 
   if (requiredPlugin == null) {
+    if (packageName.endsWith('@rest') || packageName === 'rest') {
+      return {
+        drivers: [openApiDriver, graphQlDriver],
+      };
+    }
     let module;
     const modulePath = getPluginBackendPath(packageName);
     logger.info(`DBGM-00062 Loading module ${packageName} from ${modulePath}`);

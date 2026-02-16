@@ -165,6 +165,11 @@ module.exports = {
     if (!connection) {
       throw new Error(`databaseConnections: Connection with conid="${conid}" not found`);
     }
+
+    if (connection.engine?.endsWith('@rest')) {
+      return { isApiConnection: true };
+    }
+
     if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
       throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
     }

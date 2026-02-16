@@ -173,7 +173,11 @@ export function getDatabasStatusMenu(dbid, driver = null) {
         ? _t('command.database.refreshFull', { defaultMessage: 'Refresh DB structure (full)' })
         : _t('command.database.refresh', { defaultMessage: 'Refresh DB structure' }),
       onClick: () => {
-        apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
+        if (driver?.databaseEngineTypes?.includes('rest')) {
+          apiCall('rest-connections/refresh', { ...dbid, keepOpen: true });
+        } else {
+          apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
+        }
         callSchemalListChanged();
       },
       testid: 'DatabasStatusMenu_refreshFull',
@@ -181,7 +185,11 @@ export function getDatabasStatusMenu(dbid, driver = null) {
     {
       text: _t('command.database.reopenConnection', { defaultMessage: 'Reopen connection' }),
       onClick: () => {
-        apiCall('database-connections/refresh', dbid);
+        if (driver?.databaseEngineTypes?.includes('rest')) {
+          apiCall('rest-connections/refresh', { ...dbid, keepOpen: false });
+        } else {
+          apiCall('database-connections/refresh', dbid);
+        }
         callSchemalListChanged();
       },
       testid: 'DatabasStatusMenu_reopenConnection',

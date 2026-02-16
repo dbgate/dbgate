@@ -64,7 +64,8 @@
     "ssh2": "^1.16.0",
     "stream-json": "^1.8.0",
     "tar": "^6.0.5",
-    "yauzl": "^3.2.0"
+    "yauzl": "^3.2.0",
+    "dbgate-rest": "^7.0.0-alpha.1"
   },
   "scripts": {
     "start": "env-cmd -f .env node src/index.js --listen-api",

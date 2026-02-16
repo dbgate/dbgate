@@ -4,6 +4,7 @@ const { getSshTunnelProxy } = require('./sshTunnelProxy');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 const _ = require('lodash');
+const axios = require('axios');
 
 async function loadConnection(driver, storedConnection, connectionMode) {
   const { allowShellConnection, allowConnectionFromEnvVariables } = platformInfo;
@@ -131,6 +132,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
   }
 
   connection.ssl = await extractConnectionSslParams(connection);
+  connection.axios = axios.default;
 
   const conn = await driver.connect({ conid: connectionLoaded?._id, ...connection, ...additionalOptions });
   return conn;

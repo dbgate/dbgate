@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { getCurrentDatabase } from '../stores';
-import { getConnectionLabel, getSqlFrontMatter, setSqlFrontMatter } from 'dbgate-tools';
+import { getCurrentDatabase, getExtensions } from '../stores';
+import { findEngineDriver, getConnectionLabel, getSqlFrontMatter, setSqlFrontMatter } from 'dbgate-tools';
 import yaml from 'js-yaml';
 import openNewTab from '../utility/openNewTab';
 
@@ -16,6 +16,7 @@ export default function newQuery({
   const currentDb = getCurrentDatabase();
   const connection = currentDb?.connection || {};
   const database = currentDb?.name;
+  const driver = findEngineDriver(connection.engine, getExtensions());
 
   const tooltip = `${getConnectionLabel(connection)}\n${database}`;
 
@@ -37,11 +38,13 @@ export default function newQuery({
       tabComponent,
       multiTabIndex,
       focused: true,
-      props: {
-        ...props,
-        conid: connection._id,
-        database,
-      },
+      props: driver?.supportExecuteQuery
+        ? {
+            ...props,
+            conid: connection._id,
+            database,
+          }
+        : props,
     },
     { editor: initialData }
   );

@@ -9,9 +9,14 @@
   import getElectron from '../utility/getElectron';
   import { apiOn } from '../utility/api';
   import { isProApp } from '../utility/proTools';
+  import { getConnectionLabel } from 'dbgate-tools';
 
   $: appName = isProApp() ? 'DbGate Premium' : 'DbGate Community';
-  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, appName]).join(' - ');
+  $: currentDatabaseTitle =
+    $currentDatabase?.name == '_api_database_' && $currentDatabase?.connection
+      ? getConnectionLabel($currentDatabase.connection, { allowExplicitDatabase: false })
+      : $currentDatabase?.name;
+  $: title = _.compact([$activeTab?.title, currentDatabaseTitle, appName]).join(' - ');
   const electron = getElectron();
 
   let isMaximized = false;

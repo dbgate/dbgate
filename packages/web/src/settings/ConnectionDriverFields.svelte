@@ -78,13 +78,13 @@
     'sa-east-1',
   ];
 
-  async function createDatabasesMenu() {
+  const createDatabasesMenu = field => async () => {
     const databases = await getDatabaseList();
     return databases.map(db => ({
       text: db.name,
-      onClick: () => setFieldValue('defaultDatabase', db.name),
+      onClick: () => setFieldValue(field, db.name),
     }));
-  }
+  };
 </script>
 
 <FormSelectField
@@ -188,6 +188,39 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('apiServerUrl1', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={driver?.apiServerUrl1Label ?? _t('connection.apiServerUrl1', { defaultMessage: 'API Server URL' })}
+    name="apiServerUrl1"
+    data-testid="ConnectionDriverFields_apiServerUrl1"
+    placeholder={driver?.apiServerUrl1Placeholder}
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('apiServerUrl1')}
+  />
+{/if}
+
+{#if driver?.showConnectionField('apiServerUrl2', $values, showConnectionFieldArgs)}
+  {#if driver?.loadApiServerUrl2Options}
+    <FormDropDownTextField
+      label={driver?.apiServerUrl2Label ??
+        _t('connection.apiServerUrl2', { defaultMessage: 'API Secondary Server URL' })}
+      name="apiServerUrl2"
+      data-testid="ConnectionDriverFields_apiServerUrl2"
+      placeholder={driver?.apiServerUrl2Placeholder}
+      disabled={isConnected || isFormReadOnly || disabledFields.includes('apiServerUrl2')}
+      asyncMenu={createDatabasesMenu('apiServerUrl2')}
+    />
+  {:else}
+    <FormTextField
+      label={driver?.apiServerUrl2Label ??
+        _t('connection.apiServerUrl2', { defaultMessage: 'API Secondary Server URL' })}
+      name="apiServerUrl2"
+      data-testid="ConnectionDriverFields_apiServerUrl2"
+      placeholder={driver?.apiServerUrl2Placeholder}
+      disabled={isConnected || isFormReadOnly || disabledFields.includes('apiServerUrl2')}
+    />
+  {/if}
+{/if}
+
 {#if driver?.showConnectionField('localDataCenter', $values, showConnectionFieldArgs)}
   <FormTextField
     label={_t('connection.localDataCenter', { defaultMessage: 'Local DataCenter' })}
@@ -195,15 +228,6 @@
     data-testid="ConnectionDriverFields_localDataCenter"
     placeholder={driver?.defaultLocalDataCenter}
     disabled={isConnected || isFormReadOnly || disabledFields.includes('localDataCenter')}
-  />
-{/if}
-
-{#if driver?.showConnectionField('authToken', $values, showConnectionFieldArgs)}
-  <FormTextField
-    label={_t('connection.authToken', { defaultMessage: 'Auth token' })}
-    name="authToken"
-    data-testid="ConnectionDriverFields_authToken"
-    disabled={isConnected || isFormReadOnly || disabledFields.includes('authToken')}
   />
 {/if}
 
@@ -222,6 +246,15 @@
       }))}
     />
   {/key}
+{/if}
+
+{#if driver?.showConnectionField('authToken', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={_t('connection.authToken', { defaultMessage: 'Auth token' })}
+    name="authToken"
+    data-testid="ConnectionDriverFields_authToken"
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('authToken')}
+  />
 {/if}
 
 {#if driver?.showConnectionField('endpoint', $values, showConnectionFieldArgs)}
@@ -324,6 +357,33 @@
     placeholder={driver?.defaultSocketPath}
     data-testid="ConnectionDriverFields_scoketPath"
   />
+{/if}
+
+{#if driver?.showConnectionField('apiKeyHeader', $values, showConnectionFieldArgs) || driver?.showConnectionField('apiKeyValue', $values, showConnectionFieldArgs)}
+  <div class="row">
+    {#if driver?.showConnectionField('apiKeyHeader', $values, showConnectionFieldArgs)}
+      <div class="col-6 mr-1">
+        <FormTextField
+          label={_t('connection.apiKeyHeader', { defaultMessage: 'API Key Header' })}
+          name="apiKeyHeader"
+          disabled={isConnected || isFormReadOnly || disabledFields.includes('apiKeyHeader')}
+          templateProps={{ noMargin: true }}
+          data-testid="ConnectionDriverFields_apiKeyHeader"
+        />
+      </div>
+    {/if}
+    {#if driver?.showConnectionField('apiKeyValue', $values, showConnectionFieldArgs)}
+      <div class="col-6 mr-1">
+        <FormTextField
+          label={_t('connection.apiKeyValue', { defaultMessage: 'API Key Value' })}
+          name="apiKeyValue"
+          disabled={isConnected || isFormReadOnly || disabledFields.includes('apiKeyValue')}
+          templateProps={{ noMargin: true }}
+          data-testid="ConnectionDriverFields_apiKeyValue"
+        />
+      </div>
+    {/if}
+  </div>
 {/if}
 
 {#if showUser && showPassword}
@@ -473,7 +533,7 @@
     name="defaultDatabase"
     disabled={isConnected || isFormReadOnly || disabledFields.includes('defaultDatabase')}
     data-testid="ConnectionDriverFields_defaultDatabase"
-    asyncMenu={createDatabasesMenu}
+    asyncMenu={createDatabasesMenu('defaultDatabase')}
     placeholder={_t('common.notSelectedOptional', { defaultMessage: '(not selected - optional)' })}
   />
 {/if}

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "declaration": true,
+    "skipLibCheck": true,
+    "outDir": "lib",
+    "preserveWatchOutput": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

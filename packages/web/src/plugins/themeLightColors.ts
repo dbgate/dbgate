@@ -2,6 +2,8 @@ export const themeLightColors = {
   '--theme-generic-font': 'var(--tw-color-zinc-950)',
   '--theme-generic-font-hover': 'var(--tw-color-blue-700)',
   '--theme-generic-font-grayed': 'var(--tw-color-zinc-500)',
+  '--theme-generic-font-error': 'var(--tw-color-red-600)',
+  '--theme-generic-font-success': 'var(--tw-color-green-600)',
   '--theme-link-foreground': 'var(--tw-color-sky-600)',
   '--theme-content-background': 'white',
   '--theme-widget-panel-background': 'var(--tw-color-zinc-800)',

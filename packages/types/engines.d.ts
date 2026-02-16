@@ -73,7 +73,7 @@ export interface WriteTableOptions {
 export interface EngineAuthType {
   title: string;
   name: string;
-  disabledFields: string[];
+  disabledFields?: string[];
 }
 
 export interface ReadCollectionOptions {
@@ -258,12 +258,19 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   supportsTransactions?: boolean;
   implicitTransactions?: boolean; // transaction is started with first SQL command, no BEGIN TRANSACTION is needed
   premiumOnly?: boolean;
+  supportExecuteQuery?: boolean;
 
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;
   collectionNameLabel?: string;
   newCollectionFormParams?: any[];
   icon?: EngineDriverIcon;
+
+  apiServerUrl1Label?: string;
+  apiServerUrl1Placeholder?: string;
+  apiServerUrl2Label?: string;
+  apiServerUrl2Placeholder?: string;
+  loadApiServerUrl2Options?: boolean;
 
   supportedCreateDatabase?: boolean;
   showConnectionField?: (

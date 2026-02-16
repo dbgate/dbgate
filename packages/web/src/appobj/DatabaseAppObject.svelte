@@ -430,6 +430,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
     return [
       hasPermission(`dbops/query`) &&
+        driver?.supportExecuteQuery &&
         isAllowedDatabaseRunScript(databasePermissionRole) && {
           onClick: handleNewQuery,
           text: _t('database.newQuery', { defaultMessage: 'New query' }),

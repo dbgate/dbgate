@@ -2,6 +2,8 @@ export const themeDarkColors = {
   '--theme-generic-font': 'var(--tw-color-zinc-50)',
   '--theme-generic-font-hover': 'var(--tw-color-sky-400)',
   '--theme-generic-font-grayed': 'var(--tw-color-zinc-500)',
+  '--theme-generic-font-error': 'var(--tw-color-red-400)',
+  '--theme-generic-font-success': 'var(--tw-color-green-400)',
   '--theme-link-foreground': 'var(--tw-color-sky-400)',
   '--theme-content-background': 'var(--tw-color-zinc-950)',
   '--theme-widget-panel-background': 'var(--tw-color-zinc-700)',

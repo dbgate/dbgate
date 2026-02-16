@@ -34,6 +34,7 @@
   export let colorClass = null;
   $: iconValue = typeof icon === 'string' ? icon : icon?.light || icon?.dark || '';
   $: isSvgString = iconValue.trim().startsWith('<svg');
+  $: isTextIcon = iconValue.trim().startsWith('text ');
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -94,6 +95,7 @@
 
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',
+    'icon api-server': 'mdi mdi-cloud-outline',
     'icon table': 'mdi mdi-table',
     'icon form': 'mdi mdi-form-select',
     'icon archive': 'mdi mdi-archive',
@@ -189,6 +191,8 @@
     'icon chevron-double-left': 'mdi mdi-chevron-double-left',
     'icon chevron-double-right': 'mdi mdi-chevron-double-right',
     'icon chevron-double-up': 'mdi mdi-chevron-double-up',
+    'icon graphql-field': 'mdi mdi-layers-outline',
+    'icon graphql-argument': 'mdi mdi-variable',
     'icon menu-right': 'mdi mdi-menu-right',
     'icon plugin': 'mdi mdi-toy-brick',
     'icon menu': 'mdi mdi-menu',
@@ -252,6 +256,7 @@
     'icon premium': 'mdi mdi-star',
     'icon upload': 'mdi mdi-upload',
     'icon limit': 'mdi mdi-car-speed-limiter',
+    'icon api': 'mdi mdi-api',
 
     'icon chart': 'mdi mdi-chart-bar',
     'icon cloud-connection': 'mdi mdi-cloud-lock',
@@ -267,6 +272,7 @@
     'img debug': 'mdi mdi-monitor color-icon-green',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
     'img circular': 'mdi mdi-circular-saw color-icon-red',
+    'img api': 'mdi mdi-api color-icon-blue',
 
     'img archive': 'mdi mdi-table color-icon-gold',
     'img archive-folder': 'mdi mdi-database-outline color-icon-green',
@@ -371,6 +377,18 @@
   <span class="svg-inline" class:padLeft class:padRight {title} {style} on:click data-testid={$$props['data-testid']}>
     {@html iconValue}
   </span>
+{:else if isTextIcon}
+  {@const textIconParts = iconValue.trim().split(' ')}
+  <span
+    class="text-icon"
+    style={`background-color:${textIconParts[2] || 'inherit'}`}
+    class:padLeft
+    class:padRight
+    on:click
+    data-testid={$$props['data-testid']}
+  >
+    {textIconParts[1]}
+  </span>
 {:else}
   <span
     class={`${iconNames[iconValue] || iconValue} ${colorClass || ''}`}
@@ -400,5 +418,15 @@
 
   .padRight {
     margin-right: 0.25rem;
+  }
+
+  .text-icon {
+    font-size: 0.7em;
+    display: inline-block;
+    text-align: center;
+    border-radius: 3px;
+    margin-right: 4px;
+    font-weight: bold;
+    padding: 2px;
   }
 </style>

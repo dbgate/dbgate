@@ -70,6 +70,7 @@
   import 'ace-builds/src-noconflict/mode-sqlserver';
   import 'ace-builds/src-noconflict/mode-json';
   import 'ace-builds/src-noconflict/mode-javascript';
+  import 'ace-builds/src-noconflict/mode-graphqlschema';
   import 'ace-builds/src-noconflict/mode-yaml';
   import 'ace-builds/src-noconflict/mode-xml';
   import 'ace-builds/src-noconflict/mode-html';
@@ -136,7 +137,6 @@
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
-  import { key } from 'localforage';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{

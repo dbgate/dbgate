@@ -10,6 +10,7 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
   import RedisKeysTree from './RedisKeysTree.svelte';
+  import RestApiContentWidget from './RestApiContentWidget.svelte';
   import _ from 'lodash';
   import FocusedConnectionInfoWidget from './FocusedConnectionInfoWidget.svelte';
   import { _t } from '../translations';
@@ -63,6 +64,15 @@
   positiveCondition={correctCloudStatus}
 >
   <RedisKeysTree {conid} {database} treeKeySeparator={$connection?.treeKeySeparator || ':'} />
+</WidgetColumnBarItem>
+
+<WidgetColumnBarItem
+  title={_t('widget.endpoints', { defaultMessage: 'Endpoints' })}
+  name="endpoints"
+  skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('rest'))}
+  positiveCondition={correctCloudStatus}
+>
+  <RestApiContentWidget {conid} />
 </WidgetColumnBarItem>
 
 <WidgetColumnBarItem

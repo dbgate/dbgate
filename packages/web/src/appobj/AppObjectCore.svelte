@@ -9,7 +9,7 @@
 
   const dispatch = createEventDispatcher();
 
-  export let icon;
+  export let icon = null;
   export let title;
   export let data = null;
   export let module = null;
