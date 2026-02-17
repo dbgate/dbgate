@@ -45,9 +45,16 @@
   let lastSyncedEditorValue = '';
   let suppressEditorSync = false;
   let editorSyncHandle: ReturnType<typeof setTimeout> | null = null;
-  let pendingEditorPaths: { fieldPaths: string[]; argumentPaths: string[] } | null = null;
+  let pendingEditorPaths:
+    | {
+        fieldPaths: string[];
+        argumentPaths: string[];
+        argumentValues: Record<string, Record<string, string>>;
+      }
+    | null = null;
   let editorHasFocus = false;
   let scrollToSelectedAfterLoad = false;
+  let preservedArgumentValues: Record<string, Record<string, string>> = {};
 
   const TYPE_REF_DEPTH = 6;
 
@@ -124,6 +131,7 @@
     loadingPaths = {};
     typeCache = {};
     hasInitialized = false;
+    preservedArgumentValues = {};
   }
 
   async function runApiQuery(query: string) {
@@ -215,6 +223,7 @@ ${typeRefSelection}
       if (pendingEditorPaths && rootFields.length > 0) {
         const allPaths = [...pendingEditorPaths.fieldPaths, ...pendingEditorPaths.argumentPaths];
         const fieldPaths = pendingEditorPaths.fieldPaths;
+        preservedArgumentValues = pendingEditorPaths.argumentValues || {};
         pendingEditorPaths = null;
         await applySelectionFromPaths(allPaths, fieldPaths);
         if (currentSourceOfTruth === 'editor') {
@@ -461,7 +470,13 @@ ${typeRefSelection}
     if (!setEditorData) return;
     const filteredPaths = filterPathsByAncestors(selectedPaths);
     const { fieldPaths, fieldArguments, fieldArgumentTypes } = collectFieldAndArgumentPaths(filteredPaths, {});
-    const queryText = buildGraphQlQueryTextWithVariables(operationKind, fieldPaths, fieldArguments, fieldArgumentTypes);
+    const queryText = buildGraphQlQueryTextWithVariables(
+      operationKind,
+      fieldPaths,
+      fieldArguments,
+      fieldArgumentTypes,
+      preservedArgumentValues
+    );
     lastEmittedQuery = queryText;
     suppressEditorSync = true;
     lastSyncedEditorValue = queryText;
@@ -520,7 +535,8 @@ ${typeRefSelection}
     operationType: 'query' | 'mutation',
     selectionPaths: string[],
     fieldArguments: Record<string, string[]> = {},
-    fieldArgumentTypes: Record<string, Record<string, string>> = {}
+    fieldArgumentTypes: Record<string, Record<string, string>> = {},
+    fieldArgumentValues: Record<string, Record<string, string>> = {}
   ): string {
     const indent = '  ';
 
@@ -540,13 +556,19 @@ ${typeRefSelection}
 
     // Build variable declarations
     const variables: Map<string, { path: string; argument: string; type: string }> = new Map();
+    const variableByArgumentPath: Record<string, string> = {};
     let variableCounter = 0;
 
     for (const [fieldPath, argumentNames] of Object.entries(fieldArguments)) {
       for (const argumentName of argumentNames) {
+        const preservedValue = fieldArgumentValues[fieldPath]?.[argumentName];
+        if (preservedValue != null && preservedValue !== '') {
+          continue;
+        }
         const varName = `var${variableCounter++}`;
         const argumentType = fieldArgumentTypes[fieldPath]?.[argumentName] || 'String';
         variables.set(varName, { path: fieldPath, argument: argumentName, type: argumentType });
+        variableByArgumentPath[`${fieldPath}.${argumentName}`] = varName;
       }
     }
 
@@ -561,15 +583,13 @@ ${typeRefSelection}
         let fieldDef = name;
         if (args && args.length > 0) {
           const argStrs = args.map(arg => {
-            // Find variable name for this argument
-            let varName = '';
-            for (const [vName, vInfo] of variables.entries()) {
-              if (vInfo.path === currentFieldPath && vInfo.argument === arg) {
-                varName = `$${vName}`;
-                break;
-              }
+            const preservedValue = fieldArgumentValues[currentFieldPath]?.[arg];
+            if (preservedValue != null && preservedValue !== '') {
+              return `${arg}: ${preservedValue}`;
             }
-            return `${arg}: ${varName || 'null'}`;
+
+            const variableName = variableByArgumentPath[`${currentFieldPath}.${arg}`];
+            return `${arg}: ${variableName ? `$${variableName}` : 'null'}`;
           });
           fieldDef = `${name}(${argStrs.join(', ')})`;
         }
@@ -660,10 +680,11 @@ ${typeRefSelection}
 
   async function syncFromEditor(text: string) {
     if (currentSourceOfTruth !== 'editor') return;
-    const { fieldPaths, argumentPaths } = parseGraphQlSelectionPaths(text);
+    const { fieldPaths, argumentPaths, argumentValues } = parseGraphQlSelectionPaths(text);
+    preservedArgumentValues = argumentValues || {};
     const allPaths = [...fieldPaths, ...argumentPaths];
     if (rootFields.length === 0) {
-      pendingEditorPaths = { fieldPaths, argumentPaths };
+      pendingEditorPaths = { fieldPaths, argumentPaths, argumentValues: argumentValues || {} };
       return;
     }
 

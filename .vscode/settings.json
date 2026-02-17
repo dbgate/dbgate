@@ -2,5 +2,8 @@
     "jestrunner.jestCommand": "node_modules/.bin/cross-env DEVMODE=1 LOCALTEST=1 node_modules/.bin/jest",
     "cSpell.words": [
         "dbgate"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "yarn workspace": true
+    }
 }
