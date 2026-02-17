@@ -23,7 +23,7 @@ interface GraphQLExplorerOptions {
   maxDepth?: number;
 }
 
-const DEFAULT_MAX_DEPTH = 6;
+const DEFAULT_MAX_DEPTH = 2;
 
 function getTypeDisplay(typeRef: GraphQLTypeRef | null | undefined): string {
   if (!typeRef) return 'Unknown';
