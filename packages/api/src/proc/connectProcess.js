@@ -1,6 +1,6 @@
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { connectUtility } = require('../utility/connectUtility');
+const { connectUtility, getRestAuthFromConnection } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { pickSafeConnectionInfo } = require('../utility/crypting');
 const _ = require('lodash');
@@ -29,6 +29,9 @@ function start() {
     try {
       const driver = requireEngineDriver(connection);
       const connectionChanged = driver?.beforeConnectionSave ? driver.beforeConnectionSave(connection) : connection;
+      if (driver?.databaseEngineTypes?.includes('rest')) {
+        connectionChanged.restAuth = getRestAuthFromConnection(connection);
+      }
 
       if (!connection.isVolatileResolved) {
         if (connectionChanged.useRedirectDbLogin) {

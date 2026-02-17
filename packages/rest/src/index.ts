@@ -7,3 +7,4 @@ export * from './graphqlIntrospection';
 export * from './graphqlExplorer';
 export * from './graphQlQueryParser';
 export * from './graphQlVariables';
+export * from './restAuthTools';

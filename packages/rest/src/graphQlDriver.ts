@@ -1,15 +1,16 @@
 import type { EngineDriver } from 'dbgate-types';
-import { fetchGraphQLSchema } from './graphqlIntrospection';
+import { fetchGraphQLSchema, GraphQLIntrospectionResult } from './graphqlIntrospection';
 import { apiDriverBase } from './restDriverBase';
+import { buildRestAuthHeaders } from './restAuthTools';
 
-async function loadGraphQlSchema(dbhan: any) {
+async function loadGraphQlSchema(dbhan: any): Promise<GraphQLIntrospectionResult> {
   if (!dbhan?.connection?.apiServerUrl1) {
     throw new Error('DBGM-00310 GraphQL endpoint URL is not configured');
   }
 
   const introspectionResult = await fetchGraphQLSchema(
     dbhan.connection.apiServerUrl1,
-    dbhan.connection.restAuth || {},
+    buildRestAuthHeaders(dbhan.connection.restAuth),
     dbhan.axios
   );
 
@@ -55,18 +56,10 @@ export const graphQlDriver: EngineDriver = {
     const introspectionResult = await loadGraphQlSchema(dbhan);
     const schema = introspectionResult.__schema;
 
-    const version = 'GraphQL';
-    const versionText = [
-      schema?.queryType?.name ? `Query ${schema.queryType.name}` : null,
-      schema?.mutationType?.name ? `Mutation ${schema.mutationType.name}` : null,
-      schema?.subscriptionType?.name ? `Subscription ${schema.subscriptionType.name}` : null,
-    ]
-      .filter(Boolean)
-      .join(', ');
+    // const version = 'GraphQL';
 
     return {
-      version,
-      ...(versionText ? { versionText } : {}),
+      version: `GraphQL, ${schema.types?.length || 0} types`,
     };
   },
 };

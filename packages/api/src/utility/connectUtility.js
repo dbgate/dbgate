@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const { decryptConnection } = require('./crypting');
+const { decryptConnection, decryptPasswordString } = require('./crypting');
 const { getSshTunnelProxy } = require('./sshTunnelProxy');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
@@ -138,7 +138,33 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
   return conn;
 }
 
+function getRestAuthFromConnection(connection) {
+  if (!connection) return null;
+  if (connection.authType == 'basic') {
+    return {
+      type: 'basic',
+      user: connection.user,
+      password: decryptPasswordString(connection.password),
+    };
+  }
+  if (connection.authType == 'bearer') {
+    return {
+      type: 'bearer',
+      token: connection.authToken,
+    };
+  }
+  if (connection.authType == 'apikey') {
+    return {
+      type: 'apikey',
+      header: connection.apiKeyHeader,
+      value: connection.apiKeyValue,
+    };
+  }
+  return null;
+}
+
 module.exports = {
   extractConnectionSslParams,
   connectUtility,
+  getRestAuthFromConnection,
 };
