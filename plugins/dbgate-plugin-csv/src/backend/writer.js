@@ -99,6 +99,10 @@ class CsvPrepareStream extends stream.Transform {
         done();
         return;
       }
+      if (chunk.__isStreamHeader) {
+        done();
+        return;
+      }
 
       if (!this.cachedRows) {
         this.cachedRows = [];
