@@ -7,6 +7,11 @@ export interface RestApiParameter {
   description?: string;
   required?: boolean;
   defaultValue?: any;
+  options?: Array<{ label: string; value: string }>;
+  odataLookupPath?: string;
+  odataLookupEntitySet?: string;
+  odataLookupValueField?: string;
+  odataLookupLabelField?: string;
 }
 
 export interface RestApiEndpoint {

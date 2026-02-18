@@ -36,7 +36,7 @@
   }
 
   function buildDrivers(plugins) {
-    const res = isProApp() ? [openApiDriver, graphQlDriver] : [];
+    const res = isProApp() ? [openApiDriver, oDataDriver, graphQlDriver] : [];
     for (const { content } of plugins) {
       if (content.drivers) res.push(...content.drivers);
     }
@@ -68,7 +68,7 @@
   import * as dataLib from 'dbgate-datalib';
   import { apiCall } from '../utility/api';
   import { isProApp } from '../utility/proTools';
-  import { openApiDriver, graphQlDriver } from 'dbgate-rest';
+  import { openApiDriver, oDataDriver, graphQlDriver } from 'dbgate-rest';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();

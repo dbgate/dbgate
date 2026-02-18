@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  moduleFileExtensions: ['js'],
+  moduleFileExtensions: ['ts', 'js'],
   reporters: ['default', 'github-actions'],
 };

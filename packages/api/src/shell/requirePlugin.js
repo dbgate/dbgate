@@ -4,7 +4,7 @@ const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../uti
 const platformInfo = require('../utility/platformInfo');
 const authProxy = require('../utility/authProxy');
 const { getLogger } = require('dbgate-tools');
-const { openApiDriver, graphQlDriver } = require('dbgate-rest');
+const { openApiDriver, graphQlDriver, oDataDriver } = require('dbgate-rest');
 //
 const logger = getLogger('requirePlugin');
 
@@ -26,7 +26,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
   if (requiredPlugin == null) {
     if (packageName.endsWith('@rest') || packageName === 'rest') {
       return {
-        drivers: [openApiDriver, graphQlDriver],
+        drivers: [openApiDriver, graphQlDriver, oDataDriver],
       };
     }
     let module;
