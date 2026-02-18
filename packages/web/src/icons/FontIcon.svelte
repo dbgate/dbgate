@@ -328,6 +328,7 @@
     'img function': 'mdi mdi-function-variant',
     'img table-structure': 'mdi mdi-tools color-icon-blue',
     'img view-structure': 'mdi mdi-tools color-icon-magenta',
+    'img api-table': 'mdi mdi-table-large color-icon-magenta',
 
     'img sort-asc': 'mdi mdi-sort-alphabetical-ascending color-icon-green',
     'img sort-desc': 'mdi mdi-sort-alphabetical-descending color-icon-green',

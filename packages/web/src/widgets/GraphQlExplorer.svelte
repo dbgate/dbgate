@@ -4,12 +4,16 @@
   import { apiCall } from '../utility/api';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import {
+    getGraphQlTypeDisplay,
+    isCompositeGraphQlKind,
+    unwrapNamedGraphQlType,
+  } from '../utility/graphQlExplorerUtils';
+  import {
     buildGraphQlQueryText,
     parseGraphQlSelectionPaths,
     type GraphQLExplorerFieldNode,
     type GraphQLField,
     type GraphQLType,
-    type GraphQLTypeRef,
   } from 'dbgate-rest';
 
   export let conid;
@@ -250,23 +254,6 @@ ${typeRefSelection}
     return type || null;
   }
 
-  function getTypeDisplay(typeRef: GraphQLTypeRef | null | undefined): string {
-    if (!typeRef) return 'Unknown';
-    if (typeRef.kind === 'NON_NULL') return `${getTypeDisplay(typeRef.ofType)}!`;
-    if (typeRef.kind === 'LIST') return `[${getTypeDisplay(typeRef.ofType)}]`;
-    return typeRef.name || 'Unknown';
-  }
-
-  function unwrapNamedType(typeRef: GraphQLTypeRef | null | undefined): GraphQLTypeRef | null {
-    if (!typeRef) return null;
-    if (typeRef.kind === 'NON_NULL' || typeRef.kind === 'LIST') return unwrapNamedType(typeRef.ofType);
-    return typeRef;
-  }
-
-  function isCompositeKind(kind?: string | null): boolean {
-    return kind === 'OBJECT' || kind === 'INTERFACE' || kind === 'UNION';
-  }
-
   function buildNodesFromType(type: GraphQLType): GraphQLExplorerFieldNode[] {
     if (type?.kind === 'UNION') {
       return (type.possibleTypes || [])
@@ -276,24 +263,24 @@ ${typeRefSelection}
           description: undefined,
           typeName: item.name as string,
           typeDisplay: item.name as string,
-          isLeaf: !isCompositeKind(item.kind),
+          isLeaf: !isCompositeGraphQlKind(item.kind),
           children: undefined,
         }));
     }
 
     if (!type?.fields) return [];
     return type.fields.map((field: GraphQLField) => {
-      const namedType = unwrapNamedType(field.type);
-      const isLeaf = !isCompositeKind(namedType?.kind);
+      const namedType = unwrapNamedGraphQlType(field.type);
+      const isLeaf = !isCompositeGraphQlKind(namedType?.kind);
 
       // Build argument nodes
       const argumentNodes: GraphQLExplorerFieldNode[] = (field.args || []).map(arg => {
-        const argNamedType = unwrapNamedType(arg.type);
+        const argNamedType = unwrapNamedGraphQlType(arg.type);
         return {
           name: arg.name,
           description: arg.description,
           typeName: argNamedType?.name || 'Unknown',
-          typeDisplay: getTypeDisplay(arg.type),
+          typeDisplay: getGraphQlTypeDisplay(arg.type),
           isLeaf: true,
           isArgument: true,
         };
@@ -303,7 +290,7 @@ ${typeRefSelection}
         name: field.name,
         description: field.description,
         typeName: namedType?.name || 'Unknown',
-        typeDisplay: getTypeDisplay(field.type),
+        typeDisplay: getGraphQlTypeDisplay(field.type),
         isLeaf,
         isArgument: false,
         arguments: argumentNodes.length > 0 ? argumentNodes : undefined,

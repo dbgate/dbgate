@@ -2,8 +2,8 @@
   import { createGridCache, createGridConfig, FreeTableGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
 
-  import DataGridCore from '../datagrid/DataGridCore.svelte';
-  import RowsArrayGrider from '../datagrid/RowsArrayGrider';
+  import DataGridCore from './DataGridCore.svelte';
+  import RowsArrayGrider from './RowsArrayGrider';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 

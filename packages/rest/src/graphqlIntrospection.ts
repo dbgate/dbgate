@@ -141,7 +141,7 @@ function isScalarLikeField(field: GraphQLField, typeMap: Map<string, GraphQLType
   return type.kind === 'SCALAR' || type.kind === 'ENUM';
 }
 
-function scoreFieldName(name: string): number {
+export function scoreFieldName(name: string): number {
   const lowerName = (name || '').toLowerCase();
   const exactOrder = [
     'id',
@@ -171,7 +171,7 @@ function scoreFieldName(name: string): number {
   return 100;
 }
 
-function chooseUsefulNodeAttributes(nodeType: GraphQLType | undefined, typeMap: Map<string, GraphQLType>): string[] {
+export function chooseUsefulNodeAttributes(nodeType: GraphQLType | undefined, typeMap: Map<string, GraphQLType>): string[] {
   if (!nodeType?.fields?.length) return ['__typename'];
 
   const scalarFields = nodeType.fields.filter(field => isScalarLikeField(field, typeMap));
@@ -200,7 +200,7 @@ function stringifyArgumentValue(argumentTypeRef: GraphQLTypeRef | null | undefin
   return `"${value}"`;
 }
 
-function buildFirstTenArgs(field: GraphQLField): string {
+export function buildFirstTenArgs(field: GraphQLField): string {
   const args = field.args || [];
   if (args.length === 0) return '';
 
@@ -211,7 +211,7 @@ function buildFirstTenArgs(field: GraphQLField): string {
   return `(${arg.name}: ${stringifyArgumentValue(arg.type, 10)})`;
 }
 
-type GraphQLConnectionProjection =
+export type GraphQLConnectionProjection =
   | {
       kind: 'edges';
       nodeTypeName: string;
@@ -223,7 +223,7 @@ type GraphQLConnectionProjection =
       nodeTypeName: string;
     };
 
-function detectConnectionProjection(
+export function detectConnectionProjection(
   field: GraphQLField,
   typeMap: Map<string, GraphQLType>
 ): GraphQLConnectionProjection | null {
@@ -359,6 +359,24 @@ export function extractRestApiDefinitionFromGraphQlIntrospectionResult(
   const { __schema } = introspectionResult;
   const categories: any[] = [];
 
+  // Connections (query fields returning connection-like payloads)
+  if (__schema.queryType?.name) {
+    const connectionEndpoints = buildConnectionEndpoints(__schema.types, __schema.queryType.name);
+    if (connectionEndpoints.length > 0) {
+      categories.push({
+        name: 'Connections',
+        endpoints: connectionEndpoints.map(connection => ({
+          method: 'POST',
+          path: connection.name,
+          summary: connection.description,
+          description: connection.fields,
+          parameters: [],
+          connectionQuery: connection.connectionQuery,
+        })),
+      });
+    }
+  }
+
   // Queries
   if (__schema.queryType?.name) {
     const queryEndpoints = buildOperationEndpoints(__schema.types, 'OBJECT', __schema.queryType.name);
@@ -405,24 +423,6 @@ export function extractRestApiDefinitionFromGraphQlIntrospectionResult(
           summary: s.description,
           description: s.fields,
           parameters: [],
-        })),
-      });
-    }
-  }
-
-  // Connections (query fields returning connection-like payloads)
-  if (__schema.queryType?.name) {
-    const connectionEndpoints = buildConnectionEndpoints(__schema.types, __schema.queryType.name);
-    if (connectionEndpoints.length > 0) {
-      categories.push({
-        name: 'Connections',
-        endpoints: connectionEndpoints.map(connection => ({
-          method: 'POST',
-          path: connection.name,
-          summary: connection.description,
-          description: connection.fields,
-          parameters: [],
-          connectionQuery: connection.connectionQuery,
         })),
       });
     }
