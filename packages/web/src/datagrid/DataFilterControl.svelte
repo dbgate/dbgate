@@ -292,7 +292,7 @@
       schemaName: foreignKey.refSchemaName,
       multiselect: true,
       dataType,
-      onConfirm: keys => setFilter(keys.join(',')),
+      onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x, dataType)).join(',')),
     });
   }
 
@@ -308,7 +308,7 @@
       field: columnName || uniqueName,
       formatterFunction,
       dataType,
-      onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
+      onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x, dataType)).join(',')),
     });
   }
 

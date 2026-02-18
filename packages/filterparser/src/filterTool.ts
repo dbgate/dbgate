@@ -16,7 +16,46 @@ function getDateStringWithoutTimeZone(dateString) {
 
 export function getFilterValueExpression(value, dataType?) {
   if (value == null) return 'NULL';
-  if (isTypeDateTime(dataType)) return format(toDate(getDateStringWithoutTimeZone(value)), 'yyyy-MM-dd HH:mm:ss');
+  if (isTypeDateTime(dataType)) {
+    // Check for year as number (GROUP:YEAR)
+    if (typeof value === 'number' && Number.isInteger(value) && value >= 1000 && value <= 9999) {
+      return value.toString();
+    }
+    
+    if (_isString(value)) {
+      // Year only
+      if (/^\d{4}$/.test(value)) {
+        return value;
+      }
+      
+      // Year-month: validate month is in range 01-12
+      const yearMonthMatch = value.match(/^(\d{4})-(\d{1,2})$/);
+      if (yearMonthMatch) {
+        const month = parseInt(yearMonthMatch[2], 10);
+        if (month >= 1 && month <= 12) {
+          return value;
+        }
+      }
+      
+      // Year-month-day: validate month and day
+      const yearMonthDayMatch = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (yearMonthDayMatch) {
+        const month = parseInt(yearMonthDayMatch[2], 10);
+        const day = parseInt(yearMonthDayMatch[3], 10);
+        
+        // Quick validation: month 1-12, day 1-31
+        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+          // Construct a date to verify it's actually valid (e.g., reject 2024-02-30)
+          const dateStr = `${yearMonthDayMatch[1]}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const date = toDate(dateStr);
+          if (!isNaN(date.getTime())) {
+            return value;
+          }
+        }
+      }
+    }
+    return format(toDate(getDateStringWithoutTimeZone(value)), 'yyyy-MM-dd HH:mm:ss');
+  }
   if (value === true) return 'TRUE';
   if (value === false) return 'FALSE';
   if (value.$oid) return `ObjectId("${value.$oid}")`;

@@ -75,7 +75,9 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{_t('dataGrid.chooseValue', { defaultMessage: 'Choose value from {field}', values: { field } })}</svelte:fragment>
+    <svelte:fragment slot="header"
+      >{_t('dataGrid.chooseValue', { defaultMessage: 'Choose value from {field}', values: { field } })}</svelte:fragment
+    >
 
     <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
     <div class="largeFormMarker">
@@ -114,7 +116,13 @@
               {
                 fieldName: 'value',
                 header: _t('dataGrid.value', { defaultMessage: 'Value' }),
-                formatter: row => (row.value == null ? '(NULL)' : row.value?.$binary?.base64 ? base64ToHex(row.value.$binary.base64) :  row.value),
+                formatter: row => {
+                  if (row.value == null) return '(NULL)';
+                  if (row.value?.$binary?.base64) return base64ToHex(row.value.$binary.base64);
+                  if (row.value?.$decimal) return row.value.$decimal;
+                  if (row.value?.$bigint) return row.value.$bigint;
+                  return row.value;
+                },
               },
             ]}
           >
@@ -148,7 +156,11 @@
           }}
         />
       {/if}
-      <FormStyledButton type="button" value={_t('common.close', { defaultMessage: 'Close' })} on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value={_t('common.close', { defaultMessage: 'Close' })}
+        on:click={closeCurrentModal}
+      />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>
