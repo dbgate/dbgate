@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import type { EngineDriver, ViewInfo, ColumnInfo } from 'dbgate-types';
+import { evalFilterBehaviour } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { GridConfig, GridCache } from './GridConfig';
 import { FreeTableModel } from './FreeTableModel';
@@ -11,13 +12,15 @@ export class FreeTableGridDisplay extends GridDisplay {
     config: GridConfig,
     setConfig: ChangeConfigFunc,
     cache: GridCache,
-    setCache: ChangeCacheFunc
+    setCache: ChangeCacheFunc,
+    options: { filterable?: boolean } = {}
   ) {
     super(config, setConfig, cache, setCache);
     this.columns = model?.structure?.__isDynamicStructure
       ? analyseCollectionDisplayColumns(model?.rows, this)
       : this.getDisplayColumns(model);
-    this.filterable = false;
+    this.filterable = options.filterable ?? false;
+    this.filterBehaviourOverride = evalFilterBehaviour;
     this.sortable = false;
   }
 

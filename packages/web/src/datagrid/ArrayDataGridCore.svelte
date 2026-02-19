@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, FreeTableGridDisplay } from 'dbgate-datalib';
+  import { evaluateCondition } from 'dbgate-sqltree';
   import { writable } from 'svelte/store';
   import uuidv1 from 'uuid/v1';
 
@@ -25,6 +26,8 @@
   export let jslid = undefined;
 
   let model = null;
+  let filteredRows = [];
+  let rowsForValueLookup = [];
 
   const config = writable(createGridConfig());
   const cache = writable(createGridCache());
@@ -33,10 +36,29 @@
     structure: { __isDynamicStructure: true },
     rows,
   };
-  $: grider = new RowsArrayGrider(rows);
-  $: display = externalDisplay || new FreeTableGridDisplay(model, $config, config.update, $cache, cache.update);
+  $: display =
+    externalDisplay ||
+    new FreeTableGridDisplay(model, $config, config.update, $cache, cache.update, { filterable: true });
+  $: {
+    const sourceRows = rows || [];
+    const condition = display?.compileJslFilters?.();
 
-  function getRowsForExport() {
+    if (!condition) {
+      filteredRows = sourceRows;
+    } else {
+      filteredRows = sourceRows.filter(row => {
+        try {
+          return !!evaluateCondition(condition, row);
+        } catch {
+          return true;
+        }
+      });
+    }
+  }
+  $: grider = new RowsArrayGrider(filteredRows);
+  $: rowsForValueLookup = getRowsForExport(rows);
+
+  function getRowsForExport(rows) {
     const sourceRows = rows || [];
     if (sourceRows.length === 0) return sourceRows;
 
@@ -52,7 +74,7 @@
     const tempJslId = uuidv1();
     await apiCall('jsldata/save-rows', {
       jslid: tempJslId,
-      rows: getRowsForExport(),
+      rows: getRowsForExport(rows),
     });
     return tempJslId;
   }
@@ -109,5 +131,6 @@
     {changeSetStore}
     {collapsedLeftColumnStore}
     {jslid}
+    passAllRows={rowsForValueLookup}
   />
 {/if}

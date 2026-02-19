@@ -472,6 +472,7 @@
   export let schemaName = undefined;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
+  export let passAllRows = null;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -2259,6 +2260,7 @@
                   {conid}
                   {database}
                   {jslid}
+                  {passAllRows}
                   {formatterFunction}
                   driver={display?.driver}
                   filterBehaviour={display?.filterBehaviourOverride ??

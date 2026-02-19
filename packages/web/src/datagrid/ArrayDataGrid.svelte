@@ -26,7 +26,7 @@
     rows,
   };
 
-  $: display = new FreeTableGridDisplay(model, $config, config.update, $cache, cache.update);
+  $: display = new FreeTableGridDisplay(model, $config, config.update, $cache, cache.update, { filterable: true });
 </script>
 
 <div class="array-grid-wrapper">

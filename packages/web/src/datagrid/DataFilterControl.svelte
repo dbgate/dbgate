@@ -32,6 +32,7 @@
   export let database = null;
   export let driver = null;
   export let jslid = null;
+  export let passAllRows = null;
   export let customCommandIcon = null;
   export let onCustomCommand = null;
   export let customCommandTooltip = null;
@@ -302,6 +303,7 @@
       database,
       driver,
       jslid,
+      passAllRows,
       multiselect: true,
       schemaName,
       pureName,
@@ -397,7 +399,7 @@
           <FontIcon icon="icon dots-vertical" />
         </InlineButton>
       {/if}
-    {:else if jslid}
+    {:else if jslid || passAllRows}
       <InlineButton on:click={handleShowValuesModal} narrow square>
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
