@@ -61,7 +61,7 @@ const driver = {
   // called in query console
   async stream(dbhan, query, options) {
     try {
-      if (!query.match(/^\s*SELECT/i)) {
+      if (!query.match(/^\s*(SELECT|WITH)\b/i)) {
         const resp = await dbhan.client.command({
           query,
         });
