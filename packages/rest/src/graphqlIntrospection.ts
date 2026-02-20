@@ -191,24 +191,50 @@ export function chooseUsefulNodeAttributes(nodeType: GraphQLType | undefined, ty
     .map(item => item.field.name);
 }
 
-function stringifyArgumentValue(argumentTypeRef: GraphQLTypeRef | null | undefined, value: number): string {
+function stringifyArgumentValue(argumentTypeRef: GraphQLTypeRef | null | undefined, value: number | string): string {
   const namedType = unwrapNamedTypeRef(argumentTypeRef);
-  if (!namedType?.name) return `${value}`;
+  if (!namedType?.name) {
+    // Fallback: safely stringify as a JSON string literal
+    return JSON.stringify(String(value));
+  }
 
   const typeName = namedType.name.toLowerCase();
-  if (typeName === 'int' || typeName === 'float') return `${value}`;
-  return `"${value}"`;
+  if (typeName === 'int' || typeName === 'float') {
+    const numValue = typeof value === 'number' ? value : Number(value);
+    if (Number.isFinite(numValue)) {
+      return String(numValue);
+    }
+    // If the value cannot be parsed as a valid number, fall back to a quoted string
+    return JSON.stringify(String(value));
+  }
+
+  // For non-numeric types, safely serialize as a JSON string literal
+  return JSON.stringify(String(value));
 }
 
-export function buildFirstTenArgs(field: GraphQLField): string {
+export function buildFirstTenArgs(field: GraphQLField, filterParamName?: string | null, filterValue?: string): string {
   const args = field.args || [];
   if (args.length === 0) return '';
 
-  const candidates = ['first', 'limit', 'pagesize', 'perpage', 'take', 'size', 'count', 'maxresults'];
-  const arg = args.find(item => candidates.includes((item.name || '').toLowerCase()));
-  if (!arg) return '';
+  const argPairs: string[] = [];
 
-  return `(${arg.name}: ${stringifyArgumentValue(arg.type, 10)})`;
+  // Add pagination argument
+  const candidates = ['first', 'limit', 'pagesize', 'perpage', 'take', 'size', 'count', 'maxresults'];
+  const paginationArg = args.find(item => candidates.includes((item.name || '').toLowerCase()));
+  if (paginationArg) {
+    argPairs.push(`${paginationArg.name}: ${stringifyArgumentValue(paginationArg.type, 10)}`);
+  }
+
+  // Add filter argument if provided
+  if (filterParamName && filterValue) {
+    const filterArg = args.find(item => item.name === filterParamName);
+    if (filterArg) {
+      argPairs.push(`${filterParamName}: ${stringifyArgumentValue(filterArg.type, filterValue)}`);
+    }
+  }
+
+  if (argPairs.length === 0) return '';
+  return `(${argPairs.join(', ')})`;
 }
 
 export type GraphQLConnectionProjection =

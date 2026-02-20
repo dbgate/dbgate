@@ -261,7 +261,9 @@
       <svelte:fragment slot="1">
         <HorizontalSplitter
           initialSizeRight={getInitialCellViewWidth()}
-          onChangeSize={value => (cellViewWidth = value)}
+          onChangeSize={(leftSize, rightSize) => {
+            cellViewWidth = rightSize;
+          }}
           isSplitter={cellDataViewVisible && !isFormView}
         >
           <svelte:fragment slot="1">

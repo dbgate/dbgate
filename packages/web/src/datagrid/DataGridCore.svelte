@@ -2011,6 +2011,7 @@
     { command: 'dataGrid.saveCellToFile', hideDisabled: true },
     { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
     { command: 'dataGrid.toggleCellDataView', hideDisabled: true },
+    { command: 'gqlConnection.toggleCellDataView', hideDisabled: true },
     isProApp() && {
       text: _t('datagrid.useMacro', { defaultMessage: 'Use macro' }),
       submenu: macros

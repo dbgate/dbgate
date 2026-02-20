@@ -2,9 +2,10 @@
   export let noMargin = false;
   export let altsearchbox = false;
   export let filter = null;
+  export let fillFlex = false;
 </script>
 
-<div class:useMargin={!noMargin} class:altsearchbox class:hasFilter={!!filter}><slot /></div>
+<div class:useMargin={!noMargin} class:altsearchbox class:hasFilter={!!filter} class:fillFlex><slot /></div>
 
 <style>
   div {
@@ -25,5 +26,9 @@
   }
   div.hasFilter {
     background-color: var(--theme-searchbox-background-filtered);
+  }
+
+  .fillFlex {
+    flex: 1;
   }
 </style>
