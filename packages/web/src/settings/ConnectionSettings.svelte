@@ -56,17 +56,6 @@
       defaultValue="15"
       disabled={values['session.autoClose'] === false}
     />
-
-    <div class="heading">{_t('settings.connectionSuggestions', { defaultMessage: 'Connection suggestions' })}</div>
-    {#each $extensions.drivers as driver, index}
-      <FormCheckboxField
-        name="settings.connectionSuggestions.{driver.title}"
-        label={_t('settings.connectionSuggestions.' + driver.title, {
-          defaultMessage: driver.title,
-        })}
-        defaultValue={true}
-      />
-    {/each}
   </FormValues>
 </div>
 

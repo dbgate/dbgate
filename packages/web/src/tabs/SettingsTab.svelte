@@ -7,6 +7,7 @@
   import GeneralSettings from '../settings/GeneralSettings.svelte';
   import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
   import ConnectionSettings from '../settings/ConnectionSettings.svelte';
+  import DriverSettings from '../settings/DriverSettings.svelte';
   import ThemeSettings from '../settings/ThemeSettings.svelte';
   import DefaultActionsSettings from '../settings/DefaultActionsSettings.svelte';
   import BehaviourSettings from '../settings/BehaviourSettings.svelte';
@@ -37,6 +38,13 @@
       component: ConnectionSettings,
       props: {},
       testid: 'settings-connection',
+    },
+    hasPermission('settings/change') && {
+      label: _t('settings.drivers', { defaultMessage: 'Drivers' }),
+      identifier: 'drivers',
+      component: DriverSettings,
+      props: {},
+      testid: 'settings-drivers',
     },
     hasPermission('settings/change') && {
       label: _t('settings.dataGrid.title', { defaultMessage: 'Data grid' }),

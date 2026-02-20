@@ -480,7 +480,7 @@ export const toggledDatabases = derived([extensions, useSettings()], ([$extensio
     return res;
 
   for (const driver of $extensions.drivers) {
-    res.set(driver.title, !!$settings[`settings.connectionSuggestions.${driver.title}`]);
+    res.set(driver.title, $settings[`settings.drivers.${driver.title}`] !== false);
   }
   
   return res;
