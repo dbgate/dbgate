@@ -473,3 +473,15 @@ cloudSigninTokenHolder.subscribe(value => {
 });
 export const getCloudSigninTokenHolder = () => cloudSigninTokenHolderValue;
 
+export const toggledDatabases = derived([extensions, useSettings()], ([$extensions, $settings]) => {
+  const res = new Map<string, boolean>();
+
+  if (!$extensions || !$settings)
+    return res;
+
+  for (const driver of $extensions.drivers) {
+    res.set(driver.title, !!$settings[`settings.connectionSuggestions.${driver.title}`]);
+  }
+  
+  return res;
+});
