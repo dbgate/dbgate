@@ -123,7 +123,7 @@
             conid,
             database,
             options: {
-              keyPrefix: item.root || item.key,
+              keyPrefix: item.key,
             },
           });
 
@@ -172,22 +172,19 @@
     }
   }}
   on:mousedown={() => {
-    $focusedTreeRedisKey = _.pick(item, ['type', 'key', 'root', 'text']);
+    $focusedTreeRedisKey = _.pick(item, ['type', 'key', 'text']);
   }}
   extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
   menu={createMenu}
-  isChoosed={$focusedTreeRedisKey &&
-    item.key == $focusedTreeRedisKey.key &&
-    item.root == $focusedTreeRedisKey.root &&
-    item.type == $focusedTreeRedisKey.type}
+  isChoosed={$focusedTreeRedisKey && item.key == $focusedTreeRedisKey.key && item.type == $focusedTreeRedisKey.type}
 />
 <!-- <div on:click={() => (isExpanded = !isExpanded)}>
   <FontIcon icon={} />
   {item.text}
 </div> -->
 
-{#if isExpanded && !parentRoots.includes(item.root)}
+{#if isExpanded && !parentRoots.includes(item.key)}
   <RedisKeysSubTree
     {conid}
     {database}

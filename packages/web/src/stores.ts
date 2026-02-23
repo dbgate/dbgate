@@ -164,7 +164,7 @@ export const lastUsedDefaultActions = writableWithStorage({}, 'lastUsedDefaultAc
 export const selectedDatabaseObjectAppObject = writable(null);
 export const focusedConnectionOrDatabase = writable<{ conid: string; database?: string; connection: any }>(null);
 
-export const focusedTreeRedisKey = writable<{ key: string; root: string; type: string; text: string }>(null);
+export const focusedTreeRedisKey = writable<{ key: string; type: string; text: string }>(null);
 
 export const cloudSigninTokenHolder = writableSettingsValue(null, 'cloudSigninTokenHolder');
 export const seenPremiumPromoWidget = writableWithStorage(null, 'seenPremiumPromoWidget');

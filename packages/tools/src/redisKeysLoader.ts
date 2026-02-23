@@ -124,7 +124,7 @@ export function redis_mergeNextPage(tree: RedisTreeModel, nextPage: RedisLoadRes
     childrenByKey[dirObj.parentKey].push(dirObj);
 
     // set key count
-    dirsByKey[dirObj.key].count = childrenByKey[dirObj.key].length;
+    dirsByKey[dirObj.key].count = childrenByKey[dirObj.key]?.length || 0;
   }
 
   for (const key in childrenByKey) {
