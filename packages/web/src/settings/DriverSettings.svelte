@@ -44,6 +44,7 @@
         <span>{_t('settings.checkAll', { defaultMessage: 'Check all / Uncheck all' })}</span>
       </label>
     </div>
+    <div class="br" />
     {#each $extensions.drivers as driver, index}
       <FormCheckboxField
         name="{settingsPrefix}.{driver.title}"
@@ -73,9 +74,14 @@
 
   .check-all-wrapper {
     margin-left: var(--dim-large-form-margin);
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--theme-border);
+    margin-top: 25px;
+  }
+
+  .br {
+    background: var(--theme-searchbox-background);
+    height: 1px;
+    margin: 5px 10px;
+    width: 200px;
   }
 
   .check-all-label {
