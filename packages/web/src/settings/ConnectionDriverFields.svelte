@@ -1,6 +1,7 @@
 <script lang="ts">
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormElectronFileSelector from '../forms/FormElectronFileSelector.svelte';
+  import FormConnectionTypeSelector from '../forms/FormConnectionTypeSelector.svelte';
 
   import FormPasswordField from '../forms/FormPasswordField.svelte';
   import _ from 'lodash';
@@ -87,7 +88,7 @@
   }
 </script>
 
-<FormSelectField
+<FormConnectionTypeSelector
   label={_t('connection.type', { defaultMessage: 'Connection type' })}
   name="engine"
   isNative

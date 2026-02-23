@@ -40,13 +40,6 @@
       testid: 'settings-connection',
     },
     hasPermission('settings/change') && {
-      label: _t('settings.drivers', { defaultMessage: 'Drivers' }),
-      identifier: 'drivers',
-      component: DriverSettings,
-      props: {},
-      testid: 'settings-drivers',
-    },
-    hasPermission('settings/change') && {
       label: _t('settings.dataGrid.title', { defaultMessage: 'Data grid' }),
       identifier: 'data-grid',
       component: DataGridSettings,
@@ -87,6 +80,13 @@
       component: ExternalToolsSettings,
       props: {},
       testid: 'settings-external-tools',
+    },
+    hasPermission('settings/change') && {
+      label: _t('settings.drivers', { defaultMessage: 'Drivers' }),
+      identifier: 'drivers',
+      component: DriverSettings,
+      props: {},
+      testid: 'settings-drivers',
     },
     hasPermission('settings/change') && {
       label: _t('command.settings.shortcuts', { defaultMessage: 'Keyboard shortcuts' }),
