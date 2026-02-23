@@ -4,7 +4,6 @@
   import { extensions } from '../stores';
   import { _t } from '../translations';
   import { getFormContext } from '../forms/SettingsFormProvider.svelte';
-  import Link from '../elements/Link.svelte';
 
   export let settingsPrefix = 'settings.drivers';
   export let headingKey = 'settings.activeDrivers';
@@ -13,10 +12,20 @@
 
   const context = getFormContext();
 
-  function handleCheckAll(isChecked) {
+  function handleCheckAll(isChecked: boolean) {
     $extensions.drivers.forEach(driver => {
       context.setFieldValue(`${settingsPrefix}.${driver.title}`, isChecked);
     });
+  }
+
+  function getCheckAllState(values): boolean {
+    if (!values) return false;
+
+    const checkedCount = $extensions.drivers.filter(driver => values?.[`${settingsPrefix}.${driver.title}`]).length;
+
+    if (checkedCount === 0) return false;
+    if (checkedCount === $extensions.drivers.length) return true;
+    return false;
   }
 </script>
 
@@ -25,10 +34,15 @@
     <div class="heading-wrapper">
       <div class="heading">{_t(headingKey, { defaultMessage: defaultHeading })}</div>
     </div>
-    <div class="actions">
-      <Link onClick={() => handleCheckAll(true)}>{_t('settings.checkAll', { defaultMessage: 'Check all' })}</Link>
-      |
-      <Link onClick={() => handleCheckAll(false)}>{_t('settings.uncheckAll', { defaultMessage: 'Uncheck all' })}</Link>
+    <div class="check-all-wrapper">
+      <label class="check-all-label">
+        <input
+          type="checkbox"
+          checked={getCheckAllState(values)}
+          on:change={e => handleCheckAll(e.currentTarget.checked)}
+        />
+        <span>{_t('settings.checkAll', { defaultMessage: 'Check all / Uncheck all' })}</span>
+      </label>
     </div>
     {#each $extensions.drivers as driver, index}
       <FormCheckboxField
@@ -57,9 +71,23 @@
     font-size: 20px;
   }
 
-  .actions {
+  .check-all-wrapper {
     margin-left: var(--dim-large-form-margin);
     margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--theme-border);
+  }
+
+  .check-all-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .check-all-label input[type='checkbox'] {
+    cursor: pointer;
   }
 
   .wrapper :global(input) {
