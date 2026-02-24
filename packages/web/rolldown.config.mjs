@@ -1,17 +1,12 @@
+import { defineConfig } from 'rolldown';
+import { replacePlugin } from 'rolldown/plugins';
 import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import copy from 'rollup-plugin-copy';
-import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
-import typescript from '@rollup/plugin-typescript';
-import replace from '@rollup/plugin-replace';
-import css from 'rollup-plugin-css-only';
-import json from '@rollup/plugin-json';
-import postcss from 'rollup-plugin-postcss';
+import { spawn } from 'node:child_process';
 
-const production = !process.env.ROLLUP_WATCH;
+const production = process.env.NODE_ENV === 'production';
 
 function serve() {
   let server;
@@ -23,7 +18,7 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+      server = spawn('npm', ['run', 'start', '--', '--dev'], {
         stdio: ['ignore', 'inherit', 'inherit'],
         shell: true,
       });
@@ -34,50 +29,77 @@ function serve() {
   };
 }
 
-export default [
-  // Separate entry for Tailwind CSS processing
-  {
-    input: 'src/tailwind.css',
-    output: {
-      file: 'public/build/tailwind.css',
-    },
-    plugins: [
-      postcss({
-        extract: true,
-        minimize: production,
-        sourceMap: !production,
-      }),
-    ],
-  },
-
+export default defineConfig([
+  // Web Worker entry
   {
     input: 'src/query/QueryParserWorker.js',
     output: {
       sourcemap: !production,
       format: 'iife',
       file: 'public/build/query-parser-worker.js',
+      minify: production,
     },
-    plugins: [
-      commonjs(),
-      resolve({
-        browser: true,
-      }),
-
-      // If we're building for production (npm run build
-      // instead of npm run dev), minify
-      production && terser(),
-    ],
+    platform: 'browser',
   },
 
+  // Main application entry
   {
     input: 'src/main.ts',
     output: {
       sourcemap: !production,
       format: 'iife',
       name: 'app',
-      file: 'public/build/bundle.js',
+      dir: 'public/build',
+      entryFileNames: 'bundle.js',
+      cssEntryFileNames: 'bundle.css',
+      minify: production,
+    },
+    platform: 'browser',
+    resolve: {
+      conditionNames: ['svelte', 'browser', 'import'],
+    },
+    // Shim Node's `global` for browser (used by debug, dbgate-tools getLogger, etc.)
+    transform: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+    // Handle non-JS asset types referenced from CSS (e.g. leaflet marker images)
+    moduleTypes: {
+      '.png': 'dataurl',
+      '.jpg': 'dataurl',
+      '.gif': 'dataurl',
+      '.svg': 'dataurl',
     },
     plugins: [
+      // ace-builds addon files (keybinding-vim, modes, themes, etc.) reference
+      // the bare `ace` global set by ace.js on window. We must ensure ace.js is
+      // evaluated first, then inject a local `ace` binding for the addon code.
+      {
+        name: 'ace-global-shim',
+        transform(code, id) {
+          if (/ace-builds[\\/]src-noconflict[\\/]/.test(id) && !id.endsWith('ace.js')) {
+            // Import ace.js first (triggers its IIFE which sets window.ace),
+            // then bind the local `ace` variable from window.
+            const shimmed = 'import "ace-builds/src-noconflict/ace";\nvar ace = window.ace;\n' + code;
+            return { code: shimmed, map: null };
+          }
+        },
+      },
+
+      // Resolve chart.js/dist to chart.js (not exported in package.json exports field)
+      {
+        name: 'resolve-chartjs-dist',
+        resolveId: {
+          filter: { id: /chart\.js\/dist/ },
+          handler(source) {
+            if (source === 'chart.js/dist') {
+              return this.resolve('chart.js', undefined, { skipSelf: true });
+            }
+          },
+        },
+      },
+
       copy({
         targets: [
           {
@@ -95,7 +117,7 @@ export default [
         ],
       }),
 
-      replace({
+      replacePlugin({
         'process.env.API_URL': JSON.stringify(process.env.API_URL),
       }),
 
@@ -116,29 +138,11 @@ export default [
             'unused-export-let',
           ];
           if (ignoreWarnings.includes(warning.code)) return;
-          // console.log('***************************', warning.code);
           handler(warning);
         },
+        // Let rolldown handle CSS bundling natively
+        emitCss: true,
       }),
-      // we'll extract any component CSS out into
-      // a separate file - better for performance
-      css({ output: 'bundle.css' }),
-
-      // If you have external dependencies installed from
-      // npm, you'll most likely need these plugins. In
-      // some cases you'll need additional configuration -
-      // consult the documentation for details:
-      // https://github.com/rollup/plugins/tree/master/packages/commonjs
-      resolve({
-        browser: true,
-        dedupe: ['svelte'],
-      }),
-      commonjs(),
-      typescript({
-        sourceMap: !production,
-        inlineSources: !production,
-      }),
-      json(),
 
       // In dev mode, call `npm run start` once
       // the bundle has been generated
@@ -147,13 +151,9 @@ export default [
       // Watch the `public` directory and refresh the
       // browser on changes when not in production
       !production && livereload('public'),
-
-      // If we're building for production (npm run build
-      // instead of npm run dev), minify
-      production && terser(),
     ],
     watch: {
       clearScreen: true,
     },
   },
-];
+]);
