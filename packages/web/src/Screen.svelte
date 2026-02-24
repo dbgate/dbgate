@@ -35,7 +35,7 @@
 <div class="not-supported" class:isElectron>
   <div class="m-5 big-icon"><FontIcon icon="img warn" /></div>
   <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
-  <div class="m-3">Please visit <a href="https://dbgate.org">DbGate web</a> for more info.</div>
+  <div class="m-3">Please visit <a href="https://www.dbgate.io">DbGate web</a> for more info.</div>
 </div>
 
 <div
