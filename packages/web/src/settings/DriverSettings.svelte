@@ -13,6 +13,8 @@
   const context = getFormContext();
 
   function handleCheckAll(isChecked: boolean) {
+    if (!$extensions?.drivers) return;
+
     $extensions.drivers.forEach(driver => {
       context.setFieldValue(`${settingsPrefix}.${driver.title}`, isChecked);
     });
@@ -20,12 +22,11 @@
 
   function getCheckAllState(values): boolean {
     if (!values) return false;
+    if (!$extensions?.drivers) return false;
 
     const checkedCount = $extensions.drivers.filter(driver => values?.[`${settingsPrefix}.${driver.title}`]).length;
 
-    if (checkedCount === 0) return false;
-    if (checkedCount === $extensions.drivers.length) return true;
-    return false;
+    return checkedCount === $extensions.drivers.length;
   }
 </script>
 
@@ -45,15 +46,17 @@
       </label>
     </div>
     <div class="br" />
-    {#each $extensions.drivers as driver, index}
-      <FormCheckboxField
-        name="{settingsPrefix}.{driver.title}"
-        label={_t(translationPrefix + '.' + driver.title, {
-          defaultMessage: driver.title,
-        })}
-        defaultValue={true}
-      />
-    {/each}
+    {#if $extensions?.drivers}
+      {#each $extensions.drivers as driver, index}
+        <FormCheckboxField
+          name="{settingsPrefix}.{driver.title}"
+          label={_t(translationPrefix + '.' + driver.title, {
+            defaultMessage: driver.title,
+          })}
+          defaultValue={true}
+        />
+      {/each}
+    {/if}
   </FormValues>
 </div>
 
