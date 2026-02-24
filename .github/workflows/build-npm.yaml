@@ -133,3 +133,7 @@ jobs:
         working-directory: plugins/dbgate-plugin-cassandra
         run: |
           npm publish --tag "$NPM_TAG"
+      - name: Publish dbgate-plugin-duckdb
+        working-directory: plugins/dbgate-plugin-duckdb
+        run: |
+          npm publish --tag "$NPM_TAG"

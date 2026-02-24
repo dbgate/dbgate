@@ -101,3 +101,7 @@ jobs:
           cd ..
           cd dbgate-merged/plugins/dbgate-plugin-firestore
           npm publish --tag "$NPM_TAG"
+      - name: Publish dbgate-plugin-dynamodb
+        working-directory: plugins/dbgate-plugin-dynamodb
+        run: |
+          npm publish --tag "$NPM_TAG"
