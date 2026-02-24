@@ -8,6 +8,17 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.1.0
+- ADDED: Support for Amazon DynamoDB (Premium)
+- ADDED: Connect to API endpoints - OpenAPI (Swagger), GraphQL and oData  (Premium)
+- FIXED: Redis key list infinite loading when first key hierarchy segment is numeric (e.g. "0:profile:1234") #1363
+- FIXED: Sum of PostgreSQL numeric values always 0 #1354
+- FIXED: SQL SERVER Table structure key duplication #1351
+- FIXED: SQL Server - Incorrect SQL generated for 'Group by Year/Month/Day' #1350
+- ADDED: Choose drivers available in connection dialog
+- FIXED: Show query results for CTE (WITH) queries
+- CHANGED: Used rolldown bundler instead of legacy rollup
+
 ## 7.0.6
 - ADDED: Reset password for Team Premium edition
 - ADDED: Encrypting passwords sent to frontend when using SHELL_CONNECTION=1 in Docker Community edition #1357
