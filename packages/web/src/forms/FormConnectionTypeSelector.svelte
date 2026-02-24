@@ -2,6 +2,7 @@
   import { getFormContext } from './FormProviderCore.svelte';
   import FormSelectFieldRaw from './FormSelectFieldRaw.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import openNewTab from '../utility/openNewTab';
   import { openedTabs } from '../stores';
 
@@ -38,8 +39,27 @@
 </script>
 
 <svelte:component this={template} type="select" {label} {...templateProps}>
-  <div class="flex">
+  <div class="flex connection-type-selector">
     <FormSelectFieldRaw {name} {options} defaultSelectValue={undefined} {...$$restProps} on:change />
-    <InlineButton on:click={handleOpenDriverSettings} useBorder>...</InlineButton>
+    <div class="driver-settings-button">
+      <InlineButton on:click={handleOpenDriverSettings} useBorder>
+        <FontIcon icon="icon dots-horizontal" />
+      </InlineButton>
+    </div>
   </div>
 </svelte:component>
+
+<style>
+  .connection-type-selector {
+    align-items: stretch;
+  }
+
+  .driver-settings-button {
+    display: flex;
+  }
+
+  .driver-settings-button :global(.outer) {
+    width: 24px;
+    height: 34px;
+  }
+</style>
