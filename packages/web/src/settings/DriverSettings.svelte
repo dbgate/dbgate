@@ -3,6 +3,7 @@
   import FormValues from '../forms/FormValues.svelte';
   import { extensions } from '../stores';
   import { _t } from '../translations';
+  import _ from 'lodash';
   import { getFormContext } from '../forms/SettingsFormProvider.svelte';
 
   export let settingsPrefix = 'settings.drivers';
@@ -47,7 +48,7 @@
     </div>
     <div class="br" />
     {#if $extensions?.drivers}
-      {#each $extensions.drivers as driver, index}
+      {#each _.sortBy($extensions.drivers, 'title') as driver, index}
         <FormCheckboxField
           name={`${settingsPrefix}.${driver.title}`}
           label={_t(translationPrefix + '.' + driver.title, {
