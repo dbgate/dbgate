@@ -326,11 +326,26 @@ ${typeRefSelection}
   }
 
   function getParentPaths(path: string): string[] {
+    // Handle __arg__ markers specially - __arg__ segments should be skipped when building parent paths
     const parts = path.split('.');
     const parents: string[] = [];
-    for (let i = 1; i < parts.length; i++) {
-      parents.push(parts.slice(0, i).join('.'));
+    
+    // Build paths, but filter out __arg__ markers
+    const realParts: string[] = [];
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (part !== '__arg__') {
+        realParts.push(part);
+        if (realParts.length > 1) {
+          // Add this as a parent path (all but the last element)
+          const parentPath = realParts.slice(0, -1).join('.');
+          if (!parents.includes(parentPath)) {
+            parents.push(parentPath);
+          }
+        }
+      }
     }
+    
     return parents;
   }
 
@@ -396,27 +411,18 @@ ${typeRefSelection}
     const fieldArgumentTypes: Record<string, Record<string, string>> = {};
 
     for (const path of paths) {
-      const parts = path.split('.');
-      let currentNode: GraphQLExplorerFieldNode | null = null;
-      let foundField = false;
-
-      // Traverse the node tree to find the node at this path
-      let nodes = rootFields;
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        currentNode = nodes.find(n => n.name === part) || null;
-        if (!currentNode) break;
-
-        if (i < parts.length - 1) {
-          // Check if next part is an argument
-          const nextPart = parts[i + 1];
-          const isNextArgument = currentNode.arguments?.some(c => c.isArgument && c.name === nextPart);
-
-          if (isNextArgument) {
-            // Found an argument path
-            const fieldPath = parts.slice(0, i + 1).join('.');
-            const argumentName = nextPart;
-            const argumentNode = currentNode.arguments?.find(c => c.isArgument && c.name === nextPart);
+      // Check if this is an argument path (contains __arg__ marker)
+      if (path.includes('.__arg__.')) {
+        // This is an argument path: productCreate.__arg__.product -> fieldPath=productCreate, argument=product
+        const match = path.match(/^(.*?)\.\_\_arg\_\_\.(.+)$/);
+        if (match) {
+          const fieldPath = match[1];
+          const argumentName = match[2];
+          
+          // Find the field node to get the argument type
+          const fieldNode = findNodeByPath(rootFields, fieldPath.split('.'));
+          if (fieldNode && fieldNode.arguments) {
+            const argumentNode = fieldNode.arguments.find(c => c.isArgument && c.name === argumentName);
             if (!fieldArguments[fieldPath]) {
               fieldArguments[fieldPath] = [];
             }
@@ -425,20 +431,11 @@ ${typeRefSelection}
               fieldArgumentTypes[fieldPath] = {};
             }
             fieldArgumentTypes[fieldPath][argumentName] = argumentNode?.typeDisplay || 'String';
-            // Skip the argument node in traversal
-            i += 1;
-            continue;
-          }
-
-          // Continue traversing for field paths
-          nodes = currentNode.children || [];
-          foundField = true;
-        } else {
-          // Last part
-          if (!currentNode.isArgument) {
-            fieldPaths.push(path);
           }
         }
+      } else {
+        // This is a field path
+        fieldPaths.push(path);
       }
     }
 
@@ -669,9 +666,22 @@ ${typeRefSelection}
     if (currentSourceOfTruth !== 'editor') return;
     const { fieldPaths, argumentPaths, argumentValues } = parseGraphQlSelectionPaths(text);
     preservedArgumentValues = argumentValues || {};
-    const allPaths = [...fieldPaths, ...argumentPaths];
+    
+    // Convert argumentPaths to new format with __arg__ markers
+    // e.g., 'productCreate.product' -> 'productCreate.__arg__.product'
+    const convertedArgumentPaths = argumentPaths.map(argPath => {
+      const parts = argPath.split('.');
+      if (parts.length >= 2) {
+        const fieldPath = parts.slice(0, -1).join('.');
+        const argumentName = parts[parts.length - 1];
+        return `${fieldPath}.__arg__.${argumentName}`;
+      }
+      return argPath;
+    });
+    
+    const allPaths = [...fieldPaths, ...convertedArgumentPaths];
     if (rootFields.length === 0) {
-      pendingEditorPaths = { fieldPaths, argumentPaths, argumentValues: argumentValues || {} };
+      pendingEditorPaths = { fieldPaths, argumentPaths: convertedArgumentPaths, argumentValues: argumentValues || {} };
       return;
     }
 
@@ -682,7 +692,7 @@ ${typeRefSelection}
 
     const firstPath = fieldPaths[0] || allPaths[0];
     if (firstPath) {
-      const firstNode = findNodeByPath(rootFields, firstPath.split('.'));
+      const firstNode = findNodeByPath(rootFields, firstPath.split('.').filter(p => p !== '__arg__'));
       setCurrentNode(firstPath, firstNode);
     } else {
       setCurrentNode('', null);
@@ -726,9 +736,10 @@ ${typeRefSelection}
   }
 
   async function ensurePathLoaded(path: string) {
-    const parts = path.split('.');
-    for (let depth = 1; depth < parts.length; depth += 1) {
-      const prefix = parts.slice(0, depth).join('.');
+    // Remove __arg__ markers when loading paths - they're not traversable
+    const cleanParts = path.split('.').filter(part => part !== '__arg__');
+    for (let depth = 1; depth < cleanParts.length; depth += 1) {
+      const prefix = cleanParts.slice(0, depth).join('.');
       const node = findNodeByPath(rootFields, prefix.split('.'));
       if (!node || node.isLeaf) continue;
       if (node.children == null && !loadingPaths[prefix]) {
