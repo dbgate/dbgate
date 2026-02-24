@@ -8,9 +8,10 @@
 
   let width;
   let node;
-  $: contentSize = Math.round(width / viewportRatio);
+  $: contentSize = viewportRatio > 0 ? Math.round(width / viewportRatio) : width;
 
   function handleScroll() {
+    if (contentSize <= width) return;
     const position = node.scrollLeft;
     const ratio = position / (contentSize - width);
     if (ratio < 0) return 0;
@@ -19,6 +20,7 @@
   }
 
   export function scroll(value) {
+    if (contentSize <= width) return;
     const position01 = (value - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - width);
     if (node) node.scrollLeft = Math.floor(position);

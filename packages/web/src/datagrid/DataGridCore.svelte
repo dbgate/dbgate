@@ -1216,8 +1216,10 @@
   $: gridScrollAreaHeight = containerHeight - 2 * rowHeight;
   $: gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
-  $: visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(Math.max(1, rowHeight)));
-  $: visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight)));
+  $: visibleRowCountUpperBound =
+    rowHeight > 0 ? Math.ceil(gridScrollAreaHeight / Math.floor(Math.max(1, rowHeight))) : 0;
+  $: visibleRowCountLowerBound =
+    rowHeight > 0 ? Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight))) : 0;
 
   $: visibleRealColumns = countVisibleRealColumns(
     columnSizes,
@@ -2289,30 +2291,32 @@
         {/if}
       </thead>
       <tbody>
-        {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
-          <DataGridRow
-            {rowIndex}
-            {grider}
-            {conid}
-            {database}
-            driver={display?.driver}
-            {visibleRealColumns}
-            {rowHeight}
-            {autofillSelectedCells}
-            {isDynamicStructure}
-            selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-            autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-            focusedColumns={display.focusedColumns}
-            inplaceEditorState={$inplaceEditorState}
-            currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
-            {dispatchInsplaceEditor}
-            {frameSelection}
-            onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
-            {dataEditorTypesBehaviourOverride}
-            {gridColoringMode}
-            {overlayDefinition}
-          />
-        {/each}
+        {#if rowHeight > 0}
+          {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
+            <DataGridRow
+              {rowIndex}
+              {grider}
+              {conid}
+              {database}
+              driver={display?.driver}
+              {visibleRealColumns}
+              {rowHeight}
+              {autofillSelectedCells}
+              {isDynamicStructure}
+              selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+              autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+              focusedColumns={display.focusedColumns}
+              inplaceEditorState={$inplaceEditorState}
+              currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
+              {dispatchInsplaceEditor}
+              {frameSelection}
+              onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+              {dataEditorTypesBehaviourOverride}
+              {gridColoringMode}
+              {overlayDefinition}
+            />
+          {/each}
+        {/if}
       </tbody>
     </table>
 
