@@ -411,7 +411,8 @@
             isDropCollection: true,
             requiresWriteAccess: true,
           },
-          hasPermission('dbops/table/rename') && {
+          hasPermission('dbops/table/rename') &&
+            !driver?.disableRenameCollection && {
             label: _t('dbObject.renameCollection', { defaultMessage: 'Rename collection/container' }),
             isRenameCollection: true,
             requiresWriteAccess: true,

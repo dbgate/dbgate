@@ -264,6 +264,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   collectionPluralLabel?: string;
   collectionNameLabel?: string;
   newCollectionFormParams?: any[];
+  disableRenameCollection?: boolean;
   icon?: EngineDriverIcon;
 
   apiServerUrl1Label?: string;
@@ -412,6 +413,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   ): { message: string; severity: 'info' | 'error' | 'debug' } | null;
   getNativeOperationFormArgs(operation: 'backup' | 'restore'): any[];
   getAdvancedConnectionFields(): any[];
+  sortCollectionDisplayColumns?(columns: any[]): any[];
 
   analyserClass?: any;
   dumperClass?: any;

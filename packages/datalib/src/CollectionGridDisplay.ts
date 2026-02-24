@@ -84,8 +84,12 @@ export function analyseCollectionDisplayColumns(rows, display) {
     if (res.find(x => x.uniqueName == added)) continue;
     res.push(getDisplayColumn([], added, display));
   }
+  
+  // Use driver-specific column sorting if available
+  const sortedColumns = display?.driver?.sortCollectionDisplayColumns ? display.driver.sortCollectionDisplayColumns(res) : res;
+  
   return (
-    res.map(col => ({
+    sortedColumns.map(col => ({
       ...col,
       isChecked: display.isColumnChecked(col),
     })) || []
