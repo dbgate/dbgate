@@ -1,11 +1,8 @@
 <script lang="ts">
-  import CheckboxField from '../forms/CheckboxField.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
-  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormValues from '../forms/FormValues.svelte';
-  import { lockedDatabaseMode } from '../stores';
   import { _t } from '../translations';
 </script>
 

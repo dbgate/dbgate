@@ -1,6 +1,7 @@
 <script lang="ts">
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormElectronFileSelector from '../forms/FormElectronFileSelector.svelte';
+  import FormConnectionTypeSelector from '../forms/FormConnectionTypeSelector.svelte';
 
   import FormPasswordField from '../forms/FormPasswordField.svelte';
   import _ from 'lodash';
@@ -10,7 +11,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
 
   import FormTextField from '../forms/FormTextField.svelte';
-  import { extensions, getCurrentConfig, openedConnections, openedSingleDatabaseConnections } from '../stores';
+  import { extensions, getCurrentConfig, openedConnections, openedSingleDatabaseConnections, toggledDatabases } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useAuthTypes, useConfig } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
@@ -87,7 +88,7 @@
   };
 </script>
 
-<FormSelectField
+<FormConnectionTypeSelector
   label={_t('connection.type', { defaultMessage: 'Connection type' })}
   name="engine"
   isNative
@@ -98,7 +99,8 @@
     ..._.sortBy(
       $extensions.drivers
         // .filter(driver => !driver.isElectronOnly || electron)
-        .map(driver => ({
+        .filter(driver => $toggledDatabases.get(driver.title))
+        .map((driver) => ({
           value: driver.engine,
           label: driver.title,
         })),
