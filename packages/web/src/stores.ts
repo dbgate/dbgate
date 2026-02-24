@@ -479,8 +479,10 @@ export const toggledDatabases = derived([extensions, useSettings()], ([$extensio
   if (!$extensions?.drivers || !$settings)
     return res;
 
+  const hiddenEngines = $settings['hiddenDatabaseEngines'] || [];
+
   for (const driver of $extensions.drivers) {
-    res.set(driver.title, $settings[`settings.drivers.${driver.title}`] !== false);
+    res.set(driver.title, !hiddenEngines.includes(driver.engine));
   }
   
   return res;

@@ -1,12 +1,13 @@
 <script lang="ts">
-  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
   import FormValues from '../forms/FormValues.svelte';
   import { extensions } from '../stores';
   import { _t } from '../translations';
   import _ from 'lodash';
   import { getFormContext } from '../forms/SettingsFormProvider.svelte';
 
-  export let settingsPrefix = 'settings.drivers';
+  export let settingsPrefix = 'hiddenDatabaseEngines';
   export let headingKey = 'settings.activeDrivers';
   export let defaultHeading = 'Active drivers';
   export let translationPrefix = 'settings.drivers';
@@ -16,18 +17,41 @@
   function handleCheckAll(isChecked: boolean) {
     if (!$extensions?.drivers) return;
 
-    $extensions.drivers.forEach(driver => {
-      context.setFieldValue(`${settingsPrefix}.${driver.title}`, isChecked);
-    });
+    if (isChecked) {
+      // Show all drivers (empty hidden list)
+      context.setFieldValue(settingsPrefix, []);
+    } else {
+      // Hide all drivers
+      context.setFieldValue(settingsPrefix, $extensions.drivers.map(driver => driver.engine));
+    }
   }
 
   function getCheckAllState(values): boolean {
     if (!values) return false;
     if (!$extensions?.drivers) return false;
 
-    const checkedCount = $extensions.drivers.filter(driver => values?.[`${settingsPrefix}.${driver.title}`]).length;
+    const hiddenEngines = values?.[settingsPrefix] || [];
+    
+    // All checked if none are hidden
+    return hiddenEngines.length === 0;
+  }
 
-    return checkedCount === $extensions.drivers.length;
+  function isDriverVisible(values, driverEngine: string): boolean {
+    if (!values) return true;
+    const hiddenEngines = values?.[settingsPrefix] || [];
+    return !hiddenEngines.includes(driverEngine);
+  }
+
+  function handleDriverToggle(driverEngine: string, isChecked: boolean, values) {
+    const hiddenEngines = values?.[settingsPrefix] || [];
+    
+    if (isChecked) {
+      // Remove from hidden list
+      context.setFieldValue(settingsPrefix, hiddenEngines.filter(e => e !== driverEngine));
+    } else {
+      // Add to hidden list
+      context.setFieldValue(settingsPrefix, [...hiddenEngines, driverEngine]);
+    }
   }
 </script>
 
@@ -36,26 +60,35 @@
     <div class="heading-wrapper">
       <div class="heading">{_t(headingKey, { defaultMessage: defaultHeading })}</div>
     </div>
-    <div class="check-all-wrapper">
-      <label class="check-all-label">
-        <input
-          type="checkbox"
-          checked={getCheckAllState(values)}
-          on:change={e => handleCheckAll(e.currentTarget.checked)}
-        />
-        <span>{_t('settings.checkAll', { defaultMessage: 'Check all / Uncheck all' })}</span>
-      </label>
-    </div>
+    <FormFieldTemplateLarge
+      type="checkbox"
+      label={_t('settings.checkAll', { defaultMessage: 'Check all / Uncheck all' })}
+      labelProps={{
+        onClick: () => handleCheckAll(!getCheckAllState(values)),
+      }}
+    >
+      <CheckboxField
+        checked={getCheckAllState(values)}
+        on:change={e => handleCheckAll(e.target['checked'])}
+      />
+    </FormFieldTemplateLarge>
     <div class="br" />
     {#if $extensions?.drivers}
       {#each _.sortBy($extensions.drivers, 'title') as driver, index}
-        <FormCheckboxField
-          name={`${settingsPrefix}.${driver.title}`}
+        <FormFieldTemplateLarge
+          type="checkbox"
           label={_t(translationPrefix + '.' + driver.title, {
             defaultMessage: driver.title,
           })}
-          defaultValue={true}
-        />
+          labelProps={{
+            onClick: () => handleDriverToggle(driver.engine, !isDriverVisible(values, driver.engine), values),
+          }}
+        >
+          <CheckboxField
+            checked={isDriverVisible(values, driver.engine)}
+            on:change={e => handleDriverToggle(driver.engine, e.target['checked'], values)}
+          />
+        </FormFieldTemplateLarge>
       {/each}
     {/if}
   </FormValues>
@@ -76,28 +109,11 @@
     font-size: 20px;
   }
 
-  .check-all-wrapper {
-    margin-left: var(--dim-large-form-margin);
-    margin-top: 25px;
-  }
-
   .br {
     background: var(--theme-searchbox-background);
     height: 1px;
     margin: 5px 10px;
     width: 200px;
-  }
-
-  .check-all-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .check-all-label input[type='checkbox'] {
-    cursor: pointer;
   }
 
   .wrapper :global(input) {
