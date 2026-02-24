@@ -1,0 +1,41 @@
+{
+  "name": "dbgate-tets-api",
+  "version": "1.0.0",
+  "description": "Testing API server (OpenAPI/swagger + graphQL)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbgate/dbgate-tets-api.git"
+  },
+  "keywords": [
+    "testing",
+    "api",
+    "rest",
+    "graphql",
+    "swagger",
+    "openapi",
+    "e2e"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dbgate/dbgate-tets-api/issues"
+  },
+  "homepage": "https://github.com/dbgate/dbgate-tets-api#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "graphiql": "^5.2.2",
+    "graphql": "^16.12.0",
+    "graphql-http": "^1.22.4",
+    "js-yaml": "^4.1.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

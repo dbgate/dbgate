@@ -25,8 +25,14 @@ function extractConnectionsFromEnv(env) {
     socketPath: env[`SOCKET_PATH_${id}`],
     serviceName: env[`SERVICE_NAME_${id}`],
     authType: env[`AUTH_TYPE_${id}`] || (env[`SOCKET_PATH_${id}`] ? 'socket' : undefined),
-    defaultDatabase: env[`DATABASE_${id}`] || (env[`FILE_${id}`] ? getDatabaseFileLabel(env[`FILE_${id}`]) : null),
-    singleDatabase: !!env[`DATABASE_${id}`] || !!env[`FILE_${id}`],
+    defaultDatabase:
+      env[`DATABASE_${id}`] ||
+      (env[`FILE_${id}`]
+        ? getDatabaseFileLabel(env[`FILE_${id}`])
+        : env[`APISERVERURL1_${id}`]
+        ? '_api_database_'
+        : null),
+    singleDatabase: !!env[`DATABASE_${id}`] || !!env[`FILE_${id}`] || !!env[`APISERVERURL1_${id}`],
     displayName: env[`LABEL_${id}`],
     isReadOnly: env[`READONLY_${id}`],
     databases: env[`DBCONFIG_${id}`] ? safeJsonParse(env[`DBCONFIG_${id}`]) : null,
@@ -54,6 +60,11 @@ function extractConnectionsFromEnv(env) {
     sslKeyFile: env[`SSL_KEY_FILE_${id}`],
     sslRejectUnauthorized: env[`SSL_REJECT_UNAUTHORIZED_${id}`],
     trustServerCertificate: env[`SSL_TRUST_CERTIFICATE_${id}`],
+
+    apiServerUrl1: env[`APISERVERURL1_${id}`],
+    apiServerUrl2: env[`APISERVERURL2_${id}`],
+    apiKeyHeader: env[`APIKEYHEADER_${id}`],
+    apiKeyValue: env[`APIKEYVALUE_${id}`],
   }));
 
   return connections;

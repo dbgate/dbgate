@@ -37,6 +37,9 @@ module.exports = defineConfig({
             case 'browse-data':
               serverProcess = exec('yarn start:browse-data');
               break;
+            case 'rest':
+              serverProcess = exec('yarn start:rest');
+              break;
             case 'team':
               serverProcess = exec('yarn start:team');
               break;
