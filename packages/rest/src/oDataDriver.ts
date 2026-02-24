@@ -54,7 +54,7 @@ function getODataVersion(document: any): string {
 export const oDataDriver: EngineDriver = {
   ...apiDriverBase,
   engine: 'odata@rest',
-  title: 'OData - REST (experimental)',
+  title: 'OData - REST',
   databaseEngineTypes: ['rest', 'odata'],
   icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" fill="#f9a000"/><rect x="12" y="12" width="47" height="12" fill="#ffffff"/><rect x="69" y="12" width="47" height="12" fill="#ffffff"/><rect x="12" y="37" width="47" height="12" fill="#ffffff"/><rect x="69" y="37" width="47" height="12" fill="#ffffff"/><rect x="12" y="62" width="47" height="12" fill="#ffffff"/><rect x="69" y="62" width="47" height="12" fill="#ffffff"/><rect x="69" y="87" width="47" height="12" fill="#ffffff"/><circle cx="35" cy="102" r="20" fill="#e6e6e6"/></svg>',
   apiServerUrl1Label: 'OData Service URL',
