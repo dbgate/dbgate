@@ -13,9 +13,9 @@
         <p>DbGate is cross-platform database manager. It's designed to be simple to use and effective, when working with more databases simultaneously. But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.</p>
     </description>
 
-    <url type="homepage">https://dbgate.org/</url>
+    <url type="homepage">https://www.dbgate.io/</url>
     <url type="vcs-browser">https://github.com/dbgate/dbgate</url>
-    <url type="contact">https://dbgate.org/about/</url>
+    <url type="contact">https://www.dbgate.io/contact/</url>
     <url type="donation">https://github.com/sponsors/dbgate</url>
     <url type="bugtracker">https://github.com/dbgate/dbgate/issues</url>
 

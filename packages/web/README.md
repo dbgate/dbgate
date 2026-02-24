@@ -1,3 +1,3 @@
 # dbgate-web
 
-This package is used internally by [DbGate](https://dbgate.org)
+This package is used internally by [DbGate](https://www.dbgate.io)

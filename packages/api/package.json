@@ -2,7 +2,7 @@
   "name": "dbgate-api",
   "main": "src/index.js",
   "version": "7.0.0-alpha.1",
-  "homepage": "https://dbgate.org/",
+  "homepage": "https://www.dbgate.io/",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbgate/dbgate.git"

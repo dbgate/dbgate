@@ -41,7 +41,7 @@ STORAGE_DATABASE=dbname
 STORAGE_ENGINE=mysql@dbgate-plugin-mysql
 ```
 
-You could find more about environment variable configuration on [DbGate docs](https://dbgate.org/docs/env-variables/) page.
+You could find more about environment variable configuration on [DbGate docs](https://docs.dbgate.io/env-variables/) page.
 
 After installing, you can run dbgate with command:
 ```sh
@@ -65,7 +65,7 @@ dbgate-serve
 Then open http://localhost:3000 in your browser
 
 ## Download desktop app
-You can also download binary packages for desktop app from https://dbgate.org . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
+You can also download binary packages for desktop app from https://www.dbgate.io . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
 
 ## Use Oracle with Instant client (thick mode)
 If you are Oracle database user and you would like to use Oracle instant client (thick mode) instead of thin mode (pure JS NPM package), please make the following:

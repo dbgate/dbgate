@@ -1,5 +1,5 @@
 # dbmodel
-Deploy, load or build script from model of SQL database. Can be used as command-line tool. Uses [DbGate](https://dbgate.org) tooling and plugins for connecting many different databases.
+Deploy, load or build script from model of SQL database. Can be used as command-line tool. Uses [DbGate](www.dbgate.io) tooling and plugins for connecting many different databases.
 
 If you want to use this tool from JavaScript interface, please use [dbgate-api](https://www.npmjs.com/package/dbgate-api) package.
 

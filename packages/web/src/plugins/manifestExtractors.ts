@@ -13,7 +13,7 @@ export function extractPluginIcon(packageManifest) {
     }
   }
 
-  if (tested == 'https://dbgate.org' || tested == 'https://github.com/dbgate/dbgate') {
+  if (tested == 'https://www.dbgate.io' || tested == 'https://github.com/dbgate/dbgate') {
     // monorepo plugin
     return `https://github.com/dbgate/dbgate/raw/master/plugins/${packageManifest.name}/icon.svg`;
   }

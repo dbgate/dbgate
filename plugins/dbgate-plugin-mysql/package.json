@@ -2,7 +2,7 @@
   "name": "dbgate-plugin-mysql",
   "main": "dist/backend.js",
   "version": "7.0.0-alpha.1",
-  "homepage": "https://dbgate.org",
+  "homepage": "https://www.dbgate.io",
   "description": "MySQL connect plugin for DbGate",
   "repository": {
     "type": "git",
