@@ -99,7 +99,7 @@
     ..._.sortBy(
       $extensions.drivers
         // .filter(driver => !driver.isElectronOnly || electron)
-        .filter((driver => $toggledDatabases.get(driver.title)))
+        .filter(driver => $toggledDatabases.get(driver.title))
         .map((driver) => ({
           value: driver.engine,
           label: driver.title,
