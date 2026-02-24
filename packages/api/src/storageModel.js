@@ -851,84 +851,6 @@ module.exports = {
       ]
     },
     {
-      "pureName": "password_reset_tokens",
-      "columns": [
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "id",
-          "dataType": "int",
-          "autoIncrement": true,
-          "notNull": true
-        },
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "user_id",
-          "dataType": "int",
-          "notNull": true
-        },
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "token",
-          "dataType": "varchar(500)",
-          "notNull": true
-        },
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "created_at",
-          "dataType": "datetime",
-          "notNull": true
-        },
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "expires_at",
-          "dataType": "datetime",
-          "notNull": true
-        },
-        {
-          "pureName": "password_reset_tokens",
-          "columnName": "used_at",
-          "dataType": "datetime",
-          "notNull": false
-        }
-      ],
-      "foreignKeys": [
-        {
-          "constraintType": "foreignKey",
-          "constraintName": "FK_password_reset_tokens_user_id",
-          "pureName": "password_reset_tokens",
-          "refTableName": "users",
-          "columns": [
-            {
-              "columnName": "user_id",
-              "refColumnName": "id"
-            }
-          ]
-        }
-      ],
-      "indexes": [
-        {
-          "constraintName": "idx_token",
-          "pureName": "password_reset_tokens",
-          "constraintType": "index",
-          "columns": [
-            {
-              "columnName": "token"
-            }
-          ]
-        }
-      ],
-      "primaryKey": {
-        "pureName": "password_reset_tokens",
-        "constraintType": "primaryKey",
-        "constraintName": "PK_password_reset_tokens",
-        "columns": [
-          {
-            "columnName": "id"
-          }
-        ]
-      }
-    },
-    {
       "pureName": "roles",
       "columns": [
         {
@@ -2245,6 +2167,84 @@ module.exports = {
         "pureName": "user_files",
         "constraintType": "primaryKey",
         "constraintName": "PK_user_files",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
+      "pureName": "user_password_reset_tokens",
+      "columns": [
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": true
+        },
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "token",
+          "dataType": "varchar(500)",
+          "notNull": true
+        },
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "created_at",
+          "dataType": "varchar(32)",
+          "notNull": true
+        },
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "expires_at",
+          "dataType": "varchar(32)",
+          "notNull": true
+        },
+        {
+          "pureName": "user_password_reset_tokens",
+          "columnName": "used_at",
+          "dataType": "varchar(32)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_user_password_reset_tokens_user_id",
+          "pureName": "user_password_reset_tokens",
+          "refTableName": "users",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "idx_token",
+          "pureName": "user_password_reset_tokens",
+          "constraintType": "index",
+          "columns": [
+            {
+              "columnName": "token"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "user_password_reset_tokens",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_user_password_reset_tokens",
         "columns": [
           {
             "columnName": "id"
