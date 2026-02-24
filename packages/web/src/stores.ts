@@ -476,7 +476,7 @@ export const getCloudSigninTokenHolder = () => cloudSigninTokenHolderValue;
 export const toggledDatabases = derived([extensions, useSettings()], ([$extensions, $settings]) => {
   const res = new Map<string, boolean>();
 
-  if (!$extensions || !$settings)
+  if (!$extensions?.drivers || !$settings)
     return res;
 
   for (const driver of $extensions.drivers) {

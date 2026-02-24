@@ -49,7 +49,7 @@
     {#if $extensions?.drivers}
       {#each $extensions.drivers as driver, index}
         <FormCheckboxField
-          name="{settingsPrefix}.{driver.title}"
+          name={`${settingsPrefix}.${driver.title}`}
           label={_t(translationPrefix + '.' + driver.title, {
             defaultMessage: driver.title,
           })}
