@@ -26,6 +26,7 @@
   export let tabid = null;
 
   function handleUserChange(value) {
+    if (value === selectedItem) return;
     if (!tabid) return;
 
     openedTabs.update(tabs =>
