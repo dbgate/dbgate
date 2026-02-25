@@ -20,9 +20,18 @@
   import SQLEditorSettings from '../settings/SQLEditorSettings.svelte';
   import AiSettingsTab from '../settings/AiSettingsTab.svelte';
   import hasPermission from '../utility/hasPermission';
+  import { openedTabs } from '../stores';
 
   export let selectedItem = 'general';
   export let tabid = null;
+
+  function handleUserChange(value) {
+    if (!tabid) return;
+
+    openedTabs.update(tabs =>
+      tabs.map(tab => (tab.tabid === tabid ? { ...tab, props: { ...tab.props, selectedItem: value } } : tab))
+    );
+  }
 
   const menuItems = [
     {
@@ -121,5 +130,6 @@
     flex1={true}
     flexColContainer={true}
     scrollableContentContainer={true}
+    onUserChange={handleUserChange}
   />
 </SettingsFormProvider>

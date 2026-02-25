@@ -764,7 +764,9 @@ if (hasPermission('settings/change')) {
         title: _t('command.settings.settingsTab', { defaultMessage: 'Settings tab' }),
         icon: 'icon settings',
         tabComponent: 'SettingsTab',
-        props: {},
+        props: {
+          selectedItem: 'general',
+        },
       });
     },
   });
