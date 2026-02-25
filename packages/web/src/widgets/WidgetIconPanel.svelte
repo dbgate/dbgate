@@ -115,9 +115,7 @@
       title: 'Settings',
       icon: 'icon settings',
       tabComponent: 'SettingsTab',
-      props: {
-        selectedItem: 'general',
-      },
+      props: {},
     });
   }
 
