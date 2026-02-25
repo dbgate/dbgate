@@ -100,6 +100,14 @@
     })}
     defaultValue={false}
   />
+
+  <FormCheckboxField
+    name="dataGrid.disableCellDataViewAutoOpen"
+    label={_t('settings.dataGrid.disableCellDataViewAutoOpen', {
+      defaultMessage: 'Disable automatic Cell Data View',
+    })}
+    defaultValue={false}
+  />
 </div>
 
 <style>
