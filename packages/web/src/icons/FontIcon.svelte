@@ -117,6 +117,7 @@
     'icon undo': 'mdi mdi-undo',
     'icon redo': 'mdi mdi-redo',
     'icon save': 'mdi mdi-content-save',
+    'icon apply': 'mdi mdi-content-save-check',
     'icon account': 'mdi mdi-account',
     'icon sql-file': 'mdi mdi-file',
     'icon web': 'mdi mdi-web',

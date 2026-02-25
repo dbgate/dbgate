@@ -473,6 +473,7 @@ module.exports = {
 
     const databasePermissions = await loadDatabasePermissionsFromRequest(req);
     const tablePermissions = await loadTablePermissionsFromRequest(req);
+    const databasePermissionRole = getDatabasePermissionRole(conid, database, databasePermissions);
     const fieldsAndRoles = [
       [changeSet.inserts, 'create_update_delete'],
       [changeSet.deletes, 'create_update_delete'],
@@ -487,7 +488,7 @@ module.exports = {
           operation.schemaName,
           operation.pureName,
           tablePermissions,
-          databasePermissions
+          databasePermissionRole
         );
         if (getTablePermissionRoleLevelIndex(role) < getTablePermissionRoleLevelIndex(requiredRole)) {
           throw new Error('DBGM-00262 Permission not granted');

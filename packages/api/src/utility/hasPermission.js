@@ -96,8 +96,9 @@ async function loadFilePermissionsFromRequest(req) {
 }
 
 function matchDatabasePermissionRow(conid, database, permissionRow) {
-  if (permissionRow.connection_id) {
-    if (conid != permissionRow.connection_id) {
+  const connectionIdentifier = permissionRow.connection_conid ?? permissionRow.connection_id;
+  if (connectionIdentifier) {
+    if (conid != connectionIdentifier) {
       return false;
     }
   }

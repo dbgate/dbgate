@@ -171,7 +171,7 @@ module.exports = {
       const databasePermissions = await loadDatabasePermissionsFromRequest(req);
       const res = [];
       for (const db of opened?.databases ?? []) {
-        const databasePermissionRole = getDatabasePermissionRole(db.id, db.name, databasePermissions);
+        const databasePermissionRole = getDatabasePermissionRole(conid, db.name, databasePermissions);
         if (databasePermissionRole != 'deny') {
           res.push({
             ...db,
