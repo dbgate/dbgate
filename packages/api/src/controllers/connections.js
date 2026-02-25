@@ -502,6 +502,9 @@ module.exports = {
         _id: '__model',
       };
     }
+    if (!conid) {
+      return null;
+    }
     await testConnectionPermission(conid, req);
     return this.getCore({ conid, mask: true });
   },
