@@ -82,6 +82,7 @@
   import { __t, _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import CellDataWidget from '../widgets/CellDataWidget.svelte';
+  import { useSettings } from '../utility/metadataLoaders';
 
   export let config;
   export let setConfig;
@@ -123,6 +124,7 @@
   let cellViewWidth;
   const collapsedLeftColumnStore =
     getContext('collapsedLeftColumnStore') || writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
+  const settings = useSettings();
 
   $: isFormView = !!config?.isFormView;
   $: isJsonView = !!config?.isJsonView;
@@ -285,7 +287,11 @@
                   if (onPublishedCellsChanged) {
                     onPublishedCellsChanged(value);
                   }
-                  if (value[0]?.isSelectedFullRow && !isFormView) {
+                  if (
+                    value[0]?.isSelectedFullRow &&
+                    !isFormView &&
+                    !$settings?.['dataGrid.disableCellDataViewAutoOpen']
+                  ) {
                     cellDataViewVisible = true;
                   }
                 }}
