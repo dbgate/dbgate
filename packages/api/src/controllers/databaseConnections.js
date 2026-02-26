@@ -15,6 +15,7 @@ const {
   getLogger,
   extractErrorLogData,
   filterStructureBySchema,
+  serializeJsTypesForJsonStringify,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -224,12 +225,13 @@ module.exports = {
       this.close(conid, database, false);
     });
 
-    subprocess.send({
+    const connectMessage = serializeJsTypesForJsonStringify({
       msgtype: 'connect',
       connection: { ...connection, database },
       structure: lastClosed ? lastClosed.structure : null,
       globalSettings: await config.getSettings(),
     });
+    subprocess.send(connectMessage);
     return newOpened;
   },
 
@@ -239,7 +241,8 @@ module.exports = {
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject, additionalData];
       try {
-        conn.subprocess.send({ msgid, ...message });
+        const serializedMessage = serializeJsTypesForJsonStringify({ msgid, ...message });
+        conn.subprocess.send(serializedMessage);
       } catch (err) {
         logger.error(extractErrorLogData(err), 'DBGM-00115 Error sending request do process');
         this.close(conn.conid, conn.database);
