@@ -553,13 +553,22 @@
   let previousMultiColumnFilter = undefined;
   let selectedRows = [];
 
+  function resetVerticalScroll() {
+    firstVisibleRowScrollIndex = 0;
+    if (domVerticalScroll) {
+      domVerticalScroll.scroll(0);
+    }
+  }
+
   $: if (display?.config) {
     const currentFilters = JSON.stringify(display.config.filters);
     const currentMultiColumnFilter = display.config.multiColumnFilter;
-    if (
+    const filtersChanged =
       previousFilters !== '' &&
-      (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter)
-    ) {
+      (previousFilters !== currentFilters || previousMultiColumnFilter !== currentMultiColumnFilter);
+
+    if (filtersChanged) {
+      resetVerticalScroll();
       const pkColumns = display?.baseTable?.primaryKey?.columns?.map(col => col.columnName) || [];
       const usePK = pkColumns.length > 0;
 
