@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.1.1
+- CHANGED: Fixed some DynamoDB issues, improved filtering performance
+- FIXED: Afilter filter scroll issue #1370
+- FIXED: Team Premium - filtering by connection in database and table permissions
+- FIXED: Creating role and user in PostgreSQL - settings is remembered without reopening new role/user
+- FIXED: Team Premium - don't show errors "Connection permission not granted" when no connection is selected
+- FIXED: Firebird - improved connectivity & table loading #1324
+- ADDED: New GraphQL query option, changed GraphQL query icon (Premium)
+
+
 ## 7.1.0
 - ADDED: Support for Amazon DynamoDB (Premium)
 - ADDED: Connect to API endpoints - OpenAPI (Swagger), GraphQL and oData  (Premium)
