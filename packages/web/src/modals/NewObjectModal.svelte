@@ -31,17 +31,23 @@
       command: 'new.connection',
       changeWidget: 'database',
       testid: 'NewObjectModal_connection',
-      disabledMessage: _t('newObject.connectionLocalDisabled', { defaultMessage: 'You are not allowed to create new connections' }),
+      disabledMessage: _t('newObject.connectionLocalDisabled', {
+        defaultMessage: 'You are not allowed to create new connections',
+      }),
     },
     {
       icon: 'icon cloud-connection',
       colorClass: 'color-icon-blue',
       title: _t('common.connectionOnCloud', { defaultMessage: 'Connection on Cloud' }),
-      description: _t('newObject.connectionOnCloudDescription', { defaultMessage: 'Database connection stored on DbGate Cloud' }),
+      description: _t('newObject.connectionOnCloudDescription', {
+        defaultMessage: 'Database connection stored on DbGate Cloud',
+      }),
       command: 'new.connectionOnCloud',
       changeWidget: 'cloud-private',
       testid: 'NewObjectModal_connectionOnCloud',
-      disabledMessage: _t('newObject.connectionOnCloudDisabled', { defaultMessage: 'For creating connections on DbGate Cloud, you need to be logged in' }),
+      disabledMessage: _t('newObject.connectionOnCloudDisabled', {
+        defaultMessage: 'For creating connections on DbGate Cloud, you need to be logged in',
+      }),
     },
     {
       icon: 'icon query-design',
@@ -50,7 +56,9 @@
       description: _t('newObject.queryDesignerDescription', { defaultMessage: 'Design SQL queries visually' }),
       command: 'new.queryDesign',
       testid: 'NewObjectModal_queryDesign',
-      disabledMessage: _t('newObject.queryDesignerDisabled', { defaultMessage: 'Query Designer is not available for current database' }),
+      disabledMessage: _t('newObject.queryDesignerDisabled', {
+        defaultMessage: 'Query Designer is not available for current database',
+      }),
       isProFeature: true,
     },
     {
@@ -60,13 +68,17 @@
       description: _t('newObject.erDiagramDescription', { defaultMessage: 'Visualize database structure' }),
       command: 'new.diagram',
       testid: 'NewObjectModal_diagram',
-      disabledMessage: _t('newObject.erDiagramDisabled', { defaultMessage: 'ER Diagram is not available for current database' }),
+      disabledMessage: _t('newObject.erDiagramDisabled', {
+        defaultMessage: 'ER Diagram is not available for current database',
+      }),
     },
     {
       icon: 'icon perspective',
       colorClass: 'color-icon-yellow',
       title: _t('common.perspective', { defaultMessage: 'Perspective' }),
-      description: _t('newObject.perspectiveDescription', { defaultMessage: 'Join complex data from multiple databases' }),
+      description: _t('newObject.perspectiveDescription', {
+        defaultMessage: 'Join complex data from multiple databases',
+      }),
       command: 'new.perspective',
       testid: 'NewObjectModal_perspective',
       isProFeature: true,
@@ -78,25 +90,35 @@
       description: _t('newObject.tableDescription', { defaultMessage: 'Create table in the current database' }),
       command: 'new.table',
       testid: 'NewObjectModal_table',
-      disabledMessage: _t('newObject.tableDisabled', { defaultMessage: 'Table creation is not available for current database' }),
+      disabledMessage: _t('newObject.tableDisabled', {
+        defaultMessage: 'Table creation is not available for current database',
+      }),
     },
     {
       icon: 'icon sql-generator',
       colorClass: 'color-icon-green',
       title: _t('common.sqlGenerator', { defaultMessage: 'SQL Generator' }),
-      description: _t('newObject.sqlGeneratorDescription', { defaultMessage: 'Generate SQL scripts for database objects' }),
+      description: _t('newObject.sqlGeneratorDescription', {
+        defaultMessage: 'Generate SQL scripts for database objects',
+      }),
       command: 'sql.generator',
       testid: 'NewObjectModal_sqlGenerator',
-      disabledMessage: _t('newObject.sqlGeneratorDisabled', { defaultMessage: 'SQL Generator is not available for current database' }),
+      disabledMessage: _t('newObject.sqlGeneratorDisabled', {
+        defaultMessage: 'SQL Generator is not available for current database',
+      }),
     },
     {
       icon: 'icon export',
       colorClass: 'color-icon-green',
       title: _t('common.exportDatabase', { defaultMessage: 'Export database' }),
-      description: _t('newObject.exportDescription', { defaultMessage: 'Export to file like CSV, JSON, Excel, or other DB' }),
+      description: _t('newObject.exportDescription', {
+        defaultMessage: 'Export to file like CSV, JSON, Excel, or other DB',
+      }),
       command: 'database.export',
       testid: 'NewObjectModal_databaseExport',
-      disabledMessage: _t('newObject.exportDisabled', { defaultMessage: 'Export is not available for current database' }),
+      disabledMessage: _t('newObject.exportDisabled', {
+        defaultMessage: 'Export is not available for current database',
+      }),
     },
     {
       icon: 'icon compare',
@@ -105,7 +127,9 @@
       description: _t('newObject.compareDescription', { defaultMessage: 'Compare database schemas' }),
       command: 'database.compare',
       testid: 'NewObjectModal_databaseCompare',
-      disabledMessage: _t('newObject.compareDisabled', { defaultMessage: 'Database comparison is not available for current database' }),
+      disabledMessage: _t('newObject.compareDisabled', {
+        defaultMessage: 'Database comparison is not available for current database',
+      }),
       isProFeature: true,
     },
     {
@@ -115,9 +139,25 @@
       description: _t('newObject.databaseChatDescription', { defaultMessage: 'Chat with your database using AI' }),
       command: 'database.chat',
       isProFeature: true,
-      disabledMessage: _t('newObject.databaseChatDisabled', { defaultMessage: 'Database chat is not available for current database' }),
+      disabledMessage: _t('newObject.databaseChatDisabled', {
+        defaultMessage: 'Database chat is not available for current database',
+      }),
       testid: 'NewObjectModal_databaseChat',
     },
+    {
+      icon: 'icon graphql',
+      colorClass: 'color-icon-magenta',
+      title: _t('common.graphqlQuery', { defaultMessage: 'GraphQL Query' }),
+      description: _t('newObject.graphqlQueryDescription', {
+        defaultMessage: 'Write queries, choose attributes and arguments',
+      }),
+      isProFeature: true,
+      disabledMessage: _t('newObject.graphqlQueryDisabled', {
+        defaultMessage: 'GraphQL Query is not available for current database',
+      }),
+      testid: 'NewObjectModal_graphqlQuery',
+      command: 'new.graphqlQuery',
+    }
   ];
 </script>
 
@@ -158,19 +198,19 @@
 
 <style>
   .wrapper {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  padding: 16px;
-  max-width: 820px;
-  margin: 0 auto;
-}
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
 
-.create-header {
-  font-size: 150%;
-  text-transform: uppercase;
-  color: var(--theme-generic-font-grayed);
-  text-align: center;
-  margin: 12px 0 4px;
-}
+  .create-header {
+    font-size: 150%;
+    text-transform: uppercase;
+    color: var(--theme-generic-font-grayed);
+    text-align: center;
+    margin: 12px 0 4px;
+  }
 </style>

@@ -11,6 +11,7 @@ export default function newQuery({
   initialData = undefined,
   multiTabIndex = undefined,
   fixCurrentConnection = false,
+  forceBindCurrentConnection = false,
   ...props
 } = {}) {
   const currentDb = getCurrentDatabase();
@@ -38,13 +39,14 @@ export default function newQuery({
       tabComponent,
       multiTabIndex,
       focused: true,
-      props: driver?.supportExecuteQuery
-        ? {
-            ...props,
-            conid: connection._id,
-            database,
-          }
-        : props,
+      props:
+        driver?.supportExecuteQuery || forceBindCurrentConnection
+          ? {
+              ...props,
+              conid: connection._id,
+              database,
+            }
+          : props,
     },
     { editor: initialData }
   );
@@ -60,4 +62,14 @@ export function newDiagram() {
 
 export function newPerspective() {
   return newQuery({ tabComponent: 'PerspectiveTab', icon: 'img perspective', title: 'Perspective #' });
+}
+
+export function newGraphQlQuery() {
+  return newQuery({
+    tabComponent: 'GraphQlQueryTab',
+    icon: 'img graphql',
+    title: 'Query #',
+    initialData: 'query {\n}',
+    forceBindCurrentConnection: true,
+  });
 }

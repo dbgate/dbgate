@@ -130,6 +130,7 @@
     'icon data-deploy': 'mdi mdi-database-settings',
     'icon team-file': 'mdi mdi-account-file',
     'icon team-folder': 'mdi mdi-account-details',
+    'icon graphql': 'mdi mdi-graphql',
 
     'icon cloud-account': 'mdi mdi-account-remove-outline',
     'icon cloud-account-connected': 'mdi mdi-account-check-outline',
@@ -372,6 +373,7 @@
     'img team-file': 'mdi mdi-account-file color-icon-red',
     'img team-folder': 'mdi mdi-account-details color-icon-blue',
     'img table-backup': 'mdi mdi-cube color-icon-yellow',
+    'img graphql': 'mdi mdi-graphql color-icon-magenta',
   };
 </script>
 
