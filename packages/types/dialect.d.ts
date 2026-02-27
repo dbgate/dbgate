@@ -4,6 +4,7 @@ export interface SqlDialect {
   rangeSelect?: boolean;
   limitSelect?: boolean;
   ilike?: boolean;
+  likeAsFunction?: boolean;
   rowNumberOverPaging?: boolean;
   topRecords?: boolean;
   stringEscapeChar: string;

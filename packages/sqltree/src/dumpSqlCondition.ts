@@ -1,7 +1,54 @@
 import type { SqlDumper } from 'dbgate-types';
-import { Condition, BinaryCondition } from './types';
+import { Condition, BinaryCondition, LikeCondition } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
 import { dumpSqlSelect } from './dumpSqlCommand';
+
+
+function dumpLikeAsFunctionCondition(dmp: SqlDumper, condition: LikeCondition) {
+  // For DynamoDB: contains() works only on string attributes
+  // For numeric values, search both as number and as string
+  const likeExpr = condition.right;
+  
+  let isNumericValue = false;
+  let numericStringValue = '';
+  if (likeExpr.exprType === 'value' && typeof likeExpr.value === 'string') {
+    const cleanedStr = (likeExpr.value || '').replace(/%/g, '').trim();
+    // Only match valid decimal numbers (not Infinity, NaN, etc.)
+    isNumericValue = /^-?\d+(\.\d+)?$/.test(cleanedStr);
+    numericStringValue = cleanedStr;
+  } else if (likeExpr.exprType === 'value' && typeof likeExpr.value === 'number') {
+    isNumericValue = Number.isFinite(likeExpr.value);
+    numericStringValue = String(likeExpr.value);
+  }
+  
+  if (isNumericValue) {
+    // For numeric values: (column = value OR contains(column, 'value'))
+    dmp.putRaw('(');
+    dumpSqlExpression(dmp, condition.left);
+    dmp.putRaw(' = ');
+    dmp.put('%s', numericStringValue);
+    dmp.putRaw(' OR contains(');
+    dumpSqlExpression(dmp, condition.left);
+    dmp.putRaw(', ');
+    dmp.put('%v', numericStringValue);
+    dmp.putRaw('))');
+  } else {
+    // String value: contains(column, value)
+    dmp.putRaw('contains(');
+    dumpSqlExpression(dmp, condition.left);
+    dmp.putRaw(', ');
+    if (likeExpr.exprType === 'value') {
+      let cleanValue = likeExpr.value;
+      if (typeof cleanValue === 'string') {
+        cleanValue = cleanValue.replace(/%/g, '');
+      }
+      dmp.put('%v', cleanValue);
+    } else {
+      dumpSqlExpression(dmp, likeExpr);
+    }
+    dmp.putRaw(')');
+  }
+}
 
 export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
   switch (condition.conditionType) {
@@ -51,9 +98,13 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       });
       break;
     case 'like':
-      dumpSqlExpression(dmp, condition.left);
-      dmp.put(dmp.dialect.ilike ? ' ^ilike ' : ' ^like ');
-      dumpSqlExpression(dmp, condition.right);
+      if (dmp.dialect.likeAsFunction) {
+        dumpLikeAsFunctionCondition(dmp, condition);
+      } else {
+        dumpSqlExpression(dmp, condition.left);
+        dmp.put(dmp.dialect.ilike ? ' ^ilike ' : ' ^like ');
+        dumpSqlExpression(dmp, condition.right);
+      }
       break;
     case 'notLike':
       dumpSqlExpression(dmp, condition.left);
