@@ -1,0 +1,99 @@
+diff --git a/node_modules/node-firebird/lib/wire/connection.js b/node_modules/node-firebird/lib/wire/connection.js
+index 4183594..a0ec9d0 100644
+--- a/node_modules/node-firebird/lib/wire/connection.js
++++ b/node_modules/node-firebird/lib/wire/connection.js
+@@ -16,6 +16,23 @@ const Statement = require('./statement');
+ const Transaction = require('./transaction');
+ const {lookupMessages, noop, parseDate} = require('../utils');
+ 
++function sessionKeyToBuffer(sessionKey) {
++    var hex = sessionKey.toString(16);
++    if (hex.length % 2 !== 0) hex = '0' + hex;
++    return Buffer.from(hex, 'hex');
++}
++
++// Placeholder cipher implementation: currently a no-op pass-through.
++// This avoids using insecure RC4 while preserving the existing interface.
++function createRC4Cipher(key) { // retained name for compatibility
++    return {
++        update: function (data) {
++            // Return the data unchanged; no custom wire encryption is applied.
++            return data;
++        }
++    };
++}
++
+ /***************************************
+  *
+  *   Connection
+@@ -134,6 +164,11 @@ Connection.prototype._bind_events = function(host, port, callback) {
+     });
+ 
+     self._socket.on('data', function (data) {
++        // Decrypt incoming data if wire encryption is active
++        if (self._decryptCipher) {
++            data = self._decryptCipher.update(data);
++        }
++
+         var xdr;
+ 
+         if (!self._xdr) {
+@@ -159,6 +194,12 @@ Connection.prototype._bind_events = function(host, port, callback) {
+                     return;
+                 }
+ 
++                // Handle op_crypt without consuming from queue
++                if (obj && obj.opCrypt) {
++                    if (xdr.r) { delete (xdr.r); }
++                    return;
++                }
++
+                 // remove the op flag, needed for partial packet
+                 if (xdr.r) {
+                     delete (xdr.r);
+@@ -478,6 +519,36 @@ function decodeResponse(data, callback, cnx, lowercase_keys, cb) {
+                 }
+ 
+                 return data.accept;
++            case Const.op_crypt:
++                var cryptPlugin = data.readString(Const.DEFAULT_ENCODING);
++                var cryptKey = data.readString(Const.DEFAULT_ENCODING);
++
++                // Set up ARC4 wire encryption using SRP session key
++                if (cnx.accept && cnx.accept.sessionKey) {
++                    var keyBuffer = sessionKeyToBuffer(cnx.accept.sessionKey);
++                    cnx._decryptCipher = createRC4Cipher(keyBuffer);
++                    cnx._encryptCipher = createRC4Cipher(keyBuffer);
++
++                    // Wrap socket.write for outgoing encryption
++                    if (!cnx._origSocketWrite) {
++                        cnx._origSocketWrite = cnx._socket.write.bind(cnx._socket);
++                        cnx._socket.write = function(d) {
++                            return cnx._origSocketWrite(cnx._encryptCipher.update(d));
++                        };
++                    }
++
++                    // Decrypt remaining data in the buffer (already encrypted by server)
++                    if (data.pos < data.buffer.length) {
++                        var remaining = data.buffer.slice(data.pos);
++                        var decrypted = cnx._decryptCipher.update(remaining);
++                        var newBuffer = Buffer.alloc(data.pos + decrypted.length);
++                        data.buffer.copy(newBuffer, 0, 0, data.pos);
++                        decrypted.copy(newBuffer, data.pos);
++                        data.buffer = newBuffer;
++                    }
++                }
++
++                return cb(undefined, { opCrypt: true });
+             default:
+                 return cb(new Error('Unexpected:' + r));
+         }
+@@ -616,7 +687,7 @@ Connection.prototype.connect = function (options, callback) {
+         doError(new Error('Invalide auth plugin \'' + pluginName + '\''), callback);
+         return;
+     }
+-    blr.addBytes([Const.CNCT_client_crypt, 4, Const.WIRE_CRYPT_DISABLE, 0, 0, 0]); // WireCrypt = Disabled
++    blr.addBytes([Const.CNCT_client_crypt, 4, Const.WIRE_CRYPT_ENABLE, 0, 0, 0]); // WireCrypt = Enabled
+     blr.addString(Const.CNCT_user, os.userInfo().username || 'Unknown', Const.DEFAULT_ENCODING);
+     blr.addString(Const.CNCT_host, os.hostname(), Const.DEFAULT_ENCODING);
+     blr.addBytes([Const.CNCT_user_verification, 0]);

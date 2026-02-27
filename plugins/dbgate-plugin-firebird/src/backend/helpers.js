@@ -87,7 +87,7 @@ function getTriggerTiming(triggerType) {
 }
 
 function getFormattedDefaultValue(defaultValue) {
-  if (defaultValue === null) return null;
+  if (defaultValue == null) return null;
 
   return defaultValue.replace(/^default\s*/i, '');
 }

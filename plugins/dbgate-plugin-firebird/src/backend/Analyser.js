@@ -37,9 +37,10 @@ class Analyser extends DatabaseAnalyser {
     const columns =
       columnsResult.rows?.map(column => ({
         ...column,
-        objectId: `tables:${column.columnName}`,
+        objectId: `tables:${column.pureName}`,
         dataType: getDataTypeString(column),
-        defaultValue: getFormattedDefaultValue(column.defaultValue),
+        defaultValue: getFormattedDefaultValue(column.defaultValue?.toString()?.trim()),
+        columnComment: column.columnComment?.toString() || undefined,
       })) ?? [];
 
     const triggers =
