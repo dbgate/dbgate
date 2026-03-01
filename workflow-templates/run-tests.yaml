@@ -22,10 +22,16 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Install ODBC
-        run: sudo apt-get update && sudo apt-get install -y unixodbc-dev
+      - name: Install ODBC and native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev build-essential python3 python3-setuptools make g++
 
       - name: yarn install
+        env:
+          npm_config_vscode: ''
+          npm_config_electron: ''
+          PYTHON: python3
         run: |
           yarn install
 
