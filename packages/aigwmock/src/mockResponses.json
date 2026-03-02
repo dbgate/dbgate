@@ -1,0 +1,193 @@
+{
+  "scenarios": [
+    {
+      "match": "chart.*popular.*genre|popular.*genre.*chart|most popular genre",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Genre" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Track" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_sql_select",
+              "arguments": {
+                "sql": "SELECT g.Name AS genre, COUNT(t.TrackId) AS track_count FROM Genre g JOIN Track t ON g.GenreId = t.GenreId GROUP BY g.Name ORDER BY track_count DESC LIMIT 10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Here is a chart showing the most popular genres by track count:\n\n```chart\n{\"type\":\"bar\",\"data\":{\"labels\":[\"Rock\",\"Latin\",\"Metal\",\"Alternative & Punk\",\"Jazz\",\"Blues\",\"Classical\",\"R&B/Soul\",\"Reggae\",\"Pop\"],\"datasets\":[{\"label\":\"Track Count\",\"data\":[1297,579,374,332,130,81,74,61,58,48]}]},\"options\":{\"plugins\":{\"title\":{\"display\":true,\"text\":\"Most Popular Genres by Track Count\"}}}}\n```"
+        }
+      ]
+    },
+    {
+      "match": "most popular artist|popular artist|top artist",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Artist" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Album" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Track" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_sql_select",
+              "arguments": {
+                "sql": "SELECT ar.Name AS artist, COUNT(t.TrackId) AS track_count FROM Artist ar JOIN Album al ON ar.ArtistId = al.ArtistId JOIN Track t ON al.AlbumId = t.AlbumId GROUP BY ar.Name ORDER BY track_count DESC LIMIT 10"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "The most popular artist by number of tracks is **Iron Maiden** with 213 tracks, followed by **U2** with 135 tracks and **Led Zeppelin** with 114 tracks."
+        }
+      ]
+    },
+    {
+      "match": "list.*user|show.*user|get.*user",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "graphql_introspect_schema", "arguments": {} }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_graphql_query",
+              "arguments": {
+                "query": "{ users { id firstName lastName email } }"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Here are the users from the GraphQL API. The system contains multiple registered users with their names and email addresses."
+        }
+      ]
+    },
+    {
+      "match": "chart.*product.*categor|product.*categor.*chart|chart.*categor",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "graphql_introspect_schema", "arguments": {} }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_graphql_query",
+              "arguments": {
+                "query": "{ products { category } }"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Here is a bar chart showing the distribution of products across categories:\n\n```chart\n{\"type\":\"bar\",\"data\":{\"labels\":[\"Electronics\",\"Clothing\",\"Books\",\"Home & Garden\",\"Sports\",\"Toys\"],\"datasets\":[{\"label\":\"Number of Products\",\"data\":[35,30,33,38,32,32]}]},\"options\":{\"plugins\":{\"title\":{\"display\":true,\"text\":\"Products by Category\"}}}}\n```"
+        }
+      ]
+    },
+    {
+      "match": "most expensive product|expensive.*product|highest price",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "graphql_introspect_schema", "arguments": {} }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_graphql_query",
+              "arguments": {
+                "query": "{ products { id name price category } }"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Based on the query results, I found the most expensive product in the system. The product details are shown in the query results above."
+        }
+      ]
+    },
+    {
+      "match": "show.*categor|list.*categor|all.*categor",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "graphql_introspect_schema", "arguments": {} }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_graphql_query",
+              "arguments": {
+                "query": "{ categories { id name description active } }"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "Here are all the categories available in the system. Each category has a name, description, and active status indicating whether it is currently in use."
+        }
+      ]
+    },
+    {
+      "match": "Explain the following error|doesn't exist|does not exist",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table": "Invoice" } }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "The error occurs because the table `Invoice2` does not exist in the `MyChinook` database. The correct table name is `Invoice`. Here is the corrected query:\n\n```sql\nSELECT * FROM Invoice\n```\n\nThe table name had a typo — `Invoice2` instead of `Invoice`. The `Invoice` table contains columns like `InvoiceId`, `CustomerId`, `InvoiceDate`, `Total`, and billing address fields."
+        }
+      ]
+    }
+  ]
+}

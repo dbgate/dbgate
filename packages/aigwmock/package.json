@@ -1,0 +1,14 @@
+{
+  "name": "dbgate-aigwmock",
+  "version": "1.0.0",
+  "description": "Mock AI Gateway server for E2E testing",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

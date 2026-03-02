@@ -30,15 +30,43 @@ async function waitForApiReady(timeoutMs = 30000) {
   throw new Error('DBGM-00000 test-api did not start on port 4444 in time');
 }
 
+function readProcessStartTime(pid) {
+  if (process.platform === 'linux') {
+    try {
+      const stat = fs.readFileSync(`/proc/${pid}/stat`, 'utf-8');
+      return stat.split(' ')[21] || null;
+    } catch (err) {
+      return null;
+    }
+  }
+  return null;
+}
+
+function isPidStillOurs(meta) {
+  if (!meta || !(meta.pid > 0)) return false;
+  if (process.platform === 'linux' && meta.startTime) {
+    const current = readProcessStartTime(meta.pid);
+    return current === meta.startTime;
+  }
+  return true;
+}
+
 function stopPreviousTestApi() {
   if (!fs.existsSync(pidFile)) {
     return;
   }
 
   try {
-    const pid = Number(fs.readFileSync(pidFile, 'utf-8'));
-    if (Number.isInteger(pid) && pid > 0) {
-      process.kill(pid);
+    const content = fs.readFileSync(pidFile, 'utf-8').trim();
+    let meta;
+    try {
+      meta = JSON.parse(content);
+    } catch (_) {
+      const pid = Number(content);
+      meta = Number.isInteger(pid) && pid > 0 ? { pid } : null;
+    }
+    if (isPidStillOurs(meta)) {
+      process.kill(meta.pid);
     }
   } catch (err) {
     // ignore stale pid file or already terminated process
@@ -67,7 +95,10 @@ function startTestApi() {
 
   child.unref();
   fs.mkdirSync(path.dirname(pidFile), { recursive: true });
-  fs.writeFileSync(pidFile, String(child.pid));
+  const meta = { pid: child.pid };
+  const startTime = readProcessStartTime(child.pid);
+  if (startTime) meta.startTime = startTime;
+  fs.writeFileSync(pidFile, JSON.stringify(meta));
 }
 
 function ensureTestApiDependencies() {

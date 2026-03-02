@@ -110,55 +110,6 @@ describe('Charts', () => {
     cy.themeshot('new-object-window');
   });
 
-  it.skip('Database chat - charts', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_databaseChat').click();
-    cy.wait(1000);
-    cy.get('body').realType('show me chart of most popular genres');
-    cy.get('body').realPress('{enter}');
-    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
-    cy.testid('chart-canvas', { timeout: 30000 }).should($c =>
-      expect($c[0].toDataURL()).to.match(/^data:image\/png;base64/)
-    );
-    cy.themeshot('database-chat-chart');
-  });
-
-  it.skip('Database chat', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_databaseChat').click();
-    cy.wait(1000);
-    cy.get('body').realType('find most popular artist');
-    cy.get('body').realPress('{enter}');
-    cy.testid('DatabaseChatTab_executeAllQueries', { timeout: 30000 }).click();
-    cy.wait(30000);
-    // cy.contains('Iron Maiden');
-    cy.themeshot('database-chat');
-
-    // cy.testid('DatabaseChatTab_promptInput').click();
-    // cy.get('body').realType('I need top 10 songs with the biggest income');
-    // cy.get('body').realPress('{enter}');
-    // cy.contains('Hot Girl', { timeout: 20000 });
-    // cy.wait(1000);
-    // cy.themeshot('database-chat');
-  });
-
-  it.skip('Explain query error', () => {
-    cy.contains('MySql-connection').click();
-    cy.contains('MyChinook').click();
-    cy.testid('TabsPanel_buttonNewObject').click();
-    cy.testid('NewObjectModal_query').click();
-    cy.wait(1000);
-    cy.get('body').realType('select * from Invoice2');
-    cy.contains('Execute').click();
-    cy.testid('MessageViewRow-explainErrorButton-1').click();
-    cy.testid('ChatCodeRenderer_useSqlButton', { timeout: 30000 });
-    cy.themeshot('explain-query-error');
-  });
-
   it('Switch language', () => {
     cy.contains('MySql-connection').click();
     cy.contains('MyChinook').click();

@@ -55,6 +55,9 @@ module.exports = defineConfig({
             case 'redis':
               serverProcess = exec('yarn start:redis');
               break;
+            case 'ai-chat':
+              serverProcess = exec('yarn start:ai-chat');
+              break;
           }
 
           await waitOn({ resources: ['http://localhost:3000'] });
