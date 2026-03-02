@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+## 7.1.2
+- ADDED: GraphQL chat - AI chat with GraphQL endpoint (Premium)
+- FIXED: Error "400 Provider returned error" in Database Chat (Premium)
+- CHANGED: Upgraded AI components to latest versions, improved stability and performance of AI features (Premium)
+- ADDED: New LLM models available (GPT-5.1 Codex Mini - now default), Claude Haiku 4.5
+- CHANGED: Upgraded some internal building components (svelte-preprocess, typescript)
+
 ## 7.1.1
 - CHANGED: Fixed some DynamoDB issues, improved filtering performance
 - FIXED: Afilter filter scroll issue #1370
