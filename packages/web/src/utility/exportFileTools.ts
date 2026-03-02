@@ -10,7 +10,7 @@ import {
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
-import { QuickExportDefinition } from 'dbgate-types';
+import type { QuickExportDefinition } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
 
 // export async function importSqlDump(inputFile, connection) {

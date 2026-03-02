@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('JslDataGridCore');
 
   registerCommand({
@@ -55,10 +56,7 @@
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
-  import { openImportExportTab } from '../utility/importExportTools';
-  import { __t } from '../translations';
-
-  export let jslid;
+  import { openImportExportTab } from '../utility/importExportTools';  export let jslid;
   export let display;
   export let formatterFunction;
 

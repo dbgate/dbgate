@@ -1,4 +1,16 @@
 <script lang="ts" context="module">
+  import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
+  import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
+  import FormCellView from '../celldata/FormCellView.svelte';
+  import JsonCellView from '../celldata/JsonCellView.svelte';
+  import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
+  import JsonRowView from '../celldata/JsonRowView.svelte';
+  import PictureCellView from '../celldata/PictureCellView.svelte';
+  import HtmlCellView from '../celldata/HtmlCellView.svelte';
+  import XmlCellView from '../celldata/XmlCellView.svelte';
+  import MapCellView from '../celldata/MapCellView.svelte';
+  import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
+  import _ from 'lodash';
   const formats = [
     {
       type: 'textWrap',
@@ -94,21 +106,9 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
-  import HtmlCellView from '../celldata/HtmlCellView.svelte';
-  import JsonCellView from '../celldata/JsonCellView.svelte';
-  import JsonRowView from '../celldata/JsonRowView.svelte';
-  import MapCellView from '../celldata/MapCellView.svelte';
-  import PictureCellView from '../celldata/PictureCellView.svelte';
-  import FormCellView from '../celldata/FormCellView.svelte';
-  import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
-  import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
-  import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
-  import SelectField from '../forms/SelectField.svelte';
   import WidgetTitle from './WidgetTitle.svelte';
-  import JsonExpandedCellView from '../celldata/JsonExpandedCellView.svelte';
-  import XmlCellView from '../celldata/XmlCellView.svelte';
+  import SelectField from '../forms/SelectField.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { _t } from '../translations';
 
   export let onClose;

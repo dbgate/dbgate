@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+  import openNewTab from '../utility/openNewTab';
   export function openJsonDocument(json, title = 'JSON', expandAll = false) {
     openNewTab(
       {
@@ -18,10 +19,7 @@
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import JSONTree from '../jsontree/JSONTree.svelte';
-  import useEditorData from '../query/useEditorData';
-  import openNewTab from '../utility/openNewTab';
-
-  export let selection;
+  import useEditorData from '../query/useEditorData';  export let selection;
   export let showWholeRow = false;
   export let tabid;
   export let expandAll;

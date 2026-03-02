@@ -1,4 +1,8 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('FavoriteEditorTab');
 
   registerFileCommands({
@@ -32,19 +36,14 @@
 
 <script lang="ts">
   import { getContext } from 'svelte';
-  import registerCommand from '../commands/registerCommand';
-  import { registerFileCommands } from '../commands/stdCommands';
-
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import invalidateCommands from '../commands/invalidateCommands';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import { apiCall } from '../utility/api';
-  import { __t } from '../translations';
-
   export let tabid;
   export let savedFile;
 

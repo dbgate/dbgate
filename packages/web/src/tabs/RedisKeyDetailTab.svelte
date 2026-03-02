@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   const getCurrentEditor = () => getActiveComponent('RedisKeyDetailTab');
@@ -53,7 +55,7 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { changeTab } from '../utility/common';
   import RedisValueDetail from '../redis/RedisValueDetail.svelte';
-  import { __t, _t } from '../translations';
+  import { _t } from '../translations';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { convertRedisCallListToScript, type ChangeSetRedis, type ChangeSetRedisType } from 'dbgate-datalib';
@@ -63,9 +65,7 @@
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
-  import { showSnackbarError } from '../utility/snackbar';
-  import registerCommand from '../commands/registerCommand';
-  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import { showSnackbarError } from '../utility/snackbar';  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import RedisValueListLikeEdit from '../redis/RedisValueListLikeEdit.svelte';
   import uuidv1 from 'uuid/v1';

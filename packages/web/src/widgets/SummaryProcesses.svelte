@@ -1,6 +1,6 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
-  import { DatabaseProcess } from 'dbgate-types';
+  import type { DatabaseProcess } from 'dbgate-types';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import { _t } from '../translations';

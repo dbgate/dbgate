@@ -6,7 +6,8 @@
 
   "compilerOptions": {
     "resolveJsonModule": true,
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

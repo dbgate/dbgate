@@ -8,7 +8,7 @@
 
   import WidgetTitle from './WidgetTitle.svelte';
   import splitterDrag from '../utility/splitterDrag';
-  import {
+  import type {
     PushWidgetBarItemDefinitionFunction,
     UpdateWidgetBarItemDefinitionFunction,
     WidgetBarComputedResult,

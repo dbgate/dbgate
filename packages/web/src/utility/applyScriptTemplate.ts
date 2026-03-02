@@ -1,7 +1,7 @@
 import { getDbCore, getConnectionInfo, getSqlObjectInfo } from './metadataLoaders';
 import sqlFormatter from 'sql-formatter';
 import { driverBase, findEngineDriver } from 'dbgate-tools';
-import { DatabaseInfo } from 'dbgate-types';
+import type { DatabaseInfo } from 'dbgate-types';
 
 function extractDbObjectInfo(dbinfo: DatabaseInfo, { objectTypeField, pureName, schemaName }) {
   if (!dbinfo) return null;

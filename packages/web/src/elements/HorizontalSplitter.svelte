@@ -1,4 +1,5 @@
 <script context="module">
+  import _ from 'lodash';
   export function computeSplitterSize(initialValue, clientSize, customRatio, initialSizeRight) {
     if (customRatio != null) {
       return clientSize * customRatio;
@@ -15,9 +16,7 @@
   }
 </script>
 
-<script>
-  import _ from 'lodash';
-  import FontIcon from '../icons/FontIcon.svelte';
+<script>  import FontIcon from '../icons/FontIcon.svelte';
 
   import splitterDrag from '../utility/splitterDrag';
 

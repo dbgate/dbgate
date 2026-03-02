@@ -54,6 +54,9 @@ export default defineConfig([
       cssEntryFileNames: 'bundle.css',
       minify: production,
     },
+    // dbgate-types is a TypeScript-only package (no runtime code).
+    // Mark it external so rolldown doesn't try to bundle it.
+    external: ['dbgate-types'],
     platform: 'browser',
     resolve: {
       conditionNames: ['svelte', 'browser', 'import'],
@@ -122,7 +125,14 @@ export default defineConfig([
       }),
 
       svelte({
-        preprocess: sveltePreprocess({ sourceMap: !production }),
+        preprocess: sveltePreprocess({
+          sourceMap: !production,
+          typescript: {
+            compilerOptions: {
+              verbatimModuleSyntax: true,
+            },
+          },
+        }),
         compilerOptions: {
           // enable run-time checks when not in production
           dev: !production,

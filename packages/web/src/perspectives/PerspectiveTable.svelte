@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('PerspectiveTable');
 
   registerCommand({
@@ -27,9 +30,7 @@
   import contextMenu from '../utility/contextMenu';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import registerCommand from '../commands/registerCommand';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';  import createActivator from '../utility/createActivator';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import PerspectiveCell from './PerspectiveCell.svelte';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
@@ -39,10 +40,7 @@
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
   import openNewTab from '../utility/openNewTab';
   import { getFilterValueExpression } from 'dbgate-filterparser';
-  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
-  import { __t } from '../translations';
-
-  const TABS_BY_FIELD = {
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';  const TABS_BY_FIELD = {
     tables: {
       text: 'table',
       tabComponent: 'TableDataTab',

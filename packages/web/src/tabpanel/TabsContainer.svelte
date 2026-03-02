@@ -2,7 +2,7 @@
   import TabRegister from './TabRegister.svelte';
   import TabsPanel from './TabsPanel.svelte';
   import _ from 'lodash';
-  import { currentDatabase, lockedDatabaseMode, openedTabs, TabDefinition } from '../stores';
+  import { currentDatabase, lockedDatabaseMode, openedTabs, type TabDefinition } from '../stores';
   import { shouldShowTab } from './TabsPanel.svelte';
 
   export let multiTabIndex;

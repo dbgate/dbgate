@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('ServerSummaryTab');
 
   registerCommand({
@@ -16,14 +19,12 @@
 
 <script>
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
-  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
-  import registerCommand from '../commands/registerCommand';
-  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';  import LoadingInfo from '../elements/LoadingInfo.svelte';
   import TabControl from '../elements/TabControl.svelte';
 
-  import { _t, __t } from '../translations';
+  import { _t } from '../translations';
   import { apiCall } from '../utility/api';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import openNewTab from '../utility/openNewTab';
   import SummaryVariables from '../widgets/SummaryVariables.svelte';
   import SummaryProcesses from '../widgets/SummaryProcesses.svelte';

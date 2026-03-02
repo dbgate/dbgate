@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   export const matchingProps = ['archiveFile', 'archiveFolder', 'jslid'];
 
   const getCurrentEditor = () => getActiveComponent('ArchiveFileTab');
@@ -37,9 +40,7 @@
 
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
-  import invalidateCommands from '../commands/invalidateCommands';
-  import registerCommand from '../commands/registerCommand';
-  import runCommand from '../commands/runCommand';
+  import invalidateCommands from '../commands/invalidateCommands';  import runCommand from '../commands/runCommand';
 
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import { showModal } from '../modals/modalTools';
@@ -47,11 +48,8 @@
   import useEditorData from '../query/useEditorData';
   import { apiCall } from '../utility/api';
   import { changeTab, markTabSaved, markTabUnsaved, sleep } from '../utility/common';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import createUndoReducer from '../utility/createUndoReducer';
-  import { __t } from '../translations';
-
-  export const activator = createActivator('ArchiveFileTab', true);
+  import createActivator from '../utility/createActivator';
+  import createUndoReducer from '../utility/createUndoReducer';  export const activator = createActivator('ArchiveFileTab', true);
 
   export let archiveFolder = undefined;
   export let archiveFile = undefined;

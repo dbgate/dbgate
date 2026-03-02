@@ -1,4 +1,10 @@
 <script lang="ts" context="module">
+  import _ from 'lodash';
+  import { loadingPluginStore } from '../stores';
+  import { apiCall } from '../utility/api';
+  import { isProApp } from '../utility/proTools';
+  import { openApiDriver, oDataDriver, graphQlDriver } from 'dbgate-rest';
+  import { buildFileFormats, buildQuickExports } from './fileformats';
   async function loadPlugins(pluginsDict, installedPlugins) {
     window['DBGATE_PACKAGES'] = {
       'dbgate-tools': dbgateTools,
@@ -58,19 +64,10 @@
   }
 </script>
 
-<script lang="ts">
-  import _ from 'lodash';
-  import { extensions, loadingPluginStore } from '../stores';
-  import { useInstalledPlugins } from '../utility/metadataLoaders';
-  import { buildFileFormats, buildQuickExports } from './fileformats';
-  import * as dbgateTools from 'dbgate-tools';
+<script lang="ts">  import { extensions } from '../stores';
+  import { useInstalledPlugins } from '../utility/metadataLoaders';  import * as dbgateTools from 'dbgate-tools';
   import * as sqlTree from 'dbgate-sqltree';
-  import * as dataLib from 'dbgate-datalib';
-  import { apiCall } from '../utility/api';
-  import { isProApp } from '../utility/proTools';
-  import { openApiDriver, oDataDriver, graphQlDriver } from 'dbgate-rest';
-
-  let pluginsDict = {};
+  import * as dataLib from 'dbgate-datalib';  let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();
 
   $: loadPlugins(pluginsDict, $installedPlugins).then(newPlugins => {

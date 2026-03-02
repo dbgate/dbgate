@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+  import { _t } from '../translations';
   import { copyTextToClipboard } from '../utility/clipboard';
 
   export const extractKey = props => props.name;
@@ -214,6 +215,18 @@
         title: 'Chat',
         icon: 'img ai',
         tabComponent: 'DatabaseChatTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
+    const handleGraphQlChat = () => {
+      openNewTab({
+        title: 'GraphQL Chat',
+        icon: 'img ai',
+        tabComponent: 'GraphQlChatTab',
         props: {
           conid: connection._id,
           database: name,
@@ -534,6 +547,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
           onClick: handleDatabaseChat,
           text: _t('database.databaseChat', { defaultMessage: 'Database chat' }),
         },
+      isProApp() &&
+        driver?.databaseEngineTypes?.includes('graphql') &&
+        hasPermission('dbops/chat') && {
+          onClick: handleGraphQlChat,
+          text: _t('database.graphqlChat', { defaultMessage: 'GraphQL chat' }),
+        },
       isSqlOrDoc &&
         _.get($currentDatabase, 'connection._id') &&
         hasPermission('dbops/model/compare') &&
@@ -668,10 +687,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
-  import { getDatabaseClickActionSetting } from '../settings/settingsTools';
-  import { _t } from '../translations';
-
-  export let data;
+  import { getDatabaseClickActionSetting } from '../settings/settingsTools';  export let data;
   export let passProps;
   export let passExtInfo = undefined;
   export let passIcon = undefined;

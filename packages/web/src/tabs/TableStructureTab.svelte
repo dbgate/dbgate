@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
   const getCurrentEditor = () => getActiveComponent('TableStructureTab');
@@ -36,13 +39,10 @@
     getAlterTableScript,
   } from 'dbgate-tools';
 
-  import _ from 'lodash';
-  import registerCommand from '../commands/registerCommand';
-
-  import { extensions, lastUsedDefaultActions } from '../stores';
+  import _ from 'lodash';  import { extensions, lastUsedDefaultActions } from '../stores';
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
 
   import { useConnectionInfo, useDatabaseInfo, useDbCore, useSchemaList } from '../utility/metadataLoaders';
   import { showModal } from '../modals/modalTools';
@@ -57,7 +57,7 @@
   import hasPermission from '../utility/hasPermission';
   import { changeTab, markTabSaved, markTabUnsaved } from '../utility/common';
   import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { _t, __t } from '../translations';
+  import { _t } from '../translations';
 
   export let tabid;
   export let conid;

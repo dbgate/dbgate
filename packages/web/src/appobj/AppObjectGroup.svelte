@@ -1,4 +1,5 @@
 <script>
+  import _ from 'lodash';
   import Link from '../elements/Link.svelte';
 
   import { plusExpandIcon } from '../icons/expandIcons';

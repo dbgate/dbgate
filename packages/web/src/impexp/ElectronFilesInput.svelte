@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { extensions } from '../stores';
+  import { findFileFormat } from '../plugins/fileformats';
   function getFileFilters(extensions, storageType) {
     const res = [];
     const format = findFileFormat(extensions, storageType);
@@ -12,9 +14,6 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
-  import { findFileFormat } from '../plugins/fileformats';
-  import { extensions } from '../stores';
-  import getElectron from '../utility/getElectron';
   import { addFilesToSourceList } from './ImportExportConfigurator.svelte';
 
   let isLoading = false;

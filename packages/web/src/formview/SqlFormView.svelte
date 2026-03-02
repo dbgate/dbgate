@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+  import { apiCall } from '../utility/api';
   async function loadRow(props, select) {
     const { conid, database } = props;
 
@@ -16,9 +17,7 @@
   }
 </script>
 
-<script lang="ts">
-  import { apiCall } from '../utility/api';
-  import _ from 'lodash';
+<script lang="ts">  import _ from 'lodash';
   import LoadingFormView from './LoadingFormView.svelte';
 
   export let display;

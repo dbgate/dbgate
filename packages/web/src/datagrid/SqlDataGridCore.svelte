@@ -1,4 +1,7 @@
 <script context="module" lang="ts">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import hasPermission from '../utility/hasPermission';
   import { __t, _t } from '../translations'
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
@@ -23,10 +26,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
-
-  import registerCommand from '../commands/registerCommand';
-  import {
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';  import {
     extractShellConnection,
     extractShellConnectionHostable,
     extractShellHostConnection,
@@ -34,16 +34,14 @@
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
-  import LoadingDataGridCore from './LoadingDataGridCore.svelte';
-  import hasPermission from '../utility/hasPermission';
-  import { openImportExportTab } from '../utility/importExportTools';
+  import LoadingDataGridCore from './LoadingDataGridCore.svelte';  import { openImportExportTab } from '../utility/importExportTools';
   import { getIntSettingsValue } from '../settings/settingsTools';
   import OverlayDiffGrider from './OverlayDiffGrider';
 

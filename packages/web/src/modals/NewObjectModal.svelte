@@ -145,6 +145,18 @@
       testid: 'NewObjectModal_databaseChat',
     },
     {
+      icon: 'icon ai',
+      colorClass: 'color-icon-blue',
+      title: _t('common.graphqlChat', { defaultMessage: 'GraphQL Chat' }),
+      description: _t('newObject.graphqlChatDescription', { defaultMessage: 'Chat with your GraphQL API using AI' }),
+      command: 'graphql.chat',
+      isProFeature: true,
+      disabledMessage: _t('newObject.graphqlChatDisabled', {
+        defaultMessage: 'GraphQL chat is not available for current connection',
+      }),
+      testid: 'NewObjectModal_graphqlChat',
+    },
+    {
       icon: 'icon graphql',
       colorClass: 'color-icon-magenta',
       title: _t('common.graphqlQuery', { defaultMessage: 'GraphQL Query' }),

@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('CollectionDataGridCore');
 
   registerCommand({
@@ -139,10 +140,7 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import { mongoFilterBehaviour, standardFilterBehaviours } from 'dbgate-tools';
-  import { openImportExportTab } from '../utility/importExportTools';
-  import { __t } from '../translations';
-
-  export let conid;
+  import { openImportExportTab } from '../utility/importExportTools';  export let conid;
   export let display;
   export let database;
   export let schemaName;

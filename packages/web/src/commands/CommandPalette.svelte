@@ -1,4 +1,5 @@
 <script context="module">
+  import { __t } from '../translations';
   registerCommand({
     id: 'commandPalette.show',
     category: __t('command.commandPalette', { defaultMessage: 'Command palette' }),
@@ -87,7 +88,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
   import { formatKeyText, switchCurrentDatabase } from '../utility/common';
-  import { _tval, __t, _t } from '../translations';
+  import { _tval, _t } from '../translations';
   import { getDriverIcon } from '../utility/driverIcons';
   import { currentThemeType } from '../plugins/themes';
 

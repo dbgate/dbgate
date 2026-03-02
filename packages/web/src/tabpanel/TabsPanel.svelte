@@ -1,4 +1,14 @@
 <script lang="ts" context="module">
+  import { getLockedDatabaseMode, getCurrentDatabase, getOpenedTabs, openedTabs, getActiveTabId, cloudConnectionsStore, getOpenedModals, getActiveTab } from '../stores';
+  import { showModal } from '../modals/modalTools';
+  import CloseTabModal from '../modals/CloseTabModal.svelte';
+  import _ from 'lodash';
+  import { getConnectionLabel } from 'dbgate-tools';
+  import { setSelectedTab } from '../utility/common';
+  import registerCommand from '../commands/registerCommand';
+  import { isElectronAvailable } from '../utility/getElectron';
+  import FavoriteModal from '../modals/FavoriteModal.svelte';
+  import { __t, _t } from '../translations';
   const getCurrentValueMarker: any = {};
 
   export function shouldShowTab(tab, lockedDbModeArg = getCurrentValueMarker, currentDbArg = getCurrentValueMarker) {
@@ -319,50 +329,25 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
   import { tick } from 'svelte';
-  import registerCommand from '../commands/registerCommand';
   import FontIcon from '../icons/FontIcon.svelte';
-  import FavoriteModal from '../modals/FavoriteModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
   import appObjectTypes from '../appobj';
 
-  import {
-    currentDatabase,
-    getActiveTab,
-    getOpenedTabs,
-    openedTabs,
-    activeTabId,
-    getActiveTabId,
-    getCurrentDatabase,
-    lockedDatabaseMode,
-    getLockedDatabaseMode,
-    draggingDbGroup,
-    draggingDbGroupTarget,
-    draggingTab,
-    draggingTabTarget,
-    getOpenedModals,
-    cloudConnectionsStore,
-  } from '../stores';
+  import { currentDatabase, activeTabId, lockedDatabaseMode, draggingDbGroup, draggingDbGroupTarget, draggingTab, draggingTabTarget } from '../stores';
   import tabs from '../tabs';
-  import { setSelectedTab, switchCurrentDatabase } from '../utility/common';
+  import { switchCurrentDatabase } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
-  import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList, useSettings } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import TabCloseButton from '../elements/TabCloseButton.svelte';
-  import CloseTabModal from '../modals/CloseTabModal.svelte';
   import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
-  import { getConnectionLabel } from 'dbgate-tools';
   import { handleAfterTabClick } from '../utility/changeCurrentDbByTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import NewObjectModal from '../modals/NewObjectModal.svelte';
   import { isProApp } from '../utility/proTools';
   import { openWebLink } from '../utility/simpleTools';
-  import { __t, _t } from '../translations';
-
   export let multiTabIndex;
   export let shownTab;
 

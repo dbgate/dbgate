@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { arrayToHexString, stringifyCellValue } from 'dbgate-tools';
 import yaml from 'js-yaml';
-import { DataEditorTypesBehaviour } from 'dbgate-types';
+import type { DataEditorTypesBehaviour } from 'dbgate-types';
 import { __t, _t } from '../translations'
 
 export function copyTextToClipboard(text) {

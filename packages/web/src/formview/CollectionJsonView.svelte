@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('CollectionJsonView');
 
   registerCommand({
@@ -24,10 +27,8 @@
 <script lang="ts">
   import _ from 'lodash';
 
-  import { onMount } from 'svelte';
-  import registerCommand from '../commands/registerCommand';
-  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { onMount } from 'svelte';  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
+  import createActivator from '../utility/createActivator';
 
   import { loadCollectionDataPage } from '../datagrid/CollectionDataGridCore.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
@@ -36,10 +37,7 @@
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import CollectionJsonRow from './CollectionJsonRow.svelte';
   import { getIntSettingsValue } from '../settings/settingsTools';
-  import invalidateCommands from '../commands/invalidateCommands';
-  import { __t } from '../translations';
-
-  export let conid;
+  import invalidateCommands from '../commands/invalidateCommands';  export let conid;
   export let database;
   export let cache;
   export let display;

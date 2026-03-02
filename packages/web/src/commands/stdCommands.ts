@@ -766,6 +766,29 @@ if (isProApp()) {
       });
     },
   });
+
+  registerCommand({
+    id: 'graphql.chat',
+    category: __t('command.database', { defaultMessage: 'Database' }),
+    name: __t('command.graphql.chat', { defaultMessage: 'GraphQL chat' }),
+    toolbar: true,
+    icon: 'icon ai',
+    testEnabled: () =>
+      getCurrentDatabase() != null &&
+      findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('graphql') &&
+      hasPermission('dbops/chat'),
+    onClick: () => {
+      openNewTab({
+        title: 'GraphQL Chat',
+        icon: 'img ai',
+        tabComponent: 'GraphQlChatTab',
+        props: {
+          conid: getCurrentDatabase()?.connection?._id,
+          database: getCurrentDatabase()?.name,
+        },
+      });
+    },
+  });
 }
 
 if (hasPermission('settings/change')) {

@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('SqlObjectTab');
 
   registerCommand({
@@ -18,22 +21,17 @@
 
   import AceEditor from '../query/AceEditor.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { extensions, lastUsedDefaultActions } from '../stores';
-  import { findEngineDriver } from 'dbgate-tools';
-  import registerCommand from '../commands/registerCommand';
-  import applyScriptTemplate, { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
+  import { findEngineDriver } from 'dbgate-tools';  import applyScriptTemplate, { getSupportedScriptTemplates } from '../utility/applyScriptTemplate';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { changeTab } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import openNewTab from '../utility/openNewTab';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { __t } from '../translations';
-
-  export let tabid;
+  import { getBoolSettingsValue } from '../settings/settingsTools';  export let tabid;
   export let appObjectData;
   export let scriptTemplate;
 

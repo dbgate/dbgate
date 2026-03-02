@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
   const getCurrentEditor = () => getActiveComponent('JsonEditorTab');
 
   registerFileCommands({
@@ -15,13 +17,10 @@
 </script>
 
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import { registerFileCommands } from '../commands/stdCommands';
-
-  import AceEditor from '../query/AceEditor.svelte';
+  import { getContext } from 'svelte';  import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import invalidateCommands from '../commands/invalidateCommands';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 

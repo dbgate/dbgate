@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('TableEditor');
 
   registerCommand({
@@ -62,10 +65,7 @@
 
   import _ from 'lodash';
   import { onMount, tick } from 'svelte';
-  import invalidateCommands from '../commands/invalidateCommands';
-  import registerCommand from '../commands/registerCommand';
-
-  import ColumnLabel from '../elements/ColumnLabel.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';  import ColumnLabel from '../elements/ColumnLabel.svelte';
   import ConstraintLabel from '../elements/ConstraintLabel.svelte';
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
   import Link from '../elements/Link.svelte';
@@ -73,7 +73,7 @@
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { showModal } from '../modals/modalTools';
   import useEditorData from '../query/useEditorData';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
 
   import { useDbCore } from '../utility/metadataLoaders';
   import ColumnEditorModal from './ColumnEditorModal.svelte';
@@ -83,7 +83,7 @@
   import UniqueEditorModal from './UniqueEditorModal.svelte';
   import ObjectFieldsEditor from '../elements/ObjectFieldsEditor.svelte';
   import PrimaryKeyLikeListControl from './PrimaryKeyLikeListControl.svelte';
-  import { __t, _t } from '../translations';
+  import { _t } from '../translations';
 
   export const activator = createActivator('TableEditor', true);
 

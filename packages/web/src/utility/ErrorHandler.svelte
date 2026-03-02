@@ -1,7 +1,7 @@
 <script lang="ts">
   import localforage from 'localforage';
   import _ from 'lodash';
-  import { TabDefinition } from '../stores';
+  import type { TabDefinition } from '../stores';
   import getElectron from './getElectron';
   import { getOpenedTabsStorageName } from './pageDefs';
 

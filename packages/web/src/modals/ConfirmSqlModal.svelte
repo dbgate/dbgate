@@ -1,4 +1,9 @@
 <script context="module" lang="ts">
+  import { apiCall } from '../utility/api';
+  import { showModal } from './modalTools';
+  import ErrorMessageModal from './ErrorMessageModal.svelte';
+  import { showSnackbarSuccess } from '../utility/snackbar';
+  import _ from 'lodash';
   export async function saveScriptToDatabase({ conid, database }, sql, syncModel = true, logMessage = null) {
     const resp = await apiCall('database-connections/run-script', {
       conid,
@@ -38,7 +43,6 @@
 </script>
 
 <script>
-  import _ from 'lodash';
   import { writable } from 'svelte/store';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
@@ -48,12 +52,8 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import newQuery from '../query/newQuery';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import { apiCall } from '../utility/api';
-  import { showSnackbarSuccess } from '../utility/snackbar';
-  import ErrorMessageModal from './ErrorMessageModal.svelte';
-
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal, showModal } from './modalTools';
+  import { closeCurrentModal } from './modalTools';
   import { _t } from '../translations';
 
   export let sql;

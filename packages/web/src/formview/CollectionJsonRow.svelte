@@ -1,4 +1,8 @@
 <script lang="ts" context="module">
+  import { showModal } from '../modals/modalTools';
+  import EditJsonModal from '../modals/EditJsonModal.svelte';
+  import stableStringify from 'json-stable-stringify';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   export function editJsonRowDocument(grider, rowIndex) {
     const rowData = grider.getRowData(rowIndex);
     showModal(EditJsonModal, {
@@ -21,13 +25,8 @@
 
 <script lang="ts">
   import JSONTree from '../jsontree/JSONTree.svelte';
-  import EditJsonModal from '../modals/EditJsonModal.svelte';
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import { showModal } from '../modals/modalTools';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { getContextMenu, registerMenu } from '../utility/contextMenu';
-  import stableStringify from 'json-stable-stringify';
-
   export let rowIndex;
   export let grider;
 

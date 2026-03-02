@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentDataForm = () => getActiveComponent('FormView');
 
   // registerCommand({
@@ -172,10 +175,7 @@
 
   import { getContext } from 'svelte';
 
-  import invalidateCommands from '../commands/invalidateCommands';
-
-  import registerCommand from '../commands/registerCommand';
-  import DataGridCell from '../datagrid/DataGridCell.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';  import DataGridCell from '../datagrid/DataGridCell.svelte';
   import { dataGridRowHeight } from '../datagrid/DataGridRowHeightMeter.svelte';
   import InplaceEditor from '../datagrid/InplaceEditor.svelte';
   import { cellFromEvent } from '../datagrid/selection';
@@ -191,13 +191,13 @@
   import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
   import { isCtrlOrCommandKey } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import resizeObserver from '../utility/resizeObserver';
   import openReferenceForm from './openReferenceForm';
   import { useSettings } from '../utility/metadataLoaders';
-  import { _t, __t } from '../translations';
+  import { _t } from '../translations';
 
   export let conid;
   export let database;

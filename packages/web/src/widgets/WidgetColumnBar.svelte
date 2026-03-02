@@ -9,7 +9,7 @@
     extractStoredWidgetBarProps,
     handleResizeWidgetBar,
     toggleCollapseWidgetBar,
-    WidgetBarItemDefinition,
+    type WidgetBarItemDefinition,
   } from '../utility/widgetBarResizing';
 
   export let hidden = false;

@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('PerspectiveView');
 
   registerCommand({
@@ -49,9 +52,7 @@
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import { PerspectiveDataLoader } from 'dbgate-datalib';
   import stableStringify from 'json-stable-stringify';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import registerCommand from '../commands/registerCommand';
-  import { showModal } from '../modals/modalTools';
+  import createActivator from '../utility/createActivator';  import { showModal } from '../modals/modalTools';
   import CustomJoinModal from './CustomJoinModal.svelte';
   import PerspectiveFilters from './PerspectiveFilters.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
@@ -65,7 +66,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import { usePerspectiveDataPatterns } from '../utility/usePerspectiveDataPatterns';
-  import { _t, __t } from '../translations';
+  import { _t } from '../translations';
 
   const dbg = debug('dbgate:PerspectiveView');
 

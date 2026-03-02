@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('Designer');
 
   registerCommand({
@@ -48,9 +51,7 @@
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
-  import stableStringify from 'json-stable-stringify';
-  import registerCommand from '../commands/registerCommand';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import stableStringify from 'json-stable-stringify';  import createActivator from '../utility/createActivator';
   import { GraphDefinition, GraphLayout } from './GraphLayout';
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { apiCall } from '../utility/api';
@@ -67,7 +68,7 @@
   import { isProApp } from '../utility/proTools';
   import dragScroll from '../utility/dragScroll';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import { __t, _t } from '../translations';
+  import { _t } from '../translations';
 
   export let value;
   export let onChange;

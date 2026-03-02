@@ -1,4 +1,8 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('JsonLinesEditorTab');
 
   registerFileCommands({
@@ -55,28 +59,21 @@
 </script>
 
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import { registerFileCommands } from '../commands/stdCommands';
-  import uuidv1 from 'uuid/v1';
+  import { getContext } from 'svelte';  import uuidv1 from 'uuid/v1';
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import invalidateCommands from '../commands/invalidateCommands';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import { showModal } from '../modals/modalTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import { changeTab } from '../utility/common';
-  import { apiCall } from '../utility/api';
-  import registerCommand from '../commands/registerCommand';
-  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import { apiCall } from '../utility/api';  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import openNewTab from '../utility/openNewTab';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
-  import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
-  import { __t } from '../translations';
-
-  export let tabid;
+  import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';  export let tabid;
   export let archiveFolder;
   export let archiveFile;
 

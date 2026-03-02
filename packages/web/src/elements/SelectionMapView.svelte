@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import _ from 'lodash';
+  import { isWktGeometry, stringifyCellValue } from 'dbgate-tools';
+  import wellknown from 'wellknown';
   const LAT_PRIORITY_PATTERNS = [
     /^lat$/i,
     /^latitude$/i,
@@ -141,10 +144,7 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
   import 'leaflet/dist/leaflet.css';
-  import wellknown from 'wellknown';
-  import { isWktGeometry, stringifyCellValue } from 'dbgate-tools';
   import MapView from './MapView.svelte';
 
   export let selection;

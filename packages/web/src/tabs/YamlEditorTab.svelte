@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
   const getCurrentEditor = () => getActiveComponent('YamlEditorTab');
 
   registerFileCommands({
@@ -16,16 +18,13 @@
 
 <script lang="ts">
   import { getContext } from 'svelte';
-  import registerCommand from '../commands/registerCommand';
-  import { registerFileCommands } from '../commands/stdCommands';
-
-  import AceEditor from '../query/AceEditor.svelte';
+  import registerCommand from '../commands/registerCommand';  import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { openedTabs } from '../stores';
   import invalidateCommands from '../commands/invalidateCommands';
   import openNewTab from '../utility/openNewTab';
   import { setSelectedTab } from '../utility/common';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
 
   export let tabid;
 

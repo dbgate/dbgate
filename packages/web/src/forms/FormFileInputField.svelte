@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SimpleFilesInput, { ProcessedFile } from '../impexp/SimpleFilesInput.svelte';
+  import SimpleFilesInput, { type ProcessedFile } from '../impexp/SimpleFilesInput.svelte';
   import { parseFileAsString } from '../utility/parseFileAsString';
   import { getFormContext } from './FormProviderCore.svelte';
   import { createEventDispatcher } from 'svelte';

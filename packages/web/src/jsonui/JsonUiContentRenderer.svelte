@@ -7,7 +7,7 @@
   import JsonUiMarkdown from './JsonUiMarkdown.svelte';
   import JsonUiTextBlock from './JsonUiTextBlock.svelte';
   import JsonUiTickList from './JsonUiTickList.svelte';
-  import { JsonUiBlock } from './jsonuitypes';
+  import type { JsonUiBlock } from './jsonuitypes';
 
   export let blocks: JsonUiBlock[] = [];
   export let passProps = {};

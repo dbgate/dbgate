@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   export const matchingProps = ['conid', 'database', 'pureName', 'sql'];
 
   const getCurrentEditor = () => getActiveComponent('QueryDataTab');
@@ -20,21 +23,15 @@
 
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
-  import invalidateCommands from '../commands/invalidateCommands';
-  import registerCommand from '../commands/registerCommand';
-
-  import JslDataGrid from '../datagrid/JslDataGrid.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';  import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall, apiOff, apiOn } from '../utility/api';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import useEffect from '../utility/useEffect';
   import { getSqlFrontMatter } from 'dbgate-tools';
   import yaml from 'js-yaml';
   import JslChart from '../charts/JslChart.svelte';
-  import ToolStripButton from '../buttons/ToolStripButton.svelte';
-  import { __t } from '../translations';
-
-  export const activator = createActivator('QueryDataTab', true);
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';  export const activator = createActivator('QueryDataTab', true);
 
   export let sql = undefined;
   export let pureName = undefined;

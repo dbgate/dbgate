@@ -1,4 +1,9 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import { getCurrentConfig } from '../stores';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('ShellTab');
 
   registerFileCommands({
@@ -35,23 +40,17 @@
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   import invalidateCommands from '../commands/invalidateCommands';
-  import registerCommand from '../commands/registerCommand';
-  import { registerFileCommands } from '../commands/stdCommands';
-
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { getCurrentConfig } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import { showSnackbarError } from '../utility/snackbar';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
-  import { __t } from '../translations';
-  
   export let tabid;
 
   const tabFocused: any = getContext('tabFocused');

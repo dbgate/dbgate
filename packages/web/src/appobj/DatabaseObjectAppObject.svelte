@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import { copyTextToClipboard } from '../utility/clipboard';
-  import { _t, _tval, DefferedTranslationResult } from '../translations';
+  import { _t, _tval, type DefferedTranslationResult } from '../translations';
   import sqlFormatter from 'sql-formatter';
 
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);

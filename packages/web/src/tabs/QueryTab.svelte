@@ -1,4 +1,8 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { isProApp } from '../utility/proTools';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import hasPermission from '../utility/hasPermission';
   import registerCommand from '../commands/registerCommand';
   import { copyTextToClipboard } from '../utility/clipboard';
   import yaml from 'js-yaml';
@@ -137,13 +141,11 @@
   import { getDatabaseInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
-  import ResultTabs from '../query/ResultTabs.svelte';
-  import { registerFileCommands } from '../commands/stdCommands';
-  import invalidateCommands from '../commands/invalidateCommands';
+  import ResultTabs from '../query/ResultTabs.svelte';  import invalidateCommands from '../commands/invalidateCommands';
   import { showModal } from '../modals/modalTools';
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import { findEngineDriver, getSqlFrontMatter, safeJsonParse, setSqlFrontMatter } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
@@ -157,17 +159,13 @@
   import { getClipboardText } from '../utility/clipboard';
   import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import { extractQueryParameters, replaceQueryParameters } from 'dbgate-query-splitter';
-  import QueryParametersModal from '../modals/QueryParametersModal.svelte';
-  import { isProApp } from '../utility/proTools';
-  import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
+  import QueryParametersModal from '../modals/QueryParametersModal.svelte';  import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import uuidv1 from 'uuid/v1';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getIntSettingsValue } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
   import _ from 'lodash';
-  import FontIcon from '../icons/FontIcon.svelte';
-  import hasPermission from '../utility/hasPermission';
-  import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';  import QueryAiAssistant from '../ai/QueryAiAssistant.svelte';
   import { getCurrentSettings } from '../stores';
   import { Messages } from 'openai/resources/chat/completions';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';

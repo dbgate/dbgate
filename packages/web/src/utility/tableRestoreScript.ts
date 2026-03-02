@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Condition, dumpSqlInsert, dumpSqlUpdate, Insert, Update, Delete, dumpSqlDelete } from 'dbgate-sqltree';
-import { TableInfo, SqlDumper } from 'dbgate-types';
+import type { TableInfo, SqlDumper } from 'dbgate-types';
 
 export function createTableRestoreScript(backupTable: TableInfo, originalTable: TableInfo, dmp: SqlDumper) {
   const bothColumns = _.intersection(

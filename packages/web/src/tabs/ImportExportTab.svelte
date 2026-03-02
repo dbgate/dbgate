@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { isProApp } from '../utility/proTools';
+  import { registerFileCommands } from '../commands/stdCommands';
   const getCurrentEditor = () => getActiveComponent('ImportExportTab');
 
   if (isProApp()) {
@@ -49,17 +52,12 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import { changeTab } from '../utility/common';
   import _ from 'lodash';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { registerFileCommands } from '../commands/stdCommands';
-  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import createActivator from '../utility/createActivator';  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
   import uuidv1 from 'uuid/v1';
   import { tick } from 'svelte';
   import { showSnackbarError } from '../utility/snackbar';
-  import { _t } from '../translations';
-  import { isProApp } from '../utility/proTools';
-
-  let busy = false;
+  import { _t } from '../translations';  let busy = false;
   let executeNumber = 0;
   let runnerId = null;
 

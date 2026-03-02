@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('TableDataTab');
   const INTERVALS = [5, 10, 15, 30, 60];
 
@@ -107,9 +110,7 @@
   import { scriptToSql } from 'dbgate-sqltree';
   import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import registerCommand from '../commands/registerCommand';
-  import { registerMenu } from '../utility/contextMenu';
+  import createActivator from '../utility/createActivator';  import { registerMenu } from '../utility/contextMenu';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import openNewTab from '../utility/openNewTab';
   import { onDestroy, setContext } from 'svelte';
@@ -124,7 +125,7 @@
   import { markTabSaved, markTabUnsaved } from '../utility/common';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
-  import { __t, _t } from '../translations';
+  import { _t } from '../translations';
 
   export let tabid;
   export let conid;

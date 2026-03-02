@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('DataGrid');
 
   registerCommand({
@@ -79,7 +80,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
-  import { __t, _t } from '../translations';
+  import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import CellDataWidget from '../widgets/CellDataWidget.svelte';
   import { useSettings } from '../utility/metadataLoaders';

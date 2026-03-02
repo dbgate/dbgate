@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import { getActiveComponent } from '../utility/createActivator';
+  import { registerFileCommands } from '../commands/stdCommands';
+  import { __t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('DiagramTab');
 
   registerFileCommands({
@@ -15,11 +18,9 @@
 </script>
 
 <script lang="ts">
-  import useEditorData from '../query/useEditorData';
-  import { registerFileCommands } from '../commands/stdCommands';
-  import createUndoReducer from '../utility/createUndoReducer';
+  import useEditorData from '../query/useEditorData';  import createUndoReducer from '../utility/createUndoReducer';
   import _ from 'lodash';
-  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createActivator from '../utility/createActivator';
   import DiagramDesigner from '../designer/DiagramDesigner.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
@@ -32,10 +33,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
-  import { isProApp } from '../utility/proTools';
-  import { __t } from '../translations';
-
-  export let tabid;
+  import { isProApp } from '../utility/proTools';  export let tabid;
   export let conid;
   export let database;
 

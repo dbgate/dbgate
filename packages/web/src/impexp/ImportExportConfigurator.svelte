@@ -1,4 +1,8 @@
 <script lang="ts" context="module">
+  import { extensions } from '../stores';
+  import getAsArray from '../utility/getAsArray';
+  import { findFileFormat } from '../plugins/fileformats';
+  import { apiCall } from '../utility/api';
   async function addFileToSourceListDefault({ fileName, shortName, isDownload }, newSources, newValues) {
     const sourceName = shortName;
     newSources.push(sourceName);
@@ -61,10 +65,6 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import ColumnMapModal from '../modals/ColumnMapModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { findFileFormat } from '../plugins/fileformats';
-  import { extensions } from '../stores';
-  import { apiCall } from '../utility/api';
-  import getAsArray from '../utility/getAsArray';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { setUploadListener } from '../utility/uploadFiles';
   import { createPreviewReader, getTargetName } from './createImpExpScript';
