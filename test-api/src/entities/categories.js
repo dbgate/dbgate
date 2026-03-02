@@ -20,8 +20,8 @@ function generateCategories(count) {
       name: categoryNames[i],
       slug: categoryNames[i].toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       description: `Category for ${categoryNames[i]} products`,
-      parentId: i > 3 ? Math.floor(Math.random() * 4) + 1 : null,
-      active: Math.random() > 0.1,
+      parentId: i > 3 ? (i % 4) + 1 : null,
+      active: i % 10 !== 0,
       displayOrder: i + 1
     });
   }

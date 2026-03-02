@@ -2,18 +2,18 @@
 const orders = [];
 let nextId = 1;
 
-// Helper function to generate sample data
+// Helper function to generate sample data (deterministic, no randomness)
 function generateOrders(count) {
   const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
   
   for (let i = 0; i < count; i++) {
     orders.push({
       id: nextId++,
-      customerId: Math.floor(Math.random() * 200) + 1,
+      customerId: (i * 7 + 3) % 200 + 1,
       orderNumber: `ORD-${String(i + 1).padStart(8, '0')}`,
-      totalAmount: parseFloat((Math.random() * 5000 + 50).toFixed(2)),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      orderDate: new Date(Date.now() - Math.floor(Math.random() * 180 * 24 * 60 * 60 * 1000)).toISOString()
+      totalAmount: parseFloat(((i * 97 + 23) % 5000 + 50).toFixed(2)),
+      status: statuses[i % statuses.length],
+      orderDate: new Date(1700000000000 - i * 3600000 * 24).toISOString()
     });
   }
 }

@@ -2,25 +2,25 @@
 const products = [];
 let nextId = 1;
 
-// Helper function to generate sample data
+// Helper function to generate sample data (deterministic, no randomness)
 function generateProducts(count) {
   const categories = ['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Toys'];
   const adjectives = ['Premium', 'Deluxe', 'Standard', 'Basic', 'Pro', 'Ultra'];
   const nouns = ['Widget', 'Gadget', 'Tool', 'Device', 'Item', 'Product'];
   
   for (let i = 0; i < count; i++) {
-    const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const adjective = adjectives[i % adjectives.length];
+    const noun = nouns[(i * 3 + 1) % nouns.length];
     products.push({
       id: nextId++,
       name: `${adjective} ${noun} ${i + 1}`,
       description: `This is a high-quality ${adjective.toLowerCase()} ${noun.toLowerCase()} for your needs.`,
-      price: parseFloat((Math.random() * 1000 + 10).toFixed(2)),
-      category: categories[Math.floor(Math.random() * categories.length)],
-      inStock: Math.random() > 0.2,
-      quantity: Math.floor(Math.random() * 500),
+      price: parseFloat(((i * 47 + 13) % 1000 + 10).toFixed(2)),
+      category: categories[i % categories.length],
+      inStock: i % 5 !== 0,
+      quantity: (i * 37 + 7) % 500,
       sku: `SKU-${String(i + 1).padStart(6, '0')}`,
-      createdAt: new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)).toISOString()
+      createdAt: new Date(1700000000000 - i * 86400000).toISOString()
     });
   }
 }

@@ -20,14 +20,14 @@ function generateReviews(count) {
   for (let i = 0; i < count; i++) {
     reviews.push({
       id: nextId++,
-      productId: Math.floor(Math.random() * 200) + 1,
-      userId: Math.floor(Math.random() * 200) + 1,
-      rating: Math.floor(Math.random() * 5) + 1,
+      productId: (i * 11 + 1) % 200 + 1,
+      userId: (i * 13 + 5) % 200 + 1,
+      rating: (i % 5) + 1,
       title: `Review ${i + 1}`,
-      comment: reviewTexts[Math.floor(Math.random() * reviewTexts.length)],
-      verified: Math.random() > 0.3,
-      helpfulCount: Math.floor(Math.random() * 100),
-      createdAt: new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000)).toISOString()
+      comment: reviewTexts[i % reviewTexts.length],
+      verified: i % 4 !== 0,
+      helpfulCount: (i * 7 + 3) % 100,
+      createdAt: new Date(1700000000000 - i * 86400000).toISOString()
     });
   }
 }
