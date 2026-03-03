@@ -32,7 +32,7 @@
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
-  import ToolStripDropdownButton from '../buttons/ToolStripDropdownButton.svelte';
+  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
   import { isProApp } from '../utility/proTools';
@@ -161,7 +161,7 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="designer.arrange" />
     <ToolStripSaveButton idPrefix="diagram" />
-    <ToolStripDropdownButton
+    <ToolStripDropDownButton
       icon="icon report"
       label="Export"
       menu={[{ command: 'diagram.export' }, { command: 'diagram.exportPng' }]}
