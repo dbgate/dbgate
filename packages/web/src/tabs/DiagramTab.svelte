@@ -163,7 +163,7 @@
     <ToolStripSaveButton idPrefix="diagram" />
     <ToolStripDropDownButton
       icon="icon report"
-      label="Export"
+      label={_t('common.export', { defaultMessage: 'Export' })}
       menu={[{ command: 'diagram.export' }, { command: 'diagram.exportPng' }]}
     />
     <ToolStripCommandButton command="diagram.undo" />
