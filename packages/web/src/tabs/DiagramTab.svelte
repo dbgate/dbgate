@@ -18,7 +18,8 @@
 </script>
 
 <script lang="ts">
-  import useEditorData from '../query/useEditorData';  import createUndoReducer from '../utility/createUndoReducer';
+  import useEditorData from '../query/useEditorData';
+  import createUndoReducer from '../utility/createUndoReducer';
   import _ from 'lodash';
   import createActivator from '../utility/createActivator';
   import DiagramDesigner from '../designer/DiagramDesigner.svelte';
@@ -31,9 +32,12 @@
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
-  import { isProApp } from '../utility/proTools';  export let tabid;
+  import { isProApp } from '../utility/proTools';
+  import { _t } from '../translations';
+  export let tabid;
   export let conid;
   export let database;
 
@@ -158,7 +162,11 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="designer.arrange" />
     <ToolStripSaveButton idPrefix="diagram" />
-    <ToolStripCommandButton command="diagram.export" />
+    <ToolStripDropDownButton
+      icon="icon report"
+      label={_t('common.export', { defaultMessage: 'Export' })}
+      menu={[{ command: 'diagram.export' }, { command: 'diagram.exportPng' }]}
+    />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />
     <ToolStripCommandButton command="diagram.deleteSelectedTables" />

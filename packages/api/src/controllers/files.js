@@ -257,6 +257,13 @@ module.exports = {
     return true;
   },
 
+  exportDiagramPng_meta: true,
+  async exportDiagramPng({ filePath, pngBase64 }) {
+    const base64 = pngBase64.replace(/^data:image\/png;base64,/, '');
+    await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
+    return true;
+  },
+
   getFileRealPath_meta: true,
   async getFileRealPath({ folder, file }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);

@@ -19,12 +19,23 @@
   registerCommand({
     id: 'diagram.export',
     category: __t('command.designer', { defaultMessage: 'Designer' }),
-    toolbarName: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
-    name: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram' }),
+    toolbarName: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram as HTML' }),
+    name: __t('command.designer.exportDiagram', { defaultMessage: 'Export diagram as HTML' }),
     icon: 'icon report',
     toolbar: true,
     isRelatedToTab: true,
     onClick: () => getCurrentEditor().exportDiagram(),
+    testEnabled: () => getCurrentEditor()?.canExport(),
+  });
+
+  registerCommand({
+    id: 'diagram.exportPng',
+    category: __t('command.designer', { defaultMessage: 'Designer' }),
+    name: __t('command.designer.exportDiagramPng', { defaultMessage: 'Export diagram as PNG' }),
+    icon: 'icon report',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().exportDiagramPng(),
     testEnabled: () => getCurrentEditor()?.canExport(),
   });
 
@@ -51,10 +62,12 @@
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
-  import stableStringify from 'json-stable-stringify';  import createActivator from '../utility/createActivator';
+  import stableStringify from 'json-stable-stringify';
+  import createActivator from '../utility/createActivator';
   import { GraphDefinition, GraphLayout } from './GraphLayout';
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { apiCall } from '../utility/api';
+  import domtoimage from 'dom-to-image';
   import moveDrag from '../utility/moveDrag';
   import { rectanglesHaveIntersection } from './designerMath';
   import { showModal } from '../modals/modalTools';
@@ -827,6 +840,34 @@
         watermark: getWatermarkHtml(),
       });
     });
+  }
+
+  export async function exportDiagramPng() {
+    const rects = _.values(domTables).map((x: any) => x.getRect());
+    const contentWidth = rects.length > 0 ? _.max(rects.map((x: any) => x.right)) + 50 : canvasWidth;
+    const contentHeight = rects.length > 0 ? _.max(rects.map((x: any) => x.bottom)) + 50 : canvasHeight;
+    const scale = 2;
+    const backgroundColor = getComputedStyle(domWrapper).getPropertyValue('--theme-designer-background');
+    const pngBase64 = await domtoimage.toPng(domCanvas, {
+      width: contentWidth * scale,
+      height: contentHeight * scale,
+      style: {
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
+        width: contentWidth + 'px',
+        height: contentHeight + 'px',
+        backgroundColor,
+      },
+    });
+    saveFileToDisk(
+      async filePath => {
+        await apiCall('files/export-diagram-png', {
+          filePath,
+          pngBase64,
+        });
+      },
+      { formatLabel: 'PNG image', formatExtension: 'png', defaultFileName: 'diagram.png' }
+    );
   }
 
   const changeStyleFunc = (name, value) => () => {

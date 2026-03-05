@@ -69,6 +69,7 @@
     "chartjs-plugin-zoom": "^1.2.0",
     "date-fns": "^4.1.0",
     "debug": "^4.3.4",
+    "dom-to-image": "^2.6.0",
     "flatpickr": "^4.6.13",
     "fuzzy": "^0.1.3",
     "highlight.js": "^11.11.1",
