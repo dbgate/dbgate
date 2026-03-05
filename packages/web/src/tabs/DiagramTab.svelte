@@ -36,6 +36,7 @@
   import DiagramSettings from '../designer/DiagramSettings.svelte';
   import { derived } from 'svelte/store';
   import { isProApp } from '../utility/proTools';
+  import { _t } from '../translations';
   export let tabid;
   export let conid;
   export let database;
