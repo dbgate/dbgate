@@ -81,6 +81,11 @@ jobs:
         working-directory: packages/dbmodel
         run: |
           npm publish --tag "$NPM_TAG"
+      - name: Publish rest
+        working-directory: packages/rest
+        run: |
+          npm publish --tag "$NPM_TAG"
+
       - name: Publish dbgate-plugin-csv
         working-directory: plugins/dbgate-plugin-csv
         run: |
