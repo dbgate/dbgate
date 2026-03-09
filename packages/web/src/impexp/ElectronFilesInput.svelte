@@ -15,6 +15,7 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import { addFilesToSourceList } from './ImportExportConfigurator.svelte';
+  import getElectron from '../utility/getElectron';
 
   let isLoading = false;
 
