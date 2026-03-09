@@ -5,7 +5,7 @@ function changeDependencies(deps, version) {
   if (!deps) return;
   for (const key of Object.keys(deps)) {
     if (key.startsWith('dbgate-') && key != 'dbgate-plugin-tools' && key != 'dbgate-query-splitter') {
-      deps[key] = `^${version}`;
+      deps[key] = `${version}`;
     }
   }
 }
