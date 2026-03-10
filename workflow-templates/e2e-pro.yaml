@@ -101,12 +101,12 @@ jobs:
           --health-retries 5
         env:
           POSTGRES_PASSWORD: Pwd2020Db
-        ports: 
+        ports:
           - 16000:5432
 
       mysql-cypress:
         image: mysql:8.0.18
-        ports: 
+        ports:
           - 16004:3306
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
@@ -118,7 +118,7 @@ jobs:
 
       mysql-ssh-keyfile:
         image: ghcr.io/dbgate/mysql-ssh-keyfile:latest
-        ports: 
+        ports:
           - '16008:22'
 
       dex:
@@ -138,6 +138,11 @@ jobs:
         image: redis
         ports:
           - 16011:6379
+
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - 16015:8000
 
       mssql:
         image: mcr.microsoft.com/mssql/server
