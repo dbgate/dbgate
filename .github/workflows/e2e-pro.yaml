@@ -132,6 +132,10 @@ jobs:
         image: redis
         ports:
           - '16011:6379'
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - '16015:8000'
       mssql:
         image: mcr.microsoft.com/mssql/server
         ports:
