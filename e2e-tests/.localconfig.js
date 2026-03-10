@@ -4,5 +4,6 @@ module.exports = {
   mssql: true,
   oracle: true,
   sqlite: true,
-  mongo: true
+  mongo: true,
+  dynamo: true,
 };

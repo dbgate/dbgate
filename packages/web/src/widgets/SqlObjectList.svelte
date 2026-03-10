@@ -310,7 +310,7 @@
       data-testid="SqlObjectList_searchMenuDropDown"
     />
     {#if !filter}
-      <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
+      <DropDownButton icon="icon plus-thick" menu={createAddMenu} data-testid="SqlObjectList_addButton" />
     {/if}
     <DropDownButton
       menu={createRefreshDatabaseMenu}

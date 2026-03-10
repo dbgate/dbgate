@@ -7,6 +7,8 @@ const dbgatePluginMysql = require('dbgate-plugin-mysql');
 dbgateApi.registerPlugins(dbgatePluginMysql);
 const dbgatePluginPostgres = require('dbgate-plugin-postgres');
 dbgateApi.registerPlugins(dbgatePluginPostgres);
+const dbgatePluginDynamodb = require('dbgate-plugin-dynamodb');
+dbgateApi.registerPlugins(dbgatePluginDynamodb);
 
 async function createDb(connection, dropDbSql, createDbSql, database = 'my_guitar_shop', { dropDatabaseName } = {}) {
   if (dropDbSql) {
@@ -124,6 +126,28 @@ async function run() {
       'my_guitar_shop',
       { dropDatabaseName: 'my_guitar_shop' }
     );
+  }
+
+  if (localconfig.dynamo) {
+    const dynamodbConnection = {
+      server: process.env.SERVER_dynamo,
+      port: process.env.PORT_dynamo,
+      authType: 'onpremise',
+      engine: 'dynamodb@dbgate-plugin-dynamodb',
+    };
+
+    const driver = dbgatePluginDynamodb.drivers.find(d => d.engine === 'dynamodb@dbgate-plugin-dynamodb');
+    const pool = await driver.connect(dynamodbConnection);
+    const collections = await driver.listCollections(pool);
+    for (const collection of collections) {
+      await driver.dropTable(pool, collection);
+    }
+    await driver.disconnect(pool);
+
+    await dbgateApi.importDbFromFolder({
+      connection: dynamodbConnection,
+      folder: path.resolve(path.join(__dirname, '../data/my-guitar-shop')),
+    });
   }
 }
 

@@ -8,6 +8,8 @@ const dbgatePluginMysql = require('dbgate-plugin-mysql');
 dbgateApi.registerPlugins(dbgatePluginMysql);
 const dbgatePluginPostgres = require('dbgate-plugin-postgres');
 dbgateApi.registerPlugins(dbgatePluginPostgres);
+const dbgatePluginDynamodb = require('dbgate-plugin-dynamodb');
+dbgateApi.registerPlugins(dbgatePluginDynamodb);
 
 async function initMySqlDatabase(dbname, inputFile) {
   await dbgateApi.executeQuery({
@@ -125,6 +127,34 @@ async function initMongoDatabase(dbname, inputDirectory) {
   // });
 }
 
+async function initDynamoDatabase(inputDirectory) {
+  const dynamodbConnection = {
+    server: process.env.SERVER_dynamo,
+    port: process.env.PORT_dynamo,
+    authType: 'onpremise',
+    engine: 'dynamodb@dbgate-plugin-dynamodb',
+  };
+
+  const driver = dbgatePluginDynamodb.drivers.find(d => d.engine === 'dynamodb@dbgate-plugin-dynamodb');
+  const pool = await driver.connect(dynamodbConnection);
+  const collections = await driver.listCollections(pool);
+  for (const collection of collections) {
+    await driver.dropTable(pool, collection);
+  }
+  await driver.disconnect(pool);
+
+  for (const file of fs.readdirSync(inputDirectory)) {
+    const pureName = path.parse(file).name;
+    const src = await dbgateApi.jsonLinesReader({ fileName: path.join(inputDirectory, file) });
+    const dst = await dbgateApi.tableWriter({
+      connection: dynamodbConnection,
+      pureName,
+      createIfNotExists: true,
+    });
+    await dbgateApi.copyStream(src, dst);
+  }
+}
+
 const baseDir = path.join(os.homedir(), '.dbgate');
 
 async function copyFolder(source, target) {
@@ -147,6 +177,8 @@ async function run() {
 
   await initMongoDatabase('MgChinook', path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
   await initMongoDatabase('MgRivers', path.resolve(path.join(__dirname, '../data/rivers-jsonl')));
+
+  await initDynamoDatabase(path.resolve(path.join(__dirname, '../data/chinook-jsonl')));
 
   await copyFolder(
     path.resolve(path.join(__dirname, '../data/chinook-jsonl')),

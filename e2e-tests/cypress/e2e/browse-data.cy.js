@@ -512,4 +512,43 @@ describe('Data browser data', () => {
     cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');
     cy.themeshot('data-browser-filter-by-expanded');
   });
+
+  it('DynamoDB', () => {
+    cy.contains('Dynamo-connection').click();
+    cy.contains('us-east-1').click();
+
+    cy.contains('Album').click();
+    cy.contains('Pearl Jam').click();
+    cy.themeshot('dynamodb-table-data');
+    cy.contains('Switch to JSON').click();
+    cy.themeshot('dynamodb-json-view');
+
+    cy.contains('Customer').click();
+    cy.testid('DataFilterControl_input_CustomerId').type('<=10{enter}');
+    cy.contains('Rows: 10');
+    cy.wait(1000);
+    cy.contains('Helena').click().rightclick();
+    cy.contains('Show cell data').click();
+    cy.contains('City: "Prague"');
+    cy.themeshot('dynamodb-query-json-view');
+
+    cy.contains('Switch to JSON').click();
+    cy.contains('Leonie').rightclick();
+    cy.contains('Edit document').click();
+
+    Array.from({ length: 11 }).forEach(() => cy.realPress('ArrowDown'));
+    Array.from({ length: 14 }).forEach(() => cy.realPress('ArrowRight'));
+    Array.from({ length: 7 }).forEach(() => cy.realPress('Delete'));
+    cy.realType('Italy');
+    cy.testid('EditJsonModal_saveButton').click();
+
+    cy.contains('Helena').rightclick();
+    cy.contains('Delete document').click();
+    cy.contains('Save').click();
+    cy.themeshot('dynamodb-save-changes');
+    
+    cy.testid('SqlObjectList_addButton').click();
+    cy.contains('New collection/container').click();
+    cy.themeshot('dynamodb-new-collection');
+  });
 });

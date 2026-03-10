@@ -52,6 +52,9 @@ function multiTest(testProps, testDefinition) {
   if (localconfig.mongo && !testProps.skipMongo) {
     it('MongoDB', () => testDefinition('Mongo-connection', 'my_guitar_shop', 'mongo@dbgate-plugin-mongo'));
   }
+  if (localconfig.dynamo && !testProps.skipMongo) {
+    it('DynamoDB', () => testDefinition('Dynamo-connection', null, 'dynamodb@dbgate-plugin-dynamodb'));
+  }
 }
 
 describe('Transactions', () => {
