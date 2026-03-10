@@ -104,17 +104,37 @@
   async function loadRowCount(props) {
     const { conid, database } = props;
 
-    const response = await apiCall('database-connections/collection-data', {
-      conid,
-      database,
-      options: {
-        pureName: props.pureName,
-        countDocuments: true,
-        condition: buildConditionForGrid(props),
-      },
-    });
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Row count query timed out')), 3000)
+    );
 
-    return response.count;
+    try {
+      const response = await Promise.race([
+        apiCall('database-connections/collection-data', {
+          conid,
+          database,
+          commandTimeout: 3000,
+          options: {
+            pureName: props.pureName,
+            countDocuments: true,
+            condition: buildConditionForGrid(props),
+          },
+        }),
+        timeoutPromise,
+      ]);
+
+      if (response && typeof response === 'object' && (response as any).errorMessage) {
+        return { errorMessage: (response as any).errorMessage };
+      }
+
+      if (response && typeof response === 'object' && typeof (response as any).count === 'number') {
+        return (response as any).count;
+      }
+
+      return { errorMessage: 'Error loading row count' };
+    } catch (err) {
+      return { errorMessage: err.message || 'Error loading row count' };
+    }
   }
 </script>
 
@@ -140,7 +160,8 @@
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import { mongoFilterBehaviour, standardFilterBehaviours } from 'dbgate-tools';
-  import { openImportExportTab } from '../utility/importExportTools';  export let conid;
+  import { openImportExportTab } from '../utility/importExportTools';
+  export let conid;
   export let display;
   export let database;
   export let schemaName;

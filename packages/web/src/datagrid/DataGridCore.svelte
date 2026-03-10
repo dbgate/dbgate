@@ -461,6 +461,8 @@
   export let frameSelection = undefined;
   export let isLoading = false;
   export let allRowCount = undefined;
+  export let allRowCountError = undefined;
+  export let onReloadRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
   export let onPublishedCellsChanged = undefined;
   export let onReferenceClick = undefined;
@@ -2400,6 +2402,15 @@
       <div class="row-count-label">
         {_t('datagrid.rows', { defaultMessage: 'Rows' })}: {allRowCount.toLocaleString()}
       </div>
+    {:else if allRowCountError && multipleGridsOnTab}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <div
+        class="row-count-label row-count-error"
+        title={allRowCountError}
+        on:click={onReloadRowCount}
+      >
+        {_t('datagrid.rows', { defaultMessage: 'Rows' })}: {_t('datagrid.rowCountMany', { defaultMessage: 'Many' })}
+      </div>
     {/if}
 
     {#if isLoading}
@@ -2408,6 +2419,13 @@
 
     {#if !tabControlHiddenTab && !multipleGridsOnTab && allRowCount != null}
       <StatusBarTabItem text={`${_t('datagrid.rows', { defaultMessage: 'Rows' })}: ${allRowCount.toLocaleString()}`} />
+    {:else if !tabControlHiddenTab && !multipleGridsOnTab && allRowCountError}
+      <StatusBarTabItem
+        text={`${_t('datagrid.rows', { defaultMessage: 'Rows' })}: ${_t('datagrid.rowCountMany', { defaultMessage: 'Many' })}`}
+        title={allRowCountError}
+        clickable
+        onClick={onReloadRowCount}
+      />
     {/if}
   </div>
 {/if}
@@ -2470,6 +2488,15 @@
 
   .row-count-label:hover {
     opacity: 1;
+  }
+
+  .row-count-error {
+    cursor: pointer;
+    color: var(--theme-font-3);
+  }
+
+  .row-count-error:hover {
+    text-decoration: underline;
   }
 
   .selection-menu {

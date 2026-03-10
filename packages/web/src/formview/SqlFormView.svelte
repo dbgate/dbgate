@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import { apiCall } from '../utility/api';
-  async function loadRow(props, select) {
+  async function loadRow(props, select, options = {}) {
     const { conid, database } = props;
 
     if (!select) return null;
@@ -10,6 +10,7 @@
       database,
       select,
       auditLogSessionGroup: 'data-form',
+      ...options,
     });
 
     if (response.errorMessage) return response;
@@ -17,7 +18,8 @@
   }
 </script>
 
-<script lang="ts">  import _ from 'lodash';
+<script lang="ts">
+  import _ from 'lodash';
   import LoadingFormView from './LoadingFormView.svelte';
 
   export let display;
@@ -27,8 +29,18 @@
   }
 
   async function handleLoadRowCount() {
-    const countRow = await loadRow($$props, display.getCountQuery());
-    return countRow ? parseInt(countRow.count) : null;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Row count query timed out')), 3000)
+    );
+    try {
+      const countRow = await Promise.race([
+        loadRow($$props, display.getCountQuery(), { commandTimeout: 3000 }),
+        timeoutPromise,
+      ]);
+      return countRow ? parseInt(countRow.count) : null;
+    } catch (err) {
+      return { errorMessage: err.message || 'Error loading row count' };
+    }
   }
 </script>
 

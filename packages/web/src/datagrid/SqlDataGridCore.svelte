@@ -26,7 +26,8 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';  import {
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
+  import {
     extractShellConnection,
     extractShellConnectionHostable,
     extractShellHostConnection,
@@ -41,7 +42,8 @@
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
-  import LoadingDataGridCore from './LoadingDataGridCore.svelte';  import { openImportExportTab } from '../utility/importExportTools';
+  import LoadingDataGridCore from './LoadingDataGridCore.svelte';
+  import { openImportExportTab } from '../utility/importExportTools';
   import { getIntSettingsValue } from '../settings/settingsTools';
   import OverlayDiffGrider from './OverlayDiffGrider';
 
@@ -209,13 +211,26 @@
 
     const select = display.getCountQuery();
 
-    const response = await apiCall('database-connections/sql-select', {
-      conid,
-      database,
-      select,
-    });
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Row count query timed out')), 3000)
+    );
 
-    return parseInt(response.rows[0].count);
+    try {
+      const response = await Promise.race([
+        apiCall('database-connections/sql-select', {
+          conid,
+          database,
+          select,
+          commandTimeout: 3000,
+        }),
+        timeoutPromise,
+      ]);
+
+      if (response.errorMessage) return { errorMessage: response.errorMessage };
+      return parseInt(response.rows[0].count);
+    } catch (err) {
+      return { errorMessage: err.message || 'Error loading row count' };
+    }
   }
 </script>
 

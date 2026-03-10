@@ -95,10 +95,12 @@ module.exports = {
     }
   },
   handle_response(conid, database, { msgid, ...response }) {
-    const [resolve, reject, additionalData] = this.requests[msgid];
-    resolve(response);
-    if (additionalData?.auditLogger) {
-      additionalData?.auditLogger(response);
+    const [resolve, reject, additionalData] = this.requests[msgid] || [];
+    if (resolve) {
+      resolve(response);
+      if (additionalData?.auditLogger) {
+        additionalData?.auditLogger(response);
+      }
     }
     delete this.requests[msgid];
   },
@@ -239,7 +241,7 @@ module.exports = {
   sendRequest(conn, message, additionalData = {}) {
     const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
-      this.requests[msgid] = [resolve, reject, additionalData];
+      this.requests[msgid] = [resolve, reject, additionalData, conn.conid, conn.database];
       try {
         const serializedMessage = serializeJsTypesForJsonStringify({ msgid, ...message });
         conn.subprocess.send(serializedMessage);
@@ -264,12 +266,12 @@ module.exports = {
   },
 
   sqlSelect_meta: true,
-  async sqlSelect({ conid, database, select, auditLogSessionGroup }, req) {
+  async sqlSelect({ conid, database, select, commandTimeout, auditLogSessionGroup }, req) {
     await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(
       opened,
-      { msgtype: 'sqlSelect', select },
+      { msgtype: 'sqlSelect', select, commandTimeout },
       {
         auditLogger:
           auditLogSessionGroup && select?.from?.name?.pureName
@@ -344,9 +346,12 @@ module.exports = {
   },
 
   collectionData_meta: true,
-  async collectionData({ conid, database, options, auditLogSessionGroup }, req) {
+  async collectionData({ conid, database, options, commandTimeout, auditLogSessionGroup }, req) {
     await testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid, database);
+    if (commandTimeout && options) {
+      options.commandTimeout = commandTimeout;
+    }
     const res = await this.sendRequest(
       opened,
       { msgtype: 'collectionData', options },
@@ -580,6 +585,24 @@ module.exports = {
     };
   },
 
+  pingDatabases_meta: true,
+  async pingDatabases({ databases }, req) {
+    if (!databases || !Array.isArray(databases)) return { status: 'ok' };
+    for (const { conid, database } of databases) {
+      if (!conid || !database) continue;
+      const existing = this.opened.find(x => x.conid == conid && x.database == database);
+      if (existing) {
+        try {
+          existing.subprocess.send({ msgtype: 'ping' });
+        } catch (err) {
+          logger.error(extractErrorLogData(err), 'DBGM-00000 Error pinging DB connection');
+          this.close(conid, database);
+        }
+      }
+    }
+    return { status: 'ok' };
+  },
+
   refresh_meta: true,
   async refresh({ conid, database, keepOpen }, req) {
     await testConnectionPermission(conid, req);
@@ -622,6 +645,15 @@ module.exports = {
         structure: existing.structure,
       };
       socket.emitChanged(`database-status-changed`, { conid, database });
+
+      // Reject all pending requests for this connection
+      for (const [msgid, entry] of Object.entries(this.requests)) {
+        const [resolve, reject, additionalData, reqConid, reqDatabase] = entry;
+        if (reqConid === conid && reqDatabase === database) {
+          reject('DBGM-00000 Database connection closed');
+          delete this.requests[msgid];
+        }
+      }
     }
   },
 

@@ -178,14 +178,25 @@ const drivers = driverBases.map(driverBase => ({
   async close(dbhan) {
     return dbhan.client.end();
   },
-  async query(dbhan, sql) {
+  async query(dbhan, sql, options) {
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-    const res = await dbhan.client.query({ text: sql, rowMode: 'array' });
+    const commandTimeout = options?.commandTimeout;
+    if (commandTimeout) {
+      await dbhan.client.query({ text: `SET statement_timeout = ${parseInt(commandTimeout)}` });
+    }
+    let res;
+    try {
+      res = await dbhan.client.query({ text: sql, rowMode: 'array' });
+    } finally {
+      if (commandTimeout) {
+        await dbhan.client.query({ text: 'SET statement_timeout = 0' }).catch(() => {});
+      }
+    }
     const columns = extractPostgresColumns(res, dbhan);
 
     const transormableTypeNames = Object.values(dbhan.typeIdToName ?? {});

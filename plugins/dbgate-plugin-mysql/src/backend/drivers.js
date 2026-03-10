@@ -105,9 +105,18 @@ const drivers = driverBases.map(driverBase => ({
       };
     }
 
+    const commandTimeout = options?.commandTimeout;
+    const queryOptions = {};
+    if (commandTimeout) {
+      queryOptions.timeout = parseInt(commandTimeout);
+    }
+
     return new Promise((resolve, reject) => {
-      dbhan.client.query(sql, function (error, results, fields) {
-        if (error) reject(error);
+      dbhan.client.query({ sql, ...queryOptions }, function (error, results, fields) {
+        if (error) {
+          reject(error);
+          return;
+        }
         const columns = extractColumns(fields);   
         resolve({ rows: results && columns && results.map && results.map(row => modifyRow(zipDataRow(row, columns), columns)), columns });
       });

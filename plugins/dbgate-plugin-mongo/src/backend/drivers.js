@@ -487,7 +487,11 @@ const drivers = driverBases.map((driverBase) => ({
 
       const collection = dbhan.getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(deserializeMongoData(mongoCondition) || {});
+        const countOptions = {};
+        if (options.commandTimeout) {
+          countOptions.maxTimeMS = parseInt(options.commandTimeout);
+        }
+        const count = await collection.countDocuments(deserializeMongoData(mongoCondition) || {}, countOptions);
         return { count };
       } else if (options.aggregate) {
         let cursor = await collection.aggregate(deserializeMongoData(convertToMongoAggregate(options.aggregate)));

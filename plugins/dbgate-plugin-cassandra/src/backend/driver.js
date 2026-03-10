@@ -71,14 +71,19 @@ const driver = {
   // called for retrieve data (eg. browse in data grid) and for update database
   async query(dbhan, query, options) {
     const offset = options?.range?.offset;
+    const commandTimeout = options?.commandTimeout;
+    const executeOptions = {};
+    if (commandTimeout) {
+      executeOptions.readTimeout = parseInt(commandTimeout);
+    }
     if (options?.discardResult) {
-      await dbhan.client.execute(query);
+      await dbhan.client.execute(query, [], executeOptions);
       return {
         rows: [],
         columns: [],
       };
     }
-    const result = await dbhan.client.execute(query);
+    const result = await dbhan.client.execute(query, [], executeOptions);
     if (!result.rows?.[0]) {
       return {
         rows: [],

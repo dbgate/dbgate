@@ -119,7 +119,7 @@ async function tediousQueryCore(dbhan, sql, options) {
       columns: [],
     });
   }
-  const { addDriverNativeColumn, discardResult } = options || {};
+  const { addDriverNativeColumn, discardResult, commandTimeout } = options || {};
   return new Promise((resolve, reject) => {
     const result = {
       rows: [],
@@ -129,6 +129,9 @@ async function tediousQueryCore(dbhan, sql, options) {
       if (err) reject(err);
       else resolve(result);
     });
+    if (commandTimeout) {
+      request.setTimeout(parseInt(commandTimeout));
+    }
     request.on('columnMetadata', function (columns) {
       result.columns = extractTediousColumns(columns, addDriverNativeColumn);
     });

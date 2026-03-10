@@ -25,6 +25,7 @@ const driver = {
   },
   // called for retrieve data (eg. browse in data grid) and for update database
   async query(dbhan, query, options) {
+    const commandTimeout = options?.commandTimeout;
     if (options?.discardResult) {
       await dbhan.client.command({
         query,
@@ -34,10 +35,14 @@ const driver = {
         columns: [],
       };
     } else {
-      const resultSet = await dbhan.client.query({
+      const queryOptions = {
         query,
         format: 'JSONCompactEachRowWithNamesAndTypes',
-      });
+      };
+      if (commandTimeout) {
+        queryOptions.settings = { max_execution_time: Math.ceil(parseInt(commandTimeout) / 1000) };
+      }
+      const resultSet = await dbhan.client.query(queryOptions);
 
       const dataSet = await resultSet.json();
       if (!dataSet?.[0]) {

@@ -8,14 +8,15 @@
   export let clickable = false;
   export let icon = null;
   export let onClick = null;
+  export let title = null;
 
   const key = uuidv1();
   const tabid = getContext('tabid');
 
   onMount(() => {
-    updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick });
+    updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick, title });
   });
   onDestroy(() => updateStatuBarInfoItem(tabid, key, null));
 
-  $: updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick });
+  $: updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick, title });
 </script>

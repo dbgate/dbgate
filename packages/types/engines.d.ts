@@ -59,6 +59,7 @@ export interface QueryOptions {
   importSqlDump?: boolean;
   range?: { offset: number; limit: number };
   readonly?: boolean;
+  commandTimeout?: number;
 }
 
 export interface WriteTableOptions {

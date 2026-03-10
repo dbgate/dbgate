@@ -234,12 +234,12 @@ async function handleRunOperation({ msgid, operation, useTransaction }, skipRead
   }
 }
 
-async function handleQueryData({ msgid, sql, range }, skipReadonlyCheck = false) {
+async function handleQueryData({ msgid, sql, range, commandTimeout }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
-    const res = await driver.query(dbhan, sql, { range });
+    const res = await driver.query(dbhan, sql, { range, commandTimeout });
     process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(res) });
   } catch (err) {
     process.send({
@@ -250,11 +250,11 @@ async function handleQueryData({ msgid, sql, range }, skipReadonlyCheck = false)
   }
 }
 
-async function handleSqlSelect({ msgid, select }) {
+async function handleSqlSelect({ msgid, select, commandTimeout }) {
   const driver = requireEngineDriver(storedConnection);
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  return handleQueryData({ msgid, sql: dmp.s, range: select.range }, true);
+  return handleQueryData({ msgid, sql: dmp.s, range: select.range, commandTimeout }, true);
 }
 
 async function handleDriverDataCore(msgid, callMethod, { logName }) {

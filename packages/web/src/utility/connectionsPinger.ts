@@ -1,5 +1,11 @@
 import _ from 'lodash';
-import { currentDatabase, openedConnectionsWithTemporary, getCurrentConfig, getOpenedConnections } from '../stores';
+import {
+  currentDatabase,
+  openedConnectionsWithTemporary,
+  getCurrentConfig,
+  getOpenedConnections,
+  getOpenedTabs,
+} from '../stores';
 import { apiCall, getVolatileConnections, strmid } from './api';
 import hasPermission from '../utility/hasPermission';
 import { getConfig } from './metadataLoaders';
@@ -37,9 +43,29 @@ const doDatabasePing = value => {
   }
 };
 
+function pingAllOpenedDatabases() {
+  const tabs = getOpenedTabs() || [];
+  const allDbs = tabs
+    .filter(tab => !tab.closedTime && tab.props?.conid && tab.props?.database)
+    .map(tab => ({ conid: tab.props.conid as string, database: tab.props.database as string }));
+  const seen = new Set<string>();
+  const databases: { conid: string; database: string }[] = [];
+  for (const db of allDbs) {
+    const key = `${db.conid}/${db.database}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      databases.push(db);
+    }
+  }
+  if (databases.length > 0) {
+    apiCall('database-connections/ping-databases', { databases });
+  }
+}
+
 let openedConnectionsHandle = null;
 
 let currentDatabaseHandle = null;
+let allDatabasesHandle = null;
 
 export function subscribeConnectionPingers() {
   openedConnectionsWithTemporary.subscribe(value => {
@@ -53,6 +79,11 @@ export function subscribeConnectionPingers() {
     if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle);
     currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 20 * 1000);
   });
+
+  // Ping all databases that have open (non-closed) tabs, not just the current one
+  pingAllOpenedDatabases();
+  if (allDatabasesHandle) window.clearInterval(allDatabasesHandle);
+  allDatabasesHandle = window.setInterval(() => pingAllOpenedDatabases(), 20 * 1000);
 }
 
 export function callServerPing() {

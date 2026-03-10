@@ -22,6 +22,7 @@
   let isLoadedCount = false;
   let loadedTime = new Date().getTime();
   let allRowCount = null;
+  let allRowCountError = null;
   let errorMessage = null;
 
   const handleLoadCurrentRow = async () => {
@@ -38,7 +39,14 @@
 
   const handleLoadRowCount = async () => {
     isLoadingCount = true;
-    allRowCount = await loadRowCountFunc();
+    const result = await loadRowCountFunc();
+    if (result != null && typeof result === 'object' && result.errorMessage) {
+      allRowCount = null;
+      allRowCountError = result.errorMessage;
+    } else {
+      allRowCount = result;
+      allRowCountError = null;
+    }
     isLoadedCount = true;
     isLoadingCount = false;
   };
@@ -55,6 +63,7 @@
     rowData = null;
     loadedTime = new Date().getTime();
     allRowCount = null;
+    allRowCountError = null;
     errorMessage = null;
   }
 
@@ -82,4 +91,4 @@
   $: if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
 </script>
 
-<FormView {...$$props} {grider} isLoading={isLoadingData} {allRowCount} onNavigate={handleNavigate} />
+<FormView {...$$props} {grider} isLoading={isLoadingData} {allRowCount} {allRowCountError} onReloadRowCount={handleLoadRowCount} onNavigate={handleNavigate} />

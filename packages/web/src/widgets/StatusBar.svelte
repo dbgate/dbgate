@@ -181,7 +181,7 @@
   </div>
   <div class="container">
     {#each contextItems || [] as item}
-      <div class="item" class:clickable={item.clickable} on:click={item.onClick}>
+      <div class="item" class:clickable={item.clickable} on:click={item.onClick} title={item.title || null}>
         {#if item.icon}
           <FontIcon icon={item.icon} padRight />
         {/if}

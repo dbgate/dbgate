@@ -107,7 +107,7 @@ const driver = {
   async close(dbhan) {
     return dbhan.client.close();
   },
-  async query(dbhan, sql) {
+  async query(dbhan, sql, options) {
     if (sql == null || sql.trim() == '') {
       return {
         rows: [],
@@ -120,7 +120,21 @@ const driver = {
       sql = mtrim[1];
     }
 
-    const res = await dbhan.client.execute(sql);
+    const commandTimeout = options?.commandTimeout;
+    let previousCallTimeout;
+    if (commandTimeout) {
+      previousCallTimeout = dbhan.client.callTimeout;
+      dbhan.client.callTimeout = parseInt(commandTimeout);
+    }
+
+    let res;
+    try {
+      res = await dbhan.client.execute(sql);
+    } finally {
+      if (commandTimeout) {
+        dbhan.client.callTimeout = previousCallTimeout || 0;
+      }
+    }
     try {
       const columns = extractOracleColumns(res.metaData);
       return { rows: (res.rows || []).map(row => modifyRow(zipDataRow(row, columns), columns)), columns };

@@ -25,6 +25,7 @@
   let isLoadedAll = false;
   let loadedTime = new Date().getTime();
   let allRowCount = null;
+  let allRowCountError = null;
   let errorMessage = null;
   let domGrid;
 
@@ -37,8 +38,14 @@
   }
 
   const handleLoadRowCount = async () => {
-    const rowCount = await loadRowCount($$props);
-    allRowCount = rowCount;
+    const result = await loadRowCount($$props);
+    if (result != null && typeof result === 'object' && result.errorMessage) {
+      allRowCount = null;
+      allRowCountError = result.errorMessage;
+    } else {
+      allRowCount = result;
+      allRowCountError = null;
+    }
   };
 
   async function loadNextData() {
@@ -103,6 +110,7 @@
 
   function reload() {
     allRowCount = null;
+    allRowCountError = null;
     isLoading = false;
     loadedRows = [];
     isLoadedAll = false;
@@ -132,6 +140,8 @@
   {errorMessage}
   {isLoading}
   allRowCount={rowCountLoaded || allRowCount}
+  allRowCountError={allRowCountError}
+  onReloadRowCount={handleLoadRowCount}
   {isLoadedAll}
   {loadedTime}
   {grider}
