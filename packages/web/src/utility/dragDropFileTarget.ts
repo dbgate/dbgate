@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { isFileDragActive } from '../stores';
 import { fromEvent } from 'file-selector';
 import uploadFiles from './uploadFiles';
+import getElectron from './getElectron';
 
 function isEvtWithFiles(event) {
   if (!event.dataTransfer) {
@@ -65,8 +66,22 @@ export default function dragDropFileTarget(node, items) {
     isFileDragActive.set(false);
 
     if (isEvtWithFiles(event)) {
-      const files = await fromEvent(event);
-      uploadFiles(files);
+      const electron = getElectron();
+      if (electron && event.dataTransfer?.files?.length) {
+        // Electron 37+ removed File.path in favour of webUtils.getPathForFile().
+        // Older Electron sets file.path automatically; newer requires webUtils.
+        const electronModule = window['require']('electron');
+        const files = Array.from(event.dataTransfer.files).map((file: any) => {
+          if (!file.path && electronModule?.webUtils) {
+            file.path = electronModule.webUtils.getPathForFile(file);
+          }
+          return file;
+        });
+        uploadFiles(files);
+      } else {
+        const files = await fromEvent(event);
+        uploadFiles(files);
+      }
     }
   }
 
