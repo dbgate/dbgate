@@ -49,7 +49,11 @@ module.exports = {
     for (const file of fileNames) {
       const item = { folder, file };
       try {
-        const text = await fs.readFile(path.join(dir, file), { encoding: 'utf-8' });
+        const fh = await require('fs').promises.open(path.join(dir, file), 'r');
+        const buf = new Uint8Array(512);
+        const { bytesRead } = await fh.read(buf, 0, 512, 0);
+        await fh.close();
+        const text = Buffer.from(buf.buffer, 0, bytesRead).toString('utf-8');
         const fm = getSqlFrontMatter(text, yaml);
         if (fm?.connectionId) item.connectionId = fm.connectionId;
         if (fm?.databaseName) item.databaseName = fm.databaseName;
