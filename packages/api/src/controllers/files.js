@@ -15,7 +15,8 @@ const getDiagramExport = require('../utility/getDiagramExport');
 const apps = require('./apps');
 const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, getSqlFrontMatter } = require('dbgate-tools');
+const yaml = require('js-yaml');
 const platformInfo = require('../utility/platformInfo');
 const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
@@ -35,13 +36,29 @@ function deserialize(format, text) {
 
 module.exports = {
   list_meta: true,
-  async list({ folder }, req) {
+  async list({ folder, parseFrontMatter }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`files/${folder}/read`, loadedPermissions)) return [];
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) return [];
-    const files = (await fs.readdir(dir)).map(file => ({ folder, file }));
-    return files;
+    const fileNames = await fs.readdir(dir);
+    if (!parseFrontMatter) {
+      return fileNames.map(file => ({ folder, file }));
+    }
+    const result = [];
+    for (const file of fileNames) {
+      const item = { folder, file };
+      try {
+        const text = await fs.readFile(path.join(dir, file), { encoding: 'utf-8' });
+        const fm = getSqlFrontMatter(text, yaml);
+        if (fm?.connectionId) item.connectionId = fm.connectionId;
+        if (fm?.databaseName) item.databaseName = fm.databaseName;
+      } catch (e) {
+        // ignore read errors for individual files
+      }
+      result.push(item);
+    }
+    return result;
   },
 
   listAll_meta: true,

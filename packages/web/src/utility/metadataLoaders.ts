@@ -171,9 +171,9 @@ const installedPluginsLoader = () => ({
   reloadTrigger: { key: `installed-plugins-changed` },
 });
 
-const filesLoader = ({ folder }) => ({
+const filesLoader = ({ folder, parseFrontMatter = false }) => ({
   url: 'files/list',
-  params: { folder },
+  params: parseFrontMatter ? { folder, parseFrontMatter: true } : { folder },
   reloadTrigger: { key: `files-changed`, folder },
 });
 const allFilesLoader = () => ({
