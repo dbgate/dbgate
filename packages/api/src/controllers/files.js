@@ -48,8 +48,9 @@ module.exports = {
     const result = [];
     for (const file of fileNames) {
       const item = { folder, file };
+      let fh;
       try {
-        const fh = await require('fs').promises.open(path.join(dir, file), 'r');
+        fh = await require('fs').promises.open(path.join(dir, file), 'r');
         const buf = new Uint8Array(512);
         const { bytesRead } = await fh.read(buf, 0, 512, 0);
         let text = Buffer.from(buf.buffer, 0, bytesRead).toString('utf-8');
@@ -64,12 +65,13 @@ module.exports = {
           }
         }
 
-        await fh.close();
         const fm = getSqlFrontMatter(text, yaml);
         if (fm?.connectionId) item.connectionId = fm.connectionId;
         if (fm?.databaseName) item.databaseName = fm.databaseName;
       } catch (e) {
         // ignore read errors for individual files
+      } finally {
+        if (fh) await fh.close().catch(() => {});
       }
       result.push(item);
     }
