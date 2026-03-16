@@ -15,7 +15,8 @@ const getDiagramExport = require('../utility/getDiagramExport');
 const apps = require('./apps');
 const getMapExport = require('../utility/getMapExport');
 const dbgateApi = require('../shell');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, getSqlFrontMatter } = require('dbgate-tools');
+const yaml = require('js-yaml');
 const platformInfo = require('../utility/platformInfo');
 const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
@@ -35,13 +36,46 @@ function deserialize(format, text) {
 
 module.exports = {
   list_meta: true,
-  async list({ folder }, req) {
+  async list({ folder, parseFrontMatter }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`files/${folder}/read`, loadedPermissions)) return [];
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) return [];
-    const files = (await fs.readdir(dir)).map(file => ({ folder, file }));
-    return files;
+    const fileNames = await fs.readdir(dir);
+    if (!parseFrontMatter) {
+      return fileNames.map(file => ({ folder, file }));
+    }
+    const result = [];
+    for (const file of fileNames) {
+      const item = { folder, file };
+      let fh;
+      try {
+        fh = await require('fs').promises.open(path.join(dir, file), 'r');
+        const buf = new Uint8Array(512);
+        const { bytesRead } = await fh.read(buf, 0, 512, 0);
+        let text = Buffer.from(buf.buffer, 0, bytesRead).toString('utf-8');
+
+        if (text.includes('-- >>>') && !text.includes('-- <<<')) {
+          const stat = await fh.stat();
+          const fullSize = Math.min(stat.size, 4096);
+          if (fullSize > 512) {
+            const fullBuf = new Uint8Array(fullSize);
+            const { bytesRead: fullBytesRead } = await fh.read(fullBuf, 0, fullSize, 0);
+            text = Buffer.from(fullBuf.buffer, 0, fullBytesRead).toString('utf-8');
+          }
+        }
+
+        const fm = getSqlFrontMatter(text, yaml);
+        if (fm?.connectionId) item.connectionId = fm.connectionId;
+        if (fm?.databaseName) item.databaseName = fm.databaseName;
+      } catch (e) {
+        // ignore read errors for individual files
+      } finally {
+        if (fh) await fh.close().catch(() => {});
+      }
+      result.push(item);
+    }
+    return result;
   },
 
   listAll_meta: true,
