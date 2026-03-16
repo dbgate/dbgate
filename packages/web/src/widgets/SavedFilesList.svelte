@@ -58,21 +58,34 @@
     x => x.value
   );
 
-  $: connectionsWithMultipleDbs = (() => {
+  $: connectionOptions = (() => {
     const grouped = _.groupBy(connectionDbOptions, o => o.connectionId);
-    return Object.entries(grouped)
-      .filter(([, items]) => items.length > 1 || items.some(i => i.databaseName))
+    const connectionGroups = Object.entries(grouped)
       .map(([connId, items]) => {
         const conn = (($connectionList || []) as any[]).find(c => c._id === connId);
         const connLabel = conn ? getConnectionLabel(conn) : connId;
-        return {
-          value: `conn-all::${connId}`,
-          label: `${connLabel} - ${_t('files.allDatabases', { defaultMessage: 'all databases' })}`,
-        };
-      });
-  })();
+        const hasMultipleDbs = items.length > 1 || items.some(i => i.databaseName);
+        const dbItems = [...items].sort((a, b) => (a.databaseName || '').localeCompare(b.databaseName || ''));
 
-  $: connectionOptions = [...connectionsWithMultipleDbs, ...connectionDbOptions];
+        return {
+          sortLabel: connLabel || connId,
+          options: [
+            ...(hasMultipleDbs
+              ? [
+                  {
+                    value: `conn-all::${connId}`,
+                    label: `${connLabel} - ${_t('files.allDatabases', { defaultMessage: 'all databases' })}`,
+                  },
+                ]
+              : []),
+            ...dbItems,
+          ],
+        };
+      })
+      .sort((a, b) => a.sortLabel.localeCompare(b.sortLabel));
+
+    return connectionGroups.flatMap(group => group.options);
+  })();
 
   $: currentDbFilterOption = (() => {
     if (!$currentDatabase?.connection?._id) return null;
