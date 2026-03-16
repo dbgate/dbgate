@@ -52,8 +52,19 @@ module.exports = {
         const fh = await require('fs').promises.open(path.join(dir, file), 'r');
         const buf = new Uint8Array(512);
         const { bytesRead } = await fh.read(buf, 0, 512, 0);
+        let text = Buffer.from(buf.buffer, 0, bytesRead).toString('utf-8');
+
+        if (text.includes('-- >>>') && !text.includes('-- <<<')) {
+          const stat = await fh.stat();
+          const fullSize = Math.min(stat.size, 4096);
+          if (fullSize > 512) {
+            const fullBuf = new Uint8Array(fullSize);
+            await fh.read(fullBuf, 0, fullSize, 0);
+            text = Buffer.from(fullBuf.buffer, 0, fullSize).toString('utf-8');
+          }
+        }
+
         await fh.close();
-        const text = Buffer.from(buf.buffer, 0, bytesRead).toString('utf-8');
         const fm = getSqlFrontMatter(text, yaml);
         if (fm?.connectionId) item.connectionId = fm.connectionId;
         if (fm?.databaseName) item.databaseName = fm.databaseName;

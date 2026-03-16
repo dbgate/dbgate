@@ -14,7 +14,7 @@
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
   import { DATA_FOLDER_NAMES, getConnectionLabel } from 'dbgate-tools';
   import { _t } from '../translations';
-  import { currentDropDownMenu } from '../stores';
+  import { currentDropDownMenu, currentDatabase } from '../stores';
 
   let filter = '';
   let selectedConnectionId = '';
@@ -41,21 +41,64 @@
     return databaseName ? `${connectionId}::${databaseName}` : connectionId;
   }
 
-  $: connectionOptions = _.uniqBy(
+  $: connectionDbOptions = _.uniqBy(
     (($sqlFiles || []) as any[])
       .filter(f => f.connectionId)
       .map(f => {
         const conn = (($connectionList || []) as any[]).find(c => c._id === f.connectionId);
         const connLabel = conn ? getConnectionLabel(conn) : f.connectionId;
         const label = f.databaseName ? `${connLabel} - ${f.databaseName}` : connLabel;
-        return { value: makeConnectionKey(f.connectionId, f.databaseName), label: label as string };
+        return {
+          value: makeConnectionKey(f.connectionId, f.databaseName),
+          label: label as string,
+          connectionId: f.connectionId,
+          databaseName: f.databaseName,
+        };
       }),
     x => x.value
   );
 
-  $: filteredSqlFiles = selectedConnectionId
-    ? ($sqlFiles || []).filter(f => makeConnectionKey(f.connectionId, f.databaseName) === selectedConnectionId)
-    : $sqlFiles || [];
+  $: connectionsWithMultipleDbs = (() => {
+    const grouped = _.groupBy(connectionDbOptions, o => o.connectionId);
+    return Object.entries(grouped)
+      .filter(([, items]) => items.length > 1 || items.some(i => i.databaseName))
+      .map(([connId, items]) => {
+        const conn = (($connectionList || []) as any[]).find(c => c._id === connId);
+        const connLabel = conn ? getConnectionLabel(conn) : connId;
+        return {
+          value: `conn-all::${connId}`,
+          label: `${connLabel} - ${_t('files.allDatabases', { defaultMessage: 'all databases' })}`,
+        };
+      });
+  })();
+
+  $: connectionOptions = [...connectionsWithMultipleDbs, ...connectionDbOptions];
+
+  $: currentDbFilterOption = (() => {
+    if (!$currentDatabase?.connection?._id) return null;
+    const connId = $currentDatabase.connection._id;
+    const dbName = $currentDatabase.name;
+    const hasFiles = (($sqlFiles || []) as any[]).some(f => f.connectionId === connId && f.databaseName === dbName);
+    if (!hasFiles) return null;
+    const conn = (($connectionList || []) as any[]).find(c => c._id === connId);
+    const connLabel = conn ? getConnectionLabel(conn) : connId;
+    const label = dbName ? `${connLabel} - ${dbName}` : connLabel;
+    return { value: `current-db`, label };
+  })();
+
+  $: filteredSqlFiles = (() => {
+    if (!selectedConnectionId) return $sqlFiles || [];
+    if (selectedConnectionId === 'current-db') {
+      const connId = $currentDatabase?.connection?._id;
+      const dbName = $currentDatabase?.name;
+      return ($sqlFiles || []).filter(f => f.connectionId === connId && f.databaseName === dbName);
+    }
+    if (selectedConnectionId.startsWith('conn-all::')) {
+      const connId = selectedConnectionId.slice('conn-all::'.length);
+      return ($sqlFiles || []).filter(f => f.connectionId === connId);
+    }
+    return ($sqlFiles || []).filter(f => makeConnectionKey(f.connectionId, f.databaseName) === selectedConnectionId);
+  })();
 
   $: files = [
     ...filteredSqlFiles,
@@ -75,29 +118,44 @@
     ...(selectedConnectionId ? [] : $teamFiles || []),
   ];
 
-  $: currentConnectionLabel = selectedConnectionId
-    ? (connectionOptions.find(o => o.value === selectedConnectionId)?.label ?? selectedConnectionId)
-    : _t('files.allConnections', { defaultMessage: 'All connections' });
+  $: currentConnectionLabel = (() => {
+    if (!selectedConnectionId) return _t('files.allConnections', { defaultMessage: 'All connections' });
+    if (selectedConnectionId === 'current-db' && currentDbFilterOption) {
+      return `${_t('files.currentDatabase', { defaultMessage: 'Current database' })}: ${currentDbFilterOption.label}`;
+    }
+    return connectionOptions.find(o => o.value === selectedConnectionId)?.label ?? selectedConnectionId;
+  })();
 
   function openConnectionDropdown() {
     const rect = domConnectionBtn.getBoundingClientRect();
+    const items: any[] = [
+      {
+        text: _t('files.allConnections', { defaultMessage: 'All connections' }),
+        onClick: () => {
+          selectedConnectionId = '';
+        },
+      },
+    ];
+    if (currentDbFilterOption) {
+      items.push({
+        text: `${_t('files.currentDatabase', { defaultMessage: 'Current database' })}: ${currentDbFilterOption.label}`,
+        onClick: () => {
+          selectedConnectionId = 'current-db';
+        },
+      });
+    }
+    items.push(
+      ...connectionOptions.map(opt => ({
+        text: opt.label,
+        onClick: () => {
+          selectedConnectionId = opt.value;
+        },
+      }))
+    );
     currentDropDownMenu.set({
       left: rect.left,
       top: rect.bottom,
-      items: [
-        {
-          text: _t('files.allConnections', { defaultMessage: 'All connections' }),
-          onClick: () => {
-            selectedConnectionId = '';
-          },
-        },
-        ...connectionOptions.map(opt => ({
-          text: opt.label,
-          onClick: () => {
-            selectedConnectionId = opt.value;
-          },
-        })),
-      ],
+      items,
     });
   }
 
