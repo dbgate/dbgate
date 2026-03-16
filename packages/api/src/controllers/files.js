@@ -60,8 +60,8 @@ module.exports = {
           const fullSize = Math.min(stat.size, 4096);
           if (fullSize > 512) {
             const fullBuf = new Uint8Array(fullSize);
-            await fh.read(fullBuf, 0, fullSize, 0);
-            text = Buffer.from(fullBuf.buffer, 0, fullSize).toString('utf-8');
+            const { bytesRead: fullBytesRead } = await fh.read(fullBuf, 0, fullSize, 0);
+            text = Buffer.from(fullBuf.buffer, 0, fullBytesRead).toString('utf-8');
           }
         }
 
