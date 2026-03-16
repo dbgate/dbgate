@@ -15,7 +15,7 @@ const {
 function getColumnsInfo(columnNames, columnTypes) {
   const columns = [];
 
-  for (let i = columnNames.length - 1; i >= 0; i--) {
+  for (let i = 0; i < columnNames.length; i++) {
     columns.push({
       columnName: columnNames[i],
       dataType: columnTypes[i].toString(),
