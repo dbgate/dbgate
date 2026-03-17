@@ -48,11 +48,12 @@ const driver = {
 
     return {
       client: connection,
+      instance,
     };
   },
   async close(dbhan) {
-    dbhan.client.disconnect();
-    dbhan.client.close();
+    dbhan.client.disconnectSync();
+    dbhan.instance.closeSync();
   },
   async query(dbhan, sql, { readonly } = {}) {
     const res = await dbhan.client.runAndReadAll(sql);
