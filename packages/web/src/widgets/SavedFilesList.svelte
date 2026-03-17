@@ -14,11 +14,10 @@
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
   import { DATA_FOLDER_NAMES, getConnectionLabel } from 'dbgate-tools';
   import { _t } from '../translations';
-  import { currentDropDownMenu, currentDatabase } from '../stores';
+  import { currentDatabase } from '../stores';
 
   let filter = '';
   let selectedConnectionId = '';
-  let domConnectionBtn: HTMLElement;
 
   const connectionList = useConnectionList();
   const sqlFiles = useFiles({ folder: 'sql', parseFrontMatter: true });
@@ -131,47 +130,6 @@
     ...(selectedConnectionId ? [] : $teamFiles || []),
   ];
 
-  $: currentConnectionLabel = (() => {
-    if (!selectedConnectionId) return _t('files.allConnections', { defaultMessage: 'All connections' });
-    if (selectedConnectionId === 'current-db' && currentDbFilterOption) {
-      return `${_t('files.currentDatabase', { defaultMessage: 'Current database' })}: ${currentDbFilterOption.label}`;
-    }
-    return connectionOptions.find(o => o.value === selectedConnectionId)?.label ?? selectedConnectionId;
-  })();
-
-  function openConnectionDropdown() {
-    const rect = domConnectionBtn.getBoundingClientRect();
-    const items: any[] = [
-      {
-        text: _t('files.allConnections', { defaultMessage: 'All connections' }),
-        onClick: () => {
-          selectedConnectionId = '';
-        },
-      },
-    ];
-    if (currentDbFilterOption) {
-      items.push({
-        text: `${_t('files.currentDatabase', { defaultMessage: 'Current database' })}: ${currentDbFilterOption.label}`,
-        onClick: () => {
-          selectedConnectionId = 'current-db';
-        },
-      });
-    }
-    items.push(
-      ...connectionOptions.map(opt => ({
-        text: opt.label,
-        onClick: () => {
-          selectedConnectionId = opt.value;
-        },
-      }))
-    );
-    currentDropDownMenu.set({
-      left: rect.left,
-      top: rect.bottom,
-      items,
-    });
-  }
-
   function handleRefreshFiles() {
     apiCall('files/refresh', {
       folders: DATA_FOLDER_NAMES.map(folder => folder.name),
@@ -216,15 +174,24 @@
 {#if connectionOptions.length > 0}
   <div class="connection-filter">
     <div class="mr-1">{_t('files.connection', { defaultMessage: 'Connection' })}:</div>
-    <button
-      class="connection-select-btn"
-      bind:this={domConnectionBtn}
-      on:click={openConnectionDropdown}
+    <select
+      class="connection-select"
+      value={selectedConnectionId}
+      on:change={e => {
+        selectedConnectionId = e.currentTarget.value;
+      }}
       data-testid="SavedFilesList_connectionFilter"
     >
-      <span class="connection-label">{currentConnectionLabel}</span>
-      <FontIcon icon="icon chevron-down" />
-    </button>
+      <option value="">{_t('files.allConnections', { defaultMessage: 'All connections' })}</option>
+      {#if currentDbFilterOption}
+        <option value="current-db"
+          >{_t('files.currentDatabase', { defaultMessage: 'Current database' })}: {currentDbFilterOption.label}</option
+        >
+      {/if}
+      {#each connectionOptions as opt}
+        <option value={opt.value}>{opt.label}</option>
+      {/each}
+    </select>
     {#if selectedConnectionId}
       <InlineButton
         on:click={() => {
@@ -261,32 +228,18 @@
     gap: 2px;
   }
 
-  .connection-select-btn {
+  .connection-select {
     flex: 1 1 0%;
     min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 1px 4px;
+    padding: 0;
+    height: 24px;
     background-color: var(--theme-searchbox-background);
     border: var(--theme-searchbox-border);
+    box-shadow: none;
     cursor: pointer;
     color: var(--theme-font-1);
     font-size: inherit;
     font-family: inherit;
-    overflow: hidden;
-  }
-
-  .connection-select-btn:hover {
-    background-color: var(--theme-bg-hover);
-  }
-
-  .connection-label {
-    flex: 1 1 0%;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: left;
+    margin-right: 4px;
   }
 </style>
