@@ -698,6 +698,24 @@ module.exports = {
           "columnName": "id_original",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "httpProxyUrl",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "httpProxyUser",
+          "dataType": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "httpProxyPassword",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
       "foreignKeys": [

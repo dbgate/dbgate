@@ -68,6 +68,12 @@
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: config = useConfig();
 
+  $: showConnectionFieldArgs = { config: $config };
+  $: showAdvancedTab =
+    driver?.showConnectionField?.('allowedDatabases', $values, showConnectionFieldArgs) === true ||
+    driver?.showConnectionField?.('httpProxyUrl', $values, showConnectionFieldArgs) === true ||
+    !!driver?.getAdvancedConnectionFields?.();
+
   const testIdRef = createRef(0);
 
   function handleTest(requestDbList = false) {
@@ -97,7 +103,7 @@
     if (resp?.missingCredentials && resp?.detail?.redirectToDbLogin) {
       // Keep isTesting = true, wait for the event
       const eventName = `connection-test-result-${connection._id}`;
-      const handleTestResult = (result) => {
+      const handleTestResult = result => {
         if (testIdRef.get() != testid) {
           apiOff(eventName, handleTestResult);
           return;
@@ -336,7 +342,7 @@
           props: { isFormReadOnly },
           testid: 'ConnectionTab_tabSsl',
         },
-        {
+        showAdvancedTab && {
           label: _t('common.advanced', { defaultMessage: 'Advanced' }),
           component: ConnectionAdvancedDriverFields,
           props: { isFormReadOnly },

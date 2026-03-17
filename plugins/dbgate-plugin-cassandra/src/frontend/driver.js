@@ -89,7 +89,7 @@ const driver = {
   title: 'Cassandra',
   icon: cassandraIcon,
   showConnectionField: (field, values) =>
-    ['server', 'singleDatabase', 'localDataCenter', 'isReadOnly', 'user', 'password'].includes(field),
+    ['server', 'singleDatabase', 'localDataCenter', 'isReadOnly', 'user', 'password', 'allowedDatabases', 'allowedDatabasesRegex'].includes(field),
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'
       ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }

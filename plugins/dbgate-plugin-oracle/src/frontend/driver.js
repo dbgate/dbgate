@@ -112,6 +112,7 @@ const oracleDriver = {
   showConnectionField: (field, values, { config }) => {
     if (field == 'useDatabaseUrl') return true;
     if (field == 'authType') return true;
+    if (field == 'allowedDatabases' || field == 'allowedDatabasesRegex') return true;
     if (field == 'clientLibraryPath') return config?.isElectron && values.authType == 'thick';
 
     if (values.useDatabaseUrl) {

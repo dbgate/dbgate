@@ -152,7 +152,7 @@ const driver = {
   supportsIncrementalAnalysis: true,
   icon: clickhouseIcon,
   showConnectionField: (field, values) => {
-    return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'user', 'password'].includes(field);
+    return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'user', 'password', 'allowedDatabases', 'allowedDatabasesRegex'].includes(field);
   },
   getQuerySplitterOptions: (usage) =>
     usage == 'editor'

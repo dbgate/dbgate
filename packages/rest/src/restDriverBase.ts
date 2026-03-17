@@ -39,4 +39,12 @@ export const apiDriverBase = {
     }
     return false;
   },
+
+  showConnectionField: (field, values) => {
+    if (apiDriverBase.showAuthConnectionField(field, values)) return true;
+    if (field === 'httpProxyUrl') return true;
+    if (field === 'httpProxyUser') return true;
+    if (field === 'httpProxyPassword') return true;
+    return false;
+  },
 };

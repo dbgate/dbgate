@@ -11,7 +11,13 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
 
   import FormTextField from '../forms/FormTextField.svelte';
-  import { extensions, getCurrentConfig, openedConnections, openedSingleDatabaseConnections, toggledDatabases } from '../stores';
+  import {
+    extensions,
+    getCurrentConfig,
+    openedConnections,
+    openedSingleDatabaseConnections,
+    toggledDatabases,
+  } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useAuthTypes, useConfig } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
@@ -100,7 +106,7 @@
       $extensions.drivers
         // .filter(driver => !driver.isElectronOnly || electron)
         .filter(driver => $toggledDatabases.get(driver.title))
-        .map((driver) => ({
+        .map(driver => ({
           value: driver.engine,
           label: driver.title,
         })),

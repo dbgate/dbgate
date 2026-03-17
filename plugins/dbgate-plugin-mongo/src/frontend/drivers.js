@@ -74,6 +74,7 @@ const mongoDriverBase = {
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
+    if (field == 'allowedDatabases' || field == 'allowedDatabasesRegex') return true;
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
     }

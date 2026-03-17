@@ -165,6 +165,8 @@ const driver = {
       'singleDatabase',
       'isReadOnly',
       'useSeparateSchemas',
+      'allowedDatabases',
+      'allowedDatabasesRegex',
     ].includes(field) ||
     (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi') ||
     (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi' && values.authType != 'msentra'),

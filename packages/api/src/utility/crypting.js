@@ -101,7 +101,7 @@ function decryptObjectPasswordField(obj, field, encryptor = null) {
   return obj;
 }
 
-const fieldsToEncrypt = ['password', 'sshPassword', 'sshKeyfilePassword', 'connectionDefinition'];
+const fieldsToEncrypt = ['password', 'sshPassword', 'sshKeyfilePassword', 'connectionDefinition', 'httpProxyPassword'];
 const additionalFieldsToMask = [
   'databaseUrl',
   'server',

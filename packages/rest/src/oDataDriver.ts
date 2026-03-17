@@ -60,7 +60,7 @@ export const oDataDriver: EngineDriver = {
   apiServerUrl1Label: 'OData Service URL',
 
   showConnectionField: (field, values) => {
-    if (apiDriverBase.showAuthConnectionField(field, values)) return true;
+    if (apiDriverBase.showConnectionField(field, values)) return true;
     if (field === 'apiServerUrl1') return true;
     return false;
   },

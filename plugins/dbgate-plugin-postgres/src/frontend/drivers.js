@@ -142,7 +142,7 @@ const postgresDriverBase = {
   databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',
 
   showConnectionField: (field, values) => {
-    const allowedFields = ['useDatabaseUrl', 'authType', 'user', 'isReadOnly', 'useSeparateSchemas'];
+    const allowedFields = ['useDatabaseUrl', 'authType', 'user', 'isReadOnly', 'useSeparateSchemas', 'allowedDatabases', 'allowedDatabasesRegex'];
 
     if (values.authType == 'awsIam') {
       allowedFields.push('awsRegion', 'secretAccessKey', 'accessKeyId');
@@ -424,7 +424,7 @@ const redshiftDriver = {
   databaseUrlPlaceholder: 'e.g. redshift-cluster-1.xxxx.redshift.amazonaws.com:5439/dev',
   icon: redshiftIcon,
   showConnectionField: (field, values) =>
-    ['databaseUrl', 'user', 'password', 'isReadOnly', 'useSeparateSchemas'].includes(field),
+    ['databaseUrl', 'user', 'password', 'isReadOnly', 'useSeparateSchemas', 'allowedDatabases', 'allowedDatabasesRegex'].includes(field),
   beforeConnectionSave: connection => {
     const { databaseUrl } = connection;
     if (databaseUrl) {
