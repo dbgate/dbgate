@@ -93,12 +93,16 @@ const driver = {
       platformInfo?.isWindows && (authType == 'sspi' || authType == 'sql') ? 'msnodesqlv8' : 'tedious';
     const client = connectionType == 'msnodesqlv8' ? await nativeConnect(conn) : await tediousConnect(conn);
 
-    return {
+    const dbhan = {
       client,
       connectionType,
       database: conn.database,
       conid: conn.conid,
     };
+    if (conn.defaultIsolationLevel) {
+      await this.setTransactionIsolationLevel(dbhan, conn.defaultIsolationLevel);
+    }
+    return dbhan;
   },
   async close(dbhan) {
     return dbhan.client.close();
@@ -171,6 +175,13 @@ const driver = {
 
   async killProcess(dbhan, processId) {
     await this.query(dbhan, `KILL ${processId}`);
+  },
+
+  async setTransactionIsolationLevel(dbhan, level) {
+    if (this.isolationLevels && level && !this.isolationLevels.includes(level)) {
+      throw new Error(`Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`);
+    }
+    await this.query(dbhan, `SET TRANSACTION ISOLATION LEVEL ${level}`);
   },
 
   async serverSummary(dbhan) {

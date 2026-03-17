@@ -716,6 +716,12 @@ module.exports = {
           "columnName": "httpProxyPassword",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "defaultIsolationLevel",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
       "foreignKeys": [

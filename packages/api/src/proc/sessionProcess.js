@@ -77,6 +77,38 @@ async function handleStopProfiler({ jslid }) {
   currentProfiler = null;
 }
 
+async function handleSetIsolationLevel({ level }) {
+  lastActivity = new Date().getTime();
+
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+
+  if (!driver.setTransactionIsolationLevel) {
+    process.send({ msgtype: 'done', skipFinishedMessage: true });
+    return;
+  }
+
+  if (driver.isolationLevels && level && !driver.isolationLevels.includes(level)) {
+    process.send({
+      msgtype: 'info',
+      info: {
+        message: `Isolation level "${level}" is not supported by this driver. Supported levels: ${driver.isolationLevels.join(', ')}`,
+        severity: 'error',
+      },
+    });
+    process.send({ msgtype: 'done', skipFinishedMessage: true });
+    return;
+  }
+
+  executingScripts++;
+  try {
+    await driver.setTransactionIsolationLevel(dbhan, level);
+    process.send({ msgtype: 'done', controlCommand: 'setIsolationLevel' });
+  } finally {
+    executingScripts--;
+  }
+}
+
 async function handleExecuteControlCommand({ command }) {
   lastActivity = new Date().getTime();
 
@@ -210,6 +242,7 @@ const messageHandlers = {
   connect: handleConnect,
   executeQuery: handleExecuteQuery,
   executeControlCommand: handleExecuteControlCommand,
+  setIsolationLevel: handleSetIsolationLevel,
   executeReader: handleExecuteReader,
   startProfiler: handleStartProfiler,
   stopProfiler: handleStopProfiler,

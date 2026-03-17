@@ -162,7 +162,7 @@ const mysqlDialect = {
 const mysqlDriverBase = {
   ...driverBase,
   showConnectionField: (field, values) => {
-    if (['authType', 'user', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'allowedDatabases', 'allowedDatabasesRegex'].includes(field)) {
+    if (['authType', 'user', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'allowedDatabases', 'allowedDatabasesRegex', 'defaultIsolationLevel'].includes(field)) {
       return true;
     }
 
@@ -194,7 +194,9 @@ const mysqlDriverBase = {
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
   supportsTransactions: true,
+  isolationLevels: ['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE'],
   supportsIncrementalAnalysis: true,
+  defaultIsolationLevel: 'REPEATABLE READ',
 
   getNewObjectTemplates() {
     return [

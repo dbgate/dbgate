@@ -228,6 +228,19 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  setIsolationLevel_meta: true,
+  async setIsolationLevel({ sesid, level }) {
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+
+    logger.info({ sesid, level }, 'DBGM-00000 Setting transaction isolation level');
+    session.subprocess.send({ msgtype: 'setIsolationLevel', level });
+
+    return { state: 'ok' };
+  },
+
   executeReader_meta: true,
   async executeReader({ conid, database, sql, queryName, appFolder }) {
     const { sesid } = await this.create({ conid, database });

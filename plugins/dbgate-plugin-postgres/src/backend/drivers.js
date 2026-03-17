@@ -115,6 +115,7 @@ const drivers = driverBases.map(driverBase => ({
       isReadOnly,
       authType,
       socketPath,
+      defaultIsolationLevel,
     } = props;
     let options = null;
 
@@ -171,6 +172,9 @@ const drivers = driverBases.map(driverBase => ({
 
     if (isReadOnly) {
       await this.query(dbhan, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
+    }
+    if (defaultIsolationLevel) {
+      await this.setTransactionIsolationLevel(dbhan, defaultIsolationLevel);
     }
 
     return dbhan;
@@ -422,6 +426,13 @@ const drivers = driverBases.map(driverBase => ({
   async killProcess(dbhan, pid) {
     const result = await this.query(dbhan, `SELECT pg_terminate_backend(${parseInt(pid)})`);
     return result;
+  },
+
+  async setTransactionIsolationLevel(dbhan, level) {
+    if (this.isolationLevels && level && !this.isolationLevels.includes(level)) {
+      throw new Error(`Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`);
+    }
+    await this.query(dbhan, `SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL ${level}`);
   },
 
   async listDatabasesFull(dbhan) {

@@ -78,6 +78,9 @@ const drivers = driverBases.map(driverBase => ({
     if (isReadOnly) {
       await this.query(dbhan, 'SET SESSION TRANSACTION READ ONLY');
     }
+    if (props.defaultIsolationLevel) {
+      await this.setTransactionIsolationLevel(dbhan, props.defaultIsolationLevel);
+    }
     return dbhan;
   },
   close(dbhan) {
@@ -251,6 +254,13 @@ const drivers = driverBases.map(driverBase => ({
 
   async killProcess(dbhan, processId) {
     await this.query(dbhan, `KILL ${processId}`);
+  },
+
+  async setTransactionIsolationLevel(dbhan, level) {
+    if (this.isolationLevels && level && !this.isolationLevels.includes(level)) {
+      throw new Error(`Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`);
+    }
+    await this.query(dbhan, `SET SESSION TRANSACTION ISOLATION LEVEL ${level}`);
   },
 
   async serverSummary(dbhan) {

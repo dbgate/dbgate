@@ -123,7 +123,9 @@ const dialect = {
 const postgresDriverBase = {
   ...driverBase,
   supportsTransactions: true,
+  isolationLevels: ['READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE'],
   supportsIncrementalAnalysis: true,
+  defaultIsolationLevel: 'READ COMMITTED',
   dumperClass: Dumper,
   dialect,
   // showConnectionField: (field, values) =>
@@ -142,7 +144,7 @@ const postgresDriverBase = {
   databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',
 
   showConnectionField: (field, values) => {
-    const allowedFields = ['useDatabaseUrl', 'authType', 'user', 'isReadOnly', 'useSeparateSchemas', 'allowedDatabases', 'allowedDatabasesRegex'];
+    const allowedFields = ['useDatabaseUrl', 'authType', 'user', 'isReadOnly', 'useSeparateSchemas', 'allowedDatabases', 'allowedDatabasesRegex', 'defaultIsolationLevel'];
 
     if (values.authType == 'awsIam') {
       allowedFields.push('awsRegion', 'secretAccessKey', 'accessKeyId');

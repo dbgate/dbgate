@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormTextField from '../forms/FormTextField.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
   import FormPasswordField from '../forms/FormPasswordField.svelte';
   import { extensions, openedConnections, openedSingleDatabaseConnections } from '../stores';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
@@ -21,7 +22,6 @@
   $: advancedFields = driver?.getAdvancedConnectionFields ? driver?.getAdvancedConnectionFields() : null;
 
   $: config = useConfig();
-
   $: showConnectionFieldArgs = { config: $config };
 
   $: showAllowedDatabases =
@@ -71,6 +71,18 @@
       />
     </div>
   </div>
+{/if}
+
+{#if driver?.showConnectionField('defaultIsolationLevel', $values, showConnectionFieldArgs) && driver?.isolationLevels}
+  <FormSelectField
+    label={_t('connection.defaultIsolationLevel', { defaultMessage: 'Default isolation level' })}
+    isNative
+    name="defaultIsolationLevel"
+    defaultValue={driver.defaultIsolationLevel}
+    options={driver.isolationLevels.map(level => ({ label: level, value: level }))}
+    disabled={isConnected || isFormReadOnly}
+    data-testid="ConnectionAdvancedDriverFields_defaultIsolationLevel"
+  />
 {/if}
 
 {#if advancedFields}
