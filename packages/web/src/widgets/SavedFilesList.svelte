@@ -8,7 +8,7 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall } from '../utility/api';
-  import { useFiles, useTeamFiles, useConnectionList } from '../utility/metadataLoaders';
+  import { useFiles, useTeamFiles, useConnectionList, useCloudContentList } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { isProApp } from '../utility/proTools';
   import InlineUploadButton from '../buttons/InlineUploadButton.svelte';
@@ -20,6 +20,7 @@
   let selectedConnectionId = '';
 
   const connectionList = useConnectionList();
+  const cloudContentList = useCloudContentList();
   const sqlFiles = useFiles({ folder: 'sql', parseFrontMatter: true });
   const shellFiles = useFiles({ folder: 'shell' });
   const markdownFiles = useFiles({ folder: 'markdown' });
@@ -40,12 +41,19 @@
     return databaseName ? `${connectionId}::${databaseName}` : connectionId;
   }
 
+  $: cloudIdToLabel = _.fromPairs(
+    (($cloudContentList || []) as any[])
+      .flatMap(fld => fld.items ?? [])
+      .filter(item => item.type === 'connection' && item.folid && item.cntid)
+      .map(item => [`cloud://${item.folid}/${item.cntid}`, item.name as string])
+  );
+
   $: connectionDbOptions = _.uniqBy(
     (($sqlFiles || []) as any[])
       .filter(f => f.connectionId)
       .map(f => {
         const conn = (($connectionList || []) as any[]).find(c => c._id === f.connectionId);
-        const connLabel = (conn && getConnectionLabel(conn)) || f.connectionId;
+        const connLabel = (conn && getConnectionLabel(conn)) || cloudIdToLabel[f.connectionId] || f.connectionId;
         const label = f.databaseName ? `${connLabel} - ${f.databaseName}` : connLabel;
         return {
           value: makeConnectionKey(f.connectionId, f.databaseName),
@@ -62,7 +70,7 @@
     const connectionGroups = Object.entries(grouped)
       .map(([connId, items]) => {
         const conn = (($connectionList || []) as any[]).find(c => c._id === connId);
-        const connLabel = (conn && getConnectionLabel(conn)) || connId;
+        const connLabel = (conn && getConnectionLabel(conn)) || cloudIdToLabel[connId] || connId;
         const hasMultipleDbs = items.length > 1 || items.some(i => i.databaseName);
         const dbItems = [...items].sort((a, b) => (a.databaseName || '').localeCompare(b.databaseName || ''));
 
@@ -93,7 +101,7 @@
     const hasFiles = (($sqlFiles || []) as any[]).some(f => f.connectionId === connId && f.databaseName === dbName);
     if (!hasFiles) return null;
     const conn = (($connectionList || []) as any[]).find(c => c._id === connId);
-    const connLabel = (conn && getConnectionLabel(conn)) || connId;
+    const connLabel = (conn && getConnectionLabel(conn)) || cloudIdToLabel[connId] || connId;
     const label = dbName ? `${connLabel} - ${dbName}` : connLabel;
     return { value: `current-db`, label };
   })();
