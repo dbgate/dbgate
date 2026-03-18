@@ -132,7 +132,35 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
   }
 
   connection.ssl = await extractConnectionSslParams(connection);
-  connection.axios = axios.default;
+
+  const proxyUrl = String(connection.httpProxyUrl ?? '').trim();
+  const proxyUser = String(connection.httpProxyUser ?? '').trim();
+  const proxyPassword = String(connection.httpProxyPassword ?? '').trim();
+  if (!proxyUrl && (proxyUser || proxyPassword)) {
+    throw new Error('DBGM-00000 Proxy user or password is set but proxy URL is missing');
+  }
+  if (proxyUrl) {
+    let parsedProxy;
+    try {
+      const parsed = new URL(proxyUrl.includes('://') ? proxyUrl : `http://${proxyUrl}`);
+      parsedProxy = {
+        protocol: parsed.protocol.replace(':', ''),
+        host: parsed.hostname,
+        port: parsed.port ? parseInt(parsed.port, 10) : (parsed.protocol === 'https:' ? 443 : 80),
+      };
+      const username = connection.httpProxyUser ?? parsed.username;
+      const rawPassword = connection.httpProxyPassword ?? parsed.password;
+      const password = decryptPasswordString(rawPassword);
+      if (username) {
+        parsedProxy.auth = { username, password: password ?? '' };
+      }
+    } catch (err) {
+      throw new Error(`DBGM-00000 Invalid proxy URL "${proxyUrl}": ${err && err.message ? err.message : err}`);
+    }
+    connection.axios = axios.default.create({ proxy: parsedProxy });
+  } else {
+    connection.axios = axios.default;
+  }
 
   const conn = await driver.connect({ conid: connectionLoaded?._id, ...connection, ...additionalOptions });
   return conn;
