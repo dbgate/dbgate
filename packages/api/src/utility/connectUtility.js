@@ -137,7 +137,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
   const proxyUser = String(connection.httpProxyUser ?? '').trim();
   const proxyPassword = String(connection.httpProxyPassword ?? '').trim();
   if (!proxyUrl && (proxyUser || proxyPassword)) {
-    throw new Error('DBGM-00000 Proxy user or password is set but proxy URL is missing');
+    throw new Error('DBGM-00329 Proxy user or password is set but proxy URL is missing');
   }
   if (proxyUrl) {
     let parsedProxy;
@@ -155,7 +155,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
         parsedProxy.auth = { username, password: password ?? '' };
       }
     } catch (err) {
-      throw new Error(`DBGM-00000 Invalid proxy URL "${proxyUrl}": ${err && err.message ? err.message : err}`);
+      throw new Error(`DBGM-00334 Invalid proxy URL "${proxyUrl}": ${err && err.message ? err.message : err}`);
     }
     connection.axios = axios.default.create({ proxy: parsedProxy });
   } else {
