@@ -7,7 +7,7 @@ checkout-and-merge-pro:
       repository: dbgate/dbgate-pro
       token: ${{ secrets.GH_TOKEN }}
       path: dbgate-pro
-      ref: 13f8958382b995e9800468b89c17af88a606e996
+      ref: 5baa88d0ad253537298e911868579bae0835888d
   - name: Merge dbgate/dbgate-pro
     run: |
       mkdir ../dbgate-pro
