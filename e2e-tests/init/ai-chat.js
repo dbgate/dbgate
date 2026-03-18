@@ -103,7 +103,7 @@ function ensureDependencies(dir, checkFile) {
     env: process.env,
   });
   if (result.status !== 0) {
-    throw new Error(`DBGM-00000 Failed to install dependencies in ${dir}`);
+    throw new Error(`DBGM-00297 Failed to install dependencies in ${dir}`);
   }
 }
 
@@ -135,7 +135,7 @@ async function waitForReady(url, timeoutMs = 30000) {
     }
     await delay(500);
   }
-  throw new Error(`DBGM-00000 Server at ${url} did not start in time`);
+  throw new Error(`DBGM-00305 Server at ${url} did not start in time`);
 }
 
 // --- Main ---

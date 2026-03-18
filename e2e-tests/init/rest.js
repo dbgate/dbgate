@@ -27,7 +27,7 @@ async function waitForApiReady(timeoutMs = 30000) {
     await delay(500);
   }
 
-  throw new Error('DBGM-00000 test-api did not start on port 4444 in time');
+  throw new Error('DBGM-00306 test-api did not start on port 4444 in time');
 }
 
 function readProcessStartTime(pid) {
@@ -116,7 +116,7 @@ function ensureTestApiDependencies() {
   });
 
   if (result.status !== 0) {
-    throw new Error('DBGM-00000 Failed to install test-api dependencies');
+    throw new Error('DBGM-00307 Failed to install test-api dependencies');
   }
 }
 

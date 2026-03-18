@@ -24,7 +24,7 @@ function resolveServiceRoot(contextUrl: string | undefined, fallbackUrl: string)
 
 async function loadODataServiceDocument(dbhan: any) {
   if (!dbhan?.connection?.apiServerUrl1) {
-    throw new Error('DBGM-00000 OData endpoint URL is not configured');
+    throw new Error('DBGM-00330 OData endpoint URL is not configured');
   }
 
   const response = await dbhan.axios.get(dbhan.connection.apiServerUrl1, {
@@ -33,11 +33,11 @@ async function loadODataServiceDocument(dbhan: any) {
 
   const document = response?.data;
   if (!document || typeof document !== 'object') {
-    throw new Error('DBGM-00000 OData service document is empty or invalid');
+    throw new Error('DBGM-00331 OData service document is empty or invalid');
   }
 
   if (!document['@odata.context']) {
-    throw new Error('DBGM-00000 OData service document does not contain @odata.context');
+    throw new Error('DBGM-00332 OData service document does not contain @odata.context');
   }
 
   return document;

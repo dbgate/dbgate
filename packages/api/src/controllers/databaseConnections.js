@@ -595,7 +595,7 @@ module.exports = {
         try {
           existing.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
-          logger.error(extractErrorLogData(err), 'DBGM-00000 Error pinging DB connection');
+          logger.error(extractErrorLogData(err), 'DBGM-00308 Error pinging DB connection');
           this.close(conid, database);
         }
       }
@@ -650,7 +650,7 @@ module.exports = {
       for (const [msgid, entry] of Object.entries(this.requests)) {
         const [resolve, reject, additionalData, reqConid, reqDatabase] = entry;
         if (reqConid === conid && reqDatabase === database) {
-          reject('DBGM-00000 Database connection closed');
+          reject('DBGM-00309 Database connection closed');
           delete this.requests[msgid];
         }
       }

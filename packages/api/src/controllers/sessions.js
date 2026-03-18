@@ -235,7 +235,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    logger.info({ sesid, level }, 'DBGM-00000 Setting transaction isolation level');
+    logger.info({ sesid, level }, 'DBGM-00315 Setting transaction isolation level');
     session.subprocess.send({ msgtype: 'setIsolationLevel', level });
 
     return { state: 'ok' };
