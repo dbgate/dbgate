@@ -41,7 +41,7 @@
     return databaseName ? `${connectionId}::${databaseName}` : connectionId;
   }
 
-  $: cloudIdToLabel = Object.fromEntries(
+  $: cloudIdToLabel = _.fromPairs(
     (($cloudContentList || []) as any[])
       .flatMap(fld => fld.items ?? [])
       .filter(item => item.type === 'connection' && item.folid && item.cntid)
