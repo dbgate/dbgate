@@ -20,14 +20,11 @@ const listDatabases = require('./listDatabases');
 const listVariables = require('./listVariables');
 const listProcesses = require('./listProcesses');
 
-const fk_keyColumnUsage = require('./fk_key_column_usage');
-
 module.exports = {
   columns,
   tableList,
   viewModifications,
   primaryKeys,
-  fk_keyColumnUsage,
   foreignKeys,
   views,
   routines,
