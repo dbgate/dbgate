@@ -56,7 +56,10 @@ jobs:
         working-directory: packages/sqltree
         run: |
           npm publish --tag "$NPM_TAG"
-                    
+      - name: Publish rest
+        working-directory: packages/rest
+        run: |
+          npm publish --tag "$NPM_TAG"
       - name: Publish api
         working-directory: packages/api
         run: |
