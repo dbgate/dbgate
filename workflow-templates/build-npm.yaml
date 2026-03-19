@@ -19,7 +19,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -52,7 +51,7 @@ jobs:
       - name: yarn install
         run: |
           yarn install
-          
+
       - name: setCurrentVersion
         run: |
           yarn setCurrentVersion
@@ -79,7 +78,12 @@ jobs:
         working-directory: packages/sqltree
         run: |
           npm publish --tag "$NPM_TAG"
-                    
+
+      - name: Publish rest
+        working-directory: packages/rest
+        run: |
+          npm publish --tag "$NPM_TAG"
+
       - name: Publish api
         working-directory: packages/api
         run: |
