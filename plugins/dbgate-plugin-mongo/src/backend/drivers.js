@@ -6,7 +6,7 @@ const Analyser = require('./Analyser');
 const isPromise = require('is-promise');
 const mongodb = require('mongodb');
 const { ObjectId } = require('mongodb');
-const { EJSON } = require('bson');
+const { EJSON, Binary } = require('bson');
 const { serializeJsTypesForJsonStringify, deserializeJsTypesFromJsonParse, getLogger } = require('dbgate-tools');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const {
@@ -53,8 +53,8 @@ function findArrayResult(resValue) {
   return null;
 }
 
-function BinData(_subType, base64) {
-  return Buffer.from(base64, 'base64');
+function BinData(subType, base64) {
+  return new Binary(Buffer.from(base64, 'base64'), subType);
 }
 
 async function getScriptableDb(dbhan) {

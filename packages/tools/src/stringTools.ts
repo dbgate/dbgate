@@ -49,6 +49,18 @@ export function base64ToHex(base64String) {
   return '0x' + hexString.toUpperCase();
 }
 
+export function base64ToUuid(base64String) {
+  const binaryString = atob(base64String);
+  const hex = Array.from(binaryString, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20, 32),
+  ].join('-');
+}
+
 export function hexToBase64(hexString) {
   const binaryString = hexString
     .match(/.{1,2}/g)
@@ -266,6 +278,13 @@ export function stringifyCellValue(
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
 
   if (value?.$binary?.base64) {
+    const subType = value.$binary.subType;
+    if (subType === '03' || subType === '04') {
+      return {
+        value: base64ToUuid(value.$binary.base64),
+        gridStyle: 'valueCellStyle',
+      };
+    }
     return {
       value: base64ToHex(value.$binary.base64),
       gridStyle: 'valueCellStyle',
