@@ -9,6 +9,10 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.4
+
+- FIXED: NPM installation failure #1375
+
 ## 7.1.3
 
 - FIXED: "Add files" button in import/export #1373
