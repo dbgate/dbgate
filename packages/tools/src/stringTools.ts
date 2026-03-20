@@ -69,6 +69,15 @@ export function hexToBase64(hexString) {
   return btoa(binaryString);
 }
 
+export function uuidToBase64(uuid: string) {
+  const hex = uuid.replace(/-/g, '');
+  const binaryString = hex
+    .match(/.{1,2}/g)
+    .map(byte => String.fromCharCode(parseInt(byte, 16)))
+    .join('');
+  return btoa(binaryString);
+}
+
 export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   if (!_isString(value)) return value;
 
@@ -77,6 +86,18 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   }
 
   if (editorTypes?.parseHexAsBuffer) {
+    const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const mUuid3 = value.match(/^UUID3\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
+    if (mUuid3) {
+      return { $binary: { base64: uuidToBase64(mUuid3[1]), subType: '03' } };
+    }
+    const mUuid4 = value.match(/^UUID\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
+    if (mUuid4) {
+      return { $binary: { base64: uuidToBase64(mUuid4[1]), subType: '04' } };
+    }
+    if (uuidPattern.test(value)) {
+      return { $binary: { base64: uuidToBase64(value), subType: '04' } };
+    }
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
       return {
@@ -280,10 +301,13 @@ export function stringifyCellValue(
   if (value?.$binary?.base64) {
     const subType = value.$binary.subType;
     if (subType === '03' || subType === '04') {
-      return {
-        value: base64ToUuid(value.$binary.base64),
-        gridStyle: 'valueCellStyle',
-      };
+      const uuidStr = base64ToUuid(value.$binary.base64);
+      if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent') {
+        return { value: uuidStr, gridStyle: 'valueCellStyle' };
+      }
+      // For editing intents: tag with subType so parseCellValue can round-trip it
+      const tag = subType === '03' ? 'UUID3' : 'UUID';
+      return { value: `${tag}("${uuidStr}")`, gridStyle: 'valueCellStyle' };
     }
     return {
       value: base64ToHex(value.$binary.base64),
