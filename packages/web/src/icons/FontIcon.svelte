@@ -26,6 +26,8 @@
 </script>
 
 <script>
+  import DOMPurify from 'dompurify';
+
   export let icon;
   export let title = null;
   export let padLeft = false;
@@ -34,6 +36,7 @@
   export let colorClass = null;
   $: iconValue = typeof icon === 'string' ? icon : icon?.light || icon?.dark || '';
   $: isSvgString = iconValue.trim().startsWith('<svg');
+  $: sanitizedSvg = isSvgString ? DOMPurify.sanitize(iconValue, { USE_PROFILES: { svg: true, svgFilters: true } }) : '';
   $: isTextIcon = iconValue.trim().startsWith('text ');
 
   const iconNames = {
@@ -379,7 +382,7 @@
 
 {#if isSvgString}
   <span class="svg-inline" class:padLeft class:padRight {title} {style} on:click data-testid={$$props['data-testid']}>
-    {@html iconValue}
+    {@html sanitizedSvg}
   </span>
 {:else if isTextIcon}
   {@const textIconParts = iconValue.trim().split(' ')}
