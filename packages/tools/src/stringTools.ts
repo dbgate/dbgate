@@ -72,7 +72,12 @@ export function hexToBase64(hexString) {
   return btoa(binaryString);
 }
 
-export function uuidToBase64(uuid: string) {
+const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export function uuidToBase64(uuid: string): string | null {
+  if (!uuid || !uuidRegex.test(uuid)) {
+    return null;
+  }
   const hex = uuid.replace(/-/g, '');
   const binaryString = hex
     .match(/.{1,2}/g)
@@ -89,17 +94,19 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   }
 
   if (editorTypes?.parseHexAsBuffer) {
-    const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     const mUuid3 = value.match(/^UUID3\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
     if (mUuid3) {
-      return { $binary: { base64: uuidToBase64(mUuid3[1]), subType: '03' } };
+      const base64Uuid3 = uuidToBase64(mUuid3[1]);
+      if (base64Uuid3 != null) return { $binary: { base64: base64Uuid3, subType: '03' } };
     }
     const mUuid4 = value.match(/^UUID\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
     if (mUuid4) {
-      return { $binary: { base64: uuidToBase64(mUuid4[1]), subType: '04' } };
+      const base64Uuid4 = uuidToBase64(mUuid4[1]);
+      if (base64Uuid4 != null) return { $binary: { base64: base64Uuid4, subType: '04' } };
     }
-    if (uuidPattern.test(value)) {
-      return { $binary: { base64: uuidToBase64(value), subType: '04' } };
+    if (uuidRegex.test(value)) {
+      const base64UuidPlain = uuidToBase64(value);
+      if (base64UuidPlain != null) return { $binary: { base64: base64UuidPlain, subType: '04' } };
     }
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
