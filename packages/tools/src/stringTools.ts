@@ -49,8 +49,11 @@ export function base64ToHex(base64String) {
   return '0x' + hexString.toUpperCase();
 }
 
-export function base64ToUuid(base64String) {
+export function base64ToUuid(base64String): string | null {
   const binaryString = atob(base64String);
+  if (binaryString.length !== 16) {
+    return null;
+  }
   const hex = Array.from(binaryString, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
   return [
     hex.slice(0, 8),
@@ -302,12 +305,14 @@ export function stringifyCellValue(
     const subType = value.$binary.subType;
     if (subType === '03' || subType === '04') {
       const uuidStr = base64ToUuid(value.$binary.base64);
-      if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent') {
-        return { value: uuidStr, gridStyle: 'valueCellStyle' };
+      if (uuidStr != null) {
+        if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent') {
+          return { value: uuidStr, gridStyle: 'valueCellStyle' };
+        }
+        // For editing intents: tag with subType so parseCellValue can round-trip it
+        const tag = subType === '03' ? 'UUID3' : 'UUID';
+        return { value: `${tag}("${uuidStr}")`, gridStyle: 'valueCellStyle' };
       }
-      // For editing intents: tag with subType so parseCellValue can round-trip it
-      const tag = subType === '03' ? 'UUID3' : 'UUID';
-      return { value: `${tag}("${uuidStr}")`, gridStyle: 'valueCellStyle' };
     }
     return {
       value: base64ToHex(value.$binary.base64),
