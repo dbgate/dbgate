@@ -54,7 +54,11 @@ function findArrayResult(resValue) {
 }
 
 function BinData(subType, base64) {
-  return new Binary(Buffer.from(base64, 'base64'), subType);
+  const numericSubType = typeof subType === 'string' ? parseInt(subType, 10) : subType;
+  if (!Number.isInteger(numericSubType) || numericSubType < 0 || numericSubType > 255) {
+    throw new TypeError(`BinData subType must be an integer between 0 and 255, got: ${subType}`);
+  }
+  return new Binary(Buffer.from(base64, 'base64'), numericSubType);
 }
 
 async function getScriptableDb(dbhan) {
