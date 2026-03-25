@@ -9,6 +9,12 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.5
+
+- FIXED: Issues with cloud and file loading
+- ADDED: Support for displaying MongoDB UUID #1394
+- ADDED: SVG icon sanitization
+
 ## 7.1.4
 
 - FIXED: NPM installation failure #1375
