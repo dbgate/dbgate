@@ -175,11 +175,13 @@ const filesLoader = ({ folder, parseFrontMatter = false }) => ({
   url: 'files/list',
   params: parseFrontMatter ? { folder, parseFrontMatter: true } : { folder },
   reloadTrigger: { key: `files-changed`, folder },
+  errorValue: [],
 });
 const allFilesLoader = () => ({
   url: 'files/list-all',
   params: {},
   reloadTrigger: { key: `all-files-changed` },
+  errorValue: [],
 });
 const authTypesLoader = ({ engine }) => ({
   url: 'plugins/auth-types',
@@ -192,21 +194,25 @@ const publicCloudFilesLoader = () => ({
   url: 'cloud/public-files',
   params: {},
   reloadTrigger: { key: `public-cloud-changed` },
+  errorValue: [],
 });
 const cloudContentListLoader = () => ({
   url: 'cloud/content-list',
   params: {},
   reloadTrigger: { key: `cloud-content-changed` },
+  errorValue: [],
 });
 const teamFilesLoader = () => ({
   url: 'team-files/list',
   params: {},
   reloadTrigger: { key: `team-files-changed` },
+  errorValue: [],
 });
 const teamFoldersLoader = () => ({
   url: 'team-files/list-folders',
   params: {},
   reloadTrigger: { key: `team-folders-changed` },
+  errorValue: [],
 });
 const promoWidgetLoader = () => ({
   url: 'cloud/premium-promo-widget',
