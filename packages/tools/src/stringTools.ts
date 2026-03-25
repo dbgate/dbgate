@@ -50,7 +50,12 @@ export function base64ToHex(base64String) {
 }
 
 export function base64ToUuid(base64String): string | null {
-  const binaryString = atob(base64String);
+  let binaryString: string;
+  try {
+    binaryString = atob(base64String);
+  } catch {
+    return null;
+  }
   if (binaryString.length !== 16) {
     return null;
   }
@@ -72,7 +77,10 @@ export function hexToBase64(hexString) {
   return btoa(binaryString);
 }
 
-const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+const uuidRegex = new RegExp(`^${uuidPattern}$`);
+const uuid3WrapperRegex = new RegExp(`^UUID3\\("(${uuidPattern})"\\)$`);
+const uuid4WrapperRegex = new RegExp(`^UUID\\("(${uuidPattern})"\\)$`);
 
 export function uuidToBase64(uuid: string): string | null {
   if (!uuid || !uuidRegex.test(uuid)) {
@@ -94,12 +102,12 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   }
 
   if (editorTypes?.parseHexAsBuffer) {
-    const mUuid3 = value.match(/^UUID3\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
+    const mUuid3 = value.match(uuid3WrapperRegex);
     if (mUuid3) {
       const base64Uuid3 = uuidToBase64(mUuid3[1]);
       if (base64Uuid3 != null) return { $binary: { base64: base64Uuid3, subType: '03' } };
     }
-    const mUuid4 = value.match(/^UUID\("([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"\)$/);
+    const mUuid4 = value.match(uuid4WrapperRegex);
     if (mUuid4) {
       const base64Uuid4 = uuidToBase64(mUuid4[1]);
       if (base64Uuid4 != null) return { $binary: { base64: base64Uuid4, subType: '04' } };
@@ -313,7 +321,7 @@ export function stringifyCellValue(
     if (subType === '03' || subType === '04') {
       const uuidStr = base64ToUuid(value.$binary.base64);
       if (uuidStr != null) {
-        if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent') {
+        if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent' || intent === 'stringConversionIntent') {
           return { value: uuidStr, gridStyle: 'valueCellStyle' };
         }
         // For editing intents: tag with subType so parseCellValue can round-trip it
