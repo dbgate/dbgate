@@ -54,7 +54,13 @@ function findArrayResult(resValue) {
 }
 
 function BinData(subType, base64) {
-  const numericSubType = typeof subType === 'string' ? parseInt(subType, 10) : subType;
+  let numericSubType;
+  if (typeof subType === 'string') {
+    const hex = subType.startsWith('0x') || subType.startsWith('0X') ? subType.slice(2) : subType;
+    numericSubType = parseInt(hex, 16);
+  } else {
+    numericSubType = subType;
+  }
   if (!Number.isInteger(numericSubType) || numericSubType < 0 || numericSubType > 255) {
     throw new TypeError(`BinData subType must be an integer between 0 and 255, got: ${subType}`);
   }
