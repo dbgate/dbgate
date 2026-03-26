@@ -8,7 +8,7 @@ import {
   unsubscribeCachePeek,
 } from './cache';
 import stableStringify from 'json-stable-stringify';
-import { derived } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
 import { apiCall, apiOff, apiOn } from './api';
@@ -190,17 +190,22 @@ const authTypesLoader = ({ engine }) => ({
   errorValue: null,
 });
 
+const publicCloudErrorStore = writable(false);
+const cloudContentErrorStore = writable(false);
+
 const publicCloudFilesLoader = () => ({
   url: 'cloud/public-files',
   params: {},
   reloadTrigger: { key: `public-cloud-changed` },
   errorValue: [],
+  onError: err => publicCloudErrorStore.set(!!err),
 });
 const cloudContentListLoader = () => ({
   url: 'cloud/content-list',
   params: {},
   reloadTrigger: { key: `cloud-content-changed` },
   errorValue: [],
+  onError: err => cloudContentErrorStore.set(!!err),
 });
 const teamFilesLoader = () => ({
   url: 'team-files/list',
@@ -226,15 +231,17 @@ const fileThemesLoader = () => ({
 });
 
 async function getCore(loader, args) {
-  const { url, params, reloadTrigger, transform, onLoaded, errorValue } = loader(args);
+  const { url, params, reloadTrigger, transform, onLoaded, onError, errorValue } = loader(args);
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
     const resp = await apiCall(url, params);
     if (resp?.errorMessage && errorValue !== undefined) {
+      if (onError) onError(resp.errorMessage);
       if (onLoaded) onLoaded(errorValue);
       return errorValue;
     }
+    if (onError) onError(null);
     const res = (transform || (x => x))(resp);
     if (onLoaded) onLoaded(res);
     return res;
@@ -557,12 +564,18 @@ export function getPublicCloudFiles(args) {
 export function usePublicCloudFiles(args = {}) {
   return useCore(publicCloudFilesLoader, args);
 }
+export function usePublicCloudError() {
+  return publicCloudErrorStore;
+}
 
 export function getCloudContentList(args) {
   return getCore(cloudContentListLoader, args);
 }
 export function useCloudContentList(args = {}) {
   return useCore(cloudContentListLoader, args);
+}
+export function useCloudContentError() {
+  return cloudContentErrorStore;
 }
 
 export function getTeamFiles(args) {

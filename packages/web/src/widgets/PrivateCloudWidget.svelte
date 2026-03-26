@@ -4,7 +4,12 @@
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as cloudContentAppObject from '../appobj/CloudContentAppObject.svelte';
-  import { useCloudContentList, usePublicCloudFiles, useServerStatus } from '../utility/metadataLoaders';
+  import {
+    useCloudContentList,
+    usePublicCloudFiles,
+    useServerStatus,
+    useCloudContentError,
+  } from '../utility/metadataLoaders';
   import { _t } from '../translations';
 
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -47,6 +52,7 @@
 
   const cloudContentList = useCloudContentList();
   const serverStatus = useServerStatus();
+  const cloudContentError = useCloudContentError();
   const cloudContentColorFactory = useCloudContentColorFactory();
   const connectionColorFactory = useConnectionColorFactory();
 
@@ -259,16 +265,19 @@
         icon="icon plus-thick"
         menu={createAddItemMenu}
         title={_t('privateCloudWidget.addNewConnectionOrFile', { defaultMessage: 'Add new connection or file' })}
+        disabled={$cloudContentError}
       />
       <DropDownButton
         icon="icon add-folder"
         menu={createAddFolderMenu}
         title={_t('privateCloudWidget.addNewFolder', { defaultMessage: 'Add new folder' })}
+        disabled={$cloudContentError}
       />
       <InlineButton
         on:click={handleRefreshContent}
         title={_t('privateCloudWidget.refreshFiles', { defaultMessage: 'Refresh files' })}
         data-testid="CloudItemsWidget_buttonRefreshContent"
+        disabled={$cloudContentError}
       >
         <FontIcon icon="icon refresh" />
       </InlineButton>
@@ -300,7 +309,14 @@
         groupContextMenu={createGroupContextMenu}
       />
 
-      {#if !cloudContentFlat?.length}
+      {#if $cloudContentError}
+        <ErrorInfo
+          message={_t('privateCloudWidget.cloudUnavailable', {
+            defaultMessage: 'DbGate Cloud is temporarily unavailable',
+          })}
+          icon="img warn"
+        />
+      {:else if !cloudContentFlat?.length}
         <ErrorInfo
           message={_t('privateCloudWidget.noContent', { defaultMessage: 'You have no content on DbGate cloud' })}
           icon="img info"

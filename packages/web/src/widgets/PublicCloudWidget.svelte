@@ -4,7 +4,7 @@
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as publicCloudFileAppObject from '../appobj/PublicCloudFileAppObject.svelte';
-  import { usePublicCloudFiles } from '../utility/metadataLoaders';
+  import { usePublicCloudFiles, usePublicCloudError } from '../utility/metadataLoaders';
   import { _t } from '../translations';
 
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -20,6 +20,7 @@
   let filter = '';
 
   const publicFiles = usePublicCloudFiles();
+  const publicCloudError = usePublicCloudError();
 
   function handleRefreshPublic() {
     refreshPublicCloudFiles(true);
@@ -42,6 +43,7 @@
           on:click={handleRefreshPublic}
           title={_t('publicCloudWidget.refreshFiles', { defaultMessage: 'Refresh files' })}
           data-testid="CloudItemsWidget_buttonRefreshPublic"
+          disabled={$publicCloudError}
         >
           <FontIcon icon="icon refresh" />
         </InlineButton>
@@ -54,7 +56,14 @@
         {filter}
       />
 
-      {#if !$publicFiles?.length}
+      {#if $publicCloudError}
+        <ErrorInfo
+          message={_t('publicCloudWidget.cloudUnavailable', {
+            defaultMessage: 'DbGate Cloud is temporarily unavailable',
+          })}
+          icon="img warn"
+        />
+      {:else if !$publicFiles?.length}
         <ErrorInfo
           message={_t('publicCloudWidget.noFilesFound', { defaultMessage: 'No files found for your configuration' })}
         />
