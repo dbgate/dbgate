@@ -664,7 +664,7 @@
   }
 
   export function canFetchAll() {
-    return !!onFetchAllRows && !isLoadedAll && !isFetchingAll;
+    return !!onFetchAllRows && !isLoadedAll && !isFetchingAll && !isLoading;
   }
 
   export function fetchAll() {
