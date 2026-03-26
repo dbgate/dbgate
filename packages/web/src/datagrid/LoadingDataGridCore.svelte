@@ -109,13 +109,16 @@
     const fetchStart = new Date().getTime();
     loadedTimeRef.set(fetchStart);
 
+    // Accumulate into a local buffer to avoid O(n²) full-array copies each iteration.
+    const buffer = [...loadedRows];
+
     try {
       while (!isLoadedAll) {
-        const nextRows = await loadDataPage($$props, loadedRows.length, pageSize);
+        const nextRows = await loadDataPage($$props, buffer.length, pageSize);
 
         if (loadedTimeRef.get() !== fetchStart) {
-          // a reload was triggered, abort
-          break;
+          // a reload was triggered; abort without overwriting loadedRows with stale data
+          return;
         }
 
         if (nextRows.errorMessage) {
@@ -128,10 +131,13 @@
           break;
         }
 
-        loadedRows = [...loadedRows, ...(preprocessLoadedRow ? nextRows.map(preprocessLoadedRow) : nextRows)];
-        fetchAllLoadedCount = loadedRows.length;
+        const processed = preprocessLoadedRow ? nextRows.map(preprocessLoadedRow) : nextRows;
+        buffer.push(...processed);
+        fetchAllLoadedCount = buffer.length;
       }
 
+      // Single assignment triggers Svelte reactivity once for all accumulated rows.
+      loadedRows = buffer;
       if (allRowCount == null && !isRawMode) handleLoadRowCount();
     } finally {
       isFetchingAll = false;
