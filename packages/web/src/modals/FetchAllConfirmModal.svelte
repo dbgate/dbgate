@@ -34,7 +34,7 @@
 
     <div class="mt-2">
       <TemplatedCheckboxField
-        label={_t('common.dontAskAgain', { defaultMessage: "Don't show this warning again" })}
+        label={_t('common.dontAskAgain', { defaultMessage: "Don't ask again" })}
         templateProps={{ noMargin: true }}
         checked={dontAskAgain}
         on:change={e => {
