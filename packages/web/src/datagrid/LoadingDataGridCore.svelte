@@ -167,6 +167,7 @@
     loadedTime = new Date().getTime();
     errorMessage = null;
     loadNextDataRef.set(false);
+    loadedTimeRef.set(null);
     // loadNextDataToken = 0;
   }
 
