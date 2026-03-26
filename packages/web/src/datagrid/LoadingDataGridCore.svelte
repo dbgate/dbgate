@@ -29,6 +29,9 @@
   let errorMessage = null;
   let domGrid;
 
+  let isFetchingAll = false;
+  let fetchAllLoadedCount = 0;
+
   const loadNextDataRef = createRef(false);
   const loadedTimeRef = createRef(null);
 
@@ -96,6 +99,45 @@
     // console.log('LOADED', nextRows, loadedRows);
   }
 
+  async function fetchAllRows() {
+    if (isFetchingAll || isLoadedAll) return;
+    isFetchingAll = true;
+    fetchAllLoadedCount = loadedRows.length;
+    errorMessage = null;
+
+    const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000);
+    const fetchStart = new Date().getTime();
+    loadedTimeRef.set(fetchStart);
+
+    try {
+      while (!isLoadedAll) {
+        const nextRows = await loadDataPage($$props, loadedRows.length, pageSize);
+
+        if (loadedTimeRef.get() !== fetchStart) {
+          // a reload was triggered, abort
+          break;
+        }
+
+        if (nextRows.errorMessage) {
+          errorMessage = nextRows.errorMessage;
+          break;
+        }
+
+        if (nextRows.length === 0) {
+          isLoadedAll = true;
+          break;
+        }
+
+        loadedRows = [...loadedRows, ...(preprocessLoadedRow ? nextRows.map(preprocessLoadedRow) : nextRows)];
+        fetchAllLoadedCount = loadedRows.length;
+      }
+
+      if (allRowCount == null && !isRawMode) handleLoadRowCount();
+    } finally {
+      isFetchingAll = false;
+    }
+  }
+
   // $: griderProps = { ...$$props, sourceRows: loadProps.loadedRows };
   // $: grider = griderFactory(griderProps);
 
@@ -112,6 +154,8 @@
     allRowCount = null;
     allRowCountError = null;
     isLoading = false;
+    isFetchingAll = false;
+    fetchAllLoadedCount = 0;
     loadedRows = [];
     isLoadedAll = false;
     loadedTime = new Date().getTime();
@@ -137,10 +181,13 @@
   {...$$props}
   bind:this={domGrid}
   onLoadNextData={handleLoadNextData}
+  onFetchAllRows={fetchAllRows}
   {errorMessage}
   {isLoading}
+  {isFetchingAll}
+  {fetchAllLoadedCount}
   allRowCount={rowCountLoaded || allRowCount}
-  allRowCountError={allRowCountError}
+  {allRowCountError}
   onReloadRowCount={handleLoadRowCount}
   {isLoadedAll}
   {loadedTime}

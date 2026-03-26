@@ -110,7 +110,8 @@
   import { scriptToSql } from 'dbgate-sqltree';
   import { extensions, lastUsedDefaultActions } from '../stores';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import createActivator from '../utility/createActivator';  import { registerMenu } from '../utility/contextMenu';
+  import createActivator from '../utility/createActivator';
+  import { registerMenu } from '../utility/contextMenu';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import openNewTab from '../utility/openNewTab';
   import { onDestroy, setContext } from 'svelte';
@@ -419,6 +420,7 @@
     <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled data-testid="TableDataTab_switchToForm" />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled data-testid="TableDataTab_switchToTable" />
     <ToolStripExportButton {quickExportHandlerRef} />
+    <ToolStripCommandButton command="dataGrid.fetchAll" hideDisabled data-testid="TableDataTab_fetchAll" />
 
     <ToolStripButton
       icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
