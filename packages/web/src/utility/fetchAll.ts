@@ -55,6 +55,8 @@ function fetchAllWeb(
 ): FetchAllHandle {
   let cancelled = false;
   let streamStarted = false;
+  let abortController: AbortController | null = null;
+  let streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
   const handleStats = (stats: { rowCount: number; changeIndex: number; isFinished: boolean }) => {
     if (cancelled || streamStarted) return;
@@ -73,10 +75,12 @@ function fetchAllWeb(
   apiOn(`jsldata-stats-${jslid}`, handleStats);
 
   async function startStream() {
+    abortController = new AbortController();
     try {
       const resp = await fetch(`${resolveApi()}/jsldata/stream-rows?jslid=${encodeURIComponent(jslid)}`, {
         method: 'GET',
         cache: 'no-cache',
+        signal: abortController.signal,
         headers: {
           ...resolveApiHeaders(),
         },
@@ -89,14 +93,14 @@ function fetchAllWeb(
         return;
       }
 
-      const reader = resp.body.getReader();
+      streamReader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let isFirstLine = true;
       let batch: any[] = [];
 
       while (!cancelled) {
-        const { done, value } = await reader.read();
+        const { done, value } = await streamReader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
@@ -154,6 +158,8 @@ function fetchAllWeb(
         callbacks.onError(err?.message ?? String(err));
       }
     } finally {
+      streamReader = null;
+      abortController = null;
       cleanup();
     }
   }
@@ -169,6 +175,15 @@ function fetchAllWeb(
 
   let cancelFn = () => {
     cancelled = true;
+    // Cancel the in-flight stream reader and abort the fetch
+    if (streamReader) {
+      streamReader.cancel().catch(() => {});
+      streamReader = null;
+    }
+    if (abortController) {
+      abortController.abort();
+      abortController = null;
+    }
     cleanup();
   };
 
@@ -181,10 +196,12 @@ function fetchAllWeb(
       if (stats && stats.isFinished && stats.rowCount > 0) {
         streamStarted = true;
         startStream();
-      } else if (stats && !stats.isFinished && stats.rowCount > 0) {
-        // Source still writing — SSE events will trigger stream when done
+      } else if (stats && stats.isFinished && stats.rowCount === 0) {
+        // Source finished with zero rows — no SSE event will follow, finish immediately
+        cleanup();
+        callbacks.onFinished();
       }
-      // If no stats yet, wait for SSE events
+      // Source still writing or no stats yet — SSE events will trigger stream when done
     } catch {
       // Stats not available yet — SSE events will arrive
     }
@@ -296,6 +313,10 @@ function fetchAllPaginated(
         isSourceFinished = stats.isFinished;
         if (stats.rowCount > 0) {
           scheduleDrain();
+        } else if (stats.isFinished && !cancelled) {
+          // rowCount === 0: source finished empty — no SSE event will follow
+          callbacks.onFinished();
+          cleanup();
         }
       }
     } catch {

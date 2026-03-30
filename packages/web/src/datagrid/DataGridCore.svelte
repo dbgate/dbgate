@@ -488,6 +488,7 @@
   export let pureName = undefined;
   export let schemaName = undefined;
   export let isFetchingAll = false;
+  export let isFetchingFromDb = false;
   export let fetchAllLoadedCount = 0;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
@@ -2447,10 +2448,12 @@
     {#if isFetchingAll}
       <LoadingInfo
         wrapper
-        message={_t('datagrid.fetchAll.progress', {
-          defaultMessage: 'Fetching all rows... {count} loaded',
-          values: { count: fetchAllLoadedCount.toLocaleString() },
-        })}
+        message={isFetchingFromDb
+          ? _t('datagrid.fetchAll.progressDb', { defaultMessage: 'Fetching data from database...' })
+          : _t('datagrid.fetchAll.progress', {
+              defaultMessage: 'Fetching all rows... {count} loaded',
+              values: { count: fetchAllLoadedCount.toLocaleString() },
+            })}
       />
     {/if}
 

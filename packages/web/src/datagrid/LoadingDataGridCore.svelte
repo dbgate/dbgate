@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getIntSettingsValue } from '../settings/settingsTools';
+  import { onDestroy } from 'svelte';
 
   import createRef from '../utility/createRef';
   import { useSettings } from '../utility/metadataLoaders';
@@ -33,8 +34,10 @@
   let domGrid;
 
   let isFetchingAll = false;
+  let isFetchingFromDb = false;
   let fetchAllLoadedCount = 0;
   let fetchAllHandle: FetchAllHandle | null = null;
+  let readerJslid: string | null = null;
 
   const loadNextDataRef = createRef(false);
   const loadedTimeRef = createRef(null);
@@ -118,8 +121,16 @@
     }
   }
 
+  function stopReader() {
+    if (readerJslid) {
+      apiCall('sessions/stop-loading-reader', { jslid: readerJslid });
+      readerJslid = null;
+    }
+  }
+
   async function fetchAllViaReader() {
     isFetchingAll = true;
+    isFetchingFromDb = true;
     fetchAllLoadedCount = loadedRows.length;
     errorMessage = null;
 
@@ -129,15 +140,18 @@
     } catch (err) {
       errorMessage = err?.message ?? 'Failed to start data reader';
       isFetchingAll = false;
+      isFetchingFromDb = false;
       return;
     }
 
     if (!jslid) {
       errorMessage = 'Failed to start data reader';
       isFetchingAll = false;
+      isFetchingFromDb = false;
       return;
     }
 
+    readerJslid = jslid;
     fetchAllViaJslid(jslid);
   }
 
@@ -160,6 +174,7 @@
       jslLoadDataPage,
       {
         onPage(rows) {
+          if (rows.length > 0) isFetchingFromDb = false;
           const processed = preprocessLoadedRow ? rows.map(preprocessLoadedRow) : rows;
           buffer.push(...processed);
           fetchAllLoadedCount = buffer.length;
@@ -168,14 +183,18 @@
           loadedRows = buffer;
           isLoadedAll = true;
           isFetchingAll = false;
+          isFetchingFromDb = false;
           fetchAllHandle = null;
+          readerJslid = null;
           if (allRowCount == null && !isRawMode) handleLoadRowCount();
         },
         onError(msg) {
           loadedRows = buffer;
           errorMessage = msg;
           isFetchingAll = false;
+          isFetchingFromDb = false;
           fetchAllHandle = null;
+          readerJslid = null;
         },
       },
       pageSize
@@ -243,6 +262,8 @@
       fetchAllHandle.cancel();
       fetchAllHandle = null;
     }
+    stopReader();
+    isFetchingFromDb = false;
     allRowCount = null;
     allRowCountError = null;
     isLoading = false;
@@ -267,6 +288,13 @@
     }
   }
 
+  onDestroy(() => {
+    if (fetchAllHandle) {
+      fetchAllHandle.cancel();
+    }
+    stopReader();
+  });
+
   $: if (setLoadedRows) setLoadedRows(loadedRows);
 </script>
 
@@ -278,6 +306,7 @@
   {errorMessage}
   {isLoading}
   {isFetchingAll}
+  {isFetchingFromDb}
   {fetchAllLoadedCount}
   allRowCount={rowCountLoaded || allRowCount}
   {allRowCountError}

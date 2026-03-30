@@ -1,5 +1,8 @@
-const { filterName } = require('dbgate-tools');
+const { filterName, getLogger, extractErrorLogData } = require('dbgate-tools');
+const logger = getLogger('jsldata');
+const { jsldir, archivedir } = require('../utility/directories');
 const fs = require('fs');
+const path = require('path');
 const lineReader = require('line-reader');
 const _ = require('lodash');
 const { __ } = require('lodash/fp');
@@ -173,7 +176,25 @@ module.exports = {
       res.status(400).json({ apiErrorMessage: 'Missing jslid' });
       return;
     }
+
+    // Reject file:// jslids — they resolve to arbitrary server-side paths
+    if (jslid.startsWith('file://')) {
+      res.status(403).json({ apiErrorMessage: 'Forbidden jslid scheme' });
+      return;
+    }
+
     const fileName = getJslFileName(jslid);
+
+    // Ensure the resolved path stays within an allowed root directory
+    const allowedRoots = [jsldir(), archivedir()].map(r => path.resolve(r) + path.sep);
+    const resolvedFile = path.resolve(fileName);
+    const isAllowed = allowedRoots.some(root => resolvedFile.startsWith(root));
+    if (!isAllowed) {
+      logger.warn({ jslid, resolvedFile }, 'DBGM-00000 streamRows rejected path outside allowed roots');
+      res.status(403).json({ apiErrorMessage: 'Forbidden path' });
+      return;
+    }
+
     if (!fs.existsSync(fileName)) {
       res.status(404).json({ apiErrorMessage: 'File not found' });
       return;
@@ -181,14 +202,21 @@ module.exports = {
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Cache-Control', 'no-cache');
     const stream = fs.createReadStream(fileName, 'utf-8');
-    stream.pipe(res);
-    stream.on('error', () => {
+
+    req.on('close', () => {
+      stream.destroy();
+    });
+
+    stream.on('error', err => {
+      logger.error(extractErrorLogData(err), 'DBGM-00000 Error streaming JSONL file');
       if (!res.headersSent) {
         res.status(500).json({ apiErrorMessage: 'Stream error' });
       } else {
         res.end();
       }
     });
+
+    stream.pipe(res);
   },
 
   getStats_meta: true,
