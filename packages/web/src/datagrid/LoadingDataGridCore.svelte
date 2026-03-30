@@ -3,12 +3,15 @@
 
   import createRef from '../utility/createRef';
   import { useSettings } from '../utility/metadataLoaders';
+  import { fetchAll, type FetchAllHandle } from '../utility/fetchAll';
+  import { apiCall } from '../utility/api';
 
   import DataGridCore from './DataGridCore.svelte';
 
   export let loadDataPage;
   export let dataPageAvailable;
   export let loadRowCount;
+  export let startFetchAll = null;
   export let grider;
   export let display;
   export let masterLoadedTime = undefined;
@@ -31,6 +34,7 @@
 
   let isFetchingAll = false;
   let fetchAllLoadedCount = 0;
+  let fetchAllHandle: FetchAllHandle | null = null;
 
   const loadNextDataRef = createRef(false);
   const loadedTimeRef = createRef(null);
@@ -101,6 +105,84 @@
 
   async function fetchAllRows() {
     if (isFetchingAll || isLoadedAll) return;
+
+    const jslid = ($$props as any).jslid;
+    if (jslid) {
+      // Already have a JSONL file (e.g. query tab) — read directly
+      fetchAllViaJslid(jslid);
+    } else if (startFetchAll) {
+      // SQL/table grid: execute full query → stream to JSONL → read from it
+      fetchAllViaReader();
+    } else {
+      fetchAllRowsLegacy();
+    }
+  }
+
+  async function fetchAllViaReader() {
+    isFetchingAll = true;
+    fetchAllLoadedCount = loadedRows.length;
+    errorMessage = null;
+
+    let jslid;
+    try {
+      jslid = await startFetchAll($$props);
+    } catch (err) {
+      errorMessage = err?.message ?? 'Failed to start data reader';
+      isFetchingAll = false;
+      return;
+    }
+
+    if (!jslid) {
+      errorMessage = 'Failed to start data reader';
+      isFetchingAll = false;
+      return;
+    }
+
+    fetchAllViaJslid(jslid);
+  }
+
+  function fetchAllViaJslid(jslid: string) {
+    if (!isFetchingAll) {
+      isFetchingAll = true;
+      fetchAllLoadedCount = loadedRows.length;
+      errorMessage = null;
+    }
+
+    const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000);
+    const buffer = [...loadedRows];
+
+    const jslLoadDataPage = async (offset: number, limit: number) => {
+      return apiCall('jsldata/get-rows', { jslid, offset, limit });
+    };
+
+    fetchAllHandle = fetchAll(
+      jslid,
+      jslLoadDataPage,
+      {
+        onPage(rows) {
+          const processed = preprocessLoadedRow ? rows.map(preprocessLoadedRow) : rows;
+          buffer.push(...processed);
+          fetchAllLoadedCount = buffer.length;
+        },
+        onFinished() {
+          loadedRows = buffer;
+          isLoadedAll = true;
+          isFetchingAll = false;
+          fetchAllHandle = null;
+          if (allRowCount == null && !isRawMode) handleLoadRowCount();
+        },
+        onError(msg) {
+          loadedRows = buffer;
+          errorMessage = msg;
+          isFetchingAll = false;
+          fetchAllHandle = null;
+        },
+      },
+      pageSize
+    );
+  }
+
+  async function fetchAllRowsLegacy() {
     isFetchingAll = true;
     fetchAllLoadedCount = loadedRows.length;
     errorMessage = null;
@@ -157,6 +239,10 @@
   }
 
   function reload() {
+    if (fetchAllHandle) {
+      fetchAllHandle.cancel();
+      fetchAllHandle = null;
+    }
     allRowCount = null;
     allRowCountError = null;
     isLoading = false;

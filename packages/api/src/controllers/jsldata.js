@@ -149,6 +149,10 @@ module.exports = {
 
   getRows_meta: true,
   async getRows({ jslid, offset, limit, filters, sort, formatterFunction }) {
+    const fileName = getJslFileName(jslid);
+    if (!fs.existsSync(fileName)) {
+      return [];
+    }
     const datastore = await this.ensureDatastore(jslid, formatterFunction);
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
   },
@@ -157,6 +161,34 @@ module.exports = {
   async exists({ jslid }) {
     const fileName = getJslFileName(jslid);
     return fs.existsSync(fileName);
+  },
+
+  streamRows_meta: {
+    method: 'get',
+    raw: true,
+  },
+  streamRows(req, res) {
+    const { jslid } = req.query;
+    if (!jslid) {
+      res.status(400).json({ apiErrorMessage: 'Missing jslid' });
+      return;
+    }
+    const fileName = getJslFileName(jslid);
+    if (!fs.existsSync(fileName)) {
+      res.status(404).json({ apiErrorMessage: 'File not found' });
+      return;
+    }
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Cache-Control', 'no-cache');
+    const stream = fs.createReadStream(fileName, 'utf-8');
+    stream.pipe(res);
+    stream.on('error', () => {
+      if (!res.headersSent) {
+        res.status(500).json({ apiErrorMessage: 'Stream error' });
+      } else {
+        res.end();
+      }
+    });
   },
 
   getStats_meta: true,
