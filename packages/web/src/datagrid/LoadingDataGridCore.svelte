@@ -194,7 +194,7 @@
           isFetchingAll = false;
           isFetchingFromDb = false;
           fetchAllHandle = null;
-          readerJslid = null;
+          stopReader();
         },
       },
       pageSize

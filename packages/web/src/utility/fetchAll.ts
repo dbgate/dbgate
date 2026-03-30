@@ -58,6 +58,21 @@ function fetchAllWeb(
   let abortController: AbortController | null = null;
   let streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
+  // Initialize cancelFn before registering the SSE handler to avoid TDZ errors
+  // if an immediate stats event triggers fallbackToPaginated() before initialization.
+  let cancelFn = () => {
+    cancelled = true;
+    if (streamReader) {
+      streamReader.cancel().catch(() => {});
+      streamReader = null;
+    }
+    if (abortController) {
+      abortController.abort();
+      abortController = null;
+    }
+    cleanup();
+  };
+
   const handleStats = (stats: { rowCount: number; changeIndex: number; isFinished: boolean }) => {
     if (cancelled || streamStarted) return;
 
@@ -108,6 +123,7 @@ function fetchAllWeb(
         buffer = lines.pop() || '';
 
         for (const line of lines) {
+          if (cancelled) break;
           if (!line.trim()) continue;
           if (isFirstLine) {
             isFirstLine = false;
@@ -128,6 +144,7 @@ function fetchAllWeb(
             // skip malformed lines
           }
           if (batch.length >= STREAM_BATCH_SIZE) {
+            if (cancelled) break;
             callbacks.onPage(batch);
             batch = [];
           }
@@ -172,20 +189,6 @@ function fetchAllWeb(
   function cleanup() {
     apiOff(`jsldata-stats-${jslid}`, handleStats);
   }
-
-  let cancelFn = () => {
-    cancelled = true;
-    // Cancel the in-flight stream reader and abort the fetch
-    if (streamReader) {
-      streamReader.cancel().catch(() => {});
-      streamReader = null;
-    }
-    if (abortController) {
-      abortController.abort();
-      abortController = null;
-    }
-    cleanup();
-  };
 
   // Check if data is already finished
   checkInitialState();
