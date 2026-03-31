@@ -130,12 +130,13 @@ function fetchAllWeb(
 
         for (const line of lines) {
           if (cancelled) break;
-          if (!line.trim()) continue;
+          const trimmed = line.trim();
+          if (!trimmed) continue;
           if (isFirstLine) {
             isFirstLine = false;
             // Check if first line is a header
             try {
-              const parsed = JSON.parse(line);
+              const parsed = JSON.parse(trimmed);
               if (parsed.__isStreamHeader) continue;
               // Not a header — it's a data row
               batch.push(parsed);
@@ -145,7 +146,7 @@ function fetchAllWeb(
             continue;
           }
           try {
-            batch.push(JSON.parse(line));
+            batch.push(JSON.parse(trimmed));
           } catch {
             // skip malformed lines
           }
@@ -162,9 +163,10 @@ function fetchAllWeb(
       if (flushed) buffer += flushed;
 
       // Process remaining buffer
-      if (buffer.trim() && !cancelled) {
+      const remainingBuffer = buffer.trim();
+      if (remainingBuffer && !cancelled) {
         try {
-          const parsed = JSON.parse(buffer);
+          const parsed = JSON.parse(remainingBuffer);
           if (!parsed.__isStreamHeader) {
             batch.push(parsed);
           }

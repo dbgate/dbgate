@@ -175,7 +175,7 @@
     }
 
     const pageSize = getIntSettingsValue('dataGrid.pageSize', 100, 5, 50000);
-    const buffer = [...loadedRows];
+    const buffer: any[] = [];
 
     const jslLoadDataPage = async (offset: number, limit: number) => {
       return apiCall('jsldata/get-rows', { jslid, offset, limit });
