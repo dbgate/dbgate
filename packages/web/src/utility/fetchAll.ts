@@ -34,7 +34,6 @@ export function fetchAll(
   callbacks: FetchAllCallbacks,
   pageSize: number = 100
 ): FetchAllHandle {
-  let cancelled = false;
   const isElectron = !!getElectron();
 
   if (isElectron) {
@@ -101,10 +100,17 @@ function fetchAllWeb(
         },
       });
 
-      if (!resp.ok || !resp.body) {
-        // Fallback to paginated reads
+      if (!resp.body || resp.status === 404 || resp.status === 405) {
+        // Streaming endpoint not available in this environment — fall back to paginated reads
         cleanup();
         fallbackToPaginated();
+        return;
+      }
+
+      if (!resp.ok) {
+        // Non-recoverable server error (e.g. 403 security rejection, 5xx) — surface it
+        callbacks.onError(`HTTP ${resp.status}: ${resp.statusText}`);
+        cleanup();
         return;
       }
 
@@ -150,6 +156,10 @@ function fetchAllWeb(
           }
         }
       }
+
+      // Flush the decoder — any bytes held for multi-byte char completion are released
+      const flushed = decoder.decode();
+      if (flushed) buffer += flushed;
 
       // Process remaining buffer
       if (buffer.trim() && !cancelled) {
@@ -228,18 +238,25 @@ function fetchAllPaginated(
   pageSize: number
 ): FetchAllHandle {
   let cancelled = false;
+  let finished = false;
   let offset = 0;
   let isRunning = false;
   let isSourceFinished = false;
   let drainRequested = false;
+
+  function finish() {
+    if (finished) return;
+    finished = true;
+    callbacks.onFinished();
+    cleanup();
+  }
 
   const handleStats = (stats: { rowCount: number; changeIndex: number; isFinished: boolean }) => {
     isSourceFinished = stats.isFinished;
     if (stats.rowCount > offset) {
       scheduleDrain();
     } else if (stats.isFinished && stats.rowCount === offset) {
-      callbacks.onFinished();
-      cleanup();
+      finish();
     }
   };
 
@@ -276,8 +293,7 @@ function fetchAllPaginated(
 
         if (rows.length < pageSize) {
           if (isSourceFinished) {
-            callbacks.onFinished();
-            cleanup();
+            finish();
             return;
           }
           break;
@@ -318,8 +334,7 @@ function fetchAllPaginated(
           scheduleDrain();
         } else if (stats.isFinished && !cancelled) {
           // rowCount === 0: source finished empty — no SSE event will follow
-          callbacks.onFinished();
-          cleanup();
+          finish();
         }
       }
     } catch {

@@ -134,13 +134,25 @@
     fetchAllLoadedCount = loadedRows.length;
     errorMessage = null;
 
+    // Token guards against a reload/destroy that happens while we await startFetchAll.
+    // loadedTimeRef is already updated by reload(), so we reuse it as our token.
+    const token = loadedTime;
+
     let jslid;
     try {
       jslid = await startFetchAll($$props);
     } catch (err) {
+      if (loadedTime !== token) return; // reload() already reset state
       errorMessage = err?.message ?? 'Failed to start data reader';
       isFetchingAll = false;
       isFetchingFromDb = false;
+      return;
+    }
+
+    // If reload()/onDestroy ran while we were awaiting, discard the result and
+    // immediately stop the reader that was just started on the server.
+    if (loadedTime !== token) {
+      if (jslid) apiCall('sessions/stop-loading-reader', { jslid });
       return;
     }
 
