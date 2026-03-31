@@ -185,18 +185,31 @@ module.exports = {
 
     const fileName = getJslFileName(jslid);
 
-    // Ensure the resolved path stays within an allowed root directory
-    const allowedRoots = [jsldir(), archivedir()].map(r => path.resolve(r) + path.sep);
-    const resolvedFile = path.resolve(fileName);
-    const isAllowed = allowedRoots.some(root => resolvedFile.startsWith(root));
-    if (!isAllowed) {
-      logger.warn({ jslid, resolvedFile }, 'DBGM-00000 streamRows rejected path outside allowed roots');
+    if (!fs.existsSync(fileName)) {
+      res.status(404).json({ apiErrorMessage: 'File not found' });
+      return;
+    }
+
+    // Dereference symlinks and normalize case (Windows) before the allow-list check.
+    // realpathSync is safe here because existsSync confirmed the file is present.
+    // path.resolve() alone cannot dereference symlinks, so a symlink inside an allowed
+    // root could otherwise point to an arbitrary external path.
+    const normalize = p => (process.platform === 'win32' ? p.toLowerCase() : p);
+    const resolveRoot = r => { try { return fs.realpathSync(r); } catch { return path.resolve(r); } };
+
+    let realFile;
+    try {
+      realFile = fs.realpathSync(fileName);
+    } catch {
       res.status(403).json({ apiErrorMessage: 'Forbidden path' });
       return;
     }
 
-    if (!fs.existsSync(fileName)) {
-      res.status(404).json({ apiErrorMessage: 'File not found' });
+    const allowedRoots = [jsldir(), archivedir()].map(r => normalize(resolveRoot(r)) + path.sep);
+    const isAllowed = allowedRoots.some(root => normalize(realFile).startsWith(root));
+    if (!isAllowed) {
+      logger.warn({ jslid, realFile }, 'DBGM-00000 streamRows rejected path outside allowed roots');
+      res.status(403).json({ apiErrorMessage: 'Forbidden path' });
       return;
     }
     res.setHeader('Content-Type', 'application/x-ndjson');
