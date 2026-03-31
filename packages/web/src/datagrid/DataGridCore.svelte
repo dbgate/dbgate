@@ -2009,6 +2009,7 @@
 
   registerMenu(
     { command: 'dataGrid.refresh' },
+    { command: 'dataGrid.fetchAll', hideDisabled: true },
     { placeTag: 'copy' },
     {
       text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced' }),
