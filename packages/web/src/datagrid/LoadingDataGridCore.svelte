@@ -201,7 +201,6 @@
           if (allRowCount == null && !isRawMode) handleLoadRowCount();
         },
         onError(msg) {
-          loadedRows = buffer;
           errorMessage = msg;
           isFetchingAll = false;
           isFetchingFromDb = false;

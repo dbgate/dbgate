@@ -214,7 +214,7 @@ module.exports = {
     }
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Cache-Control', 'no-cache');
-    const stream = fs.createReadStream(fileName, 'utf-8');
+    const stream = fs.createReadStream(realFile, 'utf-8');
 
     req.on('close', () => {
       stream.destroy();
