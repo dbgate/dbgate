@@ -24,7 +24,7 @@
 {#if isNative}
   <select
     value={options.find(x => x.value == value) ? value : defaultValue}
-    class="{selectClass}"
+    class={selectClass}
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);
@@ -47,7 +47,7 @@
       {...$$restProps}
       items={options ?? []}
       value={isMulti
-        ? _.compact((value && Array.isArray(value)) ? value.map(item => options?.find(x => x.value == item)) : [])
+        ? _.compact(value && Array.isArray(value) ? value.map(item => options?.find(x => x.value == item)) : [])
         : (options?.find(x => x.value == value) ?? null)}
       on:select={e => {
         if (isMulti) {
@@ -69,7 +69,6 @@
   </div>
 {/if}
 
-
 <style>
   .select {
     --border: var(--theme-input-border);
@@ -78,10 +77,10 @@
     --background: var(--theme-input-background);
     --borderHoverColor: var(--theme-input-border-hover-color);
     --borderFocusColor: var(--theme-input-border-focus-color);
-    --listBackground: var(--theme-input-list-background);
+    --listBackground: var(--theme-input-background);
     --itemActiveBackground: var(--theme-input-item-active-background);
     --itemIsActiveBG: var(--theme-input-item-active-background);
-    --itemHoverBG: var(--theme-input-item-hover-background);
+    --itemHoverBG: var(--theme-input-multi-clear-hover);
     --itemColor: var(--theme-input-item-foreground);
     --listEmptyColor: var(--theme-input-background);
     --height: 40px;
@@ -95,9 +94,8 @@
     --multiClearHoverFill: var(--theme-input-multi-clear-foreground);
     --multiItemActiveBG: var(--theme-input-multi-item-background);
     --multiItemActiveColor: var(--theme-input-multi-item-foreground);
-    --multiItemBG: var(--theme-input-multi-item-background);
+    --multiItemBG: var(--theme-input-multi-clear-background);
     --multiItemDisabledHoverBg: var(--theme-input-multi-item-background);
     --multiItemDisabledHoverColor: var(--theme-input-multi-item-foreground);
   }
-
 </style>
