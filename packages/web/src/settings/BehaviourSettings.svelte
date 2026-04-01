@@ -55,6 +55,12 @@
         defaultMessage: 'Skip confirmation when saving collection data (NoSQL)',
       })}
     />
+    <FormCheckboxField
+      name="dataGrid.skipFetchAllConfirm"
+      label={_t('settings.confirmations.skipFetchAllConfirm', {
+        defaultMessage: 'Skip confirmation when fetching all rows',
+      })}
+    />
   </FormValues>
 </div>
 

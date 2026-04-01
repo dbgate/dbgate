@@ -2,13 +2,13 @@
   import { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import hasPermission from '../utility/hasPermission';
-  import { __t, _t } from '../translations'
+  import { __t, _t } from '../translations';
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
     id: 'sqlDataGrid.openQuery',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('command.openQuery', { defaultMessage : 'Open query' }),
+    name: __t('command.openQuery', { defaultMessage: 'Open query' }),
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/query'),
     onClick: () => getCurrentEditor().openQuery(),
   });
@@ -16,7 +16,7 @@
   registerCommand({
     id: 'sqlDataGrid.export',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
-    name: __t('common.export', { defaultMessage : 'Export' }),
+    name: __t('common.export', { defaultMessage: 'Export' }),
     icon: 'icon export',
     keyText: 'CtrlOrCommand+E',
     testEnabled: () => getCurrentEditor() != null && hasPermission('dbops/export'),
@@ -232,6 +232,20 @@
       return { errorMessage: err.message || 'Error loading row count' };
     }
   }
+
+  async function startFetchAll(props) {
+    const { display, conid, database } = props;
+    const sql = display.getExportQuery();
+    if (!sql) return null;
+
+    const resp = await apiCall('sessions/execute-reader', {
+      conid,
+      database,
+      sql,
+    });
+    if (!resp || resp.errorMessage) return null;
+    return resp.jslid;
+  }
 </script>
 
 <LoadingDataGridCore
@@ -239,6 +253,7 @@
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
+  {startFetchAll}
   setLoadedRows={handleSetLoadedRows}
   onPublishedCellsChanged={value => {
     publishedCells = value;

@@ -1,5 +1,8 @@
-const { filterName } = require('dbgate-tools');
+const { filterName, getLogger, extractErrorLogData } = require('dbgate-tools');
+const logger = getLogger('jsldata');
+const { jsldir, archivedir } = require('../utility/directories');
 const fs = require('fs');
+const path = require('path');
 const lineReader = require('line-reader');
 const _ = require('lodash');
 const { __ } = require('lodash/fp');
@@ -149,6 +152,10 @@ module.exports = {
 
   getRows_meta: true,
   async getRows({ jslid, offset, limit, filters, sort, formatterFunction }) {
+    const fileName = getJslFileName(jslid);
+    if (!fs.existsSync(fileName)) {
+      return [];
+    }
     const datastore = await this.ensureDatastore(jslid, formatterFunction);
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
   },
@@ -157,6 +164,72 @@ module.exports = {
   async exists({ jslid }) {
     const fileName = getJslFileName(jslid);
     return fs.existsSync(fileName);
+  },
+
+  streamRows_meta: {
+    method: 'get',
+    raw: true,
+  },
+  streamRows(req, res) {
+    const { jslid } = req.query;
+    if (!jslid) {
+      res.status(400).json({ apiErrorMessage: 'Missing jslid' });
+      return;
+    }
+
+    // Reject file:// jslids — they resolve to arbitrary server-side paths
+    if (jslid.startsWith('file://')) {
+      res.status(403).json({ apiErrorMessage: 'Forbidden jslid scheme' });
+      return;
+    }
+
+    const fileName = getJslFileName(jslid);
+
+    if (!fs.existsSync(fileName)) {
+      res.status(404).json({ apiErrorMessage: 'File not found' });
+      return;
+    }
+
+    // Dereference symlinks and normalize case (Windows) before the allow-list check.
+    // realpathSync is safe here because existsSync confirmed the file is present.
+    // path.resolve() alone cannot dereference symlinks, so a symlink inside an allowed
+    // root could otherwise point to an arbitrary external path.
+    const normalize = p => (process.platform === 'win32' ? p.toLowerCase() : p);
+    const resolveRoot = r => { try { return fs.realpathSync(r); } catch { return path.resolve(r); } };
+
+    let realFile;
+    try {
+      realFile = fs.realpathSync(fileName);
+    } catch {
+      res.status(403).json({ apiErrorMessage: 'Forbidden path' });
+      return;
+    }
+
+    const allowedRoots = [jsldir(), archivedir()].map(r => normalize(resolveRoot(r)) + path.sep);
+    const isAllowed = allowedRoots.some(root => normalize(realFile).startsWith(root));
+    if (!isAllowed) {
+      logger.warn({ jslid, realFile }, 'DBGM-00000 streamRows rejected path outside allowed roots');
+      res.status(403).json({ apiErrorMessage: 'Forbidden path' });
+      return;
+    }
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Cache-Control', 'no-cache');
+    const stream = fs.createReadStream(realFile, 'utf-8');
+
+    req.on('close', () => {
+      stream.destroy();
+    });
+
+    stream.on('error', err => {
+      logger.error(extractErrorLogData(err), 'DBGM-00000 Error streaming JSONL file');
+      if (!res.headersSent) {
+        res.status(500).json({ apiErrorMessage: 'Stream error' });
+      } else {
+        res.end();
+      }
+    });
+
+    stream.pipe(res);
   },
 
   getStats_meta: true,
