@@ -738,6 +738,27 @@ const firebirdEngine = {
   skipDropReferences: true,
 };
 
+/** @type {import('dbgate-types').TestEngineInfo} */
+const mongoDbEngine = {
+  label: 'MongoDB',
+  connection: {
+    engine: 'mongo@dbgate-plugin-mongo',
+    server: 'localhost',
+    port: 27017,
+  },
+};
+
+/** @type {import('dbgate-types').TestEngineInfo} */
+const dynamoDbEngine = {
+  label: 'DynamoDB',
+  connection: {
+    engine: 'dynamodb@dbgate-plugin-dynamodb',
+    server: 'localhost',
+    port: 8000,
+    authType: 'onpremise',
+  },
+};
+
 const enginesOnCi = [
   // all engines, which would be run on GitHub actions
   mysqlEngine,
@@ -788,3 +809,5 @@ module.exports.libsqlFileEngine = libsqlFileEngine;
 module.exports.libsqlWsEngine = libsqlWsEngine;
 module.exports.duckdbEngine = duckdbEngine;
 module.exports.firebirdEngine = firebirdEngine;
+module.exports.mongoDbEngine = mongoDbEngine;
+module.exports.dynamoDbEngine = dynamoDbEngine;

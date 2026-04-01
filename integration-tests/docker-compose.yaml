@@ -123,5 +123,22 @@ services:
       retries: 3
       start_period: 40s
 
+  mongodb:
+    image: mongo:4.0.12
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    ports:
+      - 27017:27017
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    restart: always
+    ports:
+      - 8000:8000
+
 volumes:
   firebird-data:
+  mongo-data:
+  mongo-config:

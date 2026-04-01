@@ -138,3 +138,18 @@ jobs:
           FIREBIRD_USE_LEGACY_AUTH: true
         ports:
           - '3050:3050'
+
+      mongodb:
+        image: mongo:4.0.12
+        ports:
+          - '27017:27017'
+        restart: always
+        volumes:
+          - mongo-data:/data/db
+          - mongo-config:/data/configdb
+
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - '8000:8000'
+        restart: always
