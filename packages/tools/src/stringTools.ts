@@ -12,6 +12,13 @@ import isPlainObject from 'lodash/isPlainObject';
 import md5 from 'blueimp-md5';
 
 export const MAX_GRID_TEXT_LENGTH = 1000; // maximum length of text in grid cell, longer text is truncated
+export const MAX_GRID_BINARY_SIZE = 10000; // maximum binary size (base64 chars or byte count) before showing 'too large' in grid cell
+
+function formatByteSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+}
 
 export type EditorDataType =
   | 'null'
@@ -329,6 +336,9 @@ export function stringifyCellValue(
         return { value: `${tag}("${uuidStr}")`, gridStyle: 'valueCellStyle' };
       }
     }
+    if (intent === 'gridCellIntent' && value.$binary.base64.length > MAX_GRID_BINARY_SIZE) {
+      return { value: `(Field too large, ${formatByteSize(Math.round(value.$binary.base64.length * 3 / 4))})`, gridStyle: 'nullCellStyle' };
+    }
     return {
       value: base64ToHex(value.$binary.base64),
       gridStyle: 'valueCellStyle',
@@ -414,6 +424,14 @@ export function stringifyCellValue(
         value: `$ref: ${value.$fsDocumentRef.documentPath ?? ''}`,
         gridStyle: 'valueCellStyle',
       };
+    }
+  }
+
+  if (value?.type === 'Buffer' && _isArray(value.data)) {
+    if (intent === 'gridCellIntent') {
+      return value.data.length > MAX_GRID_BINARY_SIZE
+        ? { value: `(Field too large, ${formatByteSize(value.data.length)})`, gridStyle: 'nullCellStyle' }
+        : { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
     }
   }
 
@@ -545,7 +563,7 @@ export function shouldOpenMultilineDialog(value) {
 }
 
 export function isJsonLikeLongString(value) {
-  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
+  return _isString(value) && value.length > 100 && value.length <= MAX_GRID_BINARY_SIZE && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
 }
 
 export function getIconForRedisType(type) {
