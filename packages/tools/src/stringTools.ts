@@ -430,7 +430,7 @@ export function stringifyCellValue(
   if (value?.type === 'Buffer' && _isArray(value.data)) {
     if (intent === 'gridCellIntent') {
       return value.data.length > MAX_GRID_BINARY_SIZE
-        ? { value: `(Field too large: ${formatByteSize(value.data.length)})`, gridStyle: 'nullCellStyle' }
+        ? { value: `(Field too large, ${formatByteSize(value.data.length)})`, gridStyle: 'nullCellStyle' }
         : { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
     }
   }
