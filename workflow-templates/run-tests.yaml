@@ -143,7 +143,6 @@ jobs:
         image: mongo:4.0.12
         ports:
           - '27017:27017'
-        restart: always
         volumes:
           - mongo-data:/data/db
           - mongo-config:/data/configdb
