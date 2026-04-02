@@ -26,30 +26,37 @@ jobs:
         with:
           fetch-depth: 1
 
+      - _include: checkout-and-merge-pro
+
       - name: yarn install
         run: |
+          cd ../dbgate-merged
           yarn install
 
       - name: Integration tests
         run: |
+          cd ../dbgate-merged
           cd integration-tests
           yarn test:ci
 
       - name: Filter parser tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/filterparser
           yarn test:ci
 
       - name: Datalib (perspective) tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/datalib
           yarn test:ci
 
       - name: Tools tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/tools
           yarn test:ci
 
