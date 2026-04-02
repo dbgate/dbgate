@@ -117,6 +117,7 @@ const clipboardInsertsFormatter = () => (columns, rows, options) => {
   const dmp = driver.createDumper();
   for (const row of rows) {
     const definedColumns = columns.filter(col => row[col] !== undefined);
+    if (definedColumns.length === 0) continue;
     dmp.putCmd(
       '^insert ^into %f (%,i) ^values (%,v)',
       { schemaName, pureName },
@@ -132,6 +133,7 @@ const clipboardUpdatesFormatter = () => (columns, rows, options) => {
   const dmp = driver.createDumper();
   for (const row of rows) {
     const definedColumns = columns.filter(col => row[col] !== undefined);
+    if (definedColumns.length === 0) continue;
     dmp.put('^update %f ^set ', { schemaName, pureName });
     dmp.putCollection(', ', definedColumns, col => dmp.put('%i=%v', col, row[col]));
     dmp.put(' ^where ');
