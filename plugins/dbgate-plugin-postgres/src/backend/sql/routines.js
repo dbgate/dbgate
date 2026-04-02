@@ -1,19 +1,23 @@
 module.exports = `
-select 
-  routine_name as "pure_name",
-  routine_schema as "schema_name",
-  max(routine_definition) as "definition",
-  max($md5Function(routine_definition)) as "hash_code",
-  routine_type as "object_type",
-  $typeAggFunc(data_type $typeAggParam) as "data_type",
-  max(external_language) as "language"
-from
-  information_schema.routines where routine_schema !~ '^_timescaledb_' 
-  and routine_schema =SCHEMA_NAME_CONDITION
-  and (
-   (routine_type = 'PROCEDURE' and ('procedures:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
-   or
-   (routine_type = 'FUNCTION' and ('functions:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
-  )
- group by routine_name, routine_schema, routine_type
+SELECT
+    p.proname AS "pure_name",
+    n.nspname AS "schema_name",
+    max(p.prosrc) AS "definition",
+    max($md5Function(p.prosrc)) AS "hash_code",
+    CASE max(p.prokind) WHEN 'p' THEN 'PROCEDURE' ELSE 'FUNCTION' END AS "object_type",
+    $typeAggFunc(pg_catalog.format_type(p.prorettype, NULL) $typeAggParam) AS "data_type",
+    max(l.lanname) AS "language"
+FROM pg_catalog.pg_proc p
+JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+JOIN pg_catalog.pg_language l ON l.oid = p.prolang
+WHERE p.prokind IN ('f', 'p')
+    AND n.nspname !~ '^_timescaledb_'
+    AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    AND n.nspname =SCHEMA_NAME_CONDITION
+    AND (
+        (p.prokind = 'p' AND ('procedures:' || n.nspname || '.' || p.proname) =OBJECT_ID_CONDITION)
+        OR
+        (p.prokind != 'p' AND ('functions:' || n.nspname || '.' || p.proname) =OBJECT_ID_CONDITION)
+    )
+GROUP BY p.proname, n.nspname, p.prokind
 `;

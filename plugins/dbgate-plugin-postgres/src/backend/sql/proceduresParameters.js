@@ -1,31 +1,34 @@
 module.exports = `
-SELECT 
-    proc.specific_schema AS schema_name,
-    proc.routine_name AS pure_name,
-    proc.routine_type as routine_type,
-    args.parameter_name AS parameter_name,
-    args.parameter_mode,
-    args.data_type AS data_type,
-    args.ordinal_position AS parameter_index,
-    args.parameter_mode AS parameter_mode
-FROM 
-    information_schema.routines proc 
-LEFT JOIN 
-    information_schema.parameters args
-    ON proc.specific_schema = args.specific_schema
-    AND proc.specific_name = args.specific_name
-WHERE 
-    proc.specific_schema NOT IN ('pg_catalog', 'information_schema') -- Exclude system schemas
-    AND args.parameter_name IS NOT NULL
-    AND proc.routine_type IN ('PROCEDURE', 'FUNCTION') -- Filter for procedures
-    AND proc.specific_schema !~ '^_timescaledb_' 
-    AND proc.specific_schema =SCHEMA_NAME_CONDITION
+SELECT
+    n.nspname AS "schema_name",
+    p.proname AS "pure_name",
+    CASE p.prokind WHEN 'p' THEN 'PROCEDURE' ELSE 'FUNCTION' END AS "routine_type",
+    a.parameter_name AS "parameter_name",
+    CASE (p.proargmodes::text[])[a.ordinal_position]
+        WHEN 'o' THEN 'OUT'
+        WHEN 'b' THEN 'INOUT'
+        WHEN 'v' THEN 'VARIADIC'
+        WHEN 't' THEN 'TABLE'
+        ELSE 'IN'
+    END AS "parameter_mode",
+    pg_catalog.format_type(a.parameter_type, NULL) AS "data_type",
+    a.ordinal_position AS "parameter_index"
+FROM pg_catalog.pg_proc p
+JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+CROSS JOIN LATERAL unnest(
+    COALESCE(p.proallargtypes, p.proargtypes::oid[]),
+    p.proargnames
+) WITH ORDINALITY AS a(parameter_type, parameter_name, ordinal_position)
+WHERE p.prokind IN ('f', 'p')
+    AND p.proargnames IS NOT NULL
+    AND a.parameter_name IS NOT NULL
+    AND n.nspname !~ '^_timescaledb_'
+    AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+    AND n.nspname =SCHEMA_NAME_CONDITION
     AND (
-      (routine_type = 'PROCEDURE' AND ('procedures:' || proc.specific_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
-      OR
-      (routine_type = 'FUNCTION' AND ('functions:' || proc.specific_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
+        (p.prokind = 'p' AND ('procedures:' || n.nspname || '.' || p.proname) =OBJECT_ID_CONDITION)
+        OR
+        (p.prokind != 'p' AND ('functions:' || n.nspname || '.' || p.proname) =OBJECT_ID_CONDITION)
     )
-ORDER BY 
-    schema_name,
-    args.ordinal_position;
+ORDER BY n.nspname, a.ordinal_position
 `;

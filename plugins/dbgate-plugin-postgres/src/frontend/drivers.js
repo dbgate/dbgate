@@ -418,6 +418,7 @@ const redshiftDriver = {
   },
   __analyserInternals: {
     skipIndexes: true,
+    useInfoSchemaRoutines: true,
   },
   engine: 'redshift@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
