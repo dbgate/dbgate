@@ -23,26 +23,49 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 1
+      - name: Checkout dbgate/dbgate-pro
+        uses: actions/checkout@v2
+        with:
+          repository: dbgate/dbgate-pro
+          token: ${{ secrets.GH_TOKEN }}
+          path: dbgate-pro
+          ref: 6b5e2ff831db9baedb2a43862daa4247810b15de
+      - name: Merge dbgate/dbgate-pro
+        run: |
+          mkdir ../dbgate-pro
+          mv dbgate-pro/* ../dbgate-pro/
+          cd ..
+          mkdir dbgate-merged
+          cd dbgate-pro
+          cd sync
+          yarn
+          node sync.js --nowatch
+          cd ..
       - name: yarn install
         run: |
+          cd ../dbgate-merged
           yarn install
       - name: Integration tests
         run: |
+          cd ../dbgate-merged
           cd integration-tests
           yarn test:ci
       - name: Filter parser tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/filterparser
           yarn test:ci
       - name: Datalib (perspective) tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/datalib
           yarn test:ci
       - name: Tools tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/tools
           yarn test:ci
     services:
