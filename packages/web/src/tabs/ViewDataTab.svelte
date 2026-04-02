@@ -129,6 +129,7 @@
 
       <ToolStripCommandButton command="dataGrid.refresh" />
       <ToolStripExportButton {quickExportHandlerRef} />
+      <ToolStripCommandButton command="dataGrid.fetchAll" hideDisabled />
       <ToolStripCommandButton command="dataGrid.toggleCellDataView" hideDisabled />
     </svelte:fragment>
   </ToolStripContainer>

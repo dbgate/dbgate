@@ -26,30 +26,37 @@ jobs:
         with:
           fetch-depth: 1
 
+      - _include: checkout-and-merge-pro
+
       - name: yarn install
         run: |
+          cd ../dbgate-merged
           yarn install
 
       - name: Integration tests
         run: |
+          cd ../dbgate-merged
           cd integration-tests
           yarn test:ci
 
       - name: Filter parser tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/filterparser
           yarn test:ci
 
       - name: Datalib (perspective) tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/datalib
           yarn test:ci
 
       - name: Tools tests
         if: always()
         run: |
+          cd ../dbgate-merged
           cd packages/tools
           yarn test:ci
 
@@ -138,3 +145,16 @@ jobs:
           FIREBIRD_USE_LEGACY_AUTH: true
         ports:
           - '3050:3050'
+
+      mongodb:
+        image: mongo:4.0.12
+        ports:
+          - '27017:27017'
+        volumes:
+          - mongo-data:/data/db
+          - mongo-config:/data/configdb
+
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - '8000:8000'

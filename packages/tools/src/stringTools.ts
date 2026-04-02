@@ -12,6 +12,13 @@ import isPlainObject from 'lodash/isPlainObject';
 import md5 from 'blueimp-md5';
 
 export const MAX_GRID_TEXT_LENGTH = 1000; // maximum length of text in grid cell, longer text is truncated
+export const MAX_GRID_BINARY_SIZE = 10000; // maximum binary size (base64 chars or byte count) before showing 'too large' in grid cell
+
+function formatByteSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+}
 
 export type EditorDataType =
   | 'null'
@@ -49,8 +56,45 @@ export function base64ToHex(base64String) {
   return '0x' + hexString.toUpperCase();
 }
 
+export function base64ToUuid(base64String): string | null {
+  let binaryString: string;
+  try {
+    binaryString = atob(base64String);
+  } catch {
+    return null;
+  }
+  if (binaryString.length !== 16) {
+    return null;
+  }
+  const hex = Array.from(binaryString, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20, 32),
+  ].join('-');
+}
+
 export function hexToBase64(hexString) {
   const binaryString = hexString
+    .match(/.{1,2}/g)
+    .map(byte => String.fromCharCode(parseInt(byte, 16)))
+    .join('');
+  return btoa(binaryString);
+}
+
+const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+const uuidRegex = new RegExp(`^${uuidPattern}$`);
+const uuid3WrapperRegex = new RegExp(`^UUID3\\("(${uuidPattern})"\\)$`);
+const uuid4WrapperRegex = new RegExp(`^UUID\\("(${uuidPattern})"\\)$`);
+
+export function uuidToBase64(uuid: string): string | null {
+  if (!uuid || !uuidRegex.test(uuid)) {
+    return null;
+  }
+  const hex = uuid.replace(/-/g, '');
+  const binaryString = hex
     .match(/.{1,2}/g)
     .map(byte => String.fromCharCode(parseInt(byte, 16)))
     .join('');
@@ -65,6 +109,20 @@ export function parseCellValue(value, editorTypes?: DataEditorTypesBehaviour) {
   }
 
   if (editorTypes?.parseHexAsBuffer) {
+    const mUuid3 = value.match(uuid3WrapperRegex);
+    if (mUuid3) {
+      const base64Uuid3 = uuidToBase64(mUuid3[1]);
+      if (base64Uuid3 != null) return { $binary: { base64: base64Uuid3, subType: '03' } };
+    }
+    const mUuid4 = value.match(uuid4WrapperRegex);
+    if (mUuid4) {
+      const base64Uuid4 = uuidToBase64(mUuid4[1]);
+      if (base64Uuid4 != null) return { $binary: { base64: base64Uuid4, subType: '04' } };
+    }
+    if (uuidRegex.test(value)) {
+      const base64UuidPlain = uuidToBase64(value);
+      if (base64UuidPlain != null) return { $binary: { base64: base64UuidPlain, subType: '04' } };
+    }
     const mHex = value.match(/^0x([0-9a-fA-F][0-9a-fA-F])+$/);
     if (mHex) {
       return {
@@ -266,6 +324,21 @@ export function stringifyCellValue(
   if (value === false) return { value: 'false', gridStyle: 'valueCellStyle' };
 
   if (value?.$binary?.base64) {
+    const subType = value.$binary.subType;
+    if (subType === '03' || subType === '04') {
+      const uuidStr = base64ToUuid(value.$binary.base64);
+      if (uuidStr != null) {
+        if (intent === 'gridCellIntent' || intent === 'exportIntent' || intent === 'clipboardIntent' || intent === 'stringConversionIntent') {
+          return { value: uuidStr, gridStyle: 'valueCellStyle' };
+        }
+        // For editing intents: tag with subType so parseCellValue can round-trip it
+        const tag = subType === '03' ? 'UUID3' : 'UUID';
+        return { value: `${tag}("${uuidStr}")`, gridStyle: 'valueCellStyle' };
+      }
+    }
+    if (intent === 'gridCellIntent' && value.$binary.base64.length > MAX_GRID_BINARY_SIZE) {
+      return { value: `(Field too large, ${formatByteSize(Math.round(value.$binary.base64.length * 3 / 4))})`, gridStyle: 'nullCellStyle' };
+    }
     return {
       value: base64ToHex(value.$binary.base64),
       gridStyle: 'valueCellStyle',
@@ -351,6 +424,14 @@ export function stringifyCellValue(
         value: `$ref: ${value.$fsDocumentRef.documentPath ?? ''}`,
         gridStyle: 'valueCellStyle',
       };
+    }
+  }
+
+  if (value?.type === 'Buffer' && _isArray(value.data)) {
+    if (intent === 'gridCellIntent') {
+      return value.data.length > MAX_GRID_BINARY_SIZE
+        ? { value: `(Field too large, ${formatByteSize(value.data.length)})`, gridStyle: 'nullCellStyle' }
+        : { value: '0x' + arrayToHexString(value.data), gridStyle: 'valueCellStyle' };
     }
   }
 
@@ -482,7 +563,7 @@ export function shouldOpenMultilineDialog(value) {
 }
 
 export function isJsonLikeLongString(value) {
-  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
+  return _isString(value) && value.length > 100 && value.length <= MAX_GRID_BINARY_SIZE && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/m);
 }
 
 export function getIconForRedisType(type) {

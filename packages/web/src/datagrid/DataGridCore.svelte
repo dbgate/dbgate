@@ -27,6 +27,18 @@
   });
 
   registerCommand({
+    id: 'dataGrid.fetchAll',
+    category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
+    name: __t('command.datagrid.fetchAll', { defaultMessage: 'Fetch all rows' }),
+    toolbarName: __t('command.datagrid.fetchAll.toolbar', { defaultMessage: 'Fetch all' }),
+    icon: 'icon download',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentDataGrid()?.canFetchAll(),
+    onClick: () => getCurrentDataGrid().fetchAll(),
+  });
+
+  registerCommand({
     id: 'dataGrid.revertRowChanges',
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.revertRowChanges', { defaultMessage: 'Revert row changes' }),
@@ -432,6 +444,7 @@
   import CollapseButton from './CollapseButton.svelte';
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import FetchAllConfirmModal from '../modals/FetchAllConfirmModal.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
@@ -454,6 +467,7 @@
   import macros from '../macro/macros';
 
   export let onLoadNextData = undefined;
+  export let onFetchAllRows = undefined;
   export let grider = undefined;
   export let display: GridDisplay = undefined;
   export let conid = undefined;
@@ -473,6 +487,9 @@
   export let errorMessage = undefined;
   export let pureName = undefined;
   export let schemaName = undefined;
+  export let isFetchingAll = false;
+  export let isFetchingFromDb = false;
+  export let fetchAllLoadedCount = 0;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
   export let passAllRows = null;
@@ -645,6 +662,21 @@
 
   export function canDeepRefresh() {
     return canRefresh() && !!conid && !!database;
+  }
+
+  export function canFetchAll() {
+    return !!onFetchAllRows && !isLoadedAll && !isFetchingAll && !isLoading;
+  }
+
+  export function fetchAll() {
+    if (!canFetchAll()) return;
+
+    const settings = $settingsValue || {};
+    if (settings['dataGrid.skipFetchAllConfirm']) {
+      onFetchAllRows();
+    } else {
+      showModal(FetchAllConfirmModal, { onConfirm: () => onFetchAllRows() });
+    }
   }
 
   export async function deepRefresh() {
@@ -1977,6 +2009,7 @@
 
   registerMenu(
     { command: 'dataGrid.refresh' },
+    { command: 'dataGrid.fetchAll', hideDisabled: true },
     { placeTag: 'copy' },
     {
       text: _t('datagrid.copyAdvanced', { defaultMessage: 'Copy advanced' }),
@@ -2404,17 +2437,25 @@
       </div>
     {:else if allRowCountError && multipleGridsOnTab}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div
-        class="row-count-label row-count-error"
-        title={allRowCountError}
-        on:click={onReloadRowCount}
-      >
+      <div class="row-count-label row-count-error" title={allRowCountError} on:click={onReloadRowCount}>
         {_t('datagrid.rows', { defaultMessage: 'Rows' })}: {_t('datagrid.rowCountMany', { defaultMessage: 'Many' })}
       </div>
     {/if}
 
     {#if isLoading}
       <LoadingInfo wrapper message="Loading data" />
+    {/if}
+
+    {#if isFetchingAll}
+      <LoadingInfo
+        wrapper
+        message={isFetchingFromDb
+          ? _t('datagrid.fetchAll.progressDb', { defaultMessage: 'Fetching data from database...' })
+          : _t('datagrid.fetchAll.progress', {
+              defaultMessage: 'Fetching all rows... {count} loaded',
+              values: { count: fetchAllLoadedCount.toLocaleString() },
+            })}
+      />
     {/if}
 
     {#if !tabControlHiddenTab && !multipleGridsOnTab && allRowCount != null}
