@@ -467,8 +467,9 @@ module.exports = {
   },
 
   registerVolatileConnections(conns) {
+    if (!Array.isArray(conns)) return;
     for (const conn of conns) {
-      volatileConnections[conn._id] = conn;
+      if (conn?._id) volatileConnections[conn._id] = conn;
     }
   },
 
