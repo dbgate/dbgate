@@ -200,6 +200,7 @@ module.exports = {
         const connections = require('./connections');
         // @ts-ignore
         const conid = message.conid;
+        if (!conid || typeof conid !== 'string') return;
         const trySend = payload => {
           if (!subprocess.connected) return;
           try {

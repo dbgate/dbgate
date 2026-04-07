@@ -494,11 +494,14 @@ module.exports = {
     const res = await this.datastore.get(conid);
     if (res) return res;
 
-    // In a forked child process, ask the parent for connections that may be
+    // In a forked runner-script child process, ask the parent for connections that may be
     // volatile (in-memory only, e.g. ask-for-password).  We only do this when
     // there really is a parent (process.send exists) to avoid an infinite loop
     // when the parent's own getCore falls through here.
-    if (process.send) {
+    // The check is intentionally narrow: only runner scripts pass
+    // --process-display-name script, so connect/session/ssh-forward subprocesses
+    // are not affected and continue to return null immediately.
+    if (process.send && processArgs.processDisplayName === 'script') {
       const conn = await new Promise(resolve => {
         let resolved = false;
         const handler = message => {
