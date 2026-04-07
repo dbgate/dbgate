@@ -68,37 +68,6 @@ await dbgateApi.copyStream(reader, writer);
 dbgateApi.runScript(run);
 `;
 
-async function resolveVolatileConnections(obj) {
-  const connections = require('./connections');
-  const conids = new Set();
-
-  function walk(node) {
-    if (!node || typeof node !== 'object') return;
-    if (Array.isArray(node)) {
-      for (const item of node) walk(item);
-    } else {
-      if (node.connection && node.connection._id) {
-        conids.add(node.connection._id);
-      }
-      for (const value of Object.values(node)) walk(value);
-    }
-  }
-
-  walk(obj);
-
-  const result = [];
-  if (conids.size > 0) {
-    await connections._init();
-    for (const conid of Array.from(conids)) {
-      const conn = await connections.getCore({ conid });
-      if (conn && conn.unsaved) {
-        result.push(conn);
-      }
-    }
-  }
-  return result;
-}
-
 module.exports = {
   /** @type {import('dbgate-types').OpenedRunner[]} */
   opened: [],
@@ -157,7 +126,7 @@ module.exports = {
     }
   },
 
-  startCore(runid, scriptText, volatileConns = null) {
+  startCore(runid, scriptText) {
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
@@ -183,7 +152,6 @@ module.exports = {
           ...process.env,
           DBGATE_API: global['API_PACKAGE'] || process.argv[1],
           ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
-          ...(volatileConns && volatileConns.length > 0 ? { DBGATE_HAS_VOLATILE_CONNS: '1' } : {}),
         },
       }
     );
@@ -228,8 +196,13 @@ module.exports = {
       // @ts-ignore
       const { msgtype } = message;
       if (handleProcessCommunication(message, subprocess)) return;
-      if (msgtype === 'get-volatile-connections') {
-        subprocess.send({ msgtype: 'volatile-connections-response', conns: volatileConns || [] });
+      if (msgtype === 'get-volatile-connection') {
+        const connections = require('./connections');
+        // @ts-ignore
+        connections.getCore({ conid: message.conid }).then(conn => {
+          // @ts-ignore
+          subprocess.send({ msgtype: 'volatile-connection-response', conid: message.conid, conn: conn?.unsaved ? conn : null });
+        });
         return;
       }
       this[`handle_${msgtype}`](runid, message);
@@ -321,9 +294,8 @@ module.exports = {
 
       logJsonRunnerScript(req, script);
 
-      const volatileConns = await resolveVolatileConnections(script);
       const js = await jsonScriptToJavascript(script);
-      return this.startCore(runid, scriptTemplate(js, false), volatileConns);
+      return this.startCore(runid, scriptTemplate(js, false));
     }
 
     await testStandardPermission('run-shell-script', req);
@@ -397,11 +369,10 @@ module.exports = {
       .map(packageName => `// @require ${packageName}\n`)
       .join('');
 
-    const volatileConns = await resolveVolatileConnections({ props });
     const promise = new Promise((resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
-      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid), volatileConns);
+      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid));
     });
     return promise;
   },
@@ -412,7 +383,6 @@ module.exports = {
       return { errorMessage: 'DBGM-00290 Only JSON scripts are allowed' };
     }
 
-    const volatileConns = await resolveVolatileConnections(script);
     const promise = new Promise(async (resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
@@ -422,7 +392,7 @@ module.exports = {
         }
       });
       const js = await jsonScriptToJavascript(cloned);
-      this.startCore(runid, scriptTemplate(js, false), volatileConns);
+      this.startCore(runid, scriptTemplate(js, false));
     });
     return promise;
   },
