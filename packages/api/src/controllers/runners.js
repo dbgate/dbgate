@@ -40,12 +40,11 @@ const requirePluginsTemplate = (plugins, isExport) =>
     )
     .join('') + `dbgateApi.registerPlugins(${plugins.map(x => _.camelCase(x)).join(',')});\n`;
 
-const scriptTemplate = (script, isExport, volatileConns = null) => `
+const scriptTemplate = (script, isExport) => `
 const dbgateApi = require(${isExport ? `'dbgate-api'` : 'process.env.DBGATE_API'});
 const logger = dbgateApi.getLogger('script');
 dbgateApi.initializeApiEnvironment();
-${volatileConns ? `dbgateApi.registerVolatileConnections(${JSON.stringify(volatileConns)});
-` : ''}${requirePluginsTemplate(extractPlugins(script), isExport)}
+${requirePluginsTemplate(extractPlugins(script), isExport)}
 require=null;
 async function run() {
 ${script}
@@ -55,12 +54,11 @@ logger.info('DBGM-00014 Finished job script');
 dbgateApi.runScript(run);
 `;
 
-const loaderScriptTemplate = (prefix, functionName, props, runid, volatileConns = null) => `
+const loaderScriptTemplate = (prefix, functionName, props, runid) => `
 ${prefix}
 const dbgateApi = require(process.env.DBGATE_API);
 dbgateApi.initializeApiEnvironment();
-${volatileConns ? `dbgateApi.registerVolatileConnections(${JSON.stringify(volatileConns)});
-` : ''}${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
+${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
 const reader=await ${compileShellApiFunctionName(functionName)}(${JSON.stringify(props)});
@@ -159,7 +157,7 @@ module.exports = {
     }
   },
 
-  startCore(runid, scriptText) {
+  startCore(runid, scriptText, volatileConns = null) {
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
@@ -185,6 +183,7 @@ module.exports = {
           ...process.env,
           DBGATE_API: global['API_PACKAGE'] || process.argv[1],
           ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
+          ...(volatileConns && volatileConns.length > 0 ? { DBGATE_HAS_VOLATILE_CONNS: '1' } : {}),
         },
       }
     );
@@ -229,6 +228,10 @@ module.exports = {
       // @ts-ignore
       const { msgtype } = message;
       if (handleProcessCommunication(message, subprocess)) return;
+      if (msgtype === 'get-volatile-connections') {
+        subprocess.send({ msgtype: 'volatile-connections-response', conns: volatileConns || [] });
+        return;
+      }
       this[`handle_${msgtype}`](runid, message);
     });
     return _.pick(newOpened, ['runid']);
@@ -320,7 +323,7 @@ module.exports = {
 
       const volatileConns = await resolveVolatileConnections(script);
       const js = await jsonScriptToJavascript(script);
-      return this.startCore(runid, scriptTemplate(js, false, volatileConns.length > 0 ? volatileConns : null));
+      return this.startCore(runid, scriptTemplate(js, false), volatileConns);
     }
 
     await testStandardPermission('run-shell-script', req);
@@ -398,7 +401,7 @@ module.exports = {
     const promise = new Promise((resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
-      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid, volatileConns.length > 0 ? volatileConns : null));
+      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid), volatileConns);
     });
     return promise;
   },
@@ -419,7 +422,7 @@ module.exports = {
         }
       });
       const js = await jsonScriptToJavascript(cloned);
-      this.startCore(runid, scriptTemplate(js, false, volatileConns.length > 0 ? volatileConns : null));
+      this.startCore(runid, scriptTemplate(js, false), volatileConns);
     });
     return promise;
   },

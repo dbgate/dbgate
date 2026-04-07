@@ -40,7 +40,6 @@ const unzipDirectory = require('./unzipDirectory');
 const zipJsonLinesData = require('./zipJsonLinesData');
 const unzipJsonLinesData = require('./unzipJsonLinesData');
 const unzipJsonLinesFile = require('./unzipJsonLinesFile');
-const registerVolatileConnections = require('./registerVolatileConnections');
 
 const dbgateApi = {
   queryReader,
@@ -84,7 +83,6 @@ const dbgateApi = {
   zipJsonLinesData,
   unzipJsonLinesData,
   unzipJsonLinesFile,
-  registerVolatileConnections,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);
