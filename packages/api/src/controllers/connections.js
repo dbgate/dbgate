@@ -504,31 +504,40 @@ module.exports = {
     if (process.send && processArgs.processDisplayName === 'script') {
       const conn = await new Promise(resolve => {
         let resolved = false;
-        const handler = message => {
-          if (message?.msgtype === 'volatile-connection-response' && message.conid === conid) {
-            process.removeListener('message', handler);
-            clearTimeout(timeout);
-            if (!resolved) {
-              resolved = true;
-              resolve(message.conn || null);
-            }
-          }
-        };
-        const timeout = setTimeout(() => {
+
+        const cleanup = () => {
           process.removeListener('message', handler);
+          process.removeListener('disconnect', onDisconnect);
+          clearTimeout(timeout);
+        };
+
+        const settle = value => {
           if (!resolved) {
             resolved = true;
-            resolve(null);
+            cleanup();
+            resolve(value);
           }
-        }, 5000);
+        };
+
+        const handler = message => {
+          if (message?.msgtype === 'volatile-connection-response' && message.conid === conid) {
+            settle(message.conn || null);
+          }
+        };
+
+        const onDisconnect = () => settle(null);
+
+        const timeout = setTimeout(() => settle(null), 5000);
+        // Don't let the timer alone keep the process alive if all other work is done
+        timeout.unref();
+
         process.on('message', handler);
+        process.once('disconnect', onDisconnect);
+
         try {
           process.send({ msgtype: 'get-volatile-connection', conid });
         } catch {
-          process.removeListener('message', handler);
-          clearTimeout(timeout);
-          resolved = true;
-          resolve(null);
+          settle(null);
         }
       });
       if (conn) {
