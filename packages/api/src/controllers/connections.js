@@ -466,13 +466,6 @@ module.exports = {
     return res;
   },
 
-  registerVolatileConnections(conns) {
-    if (!Array.isArray(conns)) return;
-    for (const conn of conns) {
-      if (conn?._id) volatileConnections[conn._id] = conn;
-    }
-  },
-
   async getCore({ conid, mask = false }) {
     if (!conid) return null;
     const volatile = volatileConnections[conid];
@@ -526,7 +519,14 @@ module.exports = {
           }
         }, 5000);
         process.on('message', handler);
-        process.send({ msgtype: 'get-volatile-connection', conid });
+        try {
+          process.send({ msgtype: 'get-volatile-connection', conid });
+        } catch {
+          process.removeListener('message', handler);
+          clearTimeout(timeout);
+          resolved = true;
+          resolve(null);
+        }
       });
       if (conn) {
         volatileConnections[conn._id] = conn; // cache for subsequent calls
