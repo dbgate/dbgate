@@ -199,9 +199,12 @@ module.exports = {
       if (msgtype === 'get-volatile-connection') {
         const connections = require('./connections');
         // @ts-ignore
-        connections.getCore({ conid: message.conid }).then(conn => {
-          // @ts-ignore
-          subprocess.send({ msgtype: 'volatile-connection-response', conid: message.conid, conn: conn?.unsaved ? conn : null });
+        const conid = message.conid;
+        connections.getCore({ conid }).then(conn => {
+          subprocess.send({ msgtype: 'volatile-connection-response', conid, conn: conn?.unsaved ? conn : null });
+        }).catch(err => {
+          logger.error({ err, conid }, 'DBGM-00000 Error resolving volatile connection for child process');
+          subprocess.send({ msgtype: 'volatile-connection-response', conid, conn: null });
         });
         return;
       }
