@@ -507,17 +507,24 @@ module.exports = {
     // when the parent's own getCore falls through here.
     if (process.send) {
       const conn = await new Promise(resolve => {
-        const timeout = setTimeout(() => {
-          process.removeListener('message', handler);
-          resolve(null);
-        }, 5000);
+        let resolved = false;
         const handler = message => {
           if (message?.msgtype === 'volatile-connection-response' && message.conid === conid) {
             process.removeListener('message', handler);
             clearTimeout(timeout);
-            resolve(message.conn || null);
+            if (!resolved) {
+              resolved = true;
+              resolve(message.conn || null);
+            }
           }
         };
+        const timeout = setTimeout(() => {
+          process.removeListener('message', handler);
+          if (!resolved) {
+            resolved = true;
+            resolve(null);
+          }
+        }, 5000);
         process.on('message', handler);
         process.send({ msgtype: 'get-volatile-connection', conid });
       });
