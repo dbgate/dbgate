@@ -466,6 +466,12 @@ module.exports = {
     return res;
   },
 
+  registerVolatileConnections(conns) {
+    for (const conn of conns) {
+      volatileConnections[conn._id] = conn;
+    }
+  },
+
   async getCore({ conid, mask = false }) {
     if (!conid) return null;
     const volatile = volatileConnections[conid];

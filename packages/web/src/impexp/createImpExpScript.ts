@@ -6,6 +6,7 @@ import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getExtensions } from '../stores';
+import { getVolatileRemapping } from '../utility/api';
 
 export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
@@ -37,6 +38,18 @@ function extractDriverApiParameters(values, direction, driver) {
 
 export function extractShellConnection(connection, database) {
   const config = getCurrentConfig();
+  const volatileId = getVolatileRemapping(connection._id);
+  const hasVolatileMapping = volatileId !== connection._id;
+
+  // For volatile connections (ask-for-password), always use _id reference so
+  // the backend can inject the password-bearing connection into the child process.
+  if (hasVolatileMapping) {
+    return {
+      _id: volatileId,
+      engine: connection.engine,
+      database,
+    };
+  }
 
   return config.allowShellConnection
     ? {
