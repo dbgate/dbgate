@@ -98,29 +98,31 @@ const clipboardTextFormatter = (delimiter, headers) => (columns, rows, options) 
 
 const clipboardJsonFormatter = () => (columns, rows) => {
   return JSON.stringify(
-    rows.map(row => _.pick(row, columns)),
+    rows.map(row => _.omitBy(_.pick(row, columns), _.isUndefined)),
     undefined,
     2
   );
 };
 
 const clipboardYamlFormatter = () => (columns, rows) => {
-  return yaml.dump(rows.map(row => _.pick(row, columns)));
+  return yaml.dump(rows.map(row => _.omitBy(_.pick(row, columns), _.isUndefined)));
 };
 
 const clipboardJsonLinesFormatter = () => (columns, rows) => {
-  return rows.map(row => JSON.stringify(_.pick(row, columns))).join('\r\n');
+  return rows.map(row => JSON.stringify(_.omitBy(_.pick(row, columns), _.isUndefined))).join('\r\n');
 };
 
 const clipboardInsertsFormatter = () => (columns, rows, options) => {
   const { schemaName, pureName, driver } = options;
   const dmp = driver.createDumper();
   for (const row of rows) {
+    const definedColumns = columns.filter(col => row[col] !== undefined);
+    if (definedColumns.length === 0) continue;
     dmp.putCmd(
       '^insert ^into %f (%,i) ^values (%,v)',
       { schemaName, pureName },
-      columns,
-      columns.map(col => row[col])
+      definedColumns,
+      definedColumns.map(col => row[col])
     );
   }
   return dmp.s;
@@ -130,8 +132,10 @@ const clipboardUpdatesFormatter = () => (columns, rows, options) => {
   const { schemaName, pureName, driver, keyColumns } = options;
   const dmp = driver.createDumper();
   for (const row of rows) {
+    const definedColumns = columns.filter(col => row[col] !== undefined);
+    if (definedColumns.length === 0) continue;
     dmp.put('^update %f ^set ', { schemaName, pureName });
-    dmp.putCollection(', ', columns, col => dmp.put('%i=%v', col, row[col]));
+    dmp.putCollection(', ', definedColumns, col => dmp.put('%i=%v', col, row[col]));
     dmp.put(' ^where ');
     dmp.putCollection(' ^and ', keyColumns, col => dmp.put('%i=%v', col, row[col]));
     dmp.endCommand();
@@ -141,7 +145,7 @@ const clipboardUpdatesFormatter = () => (columns, rows, options) => {
 
 const clipboardMongoInsertFormatter = () => (columns, rows, options) => {
   const { pureName } = options;
-  return rows.map(row => `db.${pureName}.insert(${JSON.stringify(_.pick(row, columns), undefined, 2)});`).join('\n');
+  return rows.map(row => `db.${pureName}.insert(${JSON.stringify(_.omitBy(_.pick(row, columns), _.isUndefined), undefined, 2)});`).join('\n');
 };
 
 export function formatClipboardRows(format, columns, rows, options) {
