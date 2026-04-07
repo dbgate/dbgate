@@ -499,7 +499,35 @@ module.exports = {
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : encryptConnection(res);
     }
     const res = await this.datastore.get(conid);
-    return res || null;
+    if (res) return res;
+
+    // In a forked child process, ask the parent for connections that may be
+    // volatile (in-memory only, e.g. ask-for-password).  We only do this when
+    // there really is a parent (process.send exists) to avoid an infinite loop
+    // when the parent's own getCore falls through here.
+    if (process.send) {
+      const conn = await new Promise(resolve => {
+        const timeout = setTimeout(() => {
+          process.removeListener('message', handler);
+          resolve(null);
+        }, 5000);
+        const handler = message => {
+          if (message?.msgtype === 'volatile-connection-response' && message.conid === conid) {
+            process.removeListener('message', handler);
+            clearTimeout(timeout);
+            resolve(message.conn || null);
+          }
+        };
+        process.on('message', handler);
+        process.send({ msgtype: 'get-volatile-connection', conid });
+      });
+      if (conn) {
+        volatileConnections[conn._id] = conn; // cache for subsequent calls
+        return conn;
+      }
+    }
+
+    return null;
   },
 
   get_meta: true,
