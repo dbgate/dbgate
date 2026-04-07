@@ -40,11 +40,12 @@ const requirePluginsTemplate = (plugins, isExport) =>
     )
     .join('') + `dbgateApi.registerPlugins(${plugins.map(x => _.camelCase(x)).join(',')});\n`;
 
-const scriptTemplate = (script, isExport) => `
+const scriptTemplate = (script, isExport, volatileConns = null) => `
 const dbgateApi = require(${isExport ? `'dbgate-api'` : 'process.env.DBGATE_API'});
 const logger = dbgateApi.getLogger('script');
 dbgateApi.initializeApiEnvironment();
-${requirePluginsTemplate(extractPlugins(script), isExport)}
+${volatileConns ? `dbgateApi.registerVolatileConnections(${JSON.stringify(volatileConns)});
+` : ''}${requirePluginsTemplate(extractPlugins(script), isExport)}
 require=null;
 async function run() {
 ${script}
@@ -54,11 +55,12 @@ logger.info('DBGM-00014 Finished job script');
 dbgateApi.runScript(run);
 `;
 
-const loaderScriptTemplate = (prefix, functionName, props, runid) => `
+const loaderScriptTemplate = (prefix, functionName, props, runid, volatileConns = null) => `
 ${prefix}
 const dbgateApi = require(process.env.DBGATE_API);
 dbgateApi.initializeApiEnvironment();
-${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
+${volatileConns ? `dbgateApi.registerVolatileConnections(${JSON.stringify(volatileConns)});
+` : ''}${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
 const reader=await ${compileShellApiFunctionName(functionName)}(${JSON.stringify(props)});
@@ -67,6 +69,37 @@ await dbgateApi.copyStream(reader, writer);
 }
 dbgateApi.runScript(run);
 `;
+
+async function resolveVolatileConnections(obj) {
+  const connections = require('./connections');
+  const conids = new Set();
+
+  function walk(node) {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+    } else {
+      if (node.connection && node.connection._id) {
+        conids.add(node.connection._id);
+      }
+      for (const value of Object.values(node)) walk(value);
+    }
+  }
+
+  walk(obj);
+
+  const result = [];
+  if (conids.size > 0) {
+    await connections._init();
+    for (const conid of Array.from(conids)) {
+      const conn = await connections.getCore({ conid });
+      if (conn && conn.unsaved) {
+        result.push(conn);
+      }
+    }
+  }
+  return result;
+}
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedRunner[]} */
@@ -285,8 +318,9 @@ module.exports = {
 
       logJsonRunnerScript(req, script);
 
+      const volatileConns = await resolveVolatileConnections(script);
       const js = await jsonScriptToJavascript(script);
-      return this.startCore(runid, scriptTemplate(js, false));
+      return this.startCore(runid, scriptTemplate(js, false, volatileConns.length > 0 ? volatileConns : null));
     }
 
     await testStandardPermission('run-shell-script', req);
@@ -360,10 +394,11 @@ module.exports = {
       .map(packageName => `// @require ${packageName}\n`)
       .join('');
 
+    const volatileConns = await resolveVolatileConnections({ props });
     const promise = new Promise((resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
-      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid));
+      this.startCore(runid, loaderScriptTemplate(prefix, functionName, props, runid, volatileConns.length > 0 ? volatileConns : null));
     });
     return promise;
   },
@@ -374,6 +409,7 @@ module.exports = {
       return { errorMessage: 'DBGM-00290 Only JSON scripts are allowed' };
     }
 
+    const volatileConns = await resolveVolatileConnections(script);
     const promise = new Promise(async (resolve, reject) => {
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
@@ -383,7 +419,7 @@ module.exports = {
         }
       });
       const js = await jsonScriptToJavascript(cloned);
-      this.startCore(runid, scriptTemplate(js, false));
+      this.startCore(runid, scriptTemplate(js, false, volatileConns.length > 0 ? volatileConns : null));
     });
     return promise;
   },
