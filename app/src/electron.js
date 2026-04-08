@@ -400,6 +400,14 @@ function createWindow() {
     },
   });
 
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    { urls: ['https://*.tile.openstreetmap.org/*'] },
+    (details, callback) => {
+      details.requestHeaders['Referer'] = 'https://www.dbgate.io';
+      callback({ requestHeaders: details.requestHeaders });
+    }
+  );
+
   if (initialConfig['winIsMaximized']) {
     mainWindow.maximize();
   }
