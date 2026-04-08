@@ -7,6 +7,7 @@ async function runScript(func) {
   if (processArgs.checkParent) {
     childProcessChecker();
   }
+
   try {
     await func();
     process.exit(0);

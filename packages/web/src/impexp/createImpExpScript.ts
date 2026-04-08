@@ -6,6 +6,7 @@ import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getExtensions } from '../stores';
+import { getVolatileRemapping } from '../utility/api';
 
 export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
@@ -37,6 +38,30 @@ function extractDriverApiParameters(values, direction, driver) {
 
 export function extractShellConnection(connection, database) {
   const config = getCurrentConfig();
+
+  // Case 1: connection._id is the original ID and a volatile remap exists.
+  // Use the volatile ID so the backend child process can look up the credentials.
+  const volatileId = getVolatileRemapping(connection._id);
+  if (volatileId !== connection._id) {
+    return {
+      _id: volatileId,
+      engine: connection.engine,
+      database,
+    };
+  }
+
+  // Case 2: apiCall.transformApiArgs already remapped the conid before the
+  // connection was fetched, so connection._id IS already the volatile ID and
+  // connection.unsaved === true.  Falling through to allowShellConnection here
+  // would embed plaintext credentials in the generated script — always use the
+  // _id reference instead.
+  if (connection.unsaved) {
+    return {
+      _id: connection._id,
+      engine: connection.engine,
+      database,
+    };
+  }
 
   return config.allowShellConnection
     ? {

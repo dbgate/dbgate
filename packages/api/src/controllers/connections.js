@@ -492,7 +492,61 @@ module.exports = {
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : encryptConnection(res);
     }
     const res = await this.datastore.get(conid);
-    return res || null;
+    if (res) return res;
+
+    // In a forked runner-script child process, ask the parent for connections that may be
+    // volatile (in-memory only, e.g. ask-for-password).  We only do this when
+    // there really is a parent (process.send exists) to avoid an infinite loop
+    // when the parent's own getCore falls through here.
+    // The check is intentionally narrow: only runner scripts pass
+    // --process-display-name script, so connect/session/ssh-forward subprocesses
+    // are not affected and continue to return null immediately.
+    if (process.send && processArgs.processDisplayName === 'script') {
+      const conn = await new Promise(resolve => {
+        let resolved = false;
+
+        const cleanup = () => {
+          process.removeListener('message', handler);
+          process.removeListener('disconnect', onDisconnect);
+          clearTimeout(timeout);
+        };
+
+        const settle = value => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            resolve(value);
+          }
+        };
+
+        const handler = message => {
+          if (message?.msgtype === 'volatile-connection-response' && message.conid === conid) {
+            settle(message.conn || null);
+          }
+        };
+
+        const onDisconnect = () => settle(null);
+
+        const timeout = setTimeout(() => settle(null), 5000);
+        // Don't let the timer alone keep the process alive if all other work is done
+        timeout.unref();
+
+        process.on('message', handler);
+        process.once('disconnect', onDisconnect);
+
+        try {
+          process.send({ msgtype: 'get-volatile-connection', conid });
+        } catch {
+          settle(null);
+        }
+      });
+      if (conn) {
+        volatileConnections[conn._id] = conn; // cache for subsequent calls
+        return conn;
+      }
+    }
+
+    return null;
   },
 
   get_meta: true,
