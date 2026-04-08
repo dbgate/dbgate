@@ -33,19 +33,35 @@ function readCore(reader, skip, limit, filter) {
   });
 }
 
-module.exports = {
-  read_meta: true,
-  async read({ skip, limit, filter }) {
+function readJsonl({ skip, limit, filter }) {
+  return new Promise(async (resolve, reject) => {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     // @ts-ignore
-    if (!(await fs.exists(fileName))) return [];
+    if (!(await fs.exists(fileName))) return resolve([]);
     const reader = fsReverse(fileName);
     const res = await readCore(reader, skip, limit, filter);
-    return res;
+    resolve(res);
+  });
+}
+
+module.exports = {
+  read_meta: true,
+  async read({ skip, limit, filter }, req) {
+    const storage = require('./storage');
+    const storageResult = await storage.readQueryHistory({ skip, limit, filter }, req);
+    if (storageResult) return storageResult;
+    return readJsonl({ skip, limit, filter });
   },
 
   write_meta: true,
-  async write({ data }) {
+  async write({ data }, req) {
+    const storage = require('./storage');
+    const written = await storage.writeQueryHistory({ data }, req);
+    if (written) {
+      socket.emit('query-history-changed');
+      return 'OK';
+    }
+
     const fileName = path.join(datadir(), 'query-history.jsonl');
     await fs.appendFile(fileName, JSON.stringify(data) + '\n');
     socket.emit('query-history-changed');

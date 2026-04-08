@@ -875,6 +875,114 @@ module.exports = {
       ]
     },
     {
+      "pureName": "query_history",
+      "columns": [
+        {
+          "pureName": "query_history",
+          "columnName": "id",
+          "dataType": "int",
+          "autoIncrement": true,
+          "notNull": true
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "created",
+          "dataType": "bigint",
+          "notNull": true
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "user_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "role_id",
+          "dataType": "int",
+          "notNull": false
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "sql",
+          "dataType": "text",
+          "notNull": false
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "conid",
+          "dataType": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "pureName": "query_history",
+          "columnName": "database",
+          "dataType": "varchar(200)",
+          "notNull": false
+        }
+      ],
+      "foreignKeys": [
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_query_history_user_id",
+          "pureName": "query_history",
+          "refTableName": "users",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "user_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_query_history_role_id",
+          "pureName": "query_history",
+          "refTableName": "roles",
+          "deleteAction": "CASCADE",
+          "columns": [
+            {
+              "columnName": "role_id",
+              "refColumnName": "id"
+            }
+          ]
+        }
+      ],
+      "indexes": [
+        {
+          "constraintName": "idx_query_history_user_id",
+          "pureName": "query_history",
+          "constraintType": "index",
+          "columns": [
+            {
+              "columnName": "user_id"
+            }
+          ]
+        },
+        {
+          "constraintName": "idx_query_history_role_id",
+          "pureName": "query_history",
+          "constraintType": "index",
+          "columns": [
+            {
+              "columnName": "role_id"
+            }
+          ]
+        }
+      ],
+      "primaryKey": {
+        "pureName": "query_history",
+        "constraintType": "primaryKey",
+        "constraintName": "PK_query_history",
+        "columns": [
+          {
+            "columnName": "id"
+          }
+        ]
+      }
+    },
+    {
       "pureName": "roles",
       "columns": [
         {
