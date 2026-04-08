@@ -30,7 +30,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: 3a629df280d32a1352ca4e8913e2eefc5a708519
+          ref: d91d65aacde98ea41ee1018a14147888325721c6
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
