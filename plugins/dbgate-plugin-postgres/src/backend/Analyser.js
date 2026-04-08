@@ -72,6 +72,8 @@ class Analyser extends DatabaseAnalyser {
       ...replacements,
       $typeAggFunc: this.driver.dialect.stringAgg ? 'string_agg' : 'max',
       $typeAggParam: this.driver.dialect.stringAgg ? ", '|'" : '',
+      $hashColumnAggTail: this.driver.dialect.stringAgg ? ", ',' ORDER BY a.attnum" : '',
+      $hashConstraintAggTail: this.driver.dialect.stringAgg ? ", ',' ORDER BY con.conname" : '',
       $md5Function: this.dialect?.isFipsComplianceOn ? 'LENGTH' : 'MD5',
     });
     return query;

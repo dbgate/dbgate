@@ -4,9 +4,9 @@ SELECT
     c.relname AS "pure_name",
     $md5Function(
         COALESCE(
-            (SELECT string_agg(
-                a.attname || ':' || pg_catalog.format_type(a.atttypid, a.atttypmod) || ':' || a.attnotnull::text,
-                ',' ORDER BY a.attnum
+            (SELECT $typeAggFunc(
+                a.attname || ':' || pg_catalog.format_type(a.atttypid, a.atttypmod) || ':' || a.attnotnull::text
+                $hashColumnAggTail
             )
             FROM pg_catalog.pg_attribute a
             WHERE a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped),
@@ -15,9 +15,9 @@ SELECT
     ) AS "hash_code_columns",
     $md5Function(
         COALESCE(
-            (SELECT string_agg(
-                con.conname || ':' || con.contype::text,
-                ',' ORDER BY con.conname
+            (SELECT $typeAggFunc(
+                con.conname || ':' || con.contype::text
+                $hashConstraintAggTail
             )
             FROM pg_catalog.pg_constraint con
             WHERE con.conrelid = c.oid),
