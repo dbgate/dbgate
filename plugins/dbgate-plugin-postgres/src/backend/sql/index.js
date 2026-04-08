@@ -19,15 +19,16 @@ const triggers = require('./triggers');
 const listDatabases = require('./listDatabases');
 const listVariables = require('./listVariables');
 const listProcesses = require('./listProcesses');
-
-const fk_keyColumnUsage = require('./fk_key_column_usage');
+const routinesInfoSchema = require('./routinesInfoSchema');
+const proceduresParametersInfoSchema = require('./proceduresParametersInfoSchema');
+const routineModificationsInfoSchema = require('./routineModificationsInfoSchema');
+const tableModifications = require('./tableModifications');
 
 module.exports = {
   columns,
   tableList,
   viewModifications,
   primaryKeys,
-  fk_keyColumnUsage,
   foreignKeys,
   views,
   routines,
@@ -45,4 +46,8 @@ module.exports = {
   listDatabases,
   listVariables,
   listProcesses,
+  routinesInfoSchema,
+  proceduresParametersInfoSchema,
+  routineModificationsInfoSchema,
+  tableModifications,
 };
