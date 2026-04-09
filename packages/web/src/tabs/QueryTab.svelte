@@ -197,7 +197,7 @@
     },
     {
       value: '@',
-      text: _t('query.variable', { defaultMessage: '@variable' }),
+      text: _t('query.variable@', { defaultMessage: '@variable' }),
     },
     {
       value: ':',
@@ -205,11 +205,11 @@
     },
     {
       value: '$',
-      text: _t('query.variable', { defaultMessage: '$variable' }),
+      text: _t('query.variable$', { defaultMessage: '$variable' }),
     },
     {
       value: '#',
-      text: _t('query.variable', { defaultMessage: '#variable' }),
+      text: _t('query.variable#', { defaultMessage: '#variable' }),
     },
   ];
 
