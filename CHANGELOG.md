@@ -9,6 +9,10 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.8
+
+- FIXED: NPM packages build
+
 ## 7.1.7
 
 - FIXED: Resolved duplicate translation tags #1420
