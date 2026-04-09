@@ -26,11 +26,12 @@ jobs:
         with:
           fetch-depth: 1
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - name: Update npm
-        run: npm install -g npm@latest
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
       - name: yarn install
         run: |
           yarn install
