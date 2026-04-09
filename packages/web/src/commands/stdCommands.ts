@@ -46,7 +46,7 @@ import { isProApp } from '../utility/proTools';
 import { openWebLink } from '../utility/simpleTools';
 import { _t } from '../translations';
 import ExportImportConnectionsModal from '../modals/ExportImportConnectionsModal.svelte';
-import { getBoolSettingsValue } from '../settings/settingsTools';
+import { getBoolSettingsValue, isAiDisabled } from '../settings/settingsTools';
 import { __t } from '../translations';
 
 // function themeCommand(theme: ThemeDefinition) {
@@ -753,7 +753,8 @@ if (isProApp()) {
     testEnabled: () =>
       getCurrentDatabase() != null &&
       findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql') &&
-      hasPermission('dbops/chat'),
+      hasPermission('dbops/chat') &&
+      !isAiDisabled(),
     onClick: () => {
       openNewTab({
         title: 'Chat',
@@ -776,7 +777,8 @@ if (isProApp()) {
     testEnabled: () =>
       getCurrentDatabase() != null &&
       findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('graphql') &&
-      hasPermission('dbops/chat'),
+      hasPermission('dbops/chat') &&
+      !isAiDisabled(),
     onClick: () => {
       openNewTab({
         title: 'GraphQL Chat',

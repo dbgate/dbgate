@@ -24,7 +24,7 @@
     name: __t('command.query.AiAssistant', { defaultMessage: 'AI Assistant' }),
     keyText: 'Shift+Alt+A',
     icon: 'icon ai',
-    testEnabled: () => isProApp(),
+    testEnabled: () => isProApp() && !isAiDisabled(),
     onClick: () => getCurrentEditor().toggleAiAssistant(),
   });
   registerCommand({
@@ -164,7 +164,7 @@
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import uuidv1 from 'uuid/v1';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
-  import { getIntSettingsValue } from '../settings/settingsTools';
+  import { getIntSettingsValue, isAiDisabled } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';
   import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -252,6 +252,10 @@
 
   let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
   let domAiAssistant;
+
+  $: if ($settingsValue?.['storage.disableAiFeatures']) {
+    isAiAssistantVisible = false;
+  }
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -619,7 +623,7 @@
   }
 
   async function handleExplainError(errorObject) {
-    if (!isProApp()) return;
+    if (!isProApp() || isAiDisabled()) return;
     isAiAssistantVisible = true;
     await tick();
     domAiAssistant?.explainError({

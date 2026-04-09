@@ -542,12 +542,14 @@ await dbgateApi.executeQuery(${JSON.stringify(
           text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }),
         },
       isProApp() &&
+        !isAiDisabled() &&
         driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission('dbops/chat') && {
           onClick: handleDatabaseChat,
           text: _t('database.databaseChat', { defaultMessage: 'Database chat' }),
         },
       isProApp() &&
+        !isAiDisabled() &&
         driver?.databaseEngineTypes?.includes('graphql') &&
         hasPermission('dbops/chat') && {
           onClick: handleGraphQlChat,
@@ -687,7 +689,8 @@ await dbgateApi.executeQuery(${JSON.stringify(
   import ChooseArchiveFolderModal from '../modals/ChooseArchiveFolderModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
-  import { getDatabaseClickActionSetting } from '../settings/settingsTools';  export let data;
+  import { getDatabaseClickActionSetting, isAiDisabled } from '../settings/settingsTools';
+  export let data;
   export let passProps;
   export let passExtInfo = undefined;
   export let passIcon = undefined;

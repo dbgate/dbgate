@@ -36,6 +36,10 @@ export function getObjectSettingsValue(name, defaultValue) {
   return res;
 }
 
+export function isAiDisabled(): boolean {
+  return getBoolSettingsValue('storage.disableAiFeatures', false);
+}
+
 export function getConnectionClickActionSetting(): 'connect' | 'openDetails' | 'none' {
   return getStringSettingsValue('defaultAction.connectionClick', 'connect');
 }
