@@ -34,13 +34,17 @@ jobs:
         with:
           fetch-depth: 1
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
-        run: npm install -g npm@latest
+      # - name: Update npm
+      #   run: npm install -g npm@latest
 
       # - name: Configure NPM token
       #   env:
