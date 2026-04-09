@@ -197,19 +197,19 @@
     },
     {
       value: '@',
-      text: _t('query.variable@', { defaultMessage: '@variable' }),
+      text: '@' + _t('query.variable', { defaultMessage: 'variable' }),
     },
     {
       value: ':',
-      text: _t('query.named', { defaultMessage: ':variable' }),
+      text: ':' + _t('query.variable', { defaultMessage: 'variable' }),
     },
     {
       value: '$',
-      text: _t('query.variable$', { defaultMessage: '$variable' }),
+      text: '$' + _t('query.variable', { defaultMessage: 'variable' }),
     },
     {
       value: '#',
-      text: _t('query.variable#', { defaultMessage: '#variable' }),
+      text: '#' + _t('query.variable', { defaultMessage: 'variable' }),
     },
   ];
 
