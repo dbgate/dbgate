@@ -37,14 +37,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # Ensure npm 11.5.1 or later is installed
-      # - name: Update npm
-      #   run: npm install -g npm@latest
+          cache: yarn
 
       # - name: Configure NPM token
       #   env:
