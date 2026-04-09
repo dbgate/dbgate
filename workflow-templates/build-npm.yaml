@@ -20,6 +20,8 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     strategy:
       matrix:
@@ -38,12 +40,7 @@ jobs:
         with:
           node-version: 22.x
           cache: yarn
-
-      - name: Configure NPM token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+          registry-url: 'https://registry.npmjs.org'
 
       - name: yarn install
         run: |
