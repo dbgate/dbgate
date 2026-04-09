@@ -19,6 +19,7 @@ Builds:
 - FIXED: Fixed freezing issues with large fields #1399
 - ADDED: "Fetch All" button #1398
 - ADDED: Option to disable AI features
+- ADDED: PostgreSQL loading optimalization
 
 ## 7.1.6
 
