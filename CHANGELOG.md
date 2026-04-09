@@ -9,6 +9,21 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.7
+
+- FIXED: Resolved duplicate translation tags #1420
+- FIXED: Referer error on map display #1418
+- FIXED: Export failure when password mode is enabled #1409
+- FIXED: Unreadable text in export #1408
+- FIXED: Column names set to "undefined" in export #1406
+- FIXED: Fixed freezing issues with large fields #1399
+- ADDED: "Fetch All" button #1398
+- ADDED: Option to disable AI features
+
+## 7.1.6
+
+- FIXED: Issues with cloud and file loading
+
 ## 7.1.5
 
 - FIXED: Issues with cloud and file loading
