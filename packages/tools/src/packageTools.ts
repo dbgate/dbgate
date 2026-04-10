@@ -3,6 +3,43 @@ import _camelCase from 'lodash/camelCase';
 import _isString from 'lodash/isString';
 import _isPlainObject from 'lodash/isPlainObject';
 
+const JS_IDENTIFIER_RE = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+
+export function isValidJsIdentifier(name: string): boolean {
+  return typeof name === 'string' && JS_IDENTIFIER_RE.test(name);
+}
+
+export function assertValidJsIdentifier(name: string, label: string): void {
+  if (!isValidJsIdentifier(name)) {
+    throw new Error(`DBGM-00000 Invalid ${label}: ${String(name).substring(0, 100)}`);
+  }
+}
+
+/**
+ * Validates a shell API function name.
+ * Allowed forms:
+ *   - "someFunctionName"  (plain identifier, resolved as dbgateApi.someFunctionName)
+ *   - "funcName@dbgate-plugin-xxx"  (namespaced, resolved as plugin.shellApi.funcName)
+ */
+export function assertValidShellApiFunctionName(functionName: string): void {
+  if (typeof functionName !== 'string') {
+    throw new Error('DBGM-00000 functionName must be a string');
+  }
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
+  if (nsMatch) {
+    if (!isValidJsIdentifier(nsMatch[1])) {
+      throw new Error(`DBGM-00000 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
+    }
+    if (!/^dbgate-plugin-[a-zA-Z0-9_-]+$/.test(nsMatch[2])) {
+      throw new Error(`DBGM-00000 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
+    }
+  } else {
+    if (!isValidJsIdentifier(functionName)) {
+      throw new Error(`DBGM-00000 Invalid functionName: ${functionName.substring(0, 100)}`);
+    }
+  }
+}
+
 export function extractShellApiPlugins(functionName, props): string[] {
   const res = [];
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
@@ -28,7 +65,8 @@ export function extractPackageName(name): string {
 }
 
 export function compileShellApiFunctionName(functionName) {
-  const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
+  assertValidShellApiFunctionName(functionName);
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
   if (nsMatch) {
     return `${_camelCase(nsMatch[2])}.shellApi.${nsMatch[1]}`;
   }
@@ -36,7 +74,8 @@ export function compileShellApiFunctionName(functionName) {
 }
 
 export function evalShellApiFunctionName(functionName, dbgateApi, requirePlugin) {
-  const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
+  assertValidShellApiFunctionName(functionName);
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
   if (nsMatch) {
     return requirePlugin(nsMatch[2]).shellApi[nsMatch[1]];
   }
