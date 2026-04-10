@@ -1,0 +1,55 @@
+name: Build Custom Docker Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/oauth-userinfo
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: adjustPackageJson
+        run: node adjustPackageJson --community
+
+      - name: yarn install
+        run: yarn install
+
+      - name: setCurrentVersion
+        run: yarn setCurrentVersion
+
+      - name: Prepare docker image
+        run: yarn run prepare:docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ./docker
+          tags: |
+            ghcr.io/automya/dbgate:oauth-userinfo
+            ghcr.io/automya/dbgate:latest
+          platforms: linux/amd64
