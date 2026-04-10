@@ -235,10 +235,14 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
   }
 
   assignValue(variableName, jsonValue) {
+    assertValidJsIdentifier(variableName, 'variableName');
     this.variables[variableName] = jsonValue;
   }
 
   async copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
+    assertValidJsIdentifier(sourceVar, 'sourceVar');
+    assertValidJsIdentifier(targetVar, 'targetVar');
+    if (colmapVar != null) assertValidJsIdentifier(colmapVar, 'colmapVar');
     await this.dbgateApi.copyStream(this.variables[sourceVar], this.variables[targetVar], {
       progressName: _cloneDeepWith(progressName, node => {
         if (node?.$runid) {

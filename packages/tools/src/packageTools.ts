@@ -5,8 +5,26 @@ import _isPlainObject from 'lodash/isPlainObject';
 
 const JS_IDENTIFIER_RE = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
+// ECMAScript reserved words, strict-mode keywords, and async-context keywords
+// that cannot be used as variable or function names in the generated scripts.
+// Sources: ECMA-262 §12.7.2 (reserved words), §12.7.3 (strict mode), §14 (contextual).
+const JS_RESERVED_WORDS = new Set([
+  // Keywords
+  'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default',
+  'delete', 'do', 'else', 'export', 'extends', 'false', 'finally', 'for',
+  'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'null', 'return',
+  'static', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var',
+  'void', 'while', 'with', 'yield',
+  // Strict-mode reserved words
+  'implements', 'interface', 'package', 'private', 'protected', 'public',
+  // Async context keywords
+  'async', 'await',
+  // Future reserved
+  'enum',
+]);
+
 export function isValidJsIdentifier(name: string): boolean {
-  return typeof name === 'string' && JS_IDENTIFIER_RE.test(name);
+  return typeof name === 'string' && JS_IDENTIFIER_RE.test(name) && !JS_RESERVED_WORDS.has(name);
 }
 
 export function assertValidJsIdentifier(name: string, label: string): void {
