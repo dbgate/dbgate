@@ -6,12 +6,17 @@ on:
     branches:
       - feat/oauth-userinfo
 
+env:
+  ECR_REGISTRY: 475538400403.dkr.ecr.eu-south-2.amazonaws.com
+  ECR_REPOSITORY: automya/dbgate
+  AWS_REGION: eu-south-2
+
 jobs:
   build:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
-      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,15 +39,17 @@ jobs:
       - name: Prepare docker image
         run: yarn run prepare:docker
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::475538400403:role/github-actions-ecr-push
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -50,6 +57,6 @@ jobs:
           push: true
           context: ./docker
           tags: |
-            ghcr.io/automya/dbgate:oauth-userinfo
-            ghcr.io/automya/dbgate:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:oauth-userinfo
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
           platforms: linux/amd64
