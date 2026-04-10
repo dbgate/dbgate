@@ -1,6 +1,6 @@
 import _uniq from 'lodash/uniq';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
-import { evalShellApiFunctionName, compileShellApiFunctionName, extractShellApiPlugins } from './packageTools';
+import { evalShellApiFunctionName, compileShellApiFunctionName, extractShellApiPlugins, assertValidJsIdentifier, assertValidShellApiFunctionName } from './packageTools';
 
 export interface ScriptWriterGeneric {
   allocVariable(prefix?: string);
@@ -40,6 +40,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   assignCore(variableName, functionName, props) {
+    assertValidJsIdentifier(variableName, 'variableName');
     this._put(`const ${variableName} = await ${functionName}(${JSON.stringify(props)});`);
   }
 
@@ -49,6 +50,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   assignValue(variableName, jsonValue) {
+    assertValidJsIdentifier(variableName, 'variableName');
     this._put(`const ${variableName} = ${JSON.stringify(jsonValue)};`);
   }
 
@@ -57,8 +59,13 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
+    assertValidJsIdentifier(sourceVar, 'sourceVar');
+    assertValidJsIdentifier(targetVar, 'targetVar');
     let opts = '{';
-    if (colmapVar) opts += `columns: ${colmapVar}, `;
+    if (colmapVar) {
+      assertValidJsIdentifier(colmapVar, 'colmapVar');
+      opts += `columns: ${colmapVar}, `;
+    }
     if (progressName) opts += `progressName: ${JSON.stringify(progressName)}, `;
     opts += '}';
 
@@ -89,7 +96,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   zipDirectory(inputDirectory, outputFile) {
-    this._put(`await dbgateApi.zipDirectory('${inputDirectory}', '${outputFile}');`);
+    this._put(`await dbgateApi.zipDirectory(${JSON.stringify(inputDirectory)}, ${JSON.stringify(outputFile)});`);
   }
 }
 
@@ -214,6 +221,8 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
   requirePackage(packageName) {}
 
   async assign(variableName, functionName, props) {
+    assertValidJsIdentifier(variableName, 'variableName');
+    assertValidShellApiFunctionName(functionName);
     const func = evalShellApiFunctionName(functionName, this.dbgateApi, this.requirePlugin);
 
     this.variables[variableName] = await func(
@@ -226,10 +235,14 @@ export class ScriptWriterEval implements ScriptWriterGeneric {
   }
 
   assignValue(variableName, jsonValue) {
+    assertValidJsIdentifier(variableName, 'variableName');
     this.variables[variableName] = jsonValue;
   }
 
   async copyStream(sourceVar, targetVar, colmapVar = null, progressName?: string | { name: string; runid: string }) {
+    assertValidJsIdentifier(sourceVar, 'sourceVar');
+    assertValidJsIdentifier(targetVar, 'targetVar');
+    if (colmapVar != null) assertValidJsIdentifier(colmapVar, 'colmapVar');
     await this.dbgateApi.copyStream(this.variables[sourceVar], this.variables[targetVar], {
       progressName: _cloneDeepWith(progressName, node => {
         if (node?.$runid) {
