@@ -50,7 +50,7 @@ class AuthProviderBase {
 
   async getCurrentPermissions(req) {
     const login = this.getCurrentLogin(req);
-    const envKey = `LOGIN_PERMISSIONS_${login}`;
+    const envKey = `LOGIN_PERMISSIONS_${login?.replace(/-/g, '_')}`;
     const permissions = process.env[envKey];
     logger.info(
       {
