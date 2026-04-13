@@ -30,17 +30,6 @@ class AuthProviderBase {
 
   getCurrentLogin(req) {
     const login = req?.user?.login ?? req?.auth?.user ?? null;
-    logger.info(
-      {
-        resolvedLogin: login,
-        reqUserKeys: req?.user ? Object.keys(req.user) : null,
-        reqAuthKeys: req?.auth ? Object.keys(req.auth) : null,
-        reqUserLogin: req?.user?.login,
-        reqAuthUser: req?.auth?.user,
-        reqAuthLogin: req?.auth?.login,
-      },
-      'DEBUG getCurrentLogin'
-    );
     return login;
   }
 
@@ -50,18 +39,11 @@ class AuthProviderBase {
 
   async getCurrentPermissions(req) {
     const login = this.getCurrentLogin(req);
+    // Normalize hyphens to underscores: environment variable names cannot contain
+    // hyphens in POSIX shells or Kubernetes envFrom, so LOGIN_PERMISSIONS keys
+    // must use underscores (e.g. LOGIN_PERMISSIONS_my_user for login "my-user").
     const envKey = `LOGIN_PERMISSIONS_${login?.replace(/-/g, '_')}`;
     const permissions = process.env[envKey];
-    logger.info(
-      {
-        login,
-        envKey,
-        found: !!permissions,
-        fallbackToGlobal: !permissions,
-        globalPermissions: process.env.PERMISSIONS?.substring(0, 50),
-      },
-      'DEBUG getCurrentPermissions'
-    );
     return permissions || process.env.PERMISSIONS;
   }
 
