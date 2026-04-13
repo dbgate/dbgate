@@ -52,11 +52,14 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportQuickExportFile } from '../utility/exportFileTools';
+  import { extractShellConnectionHostable, extractShellHostConnection } from '../impexp/createImpExpScript';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
   import useEffect from '../utility/useEffect';
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
-  import { openImportExportTab } from '../utility/importExportTools';  export let jslid;
+  import { openImportExportTab } from '../utility/importExportTools';
+  export let jslid;
   export let display;
   export let formatterFunction;
 
@@ -66,6 +69,9 @@
   export let macroPreview;
   export let macroValues;
   export let onPublishedCellsChanged;
+  export let exportQuery = null;
+  export let exportConid = null;
+  export let exportDatabase = null;
   export const activator = createActivator('JslDataGridCore', false);
 
   export let setLoadedRows;
@@ -134,7 +140,7 @@
 
   // $: grider = new RowsArrayGrider(loadedRows);
 
-  export function exportGrid() {
+  export async function exportGrid() {
     const initialValues = {} as any;
     const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
     if (archiveMatch) {
@@ -142,6 +148,14 @@
       initialValues.sourceArchiveFolder = archiveMatch[1];
       initialValues.sourceList = [archiveMatch[2]];
       initialValues[`columns_${archiveMatch[2]}`] = display.getExportColumnMap();
+    } else if (exportQuery && exportConid) {
+      initialValues.sourceStorageType = 'query';
+      initialValues.sourceConnectionId = exportConid;
+      initialValues.sourceDatabaseName = exportDatabase;
+      initialValues.sourceQuery = exportQuery;
+      initialValues.sourceQueryType = 'native';
+      initialValues.sourceList = ['query-data'];
+      initialValues[`columns_query-data`] = display.getExportColumnMap();
     } else {
       initialValues.sourceStorageType = 'jsldata';
       initialValues.sourceJslId = jslid;
@@ -163,6 +177,22 @@
             folderName: archiveMatch[1],
             fileName: archiveMatch[2],
           },
+        },
+        fmt,
+        display.getExportColumnMap()
+      );
+    } else if (exportQuery && exportConid) {
+      const coninfo = await getConnectionInfo({ conid: exportConid });
+      exportQuickExportFile(
+        'Query',
+        {
+          functionName: 'queryReader',
+          props: {
+            ...extractShellConnectionHostable(coninfo, exportDatabase),
+            queryType: 'native',
+            query: exportQuery,
+          },
+          hostConnection: extractShellHostConnection(coninfo, exportDatabase),
         },
         fmt,
         display.getExportColumnMap()
