@@ -77,6 +77,9 @@
             component: AllResultsTab,
             props: {
               resultInfos,
+              exportConid,
+              exportDatabase,
+              exportQuery,
             },
           },
         ]
