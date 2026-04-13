@@ -22,8 +22,14 @@ jobs:
         with:
           node-version: 22
 
+      # Sets useBundleExternals='true' so plugin webpack builds bundle
+      # non-volatile deps (lodash, dbgate-tools, etc) into backend.js.
+      # Also adds volatile plugin deps to packages/api/package.json.
+      - name: Adjust package.json for Docker build
+        run: node adjustPackageJson --community
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Prepare docker build
         run: yarn run prepare:docker
