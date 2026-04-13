@@ -12,10 +12,11 @@ WORKDIR /home/dbgate-docker
 
 COPY . .
 
-RUN ["chmod", "+x", "/home/dbgate-docker/entrypoint.sh"]
-
 WORKDIR /home/dbgate-docker
 EXPOSE 3000
 VOLUME /root/.dbgate
 
-CMD ["/home/dbgate-docker/entrypoint.sh"]
+# Start Node directly (not via shell script) so that env vars with hyphens
+# in their names are preserved. POSIX shells silently drop env vars whose
+# names contain characters invalid for shell identifiers (e.g. hyphens).
+CMD ["node", "bundle.js", "--listen-api"]
