@@ -77,9 +77,9 @@
             component: AllResultsTab,
             props: {
               resultInfos,
-              exportConid,
-              exportDatabase,
-              exportQuery,
+              exportConid: resultInfos.length === 1 ? exportConid : null,
+              exportDatabase: resultInfos.length === 1 ? exportDatabase : null,
+              exportQuery: resultInfos.length === 1 ? exportQuery : null,
             },
           },
         ]
@@ -92,9 +92,9 @@
             jslid: info.jslid,
             driver,
             onOpenChart: () => handleOpenChart(info.resultIndex),
-            exportConid,
-            exportDatabase,
-            exportQuery,
+            exportConid: resultInfos.length === 1 ? exportConid : null,
+            exportDatabase: resultInfos.length === 1 ? exportDatabase : null,
+            exportQuery: resultInfos.length === 1 ? exportQuery : null,
           },
         }))),
     ...charts.map((info, index) => ({

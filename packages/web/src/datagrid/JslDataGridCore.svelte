@@ -74,6 +74,17 @@
   export let exportDatabase = null;
   export const activator = createActivator('JslDataGridCore', false);
 
+  function isReadOnlyQuery(sql) {
+    if (!sql) return false;
+    const trimmed = sql
+      .trim()
+      .replace(/^\/\*[\s\S]*?\*\//g, '')
+      .trim();
+    return /^(SELECT|WITH)\b/i.test(trimmed);
+  }
+
+  $: safeExportQuery = exportQuery && isReadOnlyQuery(exportQuery) ? exportQuery : null;
+
   export let setLoadedRows;
 
   let publishedCells = [];
@@ -148,11 +159,11 @@
       initialValues.sourceArchiveFolder = archiveMatch[1];
       initialValues.sourceList = [archiveMatch[2]];
       initialValues[`columns_${archiveMatch[2]}`] = display.getExportColumnMap();
-    } else if (exportQuery && exportConid) {
+    } else if (safeExportQuery && exportConid) {
       initialValues.sourceStorageType = 'query';
       initialValues.sourceConnectionId = exportConid;
       initialValues.sourceDatabaseName = exportDatabase;
-      initialValues.sourceQuery = exportQuery;
+      initialValues.sourceQuery = safeExportQuery;
       initialValues.sourceQueryType = 'native';
       initialValues.sourceList = ['query-data'];
       initialValues[`columns_query-data`] = display.getExportColumnMap();
@@ -181,7 +192,7 @@
         fmt,
         display.getExportColumnMap()
       );
-    } else if (exportQuery && exportConid) {
+    } else if (safeExportQuery && exportConid) {
       const coninfo = await getConnectionInfo({ conid: exportConid });
       exportQuickExportFile(
         'Query',
@@ -190,7 +201,7 @@
           props: {
             ...extractShellConnectionHostable(coninfo, exportDatabase),
             queryType: 'native',
-            query: exportQuery,
+            query: safeExportQuery,
           },
           hostConnection: extractShellHostConnection(coninfo, exportDatabase),
         },
