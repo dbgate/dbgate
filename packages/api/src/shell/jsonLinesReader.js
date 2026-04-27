@@ -21,7 +21,8 @@ class ParseStream extends stream.Transform {
       obj = JSON.parse(line);
     } catch (err) {
       const preview = line.length > 120 ? line.slice(0, 120) + '...' : line;
-      done(new Error(`Failed to parse JSON on line ${this.lineNumber}: ${err.message}\nContent: ${preview}`));
+      const wrapped = new Error(`Failed to parse JSON on line ${this.lineNumber}: ${err.message}\nContent: ${preview}`, { cause: err });
+      done(wrapped);
       return;
     }
     if (!this.wasHeader) {
