@@ -103,6 +103,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         if (rows.length > 0) {
           try {
             await driver.query(dbhan, dmp.s, { discardResult: true });
+            writable.rowsReporter.add(rows.length);
           } catch (batchErr) {
             // Batch failed - retry row by row to identify the exact problematic row
             logger.warn(
@@ -125,12 +126,8 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
                 await driver.query(dbhan, rowDmp.s, { discardResult: true });
                 writable.rowsReporter.add(1);
               } catch (rowErr) {
-                const safeRow = JSON.stringify(row, (_k, v) => {
-                  if (typeof v === 'string' && v.length > 200) return v.slice(0, 200) + '...(truncated)';
-                  return v;
-                });
                 logger.error(
-                  extractErrorLogData(rowErr, { rowIndex, row: safeRow }),
+                  extractErrorLogData(rowErr, { rowIndex, row }),
                   `DBGM-00000 Insert failed on row ${rowIndex + 1}: ${rowErr.message}`
                 );
                 throw rowErr;
@@ -138,7 +135,6 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
             }
           }
         }
-        writable.rowsReporter.add(rows.length);
       } else {
         for (const row of rows) {
           const dmp = driver.createDumper();
@@ -156,12 +152,8 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
           try {
             await driver.query(dbhan, dmp.s, { discardResult: true });
           } catch (rowErr) {
-            const safeRow = JSON.stringify(row, (_k, v) => {
-              if (typeof v === 'string' && v.length > 200) return v.slice(0, 200) + '...(truncated)';
-              return v;
-            });
             logger.error(
-              extractErrorLogData(rowErr, { row: safeRow }),
+              extractErrorLogData(rowErr, { row }),
               `DBGM-00000 Insert failed: ${rowErr.message}`
             );
             throw rowErr;
