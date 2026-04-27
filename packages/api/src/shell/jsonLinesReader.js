@@ -11,9 +11,19 @@ class ParseStream extends stream.Transform {
     this.wasHeader = false;
     this.limitRows = limitRows;
     this.rowsWritten = 0;
+    this.lineNumber = 0;
   }
   _transform(chunk, encoding, done) {
-    const obj = JSON.parse(chunk);
+    this.lineNumber += 1;
+    const line = chunk.toString();
+    let obj;
+    try {
+      obj = JSON.parse(line);
+    } catch (err) {
+      const preview = line.length > 120 ? line.slice(0, 120) + '...' : line;
+      done(new Error(`Failed to parse JSON on line ${this.lineNumber}: ${err.message}\nContent: ${preview}`));
+      return;
+    }
     if (!this.wasHeader) {
       if (!obj.__isStreamHeader) {
         this.push({
