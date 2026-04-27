@@ -126,10 +126,8 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
                 await driver.query(dbhan, rowDmp.s, { discardResult: true });
                 writable.rowsReporter.add(1);
               } catch (rowErr) {
-                logger.error(
-                  extractErrorLogData(rowErr, { rowIndex, row }),
-                  `DBGM-00000 Insert failed on row ${rowIndex + 1}: ${rowErr.message}`
-                );
+                rowErr.rowIndex = rowIndex;
+                rowErr.failedRow = row;
                 throw rowErr;
               }
             }
@@ -152,10 +150,7 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
           try {
             await driver.query(dbhan, dmp.s, { discardResult: true });
           } catch (rowErr) {
-            logger.error(
-              extractErrorLogData(rowErr, { row }),
-              `DBGM-00000 Insert failed: ${rowErr.message}`
-            );
+            rowErr.failedRow = row;
             throw rowErr;
           }
           writable.rowsReporter.add(1);
@@ -167,7 +162,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'DBGM-00185 Error during base bulk insert, insert stopped');
+      const extraFields: Record<string, unknown> = {};
+      if (err.rowIndex != null) extraFields.rowIndex = err.rowIndex;
+      if (err.failedRow != null) extraFields.row = err.failedRow;
+      logger.error(extractErrorLogData(err, extraFields), 'DBGM-00185 Error during base bulk insert, insert stopped');
       writable.destroy(err);
     }
   };
