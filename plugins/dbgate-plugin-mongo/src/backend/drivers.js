@@ -102,11 +102,8 @@ async function getScriptableDb(dbhan) {
 const drivers = driverBases.map((driverBase) => ({
   ...driverBase,
   analyserClass: Analyser,
-  getSSHTunnelMode(connection) {
-    if (connection.useDatabaseUrl && connection.databaseUrl && connection.databaseUrl.startsWith('mongodb+srv://')) {
-      return 'socks';
-    }
-    return 'forward';
+  getSSHTunnelMode() {
+    return 'socks';
   },
   async connect({
     server,
@@ -117,26 +114,13 @@ const drivers = driverBases.map((driverBase) => ({
     useDatabaseUrl,
     databaseUrl,
     ssl,
-    useSshTunnel,
     sshSocksProxyHost,
     sshSocksProxyPort,
   }) {
     let mongoUrl;
 
     if (useDatabaseUrl) {
-      if (useSshTunnel && !sshSocksProxyHost) {
-        if (databaseUrl.startsWith('mongodb+srv://')) {
-          throw new Error('mongodb+srv:// URLs require SOCKS proxy mode for SSH tunneling');
-        }
-        // change port to ssh tunnel port (standard mongodb:// URLs)
-        const url = new URL(databaseUrl);
-        url.port = port;
-        mongoUrl = url.href;
-      } else {
-        // For mongodb+srv:// with SSH, the SOCKS proxy handles routing
-        // so we keep the original URL intact
-        mongoUrl = databaseUrl;
-      }
+      mongoUrl = databaseUrl;
     } else {
       mongoUrl = user
         ? `mongodb://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${server}:${port}`
