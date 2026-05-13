@@ -517,7 +517,8 @@
 
   export let dataEditorTypesBehaviourOverride = null;
 
-  const wheelRowCount = 5;
+  let verticalWheelAccumulator = 0;
+  let horizontalWheelAccumulator = 0;
   const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
@@ -1596,24 +1597,25 @@
   function handleGridWheel(event) {
     if (event.shiftKey) {
       if (isMac()) {
-        scrollHorizontal(event.deltaX, event.deltaY);
+        scrollHorizontal(event.deltaX);
       } else {
-        scrollHorizontal(event.deltaY, event.deltaX);
+        scrollHorizontal(event.deltaY);
       }
     } else {
-      scrollHorizontal(event.deltaX, event.deltaY);
-      scrollVertical(event.deltaX, event.deltaY);
+      scrollHorizontal(event.deltaX);
+      scrollVertical(event.deltaY);
     }
   }
 
-  function scrollVertical(deltaX, deltaY) {
-    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-    if (deltaY > 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex += wheelRowCount;
-    } else if (deltaY < 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex -= wheelRowCount;
-    }
+  function scrollVertical(deltaY) {
+    const pixelsPerRow = rowHeight || 24;
+    verticalWheelAccumulator += deltaY;
+    const rowsDelta = verticalWheelAccumulator / pixelsPerRow;
+    if (Math.abs(rowsDelta) < 0.5) return;
+    const rowsToScroll = Math.round(rowsDelta);
+    verticalWheelAccumulator -= rowsToScroll * pixelsPerRow;
 
+    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex + rowsToScroll;
     let rowCount = grider.rowCount;
     if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
       newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
@@ -1626,14 +1628,15 @@
     domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
   }
 
-  function scrollHorizontal(deltaX, deltaY) {
-    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
-    if (deltaX > 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex++;
-    } else if (deltaX < 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex--;
-    }
+  function scrollHorizontal(deltaX) {
+    const pixelsPerColumn = (columnSizes && columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex)) || 100;
+    horizontalWheelAccumulator += deltaX;
+    const colsDelta = horizontalWheelAccumulator / pixelsPerColumn;
+    if (Math.abs(colsDelta) < 0.5) return;
+    const colsToScroll = Math.round(colsDelta);
+    horizontalWheelAccumulator -= colsToScroll * pixelsPerColumn;
 
+    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex + colsToScroll;
     if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
       newFirstVisibleColumnScrollIndex = maxScrollColumn;
     }
