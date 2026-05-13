@@ -142,6 +142,13 @@ function start() {
     });
   }
 
+  app.get(getExpressPath('/widget-click/*'), function (req, res) {
+    const clickPath = req.params[0];
+    const targetUrl = `https://dev.dbgate.cloud/widget-click/${clickPath}`;
+    logger.info({ targetUrl }, 'Redirecting widget click to cloud');
+    res.redirect(targetUrl);
+  });
+
   app.use(auth.authMiddleware);
 
   app.get(getExpressPath('/stream'), async function (req, res) {
