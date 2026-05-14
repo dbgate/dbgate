@@ -1,6 +1,6 @@
 <script lang="ts">
   import { stringifyCellValue } from 'dbgate-tools';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
@@ -19,6 +19,8 @@
   let valueInit;
   let optionsData;
   let isOptionsHidden = false;
+  let valueEl;
+  let dropdownStyle = '';
 
   onMount(() => {
     value =
@@ -37,7 +39,27 @@
         isSelected: optionsSelected.includes(option),
       };
     });
+
+    tick().then(positionDropdown);
   });
+
+  function positionDropdown() {
+    if (!valueEl) return;
+    const rect = valueEl.getBoundingClientRect();
+    const maxH = 200;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let styleStr;
+    if (spaceBelow >= Math.min(maxH, 80) || spaceBelow >= spaceAbove) {
+      const height = Math.max(Math.min(maxH, spaceBelow - 4), 50);
+      styleStr = `left:${rect.left}px; top:${rect.bottom}px; width:${rect.width}px; max-height:${height}px;`;
+    } else {
+      const height = Math.max(Math.min(maxH, spaceAbove - 4), 50);
+      styleStr = `left:${rect.left}px; bottom:${window.innerHeight - rect.top}px; width:${rect.width}px; max-height:${height}px;`;
+    }
+    dropdownStyle = styleStr;
+  }
 
   function handleCheckboxChanged(e, option) {
     if (!canSelectMultipleOptions) {
@@ -77,7 +99,7 @@
 </script>
 
 <div use:clickOutside on:clickOutside={handleClickOutside} on:keydown={handleKeyDown} class="inplaceselect">
-  <div on:click={() => (isOptionsHidden = !isOptionsHidden)} class="value">
+  <div on:click={() => (isOptionsHidden = !isOptionsHidden)} class="value" bind:this={valueEl}>
     {value}
   </div>
 
@@ -87,7 +109,7 @@
     </div>
   {/if}
 
-  <div class="options" class:hidden={isOptionsHidden}>
+  <div class="options" class:hidden={isOptionsHidden} style={dropdownStyle}>
     {#each optionsData ?? [] as option}
       <label>
         <input
@@ -104,17 +126,14 @@
 
 <style>
   .options {
-    position: absolute;
-    z-index: 10;
-    top: 100%;
-    left: 0;
-    width: 100%;
+    position: fixed;
+    z-index: 1000;
     list-style: none;
     margin: 0;
     padding: 0;
     background-color: var(--theme-toolstrip-button-background);
-    max-height: 150px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: var(--theme-input-inplace-select-shadow);
   }
 
