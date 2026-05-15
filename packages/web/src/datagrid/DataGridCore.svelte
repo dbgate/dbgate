@@ -517,8 +517,8 @@
 
   export let dataEditorTypesBehaviourOverride = null;
 
-  let verticalWheelAccumulator = 0;
-  let horizontalWheelAccumulator = 0;
+  let rowPixelOffset = 0;
+  let columnPixelOffset = 0;
   const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
@@ -531,6 +531,8 @@
   let domHorizontalScroll;
   let domVerticalScroll;
   let domContainer;
+  let domTable;
+  let domTbody;
 
   let currentCell = topLeftCell;
   let selectedCells = [topLeftCell];
@@ -576,6 +578,8 @@
 
   function resetVerticalScroll() {
     firstVisibleRowScrollIndex = 0;
+    rowPixelOffset = 0;
+    if (domTbody) domTbody.style.transform = 'translateY(0)';
     if (domVerticalScroll) {
       domVerticalScroll.scroll(0);
     }
@@ -1266,12 +1270,29 @@
   $: visibleRowCountLowerBound =
     rowHeight > 0 ? Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight))) : 0;
 
-  $: visibleRealColumns = countVisibleRealColumns(
+  $: visibleRealColumns = addFrozenStickyPositions(
+    countVisibleRealColumns(
+      columnSizes,
+      firstVisibleColumnScrollIndex,
+      gridScrollAreaWidth + (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 0),
+      columns
+    ),
     columnSizes,
-    firstVisibleColumnScrollIndex,
-    gridScrollAreaWidth,
-    columns
+    headerColWidth
   );
+
+  function addFrozenStickyPositions(cols, colSizes, hdrWidth) {
+    let frozenLeft = hdrWidth;
+    for (const col of cols) {
+      if ((col as any).colIndex < colSizes.frozenCount) {
+        (col as any).stickyLeft = frozenLeft;
+        frozenLeft += col.width;
+      } else {
+        (col as any).stickyLeft = null;
+      }
+    }
+    return cols;
+  }
 
   $: selectedCellsInfo = getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData());
 
@@ -1460,6 +1481,8 @@
 
       if (newRow != null) {
         firstVisibleRowScrollIndex = newRow;
+        rowPixelOffset = 0;
+        if (domTbody) domTbody.style.transform = 'translateY(0)';
         domVerticalScroll.scroll(newRow);
       }
     }
@@ -1472,7 +1495,8 @@
           gridScrollAreaWidth
         );
         firstVisibleColumnScrollIndex = newColumn;
-
+        columnPixelOffset = 0;
+        if (domTable) domTable.scrollLeft = 0;
         domHorizontalScroll.scroll(newColumn);
       }
     }
@@ -1609,43 +1633,59 @@
 
   function scrollVertical(deltaY) {
     const pixelsPerRow = rowHeight || 24;
-    verticalWheelAccumulator += deltaY;
-    const rowsDelta = verticalWheelAccumulator / pixelsPerRow;
-    if (Math.abs(rowsDelta) < 0.5) return;
-    const rowsToScroll = Math.round(rowsDelta);
-    verticalWheelAccumulator -= rowsToScroll * pixelsPerRow;
+    rowPixelOffset += deltaY;
 
-    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex + rowsToScroll;
-    let rowCount = grider.rowCount;
-    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-    }
-    if (newFirstVisibleRowScrollIndex < 0) {
-      newFirstVisibleRowScrollIndex = 0;
+    // Advance forward (scroll down)
+    while (rowPixelOffset >= pixelsPerRow) {
+      const rowCount = grider.rowCount;
+      if (firstVisibleRowScrollIndex + visibleRowCountLowerBound >= rowCount) {
+        rowPixelOffset = 0;
+        break;
+      }
+      rowPixelOffset -= pixelsPerRow;
+      firstVisibleRowScrollIndex++;
     }
 
-    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
-    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+    // Retreat backward (scroll up)
+    while (rowPixelOffset < 0) {
+      if (firstVisibleRowScrollIndex <= 0) {
+        rowPixelOffset = 0;
+        break;
+      }
+      firstVisibleRowScrollIndex--;
+      rowPixelOffset += pixelsPerRow;
+    }
+
+    domVerticalScroll.scroll(firstVisibleRowScrollIndex);
+    if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
   }
 
   function scrollHorizontal(deltaX) {
-    const pixelsPerColumn = (columnSizes && columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex)) || 100;
-    horizontalWheelAccumulator += deltaX;
-    const colsDelta = horizontalWheelAccumulator / pixelsPerColumn;
-    if (Math.abs(colsDelta) < 0.5) return;
-    const colsToScroll = Math.round(colsDelta);
-    horizontalWheelAccumulator -= colsToScroll * pixelsPerColumn;
+    if (!columnSizes) return;
+    columnPixelOffset += deltaX;
 
-    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex + colsToScroll;
-    if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
-      newFirstVisibleColumnScrollIndex = maxScrollColumn;
-    }
-    if (newFirstVisibleColumnScrollIndex < 0) {
-      newFirstVisibleColumnScrollIndex = 0;
+    // Advance forward (scroll right)
+    while (columnPixelOffset >= (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)) {
+      if (firstVisibleColumnScrollIndex >= maxScrollColumn) {
+        columnPixelOffset = 0;
+        break;
+      }
+      columnPixelOffset -= columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
+      firstVisibleColumnScrollIndex++;
     }
 
-    firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
-    domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
+    // Retreat backward (scroll left)
+    while (columnPixelOffset < 0) {
+      if (firstVisibleColumnScrollIndex <= 0) {
+        columnPixelOffset = 0;
+        break;
+      }
+      firstVisibleColumnScrollIndex--;
+      columnPixelOffset += columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
+    }
+
+    domHorizontalScroll.scroll(firstVisibleColumnScrollIndex);
+    if (domTable) domTable.scrollLeft = columnPixelOffset;
   }
 
   function getSelectedRowIndexes() {
@@ -2223,6 +2263,7 @@
         isGridFocused = false;
       }}
     />
+    <div class="tableScrollContainer" bind:this={domTable}>
     <table
       class="table"
       on:mousedown={handleGridMouseDown}
@@ -2235,7 +2276,7 @@
             class="header-cell"
             data-row="header"
             data-col="header"
-            style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+            style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
           >
             {#if !hideGridLeftColumn}
               <CollapseButton
@@ -2249,7 +2290,7 @@
               class="header-cell"
               data-row="header"
               data-col={col.colIndex}
-              style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+              style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:2` : ''}`}
               class:active-header-cell={currentCell && currentCell[0] == 'header' && currentCell[1] == col.colIndex}
             >
               <ColumnHeaderControl
@@ -2282,7 +2323,7 @@
               class="header-cell"
               data-row="filter"
               data-col="header"
-              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
             >
               {#if display.filterCount > 0}
                 <InlineButton
@@ -2299,7 +2340,7 @@
                 class="filter-cell"
                 data-row="filter"
                 data-col={col.colIndex}
-                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:2` : ''}`}
               >
                 <DataFilterControl
                   onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
@@ -2338,9 +2379,9 @@
           </tr>
         {/if}
       </thead>
-      <tbody>
+      <tbody bind:this={domTbody}>
         {#if rowHeight > 0}
-          {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
+          {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound + 1, grider.rowCount)) as rowIndex (rowIndex)}
             <DataGridRow
               {rowIndex}
               {grider}
@@ -2367,6 +2408,7 @@
         {/if}
       </tbody>
     </table>
+    </div>
 
     {#if !isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
       <div class="no-rows-info ml-2">
@@ -2395,14 +2437,28 @@
       minimum={0}
       maximum={maxScrollColumn}
       viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
-      on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+      on:scroll={e => {
+        const prev = firstVisibleColumnScrollIndex;
+        firstVisibleColumnScrollIndex = e.detail;
+        if (e.detail !== prev) {
+          columnPixelOffset = 0;
+          if (domTable) domTable.scrollLeft = 0;
+        }
+      }}
       bind:this={domHorizontalScroll}
     />
     <VerticalScrollBar
       minimum={0}
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
-      on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+      on:scroll={e => {
+        const prev = firstVisibleRowScrollIndex;
+        firstVisibleRowScrollIndex = e.detail;
+        if (e.detail !== prev) {
+          rowPixelOffset = 0;
+          if (domTbody) domTbody.style.transform = 'translateY(0)';
+        }
+      }}
       bind:this={domVerticalScroll}
     />
     {#if selectionMenu}
@@ -2485,12 +2541,20 @@
     overflow: hidden;
     background: var(--theme-datagrid-background);
   }
-  .table {
+  .tableScrollContainer {
     position: absolute;
     left: 0;
     top: 0;
+    right: 0;
     bottom: 20px;
-    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .tableScrollContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .table {
     border-collapse: collapse;
     outline: none;
   }
@@ -2503,6 +2567,9 @@
     padding: 0;
     margin: 0;
     background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
   }
   :global(.data-grid-focused) .active-header-cell {
     background-color: var(--theme-datagrid-focused-cell-background);
@@ -2511,6 +2578,10 @@
     text-align: left;
     margin: 0;
     padding: 0;
+    background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
   }
   .focus-field {
     position: absolute;

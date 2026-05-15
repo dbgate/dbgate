@@ -51,6 +51,9 @@
       if (maxWidth != null) res += `max-width:${maxWidth}px;`;
       if (minWidth != null) res += `min-width:${minWidth}px;`;
     }
+    if (col.stickyLeft != null) {
+      res += `position:sticky; left:${col.stickyLeft}px; z-index:2; background-color:var(--theme-datagrid-headercell-background);`;
+    }
     return res;
   }
 
