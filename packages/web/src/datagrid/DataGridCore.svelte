@@ -517,7 +517,6 @@
 
   export let dataEditorTypesBehaviourOverride = null;
 
-  const wheelRowCount = 5;
   const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
@@ -530,6 +529,8 @@
   let domHorizontalScroll;
   let domVerticalScroll;
   let domContainer;
+  let verticalWheelRemainder = 0;
+  let horizontalWheelRemainder = 0;
 
   let currentCell = topLeftCell;
   let selectedCells = [topLeftCell];
@@ -1593,52 +1594,77 @@
     }
   }
 
+  function normalizeWheelDelta(event) {
+    if (event.deltaMode == 1) {
+      const lineHeight = Math.max(1, rowHeight || 24);
+      return {
+        deltaX: event.deltaX * lineHeight,
+        deltaY: event.deltaY * lineHeight,
+      };
+    }
+
+    if (event.deltaMode == 2) {
+      return {
+        deltaX: event.deltaX * Math.max(1, gridScrollAreaWidth),
+        deltaY: event.deltaY * Math.max(1, gridScrollAreaHeight),
+      };
+    }
+
+    return {
+      deltaX: event.deltaX,
+      deltaY: event.deltaY,
+    };
+  }
+
+  function clampScroll(value, minimum, maximum) {
+    return Math.max(minimum, Math.min(maximum, value));
+  }
+
   function handleGridWheel(event) {
+    const { deltaX, deltaY } = normalizeWheelDelta(event);
     if (event.shiftKey) {
       if (isMac()) {
-        scrollHorizontal(event.deltaX, event.deltaY);
+        scrollHorizontal(deltaX, deltaY);
       } else {
-        scrollHorizontal(event.deltaY, event.deltaX);
+        scrollHorizontal(deltaY, deltaX);
       }
     } else {
-      scrollHorizontal(event.deltaX, event.deltaY);
-      scrollVertical(event.deltaX, event.deltaY);
+      scrollHorizontal(deltaX, deltaY);
+      scrollVertical(deltaX, deltaY);
     }
   }
 
   function scrollVertical(deltaX, deltaY) {
+    if (!deltaY || Math.abs(deltaY) < Math.abs(deltaX)) return;
+
+    const pixelsPerRow = Math.max(1, rowHeight || 24);
+    verticalWheelRemainder += deltaY;
+    const rowsToScroll = Math.trunc(verticalWheelRemainder / pixelsPerRow);
+    if (!rowsToScroll) return;
+
+    verticalWheelRemainder -= rowsToScroll * pixelsPerRow;
     let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-    if (deltaY > 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex += wheelRowCount;
-    } else if (deltaY < 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex -= wheelRowCount;
-    }
 
     let rowCount = grider.rowCount;
-    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-    }
-    if (newFirstVisibleRowScrollIndex < 0) {
-      newFirstVisibleRowScrollIndex = 0;
-    }
+    const maxRowScrollIndex = Math.max(0, rowCount - visibleRowCountLowerBound + 1);
+    newFirstVisibleRowScrollIndex = clampScroll(firstVisibleRowScrollIndex + rowsToScroll, 0, maxRowScrollIndex);
+    if (newFirstVisibleRowScrollIndex == 0 || newFirstVisibleRowScrollIndex == maxRowScrollIndex) verticalWheelRemainder = 0;
 
     firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
     domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
   }
 
   function scrollHorizontal(deltaX, deltaY) {
-    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
-    if (deltaX > 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex++;
-    } else if (deltaX < 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex--;
-    }
+    if (!deltaX || Math.abs(deltaX) < Math.abs(deltaY)) return;
 
-    if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
-      newFirstVisibleColumnScrollIndex = maxScrollColumn;
-    }
-    if (newFirstVisibleColumnScrollIndex < 0) {
-      newFirstVisibleColumnScrollIndex = 0;
+    const currentPosition = columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + horizontalWheelRemainder;
+    const nextPosition = Math.max(0, currentPosition + deltaX);
+    let newFirstVisibleColumnScrollIndex = columnSizes.getScrollIndexOnPosition(nextPosition);
+    newFirstVisibleColumnScrollIndex = clampScroll(newFirstVisibleColumnScrollIndex, 0, maxScrollColumn);
+    horizontalWheelRemainder =
+      nextPosition - columnSizes.getPositionByScrollIndex(newFirstVisibleColumnScrollIndex);
+    if (newFirstVisibleColumnScrollIndex == 0 || newFirstVisibleColumnScrollIndex == maxScrollColumn) {
+      horizontalWheelRemainder = 0;
     }
 
     firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
