@@ -15,6 +15,7 @@ const {
   getLogger,
   extractErrorLogData,
   filterStructureBySchema,
+  isCompositeDbName,
   serializeJsTypesForJsonStringify,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
@@ -194,6 +195,8 @@ module.exports = {
     );
     pipeForkLogs(subprocess);
     const lastClosed = this.closed[`${conid}/${database}`];
+    const initialStatusName =
+      !lastClosed && !(connection.useSeparateSchemas && !isCompositeDbName(database)) ? 'loadStructure' : 'pending';
     const newOpened = {
       conid,
       database,
@@ -201,7 +204,7 @@ module.exports = {
       structure: lastClosed ? lastClosed.structure : DatabaseAnalyser.createEmptyStructure(),
       serverVersion: lastClosed ? lastClosed.serverVersion : null,
       connection,
-      status: { name: 'pending' },
+      status: { name: initialStatusName },
     };
     this.opened.push(newOpened);
     subprocess.on('message', message => {

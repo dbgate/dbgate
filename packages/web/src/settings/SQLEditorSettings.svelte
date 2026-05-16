@@ -81,6 +81,13 @@
     label={_t('settings.sqlEditor.hideColumnsPanel', { defaultMessage: 'Hide Columns/Filters panel by default' })}
     defaultValue={false}
     />
+
+    <FormCheckboxField
+    name="sqlEditor.preserveLogs"
+    label={_t('settings.sqlEditor.preserveLogs', { defaultMessage: 'Preserve Logs in Messages panel by default' })}
+    defaultValue={false}
+    data-testid="SQLEditorSettings_preserveLogs"
+    />
 </div>
 
 <style>

@@ -164,6 +164,7 @@ const mongoDriverBase = {
     parseObjectIdAsDollar: true,
     parseDateAsDollar: true,
     parseHexAsBuffer: true,
+    parseUuid: true,
 
     explicitDataType: true,
     supportNumberType: true,

@@ -31,7 +31,10 @@
   // export let cntid;
 
   const teamFolders = useTeamFolders();
-  $: enabledTeamFolders = ($teamFolders || []).some(folder => folder.allowCreate || folder.allowWrite);
+  $: writableTeamFolderIds = ($teamFolders || [])
+    .filter(folder => folder.allowCreate || folder.allowWrite)
+    .map(folder => folder.teamFolderId?.toString());
+  $: enabledTeamFolders = writableTeamFolderIds.length > 0;
 
   const configValue = useConfig();
 
@@ -44,10 +47,29 @@
 
   const electron = getElectron();
 
+  $: if (
+    $values.saveToTeamFolder &&
+    enabledTeamFolders &&
+    !writableTeamFolderIds.includes($values.teamFolderId?.toString())
+  ) {
+    values.update(current => ({
+      ...current,
+      teamFolderId: writableTeamFolderIds[0],
+    }));
+  }
+
   const handleSubmit = async e => {
     const { name, cloudFolder, teamFolderId, saveToTeamFolder } = e.detail;
     if (saveToTeamFolder && enabledTeamFolders) {
-      const resp = await apiCall('team-files/create-new', { fileType: folder, file: name, data, teamFolderId });
+      const selectedTeamFolderId = writableTeamFolderIds.includes(teamFolderId?.toString())
+        ? teamFolderId
+        : writableTeamFolderIds[0];
+      const resp = await apiCall('team-files/create-new', {
+        fileType: folder,
+        file: name,
+        data,
+        teamFolderId: selectedTeamFolderId,
+      });
       if (resp?.apiErrorMessage) {
         showSnackbarError(resp.apiErrorMessage);
       } else if (resp?.teamFileId) {
@@ -152,6 +174,7 @@
       {#if $values.saveToTeamFolder}
         <FormTeamFolderSelect
           isNative
+          data-testid="SaveFileModal_teamFolderSelect"
           label={_t('cloud.chooseTeamFolder', { defaultMessage: 'Choose team folder' })}
           name="teamFolderId"
           folderFilter={folder => folder.allowCreate || folder.allowWrite}

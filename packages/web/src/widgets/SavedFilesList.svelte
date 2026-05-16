@@ -42,7 +42,7 @@
   }
 
   $: cloudIdToLabel = _.fromPairs(
-    (($cloudContentList || []) as any[])
+    ((Array.isArray($cloudContentList) ? $cloudContentList : []) as any[])
       .flatMap(fld => fld.items ?? [])
       .filter(item => item.type === 'connection' && item.folid && item.cntid)
       .map(item => [`cloud://${item.folid}/${item.cntid}`, item.name as string])

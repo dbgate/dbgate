@@ -1,13 +1,14 @@
 <script lang="ts">
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import { apiOff, apiOn } from '../utility/api';
+  import { apiOff, apiOn, apiCall } from '../utility/api';
   import createRef from '../utility/createRef';
   import { _t } from '../translations';
 
   import useEffect from '../utility/useEffect';
 
   import MessageView from './MessageView.svelte';
+  import { useSettings } from '../utility/metadataLoaders';
 
   export let showProcedure = false;
   export let showLine = false;
@@ -21,10 +22,34 @@
   export let onExplainError = null;
   export let engine = null;
 
+  const settings = useSettings();
+
   const cachedMessagesRef = createRef([]);
   const lastErrorMessageCountRef = createRef(0);
+  const preserveLogsRef = createRef(false);
 
+  let preserveLogs = $settings?.['sqlEditor.preserveLogs'] ?? false;
+  let _preserveLogsSyncValue = preserveLogs;
   let displayedMessages = [];
+
+  $: preserveLogsRef.set(preserveLogs);
+
+  // Settings tab → local: update checkbox when settings change externally
+  $: {
+    const settingsValue = $settings?.['sqlEditor.preserveLogs'] ?? false;
+    if (settingsValue !== _preserveLogsSyncValue) {
+      _preserveLogsSyncValue = settingsValue;
+      preserveLogs = settingsValue;
+    }
+  }
+
+  // Local → settings: persist checkbox change to settings
+  $: {
+    if (preserveLogs !== _preserveLogsSyncValue) {
+      _preserveLogsSyncValue = preserveLogs;
+      apiCall('config/update-settings', { 'sqlEditor.preserveLogs': preserveLogs });
+    }
+  }
 
   const displayCachedMessages = _.throttle(() => {
     displayedMessages = [...cachedMessagesRef.get()];
@@ -52,8 +77,10 @@
 
   $: {
     if (executeNumber >= 0) {
-      displayedMessages = [];
-      cachedMessagesRef.set([]);
+      if (!preserveLogsRef.get()) {
+        displayedMessages = [];
+        cachedMessagesRef.set([]);
+      }
     }
   }
 
@@ -87,6 +114,7 @@
     {startLine}
     {onExplainError}
     {engine}
+    bind:preserveLogs
     onClear={executeNumber == null ? handleClearMessages : null}
   />
 {/if}

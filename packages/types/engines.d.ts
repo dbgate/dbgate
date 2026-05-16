@@ -175,6 +175,7 @@ export interface DataEditorTypesBehaviour {
   parseDateAsDollar?: boolean;
   parseGeopointAsDollar?: boolean;
   parseFsDocumentRefAsDollar?: boolean;
+  parseUuid?: boolean;
 
   explicitDataType?: boolean;
   supportNumberType?: boolean;

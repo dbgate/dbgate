@@ -264,7 +264,7 @@ module.exports = {
     try {
       const fingerprint = await getPublicHardwareFingerprint();
 
-      const resp = await axios.default.post(`${getAuthProxyUrl()}/trial-license`, {
+      const resp = await axios.default.post(`https://api.dbgate.cloud/trial-license`, {
         type: 'premium-trial',
         days: 30,
         fingerprint,

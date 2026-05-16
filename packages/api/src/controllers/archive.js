@@ -96,6 +96,7 @@ module.exports = {
 
   files_meta: true,
   async files({ folder }) {
+    if (!folder) return [];
     assertSafeArchiveName(folder, 'folder');
     try {
       if (folder.endsWith('.zip')) {

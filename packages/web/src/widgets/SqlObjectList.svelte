@@ -233,6 +233,9 @@
 
   // $: console.log('STATUS', $status);
 
+  $: isLoadingStructure =
+    $status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure');
+
   function getAppObjectGroup(data) {
     if (data.objectTypeField == 'tables') {
       if (data.pureName.match(databaseObjectAppObject.TABLE_BACKUP_REGEX)) {
@@ -254,7 +257,7 @@
       >{_t('common.refresh', { defaultMessage: 'Refresh' })}</InlineButton
     >
   </WidgetsInnerContainer>
-{:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
+{:else if objectList.length == 0 && $status && !isLoadingStructure && $objects}
   <SchemaSelector
     schemaList={_.isArray($schemaList) ? $schemaList : null}
     objectList={flatFilteredList}
@@ -339,7 +342,7 @@
     hideContent={differentFocusedDb}
     data-testid="SqlObjectList_container"
   >
-    {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
+    {#if (isLoadingStructure && $objects) || !$objects}
       <LoadingInfo
         message={$status?.feedback?.analysingMessage ||
           _t('sqlObject.loadingStructure', { defaultMessage: 'Loading database structure' })}
@@ -368,6 +371,8 @@
           list={objectList
             .filter(x => x.schemaName == null || ($appliedCurrentSchema ? x.schemaName == $appliedCurrentSchema : true))
             .map(x => ({ ...x, conid, database }))}
+          initialRenderCount={200}
+          renderBatchSize={200}
           module={databaseObjectAppObject}
           groupFunc={getAppObjectGroup}
           subItemsComponent={(data, { isExpandedBySearch }) =>

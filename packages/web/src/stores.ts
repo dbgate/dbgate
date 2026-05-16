@@ -448,6 +448,7 @@ export const getCloudConnectionsStore = () => cloudConnectionsStoreValue;
 export const currentActiveCloudTags = derived(currentDatabase, $currentDatabase => {
   if (!$currentDatabase || !$currentDatabase.connection) return [];
   const engine = $currentDatabase.connection?.engine;
+  if (!engine) return [];
   const [shortName, packageName] = engine.split('@');
   const tags = [shortName];
   const res = [...tags];

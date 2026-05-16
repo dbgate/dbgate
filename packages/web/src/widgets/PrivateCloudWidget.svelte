@@ -56,9 +56,11 @@
   const cloudContentColorFactory = useCloudContentColorFactory();
   const connectionColorFactory = useConnectionColorFactory();
 
-  $: emptyCloudContent = ($cloudContentList || []).filter(x => !x.items?.length).map(x => x.folid);
+  $: emptyCloudContent = (Array.isArray($cloudContentList) ? $cloudContentList : [])
+    .filter(x => !x.items?.length)
+    .map(x => x.folid);
   $: cloudContentFlat = _.sortBy(
-    ($cloudContentList || [])
+    (Array.isArray($cloudContentList) ? $cloudContentList : [])
       .flatMap(fld => fld.items ?? [])
       .map(data => {
         if (data.type == 'connection') {
@@ -76,8 +78,8 @@
       }),
     'name'
   );
-  $: contentGroupMap = _.keyBy($cloudContentList || [], x => x.folid);
-  $: privateFolderId = $cloudContentList?.find(x => x.isPrivate)?.folid;
+  $: contentGroupMap = _.keyBy(Array.isArray($cloudContentList) ? $cloudContentList : [], x => x.folid);
+  $: privateFolderId = (Array.isArray($cloudContentList) ? $cloudContentList : []).find(x => x.isPrivate)?.folid;
 
   // $: console.log('cloudContentFlat', cloudContentFlat);
   // $: console.log('contentGroupMap', contentGroupMap);

@@ -126,13 +126,17 @@ export async function loadSchemaList(conid, database) {
   }
 }
 
+let switchCurrentDatabaseRequest = 0;
+
 export async function switchCurrentDatabase(data) {
+  const request = ++switchCurrentDatabaseRequest;
   if (data?.connection?.useSeparateSchemas && !isCompositeDbName(data.name)) {
     const conid = data.connection._id;
     const database = data.name;
     const storageKey = `selected-schema-${conid}-${database}`;
     const schemaInStorage = localStorage.getItem(storageKey);
     const schemas = await loadSchemaList(conid, database);
+    if (request != switchCurrentDatabaseRequest) return;
     if (!schemas) return;
     const driver = findEngineDriver(data.connection, getExtensions());
     const defaultSchema = findDefaultSchema(schemas, driver?.dialect, schemaInStorage);

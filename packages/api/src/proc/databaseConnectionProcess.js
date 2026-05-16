@@ -69,6 +69,16 @@ async function checkedAsyncCall(promise) {
 }
 
 let loadingModel = false;
+let queuedSyncModelFullRefresh = null;
+
+function finishLoadingModel() {
+  loadingModel = false;
+  if (queuedSyncModelFullRefresh != null) {
+    const isFullRefresh = queuedSyncModelFullRefresh;
+    queuedSyncModelFullRefresh = null;
+    handleSyncModel({ isFullRefresh });
+  }
+}
 
 async function handleFullRefresh() {
   if (storedConnection.useSeparateSchemas && !isCompositeDbName(dbhan?.database)) {
@@ -86,7 +96,7 @@ async function handleFullRefresh() {
   process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
 
-  loadingModel = false;
+  finishLoadingModel();
   resolveAnalysedPromises();
 }
 
@@ -111,12 +121,15 @@ async function handleIncrementalRefresh(forceSend) {
 
   process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
-  loadingModel = false;
+  finishLoadingModel();
   resolveAnalysedPromises();
 }
 
 function handleSyncModel({ isFullRefresh }) {
-  if (loadingModel) return;
+  if (loadingModel) {
+    queuedSyncModelFullRefresh = queuedSyncModelFullRefresh || !!isFullRefresh;
+    return;
+  }
   if (isFullRefresh) handleFullRefresh();
   else handleIncrementalRefresh();
 }

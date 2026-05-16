@@ -7,8 +7,8 @@
   import { writable } from 'svelte/store';
   import Link from '../elements/Link.svelte';
   import { focusedConnectionOrDatabase } from '../stores';
-  import { tick } from 'svelte';
-  import { _tval } from '../translations';
+  import { tick, onDestroy, afterUpdate } from 'svelte';
+  import { _t, _tval } from '../translations';
 
   export let list;
   export let module;
@@ -34,8 +34,13 @@
 
   export let collapsedGroupNames = writable([]);
   export let onChangeFilteredList = undefined;
+  export let initialRenderCount = null;
+  export let renderBatchSize = 200;
 
   let expandLimited = false;
+  let renderedCount = null;
+  let renderTimer = null;
+  let lastLimitedList = null;
 
   $: matcher = module.createMatcher && module.createMatcher(filter, passProps?.searchSettings);
 
@@ -82,6 +87,9 @@
   $: filtered = dataLabeled.filter(x => x.isMatched).map(x => x.data);
   $: childrenMatched = dataLabeled.filter(x => x.isChildMatched).map(x => x.data);
   $: mainMatched = dataLabeled.filter(x => x.isMainMatched).map(x => x.data);
+  $: filteredSet = new Set(filtered);
+  $: childrenMatchedSet = new Set(childrenMatched);
+  $: mainMatchedSet = new Set(mainMatched);
 
   // let filtered = [];
 
@@ -112,12 +120,21 @@
     expandLimited = true;
   }
 
-  $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeled, 'group'), emptyGroupNames) : null;
-
   $: listLimited =
     isExpandedBySearch && !expandLimited ? filtered.slice(0, filter.trim().length < 3 ? 1 : 3) : listTranslated;
   $: isListLimited = isExpandedBySearch && listLimited.length < filtered.length;
   $: listMissingItems = isListLimited ? filtered.slice(listLimited.length) : [];
+  $: if (initialRenderCount && listLimited !== lastLimitedList) {
+    lastLimitedList = listLimited;
+    renderedCount = Math.min(initialRenderCount, listLimited.length);
+  }
+  $: listRendered =
+    initialRenderCount && renderedCount != null ? listLimited.slice(0, renderedCount) : listLimited;
+  $: hasMoreToRender = initialRenderCount && renderedCount != null && renderedCount < listLimited.length;
+  $: loadingMoreObjectsMessage = _t('objectsList.loadingMoreObjects', { defaultMessage: 'Loading more objects...' });
+  $: dataLabeledRendered =
+    initialRenderCount && renderedCount != null ? dataLabeled.slice(0, renderedCount) : dataLabeled;
+  $: groups = groupFunc ? extendGroups(_.groupBy(dataLabeledRendered, 'group'), emptyGroupNames) : null;
 
   $: if (
     $focusedConnectionOrDatabase &&
@@ -127,6 +144,21 @@
   ) {
     tick().then(setExpandLimited);
   }
+
+  afterUpdate(() => {
+    if (hasMoreToRender && !renderTimer) {
+      renderTimer = setTimeout(() => {
+        renderTimer = null;
+        renderedCount = Math.min(listLimited.length, renderedCount + renderBatchSize);
+      }, 0);
+    }
+  });
+
+  onDestroy(() => {
+    if (renderTimer) {
+      clearTimeout(renderTimer);
+    }
+  });
 </script>
 
 {#if groupFunc}
@@ -152,10 +184,13 @@
       {collapsedGroupNames}
     />
   {/each}
+  {#if hasMoreToRender}
+    <div class="ml-2 grayed">{loadingMoreObjectsMessage}</div>
+  {/if}
 {:else}
-  {#each listLimited as data}
+  {#each listRendered as data}
     <AppObjectListItem
-      isHidden={!filtered.includes(data)}
+      isHidden={!filteredSet.has(data)}
       {module}
       {subItemsComponent}
       {expandOnClick}
@@ -166,8 +201,8 @@
       {checkedObjectsStore}
       {disableContextMenu}
       {filter}
-      isExpandedBySearch={filter && childrenMatched.includes(data)}
-      isMainMatched={filter && mainMatched.includes(data)}
+      isExpandedBySearch={filter && childrenMatchedSet.has(data)}
+      isMainMatched={filter && mainMatchedSet.has(data)}
       {passProps}
       {getIsExpanded}
       {setIsExpanded}
@@ -181,5 +216,8 @@
         }}>Show next {filtered.length - listLimited.length}</Link
       >
     </div>
+  {/if}
+  {#if hasMoreToRender}
+    <div class="ml-2 grayed">{loadingMoreObjectsMessage}</div>
   {/if}
 {/if}

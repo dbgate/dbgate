@@ -9,6 +9,27 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.11
+
+- CHANGED: AI Gateway migrated; endpoints now on new infrastructure, improving availability
+- CHANGED: Auth proxy migrated; endpoints now on new infrastructure, improving trial and licence availability
+- ADDED: Option to preserve logs #1446
+- CHANGED: Improved loading state handling for database connections and SQL object list components
+
+## 7.1.10
+
+- CHANGED: Private DbGate cloud migrated; endpoints now on new infrastructure, improving availability
+- CHANGED: DbGate Identity migrated, improving availability; requires upgrading to the new version; not backward compatible
+- FIXED: Excel export now correctly handles long table names #1441
+- FIXED: Sometimes SQL file is saved to incorrect team folder (Team Premium)
+
+## 7.1.9
+
+- FIXED: writeQueryHistory function error #1432
+- FIXED: UUID parsing issues #1434, #1431
+- ADDED: Validation for function and file names, fixed security issues
+- CHANGED: Public DbGate cloud migrated; endpoints now on new infrastructure, improving availability
+
 ## 7.1.8
 
 - FIXED: NPM packages build

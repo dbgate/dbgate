@@ -265,6 +265,7 @@ function useCore(loader, args) {
         }
       }
       openedCount += 1;
+      onChange(getCachedValue(cacheKey));
       handleReload();
 
       if (reloadTrigger) {

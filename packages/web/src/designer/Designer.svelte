@@ -226,7 +226,7 @@
 
   async function detectSize(tables, domTables) {
     await tick();
-    const rects = _.values(domTables).map(x => x.getRect());
+    const rects = _.compact(_.values(domTables).map(x => x.getRect()));
     const maxX = rects.length > 0 ? _.max(rects.map(x => x.right)) : 0;
     const maxY = rects.length > 0 ? _.max(rects.map(x => x.bottom)) : 0;
 
@@ -683,6 +683,7 @@
             const domTable = domTables[x.designerId] as any;
             if (domTable) {
               const rect = domTable.getRect();
+              if (!rect) return x;
               const rectZoomed = {
                 left: rect.left / zoomKoef,
                 right: rect.right / zoomKoef,
@@ -735,6 +736,7 @@
       const domTable = domTables[table.designerId] as any;
       if (!domTable) continue;
       const rect = domTable.getRect();
+      if (!rect) continue;
       graph.addNode(
         table.designerId,
         (rect.right - rect.left) / zoomKoef,
@@ -843,7 +845,7 @@
   }
 
   export async function exportDiagramPng() {
-    const rects = _.values(domTables).map((x: any) => x.getRect());
+    const rects = _.compact(_.values(domTables).map((x: any) => x.getRect()));
     const contentWidth = rects.length > 0 ? _.max(rects.map((x: any) => x.right)) + 50 : canvasWidth;
     const contentHeight = rects.length > 0 ? _.max(rects.map((x: any) => x.bottom)) + 50 : canvasHeight;
     const scale = 2;

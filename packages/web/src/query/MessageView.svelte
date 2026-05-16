@@ -19,6 +19,7 @@
 
   export let filter = '';
   export let onClear = null;
+  export let preserveLogs = false;
 
   $: time0 = items[0] && new Date(items[0].time).getTime();
 
@@ -83,6 +84,16 @@
       />
     </div>
     <div class="topbar-spacer" />
+    <div class="topbar-btn topbar-check">
+      <label class="preserve-logs-label">
+        <input
+          type="checkbox"
+          bind:checked={preserveLogs}
+          data-testid="MessageView_preserveLogs"
+        />
+        {_t('messageView.preserveLogs', { defaultMessage: 'Preserve Logs' })}
+      </label>
+    </div>
     <SearchInput placeholder={_t('messageView.filterLogMessages', { defaultMessage: "Filter log messages" })} bind:value={filter} />
   </div>
   <div class="tablewrap">
@@ -166,6 +177,19 @@
 
   .topbar-btn:hover {
     background-color: var(--theme-datagrid-selected-cell-background);
+  }
+
+  .topbar-check {
+    padding: 0 6px;
+  }
+
+  .preserve-logs-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
   }
 
   .topbar-spacer {

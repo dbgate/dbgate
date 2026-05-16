@@ -2500,14 +2500,12 @@
     padding: 0;
     margin: 0;
     background-color: var(--theme-datagrid-headercell-background);
-    overflow: hidden;
   }
   :global(.data-grid-focused) .active-header-cell {
     background-color: var(--theme-datagrid-focused-cell-background);
   }
   .filter-cell {
     text-align: left;
-    overflow: hidden;
     margin: 0;
     padding: 0;
   }

@@ -61,7 +61,8 @@
     !(value?.type == 'Buffer' && _.isArray(value.data)) &&
     !value.$oid &&
     !value.$bigint &&
-    !value.$decimal;
+    !value.$decimal &&
+    !value.$binary;
 
   // don't parse JSON for explicit data types
   $: jsonParsedValue = !editorTypes?.explicitDataType && isJsonLikeLongString(value) ? safeJsonParse(value) : null;

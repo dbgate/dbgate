@@ -2,14 +2,7 @@
   import _ from 'lodash';
   import { isWktGeometry, stringifyCellValue } from 'dbgate-tools';
   import wellknown from 'wellknown';
-  const LAT_PRIORITY_PATTERNS = [
-    /^lat$/i,
-    /^latitude$/i,
-    /latitude$/i,
-    /lat$/i,
-    /latitude/i,
-    /lat/i,
-  ];
+  const LAT_PRIORITY_PATTERNS = [/^lat$/i, /^latitude$/i, /latitude$/i, /lat$/i, /latitude/i, /lat/i];
 
   const LON_PRIORITY_PATTERNS = [
     /^lon$/i,
@@ -81,6 +74,27 @@
     return false;
   }
 
+  function isValidPosition(pos: any[]): boolean {
+    return Array.isArray(pos) && pos.length >= 2 && pos.every(c => typeof c === 'number' && Number.isFinite(c));
+  }
+
+  function isValidCoordinates(coords: any): boolean {
+    if (!Array.isArray(coords) || coords.length === 0) return false;
+    // Leaf level: array of numbers — a single position
+    if (typeof coords[0] === 'number') return isValidPosition(coords);
+    // Nested level: recurse into each element
+    return coords.every(isValidCoordinates);
+  }
+
+  function isValidGeometry(geometry): boolean {
+    if (!geometry) return false;
+    if (geometry.type === 'GeometryCollection') {
+      return Array.isArray(geometry.geometries) && geometry.geometries.length > 0 && geometry.geometries.every(isValidGeometry);
+    }
+    if (!Array.isArray(geometry.coordinates)) return false;
+    return isValidCoordinates(geometry.coordinates);
+  }
+
   function createColumnsTable(cells) {
     if (cells.length == 0) return '';
     return `<table>${cells
@@ -121,13 +135,16 @@
       if (geoValues.length > 0) {
         // parse WKT to geoJSON array
         features.push(
-          ...geoValues.map(wellknown).map(geometry => ({
-            type: 'Feature',
-            properties: {
-              popupContent: createColumnsTable(cells.filter(x => !isWktGeometry(x.value))),
-            },
-            geometry,
-          }))
+          ...geoValues
+            .map(wellknown)
+            .filter(geometry => geometry != null && isValidGeometry(geometry))
+            .map(geometry => ({
+              type: 'Feature',
+              properties: {
+                popupContent: createColumnsTable(cells.filter(x => !isWktGeometry(x.value))),
+              },
+              geometry,
+            }))
         );
       }
     }
