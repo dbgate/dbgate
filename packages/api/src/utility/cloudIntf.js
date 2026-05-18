@@ -34,7 +34,7 @@ const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   : process.env.PROD_DBGATE_CLOUD
   ? 'https://cloud.dbgate.io'
   : process.env.DEVWEB || process.env.DEVMODE
-  ? 'https://cloud.dbgate.udolni.net'
+  ? 'https://dev.dbgate.cloud'
   : 'https://cloud.dbgate.io';
 
 
@@ -297,7 +297,7 @@ async function updatePremiumPromoWidget(language) {
   const tags = (await collectCloudFilesSearchTags()).join(',');
 
   const resp = await axios.default.get(
-    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
+    `${DBGATE_PUBLIC_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
@@ -508,14 +508,14 @@ async function getPromoWidgetData() {
 
 async function getPromoWidgetPreview(campaign, variant) {
   const resp = await axios.default.get(
-    `${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`,
+    `${DBGATE_PUBLIC_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`,
     stageAxiosConfig
   );
   return resp.data;
 }
 
 async function getPromoWidgetList() {
-  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`, stageAxiosConfig);
+  const resp = await axios.default.get(`${DBGATE_PUBLIC_CLOUD_URL}/promo-widget-list`, stageAxiosConfig);
   return resp.data;
 }
 
