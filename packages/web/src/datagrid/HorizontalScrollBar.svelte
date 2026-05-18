@@ -16,7 +16,7 @@
     const ratio = position / (contentSize - width);
     if (ratio < 0) return 0;
     const res = ratio * (maximum - minimum + 1) + minimum;
-    dispatch('scroll', Math.floor(res + 0.3));
+    dispatch('scroll', res);
   }
 
   export function scroll(value) {
