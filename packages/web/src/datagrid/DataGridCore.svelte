@@ -389,7 +389,7 @@
     shouldOpenMultilineDialog,
     base64ToHex,
   } from 'dbgate-tools';
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext, onDestroy, afterUpdate } from 'svelte';
   import { type Writable } from 'svelte/store';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -517,7 +517,8 @@
 
   export let dataEditorTypesBehaviourOverride = null;
 
-  const wheelRowCount = 5;
+  let rowPixelOffset = 0;
+  let columnPixelOffset = 0;
   const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
@@ -530,6 +531,8 @@
   let domHorizontalScroll;
   let domVerticalScroll;
   let domContainer;
+  let domTable;
+  let domTbody;
 
   let currentCell = topLeftCell;
   let selectedCells = [topLeftCell];
@@ -547,7 +550,48 @@
 
   let unsubscribeDbRefresh;
 
+  let verticalSmoothPending = 0;
+  let horizontalSmoothPending = 0;
+  let smoothRafId = null;
+  let _pendingScrollLeft: number | null = null;
+
+  afterUpdate(() => {
+    if (_pendingScrollLeft !== null && domTable) {
+      domTable.scrollLeft = _pendingScrollLeft;
+      _pendingScrollLeft = null;
+    }
+  });
+
+  function smoothScrollFrame() {
+    let hasMore = false;
+
+    if (Math.abs(verticalSmoothPending) > 0.5) {
+      const step = verticalSmoothPending * 0.12;
+      scrollVertical(step);
+      verticalSmoothPending -= step;
+      hasMore = true;
+    } else if (verticalSmoothPending !== 0) {
+      scrollVertical(verticalSmoothPending);
+      verticalSmoothPending = 0;
+    }
+
+    if (Math.abs(horizontalSmoothPending) > 0.5) {
+      const step = horizontalSmoothPending * 0.12;
+      scrollHorizontal(step);
+      horizontalSmoothPending -= step;
+      hasMore = true;
+    } else if (horizontalSmoothPending !== 0) {
+      scrollHorizontal(horizontalSmoothPending);
+      horizontalSmoothPending = 0;
+    }
+
+    smoothRafId = hasMore ? requestAnimationFrame(smoothScrollFrame) : null;
+  }
+
   onDestroy(callUnsubscribeDbRefresh);
+  onDestroy(() => {
+    if (smoothRafId) cancelAnimationFrame(smoothRafId);
+  });
 
   function callUnsubscribeDbRefresh() {
     if (unsubscribeDbRefresh) {
@@ -575,6 +619,13 @@
 
   function resetVerticalScroll() {
     firstVisibleRowScrollIndex = 0;
+    rowPixelOffset = 0;
+    verticalSmoothPending = 0;
+    if (!horizontalSmoothPending && smoothRafId) {
+      cancelAnimationFrame(smoothRafId);
+      smoothRafId = null;
+    }
+    if (domTbody) domTbody.style.transform = 'translateY(0)';
     if (domVerticalScroll) {
       domVerticalScroll.scroll(0);
     }
@@ -1265,12 +1316,29 @@
   $: visibleRowCountLowerBound =
     rowHeight > 0 ? Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight))) : 0;
 
-  $: visibleRealColumns = countVisibleRealColumns(
+  $: visibleRealColumns = addFrozenStickyPositions(
+    countVisibleRealColumns(
+      columnSizes,
+      firstVisibleColumnScrollIndex,
+      gridScrollAreaWidth + (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 0),
+      columns
+    ),
     columnSizes,
-    firstVisibleColumnScrollIndex,
-    gridScrollAreaWidth,
-    columns
+    headerColWidth
   );
+
+  function addFrozenStickyPositions(cols, colSizes, hdrWidth) {
+    let frozenLeft = hdrWidth;
+    for (const col of cols) {
+      if ((col as any).colIndex < colSizes.frozenCount) {
+        (col as any).stickyLeft = frozenLeft;
+        frozenLeft += col.width;
+      } else {
+        (col as any).stickyLeft = null;
+      }
+    }
+    return cols;
+  }
 
   $: selectedCellsInfo = getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData());
 
@@ -1459,6 +1527,8 @@
 
       if (newRow != null) {
         firstVisibleRowScrollIndex = newRow;
+        rowPixelOffset = 0;
+        if (domTbody) domTbody.style.transform = 'translateY(0)';
         domVerticalScroll.scroll(newRow);
       }
     }
@@ -1471,7 +1541,8 @@
           gridScrollAreaWidth
         );
         firstVisibleColumnScrollIndex = newColumn;
-
+        columnPixelOffset = 0;
+        if (domTable) domTable.scrollLeft = 0;
         domHorizontalScroll.scroll(newColumn);
       }
     }
@@ -1593,56 +1664,110 @@
     }
   }
 
+  function normalizeWheelDelta(delta, deltaMode) {
+    if (deltaMode === 1) return delta * (rowHeight || 24); // LINE mode → pixels
+    if (deltaMode === 2) return delta * containerHeight; // PAGE mode → pixels
+    return delta; // PIXEL mode (touchpad)
+  }
+
   function handleGridWheel(event) {
+    const deltaX = normalizeWheelDelta(event.deltaX, event.deltaMode);
+    const deltaY = normalizeWheelDelta(event.deltaY, event.deltaMode);
+
+    let vDelta = 0;
+    let hDelta = 0;
     if (event.shiftKey) {
-      if (isMac()) {
-        scrollHorizontal(event.deltaX, event.deltaY);
-      } else {
-        scrollHorizontal(event.deltaY, event.deltaX);
-      }
+      if (isMac()) hDelta = deltaX;
+      else hDelta = deltaY;
     } else {
-      scrollHorizontal(event.deltaX, event.deltaY);
-      scrollVertical(event.deltaX, event.deltaY);
+      hDelta = deltaX;
+      vDelta = deltaY;
     }
+
+    // Mouse wheel produces large discrete steps; animate them smoothly.
+    // Touchpad sends many small continuous events (< 50px) — apply directly.
+    const needsSmoothing = event.deltaMode !== 0 || Math.abs(event.deltaY) >= 50 || Math.abs(event.deltaX) >= 50;
+    if (needsSmoothing) {
+      verticalSmoothPending += vDelta;
+      horizontalSmoothPending += hDelta;
+      if (!smoothRafId) smoothRafId = requestAnimationFrame(smoothScrollFrame);
+    } else {
+      scrollVertical(vDelta);
+      scrollHorizontal(hDelta);
+    }
+    event.preventDefault();
   }
 
-  function scrollVertical(deltaX, deltaY) {
-    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-    if (deltaY > 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex += wheelRowCount;
-    } else if (deltaY < 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex -= wheelRowCount;
+  function scrollVertical(deltaY) {
+    const pixelsPerRow = rowHeight || 24;
+    rowPixelOffset += deltaY;
+
+    // Advance forward (scroll down)
+    while (rowPixelOffset >= pixelsPerRow) {
+      const rowCount = grider.rowCount;
+      if (firstVisibleRowScrollIndex + visibleRowCountLowerBound >= rowCount) {
+        rowPixelOffset = 0;
+        break;
+      }
+      rowPixelOffset -= pixelsPerRow;
+      firstVisibleRowScrollIndex++;
     }
 
-    let rowCount = grider.rowCount;
-    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-    }
-    if (newFirstVisibleRowScrollIndex < 0) {
-      newFirstVisibleRowScrollIndex = 0;
+    // Clamp sub-row offset when already at the last page (small delta that didn't trigger the loop)
+    if (rowPixelOffset > 0 && firstVisibleRowScrollIndex + visibleRowCountLowerBound >= grider.rowCount) {
+      rowPixelOffset = 0;
     }
 
-    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
-    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+    // Retreat backward (scroll up)
+    while (rowPixelOffset < 0) {
+      if (firstVisibleRowScrollIndex <= 0) {
+        rowPixelOffset = 0;
+        break;
+      }
+      firstVisibleRowScrollIndex--;
+      rowPixelOffset += pixelsPerRow;
+    }
+
+    domVerticalScroll.scroll(firstVisibleRowScrollIndex + rowPixelOffset / pixelsPerRow);
+    if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
   }
 
-  function scrollHorizontal(deltaX, deltaY) {
-    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
-    if (deltaX > 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex++;
-    } else if (deltaX < 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex--;
+  function scrollHorizontal(deltaX) {
+    if (!columnSizes) return;
+    const prevIndex = firstVisibleColumnScrollIndex;
+    columnPixelOffset += deltaX;
+
+    // Advance forward (scroll right)
+    while (columnPixelOffset >= (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)) {
+      if (firstVisibleColumnScrollIndex >= maxScrollColumn) {
+        columnPixelOffset = 0;
+        break;
+      }
+      columnPixelOffset -= columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
+      firstVisibleColumnScrollIndex++;
     }
 
-    if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
-      newFirstVisibleColumnScrollIndex = maxScrollColumn;
-    }
-    if (newFirstVisibleColumnScrollIndex < 0) {
-      newFirstVisibleColumnScrollIndex = 0;
+    // Retreat backward (scroll left)
+    while (columnPixelOffset < 0) {
+      if (firstVisibleColumnScrollIndex <= 0) {
+        columnPixelOffset = 0;
+        break;
+      }
+      firstVisibleColumnScrollIndex--;
+      columnPixelOffset += columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
     }
 
-    firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
-    domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
+    domHorizontalScroll.scroll(
+      firstVisibleColumnScrollIndex +
+        columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
+    );
+    if (firstVisibleColumnScrollIndex !== prevIndex) {
+      // Column set is changing — DOM not yet updated, so scrollLeft would be clamped by
+      // the old (narrower) content. Defer the assignment until afterUpdate.
+      _pendingScrollLeft = columnPixelOffset;
+    } else {
+      if (domTable) domTable.scrollLeft = columnPixelOffset;
+    }
   }
 
   function getSelectedRowIndexes() {
@@ -2196,7 +2321,7 @@
     bind:this={domContainer}
     use:contextMenu={buildMenu}
     use:contextMenuActivator={activator}
-    on:wheel={handleGridWheel}
+    on:wheel|nonpassive={handleGridWheel}
     on:click={e => {
       if (e.target == domContainer) {
         domFocusField?.focus();
@@ -2220,150 +2345,151 @@
         isGridFocused = false;
       }}
     />
-    <table
-      class="table"
-      on:mousedown={handleGridMouseDown}
-      on:mousemove={handleGridMouseMove}
-      on:mouseup={handleGridMouseUp}
-    >
-      <thead>
-        <tr>
-          <td
-            class="header-cell"
-            data-row="header"
-            data-col="header"
-            style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          >
-            {#if !hideGridLeftColumn}
-              <CollapseButton
-                collapsed={$collapsedLeftColumnStore}
-                on:click={() => collapsedLeftColumnStore.update(x => !x)}
-              />
-            {/if}
-          </td>
-          {#each visibleRealColumns as col (col.uniqueName)}
-            <td
-              class="header-cell"
-              data-row="header"
-              data-col={col.colIndex}
-              style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
-              class:active-header-cell={currentCell && currentCell[0] == 'header' && currentCell[1] == col.colIndex}
-            >
-              <ColumnHeaderControl
-                column={col}
-                {conid}
-                {database}
-                setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
-                addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
-                order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
-                orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
-                isSortDefined={display.sortable ? display.isSortDefined() : false}
-                clearSort={display.sortable ? () => display.clearSort() : null}
-                on:resizeSplitter={e => {
-                  // @ts-ignore
-                  display.resizeColumn(col.uniqueName, col.width, e.detail);
-                }}
-                setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
-                grouping={display.getGrouping(col.uniqueName)}
-                {allowDefineVirtualReferences}
-                seachInColumns={display.config?.searchInColumns}
-                onReload={refresh}
-                driver={display?.driver}
-              />
-            </td>
-          {/each}
-        </tr>
-        {#if display.filterable}
+    <div class="tableScrollContainer" bind:this={domTable}>
+      <table
+        class="table"
+        on:mousedown={handleGridMouseDown}
+        on:mousemove={handleGridMouseMove}
+        on:mouseup={handleGridMouseUp}
+      >
+        <thead>
           <tr>
             <td
               class="header-cell"
-              data-row="filter"
+              data-row="header"
               data-col="header"
-              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
             >
-              {#if display.filterCount > 0}
-                <InlineButton
-                  on:click={() => display.clearFilters()}
-                  square
-                  data-testid="DataGridCore_button_clearFilters"
-                >
-                  <FontIcon icon="icon filter-off" />
-                </InlineButton>
+              {#if !hideGridLeftColumn}
+                <CollapseButton
+                  collapsed={$collapsedLeftColumnStore}
+                  on:click={() => collapsedLeftColumnStore.update(x => !x)}
+                />
               {/if}
             </td>
             {#each visibleRealColumns as col (col.uniqueName)}
               <td
-                class="filter-cell"
-                data-row="filter"
+                class="header-cell"
+                data-row="header"
                 data-col={col.colIndex}
-                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:5` : ''}`}
               >
-                <DataFilterControl
-                  onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
-                  foreignKey={col.foreignKey}
-                  columnName={col.uniquePath.length == 1 ? col.uniquePath[0] : null}
-                  uniqueName={col.uniqueName}
-                  pureName={col.pureName}
-                  schemaName={col.schemaName}
+                <ColumnHeaderControl
+                  column={col}
                   {conid}
                   {database}
-                  {jslid}
-                  {passAllRows}
-                  {formatterFunction}
-                  driver={display?.driver}
-                  filterBehaviour={display?.filterBehaviourOverride ??
-                    col.filterBehaviour ??
-                    detectSqlFilterBehaviour(col.dataType)}
-                  filter={display.getFilter(col.uniqueName)}
-                  setFilter={value => display.setFilter(col.uniqueName, value)}
-                  showResizeSplitter
+                  setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
+                  addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
+                  order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
+                  orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
+                  isSortDefined={display.sortable ? display.isSortDefined() : false}
+                  clearSort={display.sortable ? () => display.clearSort() : null}
                   on:resizeSplitter={e => {
                     // @ts-ignore
                     display.resizeColumn(col.uniqueName, col.width, e.detail);
                   }}
-                  onFocusGrid={() => {
-                    selectTopmostCell(col.uniqueName);
-                  }}
-                  onFocusGridHeader={() => {
-                    selectColumnHeaderCell(col.uniqueName);
-                  }}
-                  dataType={col.dataType}
-                  filterDisabled={display.isFilterDisabled(col.uniqueName)}
+                  setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                  grouping={display.getGrouping(col.uniqueName)}
+                  {allowDefineVirtualReferences}
+                  seachInColumns={display.config?.searchInColumns}
+                  onReload={refresh}
+                  driver={display?.driver}
                 />
               </td>
             {/each}
           </tr>
-        {/if}
-      </thead>
-      <tbody>
-        {#if rowHeight > 0}
-          {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
-            <DataGridRow
-              {rowIndex}
-              {grider}
-              {conid}
-              {database}
-              driver={display?.driver}
-              {visibleRealColumns}
-              {rowHeight}
-              {autofillSelectedCells}
-              {isDynamicStructure}
-              selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-              autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-              focusedColumns={display.focusedColumns}
-              inplaceEditorState={$inplaceEditorState}
-              currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
-              {dispatchInsplaceEditor}
-              {frameSelection}
-              onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
-              {dataEditorTypesBehaviourOverride}
-              {gridColoringMode}
-              {overlayDefinition}
-            />
-          {/each}
-        {/if}
-      </tbody>
-    </table>
+          {#if display.filterable}
+            <tr>
+              <td
+                class="header-cell"
+                data-row="filter"
+                data-col="header"
+                style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
+              >
+                {#if display.filterCount > 0}
+                  <InlineButton
+                    on:click={() => display.clearFilters()}
+                    square
+                    data-testid="DataGridCore_button_clearFilters"
+                  >
+                    <FontIcon icon="icon filter-off" />
+                  </InlineButton>
+                {/if}
+              </td>
+              {#each visibleRealColumns as col (col.uniqueName)}
+                <td
+                  class="filter-cell"
+                  data-row="filter"
+                  data-col={col.colIndex}
+                  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:3` : ''}`}
+                >
+                  <DataFilterControl
+                    onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
+                    foreignKey={col.foreignKey}
+                    columnName={col.uniquePath.length == 1 ? col.uniquePath[0] : null}
+                    uniqueName={col.uniqueName}
+                    pureName={col.pureName}
+                    schemaName={col.schemaName}
+                    {conid}
+                    {database}
+                    {jslid}
+                    {passAllRows}
+                    {formatterFunction}
+                    driver={display?.driver}
+                    filterBehaviour={display?.filterBehaviourOverride ??
+                      col.filterBehaviour ??
+                      detectSqlFilterBehaviour(col.dataType)}
+                    filter={display.getFilter(col.uniqueName)}
+                    setFilter={value => display.setFilter(col.uniqueName, value)}
+                    showResizeSplitter
+                    on:resizeSplitter={e => {
+                      // @ts-ignore
+                      display.resizeColumn(col.uniqueName, col.width, e.detail);
+                    }}
+                    onFocusGrid={() => {
+                      selectTopmostCell(col.uniqueName);
+                    }}
+                    onFocusGridHeader={() => {
+                      selectColumnHeaderCell(col.uniqueName);
+                    }}
+                    dataType={col.dataType}
+                    filterDisabled={display.isFilterDisabled(col.uniqueName)}
+                  />
+                </td>
+              {/each}
+            </tr>
+          {/if}
+        </thead>
+        <tbody bind:this={domTbody}>
+          {#if rowHeight > 0}
+            {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound + 1, grider.rowCount)) as rowIndex (rowIndex)}
+              <DataGridRow
+                {rowIndex}
+                {grider}
+                {conid}
+                {database}
+                driver={display?.driver}
+                {visibleRealColumns}
+                {rowHeight}
+                {autofillSelectedCells}
+                {isDynamicStructure}
+                selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+                autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+                focusedColumns={display.focusedColumns}
+                inplaceEditorState={$inplaceEditorState}
+                currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
+                {dispatchInsplaceEditor}
+                {frameSelection}
+                onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+                {dataEditorTypesBehaviourOverride}
+                {gridColoringMode}
+                {overlayDefinition}
+              />
+            {/each}
+          {/if}
+        </tbody>
+      </table>
+    </div>
 
     {#if !isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
       <div class="no-rows-info ml-2">
@@ -2392,14 +2518,46 @@
       minimum={0}
       maximum={maxScrollColumn}
       viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
-      on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+      on:scroll={e => {
+        horizontalSmoothPending = 0;
+        if (!verticalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
+        const fractionalCol = e.detail;
+        const newIndex = Math.floor(fractionalCol);
+        const fraction = fractionalCol - newIndex;
+        const prevIndex = firstVisibleColumnScrollIndex;
+        firstVisibleColumnScrollIndex = newIndex;
+        columnPixelOffset = fraction * (columnSizes?.getSizeByScrollIndex(newIndex) || 100);
+        if (newIndex !== prevIndex) {
+          _pendingScrollLeft = columnPixelOffset;
+        } else {
+          if (domTable) domTable.scrollLeft = columnPixelOffset;
+        }
+      }}
       bind:this={domHorizontalScroll}
     />
     <VerticalScrollBar
       minimum={0}
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
-      on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+      on:scroll={e => {
+        verticalSmoothPending = 0;
+        if (!horizontalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
+        const fractionalRow = e.detail;
+        const newIndex = Math.floor(fractionalRow);
+        const fraction = fractionalRow - newIndex;
+        firstVisibleRowScrollIndex = newIndex;
+        rowPixelOffset = fraction * (rowHeight || 24);
+        if (domTbody) {
+          domTbody.style.top = '';
+          domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
+        }
+      }}
       bind:this={domVerticalScroll}
     />
     {#if selectionMenu}
@@ -2482,12 +2640,20 @@
     overflow: hidden;
     background: var(--theme-datagrid-background);
   }
-  .table {
+  .tableScrollContainer {
     position: absolute;
     left: 0;
     top: 0;
+    right: 0;
     bottom: 20px;
-    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .tableScrollContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .table {
     border-collapse: collapse;
     outline: none;
   }
@@ -2500,6 +2666,9 @@
     padding: 0;
     margin: 0;
     background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
   }
   :global(.data-grid-focused) .active-header-cell {
     background-color: var(--theme-datagrid-focused-cell-background);
@@ -2508,6 +2677,10 @@
     text-align: left;
     margin: 0;
     padding: 0;
+    background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
   }
   .focus-field {
     position: absolute;

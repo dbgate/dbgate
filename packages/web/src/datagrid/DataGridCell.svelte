@@ -51,6 +51,9 @@
       if (maxWidth != null) res += `max-width:${maxWidth}px;`;
       if (minWidth != null) res += `min-width:${minWidth}px;`;
     }
+    if (col.stickyLeft != null) {
+      res += `position:sticky; left:${col.stickyLeft}px; z-index:2;`;
+    }
     return res;
   }
 
@@ -85,6 +88,7 @@
   class:isFocusedColumn
   class:hasOverlayValue
   class:isMissingOverlayField
+  class:isStickyLeft={col.stickyLeft != null}
   class:alignRight={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && !isModifiedCell}
   {style}
 >
@@ -185,6 +189,9 @@
     white-space: nowrap;
     position: relative;
     overflow: hidden;
+  }
+  td.isStickyLeft {
+    background: var(--theme-datagrid-headercell-background);
   }
   td.isFrameSelected {
     outline: 3px solid var(--theme-table-selected-background);

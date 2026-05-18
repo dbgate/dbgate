@@ -41,7 +41,9 @@
     padding: 2px;
     background-color: var(--theme-datagrid-headercell-background);
     overflow: hidden;
-    position: relative;
+    position: sticky;
+    left: 0;
+    z-index: 3;
   }
   .extraIcon {
     position: absolute;

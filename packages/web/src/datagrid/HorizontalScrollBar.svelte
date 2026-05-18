@@ -8,22 +8,30 @@
 
   let width;
   let node;
+  let _programmaticScrolls = 0;
   $: contentSize = viewportRatio > 0 ? Math.round(width / viewportRatio) : width;
 
   function handleScroll() {
+    if (_programmaticScrolls > 0) {
+      _programmaticScrolls--;
+      return;
+    }
     if (contentSize <= width) return;
     const position = node.scrollLeft;
     const ratio = position / (contentSize - width);
-    if (ratio < 0) return 0;
+    if (ratio < 0) return;
     const res = ratio * (maximum - minimum + 1) + minimum;
-    dispatch('scroll', Math.floor(res + 0.3));
+    dispatch('scroll', res);
   }
 
   export function scroll(value) {
     if (contentSize <= width) return;
     const position01 = (value - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - width);
-    if (node) node.scrollLeft = Math.floor(position);
+    if (node) {
+      _programmaticScrolls++;
+      node.scrollLeft = Math.floor(position);
+    }
   }
 </script>
 
