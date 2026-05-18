@@ -612,6 +612,11 @@
   function resetVerticalScroll() {
     firstVisibleRowScrollIndex = 0;
     rowPixelOffset = 0;
+    verticalSmoothPending = 0;
+    if (!horizontalSmoothPending && smoothRafId) {
+      cancelAnimationFrame(smoothRafId);
+      smoothRafId = null;
+    }
     if (domTbody) domTbody.style.transform = 'translateY(0)';
     if (domVerticalScroll) {
       domVerticalScroll.scroll(0);
@@ -1682,6 +1687,7 @@
       scrollVertical(vDelta);
       scrollHorizontal(hDelta);
     }
+    event.preventDefault();
   }
 
   function scrollVertical(deltaY) {
@@ -1742,7 +1748,10 @@
       columnPixelOffset += columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
     }
 
-    domHorizontalScroll.scroll(firstVisibleColumnScrollIndex + columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100));
+    domHorizontalScroll.scroll(
+      firstVisibleColumnScrollIndex +
+        columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
+    );
     if (domTable) domTable.scrollLeft = columnPixelOffset;
   }
 
@@ -2297,7 +2306,7 @@
     bind:this={domContainer}
     use:contextMenu={buildMenu}
     use:contextMenuActivator={activator}
-    on:wheel={handleGridWheel}
+    on:wheel|nonpassive={handleGridWheel}
     on:click={e => {
       if (e.target == domContainer) {
         domFocusField?.focus();
