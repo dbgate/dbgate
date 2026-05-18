@@ -2533,7 +2533,10 @@
         const fraction = fractionalRow - newIndex;
         firstVisibleRowScrollIndex = newIndex;
         rowPixelOffset = fraction * (rowHeight || 24);
-        if (domTbody) domTbody.style.top = `-${rowPixelOffset}px`;
+        if (domTbody) {
+          domTbody.style.top = '';
+          domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
+        }
       }}
       bind:this={domVerticalScroll}
     />
