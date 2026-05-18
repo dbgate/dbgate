@@ -70,7 +70,7 @@
   // $: console.log('rowStatus', rowStatus);
 </script>
 
-<tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode}`}>
+<tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode} row-color-${rowIndex % 6}`}>
   <RowHeaderCell
     {rowIndex}
     onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
@@ -134,18 +134,22 @@
     background-color: var(--theme-datagrid-cell-background);
   }
 
-  tr.coloring-mode-36:nth-child(6n + 3) {
+  tr.coloring-mode-36.row-color-2 {
     background-color: var(--theme-datagrid-cell-background-alt);
   }
-  tr.coloring-mode-36:nth-child(6n + 6) {
+  tr.coloring-mode-36.row-color-5 {
     background-color: var(--theme-datagrid-cell-background-alt2);
   }
 
-  tr.coloring-mode-2-primary:nth-child(2n + 1) {
+  tr.coloring-mode-2-primary.row-color-0,
+  tr.coloring-mode-2-primary.row-color-2,
+  tr.coloring-mode-2-primary.row-color-4 {
     background-color: var(--theme-datagrid-cell-background-alt);
   }
 
-  tr.coloring-mode-2-secondary:nth-child(2n + 1) {
+  tr.coloring-mode-2-secondary.row-color-0,
+  tr.coloring-mode-2-secondary.row-color-2,
+  tr.coloring-mode-2-secondary.row-color-4 {
     background-color: var(--theme-datagrid-cell-background-alt2);
   }
 </style>
