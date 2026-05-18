@@ -8,12 +8,12 @@
 
   let width;
   let node;
-  let _programmaticScrolls = 0;
+  let _isProgrammatic = false;
   $: contentSize = viewportRatio > 0 ? Math.round(width / viewportRatio) : width;
 
   function handleScroll() {
-    if (_programmaticScrolls > 0) {
-      _programmaticScrolls--;
+    if (_isProgrammatic) {
+      _isProgrammatic = false;
       return;
     }
     if (contentSize <= width) return;
@@ -29,8 +29,11 @@
     const position01 = (value - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - width);
     if (node) {
-      _programmaticScrolls++;
-      node.scrollLeft = Math.floor(position);
+      const newLeft = Math.floor(position);
+      if (node.scrollLeft !== newLeft) {
+        _isProgrammatic = true;
+        node.scrollLeft = newLeft;
+      }
     }
   }
 </script>
