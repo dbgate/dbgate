@@ -1714,7 +1714,7 @@
       rowPixelOffset += pixelsPerRow;
     }
 
-    domVerticalScroll.scroll(firstVisibleRowScrollIndex);
+    domVerticalScroll.scroll(firstVisibleRowScrollIndex + rowPixelOffset / pixelsPerRow);
     if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
   }
 
@@ -1742,7 +1742,7 @@
       columnPixelOffset += columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
     }
 
-    domHorizontalScroll.scroll(firstVisibleColumnScrollIndex);
+    domHorizontalScroll.scroll(firstVisibleColumnScrollIndex + columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100));
     if (domTable) domTable.scrollLeft = columnPixelOffset;
   }
 
