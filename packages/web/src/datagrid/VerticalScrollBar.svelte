@@ -8,13 +8,18 @@
 
   let height;
   let node;
+  let _programmaticScrolls = 0;
   $: contentSize = viewportRatio > 0 ? Math.round(height / viewportRatio) : height;
 
   function handleScroll() {
+    if (_programmaticScrolls > 0) {
+      _programmaticScrolls--;
+      return;
+    }
     if (contentSize <= height) return;
     const position = node.scrollTop;
     const ratio = position / (contentSize - height);
-    if (ratio < 0) return 0;
+    if (ratio < 0) return;
     let res = ratio * (maximum - minimum + 1) + minimum;
     dispatch('scroll', res);
   }
@@ -23,7 +28,10 @@
     if (contentSize <= height) return;
     const position01 = (value - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - height);
-    if (node) node.scrollTop = Math.floor(position);
+    if (node) {
+      _programmaticScrolls++;
+      node.scrollTop = Math.floor(position);
+    }
   }
 </script>
 

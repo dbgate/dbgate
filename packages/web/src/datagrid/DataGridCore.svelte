@@ -389,7 +389,7 @@
     shouldOpenMultilineDialog,
     base64ToHex,
   } from 'dbgate-tools';
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext, onDestroy, afterUpdate } from 'svelte';
   import { type Writable } from 'svelte/store';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -553,6 +553,14 @@
   let verticalSmoothPending = 0;
   let horizontalSmoothPending = 0;
   let smoothRafId = null;
+  let _pendingScrollLeft: number | null = null;
+
+  afterUpdate(() => {
+    if (_pendingScrollLeft !== null && domTable) {
+      domTable.scrollLeft = _pendingScrollLeft;
+      _pendingScrollLeft = null;
+    }
+  });
 
   function smoothScrollFrame() {
     let hasMore = false;
@@ -1726,6 +1734,7 @@
 
   function scrollHorizontal(deltaX) {
     if (!columnSizes) return;
+    const prevIndex = firstVisibleColumnScrollIndex;
     columnPixelOffset += deltaX;
 
     // Advance forward (scroll right)
@@ -1752,7 +1761,13 @@
       firstVisibleColumnScrollIndex +
         columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
     );
-    if (domTable) domTable.scrollLeft = columnPixelOffset;
+    if (firstVisibleColumnScrollIndex !== prevIndex) {
+      // Column set is changing — DOM not yet updated, so scrollLeft would be clamped by
+      // the old (narrower) content. Defer the assignment until afterUpdate.
+      _pendingScrollLeft = columnPixelOffset;
+    } else {
+      if (domTable) domTable.scrollLeft = columnPixelOffset;
+    }
   }
 
   function getSelectedRowIndexes() {
@@ -2512,9 +2527,14 @@
         const fractionalCol = e.detail;
         const newIndex = Math.floor(fractionalCol);
         const fraction = fractionalCol - newIndex;
+        const prevIndex = firstVisibleColumnScrollIndex;
         firstVisibleColumnScrollIndex = newIndex;
         columnPixelOffset = fraction * (columnSizes?.getSizeByScrollIndex(newIndex) || 100);
-        if (domTable) domTable.scrollLeft = columnPixelOffset;
+        if (newIndex !== prevIndex) {
+          _pendingScrollLeft = columnPixelOffset;
+        } else {
+          if (domTable) domTable.scrollLeft = columnPixelOffset;
+        }
       }}
       bind:this={domHorizontalScroll}
     />
