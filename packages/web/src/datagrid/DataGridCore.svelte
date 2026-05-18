@@ -1646,6 +1646,11 @@
       firstVisibleRowScrollIndex++;
     }
 
+    // Clamp sub-row offset when already at the last page (small delta that didn't trigger the loop)
+    if (rowPixelOffset > 0 && firstVisibleRowScrollIndex + visibleRowCountLowerBound >= grider.rowCount) {
+      rowPixelOffset = 0;
+    }
+
     // Retreat backward (scroll up)
     while (rowPixelOffset < 0) {
       if (firstVisibleRowScrollIndex <= 0) {
