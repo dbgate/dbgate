@@ -68,6 +68,12 @@ jobs:
           cd ../dbgate-merged
           cd packages/tools
           yarn test:ci
+      - name: API tests
+        if: always()
+        run: |
+          cd ../dbgate-merged
+          cd packages/api
+          yarn test:ci
     services:
       postgres-integr:
         image: postgres
