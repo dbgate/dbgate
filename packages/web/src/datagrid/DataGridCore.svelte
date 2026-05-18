@@ -2357,8 +2357,7 @@
                 class="header-cell"
                 data-row="header"
                 data-col={col.colIndex}
-                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:2` : ''}`}
-                class:active-header-cell={currentCell && currentCell[0] == 'header' && currentCell[1] == col.colIndex}
+                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:5` : ''}`}
               >
                 <ColumnHeaderControl
                   column={col}
@@ -2407,7 +2406,7 @@
                   class="filter-cell"
                   data-row="filter"
                   data-col={col.colIndex}
-                  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:2` : ''}`}
+                  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:3` : ''}`}
                 >
                   <DataFilterControl
                     onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
