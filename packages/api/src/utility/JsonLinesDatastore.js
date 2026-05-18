@@ -1,15 +1,16 @@
 const crypto = require('crypto');
 const fs = require('fs');
-const os = require('os');
-const rimraf = require('rimraf');
 const path = require('path');
 const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
-const esort = require('external-sorting');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const { jsldir } = require('./directories');
 const LineReader = require('./LineReader');
+const { sortFile } = require('./externalSort');
+
+const logger = getLogger('JsonLinesDatastore');
 
 class JsonLinesDatastore {
   constructor(file, formatterFunction) {
@@ -30,33 +31,7 @@ class JsonLinesDatastore {
   }
 
   static async sortFile(infile, outfile, sort) {
-    const tempDir = path.join(os.tmpdir(), crypto.randomUUID());
-    fs.mkdirSync(tempDir);
-
-    await esort
-      .default({
-        input: fs.createReadStream(infile),
-        output: fs.createWriteStream(outfile),
-        deserializer: JSON.parse,
-        serializer: JSON.stringify,
-        tempDir,
-        maxHeap: 100,
-        comparer: (a, b) => {
-          for (const item of sort) {
-            const { uniqueName, order } = item;
-            if (a[uniqueName] < b[uniqueName]) {
-              return order == 'ASC' ? -1 : 1;
-            }
-            if (a[uniqueName] > b[uniqueName]) {
-              return order == 'ASC' ? 1 : -1;
-            }
-          }
-          return 0;
-        },
-      })
-      .asc();
-
-    await new Promise(resolve => rimraf(tempDir, resolve));
+    return sortFile(infile, outfile, sort);
   }
 
   async _closeReader() {
@@ -214,8 +189,16 @@ class JsonLinesDatastore {
     if (sort && !this.sortedFiles[stableStringify(sort)]) {
       const jslid = crypto.randomUUID();
       const sortedFile = path.join(jsldir(), `${jslid}.jsonl`);
-      await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
-      this.sortedFiles[stableStringify(sort)] = sortedFile;
+      try {
+        await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
+        this.sortedFiles[stableStringify(sort)] = sortedFile;
+      } catch (e) {
+        logger.error(extractErrorLogData(e), 'DBGM-00000 Failed to sort data file, returning unsorted results');
+        // Remove any partial output file left by the failed sort so it does
+        // not accumulate in jsldir() across repeated failures.
+        try { fs.unlinkSync(sortedFile); } catch { /* best-effort */ }
+        sort = null;
+      }
     }
     await lock.acquire('reader', async () => {
       await this._ensureReader(offset, filter, sort);

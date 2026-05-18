@@ -60,6 +60,13 @@ jobs:
           cd packages/tools
           yarn test:ci
 
+      - name: API tests
+        if: always()
+        run: |
+          cd ../dbgate-merged
+          cd packages/api
+          yarn test:ci
+
       # - uses: tanmen/jest-reporter@v1
       #   if: always()
       #   with:
