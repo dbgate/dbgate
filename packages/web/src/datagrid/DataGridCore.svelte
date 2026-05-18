@@ -2504,6 +2504,11 @@
       maximum={maxScrollColumn}
       viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
       on:scroll={e => {
+        horizontalSmoothPending = 0;
+        if (!verticalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
         const fractionalCol = e.detail;
         const newIndex = Math.floor(fractionalCol);
         const fraction = fractionalCol - newIndex;
@@ -2518,12 +2523,17 @@
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
       on:scroll={e => {
+        verticalSmoothPending = 0;
+        if (!horizontalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
         const fractionalRow = e.detail;
         const newIndex = Math.floor(fractionalRow);
         const fraction = fractionalRow - newIndex;
         firstVisibleRowScrollIndex = newIndex;
         rowPixelOffset = fraction * (rowHeight || 24);
-        if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
+        if (domTbody) domTbody.style.top = `-${rowPixelOffset}px`;
       }}
       bind:this={domVerticalScroll}
     />
