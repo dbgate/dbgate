@@ -4,6 +4,27 @@ const stream = require('stream');
 const MAX_SHEET_NAME_LENGTH = 31;
 const writingWorkbooks = {};
 
+function normalizeExcelValue(value) {
+  if (typeof value === 'bigint') {
+    return value >= BigInt(Number.MIN_SAFE_INTEGER) && value <= BigInt(Number.MAX_SAFE_INTEGER)
+      ? Number(value)
+      : value.toString();
+  }
+  if (value !== null && typeof value === 'object') {
+    if (value.$decimal !== undefined) {
+      return value.$decimal;
+    }
+    if (value.$bigint !== undefined) {
+      const n = Number(value.$bigint);
+      return Number.isSafeInteger(n) ? n : value.$bigint;
+    }
+    if (value.$binary?.base64) {
+      return value.$binary.base64;
+    }
+  }
+  return value;
+}
+
 async function saveExcelFiles() {
   for (const file in writingWorkbooks) {
     xlsx.writeFile(writingWorkbooks[file], file);
@@ -29,7 +50,7 @@ class ExcelSheetWriterStream extends stream.Writable {
   }
   _write(chunk, enc, next) {
     if (this.structure) {
-      this.rows.push(this.structure.columns.map((col) => chunk[col.columnName]));
+      this.rows.push(this.structure.columns.map((col) => normalizeExcelValue(chunk[col.columnName])));
     } else {
       this.structure = chunk;
       this.rows.push(chunk.columns.map((x) => x.columnName));
