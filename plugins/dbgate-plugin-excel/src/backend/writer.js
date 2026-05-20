@@ -2,23 +2,26 @@ const xlsx = require('xlsx');
 const stream = require('stream');
 
 const MAX_SHEET_NAME_LENGTH = 31;
-const MIN_SAFE_BIGINT = BigInt(Number.MIN_SAFE_INTEGER);
-const MAX_SAFE_BIGINT = BigInt(Number.MAX_SAFE_INTEGER);
+// Excel preserves only 15 significant digits; use 10^15-1 as the safe threshold.
+const EXCEL_MAX_SAFE = BigInt(999_999_999_999_999);
+const EXCEL_MIN_SAFE = -EXCEL_MAX_SAFE;
 const writingWorkbooks = {};
+
+function isSafeForExcel(bigintValue) {
+  return bigintValue >= EXCEL_MIN_SAFE && bigintValue <= EXCEL_MAX_SAFE;
+}
 
 function normalizeExcelValue(value) {
   if (typeof value === 'bigint') {
-    return value >= MIN_SAFE_BIGINT && value <= MAX_SAFE_BIGINT
-      ? Number(value)
-      : value.toString();
+    return isSafeForExcel(value) ? Number(value) : value.toString();
   }
   if (value !== null && typeof value === 'object') {
     if (value.$decimal !== undefined) {
       return value.$decimal;
     }
     if (value.$bigint !== undefined) {
-      const n = Number(value.$bigint);
-      return Number.isSafeInteger(n) ? n : value.$bigint;
+      const bi = BigInt(value.$bigint);
+      return isSafeForExcel(bi) ? Number(bi) : value.$bigint;
     }
     if (value.$binary?.base64 !== undefined) {
       return value.$binary.base64;
