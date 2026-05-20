@@ -18,7 +18,7 @@ function normalizeExcelValue(value) {
       const n = Number(value.$bigint);
       return Number.isSafeInteger(n) ? n : value.$bigint;
     }
-    if (value.$binary?.base64) {
+    if (value.$binary?.base64 !== undefined) {
       return value.$binary.base64;
     }
   }
