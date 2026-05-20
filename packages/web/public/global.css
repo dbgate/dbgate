@@ -29,6 +29,11 @@ body {
   transition: background-color 0.2s ease;
   z-index: 200;
 }
+.resizeHandleControl::before {
+  left: -3px;
+  right: -3px;
+  width: auto;
+}
 .horizontal-split-handle:hover::before {
   background-color: var(--theme-splitter-active);
 }
