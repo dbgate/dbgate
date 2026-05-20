@@ -9,6 +9,16 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.12
+
+- FIXED: Resolved DataGrid scrolling issues #1458, #1428, #1402, #1043, #686, #338
+- FIXED: Application crash when using external sort with JSONL files
+- FIXED: Application crash caused by invalid geometry/geography points #1450
+- CHANGED: Improved column resizing usability by increasing the resize handle area #1383
+- ADDED: Displaying schema information in database search #1449
+- CHANGED: Campaigns migrated to new infrastructure, improving availability
+- CHANGED: Improved performance for large databases
+
 ## 7.1.11
 
 - CHANGED: AI Gateway migrated; endpoints now on new infrastructure, improving availability
