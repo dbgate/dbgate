@@ -2,11 +2,13 @@ const xlsx = require('xlsx');
 const stream = require('stream');
 
 const MAX_SHEET_NAME_LENGTH = 31;
+const MIN_SAFE_BIGINT = BigInt(Number.MIN_SAFE_INTEGER);
+const MAX_SAFE_BIGINT = BigInt(Number.MAX_SAFE_INTEGER);
 const writingWorkbooks = {};
 
 function normalizeExcelValue(value) {
   if (typeof value === 'bigint') {
-    return value >= BigInt(Number.MIN_SAFE_INTEGER) && value <= BigInt(Number.MAX_SAFE_INTEGER)
+    return value >= MIN_SAFE_BIGINT && value <= MAX_SAFE_BIGINT
       ? Number(value)
       : value.toString();
   }
