@@ -1747,6 +1747,11 @@
       firstVisibleColumnScrollIndex++;
     }
 
+    // Clamp sub-column offset when already at the last page (small delta that didn't trigger the loop)
+    if (columnPixelOffset > 0 && firstVisibleColumnScrollIndex >= maxScrollColumn) {
+      columnPixelOffset = 0;
+    }
+
     // Retreat backward (scroll left)
     while (columnPixelOffset < 0) {
       if (firstVisibleColumnScrollIndex <= 0) {
@@ -1758,8 +1763,10 @@
     }
 
     domHorizontalScroll.scroll(
-      firstVisibleColumnScrollIndex +
-        columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
+      firstVisibleColumnScrollIndex >= maxScrollColumn && columnPixelOffset === 0
+        ? maxScrollColumn + 1
+        : firstVisibleColumnScrollIndex +
+            columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
     );
     if (firstVisibleColumnScrollIndex !== prevIndex) {
       // Column set is changing — DOM not yet updated, so scrollLeft would be clamped by
@@ -2524,7 +2531,7 @@
           cancelAnimationFrame(smoothRafId);
           smoothRafId = null;
         }
-        const fractionalCol = e.detail;
+        const fractionalCol = Math.min(e.detail, maxScrollColumn);
         const newIndex = Math.floor(fractionalCol);
         const fraction = fractionalCol - newIndex;
         const prevIndex = firstVisibleColumnScrollIndex;
