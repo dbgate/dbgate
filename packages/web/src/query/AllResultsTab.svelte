@@ -2,6 +2,9 @@
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
 
   export let resultInfos = [];
+  export let exportConid = null;
+  export let exportDatabase = null;
+  export let exportQuery = null;
 </script>
 
 <div
@@ -12,7 +15,7 @@
 >
   {#each resultInfos as info}
     <div class="wrapper">
-      <JslDataGrid jslid={info.jslid} multipleGridsOnTab={resultInfos.length >= 2} />
+      <JslDataGrid jslid={info.jslid} multipleGridsOnTab={resultInfos.length >= 2} {exportConid} {exportDatabase} {exportQuery} />
     </div>
   {/each}
 </div>

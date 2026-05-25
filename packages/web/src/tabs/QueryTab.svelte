@@ -232,6 +232,7 @@
   let splitterInitialValue = undefined;
   let autoDetectCharts = false;
   let domResultTabs;
+  let lastExecutedSql = null;
 
   const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
   function getInitialRowsLimit() {
@@ -386,6 +387,7 @@
       return;
     }
 
+    lastExecutedSql = sql;
     executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
@@ -784,6 +786,9 @@
             {driver}
             onSetFrontMatterField={handleSetFrontMatterField}
             onGetFrontMatter={() => getSqlFrontMatter($editorValue, yaml)}
+            exportConid={conid}
+            exportDatabase={database}
+            exportQuery={queryRowsLimit ? lastExecutedSql : null}
           >
             <svelte:fragment slot="0">
               <SocketMessageView

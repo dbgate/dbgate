@@ -21,6 +21,9 @@
   export let resultCount;
   export let onSetFrontMatterField;
   export let onGetFrontMatter;
+  export let exportConid = null;
+  export let exportDatabase = null;
+  export let exportQuery = null;
 
   onMount(() => {
     allResultsInOneTab = $allResultsInOneTabDefault;
@@ -74,6 +77,9 @@
             component: AllResultsTab,
             props: {
               resultInfos,
+              exportConid: resultInfos.length === 1 ? exportConid : null,
+              exportDatabase: resultInfos.length === 1 ? exportDatabase : null,
+              exportQuery: resultInfos.length === 1 ? exportQuery : null,
             },
           },
         ]
@@ -82,10 +88,20 @@
           isResult: true,
           component: JslDataGrid,
           resultIndex: info.resultIndex,
-          props: { jslid: info.jslid, driver, onOpenChart: () => handleOpenChart(info.resultIndex) },
+          props: {
+            jslid: info.jslid,
+            driver,
+            onOpenChart: () => handleOpenChart(info.resultIndex),
+            exportConid: resultInfos.length === 1 ? exportConid : null,
+            exportDatabase: resultInfos.length === 1 ? exportDatabase : null,
+            exportQuery: resultInfos.length === 1 ? exportQuery : null,
+          },
         }))),
     ...charts.map((info, index) => ({
-      label: _t('resultTabs.chartNumber', { defaultMessage: 'Chart {number}', values: { number: info.resultIndex + 1 } }),
+      label: _t('resultTabs.chartNumber', {
+        defaultMessage: 'Chart {number}',
+        values: { number: info.resultIndex + 1 },
+      }),
       isChart: true,
       resultIndex: info.resultIndex,
       component: JslChart,
@@ -175,8 +191,14 @@
   tabs={allTabs}
   menu={resultInfos.length > 0 && [
     oneTab
-      ? { text: _t('resultTabs.everyResultInSingleTab', { defaultMessage: 'Every result in single tab' }), onClick: () => setOneTabValue(false) }
-      : { text: _t('resultTabs.allResultsInOneTab', { defaultMessage: 'All results in one tab' }), onClick: () => setOneTabValue(true) },
+      ? {
+          text: _t('resultTabs.everyResultInSingleTab', { defaultMessage: 'Every result in single tab' }),
+          onClick: () => setOneTabValue(false),
+        }
+      : {
+          text: _t('resultTabs.allResultsInOneTab', { defaultMessage: 'All results in one tab' }),
+          onClick: () => setOneTabValue(true),
+        },
   ]}
   onUserChange={value => {
     if (allTabs[value].isChart) {
