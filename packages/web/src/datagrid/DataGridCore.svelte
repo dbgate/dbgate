@@ -1367,6 +1367,7 @@
     0,
     columnSizes.getVisibleScrollSizeSum() - Math.max(0, gridScrollAreaWidth || 0) + HORIZONTAL_SCROLL_END_PADDING
   );
+  $: trailingHorizontalScrollPadding = maxHorizontalPixelPosition > 0 ? HORIZONTAL_SCROLL_END_PADDING : 0;
 
   $: {
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount && rowHeight > 0) {
@@ -1749,11 +1750,14 @@
     const newPosition = Math.min(Math.max(pixelPosition, 0), maxPosition);
     const newIndex = Math.max(0, Math.min(maxScrollColumn, columnSizes.getScrollIndexOnPosition(newPosition)));
     const currentColumnWidth = columnSizes.getSizeByScrollIndex(newIndex) || 100;
+    const currentColumnPosition = columnSizes.getPositionByScrollIndex(newIndex);
+    const maxColumnPixelOffset =
+      newIndex >= maxScrollColumn ? maxPosition - currentColumnPosition : currentColumnWidth - 1;
 
     firstVisibleColumnScrollIndex = newIndex;
     columnPixelOffset = Math.min(
-      Math.max(0, newPosition - columnSizes.getPositionByScrollIndex(newIndex)),
-      Math.max(0, currentColumnWidth - 1)
+      Math.max(0, newPosition - currentColumnPosition),
+      Math.max(0, maxColumnPixelOffset)
     );
 
     domHorizontalScroll.scroll(columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset);
@@ -2400,6 +2404,12 @@
                 />
               </td>
             {/each}
+            {#if trailingHorizontalScrollPadding > 0}
+              <td
+                class="horizontal-scroll-padding-cell"
+                style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+              ></td>
+            {/if}
           </tr>
           {#if display.filterable}
             <tr>
@@ -2460,6 +2470,12 @@
                   />
                 </td>
               {/each}
+              {#if trailingHorizontalScrollPadding > 0}
+                <td
+                  class="horizontal-scroll-padding-cell"
+                  style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+                ></td>
+              {/if}
             </tr>
           {/if}
         </thead>
@@ -2473,6 +2489,7 @@
                 {database}
                 driver={display?.driver}
                 {visibleRealColumns}
+                {trailingHorizontalScrollPadding}
                 {rowHeight}
                 {autofillSelectedCells}
                 {isDynamicStructure}
@@ -2674,6 +2691,12 @@
     position: sticky;
     top: 0;
     z-index: 4;
+  }
+  .horizontal-scroll-padding-cell {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: var(--theme-datagrid-background);
   }
   .focus-field {
     position: absolute;

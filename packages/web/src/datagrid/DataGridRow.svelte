@@ -26,6 +26,7 @@
   export let rowHeight;
   export let rowIndex;
   export let visibleRealColumns: any[];
+  export let trailingHorizontalScrollPadding = 0;
   export let grider;
   export let frameSelection = undefined;
   export let selectedCells = undefined;
@@ -127,6 +128,11 @@
       />
     {/if}
   {/each}
+  {#if trailingHorizontalScrollPadding > 0}
+    <td
+      style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+    ></td>
+  {/if}
 </tr>
 
 <style>
