@@ -1549,10 +1549,7 @@
           col - columnSizes.frozenCount,
           gridScrollAreaWidth
         );
-        firstVisibleColumnScrollIndex = newColumn;
-        columnPixelOffset = 0;
-        if (domTable) domTable.scrollLeft = 0;
-        domHorizontalScroll.scroll(newColumn);
+        setHorizontalPixelPosition(columnSizes.getPositionByScrollIndex(newColumn), firstVisibleColumnScrollIndex);
       }
     }
   }
