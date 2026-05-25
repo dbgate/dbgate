@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
+  const HORIZONTAL_SCROLL_END_PADDING = 64;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
@@ -1364,8 +1365,7 @@
   );
   $: maxHorizontalPixelPosition = Math.max(
     0,
-    columnSizes.getVisibleScrollSizeSum() - Math.max(0, gridScrollAreaWidth || 0),
-    columnSizes.getPositionByScrollIndex(maxScrollColumn)
+    columnSizes.getVisibleScrollSizeSum() - Math.max(0, gridScrollAreaWidth || 0) + HORIZONTAL_SCROLL_END_PADDING
   );
 
   $: {
@@ -2535,6 +2535,7 @@
       minimum={0}
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
+      top={(display?.filterable ? 2 : 1) * rowHeight}
       on:scroll={e => {
         verticalSmoothPending = 0;
         if (!horizontalSmoothPending && smoothRafId) {

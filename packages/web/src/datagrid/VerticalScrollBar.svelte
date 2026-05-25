@@ -3,6 +3,7 @@
   export let viewportRatio = 0.5;
   export let minimum;
   export let maximum;
+  export let top = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -38,7 +39,7 @@
   }
 </script>
 
-<div bind:clientHeight={height} bind:this={node} on:scroll={handleScroll} class="main">
+<div bind:clientHeight={height} bind:this={node} on:scroll={handleScroll} class="main" style={`top: ${top}px`}>
   <div style={`height: ${contentSize}px`}>&nbsp;</div>
 </div>
 
@@ -50,6 +51,5 @@
     right: 0px;
     width: 20px;
     bottom: 16px;
-    top: 0;
   }
 </style>
