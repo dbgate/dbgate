@@ -1,6 +1,6 @@
 <script lang="ts">
   import { stringifyCellValue } from 'dbgate-tools';
-  import { onMount, tick } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
@@ -18,7 +18,7 @@
   let value;
   let valueInit;
   let optionsData;
-  let isOptionsHidden = false;
+  let isOptionsHidden = inplaceEditorState.isOptionsHidden ?? false;
   let valueEl;
   let dropdownStyle = '';
 
@@ -40,7 +40,16 @@
       };
     });
 
-    tick().then(positionDropdown);
+    tick().then(() => {
+      if (!isOptionsHidden) {
+        positionDropdown();
+        addPositionListeners();
+      }
+    });
+  });
+
+  onDestroy(() => {
+    removePositionListeners();
   });
 
   function positionDropdown() {
@@ -59,6 +68,27 @@
       styleStr = `left:${rect.left}px; bottom:${window.innerHeight - rect.top}px; width:${rect.width}px; max-height:${height}px;`;
     }
     dropdownStyle = styleStr;
+  }
+
+  function addPositionListeners() {
+    window.addEventListener('scroll', positionDropdown, true);
+    window.addEventListener('resize', positionDropdown, true);
+  }
+
+  function removePositionListeners() {
+    window.removeEventListener('scroll', positionDropdown, true);
+    window.removeEventListener('resize', positionDropdown, true);
+  }
+
+  function toggleOptions() {
+    isOptionsHidden = !isOptionsHidden;
+    dispatchInsplaceEditor({ type: 'setOptionsHidden', value: isOptionsHidden });
+    if (!isOptionsHidden) {
+      positionDropdown();
+      addPositionListeners();
+    } else {
+      removePositionListeners();
+    }
   }
 
   function handleCheckboxChanged(e, option) {
@@ -99,7 +129,7 @@
 </script>
 
 <div use:clickOutside on:clickOutside={handleClickOutside} on:keydown={handleKeyDown} class="inplaceselect">
-  <div on:click={() => (isOptionsHidden = !isOptionsHidden)} class="value" bind:this={valueEl}>
+  <div on:click={toggleOptions} class="value" bind:this={valueEl}>
     {value}
   </div>
 
