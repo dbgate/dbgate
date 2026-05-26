@@ -130,6 +130,7 @@
   {/each}
   {#if trailingHorizontalScrollPadding > 0}
     <td
+      class="horizontal-scroll-padding-cell"
       style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
     ></td>
   {/if}
@@ -157,5 +158,12 @@
   tr.coloring-mode-2-secondary.row-color-2,
   tr.coloring-mode-2-secondary.row-color-4 {
     background-color: var(--theme-datagrid-cell-background-alt2);
+  }
+
+  .horizontal-scroll-padding-cell {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: var(--theme-datagrid-background);
   }
 </style>
