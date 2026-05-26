@@ -35,7 +35,6 @@
   td {
     border-top: var(--theme-datagrid-border-horizontal);
     border-bottom: var(--theme-datagrid-border-horizontal);
-    border-left: var(--theme-datagrid-border-vertical);
     border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 2px;

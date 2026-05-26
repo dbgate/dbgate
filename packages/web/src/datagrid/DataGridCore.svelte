@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
+  const HORIZONTAL_SCROLL_END_PADDING = 64;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
@@ -1358,7 +1359,15 @@
     realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
   );
 
-  $: maxScrollColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
+  $: maxScrollColumn = Math.max(
+    0,
+    columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth)
+  );
+  $: maxHorizontalPixelPosition = Math.max(
+    0,
+    columnSizes.getVisibleScrollSizeSum() - Math.max(0, gridScrollAreaWidth || 0) + HORIZONTAL_SCROLL_END_PADDING
+  );
+  $: trailingHorizontalScrollPadding = maxHorizontalPixelPosition > 0 ? HORIZONTAL_SCROLL_END_PADDING : 0;
 
   $: {
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount && rowHeight > 0) {
@@ -1540,10 +1549,7 @@
           col - columnSizes.frozenCount,
           gridScrollAreaWidth
         );
-        firstVisibleColumnScrollIndex = newColumn;
-        columnPixelOffset = 0;
-        if (domTable) domTable.scrollLeft = 0;
-        domHorizontalScroll.scroll(newColumn);
+        setHorizontalPixelPosition(columnSizes.getPositionByScrollIndex(newColumn), firstVisibleColumnScrollIndex);
       }
     }
   }
@@ -1732,42 +1738,40 @@
     if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
   }
 
+  function getMaxHorizontalPixelPosition() {
+    return maxHorizontalPixelPosition || 0;
+  }
+
+  function setHorizontalPixelPosition(pixelPosition, prevIndex) {
+    const maxPosition = getMaxHorizontalPixelPosition();
+    const newPosition = Math.min(Math.max(pixelPosition, 0), maxPosition);
+    const newIndex = Math.max(0, Math.min(maxScrollColumn, columnSizes.getScrollIndexOnPosition(newPosition)));
+    const currentColumnWidth = columnSizes.getSizeByScrollIndex(newIndex) || 100;
+    const currentColumnPosition = columnSizes.getPositionByScrollIndex(newIndex);
+    const maxColumnPixelOffset =
+      newIndex >= maxScrollColumn ? maxPosition - currentColumnPosition : currentColumnWidth - 1;
+
+    firstVisibleColumnScrollIndex = newIndex;
+    columnPixelOffset = Math.min(
+      Math.max(0, newPosition - currentColumnPosition),
+      Math.max(0, maxColumnPixelOffset)
+    );
+
+    domHorizontalScroll.scroll(columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset);
+    if (firstVisibleColumnScrollIndex !== prevIndex) {
+      // Column set is changing - DOM not yet updated, so scrollLeft would be clamped by
+      // the old (narrower) content. Defer the assignment until afterUpdate.
+      _pendingScrollLeft = columnPixelOffset;
+    } else if (domTable) {
+      domTable.scrollLeft = columnPixelOffset;
+    }
+  }
+
   function scrollHorizontal(deltaX) {
     if (!columnSizes) return;
     const prevIndex = firstVisibleColumnScrollIndex;
-    columnPixelOffset += deltaX;
-
-    // Advance forward (scroll right)
-    while (columnPixelOffset >= (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)) {
-      if (firstVisibleColumnScrollIndex >= maxScrollColumn) {
-        columnPixelOffset = 0;
-        break;
-      }
-      columnPixelOffset -= columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
-      firstVisibleColumnScrollIndex++;
-    }
-
-    // Retreat backward (scroll left)
-    while (columnPixelOffset < 0) {
-      if (firstVisibleColumnScrollIndex <= 0) {
-        columnPixelOffset = 0;
-        break;
-      }
-      firstVisibleColumnScrollIndex--;
-      columnPixelOffset += columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100;
-    }
-
-    domHorizontalScroll.scroll(
-      firstVisibleColumnScrollIndex +
-        columnPixelOffset / (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 100)
-    );
-    if (firstVisibleColumnScrollIndex !== prevIndex) {
-      // Column set is changing — DOM not yet updated, so scrollLeft would be clamped by
-      // the old (narrower) content. Defer the assignment until afterUpdate.
-      _pendingScrollLeft = columnPixelOffset;
-    } else {
-      if (domTable) domTable.scrollLeft = columnPixelOffset;
-    }
+    const currentPosition = columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset;
+    setHorizontalPixelPosition(currentPosition + deltaX, prevIndex);
   }
 
   function getSelectedRowIndexes() {
@@ -2403,6 +2407,12 @@
                 />
               </td>
             {/each}
+            {#if trailingHorizontalScrollPadding > 0}
+              <td
+                class="horizontal-scroll-padding-cell"
+                style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+              ></td>
+            {/if}
           </tr>
           {#if display.filterable}
             <tr>
@@ -2463,6 +2473,12 @@
                   />
                 </td>
               {/each}
+              {#if trailingHorizontalScrollPadding > 0}
+                <td
+                  class="horizontal-scroll-padding-cell"
+                  style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+                ></td>
+              {/if}
             </tr>
           {/if}
         </thead>
@@ -2476,6 +2492,7 @@
                 {database}
                 driver={display?.driver}
                 {visibleRealColumns}
+                {trailingHorizontalScrollPadding}
                 {rowHeight}
                 {autofillSelectedCells}
                 {isDynamicStructure}
@@ -2522,25 +2539,15 @@
 
     <HorizontalScrollBar
       minimum={0}
-      maximum={maxScrollColumn}
-      viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
+      maximum={maxHorizontalPixelPosition}
+      viewportRatio={gridScrollAreaWidth / (gridScrollAreaWidth + maxHorizontalPixelPosition)}
       on:scroll={e => {
         horizontalSmoothPending = 0;
         if (!verticalSmoothPending && smoothRafId) {
           cancelAnimationFrame(smoothRafId);
           smoothRafId = null;
         }
-        const fractionalCol = e.detail;
-        const newIndex = Math.floor(fractionalCol);
-        const fraction = fractionalCol - newIndex;
-        const prevIndex = firstVisibleColumnScrollIndex;
-        firstVisibleColumnScrollIndex = newIndex;
-        columnPixelOffset = fraction * (columnSizes?.getSizeByScrollIndex(newIndex) || 100);
-        if (newIndex !== prevIndex) {
-          _pendingScrollLeft = columnPixelOffset;
-        } else {
-          if (domTable) domTable.scrollLeft = columnPixelOffset;
-        }
+        setHorizontalPixelPosition(e.detail, firstVisibleColumnScrollIndex);
       }}
       bind:this={domHorizontalScroll}
     />
@@ -2548,6 +2555,7 @@
       minimum={0}
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
+      top={(display?.filterable ? 2 : 1) * rowHeight}
       on:scroll={e => {
         verticalSmoothPending = 0;
         if (!horizontalSmoothPending && smoothRafId) {
@@ -2666,7 +2674,6 @@
   .header-cell {
     border-top: var(--theme-datagrid-border-horizontal);
     border-bottom: var(--theme-datagrid-border-horizontal);
-    border-left: var(--theme-datagrid-border-vertical);
     border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 0;
@@ -2687,6 +2694,12 @@
     position: sticky;
     top: 0;
     z-index: 4;
+  }
+  .horizontal-scroll-padding-cell {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: var(--theme-datagrid-background);
   }
   .focus-field {
     position: absolute;
