@@ -2115,6 +2115,12 @@
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
       }
+      case 'setOptionsHidden': {
+        return {
+          ...state,
+          isOptionsHidden: action.value,
+        };
+      }
       // case 'shouldSave': {
       //   return {
       //     ...state,

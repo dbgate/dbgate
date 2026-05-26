@@ -246,19 +246,38 @@
 
   function getRowCountInfo(allRowCount, _display?, _allRowCountError?) {
     if (rowCountNotAvailable) {
-      return _t('dataForm.rowCount', { defaultMessage: 'Row: {rowCount} / ???', values: { rowCount: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString() } });
+      return _t('dataForm.rowCount', {
+        defaultMessage: 'Row: {rowCount} / ???',
+        values: { rowCount: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString() },
+      });
     }
     if (rowData == null) {
       if (allRowCount != null) {
-        return _t('dataForm.outOfBounds', { defaultMessage: 'Out of bounds: {current} / {total}', values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(), total: allRowCount.toLocaleString() } });
+        return _t('dataForm.outOfBounds', {
+          defaultMessage: 'Out of bounds: {current} / {total}',
+          values: {
+            current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(),
+            total: allRowCount.toLocaleString(),
+          },
+        });
       }
       return _t('dataForm.noData', { defaultMessage: 'No data' });
     }
     if (allRowCountError) {
-      return _t('dataForm.rowCountMany', { defaultMessage: 'Row: {current} / Many', values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString() } });
+      return _t('dataForm.rowCountMany', {
+        defaultMessage: 'Row: {current} / Many',
+        values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString() },
+      });
     }
-    if (allRowCount == null || display == null) return _t('dataForm.loadingRowCount', { defaultMessage: 'Loading row count...' });
-    return _t('dataForm.rowCount', { defaultMessage: 'Row: {current} / {total}', values: { current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(), total: allRowCount.toLocaleString() } });
+    if (allRowCount == null || display == null)
+      return _t('dataForm.loadingRowCount', { defaultMessage: 'Loading row count...' });
+    return _t('dataForm.rowCount', {
+      defaultMessage: 'Row: {current} / {total}',
+      values: {
+        current: ((display.config.formViewRecordNumber || 0) + 1).toLocaleString(),
+        total: allRowCount.toLocaleString(),
+      },
+    });
   }
 
   export function getGrider() {
@@ -414,9 +433,17 @@
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
       }
+      case 'setOptionsHidden': {
+        return {
+          ...state,
+          isOptionsHidden: action.value,
+        };
+      }
       // case 'shouldSave': {
       //   return {
       //     ...state,
+      //     shouldSave: true,
+      //   };
       //     shouldSave: true,
       //   };
       // }
