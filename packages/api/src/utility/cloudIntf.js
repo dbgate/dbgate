@@ -26,20 +26,16 @@ const DBGATE_IDENTITY_URL = process.env.LOCAL_DBGATE_IDENTITY
   : process.env.PROD_DBGATE_IDENTITY
   ? 'https://identity.dbgate.cloud'
   : process.env.DEVWEB || process.env.DEVMODE
-  ? 'https://identity.dbgate.udolni.net'
+  ? 'https://identity.dbgate.cloud'
   : 'https://identity.dbgate.cloud';
 
 const DBGATE_CLOUD_URL = process.env.LOCAL_DBGATE_CLOUD
   ? 'http://localhost:3110'
   : process.env.PROD_DBGATE_CLOUD
-  ? 'https://cloud.dbgate.io'
+  ? 'https://api.dbgate.cloud'
   : process.env.DEVWEB || process.env.DEVMODE
   ? 'https://dev.dbgate.cloud'
-  : 'https://cloud.dbgate.io';
-
-
-const DBGATE_PUBLIC_CLOUD_URL =
-  DBGATE_CLOUD_URL === 'https://cloud.dbgate.io' ? 'https://api.dbgate.cloud' : DBGATE_CLOUD_URL;
+  : 'https://api.dbgate.cloud';
 
 const stageAxiosConfig =
   !process.env.PROD_DBGATE_CLOUD && (process.env.DEVWEB || process.env.DEVMODE)
@@ -224,7 +220,7 @@ async function updateCloudFiles(isRefresh, language) {
   logger.info({ tags, lastCheckedTm }, 'DBGM-00082 Downloading cloud files');
 
   const resp = await axios.default.get(
-    `${DBGATE_PUBLIC_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
+    `${DBGATE_CLOUD_URL}/public-cloud-updates?lastCheckedTm=${lastCheckedTm}&tags=${tags}&isRefresh=${
       isRefresh ? 1 : 0
     }}`,
     {
@@ -269,7 +265,7 @@ async function getPublicCloudFiles() {
 }
 
 async function getPublicFileData(path) {
-  const resp = await axios.default.get(`${DBGATE_PUBLIC_CLOUD_URL}/public/${path}`, {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/public/${path}`, {
     headers: {
       ...getLicenseHttpHeaders(),
     },
@@ -297,7 +293,7 @@ async function updatePremiumPromoWidget(language) {
   const tags = (await collectCloudFilesSearchTags()).join(',');
 
   const resp = await axios.default.get(
-    `${DBGATE_PUBLIC_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
+    `${DBGATE_CLOUD_URL}/premium-promo-widget?identifier=${promoWidgetData?.identifier ?? 'empty'}&tags=${tags}`,
     {
       headers: {
         ...getLicenseHttpHeaders(),
@@ -346,7 +342,7 @@ async function callCloudApiGet(endpoint, signinHolder = null, additionalHeaders 
   }
   const signinHeaders = await getCloudSigninHeaders(signinHolder);
 
-  const resp = await axios.default.get(`${DBGATE_PUBLIC_CLOUD_URL}/${endpoint}`, {
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/${endpoint}`, {
     headers: {
       ...getLicenseHttpHeaders(),
       ...signinHeaders,
@@ -386,7 +382,7 @@ async function callCloudApiPost(endpoint, body, signinHolder = null) {
   }
   const signinHeaders = await getCloudSigninHeaders(signinHolder);
 
-  const resp = await axios.default.post(`${DBGATE_PUBLIC_CLOUD_URL}/${endpoint}`, body, {
+  const resp = await axios.default.post(`${DBGATE_CLOUD_URL}/${endpoint}`, body, {
     headers: {
       ...getLicenseHttpHeaders(),
       ...signinHeaders,
@@ -491,7 +487,7 @@ function removeCloudCachedConnection(folid, cntid) {
 
 async function getPublicIpInfo() {
   try {
-    const resp = await axios.default.get(`${DBGATE_PUBLIC_CLOUD_URL}/ipinfo`, stageAxiosConfig);
+    const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/ipinfo`, stageAxiosConfig);
     if (!resp.data?.ip) {
       return { ip: 'unknown-ip' };
     }
@@ -508,14 +504,14 @@ async function getPromoWidgetData() {
 
 async function getPromoWidgetPreview(campaign, variant) {
   const resp = await axios.default.get(
-    `${DBGATE_PUBLIC_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`,
+    `${DBGATE_CLOUD_URL}/premium-promo-widget-preview/${campaign}/${variant}`,
     stageAxiosConfig
   );
   return resp.data;
 }
 
 async function getPromoWidgetList() {
-  const resp = await axios.default.get(`${DBGATE_PUBLIC_CLOUD_URL}/promo-widget-list`, stageAxiosConfig);
+  const resp = await axios.default.get(`${DBGATE_CLOUD_URL}/promo-widget-list`, stageAxiosConfig);
   return resp.data;
 }
 
