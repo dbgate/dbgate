@@ -1,4 +1,5 @@
 import { ScriptWriterJson } from 'dbgate-tools';
+import { _t } from '../translations';
 import getElectron from './getElectron';
 import {
   showSnackbar,
@@ -84,7 +85,7 @@ async function runImportExportScript({
     icon: 'icon loading',
     buttons: [
       {
-        label: 'Cancel',
+        label: _t('common.cancel', { defaultMessage: 'Cancel' }),
         onClick: () => {
           isCanceled = true;
           apiCall('runners/cancel', { runid });
@@ -96,7 +97,7 @@ async function runImportExportScript({
   function handleRunnerProgress(data) {
     const rows = data.writtenRowsCount || data.readRowCount;
     if (rows) {
-      updateSnackbarProgressMessage(snackId, `${rows} rows processed`);
+      updateSnackbarProgressMessage(snackId, _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } }));
     }
   }
 
@@ -146,9 +147,9 @@ export async function saveExportedFile(
 
   runImportExportScript({
     script,
-    runningMessage: `Exporting ${dataName}`,
-    canceledMessage: `Export ${dataName} canceled`,
-    finishedMessage: `Export ${dataName} finished`,
+    runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
+    canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
+    finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
     afterFinish: () => {
       if (!electron) {
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
@@ -192,9 +193,9 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
     const script = generateQuickExportScript(reader, format, null, dataName, columnMap);
     runImportExportScript({
       script,
-      runningMessage: `Exporting ${dataName}`,
-      canceledMessage: `Export ${dataName} canceled`,
-      finishedMessage: `Export ${dataName} finished`,
+      runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
+      canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
+      finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
       hostConnection: reader.hostConnection,
     });
   } else {
@@ -234,21 +235,27 @@ export async function saveFileToDisk(
 }
 
 export async function downloadFromApi(route: string, donloadName: string) {
-  fetch(`${resolveApi()}/${route}`, {
-    method: 'GET',
-    headers: resolveApiHeaders(),
-  })
-    .then(res => res.blob())
-    .then(blob => {
-      const objUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      document.body.appendChild(a);
-      a.download = donloadName;
-      a.href = objUrl;
-      a.click();
-      a.remove();
-      setTimeout(() => {
-        URL.revokeObjectURL(objUrl);
-      });
+  try {
+    const res = await fetch(`${resolveApi()}/${route}`, {
+      method: 'GET',
+      headers: resolveApiHeaders(),
     });
+    if (!res.ok) {
+      showSnackbarError(_t('exportFileTools.downloadFailed', { defaultMessage: 'Download failed: {status} {statusText}', values: { status: res.status, statusText: res.statusText } }));
+      return;
+    }
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.download = donloadName;
+    a.href = objUrl;
+    a.click();
+    a.remove();
+    setTimeout(() => {
+      URL.revokeObjectURL(objUrl);
+    }, 1000);
+  } catch (e) {
+    showSnackbarError(_t('exportFileTools.downloadFailedError', { defaultMessage: 'Download failed: {message}', values: { message: e?.message ?? e } }));
+  }
 }

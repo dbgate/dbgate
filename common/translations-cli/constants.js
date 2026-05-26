@@ -7,7 +7,7 @@ const defaultLanguage = 'en';
 /** @type {ExtractConfig} */
 const defaultExtractConfig = {
   extensions: ['.js', '.ts', '.svelte'],
-  directories: ['app', 'packages/web'],
+  directories: ['app', 'packages/web', 'plugins'],
 };
 
 module.exports = {
