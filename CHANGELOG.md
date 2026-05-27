@@ -9,6 +9,13 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.1.13
+
+- FIXED: Resolved scrolling issues in DataGrid
+- FIXED: Corrected enum select dropdown positioning #1216
+- FIXED: Improved Excel export handling for numeric columns #1464
+- ADDED: Spinner for backup file downloads #1314
+
 ## 7.1.12
 
 - FIXED: Resolved DataGrid scrolling issues #1458, #1428, #1402, #1043, #686, #338
