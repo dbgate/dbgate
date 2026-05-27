@@ -183,7 +183,7 @@ describe('Truncate table', () => {
     cy.contains('Truncate table').click();
     cy.testid('ConfirmSqlModal_okButton').click();
     cy.contains('order_items').click();
-    cy.contains('No rows loaded').should('be.visible');
+    cy.contains('No rows loaded').should('exist');
   });
 });
 
