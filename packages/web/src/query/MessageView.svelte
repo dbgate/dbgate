@@ -22,8 +22,9 @@
   export let onClear = null;
   export let preserveLogs = false;
 
-  $: time0 = items[0] && new Date(items[0].time).getTime();
-  $: filteredItems = items.filter(row => filterRow(row, filter, $values));
+  $: time0 = items?.[0] && new Date(items[0].time).getTime();
+  let filteredItems = [];
+  $: filteredItems = (items || []).filter(row => filterRow(row, filter, $values));
 
   // $: console.log('MESSAGE ROWS', items);
   const values = writable({
@@ -97,7 +98,7 @@
         label={_t('messageView.debug', { defaultMessage: "Debug" })}
         {values}
         field="hideDebug"
-        count={items.filter(x => x.severity == 'debug').length}
+        count={(items || []).filter(x => x.severity == 'debug').length}
       />
     </div>
     <div class="topbar-btn">
@@ -106,7 +107,7 @@
         label={_t('messageView.info', { defaultMessage: "Info" })}
         {values}
         field="hideInfo"
-        count={items.filter(x => x.severity == 'info').length}
+        count={(items || []).filter(x => x.severity == 'info').length}
       />
     </div>
     <div class="topbar-btn">
@@ -115,7 +116,7 @@
         label={_t('messageView.error', { defaultMessage: "Error" })}
         {values}
         field="hideError"
-        count={items.filter(x => x.severity == 'error').length}
+        count={(items || []).filter(x => x.severity == 'error').length}
       />
     </div>
     <div class="topbar-spacer" />
