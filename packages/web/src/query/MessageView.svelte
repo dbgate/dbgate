@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { beforeUpdate, afterUpdate } from 'svelte';
   import { writable } from 'svelte/store';
   import MessageViewRow from './MessageViewRow.svelte';
   import RowsFilterSwitcher from '../forms/RowsFilterSwitcher.svelte';
@@ -21,13 +22,48 @@
   export let onClear = null;
   export let preserveLogs = false;
 
-  $: time0 = items[0] && new Date(items[0].time).getTime();
+  $: time0 = items?.[0] && new Date(items[0].time).getTime();
+  let filteredItems = [];
+  $: filteredItems = (items || []).filter(row => filterRow(row, filter, $values));
 
   // $: console.log('MESSAGE ROWS', items);
   const values = writable({
     hideDebug: true,
     hideInfo: false,
     hideError: false,
+  });
+
+  const STICKY_SCROLL_THRESHOLD = 40;
+  let tableWrap;
+  let previousItemsLength = 0;
+  let shouldStickToBottom = true;
+
+  function isNearBottom() {
+    if (!tableWrap) return true;
+
+    return tableWrap.scrollHeight - tableWrap.scrollTop - tableWrap.clientHeight <= STICKY_SCROLL_THRESHOLD;
+  }
+
+  function handleScroll() {
+    const nextShouldStickToBottom = isNearBottom();
+    if (nextShouldStickToBottom != shouldStickToBottom) {
+      shouldStickToBottom = nextShouldStickToBottom;
+    }
+  }
+
+  beforeUpdate(() => {
+    const nextItemsLength = items?.length ?? 0;
+    if (nextItemsLength !== previousItemsLength) {
+      // Capture the user's position before rows render so new logs only pull the view when it was already sticky.
+      shouldStickToBottom = isNearBottom();
+      previousItemsLength = nextItemsLength;
+    }
+  });
+
+  afterUpdate(() => {
+    if (shouldStickToBottom && tableWrap) {
+      tableWrap.scrollTop = tableWrap.scrollHeight;
+    }
   });
 
   function filterRow(row, filter, values) {
@@ -62,7 +98,7 @@
         label={_t('messageView.debug', { defaultMessage: "Debug" })}
         {values}
         field="hideDebug"
-        count={items.filter(x => x.severity == 'debug').length}
+        count={(items || []).filter(x => x.severity == 'debug').length}
       />
     </div>
     <div class="topbar-btn">
@@ -71,7 +107,7 @@
         label={_t('messageView.info', { defaultMessage: "Info" })}
         {values}
         field="hideInfo"
-        count={items.filter(x => x.severity == 'info').length}
+        count={(items || []).filter(x => x.severity == 'info').length}
       />
     </div>
     <div class="topbar-btn">
@@ -80,7 +116,7 @@
         label={_t('messageView.error', { defaultMessage: "Error" })}
         {values}
         field="hideError"
-        count={items.filter(x => x.severity == 'error').length}
+        count={(items || []).filter(x => x.severity == 'error').length}
       />
     </div>
     <div class="topbar-spacer" />
@@ -96,7 +132,7 @@
     </div>
     <SearchInput placeholder={_t('messageView.filterLogMessages', { defaultMessage: "Filter log messages" })} bind:value={filter} />
   </div>
-  <div class="tablewrap">
+  <div class="tablewrap" bind:this={tableWrap} on:scroll={handleScroll} data-testid="MessageView_tableWrap">
     <table>
       <thead>
         <tr>
@@ -116,7 +152,7 @@
           {/if}
         </tr>
       </thead>
-      {#each items.filter(row => filterRow(row, filter, $values)) as row, index}
+      {#each filteredItems as row, index}
         <MessageViewRow
           {row}
           {index}
@@ -125,7 +161,7 @@
           {showCaller}
           {time0}
           {startLine}
-          previousRow={index > 0 ? items[index - 1] : null}
+          previousRow={index > 0 ? filteredItems[index - 1] : null}
           {onMessageClick}
           {onExplainError}
           {engine}
