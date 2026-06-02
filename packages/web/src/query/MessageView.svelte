@@ -160,7 +160,7 @@
           {showCaller}
           {time0}
           {startLine}
-          previousRow={index > 0 ? items[index - 1] : null}
+          previousRow={index > 0 ? filteredItems[index - 1] : null}
           {onMessageClick}
           {onExplainError}
           {engine}
