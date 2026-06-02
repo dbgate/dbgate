@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { beforeUpdate, afterUpdate } from 'svelte';
   import { writable } from 'svelte/store';
   import MessageViewRow from './MessageViewRow.svelte';
   import RowsFilterSwitcher from '../forms/RowsFilterSwitcher.svelte';
@@ -22,12 +23,46 @@
   export let preserveLogs = false;
 
   $: time0 = items[0] && new Date(items[0].time).getTime();
+  $: filteredItems = items.filter(row => filterRow(row, filter, $values));
 
   // $: console.log('MESSAGE ROWS', items);
   const values = writable({
     hideDebug: true,
     hideInfo: false,
     hideError: false,
+  });
+
+  const STICKY_SCROLL_THRESHOLD = 40;
+  let tableWrap;
+  let previousItemsLength = 0;
+  let shouldStickToBottom = true;
+
+  function isNearBottom() {
+    if (!tableWrap) return true;
+
+    return tableWrap.scrollHeight - tableWrap.scrollTop - tableWrap.clientHeight <= STICKY_SCROLL_THRESHOLD;
+  }
+
+  function handleScroll() {
+    const nextShouldStickToBottom = isNearBottom();
+    if (nextShouldStickToBottom != shouldStickToBottom) {
+      shouldStickToBottom = nextShouldStickToBottom;
+    }
+  }
+
+  beforeUpdate(() => {
+    const nextItemsLength = items?.length ?? 0;
+    if (nextItemsLength !== previousItemsLength) {
+      // Capture the user's position before rows render so new logs only pull the view when it was already sticky.
+      shouldStickToBottom = isNearBottom();
+      previousItemsLength = nextItemsLength;
+    }
+  });
+
+  afterUpdate(() => {
+    if (shouldStickToBottom && tableWrap) {
+      tableWrap.scrollTop = tableWrap.scrollHeight;
+    }
   });
 
   function filterRow(row, filter, values) {
@@ -96,7 +131,7 @@
     </div>
     <SearchInput placeholder={_t('messageView.filterLogMessages', { defaultMessage: "Filter log messages" })} bind:value={filter} />
   </div>
-  <div class="tablewrap">
+  <div class="tablewrap" bind:this={tableWrap} on:scroll={handleScroll} data-testid="MessageView_tableWrap">
     <table>
       <thead>
         <tr>
@@ -116,7 +151,7 @@
           {/if}
         </tr>
       </thead>
-      {#each items.filter(row => filterRow(row, filter, $values)) as row, index}
+      {#each filteredItems as row, index}
         <MessageViewRow
           {row}
           {index}
