@@ -104,7 +104,13 @@
           "owner": "dbgate",
           "repo": "dbgate"
         }
-      ]
+      ],
+      "nsis": {
+        "oneClick": false,
+        "perMachine": false,
+        "allowElevation": true,
+        "allowToChangeInstallationDirectory": true
+      }
     },
     "files": [
       "packages",
