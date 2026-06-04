@@ -37,15 +37,17 @@ jobs:
           prompt: |
             /code-review:code-review ${{ github.repository }}/pull/${{ github.event.issue.number || github.event.pull_request.number }}
 
-            Review only concrete bugs, security issues, data-loss risks,
-            SQL/database compatibility problems, and breaking changes.
-            Do not comment on formatting, naming, or style-only issues.
+            Review concrete bugs, security issues, data-loss risks,
+            SQL/database compatibility problems, breaking changes,
+            incorrect or misleading naming, and CSS issues.
+            Do not comment on pure code-formatting (whitespace, indentation,
+            line breaks) or other style-only nitpicks.
 
             Always post a summary comment on the pull request when you finish,
             even if you found no issues. If there are no qualifying problems,
             post a short comment stating that the review found no concrete bugs,
             security issues, data-loss risks, SQL/database compatibility problems,
-            or breaking changes.
+            breaking changes, naming problems, or CSS issues.
 
             When enumerating findings, never use the "#<number>" form (e.g.
             "#1", "#2"), because GitHub auto-links it to unrelated issues or
