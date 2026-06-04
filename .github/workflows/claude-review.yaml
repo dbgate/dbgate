@@ -9,7 +9,7 @@ on:
 jobs:
   claude:
     if: |
-      contains(github.event.comment.body, '@claude-review') &&
+      contains(github.event.comment.body, '@claude review') &&
       (
         github.event.issue.pull_request ||
         github.event_name == 'pull_request_review_comment'
