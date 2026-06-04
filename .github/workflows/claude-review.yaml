@@ -40,6 +40,12 @@ jobs:
             Review only concrete bugs, security issues, data-loss risks,
             SQL/database compatibility problems, and breaking changes.
             Do not comment on formatting, naming, or style-only issues.
+
+            Always post a summary comment on the pull request when you finish,
+            even if you found no issues. If there are no qualifying problems,
+            post a short comment stating that the review found no concrete bugs,
+            security issues, data-loss risks, SQL/database compatibility problems,
+            or breaking changes.
           claude_args: |
             --max-turns 40
             --model sonnet
