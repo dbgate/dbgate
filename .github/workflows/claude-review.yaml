@@ -46,6 +46,12 @@ jobs:
             post a short comment stating that the review found no concrete bugs,
             security issues, data-loss risks, SQL/database compatibility problems,
             or breaking changes.
+
+            When enumerating findings, never use the "#<number>" form (e.g.
+            "#1", "#2"), because GitHub auto-links it to unrelated issues or
+            pull requests. Number findings as "1.", "2.", "3." or "Fix 1:",
+            "Fix 2:" instead. Only write "#<number>" when you deliberately mean
+            to reference a specific existing issue or pull request.
           claude_args: |
             --max-turns 40
             --model sonnet
