@@ -22,6 +22,7 @@ jobs:
       pull-requests: write
       issues: write
       id-token: write
+      actions: read
 
     steps:
       - uses: actions/checkout@v4
@@ -40,5 +41,5 @@ jobs:
             SQL/database compatibility problems, and breaking changes.
             Do not comment on formatting, naming, or style-only issues.
           claude_args: |
-            --max-turns 3
+            --max-turns 40
             --model sonnet
