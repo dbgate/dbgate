@@ -33,7 +33,7 @@ jobs:
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: |
-            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.issue.number }}
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.issue.number || github.event.pull_request.number }}
 
             Review only concrete bugs, security issues, data-loss risks,
             SQL/database compatibility problems, and breaking changes.
