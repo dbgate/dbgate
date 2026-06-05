@@ -542,6 +542,7 @@
       showModal(EditCellDataModal, {
         value: cellData,
         dataEditorTypesBehaviour: display?.driver?.dataEditorTypesBehaviour,
+        column,
         onSave: value => grider.setCellValue(0, column.uniqueName, value),
       });
       return true;
@@ -690,6 +691,7 @@
                 {dispatchInsplaceEditor}
                 {dataEditorTypesBehaviourOverride}
                 cellValue={rowData[col.uniqueName]}
+                column={col}
                 options={col.options}
                 canSelectMultipleOptions={col.canSelectMultipleOptions}
                 onSetValue={value => {

@@ -11,19 +11,23 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import SelectField from '../forms/SelectField.svelte';
   import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
-  import { showSnackbarError } from '../utility/snackbar';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import { _t } from '../translations';
   
   export let onSave;
   export let value;
+  export let column = null;
 
   export let dataEditorTypesBehaviour;
 
   let editor;
   let syntaxMode = 'text';
+  let minifyJsonOnSave = true;
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
+
+  $: isJsonColumn = !!column?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i);
+  $: showMinifyJsonOnSave = isJsonColumn || syntaxMode == 'json';
 
   onMount(() => {
     editor.getEditor().focus();
@@ -40,8 +44,7 @@
 
   function handleKeyDown(ev) {
     if (ev.keyCode == keycodes.enter && ev.ctrlKey) {
-      onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
-      closeCurrentModal();
+      saveValue();
     }
   }
 
@@ -52,6 +55,44 @@
     } else {
       showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
     }
+  }
+
+  function showJsonValidationError(err) {
+    showModal(ErrorMessageModal, {
+      message: `${_t('dataGrid.saveJson.invalid', {
+        defaultMessage: 'JSON value is not valid and was not saved.',
+      })} ${err.message}`,
+    });
+  }
+
+  function getValueForSave() {
+    if (dataEditorTypesBehaviour?.parseSqlNull && textValue == '(NULL)') return null;
+
+    if (isJsonColumn || (showMinifyJsonOnSave && minifyJsonOnSave)) {
+      let parsed;
+      try {
+        parsed = JSON.parse(textValue);
+      } catch (err) {
+        showJsonValidationError(err);
+        return undefined;
+      }
+
+      const parsedCellValue = parseCellValue(textValue, dataEditorTypesBehaviour);
+      if (minifyJsonOnSave && _.isString(parsedCellValue)) {
+        return JSON.stringify(parsed);
+      }
+      return parsedCellValue;
+    }
+
+    return parseCellValue(textValue, dataEditorTypesBehaviour);
+  }
+
+  function saveValue() {
+    const valueForSave = getValueForSave();
+    if (valueForSave === undefined) return;
+
+    onSave(valueForSave);
+    closeCurrentModal();
   }
 </script>
 
@@ -68,16 +109,20 @@
         <FormStyledButton
           value={_t('common.ok', { defaultMessage: 'OK' })}
           title="Ctrl+Enter"
-          on:click={() => {
-            onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
-            closeCurrentModal();
-          }}
+          on:click={saveValue}
         />
         <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </div>
 
       <div>
         <FormStyledButton type="button" skipWidth={true} value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })} on:click={handleFormatJson} />
+
+        {#if showMinifyJsonOnSave}
+          <label class="minify-json-on-save">
+            <input type="checkbox" bind:checked={minifyJsonOnSave} data-testid="EditCellDataModal_minifyJsonOnSave" />
+            {_t('dataGrid.minifyJsonOnSave', { defaultMessage: 'Minify JSON on save' })}
+          </label>
+        {/if}
 
         {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
         <SelectField
@@ -106,5 +151,9 @@
   .footer {
     display: flex;
     justify-content: space-between;
+  }
+
+  .minify-json-on-save {
+    margin: 0 10px;
   }
 </style>

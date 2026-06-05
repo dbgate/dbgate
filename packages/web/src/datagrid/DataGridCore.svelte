@@ -1053,12 +1053,15 @@
     if (!currentCell) return false;
     const rowData = grider.getRowData(currentCell[0]);
     if (!rowData) return null;
-    const cellData = rowData[realColumnUniqueNames[currentCell[1]]];
+    const columnName = realColumnUniqueNames[currentCell[1]];
+    const cellData = rowData[columnName];
+    const column = columns.find(x => x.uniqueName == columnName);
 
     showModal(EditCellDataModal, {
       value: cellData,
+      column,
       dataEditorTypesBehaviour: getEditorTypes(),
-      onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
+      onSave: value => grider.setCellValue(currentCell[0], columnName, value),
     });
   }
 
@@ -1618,13 +1621,16 @@
     if (!cell) return false;
     const rowData = grider.getRowData(cell[0]);
     if (!rowData) return null;
-    const cellData = rowData[realColumnUniqueNames[cell[1]]];
+    const columnName = realColumnUniqueNames[cell[1]];
+    const cellData = rowData[columnName];
+    const column = columns.find(x => x.uniqueName == columnName);
     if (shouldOpenMultilineDialog(cellData)) {
       dragStartCell = null;
       showModal(EditCellDataModal, {
         dataEditorTypesBehaviour: getEditorTypes(),
         value: cellData,
-        onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
+        column,
+        onSave: value => grider.setCellValue(cell[0], columnName, value),
       });
       return true;
     }

@@ -86,6 +86,7 @@
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         cellValue={rowData[col.uniqueName]}
+        column={col}
         options={col.options}
         canSelectMultipleOptions={col.canSelectMultipleOptions}
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}

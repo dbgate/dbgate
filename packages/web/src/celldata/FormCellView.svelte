@@ -7,6 +7,7 @@
   import createRef from '../utility/createRef';
   import { showModal } from '../modals/modalTools';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -227,9 +228,41 @@
 
   function saveValue(field) {
     if (!grider) return;
-    const parsedValue = parseCellValue(editValue, editorTypes);
+    const parsedValue = parseFormCellValue(field);
+    if (parsedValue === undefined) return;
+
     setCellValue(field.uniqueName, parsedValue);
     isChangedRef.set(false);
+  }
+
+  function showJsonValidationError(err) {
+    showModal(ErrorMessageModal, {
+      message: `${_t('dataGrid.saveJson.invalid', {
+        defaultMessage: 'JSON value is not valid and was not saved.',
+      })} ${err.message}`,
+    });
+  }
+
+  function parseFormCellValue(field) {
+    if (editorTypes?.parseSqlNull && editValue == '(NULL)') return null;
+
+    if (field?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i)) {
+      let parsed;
+      try {
+        parsed = JSON.parse(editValue);
+      } catch (err) {
+        showJsonValidationError(err);
+        return undefined;
+      }
+
+      const parsedCellValue = parseCellValue(editValue, editorTypes);
+      if (_.isString(parsedCellValue)) {
+        return JSON.stringify(parsed);
+      }
+      return parsedCellValue;
+    }
+
+    return parseCellValue(editValue, editorTypes);
   }
 
   function openEditModal(field) {
@@ -237,6 +270,7 @@
     showModal(EditCellDataModal, {
       value: field.value,
       dataEditorTypesBehaviour: editorTypes,
+      column: field,
       onSave: value => setCellValue(field.uniqueName, value),
     });
   }
