@@ -65,7 +65,7 @@
     toolbarName: __t('command.datagrid.deleteSelectedRows.toolbar', { defaultMessage: 'Delete row(s)' }),
     keyText: isMac() ? 'Command+Backspace' : 'CtrlOrCommand+Delete',
     icon: 'icon minus',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canDelete,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),
   });
 
@@ -76,7 +76,7 @@
     toolbarName: __t('command.datagrid.insertNewRow.toolbar', { defaultMessage: 'New row' }),
     icon: 'icon add',
     keyText: isMac() ? 'Command+I' : 'Insert',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().insertNewRow(),
   });
 
@@ -96,7 +96,7 @@
     name: __t('command.datagrid.cloneRows', { defaultMessage: 'Clone rows' }),
     toolbarName: __t('command.datagrid.cloneRows.toolbar', { defaultMessage: 'Clone row(s)' }),
     keyText: 'CtrlOrCommand+Shift+C',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().cloneRows(),
   });
 
@@ -106,7 +106,7 @@
     name: __t('command.datagrid.setNull', { defaultMessage: 'Set NULL' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
-      getCurrentDataGrid()?.getGrider()?.editable && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+      getCurrentDataGrid()?.hasEditableSelection() && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(null),
   });
 
@@ -116,7 +116,7 @@
     name: __t('command.datagrid.removeField', { defaultMessage: 'Remove field' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
-      getCurrentDataGrid()?.getGrider()?.editable && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+      getCurrentDataGrid()?.hasEditableSelection() && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(undefined),
   });
 
@@ -762,6 +762,7 @@
   }
 
   export function deleteSelectedRows() {
+    if (!grider.canDelete) return;
     grider.beginUpdate();
     for (const index of _.sortBy(getSelectedRowIndexes(), x => -x)) {
       if (_.isNumber(index)) grider.deleteRow(index);
@@ -770,7 +771,7 @@
   }
 
   export function addNewColumnEnabled() {
-    return getGrider()?.editable && isDynamicStructure;
+    return getGrider()?.editable && display?.allowStructureChange !== false && isDynamicStructure;
   }
 
   export function addNewColumn() {
@@ -833,7 +834,7 @@
 
   export function setFixedValue(value) {
     grider.beginUpdate();
-    selectedCells.filter(isRegularCell).forEach(cell => {
+    selectedCells.filter(isRegularCell).filter(cellEditable).forEach(cell => {
       setCellValue(cell, value);
     });
     grider.endUpdate();
@@ -1037,7 +1038,7 @@
   }
 
   export function editJsonEnabled() {
-    return grider.editable && _.uniq(selectedCells.map(x => x[0])).length == 1;
+    return grider.editable && display?.allowRowDocumentEdit !== false && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
   export function editJsonDocument() {
@@ -1046,7 +1047,7 @@
   }
 
   export function editCellValueEnabled() {
-    return grider.editable && selectedCells.length == 1;
+    return selectedCells.length == 1 && cellEditable(selectedCells[0]);
   }
 
   export function editCellValue() {
@@ -1067,7 +1068,7 @@
   }
 
   export function addJsonDocumentEnabled() {
-    return grider.editable;
+    return grider.canInsert;
   }
 
   export function addJsonDocument() {
@@ -1796,10 +1797,22 @@
     );
   }
 
+  function cellEditable(cell) {
+    if (!isRegularCell(cell)) return false;
+    const uniqueName = realColumnUniqueNames[cell[1]];
+    return grider?.isCellEditable ? grider.isCellEditable(cell[0], uniqueName) : grider?.editable;
+  }
+
+  export function hasEditableSelection() {
+    return selectedCells?.some(cellEditable);
+  }
+
   function handleGridKeyDown(event) {
     if ($inplaceEditorState.cell) return;
+    const currentCellEditable = cellEditable(currentCell);
 
     if (
+      currentCellEditable &&
       !event.ctrlKey &&
       !event.altKey &&
       !event.metaKey &&
@@ -1814,7 +1827,7 @@
       // console.log('event', event.nativeEvent);
     }
 
-    if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
+    if (currentCellEditable && (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter)) {
       // @ts-ignore
       if (!showMultilineCellEditorConditional(currentCell)) {
         dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
@@ -1892,7 +1905,7 @@
           if (currentCell[0] == 'header') return focusFilterEditor(currentCell[1]);
           return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
         case keycodes.enter:
-          if (!grider.editable)
+          if (!cellEditable(currentCell))
             return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
           break;
         case keycodes.leftArrow:
@@ -1944,6 +1957,7 @@
   }
 
   function setCellValue(cell, value) {
+    if (!cellEditable(cell)) return;
     grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
   }
 
@@ -2012,6 +2026,7 @@
         let rowIndex = startRow;
         for (const rowData of pasteRows) {
           if (rowIndex >= grider.rowCountInUpdate) {
+            if (!grider.canInsert) break;
             grider.insertRow();
           }
           let colIndex = startCol;
@@ -2091,7 +2106,7 @@
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show':
-        if (!grider.editable) return {};
+        if (!cellEditable(action.cell)) return {};
         return {
           cell: action.cell,
           text: action.text,

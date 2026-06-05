@@ -517,6 +517,21 @@ module.exports = {
     return res.result || null;
   },
 
+  saveQueryResultData_meta: true,
+  async saveQueryResultData({ conid, database, changeSet, sql }, req) {
+    await testConnectionPermission(conid, req);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'saveQueryResultData', changeSet, sql });
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || { state: 'ok' };
+  },
+
   multiCallMethod_meta: true,
   async multiCallMethod({ conid, database, callList }, req) {
     await testConnectionPermission(conid, req);

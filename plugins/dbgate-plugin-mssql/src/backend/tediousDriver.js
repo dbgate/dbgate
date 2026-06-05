@@ -14,6 +14,9 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
 
       notNull: !(col.flags & 0x01),
       autoIncrement: !!(col.flags & 0x10),
+      tableName: col.tableName || undefined,
+      tableSchema: col.schemaName || undefined,
+      sourceColumnName: col.columnName || col.baseColumnName || undefined,
     };
     if (col.dataLength) resCol.dataType += `(${col.dataLength})`;
     return resCol;

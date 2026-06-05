@@ -44,6 +44,9 @@ const driver = {
         columns: columns.map((col) => ({
           columnName: col.name,
           dataType: col.type,
+          tableName: col.table || undefined,
+          tableSchema: col.database || undefined,
+          sourceColumnName: col.column || undefined,
         })),
       };
     } else {
@@ -129,6 +132,9 @@ const driver = {
         columns: columns.map((col) => ({
           columnName: col.name,
           dataType: col.type,
+          tableName: col.table || undefined,
+          tableSchema: col.database || undefined,
+          sourceColumnName: col.column || undefined,
         })),
       }),
     });

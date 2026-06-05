@@ -68,6 +68,7 @@ function extractPostgresColumns(result, dbhan) {
     dataTypeId: fld.dataTypeID,
     dataTypeName: typeIdToName[fld.dataTypeID],
     tableId: fld.tableID,
+    columnId: fld.columnID,
   }));
 
   // const conflictingNames = getConflictingColumnNames(res);
@@ -93,6 +94,36 @@ function zipDataRow(rowArray, columns) {
     columns.map(x => x.columnName),
     rowArray
   );
+}
+
+function findDbInfoTable(dbinfo, schemaName, pureName) {
+  if (!dbinfo?.tables) return null;
+  if (schemaName) {
+    return dbinfo.tables.find(table => table.schemaName == schemaName && table.pureName == pureName);
+  }
+  const tables = dbinfo.tables.filter(table => table.pureName == pureName);
+  return tables.length == 1 ? tables[0] : null;
+}
+
+function isPrimaryKeyColumn(dbinfo, schemaName, tableName, columnName) {
+  const table = findDbInfoTable(dbinfo, schemaName, tableName);
+  return !!table?.primaryKey?.columns?.some(column => column.columnName == columnName);
+}
+
+function getAnalyserColumnMetadata(dbinfo) {
+  const res = {};
+  for (const table of dbinfo?.tables || []) {
+    for (const column of table.columns || []) {
+      if (column.postgresTableId && column.postgresColumnId) {
+        res[`${column.postgresTableId}.${column.postgresColumnId}`] = {
+          tableSchema: table.schemaName,
+          tableName: table.pureName,
+          columnName: column.columnName,
+        };
+      }
+    }
+  }
+  return res;
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -210,6 +241,25 @@ const drivers = driverBases.map(driverBase => ({
     const transformedRows = zippedRows.map(row => transformRow(row, columnsToTransform));
 
     return { rows: transformedRows, columns };
+  },
+  async enrichColumnMetadata(dbhan, sql, columns, dbinfo) {
+    const metadataByKey = getAnalyserColumnMetadata(dbinfo);
+    if (_.isEmpty(metadataByKey)) return columns;
+
+    const enriched = columns.map(column => {
+      const metadataRow = metadataByKey[`${column.tableId}.${column.columnId}`];
+      if (!metadataRow) return column;
+      return {
+        ...column,
+        tableName: column.tableName || metadataRow.tableName,
+        tableSchema: column.tableSchema || metadataRow.tableSchema,
+        sourceColumnName: column.sourceColumnName || metadataRow.columnName,
+        isPrimaryKey:
+          column.isPrimaryKey ||
+          isPrimaryKeyColumn(dbinfo, metadataRow.tableSchema, metadataRow.tableName, metadataRow.columnName),
+      };
+    });
+    return enriched.some(column => column.tableName && column.sourceColumnName) ? enriched : columns;
   },
   stream(dbhan, sql, options) {
     const handleNotice = notice => {

@@ -2,6 +2,12 @@
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
 
   export let resultInfos = [];
+  export let driver = null;
+  export let dbinfo = null;
+  export let changeSetStates = {};
+  export let changeSetDispatchers = {};
+  export let queryResultEditing = false;
+  export let onQueryResultInfoLoaded = null;
 </script>
 
 <div
@@ -12,7 +18,16 @@
 >
   {#each resultInfos as info}
     <div class="wrapper">
-      <JslDataGrid jslid={info.jslid} multipleGridsOnTab={resultInfos.length >= 2} />
+      <JslDataGrid
+        jslid={info.jslid}
+        multipleGridsOnTab={resultInfos.length >= 2}
+        {driver}
+        {dbinfo}
+        {queryResultEditing}
+        changeSetState={changeSetStates[info.jslid]}
+        dispatchChangeSet={changeSetDispatchers[info.jslid]}
+        onQueryResultInfoLoaded={value => onQueryResultInfoLoaded?.(info.jslid, value)}
+      />
     </div>
   {/each}
 </div>

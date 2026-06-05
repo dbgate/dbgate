@@ -43,6 +43,14 @@
     testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().toggleVisibleResultTabs(),
   });
+  registerCommand({
+    id: 'query.saveResult',
+    category: __t('command.query', { defaultMessage: 'Query' }),
+    name: __t('command.query.saveResult', { defaultMessage: 'Save result changes' }),
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor()?.canSaveQueryResult(),
+    onClick: () => getCurrentEditor().saveQueryResult(),
+  });
   registerFileCommands({
     idPrefix: 'query',
     category: __t('command.query', { defaultMessage: 'Query' }),
@@ -138,7 +146,7 @@
   import { currentEditorWrapEnabled, extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab, markTabUnsaved, sleep } from '../utility/common';
-  import { getDatabaseInfo, useConnectionInfo, useSettings } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useConnectionInfo, useDatabaseInfo, useSettings } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -150,7 +158,7 @@
   import { findEngineDriver, getSqlFrontMatter, safeJsonParse, setSqlFrontMatter } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
-  import { showSnackbarError } from '../utility/snackbar';
+  import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
@@ -161,6 +169,7 @@
   import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
   import { extractQueryParameters, replaceQueryParameters } from 'dbgate-query-splitter';
   import QueryParametersModal from '../modals/QueryParametersModal.svelte';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import uuidv1 from 'uuid/v1';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
@@ -246,6 +255,7 @@
   }
 
   const settingsValue = useSettings();
+  const dbinfo = useDatabaseInfo({ conid, database });
 
   let queryRowsLimit = getInitialRowsLimit();
   $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
@@ -332,6 +342,33 @@
 
   export function toggleVisibleResultTabs() {
     visibleResultTabs = !visibleResultTabs;
+  }
+
+  export function canSaveQueryResult() {
+    return domResultTabs?.canSaveQueryResult?.();
+  }
+
+  export async function saveQueryResult() {
+    const saveInfo = domResultTabs?.getQueryResultSaveInfo?.();
+    if (!saveInfo) return;
+    showModal(ConfirmSqlModal, {
+      sql: saveInfo.sql,
+      engine: saveInfo.engine,
+      runAgainCheckbox: true,
+      onConfirm: (confirmedSql, values) => handleConfirmQueryResultSave(saveInfo, confirmedSql, values),
+    });
+  }
+
+  async function handleConfirmQueryResultSave(saveInfo, confirmedSql, values = null) {
+    const res = await domResultTabs?.saveQueryResult?.(saveInfo, confirmedSql);
+    if (res?.errorMessage) {
+      showSnackbarError(res.errorMessage);
+      return;
+    }
+    showSnackbarSuccess(_t('query.resultChangesSaved', { defaultMessage: 'Result changes saved' }));
+    if (values?.runAgainAfterSave) {
+      await execute();
+    }
   }
 
   export function toggleAiAssistant() {
@@ -780,8 +817,16 @@
             tabs={[{ label: _t('query.Messages', { defaultMessage: 'Messages' }), slot: 0 }]}
             {sessionId}
             {executeNumber}
+            {conid}
+            {database}
             bind:resultCount
             {driver}
+            dbinfo={$dbinfo}
+            autoCommit={driver?.implicitTransactions && isAutocommit}
+            onQueryResultChanges={() => {
+              invalidateCommands();
+            }}
+            onSaveQueryResult={saveQueryResult}
             onSetFrontMatterField={handleSetFrontMatterField}
             onGetFrontMatter={() => getSqlFrontMatter($editorValue, yaml)}
           >

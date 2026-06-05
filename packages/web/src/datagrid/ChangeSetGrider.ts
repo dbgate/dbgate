@@ -83,26 +83,33 @@ export default class ChangeSetGrider extends Grider {
     if (this.rowCacheIndexes.has(index)) return;
     const row = this.getRowSource(index);
     const insertedRowIndex = this.getInsertedRowIndex(index);
-    const rowDefinition = this.display?.getChangeSetRow(
-      row,
-      insertedRowIndex,
-      this.useRowIndexInsteaOfCondition && index < this.sourceRows.length ? index : null,
-      this.useRowIndexInsteaOfCondition
-    );
-    const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
-    let rowUpdated = matchedChangeSetItem
-      ? getRowFromItem(row, matchedChangeSetItem)
-      : this.compiledMacroFunc
-      ? { ...row }
-      : row;
+    const rowDefinitions =
+      this.display?.getChangeSetRowDefinitions(
+        row,
+        insertedRowIndex,
+        this.useRowIndexInsteaOfCondition && index < this.sourceRows.length ? index : null,
+        this.useRowIndexInsteaOfCondition
+      ) || [];
+    const matchedItems = rowDefinitions
+      .map(definition => {
+        const [field, item] = findExistingChangeSetItem(this.changeSet, definition);
+        return item ? { field, item } : null;
+      })
+      .filter(Boolean);
+    let rowUpdated = matchedItems.length > 0 || this.compiledMacroFunc ? { ...(row || {}) } : row;
+    for (const matched of matchedItems) {
+      rowUpdated = getRowFromItem(rowUpdated, matched.item);
+    }
     let status = 'regular';
-    if (matchedChangeSetItem && matchedField == 'updates') status = 'updated';
-    if (matchedField == 'deletes') status = 'deleted';
+    if (matchedItems.find(matched => matched.field == 'updates')) status = 'updated';
+    if (matchedItems.find(matched => matched.field == 'deletes')) status = 'deleted';
     if (insertedRowIndex != null) status = 'inserted';
     const rowStatus = {
       status,
       modifiedFields:
-        matchedChangeSetItem && matchedChangeSetItem.fields ? new Set(Object.keys(matchedChangeSetItem.fields)) : null,
+        matchedItems.length > 0
+          ? new Set(_.flatten(matchedItems.map(matched => Object.keys(matched.item.fields || {}))))
+          : null,
     };
 
     if (this.compiledMacroFunc) {
@@ -137,7 +144,7 @@ export default class ChangeSetGrider extends Grider {
 
     this.rowDataCache[index] = rowUpdated;
     this.rowStatusCache[index] = rowStatus;
-    this.rowDefinitionsCache[index] = rowDefinition;
+    this.rowDefinitionsCache[index] = rowDefinitions;
     this.rowCacheIndexes.add(index);
   }
 
@@ -146,7 +153,16 @@ export default class ChangeSetGrider extends Grider {
   }
 
   get canInsert() {
-    return this.useRowIndexInsteaOfCondition || !!this.display.baseTableOrCollection;
+    return this.display?.allowInsert !== false && (this.useRowIndexInsteaOfCondition || !!this.display.baseTableOrCollection);
+  }
+
+  get canDelete() {
+    return this.display?.allowDelete !== false && this.editable;
+  }
+
+  isCellEditable(index: number, uniqueName: string) {
+    if (!this.editable) return false;
+    return this.display?.isColumnEditable(uniqueName, this.getRowSource(index)) ?? false;
   }
 
   getRowData(index: number) {
@@ -172,6 +188,7 @@ export default class ChangeSetGrider extends Grider {
   }
 
   setCellValue(index: number, uniqueName: string, value: any) {
+    if (!this.isCellEditable(index, uniqueName)) return;
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetField(
       row,
@@ -184,6 +201,7 @@ export default class ChangeSetGrider extends Grider {
   }
 
   setRowData(index: number, document: any) {
+    if (this.display?.allowRowDocumentEdit === false) return;
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetRow(
       row,
@@ -194,8 +212,11 @@ export default class ChangeSetGrider extends Grider {
   }
 
   deleteRow(index: number) {
+    if (!this.canDelete) return;
     this.requireRowCache(index);
-    this.applyModification(chs => deleteChangeSetRows(chs, this.rowDefinitionsCache[index]));
+    this.applyModification(chs =>
+      this.rowDefinitionsCache[index].reduce((res, definition) => deleteChangeSetRows(res, definition), chs)
+    );
   }
 
   get rowCountInUpdate() {
@@ -207,13 +228,15 @@ export default class ChangeSetGrider extends Grider {
     }
   }
 
-  insertRow(): number {
+  insertRow(): number | null {
+    if (!this.canInsert) return null;
     const res = this.rowCountInUpdate;
     this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTableOrSimilar));
     return res;
   }
 
-  insertDocuments(documents: any[]): number {
+  insertDocuments(documents: any[]): number | null {
+    if (!this.canInsert) return null;
     const res = this.rowCountInUpdate;
     this.applyModification(chs => changeSetInsertDocuments(chs, documents, this.display.baseTableOrSimilar));
     return res;
@@ -229,7 +252,9 @@ export default class ChangeSetGrider extends Grider {
 
   revertRowChanges(index: number) {
     this.requireRowCache(index);
-    this.applyModification(chs => revertChangeSetRowChanges(chs, this.rowDefinitionsCache[index]));
+    this.applyModification(chs =>
+      this.rowDefinitionsCache[index].reduce((res, definition) => revertChangeSetRowChanges(res, definition), chs)
+    );
   }
   revertAllChanges() {
     this.applyModification(chs => createChangeSet());

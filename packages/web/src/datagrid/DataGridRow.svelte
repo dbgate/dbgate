@@ -68,6 +68,10 @@
     });
   }
 
+  function isCellEditable(col) {
+    return grider.isCellEditable ? grider.isCellEditable(rowIndex, col.uniqueName) : grider.editable;
+  }
+
   // $: console.log('rowStatus', rowStatus);
 </script>
 
@@ -80,7 +84,7 @@
     isSelected={frameSelection ? false : !!selectedCells?.find(cell => cell[0] == rowIndex && cell[1] == 'header')}
   />
   {#each visibleRealColumns as col (col.uniqueName)}
-    {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
+    {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] && isCellEditable(col)}
       <InplaceEditor
         width={col.width}
         {inplaceEditorState}
@@ -121,10 +125,10 @@
         isAutoFillMarker={autofillMarkerCell &&
           autofillMarkerCell[1] == col.colIndex &&
           autofillMarkerCell[0] == rowIndex &&
-          grider.editable}
+          isCellEditable(col)}
         onDictionaryLookup={() => handleLookup(col)}
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
-        isReadonly={!grider.editable}
+        isReadonly={!isCellEditable(col)}
       />
     {/if}
   {/each}

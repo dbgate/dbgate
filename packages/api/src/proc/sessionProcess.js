@@ -10,7 +10,9 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const { getLogger, extractIntSettingsValue, extractBoolSettingsValue } = require('dbgate-tools');
+const { getLogger, extractIntSettingsValue, extractBoolSettingsValue, extractErrorMessage } = require('dbgate-tools');
+const { changeSetToSql } = require('dbgate-datalib');
+const { scriptToSql } = require('dbgate-sqltree');
 const { handleQueryStream, QueryStreamTableWriter, allowExecuteCustomScript } = require('../utility/handleQueryStream');
 
 const logger = getLogger('sessionProcess');
@@ -119,7 +121,7 @@ async function handleExecuteControlCommand({ command }) {
     process.send({
       msgtype: 'info',
       info: {
-        message: 'Connection without read-only sessions is read only',
+        message: 'Connection is read-only',
         severity: 'error',
       },
     });
@@ -149,7 +151,7 @@ async function handleExecuteControlCommand({ command }) {
   }
 }
 
-async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows, frontMatter }) {
+async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows, frontMatter, dbinfo }) {
   lastActivity = new Date().getTime();
 
   await waitConnected();
@@ -159,7 +161,7 @@ async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows
     process.send({
       msgtype: 'info',
       info: {
-        message: 'Connection without read-only sessions is read only',
+        message: 'Connection is read-only',
         severity: 'error',
       },
     });
@@ -186,7 +188,8 @@ async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows
         undefined,
         limitRows,
         frontMatter,
-        autoDetectCharts
+        autoDetectCharts,
+        dbinfo
       );
       // const handler = new StreamHandler(resultIndex);
       // const stream = await driver.stream(systemConnection, sqlItem, handler);
@@ -200,6 +203,69 @@ async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows
     process.send({ msgtype: 'done', autoCommit });
   } finally {
     executingScripts--;
+  }
+}
+
+function validateQueryResultChangeSet(driver, changeSet) {
+  if (!driver.databaseEngineTypes?.includes('sql') || !driver.supportsEditableQueryResults) {
+    throw new Error('DBGM-00000 Editable query results are not supported by this driver');
+  }
+  if (changeSet?.inserts?.length > 0 || changeSet?.deletes?.length > 0) {
+    throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+  }
+  for (const update of changeSet?.updates || []) {
+    if (!update.pureName) {
+      throw new Error('DBGM-00000 Query result update is missing target table');
+    }
+    if (_.isEmpty(update.fields)) {
+      throw new Error('DBGM-00000 Query result update is missing changed fields');
+    }
+    if (_.isEmpty(update.condition)) {
+      throw new Error('DBGM-00000 Query result update is missing row condition');
+    }
+    if (Object.values(update.condition).some(value => value === null || value === undefined)) {
+      throw new Error('DBGM-00000 Query result update has incomplete row condition');
+    }
+  }
+}
+
+async function handleSaveQueryResultData({ msgid, changeSet, sql, autoCommit }) {
+  lastActivity = new Date().getTime();
+
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    if (!allowExecuteCustomScript(storedConnection, driver)) {
+      throw new Error('DBGM-00000 Connection is read-only');
+    }
+    validateQueryResultChangeSet(driver, changeSet);
+    if (!sql) {
+      const script = changeSetToSql({ ...changeSet, inserts: [], deletes: [] }, null, driver.dialect);
+      if (script.some(command => command.commandType != 'update')) {
+        throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+      }
+      sql = scriptToSql(driver, script);
+    }
+    if (sql) {
+      executingScripts++;
+      try {
+        await driver.script(dbhan, sql, { useTransaction: false });
+        if (autoCommit) {
+          const dmp = driver.createDumper();
+          dmp.commitTransaction();
+          await driver.query(dbhan, dmp.s, { discardResult: true });
+        }
+      } finally {
+        executingScripts--;
+      }
+    }
+    process.send({ msgtype: 'response', msgid, result: { state: 'ok' } });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error saving query result data'),
+    });
   }
 }
 
@@ -244,6 +310,7 @@ const messageHandlers = {
   executeControlCommand: handleExecuteControlCommand,
   setIsolationLevel: handleSetIsolationLevel,
   executeReader: handleExecuteReader,
+  saveQueryResultData: handleSaveQueryResultData,
   startProfiler: handleStartProfiler,
   stopProfiler: handleStopProfiler,
   ping: handlePing,

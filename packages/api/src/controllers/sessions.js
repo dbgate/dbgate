@@ -21,6 +21,7 @@ const logger = getLogger('sessions');
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
   opened: [],
+  requests: {},
 
   // handle_error(sesid, props) {
   //   const { error } = props;
@@ -115,6 +116,44 @@ module.exports = {
 
   handle_ping() {},
 
+  handle_response(sesid, props) {
+    const { msgid } = props;
+    const request = this.requests[msgid];
+    if (!request) return;
+    delete this.requests[msgid];
+    request.resolve(_.omit(props, ['msgtype', 'msgid', 'sesid']));
+  },
+
+  sendRequest(session, message) {
+    const msgid = crypto.randomUUID();
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        session.subprocess.off('exit', handleExit);
+        delete this.requests[msgid];
+      };
+      const handleExit = () => {
+        cleanup();
+        reject(new Error('DBGM-00000 Session process exited before response was received'));
+      };
+      this.requests[msgid] = {
+        resolve: value => {
+          cleanup();
+          resolve(value);
+        },
+        reject: error => {
+          cleanup();
+          reject(error);
+        },
+      };
+      session.subprocess.once('exit', handleExit);
+      session.subprocess.send({ ...message, msgid }, err => {
+        if (err && this.requests[msgid]) {
+          this.requests[msgid].reject(err);
+        }
+      });
+    });
+  },
+
   create_meta: true,
   async create({ conid, database }) {
     const sesid = crypto.randomUUID();
@@ -202,6 +241,12 @@ module.exports = {
       message: 'Query execution started',
       sql,
     });
+    let dbinfo = null;
+    try {
+      dbinfo = (await require('./databaseConnections').ensureOpened(session.conid, session.database))?.structure;
+    } catch (err) {
+      logger.warn(extractErrorLogData(err), 'DBGM-00000 Error loading structure for query result metadata');
+    }
     session.subprocess.send({
       msgtype: 'executeQuery',
       sql,
@@ -209,6 +254,7 @@ module.exports = {
       autoDetectCharts: autoDetectCharts || !!frontMatter?.['selected-chart'],
       limitRows,
       frontMatter,
+      dbinfo,
     });
 
     return { state: 'ok' };
@@ -226,6 +272,24 @@ module.exports = {
     session.subprocess.send({ msgtype: 'executeControlCommand', command });
 
     return { state: 'ok' };
+  },
+
+  saveQueryResultData_meta: true,
+  async saveQueryResultData({ sesid, changeSet, sql, autoCommit }, req) {
+    await testStandardPermission('dbops/query', req);
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
+
+    const res = await this.sendRequest(session, { msgtype: 'saveQueryResultData', changeSet, sql, autoCommit });
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || { state: 'ok' };
   },
 
   setIsolationLevel_meta: true,

@@ -62,6 +62,7 @@
   export let recreates;
   export let deleteCascadesScripts;
   export let skipConfirmSettingKey = null;
+  export let runAgainCheckbox = false;
 
   let dontAskAgain;
 
@@ -87,6 +88,17 @@
     <div class="editor">
       <SqlEditor {engine} value={currentScript} readOnly />
     </div>
+
+    {#if runAgainCheckbox}
+      <div class="mt-2">
+        <FormCheckboxField
+          templateProps={{ noMargin: true }}
+          label={_t('query.runAgainAfterSave', { defaultMessage: 'Run query again after saving' })}
+          name="runAgainAfterSave"
+          data-testid="ConfirmSqlModal_runAgainAfterSave"
+        />
+      </div>
+    {/if}
 
     {#if !_.isEmpty(deleteCascadesScripts)}
       <div class="mt-2">
@@ -166,7 +178,7 @@
         disabled={isRecreated && !$values.allowRecreate}
         on:click={e => {
           closeCurrentModal();
-          onConfirm(currentScript);
+          onConfirm(currentScript, $values);
         }}
         data-testid="ConfirmSqlModal_okButton"
       />

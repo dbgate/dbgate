@@ -8,19 +8,47 @@ const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErr
   global.DBGATE_PACKAGES['dbgate-tools'];
 
 const logger = getLogger('mysqlDriver');
+const MYSQL_PRI_KEY_FLAG = 2;
 
 let authProxy;
+
+function findDbInfoTable(dbinfo, schemaName, pureName) {
+  if (!dbinfo?.tables) return null;
+  if (schemaName) {
+    return dbinfo.tables.find(table => table.schemaName == schemaName && table.pureName == pureName);
+  }
+  const tables = dbinfo.tables.filter(table => table.pureName == pureName);
+  return tables.length == 1 ? tables[0] : null;
+}
+
+function isPrimaryKeyColumn(dbinfo, schemaName, tableName, columnName) {
+  const table = findDbInfoTable(dbinfo, schemaName, tableName);
+  return !!table?.primaryKey?.columns?.some(column => column.columnName == columnName);
+}
 
 function extractColumns(fields) {
   if (fields) {
     const res = fields.map(col => ({
       columnName: col.name,
       pureName: col.orgTable,
+      tableName: col.orgTable || undefined,
+      tableSchema: col.db || undefined,
+      sourceColumnName: col.orgName || undefined,
+      isPrimaryKey: !!(col.flags & MYSQL_PRI_KEY_FLAG),
     }));
     makeUniqueColumnNames(res);
     return res;
   }
   return null;
+}
+
+async function enrichColumnMetadata(columns, dbinfo) {
+  return columns.map(column => ({
+    ...column,
+    isPrimaryKey:
+      column.isPrimaryKey ||
+      isPrimaryKeyColumn(dbinfo, column.tableSchema, column.tableName, column.sourceColumnName),
+  }));
 }
 
 function modifyRow(row, columns) {
@@ -87,6 +115,9 @@ const drivers = driverBases.map(driverBase => ({
     return new Promise(resolve => {
       dbhan.client.end(resolve);
     });
+  },
+  enrichColumnMetadata(dbhan, sql, columns, dbinfo) {
+    return enrichColumnMetadata(columns, dbinfo);
   },
   query(dbhan, sql, options) {
     if (sql == null) {

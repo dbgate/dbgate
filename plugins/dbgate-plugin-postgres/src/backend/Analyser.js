@@ -11,7 +11,17 @@ function normalizeTypeName(dataType) {
 }
 
 function getColumnInfo(
-  { is_nullable, column_name, data_type, char_max_length, numeric_precision, numeric_scale, default_value },
+  {
+    is_nullable,
+    column_name,
+    data_type,
+    char_max_length,
+    numeric_precision,
+    numeric_scale,
+    default_value,
+    postgres_table_id,
+    postgres_column_id,
+  },
   table = undefined,
   geometryColumns = undefined,
   geographyColumns = undefined
@@ -46,6 +56,8 @@ function getColumnInfo(
     notNull: !is_nullable || is_nullable == 'NO' || is_nullable == 'no',
     defaultValue: autoIncrement ? undefined : default_value,
     autoIncrement,
+    postgresTableId: postgres_table_id,
+    postgresColumnId: postgres_column_id,
   };
 }
 

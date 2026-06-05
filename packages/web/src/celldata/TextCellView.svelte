@@ -6,7 +6,9 @@
 
   $: singleSelection = selection?.length == 1 && selection?.[0];
   $: grider = singleSelection?.grider;
-  $: editable = grider?.editable ?? false;
+  $: editable = grider?.isCellEditable
+    ? grider.isCellEditable(singleSelection?.row, singleSelection?.column)
+    : grider?.editable ?? false;
 
   function setCellValue(value) {
     if (!editable) return;
