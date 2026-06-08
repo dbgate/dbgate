@@ -57,10 +57,14 @@
     }
 
     if (jsonFormatButtonMode == 'format') {
-      textValue = JSON.stringify(parsed, null, 2);
+      const formattedText = JSON.stringify(parsed, null, 2);
+      if (formattedText == textValue) return;
+      textValue = formattedText;
       jsonFormatButtonMode = 'minify';
     } else {
-      textValue = JSON.stringify(parsed);
+      const minifiedText = JSON.stringify(parsed);
+      if (minifiedText == textValue) return;
+      textValue = minifiedText;
       jsonFormatButtonMode = 'format';
     }
   }
