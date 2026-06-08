@@ -22,12 +22,11 @@
 
   let editor;
   let syntaxMode = 'text';
-  let minifyJsonOnSave = true;
+  let jsonFormatButtonMode = 'format';
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
 
   $: isJsonColumn = !!column?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i);
-  $: showMinifyJsonOnSave = isJsonColumn || syntaxMode == 'json';
 
   onMount(() => {
     editor.getEditor().focus();
@@ -48,12 +47,21 @@
     }
   }
 
-  function handleFormatJson() {
-    const parsed = safeJsonParse(textValue);
-    if (parsed) {
-      textValue = JSON.stringify(parsed, null, 2);
-    } else {
+  function handleToggleJsonFormat() {
+    let parsed;
+    try {
+      parsed = JSON.parse(textValue);
+    } catch (err) {
       showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
+      return;
+    }
+
+    if (jsonFormatButtonMode == 'format') {
+      textValue = JSON.stringify(parsed, null, 2);
+      jsonFormatButtonMode = 'minify';
+    } else {
+      textValue = JSON.stringify(parsed);
+      jsonFormatButtonMode = 'format';
     }
   }
 
@@ -68,7 +76,7 @@
   function getValueForSave() {
     if (dataEditorTypesBehaviour?.parseSqlNull && textValue == '(NULL)') return null;
 
-    if (isJsonColumn || (showMinifyJsonOnSave && minifyJsonOnSave)) {
+    if (isJsonColumn) {
       let parsed;
       try {
         parsed = JSON.parse(textValue);
@@ -78,7 +86,7 @@
       }
 
       const parsedCellValue = parseCellValue(textValue, dataEditorTypesBehaviour);
-      if (minifyJsonOnSave && _.isString(parsedCellValue)) {
+      if (_.isString(parsedCellValue)) {
         return JSON.stringify(parsed);
       }
       return parsedCellValue;
@@ -115,14 +123,14 @@
       </div>
 
       <div>
-        <FormStyledButton type="button" skipWidth={true} value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })} on:click={handleFormatJson} />
-
-        {#if showMinifyJsonOnSave}
-          <label class="minify-json-on-save">
-            <input type="checkbox" bind:checked={minifyJsonOnSave} data-testid="EditCellDataModal_minifyJsonOnSave" />
-            {_t('dataGrid.minifyJsonOnSave', { defaultMessage: 'Minify JSON on save' })}
-          </label>
-        {/if}
+        <FormStyledButton
+          type="button"
+          skipWidth={true}
+          value={jsonFormatButtonMode == 'format'
+            ? _t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })
+            : _t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
+          on:click={handleToggleJsonFormat}
+        />
 
         {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
         <SelectField
@@ -151,9 +159,5 @@
   .footer {
     display: flex;
     justify-content: space-between;
-  }
-
-  .minify-json-on-save {
-    margin: 0 10px;
   }
 </style>
