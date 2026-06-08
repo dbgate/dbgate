@@ -22,7 +22,6 @@
 
   let editor;
   let syntaxMode = 'text';
-  let jsonFormatButtonMode = 'format';
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
 
@@ -47,7 +46,7 @@
     }
   }
 
-  function handleToggleJsonFormat() {
+  function parseJsonForFormatting() {
     let parsed;
     try {
       parsed = JSON.parse(textValue);
@@ -55,18 +54,21 @@
       showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
       return;
     }
+    return parsed;
+  }
 
-    if (jsonFormatButtonMode == 'format') {
-      const formattedText = JSON.stringify(parsed, null, 2);
-      if (formattedText == textValue) return;
-      textValue = formattedText;
-      jsonFormatButtonMode = 'minify';
-    } else {
-      const minifiedText = JSON.stringify(parsed);
-      if (minifiedText == textValue) return;
-      textValue = minifiedText;
-      jsonFormatButtonMode = 'format';
-    }
+  function handleFormatJson() {
+    const parsed = parseJsonForFormatting();
+    if (parsed === undefined) return;
+
+    textValue = JSON.stringify(parsed, null, 2);
+  }
+
+  function handleMinifyJson() {
+    const parsed = parseJsonForFormatting();
+    if (parsed === undefined) return;
+
+    textValue = JSON.stringify(parsed);
   }
 
   function showJsonValidationError(err) {
@@ -129,10 +131,14 @@
         <FormStyledButton
           type="button"
           skipWidth={true}
-          value={jsonFormatButtonMode == 'format'
-            ? _t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })
-            : _t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
-          on:click={handleToggleJsonFormat}
+          value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })}
+          on:click={handleFormatJson}
+        />
+        <FormStyledButton
+          type="button"
+          skipWidth={true}
+          value={_t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
+          on:click={handleMinifyJson}
         />
 
         {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
