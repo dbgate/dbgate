@@ -107,7 +107,7 @@
       {value}
       {jsonParsedValue}
       {editorTypes}
-      rightMargin={_.isNumber(value) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
+      rightMargin={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
     />
     {#if showHint}
       <span class="hint"
