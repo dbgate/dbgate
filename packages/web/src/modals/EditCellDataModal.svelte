@@ -82,7 +82,7 @@
     </div>
 
     <div slot="footer" class="footer">
-      <div>
+      <div class="footer-actions">
         <FormStyledButton
           value={_t('common.ok', { defaultMessage: 'OK' })}
           title="Ctrl+Enter"
@@ -91,7 +91,7 @@
         <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </div>
 
-      <div>
+      <div class="footer-actions">
         <FormStyledButton
           type="button"
           skipWidth={true}
@@ -132,5 +132,11 @@
   .footer {
     display: flex;
     justify-content: space-between;
+  }
+
+  .footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 </style>
