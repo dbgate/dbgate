@@ -24,8 +24,8 @@
         {driver}
         {dbinfo}
         {queryResultEditing}
-        changeSetState={changeSetStates[info.jslid]}
-        dispatchChangeSet={changeSetDispatchers[info.jslid]}
+        changeSetState={queryResultEditing ? changeSetStates[info.jslid] : null}
+        dispatchChangeSet={queryResultEditing ? changeSetDispatchers[info.jslid] : null}
         onQueryResultInfoLoaded={value => onQueryResultInfoLoaded?.(info.jslid, value)}
       />
     </div>

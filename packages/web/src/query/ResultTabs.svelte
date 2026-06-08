@@ -64,11 +64,13 @@
 
   const handleResultSet = async props => {
     const { jslid, resultIndex } = props;
-    const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
-    changeSetDispatchers = { ...changeSetDispatchers, [jslid]: dispatchChangeSet };
-    changeSetUnsubscribers[jslid] = changeSetStore.subscribe(value => {
-      changeSetStates = { ...changeSetStates, [jslid]: value };
-    });
+    if (queryResultEditingEnabled) {
+      const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
+      changeSetDispatchers = { ...changeSetDispatchers, [jslid]: dispatchChangeSet };
+      changeSetUnsubscribers[jslid] = changeSetStore.subscribe(value => {
+        changeSetStates = { ...changeSetStates, [jslid]: value };
+      });
+    }
     resultInfos = [...resultInfos, { jslid, resultIndex }];
     await tick();
     const currentTab = allTabs[domTabs.getValue()];
@@ -127,8 +129,8 @@
             driver,
             dbinfo,
             queryResultEditing: queryResultEditingEnabled,
-            changeSetState: changeSetStates[info.jslid],
-            dispatchChangeSet: changeSetDispatchers[info.jslid],
+            changeSetState: queryResultEditingEnabled ? changeSetStates[info.jslid] : null,
+            dispatchChangeSet: queryResultEditingEnabled ? changeSetDispatchers[info.jslid] : null,
             onQueryResultInfoLoaded: value => handleQueryResultInfoLoaded(info.jslid, value),
             onOpenChart: () => handleOpenChart(info.resultIndex),
           },
