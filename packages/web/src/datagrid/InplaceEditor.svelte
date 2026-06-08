@@ -21,7 +21,6 @@
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         {cellValue}
-        {column}
         {onSetValue}
         {options}
         {canSelectMultipleOptions}
@@ -34,6 +33,7 @@
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         {cellValue}
+        {column}
         {onSetValue}
         {driver}
         {dataEditorTypesBehaviourOverride}
