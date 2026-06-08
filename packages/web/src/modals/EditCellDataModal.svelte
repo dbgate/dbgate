@@ -5,13 +5,11 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import AceEditor from '../query/AceEditor.svelte';
   import keycodes from '../utility/keycodes';
-  import _ from 'lodash';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import SelectField from '../forms/SelectField.svelte';
   import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
-  import { showSnackbarError } from '../utility/snackbar';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import { _t } from '../translations';
   
@@ -40,18 +38,38 @@
 
   function handleKeyDown(ev) {
     if (ev.keyCode == keycodes.enter && ev.ctrlKey) {
-      onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
-      closeCurrentModal();
+      saveValue();
     }
   }
 
-  function handleFormatJson() {
-    const parsed = safeJsonParse(textValue);
-    if (parsed) {
-      textValue = JSON.stringify(parsed, null, 2);
-    } else {
+  function parseJsonForFormatting() {
+    let parsed;
+    try {
+      parsed = JSON.parse(textValue);
+    } catch (err) {
       showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
+      return;
     }
+    return parsed;
+  }
+
+  function handleFormatJson() {
+    const parsed = parseJsonForFormatting();
+    if (parsed === undefined) return;
+
+    textValue = JSON.stringify(parsed, null, 2);
+  }
+
+  function handleMinifyJson() {
+    const parsed = parseJsonForFormatting();
+    if (parsed === undefined) return;
+
+    textValue = JSON.stringify(parsed);
+  }
+
+  function saveValue() {
+    onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
+    closeCurrentModal();
   }
 </script>
 
@@ -64,20 +82,28 @@
     </div>
 
     <div slot="footer" class="footer">
-      <div>
+      <div class="footer-actions">
         <FormStyledButton
           value={_t('common.ok', { defaultMessage: 'OK' })}
           title="Ctrl+Enter"
-          on:click={() => {
-            onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
-            closeCurrentModal();
-          }}
+          on:click={saveValue}
         />
         <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
       </div>
 
-      <div>
-        <FormStyledButton type="button" skipWidth={true} value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })} on:click={handleFormatJson} />
+      <div class="footer-actions">
+        <FormStyledButton
+          type="button"
+          skipWidth={true}
+          value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })}
+          on:click={handleFormatJson}
+        />
+        <FormStyledButton
+          type="button"
+          skipWidth={true}
+          value={_t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
+          on:click={handleMinifyJson}
+        />
 
         {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
         <SelectField
@@ -106,5 +132,11 @@
   .footer {
     display: flex;
     justify-content: space-between;
+  }
+
+  .footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 </style>
