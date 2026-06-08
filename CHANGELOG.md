@@ -9,6 +9,13 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.0
+
+- ADDED: Editable query results (Premium)
+- ADDED: Option to minify JSON when editing cell values #1477
+- FIXED: Improved spacing for numeric values in the data grid #1467
+- ADDED: Sticky scrolling for log messages #1444
+
 ## 7.1.13
 
 - FIXED: Resolved scrolling issues in DataGrid
