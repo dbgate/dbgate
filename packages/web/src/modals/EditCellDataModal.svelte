@@ -5,7 +5,6 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import AceEditor from '../query/AceEditor.svelte';
   import keycodes from '../utility/keycodes';
-  import _ from 'lodash';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
@@ -16,7 +15,6 @@
   
   export let onSave;
   export let value;
-  export let column = null;
 
   export let dataEditorTypesBehaviour;
 
@@ -24,8 +22,6 @@
   let syntaxMode = 'text';
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
-
-  $: isJsonColumn = !!column?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i);
 
   onMount(() => {
     editor.getEditor().focus();
@@ -71,40 +67,8 @@
     textValue = JSON.stringify(parsed);
   }
 
-  function showJsonValidationError(err) {
-    showModal(ErrorMessageModal, {
-      message: `${_t('dataGrid.saveJson.invalid', {
-        defaultMessage: 'JSON value is not valid and was not saved.',
-      })} ${err.message}`,
-    });
-  }
-
-  function getValueForSave() {
-    if (dataEditorTypesBehaviour?.parseSqlNull && textValue == '(NULL)') return null;
-
-    if (isJsonColumn) {
-      try {
-        JSON.parse(textValue);
-      } catch (err) {
-        showJsonValidationError(err);
-        return undefined;
-      }
-
-      const parsedCellValue = parseCellValue(textValue, dataEditorTypesBehaviour);
-      if (_.isString(parsedCellValue)) {
-        return textValue;
-      }
-      return parsedCellValue;
-    }
-
-    return parseCellValue(textValue, dataEditorTypesBehaviour);
-  }
-
   function saveValue() {
-    const valueForSave = getValueForSave();
-    if (valueForSave === undefined) return;
-
-    onSave(valueForSave);
+    onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
     closeCurrentModal();
   }
 </script>

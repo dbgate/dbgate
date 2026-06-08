@@ -2,21 +2,17 @@
   import keycodes from '../utility/keycodes';
   import { onMount } from 'svelte';
   import createRef from '../utility/createRef';
-  import _ from 'lodash';
   import { parseCellValue, stringifyCellValue } from 'dbgate-tools';
   import { isCtrlOrCommandKey } from '../utility/common';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { showModal } from '../modals/modalTools';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import { _t } from '../translations';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
   export let onSetValue;
   export let width;
   export let cellValue;
-  export let column = null;
   export let driver;
 
   export let dataEditorTypesBehaviourOverride = null;
@@ -29,44 +25,11 @@
   const isChangedRef = createRef(!!inplaceEditorState.text);
 
   $: editorTypes = dataEditorTypesBehaviourOverride ?? driver?.dataEditorTypesBehaviour;
-  $: isJsonColumn = !!column?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i);
-
-  function showJsonValidationError(err) {
-    showModal(ErrorMessageModal, {
-      message: `${_t('dataGrid.saveJson.invalid', {
-        defaultMessage: 'JSON value is not valid and was not saved.',
-      })} ${err.message}`,
-    });
-  }
-
-  function getValueForSave() {
-    if (editorTypes?.parseSqlNull && domEditor.value == '(NULL)') return null;
-
-    if (isJsonColumn) {
-      try {
-        JSON.parse(domEditor.value);
-      } catch (err) {
-        showJsonValidationError(err);
-        return undefined;
-      }
-
-      const parsedCellValue = parseCellValue(domEditor.value, editorTypes);
-      if (_.isString(parsedCellValue)) {
-        return domEditor.value;
-      }
-      return parsedCellValue;
-    }
-
-    return parseCellValue(domEditor.value, editorTypes);
-  }
 
   function saveChangedValue() {
     if (!isChangedRef.get()) return true;
 
-    const valueForSave = getValueForSave();
-    if (valueForSave === undefined) return false;
-
-    onSetValue(valueForSave);
+    onSetValue(parseCellValue(domEditor.value, editorTypes));
     isChangedRef.set(false);
     return true;
   }
@@ -139,7 +102,6 @@
 
       showModal(EditCellDataModal, {
         value: cellValue,
-        column,
         dataEditorTypesBehaviour: editorTypes,
         onSave: onSetValue,
       });

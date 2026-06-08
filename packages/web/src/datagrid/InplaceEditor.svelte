@@ -7,7 +7,6 @@
   export let onSetValue;
   export let width;
   export let cellValue;
-  export let column = null;
   export let options;
   export let canSelectMultipleOptions;
   export let driver;
@@ -33,7 +32,6 @@
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         {cellValue}
-        {column}
         {onSetValue}
         {driver}
         {dataEditorTypesBehaviourOverride}
