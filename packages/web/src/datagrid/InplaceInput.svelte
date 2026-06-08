@@ -1,8 +1,8 @@
 <script lang="ts">
   import keycodes from '../utility/keycodes';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import createRef from '../utility/createRef';
-  import { parseCellValue, stringifyCellValue } from 'dbgate-tools';
+  import { arrayToHexString, parseCellValue, stringifyCellValue } from 'dbgate-tools';
   import { isCtrlOrCommandKey } from '../utility/common';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { showModal } from '../modals/modalTools';
