@@ -43,9 +43,8 @@
     if (editorTypes?.parseSqlNull && domEditor.value == '(NULL)') return null;
 
     if (isJsonColumn) {
-      let parsed;
       try {
-        parsed = JSON.parse(domEditor.value);
+        JSON.parse(domEditor.value);
       } catch (err) {
         showJsonValidationError(err);
         return undefined;
@@ -53,7 +52,7 @@
 
       const parsedCellValue = parseCellValue(domEditor.value, editorTypes);
       if (_.isString(parsedCellValue)) {
-        return JSON.stringify(parsed);
+        return domEditor.value;
       }
       return parsedCellValue;
     }

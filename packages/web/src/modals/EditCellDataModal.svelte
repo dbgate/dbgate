@@ -77,9 +77,8 @@
     if (dataEditorTypesBehaviour?.parseSqlNull && textValue == '(NULL)') return null;
 
     if (isJsonColumn) {
-      let parsed;
       try {
-        parsed = JSON.parse(textValue);
+        JSON.parse(textValue);
       } catch (err) {
         showJsonValidationError(err);
         return undefined;
@@ -87,7 +86,7 @@
 
       const parsedCellValue = parseCellValue(textValue, dataEditorTypesBehaviour);
       if (_.isString(parsedCellValue)) {
-        return JSON.stringify(parsed);
+        return textValue;
       }
       return parsedCellValue;
     }

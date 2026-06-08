@@ -247,9 +247,8 @@
     if (editorTypes?.parseSqlNull && editValue == '(NULL)') return null;
 
     if (field?.dataType?.match(/(^|[^a-z0-9])(jsonb?|json2?|json5)([^a-z0-9]|$)/i)) {
-      let parsed;
       try {
-        parsed = JSON.parse(editValue);
+        JSON.parse(editValue);
       } catch (err) {
         showJsonValidationError(err);
         return undefined;
@@ -257,7 +256,7 @@
 
       const parsedCellValue = parseCellValue(editValue, editorTypes);
       if (_.isString(parsedCellValue)) {
-        return JSON.stringify(parsed);
+        return editValue;
       }
       return parsedCellValue;
     }
