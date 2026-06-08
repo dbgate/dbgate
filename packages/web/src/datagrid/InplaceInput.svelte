@@ -26,14 +26,6 @@
 
   $: editorTypes = dataEditorTypesBehaviourOverride ?? driver?.dataEditorTypesBehaviour;
 
-  function saveChangedValue() {
-    if (!isChangedRef.get()) return true;
-
-    onSetValue(parseCellValue(domEditor.value, editorTypes));
-    isChangedRef.set(false);
-    return true;
-  }
-
   function handleKeyDown(event) {
     showEditorButton = false;
 
@@ -43,20 +35,29 @@
         dispatchInsplaceEditor({ type: 'close' });
         break;
       case keycodes.enter:
-        if (!saveChangedValue()) return;
+        if (isChangedRef.get()) {
+          onSetValue(parseCellValue(domEditor.value, editorTypes));
+          isChangedRef.set(false);
+        }
         domEditor.blur();
         event.preventDefault();
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;
       case keycodes.tab:
-        if (!saveChangedValue()) return;
+        if (isChangedRef.get()) {
+          onSetValue(parseCellValue(domEditor.value, editorTypes));
+          isChangedRef.set(false);
+        }
         domEditor.blur();
         event.preventDefault();
         dispatchInsplaceEditor({ type: 'close', mode: event.shiftKey ? 'shiftTab' : 'tab' });
         break;
       case keycodes.s:
         if (isCtrlOrCommandKey(event)) {
-          if (!saveChangedValue()) return;
+          if (isChangedRef.get()) {
+            onSetValue(parseCellValue(domEditor.value, editorTypes));
+            isChangedRef.set(false);
+          }
           event.preventDefault();
           dispatchInsplaceEditor({ type: 'close', mode: 'save' });
         }
@@ -65,7 +66,11 @@
   }
 
   function handleBlur() {
-    if (!saveChangedValue()) return;
+    if (isChangedRef.get()) {
+      onSetValue(parseCellValue(domEditor.value, editorTypes));
+      // grider.setCellValue(rowIndex, uniqueName, editor.value);
+      isChangedRef.set(false);
+    }
     dispatchInsplaceEditor({ type: 'close' });
   }
 
