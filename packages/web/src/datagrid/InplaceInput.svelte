@@ -2,6 +2,7 @@
   import keycodes from '../utility/keycodes';
   import { onMount, tick } from 'svelte';
   import createRef from '../utility/createRef';
+  import _ from 'lodash';
   import { arrayToHexString, parseCellValue, stringifyCellValue } from 'dbgate-tools';
   import { isCtrlOrCommandKey } from '../utility/common';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
