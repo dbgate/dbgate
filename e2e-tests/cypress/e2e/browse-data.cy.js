@@ -221,7 +221,7 @@ describe('Data browser data', () => {
     cy.testid('TabsPanel_buttonNewObject').click();
     cy.testid('NewObjectModal_query').click();
     cy.wait(1000);
-    cy.get('body').realType('select AlbumId, Title, ArtistId from Album where AlbumId = 1');
+    cy.get('body').realType('select AlbumId, Title, ArtistId from Album where AlbumId <= 10');
     cy.testid('QueryTab_executeButton').click();
     cy.contains(originalTitle);
 
