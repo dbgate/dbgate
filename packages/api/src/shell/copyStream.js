@@ -84,7 +84,7 @@ async function copyStream(input, output, options) {
         errorMessage: extractErrorMessage(err),
       });
     }
-    // throw err;
+    throw err;
   }
 }
 

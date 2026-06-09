@@ -157,8 +157,14 @@ module.exports = {
 
   handle_copyStreamError(conid, database, { copyStreamError }) {
     const { progressName } = copyStreamError;
-    const { runid } = progressName;
+    const runid = progressName?.runid;
     logger.error(`DBGM-00103 Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
+    if (!runid) return;
+    socket.emit(`runner-progress-${runid}`, {
+      progressName: progressName?.name,
+      status: 'error',
+      errorMessage: copyStreamError.message,
+    });
     socket.emit(`runner-done-${runid}`);
   },
 

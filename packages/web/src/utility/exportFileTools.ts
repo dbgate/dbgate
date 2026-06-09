@@ -66,6 +66,7 @@ async function runImportExportScript({
 
   let runid;
   let isCanceled = false;
+  let finishErrorMessage = null;
 
   if (hostConnection) {
     runid = uuidv1();
@@ -95,9 +96,21 @@ async function runImportExportScript({
   });
 
   function handleRunnerProgress(data) {
+    if (data.status == 'error' || data.errorMessage) {
+      finishErrorMessage = data.errorMessage || _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
+      updateSnackbarProgressMessage(snackId, finishErrorMessage);
+      return;
+    }
+
     const rows = data.writtenRowsCount || data.readRowCount;
     if (rows) {
       updateSnackbarProgressMessage(snackId, _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } }));
+    }
+  }
+
+  function handleRunnerInfo(data) {
+    if (data.severity == 'error') {
+      finishErrorMessage = data.message || _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
     }
   }
 
@@ -105,8 +118,11 @@ async function runImportExportScript({
     closeSnackbar(snackId);
     apiOff(`runner-done-${runid}`, handleRunnerDone);
     apiOff(`runner-progress-${runid}`, handleRunnerProgress);
+    apiOff(`runner-info-${runid}`, handleRunnerInfo);
     if (isCanceled) {
       showSnackbarError(canceledMessage);
+    } else if (finishErrorMessage) {
+      showSnackbarError(finishErrorMessage);
     } else {
       showSnackbarInfo(finishedMessage);
       if (afterFinish) afterFinish();
@@ -115,6 +131,7 @@ async function runImportExportScript({
 
   apiOn(`runner-done-${runid}`, handleRunnerDone);
   apiOn(`runner-progress-${runid}`, handleRunnerProgress);
+  apiOn(`runner-info-${runid}`, handleRunnerInfo);
 }
 
 export async function saveExportedFile(
@@ -164,7 +181,8 @@ function generateQuickExportScript(
   format: QuickExportDefinition,
   filePath: string,
   dataName: string,
-  columnMap
+  columnMap,
+  progressName
 ) {
   const script = new ScriptWriterJson();
 
@@ -182,15 +200,17 @@ function generateQuickExportScript(
     script.assignValue(colmapVar, colmap);
   }
 
-  script.copyStream(sourceVar, targetVar, colmapVar, 'data');
+  script.copyStream(sourceVar, targetVar, colmapVar, progressName);
   script.endLine();
 
   return script.getScript();
 }
 
 export async function exportQuickExportFile(dataName, reader, format: QuickExportDefinition, columnMap = null) {
+  const progressName = reader.hostConnection ? { name: dataName, runid: { $runid: true } } : 'data';
+
   if (format.noFilenameDependency) {
-    const script = generateQuickExportScript(reader, format, null, dataName, columnMap);
+    const script = generateQuickExportScript(reader, format, null, dataName, columnMap, progressName);
     runImportExportScript({
       script,
       runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
@@ -204,7 +224,7 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       `${dataName}.${format.extension}`,
       format.extension,
       dataName,
-      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap),
+      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap, progressName),
       reader.hostConnection
     );
   }

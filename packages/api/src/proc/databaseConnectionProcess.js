@@ -629,7 +629,17 @@ async function handleEvalJsonScript({ script, runid }) {
 
     const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
     await playJsonScriptWriter(script, evalWriter);
+    await dbgateApi.finalizer.run();
     process.send({ msgtype: 'runnerDone', runid });
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'DBGM-00000 Error running JSON script on database connection');
+    process.send({
+      msgtype: 'copyStreamError',
+      copyStreamError: {
+        message: extractErrorMessage(err),
+        progressName: { name: 'script', runid },
+      },
+    });
   } finally {
     process.chdir(originalCwd);
   }
