@@ -204,6 +204,48 @@ describe('Data browser data', () => {
     cy.themeshot('query-editor-join-wizard');
   });
 
+  it('Edit MySQL query result', () => {
+    const originalTitle = 'For Those About To Rock We Salute You';
+    const changedTitle = 'New Album Title';
+
+    cy.contains('MySql-connection').click();
+    cy.contains('MyChinook').click();
+
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
+    cy.wait(1000);
+    cy.get('body').realType(`UPDATE Album SET Title = '${originalTitle}' WHERE AlbumId = 1`);
+    cy.testid('QueryTab_executeButton').click();
+    cy.contains('Query execution finished');
+
+    cy.testid('TabsPanel_buttonNewObject').click();
+    cy.testid('NewObjectModal_query').click();
+    cy.wait(1000);
+    cy.get('body').realType('select AlbumId, Title, ArtistId from Album where AlbumId = 1');
+    cy.testid('QueryTab_executeButton').click();
+    cy.contains(originalTitle);
+
+    cy.get('[data-row="0"][data-col="1"]').contains(originalTitle).click();
+    cy.get('[data-row="0"][data-col="1"]').click();
+    cy.get('body').realType(`${changedTitle}{enter}`);
+    cy.themeshot('edit-query-result');
+    cy.testid('ResultTabs_saveResult').click();
+    cy.contains('UPDATE `MyChinook`.`Album`');
+    cy.contains(`SET \`Title\`='${changedTitle}'`);
+    cy.testid('ConfirmSqlModal_runAgainAfterSave').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains(changedTitle);
+
+    cy.get('[data-row="0"][data-col="1"]').contains(changedTitle).click();
+    cy.get('[data-row="0"][data-col="1"]').click();
+    cy.get('body').realType(`${originalTitle}{enter}`);
+    cy.testid('ResultTabs_saveResult').click();
+    cy.contains(`SET \`Title\`='${originalTitle}'`);
+    cy.testid('ConfirmSqlModal_runAgainAfterSave').click();
+    cy.testid('ConfirmSqlModal_okButton').click();
+    cy.contains(originalTitle);
+  });
+
   it('Mongo query JSON data view', () => {
     cy.contains('Mongo-connection').click();
     cy.contains('MgChinook').click();
