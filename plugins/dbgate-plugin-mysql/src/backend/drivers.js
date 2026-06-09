@@ -218,6 +218,7 @@ const drivers = driverBases.map(driverBase => ({
       objectMode: true,
       highWaterMark: 100,
     });
+    pass.on('error', () => {});
 
     let columns = [];
     let isPaused = false;
