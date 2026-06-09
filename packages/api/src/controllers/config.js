@@ -16,6 +16,7 @@ const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
+const dbgateApi = require('../shell');
 const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
@@ -436,6 +437,22 @@ module.exports = {
       );
     }
 
+    return true;
+  },
+
+  createConnectionsAndSettingsZip_meta: true,
+  async createConnectionsAndSettingsZip({ db, filePath }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`admin/config`, loadedPermissions)) {
+      throw new Error('Permission denied: admin/config');
+    }
+
+    if (connections.portalConnections) {
+      throw new Error('Not allowed');
+    }
+
+    const exportDb = process.env.STORAGE_DATABASE ? await storage.fillTeamFileContentForExport(db) : db;
+    await dbgateApi.zipJsonLinesData(exportDb, filePath);
     return true;
   },
 };

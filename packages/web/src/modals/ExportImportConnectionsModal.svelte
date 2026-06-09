@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
 
   import ModalBase from './ModalBase.svelte';
@@ -40,6 +39,10 @@
     roles = fullData.roles || [];
     authMethods = fullData.auth_methods || [];
     config = fullData.config || [];
+    teamFolders = fullData.team_folders || [];
+    teamFiles = fullData.team_files || [];
+    teamFileRows = createTeamFileRows();
+    hasTeamFilesTab = !!fullData.team_files;
 
     handleCheckAll(true);
   }
@@ -51,12 +54,14 @@
       checkedRoles = roles.map(x => x.id);
       checkedAuthMethods = authMethods.map(x => x.id);
       checkedConfig = config.map(x => x.id);
+      checkedTeamFileKeys = teamFileRows.map(x => x.exportKey);
     } else {
       checkedConnections = [];
       checkedUsers = [];
       checkedRoles = [];
       checkedAuthMethods = [];
       checkedConfig = [];
+      checkedTeamFileKeys = [];
     }
   }
 
@@ -68,6 +73,36 @@
       loadImportedData();
     }
   });
+
+  function createTeamFileRows() {
+    return teamFiles.map(file => {
+      const folder = teamFolders.find(x => x.id == file.team_folder_id);
+      return {
+        exportKey: `file:${file.id}`,
+        id: file.id,
+        name: file.file_name,
+        folder: folder?.folder_name || '',
+        fileType: file.type_name || '',
+        teamFolderId: file.team_folder_id,
+        fileTypeId: file.file_type_id,
+      };
+    });
+  }
+
+  function getLimitedTeamFileData() {
+    const selectedTeamFiles = teamFiles.filter(file => checkedTeamFileKeys.includes(`file:${file.id}`));
+    const selectedFolderIds = _.uniq(selectedTeamFiles.map(file => file.team_folder_id));
+
+    return {
+      team_folders: fullData.team_folders?.filter(folder => selectedFolderIds.includes(folder.id)),
+      team_files: fullData.team_files
+        ?.filter(file => selectedTeamFiles.find(selectedFile => selectedFile.id == file.id))
+        .map(file => ({
+          ...file,
+          owner_user_id: null,
+        })),
+    };
+  }
 
   function getLimitedData() {
     const limitedData: any = {
@@ -94,6 +129,9 @@
         x => checkedConfig.includes(x.id) || (x.group == 'admin' && x.key == 'encryptionKey')
       ),
     };
+    if (fullData.team_files) {
+      Object.assign(limitedData, getLimitedTeamFileData());
+    }
     return limitedData;
   }
 
@@ -123,7 +161,7 @@
       return;
     }
 
-    await apiCall('files/create-zip-from-jsons', { db: getLimitedData(), filePath });
+    await apiCall('config/create-connections-and-settings-zip', { db: getLimitedData(), filePath });
 
     if (electron) {
       showSnackbarSuccess(`Saved to file ${filePath}`);
@@ -134,7 +172,7 @@
 
   async function handleSaveToArchive() {
     const filePath = `archive:dbgateconfig-${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.zip`;
-    await apiCall('files/create-zip-from-jsons', { db: getLimitedData(), filePath });
+    await apiCall('config/create-connections-and-settings-zip', { db: getLimitedData(), filePath });
     showSnackbarSuccess(`Saved to ${filePath}`);
   }
 
@@ -158,11 +196,18 @@
   let config = [];
   let checkedConfig = [];
 
+  let teamFolders = [];
+  let teamFiles = [];
+  let teamFileRows = [];
+  let hasTeamFilesTab = false;
+  let checkedTeamFileKeys = [];
+
   const connectionFilters = writable({});
   const userFilters = writable({});
   const roleFilters = writable({});
   const authMethodFilters = writable({});
   const configFilters = writable({});
+  const teamFileFilters = writable({});
 </script>
 
 <FormProvider>
@@ -190,6 +235,7 @@
             slot: 4,
           },
           config?.length && { label: _t('importExport.configNum', { defaultMessage:'Config ({checkedConfig}/{config})', values: { checkedConfig: checkedConfig?.length, config: config?.length } }), slot: 5 },
+          hasTeamFilesTab && { label: _t('importExport.filesNum', { defaultMessage:'Files ({checkedFiles}/{files})', values: { checkedFiles: checkedTeamFileKeys?.length, files: teamFileRows?.length } }), slot: 6 },
         ])}
       >
         <svelte:fragment slot="1">
@@ -310,6 +356,33 @@
               checkedKeys={checkedConfig}
               onSetCheckedKeys={keys => {
                 checkedConfig = keys;
+              }}
+            ></TableControl>
+          </div>
+        </svelte:fragment>
+        <svelte:fragment slot="6">
+          <div class="tablewrap">
+            <TableControl
+              filters={teamFileFilters}
+              stickyHeader
+              data-testid="ExportImportConnectionsModal_filesTable"
+              columns={[
+                { header: 'ID', fieldName: 'id', sortable: true, filterable: true },
+                { header: _t('importExport.name', { defaultMessage: 'Name' }), fieldName: 'name', sortable: true, filterable: true },
+                { header: _t('importExport.folder', { defaultMessage: 'Folder' }), fieldName: 'folder', sortable: true, filterable: true },
+                { header: _t('importExport.fileType', { defaultMessage: 'File type' }), fieldName: 'fileType', sortable: true, filterable: true },
+              ]}
+              clickable
+              rows={teamFileRows}
+              extractTableItemKey={row => row.exportKey}
+              on:clickrow={event => {
+                checkedTeamFileKeys = checkedTeamFileKeys.includes(event.detail.exportKey)
+                  ? checkedTeamFileKeys.filter(key => key !== event.detail.exportKey)
+                  : [...checkedTeamFileKeys, event.detail.exportKey];
+              }}
+              checkedKeys={checkedTeamFileKeys}
+              onSetCheckedKeys={keys => {
+                checkedTeamFileKeys = keys;
               }}
             ></TableControl>
           </div>
