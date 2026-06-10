@@ -623,23 +623,48 @@ async function handleEvalJsonScript({ script, runid }) {
   const directory = path.join(rundir(), runid);
   fs.mkdirSync(directory);
   const originalCwd = process.cwd();
+  let scriptError = null;
+  let finalizerError = null;
 
   try {
     process.chdir(directory);
 
-    const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
-    await playJsonScriptWriter(script, evalWriter);
-    await dbgateApi.finalizer.run();
-    process.send({ msgtype: 'runnerDone', runid });
-  } catch (err) {
-    logger.error(extractErrorLogData(err), 'DBGM-00000 Error running JSON script on database connection');
-    process.send({
-      msgtype: 'copyStreamError',
-      copyStreamError: {
-        message: extractErrorMessage(err),
-        progressName: { name: 'script', runid },
-      },
-    });
+    try {
+      const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
+      await playJsonScriptWriter(script, evalWriter);
+    } catch (err) {
+      scriptError = err;
+    } finally {
+      try {
+        await dbgateApi.finalizer.run();
+      } catch (err) {
+        finalizerError = err;
+      }
+    }
+
+    if (scriptError || finalizerError) {
+      if (scriptError) {
+        logger.error(extractErrorLogData(scriptError), 'DBGM-00000 Error running JSON script on database connection');
+      }
+      if (finalizerError) {
+        logger.error(extractErrorLogData(finalizerError), 'DBGM-00000 Error running JSON script finalizers');
+      }
+
+      process.send({
+        msgtype: 'copyStreamError',
+        copyStreamError: {
+          message: [
+            scriptError && extractErrorMessage(scriptError),
+            finalizerError && `Finalizer failed: ${extractErrorMessage(finalizerError)}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+          progressName: { name: 'script', runid },
+        },
+      });
+    } else {
+      process.send({ msgtype: 'runnerDone', runid });
+    }
   } finally {
     process.chdir(originalCwd);
   }
