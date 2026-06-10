@@ -642,8 +642,10 @@ async function handleEvalJsonScript({ script, runid }) {
       }
     }
 
-    if (scriptError || finalizerError) {
-      if (scriptError) {
+    const shouldReportScriptError = scriptError && !scriptError.dbgateCopyStreamErrorReported;
+
+    if (shouldReportScriptError || finalizerError) {
+      if (shouldReportScriptError) {
         logger.error(extractErrorLogData(scriptError), 'DBGM-00000 Error running JSON script on database connection');
       }
       if (finalizerError) {
@@ -654,7 +656,7 @@ async function handleEvalJsonScript({ script, runid }) {
         msgtype: 'copyStreamError',
         copyStreamError: {
           message: [
-            scriptError && extractErrorMessage(scriptError),
+            shouldReportScriptError && extractErrorMessage(scriptError),
             finalizerError && `Finalizer failed: ${extractErrorMessage(finalizerError)}`,
           ]
             .filter(Boolean)

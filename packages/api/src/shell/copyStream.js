@@ -66,6 +66,7 @@ async function copyStream(input, output, options) {
     }
   } catch (err) {
     logger.error(extractErrorLogData(err, { progressName }), 'DBGM-00157 Import/export job failed');
+    err.dbgateCopyStreamErrorReported = true;
 
     process.send({
       msgtype: 'copyStreamError',

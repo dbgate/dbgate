@@ -160,6 +160,7 @@ module.exports = {
     const runid = progressName?.runid;
     logger.error(`DBGM-00103 Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
     if (!runid) return;
+    if (copyStreamError.dbgateCopyStreamErrorReported) return;
     socket.emit(`runner-progress-${runid}`, {
       progressName: progressName?.name,
       status: 'error',
