@@ -235,8 +235,7 @@ const drivers = driverBases.map(driverBase => ({
         logger.error(extractErrorLogData(err, this.getLogDbInfo(dbhan)), 'DBGM-00000 Query reader stream error');
         isClosed = true;
         resumeQuery();
-        pass.emit('error', err);
-        pass.end();
+        pass.destroy(err);
       })
       .on('fields', fields => {
         columns = extractColumns(fields);
