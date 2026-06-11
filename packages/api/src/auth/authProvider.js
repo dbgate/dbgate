@@ -39,7 +39,11 @@ class AuthProviderBase {
 
   async getCurrentPermissions(req) {
     const login = this.getCurrentLogin(req);
-    const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
+    // Normalize hyphens to underscores: environment variable names cannot contain
+    // hyphens in POSIX shells or Kubernetes envFrom, so LOGIN_PERMISSIONS keys
+    // must use underscores (e.g. LOGIN_PERMISSIONS_my_user for login "my-user").
+    const envKey = `LOGIN_PERMISSIONS_${login?.replace(/-/g, '_')}`;
+    const permissions = process.env[envKey];
     return permissions || process.env.PERMISSIONS;
   }
 
@@ -97,7 +101,10 @@ class OAuthProvider extends AuthProviderBase {
       `${process.env.OAUTH_TOKEN}`,
       `grant_type=authorization_code&code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(
         redirectUri
-      )}&client_id=${process.env.OAUTH_CLIENT_ID}&client_secret=${process.env.OAUTH_CLIENT_SECRET}${scopeParam}`
+      )}&client_id=${process.env.OAUTH_CLIENT_ID}&client_secret=${process.env.OAUTH_CLIENT_SECRET}${scopeParam}`,
+      {
+        headers: { Accept: 'application/json' },
+      }
     );
 
     const { access_token, refresh_token, id_token } = resp.data;
@@ -109,6 +116,14 @@ class OAuthProvider extends AuthProviderBase {
     // https://github.com/dbgate/dbgate/issues/727
     if (!payload && id_token) {
       payload = jwt.decode(id_token);
+    }
+
+    // Fallback to userinfo endpoint for providers with opaque tokens (e.g. GitHub)
+    if (!payload && process.env.OAUTH_USERINFO) {
+      const userResp = await axios.default.get(process.env.OAUTH_USERINFO, {
+        headers: { Authorization: `Bearer ${access_token}`, Accept: 'application/json' },
+      });
+      payload = userResp.data;
     }
 
     logger.info({ payload }, 'DBGM-00002 User payload returned from OAUTH');
