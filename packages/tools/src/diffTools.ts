@@ -286,12 +286,12 @@ export function testEqualColumns(
       // );
       return false;
     }
-    if (simplifySqlExpression(a.onUpdateExpression || '') != simplifySqlExpression(b.onUpdateExpression || '')) {
-      console.debug(
-        `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different on update expression: ${a.onUpdateExpression}, ${b.onUpdateExpression}`
-      );
-      return false;
-    }
+  }
+  if (simplifySqlExpression(a.onUpdateExpression || '') != simplifySqlExpression(b.onUpdateExpression || '')) {
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different on update expression: ${a.onUpdateExpression}, ${b.onUpdateExpression}`
+    );
+    return false;
   }
   if ((a.notNull || false) != (b.notNull || false)) {
     console.debug(
