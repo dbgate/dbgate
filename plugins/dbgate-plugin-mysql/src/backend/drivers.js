@@ -218,12 +218,24 @@ const drivers = driverBases.map(driverBase => ({
       objectMode: true,
       highWaterMark: 100,
     });
+    pass.on('error', () => {});
 
     let columns = [];
+    let isPaused = false;
+    let isClosed = false;
+    const resumeQuery = () => {
+      if (isPaused) {
+        isPaused = false;
+        dbhan.client.resume();
+      }
+    };
+
     query
       .on('error', err => {
-        console.error(err);
-        pass.end();
+        logger.error(extractErrorLogData(err, this.getLogDbInfo(dbhan)), 'DBGM-00000 Query reader stream error');
+        isClosed = true;
+        resumeQuery();
+        pass.destroy(err);
       })
       .on('fields', fields => {
         columns = extractColumns(fields);
@@ -233,8 +245,20 @@ const drivers = driverBases.map(driverBase => ({
           ...(structure || { columns }),
         });
       })
-      .on('result', row => pass.write(modifyRow(zipDataRow(row, columns), columns)))
+      .on('result', row => {
+        if (isClosed) return;
+        if (!pass.write(modifyRow(zipDataRow(row, columns), columns))) {
+          isPaused = true;
+          dbhan.client.pause();
+        }
+      })
       .on('end', () => pass.end());
+
+    pass.on('drain', resumeQuery);
+    pass.on('close', () => {
+      isClosed = true;
+      resumeQuery();
+    });
 
     return pass;
   },

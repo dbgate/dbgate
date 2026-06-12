@@ -33,6 +33,7 @@ function normalizeExcelValue(value) {
 async function saveExcelFiles() {
   for (const file in writingWorkbooks) {
     xlsx.writeFile(writingWorkbooks[file], file);
+    delete writingWorkbooks[file];
   }
 }
 
