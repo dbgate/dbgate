@@ -23,7 +23,7 @@ const CONNECTION_FIELDS = [
 ];
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
-function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
+function callForwardProcess(connection, tunnelConfig, tunnelCacheKey, mode) {
   let subprocess = fork(
     global['API_PACKAGE'] || process.argv[1],
     ['--is-forked-api', '--start-process', 'sshForwardProcess', ...processArgs.getPassArgs()],
@@ -38,6 +38,7 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       msgtype: 'connect',
       connection,
       tunnelConfig,
+      mode,
     });
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00174 Error connecting SSH');
@@ -77,10 +78,11 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
   });
 }
 
-async function getSshTunnel(connection) {
+async function getSshTunnel(connection, options) {
+  const mode = options?.mode || 'forward';
   const config = require('../controllers/config');
 
-  const tunnelCacheKey = stableStringify(_.pick(connection, TUNNEL_FIELDS));
+  const tunnelCacheKey = stableStringify({ ..._.pick(connection, TUNNEL_FIELDS), mode });
   const globalSettings = await config.getSettings();
 
   return await lock.acquire(tunnelCacheKey, async () => {
@@ -92,19 +94,31 @@ async function getSshTunnel(connection) {
     const tunnelConfig = {
       fromPort: localPort,
       fromHost: localHost,
-      toPort: connection.port,
-      toHost: connection.server,
+      toPort: mode === 'socks' ? undefined : connection.port,
+      toHost: mode === 'socks' ? undefined : connection.server,
     };
     try {
-      logger.info(
-        `DBGM-00093 Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
-      );
+      if (mode === 'socks') {
+        logger.info(
+          `DBGM-00093 Creating SSH SOCKS proxy via ${connection.sshHost}, using local port ${localPort}`
+        );
+      } else {
+        logger.info(
+          `DBGM-00093 Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
+        );
+      }
 
-      const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey);
+      const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey, mode);
 
-      logger.info(
-        `DBGM-00094 Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
-      );
+      if (mode === 'socks') {
+        logger.info(
+          `DBGM-00094 Created SSH SOCKS proxy via ${connection.sshHost}, using local port ${localPort}`
+        );
+      } else {
+        logger.info(
+          `DBGM-00094 Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
+        );
+      }
 
       sshTunnelCache[tunnelCacheKey] = {
         state: 'ok',
