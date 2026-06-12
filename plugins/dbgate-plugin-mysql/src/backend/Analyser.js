@@ -20,6 +20,12 @@ function normalizeTypeName(typeName) {
   return typeName;
 }
 
+function extractOnUpdateExpression(extra) {
+  if (!_.isString(extra)) return undefined;
+  const match = extra.match(/(?:^|\s)on update\s+(.+)$/i);
+  return match ? match[1].trim() : undefined;
+}
+
 function getColumnInfo(
   {
     isNullable,
@@ -59,6 +65,7 @@ function getColumnInfo(
     columnComment,
     dataType: fullDataType,
     defaultValue: quoteDefaultValues ? quoteDefaultValue(defaultValue) : defaultValue,
+    onUpdateExpression: extractOnUpdateExpression(extra),
     isUnsigned: columnTypeTokens.includes('unsigned'),
     isZerofill: columnTypeTokens.includes('zerofill'),
     ...optionsInfo,
