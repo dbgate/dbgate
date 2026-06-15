@@ -68,6 +68,8 @@
   import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
+  import useEditorData from '../query/useEditorData';
+  import { markTabSaved, markTabUnsaved } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -84,6 +86,18 @@
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
   const settingsValue = useSettings();
+
+  const { setEditorData } = useEditorData({
+    tabid,
+    onInitialData: value => {
+      dispatchChangeSet({ type: 'reset', value });
+      invalidateCommands();
+      if (changeSetContainsChanges(value)) {
+        markTabUnsaved(tabid);
+      }
+    },
+  });
+
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
 
   export const activator = createActivator('ViewDataTab', true);
@@ -107,6 +121,15 @@
           isProApp() && !$connection?.isReadOnly
         )
       : null;
+
+  $: {
+    setEditorData($changeSetStore.value);
+    if (changeSetContainsChanges($changeSetStore?.value)) {
+      markTabUnsaved(tabid);
+    } else {
+      markTabSaved(tabid);
+    }
+  }
 
   $: {
     $changeSetStore;

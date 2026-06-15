@@ -9,11 +9,13 @@ import {
   getEditableQueryResultChangeSetField,
   getEditableQueryResultChangeSetRowDefinitions,
   isEditableQueryResultColumn,
+  QueryResultColumnBaseMapping,
   QueryResultTableMapping,
 } from './EditableQueryResultDisplay';
 
 export class JslGridDisplay extends GridDisplay {
   private queryResultTableMappings: { [key: string]: QueryResultTableMapping } = {};
+  private queryResultColumnBaseMappings: { [columnName: string]: QueryResultColumnBaseMapping } = {};
 
   constructor(
     jslid,
@@ -53,18 +55,21 @@ export class JslGridDisplay extends GridDisplay {
         : new Set();
       this.columns = _.uniqBy(
         structure.columns
-          .map(col => ({
-            columnName: col.columnName,
-            headerText: col.columnName,
-            uniqueName: col.columnName,
-            uniquePath: [col.columnName],
-            notNull: col.notNull,
-            autoIncrement: col.autoIncrement,
-            pureName: queryResultEditing ? col.tableName : null,
-            schemaName: queryResultEditing ? col.tableSchema : null,
-            sourceColumnName: col.sourceColumnName,
-            queryResultEditable: queryResultEditableColumns.has(col.columnName),
-          }))
+          .map(col => {
+            const columnBaseMapping = this.queryResultColumnBaseMappings[col.columnName];
+            return {
+              columnName: col.columnName,
+              headerText: col.columnName,
+              uniqueName: col.columnName,
+              uniquePath: [col.columnName],
+              notNull: col.notNull,
+              autoIncrement: col.autoIncrement,
+              pureName: queryResultEditing ? columnBaseMapping?.pureName || col.tableName : null,
+              schemaName: queryResultEditing ? columnBaseMapping?.schemaName || col.tableSchema : null,
+              sourceColumnName: columnBaseMapping?.sourceColumnName || col.sourceColumnName,
+              queryResultEditable: queryResultEditableColumns.has(col.columnName),
+            };
+          })
           ?.map(col => ({
             ...col,
             isChecked: this.isColumnChecked(col),
@@ -87,8 +92,9 @@ export class JslGridDisplay extends GridDisplay {
   }
 
   private getEditableQueryResultColumns(columns: QueryResultColumn[], dbinfo: DatabaseInfo) {
-    const { editableColumns, tableMappings } = createEditableQueryResultMappings(columns, dbinfo);
+    const { editableColumns, tableMappings, columnBaseMappings } = createEditableQueryResultMappings(columns, dbinfo);
     this.queryResultTableMappings = tableMappings;
+    this.queryResultColumnBaseMappings = columnBaseMappings;
     return editableColumns;
   }
 

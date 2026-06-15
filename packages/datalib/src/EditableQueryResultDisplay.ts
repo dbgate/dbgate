@@ -10,6 +10,12 @@ export interface QueryResultTableMapping {
   keyDisplayColumns: { displayName: string; sourceColumnName: string }[];
 }
 
+export interface QueryResultColumnBaseMapping {
+  pureName: string;
+  schemaName?: string;
+  sourceColumnName: string;
+}
+
 export function getTableKey(schemaName: string, pureName: string) {
   return `${schemaName || ''}\n${pureName}`;
 }
@@ -26,6 +32,7 @@ function findTable(dbinfo: DatabaseInfo, schemaName: string, pureName: string): 
 export function createEditableQueryResultMappings(columns: QueryResultColumn[], dbinfo: DatabaseInfo) {
   const editableColumns = new Set<string>();
   const tableMappings: { [key: string]: QueryResultTableMapping } = {};
+  const columnBaseMappings: { [columnName: string]: QueryResultColumnBaseMapping } = {};
   const groups = _.groupBy(
     (columns || []).filter(column => column.tableName && column.sourceColumnName),
     column => getTableKey(column.tableSchema, column.tableName)
@@ -58,10 +65,15 @@ export function createEditableQueryResultMappings(columns: QueryResultColumn[], 
 
     for (const column of groupColumns) {
       editableColumns.add(column.columnName);
+      columnBaseMappings[column.columnName] = {
+        pureName: firstColumn.tableName,
+        schemaName: tableSchema,
+        sourceColumnName: column.sourceColumnName,
+      };
     }
   }
 
-  return { editableColumns, tableMappings };
+  return { editableColumns, tableMappings, columnBaseMappings };
 }
 
 export function hasCompleteQueryResultKey(mapping: QueryResultTableMapping, row: any) {

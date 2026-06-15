@@ -7,11 +7,13 @@ import {
   getEditableQueryResultChangeSetField,
   getEditableQueryResultChangeSetRowDefinitions,
   isEditableQueryResultColumn,
+  QueryResultColumnBaseMapping,
   QueryResultTableMapping,
 } from './EditableQueryResultDisplay';
 
 export class ViewGridDisplay extends GridDisplay {
   private queryResultTableMappings: { [key: string]: QueryResultTableMapping } = {};
+  private queryResultColumnBaseMappings: { [columnName: string]: QueryResultColumnBaseMapping } = {};
 
   constructor(
     public view: ViewInfo,
@@ -50,8 +52,9 @@ export class ViewGridDisplay extends GridDisplay {
   }
 
   private getEditableQueryResultColumns(columns: QueryResultColumn[], dbinfo: DatabaseInfo) {
-    const { editableColumns, tableMappings } = createEditableQueryResultMappings(columns, dbinfo);
+    const { editableColumns, tableMappings, columnBaseMappings } = createEditableQueryResultMappings(columns, dbinfo);
     this.queryResultTableMappings = tableMappings;
+    this.queryResultColumnBaseMappings = columnBaseMappings;
     return editableColumns;
   }
 
@@ -78,14 +81,15 @@ export class ViewGridDisplay extends GridDisplay {
   ) {
     const uniquePath = [col.columnName];
     const uniqueName = uniquePath.join('.');
+    const columnBaseMapping = this.queryResultColumnBaseMappings[col.columnName];
     return {
       ...col,
-      pureName: resultColumn?.tableName || view.pureName,
-      schemaName: resultColumn?.tableSchema || view.schemaName,
+      pureName: columnBaseMapping?.pureName || resultColumn?.tableName || view.pureName,
+      schemaName: columnBaseMapping?.schemaName || resultColumn?.tableSchema || view.schemaName,
       headerText: col.columnName,
       uniqueName,
       uniquePath,
-      sourceColumnName: resultColumn?.sourceColumnName,
+      sourceColumnName: columnBaseMapping?.sourceColumnName || resultColumn?.sourceColumnName,
       queryResultEditable: queryResultEditableColumns.has(col.columnName),
     };
   }
