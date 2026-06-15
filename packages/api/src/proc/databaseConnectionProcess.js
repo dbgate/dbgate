@@ -623,13 +623,50 @@ async function handleEvalJsonScript({ script, runid }) {
   const directory = path.join(rundir(), runid);
   fs.mkdirSync(directory);
   const originalCwd = process.cwd();
+  let scriptError = null;
+  let finalizerError = null;
 
   try {
     process.chdir(directory);
 
-    const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
-    await playJsonScriptWriter(script, evalWriter);
-    process.send({ msgtype: 'runnerDone', runid });
+    try {
+      const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
+      await playJsonScriptWriter(script, evalWriter);
+    } catch (err) {
+      scriptError = err;
+    } finally {
+      try {
+        await dbgateApi.finalizer.run();
+      } catch (err) {
+        finalizerError = err;
+      }
+    }
+
+    const shouldReportScriptError = scriptError && !scriptError.dbgateCopyStreamErrorReported;
+
+    if (shouldReportScriptError || finalizerError) {
+      if (shouldReportScriptError) {
+        logger.error(extractErrorLogData(scriptError), 'DBGM-00000 Error running JSON script on database connection');
+      }
+      if (finalizerError) {
+        logger.error(extractErrorLogData(finalizerError), 'DBGM-00000 Error running JSON script finalizers');
+      }
+
+      process.send({
+        msgtype: 'copyStreamError',
+        copyStreamError: {
+          message: [
+            shouldReportScriptError && extractErrorMessage(scriptError),
+            finalizerError && `Finalizer failed: ${extractErrorMessage(finalizerError)}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+          progressName: { name: 'script', runid },
+        },
+      });
+    } else {
+      process.send({ msgtype: 'runnerDone', runid });
+    }
   } finally {
     process.chdir(originalCwd);
   }

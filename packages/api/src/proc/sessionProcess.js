@@ -290,14 +290,31 @@ async function handleExecuteReader({ jslid, sql, fileName }) {
 
   const reader = await driver.readQuery(dbhan, sql);
 
-  reader.on('data', data => {
-    writer.rowFromReader(data);
-  });
-  reader.on('end', () => {
-    writer.close(() => {
+  let isFinished = false;
+  const finishReader = () => {
+    if (isFinished) return;
+    isFinished = true;
+    writer.close().then(() => {
       process.send({ msgtype: 'done' });
     });
+  };
+
+  reader.on('data', data => {
+    if (isFinished) return;
+    writer.rowFromReader(data);
   });
+  reader.on('error', err => {
+    process.send({
+      msgtype: 'info',
+      info: {
+        message: extractErrorMessage(err),
+        severity: 'error',
+        time: new Date(),
+      },
+    });
+    finishReader();
+  });
+  reader.on('end', finishReader);
 }
 
 function handlePing() {
