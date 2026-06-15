@@ -1,9 +1,18 @@
 import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
-import type { EngineDriver, ViewInfo, ColumnInfo, DatabaseInfo } from 'dbgate-types';
+import type { EngineDriver, ViewInfo, ColumnInfo, DatabaseInfo, QueryResultColumn } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
+import {
+  createEditableQueryResultMappings,
+  getEditableQueryResultChangeSetField,
+  getEditableQueryResultChangeSetRowDefinitions,
+  isEditableQueryResultColumn,
+  QueryResultTableMapping,
+} from './EditableQueryResultDisplay';
 
 export class ViewGridDisplay extends GridDisplay {
+  private queryResultTableMappings: { [key: string]: QueryResultTableMapping } = {};
+
   constructor(
     public view: ViewInfo,
     driver: EngineDriver,
@@ -13,23 +22,47 @@ export class ViewGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
     serverVersion,
-    currentSettings
+    currentSettings,
+    public viewResultInfo: { columns?: QueryResultColumn[] } = null,
+    editableView = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion, currentSettings);
-    this.columns = this.getDisplayColumns(view);
+    const effectiveEditable =
+      editableView && driver?.databaseEngineTypes?.includes('sql') && driver?.supportsEditableQueryResults;
+    const queryResultEditableColumns = effectiveEditable
+      ? this.getEditableQueryResultColumns(viewResultInfo?.columns || [], dbinfo)
+      : new Set<string>();
+    const resultColumnMap = _.keyBy(viewResultInfo?.columns || [], 'columnName');
+    this.columns = this.getDisplayColumns(view, resultColumnMap, queryResultEditableColumns);
     this.formColumns = this.columns;
     this.filterable = true;
     this.sortable = true;
     this.groupable = false;
-    this.editable = false;
+    this.editable = effectiveEditable && this.columns.some(col => col.queryResultEditable);
+    if (effectiveEditable) {
+      this.allowInsert = false;
+      this.allowDelete = false;
+      this.allowStructureChange = false;
+      this.allowRowDocumentEdit = false;
+    }
     this.supportsReload = true;
     this.baseView = view;
   }
 
-  getDisplayColumns(view: ViewInfo) {
+  private getEditableQueryResultColumns(columns: QueryResultColumn[], dbinfo: DatabaseInfo) {
+    const { editableColumns, tableMappings } = createEditableQueryResultMappings(columns, dbinfo);
+    this.queryResultTableMappings = tableMappings;
+    return editableColumns;
+  }
+
+  getDisplayColumns(
+    view: ViewInfo,
+    resultColumnMap: { [columnName: string]: QueryResultColumn } = {},
+    queryResultEditableColumns = new Set<string>()
+  ) {
     return (
       view?.columns
-        ?.map(col => this.getDisplayColumn(view, col))
+        ?.map(col => this.getDisplayColumn(view, col, resultColumnMap[col.columnName], queryResultEditableColumns))
         ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
@@ -37,17 +70,49 @@ export class ViewGridDisplay extends GridDisplay {
     );
   }
 
-  getDisplayColumn(view: ViewInfo, col: ColumnInfo) {
+  getDisplayColumn(
+    view: ViewInfo,
+    col: ColumnInfo,
+    resultColumn: QueryResultColumn = null,
+    queryResultEditableColumns = new Set<string>()
+  ) {
     const uniquePath = [col.columnName];
     const uniqueName = uniquePath.join('.');
     return {
       ...col,
-      pureName: view.pureName,
-      schemaName: view.schemaName,
+      pureName: resultColumn?.tableName || view.pureName,
+      schemaName: resultColumn?.tableSchema || view.schemaName,
       headerText: col.columnName,
       uniqueName,
       uniquePath,
+      sourceColumnName: resultColumn?.sourceColumnName,
+      queryResultEditable: queryResultEditableColumns.has(col.columnName),
     };
+  }
+
+  isColumnEditable(uniqueName: string, row?: any) {
+    if (!this.editable) return false;
+    return isEditableQueryResultColumn(this.columns, this.queryResultTableMappings, uniqueName, row);
+  }
+
+  getChangeSetField(row, uniqueName, insertedRowIndex, existingRowIndex = null, baseNameOmitable = false) {
+    return getEditableQueryResultChangeSetField(
+      this.columns,
+      this.queryResultTableMappings,
+      row,
+      uniqueName,
+      insertedRowIndex,
+      existingRowIndex
+    );
+  }
+
+  getChangeSetRowDefinitions(row, insertedRowIndex, existingRowIndex, baseNameOmitable = false) {
+    return getEditableQueryResultChangeSetRowDefinitions(
+      this.queryResultTableMappings,
+      row,
+      insertedRowIndex,
+      existingRowIndex
+    );
   }
 
   createSelect(options = {}) {

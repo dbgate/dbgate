@@ -20,6 +20,43 @@ function getColumnMetadata(columnMetadata, columnName) {
   return matchingKeys.length == 1 ? columnMetadata[matchingKeys[0]] : null;
 }
 
+function findView(dbinfo, schemaName, pureName) {
+  const views = [...(dbinfo?.views || []), ...(dbinfo?.matviews || [])];
+  if (!views.length || !pureName) return null;
+  if (schemaName) {
+    return views.find(view => view.schemaName == schemaName && view.pureName == pureName);
+  }
+  const matchingViews = views.filter(view => view.pureName == pureName);
+  return matchingViews.length == 1 ? matchingViews[0] : null;
+}
+
+function extractSelectFromCreateView(createSql) {
+  if (!createSql) return null;
+  const match = createSql.match(/\bas\s+(select\b[\s\S]*)/i);
+  return match ? match[1] : createSql;
+}
+
+function resolveViewResultColumns(columns, dbinfo) {
+  if (!columns?.length) return columns;
+  if (!dbinfo?.views?.length && !dbinfo?.matviews?.length) return columns;
+
+  return columns.map(column => {
+    const view = findView(dbinfo, column.tableSchema, column.tableName);
+    if (!view?.createSql) return column;
+
+    const columnMetadata = extractColumnMetadataFromSql(extractSelectFromCreateView(view.createSql));
+    const metadata = getColumnMetadata(columnMetadata, column.columnName);
+    if (!metadata) return column;
+
+    return {
+      ...column,
+      tableName: metadata.tableName,
+      tableSchema: metadata.schemaName,
+      sourceColumnName: metadata.sourceColumnName,
+    };
+  });
+}
+
 async function enrichQueryResultColumns({ columns, sql, driver, dbhan, dbinfo, onNativeMetadataError, onFallbackMetadataError }) {
   if (!columns?.length || !driver?.databaseEngineTypes?.includes('sql') || !driver?.supportsEditableQueryResults) {
     return columns;
@@ -27,7 +64,7 @@ async function enrichQueryResultColumns({ columns, sql, driver, dbhan, dbinfo, o
 
   if (driver.enrichColumnMetadata) {
     try {
-      const enriched = await driver.enrichColumnMetadata(dbhan, sql, columns, dbinfo);
+      const enriched = resolveViewResultColumns(await driver.enrichColumnMetadata(dbhan, sql, columns, dbinfo), dbinfo);
       if (enriched?.every(column => column.tableName && column.sourceColumnName)) return enriched;
       if (enriched?.length == columns.length) columns = enriched;
     } catch (err) {
@@ -38,7 +75,7 @@ async function enrichQueryResultColumns({ columns, sql, driver, dbhan, dbinfo, o
   try {
     const columnMetadata = extractColumnMetadataFromSql(sql);
     if (columnMetadata) {
-      return columns.map(column => {
+      return resolveViewResultColumns(columns.map(column => {
         const metadata = getColumnMetadata(columnMetadata, column.columnName);
         return {
           ...column,
@@ -46,19 +83,19 @@ async function enrichQueryResultColumns({ columns, sql, driver, dbhan, dbinfo, o
           tableSchema: column.tableSchema || metadata?.schemaName,
           sourceColumnName: column.sourceColumnName || metadata?.sourceColumnName,
         };
-      });
+      }), dbinfo);
     }
 
     const table = extractSingleTableFromSql(sql);
     if (!table) return columns;
     const columnSources = extractColumnSourcesFromSql(sql);
 
-    return columns.map(column => ({
+    return resolveViewResultColumns(columns.map(column => ({
       ...column,
       tableName: column.tableName || table.tableName,
       tableSchema: column.tableSchema || table.schemaName,
       sourceColumnName: column.sourceColumnName || getColumnSourceName(columnSources, column.columnName) || column.columnName,
-    }));
+    })), dbinfo);
   } catch (err) {
     onFallbackMetadataError?.(err);
     return columns;

@@ -56,6 +56,7 @@
   export let changeSetState;
   export let dispatchChangeSet;
   export let overlayDefinition = null;
+  export let onResultInfoLoaded = null;
 
   export let macroPreview;
   export let macroValues;
@@ -197,6 +198,7 @@
     });
 
     if (response.errorMessage) return response;
+    onResultInfoLoaded?.({ columns: response.columns });
     return response.rows;
   }
 
