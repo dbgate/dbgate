@@ -21,9 +21,11 @@ export class ViewGridDisplay extends GridDisplay {
     this.filterable = true;
     this.sortable = true;
     this.groupable = false;
-    this.editable = false;
+    this.editable = true;
     this.supportsReload = true;
     this.baseView = view;
+    this.baseTable = view as any; // Enable insert operations by treating view like a table
+    this.changeSetKeyFields = view.columns.map(x => x.columnName);
   }
 
   getDisplayColumns(view: ViewInfo) {
