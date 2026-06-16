@@ -66,6 +66,7 @@
   export let macroPreview;
   export let macroValues;
   export let onPublishedCellsChanged;
+  export let queryResultEditing = false;
   export const activator = createActivator('JslDataGridCore', false);
 
   export let setLoadedRows;
@@ -112,7 +113,7 @@
         macroPreview,
         macroValues,
         publishedCells,
-        true
+        !queryResultEditing
       );
     }
   }
@@ -127,7 +128,7 @@
         undefined,
         undefined,
         undefined,
-        true
+        !queryResultEditing
       );
     }
   }

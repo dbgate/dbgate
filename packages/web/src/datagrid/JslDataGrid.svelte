@@ -44,7 +44,14 @@
   }
 
   function handleRunMacro(macro, params, cells) {
-    const newChangeSet = runMacroOnChangeSet(macro, params, cells, changeSetState?.value, display, true);
+    const newChangeSet = runMacroOnChangeSet(
+      macro,
+      params,
+      cells,
+      changeSetState?.value,
+      display,
+      !effectiveQueryResultEditing
+    );
     if (newChangeSet) {
       dispatchChangeSet({ type: 'set', value: newChangeSet });
     }
@@ -132,6 +139,7 @@
     expandMacros={!!dispatchChangeSet}
     onRunMacro={handleRunMacro}
     macroCondition={infoUsed?.__isDynamicStructure ? null : macro => macro.type == 'transformValue'}
+    queryResultEditing={effectiveQueryResultEditing}
     hasMultiColumnFilter
     {changeSetState}
     {changeSetStore}
