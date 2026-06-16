@@ -64,9 +64,9 @@ export class JslGridDisplay extends GridDisplay {
               uniquePath: [col.columnName],
               notNull: col.notNull,
               autoIncrement: col.autoIncrement,
-              pureName: queryResultEditing ? columnBaseMapping?.pureName || col.tableName : null,
-              schemaName: queryResultEditing ? columnBaseMapping?.schemaName || col.tableSchema : null,
-              sourceColumnName: columnBaseMapping?.sourceColumnName || col.sourceColumnName,
+              pureName: queryResultEditing ? (columnBaseMapping ? columnBaseMapping.pureName : col.tableName) : null,
+              schemaName: queryResultEditing ? (columnBaseMapping ? columnBaseMapping.schemaName : col.tableSchema) : null,
+              sourceColumnName: columnBaseMapping ? columnBaseMapping.sourceColumnName : col.sourceColumnName,
               queryResultEditable: queryResultEditableColumns.has(col.columnName),
             };
           })

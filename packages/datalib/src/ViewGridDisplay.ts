@@ -84,12 +84,12 @@ export class ViewGridDisplay extends GridDisplay {
     const columnBaseMapping = this.queryResultColumnBaseMappings[col.columnName];
     return {
       ...col,
-      pureName: columnBaseMapping?.pureName || resultColumn?.tableName || view.pureName,
-      schemaName: columnBaseMapping?.schemaName || resultColumn?.tableSchema || view.schemaName,
+      pureName: columnBaseMapping ? columnBaseMapping.pureName : resultColumn?.tableName || view.pureName,
+      schemaName: columnBaseMapping ? columnBaseMapping.schemaName : resultColumn?.tableSchema || view.schemaName,
       headerText: col.columnName,
       uniqueName,
       uniquePath,
-      sourceColumnName: columnBaseMapping?.sourceColumnName || resultColumn?.sourceColumnName,
+      sourceColumnName: columnBaseMapping ? columnBaseMapping.sourceColumnName : resultColumn?.sourceColumnName,
       queryResultEditable: queryResultEditableColumns.has(col.columnName),
     };
   }

@@ -20,13 +20,32 @@ export function getTableKey(schemaName: string, pureName: string) {
   return `${schemaName || ''}\n${pureName}`;
 }
 
+function namesEqual(left: string, right: string) {
+  return left != null && right != null && left.toLowerCase() == right.toLowerCase();
+}
+
 function findTable(dbinfo: DatabaseInfo, schemaName: string, pureName: string): TableInfo {
   if (!dbinfo?.tables) return null;
   if (schemaName) {
-    return dbinfo.tables.find(table => table.schemaName == schemaName && table.pureName == pureName);
+    const schemaTable =
+      dbinfo.tables.find(table => table.schemaName == schemaName && table.pureName == pureName) ||
+      dbinfo.tables.find(table => namesEqual(table.schemaName, schemaName) && namesEqual(table.pureName, pureName));
+    if (schemaTable) return schemaTable;
+    const uniqueNameTables = dbinfo.tables.filter(table => namesEqual(table.pureName, pureName));
+    return uniqueNameTables.length == 1 ? uniqueNameTables[0] : null;
   }
   const tables = dbinfo.tables.filter(table => table.pureName == pureName);
-  return tables.length == 1 ? tables[0] : null;
+  if (tables.length == 1) return tables[0];
+  const matchingTables = dbinfo.tables.filter(table => namesEqual(table.pureName, pureName));
+  return matchingTables.length == 1 ? matchingTables[0] : null;
+}
+
+function findColumnName(table: TableInfo, columnName: string) {
+  if (!columnName) return columnName;
+  const exactColumn = table?.columns?.find(column => column.columnName == columnName);
+  if (exactColumn) return exactColumn.columnName;
+  const matchingColumns = table?.columns?.filter(column => namesEqual(column.columnName, columnName)) || [];
+  return matchingColumns.length == 1 ? matchingColumns[0].columnName : columnName;
 }
 
 export function createEditableQueryResultMappings(columns: QueryResultColumn[], dbinfo: DatabaseInfo) {
@@ -41,11 +60,16 @@ export function createEditableQueryResultMappings(columns: QueryResultColumn[], 
   for (const groupColumns of Object.values(groups)) {
     const firstColumn = groupColumns[0];
     const table = findTable(dbinfo, firstColumn.tableSchema, firstColumn.tableName);
-    const tableSchema = firstColumn.tableSchema || table?.schemaName;
-    const sourceToDisplay = new Map(groupColumns.map(column => [column.sourceColumnName, column.columnName]));
+    const tableSchema = table ? table.schemaName : firstColumn.tableSchema;
+    const tableName = table?.pureName || firstColumn.tableName;
+    const normalizedColumns = groupColumns.map(column => ({
+      ...column,
+      sourceColumnName: findColumnName(table, column.sourceColumnName),
+    }));
+    const sourceToDisplay = new Map(normalizedColumns.map(column => [column.sourceColumnName, column.columnName]));
     const primaryKeyColumns =
       table?.primaryKey?.columns?.map(column => column.columnName) ||
-      groupColumns.filter(column => column.isPrimaryKey).map(column => column.sourceColumnName);
+      normalizedColumns.filter(column => column.isPrimaryKey).map(column => column.sourceColumnName);
     const keyColumns =
       primaryKeyColumns.length > 0 && primaryKeyColumns.every(columnName => sourceToDisplay.has(columnName))
         ? primaryKeyColumns
@@ -53,7 +77,7 @@ export function createEditableQueryResultMappings(columns: QueryResultColumn[], 
     if (keyColumns.length == 0) continue;
 
     const mapping = {
-      pureName: firstColumn.tableName,
+      pureName: tableName,
       schemaName: tableSchema,
       keyColumns,
       keyDisplayColumns: keyColumns.map(sourceColumnName => ({
@@ -61,12 +85,12 @@ export function createEditableQueryResultMappings(columns: QueryResultColumn[], 
         displayName: sourceToDisplay.get(sourceColumnName),
       })),
     };
-    tableMappings[getTableKey(tableSchema, firstColumn.tableName)] = mapping;
+    tableMappings[getTableKey(tableSchema, tableName)] = mapping;
 
-    for (const column of groupColumns) {
+    for (const column of normalizedColumns) {
       editableColumns.add(column.columnName);
       columnBaseMappings[column.columnName] = {
-        pureName: firstColumn.tableName,
+        pureName: tableName,
         schemaName: tableSchema,
         sourceColumnName: column.sourceColumnName,
       };
@@ -81,6 +105,21 @@ export function hasCompleteQueryResultKey(mapping: QueryResultTableMapping, row:
     const value = row?.[keyColumn.displayName];
     return value !== null && value !== undefined;
   });
+}
+
+function normalizeQueryResultConditionValue(value: any) {
+  if (value?.$bigint != null) return value.$bigint;
+  if (value?.$decimal != null) return value.$decimal;
+  if (_.isNumber(value) || _.isBoolean(value)) return value.toString();
+  return value;
+}
+
+function getQueryResultCondition(mapping: QueryResultTableMapping, row: any) {
+  const condition = {};
+  for (const keyColumn of mapping.keyDisplayColumns) {
+    condition[keyColumn.sourceColumnName] = normalizeQueryResultConditionValue(row?.[keyColumn.displayName]);
+  }
+  return condition;
 }
 
 export function isEditableQueryResultColumn(
@@ -109,10 +148,7 @@ export function getEditableQueryResultChangeSetField(
   const mapping = tableMappings[getTableKey(col.schemaName, col.pureName)];
   if (!mapping) return null;
   if (!hasCompleteQueryResultKey(mapping, row)) return null;
-  const condition = {};
-  for (const keyColumn of mapping.keyDisplayColumns) {
-    condition[keyColumn.sourceColumnName] = row?.[keyColumn.displayName];
-  }
+  const condition = getQueryResultCondition(mapping, row);
   if (_.isEmpty(condition)) return null;
   return {
     pureName: mapping.pureName,
@@ -134,15 +170,11 @@ export function getEditableQueryResultChangeSetRowDefinitions(
   return Object.values(tableMappings)
     .filter(mapping => hasCompleteQueryResultKey(mapping, row))
     .map(mapping => {
-      const condition = {};
-      for (const keyColumn of mapping.keyDisplayColumns) {
-        condition[keyColumn.sourceColumnName] = row?.[keyColumn.displayName];
-      }
       return {
         pureName: mapping.pureName,
         schemaName: mapping.schemaName,
         existingRowIndex,
-        condition,
+        condition: getQueryResultCondition(mapping, row),
       };
     });
 }
