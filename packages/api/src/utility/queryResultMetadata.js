@@ -91,6 +91,7 @@ function isSelectStarFromSingleTable(selectSql) {
 
 const identifierPattern = '`(?:``|[^`])+`|"(?:""|[^"])+"|\\[[^\\]]+\\]|[A-Za-z_@$#][A-Za-z0-9_@$#]*';
 const qualifiedIdentifierPattern = `(?:${identifierPattern})(?:\\s*\\.\\s*(?:${identifierPattern}))*`;
+const qualifiedIdentifierOnlyRegex = new RegExp(`^\\s*${qualifiedIdentifierPattern}\\s*$`, 'i');
 
 function splitTopLevelCommaList(text) {
   const result = [];
@@ -163,6 +164,7 @@ function extractMySqlStyleViewColumnMetadata(selectSql, dbinfo) {
   const result = {};
   for (const item of splitTopLevelCommaList(selectMatch[1])) {
     const [sourceText, aliasText] = item.split(/\s+\bas\b\s+/i);
+    if (!qualifiedIdentifierOnlyRegex.test(sourceText)) continue;
     const sourceParts = extractIdentifierParts(sourceText);
     if (sourceParts.length < 2) continue;
     const sourceColumnName = sourceParts[sourceParts.length - 1];
