@@ -41,6 +41,10 @@ function findView(dbinfo, schemaName, pureName) {
   if (schemaName) {
     const exactView = views.find(view => view.schemaName == schemaName && view.pureName == pureName);
     if (exactView) return exactView;
+    const schemaViews = views.filter(view => namesEqual(view.schemaName, schemaName) && namesEqual(view.pureName, pureName));
+    if (schemaViews.length == 1) return schemaViews[0];
+    const schemaLessViews = views.filter(view => !view.schemaName && namesEqual(view.pureName, pureName));
+    return schemaLessViews.length == 1 ? schemaLessViews[0] : null;
   }
   const matchingViews = views.filter(view => namesEqual(view.pureName, pureName));
   return matchingViews.length == 1 ? matchingViews[0] : null;
