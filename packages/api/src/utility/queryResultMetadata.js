@@ -89,6 +89,11 @@ function isSelectStarFromSingleTable(selectSql) {
   return /^\s*select\s+\*\s+from\b/i.test(selectSql || '');
 }
 
+function getSelectListItemCount(selectSql) {
+  const selectMatch = selectSql?.match(/^\s*select\s+([\s\S]+?)\s+from\s/i);
+  return selectMatch ? splitTopLevelCommaList(selectMatch[1]).length : null;
+}
+
 const identifierPattern = '`(?:``|[^`])+`|"(?:""|[^"])+"|\\[[^\\]]+\\]|[A-Za-z_@$#][A-Za-z0-9_@$#]*';
 const qualifiedIdentifierPattern = `(?:${identifierPattern})(?:\\s*\\.\\s*(?:${identifierPattern}))*`;
 const qualifiedIdentifierOnlyRegex = new RegExp(`^\\s*${qualifiedIdentifierPattern}\\s*$`, 'i');
@@ -213,11 +218,17 @@ function createViewColumnMetadata(view, dbinfo) {
     }
 
     const metadataValues = Object.values(columnMetadata).map(metadata => resolveMetadataTable(metadata, dbinfo));
+    const allowPositionalFallback =
+      metadataValues.length == viewColumnNames.length && metadataValues.length == getSelectListItemCount(selectSql);
     const result = {};
     for (let index = 0; index < viewColumnNames.length; index++) {
       const columnName = viewColumnNames[index];
       const metadata = getColumnMetadata(columnMetadata, columnName);
-      const resolvedMetadata = metadata ? resolveMetadataTable(metadata, dbinfo) : metadataValues[index];
+      const resolvedMetadata = metadata
+        ? resolveMetadataTable(metadata, dbinfo)
+        : allowPositionalFallback
+          ? metadataValues[index]
+          : null;
       if (resolvedMetadata) result[columnName] = resolvedMetadata;
     }
     return result;
