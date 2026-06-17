@@ -140,9 +140,15 @@
     viewResultInfo = info;
   }
 
-  function getSaveInfo() {
+  function getSaveChangeSet() {
     const changeSet = createQueryResultSaveChangeSet($changeSetStore?.value, viewResultInfo);
     if (!changeSetContainsChanges(changeSet)) return null;
+    return changeSet;
+  }
+
+  function getSaveInfo() {
+    const changeSet = getSaveChangeSet();
+    if (!changeSet) return null;
     const driver = findEngineDriver($connection, $extensions);
     if (!driver || !$dbinfo) return null;
     const script = driver.createSaveChangeSetScript(changeSet, $dbinfo, () =>
@@ -156,7 +162,7 @@
   }
 
   export function canSave() {
-    return isProApp() && changeSetContainsChanges($changeSetStore?.value) && !!getSaveInfo();
+    return isProApp() && !!findEngineDriver($connection, $extensions) && !!$dbinfo && !!getSaveChangeSet();
   }
 
   export async function save() {
