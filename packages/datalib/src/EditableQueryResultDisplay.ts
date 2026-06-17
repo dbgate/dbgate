@@ -107,17 +107,10 @@ export function hasCompleteQueryResultKey(mapping: QueryResultTableMapping, row:
   });
 }
 
-function normalizeQueryResultConditionValue(value: any) {
-  if (value?.$bigint != null) return value.$bigint;
-  if (value?.$decimal != null) return value.$decimal;
-  if (_.isNumber(value) || _.isBoolean(value)) return value.toString();
-  return value;
-}
-
 function getQueryResultCondition(mapping: QueryResultTableMapping, row: any) {
   const condition = {};
   for (const keyColumn of mapping.keyDisplayColumns) {
-    condition[keyColumn.sourceColumnName] = normalizeQueryResultConditionValue(row?.[keyColumn.displayName]);
+    condition[keyColumn.sourceColumnName] = row?.[keyColumn.displayName];
   }
   return condition;
 }
