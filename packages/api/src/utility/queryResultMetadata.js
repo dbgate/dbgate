@@ -101,6 +101,8 @@ function getSelectListItemCount(selectSql) {
 const identifierPattern = '`(?:``|[^`])+`|"(?:""|[^"])+"|\\[[^\\]]+\\]|[A-Za-z_@$#][A-Za-z0-9_@$#]*';
 const qualifiedIdentifierPattern = `(?:${identifierPattern})(?:\\s*\\.\\s*(?:${identifierPattern}))*`;
 const qualifiedIdentifierOnlyRegex = new RegExp(`^\\s*${qualifiedIdentifierPattern}\\s*$`, 'i');
+const aliasStopWordPattern =
+  'on|where|join|inner|left|right|full|outer|cross|straight_join|group|order|having|limit|union';
 
 function splitTopLevelCommaList(text) {
   const result = [];
@@ -155,17 +157,20 @@ function extractMySqlStyleViewColumnMetadata(selectSql, dbinfo) {
   if (!selectMatch) return null;
 
   const tableByAlias = {};
-  const tableRegex = new RegExp(`\\b(?:from|join)\\s+\\(*\\s*(${qualifiedIdentifierPattern})\\s+(?:as\\s+)?(${identifierPattern})`, 'gi');
+  const tableRegex = new RegExp(
+    `\\b(?:from|join)\\s+\\(*\\s*(${qualifiedIdentifierPattern})(?:\\s+(?:as\\s+)?(?!\\b(?:${aliasStopWordPattern})\\b)(${identifierPattern}))?`,
+    'gi'
+  );
   let tableMatch;
   while ((tableMatch = tableRegex.exec(selectSql))) {
     const tableParts = extractIdentifierParts(tableMatch[1]);
     const alias = unquoteIdentifier(tableMatch[2]);
-    if (!tableParts.length || !alias) continue;
+    if (!tableParts.length) continue;
     const metadata = {
       schemaName: tableParts.length >= 2 ? tableParts[tableParts.length - 2] : undefined,
       tableName: tableParts[tableParts.length - 1],
     };
-    tableByAlias[alias.toLowerCase()] = metadata;
+    if (alias) tableByAlias[alias.toLowerCase()] = metadata;
     tableByAlias[metadata.tableName.toLowerCase()] = metadata;
   }
   if (Object.keys(tableByAlias).length == 0) return null;
