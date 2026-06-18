@@ -161,8 +161,9 @@ export default class ChangeSetGrider extends Grider {
   }
 
   isCellEditable(index: number, uniqueName: string) {
-    if (!this.editable) return false;
-    return this.display?.isColumnEditable(uniqueName, this.getRowSource(index)) ?? false;
+    const row = this.getRowSource(index);
+    const editable = this.editable && (this.display?.isColumnEditable(uniqueName, row) ?? false);
+    return editable;
   }
 
   getRowData(index: number) {
