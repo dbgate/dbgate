@@ -9,6 +9,13 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.1 - not released
+
+- ADDED: Editable view (Premium)
+- ADDED: MySQL ON UPDATE expression support to column definitions #1170
+- FIXED: Excel export in toolbar #1418
+- ADDED: Admin team files export (Team Premium)
+
 ## 7.2.0
 
 - ADDED: Editable query results (Premium)
