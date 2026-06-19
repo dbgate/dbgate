@@ -15,6 +15,7 @@ Builds:
 - ADDED: MySQL ON UPDATE expression support to column definitions #1170
 - FIXED: Excel export in toolbar #1418
 - ADDED: Admin team files export (Team Premium)
+- ADDED: loggedUserCount added to health status (Team Premium)
 
 ## 7.2.0
 
