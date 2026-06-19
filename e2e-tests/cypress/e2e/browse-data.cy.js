@@ -230,7 +230,7 @@ describe('Data browser data', () => {
     cy.get('body').realType(`${changedTitle}{enter}`);
     cy.themeshot('edit-query-result');
     cy.testid('ResultTabs_saveResult').click();
-    cy.contains('UPDATE `MyChinook`.`Album`');
+    cy.contains('UPDATE `Album`');
     cy.contains(`SET \`Title\`='${changedTitle}'`);
     cy.testid('ConfirmSqlModal_runAgainAfterSave').click();
     cy.testid('ConfirmSqlModal_okButton').click();
