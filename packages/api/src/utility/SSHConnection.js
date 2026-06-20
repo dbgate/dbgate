@@ -246,6 +246,90 @@ class SSHConnection {
         });
     });
   }
+
+  async socksForward(options) {
+    const connection = await this.establish();
+    return new Promise((resolve, reject) => {
+      this.server = net
+        .createServer(socket => {
+          this._handleSocks5(socket, connection, options);
+        })
+        .on('error', reject)
+        .listen(options.fromPort, this.options.bindHost, () => {
+          return resolve();
+        });
+    });
+  }
+
+  _handleSocks5(socket, sshConnection, options) {
+    socket.once('error', () => socket.destroy());
+
+    socket.once('data', greeting => {
+      if (!greeting || greeting.length < 2 || greeting[0] !== 0x05) {
+        socket.destroy();
+        return;
+      }
+      const nmethods = greeting[1];
+      const methods = greeting.slice(2, 2 + nmethods);
+      if (!methods.includes(0x00)) {
+        socket.write(Buffer.from([0x05, 0xff]));
+        socket.destroy();
+        return;
+      }
+      socket.write(Buffer.from([0x05, 0x00]));
+
+      socket.once('data', request => {
+        if (request.length < 4 || request[0] !== 0x05 || request[1] !== 0x01) {
+          socket.write(Buffer.from([0x05, 0x07, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+          socket.destroy();
+          return;
+        }
+
+        let host;
+        let port;
+        const addrType = request[3];
+
+        if (addrType === 0x01) {
+          if (request.length < 10) { socket.destroy(); return; }
+          host = `${request[4]}.${request[5]}.${request[6]}.${request[7]}`;
+          port = request.readUInt16BE(8);
+        } else if (addrType === 0x03) {
+          const domainLen = request[4];
+          if (request.length < 5 + domainLen + 2) { socket.destroy(); return; }
+          host = request.slice(5, 5 + domainLen).toString();
+          port = request.readUInt16BE(5 + domainLen);
+        } else if (addrType === 0x04) {
+          if (request.length < 22) { socket.destroy(); return; }
+          const ipv6Parts = [];
+          for (let i = 0; i < 8; i++) {
+            ipv6Parts.push(request.readUInt16BE(4 + i * 2).toString(16));
+          }
+          host = ipv6Parts.join(':');
+          port = request.readUInt16BE(20);
+        } else {
+          socket.write(Buffer.from([0x05, 0x08, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+          socket.destroy();
+          return;
+        }
+
+        this.debug('SOCKS5 CONNECT to "%s:%d"', host, port);
+
+        sshConnection.forwardOut(this.options.bindHost, options.fromPort, host, port, (error, stream) => {
+          if (error) {
+            socket.write(Buffer.from([0x05, 0x01, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+            socket.destroy();
+            return;
+          }
+          socket.write(Buffer.from([0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+          socket.pipe(stream);
+          stream.pipe(socket);
+
+          stream.on('error', () => socket.destroy());
+          socket.on('error', () => stream.destroy());
+        });
+      });
+    });
+  }
 }
 
 module.exports = { SSHConnection };
