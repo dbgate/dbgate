@@ -4,6 +4,7 @@ import de from '../../../translations/de.json';
 import fr from '../../../translations/fr.json';
 import es from '../../../translations/es.json';
 import zh from '../../../translations/zh.json';
+import zhTW from '../../../translations/zh-TW.json';
 import pt from '../../../translations/pt.json';
 import it from '../../../translations/it.json';
 import ja from '../../../translations/ja.json';
@@ -21,6 +22,7 @@ const translations = {
   de,
   fr,
   zh,
+  'zh-TW': zhTW,
   es,
   pt,
   it,
@@ -64,11 +66,45 @@ export function saveSelectedLanguageToCache(preferrendLanguage?: string) {
 
 export function getBrowserLanguage(): string {
   if (typeof window !== 'undefined') {
-    return (
-      (navigator.languages && navigator.languages[0]).slice(0, 2) || navigator.language.slice(0, 2) || defaultLanguage
-    );
+    const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+    for (const language of languages) {
+      const browserLanguage = getBrowserLanguageFromLocale(language);
+      if (browserLanguage) return browserLanguage;
+    }
   }
   return defaultLanguage;
+}
+
+export function getBrowserLanguageFromLocale(language: string): string {
+  const normalized = language?.replace(/_/g, '-').toLowerCase();
+  if (!normalized) return '';
+
+  if (
+    normalized == 'zh-tw' ||
+    normalized == 'zh-hk' ||
+    normalized == 'zh-mo' ||
+    normalized == 'zh-hant' ||
+    normalized.startsWith('zh-tw-') ||
+    normalized.startsWith('zh-hk-') ||
+    normalized.startsWith('zh-mo-') ||
+    normalized.startsWith('zh-hant-')
+  ) {
+    return 'zh-TW';
+  }
+
+  if (
+    normalized == 'zh' ||
+    normalized == 'zh-cn' ||
+    normalized == 'zh-sg' ||
+    normalized == 'zh-hans' ||
+    normalized.startsWith('zh-cn-') ||
+    normalized.startsWith('zh-sg-') ||
+    normalized.startsWith('zh-hans-')
+  ) {
+    return 'zh';
+  }
+
+  return normalized.slice(0, 2);
 }
 
 type TranslateOptions = {
