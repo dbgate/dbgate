@@ -40,6 +40,7 @@
         { value: 'ja', label: '日本語' },
         { value: 'ko', label: '한국어' },
         { value: 'zh', label: '中文' },
+        { value: 'zh-TW', label: '繁體中文（台灣）' },
       ]}
       defaultValue={getSelectedLanguage()}
       value={getSelectedLanguage()}
