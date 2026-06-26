@@ -69,14 +69,14 @@ export function getBrowserLanguage(): string {
     const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const language of languages) {
       const browserLanguage = getBrowserLanguageFromLocale(language);
-      if (browserLanguage) return browserLanguage;
+      if (supportedLanguages.includes(browserLanguage)) return browserLanguage;
     }
   }
   return defaultLanguage;
 }
 
 export function getBrowserLanguageFromLocale(language: string): string {
-  const normalized = language?.replace(/_/g, '-').toLowerCase();
+  const normalized = (language ?? '').replace(/_/g, '-').toLowerCase();
   if (!normalized) return '';
 
   if (
