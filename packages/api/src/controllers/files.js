@@ -275,7 +275,10 @@ module.exports = {
 
   exportChart_meta: true,
   async exportChart({ filePath, title, config, image, plugins }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) return false;
+    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     const fileName = path.parse(filePath).base;
     const imageFile = fileName.replace('.html', '-preview.png');
     const html = getChartExport(title, config, imageFile, plugins);
@@ -293,21 +296,30 @@ module.exports = {
 
   exportMap_meta: true,
   async exportMap({ filePath, geoJson }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) return false;
+    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     await fs.writeFile(filePath, getMapExport(geoJson));
     return true;
   },
 
   exportDiagram_meta: true,
   async exportDiagram({ filePath, html, css, themeType, themeVariables, watermark }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) return false;
+    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeVariables, watermark));
     return true;
   },
 
   exportDiagramPng_meta: true,
   async exportDiagramPng({ filePath, pngBase64 }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) return false;
+    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     const base64 = pngBase64.replace(/^data:image\/png;base64,/, '');
     await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
     return true;
