@@ -373,7 +373,7 @@ module.exports = {
   downloadJslData_meta: true,
   async downloadJslData({ uri }) {
     const jslid = crypto.randomUUID();
-    await dbgateApi.download(uri, { targetFile: getJslFileName(jslid) });
+    await dbgateApi.download(uri, { targetFile: getJslFileName(jslid), safeRemoteFetch: true });
     return { jslid };
   },
 
