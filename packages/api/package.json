@@ -54,7 +54,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "ncp": "^2.0.0",
-    "node-cron": "^2.0.3",
+    "node-cron": "^4.5.0",
     "on-finished": "^2.4.1",
     "pinomin": "^1.0.5",
     "portfinder": "^1.0.28",
