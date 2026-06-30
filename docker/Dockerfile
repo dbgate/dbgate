@@ -1,8 +1,9 @@
-FROM node:22
+FROM node:22-slim
 
 LABEL org.opencontainers.image.source="https://github.com/dbgate/dbgate"
 
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
     iputils-ping \
     iproute2 \
     unixodbc \
