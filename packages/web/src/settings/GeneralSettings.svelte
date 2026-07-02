@@ -12,7 +12,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import hasPermission from '../utility/hasPermission';
   import CheckboxField from '../forms/CheckboxField.svelte';
-  import { lockedDatabaseMode } from '../stores';
+  import { lockedDatabaseMode, tabGroupShowServerName, toolbarPosition } from '../stores';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -126,33 +126,49 @@
     {/if}
   {/if}
 
-  <FormCheckboxField
-    name="tabGroup.showServerName"
+  <FormFieldTemplateLarge
     label={_t('settings.tabGroup.showServerName', {
       defaultMessage: 'Show server name alongside database name in title of the tab group',
     })}
-    defaultValue={false}
-    disabled={!hasPermission('settings/change')}
-  />
+    type="checkbox"
+    labelProps={{
+      onClick: () => {
+        if (!electron || hasPermission('settings/change')) $tabGroupShowServerName = !$tabGroupShowServerName;
+      },
+    }}
+  >
+    <CheckboxField
+      checked={$tabGroupShowServerName}
+      disabled={!!electron && !hasPermission('settings/change')}
+      on:change={e => ($tabGroupShowServerName = e.target['checked'])}
+      data-testid="GeneralSettings_showServerName"
+    />
+  </FormFieldTemplateLarge>
 
-  <FormSelectField
+  <FormFieldTemplateLarge
     label={_t('settings.other.toolBarPosition', { defaultMessage: 'Tool bar position' })}
-    name="settings.toolbarPosition"
-    isNative
-    defaultValue="top"
-    options={[
-      {
-        value: 'top',
-        label: _t('settings.other.toolBarPosition.top', {
-          defaultMessage: 'Top',
-        }),
-      },
-      {
-        value: 'bottom',
-        label: _t('settings.other.toolBarPosition.bottom', { defaultMessage: 'Bottom' }),
-      },
-    ]}
-  />
+    type="combo"
+  >
+    <SelectField
+      isNative
+      data-testid="GeneralSettings_toolbarPosition"
+      defaultValue="top"
+      value={$toolbarPosition}
+      options={[
+        {
+          value: 'top',
+          label: _t('settings.other.toolBarPosition.top', {
+            defaultMessage: 'Top',
+          }),
+        },
+        {
+          value: 'bottom',
+          label: _t('settings.other.toolBarPosition.bottom', { defaultMessage: 'Bottom' }),
+        },
+      ]}
+      on:change={e => ($toolbarPosition = e.detail)}
+    />
+  </FormFieldTemplateLarge>
 </div>
 
 <style>

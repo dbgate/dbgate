@@ -120,6 +120,12 @@ export const currentEditorFontSize = getElectron()
   : writableWithStorage(null, 'currentEditorFontSize');
 export const currentEditorFont = writableSettingsValue(null, 'editor.fontFamily');
 export const allowedSendToAiService = writableSettingsValue(false, 'ai.allowSendModels');
+export const tabGroupShowServerName = getElectron()
+  ? writableSettingsValue(false, 'tabGroup.showServerName')
+  : writableWithStorage(false, 'tabGroup.showServerName');
+export const toolbarPosition = getElectron()
+  ? writableSettingsValue('top', 'settings.toolbarPosition')
+  : writableWithStorage('top', 'settings.toolbarPosition');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');

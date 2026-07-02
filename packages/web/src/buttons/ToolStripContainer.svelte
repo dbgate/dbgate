@@ -1,10 +1,9 @@
 <script lang="ts">
   import { get_current_component } from 'svelte/internal';
   import createActivator, { isComponentActiveStore } from '../utility/createActivator';
-  import { useSettings } from '../utility/metadataLoaders';
+  import { toolbarPosition } from '../stores';
 
   const thisInstance = get_current_component();
-  const settings = useSettings();
 
   export let showAlways = false;
   export const activator = showAlways ? null : createActivator('ToolStripContainer', true);
@@ -20,7 +19,7 @@
   $: isComponentActive = showAlways || ($isComponentActiveStore('ToolStripContainer', thisInstance) && !hideToolStrip);
 
   $: realToolstripPosition =
-    toolstripPosition == 'auto' ? ($settings?.['settings.toolbarPosition'] ?? 'top') : toolstripPosition;
+    toolstripPosition == 'auto' ? $toolbarPosition : toolstripPosition;
 
   $: realToolstripPositionFixed =
     realToolstripPosition == 'top' || realToolstripPosition == 'bottom' ? realToolstripPosition : 'top';
