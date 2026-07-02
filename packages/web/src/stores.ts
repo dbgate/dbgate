@@ -78,6 +78,37 @@ export function writableSettingsValue<T>(defaultValue: T, storageName) {
   };
 }
 
+// Electron stores the value server-side in settings.json (shared, admin/env configurable).
+// Web keeps a per-browser override in localStorage, falling back to the server-provided value
+// (e.g. SETTINGS_ env pre-config or admin default) when the user has not set it locally.
+export function writableSettingsOrLocalValue<T>(defaultValue: T, storageName) {
+  if (getElectron()) {
+    return writableSettingsValue(defaultValue, storageName);
+  }
+  const localInit = localStorage.getItem(storageName);
+  const localOverride = writable<T | undefined>(
+    localInit != null ? safeJsonParse(localInit, undefined, true) : undefined
+  );
+  const res = derived([useSettings(), localOverride], ([$settings, $local]) => {
+    if ($local !== undefined) return $local as T;
+    return (($settings || {})[storageName] as T) ?? defaultValue;
+  });
+  const setLocal = (value: T) => {
+    localStorage.setItem(storageName, JSON.stringify(value));
+    localOverride.set(value);
+  };
+  return {
+    subscribe: res.subscribe,
+    set: setLocal,
+    update: (func: (value: T) => T) => {
+      let current: T;
+      const unsub = res.subscribe(v => (current = v));
+      unsub();
+      setLocal(func(current));
+    },
+  };
+}
+
 function subscribeCssVariable(store, transform, cssVariable) {
   store.subscribe(value => document.documentElement.style.setProperty(cssVariable, transform(value)));
 }
@@ -120,12 +151,8 @@ export const currentEditorFontSize = getElectron()
   : writableWithStorage(null, 'currentEditorFontSize');
 export const currentEditorFont = writableSettingsValue(null, 'editor.fontFamily');
 export const allowedSendToAiService = writableSettingsValue(false, 'ai.allowSendModels');
-export const tabGroupShowServerName = getElectron()
-  ? writableSettingsValue(false, 'tabGroup.showServerName')
-  : writableWithStorage(false, 'tabGroup.showServerName');
-export const toolbarPosition = getElectron()
-  ? writableSettingsValue('top', 'settings.toolbarPosition')
-  : writableWithStorage('top', 'settings.toolbarPosition');
+export const tabGroupShowServerName = writableSettingsOrLocalValue(false, 'tabGroup.showServerName');
+export const toolbarPosition = writableSettingsOrLocalValue('top', 'settings.toolbarPosition');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
