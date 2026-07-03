@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const axios = require('axios');
 const path = require('path');
-const { extractPackageName } = require('dbgate-tools');
+const { extractPackageName, assertValidPluginPackageName } = require('dbgate-tools');
 const { pluginsdir, packagedPluginsDir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const compareVersions = require('compare-versions');
@@ -159,9 +159,24 @@ module.exports = {
   },
 
   command_meta: true,
-  async command({ packageName, command, args }) {
+  async command({ packageName, command, args }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`plugins/command`, loadedPermissions)) return null;
+
+    assertValidPluginPackageName(packageName);
     const content = requirePlugin(packageName);
-    return content.commands[command](args);
+
+    // Only dispatch to own, function-valued command handlers. This prevents reaching
+    // inherited/prototype members (eg. constructor, __proto__) via the command name.
+    const commands = (content && content.commands) || {};
+    if (
+      typeof command !== 'string' ||
+      !Object.prototype.hasOwnProperty.call(commands, command) ||
+      typeof commands[command] !== 'function'
+    ) {
+      throw new Error(`DBGM-00000 Unknown plugin command: ${String(command).substring(0, 100)}`);
+    }
+    return commands[command](args);
   },
 
   authTypes_meta: true,

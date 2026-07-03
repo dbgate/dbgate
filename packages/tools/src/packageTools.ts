@@ -61,6 +61,27 @@ export function assertValidShellApiFunctionName(functionName: string): void {
 
 const VALID_PLUGIN_NAME_RE = /^dbgate-plugin-[a-zA-Z0-9_-]+$/;
 
+/**
+ * Tests whether a value is a canonical DbGate plugin package name (dbgate-plugin-<name>).
+ * By construction this rejects absolute paths, path traversal (..), path separators
+ * and scoped/@-names, none of which may ever be passed to require()/require.resolve().
+ */
+export function isValidPluginPackageName(packageName): boolean {
+  return typeof packageName === 'string' && VALID_PLUGIN_NAME_RE.test(packageName);
+}
+
+/**
+ * Asserts that packageName is a canonical DbGate plugin package name.
+ * Must be called before any code path that resolves or require()s a plugin by name,
+ * so that caller-supplied paths cannot be loaded as modules.
+ */
+export function assertValidPluginPackageName(packageName): string {
+  if (!isValidPluginPackageName(packageName)) {
+    throw new Error(`DBGM-00000 Invalid plugin package name: ${String(packageName).substring(0, 100)}`);
+  }
+  return packageName;
+}
+
 export function extractShellApiPlugins(functionName, props): string[] {
   const res = [];
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
@@ -74,9 +95,7 @@ export function extractShellApiPlugins(functionName, props): string[] {
     }
   }
   for (const plugin of res) {
-    if (!VALID_PLUGIN_NAME_RE.test(plugin)) {
-      throw new Error(`DBGM-00000 Invalid plugin name: ${String(plugin).substring(0, 100)}`);
-    }
+    assertValidPluginPackageName(plugin);
   }
   return res;
 }
