@@ -113,7 +113,7 @@ const packagedPluginList =
 function getPluginBackendPath(packageName) {
   // Central guard: every plugin backend require() flows through here. Refusing anything
   // that is not a canonical dbgate-plugin-* name prevents caller-supplied absolute paths
-  // or traversal sequences from being resolved and loaded as modules (RCE, CWE-94).
+  // or traversal sequences from being resolved and loaded as modules (GHSA-j65f-68v9-x5g9 ).
   assertValidPluginPackageName(packageName);
   if (packagedPluginList.includes(packageName)) {
     if (platformInfo.isDevMode) {
