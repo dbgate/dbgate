@@ -2,6 +2,13 @@ import _uniq from 'lodash/uniq';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import { evalShellApiFunctionName, compileShellApiFunctionName, extractShellApiPlugins, assertValidJsIdentifier, assertValidShellApiFunctionName } from './packageTools';
 
+// Line terminators (LF, CR, U+2028, U+2029) end a `//` comment; keep every line commented so
+// comment/schedule text from a JSON script cannot break out and run as code. GHSA-rfx7-cmmf-7ff7
+const JS_LINE_TERMINATORS_RE = /\r\n|[\r\n\u2028\u2029]/g;
+function sanitizeCommentText(text): string {
+  return String(text).replace(JS_LINE_TERMINATORS_RE, '\n// ');
+}
+
 export interface ScriptWriterGeneric {
   allocVariable(prefix?: string);
   endLine();
@@ -81,7 +88,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
   }
 
   comment(s) {
-    this._put(`// ${s}`);
+    this._put(`// ${sanitizeCommentText(s)}`);
   }
 
   getScript(schedule = null) {
@@ -89,7 +96,7 @@ export class ScriptWriterJavaScript implements ScriptWriterGeneric {
     let prefix = _uniq(packageNames)
       .map(packageName => `// @require ${packageName}\n`)
       .join('');
-    if (schedule) prefix += `// @schedule ${schedule}`;
+    if (schedule) prefix += `// @schedule ${sanitizeCommentText(schedule)}`;
     if (prefix) prefix += '\n';
 
     return prefix + this.s;
