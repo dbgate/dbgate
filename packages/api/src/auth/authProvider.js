@@ -119,11 +119,20 @@ class OAuthProvider extends AuthProviderBase {
     }
 
     // Fallback to userinfo endpoint for providers with opaque tokens (e.g. GitHub)
-    if (!payload && process.env.OAUTH_USERINFO) {
-      const userResp = await axios.default.get(process.env.OAUTH_USERINFO, {
-        headers: { Authorization: `Bearer ${access_token}`, Accept: 'application/json' },
-      });
-      payload = userResp.data;
+    if (!payload && process.env.OAUTH_USERINFO && access_token) {
+      try {
+        const userInfoTimeout = Number(process.env.OAUTH_USERINFO_TIMEOUT || 5000);
+        const userResp = await axios.default.get(process.env.OAUTH_USERINFO, {
+          headers: { Authorization: `Bearer ${access_token}`, Accept: 'application/json' },
+          timeout: Number.isFinite(userInfoTimeout) && userInfoTimeout > 0 ? userInfoTimeout : 5000,
+        });
+        payload = userResp.data;
+      } catch (err) {
+        logger.warn(
+          { err, hasAccessToken: !!access_token, userInfoUrl: process.env.OAUTH_USERINFO },
+          'DBGM-00003 Failed to fetch OAUTH userinfo, falling back to default oauth login'
+        );
+      }
     }
 
     logger.info({ payload }, 'DBGM-00002 User payload returned from OAUTH');
