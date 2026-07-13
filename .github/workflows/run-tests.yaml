@@ -29,7 +29,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: c91363218b14d2bbed3ba7fa99bc86882cde709e
+          ref: 40df3427e10f9570b9ef1b0c65f196323935f8b0
       - name: Merge dbgate/dbgate-pro
         run: |
           mkdir ../dbgate-pro
@@ -79,15 +79,15 @@ jobs:
         image: postgres
         env:
           POSTGRES_PASSWORD: Pwd2020Db
-        options: '--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5'
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
-          - '15000:5432'
+          - 15000:5432
       mysql-integr:
         image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
         ports:
-          - '15001:3306'
+          - 15001:3306
       mssql-integr:
         image: mcr.microsoft.com/mssql/server
         env:
@@ -95,27 +95,27 @@ jobs:
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
         ports:
-          - '15002:1433'
+          - 15002:1433
       clickhouse-integr:
         image: bitnamilegacy/clickhouse:24.8.4
         env:
           CLICKHOUSE_ADMIN_PASSWORD: Pwd2020Db
         ports:
-          - '15005:8123'
+          - 15005:8123
       oracle-integr:
         image: gvenzl/oracle-xe:21-slim
         env:
           ORACLE_PASSWORD: Pwd2020Db
         ports:
-          - '15006:1521'
+          - 15006:1521
       cassandradb:
         image: cassandra:5.0.2
         ports:
-          - '15942:9042'
+          - 15942:9042
       libsql:
         image: ghcr.io/tursodatabase/libsql-server:latest
         ports:
-          - '8080:8080'
+          - 8080:8080
       firebird:
         image: firebirdsql/firebird:latest
         env:
@@ -126,15 +126,15 @@ jobs:
           FIREBIRD_TRACE: false
           FIREBIRD_USE_LEGACY_AUTH: true
         ports:
-          - '3050:3050'
+          - 3050:3050
       mongodb:
         image: mongo:4.0.12
         ports:
-          - '27017:27017'
+          - 27017:27017
         volumes:
           - mongo-data:/data/db
           - mongo-config:/data/configdb
       dynamodb:
         image: amazon/dynamodb-local
         ports:
-          - '8000:8000'
+          - 8000:8000
