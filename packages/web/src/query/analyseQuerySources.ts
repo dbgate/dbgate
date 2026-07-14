@@ -45,7 +45,7 @@ function parseAliasToken(token) {
 function isSourceListContext(tokens, index) {
   for (let i = index - 1; i >= 0; i -= 1) {
     const token = tokens[i].replace(/[;,]$/, '');
-    if (/^((from)|(join)|(update)|(delete)|(into))$/i.test(token)) return true;
+    if (/^((from)|(join)|(update)|(delete)|(into)|(insert))$/i.test(token)) return true;
     if (/^((select)|(where)|(on)|(set)|(order)|(group)|(having)|(limit))$/i.test(token)) return false;
   }
   return false;
@@ -54,7 +54,7 @@ function isSourceListContext(tokens, index) {
 function isSourceStart(tokens, index) {
   const preWord = tokens[index - 1];
   if (!preWord) return false;
-  if (/^((join)|(from)|(update)|(delete)|(into))$/i.test(preWord)) return true;
+  if (/^((join)|(from)|(update)|(delete)|(into)|(insert))$/i.test(preWord)) return true;
   return /,$/.test(preWord) && isSourceListContext(tokens, index);
 }
 
@@ -80,7 +80,7 @@ export default function analyseQuerySources(sql, sourceNames) {
             res.push({
               name: word,
             });
-          } else if (/^((where)|(inner)|(left)|(right)|(on)|(join)|(set)|(order)|(group)|(partition))$/i.test(postWord)) {
+          } else if (/^((where)|(inner)|(left)|(right)|(on)|(join)|(set)|(order)|(group)|(having)|(limit)|(values)|(partition))$/i.test(postWord)) {
             res.push({
               name: word,
             });
