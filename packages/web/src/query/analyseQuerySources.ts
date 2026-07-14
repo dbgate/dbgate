@@ -80,7 +80,7 @@ export default function analyseQuerySources(sql, sourceNames) {
             res.push({
               name: word,
             });
-          } else if (/^((where)|(inner)|(left)|(right)|(on)|(join)|(set)|(order)|(group)|(having)|(limit)|(values)|(partition))$/i.test(postWord)) {
+          } else if (/^((where)|(inner)|(left)|(right)|(full)|(outer)|(cross)|(natural)|(on)|(using)|(join)|(set)|(order)|(group)|(having)|(limit)|(values)|(partition))$/i.test(postWord)) {
             res.push({
               name: word,
             });
