@@ -31,6 +31,7 @@ const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
 const teamFiles = require('./controllers/teamFiles');
+const mcp = require('./mcp');
 
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
@@ -175,6 +176,17 @@ function start() {
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: false }));
+
+  app.get(getExpressPath('/.well-known/oauth-protected-resource'), mcp.handleOAuthProtectedResourceMetadata);
+  app.get(getExpressPath('/.well-known/oauth-protected-resource/mcp'), mcp.handleOAuthProtectedResourceMetadata);
+  app.get(getExpressPath('/.well-known/oauth-authorization-server'), mcp.handleOAuthAuthorizationServerMetadata);
+  app.get(getExpressPath('/.well-known/openid-configuration'), mcp.handleOAuthAuthorizationServerMetadata);
+  app.post(getExpressPath('/mcp/oauth/register'), mcp.handleOAuthRegister);
+  app.get(getExpressPath('/mcp/oauth/authorize'), mcp.handleOAuthAuthorize);
+  app.post(getExpressPath('/mcp/oauth/authorize'), mcp.handleOAuthAuthorize);
+  app.post(getExpressPath('/mcp/oauth/token'), mcp.handleOAuthToken);
+  app.post(getExpressPath('/mcp'), mcp.handleMcpRequest);
 
   app.use(
     getExpressPath('/uploads'),

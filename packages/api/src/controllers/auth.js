@@ -39,6 +39,15 @@ function unauthorizedResponse(req, res, text) {
   //   return res.json([]);
   // }
 
+  if (req.path == getExpressPath('/mcp')) {
+    const protocol = req.headers?.['x-forwarded-proto']?.split(',')?.[0]?.trim() || req.protocol || 'http';
+    const host = req.headers?.['x-forwarded-host']?.split(',')?.[0]?.trim() || req.headers?.host || `localhost:${process.env.PORT || 3000}`;
+    res.setHeader(
+      'WWW-Authenticate',
+      `Bearer resource_metadata="${protocol}://${host}${getExpressPath('/.well-known/oauth-protected-resource')}"`
+    );
+  }
+
   return res.status(401).send(text);
 }
 
@@ -58,6 +67,13 @@ function authMiddleware(req, res, next) {
     '/storage/request-password-reset',
     '/storage/reset-password',
     '/auth/get-providers',
+    '/.well-known/oauth-protected-resource',
+    '/.well-known/oauth-protected-resource/mcp',
+    '/.well-known/oauth-authorization-server',
+    '/.well-known/openid-configuration',
+    '/mcp/oauth/register',
+    '/mcp/oauth/authorize',
+    '/mcp/oauth/token',
     '/connections/dblogin-web',
     '/connections/dblogin-app',
     '/connections/dblogin-auth',

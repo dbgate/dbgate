@@ -55,6 +55,7 @@
     $values.passwordMode != 'askUser';
   $: showPasswordMode = driver?.showConnectionField('password', $values, showConnectionFieldArgs);
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
+  $: showMcpEnabled = driver && !$config?.storageDatabase;
 
   const awsRegions = [
     'us-east-1',
@@ -523,6 +524,15 @@
     name="isReadOnly"
     disabled={isConnected || isFormReadOnly}
     data-testid="ConnectionDriverFields_isReadOnly"
+  />
+{/if}
+
+{#if showMcpEnabled}
+  <FormCheckboxField
+    label={_t('connection.mcpEnabled', { defaultMessage: 'Available in MCP server' })}
+    name="mcpEnabled"
+    disabled={isConnected || isFormReadOnly}
+    data-testid="ConnectionDriverFields_mcpEnabled"
   />
 {/if}
 

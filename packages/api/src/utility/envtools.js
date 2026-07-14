@@ -3,6 +3,10 @@ const _ = require('lodash');
 const { safeJsonParse, getDatabaseFileLabel } = require('dbgate-tools');
 const crypto = require('crypto');
 
+function isTrueValue(value) {
+  return [true, 1, '1', 'true'].includes(value);
+}
+
 function extractConnectionsFromEnv(env) {
   if (!env?.CONNECTIONS) {
     return null;

@@ -1047,6 +1047,10 @@ module.exports = {
         {
           "id": -3,
           "name": "superadmin"
+        },
+        {
+          "id": -4,
+          "name": "mcp"
         }
       ]
     },
