@@ -678,8 +678,9 @@ async function loadMcpTablePermissions(req) {
     return null;
   }
   if (!req.__mcpTablePermissions) {
-    req.__mcpTablePermissions = await getStorageDbController().resolvePermissionConnectionIds(
-      (await getStorageDbController().readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
+    const storageDb = getStorageDbController();
+    req.__mcpTablePermissions = await storageDb.resolvePermissionConnectionIds(
+      (await storageDb.readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
     );
   }
   return req.__mcpTablePermissions;
