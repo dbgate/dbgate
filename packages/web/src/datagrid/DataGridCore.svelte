@@ -2753,6 +2753,8 @@
   }
 
   .no-rows-info {
+    position: relative;
+    z-index: 1;
     margin-top: 60px;
   }
 </style>

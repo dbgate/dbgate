@@ -7,12 +7,6 @@ const { maskConnection } = require('./utility/crypting');
 const { isProApp } = require('./utility/checkLicense');
 const requireEngineDriver = require('./utility/requireEngineDriver');
 const {
-  storageCheckMcpConnectionAccess,
-  storageReadRolePermissions,
-  readComplexRolePermissions,
-  resolvePermissionConnectionIds,
-} = require('./controllers/storageDb');
-const {
   getDatabasePermissionRole,
   getTablePermissionRole,
   getTablePermissionRoleLevelIndex,
@@ -42,6 +36,22 @@ const filterSyntaxDescription = [
   'Compound: {"and":[<filter>,<filter>]} or {"or":[<filter>,<filter>]}. Compound filters may be nested.',
   'Examples: {"column":"status","op":"eq","value":"open"}; {"and":[{"column":"status","op":"eq","value":"open"},{"column":"created_at","op":">=","value":"2026-01-01"}]}.',
 ].join(' ');
+
+let storageDbController = null;
+
+function getStorageDbController() {
+  if (!storageDbController) {
+    try {
+      storageDbController = require('./controllers/storageDb');
+    } catch (err) {
+      if (err.code === 'MODULE_NOT_FOUND' && err.message?.includes("./controllers/storageDb")) {
+        throw new Error('DBGM-00000 Storage database MCP permissions are not available');
+      }
+      throw err;
+    }
+  }
+  return storageDbController;
+}
 
 function base64Url(buffer) {
   return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
@@ -640,7 +650,7 @@ async function loadMcpRolePermissions(req) {
     return null;
   }
   if (!req.__mcpRolePermissions) {
-    req.__mcpRolePermissions = (await storageReadRolePermissions(mcpRoleId)) ?? [];
+    req.__mcpRolePermissions = (await getStorageDbController().storageReadRolePermissions(mcpRoleId)) ?? [];
   }
   return req.__mcpRolePermissions;
 }
@@ -650,8 +660,8 @@ async function loadMcpDatabasePermissions(req) {
     return null;
   }
   if (!req.__mcpDatabasePermissions) {
-    req.__mcpDatabasePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
+    req.__mcpDatabasePermissions = await getStorageDbController().resolvePermissionConnectionIds(
+      (await getStorageDbController().readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
     );
   }
   return req.__mcpDatabasePermissions;
@@ -662,8 +672,8 @@ async function loadMcpTablePermissions(req) {
     return null;
   }
   if (!req.__mcpTablePermissions) {
-    req.__mcpTablePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
+    req.__mcpTablePermissions = await getStorageDbController().resolvePermissionConnectionIds(
+      (await getStorageDbController().readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
     );
   }
   return req.__mcpTablePermissions;
@@ -688,7 +698,7 @@ async function isMcpConnectionEnabled(connection, req) {
     if (await mcpHasPermission('all-connections', req)) {
       return true;
     }
-    return storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
+    return getStorageDbController().storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
   }
   return isMcpEnabledValue(connection.mcpEnabled);
 }
