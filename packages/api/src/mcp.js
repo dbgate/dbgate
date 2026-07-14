@@ -38,14 +38,19 @@ const filterSyntaxDescription = [
 ].join(' ');
 
 let storageDbController = null;
+let storageDbControllerUnavailableError = null;
 
 function getStorageDbController() {
+  if (storageDbControllerUnavailableError) {
+    throw storageDbControllerUnavailableError;
+  }
   if (!storageDbController) {
     try {
       storageDbController = require('./controllers/storageDb');
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND' && err.message?.includes("./controllers/storageDb")) {
-        throw new Error('DBGM-00000 Storage database MCP permissions are not available');
+        storageDbControllerUnavailableError = new Error('DBGM-00000 Storage database MCP permissions are not available');
+        throw storageDbControllerUnavailableError;
       }
       throw err;
     }
@@ -660,8 +665,9 @@ async function loadMcpDatabasePermissions(req) {
     return null;
   }
   if (!req.__mcpDatabasePermissions) {
-    req.__mcpDatabasePermissions = await getStorageDbController().resolvePermissionConnectionIds(
-      (await getStorageDbController().readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
+    const storageDb = getStorageDbController();
+    req.__mcpDatabasePermissions = await storageDb.resolvePermissionConnectionIds(
+      (await storageDb.readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
     );
   }
   return req.__mcpDatabasePermissions;
