@@ -38,6 +38,7 @@ function extractConnectionsFromEnv(env) {
         : null),
     singleDatabase: !!env[`DATABASE_${id}`] || !!env[`FILE_${id}`] || !!env[`APISERVERURL1_${id}`],
     displayName: env[`LABEL_${id}`],
+    mcpEnabled: isTrueValue(env[`MCP_ENABLED_${id}`]),
     isReadOnly: env[`READONLY_${id}`],
     databases: env[`DBCONFIG_${id}`] ? safeJsonParse(env[`DBCONFIG_${id}`]) : null,
     allowedDatabases: env[`ALLOWED_DATABASES_${id}`]?.replace(/\|/g, '\n'),

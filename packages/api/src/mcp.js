@@ -22,6 +22,7 @@ const { getAuthProviders, getDefaultAuthProvider } = require('./auth/authProvide
 const { getTokenSecret, getTokenLifetime } = require('./auth/authCommon');
 const { markTokenAsLoggedIn } = require('./utility/loginchecker');
 const getExpressPath = require('./utility/getExpressPath');
+const { readMcpConfig, getPublicBaseUrl, getMcpResourceUrl } = require('./utility/mcpAuth');
 
 const protocolVersion = '2025-06-18';
 const mcpRoleId = -4;
@@ -55,18 +56,6 @@ function createOAuthId() {
   return base64Url(crypto.randomBytes(32));
 }
 
-function getPublicBaseUrl(req) {
-  const forwardedProto = req.headers?.['x-forwarded-proto']?.split(',')?.[0]?.trim();
-  const forwardedHost = req.headers?.['x-forwarded-host']?.split(',')?.[0]?.trim();
-  const protocol = forwardedProto || req.protocol || 'http';
-  const host = forwardedHost || req.headers?.host || `localhost:${process.env.PORT || 3000}`;
-  return `${protocol}://${host}`;
-}
-
-function getMcpResourceUrl(req) {
-  return `${getPublicBaseUrl(req)}${getExpressPath('/mcp')}`;
-}
-
 function getOAuthAuthorizationServerUrl(req) {
   return getPublicBaseUrl(req);
 }
@@ -77,6 +66,25 @@ function getOAuthEndpoint(req, path) {
 
 function getOAuthProtectedResourceMetadataUrl(req) {
   return getOAuthEndpoint(req, '/.well-known/oauth-protected-resource');
+}
+
+async function requireOAuthMode(res) {
+  let config;
+  try {
+    config = await readMcpConfig();
+  } catch (err) {
+    res.status(500).json({ apiErrorMessage: 'DBGM-00000 Could not load MCP authentication configuration' });
+    return false;
+  }
+  if (!config.enabled) {
+    res.status(403).json({ apiErrorMessage: 'DBGM-00000 MCP server is disabled' });
+    return false;
+  }
+  if (config.authMode != 'oauth') {
+    res.status(404).json({ apiErrorMessage: 'DBGM-00000 MCP OAuth is not enabled' });
+    return false;
+  }
+  return true;
 }
 
 function isSafeRedirectUri(redirectUri) {
@@ -1594,29 +1602,40 @@ async function handleMcpRequest(req, res) {
   return res.status(400).json({ apiErrorMessage: 'DBGM-00000 Unsupported MCP message' });
 }
 
-function handleOAuthProtectedResourceMetadata(req, res) {
-  return res.json({
-    resource: getMcpResourceUrl(req),
-    authorization_servers: [getOAuthAuthorizationServerUrl(req)],
-    bearer_methods_supported: ['header'],
-  });
+async function handleOAuthProtectedResourceMetadata(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  try {
+    return res.json({
+      resource: getMcpResourceUrl(req),
+      authorization_servers: [getOAuthAuthorizationServerUrl(req)],
+      bearer_methods_supported: ['header'],
+    });
+  } catch (error) {
+    return res.status(500).json({ apiErrorMessage: withDbgmCode(error.message) });
+  }
 }
 
-function handleOAuthAuthorizationServerMetadata(req, res) {
-  return res.json({
-    issuer: getOAuthAuthorizationServerUrl(req),
-    authorization_endpoint: getOAuthEndpoint(req, '/mcp/oauth/authorize'),
-    token_endpoint: getOAuthEndpoint(req, '/mcp/oauth/token'),
-    registration_endpoint: getOAuthEndpoint(req, '/mcp/oauth/register'),
-    response_types_supported: ['code'],
-    grant_types_supported: ['authorization_code'],
-    code_challenge_methods_supported: ['S256'],
-    token_endpoint_auth_methods_supported: ['none'],
-    scopes_supported: ['mcp'],
-  });
+async function handleOAuthAuthorizationServerMetadata(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  try {
+    return res.json({
+      issuer: getOAuthAuthorizationServerUrl(req),
+      authorization_endpoint: getOAuthEndpoint(req, '/mcp/oauth/authorize'),
+      token_endpoint: getOAuthEndpoint(req, '/mcp/oauth/token'),
+      registration_endpoint: getOAuthEndpoint(req, '/mcp/oauth/register'),
+      response_types_supported: ['code'],
+      grant_types_supported: ['authorization_code'],
+      code_challenge_methods_supported: ['S256'],
+      token_endpoint_auth_methods_supported: ['none'],
+      scopes_supported: ['mcp'],
+    });
+  } catch (error) {
+    return res.status(500).json({ apiErrorMessage: withDbgmCode(error.message) });
+  }
 }
 
-function handleOAuthRegister(req, res) {
+async function handleOAuthRegister(req, res) {
+  if (!(await requireOAuthMode(res))) return;
   const redirectUris = Array.isArray(req.body?.redirect_uris) ? req.body.redirect_uris : [];
   if (redirectUris.length === 0 || redirectUris.some(uri => !isSafeRedirectUri(uri))) {
     return res.status(400).json({
@@ -1640,6 +1659,7 @@ function handleOAuthRegister(req, res) {
 }
 
 async function handleOAuthAuthorize(req, res) {
+  if (!(await requireOAuthMode(res))) return;
   const params = {
     ...req.query,
     ...req.body,
@@ -1655,6 +1675,10 @@ async function handleOAuthAuthorize(req, res) {
     assertValidOAuthRedirect(params.client_id, params.redirect_uri);
     if (!params.code_challenge || params.code_challenge_method !== 'S256') {
       throw new Error('DBGM-00000 PKCE S256 code challenge is required');
+    }
+    const resource = getMcpResourceUrl(req);
+    if (params.resource && params.resource !== resource) {
+      throw new Error('DBGM-00000 Invalid OAuth resource');
     }
 
     if (req.method === 'GET') {
@@ -1674,16 +1698,20 @@ async function handleOAuthAuthorize(req, res) {
     }
 
     const payload = jwt.decode(loginResult.accessToken) || {};
-    const resource = params.resource || getMcpResourceUrl(req);
+    const licenseUid = payload.licenseUid || `mcp:${payload.login || 'oauth'}`;
     const accessToken = jwt.sign(
       {
-        ...payload,
+        amoid: 'mcp',
+        roleId: mcpRoleId,
+        login: payload.login || 'mcp-oauth',
+        licenseUid,
+        tokenUse: 'mcp',
         aud: resource,
       },
       getTokenSecret(),
       { expiresIn: getTokenLifetime() }
     );
-    markTokenAsLoggedIn(payload.licenseUid, accessToken);
+    markTokenAsLoggedIn(licenseUid, accessToken);
 
     pruneOAuthAuthorizationCodes();
     const code = createOAuthId();
@@ -1713,7 +1741,8 @@ async function handleOAuthAuthorize(req, res) {
   }
 }
 
-function handleOAuthToken(req, res) {
+async function handleOAuthToken(req, res) {
+  if (!(await requireOAuthMode(res))) return;
   const params = {
     ...req.body,
     ...req.query,

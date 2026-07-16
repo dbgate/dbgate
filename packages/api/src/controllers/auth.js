@@ -28,10 +28,17 @@ const {
   markUserAsActive,
   markLoginAsLoggedOut,
 } = require('../utility/loginchecker');
+const {
+  readMcpConfig,
+  getPublicBaseUrl,
+  getMcpResourceUrl,
+  setMcpIdentity,
+  safeTokenHashEquals,
+} = require('../utility/mcpAuth');
 
 const logger = getLogger('auth');
 
-function unauthorizedResponse(req, res, text) {
+function unauthorizedResponse(req, res, text, mcpAuthMode = null) {
   // if (req.path == getExpressPath('/config/get-settings')) {
   //   return res.json({});
   // }
@@ -40,18 +47,65 @@ function unauthorizedResponse(req, res, text) {
   // }
 
   if (req.path == getExpressPath('/mcp')) {
-    const protocol = req.headers?.['x-forwarded-proto']?.split(',')?.[0]?.trim() || req.protocol || 'http';
-    const host = req.headers?.['x-forwarded-host']?.split(',')?.[0]?.trim() || req.headers?.host || `localhost:${process.env.PORT || 3000}`;
     res.setHeader(
       'WWW-Authenticate',
-      `Bearer resource_metadata="${protocol}://${host}${getExpressPath('/.well-known/oauth-protected-resource')}"`
+      mcpAuthMode == 'oauth'
+        ? `Bearer resource_metadata="${getPublicBaseUrl(req)}${getExpressPath('/.well-known/oauth-protected-resource')}"`
+        : 'Bearer'
     );
   }
 
   return res.status(401).send(text);
 }
 
-function authMiddleware(req, res, next) {
+async function authenticateMcpRequest(req, res, next) {
+  const config = await readMcpConfig();
+  if (!config.enabled) {
+    return res.status(403).send('DBGM-00000 MCP server is disabled');
+  }
+
+  if (config.authMode == 'none') {
+    setMcpIdentity(req);
+    return next();
+  }
+
+  const authHeader = req.headers.authorization;
+  const [scheme, token] = authHeader?.split(' ') ?? [];
+  if (scheme != 'Bearer' || !token) {
+    return unauthorizedResponse(req, res, 'missing or invalid MCP authorization header', config.authMode);
+  }
+
+  if (config.authMode == 'token') {
+    if (!safeTokenHashEquals(token, config.tokenHash)) {
+      return unauthorizedResponse(req, res, 'invalid MCP token', config.authMode);
+    }
+    setMcpIdentity(req, { licenseUid: 'mcp-token', login: 'mcp-token' });
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, getTokenSecret());
+    if (decoded.tokenUse != 'mcp' || decoded.aud != getMcpResourceUrl(req)) {
+      throw new Error('Invalid MCP token claims');
+    }
+    setMcpIdentity(req, decoded);
+    markUserAsActive(decoded.licenseUid, token);
+    return next();
+  } catch (err) {
+    return unauthorizedResponse(req, res, 'invalid MCP OAuth token', config.authMode);
+  }
+}
+
+async function authMiddleware(req, res, next) {
+  if (req.path == getExpressPath('/mcp')) {
+    try {
+      return await authenticateMcpRequest(req, res, next);
+    } catch (err) {
+      logger.error(extractErrorLogData(err), 'DBGM-00000 Error loading MCP authentication configuration');
+      return res.status(500).send('DBGM-00000 Could not load MCP authentication configuration');
+    }
+  }
+
   const SKIP_AUTH_PATHS = [
     '/config/get',
     '/config/logout',
@@ -108,6 +162,9 @@ function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, getTokenSecret());
+    if (decoded.tokenUse == 'mcp') {
+      throw new Error('MCP token cannot be used for the DbGate API');
+    }
     req.user = decoded;
     markUserAsActive(decoded.licenseUid, token);
 
