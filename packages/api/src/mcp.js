@@ -22,7 +22,12 @@ const { getAuthProviders, getDefaultAuthProvider } = require('./auth/authProvide
 const { getTokenSecret, getTokenLifetime } = require('./auth/authCommon');
 const { markTokenAsLoggedIn } = require('./utility/loginchecker');
 const getExpressPath = require('./utility/getExpressPath');
-const { readMcpConfig, getPublicBaseUrl, getMcpResourceUrl } = require('./utility/mcpAuth');
+const {
+  readMcpConfig,
+  getPublicBaseUrl,
+  getMcpResourceUrl,
+  safeTokenHashEquals,
+} = require('./utility/mcpAuth');
 
 const protocolVersion = '2025-06-18';
 const mcpRoleId = -4;
@@ -96,7 +101,13 @@ function isSafeRedirectUri(redirectUri) {
   }
 }
 
-function assertValidOAuthRedirect(clientId, redirectUri) {
+function getOAuthClientType(clientId, config) {
+  if (oauthClients.has(clientId)) return 'dynamic';
+  if (config.oauthClientId && clientId === config.oauthClientId && config.oauthClientSecretHash) return 'static';
+  return null;
+}
+
+function assertValidOAuthRedirect(clientId, redirectUri, config) {
   const client = oauthClients.get(clientId);
   if (client) {
     if (!client.redirect_uris?.includes(redirectUri)) {
@@ -104,9 +115,31 @@ function assertValidOAuthRedirect(clientId, redirectUri) {
     }
     return;
   }
-  if (!clientId || !isSafeRedirectUri(redirectUri)) {
+  if (getOAuthClientType(clientId, config) !== 'static' || !isSafeRedirectUri(redirectUri)) {
     throw new Error('DBGM-00000 Invalid OAuth client');
   }
+}
+
+function getOAuthClientCredentials(req, params) {
+  const authorization = req.headers?.authorization;
+  if (authorization?.startsWith('Basic ')) {
+    try {
+      const decoded = Buffer.from(authorization.slice(6), 'base64').toString('utf8');
+      const separator = decoded.indexOf(':');
+      if (separator >= 0) {
+        return {
+          clientId: decodeURIComponent(decoded.slice(0, separator)),
+          clientSecret: decodeURIComponent(decoded.slice(separator + 1)),
+        };
+      }
+    } catch (error) {
+      return {};
+    }
+  }
+  return {
+    clientId: params.client_id,
+    clientSecret: params.client_secret,
+  };
 }
 
 function pruneOAuthAuthorizationCodes() {
@@ -1075,9 +1108,13 @@ async function loadTableInfo(args, req) {
 }
 
 async function loadMcpStructure(args, req) {
-  const structure = process.env.STORAGE_DATABASE
+  let structure = process.env.STORAGE_DATABASE
     ? await databaseConnections.structure({ conid: args.conid, database: args.database }, req)
     : (await databaseConnections.ensureOpened(args.conid, args.database))?.structure;
+  const hasLoadedObjects = objectTypes.some(objectType => (structure?.[objectType]?.length ?? 0) > 0);
+  if (!hasLoadedObjects) {
+    structure = await databaseConnections.ensureStructureLoaded(args.conid, args.database);
+  }
   return filterMcpStructure(args.conid, args.database, structure ?? {}, req);
 }
 
@@ -1626,7 +1663,7 @@ async function handleOAuthAuthorizationServerMetadata(req, res) {
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code'],
       code_challenge_methods_supported: ['S256'],
-      token_endpoint_auth_methods_supported: ['none'],
+      token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'none'],
       scopes_supported: ['mcp'],
     });
   } catch (error) {
@@ -1660,6 +1697,7 @@ async function handleOAuthRegister(req, res) {
 
 async function handleOAuthAuthorize(req, res) {
   if (!(await requireOAuthMode(res))) return;
+  const config = await readMcpConfig();
   const params = {
     ...req.query,
     ...req.body,
@@ -1672,7 +1710,7 @@ async function handleOAuthAuthorize(req, res) {
     if (!params.redirect_uri || !params.client_id) {
       throw new Error('DBGM-00000 Missing OAuth client parameters');
     }
-    assertValidOAuthRedirect(params.client_id, params.redirect_uri);
+    assertValidOAuthRedirect(params.client_id, params.redirect_uri, config);
     if (!params.code_challenge || params.code_challenge_method !== 'S256') {
       throw new Error('DBGM-00000 PKCE S256 code challenge is required');
     }
@@ -1743,6 +1781,7 @@ async function handleOAuthAuthorize(req, res) {
 
 async function handleOAuthToken(req, res) {
   if (!(await requireOAuthMode(res))) return;
+  const config = await readMcpConfig();
   const params = {
     ...req.body,
     ...req.query,
@@ -1751,6 +1790,18 @@ async function handleOAuthToken(req, res) {
     return res.status(400).json({
       error: 'unsupported_grant_type',
       error_description: 'DBGM-00000 Unsupported grant_type',
+    });
+  }
+
+  const credentials = getOAuthClientCredentials(req, params);
+  const clientType = getOAuthClientType(credentials.clientId, config);
+  if (
+    !clientType ||
+    (clientType === 'static' && !safeTokenHashEquals(credentials.clientSecret, config.oauthClientSecretHash))
+  ) {
+    return res.status(401).json({
+      error: 'invalid_client',
+      error_description: 'DBGM-00000 Invalid OAuth client credentials',
     });
   }
 
@@ -1763,7 +1814,7 @@ async function handleOAuthToken(req, res) {
       error_description: 'DBGM-00000 Invalid or expired authorization code',
     });
   }
-  if (codeData.clientId !== params.client_id || codeData.redirectUri !== params.redirect_uri) {
+  if (codeData.clientId !== credentials.clientId || codeData.redirectUri !== params.redirect_uri) {
     return res.status(400).json({
       error: 'invalid_grant',
       error_description: 'DBGM-00000 Authorization code was issued for a different client',

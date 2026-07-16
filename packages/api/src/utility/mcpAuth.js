@@ -24,6 +24,10 @@ function sanitizeMcpConfig(config) {
     tokenHash: config?.tokenHash || null,
     tokenSuffix: config?.tokenSuffix || null,
     tokenGeneratedAt: config?.tokenGeneratedAt || null,
+    oauthClientId: config?.oauthClientId || null,
+    oauthClientSecretHash: config?.oauthClientSecretHash || null,
+    oauthClientSecretSuffix: config?.oauthClientSecretSuffix || null,
+    oauthClientGeneratedAt: config?.oauthClientGeneratedAt || null,
   };
 }
 
@@ -40,6 +44,10 @@ async function readMcpConfig() {
     tokenHash: token ? hashMcpToken(token) : null,
     tokenSuffix: token ? token.slice(-6) : null,
     tokenGeneratedAt: null,
+    oauthClientId: null,
+    oauthClientSecretHash: null,
+    oauthClientSecretSuffix: null,
+    oauthClientGeneratedAt: null,
   };
 }
 
@@ -70,8 +78,14 @@ function getPublicBaseUrl(req) {
     return parsed.origin;
   }
 
-  const protocol = req.protocol || (req.socket?.encrypted ? 'https' : 'http');
-  const host = req.headers?.host || `localhost:${process.env.PORT || 3000}`;
+  const allowLocalFallback =
+    isEnabledValue(process.env.DEVMODE) || ['development', 'test'].includes(process.env.NODE_ENV);
+  if (!allowLocalFallback) {
+    throw new Error('DBGM-00000 MCP_PUBLIC_URL must be configured for MCP OAuth');
+  }
+
+  const protocol = req?.protocol || (req?.socket?.encrypted ? 'https' : 'http');
+  const host = req?.headers?.host || `localhost:${process.env.PORT || 3000}`;
   let requestUrl;
   try {
     requestUrl = new URL(`${protocol}://${host}`);
