@@ -78,22 +78,22 @@ function getPublicBaseUrl(req) {
     return parsed.origin;
   }
 
-  const allowLocalFallback =
-    isEnabledValue(process.env.DEVMODE) || ['development', 'test'].includes(process.env.NODE_ENV);
-  if (!allowLocalFallback) {
-    throw new Error('DBGM-00000 MCP_PUBLIC_URL must be configured for MCP OAuth');
-  }
-
   const protocol = req?.protocol || (req?.socket?.encrypted ? 'https' : 'http');
   const host = req?.headers?.host || `localhost:${process.env.PORT || 3000}`;
+  if (!['http', 'https'].includes(protocol)) {
+    throw new Error('DBGM-00000 Could not determine a valid MCP public protocol');
+  }
   let requestUrl;
   try {
     requestUrl = new URL(`${protocol}://${host}`);
   } catch (error) {
-    throw new Error('DBGM-00000 MCP_PUBLIC_URL must be configured for MCP OAuth');
+    throw new Error('DBGM-00000 Could not determine a valid MCP public URL');
   }
-  if (!isLocalHostname(requestUrl.hostname)) {
-    throw new Error('DBGM-00000 MCP_PUBLIC_URL must be configured for non-local MCP OAuth');
+  if (requestUrl.username || requestUrl.password || requestUrl.pathname !== '/' || requestUrl.search || requestUrl.hash) {
+    throw new Error('DBGM-00000 Could not determine a valid MCP public URL');
+  }
+  if (requestUrl.protocol !== 'https:' && !isLocalHostname(requestUrl.hostname)) {
+    throw new Error('DBGM-00000 MCP OAuth requires HTTPS for a non-local public URL');
   }
   return requestUrl.origin;
 }

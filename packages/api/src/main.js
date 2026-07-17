@@ -96,6 +96,7 @@ function start() {
   // console.log('process.argv', process.argv);
 
   const app = express();
+  app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
   const server = http.createServer(app);
 
