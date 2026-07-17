@@ -20,11 +20,14 @@
 
   let editor;
   let syntaxMode = 'text';
+  let decodeMode = '';
+  let showDecode = false;
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
 
   onMount(() => {
     editor.getEditor().focus();
+    showDecode = textValue.startsWith('0x') && !textValue.includes('\n');
     if (safeJsonParse(textValue)) syntaxMode = 'json';
     if (textValue.match(/<\/[a-zA-z0-9-]+\s*>/)) {
       // end tag
@@ -92,6 +95,34 @@
       </div>
 
       <div class="footer-actions">
+        {#if showDecode}
+          {_t('dataGrid.decode', { defaultMessage: 'Decode:' })}
+          <SelectField
+            isNative
+            value={decodeMode}
+            on:change={e => {
+              if (!textValue.startsWith('0x')) {
+                textValue = '0x' + Array.from(new TextEncoder().encode(textValue), (item) => item.toString(16).padStart(2, '0')).join('');
+              }
+              if (e.detail)
+              {
+                textValue = new TextDecoder(e.detail).decode(Uint8Array.from(hexStringToArray(textValue.slice(2))));
+              }
+              decodeMode = e.detail;
+            }}
+            options={[
+              { value: '', label: '' },
+              { value: 'utf-8', label: 'UTF-8' },
+              { value: 'iso-8859-1', label: 'ISO-8859-1' },
+              { value: 'iso-8859-2', label: 'ISO-8859-2' },
+              { value: 'cp1250', label: 'Windows-1250' },
+              { value: 'cp1251', label: 'Windows-1251' },
+              { value: 'cp1252', label: 'Windows-1252' },
+              { value: 'cp1253', label: 'Windows-1253' },
+            ]}
+          />
+        {/if}
+
         <FormStyledButton
           type="button"
           skipWidth={true}

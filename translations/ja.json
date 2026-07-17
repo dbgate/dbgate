@@ -806,6 +806,7 @@
   "datagrid.structure.notLoaded": "構造が読み込まれていません。おそらく現在のデータベースにテーブルが存在しません",
   "datagrid.structure.waiting": "構造を待機中",
   "datagrid.useMacro": "マクロを使用",
+  "datagrid.decode": "デコード: ",
   "dbKeysTreeNode.deleteBranch": "ブランチを削除",
   "dbKeysTreeNode.deleteBranchConfirm": "本当にブランチ {branch} とそのすべてのキーを削除しますか？",
   "dbKeysTreeNode.deleteKey": "キーを削除",
