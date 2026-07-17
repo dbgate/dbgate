@@ -85,7 +85,11 @@ async function authenticateMcpRequest(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, getTokenSecret());
-    if (decoded.tokenUse != 'mcp' || decoded.aud != getMcpResourceUrl(req)) {
+    if (
+      decoded.tokenUse != 'mcp' ||
+      decoded.aud != getMcpResourceUrl(req) ||
+      decoded.oauthClientId != config.oauthClientId
+    ) {
       throw new Error('Invalid MCP token claims');
     }
     setMcpIdentity(req, decoded);
@@ -125,7 +129,6 @@ async function authMiddleware(req, res, next) {
     '/.well-known/oauth-protected-resource/mcp',
     '/.well-known/oauth-authorization-server',
     '/.well-known/openid-configuration',
-    '/mcp/oauth/register',
     '/mcp/oauth/authorize',
     '/mcp/oauth/token',
     '/connections/dblogin-web',

@@ -212,6 +212,17 @@ export async function apiCall(
       return;
     }
 
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      const responseText = await resp.text();
+      const responsePreview = responseText.replace(/\s+/g, ' ').trim().slice(0, 120);
+      throw new Error(
+        `DBGM-00000 API request ${route} returned ${resp.status} ${contentType || 'without Content-Type'} instead of JSON${
+          responsePreview ? `: ${responsePreview}` : ''
+        }`
+      );
+    }
+
     const json = await resp.json();
     return await processApiResponse(route, args, json);
   }

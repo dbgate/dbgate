@@ -105,8 +105,8 @@ module.exports = {
     return { token, tokenSuffix, tokenGeneratedAt };
   },
 
-  generateOAuthClient_meta: true,
-  async generateOAuthClient(_params, req) {
+  generateOauthClient_meta: true,
+  async generateOauthClient(_params, req) {
     await requireMcpAdmin(req);
     const clientId = `dbgate_mcp_client_${crypto.randomBytes(24).toString('base64url')}`;
     const clientSecret = `dbgate_mcp_secret_${crypto.randomBytes(32).toString('base64url')}`;

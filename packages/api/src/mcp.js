@@ -17,8 +17,6 @@ const {
   getTablePermissionRole,
   getTablePermissionRoleLevelIndex,
 } = require('./utility/hasPermission');
-const authController = require('./controllers/auth');
-const { getAuthProviders, getDefaultAuthProvider } = require('./auth/authProvider');
 const { getTokenSecret, getTokenLifetime } = require('./auth/authCommon');
 const { markTokenAsLoggedIn } = require('./utility/loginchecker');
 const getExpressPath = require('./utility/getExpressPath');
@@ -35,7 +33,6 @@ const objectTypes = ['tables', 'collections', 'views', 'procedures', 'functions'
 const defaultDataLimit = 100;
 const maxDataLimit = 1000;
 const oauthAuthorizationCodes = new Map();
-const oauthClients = new Map();
 const oauthCodeLifetimeMs = 5 * 60 * 1000;
 const filterOperators = ['eq', 'ne', '<', '<=', '>', '>=', 'contains', 'startsWith', 'endsWith', 'in', 'isNull', 'isNotNull'];
 const filterSyntaxDescription = [
@@ -101,21 +98,13 @@ function isSafeRedirectUri(redirectUri) {
   }
 }
 
-function getOAuthClientType(clientId, config) {
-  if (oauthClients.has(clientId)) return 'dynamic';
-  if (config.oauthClientId && clientId === config.oauthClientId && config.oauthClientSecretHash) return 'static';
-  return null;
-}
-
 function assertValidOAuthRedirect(clientId, redirectUri, config) {
-  const client = oauthClients.get(clientId);
-  if (client) {
-    if (!client.redirect_uris?.includes(redirectUri)) {
-      throw new Error('DBGM-00000 Invalid redirect_uri');
-    }
-    return;
-  }
-  if (getOAuthClientType(clientId, config) !== 'static' || !isSafeRedirectUri(redirectUri)) {
+  if (
+    !config.oauthClientId ||
+    !config.oauthClientSecretHash ||
+    clientId !== config.oauthClientId ||
+    !isSafeRedirectUri(redirectUri)
+  ) {
     throw new Error('DBGM-00000 Invalid OAuth client');
   }
 }
@@ -149,73 +138,6 @@ function pruneOAuthAuthorizationCodes() {
       oauthAuthorizationCodes.delete(code);
     }
   }
-}
-
-function htmlEscape(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function renderOAuthAuthorizePage(params, error = null) {
-  const providers = getAuthProviders().filter(provider => !provider.skipInList);
-  const defaultProvider = params.amoid || getDefaultAuthProvider()?.amoid || providers[0]?.amoid || 'none';
-  const hiddenFields = [
-    'response_type',
-    'client_id',
-    'redirect_uri',
-    'scope',
-    'state',
-    'code_challenge',
-    'code_challenge_method',
-    'resource',
-  ]
-    .map(name => `<input type="hidden" name="${name}" value="${htmlEscape(params[name])}" />`)
-    .join('\n');
-  const providerOptions = providers
-    .map(
-      provider =>
-        `<option value="${htmlEscape(provider.amoid)}"${provider.amoid === defaultProvider ? ' selected' : ''}>${htmlEscape(
-          provider.name || provider.amoid
-        )}</option>`
-    )
-    .join('\n');
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>DbGate MCP Login</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 40px; max-width: 420px; }
-    label { display: block; margin-top: 16px; }
-    input, select, button { box-sizing: border-box; font: inherit; width: 100%; padding: 8px; }
-    button { margin-top: 20px; }
-    .error { color: #b00020; margin: 16px 0; }
-  </style>
-</head>
-<body>
-  <h1>DbGate MCP Login</h1>
-  <p>Sign in to allow this MCP client to use DbGate with your account.</p>
-  ${error ? `<div class="error">${htmlEscape(error)}</div>` : ''}
-  <form method="post" action="${htmlEscape(getExpressPath('/mcp/oauth/authorize'))}">
-    ${hiddenFields}
-    <label>Provider
-      <select name="amoid">${providerOptions}</select>
-    </label>
-    <label>Login
-      <input name="login" autocomplete="username" autofocus />
-    </label>
-    <label>Password
-      <input name="password" type="password" autocomplete="current-password" />
-    </label>
-    <button type="submit">Authorize MCP client</button>
-  </form>
-</body>
-</html>`;
 }
 
 function createConnectionDatabaseInputSchema() {
@@ -1659,40 +1581,15 @@ async function handleOAuthAuthorizationServerMetadata(req, res) {
       issuer: getOAuthAuthorizationServerUrl(req),
       authorization_endpoint: getOAuthEndpoint(req, '/mcp/oauth/authorize'),
       token_endpoint: getOAuthEndpoint(req, '/mcp/oauth/token'),
-      registration_endpoint: getOAuthEndpoint(req, '/mcp/oauth/register'),
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code'],
       code_challenge_methods_supported: ['S256'],
-      token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'none'],
+      token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
       scopes_supported: ['mcp'],
     });
   } catch (error) {
     return res.status(500).json({ apiErrorMessage: withDbgmCode(error.message) });
   }
-}
-
-async function handleOAuthRegister(req, res) {
-  if (!(await requireOAuthMode(res))) return;
-  const redirectUris = Array.isArray(req.body?.redirect_uris) ? req.body.redirect_uris : [];
-  if (redirectUris.length === 0 || redirectUris.some(uri => !isSafeRedirectUri(uri))) {
-    return res.status(400).json({
-      error: 'invalid_redirect_uri',
-      error_description: 'DBGM-00000 redirect_uris must contain localhost HTTP or HTTPS URLs',
-    });
-  }
-
-  const clientId = createOAuthId();
-  const client = {
-    client_id: clientId,
-    client_id_issued_at: Math.floor(Date.now() / 1000),
-    client_name: req.body?.client_name || 'MCP client',
-    redirect_uris: redirectUris,
-    grant_types: ['authorization_code'],
-    response_types: ['code'],
-    token_endpoint_auth_method: 'none',
-  };
-  oauthClients.set(clientId, client);
-  return res.status(201).json(client);
 }
 
 async function handleOAuthAuthorize(req, res) {
@@ -1719,42 +1616,9 @@ async function handleOAuthAuthorize(req, res) {
       throw new Error('DBGM-00000 Invalid OAuth resource');
     }
 
-    if (req.method === 'GET') {
-      return res.type('html').send(renderOAuthAuthorizePage(params));
-    }
-
-    const loginResult = await authController.login(
-      {
-        amoid: params.amoid || getDefaultAuthProvider()?.amoid,
-        login: params.login,
-        password: params.password,
-      },
-      req
-    );
-    if (!loginResult?.accessToken) {
-      return res.status(401).type('html').send(renderOAuthAuthorizePage(params, withDbgmCode(loginResult?.error || 'Login failed')));
-    }
-
-    const payload = jwt.decode(loginResult.accessToken) || {};
-    const licenseUid = payload.licenseUid || `mcp:${payload.login || 'oauth'}`;
-    const accessToken = jwt.sign(
-      {
-        amoid: 'mcp',
-        roleId: mcpRoleId,
-        login: payload.login || 'mcp-oauth',
-        licenseUid,
-        tokenUse: 'mcp',
-        aud: resource,
-      },
-      getTokenSecret(),
-      { expiresIn: getTokenLifetime() }
-    );
-    markTokenAsLoggedIn(licenseUid, accessToken);
-
     pruneOAuthAuthorizationCodes();
     const code = createOAuthId();
     oauthAuthorizationCodes.set(code, {
-      accessToken,
       clientId: params.client_id,
       redirectUri: params.redirect_uri,
       codeChallenge: params.code_challenge,
@@ -1769,9 +1633,6 @@ async function handleOAuthAuthorize(req, res) {
     }
     return res.redirect(redirectUrl.toString());
   } catch (err) {
-    if (req.method === 'GET') {
-      return res.status(400).type('html').send(renderOAuthAuthorizePage(params, withDbgmCode(err.message)));
-    }
     return res.status(400).json({
       error: 'invalid_request',
       error_description: withDbgmCode(err.message),
@@ -1794,10 +1655,9 @@ async function handleOAuthToken(req, res) {
   }
 
   const credentials = getOAuthClientCredentials(req, params);
-  const clientType = getOAuthClientType(credentials.clientId, config);
   if (
-    !clientType ||
-    (clientType === 'static' && !safeTokenHashEquals(credentials.clientSecret, config.oauthClientSecretHash))
+    credentials.clientId !== config.oauthClientId ||
+    !safeTokenHashEquals(credentials.clientSecret, config.oauthClientSecretHash)
   ) {
     return res.status(401).json({
       error: 'invalid_client',
@@ -1827,8 +1687,24 @@ async function handleOAuthToken(req, res) {
     });
   }
 
+  const licenseUid = `mcp-oauth:${credentials.clientId}`;
+  const accessToken = jwt.sign(
+    {
+      amoid: 'mcp',
+      roleId: mcpRoleId,
+      login: 'mcp-oauth',
+      licenseUid,
+      tokenUse: 'mcp',
+      oauthClientId: credentials.clientId,
+      aud: codeData.resource,
+    },
+    getTokenSecret(),
+    { expiresIn: getTokenLifetime() }
+  );
+  markTokenAsLoggedIn(licenseUid, accessToken);
+
   return res.json({
-    access_token: codeData.accessToken,
+    access_token: accessToken,
     token_type: 'Bearer',
     expires_in: 24 * 60 * 60,
     scope: 'mcp',
@@ -1839,7 +1715,6 @@ module.exports = {
   handleMcpRequest,
   handleOAuthProtectedResourceMetadata,
   handleOAuthAuthorizationServerMetadata,
-  handleOAuthRegister,
   handleOAuthAuthorize,
   handleOAuthToken,
   getOAuthProtectedResourceMetadataUrl,
