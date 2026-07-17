@@ -129,6 +129,8 @@ async function authMiddleware(req, res, next) {
     '/.well-known/oauth-protected-resource/mcp',
     '/.well-known/oauth-authorization-server',
     '/.well-known/openid-configuration',
+    '/authorize',
+    '/token',
     '/mcp/oauth/authorize',
     '/mcp/oauth/token',
     '/connections/dblogin-web',

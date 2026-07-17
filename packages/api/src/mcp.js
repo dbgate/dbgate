@@ -1579,8 +1579,8 @@ async function handleOAuthAuthorizationServerMetadata(req, res) {
   try {
     return res.json({
       issuer: getOAuthAuthorizationServerUrl(req),
-      authorization_endpoint: getOAuthEndpoint(req, '/mcp/oauth/authorize'),
-      token_endpoint: getOAuthEndpoint(req, '/mcp/oauth/token'),
+      authorization_endpoint: getOAuthEndpoint(req, '/authorize'),
+      token_endpoint: getOAuthEndpoint(req, '/token'),
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code'],
       code_challenge_methods_supported: ['S256'],
