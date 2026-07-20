@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "additionalDirectories": ["../dbgate"],
+    "deny": ["Edit(../dbgate/**)", "Write(../dbgate/**)"]
+  }
+}
