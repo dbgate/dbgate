@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
+const storage = require('./controllers/storage');
 const { maskConnection } = require('./utility/crypting');
 const { isProApp } = require('./utility/checkLicense');
 const requireEngineDriver = require('./utility/requireEngineDriver');
@@ -597,8 +598,7 @@ async function loadMcpRolePermissions(req) {
     return null;
   }
   if (!req.__mcpRolePermissions) {
-    const { storageReadRolePermissions } = require('./controllers/storageDb');
-    req.__mcpRolePermissions = (await storageReadRolePermissions(mcpRoleId)) ?? [];
+    req.__mcpRolePermissions = (await storage.storageReadRolePermissions(mcpRoleId)) ?? [];
   }
   return req.__mcpRolePermissions;
 }
@@ -608,9 +608,8 @@ async function loadMcpDatabasePermissions(req) {
     return null;
   }
   if (!req.__mcpDatabasePermissions) {
-    const { readComplexRolePermissions, resolvePermissionConnectionIds } = require('./controllers/storageDb');
-    req.__mcpDatabasePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
+    req.__mcpDatabasePermissions = await storage.resolvePermissionConnectionIds(
+      (await storage.readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
     );
   }
   return req.__mcpDatabasePermissions;
@@ -621,9 +620,8 @@ async function loadMcpTablePermissions(req) {
     return null;
   }
   if (!req.__mcpTablePermissions) {
-    const { readComplexRolePermissions, resolvePermissionConnectionIds } = require('./controllers/storageDb');
-    req.__mcpTablePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
+    req.__mcpTablePermissions = await storage.resolvePermissionConnectionIds(
+      (await storage.readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
     );
   }
   return req.__mcpTablePermissions;
@@ -648,8 +646,7 @@ async function isMcpConnectionEnabled(connection, req) {
     if (await mcpHasPermission('all-connections', req)) {
       return true;
     }
-    const { storageCheckMcpConnectionAccess } = require('./controllers/storageDb');
-    return storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
+    return storage.storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
   }
   return isMcpEnabledValue(connection.mcpEnabled);
 }
