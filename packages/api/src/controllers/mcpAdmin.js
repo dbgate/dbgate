@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { isProApp } = require('../utility/checkLicense');
 const { loadPermissionsFromRequest, hasPermission } = require('../utility/hasPermission');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { encryptPasswordString, decryptPasswordString } = require('../utility/crypting');
 const storage = require('./storage');
 const {
   MCP_AUTH_MODES,
@@ -27,21 +28,35 @@ async function readStoredConfig() {
 function publicConfig(config, req) {
   let mcpUrl = null;
   let mcpUrlError = null;
+  let token = null;
+  let oauthClientSecret = null;
   try {
     mcpUrl = getMcpResourceUrl(req);
   } catch (error) {
     mcpUrlError = error.message;
   }
+  try {
+    token = decryptPasswordString(config.tokenEncrypted) || null;
+  } catch (error) {
+    token = null;
+  }
+  try {
+    oauthClientSecret = decryptPasswordString(config.oauthClientSecretEncrypted) || null;
+  } catch (error) {
+    oauthClientSecret = null;
+  }
   return {
     enabled: config.enabled,
     authMode: config.authMode,
     hasToken: !!config.tokenHash,
+    token,
     tokenSuffix: config.tokenSuffix,
     tokenGeneratedAt: config.tokenGeneratedAt,
     mcpUrl,
     mcpUrlError,
     oauthClientId: config.oauthClientId,
     hasOAuthClientSecret: !!config.oauthClientSecretHash,
+    oauthClientSecret,
     oauthClientSecretSuffix: config.oauthClientSecretSuffix,
     oauthClientGeneratedAt: config.oauthClientGeneratedAt,
   };
@@ -90,6 +105,7 @@ module.exports = {
     const updated = {
       ...current,
       tokenHash: hashMcpToken(token),
+      tokenEncrypted: encryptPasswordString(token),
       tokenSuffix,
       tokenGeneratedAt,
     };
@@ -117,6 +133,7 @@ module.exports = {
       ...current,
       oauthClientId: clientId,
       oauthClientSecretHash: hashMcpToken(clientSecret),
+      oauthClientSecretEncrypted: encryptPasswordString(clientSecret),
       oauthClientSecretSuffix: clientSecretSuffix,
       oauthClientGeneratedAt: clientGeneratedAt,
     };

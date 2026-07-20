@@ -175,8 +175,27 @@ yarn build:app:local
 yarn start:app:local
 ```
 
+## Running tests
+
+Unit tests (e.g. in `dbgate-tools`):
+```sh
+yarn workspace dbgate-tools test
+```
+
+Integration tests (requires Docker):
+```sh
+cd integration-tests
+yarn test:local                                        # run all tests
+yarn test:local:path __tests__/alter-database.spec.js  # run a single test file
+```
+
+E2E tests (Cypress):
+```sh
+yarn cy:open
+```
+
 ## How to create plugin
-Creating plugin is described in [documentation](https://github.com/dbgate/dbgate/wiki/Plugin-development)
+Creating plugin is described in [documentation](https://docs.dbgate.io/plugin-development)
 
 But it is very simple:
 
