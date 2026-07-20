@@ -9,7 +9,17 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
-## 7.2.1 - not released
+## 7.2.2 - not released
+
+- ADDED: Read-only MCP server support (Community, Docker)
+- ADDED: Advanced MCP server capabilities, including query execution, data modification, and granular access control (Team Premium)
+- FIXED: Filter action buttons not being accessible when no rows match the active filter
+- ADDED: Character encoding selection for decoding binary cell values
+- ADDED: Improved SQL Server to MySQL data type conversion
+- ADDED: Decimal as a PostgreSQL dialect data type option #1490
+- FIXED: MySQL autocomplete for queries containing PARTITION clauses #1500
+
+## 7.2.1
 
 - ADDED: Editable view (Premium)
 - ADDED: MySQL ON UPDATE expression support to column definitions #1170
