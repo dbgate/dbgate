@@ -9,7 +9,7 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
-## 7.2.2 - not released
+## 7.2.3
 
 - ADDED: Read-only MCP server support (Community, Docker)
 - ADDED: Advanced MCP server capabilities, including query execution, data modification, and granular access control (Team Premium)
