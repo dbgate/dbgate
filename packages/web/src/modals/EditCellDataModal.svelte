@@ -9,10 +9,10 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import SelectField from '../forms/SelectField.svelte';
-  import { parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
+  import { parseCellValue, safeJsonParse, stringifyCellValue, hexStringToArray } from 'dbgate-tools';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import { _t } from '../translations';
-  
+
   export let onSave;
   export let value;
 
@@ -24,6 +24,7 @@
   let showDecode = false;
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
+  const originalHexValue = textValue;
 
   onMount(() => {
     editor.getEditor().focus();
@@ -50,7 +51,9 @@
     try {
       parsed = JSON.parse(textValue);
     } catch (err) {
-      showModal(ErrorMessageModal, { message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }) });
+      showModal(ErrorMessageModal, {
+        message: _t('dataGrid.formatJson.invalid', { defaultMessage: 'Not valid JSON' }),
+      });
       return;
     }
     return parsed;
@@ -80,35 +83,21 @@
   <ModalBase {...$$restProps}>
     <div slot="header">{_t('dataGrid.editCellValue', { defaultMessage: 'Edit cell value' })}</div>
 
-    <div class="editor">
-      <AceEditor bind:value={textValue} bind:this={editor} onKeyDown={handleKeyDown} mode={syntaxMode} />
-    </div>
-
-    <div slot="footer" class="footer">
-      <div class="footer-actions">
-        <FormStyledButton
-          value={_t('common.ok', { defaultMessage: 'OK' })}
-          title="Ctrl+Enter"
-          on:click={saveValue}
-        />
-        <FormStyledButton type="button" value={_t('common.cancel', { defaultMessage: 'Cancel' })} on:click={closeCurrentModal} />
-      </div>
-
-      <div class="footer-actions">
-        {#if showDecode}
-          {_t('dataGrid.decode', { defaultMessage: 'Decode:' })}
+    <div class="editor-tools">
+      {#if showDecode}
+        <label class="editor-tool-field">
+          <span>{_t('dataGrid.decode', { defaultMessage: 'Decode:' })}</span>
           <SelectField
             isNative
+            data-testid="EditCellDataModal_decodeMode"
             value={decodeMode}
             on:change={e => {
-              if (!textValue.startsWith('0x')) {
-                textValue = '0x' + Array.from(new TextEncoder().encode(textValue), (item) => item.toString(16).padStart(2, '0')).join('');
-              }
-              if (e.detail)
-              {
-                textValue = new TextDecoder(e.detail).decode(Uint8Array.from(hexStringToArray(textValue.slice(2))));
-              }
               decodeMode = e.detail;
+              textValue = decodeMode
+                ? new TextDecoder(decodeMode).decode(
+                    Uint8Array.from(hexStringToArray(originalHexValue.slice(2)))
+                  )
+                : originalHexValue;
             }}
             options={[
               { value: '', label: '' },
@@ -121,8 +110,25 @@
               { value: 'cp1253', label: 'Windows-1253' },
             ]}
           />
-        {/if}
+        </label>
+      {/if}
 
+      <label class="editor-tool-field">
+        <span>{_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}</span>
+        <SelectField
+          isNative
+          value={syntaxMode}
+          on:change={e => (syntaxMode = e.detail)}
+          options={[
+            { value: 'text', label: _t('dataGrid.codeHighlighting.none', { defaultMessage: 'None (raw text)' }) },
+            { value: 'json', label: 'JSON' },
+            { value: 'html', label: 'HTML' },
+            { value: 'xml', label: 'XML' },
+          ]}
+        />
+      </label>
+
+      <div class="editor-tool-buttons">
         <FormStyledButton
           type="button"
           skipWidth={true}
@@ -135,18 +141,20 @@
           value={_t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
           on:click={handleMinifyJson}
         />
+      </div>
+    </div>
 
-        {_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}
-        <SelectField
-          isNative
-          value={syntaxMode}
-          on:change={e => (syntaxMode = e.detail)}
-          options={[
-            { value: 'text', label: _t('dataGrid.codeHighlighting.none', { defaultMessage: 'None (raw text)' }) },
-            { value: 'json', label: 'JSON' },
-            { value: 'html', label: 'HTML'},
-            { value: 'xml', label: 'XML' },
-          ]}
+    <div class="editor">
+      <AceEditor bind:value={textValue} bind:this={editor} onKeyDown={handleKeyDown} mode={syntaxMode} />
+    </div>
+
+    <div slot="footer" class="footer">
+      <div class="footer-actions">
+        <FormStyledButton value={_t('common.ok', { defaultMessage: 'OK' })} title="Ctrl+Enter" on:click={saveValue} />
+        <FormStyledButton
+          type="button"
+          value={_t('common.cancel', { defaultMessage: 'Cancel' })}
+          on:click={closeCurrentModal}
         />
       </div>
     </div>
@@ -160,14 +168,49 @@
     width: 40vw;
   }
 
+  .editor-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-right: -15px;
+    margin-bottom: 10px;
+    margin-left: -15px;
+    padding-right: 15px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    border-bottom: var(--theme-modal-border);
+  }
+
+  .editor-tool-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .editor-tool-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
   .footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   .footer-actions {
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  .editor-tools :global(select) {
+    box-sizing: border-box;
+    height: 32px;
+    padding: 5px 8px;
   }
 </style>
