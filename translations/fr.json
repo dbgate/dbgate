@@ -806,6 +806,7 @@
   "datagrid.structure.notLoaded": "Aucune structure n'a été chargée, la table n'existe probablement pas dans la base de données actuelle",
   "datagrid.structure.waiting": "En attente de la structure",
   "datagrid.useMacro": "Utiliser la macro",
+  "dataGrid.decode": "Décoder: ",
   "dbKeysTreeNode.deleteBranch": "Supprimer la branche",
   "dbKeysTreeNode.deleteBranchConfirm": "Vraiment supprimer la branche {branch} avec toutes les clés ?",
   "dbKeysTreeNode.deleteKey": "Supprimer la clé",
