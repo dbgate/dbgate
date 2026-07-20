@@ -45,4 +45,20 @@ module.exports = {
   async writeQueryHistory({ data }, req) {
     return null;
   },
+
+  async storageReadRolePermissions(roleId) {
+    return [];
+  },
+
+  async readComplexRolePermissions(roleId, permissionType) {
+    return [];
+  },
+
+  async resolvePermissionConnectionIds(permissions) {
+    return permissions ?? [];
+  },
+
+  async storageCheckMcpConnectionAccess(req, conid) {
+    return false;
+  },
 };
