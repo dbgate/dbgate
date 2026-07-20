@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import iconv from 'iconv-lite';
 
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
@@ -9,7 +10,7 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import SelectField from '../forms/SelectField.svelte';
-  import { parseCellValue, safeJsonParse, stringifyCellValue, hexStringToArray } from 'dbgate-tools';
+  import { arrayToHexString, hexStringToArray, parseCellValue, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import { _t } from '../translations';
 
@@ -21,6 +22,7 @@
   let editor;
   let syntaxMode = 'text';
   let decodeMode = '';
+  let decodedOriginalValue = null;
   let showDecode = false;
 
   let textValue = stringifyCellValue(value, 'multilineEditorIntent', dataEditorTypesBehaviour).value;
@@ -74,7 +76,14 @@
   }
 
   function saveValue() {
-    onSave(parseCellValue(textValue, dataEditorTypesBehaviour));
+    let valueToSave = textValue;
+    if (decodeMode) {
+      valueToSave =
+        textValue === decodedOriginalValue
+          ? originalHexValue
+          : `0x${arrayToHexString(iconv.encode(textValue, decodeMode))}`;
+    }
+    onSave(parseCellValue(valueToSave, dataEditorTypesBehaviour));
     closeCurrentModal();
   }
 </script>
@@ -85,7 +94,7 @@
 
     <div class="editor-tools">
       {#if showDecode}
-        <label class="editor-tool-field">
+        <div class="editor-tool-field">
           <span>{_t('dataGrid.decode', { defaultMessage: 'Decode:' })}</span>
           <SelectField
             isNative
@@ -98,6 +107,7 @@
                     Uint8Array.from(hexStringToArray(originalHexValue.slice(2)))
                   )
                 : originalHexValue;
+              decodedOriginalValue = decodeMode ? textValue : null;
             }}
             options={[
               { value: '', label: '' },
@@ -110,10 +120,10 @@
               { value: 'cp1253', label: 'Windows-1253' },
             ]}
           />
-        </label>
+        </div>
       {/if}
 
-      <label class="editor-tool-field">
+      <div class="editor-tool-field">
         <span>{_t('dataGrid.codeHighlighting', { defaultMessage: 'Code highlighting:' })}</span>
         <SelectField
           isNative
@@ -126,18 +136,20 @@
             { value: 'xml', label: 'XML' },
           ]}
         />
-      </label>
+      </div>
 
       <div class="editor-tool-buttons">
         <FormStyledButton
           type="button"
           skipWidth={true}
+          disabled={!!decodeMode}
           value={_t('dataGrid.formatJson', { defaultMessage: 'Format JSON' })}
           on:click={handleFormatJson}
         />
         <FormStyledButton
           type="button"
           skipWidth={true}
+          disabled={!!decodeMode}
           value={_t('dataGrid.minifyJson', { defaultMessage: 'Minify JSON' })}
           on:click={handleMinifyJson}
         />
@@ -145,7 +157,15 @@
     </div>
 
     <div class="editor">
-      <AceEditor bind:value={textValue} bind:this={editor} onKeyDown={handleKeyDown} mode={syntaxMode} />
+      {#key !!decodeMode}
+        <AceEditor
+          bind:value={textValue}
+          bind:this={editor}
+          onKeyDown={handleKeyDown}
+          mode={syntaxMode}
+          readOnly={!!decodeMode}
+        />
+      {/key}
     </div>
 
     <div slot="footer" class="footer">
