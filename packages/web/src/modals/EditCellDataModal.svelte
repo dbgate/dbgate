@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import iconv from 'iconv-lite';
+  import { Buffer } from 'buffer';
 
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
@@ -103,9 +104,7 @@
             on:change={e => {
               decodeMode = e.detail;
               textValue = decodeMode
-                ? new TextDecoder(decodeMode).decode(
-                    Uint8Array.from(hexStringToArray(originalHexValue.slice(2)))
-                  )
+                ? iconv.decode(Buffer.from(hexStringToArray(originalHexValue.slice(2))), decodeMode)
                 : originalHexValue;
               decodedOriginalValue = decodeMode ? textValue : null;
             }}
