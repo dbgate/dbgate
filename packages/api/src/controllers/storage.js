@@ -61,4 +61,8 @@ module.exports = {
   async storageCheckMcpConnectionAccess(req, conid) {
     return false;
   },
+
+  getMcpAuthProvider() {
+    return null;
+  },
 };
