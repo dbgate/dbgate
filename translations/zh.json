@@ -806,7 +806,7 @@
   "datagrid.structure.notLoaded": "未加载任何结构，可能当前数据库中不存在该表",
   "datagrid.structure.waiting": "正在等待结构",
   "datagrid.useMacro": "使用宏",
-  "datagrid.decode": "解码: ",
+  "dataGrid.decode": "解码: ",
   "dbKeysTreeNode.deleteBranch": "删除分支",
   "dbKeysTreeNode.deleteBranchConfirm": "确定删除分支 {branch} 及其所有键吗？",
   "dbKeysTreeNode.deleteKey": "删除键",
