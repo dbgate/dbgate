@@ -17,15 +17,17 @@ function isEnabledValue(value) {
 }
 
 function sanitizeMcpConfig(config) {
-  const authMode = MCP_AUTH_MODES.includes(config?.authMode) ? config.authMode : 'token';
+  const authMode = MCP_AUTH_MODES.includes(config?.authMode) ? config.authMode : 'none';
   return {
     enabled: isEnabledValue(config?.enabled),
     authMode,
     tokenHash: config?.tokenHash || null,
+    tokenEncrypted: config?.tokenEncrypted || null,
     tokenSuffix: config?.tokenSuffix || null,
     tokenGeneratedAt: config?.tokenGeneratedAt || null,
     oauthClientId: config?.oauthClientId || null,
     oauthClientSecretHash: config?.oauthClientSecretHash || null,
+    oauthClientSecretEncrypted: config?.oauthClientSecretEncrypted || null,
     oauthClientSecretSuffix: config?.oauthClientSecretSuffix || null,
     oauthClientGeneratedAt: config?.oauthClientGeneratedAt || null,
   };
@@ -42,10 +44,12 @@ async function readMcpConfig() {
     enabled: !!token,
     authMode: 'token',
     tokenHash: token ? hashMcpToken(token) : null,
+    tokenEncrypted: null,
     tokenSuffix: token ? token.slice(-6) : null,
     tokenGeneratedAt: null,
     oauthClientId: null,
     oauthClientSecretHash: null,
+    oauthClientSecretEncrypted: null,
     oauthClientSecretSuffix: null,
     oauthClientGeneratedAt: null,
   };
