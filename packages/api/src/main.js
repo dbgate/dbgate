@@ -31,6 +31,7 @@ const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
 const teamFiles = require('./controllers/teamFiles');
+const mcpAdmin = require('./controllers/mcpAdmin');
 const mcp = require('./mcp');
 
 const onFinished = require('on-finished');
@@ -95,6 +96,7 @@ function start() {
   // console.log('process.argv', process.argv);
 
   const app = express();
+  app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
   const server = http.createServer(app);
 
@@ -182,9 +184,9 @@ function start() {
   app.get(getExpressPath('/.well-known/oauth-protected-resource/mcp'), mcp.handleOAuthProtectedResourceMetadata);
   app.get(getExpressPath('/.well-known/oauth-authorization-server'), mcp.handleOAuthAuthorizationServerMetadata);
   app.get(getExpressPath('/.well-known/openid-configuration'), mcp.handleOAuthAuthorizationServerMetadata);
-  app.post(getExpressPath('/mcp/oauth/register'), mcp.handleOAuthRegister);
+  app.get(getExpressPath('/authorize'), mcp.handleOAuthAuthorize);
+  app.post(getExpressPath('/token'), mcp.handleOAuthToken);
   app.get(getExpressPath('/mcp/oauth/authorize'), mcp.handleOAuthAuthorize);
-  app.post(getExpressPath('/mcp/oauth/authorize'), mcp.handleOAuthAuthorize);
   app.post(getExpressPath('/mcp/oauth/token'), mcp.handleOAuthToken);
   app.post(getExpressPath('/mcp'), mcp.handleMcpRequest);
 
@@ -281,6 +283,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/cloud', cloud);
   useController(app, electron, '/team-files', teamFiles);
   useController(app, electron, '/rest-connections', restConnections);
+  useController(app, electron, '/mcp-admin', mcpAdmin);
 }
 
 function setElectronSender(electronSender) {

@@ -210,6 +210,15 @@ function waitStructure() {
   });
 }
 
+async function handleGetStructure({ msgid }) {
+  await waitStructure();
+  process.send({
+    msgtype: 'response',
+    msgid,
+    structure: serializeJsTypesForJsonStringify(analysedStructure),
+  });
+}
+
 function resolveAnalysedPromises() {
   for (const [resolve] of afterAnalyseCallbacks) {
     resolve();
@@ -705,6 +714,7 @@ const messageHandlers = {
   sqlSelect: handleSqlSelect,
   exportKeys: handleExportKeys,
   schemaList: handleSchemaList,
+  getStructure: handleGetStructure,
   executeSessionQuery: handleExecuteSessionQuery,
   evalJsonScript: handleEvalJsonScript,
   multiCallMethod: handleMultiCallMethod,

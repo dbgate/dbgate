@@ -247,6 +247,15 @@ module.exports = {
     return newOpened;
   },
 
+  async ensureStructureLoaded(conid, database) {
+    const conn = await this.ensureOpened(conid, database);
+    if (conn.isApiConnection || !conn.subprocess) {
+      return conn.structure ?? {};
+    }
+    const response = await this.sendRequest(conn, { msgtype: 'getStructure' });
+    return response.structure ?? conn.structure ?? {};
+  },
+
   /** @param {import('dbgate-types').OpenedDatabaseConnection} conn */
   sendRequest(conn, message, additionalData = {}) {
     const msgid = crypto.randomUUID();

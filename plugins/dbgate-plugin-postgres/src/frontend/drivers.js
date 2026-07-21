@@ -67,6 +67,7 @@ const dialect = {
     'macaddr',
     'macaddr8',
     'money',
+    'decimal',
     'numeric(10,2)',
     'path',
     'pg_lsn',

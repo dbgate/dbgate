@@ -3,25 +3,24 @@ const jwt = require('jsonwebtoken');
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
+const storage = require('./controllers/storage');
 const { maskConnection } = require('./utility/crypting');
 const { isProApp } = require('./utility/checkLicense');
 const requireEngineDriver = require('./utility/requireEngineDriver');
-const {
-  storageCheckMcpConnectionAccess,
-  storageReadRolePermissions,
-  readComplexRolePermissions,
-  resolvePermissionConnectionIds,
-} = require('./controllers/storageDb');
 const {
   getDatabasePermissionRole,
   getTablePermissionRole,
   getTablePermissionRoleLevelIndex,
 } = require('./utility/hasPermission');
-const authController = require('./controllers/auth');
-const { getAuthProviders, getDefaultAuthProvider } = require('./auth/authProvider');
 const { getTokenSecret, getTokenLifetime } = require('./auth/authCommon');
 const { markTokenAsLoggedIn } = require('./utility/loginchecker');
 const getExpressPath = require('./utility/getExpressPath');
+const {
+  readMcpConfig,
+  getPublicBaseUrl,
+  getMcpResourceUrl,
+  safeTokenHashEquals,
+} = require('./utility/mcpAuth');
 
 const protocolVersion = '2025-06-18';
 const mcpRoleId = -4;
@@ -29,7 +28,6 @@ const objectTypes = ['tables', 'collections', 'views', 'procedures', 'functions'
 const defaultDataLimit = 100;
 const maxDataLimit = 1000;
 const oauthAuthorizationCodes = new Map();
-const oauthClients = new Map();
 const oauthCodeLifetimeMs = 5 * 60 * 1000;
 const filterOperators = ['eq', 'ne', '<', '<=', '>', '>=', 'contains', 'startsWith', 'endsWith', 'in', 'isNull', 'isNotNull'];
 const filterSyntaxDescription = [
@@ -55,18 +53,6 @@ function createOAuthId() {
   return base64Url(crypto.randomBytes(32));
 }
 
-function getPublicBaseUrl(req) {
-  const forwardedProto = req.headers?.['x-forwarded-proto']?.split(',')?.[0]?.trim();
-  const forwardedHost = req.headers?.['x-forwarded-host']?.split(',')?.[0]?.trim();
-  const protocol = forwardedProto || req.protocol || 'http';
-  const host = forwardedHost || req.headers?.host || `localhost:${process.env.PORT || 3000}`;
-  return `${protocol}://${host}`;
-}
-
-function getMcpResourceUrl(req) {
-  return `${getPublicBaseUrl(req)}${getExpressPath('/mcp')}`;
-}
-
 function getOAuthAuthorizationServerUrl(req) {
   return getPublicBaseUrl(req);
 }
@@ -79,6 +65,25 @@ function getOAuthProtectedResourceMetadataUrl(req) {
   return getOAuthEndpoint(req, '/.well-known/oauth-protected-resource');
 }
 
+async function requireOAuthMode(res) {
+  let config;
+  try {
+    config = await readMcpConfig();
+  } catch (err) {
+    res.status(500).json({ apiErrorMessage: 'DBGM-00000 Could not load MCP authentication configuration' });
+    return false;
+  }
+  if (!config.enabled) {
+    res.status(403).json({ apiErrorMessage: 'DBGM-00000 MCP server is disabled' });
+    return false;
+  }
+  if (config.authMode != 'oauth') {
+    res.status(404).json({ apiErrorMessage: 'DBGM-00000 MCP OAuth is not enabled' });
+    return false;
+  }
+  return true;
+}
+
 function isSafeRedirectUri(redirectUri) {
   try {
     const url = new URL(redirectUri);
@@ -88,17 +93,37 @@ function isSafeRedirectUri(redirectUri) {
   }
 }
 
-function assertValidOAuthRedirect(clientId, redirectUri) {
-  const client = oauthClients.get(clientId);
-  if (client) {
-    if (!client.redirect_uris?.includes(redirectUri)) {
-      throw new Error('DBGM-00000 Invalid redirect_uri');
-    }
-    return;
-  }
-  if (!clientId || !isSafeRedirectUri(redirectUri)) {
+function assertValidOAuthRedirect(clientId, redirectUri, config) {
+  if (
+    !config.oauthClientId ||
+    !config.oauthClientSecretHash ||
+    clientId !== config.oauthClientId ||
+    !isSafeRedirectUri(redirectUri)
+  ) {
     throw new Error('DBGM-00000 Invalid OAuth client');
   }
+}
+
+function getOAuthClientCredentials(req, params) {
+  const authorization = req.headers?.authorization;
+  if (authorization?.startsWith('Basic ')) {
+    try {
+      const decoded = Buffer.from(authorization.slice(6), 'base64').toString('utf8');
+      const separator = decoded.indexOf(':');
+      if (separator >= 0) {
+        return {
+          clientId: decodeURIComponent(decoded.slice(0, separator)),
+          clientSecret: decodeURIComponent(decoded.slice(separator + 1)),
+        };
+      }
+    } catch (error) {
+      return {};
+    }
+  }
+  return {
+    clientId: params.client_id,
+    clientSecret: params.client_secret,
+  };
 }
 
 function pruneOAuthAuthorizationCodes() {
@@ -108,73 +133,6 @@ function pruneOAuthAuthorizationCodes() {
       oauthAuthorizationCodes.delete(code);
     }
   }
-}
-
-function htmlEscape(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function renderOAuthAuthorizePage(params, error = null) {
-  const providers = getAuthProviders().filter(provider => !provider.skipInList);
-  const defaultProvider = params.amoid || getDefaultAuthProvider()?.amoid || providers[0]?.amoid || 'none';
-  const hiddenFields = [
-    'response_type',
-    'client_id',
-    'redirect_uri',
-    'scope',
-    'state',
-    'code_challenge',
-    'code_challenge_method',
-    'resource',
-  ]
-    .map(name => `<input type="hidden" name="${name}" value="${htmlEscape(params[name])}" />`)
-    .join('\n');
-  const providerOptions = providers
-    .map(
-      provider =>
-        `<option value="${htmlEscape(provider.amoid)}"${provider.amoid === defaultProvider ? ' selected' : ''}>${htmlEscape(
-          provider.name || provider.amoid
-        )}</option>`
-    )
-    .join('\n');
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>DbGate MCP Login</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 40px; max-width: 420px; }
-    label { display: block; margin-top: 16px; }
-    input, select, button { box-sizing: border-box; font: inherit; width: 100%; padding: 8px; }
-    button { margin-top: 20px; }
-    .error { color: #b00020; margin: 16px 0; }
-  </style>
-</head>
-<body>
-  <h1>DbGate MCP Login</h1>
-  <p>Sign in to allow this MCP client to use DbGate with your account.</p>
-  ${error ? `<div class="error">${htmlEscape(error)}</div>` : ''}
-  <form method="post" action="${htmlEscape(getExpressPath('/mcp/oauth/authorize'))}">
-    ${hiddenFields}
-    <label>Provider
-      <select name="amoid">${providerOptions}</select>
-    </label>
-    <label>Login
-      <input name="login" autocomplete="username" autofocus />
-    </label>
-    <label>Password
-      <input name="password" type="password" autocomplete="current-password" />
-    </label>
-    <button type="submit">Authorize MCP client</button>
-  </form>
-</body>
-</html>`;
 }
 
 function createConnectionDatabaseInputSchema() {
@@ -640,7 +598,7 @@ async function loadMcpRolePermissions(req) {
     return null;
   }
   if (!req.__mcpRolePermissions) {
-    req.__mcpRolePermissions = (await storageReadRolePermissions(mcpRoleId)) ?? [];
+    req.__mcpRolePermissions = (await storage.storageReadRolePermissions(mcpRoleId)) ?? [];
   }
   return req.__mcpRolePermissions;
 }
@@ -650,8 +608,8 @@ async function loadMcpDatabasePermissions(req) {
     return null;
   }
   if (!req.__mcpDatabasePermissions) {
-    req.__mcpDatabasePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
+    req.__mcpDatabasePermissions = await storage.resolvePermissionConnectionIds(
+      (await storage.readComplexRolePermissions(mcpRoleId, 'role_databases')) ?? []
     );
   }
   return req.__mcpDatabasePermissions;
@@ -662,8 +620,8 @@ async function loadMcpTablePermissions(req) {
     return null;
   }
   if (!req.__mcpTablePermissions) {
-    req.__mcpTablePermissions = await resolvePermissionConnectionIds(
-      (await readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
+    req.__mcpTablePermissions = await storage.resolvePermissionConnectionIds(
+      (await storage.readComplexRolePermissions(mcpRoleId, 'role_tables')) ?? []
     );
   }
   return req.__mcpTablePermissions;
@@ -688,7 +646,7 @@ async function isMcpConnectionEnabled(connection, req) {
     if (await mcpHasPermission('all-connections', req)) {
       return true;
     }
-    return storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
+    return storage.storageCheckMcpConnectionAccess(req, getMcpConnectionId(connection));
   }
   return isMcpEnabledValue(connection.mcpEnabled);
 }
@@ -1067,9 +1025,13 @@ async function loadTableInfo(args, req) {
 }
 
 async function loadMcpStructure(args, req) {
-  const structure = process.env.STORAGE_DATABASE
+  let structure = process.env.STORAGE_DATABASE
     ? await databaseConnections.structure({ conid: args.conid, database: args.database }, req)
     : (await databaseConnections.ensureOpened(args.conid, args.database))?.structure;
+  const hasLoadedObjects = objectTypes.some(objectType => (structure?.[objectType]?.length ?? 0) > 0);
+  if (!hasLoadedObjects) {
+    structure = await databaseConnections.ensureStructureLoaded(args.conid, args.database);
+  }
   return filterMcpStructure(args.conid, args.database, structure ?? {}, req);
 }
 
@@ -1594,52 +1556,40 @@ async function handleMcpRequest(req, res) {
   return res.status(400).json({ apiErrorMessage: 'DBGM-00000 Unsupported MCP message' });
 }
 
-function handleOAuthProtectedResourceMetadata(req, res) {
-  return res.json({
-    resource: getMcpResourceUrl(req),
-    authorization_servers: [getOAuthAuthorizationServerUrl(req)],
-    bearer_methods_supported: ['header'],
-  });
-}
-
-function handleOAuthAuthorizationServerMetadata(req, res) {
-  return res.json({
-    issuer: getOAuthAuthorizationServerUrl(req),
-    authorization_endpoint: getOAuthEndpoint(req, '/mcp/oauth/authorize'),
-    token_endpoint: getOAuthEndpoint(req, '/mcp/oauth/token'),
-    registration_endpoint: getOAuthEndpoint(req, '/mcp/oauth/register'),
-    response_types_supported: ['code'],
-    grant_types_supported: ['authorization_code'],
-    code_challenge_methods_supported: ['S256'],
-    token_endpoint_auth_methods_supported: ['none'],
-    scopes_supported: ['mcp'],
-  });
-}
-
-function handleOAuthRegister(req, res) {
-  const redirectUris = Array.isArray(req.body?.redirect_uris) ? req.body.redirect_uris : [];
-  if (redirectUris.length === 0 || redirectUris.some(uri => !isSafeRedirectUri(uri))) {
-    return res.status(400).json({
-      error: 'invalid_redirect_uri',
-      error_description: 'DBGM-00000 redirect_uris must contain localhost HTTP or HTTPS URLs',
+async function handleOAuthProtectedResourceMetadata(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  try {
+    return res.json({
+      resource: getMcpResourceUrl(req),
+      authorization_servers: [getOAuthAuthorizationServerUrl(req)],
+      bearer_methods_supported: ['header'],
     });
+  } catch (error) {
+    return res.status(500).json({ apiErrorMessage: withDbgmCode(error.message) });
   }
+}
 
-  const clientId = createOAuthId();
-  const client = {
-    client_id: clientId,
-    client_id_issued_at: Math.floor(Date.now() / 1000),
-    client_name: req.body?.client_name || 'MCP client',
-    redirect_uris: redirectUris,
-    grant_types: ['authorization_code'],
-    response_types: ['code'],
-    token_endpoint_auth_method: 'none',
-  };
-  oauthClients.set(clientId, client);
-  return res.status(201).json(client);
+async function handleOAuthAuthorizationServerMetadata(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  try {
+    return res.json({
+      issuer: getOAuthAuthorizationServerUrl(req),
+      authorization_endpoint: getOAuthEndpoint(req, '/authorize'),
+      token_endpoint: getOAuthEndpoint(req, '/token'),
+      response_types_supported: ['code'],
+      grant_types_supported: ['authorization_code'],
+      code_challenge_methods_supported: ['S256'],
+      token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
+      scopes_supported: ['mcp'],
+    });
+  } catch (error) {
+    return res.status(500).json({ apiErrorMessage: withDbgmCode(error.message) });
+  }
 }
 
 async function handleOAuthAuthorize(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  const config = await readMcpConfig();
   const params = {
     ...req.query,
     ...req.body,
@@ -1652,43 +1602,18 @@ async function handleOAuthAuthorize(req, res) {
     if (!params.redirect_uri || !params.client_id) {
       throw new Error('DBGM-00000 Missing OAuth client parameters');
     }
-    assertValidOAuthRedirect(params.client_id, params.redirect_uri);
+    assertValidOAuthRedirect(params.client_id, params.redirect_uri, config);
     if (!params.code_challenge || params.code_challenge_method !== 'S256') {
       throw new Error('DBGM-00000 PKCE S256 code challenge is required');
     }
-
-    if (req.method === 'GET') {
-      return res.type('html').send(renderOAuthAuthorizePage(params));
+    const resource = getMcpResourceUrl(req);
+    if (params.resource && params.resource !== resource) {
+      throw new Error('DBGM-00000 Invalid OAuth resource');
     }
-
-    const loginResult = await authController.login(
-      {
-        amoid: params.amoid || getDefaultAuthProvider()?.amoid,
-        login: params.login,
-        password: params.password,
-      },
-      req
-    );
-    if (!loginResult?.accessToken) {
-      return res.status(401).type('html').send(renderOAuthAuthorizePage(params, withDbgmCode(loginResult?.error || 'Login failed')));
-    }
-
-    const payload = jwt.decode(loginResult.accessToken) || {};
-    const resource = params.resource || getMcpResourceUrl(req);
-    const accessToken = jwt.sign(
-      {
-        ...payload,
-        aud: resource,
-      },
-      getTokenSecret(),
-      { expiresIn: getTokenLifetime() }
-    );
-    markTokenAsLoggedIn(payload.licenseUid, accessToken);
 
     pruneOAuthAuthorizationCodes();
     const code = createOAuthId();
     oauthAuthorizationCodes.set(code, {
-      accessToken,
       clientId: params.client_id,
       redirectUri: params.redirect_uri,
       codeChallenge: params.code_challenge,
@@ -1703,9 +1628,6 @@ async function handleOAuthAuthorize(req, res) {
     }
     return res.redirect(redirectUrl.toString());
   } catch (err) {
-    if (req.method === 'GET') {
-      return res.status(400).type('html').send(renderOAuthAuthorizePage(params, withDbgmCode(err.message)));
-    }
     return res.status(400).json({
       error: 'invalid_request',
       error_description: withDbgmCode(err.message),
@@ -1713,7 +1635,9 @@ async function handleOAuthAuthorize(req, res) {
   }
 }
 
-function handleOAuthToken(req, res) {
+async function handleOAuthToken(req, res) {
+  if (!(await requireOAuthMode(res))) return;
+  const config = await readMcpConfig();
   const params = {
     ...req.body,
     ...req.query,
@@ -1722,6 +1646,17 @@ function handleOAuthToken(req, res) {
     return res.status(400).json({
       error: 'unsupported_grant_type',
       error_description: 'DBGM-00000 Unsupported grant_type',
+    });
+  }
+
+  const credentials = getOAuthClientCredentials(req, params);
+  if (
+    credentials.clientId !== config.oauthClientId ||
+    !safeTokenHashEquals(credentials.clientSecret, config.oauthClientSecretHash)
+  ) {
+    return res.status(401).json({
+      error: 'invalid_client',
+      error_description: 'DBGM-00000 Invalid OAuth client credentials',
     });
   }
 
@@ -1734,7 +1669,7 @@ function handleOAuthToken(req, res) {
       error_description: 'DBGM-00000 Invalid or expired authorization code',
     });
   }
-  if (codeData.clientId !== params.client_id || codeData.redirectUri !== params.redirect_uri) {
+  if (codeData.clientId !== credentials.clientId || codeData.redirectUri !== params.redirect_uri) {
     return res.status(400).json({
       error: 'invalid_grant',
       error_description: 'DBGM-00000 Authorization code was issued for a different client',
@@ -1747,8 +1682,24 @@ function handleOAuthToken(req, res) {
     });
   }
 
+  const licenseUid = `mcp-oauth:${credentials.clientId}`;
+  const accessToken = jwt.sign(
+    {
+      amoid: 'mcp',
+      roleId: mcpRoleId,
+      login: 'mcp-oauth',
+      licenseUid,
+      tokenUse: 'mcp',
+      oauthClientId: credentials.clientId,
+      aud: codeData.resource,
+    },
+    getTokenSecret(),
+    { expiresIn: getTokenLifetime() }
+  );
+  markTokenAsLoggedIn(licenseUid, accessToken);
+
   return res.json({
-    access_token: codeData.accessToken,
+    access_token: accessToken,
     token_type: 'Bearer',
     expires_in: 24 * 60 * 60,
     scope: 'mcp',
@@ -1759,7 +1710,6 @@ module.exports = {
   handleMcpRequest,
   handleOAuthProtectedResourceMetadata,
   handleOAuthAuthorizationServerMetadata,
-  handleOAuthRegister,
   handleOAuthAuthorize,
   handleOAuthToken,
   getOAuthProtectedResourceMetadataUrl,
