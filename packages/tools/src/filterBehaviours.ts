@@ -48,6 +48,8 @@ export const mongoFilterBehaviour: FilterBehaviour = {
   allowNumberDualTesting: true,
   allowObjectIdTesting: true,
   allowHexString: true,
+
+  passBooleans: true,
 };
 
 export const evalFilterBehaviour: FilterBehaviour = {
