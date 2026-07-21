@@ -124,6 +124,73 @@ describe('Team edition tests', () => {
     cy.themeshot('auditlog');
   });
 
+  it('Configures MCP authentication and rotates the token', () => {
+    cy.intercept('POST', '**/mcp-admin/update-config').as('updateMcpConfig');
+    cy.intercept('POST', '**/mcp-admin/generate-token').as('generateMcpToken');
+    cy.intercept('POST', '**/mcp-admin/generate-oauth-client').as('generateMcpOauthClient');
+
+    cy.testid('LoginPage_linkAdmin').click();
+    cy.testid('LoginPage_password').type('adminpwd');
+    cy.testid('LoginPage_submitLogin').click();
+
+    cy.testid('AdminMenuWidget_itemMcp').click();
+    cy.testid('AdminMcpTab_allowMcp').check();
+    cy.wait('@updateMcpConfig').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_mcpUrl').should('have.value', 'http://localhost:3000/mcp');
+    cy.testid('AdminMcpTab_authMode').should('have.value', 'none');
+    cy.testid('AdminMcpTab_authMode').select('token');
+    cy.wait('@updateMcpConfig').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_generateToken').should('not.be.disabled').click();
+    cy.wait('@generateMcpToken').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_generatedToken')
+      .invoke('val')
+      .should('match', /^dbgate_mcp_[A-Za-z0-9_-]+$/);
+    cy.themeshot('mcp-token');
+    cy.testid('AdminMcpTab_copyToken').click();
+    cy.contains('MCP token copied to clipboard');
+    cy.testid('AdminMcpTab_closeToken').should('not.exist');
+
+    cy.reload();
+    cy.testid('AdminMcpTab_generatedToken')
+      .invoke('val')
+      .should('match', /^dbgate_mcp_[A-Za-z0-9_-]+$/);
+
+    cy.testid('AdminMcpTab_authMode').select('oauth');
+    cy.wait('@updateMcpConfig').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_generateOAuthClient').should('not.be.disabled').click();
+    cy.wait('@generateMcpOauthClient').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_oauthClientId')
+      .invoke('val')
+      .should('match', /^dbgate_mcp_client_[A-Za-z0-9_-]+$/);
+    cy.testid('AdminMcpTab_oauthClientSecret')
+      .invoke('val')
+      .should('match', /^dbgate_mcp_secret_[A-Za-z0-9_-]+$/);
+    cy.themeshot('mcp-oauth-client');
+    cy.testid('AdminMcpTab_oauthClientSecret').should('have.attr', 'type', 'text');
+    cy.testid('AdminMcpTab_copyOAuthClientId').click();
+    cy.contains('OAuth Client ID copied to clipboard');
+    cy.testid('AdminMcpTab_copyOAuthClientSecret').click();
+    cy.contains('OAuth Client Secret copied to clipboard');
+    cy.testid('AdminMcpTab_closeOAuthClientSecret').should('not.exist');
+    cy.reload();
+    cy.testid('AdminMcpTab_oauthClientId').should('exist');
+    cy.testid('AdminMcpTab_oauthClientSecret')
+      .invoke('val')
+      .should('match', /^dbgate_mcp_secret_[A-Za-z0-9_-]+$/);
+    cy.testid('AdminMcpTab_oauthClientSecret').should('have.attr', 'type', 'password');
+    cy.testid('AdminMcpTab_toggleOAuthClientSecret').click();
+    cy.testid('AdminMcpTab_oauthClientSecret').should('have.attr', 'type', 'text');
+    cy.testid('AdminMcpTab_authMode').select('none');
+    cy.wait('@updateMcpConfig').its('response.statusCode').should('eq', 200);
+    cy.contains('MCP is accessible without authentication');
+    cy.testid('AdminMcpTab_authMode').select('token');
+    cy.wait('@updateMcpConfig').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_generateToken').should('not.be.disabled').click();
+    cy.wait('@generateMcpToken').its('response.statusCode').should('eq', 200);
+    cy.testid('AdminMcpTab_generatedToken').should('exist');
+    cy.testid('AdminMcpTab_allowMcp').uncheck();
+  });
+
   it('Edit database permissions', () => {
     cy.testid('LoginPage_linkAdmin').click();
     cy.testid('LoginPage_password').type('adminpwd');
