@@ -108,12 +108,21 @@ function ensureTestApiDependencies() {
   }
 
   const installCommand = isWindows ? 'cmd.exe' : 'yarn';
-  const installArgs = isWindows ? ['/c', 'yarn install --silent'] : ['install', '--silent'];
-  const result = spawnSync(installCommand, installArgs, {
-    cwd: testApiDir,
-    stdio: 'inherit',
-    env: process.env,
-  });
+  const installDependencies = force => {
+    const installArgs = isWindows
+      ? ['/c', `yarn install --silent${force ? ' --force' : ''}`]
+      : ['install', '--silent', ...(force ? ['--force'] : [])];
+    return spawnSync(installCommand, installArgs, {
+      cwd: testApiDir,
+      stdio: 'inherit',
+      env: process.env,
+    });
+  };
+
+  let result = installDependencies(false);
+  if (result.status !== 0) {
+    result = installDependencies(true);
+  }
 
   if (result.status !== 0) {
     throw new Error('DBGM-00307 Failed to install test-api dependencies');
