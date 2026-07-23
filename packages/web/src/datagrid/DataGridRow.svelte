@@ -78,6 +78,7 @@
 <tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode} row-color-${rowIndex % 6}`}>
   <RowHeaderCell
     {rowIndex}
+    {rowHeight}
     onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
     extraIcon={overlayDefinition ? OVERLAY_STATUS_ICONS[rowStatus.status] : null}
     extraIconTooltip={overlayDefinition ? OVERLAY_STATUS_TOOLTIPS[rowStatus.status] : null}
@@ -99,6 +100,7 @@
     {:else}
       <DataGridCell
         {rowIndex}
+        {rowHeight}
         {rowData}
         {col}
         {conid}
