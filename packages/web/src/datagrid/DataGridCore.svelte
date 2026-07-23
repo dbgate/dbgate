@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
   const HORIZONTAL_SCROLL_END_PADDING = 64;
+  const HORIZONTAL_SCROLLBAR_HEIGHT = 20;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
@@ -1315,7 +1316,7 @@
 
   $: headerColWidth = 40;
 
-  $: gridScrollAreaHeight = containerHeight - 2 * rowHeight;
+  $: gridScrollAreaHeight = containerHeight - (display?.filterable ? 2 : 1) * rowHeight - HORIZONTAL_SCROLLBAR_HEIGHT;
   $: gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
   $: visibleRowCountUpperBound =
