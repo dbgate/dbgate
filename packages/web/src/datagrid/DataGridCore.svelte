@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
   const HORIZONTAL_SCROLL_END_PADDING = 64;
-  const HORIZONTAL_SCROLLBAR_HEIGHT = 20;
+  const HORIZONTAL_SCROLLBAR_HEIGHT = 16;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
@@ -2677,7 +2677,7 @@
     left: 0;
     top: 0;
     right: 0;
-    bottom: 20px;
+    bottom: 16px;
     overflow-x: scroll;
     overflow-y: hidden;
     scrollbar-width: none;
