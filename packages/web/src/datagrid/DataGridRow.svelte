@@ -88,6 +88,7 @@
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] && isCellEditable(col)}
       <InplaceEditor
         width={col.width}
+        {rowHeight}
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         cellValue={rowData[col.uniqueName]}
