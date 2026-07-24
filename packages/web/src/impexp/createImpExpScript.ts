@@ -63,7 +63,7 @@ export function extractShellConnection(connection, database) {
     };
   }
 
-  return config.allowShellConnection
+  return config.allowShellConnection && !config.storageDatabase
     ? {
         ..._.omitBy(
           _.omit(connection, ['_id', 'displayName', 'databases', 'connectionColor', 'status', 'unsaved']),
