@@ -185,7 +185,7 @@ module.exports = {
     }
     await this.checkUnsavedConnectionsLimit();
 
-    if (process.env.STORAGE_DATABASE && process.env.CONNECTIONS) {
+    if (process.env.STORAGE_DATABASE) {
       const storage = require('./storage');
       try {
         await storage.fillStorageConnectionsFromEnv();
