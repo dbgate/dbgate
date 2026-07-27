@@ -17,6 +17,9 @@ const { handleQueryStream, QueryStreamTableWriter, allowExecuteCustomScript } = 
 
 const logger = getLogger('sessionProcess');
 
+// Background browser tabs may run timers only once per minute.
+const SESSION_PING_TIMEOUT_MS = 2 * 60 * 1000;
+
 let dbhan;
 let storedConnection;
 let afterConnectCallbacks = [];
@@ -346,7 +349,7 @@ function start() {
 
   setInterval(async () => {
     const time = new Date().getTime();
-    if (time - lastPing > 25 * 1000) {
+    if (time - lastPing > SESSION_PING_TIMEOUT_MS) {
       logger.info('DBGM-00045 Session not alive, exiting');
       const driver = requireEngineDriver(storedConnection);
       await driver.close(dbhan);

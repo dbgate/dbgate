@@ -160,6 +160,7 @@
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { apiCall, apiOff, apiOn } from '../utility/api';
+  import { pingSession } from '../utility/sessionPinger';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
@@ -268,11 +269,12 @@
   }
 
   onMount(() => {
-    intervalId = setInterval(() => {
+    intervalId = setInterval(async () => {
       if (!driver?.singleConnectionOnly && sessionId) {
-        apiCall('sessions/ping', {
-          sesid: sessionId,
-        });
+        const pingedSessionId = sessionId;
+        if (!(await pingSession(pingedSessionId)) && sessionId == pingedSessionId) {
+          handleSessionClosed();
+        }
       }
     }, 15 * 1000);
   });
@@ -623,6 +625,7 @@
 
   const handleSessionClosed = () => {
     sessionId = null;
+    isInTransaction = false;
     handleSessionDone();
   };
 

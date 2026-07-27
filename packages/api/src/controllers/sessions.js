@@ -378,7 +378,7 @@ module.exports = {
   async ping({ sesid }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
-      throw new Error('Invalid session');
+      return { state: 'missing' };
     }
     try {
       session.subprocess.send({ msgtype: 'ping' });
@@ -386,7 +386,7 @@ module.exports = {
       logger.error(extractErrorLogData(err), 'DBGM-00145 Error pinging session');
 
       return {
-        status: 'error',
+        state: 'missing',
         message: 'Ping failed',
       };
     }
