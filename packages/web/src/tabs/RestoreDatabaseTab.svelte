@@ -174,7 +174,9 @@
       ],
       properties: ['showHiddenFiles', 'openFile'],
     });
-    const filePath = filePaths && filePaths[0];
+    const filePath = filePaths?.[0];
+    if (!filePath) return;
+
     inputFile = filePath;
     inputFileName = filePath.split(/[\\/]/).pop();
   }
