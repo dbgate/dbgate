@@ -435,6 +435,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
     };
 
     const driver = findEngineDriver(connection, getExtensions());
+    const supportsCommunityDatabaseDump = driver?.engine == 'postgres@dbgate-plugin-postgres';
 
     const commands = _.flatten((apps || []).map(x => Object.values(x.files || {}).filter(x => x.type == 'command')));
 
@@ -491,13 +492,15 @@ await dbgateApi.executeQuery(${JSON.stringify(
           onClick: handleExport,
           text: _t('database.export', { defaultMessage: 'Export' }),
         },
-      driver?.supportsDatabaseRestore &&
+      (isProApp() || supportsCommunityDatabaseDump) &&
+        driver?.supportsDatabaseRestore &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && {
           onClick: handleRestoreDatabase,
           text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }),
         },
-      driver?.supportsDatabaseBackup &&
+      (isProApp() || supportsCommunityDatabaseDump) &&
+        driver?.supportsDatabaseBackup &&
         hasPermission(`dbops/sql-dump/export`) && {
           onClick: handleBackupDatabase,
           text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }),
