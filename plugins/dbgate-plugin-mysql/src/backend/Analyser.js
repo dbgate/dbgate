@@ -289,7 +289,7 @@ class Analyser extends DatabaseAnalyser {
 
     return {
       tables: tableModificationsQueryData.rows
-        .filter(x => x.objectType == 'BASE TABLE')
+        .filter(x => ['BASE TABLE', 'SYSTEM VIEW', 'SYSTEM VERSIONED'].includes(x.objectType))
         .map(x => ({
           ...x,
           objectId: x.pureName,
