@@ -41,6 +41,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
+  import { showSnackbarError } from '../utility/snackbar';
 
   let busy = false;
   let isDownloading = false;
@@ -108,17 +109,34 @@
     busy = true;
     backupCancelled = false;
 
-    outputFile = generateOutputFileName();
-    outputFilePath = await generateOutputFilePath(outputFile);
+    try {
+      outputFile = generateOutputFileName();
+      outputFilePath = await generateOutputFilePath(outputFile);
+      if (!outputFilePath) {
+        busy = false;
+        showSnackbarError('Could not resolve the backup output path');
+        return;
+      }
+      if (outputFilePath?.errorMessage) {
+        busy = false;
+        return;
+      }
 
-    runnerId = uuidv1();
-    executeNumber += 1;
+      runnerId = uuidv1();
+      executeNumber += 1;
 
-    const resp = await apiCall('database-connections/native-backup', {
-      ...getBackupParams(),
-      outputFile: outputFilePath,
-      runid: runnerId,
-    });
+      const resp = await apiCall('database-connections/native-backup', {
+        ...getBackupParams(),
+        outputFile: outputFilePath,
+        runid: runnerId,
+      });
+      if (resp?.errorMessage) {
+        busy = false;
+      }
+    } catch (error) {
+      busy = false;
+      showSnackbarError(error.message);
+    }
   }
 
   async function handleCancel() {
