@@ -35,7 +35,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "dbgate-pg-dumper": "^0.1.16",
+    "dbgate-pg-dumper": "^0.1.17",
     "wkx": "^0.5.0",
     "pg-copy-streams": "^7.0.0",
     "pg-query-stream": "^4.10.3",
