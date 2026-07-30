@@ -43,6 +43,7 @@ const {
   testDatabaseRolePermission,
 } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
+const { isProApp } = require('../utility/checkLicense');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const crypto = require('crypto');
 const loadModelTransform = require('../utility/loadModelTransform');
@@ -970,6 +971,29 @@ module.exports = {
     command,
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
+    const { connection, driver, externalTools } = await this.getNativeOpContext(conid);
+
+    return {
+      ...(command == 'backup'
+        ? driver.backupDatabaseCommand(
+            connection,
+            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
+            // @ts-ignore
+            externalTools
+          )
+        : driver.restoreDatabaseCommand(
+            connection,
+            { inputFile, database, options, argsFormat },
+            // @ts-ignore
+            externalTools
+          )),
+      transformMessage: driver.transformNativeCommandMessage
+        ? message => driver.transformNativeCommandMessage(message, command)
+        : null,
+    };
+  },
+
+  async getNativeOpContext(conid) {
     const sourceConnection = await connections.getCore({ conid });
     const connection = {
       ...decryptConnection(sourceConnection),
@@ -1000,24 +1024,7 @@ module.exports = {
       }
     }
 
-    return {
-      ...(command == 'backup'
-        ? driver.backupDatabaseCommand(
-            connection,
-            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
-            // @ts-ignore
-            externalTools
-          )
-        : driver.restoreDatabaseCommand(
-            connection,
-            { inputFile, database, options, argsFormat },
-            // @ts-ignore
-            externalTools
-          )),
-      transformMessage: driver.transformNativeCommandMessage
-        ? message => driver.transformNativeCommandMessage(message, command)
-        : null,
-    };
+    return { connection, driver, externalTools };
   },
 
   commandArgsToCommandLine(commandArgs) {
@@ -1031,14 +1038,53 @@ module.exports = {
 
   nativeBackup_meta: true,
   async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }) {
+    const isPremium = isProApp();
+    const effectiveOptions = isPremium
+      ? options || {}
+      : {
+          backupTool: 'dbgate-pg-dumper',
+          ...(options?.targetPostgresVersion == null
+            ? {}
+            : { targetPostgresVersion: options.targetPostgresVersion }),
+        };
+    const effectiveSelectedTables = isPremium ? selectedTables : [];
+    const effectiveSkippedTables = isPremium ? skippedTables : [];
+
+    if (effectiveOptions.backupTool == 'dbgate-pg-dumper') {
+      const { connection, driver } = await this.getNativeOpContext(conid);
+      if (!driver.backupDatabase) {
+        throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper');
+      }
+      return runners.promiseRunCore(
+        runid,
+        runner =>
+          driver.backupDatabase(
+            connection,
+            {
+              outputFile,
+              database,
+              options: effectiveOptions,
+              selectedTables: effectiveSelectedTables,
+              skippedTables: effectiveSkippedTables,
+            },
+            runner
+          ),
+        () => {
+          socket.emitChanged(`files-changed`, { folder: 'sql' });
+          socket.emitChanged(`all-files-changed`);
+        },
+        'backup'
+      );
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
       conid,
       database,
       inputFile: undefined,
       outputFile,
-      options,
-      selectedTables,
-      skippedTables,
+      options: effectiveOptions,
+      selectedTables: effectiveSelectedTables,
+      skippedTables: effectiveSkippedTables,
       argsFormat: 'spawn',
     });
 
@@ -1053,6 +1099,14 @@ module.exports = {
 
   nativeBackupCommand_meta: true,
   async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
+    if (!isProApp()) {
+      throw new Error('DBGM-00000 Copying a native backup command is available only in DbGate Premium');
+    }
+
+    if (options?.backupTool == 'dbgate-pg-dumper') {
+      throw new Error('DBGM-00000 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
       conid,
       database,
@@ -1072,13 +1126,30 @@ module.exports = {
   },
 
   nativeRestore_meta: true,
-  async nativeRestore({ conid, database, inputFile, runid }) {
+  async nativeRestore({ conid, database, inputFile, runid, options }) {
+    const effectiveOptions = isProApp() ? options || {} : { restoreTool: 'dbgate-pg-dumper' };
+
+    if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
+      const { connection, driver } = await this.getNativeOpContext(conid);
+      if (!driver.restoreDatabase) {
+        throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper restore');
+      }
+      return runners.promiseRunCore(
+        runid,
+        runner => driver.restoreDatabase(connection, { inputFile, database, options: effectiveOptions }, runner),
+        () => {
+          this.syncModel({ conid, database, isFullRefresh: true });
+        },
+        'restore'
+      );
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('restore', {
       conid,
       database,
       inputFile,
       outputFile: undefined,
-      options: undefined,
+      options: effectiveOptions,
       argsFormat: 'spawn',
     });
 
@@ -1091,13 +1162,21 @@ module.exports = {
   },
 
   nativeRestoreCommand_meta: true,
-  async nativeRestoreCommand({ conid, database, inputFile }) {
+  async nativeRestoreCommand({ conid, database, inputFile, options }) {
+    if (!isProApp()) {
+      throw new Error('DBGM-00000 Copying a native restore command is available only in DbGate Premium');
+    }
+
+    if (options?.restoreTool == 'dbgate-pg-dumper') {
+      throw new Error('DBGM-00000 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('restore', {
       conid,
       database,
       inputFile,
       outputFile: undefined,
-      options: undefined,
+      options,
       argsFormat: 'shell',
     });
 

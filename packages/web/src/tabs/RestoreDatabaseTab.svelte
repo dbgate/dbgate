@@ -1,0 +1,356 @@
+<script lang="ts" context="module">
+  import { findEngineDriver, getConnectionLabel, getEngineLabel } from 'dbgate-tools';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
+
+  import { getActiveComponent } from '../utility/createActivator';
+  import { useConnectionInfo, useDatabaseInfo, useFiles } from '../utility/metadataLoaders';
+
+  const getCurrentEditor = () => getActiveComponent('RestoreDatabaseTab');
+</script>
+
+<script lang="ts">
+  import FontIcon from '../icons/FontIcon.svelte';
+  import getElectron from '../utility/getElectron';
+  import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
+  import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
+  import SocketMessageView from '../query/SocketMessageView.svelte';
+  import useEffect from '../utility/useEffect';
+  import { copyTextToClipboard } from '../utility/clipboard';
+  import _ from 'lodash';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import SelectField from '../forms/SelectField.svelte';
+  import FormStyledButtonLikeLabel from '../buttons/FormStyledButtonLikeLabel.svelte';
+  import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
+  import { showSnackbarError } from '../utility/snackbar';
+  import uuidv1 from 'uuid/v1';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import { extensions } from '../stores';
+  import { isProApp } from '../utility/proTools';
+
+  export let tabid;
+  export let conid;
+  export let database;
+
+  let busy = false;
+  let sourceType = 'sqlFilesFolder';
+
+  let selectedSqlFile = null;
+  let inputFile;
+  let inputFileName = null;
+
+  let runnerId = null;
+  let executeNumber = 0;
+
+  const connection = useConnectionInfo({ conid });
+
+  const sqlFiles = useFiles({ folder: 'sql' });
+
+  const electron = getElectron();
+  const isPremium = isProApp();
+
+  $: driver = findEngineDriver($connection, $extensions);
+  $: formArgs = (driver?.getNativeOperationFormArgs ? driver.getNativeOperationFormArgs('restore') : null) ?? [];
+  $: restoreToolArg = formArgs.find(arg => arg.name == 'restoreTool');
+  let restoreTool = isPremium ? 'pg_dump' : 'dbgate-pg-dumper';
+
+  async function getRestoreParams() {
+    let usedFile = inputFile;
+    if (sourceType == 'sqlFilesFolder') {
+      if (!selectedSqlFile) {
+        throw new Error('Source SQL file not selected');
+      }
+
+      const resp = await apiCall('files/get-file-real-path', { folder: 'sql', file: selectedSqlFile });
+      if (!resp) return;
+      usedFile = resp;
+    }
+
+    if (!usedFile) {
+      throw new Error('Nothing to import');
+    }
+
+    return { conid, database, inputFile: usedFile, runid: runnerId, options: { restoreTool } };
+  }
+
+  async function handleExecute() {
+    busy = true;
+
+    try {
+      runnerId = uuidv1();
+      executeNumber += 1;
+
+      const resp = await apiCall('database-connections/native-restore', await getRestoreParams());
+    } catch (err) {
+      busy = false;
+      showSnackbarError(err.message);
+    }
+  }
+
+  async function handleCancel() {
+    await apiCall('runners/cancel', { runid: runnerId });
+  }
+
+  async function handleGenerateCommand() {
+    try {
+      const resp = await apiCall('database-connections/native-restore-command', await getRestoreParams());
+      copyTextToClipboard(resp.commandLine);
+    } catch (err) {
+      showSnackbarError(err.message);
+    }
+  }
+
+  $: effectRunner = useEffect(() => registerRunnerDone(runnerId));
+
+  function registerRunnerDone(rid) {
+    if (rid) {
+      apiOn(`runner-done-${rid}`, handleRunnerDone);
+      return () => {
+        apiOff(`runner-done-${rid}`, handleRunnerDone);
+      };
+    } else {
+      return () => {};
+    }
+  }
+
+  $: $effectRunner;
+
+  const handleRunnerDone = () => {
+    busy = false;
+  };
+
+  async function handleUploadFile(e) {
+    const files = [...e.target.files];
+
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append('name', file.name);
+        formData.append('data', file);
+
+        const fetchOptions = {
+          method: 'POST',
+          body: formData,
+          headers: resolveApiHeaders(),
+        };
+
+        const apiBase = resolveApi();
+        const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
+        const responseText = await resp.text();
+        let fileData = null;
+        try {
+          fileData = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          if (resp.ok) {
+            throw new Error('Upload returned an invalid response');
+          }
+        }
+        if (!resp.ok) {
+          throw new Error(fileData?.message || responseText || `Upload failed with HTTP status ${resp.status}`);
+        }
+        if (!fileData?.filePath) {
+          throw new Error('Upload did not return a file path');
+        }
+        inputFile = fileData.filePath;
+        inputFileName = fileData.originalName;
+      } catch (error) {
+        inputFile = null;
+        inputFileName = null;
+        showSnackbarError(error.message);
+      }
+    }
+  }
+
+  async function handleBrowse() {
+    const filePaths = await electron.showOpenDialog({
+      filters: [
+        {
+          name: `All supported files`,
+          extensions: ['sql'],
+        },
+        { name: `SQL files`, extensions: ['sql'] },
+      ],
+      properties: ['showHiddenFiles', 'openFile'],
+    });
+    const filePath = filePaths && filePaths[0];
+    inputFile = filePath;
+    inputFileName = filePath.split(/[\\/]/).pop();
+  }
+</script>
+
+<ToolStripContainer>
+  <VerticalSplitter initialValue={isPremium ? '320px' : '200px'}>
+    <svelte:fragment slot="1">
+      <div class="content">
+        <div class="source">
+          <div class="labelw">
+            <FontIcon icon="icon import" />
+            Source:
+          </div>
+          <div>
+            <div>
+              <input type="radio" bind:group={sourceType} value="sqlFilesFolder" id={`__sqlFilesFolder_${tabid}`} />
+              <label for={`__sqlFilesFolder_${tabid}`}>SQL Files folder</label>
+              {#if sourceType == 'sqlFilesFolder'}
+                <SelectField
+                  label="File:"
+                  value={selectedSqlFile}
+                  options={$sqlFiles?.map(x => ({ value: x.file, label: x.file })) || []}
+                  isNative
+                  notSelected
+                  on:change={e => {
+                    selectedSqlFile = e.detail;
+                  }}
+                />
+              {/if}
+            </div>
+            {#if electron}
+              <div>
+                <input type="radio" bind:group={sourceType} value="browse" id={`__browse_${tabid}`} />
+                <label for={`__browse_${tabid}`}>Browse</label>
+                {#if inputFileName && sourceType == 'browse'}
+                  <span>: {inputFileName}</span>
+                {/if}
+              </div>
+            {:else}
+              <div>
+                <input type="radio" bind:group={sourceType} value="upload" id={`__upload_${tabid}`} />
+                <label for={`__upload_${tabid}`}>Upload</label>
+                {#if inputFileName && sourceType == 'upload'}
+                  <span>: {inputFileName}</span>
+                {/if}
+              </div>
+            {/if}
+
+            {#if sourceType == 'upload' && !electron}
+              <div class="m-3">
+                <FormStyledButtonLikeLabel htmlFor={`uploadRestoreFileButton_${tabid}`}
+                  >Upload file</FormStyledButtonLikeLabel
+                >
+                <input type="file" id={`uploadRestoreFileButton_${tabid}`} hidden on:change={handleUploadFile} />
+              </div>
+            {/if}
+
+            {#if sourceType == 'browse' && electron}
+              <div class="m-3">
+                <FormStyledButton on:click={handleBrowse} value="Browse" />
+              </div>
+            {/if}
+          </div>
+        </div>
+        <div class="target">
+          <div class="labelw">
+            <FontIcon icon="icon export" />
+            Target:
+          </div>
+          <div>
+            <FontIcon icon="icon server" />
+            {getConnectionLabel($connection)}
+            {#if database}
+              <FontIcon icon="icon database" />
+              {database}
+            {/if}
+          </div>
+          <div class="engine">
+            {getEngineLabel($connection)}
+          </div>
+        </div>
+        {#if restoreToolArg && isPremium}
+          <div class="options">
+            <div class="option-label">Restore tool</div>
+            <SelectField
+              isNative
+              value={restoreTool}
+              defaultValue={restoreToolArg.default}
+              options={restoreToolArg.options.map(option => ({ label: option.name, value: option.value }))}
+              data-testid="RestoreDatabaseTab_restoreTool"
+              on:change={event => (restoreTool = event.detail)}
+            />
+          </div>
+        {/if}
+      </div>
+    </svelte:fragment>
+
+    <svelte:fragment slot="2">
+      <WidgetColumnBar>
+        <WidgetColumnBarItem title="Messages" name="messages">
+          <SocketMessageView
+            eventName={runnerId ? `runner-info-${runnerId}` : null}
+            {executeNumber}
+            showNoMessagesAlert
+            showCaller
+          />
+        </WidgetColumnBarItem>
+      </WidgetColumnBar>
+    </svelte:fragment>
+  </VerticalSplitter>
+
+  <svelte:fragment slot="toolstrip">
+    {#if busy}
+      <ToolStripButton icon="icon stop" on:click={handleCancel} data-testid="RestoreDatabaseTab_stopButton"
+        >Stop</ToolStripButton
+      >
+    {:else}
+      <ToolStripButton on:click={handleExecute} icon="icon run" data-testid="RestoreDatabaseTab_executeButton"
+        >Run</ToolStripButton
+      >
+    {/if}
+    {#if isPremium && restoreTool != 'dbgate-pg-dumper'}
+      <ToolStripButton icon="img shell" on:click={handleGenerateCommand} data-testid="RestoreDatabaseTab_generateCommand"
+        >Copy command line</ToolStripButton
+      >
+    {/if}
+  </svelte:fragment>
+
+  {#if busy}
+    <LoadingInfo wrapper message="Importing SQL dump" />
+  {/if}
+</ToolStripContainer>
+
+<style>
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: var(--theme-content-background);
+  }
+
+  .source,
+  .target {
+    margin: 10px;
+    padding: 10px;
+    font-size: 15px;
+    border: var(--theme-table-border);
+    display: flex;
+  }
+
+  .source {
+    margin-bottom: 0px;
+  }
+
+  .target {
+    margin-top: 0px;
+  }
+
+  .options {
+    margin: 0 10px 10px;
+  }
+
+  .option-label {
+    color: var(--theme-generic-font-grayed);
+    margin-bottom: 3px;
+  }
+
+  .labelw {
+    width: 8em;
+  }
+
+  .engine {
+    color: var(--theme-generic-font-grayed);
+    margin-left: 10px;
+  }
+</style>

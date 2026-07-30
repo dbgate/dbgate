@@ -492,14 +492,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
           text: _t('database.export', { defaultMessage: 'Export' }),
         },
       driver?.supportsDatabaseRestore &&
-        isProApp() &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && {
           onClick: handleRestoreDatabase,
           text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }),
         },
       driver?.supportsDatabaseBackup &&
-        isProApp() &&
         hasPermission(`dbops/sql-dump/export`) && {
           onClick: handleBackupDatabase,
           text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }),

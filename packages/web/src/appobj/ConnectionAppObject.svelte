@@ -410,7 +410,6 @@
       ],
 
       driver?.supportsDatabaseRestore &&
-        isProApp() &&
         hasPermission(`dbops/sql-dump/import`) &&
         !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
     ];
