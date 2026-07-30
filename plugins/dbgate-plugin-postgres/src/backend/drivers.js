@@ -355,6 +355,7 @@ const drivers = driverBases.map(driverBase => ({
             ? {
                 selection: {
                   includeTables: selectedTables.map(table => `${table.schemaName}.${table.pureName}`),
+                  excludeTables: skippedTables.map(table => `${table.schemaName}.${table.pureName}`),
                 },
               }
             : {}),

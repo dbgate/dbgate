@@ -44,6 +44,7 @@
 
   let busy = false;
   let isDownloading = false;
+  let backupCancelled = false;
 
   let outputFile;
   let outputFilePath;
@@ -88,10 +89,11 @@
     const selectedTables = isPremium
       ? ($checkedObjectsStore ?? []).map(x => _.pick(x, ['pureName', 'schemaName']))
       : [];
+    const selectedTableKeys = new Set(selectedTables.map(x => `${x.schemaName}||${x.pureName}`));
     const skippedTables = isPremium
-      ? _.differenceBy($dbinfo.tables, $checkedObjectsStore, x => `${x.schemaName}||${x.pureName}`).map(x =>
-          _.pick(x, ['pureName', 'schemaName'])
-        )
+      ? ($dbinfo?.tables ?? [])
+          .filter(x => !selectedTableKeys.has(`${x.schemaName}||${x.pureName}`))
+          .map(x => _.pick(x, ['pureName', 'schemaName']))
       : [];
     return {
       conid,
@@ -104,6 +106,7 @@
 
   async function handleExecute() {
     busy = true;
+    backupCancelled = false;
 
     outputFile = generateOutputFileName();
     outputFilePath = await generateOutputFilePath(outputFile);
@@ -120,6 +123,7 @@
 
   async function handleCancel() {
     await apiCall('runners/cancel', { runid: runnerId });
+    backupCancelled = true;
   }
 
   async function handleGenerateCommand() {
@@ -258,6 +262,11 @@
                     }}
                     value={_t('backupDatabase.openInTab', { defaultMessage: 'Open in tab' })}
                   />
+                  {#if backupCancelled}
+                    <div class="backup-cancelled">
+                      {_t('backupDatabase.cancelled', { defaultMessage: 'Backup cancelled' })}
+                    </div>
+                  {/if}
                 {:else}
                   {_t('backupDatabase.sqlFilesHint', {
                     defaultMessage: 'SQL Files folder. Run backup to create the output file.',
@@ -397,5 +406,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin-bottom: 6px;
+  }
+
+  .backup-cancelled {
+    margin-top: 8px;
+    color: var(--theme-generic-font-grayed);
   }
 </style>

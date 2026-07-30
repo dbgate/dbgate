@@ -40,6 +40,7 @@
 
 <tr
   class:isError={row.severity == 'error'}
+  class:isWarning={row.severity == 'warning'}
   class:isDebug={row.severity == 'debug'}
   class:isActive={row.line}
   on:click={() => onMessageClick?.(row)}
@@ -142,6 +143,9 @@
   }
   tr.isError {
     color: var(--theme-icon-red);
+  }
+  tr.isWarning {
+    color: var(--theme-icon-yellow);
   }
   tr.isDebug {
     color: var(--theme-datagrid-foreground-grayed);

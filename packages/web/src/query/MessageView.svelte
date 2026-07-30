@@ -30,6 +30,7 @@
   const values = writable({
     hideDebug: true,
     hideInfo: false,
+    hideWarning: false,
     hideError: false,
   });
 
@@ -71,8 +72,9 @@
       (!filter || filterName(filter, JSON.stringify(row))) &&
       ((!values.hideDebug && row.severity == 'debug') ||
         (!values.hideInfo && row.severity == 'info') ||
+        (!values.hideWarning && row.severity == 'warning') ||
         (!values.hideError && row.severity == 'error') ||
-        (!values.hideDebug && !values.hideInfo && !values.hideError))
+        (!values.hideDebug && !values.hideInfo && !values.hideWarning && !values.hideError))
     );
   }
 </script>
@@ -108,6 +110,15 @@
         {values}
         field="hideInfo"
         count={(items || []).filter(x => x.severity == 'info').length}
+      />
+    </div>
+    <div class="topbar-btn">
+      <RowsFilterSwitcher
+        icon="img warn"
+        label={_t('messageView.warning', { defaultMessage: "Warning" })}
+        {values}
+        field="hideWarning"
+        count={(items || []).filter(x => x.severity == 'warning').length}
       />
     </div>
     <div class="topbar-btn">
