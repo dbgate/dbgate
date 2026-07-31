@@ -244,6 +244,19 @@ module.exports = {
     };
 
     const subprocess = spawn(command, args, { env: { ...process.env, ...env } });
+    let finished = false;
+
+    const finish = code => {
+      if (finished) return;
+      finished = true;
+      socket.emit(`runner-done-${runid}`, code);
+      if (onFinished) {
+        Promise.resolve(onFinished()).catch(error => {
+          logger.error(extractErrorLogData(error), 'DBGM-00000 Error finalizing external process');
+        });
+      }
+      this.opened = this.opened.filter(x => x.runid != runid);
+    };
 
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
@@ -252,11 +265,7 @@ module.exports = {
       console.log('... EXITED', code);
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
       this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${code}`);
-      socket.emit(`runner-done-${runid}`, code);
-      if (onFinished) {
-        onFinished();
-      }
-      this.opened = this.opened.filter(x => x.runid != runid);
+      finish(code);
     });
     subprocess.on('spawn', () => {
       this.dispatchMessage(runid, `DBGM-00283 Started external process ${command}`);
@@ -273,8 +282,7 @@ module.exports = {
           message: `Command ${command} not found, please install it and configure its location in DbGate settings, Settings/External tools, if ${command} is not in system PATH`,
         });
       }
-      socket.emit(`runner-done-${runid}`);
-      this.opened = this.opened.filter(x => x.runid != runid);
+      finish(1);
     });
 
     if (stdinFilePath) {

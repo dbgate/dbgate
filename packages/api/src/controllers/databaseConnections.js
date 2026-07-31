@@ -57,6 +57,29 @@ const { sendToAuditLog } = require('../utility/auditlog');
 
 const logger = getLogger('databaseConnections');
 
+function getRestoreUploadPath(inputFile, inputUploadName) {
+  if (
+    !inputFile ||
+    !inputUploadName ||
+    path.basename(inputUploadName) != inputUploadName ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(inputUploadName)
+  ) {
+    return null;
+  }
+
+  const uploadPath = path.join(uploadsdir(), inputUploadName);
+  return path.resolve(inputFile) == path.resolve(uploadPath) ? uploadPath : null;
+}
+
+function removeRestoreUpload(uploadPath) {
+  if (!uploadPath) return;
+  fs.unlink(uploadPath).catch(error => {
+    if (error.code != 'ENOENT') {
+      logger.warn(extractErrorLogData(error), 'DBGM-00000 Error removing temporary restore upload');
+    }
+  });
+}
+
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
   opened: [],
@@ -1113,39 +1136,45 @@ module.exports = {
   },
 
   nativeRestore_meta: true,
-  async nativeRestore({ conid, database, inputFile, runid, options }) {
+  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }) {
     const effectiveOptions = options || {};
+    const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
+    const onFinished = () => {
+      removeRestoreUpload(restoreUploadPath);
+      this.syncModel({ conid, database, isFullRefresh: true });
+    };
 
-    if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
-      const { connection, driver } = await this.getNativeOpContext(conid);
-      if (!driver.restoreDatabase) {
-        throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper restore');
+    try {
+      if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
+        const { connection, driver } = await this.getNativeOpContext(conid);
+        if (!driver.restoreDatabase) {
+          throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper restore');
+        }
+        return runners.promiseRunCore(
+          runid,
+          runner => driver.restoreDatabase(connection, { inputFile, database, options: effectiveOptions }, runner),
+          onFinished,
+          'restore'
+        );
       }
-      return runners.promiseRunCore(
-        runid,
-        runner => driver.restoreDatabase(connection, { inputFile, database, options: effectiveOptions }, runner),
-        () => {
-          this.syncModel({ conid, database, isFullRefresh: true });
-        },
-        'restore'
-      );
+
+      const commandArgs = await this.getNativeOpCommandArgs('restore', {
+        conid,
+        database,
+        inputFile,
+        outputFile: undefined,
+        options: effectiveOptions,
+        argsFormat: 'spawn',
+      });
+
+      return runners.nativeRunCore(runid, {
+        ...commandArgs,
+        onFinished,
+      });
+    } catch (error) {
+      removeRestoreUpload(restoreUploadPath);
+      throw error;
     }
-
-    const commandArgs = await this.getNativeOpCommandArgs('restore', {
-      conid,
-      database,
-      inputFile,
-      outputFile: undefined,
-      options: effectiveOptions,
-      argsFormat: 'spawn',
-    });
-
-    return runners.nativeRunCore(runid, {
-      ...commandArgs,
-      onFinished: () => {
-        this.syncModel({ conid, database, isFullRefresh: true });
-      },
-    });
   },
 
   nativeRestoreCommand_meta: true,

@@ -40,9 +40,12 @@
   let selectedSqlFile = null;
   let inputFile;
   let inputFileName = null;
+  let inputUploadName = null;
+  let isUploading = false;
 
   let runnerId = null;
   let executeNumber = 0;
+  let runningUploadName = null;
 
   const connection = useConnectionInfo({ conid });
 
@@ -72,7 +75,14 @@
       throw new Error('Nothing to import');
     }
 
-    return { conid, database, inputFile: usedFile, runid: runnerId, options: { restoreTool } };
+    return {
+      conid,
+      database,
+      inputFile: usedFile,
+      inputUploadName: sourceType == 'upload' ? inputUploadName : null,
+      runid: runnerId,
+      options: { restoreTool },
+    };
   }
 
   async function handleExecute() {
@@ -82,7 +92,13 @@
       runnerId = uuidv1();
       executeNumber += 1;
 
-      const resp = await apiCall('database-connections/native-restore', await getRestoreParams());
+      const restoreParams = await getRestoreParams();
+      runningUploadName = restoreParams.inputUploadName;
+      const resp = await apiCall('database-connections/native-restore', restoreParams);
+      if (resp?.errorMessage) {
+        busy = false;
+        clearFinishedUpload();
+      }
     } catch (err) {
       busy = false;
       showSnackbarError(err.message);
@@ -117,49 +133,68 @@
 
   $: $effectRunner;
 
+  function clearFinishedUpload() {
+    if (runningUploadName && inputUploadName == runningUploadName) {
+      inputFile = null;
+      inputFileName = null;
+      inputUploadName = null;
+    }
+    runningUploadName = null;
+  }
+
   const handleRunnerDone = () => {
     busy = false;
+    clearFinishedUpload();
   };
 
   async function handleUploadFile(e) {
     const files = [...e.target.files];
+    if (!files.length) return;
 
-    for (const file of files) {
-      try {
-        const formData = new FormData();
-        formData.append('name', file.name);
-        formData.append('data', file);
-
-        const fetchOptions = {
-          method: 'POST',
-          body: formData,
-          headers: resolveApiHeaders(),
-        };
-
-        const apiBase = resolveApi();
-        const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
-        const responseText = await resp.text();
-        let fileData = null;
+    isUploading = true;
+    try {
+      for (const file of files) {
         try {
-          fileData = responseText ? JSON.parse(responseText) : null;
-        } catch {
-          if (resp.ok) {
-            throw new Error('Upload returned an invalid response');
+          const formData = new FormData();
+          formData.append('name', file.name);
+          formData.append('data', file);
+
+          const fetchOptions = {
+            method: 'POST',
+            body: formData,
+            headers: resolveApiHeaders(),
+          };
+
+          const apiBase = resolveApi();
+          const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
+          const responseText = await resp.text();
+          let fileData = null;
+          try {
+            fileData = responseText ? JSON.parse(responseText) : null;
+          } catch {
+            if (resp.ok) {
+              throw new Error('Upload returned an invalid response');
+            }
           }
+          if (!resp.ok) {
+            throw new Error(fileData?.message || responseText || `Upload failed with HTTP status ${resp.status}`);
+          }
+          if (!fileData?.filePath) {
+            throw new Error('Upload did not return a file path');
+          }
+          inputFile = fileData.filePath;
+          inputFileName = fileData.originalName;
+          inputUploadName = fileData.uploadName;
+        } catch (error) {
+          inputFile = null;
+          inputFileName = null;
+          inputUploadName = null;
+          showSnackbarError(error.message);
         }
-        if (!resp.ok) {
-          throw new Error(fileData?.message || responseText || `Upload failed with HTTP status ${resp.status}`);
-        }
-        if (!fileData?.filePath) {
-          throw new Error('Upload did not return a file path');
-        }
-        inputFile = fileData.filePath;
-        inputFileName = fileData.originalName;
-      } catch (error) {
-        inputFile = null;
-        inputFileName = null;
-        showSnackbarError(error.message);
       }
+    } finally {
+      isUploading = false;
+      e.target.value = null;
     }
   }
 
@@ -179,6 +214,7 @@
 
     inputFile = filePath;
     inputFileName = filePath.split(/[\\/]/).pop();
+    inputUploadName = null;
   }
 </script>
 
@@ -220,9 +256,6 @@
               <div>
                 <input type="radio" bind:group={sourceType} value="upload" id={`__upload_${tabid}`} />
                 <label for={`__upload_${tabid}`}>Upload</label>
-                {#if inputFileName && sourceType == 'upload'}
-                  <span>: {inputFileName}</span>
-                {/if}
               </div>
             {/if}
 
@@ -232,6 +265,17 @@
                   >Upload file</FormStyledButtonLikeLabel
                 >
                 <input type="file" id={`uploadRestoreFileButton_${tabid}`} hidden on:change={handleUploadFile} />
+                {#if isUploading}
+                  <LoadingInfo message="Uploading..." />
+                {:else if inputFileName}
+                  <div
+                    class="selected-file"
+                    title={inputFileName}
+                    data-testid="RestoreDatabaseTab_selectedUploadFile"
+                  >
+                    Uploaded file: {inputFileName}
+                  </div>
+                {/if}
               </div>
             {/if}
 
@@ -295,12 +339,20 @@
         >Stop</ToolStripButton
       >
     {:else}
-      <ToolStripButton on:click={handleExecute} icon="icon run" data-testid="RestoreDatabaseTab_executeButton"
+      <ToolStripButton
+        on:click={handleExecute}
+        icon="icon run"
+        disabled={isUploading}
+        data-testid="RestoreDatabaseTab_executeButton"
         >Run</ToolStripButton
       >
     {/if}
     {#if isPremium && restoreTool != 'dbgate-pg-dumper'}
-      <ToolStripButton icon="img shell" on:click={handleGenerateCommand} data-testid="RestoreDatabaseTab_generateCommand"
+      <ToolStripButton
+        icon="img shell"
+        on:click={handleGenerateCommand}
+        disabled={isUploading}
+        data-testid="RestoreDatabaseTab_generateCommand"
         >Copy command line</ToolStripButton
       >
     {/if}
@@ -354,5 +406,10 @@
   .engine {
     color: var(--theme-generic-font-grayed);
     margin-left: 10px;
+  }
+
+  .selected-file {
+    margin-top: 10px;
+    overflow-wrap: anywhere;
   }
 </style>
