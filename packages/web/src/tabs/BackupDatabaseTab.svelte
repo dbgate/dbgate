@@ -46,6 +46,7 @@
   let busy = false;
   let isDownloading = false;
   let backupCancelled = false;
+  let operationStatus = 'Not started';
 
   let outputFile;
   let outputFilePath;
@@ -108,17 +109,20 @@
   async function handleExecute() {
     busy = true;
     backupCancelled = false;
+    operationStatus = 'Running';
 
     try {
       outputFile = generateOutputFileName();
       outputFilePath = await generateOutputFilePath(outputFile);
       if (!outputFilePath) {
         busy = false;
+        operationStatus = 'Failed';
         showSnackbarError('Could not resolve the backup output path');
         return;
       }
       if (outputFilePath?.errorMessage) {
         busy = false;
+        operationStatus = 'Failed';
         return;
       }
 
@@ -132,9 +136,11 @@
       });
       if (resp?.errorMessage) {
         busy = false;
+        operationStatus = 'Failed';
       }
     } catch (error) {
       busy = false;
+      operationStatus = 'Failed';
       showSnackbarError(error.message);
     }
   }
@@ -167,8 +173,9 @@
 
   $: $effectRunner;
 
-  const handleRunnerDone = () => {
+  const handleRunnerDone = code => {
     busy = false;
+    operationStatus = code === 0 ? 'Finished' : code == null || backupCancelled ? 'Cancelled' : 'Failed';
   };
 
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver?.getNativeOperationFormArgs('backup') : null) ?? [];
@@ -292,6 +299,13 @@
                 {/if}
               </div>
             </div>
+            <div class="status">
+              <div class="labelw">
+                <FontIcon icon="icon info" />
+                Status:
+              </div>
+              <div data-testid="BackupDatabaseTab_status">{operationStatus}</div>
+            </div>
             {#if isPremium}
               <div class="backup-options">
                 <div class="heading">{_t('backupDatabase.backupOptions', { defaultMessage: 'Backup options' })}</div>
@@ -385,7 +399,8 @@
   }
 
   .source,
-  .target {
+  .target,
+  .status {
     margin: 10px;
     padding: 10px;
     font-size: 15px;
@@ -398,6 +413,11 @@
   }
 
   .target {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  .status {
     margin-top: 0px;
   }
 

@@ -35,6 +35,7 @@
   export let database;
 
   let busy = false;
+  let operationStatus = 'Not started';
   let sourceType = 'sqlFilesFolder';
 
   let selectedSqlFile = null;
@@ -87,6 +88,7 @@
 
   async function handleExecute() {
     busy = true;
+    operationStatus = 'Running';
 
     try {
       runnerId = uuidv1();
@@ -97,10 +99,12 @@
       const resp = await apiCall('database-connections/native-restore', restoreParams);
       if (resp?.errorMessage) {
         busy = false;
+        operationStatus = 'Failed';
         clearFinishedUpload();
       }
     } catch (err) {
       busy = false;
+      operationStatus = 'Failed';
       showSnackbarError(err.message);
     }
   }
@@ -142,8 +146,9 @@
     runningUploadName = null;
   }
 
-  const handleRunnerDone = () => {
+  const handleRunnerDone = code => {
     busy = false;
+    operationStatus = code === 0 ? 'Finished' : code == null ? 'Cancelled' : 'Failed';
     clearFinishedUpload();
   };
 
@@ -303,6 +308,13 @@
             {getEngineLabel($connection)}
           </div>
         </div>
+        <div class="status">
+          <div class="labelw">
+            <FontIcon icon="icon info" />
+            Status:
+          </div>
+          <div data-testid="RestoreDatabaseTab_status">{operationStatus}</div>
+        </div>
         {#if restoreToolArg && isPremium}
           <div class="options">
             <div class="option-label">Restore tool</div>
@@ -374,7 +386,8 @@
   }
 
   .source,
-  .target {
+  .target,
+  .status {
     margin: 10px;
     padding: 10px;
     font-size: 15px;
@@ -387,6 +400,11 @@
   }
 
   .target {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  .status {
     margin-top: 0px;
   }
 
