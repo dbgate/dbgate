@@ -181,7 +181,8 @@
 
   const handleRunnerDone = code => {
     busy = false;
-    operationStatus = code === 0 ? 'Finished' : code == null ? 'Cancelled' : 'Failed';
+    const exitCode = code?.code ?? code?.exitCode ?? code;
+    operationStatus = exitCode != null && Number(exitCode) === 0 ? 'Finished' : exitCode == null ? 'Cancelled' : 'Failed';
     clearFinishedUpload();
   };
 

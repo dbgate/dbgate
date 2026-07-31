@@ -175,7 +175,12 @@
 
   const handleRunnerDone = code => {
     busy = false;
-    operationStatus = code === 0 ? 'Finished' : code == null || backupCancelled ? 'Cancelled' : 'Failed';
+    const exitCode = code?.code ?? code?.exitCode ?? code;
+    operationStatus = exitCode != null && Number(exitCode) === 0
+      ? 'Finished'
+      : exitCode == null || backupCancelled
+        ? 'Cancelled'
+        : 'Failed';
   };
 
   const valuesStore = writable({});
