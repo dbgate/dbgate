@@ -246,6 +246,7 @@
       tabComponent: 'RestoreDatabaseTab',
       props: {
         conid: data._id,
+        database: data.defaultDatabase,
       },
     });
   };
@@ -413,6 +414,7 @@
       ],
 
       supportsRestore &&
+        data.defaultDatabase &&
         hasPermission(`dbops/sql-dump/import`) &&
         !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
     ];
