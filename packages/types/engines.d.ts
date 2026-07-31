@@ -246,8 +246,6 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   readOnlySessions: boolean;
   dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
-  supportsDatabaseBackup?: boolean;
-  supportsDatabaseRestore?: boolean;
   supportsNativeBackup?: boolean;
   supportsNativeRestore?: boolean;
   supportsNodejsBackup?: boolean;
