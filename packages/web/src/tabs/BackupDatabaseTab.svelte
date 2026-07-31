@@ -178,11 +178,21 @@
     operationStatus = code === 0 ? 'Finished' : code == null || backupCancelled ? 'Cancelled' : 'Failed';
   };
 
+  const valuesStore = writable({});
+
+  function applyFormDefaults(args) {
+    valuesStore.update(values => {
+      const missingDefaults = Object.fromEntries(
+        args.filter(arg => arg.default !== undefined && values[arg.name] === undefined).map(arg => [arg.name, arg.default])
+      );
+      return Object.keys(missingDefaults).length > 0 ? { ...missingDefaults, ...values } : values;
+    });
+  }
+
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver?.getNativeOperationFormArgs('backup') : null) ?? [];
+  $: applyFormDefaults(formArgs);
   $: backupToolFormArgs = formArgs.filter(arg => ['backupTool', 'targetPostgresVersion'].includes(arg.name));
   $: otherFormArgs = formArgs.filter(arg => !['backupTool', 'targetPostgresVersion'].includes(arg.name));
-
-  const valuesStore = writable({});
 </script>
 
 <ToolStripContainer>
