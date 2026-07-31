@@ -252,6 +252,7 @@
 
   const getContextMenu = () => {
     const driver = $extensions.drivers.find(x => x.engine == data.engine);
+    const supportsCommunityDatabaseDump = driver?.engine == 'postgres@dbgate-plugin-postgres';
     const config = getCurrentConfig();
     const handleRefresh = () => {
       apiCall('server-connections/refresh', { conid: data._id });
@@ -409,7 +410,8 @@
         ),
       ],
 
-      driver?.supportsDatabaseRestore &&
+      (isProApp() || supportsCommunityDatabaseDump) &&
+        driver?.supportsDatabaseRestore &&
         hasPermission(`dbops/sql-dump/import`) &&
         !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
     ];
