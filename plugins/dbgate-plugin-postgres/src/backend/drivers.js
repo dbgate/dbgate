@@ -9,13 +9,8 @@ const wkx = require('wkx');
 const pg = require('pg');
 const pgCopyStreams = require('pg-copy-streams');
 const QueryStream = require('pg-query-stream');
+const { dumpPostgres, restoreSqlDump, PostgresVersionService } = require('dbgate-pg-dumper');
 const sql = require('./sql');
-
-let dbgatePgDumper;
-function getDbgatePgDumper() {
-  dbgatePgDumper ??= import('dbgate-pg-dumper');
-  return dbgatePgDumper;
-}
 
 const {
   getLogger,
@@ -337,7 +332,6 @@ const drivers = driverBases.map(driverBase => ({
       throw new Error('DBGM-00000 Data-only and schema-only backup options cannot be enabled together');
     }
 
-    const { dumpPostgres, PostgresVersionService } = await getDbgatePgDumper();
     const dbhan = await this.connect({ ...connection, database });
     const output = fs.createWriteStream(outputFile);
 
@@ -399,7 +393,6 @@ const drivers = driverBases.map(driverBase => ({
     }
 
     const { inputFile, database } = settings;
-    const { restoreSqlDump } = await getDbgatePgDumper();
     const dbhan = await this.connect({ ...connection, database });
     const input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
 
