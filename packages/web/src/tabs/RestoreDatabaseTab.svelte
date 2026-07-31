@@ -29,6 +29,7 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { extensions } from '../stores';
   import { isProApp } from '../utility/proTools';
+  import { onDestroy } from 'svelte';
 
   export let tabid;
   export let conid;
@@ -43,6 +44,9 @@
   let inputFileName = null;
   let inputUploadName = null;
   let isUploading = false;
+  let activeUploadCount = 0;
+  let latestUploadRequest = 0;
+  let destroyed = false;
 
   let runnerId = null;
   let executeNumber = 0;
@@ -62,6 +66,32 @@
   $: if (driver && !restoreTool) {
     restoreTool = driver.supportsNodejsRestore ? 'dbgate-pg-dumper' : 'native';
   }
+  $: isUploading = activeUploadCount > 0;
+
+  async function discardUpload(uploadName) {
+    if (!uploadName) return;
+    try {
+      await apiCall('uploads/remove', { uploadName });
+    } catch (error) {
+      console.error('Error removing temporary restore upload', error);
+    }
+  }
+
+  $: if (sourceType != 'upload' && inputUploadName && inputUploadName != runningUploadName) {
+    const unusedUploadName = inputUploadName;
+    inputFile = null;
+    inputFileName = null;
+    inputUploadName = null;
+    discardUpload(unusedUploadName);
+  }
+
+  onDestroy(() => {
+    destroyed = true;
+    latestUploadRequest += 1;
+    if (inputUploadName && inputUploadName != runningUploadName) {
+      discardUpload(inputUploadName);
+    }
+  });
 
   async function getRestoreParams() {
     let usedFile = inputFile;
@@ -159,7 +189,8 @@
     const files = [...e.target.files];
     if (!files.length) return;
 
-    isUploading = true;
+    const uploadRequest = ++latestUploadRequest;
+    activeUploadCount += 1;
     try {
       for (const file of files) {
         try {
@@ -190,18 +221,25 @@
           if (!fileData?.filePath) {
             throw new Error('Upload did not return a file path');
           }
+          if (destroyed || uploadRequest != latestUploadRequest) {
+            await discardUpload(fileData.uploadName);
+            continue;
+          }
+          const previousUploadName = inputUploadName;
           inputFile = fileData.filePath;
           inputFileName = fileData.originalName;
           inputUploadName = fileData.uploadName;
+          if (previousUploadName && previousUploadName != runningUploadName) {
+            await discardUpload(previousUploadName);
+          }
         } catch (error) {
-          inputFile = null;
-          inputFileName = null;
-          inputUploadName = null;
-          showSnackbarError(error.message);
+          if (!destroyed && uploadRequest == latestUploadRequest) {
+            showSnackbarError(error.message);
+          }
         }
       }
     } finally {
-      isUploading = false;
+      activeUploadCount -= 1;
       e.target.value = null;
     }
   }

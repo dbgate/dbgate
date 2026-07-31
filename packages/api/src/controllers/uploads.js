@@ -5,6 +5,17 @@ const { uploadsdir } = require('../utility/directories');
 const { extractErrorLogData, getLogger } = require('dbgate-tools');
 const logger = getLogger('uploads');
 
+function getUploadPath(uploadName) {
+  if (
+    !uploadName ||
+    path.basename(uploadName) != uploadName ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uploadName)
+  ) {
+    throw new Error('DBGM-00000 Invalid temporary upload name');
+  }
+  return path.join(uploadsdir(), uploadName);
+}
+
 module.exports = {
   upload_meta: {
     method: 'post',
@@ -52,6 +63,21 @@ module.exports = {
       res.status(500).json({
         message: 'DBGM-00000 Error storing uploaded file',
       });
+    }
+  },
+
+  remove_meta: true,
+  async remove({ uploadName }) {
+    const uploadPath = getUploadPath(uploadName);
+    try {
+      await fs.unlink(uploadPath);
+      return { removed: true };
+    } catch (error) {
+      if (error.code == 'ENOENT') {
+        return { removed: false };
+      }
+      logger.error(extractErrorLogData(error), 'DBGM-00000 Error removing temporary upload');
+      throw error;
     }
   },
 
