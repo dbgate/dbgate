@@ -58,7 +58,10 @@
   $: driver = findEngineDriver($connection, $extensions);
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver.getNativeOperationFormArgs('restore') : null) ?? [];
   $: restoreToolArg = formArgs.find(arg => arg.name == 'restoreTool');
-  let restoreTool = 'dbgate-pg-dumper';
+  let restoreTool = null;
+  $: if (driver && !restoreTool) {
+    restoreTool = driver.supportsNodejsRestore ? 'dbgate-pg-dumper' : 'native';
+  }
 
   async function getRestoreParams() {
     let usedFile = inputFile;

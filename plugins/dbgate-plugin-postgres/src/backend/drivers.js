@@ -315,7 +315,7 @@ const drivers = driverBases.map(driverBase => ({
   analyserClass: Analyser,
 
   async backupDatabase(connection, settings, runner) {
-    if (driverBase.engine != 'postgres@dbgate-plugin-postgres') {
+    if (!driverBase.supportsNodejsBackup) {
       throw new Error('DBGM-00000 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 
@@ -387,7 +387,7 @@ const drivers = driverBases.map(driverBase => ({
   },
 
   async restoreDatabase(connection, settings, runner) {
-    if (driverBase.engine != 'postgres@dbgate-plugin-postgres') {
+    if (!driverBase.supportsNodejsRestore) {
       throw new Error('DBGM-00000 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 

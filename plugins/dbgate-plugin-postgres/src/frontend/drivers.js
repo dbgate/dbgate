@@ -224,8 +224,8 @@ EXECUTE FUNCTION function_name();`,
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/postgresql',
 
-  supportsDatabaseBackup: true,
-  supportsDatabaseRestore: true,
+  supportsNativeBackup: true,
+  supportsNativeRestore: true,
 
   adaptDataType(dataType) {
     if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
@@ -243,7 +243,7 @@ EXECUTE FUNCTION function_name();`,
   getNativeOperationFormArgs(operation) {
     if (operation == 'backup') {
       return [
-        ...(this.engine == 'postgres@dbgate-plugin-postgres'
+        ...(this.supportsNodejsBackup
           ? [
               {
                 type: 'select',
@@ -314,7 +314,7 @@ EXECUTE FUNCTION function_name();`,
         },
       ];
     }
-    if (operation == 'restore' && this.engine == 'postgres@dbgate-plugin-postgres') {
+    if (operation == 'restore' && this.supportsNodejsRestore) {
       return [
         {
           type: 'select',
@@ -417,6 +417,8 @@ EXECUTE FUNCTION function_name();`,
 const postgresDriver = {
   ...postgresDriverBase,
   supportsServerSummary: true,
+  supportsNodejsBackup: true,
+  supportsNodejsRestore: true,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'PostgreSQL',
   defaultPort: 5432,

@@ -994,6 +994,10 @@ module.exports = {
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
     const { connection, driver, externalTools } = await this.getNativeOpContext(conid);
+    const capability = command == 'backup' ? 'supportsNativeBackup' : 'supportsNativeRestore';
+    if (!driver[capability]) {
+      throw new Error(`DBGM-00000 The selected database driver does not support native ${command}`);
+    }
 
     return {
       ...(command == 'backup'
@@ -1066,7 +1070,7 @@ module.exports = {
 
     if (effectiveOptions.backupTool == 'dbgate-pg-dumper') {
       const { connection, driver } = await this.getNativeOpContext(conid);
-      if (!driver.backupDatabase) {
+      if (!driver.supportsNodejsBackup || !driver.backupDatabase) {
         throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper');
       }
       return runners.promiseRunCore(
@@ -1147,7 +1151,7 @@ module.exports = {
     try {
       if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
         const { connection, driver } = await this.getNativeOpContext(conid);
-        if (!driver.restoreDatabase) {
+        if (!driver.supportsNodejsRestore || !driver.restoreDatabase) {
           throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper restore');
         }
         return runners.promiseRunCore(

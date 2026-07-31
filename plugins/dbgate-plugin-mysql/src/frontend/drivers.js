@@ -188,8 +188,8 @@ const mysqlDriverBase = {
       : mysqlSplitterOptions,
 
   readOnlySessions: true,
-  supportsDatabaseBackup: true,
-  supportsDatabaseRestore: true,
+  supportsNativeBackup: true,
+  supportsNativeRestore: true,
   authTypeLabel: 'Connection mode',
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
