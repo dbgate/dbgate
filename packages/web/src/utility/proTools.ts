@@ -1,3 +1,3 @@
 export function isProApp() {
-  return true;
+  return false;
 }
