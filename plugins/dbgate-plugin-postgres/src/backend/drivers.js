@@ -9,7 +9,7 @@ const wkx = require('wkx');
 const pg = require('pg');
 const pgCopyStreams = require('pg-copy-streams');
 const QueryStream = require('pg-query-stream');
-const { dumpPostgres, restoreSqlDump, PostgresVersionService } = require('dbgate-pg-dumper');
+const { dumpPostgres, restoreSqlDump, PostgresVersionService, SqlDumpRestoreError } = require('dbgate-pg-dumper');
 const sql = require('./sql');
 
 const {
@@ -302,13 +302,37 @@ function getSqlRestoreProgressMessage(progress) {
       return `Restored SQL statement ${progress.statementsCompleted}`;
     case 'copy-started':
       return `Restoring table data for ${progress.objectIdentity}`;
+    case 'copy-progress':
+      return `Restored ${progress.rowsRestored.toLocaleString('en-US')} rows`;
     case 'copy-completed':
-      return `Restored ${progress.rowsRestored} rows for ${progress.objectIdentity}`;
+      return `Finished restoring table ${progress.objectIdentity}. Restored ${progress.rowsRestored.toLocaleString(
+        'en-US'
+      )} rows in total`;
     case 'completed':
       return `PostgreSQL SQL dump restore completed (${progress.operationsCompleted} operations)`;
     default:
       return null;
   }
+}
+
+function formatSqlRestoreError(error) {
+  if (!(error instanceof SqlDumpRestoreError)) return null;
+
+  const serverMessage = error.fields?.serverMessage;
+  const unsupportedSetting = serverMessage?.match(/^unrecognized configuration parameter\s+(.+)$/i);
+  const summary = unsupportedSetting
+    ? `The target PostgreSQL version does not support the dump setting ${unsupportedSetting[1]}.`
+    : error.message;
+  const details = [
+    summary,
+    unsupportedSetting ? null : serverMessage && `PostgreSQL: ${serverMessage}`,
+    error.fields?.detail && `Detail: ${error.fields.detail}`,
+    error.fields?.hint && `Hint: ${error.fields.hint}`,
+    error.sqlPreview && `SQL: ${error.sqlPreview}`,
+    `Dump location: line ${error.line}, column ${error.column}.`,
+  ].filter(Boolean);
+
+  return `DBGM-00000 ${details.join(' ')}`;
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -401,6 +425,7 @@ const drivers = driverBases.map(driverBase => ({
         source: input,
         connection: createPgDumperConnection(dbhan.client),
         signal: runner.signal,
+        options: { progressThrottleMilliseconds: 1000 },
         progress: progress => {
           const message = getSqlRestoreProgressMessage(progress);
           if (message) {
@@ -412,6 +437,12 @@ const drivers = driverBases.map(driverBase => ({
         message: `Restored ${result.statementsCompleted} SQL statements, ${result.copyBlocksCompleted} COPY blocks and ${result.rowsRestored} rows`,
         severity: 'info',
       });
+    } catch (error) {
+      const formattedError = formatSqlRestoreError(error);
+      if (formattedError) {
+        throw new Error(formattedError, { cause: error });
+      }
+      throw error;
     } finally {
       input.destroy();
       await this.close(dbhan);

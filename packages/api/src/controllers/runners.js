@@ -325,14 +325,18 @@ module.exports = {
       )
       .then(() => {
         this.dispatchMessage(runid, `DBGM-00000 Finished internal ${operation} process`);
-        socket.emit(`runner-done-${runid}`, 0);
+        socket.emit(`runner-done-${runid}`, { status: 'finished', exitCode: 0 });
       })
       .catch(error => {
+        const cancelled = abortController.signal.aborted;
         this.dispatchMessage(runid, {
-          severity: abortController.signal.aborted ? 'info' : 'error',
+          severity: cancelled ? 'info' : 'error',
           message: extractErrorMessage(error),
         });
-        socket.emit(`runner-done-${runid}`, abortController.signal.aborted ? null : 1);
+        socket.emit(`runner-done-${runid}`, {
+          status: cancelled ? 'cancelled' : 'failed',
+          exitCode: cancelled ? null : 1,
+        });
       })
       .finally(() => {
         if (onFinished) {
