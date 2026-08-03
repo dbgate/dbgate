@@ -347,7 +347,7 @@ EXECUTE FUNCTION function_name();`,
       args.push(`--schema-only`);
     }
     if (options.insert) {
-      args.push(`--insert`);
+      args.push(`--inserts`);
     }
     if (options.noPrivileges) {
       args.push(`--no-privileges`);

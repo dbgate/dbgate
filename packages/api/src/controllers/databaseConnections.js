@@ -54,6 +54,7 @@ const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { extractConnectionSslParams } = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
 
@@ -1039,6 +1040,8 @@ module.exports = {
       connection.server = tunnel.localHost;
       connection.port = tunnel.localPort;
     }
+
+    connection.ssl = await extractConnectionSslParams(connection);
 
     const settingsValue = await config.getSettings();
 
