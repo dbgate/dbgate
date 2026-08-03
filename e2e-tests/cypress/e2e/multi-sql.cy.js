@@ -163,8 +163,7 @@ describe('Backup table', () => {
     cy.realPress('F1');
     cy.realType('Close all');
     cy.realPress('Enter');
-    // cy.testid('CloseTabModal_buttonConfirm').click();
-    cy.wait(1000);
+    cy.testid('CloseTabModal_buttonConfirm').should('be.visible').click();
 
     cy.testid('app-object-group-items-tables').contains('addresses', { timeout: 10000 }).click();
 
