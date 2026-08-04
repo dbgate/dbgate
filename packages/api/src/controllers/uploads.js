@@ -11,7 +11,7 @@ function getUploadPath(uploadName) {
     path.basename(uploadName) != uploadName ||
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uploadName)
   ) {
-    throw new Error('DBGM-00000 Invalid temporary upload name');
+    throw new Error('DBGM-00344 Invalid temporary upload name');
   }
   return path.join(uploadsdir(), uploadName);
 }
@@ -32,7 +32,7 @@ module.exports = {
         await fs.unlink(data.tempFilePath).catch(() => {});
       }
       res.status(413).json({
-        message: 'DBGM-00000 Uploaded file was truncated before it reached DbGate',
+        message: 'DBGM-00345 Uploaded file was truncated before it reached DbGate',
       });
       return;
     }
@@ -47,7 +47,7 @@ module.exports = {
       if (uploadedFile.size != data.size) {
         await fs.unlink(filePath).catch(() => {});
         res.status(400).json({
-          message: `DBGM-00000 Uploaded file size mismatch: expected ${data.size} bytes, stored ${uploadedFile.size} bytes`,
+          message: `DBGM-00346 Uploaded file size mismatch: expected ${data.size} bytes, stored ${uploadedFile.size} bytes`,
         });
         return;
       }
@@ -59,9 +59,9 @@ module.exports = {
       });
     } catch (error) {
       await fs.unlink(filePath).catch(() => {});
-      logger.error(extractErrorLogData(error), 'DBGM-00000 Error storing uploaded file');
+      logger.error(extractErrorLogData(error), 'DBGM-00347 Error storing uploaded file');
       res.status(500).json({
-        message: 'DBGM-00000 Error storing uploaded file',
+        message: 'DBGM-00348 Error storing uploaded file',
       });
     }
   },
@@ -76,7 +76,7 @@ module.exports = {
       if (error.code == 'ENOENT') {
         return { removed: false };
       }
-      logger.error(extractErrorLogData(error), 'DBGM-00000 Error removing temporary upload');
+      logger.error(extractErrorLogData(error), 'DBGM-00349 Error removing temporary upload');
       throw error;
     }
   },

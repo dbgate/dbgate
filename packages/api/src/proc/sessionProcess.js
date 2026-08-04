@@ -211,23 +211,23 @@ async function handleExecuteQuery({ sql, autoCommit, autoDetectCharts, limitRows
 
 function validateQueryResultChangeSet(driver, changeSet) {
   if (!driver.databaseEngineTypes?.includes('sql') || !driver.supportsEditableQueryResults) {
-    throw new Error('DBGM-00000 Editable query results are not supported by this driver');
+    throw new Error('DBGM-00405 Editable query results are not supported by this driver');
   }
   if (changeSet?.inserts?.length > 0 || changeSet?.deletes?.length > 0) {
-    throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+    throw new Error('DBGM-00406 Query result saving supports UPDATE operations only');
   }
   for (const update of changeSet?.updates || []) {
     if (!update.pureName) {
-      throw new Error('DBGM-00000 Query result update is missing target table');
+      throw new Error('DBGM-00407 Query result update is missing target table');
     }
     if (_.isEmpty(update.fields)) {
-      throw new Error('DBGM-00000 Query result update is missing changed fields');
+      throw new Error('DBGM-00408 Query result update is missing changed fields');
     }
     if (_.isEmpty(update.condition)) {
-      throw new Error('DBGM-00000 Query result update is missing row condition');
+      throw new Error('DBGM-00409 Query result update is missing row condition');
     }
     if (Object.values(update.condition).some(value => value === null || value === undefined)) {
-      throw new Error('DBGM-00000 Query result update has incomplete row condition');
+      throw new Error('DBGM-00410 Query result update has incomplete row condition');
     }
   }
 }
@@ -239,13 +239,13 @@ async function handleSaveQueryResultData({ msgid, changeSet, sql, autoCommit }) 
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!allowExecuteCustomScript(storedConnection, driver)) {
-      throw new Error('DBGM-00000 Connection is read-only');
+      throw new Error('DBGM-00411 Connection is read-only');
     }
     validateQueryResultChangeSet(driver, changeSet);
     if (!sql) {
       const script = changeSetToSql({ ...changeSet, inserts: [], deletes: [] }, null, driver.dialect);
       if (script.some(command => command.commandType != 'update')) {
-        throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+        throw new Error('DBGM-00412 Query result saving supports UPDATE operations only');
       }
       sql = scriptToSql(driver, script);
     }
@@ -267,7 +267,7 @@ async function handleSaveQueryResultData({ msgid, changeSet, sql, autoCommit }) 
     process.send({
       msgtype: 'response',
       msgid,
-      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error saving query result data'),
+      errorMessage: extractErrorMessage(err, 'DBGM-00413 Error saving query result data'),
     });
   }
 }

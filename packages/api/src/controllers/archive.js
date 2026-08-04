@@ -27,15 +27,15 @@ const logger = getLogger('archive');
  */
 function assertSafeArchiveName(name, label) {
   if (typeof name !== 'string' || name.length === 0) {
-    throw new Error(`DBGM-00000 Invalid ${label}: must be a non-empty string`);
+    throw new Error(`DBGM-00103 Invalid ${label}: must be a non-empty string`);
   }
   if (name.includes('\0') || name.includes('..') || name.includes('/') || name.includes('\\')) {
-    throw new Error(`DBGM-00000 Invalid ${label}: path traversal not allowed`);
+    throw new Error(`DBGM-00242 Invalid ${label}: path traversal not allowed`);
   }
   // Reject names that resolve to the archive root itself (e.g. '.')
   const resolved = path.resolve(archivedir(), name);
   if (resolved === path.resolve(archivedir())) {
-    throw new Error(`DBGM-00000 Invalid ${label}: must not resolve to the archive root`);
+    throw new Error(`DBGM-00243 Invalid ${label}: must not resolve to the archive root`);
   }
 }
 
@@ -68,7 +68,7 @@ module.exports = {
   createLink_meta: true,
   async createLink({ linkedFolder }) {
     if ( typeof linkedFolder !== 'string' || linkedFolder.length === 0) {
-      throw new Error(`DBGM-00000 Invalid linkedFolder: must be a non-empty string`);
+      throw new Error(`DBGM-00244 Invalid linkedFolder: must be a non-empty string`);
     }
     assertSafeArchiveName(path.parse(linkedFolder).name, 'linkedFolder');
     const folder = await this.getNewArchiveFolder({ database: path.parse(linkedFolder).name + '.link' });

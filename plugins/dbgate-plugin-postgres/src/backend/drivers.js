@@ -225,7 +225,7 @@ function createPgDumperConnection(client) {
     async openCopyFrom(request) {
       request.signal?.throwIfAborted();
       if (activeCopy) {
-        throw new Error('DBGM-00000 A PostgreSQL COPY operation is already active');
+        throw new Error('DBGM-00439 A PostgreSQL COPY operation is already active');
       }
 
       const writable = client.query(pgCopyStreams.from(request.query));
@@ -265,7 +265,7 @@ function createPgDumperConnection(client) {
       const handleError = error => rejectCopy(error);
       const handleClose = () => {
         if (!settled) {
-          rejectCopy(new Error('DBGM-00000 PostgreSQL COPY stream closed before completion'));
+          rejectCopy(new Error('DBGM-00440 PostgreSQL COPY stream closed before completion'));
         }
       };
       const handleSignalAbort = () => operation.abort();
@@ -332,7 +332,7 @@ function formatSqlRestoreError(error) {
     `Dump location: line ${error.line}, column ${error.column}.`,
   ].filter(Boolean);
 
-  return `DBGM-00000 ${details.join(' ')}`;
+  return `DBGM-00441 ${details.join(' ')}`;
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -342,7 +342,7 @@ const drivers = driverBases.map(driverBase => ({
 
   async backupDatabase(connection, settings, runner) {
     if (!driverBase.supportsNodejsBackup) {
-      throw new Error('DBGM-00000 dbgate-pg-dumper is available only for PostgreSQL connections');
+      throw new Error('DBGM-00442 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 
     const {
@@ -353,7 +353,7 @@ const drivers = driverBases.map(driverBase => ({
       options = {},
     } = settings;
     if (options.dataOnly && options.schemaOnly) {
-      throw new Error('DBGM-00000 Data-only and schema-only backup options cannot be enabled together');
+      throw new Error('DBGM-00443 Data-only and schema-only backup options cannot be enabled together');
     }
 
     const dbhan = await this.connect({ ...connection, database });
@@ -413,7 +413,7 @@ const drivers = driverBases.map(driverBase => ({
 
   async restoreDatabase(connection, settings, runner) {
     if (!driverBase.supportsNodejsRestore) {
-      throw new Error('DBGM-00000 dbgate-pg-dumper is available only for PostgreSQL connections');
+      throw new Error('DBGM-00444 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 
     const { inputFile, database } = settings;

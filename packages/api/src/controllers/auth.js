@@ -61,7 +61,7 @@ function unauthorizedResponse(req, res, text, mcpAuthMode = null) {
 async function authenticateMcpRequest(req, res, next) {
   const config = await readMcpConfig();
   if (!config.enabled) {
-    return res.status(403).send('DBGM-00000 MCP server is disabled');
+    return res.status(403).send('DBGM-00245 MCP server is disabled');
   }
 
   if (config.authMode == 'none') {
@@ -105,8 +105,8 @@ async function authMiddleware(req, res, next) {
     try {
       return await authenticateMcpRequest(req, res, next);
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'DBGM-00000 Error loading MCP authentication configuration');
-      return res.status(500).send('DBGM-00000 Could not load MCP authentication configuration');
+      logger.error(extractErrorLogData(err), 'DBGM-00246 Error loading MCP authentication configuration');
+      return res.status(500).send('DBGM-00247 Could not load MCP authentication configuration');
     }
   }
 

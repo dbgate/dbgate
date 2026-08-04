@@ -269,7 +269,7 @@ async function sortFile(infile, outfile, sort) {
         try {
           parsed = JSON.parse(line);
         } catch (e) {
-          logger.warn(extractErrorLogData(e), 'DBGM-00000 Skipping invalid JSON line during sort');
+          logger.warn(extractErrorLogData(e), 'DBGM-00416 Skipping invalid JSON line during sort');
           return;
         }
         // Detect and capture the stream header; do not include it in the sort.

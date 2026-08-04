@@ -76,7 +76,7 @@ function removeRestoreUpload(uploadPath) {
   if (!uploadPath) return;
   fs.unlink(uploadPath).catch(error => {
     if (error.code != 'ENOENT') {
-      logger.warn(extractErrorLogData(error), 'DBGM-00000 Error removing temporary restore upload');
+      logger.warn(extractErrorLogData(error), 'DBGM-00248 Error removing temporary restore upload');
     }
   });
 }
@@ -182,7 +182,7 @@ module.exports = {
   handle_copyStreamError(conid, database, { copyStreamError }) {
     const { progressName } = copyStreamError;
     const runid = progressName?.runid;
-    logger.error({ conid, database, copyStreamError }, 'DBGM-00000 Error in database connection copy stream');
+    logger.error({ conid, database, copyStreamError }, 'DBGM-00249 Error in database connection copy stream');
     if (!runid) return;
     if (copyStreamError.dbgateCopyStreamErrorReported) return;
     socket.emit(`runner-progress-${runid}`, {
@@ -997,7 +997,7 @@ module.exports = {
     const { connection, driver, externalTools } = await this.getNativeOpContext(conid);
     const capability = command == 'backup' ? 'supportsNativeBackup' : 'supportsNativeRestore';
     if (!driver[capability]) {
-      throw new Error(`DBGM-00000 The selected database driver does not support native ${command}`);
+      throw new Error(`DBGM-00250 The selected database driver does not support native ${command}`);
     }
 
     return {
@@ -1074,7 +1074,7 @@ module.exports = {
     if (effectiveOptions.backupTool == 'dbgate-pg-dumper') {
       const { connection, driver } = await this.getNativeOpContext(conid);
       if (!driver.supportsNodejsBackup || !driver.backupDatabase) {
-        throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper');
+        throw new Error('DBGM-00251 The selected database driver does not support dbgate-pg-dumper');
       }
       return runners.promiseRunCore(
         runid,
@@ -1121,7 +1121,7 @@ module.exports = {
   nativeBackupCommand_meta: true,
   async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
     if (options?.backupTool == 'dbgate-pg-dumper') {
-      throw new Error('DBGM-00000 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+      throw new Error('DBGM-00252 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
     }
 
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
@@ -1155,7 +1155,7 @@ module.exports = {
       if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
         const { connection, driver } = await this.getNativeOpContext(conid);
         if (!driver.supportsNodejsRestore || !driver.restoreDatabase) {
-          throw new Error('DBGM-00000 The selected database driver does not support dbgate-pg-dumper restore');
+          throw new Error('DBGM-00253 The selected database driver does not support dbgate-pg-dumper restore');
         }
         return runners.promiseRunCore(
           runid,
@@ -1187,7 +1187,7 @@ module.exports = {
   nativeRestoreCommand_meta: true,
   async nativeRestoreCommand({ conid, database, inputFile, options }) {
     if (options?.restoreTool == 'dbgate-pg-dumper') {
-      throw new Error('DBGM-00000 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+      throw new Error('DBGM-00254 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
     }
 
     const commandArgs = await this.getNativeOpCommandArgs('restore', {

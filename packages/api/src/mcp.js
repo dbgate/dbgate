@@ -70,15 +70,15 @@ async function requireOAuthMode(res) {
   try {
     config = await readMcpConfig();
   } catch (err) {
-    res.status(500).json({ apiErrorMessage: 'DBGM-00000 Could not load MCP authentication configuration' });
+    res.status(500).json({ apiErrorMessage: 'DBGM-00350 Could not load MCP authentication configuration' });
     return false;
   }
   if (!config.enabled) {
-    res.status(403).json({ apiErrorMessage: 'DBGM-00000 MCP server is disabled' });
+    res.status(403).json({ apiErrorMessage: 'DBGM-00351 MCP server is disabled' });
     return false;
   }
   if (config.authMode != 'oauth') {
-    res.status(404).json({ apiErrorMessage: 'DBGM-00000 MCP OAuth is not enabled' });
+    res.status(404).json({ apiErrorMessage: 'DBGM-00352 MCP OAuth is not enabled' });
     return false;
   }
   return true;
@@ -100,7 +100,7 @@ function assertValidOAuthRedirect(clientId, redirectUri, config) {
     clientId !== config.oauthClientId ||
     !isSafeRedirectUri(redirectUri)
   ) {
-    throw new Error('DBGM-00000 Invalid OAuth client');
+    throw new Error('DBGM-00353 Invalid OAuth client');
   }
 }
 
@@ -551,7 +551,7 @@ function hasTeamPremiumLicense() {
 
 function requireTeamPremiumLicense() {
   if (!hasTeamPremiumLicense()) {
-    throw new Error('DBGM-00000 Tool requires Team Premium license');
+    throw new Error('DBGM-00354 Tool requires Team Premium license');
   }
 }
 
@@ -582,7 +582,7 @@ function withDbgmCode(message) {
   if (typeof message !== 'string' || message.startsWith('DBGM-')) {
     return message;
   }
-  return `DBGM-00000 ${message}`;
+  return `DBGM-00355 ${message}`;
 }
 
 function isMcpEnabledValue(value) {
@@ -660,7 +660,7 @@ async function requireMcpConnection(conid, req) {
   const list = (await connections.list({}, req)) ?? [];
   const connection = list.find(item => getMcpConnectionId(item) === conid);
   if (!(await isMcpConnectionEnabled(connection, req))) {
-    throw new Error(`DBGM-00000 Connection is not enabled for MCP: ${conid}`);
+    throw new Error(`DBGM-00356 Connection is not enabled for MCP: ${conid}`);
   }
   return connection;
 }
@@ -691,7 +691,7 @@ async function requireMcpDatabase(conid, database, req, requiredRole = 'view') {
   }
   const role = await getMcpDatabaseRole(conid, database, req);
   if (getDatabaseRoleLevelIndex(role) < getDatabaseRoleLevelIndex(requiredRole)) {
-    throw new Error(`DBGM-00000 Database is not enabled for MCP: ${database}`);
+    throw new Error(`DBGM-00357 Database is not enabled for MCP: ${database}`);
   }
 }
 
@@ -727,7 +727,7 @@ async function requireMcpObject(conid, database, objectTypeField, schemaName, pu
   }
   const role = await getMcpTableRole(conid, database, objectTypeField, schemaName, pureName, req);
   if (getTablePermissionRoleLevelIndex(role) < getTablePermissionRoleLevelIndex(requiredRole)) {
-    throw new Error(`DBGM-00000 Object is not enabled for MCP: ${schemaName ? `${schemaName}.` : ''}${pureName}`);
+    throw new Error(`DBGM-00358 Object is not enabled for MCP: ${schemaName ? `${schemaName}.` : ''}${pureName}`);
   }
 }
 
@@ -773,7 +773,7 @@ async function callListConnectionsTool(req) {
 async function callListDatabasesTool(args, req) {
   const conid = args?.conid;
   if (!conid) {
-    throw new Error('DBGM-00000 Missing required argument: conid');
+    throw new Error('DBGM-00359 Missing required argument: conid');
   }
   await requireMcpConnection(conid, req);
 
@@ -786,24 +786,24 @@ async function callListDatabasesTool(args, req) {
 
 function requireConnectionDatabaseArgs(args) {
   if (!args?.conid) {
-    throw new Error('DBGM-00000 Missing required argument: conid');
+    throw new Error('DBGM-00360 Missing required argument: conid');
   }
   if (!args?.database) {
-    throw new Error('DBGM-00000 Missing required argument: database');
+    throw new Error('DBGM-00361 Missing required argument: database');
   }
 }
 
 function requireTableInfoArgs(args) {
   requireConnectionDatabaseArgs(args);
   if (!args?.pureName) {
-    throw new Error('DBGM-00000 Missing required argument: pureName');
+    throw new Error('DBGM-00362 Missing required argument: pureName');
   }
 }
 
 function requireExecuteQueryArgs(args) {
   requireConnectionDatabaseArgs(args);
   if (!args?.sql || typeof args.sql !== 'string') {
-    throw new Error('DBGM-00000 Missing required argument: sql');
+    throw new Error('DBGM-00363 Missing required argument: sql');
   }
 }
 
@@ -813,7 +813,7 @@ function isPlainObject(value) {
 
 function requireNonEmptyObject(value, argName) {
   if (!isPlainObject(value) || Object.keys(value).length === 0) {
-    throw new Error(`DBGM-00000 ${argName} must be a non-empty object`);
+    throw new Error(`DBGM-00364 ${argName} must be a non-empty object`);
   }
 }
 
@@ -821,7 +821,7 @@ async function createMutationDumper(conid) {
   const connection = await connections.getCore({ conid });
   const driver = requireEngineDriver(connection);
   if (!driver?.createDumper) {
-    throw new Error('DBGM-00000 SQL mutation tools are not supported by this connection driver');
+    throw new Error('DBGM-00365 SQL mutation tools are not supported by this connection driver');
   }
   return driver.createDumper();
 }
@@ -842,7 +842,7 @@ function getInsertRowsColumns(rows) {
       rowColumns.some(column => !columns.includes(column)) ||
       columns.some(column => !rowColumns.includes(column))
     ) {
-      throw new Error('DBGM-00000 All rows must use the same columns');
+      throw new Error('DBGM-00366 All rows must use the same columns');
     }
   }
   return columns;
@@ -911,7 +911,7 @@ function buildUpdateSql(dmp, args) {
 function requireInsertRowsArgs(args) {
   requireTableInfoArgs(args);
   if (!Array.isArray(args?.rows) || args.rows.length === 0) {
-    throw new Error('DBGM-00000 rows must be a non-empty array');
+    throw new Error('DBGM-00367 rows must be a non-empty array');
   }
   args.rows.forEach((row, index) => requireNonEmptyObject(row, `rows[${index}]`));
 }
@@ -928,7 +928,7 @@ function normalizeLimit(limit) {
   }
   const parsed = Number(limit);
   if (!Number.isInteger(parsed) || parsed < 1) {
-    throw new Error('DBGM-00000 limit must be a positive integer');
+    throw new Error('DBGM-00368 limit must be a positive integer');
   }
   return Math.min(parsed, maxDataLimit);
 }
@@ -939,7 +939,7 @@ function normalizeOffset(offset) {
   }
   const parsed = Number(offset);
   if (!Number.isInteger(parsed) || parsed < 0) {
-    throw new Error('DBGM-00000 offset must be a non-negative integer');
+    throw new Error('DBGM-00369 offset must be a non-negative integer');
   }
   return parsed;
 }
@@ -1012,10 +1012,10 @@ async function loadTableInfo(args, req) {
   const matchingTables = findMatchingNamedObject(tables, args);
 
   if (matchingTables.length === 0) {
-    throw new Error(`DBGM-00000 Table not found: ${args.schemaName ? `${args.schemaName}.` : ''}${args.pureName}`);
+    throw new Error(`DBGM-00370 Table not found: ${args.schemaName ? `${args.schemaName}.` : ''}${args.pureName}`);
   }
   if (matchingTables.length > 1) {
-    throw new Error(`DBGM-00000 Ambiguous table name, provide schemaName: ${args.pureName}`);
+    throw new Error(`DBGM-00371 Ambiguous table name, provide schemaName: ${args.pureName}`);
   }
 
   return {
@@ -1048,14 +1048,14 @@ function getColumnInfoByName(table) {
 function requireColumn(columnInfoByName, columnName) {
   const column = columnInfoByName.get(columnName);
   if (!column) {
-    throw new Error(`DBGM-00000 Unknown column: ${columnName}`);
+    throw new Error(`DBGM-00372 Unknown column: ${columnName}`);
   }
   return column;
 }
 
 function createDynamicColumn(columnName) {
   if (!columnName || typeof columnName !== 'string') {
-    throw new Error('DBGM-00000 Filter column is required');
+    throw new Error('DBGM-00373 Filter column is required');
   }
   return {
     columnName,
@@ -1085,12 +1085,12 @@ function buildFilterCondition(filter, columnInfoByName) {
     return null;
   }
   if (Array.isArray(filter)) {
-    throw new Error('DBGM-00000 filter must be an object');
+    throw new Error('DBGM-00374 filter must be an object');
   }
   if (filter.and != null || filter.or != null) {
     const key = filter.and != null ? 'and' : 'or';
     if (!Array.isArray(filter[key])) {
-      throw new Error(`DBGM-00000 ${key} filter must be an array`);
+      throw new Error(`DBGM-00375 ${key} filter must be an array`);
     }
     const conditions = filter[key].map(item => buildFilterCondition(item, columnInfoByName)).filter(Boolean);
     if (conditions.length === 0) {
@@ -1151,7 +1151,7 @@ function buildFilterCondition(filter, columnInfoByName) {
       };
     case 'in':
       if (!Array.isArray(filter.values)) {
-        throw new Error('DBGM-00000 in filter requires values array');
+        throw new Error('DBGM-00376 in filter requires values array');
       }
       return {
         conditionType: 'in',
@@ -1169,7 +1169,7 @@ function buildFilterCondition(filter, columnInfoByName) {
         expr,
       };
     default:
-      throw new Error(`DBGM-00000 Unsupported filter operator: ${op}`);
+      throw new Error(`DBGM-00377 Unsupported filter operator: ${op}`);
   }
 }
 
@@ -1186,7 +1186,7 @@ function buildTableDataSelect(args, table) {
   const columnInfoByName = getColumnInfoByName(table);
   const selectedColumnNames = args.columns?.length ? args.columns : (table.columns ?? []).map(column => column.columnName);
   if (!Array.isArray(selectedColumnNames) || selectedColumnNames.length === 0) {
-    throw new Error('DBGM-00000 No columns selected');
+    throw new Error('DBGM-00378 No columns selected');
   }
 
   const selectedColumns = selectedColumnNames.map(columnName => requireColumn(columnInfoByName, columnName));
@@ -1218,7 +1218,7 @@ function buildTableDataSelect(args, table) {
 
   if (args.orderBy != null) {
     if (!Array.isArray(args.orderBy)) {
-      throw new Error('DBGM-00000 orderBy must be an array');
+      throw new Error('DBGM-00379 orderBy must be an array');
     }
     select.orderBy = args.orderBy.map(item => {
       const column = requireColumn(columnInfoByName, item.column);
@@ -1256,7 +1256,7 @@ async function loadDataTarget(args, req, options = {}) {
 
   if (options.preferCollections) {
     if (matchingCollections.length > 1) {
-      throw new Error(`DBGM-00000 Ambiguous collection name, provide schemaName: ${args.pureName}`);
+      throw new Error(`DBGM-00380 Ambiguous collection name, provide schemaName: ${args.pureName}`);
     }
     if (matchingCollections.length === 1) {
       return {
@@ -1267,7 +1267,7 @@ async function loadDataTarget(args, req, options = {}) {
   }
 
   if (matchingTables.length > 1) {
-    throw new Error(`DBGM-00000 Ambiguous table name, provide schemaName: ${args.pureName}`);
+    throw new Error(`DBGM-00381 Ambiguous table name, provide schemaName: ${args.pureName}`);
   }
   if (matchingTables.length === 1) {
     return {
@@ -1277,7 +1277,7 @@ async function loadDataTarget(args, req, options = {}) {
   }
 
   if (matchingCollections.length > 1) {
-    throw new Error(`DBGM-00000 Ambiguous collection name, provide schemaName: ${args.pureName}`);
+    throw new Error(`DBGM-00382 Ambiguous collection name, provide schemaName: ${args.pureName}`);
   }
   if (matchingCollections.length === 1) {
     return {
@@ -1286,7 +1286,7 @@ async function loadDataTarget(args, req, options = {}) {
     };
   }
 
-  throw new Error(`DBGM-00000 Table or collection not found: ${args.schemaName ? `${args.schemaName}.` : ''}${args.pureName}`);
+  throw new Error(`DBGM-00383 Table or collection not found: ${args.schemaName ? `${args.schemaName}.` : ''}${args.pureName}`);
 }
 
 function inferRowColumns(rows) {
@@ -1330,7 +1330,7 @@ function buildCollectionDataOptions(args) {
 
   if (args.orderBy != null) {
     if (!Array.isArray(args.orderBy)) {
-      throw new Error('DBGM-00000 orderBy must be an array');
+      throw new Error('DBGM-00384 orderBy must be an array');
     }
     options.sort = args.orderBy.map(item => ({
       columnName: item.column,
@@ -1553,7 +1553,7 @@ async function handleMcpRequest(req, res) {
     return handleJsonRpcRequest(req.body, req, res);
   }
 
-  return res.status(400).json({ apiErrorMessage: 'DBGM-00000 Unsupported MCP message' });
+  return res.status(400).json({ apiErrorMessage: 'DBGM-00385 Unsupported MCP message' });
 }
 
 async function handleOAuthProtectedResourceMetadata(req, res) {
@@ -1597,18 +1597,18 @@ async function handleOAuthAuthorize(req, res) {
 
   try {
     if (params.response_type !== 'code') {
-      throw new Error('DBGM-00000 Unsupported response_type');
+      throw new Error('DBGM-00386 Unsupported response_type');
     }
     if (!params.redirect_uri || !params.client_id) {
-      throw new Error('DBGM-00000 Missing OAuth client parameters');
+      throw new Error('DBGM-00387 Missing OAuth client parameters');
     }
     assertValidOAuthRedirect(params.client_id, params.redirect_uri, config);
     if (!params.code_challenge || params.code_challenge_method !== 'S256') {
-      throw new Error('DBGM-00000 PKCE S256 code challenge is required');
+      throw new Error('DBGM-00388 PKCE S256 code challenge is required');
     }
     const resource = getMcpResourceUrl(req);
     if (params.resource && params.resource !== resource) {
-      throw new Error('DBGM-00000 Invalid OAuth resource');
+      throw new Error('DBGM-00389 Invalid OAuth resource');
     }
 
     pruneOAuthAuthorizationCodes();
@@ -1645,7 +1645,7 @@ async function handleOAuthToken(req, res) {
   if (params.grant_type !== 'authorization_code') {
     return res.status(400).json({
       error: 'unsupported_grant_type',
-      error_description: 'DBGM-00000 Unsupported grant_type',
+      error_description: 'DBGM-00390 Unsupported grant_type',
     });
   }
 
@@ -1656,7 +1656,7 @@ async function handleOAuthToken(req, res) {
   ) {
     return res.status(401).json({
       error: 'invalid_client',
-      error_description: 'DBGM-00000 Invalid OAuth client credentials',
+      error_description: 'DBGM-00391 Invalid OAuth client credentials',
     });
   }
 
@@ -1666,19 +1666,19 @@ async function handleOAuthToken(req, res) {
   if (!codeData) {
     return res.status(400).json({
       error: 'invalid_grant',
-      error_description: 'DBGM-00000 Invalid or expired authorization code',
+      error_description: 'DBGM-00392 Invalid or expired authorization code',
     });
   }
   if (codeData.clientId !== credentials.clientId || codeData.redirectUri !== params.redirect_uri) {
     return res.status(400).json({
       error: 'invalid_grant',
-      error_description: 'DBGM-00000 Authorization code was issued for a different client',
+      error_description: 'DBGM-00393 Authorization code was issued for a different client',
     });
   }
   if (sha256Base64Url(params.code_verifier || '') !== codeData.codeChallenge) {
     return res.status(400).json({
       error: 'invalid_grant',
-      error_description: 'DBGM-00000 Invalid PKCE verifier',
+      error_description: 'DBGM-00394 Invalid PKCE verifier',
     });
   }
 

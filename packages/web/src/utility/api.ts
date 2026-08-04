@@ -217,7 +217,7 @@ export async function apiCall(
       const responseText = await resp.text();
       const responsePreview = responseText.replace(/\s+/g, ' ').trim().slice(0, 120);
       throw new Error(
-        `DBGM-00000 API request ${route} returned ${resp.status} ${contentType || 'without Content-Type'} instead of JSON${
+        `DBGM-00437 API request ${route} returned ${resp.status} ${contentType || 'without Content-Type'} instead of JSON${
           responsePreview ? `: ${responsePreview}` : ''
         }`
       );

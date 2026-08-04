@@ -62,7 +62,7 @@ function getPublicBaseUrl(req) {
     try {
       parsed = new URL(configuredUrl);
     } catch (error) {
-      throw new Error('DBGM-00000 MCP_PUBLIC_URL must be a valid HTTP(S) origin');
+      throw new Error('DBGM-00418 MCP_PUBLIC_URL must be a valid HTTP(S) origin');
     }
     if (
       !['http:', 'https:'].includes(parsed.protocol) ||
@@ -73,11 +73,11 @@ function getPublicBaseUrl(req) {
       parsed.hash
     ) {
       throw new Error(
-        'DBGM-00000 MCP_PUBLIC_URL must be an HTTP(S) origin without a path, credentials, query, or fragment'
+        'DBGM-00419 MCP_PUBLIC_URL must be an HTTP(S) origin without a path, credentials, query, or fragment'
       );
     }
     if (parsed.protocol !== 'https:' && !isLocalHostname(parsed.hostname)) {
-      throw new Error('DBGM-00000 MCP_PUBLIC_URL must use HTTPS for a non-local origin');
+      throw new Error('DBGM-00420 MCP_PUBLIC_URL must use HTTPS for a non-local origin');
     }
     return parsed.origin;
   }
@@ -85,19 +85,19 @@ function getPublicBaseUrl(req) {
   const protocol = req?.protocol || (req?.socket?.encrypted ? 'https' : 'http');
   const host = req?.headers?.host || `localhost:${process.env.PORT || 3000}`;
   if (!['http', 'https'].includes(protocol)) {
-    throw new Error('DBGM-00000 Could not determine a valid MCP public protocol');
+    throw new Error('DBGM-00421 Could not determine a valid MCP public protocol');
   }
   let requestUrl;
   try {
     requestUrl = new URL(`${protocol}://${host}`);
   } catch (error) {
-    throw new Error('DBGM-00000 Could not determine a valid MCP public URL');
+    throw new Error('DBGM-00422 Could not determine a valid MCP public URL');
   }
   if (requestUrl.username || requestUrl.password || requestUrl.pathname !== '/' || requestUrl.search || requestUrl.hash) {
-    throw new Error('DBGM-00000 Could not determine a valid MCP public URL');
+    throw new Error('DBGM-00423 Could not determine a valid MCP public URL');
   }
   if (requestUrl.protocol !== 'https:' && !isLocalHostname(requestUrl.hostname)) {
-    throw new Error('DBGM-00000 MCP OAuth requires HTTPS for a non-local public URL');
+    throw new Error('DBGM-00424 MCP OAuth requires HTTPS for a non-local public URL');
   }
   return requestUrl.origin;
 }
