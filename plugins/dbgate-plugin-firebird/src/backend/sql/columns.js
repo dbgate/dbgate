@@ -15,6 +15,7 @@ SELECT DISTINCT
         ELSE 0
     END AS "isPrimaryKey",
     f.rdb$field_type AS "dataTypeCode",
+    f.rdb$field_sub_type AS "subType",
     f.rdb$field_precision AS "precision",
     f.rdb$field_scale AS "scale",
     f.rdb$field_length / 4 AS "length",

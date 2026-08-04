@@ -3,6 +3,7 @@ SELECT
     TRIM(FA.RDB$FUNCTION_NAME) AS "owningObjectName",
     CAST(NULL AS VARCHAR(63)) AS "parameterName",
     FA.RDB$FIELD_TYPE AS "dataTypeCode",
+    FA.RDB$FIELD_SUB_TYPE AS "subType",
     FA.RDB$FIELD_PRECISION AS "precision",
     FA.RDB$FIELD_SCALE AS "scale",
     FA.RDB$FIELD_LENGTH AS "length",

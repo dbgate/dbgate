@@ -1,12 +1,18 @@
 const { createBulkInsertStreamBase } = require('dbgate-tools');
 
-function getDataTypeString({ dataTypeCode, scale, length, precision }) {
+function getDataTypeString({ dataTypeCode, subType, scale, length, precision }) {
+  const getExactNumericType = defaultType => {
+    if (subType === 1) return `numeric(${precision}, ${Math.abs(scale)})`;
+    if (subType === 2) return `decimal(${precision}, ${Math.abs(scale)})`;
+    return defaultType;
+  };
+
   switch (dataTypeCode) {
     case 7:
-      return 'smallint';
+      return getExactNumericType('smallint');
 
     case 8:
-      return 'integer';
+      return getExactNumericType('integer');
 
     case 9:
       return 'bigint';
@@ -27,7 +33,7 @@ function getDataTypeString({ dataTypeCode, scale, length, precision }) {
       return `char(${length})`;
 
     case 16:
-      return `decimal(${precision}, ${Math.abs(scale)})`;
+      return getExactNumericType('bigint');
 
     case 27:
       return 'double precision';
@@ -101,6 +107,7 @@ function getLegacyFunctionCreateSql(func, parameters) {
   const mechanismSql = (mechanism, isReturn) => {
     if (mechanism === 0 && isReturn) return ' BY VALUE';
     if (mechanism === 2) return ' BY DESCRIPTOR';
+    if (mechanism === 3) return ' BY SCALAR_ARRAY_DESCRIPTOR';
     if (mechanism === -1 && isReturn) return ' FREE_IT';
     if (mechanism === -2 && isReturn) return ' BY DESCRIPTOR FREE_IT';
     return '';
