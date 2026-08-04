@@ -92,6 +92,32 @@ function getFormattedDefaultValue(defaultValue) {
   return defaultValue.replace(/^default\s*/i, '');
 }
 
+function getLegacyFunctionCreateSql(func, parameters) {
+  const quoteIdentifier = value => `"${String(value).replace(/"/g, '""')}"`;
+  const quoteString = value => `'${String(value).replace(/'/g, "''")}'`;
+  const mechanismSql = (mechanism, isReturn) => {
+    if (mechanism === 0 && isReturn) return ' BY VALUE';
+    if (mechanism === 2) return ' BY DESCRIPTOR';
+    if (mechanism === -1 && isReturn) return ' FREE_IT';
+    if (mechanism === -2 && isReturn) return ' BY DESCRIPTOR FREE_IT';
+    return '';
+  };
+
+  const inputParameters = parameters.filter(param => param.parameterMode !== 'RETURN');
+  const returnParameter = parameters.find(param => param.parameterMode === 'RETURN');
+  const argumentsSql = inputParameters.length
+    ? `\n${inputParameters
+        .map(param => `    ${param.dataType}${mechanismSql(param.mechanism, false)}`)
+        .join(',\n')}`
+    : '';
+  const returnType = returnParameter?.dataType || 'UNKNOWN';
+
+  return `/* Reconstructed from Firebird metadata; the original UDF declaration source is not stored. */
+DECLARE EXTERNAL FUNCTION ${quoteIdentifier(func.pureName)}${argumentsSql}
+RETURNS ${returnType}${mechanismSql(returnParameter?.mechanism, true)}
+ENTRY_POINT ${quoteString(func.entryPoint)} MODULE_NAME ${quoteString(func.moduleName)};`;
+}
+
 function transformRow(row) {
   return Object.fromEntries(
     Object.entries(row).map(([key, value]) => {
@@ -125,6 +151,7 @@ module.exports = {
   getTriggerEventType,
   getTriggerTiming,
   getFormattedDefaultValue,
+  getLegacyFunctionCreateSql,
   getTriggerCreateSql,
   createFirebirdInsertStream,
 };

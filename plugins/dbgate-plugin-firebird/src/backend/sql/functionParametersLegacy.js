@@ -1,0 +1,24 @@
+module.exports = `
+SELECT
+    TRIM(FA.RDB$FUNCTION_NAME) AS "owningObjectName",
+    CAST(NULL AS VARCHAR(63)) AS "parameterName",
+    FA.RDB$FIELD_TYPE AS "dataTypeCode",
+    FA.RDB$FIELD_PRECISION AS "precision",
+    FA.RDB$FIELD_SCALE AS "scale",
+    FA.RDB$FIELD_LENGTH AS "length",
+    FA.RDB$MECHANISM AS "mechanism",
+    TRIM(CASE
+        WHEN FA.RDB$ARGUMENT_POSITION = F.RDB$RETURN_ARGUMENT THEN 'RETURN'
+        ELSE 'IN'
+    END) AS "parameterMode",
+    FA.RDB$ARGUMENT_POSITION AS "position",
+    TRIM(FA.RDB$FUNCTION_NAME) AS "pureName"
+FROM
+    RDB$FUNCTION_ARGUMENTS FA
+JOIN
+    RDB$FUNCTIONS F ON FA.RDB$FUNCTION_NAME = F.RDB$FUNCTION_NAME
+WHERE
+    COALESCE(F.RDB$SYSTEM_FLAG, 0) = 0
+ORDER BY
+    "owningObjectName", "position";
+`;

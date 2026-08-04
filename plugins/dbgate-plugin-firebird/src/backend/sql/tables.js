@@ -38,7 +38,7 @@ FROM
 WHERE
     r.RDB$SYSTEM_FLAG = 0 -- only user-defined tables
 AND
-    r.RDB$RELATION_TYPE = 0 -- only tables (not views, etc.)
+    COALESCE(r.RDB$RELATION_TYPE, 0) = 0 -- NULL is used for tables created by older Firebird versions
 AND
     ('tables:' || TRIM(r.RDB$RELATION_NAME)) =OBJECT_ID_CONDITION
 ORDER BY
