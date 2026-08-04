@@ -4,6 +4,7 @@ SELECT
     TRIM(F.RDB$FUNCTION_NAME) AS "objectId",
     TRIM('FUNCTION') AS "objectTypeField",
     TRIM(F.RDB$DESCRIPTION) AS "objectComment",
+    1 AS "legacyFlag",
     TRIM(F.RDB$ENTRYPOINT) AS "entryPoint",
     TRIM(F.RDB$MODULE_NAME) AS "moduleName",
     CAST(NULL AS VARCHAR(5000)) AS "createSql",

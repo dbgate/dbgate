@@ -2,10 +2,11 @@ module.exports = `
 SELECT
     TRIM(FA.RDB$FUNCTION_NAME) AS "owningObjectName",  -- Name of the function this parameter belongs to
     TRIM(FA.RDB$ARGUMENT_NAME) AS "parameterName",
-    FFLDS.RDB$FIELD_TYPE AS "dataTypeCode",                  -- SQL data type code from RDB$FIELDS
-    FFLDS.rdb$field_precision AS "precision",
-    FFLDS.rdb$field_scale AS "scale",
-    FFLDS.rdb$field_length AS "length",
+    COALESCE(FFLDS.RDB$FIELD_TYPE, FA.RDB$FIELD_TYPE) AS "dataTypeCode",
+    COALESCE(FFLDS.RDB$FIELD_PRECISION, FA.RDB$FIELD_PRECISION) AS "precision",
+    COALESCE(FFLDS.RDB$FIELD_SCALE, FA.RDB$FIELD_SCALE) AS "scale",
+    COALESCE(FFLDS.RDB$FIELD_LENGTH, FA.RDB$FIELD_LENGTH) AS "length",
+    FA.RDB$MECHANISM AS "mechanism",
 
     TRIM(CASE
         WHEN FA.RDB$ARGUMENT_POSITION = F.RDB$RETURN_ARGUMENT THEN 'RETURN'
@@ -20,8 +21,8 @@ FROM
     RDB$FUNCTION_ARGUMENTS FA
 JOIN
     RDB$FUNCTIONS F ON FA.RDB$FUNCTION_NAME = F.RDB$FUNCTION_NAME
-JOIN
-    RDB$FIELDS FFLDS ON FA.RDB$FIELD_SOURCE = FFLDS.RDB$FIELD_NAME -- Crucial join to get RDB$FIELDS.RDB$TYPE
+LEFT JOIN
+    RDB$FIELDS FFLDS ON FA.RDB$FIELD_SOURCE = FFLDS.RDB$FIELD_NAME
 WHERE
     COALESCE(F.RDB$SYSTEM_FLAG, 0) = 0 -- Filter for user-defined functions
 ORDER BY

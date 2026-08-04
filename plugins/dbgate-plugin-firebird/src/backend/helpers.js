@@ -33,13 +33,16 @@ function getDataTypeString({ dataTypeCode, scale, length, precision }) {
       return 'double precision';
 
     case 35:
-      return 'blob';
+      return 'timestamp';
+
+    case 40:
+      return 'cstring';
 
     case 37:
       return `varchar(${length})`;
 
     case 261:
-      return 'cstring';
+      return 'blob';
 
     default:
       if (dataTypeCode === null || dataTypeCode === undefined) return 'UNKNOWN';

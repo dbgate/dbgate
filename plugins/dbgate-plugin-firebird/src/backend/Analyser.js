@@ -89,12 +89,13 @@ class Analyser extends DatabaseAnalyser {
             dataType: getDataTypeString(param),
           }));
         const returnParameter = parameters?.find(param => param.parameterMode === 'RETURN');
+        const isLegacyFunction = toBoolean(func.legacyFlag);
 
         return {
           ...func,
           objectId: `functions:${func.pureName}`,
           requiresFormat: toBoolean(func.requiresFormat),
-          createSql: func.createSql ?? getLegacyFunctionCreateSql(func, parameters ?? []),
+          createSql: isLegacyFunction ? getLegacyFunctionCreateSql(func, parameters ?? []) : func.createSql,
           returnType: returnParameter?.dataType,
           parameters,
         };
