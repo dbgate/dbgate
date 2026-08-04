@@ -4,10 +4,10 @@ SELECT
     TRIM(rc.RDB$CONSTRAINT_NAME) AS "constraintName",
     TRIM(iseg.RDB$FIELD_NAME) AS "columnName",
     CAST(NULL AS VARCHAR(63)) AS "refColumnName",
-    FALSE AS "isIncludedColumn",
+    0 AS "isIncludedColumn",
     CASE COALESCE(idx.RDB$INDEX_TYPE, 0) -- Treat NULL as 0 (ascending)
-        WHEN 1 THEN TRUE  -- Assuming 1 means DESCENDING for regular (non-expression) indexes
-        ELSE FALSE        -- Assuming 0 (or NULL) means ASCENDING for regular indexes
+        WHEN 1 THEN 1  -- Assuming 1 means DESCENDING for regular (non-expression) indexes
+        ELSE 0        -- Assuming 0 (or NULL) means ASCENDING for regular indexes
     END AS "isDescending"
 FROM
     RDB$RELATION_CONSTRAINTS rc

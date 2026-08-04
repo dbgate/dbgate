@@ -2,7 +2,7 @@ module.exports = `
 SELECT DISTINCT
     CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255)) AS "tableName",
     CAST(TRIM(rf.rdb$field_name) AS VARCHAR(255)) AS "columnName",
-    CASE rf.rdb$null_flag WHEN 1 THEN TRUE ELSE FALSE END AS "notNull",
+    CASE rf.rdb$null_flag WHEN 1 THEN 1 ELSE 0 END AS "notNull",
     CASE
         WHEN EXISTS (
             SELECT 1
@@ -11,18 +11,19 @@ SELECT DISTINCT
             WHERE rc.rdb$relation_name = rf.rdb$relation_name
               AND idx.rdb$field_name = rf.rdb$field_name
               AND rc.rdb$constraint_type = 'PRIMARY KEY'
-        ) THEN TRUE
-        ELSE FALSE
+        ) THEN 1
+        ELSE 0
     END AS "isPrimaryKey",
     f.rdb$field_type AS "dataTypeCode",
+    f.rdb$field_sub_type AS "subType",
     f.rdb$field_precision AS "precision",
     f.rdb$field_scale AS "scale",
     f.rdb$field_length / 4 AS "length",
     rf.RDB$DEFAULT_SOURCE AS "defaultValue",
     rf.rdb$description AS "columnComment",
     CASE
-        WHEN f.rdb$field_type IN (8, 9, 16) AND f.rdb$field_scale < 0 THEN TRUE
-        ELSE FALSE
+        WHEN f.rdb$field_type IN (8, 9, 16) AND f.rdb$field_scale < 0 THEN 1
+        ELSE 0
     END AS "isUnsigned",
     CAST(TRIM(rf.rdb$relation_name) AS VARCHAR(255)) AS "pureName"
 FROM
