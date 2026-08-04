@@ -27,7 +27,7 @@ function getDataTypeString({ dataTypeCode, scale, length, precision }) {
       return `char(${length})`;
 
     case 16:
-      return `decimal(${precision}, ${scale})`;
+      return `decimal(${precision}, ${Math.abs(scale)})`;
 
     case 27:
       return 'double precision';
@@ -36,7 +36,7 @@ function getDataTypeString({ dataTypeCode, scale, length, precision }) {
       return 'timestamp';
 
     case 40:
-      return 'cstring';
+      return `cstring(${length})`;
 
     case 37:
       return `varchar(${length})`;
