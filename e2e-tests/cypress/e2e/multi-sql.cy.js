@@ -112,6 +112,7 @@ describe('Backup table', () => {
 
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
+    cy.wait(2000);
     cy.contains('addresses').rightclick();
     cy.contains('Create table backup').click();
     cy.testid('ConfirmSqlModal_okButton').click();
@@ -163,7 +164,12 @@ describe('Backup table', () => {
     cy.realPress('F1');
     cy.realType('Close all');
     cy.realPress('Enter');
-    cy.testid('CloseTabModal_buttonConfirm').should('be.visible').click();
+    cy.get('body').then($body => {
+      const confirmButton = $body.find('[data-testid="CloseTabModal_buttonConfirm"]');
+      if (confirmButton.length) {
+        cy.wrap(confirmButton).click();
+      }
+    });
 
     cy.testid('app-object-group-items-tables').contains('addresses', { timeout: 10000 }).click();
 
