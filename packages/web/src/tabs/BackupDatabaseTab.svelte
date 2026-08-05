@@ -301,6 +301,7 @@
                       );
                     }}
                     value={_t('backupDatabase.openInTab', { defaultMessage: 'Open in tab' })}
+                    data-testid="BackupDatabaseTab_openInTab"
                   />
                   {#if backupCancelled}
                     <div class="backup-cancelled">
@@ -350,7 +351,7 @@
                 />
               </SearchBoxWrapper>
 
-              <WidgetsInnerContainer fixedWidth={objectsWidth}>
+              <WidgetsInnerContainer fixedWidth={objectsWidth} data-testid="BackupDatabaseTab_chooseTables">
                 <AppObjectList
                   list={objectList.map(x => ({ ...x, conid, database }))}
                   module={databaseObjectAppObject}
