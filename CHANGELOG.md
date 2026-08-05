@@ -9,6 +9,16 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.4
+
+- ADDED: Built-in PostgreSQL backup and restore without requiring external PostgreSQL tools (Community)
+- ADDED: PostgreSQL backup and restore options, including target PostgreSQL version and table selection (Premium)
+- ADDED: Team folder permissions can be configured using environment variables (Team Premium)
+- CHANGED: Improved Firebird metadata loading for functions, parameters, constraints, data type subtypes, and legacy server versions #1516
+- FIXED: MySQL and MariaDB system views and system-versioned tables not being displayed #1519
+- FIXED: MongoDB filters not handling boolean values correctly #1513
+- CHANGED: Improved backup, restore, and export status and error reporting
+
 ## 7.2.3
 
 - ADDED: Read-only MCP server support (Community, Docker)

@@ -13,11 +13,11 @@ const {
 
 async function requireMcpAdmin(req) {
   if (!isProApp() || !process.env.STORAGE_DATABASE) {
-    throw new Error('DBGM-00000 MCP administration requires Team Premium');
+    throw new Error('DBGM-00257 MCP administration requires Team Premium');
   }
   const permissions = await loadPermissionsFromRequest(req);
   if (!hasPermission('admin/settings', permissions)) {
-    throw new Error('DBGM-00000 Permission admin/settings not granted');
+    throw new Error('DBGM-00335 Permission admin/settings not granted');
   }
 }
 
@@ -77,7 +77,7 @@ module.exports = {
   async updateConfig({ enabled, authMode }, req) {
     await requireMcpAdmin(req);
     if (typeof enabled !== 'boolean' || !MCP_AUTH_MODES.includes(authMode)) {
-      throw new Error('DBGM-00000 Invalid MCP configuration');
+      throw new Error('DBGM-00336 Invalid MCP configuration');
     }
 
     const current = await readStoredConfig();

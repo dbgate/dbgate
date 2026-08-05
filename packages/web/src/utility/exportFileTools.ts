@@ -110,7 +110,11 @@ async function runImportExportScript({
 
   function handleRunnerInfo(data) {
     if (data.severity == 'error') {
-      finishErrorMessage = data.message || _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
+      finishErrorMessage =
+        data.errorMessage ||
+        data.message ||
+        _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
+      updateSnackbarProgressMessage(snackId, finishErrorMessage);
     }
   }
 

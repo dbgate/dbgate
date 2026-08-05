@@ -246,8 +246,10 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   readOnlySessions: boolean;
   dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
-  supportsDatabaseBackup?: boolean;
-  supportsDatabaseRestore?: boolean;
+  supportsNativeBackup?: boolean;
+  supportsNativeRestore?: boolean;
+  supportsNodejsBackup?: boolean;
+  supportsNodejsRestore?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   supportsIncrementalAnalysis?: boolean;
@@ -408,11 +410,37 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
     settings: BackupDatabaseSettings,
     externalTools: { [tool: string]: string }
   ): CommandLineDefinition;
+  backupDatabase?(
+    connection: any,
+    settings: {
+      outputFile: string;
+      database: string;
+      options?: { [key: string]: any };
+      selectedTables?: { pureName: string; schemaName?: string }[];
+      skippedTables?: { pureName: string; schemaName?: string }[];
+    },
+    runner: {
+      signal: AbortSignal;
+      info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+    }
+  ): Promise<void>;
   restoreDatabaseCommand(
     connection: any,
     settings: RestoreDatabaseSettings,
     externalTools: { [tool: string]: string }
   ): CommandLineDefinition;
+  restoreDatabase?(
+    connection: any,
+    settings: {
+      inputFile: string;
+      database: string;
+      options?: { [key: string]: any };
+    },
+    runner: {
+      signal: AbortSignal;
+      info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+    }
+  ): Promise<void>;
   transformNativeCommandMessage(
     message: {
       message: string;

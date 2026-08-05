@@ -41,7 +41,7 @@ function unzipDirectory(zipPath, outputDirectory) {
       zipFile.on('entry', entry => {
         // Null-byte poison check
         if (entry.fileName.includes('\0')) {
-          return safeReject(new Error(`DBGM-00000 ZIP entry with null byte in filename rejected`));
+          return safeReject(new Error(`DBGM-00414 ZIP entry with null byte in filename rejected`));
         }
 
         const destPath = path.join(outputDirectory, entry.fileName);
@@ -50,7 +50,7 @@ function unzipDirectory(zipPath, outputDirectory) {
         // Zip-slip protection: every extracted path must stay inside outputDirectory
         if (resolvedDest !== resolvedOutputDir && !resolvedDest.startsWith(resolvedOutputDir + path.sep)) {
           return safeReject(
-            new Error(`DBGM-00000 ZIP slip detected: entry "${entry.fileName}" would escape output directory`)
+            new Error(`DBGM-00415 ZIP slip detected: entry "${entry.fileName}" would escape output directory`)
           );
         }
 

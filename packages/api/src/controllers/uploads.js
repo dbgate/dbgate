@@ -1,31 +1,84 @@
 const crypto = require('crypto');
 const path = require('path');
+const fs = require('fs/promises');
 const { uploadsdir } = require('../utility/directories');
-const { getLogger } = require('dbgate-tools');
+const { extractErrorLogData, getLogger } = require('dbgate-tools');
 const logger = getLogger('uploads');
+
+function getUploadPath(uploadName) {
+  if (
+    !uploadName ||
+    path.basename(uploadName) != uploadName ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uploadName)
+  ) {
+    throw new Error('DBGM-00344 Invalid temporary upload name');
+  }
+  return path.join(uploadsdir(), uploadName);
+}
 
 module.exports = {
   upload_meta: {
     method: 'post',
     raw: true,
   },
-  upload(req, res) {
+  async upload(req, res) {
     const { data } = req.files || {};
     if (!data) {
       res.json(null);
       return;
     }
+    if (data.truncated) {
+      if (data.tempFilePath) {
+        await fs.unlink(data.tempFilePath).catch(() => {});
+      }
+      res.status(413).json({
+        message: 'DBGM-00345 Uploaded file was truncated before it reached DbGate',
+      });
+      return;
+    }
+
     const uploadName = crypto.randomUUID();
     const filePath = path.join(uploadsdir(), uploadName);
     logger.info(`DBGM-00025 Uploading file ${data.name}, size=${data.size}`);
 
-    data.mv(filePath, () => {
+    try {
+      await data.mv(filePath);
+      const uploadedFile = await fs.stat(filePath);
+      if (uploadedFile.size != data.size) {
+        await fs.unlink(filePath).catch(() => {});
+        res.status(400).json({
+          message: `DBGM-00346 Uploaded file size mismatch: expected ${data.size} bytes, stored ${uploadedFile.size} bytes`,
+        });
+        return;
+      }
+
       res.json({
         originalName: data.name,
         uploadName,
         filePath,
       });
-    });
+    } catch (error) {
+      await fs.unlink(filePath).catch(() => {});
+      logger.error(extractErrorLogData(error), 'DBGM-00347 Error storing uploaded file');
+      res.status(500).json({
+        message: 'DBGM-00348 Error storing uploaded file',
+      });
+    }
+  },
+
+  remove_meta: true,
+  async remove({ uploadName }) {
+    const uploadPath = getUploadPath(uploadName);
+    try {
+      await fs.unlink(uploadPath);
+      return { removed: true };
+    } catch (error) {
+      if (error.code == 'ENOENT') {
+        return { removed: false };
+      }
+      logger.error(extractErrorLogData(error), 'DBGM-00349 Error removing temporary upload');
+      throw error;
+    }
   },
 
   get_meta: {

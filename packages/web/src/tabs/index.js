@@ -27,6 +27,8 @@ import * as ImportExportTab from './ImportExportTab.svelte';
 import * as SqlObjectTab from './SqlObjectTab.svelte';
 import * as AppLogTab from './AppLogTab.svelte';
 import * as SettingsTab from './SettingsTab.svelte';
+import * as BackupDatabaseTab from './BackupDatabaseTab.svelte';
+import * as RestoreDatabaseTab from './RestoreDatabaseTab.svelte';
 
 import protabs from './index-pro';
 
@@ -60,5 +62,7 @@ export default {
   SqlObjectTab,
   AppLogTab,
   SettingsTab,
+  BackupDatabaseTab,
+  RestoreDatabaseTab,
   ...protabs,
 };

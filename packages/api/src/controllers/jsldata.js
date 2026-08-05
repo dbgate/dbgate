@@ -208,7 +208,7 @@ module.exports = {
     const allowedRoots = [jsldir(), archivedir()].map(r => normalize(resolveRoot(r)) + path.sep);
     const isAllowed = allowedRoots.some(root => normalize(realFile).startsWith(root));
     if (!isAllowed) {
-      logger.warn({ jslid, realFile }, 'DBGM-00000 streamRows rejected path outside allowed roots');
+      logger.warn({ jslid, realFile }, 'DBGM-00255 streamRows rejected path outside allowed roots');
       res.status(403).json({ apiErrorMessage: 'Forbidden path' });
       return;
     }
@@ -221,7 +221,7 @@ module.exports = {
     });
 
     stream.on('error', err => {
-      logger.error(extractErrorLogData(err), 'DBGM-00000 Error streaming JSONL file');
+      logger.error(extractErrorLogData(err), 'DBGM-00256 Error streaming JSONL file');
       if (!res.headersSent) {
         res.status(500).json({ apiErrorMessage: 'Stream error' });
       } else {

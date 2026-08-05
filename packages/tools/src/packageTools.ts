@@ -30,7 +30,7 @@ export function isValidJsIdentifier(name: string): boolean {
 
 export function assertValidJsIdentifier(name: string, label: string): void {
   if (!isValidJsIdentifier(name)) {
-    throw new Error(`DBGM-00000 Invalid ${label}: ${String(name).substring(0, 100)}`);
+    throw new Error(`DBGM-00431 Invalid ${label}: ${String(name).substring(0, 100)}`);
   }
 }
 
@@ -42,19 +42,19 @@ export function assertValidJsIdentifier(name: string, label: string): void {
  */
 export function assertValidShellApiFunctionName(functionName: string): void {
   if (typeof functionName !== 'string') {
-    throw new Error('DBGM-00000 functionName must be a string');
+    throw new Error('DBGM-00432 functionName must be a string');
   }
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
   if (nsMatch) {
     if (!isValidJsIdentifier(nsMatch[1])) {
-      throw new Error(`DBGM-00000 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
+      throw new Error(`DBGM-00433 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
     }
     if (!/^dbgate-plugin-[a-zA-Z0-9_-]+$/.test(nsMatch[2])) {
-      throw new Error(`DBGM-00000 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
+      throw new Error(`DBGM-00434 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
     }
   } else {
     if (!isValidJsIdentifier(functionName)) {
-      throw new Error(`DBGM-00000 Invalid functionName: ${functionName.substring(0, 100)}`);
+      throw new Error(`DBGM-00435 Invalid functionName: ${functionName.substring(0, 100)}`);
     }
   }
 }
@@ -75,7 +75,7 @@ export function extractShellApiPlugins(functionName, props): string[] {
   }
   for (const plugin of res) {
     if (!VALID_PLUGIN_NAME_RE.test(plugin)) {
-      throw new Error(`DBGM-00000 Invalid plugin name: ${String(plugin).substring(0, 100)}`);
+      throw new Error(`DBGM-00436 Invalid plugin name: ${String(plugin).substring(0, 100)}`);
     }
   }
   return res;

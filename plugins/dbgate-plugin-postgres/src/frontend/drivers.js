@@ -224,8 +224,8 @@ EXECUTE FUNCTION function_name();`,
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/postgresql',
 
-  supportsDatabaseBackup: true,
-  supportsDatabaseRestore: true,
+  supportsNativeBackup: true,
+  supportsNativeRestore: true,
 
   adaptDataType(dataType) {
     if (dataType?.toLowerCase() == 'datetime') return 'timestamp';
@@ -243,6 +243,39 @@ EXECUTE FUNCTION function_name();`,
   getNativeOperationFormArgs(operation) {
     if (operation == 'backup') {
       return [
+        ...(this.supportsNodejsBackup
+          ? [
+              {
+                type: 'select',
+                label: __t('postgresDriver.backupTool', { defaultMessage: 'Backup tool' }),
+                name: 'backupTool',
+                default: 'dbgate-pg-dumper',
+                testId: 'BackupDatabaseTab_backupTool',
+                options: [
+                  { name: 'pg_dump', value: 'pg_dump' },
+                  { name: 'dbgate-pg-dumper', value: 'dbgate-pg-dumper' },
+                ],
+              },
+              {
+                type: 'select',
+                label: __t('postgresDriver.targetPostgresVersion', {
+                  defaultMessage: 'Target PostgreSQL version',
+                }),
+                name: 'targetPostgresVersion',
+                default: 'source',
+                testId: 'BackupDatabaseTab_targetPostgresVersion',
+                options: [
+                  { name: 'Source database version', value: 'source' },
+                  { name: 'PostgreSQL 9.6', value: '9.6' },
+                  ...Array.from({ length: 9 }, (_, index) => {
+                    const version = String(index + 10);
+                    return { name: `PostgreSQL ${version}`, value: version };
+                  }),
+                ],
+                hiddenFn: values => values.backupTool != 'dbgate-pg-dumper',
+              },
+            ]
+          : []),
         {
           type: 'checkbox',
           label: __t('postgresDriver.dataOnly', { defaultMessage: 'Dump only data (without structure)' }),
@@ -277,6 +310,22 @@ EXECUTE FUNCTION function_name();`,
           type: 'text',
           label: __t('common.customArguments', { defaultMessage: 'Custom arguments' }),
           name: 'customArgs',
+          hiddenFn: values => values.backupTool == 'dbgate-pg-dumper',
+        },
+      ];
+    }
+    if (operation == 'restore' && this.supportsNodejsRestore) {
+      return [
+        {
+          type: 'select',
+          label: __t('postgresDriver.restoreTool', { defaultMessage: 'Restore tool' }),
+          name: 'restoreTool',
+          default: 'dbgate-pg-dumper',
+          testId: 'RestoreDatabaseTab_restoreTool',
+          options: [
+            { name: 'pg_dump', value: 'pg_dump' },
+            { name: 'dbgate-pg-dumper', value: 'dbgate-pg-dumper' },
+          ],
         },
       ];
     }
@@ -298,7 +347,7 @@ EXECUTE FUNCTION function_name();`,
       args.push(`--schema-only`);
     }
     if (options.insert) {
-      args.push(`--insert`);
+      args.push(`--inserts`);
     }
     if (options.noPrivileges) {
       args.push(`--no-privileges`);
@@ -331,7 +380,7 @@ EXECUTE FUNCTION function_name();`,
     const command = externalTools.psql || 'psql';
     const args = this.getCliConnectionArgs(connection, externalTools);
     args.push(`--dbname=${database}`);
-    // args.push('--verbose');
+    args.push('--set=ON_ERROR_STOP=on');
     args.push(`--file=${inputFile}`);
     return {
       command,
@@ -368,6 +417,8 @@ EXECUTE FUNCTION function_name();`,
 const postgresDriver = {
   ...postgresDriverBase,
   supportsServerSummary: true,
+  supportsNodejsBackup: true,
+  supportsNodejsRestore: true,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'PostgreSQL',
   defaultPort: 5432,

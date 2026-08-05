@@ -37,7 +37,7 @@ const mcp = require('./mcp');
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
-const { rundir, filesdir } = require('./utility/directories');
+const { rundir, filesdir, uploadsdir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
@@ -193,7 +193,8 @@ function start() {
   app.use(
     getExpressPath('/uploads'),
     fileUpload({
-      limits: { fileSize: 4 * 1024 * 1024 },
+      useTempFiles: true,
+      tempFileDir: uploadsdir(),
     })
   );
 

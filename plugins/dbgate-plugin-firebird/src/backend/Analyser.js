@@ -6,9 +6,12 @@ const {
   getTriggerEventType,
   getFormattedDefaultValue,
   getTriggerCreateSql,
+  getLegacyFunctionCreateSql,
 } = require('./helpers');
 
 const { DatabaseAnalyser } = require('dbgate-tools');
+
+const toBoolean = value => value === true || value === 1;
 
 class Analyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
@@ -21,13 +24,19 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
+    const capabilitiesResult = await this.driver.query(this.dbhan, sql.capabilities);
+    const capabilities = capabilitiesResult.rows?.[0];
+    const functionsTemplate = capabilities?.functionSourceCount > 0 ? 'functions' : 'functionsLegacy';
+    const functionParametersTemplate =
+      capabilities?.functionArgumentSourceCount > 0 ? 'functionParameters' : 'functionParametersLegacy';
+
     const tablesResult = await this.analyserQuery('tables', ['tables']);
     const columnsResult = await this.analyserQuery('columns', ['tables', 'views']);
     const triggersResult = await this.analyserQuery('triggers', ['triggers']);
     const primaryKeysResult = await this.analyserQuery('primaryKeys', ['primaryKeys']);
     const foreignKeysResult = await this.analyserQuery('foreignKeys', ['foreignKeys']);
-    const functionsResults = await this.analyserQuery('functions', ['functions']);
-    const functionParametersResults = await this.analyserQuery('functionParameters', ['functions']);
+    const functionsResults = await this.analyserQuery(functionsTemplate, ['functions']);
+    const functionParametersResults = await this.analyserQuery(functionParametersTemplate, ['functions']);
     const proceduresResults = await this.analyserQuery('procedures', ['procedures']);
     const procedureParametersResults = await this.analyserQuery('procedureParameters', ['procedures']);
     const viewsResults = await this.analyserQuery('views', ['views']);
@@ -38,6 +47,9 @@ class Analyser extends DatabaseAnalyser {
       columnsResult.rows?.map(column => ({
         ...column,
         objectId: `tables:${column.pureName}`,
+        notNull: toBoolean(column.notNull),
+        isPrimaryKey: toBoolean(column.isPrimaryKey),
+        isUnsigned: toBoolean(column.isUnsigned),
         dataType: getDataTypeString(column),
         defaultValue: getFormattedDefaultValue(column.defaultValue?.toString()?.trim()),
         columnComment: column.columnComment?.toString() || undefined,
@@ -56,38 +68,49 @@ class Analyser extends DatabaseAnalyser {
       primaryKeysResult.rows?.map(primaryKey => ({
         ...primaryKey,
         objectId: `tables:${primaryKey.pureName}`,
+        isIncludedColumn: toBoolean(primaryKey.isIncludedColumn),
+        isDescending: toBoolean(primaryKey.isDescending),
       })) ?? [];
 
     const foreignKeys =
       foreignKeysResult.rows?.map(foreignKey => ({
         ...foreignKey,
         objectId: `tables:${foreignKey.pureName}`,
+        isIncludedColumn: toBoolean(foreignKey.isIncludedColumn),
+        isDescending: toBoolean(foreignKey.isDescending),
       })) ?? [];
 
     const functions =
-      functionsResults.rows?.map(func => ({
-        ...func,
-        objectId: `functions:${func.pureName}`,
-        returnType: functionParametersResults.rows?.filter(
-          param => param.owningObjectName === func.pureName && param.parameterMode === 'RETURN'
-        )?.dataType,
-        parameters: functionParametersResults.rows
+      functionsResults.rows?.map(func => {
+        const parameters = functionParametersResults.rows
           ?.filter(param => param.owningObjectName === func.pureName)
           .map(param => ({
             ...param,
             dataType: getDataTypeString(param),
-          })),
-      })) ?? [];
+          }));
+        const returnParameter = parameters?.find(param => param.parameterMode === 'RETURN');
+        const isLegacyFunction = toBoolean(func.legacyFlag);
+
+        return {
+          ...func,
+          objectId: `functions:${func.pureName}`,
+          requiresFormat: toBoolean(func.requiresFormat),
+          createSql: isLegacyFunction ? getLegacyFunctionCreateSql(func, parameters ?? []) : func.createSql,
+          returnType: returnParameter?.dataType,
+          parameters,
+        };
+      }) ?? [];
 
     const uniques =
       unqiuesResults.rows?.map(unique => ({
         pureName: unique.pureName,
         constraintName: unique.constraintName,
         constraintType: unique.constraintType,
+        isDescending: toBoolean(unique.isDescending),
         columns: [
           {
             columnName: unique.columnName,
-            isDescending: unique.isDescending,
+            isDescending: toBoolean(unique.isDescending),
           },
         ],
       })) ?? [];
@@ -97,9 +120,10 @@ class Analyser extends DatabaseAnalyser {
       pureName: indexGroup[0].pureName,
       constraintName: indexGroup[0].constraintName,
       constraintType: indexGroup[0].constraintType,
+      isUnique: toBoolean(indexGroup[0].isUnique),
       columns: indexGroup.map(index => ({
         columnName: index.columnName,
-        isDescending: index.isDescending,
+        isDescending: toBoolean(index.isDescending),
       })),
     }));
 
@@ -107,6 +131,7 @@ class Analyser extends DatabaseAnalyser {
       proceduresResults.rows?.map(proc => ({
         ...proc,
         objectId: `procedures:${proc.pureName}`,
+        requiresFormat: toBoolean(proc.requiresFormat),
         parameters: procedureParametersResults.rows
           ?.filter(param => param.owningObjectName === proc.pureName)
           .map(param => ({

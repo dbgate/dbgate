@@ -133,7 +133,7 @@ module.exports = {
       };
       const handleExit = () => {
         cleanup();
-        reject(new Error('DBGM-00000 Session process exited before response was received'));
+        reject(new Error('DBGM-00341 Session process exited before response was received'));
       };
       this.requests[msgid] = {
         resolve: value => {
@@ -245,7 +245,7 @@ module.exports = {
     try {
       dbinfo = (await require('./databaseConnections').ensureOpened(session.conid, session.database))?.structure;
     } catch (err) {
-      logger.warn(extractErrorLogData(err), 'DBGM-00000 Error loading structure for query result metadata');
+      logger.warn(extractErrorLogData(err), 'DBGM-00342 Error loading structure for query result metadata');
     }
     session.subprocess.send({
       msgtype: 'executeQuery',
@@ -378,7 +378,7 @@ module.exports = {
   async ping({ sesid }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
-      throw new Error('Invalid session');
+      return { state: 'missing' };
     }
     try {
       session.subprocess.send({ msgtype: 'ping' });
@@ -386,7 +386,7 @@ module.exports = {
       logger.error(extractErrorLogData(err), 'DBGM-00145 Error pinging session');
 
       return {
-        status: 'error',
+        state: 'missing',
         message: 'Ping failed',
       };
     }
