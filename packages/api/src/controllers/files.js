@@ -18,7 +18,11 @@ const dbgateApi = require('../shell');
 const { getLogger, getSqlFrontMatter } = require('dbgate-tools');
 const yaml = require('js-yaml');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
+const {
+  checkSecureFilePathsWithoutDirectory,
+  checkSecureDirectories,
+  checkSecureExportFilePath,
+} = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
 const logger = getLogger('files');
 
@@ -32,17 +36,6 @@ function deserialize(format, text) {
   if (format == 'text') return text;
   if (format == 'json') return JSON.parse(text);
   throw new Error(`Invalid format: ${format}`);
-}
-
-function checkSecureExportFilePath(filePath) {
-  // GHSA-fqr9-v6pf-j2p2: server/web export writes must land inside a managed data directory.
-  const nodePath = require('path');
-  const { filesdir, uploadsdir, archivedir, appdir } = require('../utility/directories');
-  if (typeof filePath != 'string' || filePath.length == 0) {
-    return false;
-  }
-  const directory = nodePath.dirname(nodePath.resolve(filePath));
-  return [filesdir(), uploadsdir(), archivedir(), appdir()].includes(directory);
 }
 
 module.exports = {
@@ -275,7 +268,7 @@ module.exports = {
 
   exportChart_meta: true,
   async exportChart({ filePath, title, config, image, plugins }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -296,7 +289,7 @@ module.exports = {
 
   exportMap_meta: true,
   async exportMap({ filePath, geoJson }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -306,7 +299,7 @@ module.exports = {
 
   exportDiagram_meta: true,
   async exportDiagram({ filePath, html, css, themeType, themeVariables, watermark }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -316,7 +309,7 @@ module.exports = {
 
   exportDiagramPng_meta: true,
   async exportDiagramPng({ filePath, pngBase64 }) {
-    if (!require('../utility/platformInfo').isElectron && !checkSecureExportFilePath(filePath)) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }

@@ -45,8 +45,19 @@ function checkSecureDirectoriesInScript(script) {
   return disallowed.length == 0;
 }
 
+// server/web writes of a client-supplied, full file path must land inside a
+// managed data directory
+function checkSecureExportFilePath(filePath) {
+  if (typeof filePath != 'string' || filePath.length == 0) {
+    return false;
+  }
+  const directory = path.dirname(path.resolve(filePath));
+  return [filesdir(), uploadsdir(), archivedir(), appdir()].includes(directory);
+}
+
 module.exports = {
   checkSecureDirectories,
   checkSecureFilePathsWithoutDirectory,
   checkSecureDirectoriesInScript,
+  checkSecureExportFilePath,
 };

@@ -20,6 +20,8 @@ const logger = getLogger('cloud');
 const _ = require('lodash');
 const fs = require('fs-extra');
 const { getAiGatewayServer } = require('../utility/authProxy');
+const platformInfo = require('../utility/platformInfo');
+const { checkSecureExportFilePath } = require('../utility/security');
 
 module.exports = {
   publicFiles_meta: true,
@@ -255,6 +257,10 @@ module.exports = {
 
   exportFile_meta: true,
   async exportFile({ folid, cntid, filePath }, req) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     const { content } = await getCloudContent(folid, cntid);
     if (!content) {
       throw new Error('File not found');
