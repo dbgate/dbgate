@@ -11,6 +11,7 @@ checkout-and-merge-pro:
   - name: Diflow install
     run: npm install -g diflow
   - name: Merge dbgate/dbgate-pro
+    shell: bash
     run: |
       mkdir ../dbgate-pro
       mv dbgate-pro/* ../dbgate-pro/
