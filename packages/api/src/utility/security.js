@@ -61,8 +61,9 @@ function checkSecureExportFilePath(filePath) {
     return false;
   }
   try {
-    // fs.writeFile/fs.copyFile follow an existing symlink; lstat (no-follow) lets us refuse to
-    // write through one instead of landing outside the managed directory.
+    // Cheap early rejection with a clear log message. This alone is racy (another process could
+    // swap in a symlink between this check and the write) - writeExportFile below is what
+    // actually closes that window, by opening with O_NOFOLLOW instead of stat-then-write.
     if (fs.lstatSync(resolvedPath).isSymbolicLink()) {
       return false;
     }
@@ -72,9 +73,29 @@ function checkSecureExportFilePath(filePath) {
   return true;
 }
 
+// Writes an export destination that has already passed checkSecureExportFilePath. When
+// noFollow is set, the open() and the symlink check are the same atomic syscall (O_NOFOLLOW),
+// so a symlink swapped in after checkSecureExportFilePath returns (TOCTOU) still can't be
+// followed - unlike a separate lstat-then-fs.writeFile, which leaves that window open.
+// O_NOFOLLOW is undefined on Windows; there, this silently falls back to following symlinks.
+async function writeExportFile(filePath, data, { noFollow }) {
+  if (!noFollow || !fs.constants.O_NOFOLLOW) {
+    await fs.promises.writeFile(filePath, data);
+    return;
+  }
+  const flags = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_TRUNC | fs.constants.O_NOFOLLOW;
+  const fileHandle = await fs.promises.open(filePath, flags, 0o644);
+  try {
+    await fileHandle.writeFile(data);
+  } finally {
+    await fileHandle.close();
+  }
+}
+
 module.exports = {
   checkSecureDirectories,
   checkSecureFilePathsWithoutDirectory,
   checkSecureDirectoriesInScript,
   checkSecureExportFilePath,
+  writeExportFile,
 };
