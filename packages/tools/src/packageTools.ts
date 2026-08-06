@@ -34,31 +34,6 @@ export function assertValidJsIdentifier(name: string, label: string): void {
   }
 }
 
-/**
- * Validates a shell API function name.
- * Allowed forms:
- *   - "someFunctionName"  (plain identifier, resolved as dbgateApi.someFunctionName)
- *   - "funcName@dbgate-plugin-xxx"  (namespaced, resolved as plugin.shellApi.funcName)
- */
-export function assertValidShellApiFunctionName(functionName: string): void {
-  if (typeof functionName !== 'string') {
-    throw new Error('DBGM-00000 functionName must be a string');
-  }
-  const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
-  if (nsMatch) {
-    if (!isValidJsIdentifier(nsMatch[1])) {
-      throw new Error(`DBGM-00000 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
-    }
-    if (!/^dbgate-plugin-[a-zA-Z0-9_-]+$/.test(nsMatch[2])) {
-      throw new Error(`DBGM-00000 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
-    }
-  } else {
-    if (!isValidJsIdentifier(functionName)) {
-      throw new Error(`DBGM-00000 Invalid functionName: ${functionName.substring(0, 100)}`);
-    }
-  }
-}
-
 const VALID_PLUGIN_NAME_RE = /^dbgate-plugin-[a-zA-Z0-9_-]+$/;
 
 /**
@@ -80,6 +55,31 @@ export function assertValidPluginPackageName(packageName): string {
     throw new Error(`DBGM-00000 Invalid plugin package name: ${String(packageName).substring(0, 100)}`);
   }
   return packageName;
+}
+
+/**
+ * Validates a shell API function name.
+ * Allowed forms:
+ *   - "someFunctionName"  (plain identifier, resolved as dbgateApi.someFunctionName)
+ *   - "funcName@dbgate-plugin-xxx"  (namespaced, resolved as plugin.shellApi.funcName)
+ */
+export function assertValidShellApiFunctionName(functionName: string): void {
+  if (typeof functionName !== 'string') {
+    throw new Error('DBGM-00000 functionName must be a string');
+  }
+  const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
+  if (nsMatch) {
+    if (!isValidJsIdentifier(nsMatch[1])) {
+      throw new Error(`DBGM-00000 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
+    }
+    if (!isValidPluginPackageName(nsMatch[2])) {
+      throw new Error(`DBGM-00000 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
+    }
+  } else {
+    if (!isValidJsIdentifier(functionName)) {
+      throw new Error(`DBGM-00000 Invalid functionName: ${functionName.substring(0, 100)}`);
+    }
+  }
 }
 
 export function extractShellApiPlugins(functionName, props): string[] {
