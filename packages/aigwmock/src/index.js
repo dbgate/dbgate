@@ -19,6 +19,34 @@ app.get('/openrouter/v1/models', (req, res) => {
   });
 });
 
+app.post('/backend-api/codex/responses', (req, res) => {
+  const input = Array.isArray(req.body?.input) ? req.body.input : [];
+  const inputJson = JSON.stringify(input);
+  const isToolScenario = /codex tool round trip/i.test(inputJson);
+  const hasToolResult = input.some(item => item?.type === 'function_call_output');
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+
+  if (isToolScenario && !hasToolResult) {
+    streamCodexToolCall(res, {
+      name: 'get_table_schema',
+      arguments: { table_name: 'Artist' },
+    });
+    return;
+  }
+
+  streamCodexTextResponse(
+    res,
+    isToolScenario
+      ? 'Codex completed the tool round trip after inspecting the Artist table.'
+      : 'Codex mock streamed response.'
+  );
+});
+
 // POST /openrouter/v1/chat/completions
 app.post('/openrouter/v1/chat/completions', (req, res) => {
   const messages = req.body.messages || [];
@@ -194,6 +222,165 @@ function streamToolCallResponse(res, toolCalls) {
 
 function writeSSE(res, data) {
   res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+function createCodexResponse() {
+  return {
+    id: `resp_codex_mock_${Date.now()}`,
+    object: 'response',
+    created_at: Math.floor(Date.now() / 1000),
+    status: 'in_progress',
+    model: 'gpt-5.6-sol',
+    output: [],
+  };
+}
+
+function getCodexUsage() {
+  return {
+    input_tokens: 10,
+    input_tokens_details: { cached_tokens: 0 },
+    output_tokens: 8,
+    output_tokens_details: { reasoning_tokens: 0 },
+    total_tokens: 18,
+  };
+}
+
+function streamCodexTextResponse(res, content) {
+  const response = createCodexResponse();
+  const itemId = `msg_codex_mock_${Date.now()}`;
+  const outputItem = {
+    id: itemId,
+    type: 'message',
+    status: 'in_progress',
+    role: 'assistant',
+    content: [],
+  };
+
+  writeSSE(res, { type: 'response.created', sequence_number: 0, response });
+  writeSSE(res, {
+    type: 'response.output_item.added',
+    sequence_number: 1,
+    output_index: 0,
+    item: outputItem,
+  });
+  writeSSE(res, {
+    type: 'response.content_part.added',
+    sequence_number: 2,
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    part: { type: 'output_text', text: '', annotations: [], logprobs: [] },
+  });
+
+  const chunks = content.match(/.{1,16}/g) || [];
+  chunks.forEach((delta, index) => {
+    writeSSE(res, {
+      type: 'response.output_text.delta',
+      sequence_number: index + 3,
+      item_id: itemId,
+      output_index: 0,
+      content_index: 0,
+      delta,
+      logprobs: [],
+    });
+  });
+
+  const doneSequence = chunks.length + 3;
+  const completedItem = {
+    ...outputItem,
+    status: 'completed',
+    content: [{ type: 'output_text', text: content, annotations: [], logprobs: [] }],
+  };
+  writeSSE(res, {
+    type: 'response.output_text.done',
+    sequence_number: doneSequence,
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    text: content,
+    logprobs: [],
+  });
+  writeSSE(res, {
+    type: 'response.content_part.done',
+    sequence_number: doneSequence + 1,
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    part: completedItem.content[0],
+  });
+  writeSSE(res, {
+    type: 'response.output_item.done',
+    sequence_number: doneSequence + 2,
+    output_index: 0,
+    item: completedItem,
+  });
+  writeSSE(res, {
+    type: 'response.completed',
+    sequence_number: doneSequence + 3,
+    response: {
+      ...response,
+      status: 'completed',
+      output: [completedItem],
+      usage: getCodexUsage(),
+    },
+  });
+  res.end();
+}
+
+function streamCodexToolCall(res, toolCall) {
+  const response = createCodexResponse();
+  const itemId = `fc_codex_mock_${Date.now()}`;
+  const callId = `call_codex_mock_${++callCounter}`;
+  const argumentsJson = JSON.stringify(toolCall.arguments);
+  const outputItem = {
+    id: itemId,
+    type: 'function_call',
+    status: 'in_progress',
+    call_id: callId,
+    name: toolCall.name,
+    arguments: '',
+  };
+
+  writeSSE(res, { type: 'response.created', sequence_number: 0, response });
+  writeSSE(res, {
+    type: 'response.output_item.added',
+    sequence_number: 1,
+    output_index: 0,
+    item: outputItem,
+  });
+  writeSSE(res, {
+    type: 'response.function_call_arguments.delta',
+    sequence_number: 2,
+    item_id: itemId,
+    output_index: 0,
+    delta: argumentsJson,
+  });
+  writeSSE(res, {
+    type: 'response.function_call_arguments.done',
+    sequence_number: 3,
+    item_id: itemId,
+    output_index: 0,
+    arguments: argumentsJson,
+  });
+
+  const completedItem = { ...outputItem, status: 'completed', arguments: argumentsJson };
+  writeSSE(res, {
+    type: 'response.output_item.done',
+    sequence_number: 4,
+    output_index: 0,
+    item: completedItem,
+  });
+  writeSSE(res, {
+    type: 'response.completed',
+    sequence_number: 5,
+    response: {
+      ...response,
+      status: 'completed',
+      output: [completedItem],
+      usage: getCodexUsage(),
+    },
+  });
+  res.end();
 }
 
 const port = process.env.PORT || 3110;

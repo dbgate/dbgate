@@ -32,6 +32,7 @@ const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
 const teamFiles = require('./controllers/teamFiles');
 const mcpAdmin = require('./controllers/mcpAdmin');
+const codex = require('./controllers/codex');
 const mcp = require('./mcp');
 
 const onFinished = require('on-finished');
@@ -285,6 +286,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/team-files', teamFiles);
   useController(app, electron, '/rest-connections', restConnections);
   useController(app, electron, '/mcp-admin', mcpAdmin);
+  useController(app, electron, '/codex', codex);
 }
 
 function setElectronSender(electronSender) {
