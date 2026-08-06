@@ -44,7 +44,7 @@ function parseAllowedHosts() {
           continue;
         }
       } catch (err) {
-        logger.warn(extractErrorLogData(err), `DBGM-00335 Ignoring invalid entry in EXTERNAL_FETCH_ALLOWED_HOSTS: ${item}`);
+        logger.warn(extractErrorLogData(err), `DBGM-00000 Ignoring invalid entry in EXTERNAL_FETCH_ALLOWED_HOSTS: ${item}`);
         continue;
       }
       hostNames.add(item.toLowerCase());
