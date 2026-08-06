@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const { filesdir, archivedir, uploadsdir, appdir } = require('../utility/directories');
 
@@ -51,8 +52,24 @@ function checkSecureExportFilePath(filePath) {
   if (typeof filePath != 'string' || filePath.length == 0) {
     return false;
   }
-  const directory = path.dirname(path.resolve(filePath));
-  return [filesdir(), uploadsdir(), archivedir(), appdir()].includes(directory);
+  const resolvedPath = path.resolve(filePath);
+  const directory = path.dirname(resolvedPath);
+  // filesdir()/uploadsdir()/etc. may be relative (eg. a relative WORKSPACE_DIR), while
+  // resolvedPath is always absolute - resolve both sides before comparing.
+  const allowedDirs = [filesdir(), uploadsdir(), archivedir(), appdir()].map(dir => path.resolve(dir));
+  if (!allowedDirs.includes(directory)) {
+    return false;
+  }
+  try {
+    // fs.writeFile/fs.copyFile follow an existing symlink; lstat (no-follow) lets us refuse to
+    // write through one instead of landing outside the managed directory.
+    if (fs.lstatSync(resolvedPath).isSymbolicLink()) {
+      return false;
+    }
+  } catch (err) {
+    // destination does not exist yet - nothing to follow
+  }
+  return true;
 }
 
 module.exports = {
