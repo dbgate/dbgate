@@ -281,7 +281,18 @@ module.exports = {
       if (index > 0) {
         const data = image.substr(index + 'base64,'.length);
         const buf = Buffer.from(data, 'base64');
-        await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
+        const previewFilePath = filePath.replace('.html', '-preview.png');
+        // previewFilePath is a distinct destination from filePath (eg. a pre-existing symlink
+        // named "...-preview.png" would not have been caught by the check above), so validate it
+        // separately rather than assuming it inherits filePath's already-checked safety.
+        if (!platformInfo.isElectron && !checkSecureExportFilePath(previewFilePath)) {
+          logger.warn(
+            { filePath: previewFilePath },
+            'DBGM-00000 Refused export write outside managed data directories'
+          );
+          return false;
+        }
+        await fs.writeFile(previewFilePath, buf);
       }
     }
     return true;
