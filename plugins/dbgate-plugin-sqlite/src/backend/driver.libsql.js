@@ -33,6 +33,7 @@ const libsqlDriver = {
     const client = databaseFile
       ? new Database(databaseFile, { readonly: !!isReadOnly })
       : new Database(databaseUrl, { authToken, readonly: !!isReadOnly });
+    client.defaultSafeIntegers(true);
 
     return {
       client,
