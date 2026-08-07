@@ -335,7 +335,7 @@ module.exports = {
   downloadText_meta: true,
   async downloadText({ uri }, req) {
     if (!uri) return null;
-    const filePath = await dbgateApi.download(uri);
+    const filePath = await dbgateApi.download(uri, { safeRemoteFetch: true });
     const text = await fs.readFile(filePath, {
       encoding: 'utf-8',
     });
