@@ -453,7 +453,7 @@ const drivers = driverBases.map((driverBase) => ({
 
     // Called once the cursor is fully read
     cursorStream.on('end', () => {
-      pass.emit('end');
+      pass.end();
     });
 
     // exprValue
