@@ -122,13 +122,20 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
   }
 
   if (connection.useSshTunnel) {
-    const tunnel = await getSshTunnelProxy(connection);
+    const tunnelMode = driver.getSSHTunnelMode ? driver.getSSHTunnelMode(connection) : 'forward';
+
+    const tunnel = await getSshTunnelProxy(connection, tunnelMode === 'socks' ? { mode: 'socks' } : undefined);
     if (tunnel.state == 'error') {
       throw new Error(tunnel.message);
     }
 
-    connection.server = tunnel.localHost;
-    connection.port = tunnel.localPort;
+    if (tunnelMode === 'socks') {
+      connection.sshSocksProxyHost = tunnel.localHost;
+      connection.sshSocksProxyPort = tunnel.localPort;
+    } else {
+      connection.server = tunnel.localHost;
+      connection.port = tunnel.localPort;
+    }
   }
 
   connection.ssl = await extractConnectionSslParams(connection);
