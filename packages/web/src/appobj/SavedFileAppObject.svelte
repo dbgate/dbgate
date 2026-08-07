@@ -307,18 +307,18 @@
     saveFileToDisk(
       async filePath => {
         if (data.teamFileId) {
-          await apiCall('team-files/export-file', {
+          return await apiCall('team-files/export-file', {
             teamFileId: data.teamFileId,
             filePath,
           });
         } else if (data.folid && data.cntid) {
-          await apiCall('cloud/export-file', {
+          return await apiCall('cloud/export-file', {
             folid: data.folid,
             cntid: data.cntid,
             filePath,
           });
         } else {
-          await apiCall('files/export-file', {
+          return await apiCall('files/export-file', {
             folder,
             file: data.file,
             filePath,

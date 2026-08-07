@@ -104,7 +104,10 @@ async function runImportExportScript({
 
     const rows = data.writtenRowsCount || data.readRowCount;
     if (rows) {
-      updateSnackbarProgressMessage(snackId, _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } }));
+      updateSnackbarProgressMessage(
+        snackId,
+        _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } })
+      );
     }
   }
 
@@ -165,8 +168,14 @@ export async function saveExportedFile(
   runImportExportScript({
     script,
     runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
-    canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
-    finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
+    canceledMessage: _t('exportFileTools.exportCanceled', {
+      defaultMessage: 'Export {dataName} canceled',
+      values: { dataName },
+    }),
+    finishedMessage: _t('exportFileTools.exportFinished', {
+      defaultMessage: 'Export {dataName} finished',
+      values: { dataName },
+    }),
     afterFinish: () => {
       if (!electron) {
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
@@ -214,8 +223,14 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
     runImportExportScript({
       script,
       runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
-      canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
-      finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
+      canceledMessage: _t('exportFileTools.exportCanceled', {
+        defaultMessage: 'Export {dataName} canceled',
+        values: { dataName },
+      }),
+      finishedMessage: _t('exportFileTools.exportFinished', {
+        defaultMessage: 'Export {dataName} finished',
+        values: { dataName },
+      }),
       hostConnection: reader.hostConnection,
     });
   } else {
@@ -245,11 +260,16 @@ export async function saveFileToDisk(
       properties: ['showOverwriteConfirmation'],
     });
     if (!filePath) return;
-    await filePathFunc(filePath);
+    const result = await filePathFunc(filePath);
+    // the server refuses to write outside managed directories (eg. a symlink swapped in for
+    // the destination) by returning false / an error response rather than throwing - don't open
+    // a file that was never written
+    if (result === false || result?.errorMessage) return;
     electron.openExternal('file:///' + filePath);
   } else {
     const resp = await apiCall('files/generate-uploads-file');
-    await filePathFunc(resp.filePath);
+    const result = await filePathFunc(resp.filePath);
+    if (result === false || result?.errorMessage) return;
     await downloadFromApi(`uploads/get?file=${resp.fileName}`, options.defaultFileName ?? `file.${formatExtension}`);
   }
 }
@@ -261,7 +281,12 @@ export async function downloadFromApi(route: string, donloadName: string) {
       headers: resolveApiHeaders(),
     });
     if (!res.ok) {
-      showSnackbarError(_t('exportFileTools.downloadFailed', { defaultMessage: 'Download failed: {status} {statusText}', values: { status: res.status, statusText: res.statusText } }));
+      showSnackbarError(
+        _t('exportFileTools.downloadFailed', {
+          defaultMessage: 'Download failed: {status} {statusText}',
+          values: { status: res.status, statusText: res.statusText },
+        })
+      );
       return;
     }
     const blob = await res.blob();
@@ -276,6 +301,11 @@ export async function downloadFromApi(route: string, donloadName: string) {
       URL.revokeObjectURL(objUrl);
     }, 1000);
   } catch (e) {
-    showSnackbarError(_t('exportFileTools.downloadFailedError', { defaultMessage: 'Download failed: {message}', values: { message: e?.message ?? e } }));
+    showSnackbarError(
+      _t('exportFileTools.downloadFailedError', {
+        defaultMessage: 'Download failed: {message}',
+        values: { message: e?.message ?? e },
+      })
+    );
   }
 }

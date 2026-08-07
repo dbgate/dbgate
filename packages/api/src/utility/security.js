@@ -73,18 +73,44 @@ function checkSecureExportFilePath(filePath) {
   return true;
 }
 
+// Thrown by writeExportFile only for the specific TOCTOU condition it exists to guard against
+// (destination turned out to be a symlink, or the platform can't make that check atomically).
+// Callers must only translate this error to a "refused" result - any other error from
+// writeExportFile is a genuine I/O failure (disk full, permissions, missing directory, ...) and
+// must propagate instead of being reported as if the security check had failed.
+class SecureExportWriteRefusedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'SecureExportWriteRefusedError';
+  }
+}
+
 // Writes an export destination that has already passed checkSecureExportFilePath. When
 // noFollow is set, the open() and the symlink check are the same atomic syscall (O_NOFOLLOW),
 // so a symlink swapped in after checkSecureExportFilePath returns (TOCTOU) still can't be
 // followed - unlike a separate lstat-then-fs.writeFile, which leaves that window open.
-// O_NOFOLLOW is undefined on Windows; there, this silently falls back to following symlinks.
+// O_NOFOLLOW is undefined on Windows - there is no atomic no-follow write available, so we fail
+// closed rather than silently falling back to a write that could follow a symlink.
 async function writeExportFile(filePath, data, { noFollow }) {
-  if (!noFollow || !fs.constants.O_NOFOLLOW) {
+  if (!noFollow) {
     await fs.promises.writeFile(filePath, data);
     return;
   }
+  if (!fs.constants.O_NOFOLLOW) {
+    throw new SecureExportWriteRefusedError(
+      'Cannot guarantee a symlink-safe write on this platform (O_NOFOLLOW unavailable)'
+    );
+  }
   const flags = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_TRUNC | fs.constants.O_NOFOLLOW;
-  const fileHandle = await fs.promises.open(filePath, flags, 0o644);
+  let fileHandle;
+  try {
+    fileHandle = await fs.promises.open(filePath, flags, 0o644);
+  } catch (err) {
+    if (err.code === 'ELOOP') {
+      throw new SecureExportWriteRefusedError('Refused to write export file through a symbolic link');
+    }
+    throw err;
+  }
   try {
     await fileHandle.writeFile(data);
   } finally {
@@ -98,4 +124,5 @@ module.exports = {
   checkSecureDirectoriesInScript,
   checkSecureExportFilePath,
   writeExportFile,
+  SecureExportWriteRefusedError,
 };

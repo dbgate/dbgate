@@ -23,6 +23,7 @@ const {
   checkSecureDirectories,
   checkSecureExportFilePath,
   writeExportFile,
+  SecureExportWriteRefusedError,
 } = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
 const logger = getLogger('files');
@@ -279,6 +280,7 @@ module.exports = {
     try {
       await writeExportFile(filePath, html, { noFollow: !platformInfo.isElectron });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -301,7 +303,11 @@ module.exports = {
         try {
           await writeExportFile(previewFilePath, buf, { noFollow: !platformInfo.isElectron });
         } catch (err) {
-          logger.warn({ filePath: previewFilePath }, 'DBGM-00000 Refused export write outside managed data directories');
+          if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+          logger.warn(
+            { filePath: previewFilePath },
+            'DBGM-00000 Refused export write outside managed data directories'
+          );
           return false;
         }
       }
@@ -318,6 +324,7 @@ module.exports = {
     try {
       await writeExportFile(filePath, getMapExport(geoJson), { noFollow: !platformInfo.isElectron });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -335,6 +342,7 @@ module.exports = {
         noFollow: !platformInfo.isElectron,
       });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
@@ -351,6 +359,7 @@ module.exports = {
     try {
       await writeExportFile(filePath, Buffer.from(base64, 'base64'), { noFollow: !platformInfo.isElectron });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }

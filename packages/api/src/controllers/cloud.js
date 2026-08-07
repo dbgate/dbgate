@@ -21,7 +21,7 @@ const _ = require('lodash');
 const fs = require('fs-extra');
 const { getAiGatewayServer } = require('../utility/authProxy');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureExportFilePath, writeExportFile } = require('../utility/security');
+const { checkSecureExportFilePath, writeExportFile, SecureExportWriteRefusedError } = require('../utility/security');
 
 module.exports = {
   publicFiles_meta: true,
@@ -268,6 +268,7 @@ module.exports = {
     try {
       await writeExportFile(filePath, content, { noFollow: !platformInfo.isElectron });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }

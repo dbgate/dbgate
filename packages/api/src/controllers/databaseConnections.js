@@ -51,7 +51,7 @@ const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 const { decryptConnection } = require('../utility/crypting');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureExportFilePath, writeExportFile } = require('../utility/security');
+const { checkSecureExportFilePath, writeExportFile, SecureExportWriteRefusedError } = require('../utility/security');
 const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
@@ -919,6 +919,7 @@ module.exports = {
     try {
       await writeExportFile(filePath, diff2htmlPage(diffHtml), { noFollow: !platformInfo.isElectron });
     } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }

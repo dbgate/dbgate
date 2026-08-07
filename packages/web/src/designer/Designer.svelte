@@ -833,7 +833,7 @@
     }
     css += ' body { overflow: scroll; }';
     saveFileToDisk(async filePath => {
-      await apiCall('files/export-diagram', {
+      return await apiCall('files/export-diagram', {
         filePath,
         html: domCanvas.outerHTML,
         css,
@@ -863,7 +863,7 @@
     });
     saveFileToDisk(
       async filePath => {
-        await apiCall('files/export-diagram-png', {
+        return await apiCall('files/export-diagram-png', {
           filePath,
           pngBase64,
         });
