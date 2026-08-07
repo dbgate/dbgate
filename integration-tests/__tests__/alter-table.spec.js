@@ -3,6 +3,7 @@ const _ = require('lodash');
 const fp = require('lodash/fp');
 const { testWrapper, removeNotNull, transformSqlForEngine } = require('../tools');
 const engines = require('../engines');
+const { mysqlEngine } = require('../engines');
 const crypto = require('crypto');
 const {
   getAlterTableScript,
@@ -13,7 +14,7 @@ const {
 
 function pickImportantTableInfo(engine, table) {
   if (!table) return table;
-  const props = ['columnName', 'defaultValue'];
+  const props = ['columnName', 'defaultValue', 'onUpdateExpression'];
   if (!engine.skipNullability) props.push('notNull');
   if (!engine.skipAutoIncrement) props.push('autoIncrement');
   return {
@@ -262,6 +263,47 @@ describe('Alter table', () => {
       await testTableDiff(engine, conn, driver, tbl => {
         tbl.columns.find(x => x.columnName == 'col_def').defaultValue = '567';
       });
+    })
+  );
+
+  test.each([[mysqlEngine.label, mysqlEngine]])(
+    'MySQL ON UPDATE timestamp column round-trip - %s',
+    testWrapper(async (conn, driver, engine) => {
+      const query = formatQueryWithoutParams(
+        driver,
+        `create table ~t1 (
+          ~id int not null primary key,
+          ~updated_at timestamp null default null on update current_timestamp
+        )`
+      );
+      await driver.query(conn, transformSqlForEngine(engine, query));
+
+      const structure1Source = await driver.analyseFull(conn);
+      const structure1 = generateDbPairingId(extendDatabaseInfo(structure1Source));
+      const table1 = structure1.tables.find(x => x.pureName == 't1');
+      const updatedAt1 = table1.columns.find(x => x.columnName == 'updated_at');
+      expect(updatedAt1).toEqual(
+        expect.objectContaining({
+          onUpdateExpression: 'CURRENT_TIMESTAMP',
+          notNull: false,
+        })
+      );
+      expect([null, undefined, 'NULL']).toContain(updatedAt1.defaultValue);
+
+      const structure2 = extendDatabaseInfo(_.cloneDeep(structure1));
+      const table2 = structure2.tables.find(x => x.pureName == 't1');
+      const updatedAt2 = table2.columns.find(x => x.columnName == 'updated_at');
+      updatedAt2.columnName = 'modified_at';
+
+      const { sql } = getAlterTableScript(table1, table2, {}, structure1, structure2, driver);
+      const normalizedSql = sql.replace(/\s+/g, ' ').toLowerCase();
+      expect(normalizedSql).toContain('default null on update current_timestamp');
+
+      await driver.script(conn, sql);
+
+      const structure2Real = extendDatabaseInfo(await driver.analyseFull(conn));
+      const table2Real = structure2Real.tables.find(x => x.pureName == 't1');
+      expect(pickImportantTableInfo(engine, table2Real)).toEqual(pickImportantTableInfo(engine, table2));
     })
   );
 

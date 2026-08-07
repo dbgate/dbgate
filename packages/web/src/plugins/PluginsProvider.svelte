@@ -5,9 +5,10 @@
   import { isProApp } from '../utility/proTools';
   import { openApiDriver, oDataDriver, graphQlDriver } from 'dbgate-rest';
   import { buildFileFormats, buildQuickExports } from './fileformats';
+  import { __t } from '../translations';
   async function loadPlugins(pluginsDict, installedPlugins) {
     window['DBGATE_PACKAGES'] = {
-      'dbgate-tools': dbgateTools,
+      'dbgate-tools': { ...dbgateTools, __t },
       'dbgate-sqltree': sqlTree,
       'dbgate-datalib': dataLib,
     };
@@ -64,10 +65,13 @@
   }
 </script>
 
-<script lang="ts">  import { extensions } from '../stores';
-  import { useInstalledPlugins } from '../utility/metadataLoaders';  import * as dbgateTools from 'dbgate-tools';
+<script lang="ts">
+  import { extensions } from '../stores';
+  import { useInstalledPlugins } from '../utility/metadataLoaders';
+  import * as dbgateTools from 'dbgate-tools';
   import * as sqlTree from 'dbgate-sqltree';
-  import * as dataLib from 'dbgate-datalib';  let pluginsDict = {};
+  import * as dataLib from 'dbgate-datalib';
+  let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();
 
   $: loadPlugins(pluginsDict, $installedPlugins).then(newPlugins => {

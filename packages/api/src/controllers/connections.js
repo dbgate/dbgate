@@ -185,7 +185,7 @@ module.exports = {
     }
     await this.checkUnsavedConnectionsLimit();
 
-    if (process.env.STORAGE_DATABASE && process.env.CONNECTIONS) {
+    if (process.env.STORAGE_DATABASE) {
       const storage = require('./storage');
       try {
         await storage.fillStorageConnectionsFromEnv();
@@ -489,10 +489,17 @@ module.exports = {
 
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
-      return mask && !platformInfo.allowShellConnection ? maskConnection(res) : encryptConnection(res);
+      if (res) {
+        return mask && !platformInfo.allowShellConnection ? maskConnection(res) : encryptConnection(res);
+      }
+      if (!(process.send && processArgs.processDisplayName === 'script')) {
+        return null;
+      }
     }
-    const res = await this.datastore.get(conid);
-    if (res) return res;
+    if (!portalConnections) {
+      const res = await this.datastore.get(conid);
+      if (res) return res;
+    }
 
     // In a forked runner-script child process, ask the parent for connections that may be
     // volatile (in-memory only, e.g. ask-for-password).  We only do this when

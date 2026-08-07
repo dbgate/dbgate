@@ -44,6 +44,8 @@ export interface DisplayColumn {
   dataType?: string;
   filterBehaviour?: FilterBehaviour;
   isStructured?: boolean;
+  sourceColumnName?: string;
+  queryResultEditable?: boolean;
 }
 
 export interface DisplayedColumnEx extends DisplayColumn {
@@ -99,6 +101,10 @@ export abstract class GridDisplay {
   groupable = false;
   filterable = false;
   editable = false;
+  allowInsert = true;
+  allowDelete = true;
+  allowStructureChange = true;
+  allowRowDocumentEdit = true;
   isLoadedCorrectly = true;
   supportsReload = false;
   isDynamicStructure = false;
@@ -591,6 +597,10 @@ export abstract class GridDisplay {
     return _.pick(row, this.changeSetKeyFields);
   }
 
+  isColumnEditable(uniqueName: string, row?: any) {
+    return this.editable;
+  }
+
   getChangeSetField(
     row,
     uniqueName,
@@ -625,6 +635,10 @@ export abstract class GridDisplay {
       existingRowIndex,
       condition: insertedRowIndex == null && existingRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
+  }
+
+  getChangeSetRowDefinitions(row, insertedRowIndex, existingRowIndex, baseNameOmitable = false): ChangeSetRowDefinition[] {
+    return [this.getChangeSetRow(row, insertedRowIndex, existingRowIndex, baseNameOmitable)].filter(Boolean);
   }
 
   createSelect(options = {}): Select {

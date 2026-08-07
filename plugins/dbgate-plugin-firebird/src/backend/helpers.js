@@ -1,12 +1,18 @@
 const { createBulkInsertStreamBase } = require('dbgate-tools');
 
-function getDataTypeString({ dataTypeCode, scale, length, precision }) {
+function getDataTypeString({ dataTypeCode, subType, scale, length, precision }) {
+  const getExactNumericType = defaultType => {
+    if (subType === 1) return `numeric(${precision}, ${Math.abs(scale)})`;
+    if (subType === 2) return `decimal(${precision}, ${Math.abs(scale)})`;
+    return defaultType;
+  };
+
   switch (dataTypeCode) {
     case 7:
-      return 'smallint';
+      return getExactNumericType('smallint');
 
     case 8:
-      return 'integer';
+      return getExactNumericType('integer');
 
     case 9:
       return 'bigint';
@@ -27,19 +33,22 @@ function getDataTypeString({ dataTypeCode, scale, length, precision }) {
       return `char(${length})`;
 
     case 16:
-      return `decimal(${precision}, ${scale})`;
+      return getExactNumericType('bigint');
 
     case 27:
       return 'double precision';
 
     case 35:
-      return 'blob';
+      return 'timestamp';
+
+    case 40:
+      return `cstring(${length})`;
 
     case 37:
       return `varchar(${length})`;
 
     case 261:
-      return 'cstring';
+      return 'blob';
 
     default:
       if (dataTypeCode === null || dataTypeCode === undefined) return 'UNKNOWN';
@@ -92,6 +101,33 @@ function getFormattedDefaultValue(defaultValue) {
   return defaultValue.replace(/^default\s*/i, '');
 }
 
+function getLegacyFunctionCreateSql(func, parameters) {
+  const quoteIdentifier = value => `"${String(value).replace(/"/g, '""')}"`;
+  const quoteString = value => `'${String(value).replace(/'/g, "''")}'`;
+  const mechanismSql = (mechanism, isReturn) => {
+    if (mechanism === 0 && isReturn) return ' BY VALUE';
+    if (mechanism === 2) return ' BY DESCRIPTOR';
+    if (mechanism === 3) return ' BY SCALAR_ARRAY_DESCRIPTOR';
+    if (mechanism === -1 && isReturn) return ' FREE_IT';
+    if (mechanism === -2 && isReturn) return ' BY DESCRIPTOR FREE_IT';
+    return '';
+  };
+
+  const inputParameters = parameters.filter(param => param.parameterMode !== 'RETURN');
+  const returnParameter = parameters.find(param => param.parameterMode === 'RETURN');
+  const argumentsSql = inputParameters.length
+    ? `\n${inputParameters
+        .map(param => `    ${param.dataType}${mechanismSql(param.mechanism, false)}`)
+        .join(',\n')}`
+    : '';
+  const returnType = returnParameter?.dataType || 'UNKNOWN';
+
+  return `/* Reconstructed from Firebird metadata; the original UDF declaration source is not stored. */
+DECLARE EXTERNAL FUNCTION ${quoteIdentifier(func.pureName)}${argumentsSql}
+RETURNS ${returnType}${mechanismSql(returnParameter?.mechanism, true)}
+ENTRY_POINT ${quoteString(func.entryPoint)} MODULE_NAME ${quoteString(func.moduleName)};`;
+}
+
 function transformRow(row) {
   return Object.fromEntries(
     Object.entries(row).map(([key, value]) => {
@@ -125,6 +161,7 @@ module.exports = {
   getTriggerEventType,
   getTriggerTiming,
   getFormattedDefaultValue,
+  getLegacyFunctionCreateSql,
   getTriggerCreateSql,
   createFirebirdInsertStream,
 };

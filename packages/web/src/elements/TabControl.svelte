@@ -54,6 +54,9 @@
     {#if menu}
       <DropDownButton {menu} />
     {/if}
+    <div class="tab-actions">
+      <slot name="tab-actions" />
+    </div>
   </div>
 
   <div
@@ -157,6 +160,13 @@
   } */
   .tab-item.selected {
     background-color: var(--theme-tabs-control-selected-background);
+  }
+
+  .tab-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: stretch;
+    flex-shrink: 0;
   }
 
   .content-container {

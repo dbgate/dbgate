@@ -18,7 +18,7 @@ function adjustFile(file, isApp = false) {
         }
         if (json[depkey][dependency]) {
           if (json[depkey][dependency] != pluginJson[depkey][dependency]) {
-            console.log(`Dependency ${dependency} in ${packageName} is different from ${file}`);
+            console.log(`Dependency ${dependency} in ${packageFile} is different from ${file}`);
           }
           continue;
         }

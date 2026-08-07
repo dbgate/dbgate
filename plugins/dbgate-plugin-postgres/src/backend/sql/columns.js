@@ -2,7 +2,9 @@ module.exports = `
 SELECT
     n.nspname AS "schema_name",
     c.relname AS "pure_name",
+    c.oid AS "postgres_table_id",
     a.attname AS "column_name",
+    a.attnum AS "postgres_column_id",
     CASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS "is_nullable",
     format_type(a.atttypid, NULL) AS "data_type",
     CASE

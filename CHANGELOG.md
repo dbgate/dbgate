@@ -9,6 +9,58 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.4
+
+- ADDED: Built-in PostgreSQL backup and restore without requiring external PostgreSQL tools (Community)
+- ADDED: PostgreSQL backup and restore options, including target PostgreSQL version and table selection (Premium)
+- ADDED: Team folder permissions can be configured using environment variables (Team Premium)
+- CHANGED: Improved Firebird metadata loading for functions, parameters, constraints, data type subtypes, and legacy server versions #1516
+- FIXED: MySQL and MariaDB system views and system-versioned tables not being displayed #1519
+- FIXED: MongoDB filters not handling boolean values correctly #1513
+- CHANGED: Improved backup, restore, and export status and error reporting
+
+## 7.2.3
+
+- ADDED: Read-only MCP server support (Community, Docker)
+- ADDED: Advanced MCP server capabilities, including query execution, data modification, and granular access control (Team Premium)
+- FIXED: Filter action buttons not being accessible when no rows match the active filter
+- ADDED: Character encoding selection for decoding binary cell values
+- ADDED: Improved SQL Server to MySQL data type conversion
+- ADDED: Decimal as a PostgreSQL dialect data type option #1490
+- FIXED: MySQL autocomplete for queries containing PARTITION clauses #1500
+
+## 7.2.1
+
+- ADDED: Editable view (Premium)
+- ADDED: MySQL ON UPDATE expression support to column definitions #1170
+- FIXED: Excel export in toolbar #1418
+- ADDED: Admin team files export (Team Premium)
+- ADDED: loggedUserCount added to health status (Team Premium)
+
+## 7.2.0
+
+- ADDED: Editable query results (Premium)
+- ADDED: Option to minify JSON when editing cell values #1477
+- FIXED: Improved spacing for numeric values in the data grid #1467
+- ADDED: Sticky scrolling for log messages #1444
+
+## 7.1.13
+
+- FIXED: Resolved scrolling issues in DataGrid
+- FIXED: Corrected enum select dropdown positioning #1216
+- FIXED: Improved Excel export handling for numeric columns #1464
+- ADDED: Spinner for backup file downloads #1314
+
+## 7.1.12
+
+- FIXED: Resolved DataGrid scrolling issues #1458, #1428, #1402, #1043, #686, #338
+- FIXED: Application crash when using external sort with JSONL files
+- FIXED: Application crash caused by invalid geometry/geography points #1450
+- CHANGED: Improved column resizing usability by increasing the resize handle area #1383
+- ADDED: Displaying schema information in database search #1449
+- CHANGED: Campaigns migrated to new infrastructure, improving availability
+- CHANGED: Improved performance for large databases
+
 ## 7.1.11
 
 - CHANGED: AI Gateway migrated; endpoints now on new infrastructure, improving availability

@@ -54,8 +54,32 @@ const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
 const { sendToAuditLog } = require('../utility/auditlog');
+const { extractConnectionSslParams } = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
+
+function getRestoreUploadPath(inputFile, inputUploadName) {
+  if (
+    !inputFile ||
+    !inputUploadName ||
+    path.basename(inputUploadName) != inputUploadName ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(inputUploadName)
+  ) {
+    return null;
+  }
+
+  const uploadPath = path.join(uploadsdir(), inputUploadName);
+  return path.resolve(inputFile) == path.resolve(uploadPath) ? uploadPath : null;
+}
+
+function removeRestoreUpload(uploadPath) {
+  if (!uploadPath) return;
+  fs.unlink(uploadPath).catch(error => {
+    if (error.code != 'ENOENT') {
+      logger.warn(extractErrorLogData(error), 'DBGM-00248 Error removing temporary restore upload');
+    }
+  });
+}
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -157,8 +181,15 @@ module.exports = {
 
   handle_copyStreamError(conid, database, { copyStreamError }) {
     const { progressName } = copyStreamError;
-    const { runid } = progressName;
-    logger.error(`DBGM-00103 Error in database connection ${conid}, database ${database}: ${copyStreamError}`);
+    const runid = progressName?.runid;
+    logger.error({ conid, database, copyStreamError }, 'DBGM-00249 Error in database connection copy stream');
+    if (!runid) return;
+    if (copyStreamError.dbgateCopyStreamErrorReported) return;
+    socket.emit(`runner-progress-${runid}`, {
+      progressName: progressName?.name,
+      status: 'error',
+      errorMessage: copyStreamError.message,
+    });
     socket.emit(`runner-done-${runid}`);
   },
 
@@ -238,6 +269,15 @@ module.exports = {
     });
     subprocess.send(connectMessage);
     return newOpened;
+  },
+
+  async ensureStructureLoaded(conid, database) {
+    const conn = await this.ensureOpened(conid, database);
+    if (conn.isApiConnection || !conn.subprocess) {
+      return conn.structure ?? {};
+    }
+    const response = await this.sendRequest(conn, { msgtype: 'getStructure' });
+    return response.structure ?? conn.structure ?? {};
   },
 
   /** @param {import('dbgate-types').OpenedDatabaseConnection} conn */
@@ -515,6 +555,21 @@ module.exports = {
       };
     }
     return res.result || null;
+  },
+
+  saveQueryResultData_meta: true,
+  async saveQueryResultData({ conid, database, changeSet, sql }, req) {
+    await testConnectionPermission(conid, req);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'saveQueryResultData', changeSet, sql });
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || { state: 'ok' };
   },
 
   multiCallMethod_meta: true,
@@ -939,6 +994,33 @@ module.exports = {
     command,
     { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
   ) {
+    const { connection, driver, externalTools } = await this.getNativeOpContext(conid);
+    const capability = command == 'backup' ? 'supportsNativeBackup' : 'supportsNativeRestore';
+    if (!driver[capability]) {
+      throw new Error(`DBGM-00250 The selected database driver does not support native ${command}`);
+    }
+
+    return {
+      ...(command == 'backup'
+        ? driver.backupDatabaseCommand(
+            connection,
+            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
+            // @ts-ignore
+            externalTools
+          )
+        : driver.restoreDatabaseCommand(
+            connection,
+            { inputFile, database, options, argsFormat },
+            // @ts-ignore
+            externalTools
+          )),
+      transformMessage: driver.transformNativeCommandMessage
+        ? message => driver.transformNativeCommandMessage(message, command)
+        : null,
+    };
+  },
+
+  async getNativeOpContext(conid) {
     const sourceConnection = await connections.getCore({ conid });
     const connection = {
       ...decryptConnection(sourceConnection),
@@ -966,6 +1048,8 @@ module.exports = {
       }
     }
 
+    connection.ssl = await extractConnectionSslParams(connection);
+
     const settingsValue = await config.getSettings();
 
     const externalTools = {};
@@ -976,24 +1060,7 @@ module.exports = {
       }
     }
 
-    return {
-      ...(command == 'backup'
-        ? driver.backupDatabaseCommand(
-            connection,
-            { outputFile, database, options, selectedTables, skippedTables, argsFormat },
-            // @ts-ignore
-            externalTools
-          )
-        : driver.restoreDatabaseCommand(
-            connection,
-            { inputFile, database, options, argsFormat },
-            // @ts-ignore
-            externalTools
-          )),
-      transformMessage: driver.transformNativeCommandMessage
-        ? message => driver.transformNativeCommandMessage(message, command)
-        : null,
-    };
+    return { connection, driver, externalTools };
   },
 
   commandArgsToCommandLine(commandArgs) {
@@ -1007,14 +1074,45 @@ module.exports = {
 
   nativeBackup_meta: true,
   async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }) {
+    const effectiveOptions = options || {};
+    const effectiveSelectedTables = selectedTables || [];
+    const effectiveSkippedTables = skippedTables || [];
+
+    if (effectiveOptions.backupTool == 'dbgate-pg-dumper') {
+      const { connection, driver } = await this.getNativeOpContext(conid);
+      if (!driver.supportsNodejsBackup || !driver.backupDatabase) {
+        throw new Error('DBGM-00251 The selected database driver does not support dbgate-pg-dumper');
+      }
+      return runners.promiseRunCore(
+        runid,
+        runner =>
+          driver.backupDatabase(
+            connection,
+            {
+              outputFile,
+              database,
+              options: effectiveOptions,
+              selectedTables: effectiveSelectedTables,
+              skippedTables: effectiveSkippedTables,
+            },
+            runner
+          ),
+        () => {
+          socket.emitChanged(`files-changed`, { folder: 'sql' });
+          socket.emitChanged(`all-files-changed`);
+        },
+        'backup'
+      );
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
       conid,
       database,
       inputFile: undefined,
       outputFile,
-      options,
-      selectedTables,
-      skippedTables,
+      options: effectiveOptions,
+      selectedTables: effectiveSelectedTables,
+      skippedTables: effectiveSkippedTables,
       argsFormat: 'spawn',
     });
 
@@ -1029,6 +1127,10 @@ module.exports = {
 
   nativeBackupCommand_meta: true,
   async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
+    if (options?.backupTool == 'dbgate-pg-dumper') {
+      throw new Error('DBGM-00252 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
       conid,
       database,
@@ -1048,32 +1150,59 @@ module.exports = {
   },
 
   nativeRestore_meta: true,
-  async nativeRestore({ conid, database, inputFile, runid }) {
-    const commandArgs = await this.getNativeOpCommandArgs('restore', {
-      conid,
-      database,
-      inputFile,
-      outputFile: undefined,
-      options: undefined,
-      argsFormat: 'spawn',
-    });
+  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }) {
+    const effectiveOptions = options || {};
+    const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
+    const onFinished = () => {
+      removeRestoreUpload(restoreUploadPath);
+      this.syncModel({ conid, database, isFullRefresh: true });
+    };
 
-    return runners.nativeRunCore(runid, {
-      ...commandArgs,
-      onFinished: () => {
-        this.syncModel({ conid, database, isFullRefresh: true });
-      },
-    });
+    try {
+      if (effectiveOptions.restoreTool == 'dbgate-pg-dumper') {
+        const { connection, driver } = await this.getNativeOpContext(conid);
+        if (!driver.supportsNodejsRestore || !driver.restoreDatabase) {
+          throw new Error('DBGM-00253 The selected database driver does not support dbgate-pg-dumper restore');
+        }
+        return runners.promiseRunCore(
+          runid,
+          runner => driver.restoreDatabase(connection, { inputFile, database, options: effectiveOptions }, runner),
+          onFinished,
+          'restore'
+        );
+      }
+
+      const commandArgs = await this.getNativeOpCommandArgs('restore', {
+        conid,
+        database,
+        inputFile,
+        outputFile: undefined,
+        options: effectiveOptions,
+        argsFormat: 'spawn',
+      });
+
+      return runners.nativeRunCore(runid, {
+        ...commandArgs,
+        onFinished,
+      });
+    } catch (error) {
+      removeRestoreUpload(restoreUploadPath);
+      throw error;
+    }
   },
 
   nativeRestoreCommand_meta: true,
-  async nativeRestoreCommand({ conid, database, inputFile }) {
+  async nativeRestoreCommand({ conid, database, inputFile, options }) {
+    if (options?.restoreTool == 'dbgate-pg-dumper') {
+      throw new Error('DBGM-00254 dbgate-pg-dumper runs inside DbGate and has no command line to copy');
+    }
+
     const commandArgs = await this.getNativeOpCommandArgs('restore', {
       conid,
       database,
       inputFile,
       outputFile: undefined,
-      options: undefined,
+      options,
       argsFormat: 'shell',
     });
 

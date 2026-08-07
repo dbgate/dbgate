@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { apiCall } from '../utility/api';
-  async function loadRow(props, select, options = {}) {
-    const { conid, database } = props;
+  async function loadRow(props, select, options = {}, publishResultInfo = false) {
+    const { conid, database, onResultInfoLoaded } = props;
 
     if (!select) return null;
 
@@ -14,6 +14,7 @@
     });
 
     if (response.errorMessage) return response;
+    if (publishResultInfo) onResultInfoLoaded?.({ columns: response.columns });
     return response.rows[0];
   }
 </script>
@@ -25,7 +26,7 @@
   export let display;
 
   async function handleLoadRow() {
-    return await loadRow($$props, display.getPageQuery(display.config.formViewRecordNumber || 0, 1));
+    return await loadRow($$props, display.getPageQuery(display.config.formViewRecordNumber || 0, 1), {}, true);
   }
 
   async function handleLoadRowCount() {

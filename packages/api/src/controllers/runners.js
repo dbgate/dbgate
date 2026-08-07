@@ -217,7 +217,7 @@ module.exports = {
         connections.getCore({ conid }).then(conn => {
           trySend({ msgtype: 'volatile-connection-response', conid, conn: conn?.unsaved ? conn : null });
         }).catch(err => {
-          logger.error({ ...extractErrorLogData(err), conid }, 'DBGM-00000 Error resolving volatile connection for child process');
+          logger.error({ ...extractErrorLogData(err), conid }, 'DBGM-00337 Error resolving volatile connection for child process');
           trySend({ msgtype: 'volatile-connection-response', conid, conn: null });
         });
         return;
@@ -244,6 +244,19 @@ module.exports = {
     };
 
     const subprocess = spawn(command, args, { env: { ...process.env, ...env } });
+    let finished = false;
+
+    const finish = code => {
+      if (finished) return;
+      finished = true;
+      socket.emit(`runner-done-${runid}`, code);
+      if (onFinished) {
+        Promise.resolve(onFinished()).catch(error => {
+          logger.error(extractErrorLogData(error), 'DBGM-00338 Error finalizing external process');
+        });
+      }
+      this.opened = this.opened.filter(x => x.runid != runid);
+    };
 
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
@@ -252,11 +265,7 @@ module.exports = {
       console.log('... EXITED', code);
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
       this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${code}`);
-      socket.emit(`runner-done-${runid}`, code);
-      if (onFinished) {
-        onFinished();
-      }
-      this.opened = this.opened.filter(x => x.runid != runid);
+      finish(code);
     });
     subprocess.on('spawn', () => {
       this.dispatchMessage(runid, `DBGM-00283 Started external process ${command}`);
@@ -273,8 +282,7 @@ module.exports = {
           message: `Command ${command} not found, please install it and configure its location in DbGate settings, Settings/External tools, if ${command} is not in system PATH`,
         });
       }
-      socket.emit(`runner-done-${runid}`);
-      this.opened = this.opened.filter(x => x.runid != runid);
+      finish(1);
     });
 
     if (stdinFilePath) {
@@ -295,6 +303,48 @@ module.exports = {
       subprocess,
     };
     this.opened.push(newOpened);
+    return _.pick(newOpened, ['runid']);
+  },
+
+  promiseRunCore(runid, callback, onFinished, operation = 'operation') {
+    const abortController = new AbortController();
+    const newOpened = {
+      runid,
+      cancel: () => abortController.abort(),
+    };
+    this.opened.push(newOpened);
+
+    this.dispatchMessage(runid, `DBGM-00339 Started internal ${operation} process`);
+
+    Promise.resolve()
+      .then(() =>
+        callback({
+          signal: abortController.signal,
+          info: message => this.dispatchMessage(runid, message),
+        })
+      )
+      .then(() => {
+        this.dispatchMessage(runid, `DBGM-00340 Finished internal ${operation} process`);
+        socket.emit(`runner-done-${runid}`, { status: 'finished', exitCode: 0 });
+      })
+      .catch(error => {
+        const cancelled = abortController.signal.aborted;
+        this.dispatchMessage(runid, {
+          severity: cancelled ? 'info' : 'error',
+          message: extractErrorMessage(error),
+        });
+        socket.emit(`runner-done-${runid}`, {
+          status: cancelled ? 'cancelled' : 'failed',
+          exitCode: cancelled ? null : 1,
+        });
+      })
+      .finally(() => {
+        if (onFinished) {
+          onFinished();
+        }
+        this.opened = this.opened.filter(x => x.runid != runid);
+      });
+
     return _.pick(newOpened, ['runid']);
   },
 
@@ -355,7 +405,11 @@ module.exports = {
     if (!runner) {
       throw new Error('DBGM-00288 Invalid runner');
     }
-    runner.subprocess.kill();
+    if (runner.subprocess) {
+      runner.subprocess.kill();
+    } else if (runner.cancel) {
+      await runner.cancel();
+    }
     return { state: 'ok' };
   },
 

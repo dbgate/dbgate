@@ -59,6 +59,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   isPersisted?: boolean;
   isSparse?: boolean;
   defaultValue?: string;
+  onUpdateExpression?: string;
   defaultConstraint?: string;
   columnComment?: string;
   isUnsigned?: boolean;

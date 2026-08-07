@@ -1,7 +1,9 @@
 module.exports = `
 SELECT pg_namespace.nspname AS "schema_name"
     , pg_class.relname AS "pure_name"
+    , pg_class.oid AS "postgres_table_id"
     , pg_attribute.attname AS "column_name"
+    , pg_attribute.attnum AS "postgres_column_id"
     , pg_catalog.format_type(pg_attribute.atttypid, pg_attribute.atttypmod) AS "data_type"
 FROM pg_catalog.pg_class
     INNER JOIN pg_catalog.pg_namespace

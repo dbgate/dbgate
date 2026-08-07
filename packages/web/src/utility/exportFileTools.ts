@@ -1,4 +1,5 @@
 import { ScriptWriterJson } from 'dbgate-tools';
+import { _t } from '../translations';
 import getElectron from './getElectron';
 import {
   showSnackbar,
@@ -65,6 +66,7 @@ async function runImportExportScript({
 
   let runid;
   let isCanceled = false;
+  let finishErrorMessage = null;
 
   if (hostConnection) {
     runid = uuidv1();
@@ -84,7 +86,7 @@ async function runImportExportScript({
     icon: 'icon loading',
     buttons: [
       {
-        label: 'Cancel',
+        label: _t('common.cancel', { defaultMessage: 'Cancel' }),
         onClick: () => {
           isCanceled = true;
           apiCall('runners/cancel', { runid });
@@ -94,9 +96,25 @@ async function runImportExportScript({
   });
 
   function handleRunnerProgress(data) {
+    if (data.status == 'error' || data.errorMessage) {
+      finishErrorMessage = data.errorMessage || _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
+      updateSnackbarProgressMessage(snackId, finishErrorMessage);
+      return;
+    }
+
     const rows = data.writtenRowsCount || data.readRowCount;
     if (rows) {
-      updateSnackbarProgressMessage(snackId, `${rows} rows processed`);
+      updateSnackbarProgressMessage(snackId, _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } }));
+    }
+  }
+
+  function handleRunnerInfo(data) {
+    if (data.severity == 'error') {
+      finishErrorMessage =
+        data.errorMessage ||
+        data.message ||
+        _t('exportFileTools.exportFailed', { defaultMessage: 'Export failed' });
+      updateSnackbarProgressMessage(snackId, finishErrorMessage);
     }
   }
 
@@ -104,8 +122,11 @@ async function runImportExportScript({
     closeSnackbar(snackId);
     apiOff(`runner-done-${runid}`, handleRunnerDone);
     apiOff(`runner-progress-${runid}`, handleRunnerProgress);
+    apiOff(`runner-info-${runid}`, handleRunnerInfo);
     if (isCanceled) {
       showSnackbarError(canceledMessage);
+    } else if (finishErrorMessage) {
+      showSnackbarError(finishErrorMessage);
     } else {
       showSnackbarInfo(finishedMessage);
       if (afterFinish) afterFinish();
@@ -114,6 +135,7 @@ async function runImportExportScript({
 
   apiOn(`runner-done-${runid}`, handleRunnerDone);
   apiOn(`runner-progress-${runid}`, handleRunnerProgress);
+  apiOn(`runner-info-${runid}`, handleRunnerInfo);
 }
 
 export async function saveExportedFile(
@@ -146,9 +168,9 @@ export async function saveExportedFile(
 
   runImportExportScript({
     script,
-    runningMessage: `Exporting ${dataName}`,
-    canceledMessage: `Export ${dataName} canceled`,
-    finishedMessage: `Export ${dataName} finished`,
+    runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
+    canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
+    finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
     afterFinish: () => {
       if (!electron) {
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
@@ -163,7 +185,8 @@ function generateQuickExportScript(
   format: QuickExportDefinition,
   filePath: string,
   dataName: string,
-  columnMap
+  columnMap,
+  progressName
 ) {
   const script = new ScriptWriterJson();
 
@@ -181,20 +204,22 @@ function generateQuickExportScript(
     script.assignValue(colmapVar, colmap);
   }
 
-  script.copyStream(sourceVar, targetVar, colmapVar, 'data');
+  script.copyStream(sourceVar, targetVar, colmapVar, progressName);
   script.endLine();
 
   return script.getScript();
 }
 
 export async function exportQuickExportFile(dataName, reader, format: QuickExportDefinition, columnMap = null) {
+  const progressName = reader.hostConnection ? { name: dataName, runid: { $runid: true } } : 'data';
+
   if (format.noFilenameDependency) {
-    const script = generateQuickExportScript(reader, format, null, dataName, columnMap);
+    const script = generateQuickExportScript(reader, format, null, dataName, columnMap, progressName);
     runImportExportScript({
       script,
-      runningMessage: `Exporting ${dataName}`,
-      canceledMessage: `Export ${dataName} canceled`,
-      finishedMessage: `Export ${dataName} finished`,
+      runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
+      canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
+      finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
       hostConnection: reader.hostConnection,
     });
   } else {
@@ -203,7 +228,7 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
       `${dataName}.${format.extension}`,
       format.extension,
       dataName,
-      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap),
+      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap, progressName),
       reader.hostConnection
     );
   }
@@ -234,21 +259,27 @@ export async function saveFileToDisk(
 }
 
 export async function downloadFromApi(route: string, donloadName: string) {
-  fetch(`${resolveApi()}/${route}`, {
-    method: 'GET',
-    headers: resolveApiHeaders(),
-  })
-    .then(res => res.blob())
-    .then(blob => {
-      const objUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      document.body.appendChild(a);
-      a.download = donloadName;
-      a.href = objUrl;
-      a.click();
-      a.remove();
-      setTimeout(() => {
-        URL.revokeObjectURL(objUrl);
-      });
+  try {
+    const res = await fetch(`${resolveApi()}/${route}`, {
+      method: 'GET',
+      headers: resolveApiHeaders(),
     });
+    if (!res.ok) {
+      showSnackbarError(_t('exportFileTools.downloadFailed', { defaultMessage: 'Download failed: {status} {statusText}', values: { status: res.status, statusText: res.statusText } }));
+      return;
+    }
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.download = donloadName;
+    a.href = objUrl;
+    a.click();
+    a.remove();
+    setTimeout(() => {
+      URL.revokeObjectURL(objUrl);
+    }, 1000);
+  } catch (e) {
+    showSnackbarError(_t('exportFileTools.downloadFailedError', { defaultMessage: 'Download failed: {message}', values: { message: e?.message ?? e } }));
+  }
 }

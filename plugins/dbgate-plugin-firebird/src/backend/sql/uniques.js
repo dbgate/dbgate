@@ -7,8 +7,8 @@ SELECT
     -- Column specific fields from RDB$INDEX_SEGMENTS for the backing index
     TRIM(s.RDB$FIELD_NAME) AS "columnName",           -- Name of the column in the unique key
     CASE COALESCE(i.RDB$INDEX_TYPE, 0)              -- isDescending: 0 for ASC (default), 1 for DESC for the backing index
-        WHEN 1 THEN TRUE
-        ELSE FALSE
+        WHEN 1 THEN 1
+        ELSE 0
     END AS "isDescending"
 FROM
     RDB$RELATION_CONSTRAINTS rc

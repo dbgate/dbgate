@@ -60,6 +60,12 @@ class Dumper extends SqlDumper {
 
   columnDefinition(col, options) {
     super.columnDefinition(col, options);
+    if (col.onUpdateExpression) {
+      if (!col.notNull && !col.defaultValue?.toString()?.trim()) {
+        this.put(' ^default ^null ');
+      }
+      this.put(' ^on ^update %s ', col.onUpdateExpression);
+    }
     if (col.columnComment) {
       this.put(' ^comment %v ', col.columnComment);
     }

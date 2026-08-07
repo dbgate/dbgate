@@ -806,6 +806,7 @@
   "datagrid.structure.notLoaded": "Nebola načítaná žiadna štruktúra, pravdepodobne tabuľka neexistuje v aktuálnej databáze",
   "datagrid.structure.waiting": "Čaká sa na štruktúru",
   "datagrid.useMacro": "Použiť makro",
+  "dataGrid.decode": "Dekódovať: ",
   "dbKeysTreeNode.deleteBranch": "Odstrániť vetvu",
   "dbKeysTreeNode.deleteBranchConfirm": "Naozaj odstrániť vetvu {branch} so všetkými kľúčmi?",
   "dbKeysTreeNode.deleteKey": "Odstrániť kľúč",

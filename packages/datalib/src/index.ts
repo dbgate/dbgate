@@ -5,6 +5,8 @@ export * from './PerspectiveTreeNode';
 export * from './TableGridDisplay';
 export * from './ViewGridDisplay';
 export * from './JslGridDisplay';
+export * from './QueryResultChangeSet';
+export * from './EditableQueryResultDisplay';
 export * from './ChangeSet';
 export * from './MacroDefinition';
 export * from './runMacro';

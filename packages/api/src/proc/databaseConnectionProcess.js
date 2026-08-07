@@ -19,12 +19,14 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { dumpSqlSelect, scriptToSql } = require('dbgate-sqltree');
 const { allowExecuteCustomScript, handleQueryStream } = require('../utility/handleQueryStream');
+const { enrichQueryResultColumns } = require('../utility/queryResultMetadata');
 const dbgateApi = require('../shell');
 const requirePlugin = require('../shell/requirePlugin');
 const path = require('path');
 const { rundir } = require('../utility/directories');
 const fs = require('fs-extra');
 const { changeSetToSql } = require('dbgate-datalib');
+const _ = require('lodash');
 
 const logger = getLogger('dbconnProcess');
 
@@ -208,6 +210,15 @@ function waitStructure() {
   });
 }
 
+async function handleGetStructure({ msgid }) {
+  await waitStructure();
+  process.send({
+    msgtype: 'response',
+    msgid,
+    structure: serializeJsTypesForJsonStringify(analysedStructure),
+  });
+}
+
 function resolveAnalysedPromises() {
   for (const [resolve] of afterAnalyseCallbacks) {
     resolve();
@@ -253,6 +264,9 @@ async function handleQueryData({ msgid, sql, range, commandTimeout }, skipReadon
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     const res = await driver.query(dbhan, sql, { range, commandTimeout });
+    if (res?.columns) {
+      res.columns = await enrichQueryResultColumns({ dbhan, driver, sql, columns: res.columns, dbinfo: analysedStructure });
+    }
     process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(res) });
   } catch (err) {
     process.send({
@@ -377,6 +391,55 @@ async function handleSaveTableData({ msgid, changeSet }) {
       msgtype: 'response',
       msgid,
       errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
+    });
+  }
+}
+
+function validateQueryResultChangeSet(driver, changeSet) {
+  if (!driver.databaseEngineTypes?.includes('sql') || !driver.supportsEditableQueryResults) {
+    throw new Error('DBGM-00395 Editable query results are not supported by this driver');
+  }
+  if (changeSet?.inserts?.length > 0 || changeSet?.deletes?.length > 0) {
+    throw new Error('DBGM-00396 Query result saving supports UPDATE operations only');
+  }
+  for (const update of changeSet?.updates || []) {
+    if (!update.pureName) {
+      throw new Error('DBGM-00397 Query result update is missing target table');
+    }
+    if (_.isEmpty(update.fields)) {
+      throw new Error('DBGM-00398 Query result update is missing changed fields');
+    }
+    if (_.isEmpty(update.condition)) {
+      throw new Error('DBGM-00399 Query result update is missing row condition');
+    }
+    if (Object.values(update.condition).some(value => value === null || value === undefined)) {
+      throw new Error('DBGM-00400 Query result update has incomplete row condition');
+    }
+  }
+}
+
+async function handleSaveQueryResultData({ msgid, changeSet, sql }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    ensureExecuteCustomScript(driver);
+    validateQueryResultChangeSet(driver, changeSet);
+    if (!sql) {
+      const script = changeSetToSql({ ...changeSet, inserts: [], deletes: [] }, null, driver.dialect);
+      if (script.some(command => command.commandType != 'update')) {
+        throw new Error('DBGM-00401 Query result saving supports UPDATE operations only');
+      }
+      sql = scriptToSql(driver, script);
+    }
+    if (sql) {
+      await driver.script(dbhan, sql, { useTransaction: false });
+    }
+    process.send({ msgtype: 'response', msgid, result: { state: 'ok' } });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00402 Error saving query result data'),
     });
   }
 }
@@ -557,7 +620,7 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
     ...driver.getQuerySplitterOptions('stream'),
     returnRichInfo: true,
   })) {
-    await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, sesid);
+    await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, sesid, undefined, undefined, false, analysedStructure);
     if (queryStreamInfoHolder.canceled) {
       break;
     }
@@ -569,13 +632,50 @@ async function handleEvalJsonScript({ script, runid }) {
   const directory = path.join(rundir(), runid);
   fs.mkdirSync(directory);
   const originalCwd = process.cwd();
+  let scriptError = null;
+  let finalizerError = null;
 
   try {
     process.chdir(directory);
 
-    const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
-    await playJsonScriptWriter(script, evalWriter);
-    process.send({ msgtype: 'runnerDone', runid });
+    try {
+      const evalWriter = new ScriptWriterEval(dbgateApi, requirePlugin, dbhan, runid);
+      await playJsonScriptWriter(script, evalWriter);
+    } catch (err) {
+      scriptError = err;
+    } finally {
+      try {
+        await dbgateApi.finalizer.run();
+      } catch (err) {
+        finalizerError = err;
+      }
+    }
+
+    const shouldReportScriptError = scriptError && !scriptError.dbgateCopyStreamErrorReported;
+
+    if (shouldReportScriptError || finalizerError) {
+      if (shouldReportScriptError) {
+        logger.error(extractErrorLogData(scriptError), 'DBGM-00403 Error running JSON script on database connection');
+      }
+      if (finalizerError) {
+        logger.error(extractErrorLogData(finalizerError), 'DBGM-00404 Error running JSON script finalizers');
+      }
+
+      process.send({
+        msgtype: 'copyStreamError',
+        copyStreamError: {
+          message: [
+            shouldReportScriptError && extractErrorMessage(scriptError),
+            finalizerError && `Finalizer failed: ${extractErrorMessage(finalizerError)}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+          progressName: { name: 'script', runid },
+        },
+      });
+    } else {
+      process.send({ msgtype: 'runnerDone', runid });
+    }
   } finally {
     process.chdir(originalCwd);
   }
@@ -599,6 +699,7 @@ const messageHandlers = {
   runOperation: handleRunOperation,
   updateCollection: handleUpdateCollection,
   saveTableData: handleSaveTableData,
+  saveQueryResultData: handleSaveQueryResultData,
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,
   scanKeys: handleScanKeys,
@@ -613,6 +714,7 @@ const messageHandlers = {
   sqlSelect: handleSqlSelect,
   exportKeys: handleExportKeys,
   schemaList: handleSchemaList,
+  getStructure: handleGetStructure,
   executeSessionQuery: handleExecuteSessionQuery,
   evalJsonScript: handleEvalJsonScript,
   multiCallMethod: handleMultiCallMethod,

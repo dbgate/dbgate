@@ -26,6 +26,7 @@
   export let rowHeight;
   export let rowIndex;
   export let visibleRealColumns: any[];
+  export let trailingHorizontalScrollPadding = 0;
   export let grider;
   export let frameSelection = undefined;
   export let selectedCells = undefined;
@@ -67,10 +68,14 @@
     });
   }
 
+  function isCellEditable(col) {
+    return grider.isCellEditable ? grider.isCellEditable(rowIndex, col.uniqueName) : grider.editable;
+  }
+
   // $: console.log('rowStatus', rowStatus);
 </script>
 
-<tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode}`}>
+<tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode} row-color-${rowIndex % 6}`}>
   <RowHeaderCell
     {rowIndex}
     onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
@@ -79,7 +84,7 @@
     isSelected={frameSelection ? false : !!selectedCells?.find(cell => cell[0] == rowIndex && cell[1] == 'header')}
   />
   {#each visibleRealColumns as col (col.uniqueName)}
-    {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
+    {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] && isCellEditable(col)}
       <InplaceEditor
         width={col.width}
         {inplaceEditorState}
@@ -120,13 +125,19 @@
         isAutoFillMarker={autofillMarkerCell &&
           autofillMarkerCell[1] == col.colIndex &&
           autofillMarkerCell[0] == rowIndex &&
-          grider.editable}
+          isCellEditable(col)}
         onDictionaryLookup={() => handleLookup(col)}
         onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
-        isReadonly={!grider.editable}
+        isReadonly={!isCellEditable(col)}
       />
     {/if}
   {/each}
+  {#if trailingHorizontalScrollPadding > 0}
+    <td
+      class="horizontal-scroll-padding-cell"
+      style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+    ></td>
+  {/if}
 </tr>
 
 <style>
@@ -134,18 +145,29 @@
     background-color: var(--theme-datagrid-cell-background);
   }
 
-  tr.coloring-mode-36:nth-child(6n + 3) {
+  tr.coloring-mode-36.row-color-2 {
     background-color: var(--theme-datagrid-cell-background-alt);
   }
-  tr.coloring-mode-36:nth-child(6n + 6) {
+  tr.coloring-mode-36.row-color-5 {
     background-color: var(--theme-datagrid-cell-background-alt2);
   }
 
-  tr.coloring-mode-2-primary:nth-child(2n + 1) {
+  tr.coloring-mode-2-primary.row-color-0,
+  tr.coloring-mode-2-primary.row-color-2,
+  tr.coloring-mode-2-primary.row-color-4 {
     background-color: var(--theme-datagrid-cell-background-alt);
   }
 
-  tr.coloring-mode-2-secondary:nth-child(2n + 1) {
+  tr.coloring-mode-2-secondary.row-color-0,
+  tr.coloring-mode-2-secondary.row-color-2,
+  tr.coloring-mode-2-secondary.row-color-4 {
     background-color: var(--theme-datagrid-cell-background-alt2);
+  }
+
+  .horizontal-scroll-padding-cell {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: var(--theme-datagrid-background);
   }
 </style>

@@ -16,6 +16,29 @@ const logger = getLogger('mssqlDriver');
 let platformInfo;
 let authProxy;
 
+function findDbInfoTable(dbinfo, schemaName, pureName) {
+  if (!dbinfo?.tables) return null;
+  if (schemaName) {
+    return dbinfo.tables.find(table => table.schemaName == schemaName && table.pureName == pureName);
+  }
+  const tables = dbinfo.tables.filter(table => table.pureName == pureName);
+  return tables.length == 1 ? tables[0] : null;
+}
+
+function isPrimaryKeyColumn(dbinfo, schemaName, tableName, columnName) {
+  const table = findDbInfoTable(dbinfo, schemaName, tableName);
+  return !!table?.primaryKey?.columns?.some(column => column.columnName == columnName);
+}
+
+async function enrichColumnMetadata(columns, dbinfo) {
+  return columns.map(column => ({
+    ...column,
+    isPrimaryKey:
+      column.isPrimaryKey ||
+      isPrimaryKeyColumn(dbinfo, column.tableSchema, column.tableName, column.sourceColumnName),
+  }));
+}
+
 const versionQuery = `
 SELECT 
   @@VERSION AS version, 
@@ -118,6 +141,9 @@ const driver = {
     return lock.acquire('connection', async () => {
       return this.queryCore(dbhan, sql, options);
     });
+  },
+  enrichColumnMetadata(dbhan, sql, columns, dbinfo) {
+    return enrichColumnMetadata(columns, dbinfo);
   },
   async stream(dbhan, sql, options) {
     if (dbhan.connectionType == 'msnodesqlv8') {

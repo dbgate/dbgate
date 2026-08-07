@@ -34,6 +34,9 @@ function extractNativeColumns(meta) {
       columnName: col.name,
       dataType: col.sqlType.toLowerCase(),
       notNull: !col.nullable,
+      tableName: col.tableName || undefined,
+      tableSchema: col.schemaName || undefined,
+      sourceColumnName: col.columnName || col.baseColumnName || undefined,
     };
 
     if (resCol.dataType.endsWith(' identity')) {

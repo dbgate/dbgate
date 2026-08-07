@@ -12,15 +12,17 @@ import {
 import type { NamedObjectInfo, DatabaseInfo, TableInfo, SqlDialect } from 'dbgate-types';
 import { JsonDataObjectUpdateCommand } from 'dbgate-tools';
 
+export type ChangeSetValue = any;
+
 export interface ChangeSetItem {
   pureName: string;
   schemaName?: string;
   insertedRowIndex?: number;
   existingRowIndex?: number;
   document?: any;
-  condition?: { [column: string]: string };
-  fields?: { [column: string]: string };
-  insertIfNotExistsFields?: { [column: string]: string };
+  condition?: { [column: string]: ChangeSetValue };
+  fields?: { [column: string]: ChangeSetValue };
+  insertIfNotExistsFields?: { [column: string]: ChangeSetValue };
 }
 
 export interface ChangeSetItemFields {
@@ -48,12 +50,28 @@ export interface ChangeSetRowDefinition {
   schemaName: string;
   insertedRowIndex?: number;
   existingRowIndex?: number;
-  condition?: { [column: string]: string };
+  condition?: { [column: string]: ChangeSetValue };
 }
 
 export interface ChangeSetFieldDefinition extends ChangeSetRowDefinition {
   uniqueName: string;
   columnName: string;
+}
+
+function normalizeChangeSetValueForCompare(value: ChangeSetValue) {
+  if (value?.$bigint != null) return value.$bigint;
+  if (value?.$decimal != null) return value.$decimal;
+  if (_.isNumber(value) || _.isBoolean(value)) return value.toString();
+  return value;
+}
+
+function normalizeChangeSetConditionForCompare(condition: ChangeSetRowDefinition['condition']) {
+  if (condition == null) return condition;
+  return _.mapValues(condition, normalizeChangeSetValueForCompare);
+}
+
+function isSameChangeSetCondition(left: ChangeSetRowDefinition['condition'], right: ChangeSetRowDefinition['condition']) {
+  return _.isEqual(normalizeChangeSetConditionForCompare(left), normalizeChangeSetConditionForCompare(right));
 }
 
 export function findExistingChangeSetItem(
@@ -77,7 +95,7 @@ export function findExistingChangeSetItem(
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         ((definition.existingRowIndex != null && x.existingRowIndex == definition.existingRowIndex) ||
-          (definition.existingRowIndex == null && _.isEqual(x.condition, definition.condition)))
+          (definition.existingRowIndex == null && isSameChangeSetCondition(x.condition, definition.condition)))
     );
     if (inUpdates) return ['updates', inUpdates];
 
@@ -86,7 +104,7 @@ export function findExistingChangeSetItem(
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         ((definition.existingRowIndex != null && x.existingRowIndex == definition.existingRowIndex) ||
-          (definition.existingRowIndex == null && _.isEqual(x.condition, definition.condition)))
+          (definition.existingRowIndex == null && isSameChangeSetCondition(x.condition, definition.condition)))
     );
     if (inDeletes) return ['deletes', inDeletes];
 

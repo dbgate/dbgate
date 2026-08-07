@@ -76,6 +76,7 @@ export const driverBase = {
   databaseEngineTypes: ['sql'],
   supportedCreateDatabase: true,
   supportExecuteQuery: true,
+  supportsEditableQueryResults: true,
 
   async analyseFull(pool, version) {
     const analyser = new this.analyserClass(pool, this, version);

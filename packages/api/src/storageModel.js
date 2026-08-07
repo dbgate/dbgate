@@ -1047,6 +1047,10 @@ module.exports = {
         {
           "id": -3,
           "name": "superadmin"
+        },
+        {
+          "id": -4,
+          "name": "mcp"
         }
       ]
     },
@@ -1669,6 +1673,12 @@ module.exports = {
           "columnName": "allow_use_files",
           "dataType": "int",
           "notNull": false
+        },
+        {
+          "pureName": "role_team_folders",
+          "columnName": "import_source_id",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [
@@ -1694,6 +1704,18 @@ module.exports = {
           "columns": [
             {
               "columnName": "team_folder_id",
+              "refColumnName": "id"
+            }
+          ]
+        },
+        {
+          "constraintType": "foreignKey",
+          "constraintName": "FK_role_team_folders_import_source_id",
+          "pureName": "role_team_folders",
+          "refTableName": "import_sources",
+          "columns": [
+            {
+              "columnName": "import_source_id",
               "refColumnName": "id"
             }
           ]

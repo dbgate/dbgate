@@ -31,11 +31,14 @@ const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
 const teamFiles = require('./controllers/teamFiles');
+const mcpAdmin = require('./controllers/mcpAdmin');
+const codex = require('./controllers/codex');
+const mcp = require('./mcp');
 
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
-const { rundir, filesdir } = require('./utility/directories');
+const { rundir, filesdir, uploadsdir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
@@ -94,6 +97,7 @@ function start() {
   // console.log('process.argv', process.argv);
 
   const app = express();
+  app.set('trust proxy', 'loopback, linklocal, uniquelocal');
 
   const server = http.createServer(app);
 
@@ -175,11 +179,23 @@ function start() {
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: false }));
+
+  app.get(getExpressPath('/.well-known/oauth-protected-resource'), mcp.handleOAuthProtectedResourceMetadata);
+  app.get(getExpressPath('/.well-known/oauth-protected-resource/mcp'), mcp.handleOAuthProtectedResourceMetadata);
+  app.get(getExpressPath('/.well-known/oauth-authorization-server'), mcp.handleOAuthAuthorizationServerMetadata);
+  app.get(getExpressPath('/.well-known/openid-configuration'), mcp.handleOAuthAuthorizationServerMetadata);
+  app.get(getExpressPath('/authorize'), mcp.handleOAuthAuthorize);
+  app.post(getExpressPath('/token'), mcp.handleOAuthToken);
+  app.get(getExpressPath('/mcp/oauth/authorize'), mcp.handleOAuthAuthorize);
+  app.post(getExpressPath('/mcp/oauth/token'), mcp.handleOAuthToken);
+  app.post(getExpressPath('/mcp'), mcp.handleMcpRequest);
 
   app.use(
     getExpressPath('/uploads'),
     fileUpload({
-      limits: { fileSize: 4 * 1024 * 1024 },
+      useTempFiles: true,
+      tempFileDir: uploadsdir(),
     })
   );
 
@@ -269,6 +285,8 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/cloud', cloud);
   useController(app, electron, '/team-files', teamFiles);
   useController(app, electron, '/rest-connections', restConnections);
+  useController(app, electron, '/mcp-admin', mcpAdmin);
+  useController(app, electron, '/codex', codex);
 }
 
 function setElectronSender(electronSender) {

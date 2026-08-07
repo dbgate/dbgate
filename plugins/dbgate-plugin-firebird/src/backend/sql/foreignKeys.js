@@ -5,10 +5,10 @@ SELECT
     TRIM(iseg_fk.RDB$FIELD_NAME) AS "columnName",
     TRIM(iseg_pk.RDB$FIELD_NAME) AS "refColumnName",
     TRIM(rc_pk.RDB$RELATION_NAME) AS "refTableName",
-    FALSE AS "isIncludedColumn",
+    0 AS "isIncludedColumn",
     CASE COALESCE(idx_fk.RDB$INDEX_TYPE, 0)
-        WHEN 1 THEN TRUE  -- For the FK's own index, 1 = Descending (modern Firebird)
-        ELSE FALSE        -- 0 or NULL = Ascending for the FK's own index
+        WHEN 1 THEN 1  -- For the FK's own index, 1 = Descending (modern Firebird)
+        ELSE 0        -- 0 or NULL = Ascending for the FK's own index
     END AS "isDescending"   -- Refers to the sort order of the index on the FK column(s)
 FROM
     RDB$RELATION_CONSTRAINTS rc_fk

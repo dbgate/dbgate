@@ -3,6 +3,7 @@ SELECT
     TRIM(PP.RDB$PROCEDURE_NAME) AS "owningObjectName",  -- Name of the procedure this parameter belongs to
     TRIM(PP.RDB$PARAMETER_NAME) AS "parameterName",      -- ParameterInfo.parameterName
     FFLDS.RDB$FIELD_TYPE AS "dataTypeCode",                  -- SQL data type code from RDB$FIELDS
+    FFLDS.RDB$FIELD_SUB_TYPE AS "subType",
     FFLDS.rdb$field_precision AS "precision",
     FFLDS.rdb$field_scale AS "scale",
     FFLDS.rdb$field_length AS "length",

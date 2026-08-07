@@ -117,3 +117,6 @@ yarn translations:extract        # extract new strings
 yarn translations:add-missing    # add missing translations
 yarn translations:check          # check for issues
 ```
+
+## Repository layout
+This repository is for DbGate Community. DbGate Premium is ../dbgate-merged directory. The ../dbgate-pro directory contains difference between ../dbgate-merged and this repo. More precisely, ../dbgate-merged is a merge of this repo, with overwritten paths from ../dbgate-pro. The ../dbgate-pro directory contains only files that are different from this repo 9and files which are not existing in this repo and are specific for DbGate Premium.

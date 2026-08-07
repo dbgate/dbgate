@@ -7,7 +7,11 @@ export interface QueryResultColumn {
   columnName: string;
   notNull: boolean;
   autoIncrement?: boolean;
+  isPrimaryKey?: boolean;
   dataType?: string;
+  tableName?: string;
+  tableSchema?: string;
+  sourceColumnName?: string;
 }
 
 export interface QueryResult {

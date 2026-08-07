@@ -4,6 +4,7 @@ const databaseConnections = require('../controllers/databaseConnections');
 const serverConnections = require('../controllers/serverConnections');
 const sessions = require('../controllers/sessions');
 const runners = require('../controllers/runners');
+const { getLoggedUserCount } = require('./loginchecker');
 
 async function getHealthStatus() {
   const memory = process.memoryUsage();
@@ -13,7 +14,8 @@ async function getHealthStatus() {
     status: 'ok',
     databaseConnectionCount: databaseConnections.opened.length,
     serverConnectionCount: serverConnections.opened.length,
-    sessionCount: sessions.opened.length,
+    querySessionCount: sessions.opened.length,
+    loggedUserCount: getLoggedUserCount(),
     runProcessCount: runners.opened.length,
     memory,
     cpuUsage,

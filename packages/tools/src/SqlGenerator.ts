@@ -271,7 +271,7 @@ export class SqlGenerator {
     let isClosed = false;
     let isHeaderRead = false;
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       readable.on('data', chunk => {
         if (isClosed) return;
         if (!isHeaderRead) {
@@ -296,6 +296,10 @@ export class SqlGenerator {
       });
       readable.on('end', () => {
         resolve(undefined);
+      });
+      readable.on('error', err => {
+        isClosed = true;
+        reject(err);
       });
     });
   }

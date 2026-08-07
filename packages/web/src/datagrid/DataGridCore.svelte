@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
+  const HORIZONTAL_SCROLL_END_PADDING = 64;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
@@ -64,7 +65,7 @@
     toolbarName: __t('command.datagrid.deleteSelectedRows.toolbar', { defaultMessage: 'Delete row(s)' }),
     keyText: isMac() ? 'Command+Backspace' : 'CtrlOrCommand+Delete',
     icon: 'icon minus',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canDelete,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),
   });
 
@@ -75,7 +76,7 @@
     toolbarName: __t('command.datagrid.insertNewRow.toolbar', { defaultMessage: 'New row' }),
     icon: 'icon add',
     keyText: isMac() ? 'Command+I' : 'Insert',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().insertNewRow(),
   });
 
@@ -95,7 +96,7 @@
     name: __t('command.datagrid.cloneRows', { defaultMessage: 'Clone rows' }),
     toolbarName: __t('command.datagrid.cloneRows.toolbar', { defaultMessage: 'Clone row(s)' }),
     keyText: 'CtrlOrCommand+Shift+C',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().cloneRows(),
   });
 
@@ -105,7 +106,7 @@
     name: __t('command.datagrid.setNull', { defaultMessage: 'Set NULL' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
-      getCurrentDataGrid()?.getGrider()?.editable && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+      getCurrentDataGrid()?.hasEditableSelection() && !getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(null),
   });
 
@@ -115,7 +116,7 @@
     name: __t('command.datagrid.removeField', { defaultMessage: 'Remove field' }),
     keyText: 'CtrlOrCommand+0',
     testEnabled: () =>
-      getCurrentDataGrid()?.getGrider()?.editable && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
+      getCurrentDataGrid()?.hasEditableSelection() && getCurrentDataGrid()?.getEditorTypes()?.supportFieldRemoval,
     onClick: () => getCurrentDataGrid().setFixedValue(undefined),
   });
 
@@ -389,7 +390,7 @@
     shouldOpenMultilineDialog,
     base64ToHex,
   } from 'dbgate-tools';
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext, onDestroy, afterUpdate } from 'svelte';
   import { type Writable } from 'svelte/store';
   import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -517,7 +518,8 @@
 
   export let dataEditorTypesBehaviourOverride = null;
 
-  const wheelRowCount = 5;
+  let rowPixelOffset = 0;
+  let columnPixelOffset = 0;
   const tabFocused: any = getContext('tabFocused');
 
   let containerHeight = 0;
@@ -530,6 +532,8 @@
   let domHorizontalScroll;
   let domVerticalScroll;
   let domContainer;
+  let domTable;
+  let domTbody;
 
   let currentCell = topLeftCell;
   let selectedCells = [topLeftCell];
@@ -547,7 +551,48 @@
 
   let unsubscribeDbRefresh;
 
+  let verticalSmoothPending = 0;
+  let horizontalSmoothPending = 0;
+  let smoothRafId = null;
+  let _pendingScrollLeft: number | null = null;
+
+  afterUpdate(() => {
+    if (_pendingScrollLeft !== null && domTable) {
+      domTable.scrollLeft = _pendingScrollLeft;
+      _pendingScrollLeft = null;
+    }
+  });
+
+  function smoothScrollFrame() {
+    let hasMore = false;
+
+    if (Math.abs(verticalSmoothPending) > 0.5) {
+      const step = verticalSmoothPending * 0.12;
+      scrollVertical(step);
+      verticalSmoothPending -= step;
+      hasMore = true;
+    } else if (verticalSmoothPending !== 0) {
+      scrollVertical(verticalSmoothPending);
+      verticalSmoothPending = 0;
+    }
+
+    if (Math.abs(horizontalSmoothPending) > 0.5) {
+      const step = horizontalSmoothPending * 0.12;
+      scrollHorizontal(step);
+      horizontalSmoothPending -= step;
+      hasMore = true;
+    } else if (horizontalSmoothPending !== 0) {
+      scrollHorizontal(horizontalSmoothPending);
+      horizontalSmoothPending = 0;
+    }
+
+    smoothRafId = hasMore ? requestAnimationFrame(smoothScrollFrame) : null;
+  }
+
   onDestroy(callUnsubscribeDbRefresh);
+  onDestroy(() => {
+    if (smoothRafId) cancelAnimationFrame(smoothRafId);
+  });
 
   function callUnsubscribeDbRefresh() {
     if (unsubscribeDbRefresh) {
@@ -575,6 +620,13 @@
 
   function resetVerticalScroll() {
     firstVisibleRowScrollIndex = 0;
+    rowPixelOffset = 0;
+    verticalSmoothPending = 0;
+    if (!horizontalSmoothPending && smoothRafId) {
+      cancelAnimationFrame(smoothRafId);
+      smoothRafId = null;
+    }
+    if (domTbody) domTbody.style.transform = 'translateY(0)';
     if (domVerticalScroll) {
       domVerticalScroll.scroll(0);
     }
@@ -710,6 +762,7 @@
   }
 
   export function deleteSelectedRows() {
+    if (!grider.canDelete) return;
     grider.beginUpdate();
     for (const index of _.sortBy(getSelectedRowIndexes(), x => -x)) {
       if (_.isNumber(index)) grider.deleteRow(index);
@@ -718,7 +771,7 @@
   }
 
   export function addNewColumnEnabled() {
-    return getGrider()?.editable && isDynamicStructure;
+    return getGrider()?.editable && display?.allowStructureChange !== false && isDynamicStructure;
   }
 
   export function addNewColumn() {
@@ -781,9 +834,12 @@
 
   export function setFixedValue(value) {
     grider.beginUpdate();
-    selectedCells.filter(isRegularCell).forEach(cell => {
-      setCellValue(cell, value);
-    });
+    selectedCells
+      .filter(isRegularCell)
+      .filter(cellEditable)
+      .forEach(cell => {
+        setCellValue(cell, value);
+      });
     grider.endUpdate();
   }
 
@@ -985,7 +1041,9 @@
   }
 
   export function editJsonEnabled() {
-    return grider.editable && _.uniq(selectedCells.map(x => x[0])).length == 1;
+    return (
+      grider.editable && display?.allowRowDocumentEdit !== false && _.uniq(selectedCells.map(x => x[0])).length == 1
+    );
   }
 
   export function editJsonDocument() {
@@ -994,7 +1052,7 @@
   }
 
   export function editCellValueEnabled() {
-    return grider.editable && selectedCells.length == 1;
+    return selectedCells.length == 1 && cellEditable(selectedCells[0]);
   }
 
   export function editCellValue() {
@@ -1015,7 +1073,7 @@
   }
 
   export function addJsonDocumentEnabled() {
-    return grider.editable;
+    return grider.canInsert;
   }
 
   export function addJsonDocument() {
@@ -1265,12 +1323,29 @@
   $: visibleRowCountLowerBound =
     rowHeight > 0 ? Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight))) : 0;
 
-  $: visibleRealColumns = countVisibleRealColumns(
+  $: visibleRealColumns = addFrozenStickyPositions(
+    countVisibleRealColumns(
+      columnSizes,
+      firstVisibleColumnScrollIndex,
+      gridScrollAreaWidth + (columnSizes.getSizeByScrollIndex(firstVisibleColumnScrollIndex) || 0),
+      columns
+    ),
     columnSizes,
-    firstVisibleColumnScrollIndex,
-    gridScrollAreaWidth,
-    columns
+    headerColWidth
   );
+
+  function addFrozenStickyPositions(cols, colSizes, hdrWidth) {
+    let frozenLeft = hdrWidth;
+    for (const col of cols) {
+      if ((col as any).colIndex < colSizes.frozenCount) {
+        (col as any).stickyLeft = frozenLeft;
+        frozenLeft += col.width;
+      } else {
+        (col as any).stickyLeft = null;
+      }
+    }
+    return cols;
+  }
 
   $: selectedCellsInfo = getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData());
 
@@ -1290,7 +1365,15 @@
     realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
   );
 
-  $: maxScrollColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
+  $: maxScrollColumn = Math.max(
+    0,
+    columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth)
+  );
+  $: maxHorizontalPixelPosition = Math.max(
+    0,
+    columnSizes.getVisibleScrollSizeSum() - Math.max(0, gridScrollAreaWidth || 0) + HORIZONTAL_SCROLL_END_PADDING
+  );
+  $: trailingHorizontalScrollPadding = maxHorizontalPixelPosition > 0 ? HORIZONTAL_SCROLL_END_PADDING : 0;
 
   $: {
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount && rowHeight > 0) {
@@ -1459,6 +1542,8 @@
 
       if (newRow != null) {
         firstVisibleRowScrollIndex = newRow;
+        rowPixelOffset = 0;
+        if (domTbody) domTbody.style.transform = 'translateY(0)';
         domVerticalScroll.scroll(newRow);
       }
     }
@@ -1470,9 +1555,7 @@
           col - columnSizes.frozenCount,
           gridScrollAreaWidth
         );
-        firstVisibleColumnScrollIndex = newColumn;
-
-        domHorizontalScroll.scroll(newColumn);
+        setHorizontalPixelPosition(columnSizes.getPositionByScrollIndex(newColumn), firstVisibleColumnScrollIndex);
       }
     }
   }
@@ -1593,56 +1676,105 @@
     }
   }
 
+  function normalizeWheelDelta(delta, deltaMode) {
+    if (deltaMode === 1) return delta * (rowHeight || 24); // LINE mode → pixels
+    if (deltaMode === 2) return delta * containerHeight; // PAGE mode → pixels
+    return delta; // PIXEL mode (touchpad)
+  }
+
   function handleGridWheel(event) {
+    const deltaX = normalizeWheelDelta(event.deltaX, event.deltaMode);
+    const deltaY = normalizeWheelDelta(event.deltaY, event.deltaMode);
+
+    let vDelta = 0;
+    let hDelta = 0;
     if (event.shiftKey) {
-      if (isMac()) {
-        scrollHorizontal(event.deltaX, event.deltaY);
-      } else {
-        scrollHorizontal(event.deltaY, event.deltaX);
-      }
+      if (isMac()) hDelta = deltaX;
+      else hDelta = deltaY;
     } else {
-      scrollHorizontal(event.deltaX, event.deltaY);
-      scrollVertical(event.deltaX, event.deltaY);
+      hDelta = deltaX;
+      vDelta = deltaY;
+    }
+
+    // Mouse wheel produces large discrete steps; animate them smoothly.
+    // Touchpad sends many small continuous events (< 50px) — apply directly.
+    const needsSmoothing = event.deltaMode !== 0 || Math.abs(event.deltaY) >= 50 || Math.abs(event.deltaX) >= 50;
+    if (needsSmoothing) {
+      verticalSmoothPending += vDelta;
+      horizontalSmoothPending += hDelta;
+      if (!smoothRafId) smoothRafId = requestAnimationFrame(smoothScrollFrame);
+    } else {
+      scrollVertical(vDelta);
+      scrollHorizontal(hDelta);
+    }
+    event.preventDefault();
+  }
+
+  function scrollVertical(deltaY) {
+    const pixelsPerRow = rowHeight || 24;
+    rowPixelOffset += deltaY;
+
+    // Advance forward (scroll down)
+    while (rowPixelOffset >= pixelsPerRow) {
+      const rowCount = grider.rowCount;
+      if (firstVisibleRowScrollIndex + visibleRowCountLowerBound >= rowCount) {
+        rowPixelOffset = 0;
+        break;
+      }
+      rowPixelOffset -= pixelsPerRow;
+      firstVisibleRowScrollIndex++;
+    }
+
+    // Clamp sub-row offset when already at the last page (small delta that didn't trigger the loop)
+    if (rowPixelOffset > 0 && firstVisibleRowScrollIndex + visibleRowCountLowerBound >= grider.rowCount) {
+      rowPixelOffset = 0;
+    }
+
+    // Retreat backward (scroll up)
+    while (rowPixelOffset < 0) {
+      if (firstVisibleRowScrollIndex <= 0) {
+        rowPixelOffset = 0;
+        break;
+      }
+      firstVisibleRowScrollIndex--;
+      rowPixelOffset += pixelsPerRow;
+    }
+
+    domVerticalScroll.scroll(firstVisibleRowScrollIndex + rowPixelOffset / pixelsPerRow);
+    if (domTbody) domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
+  }
+
+  function getMaxHorizontalPixelPosition() {
+    return maxHorizontalPixelPosition || 0;
+  }
+
+  function setHorizontalPixelPosition(pixelPosition, prevIndex) {
+    const maxPosition = getMaxHorizontalPixelPosition();
+    const newPosition = Math.min(Math.max(pixelPosition, 0), maxPosition);
+    const newIndex = Math.max(0, Math.min(maxScrollColumn, columnSizes.getScrollIndexOnPosition(newPosition)));
+    const currentColumnWidth = columnSizes.getSizeByScrollIndex(newIndex) || 100;
+    const currentColumnPosition = columnSizes.getPositionByScrollIndex(newIndex);
+    const maxColumnPixelOffset =
+      newIndex >= maxScrollColumn ? maxPosition - currentColumnPosition : currentColumnWidth - 1;
+
+    firstVisibleColumnScrollIndex = newIndex;
+    columnPixelOffset = Math.min(Math.max(0, newPosition - currentColumnPosition), Math.max(0, maxColumnPixelOffset));
+
+    domHorizontalScroll.scroll(columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset);
+    if (firstVisibleColumnScrollIndex !== prevIndex) {
+      // Column set is changing - DOM not yet updated, so scrollLeft would be clamped by
+      // the old (narrower) content. Defer the assignment until afterUpdate.
+      _pendingScrollLeft = columnPixelOffset;
+    } else if (domTable) {
+      domTable.scrollLeft = columnPixelOffset;
     }
   }
 
-  function scrollVertical(deltaX, deltaY) {
-    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-    if (deltaY > 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex += wheelRowCount;
-    } else if (deltaY < 0 && deltaX === -0) {
-      newFirstVisibleRowScrollIndex -= wheelRowCount;
-    }
-
-    let rowCount = grider.rowCount;
-    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-    }
-    if (newFirstVisibleRowScrollIndex < 0) {
-      newFirstVisibleRowScrollIndex = 0;
-    }
-
-    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
-    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
-  }
-
-  function scrollHorizontal(deltaX, deltaY) {
-    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
-    if (deltaX > 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex++;
-    } else if (deltaX < 0 && deltaY === -0) {
-      newFirstVisibleColumnScrollIndex--;
-    }
-
-    if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
-      newFirstVisibleColumnScrollIndex = maxScrollColumn;
-    }
-    if (newFirstVisibleColumnScrollIndex < 0) {
-      newFirstVisibleColumnScrollIndex = 0;
-    }
-
-    firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
-    domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
+  function scrollHorizontal(deltaX) {
+    if (!columnSizes) return;
+    const prevIndex = firstVisibleColumnScrollIndex;
+    const currentPosition = columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset;
+    setHorizontalPixelPosition(currentPosition + deltaX, prevIndex);
   }
 
   function getSelectedRowIndexes() {
@@ -1667,10 +1799,22 @@
     );
   }
 
+  function cellEditable(cell) {
+    if (!isRegularCell(cell)) return false;
+    const uniqueName = realColumnUniqueNames[cell[1]];
+    return grider?.isCellEditable ? grider.isCellEditable(cell[0], uniqueName) : grider?.editable;
+  }
+
+  export function hasEditableSelection() {
+    return selectedCells?.some(cellEditable);
+  }
+
   function handleGridKeyDown(event) {
     if ($inplaceEditorState.cell) return;
+    const currentCellEditable = cellEditable(currentCell);
 
     if (
+      currentCellEditable &&
       !event.ctrlKey &&
       !event.altKey &&
       !event.metaKey &&
@@ -1685,7 +1829,7 @@
       // console.log('event', event.nativeEvent);
     }
 
-    if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
+    if (currentCellEditable && (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter)) {
       // @ts-ignore
       if (!showMultilineCellEditorConditional(currentCell)) {
         dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
@@ -1763,7 +1907,7 @@
           if (currentCell[0] == 'header') return focusFilterEditor(currentCell[1]);
           return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
         case keycodes.enter:
-          if (!grider.editable)
+          if (!cellEditable(currentCell))
             return _.isNumber(currentCell[0]) ? moveCurrentCell(currentCell[0] + 1, currentCell[1], event) : null;
           break;
         case keycodes.leftArrow:
@@ -1815,6 +1959,7 @@
   }
 
   function setCellValue(cell, value) {
+    if (!cellEditable(cell)) return;
     grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
   }
 
@@ -1883,6 +2028,7 @@
         let rowIndex = startRow;
         for (const rowData of pasteRows) {
           if (rowIndex >= grider.rowCountInUpdate) {
+            if (!grider.canInsert) break;
             grider.insertRow();
           }
           let colIndex = startCol;
@@ -1962,7 +2108,7 @@
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show':
-        if (!grider.editable) return {};
+        if (!cellEditable(action.cell)) return {};
         return {
           cell: action.cell,
           text: action.text,
@@ -1989,6 +2135,12 @@
         }
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
+      }
+      case 'setOptionsHidden': {
+        return {
+          ...state,
+          isOptionsHidden: action.value,
+        };
       }
       // case 'shouldSave': {
       //   return {
@@ -2196,7 +2348,7 @@
     bind:this={domContainer}
     use:contextMenu={buildMenu}
     use:contextMenuActivator={activator}
-    on:wheel={handleGridWheel}
+    on:wheel|nonpassive={handleGridWheel}
     on:click={e => {
       if (e.target == domContainer) {
         domFocusField?.focus();
@@ -2220,150 +2372,164 @@
         isGridFocused = false;
       }}
     />
-    <table
-      class="table"
-      on:mousedown={handleGridMouseDown}
-      on:mousemove={handleGridMouseMove}
-      on:mouseup={handleGridMouseUp}
-    >
-      <thead>
-        <tr>
-          <td
-            class="header-cell"
-            data-row="header"
-            data-col="header"
-            style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          >
-            {#if !hideGridLeftColumn}
-              <CollapseButton
-                collapsed={$collapsedLeftColumnStore}
-                on:click={() => collapsedLeftColumnStore.update(x => !x)}
-              />
-            {/if}
-          </td>
-          {#each visibleRealColumns as col (col.uniqueName)}
-            <td
-              class="header-cell"
-              data-row="header"
-              data-col={col.colIndex}
-              style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
-              class:active-header-cell={currentCell && currentCell[0] == 'header' && currentCell[1] == col.colIndex}
-            >
-              <ColumnHeaderControl
-                column={col}
-                {conid}
-                {database}
-                setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
-                addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
-                order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
-                orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
-                isSortDefined={display.sortable ? display.isSortDefined() : false}
-                clearSort={display.sortable ? () => display.clearSort() : null}
-                on:resizeSplitter={e => {
-                  // @ts-ignore
-                  display.resizeColumn(col.uniqueName, col.width, e.detail);
-                }}
-                setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
-                grouping={display.getGrouping(col.uniqueName)}
-                {allowDefineVirtualReferences}
-                seachInColumns={display.config?.searchInColumns}
-                onReload={refresh}
-                driver={display?.driver}
-              />
-            </td>
-          {/each}
-        </tr>
-        {#if display.filterable}
+    <div class="tableScrollContainer" bind:this={domTable}>
+      <table
+        class="table"
+        on:mousedown={handleGridMouseDown}
+        on:mousemove={handleGridMouseMove}
+        on:mouseup={handleGridMouseUp}
+      >
+        <thead>
           <tr>
             <td
               class="header-cell"
-              data-row="filter"
+              data-row="header"
               data-col="header"
-              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
             >
-              {#if display.filterCount > 0}
-                <InlineButton
-                  on:click={() => display.clearFilters()}
-                  square
-                  data-testid="DataGridCore_button_clearFilters"
-                >
-                  <FontIcon icon="icon filter-off" />
-                </InlineButton>
+              {#if !hideGridLeftColumn}
+                <CollapseButton
+                  collapsed={$collapsedLeftColumnStore}
+                  on:click={() => collapsedLeftColumnStore.update(x => !x)}
+                />
               {/if}
             </td>
             {#each visibleRealColumns as col (col.uniqueName)}
               <td
-                class="filter-cell"
-                data-row="filter"
+                class="header-cell"
+                data-row="header"
                 data-col={col.colIndex}
-                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:5` : ''}`}
               >
-                <DataFilterControl
-                  onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
-                  foreignKey={col.foreignKey}
-                  columnName={col.uniquePath.length == 1 ? col.uniquePath[0] : null}
-                  uniqueName={col.uniqueName}
-                  pureName={col.pureName}
-                  schemaName={col.schemaName}
+                <ColumnHeaderControl
+                  column={col}
                   {conid}
                   {database}
-                  {jslid}
-                  {passAllRows}
-                  {formatterFunction}
-                  driver={display?.driver}
-                  filterBehaviour={display?.filterBehaviourOverride ??
-                    col.filterBehaviour ??
-                    detectSqlFilterBehaviour(col.dataType)}
-                  filter={display.getFilter(col.uniqueName)}
-                  setFilter={value => display.setFilter(col.uniqueName, value)}
-                  showResizeSplitter
+                  setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
+                  addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
+                  order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
+                  orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
+                  isSortDefined={display.sortable ? display.isSortDefined() : false}
+                  clearSort={display.sortable ? () => display.clearSort() : null}
                   on:resizeSplitter={e => {
                     // @ts-ignore
                     display.resizeColumn(col.uniqueName, col.width, e.detail);
                   }}
-                  onFocusGrid={() => {
-                    selectTopmostCell(col.uniqueName);
-                  }}
-                  onFocusGridHeader={() => {
-                    selectColumnHeaderCell(col.uniqueName);
-                  }}
-                  dataType={col.dataType}
-                  filterDisabled={display.isFilterDisabled(col.uniqueName)}
+                  setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                  grouping={display.getGrouping(col.uniqueName)}
+                  {allowDefineVirtualReferences}
+                  seachInColumns={display.config?.searchInColumns}
+                  onReload={refresh}
+                  driver={display?.driver}
                 />
               </td>
             {/each}
+            {#if trailingHorizontalScrollPadding > 0}
+              <td
+                class="horizontal-scroll-padding-cell"
+                style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+              ></td>
+            {/if}
           </tr>
-        {/if}
-      </thead>
-      <tbody>
-        {#if rowHeight > 0}
-          {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
-            <DataGridRow
-              {rowIndex}
-              {grider}
-              {conid}
-              {database}
-              driver={display?.driver}
-              {visibleRealColumns}
-              {rowHeight}
-              {autofillSelectedCells}
-              {isDynamicStructure}
-              selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-              autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-              focusedColumns={display.focusedColumns}
-              inplaceEditorState={$inplaceEditorState}
-              currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
-              {dispatchInsplaceEditor}
-              {frameSelection}
-              onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
-              {dataEditorTypesBehaviourOverride}
-              {gridColoringMode}
-              {overlayDefinition}
-            />
-          {/each}
-        {/if}
-      </tbody>
-    </table>
+          {#if display.filterable}
+            <tr>
+              <td
+                class="header-cell"
+                data-row="filter"
+                data-col="header"
+                style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px; position:sticky; left:0; top:0; z-index:5`}
+              >
+                {#if display.filterCount > 0}
+                  <InlineButton
+                    on:click={() => display.clearFilters()}
+                    square
+                    data-testid="DataGridCore_button_clearFilters"
+                  >
+                    <FontIcon icon="icon filter-off" />
+                  </InlineButton>
+                {/if}
+              </td>
+              {#each visibleRealColumns as col (col.uniqueName)}
+                <td
+                  class="filter-cell"
+                  data-row="filter"
+                  data-col={col.colIndex}
+                  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px${col.stickyLeft != null ? `; position:sticky; left:${col.stickyLeft}px; z-index:3` : ''}`}
+                >
+                  <DataFilterControl
+                    onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
+                    foreignKey={col.foreignKey}
+                    columnName={col.uniquePath.length == 1 ? col.uniquePath[0] : null}
+                    uniqueName={col.uniqueName}
+                    pureName={col.pureName}
+                    schemaName={col.schemaName}
+                    {conid}
+                    {database}
+                    {jslid}
+                    {passAllRows}
+                    {formatterFunction}
+                    driver={display?.driver}
+                    filterBehaviour={display?.filterBehaviourOverride ??
+                      col.filterBehaviour ??
+                      detectSqlFilterBehaviour(col.dataType)}
+                    filter={display.getFilter(col.uniqueName)}
+                    setFilter={value => display.setFilter(col.uniqueName, value)}
+                    showResizeSplitter
+                    on:resizeSplitter={e => {
+                      // @ts-ignore
+                      display.resizeColumn(col.uniqueName, col.width, e.detail);
+                    }}
+                    onFocusGrid={() => {
+                      selectTopmostCell(col.uniqueName);
+                    }}
+                    onFocusGridHeader={() => {
+                      selectColumnHeaderCell(col.uniqueName);
+                    }}
+                    dataType={col.dataType}
+                    filterDisabled={display.isFilterDisabled(col.uniqueName)}
+                  />
+                </td>
+              {/each}
+              {#if trailingHorizontalScrollPadding > 0}
+                <td
+                  class="horizontal-scroll-padding-cell"
+                  style={`width:${trailingHorizontalScrollPadding}px; min-width:${trailingHorizontalScrollPadding}px; max-width:${trailingHorizontalScrollPadding}px`}
+                ></td>
+              {/if}
+            </tr>
+          {/if}
+        </thead>
+        <tbody bind:this={domTbody}>
+          {#if rowHeight > 0}
+            {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound + 1, grider.rowCount)) as rowIndex (rowIndex)}
+              <DataGridRow
+                {rowIndex}
+                {grider}
+                {conid}
+                {database}
+                driver={display?.driver}
+                {visibleRealColumns}
+                {trailingHorizontalScrollPadding}
+                {rowHeight}
+                {autofillSelectedCells}
+                {isDynamicStructure}
+                selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+                autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+                focusedColumns={display.focusedColumns}
+                inplaceEditorState={$inplaceEditorState}
+                currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
+                {dispatchInsplaceEditor}
+                {frameSelection}
+                onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+                {dataEditorTypesBehaviourOverride}
+                {gridColoringMode}
+                {overlayDefinition}
+              />
+            {/each}
+          {/if}
+        </tbody>
+      </table>
+    </div>
 
     {#if !isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
       <div class="no-rows-info ml-2">
@@ -2390,16 +2556,39 @@
 
     <HorizontalScrollBar
       minimum={0}
-      maximum={maxScrollColumn}
-      viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
-      on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+      maximum={maxHorizontalPixelPosition}
+      viewportRatio={gridScrollAreaWidth / (gridScrollAreaWidth + maxHorizontalPixelPosition)}
+      on:scroll={e => {
+        horizontalSmoothPending = 0;
+        if (!verticalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
+        setHorizontalPixelPosition(e.detail, firstVisibleColumnScrollIndex);
+      }}
       bind:this={domHorizontalScroll}
     />
     <VerticalScrollBar
       minimum={0}
       maximum={grider.rowCount - visibleRowCountUpperBound + 2}
       viewportRatio={visibleRowCountUpperBound / grider.rowCount}
-      on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+      top={(display?.filterable ? 2 : 1) * rowHeight}
+      on:scroll={e => {
+        verticalSmoothPending = 0;
+        if (!horizontalSmoothPending && smoothRafId) {
+          cancelAnimationFrame(smoothRafId);
+          smoothRafId = null;
+        }
+        const fractionalRow = e.detail;
+        const newIndex = Math.floor(fractionalRow);
+        const fraction = fractionalRow - newIndex;
+        firstVisibleRowScrollIndex = newIndex;
+        rowPixelOffset = fraction * (rowHeight || 24);
+        if (domTbody) {
+          domTbody.style.top = '';
+          domTbody.style.transform = `translateY(-${rowPixelOffset}px)`;
+        }
+      }}
       bind:this={domVerticalScroll}
     />
     {#if selectionMenu}
@@ -2482,24 +2671,34 @@
     overflow: hidden;
     background: var(--theme-datagrid-background);
   }
-  .table {
+  .tableScrollContainer {
     position: absolute;
     left: 0;
     top: 0;
+    right: 0;
     bottom: 20px;
-    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .tableScrollContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .table {
     border-collapse: collapse;
     outline: none;
   }
   .header-cell {
     border-top: var(--theme-datagrid-border-horizontal);
     border-bottom: var(--theme-datagrid-border-horizontal);
-    border-left: var(--theme-datagrid-border-vertical);
     border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 0;
     margin: 0;
     background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
   }
   :global(.data-grid-focused) .active-header-cell {
     background-color: var(--theme-datagrid-focused-cell-background);
@@ -2508,6 +2707,16 @@
     text-align: left;
     margin: 0;
     padding: 0;
+    background-color: var(--theme-datagrid-headercell-background);
+    position: sticky;
+    top: 0;
+    z-index: 4;
+  }
+  .horizontal-scroll-padding-cell {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: var(--theme-datagrid-background);
   }
   .focus-field {
     position: absolute;
@@ -2546,6 +2755,8 @@
   }
 
   .no-rows-info {
+    position: relative;
+    z-index: 6;
     margin-top: 60px;
   }
 </style>

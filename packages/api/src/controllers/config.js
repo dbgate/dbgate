@@ -16,6 +16,7 @@ const connections = require('../controllers/connections');
 const { getAuthProviderFromReq } = require('../auth/authProvider');
 const { checkLicense, checkLicenseKey } = require('../utility/checkLicense');
 const storage = require('./storage');
+const dbgateApi = require('../shell');
 const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
@@ -30,6 +31,12 @@ const {
 
 const lock = new AsyncLock();
 let cachedSettingsValue = null;
+
+function coerceSettingsEnvValue(raw) {
+  if (raw === 'true') return true; // so booleans can be enabled AND disabled via env
+  if (raw === 'false') return false;
+  return raw; // leave everything else as a string (numeric settings are parsed on read)
+}
 
 module.exports = {
   // settingsValue: {},
@@ -172,9 +179,12 @@ module.exports = {
     }
     for (const envVar in process.env) {
       if (envVar.startsWith('SETTINGS_')) {
-        const key = envVar.substring('SETTINGS_'.length);
-        if (!res[key]) {
-          res[key] = process.env[envVar];
+        // dot-safe: allow `SETTINGS_tabGroup__showServerName` on platforms that forbid '.'
+        // in env-var names; `__` -> '.'. Existing dotted names are unaffected (no settings
+        // key contains '__').
+        const key = envVar.substring('SETTINGS_'.length).replace(/__/g, '.');
+        if (!(key in res)) {
+          res[key] = coerceSettingsEnvValue(process.env[envVar]);
         }
       }
     }
@@ -436,6 +446,22 @@ module.exports = {
       );
     }
 
+    return true;
+  },
+
+  createConnectionsAndSettingsZip_meta: true,
+  async createConnectionsAndSettingsZip({ db, filePath }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`admin/config`, loadedPermissions)) {
+      throw new Error('Permission denied: admin/config');
+    }
+
+    if (connections.portalConnections) {
+      throw new Error('Not allowed');
+    }
+
+    const exportDb = process.env.STORAGE_DATABASE ? await storage.fillTeamFileContentForExport(db) : db;
+    await dbgateApi.zipJsonLinesData(exportDb, filePath);
     return true;
   },
 };

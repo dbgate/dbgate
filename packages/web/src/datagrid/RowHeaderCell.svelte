@@ -35,13 +35,14 @@
   td {
     border-top: var(--theme-datagrid-border-horizontal);
     border-bottom: var(--theme-datagrid-border-horizontal);
-    border-left: var(--theme-datagrid-border-vertical);
     border-right: var(--theme-datagrid-border-vertical);
     text-align: left;
     padding: 2px;
     background-color: var(--theme-datagrid-headercell-background);
     overflow: hidden;
-    position: relative;
+    position: sticky;
+    left: 0;
+    z-index: 3;
   }
   .extraIcon {
     position: absolute;

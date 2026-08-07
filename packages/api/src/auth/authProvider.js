@@ -348,6 +348,9 @@ function getDefaultAuthProvider() {
 
 function getAuthProviderFromReq(req) {
   const authProviderId = req?.auth?.amoid || req?.user?.amoid;
+  if (authProviderId == 'mcp') {
+    return require('../controllers/storage').getMcpAuthProvider();
+  }
   return getAuthProviderById(authProviderId) ?? getDefaultAuthProvider();
 }
 

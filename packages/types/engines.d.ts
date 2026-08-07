@@ -1,5 +1,5 @@
 import stream from 'stream';
-import { QueryResult } from './query';
+import { QueryResult, QueryResultColumn } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
 import {
@@ -246,8 +246,10 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   readOnlySessions: boolean;
   dataEditorTypesBehaviour: DataEditorTypesBehaviour;
   supportsDatabaseUrl?: boolean;
-  supportsDatabaseBackup?: boolean;
-  supportsDatabaseRestore?: boolean;
+  supportsNativeBackup?: boolean;
+  supportsNativeRestore?: boolean;
+  supportsNodejsBackup?: boolean;
+  supportsNodejsRestore?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   supportsIncrementalAnalysis?: boolean;
@@ -261,6 +263,13 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   implicitTransactions?: boolean; // transaction is started with first SQL command, no BEGIN TRANSACTION is needed
   premiumOnly?: boolean;
   supportExecuteQuery?: boolean;
+  supportsEditableQueryResults?: boolean;
+  enrichColumnMetadata?(
+    dbhan: DatabaseHandle<TClient, TDataBase>,
+    sql: string,
+    columns: QueryResultColumn[],
+    dbinfo?: DatabaseInfo
+  ): Promise<QueryResultColumn[]>;
 
   collectionSingularLabel?: string;
   collectionPluralLabel?: string;
@@ -401,11 +410,37 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
     settings: BackupDatabaseSettings,
     externalTools: { [tool: string]: string }
   ): CommandLineDefinition;
+  backupDatabase?(
+    connection: any,
+    settings: {
+      outputFile: string;
+      database: string;
+      options?: { [key: string]: any };
+      selectedTables?: { pureName: string; schemaName?: string }[];
+      skippedTables?: { pureName: string; schemaName?: string }[];
+    },
+    runner: {
+      signal: AbortSignal;
+      info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+    }
+  ): Promise<void>;
   restoreDatabaseCommand(
     connection: any,
     settings: RestoreDatabaseSettings,
     externalTools: { [tool: string]: string }
   ): CommandLineDefinition;
+  restoreDatabase?(
+    connection: any,
+    settings: {
+      inputFile: string;
+      database: string;
+      options?: { [key: string]: any };
+    },
+    runner: {
+      signal: AbortSignal;
+      info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+    }
+  ): Promise<void>;
   transformNativeCommandMessage(
     message: {
       message: string;
