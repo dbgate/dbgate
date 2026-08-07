@@ -26,7 +26,10 @@ const { testStandardPermission } = require('../utility/hasPermission');
 const logger = getLogger('runners');
 
 function extractPlugins(script) {
-  const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
+  // Anchored to a true line start (string start or preceded by \n) so a directive can only ever
+  // come from a comment line the generator itself emitted, not from user-controlled text that
+  // merely contains the substring "// @require ..." elsewhere on a line.
+  const requireRegex = /(?:^|\n)[ \t]*\/\/[ \t]*@require[ \t]+(\S+)[ \t]*\n/g;
   const matches = [...script.matchAll(requireRegex)];
   return matches.map(x => x[1]);
 }

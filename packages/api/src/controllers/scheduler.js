@@ -8,7 +8,8 @@ const { getLogger } = require('dbgate-tools');
 
 const logger = getLogger('scheduler');
 
-const scheduleRegex = /\s*\/\/\s*@schedule\s+([^\n]+)\n/;
+// Anchored to a true line start, see requireRegex in runners.js for why.
+const scheduleRegex = /(?:^|\n)[ \t]*\/\/[ \t]*@schedule[ \t]+([^\n]+)\n/;
 
 module.exports = {
   tasks: [],
