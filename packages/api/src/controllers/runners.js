@@ -31,8 +31,9 @@ function extractPlugins(script) {
   // "// @require ..." elsewhere on a line. Uses the zero-width multiline '^' rather than an
   // "(?:^|\n)" alternation - the latter consumes the previous line's '\n' as part of its match,
   // so with several directives on consecutive lines, matching resumes mid-line and every other
-  // directive is skipped. '\r?' tolerates CRLF line endings.
-  const requireRegex = /^[ \t]*\/\/[ \t]*@require[ \t]+(\S+)[ \t]*\r?\n/gm;
+  // directive is skipped. '\r?' tolerates CRLF line endings. '\uFEFF?' tolerates a leading
+  // BOM in hand-authored scripts.
+  const requireRegex = /^\uFEFF?[ \t]*\/\/[ \t]*@require[ \t]+(\S+)[ \t]*\r?\n/gm;
   const matches = [...script.matchAll(requireRegex)];
   return matches.map(x => x[1]);
 }
