@@ -24,6 +24,7 @@ const driver = {
   async connect({ databaseFile, isReadOnly }) {
     const Database = getBetterSqlite();
     const client = new Database(databaseFile, { readonly: !!isReadOnly });
+    client.defaultSafeIntegers(true);
     return {
       client,
     };
