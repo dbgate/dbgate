@@ -261,17 +261,29 @@ export async function saveFileToDisk(
     });
     if (!filePath) return;
     const result = await filePathFunc(filePath);
-    // the server refuses to write outside managed directories (eg. a symlink swapped in for
-    // the destination) by returning false / an error response rather than throwing - don't open
-    // a file that was never written
-    if (result === false || result?.errorMessage) return;
+    if (reportExportWriteFailure(result)) return;
     electron.openExternal('file:///' + filePath);
   } else {
     const resp = await apiCall('files/generate-uploads-file');
     const result = await filePathFunc(resp.filePath);
-    if (result === false || result?.errorMessage) return;
+    if (reportExportWriteFailure(result)) return;
     await downloadFromApi(`uploads/get?file=${resp.fileName}`, options.defaultFileName ?? `file.${formatExtension}`);
   }
+}
+
+// the server refuses to write outside managed directories (eg. a symlink swapped in for the
+// destination, or O_NOFOLLOW being unavailable on non-Electron Windows) by returning false /
+// an error response rather than throwing. Returns true (and reports it) if the write failed, so
+// the caller can bail out instead of opening/downloading a file that was never written.
+function reportExportWriteFailure(result): boolean {
+  if (result === false) {
+    // apiCall only shows a snackbar for {errorMessage} responses, not a plain `false` - without
+    // this the export would silently appear to do nothing.
+    showSnackbarError(_t('exportFileTools.exportRefused', { defaultMessage: 'Export was refused by the server' }));
+    return true;
+  }
+  if (result?.errorMessage) return true; // apiCall already showed this error
+  return false;
 }
 
 export async function downloadFromApi(route: string, donloadName: string) {
