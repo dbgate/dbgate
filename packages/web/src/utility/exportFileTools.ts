@@ -104,7 +104,10 @@ async function runImportExportScript({
 
     const rows = data.writtenRowsCount || data.readRowCount;
     if (rows) {
-      updateSnackbarProgressMessage(snackId, _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } }));
+      updateSnackbarProgressMessage(
+        snackId,
+        _t('exportFileTools.rowsProcessed', { defaultMessage: '{rows} rows processed', values: { rows } })
+      );
     }
   }
 
@@ -169,8 +172,14 @@ export async function saveExportedFile(
   runImportExportScript({
     script,
     runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
-    canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
-    finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
+    canceledMessage: _t('exportFileTools.exportCanceled', {
+      defaultMessage: 'Export {dataName} canceled',
+      values: { dataName },
+    }),
+    finishedMessage: _t('exportFileTools.exportFinished', {
+      defaultMessage: 'Export {dataName} finished',
+      values: { dataName },
+    }),
     afterFinish: () => {
       if (!electron) {
         downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
@@ -218,8 +227,14 @@ export async function exportQuickExportFile(dataName, reader, format: QuickExpor
     runImportExportScript({
       script,
       runningMessage: _t('exportFileTools.exporting', { defaultMessage: 'Exporting {dataName}', values: { dataName } }),
-      canceledMessage: _t('exportFileTools.exportCanceled', { defaultMessage: 'Export {dataName} canceled', values: { dataName } }),
-      finishedMessage: _t('exportFileTools.exportFinished', { defaultMessage: 'Export {dataName} finished', values: { dataName } }),
+      canceledMessage: _t('exportFileTools.exportCanceled', {
+        defaultMessage: 'Export {dataName} canceled',
+        values: { dataName },
+      }),
+      finishedMessage: _t('exportFileTools.exportFinished', {
+        defaultMessage: 'Export {dataName} finished',
+        values: { dataName },
+      }),
       hostConnection: reader.hostConnection,
     });
   } else {
@@ -249,13 +264,30 @@ export async function saveFileToDisk(
       properties: ['showOverwriteConfirmation'],
     });
     if (!filePath) return;
-    await filePathFunc(filePath);
+    const result = await filePathFunc(filePath);
+    if (reportExportWriteFailure(result)) return;
     electron.openExternal('file:///' + filePath);
   } else {
     const resp = await apiCall('files/generate-uploads-file');
-    await filePathFunc(resp.filePath);
+    const result = await filePathFunc(resp.filePath);
+    if (reportExportWriteFailure(result)) return;
     await downloadFromApi(`uploads/get?file=${resp.fileName}`, options.defaultFileName ?? `file.${formatExtension}`);
   }
+}
+
+// the server refuses to write outside managed directories (eg. a symlink swapped in for the
+// destination, or O_NOFOLLOW being unavailable on non-Electron Windows) by returning false /
+// an error response rather than throwing. Returns true (and reports it) if the write failed, so
+// the caller can bail out instead of opening/downloading a file that was never written.
+function reportExportWriteFailure(result): boolean {
+  if (result === false) {
+    // apiCall only shows a snackbar for {errorMessage} responses, not a plain `false` - without
+    // this the export would silently appear to do nothing.
+    showSnackbarError(_t('exportFileTools.exportRefused', { defaultMessage: 'Export was refused by the server' }));
+    return true;
+  }
+  if (result?.errorMessage) return true; // apiCall already showed this error
+  return false;
 }
 
 export async function downloadFromApi(route: string, donloadName: string) {
@@ -265,7 +297,12 @@ export async function downloadFromApi(route: string, donloadName: string) {
       headers: resolveApiHeaders(),
     });
     if (!res.ok) {
-      showSnackbarError(_t('exportFileTools.downloadFailed', { defaultMessage: 'Download failed: {status} {statusText}', values: { status: res.status, statusText: res.statusText } }));
+      showSnackbarError(
+        _t('exportFileTools.downloadFailed', {
+          defaultMessage: 'Download failed: {status} {statusText}',
+          values: { status: res.status, statusText: res.statusText },
+        })
+      );
       return;
     }
     const blob = await res.blob();
@@ -280,6 +317,11 @@ export async function downloadFromApi(route: string, donloadName: string) {
       URL.revokeObjectURL(objUrl);
     }, 1000);
   } catch (e) {
-    showSnackbarError(_t('exportFileTools.downloadFailedError', { defaultMessage: 'Download failed: {message}', values: { message: e?.message ?? e } }));
+    showSnackbarError(
+      _t('exportFileTools.downloadFailedError', {
+        defaultMessage: 'Download failed: {message}',
+        values: { message: e?.message ?? e },
+      })
+    );
   }
 }

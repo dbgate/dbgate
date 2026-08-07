@@ -18,7 +18,13 @@ const dbgateApi = require('../shell');
 const { getLogger, getSqlFrontMatter } = require('dbgate-tools');
 const yaml = require('js-yaml');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureFilePathsWithoutDirectory, checkSecureDirectories } = require('../utility/security');
+const {
+  checkSecureFilePathsWithoutDirectory,
+  checkSecureDirectories,
+  checkSecureExportFilePath,
+  writeExportFile,
+  SecureExportWriteRefusedError,
+} = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
 const logger = getLogger('files');
 
@@ -264,16 +270,46 @@ module.exports = {
 
   exportChart_meta: true,
   async exportChart({ filePath, title, config, image, plugins }) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     const fileName = path.parse(filePath).base;
     const imageFile = fileName.replace('.html', '-preview.png');
     const html = getChartExport(title, config, imageFile, plugins);
-    await fs.writeFile(filePath, html);
+    try {
+      await writeExportFile(filePath, html, { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     if (image) {
       const index = image.indexOf('base64,');
       if (index > 0) {
         const data = image.substr(index + 'base64,'.length);
         const buf = Buffer.from(data, 'base64');
-        await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
+        const previewFilePath = filePath.replace('.html', '-preview.png');
+        // previewFilePath is a distinct destination from filePath (eg. a pre-existing symlink
+        // named "...-preview.png" would not have been caught by the check above), so validate it
+        // separately rather than assuming it inherits filePath's already-checked safety.
+        if (!platformInfo.isElectron && !checkSecureExportFilePath(previewFilePath)) {
+          logger.warn(
+            { filePath: previewFilePath },
+            'DBGM-00000 Refused export write outside managed data directories'
+          );
+          return false;
+        }
+        try {
+          await writeExportFile(previewFilePath, buf, { noFollow: !platformInfo.isElectron });
+        } catch (err) {
+          if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+          logger.warn(
+            { filePath: previewFilePath },
+            'DBGM-00000 Refused export write outside managed data directories'
+          );
+          return false;
+        }
       }
     }
     return true;
@@ -281,20 +317,52 @@ module.exports = {
 
   exportMap_meta: true,
   async exportMap({ filePath, geoJson }) {
-    await fs.writeFile(filePath, getMapExport(geoJson));
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
+    try {
+      await writeExportFile(filePath, getMapExport(geoJson), { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 
   exportDiagram_meta: true,
   async exportDiagram({ filePath, html, css, themeType, themeVariables, watermark }) {
-    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeVariables, watermark));
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
+    try {
+      await writeExportFile(filePath, getDiagramExport(html, css, themeType, themeVariables, watermark), {
+        noFollow: !platformInfo.isElectron,
+      });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 
   exportDiagramPng_meta: true,
   async exportDiagramPng({ filePath, pngBase64 }) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     const base64 = pngBase64.replace(/^data:image\/png;base64,/, '');
-    await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
+    try {
+      await writeExportFile(filePath, Buffer.from(base64, 'base64'), { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 
