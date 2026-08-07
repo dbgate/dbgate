@@ -26,10 +26,13 @@ const { testStandardPermission } = require('../utility/hasPermission');
 const logger = getLogger('runners');
 
 function extractPlugins(script) {
-  // Anchored to a true line start (string start or preceded by \n) so a directive can only ever
-  // come from a comment line the generator itself emitted, not from user-controlled text that
-  // merely contains the substring "// @require ..." elsewhere on a line.
-  const requireRegex = /(?:^|\n)[ \t]*\/\/[ \t]*@require[ \t]+(\S+)[ \t]*\n/g;
+  // Anchored to a true line start so a directive can only ever come from a comment line the
+  // generator itself emitted, not from user-controlled text that merely contains the substring
+  // "// @require ..." elsewhere on a line. Uses the zero-width multiline '^' rather than an
+  // "(?:^|\n)" alternation - the latter consumes the previous line's '\n' as part of its match,
+  // so with several directives on consecutive lines, matching resumes mid-line and every other
+  // directive is skipped. '\r?' tolerates CRLF line endings.
+  const requireRegex = /^[ \t]*\/\/[ \t]*@require[ \t]+(\S+)[ \t]*\r?\n/gm;
   const matches = [...script.matchAll(requireRegex)];
   return matches.map(x => x[1]);
 }
