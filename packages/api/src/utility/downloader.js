@@ -18,7 +18,7 @@ function saveStreamToFile(pipedStream, fileName, maxBytes = 0) {
       pipedStream.on('data', chunk => {
         written += chunk.length;
         if (written > maxBytes) {
-          pipedStream.destroy(new Error('DBGM-00338 Downloaded file exceeds the maximum allowed size'));
+          pipedStream.destroy(new Error('DBGM-00000 Downloaded file exceeds the maximum allowed size'));
           fileStream.destroy();
         }
       });
