@@ -57,7 +57,7 @@ const allowedHosts = parseAllowedHosts();
 
 if (allowPrivateNetwork) {
   logger.warn(
-    'DBGM-00336 EXTERNAL_FETCH_ALLOW_PRIVATE_NETWORK is enabled - outbound fetch of user-supplied URLs is not protected against SSRF'
+    'DBGM-00000 EXTERNAL_FETCH_ALLOW_PRIVATE_NETWORK is enabled - outbound fetch of user-supplied URLs is not protected against SSRF'
   );
 }
 
