@@ -23,6 +23,8 @@ const {
   checkSecureDirectories,
   checkSecureExportFilePath,
   writeExportFile,
+  writeExportFileStream,
+  copyExportFile,
   SecureExportWriteRefusedError,
 } = require('../utility/security');
 const { copyAppLogsIntoFile, getRecentAppLogRecords } = require('../utility/appLogStore');
@@ -390,7 +392,19 @@ module.exports = {
   createZipFromJsons_meta: true,
   async createZipFromJsons({ db, filePath }) {
     logger.info(`DBGM-00011 Creating zip file from JSONS ${filePath}`);
-    await dbgateApi.zipJsonLinesData(db, filePath);
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
+    try {
+      await writeExportFileStream(filePath, output => dbgateApi.zipJsonLinesData(db, output), {
+        noFollow: !platformInfo.isElectron,
+      });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 
@@ -434,18 +448,38 @@ module.exports = {
   async exportFile({ folder, file, filePath }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`files/${folder}/read`, loadedPermissions)) return false;
-    await fs.copyFile(path.join(filesdir(), folder, file), filePath);
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
+    try {
+      await copyExportFile(path.join(filesdir(), folder, file), filePath, { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 
   simpleCopy_meta: true,
   async simpleCopy({ sourceFilePath, targetFilePath }, req) {
     if (!platformInfo.isElectron) {
-      if (!checkSecureDirectories(sourceFilePath, targetFilePath)) {
+      if (!checkSecureDirectories(sourceFilePath) || !checkSecureExportFilePath(targetFilePath)) {
+        logger.warn(
+          { filePath: targetFilePath },
+          'DBGM-00000 Refused export write outside managed data directories'
+        );
         return false;
       }
     }
-    await fs.copyFile(sourceFilePath, targetFilePath);
+    try {
+      await copyExportFile(sourceFilePath, targetFilePath, { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath: targetFilePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
     return true;
   },
 

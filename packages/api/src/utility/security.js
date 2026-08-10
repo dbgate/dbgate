@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { pipeline } = require('stream/promises');
 const { filesdir, archivedir, uploadsdir, appdir } = require('../utility/directories');
 
 function checkSecureFilePathsWithoutDirectory(...filePaths) {
@@ -115,16 +116,20 @@ function beneathFdPath(fd) {
   return null;
 }
 
-// Writes an export destination that has already passed checkSecureExportFilePath. When noFollow
-// is set, the write is anchored to a directory descriptor that is itself opened with O_NOFOLLOW
+// Opens an export destination that has already passed checkSecureExportFilePath. When noFollow
+// is set, access is anchored to a directory descriptor that is itself opened with O_NOFOLLOW
 // and re-verified (by real path) against the managed directories, and the destination file is
 // then opened beneath that descriptor with O_NOFOLLOW - so neither the managed root nor the
 // destination file can be a symlink, and nothing swapped in after this function started can
 // redirect the write.
-async function writeExportFile(filePath, data, { noFollow }) {
+async function withExportFileHandle(filePath, noFollow, callback) {
   if (!noFollow) {
-    await fs.promises.writeFile(filePath, data);
-    return;
+    const fileHandle = await fs.promises.open(filePath, 'w', 0o644);
+    try {
+      return await callback(fileHandle);
+    } finally {
+      await fileHandle.close();
+    }
   }
   if (!fs.constants.O_NOFOLLOW || !fs.constants.O_DIRECTORY) {
     throw new SecureExportWriteRefusedError(
@@ -179,7 +184,7 @@ async function writeExportFile(filePath, data, { noFollow }) {
       throw err;
     }
     try {
-      await fileHandle.writeFile(data);
+      return await callback(fileHandle);
     } finally {
       await fileHandle.close();
     }
@@ -188,11 +193,39 @@ async function writeExportFile(filePath, data, { noFollow }) {
   }
 }
 
+async function writeExportFile(filePath, data, { noFollow }) {
+  await withExportFileHandle(filePath, noFollow, fileHandle => fileHandle.writeFile(data));
+}
+
+// Streaming variant for exports that should not be buffered entirely in memory. The verified
+// file and directory descriptors remain open until the producer has finished writing.
+async function writeExportFileStream(filePath, producer, { noFollow }) {
+  await withExportFileHandle(filePath, noFollow, async fileHandle => {
+    const output = fs.createWriteStream(filePath, { fd: fileHandle.fd, autoClose: false });
+    try {
+      await producer(output);
+    } catch (err) {
+      output.destroy();
+      throw err;
+    }
+  });
+}
+
+async function copyExportFile(sourceFilePath, targetFilePath, { noFollow }) {
+  await writeExportFileStream(
+    targetFilePath,
+    output => pipeline(fs.createReadStream(sourceFilePath), output),
+    { noFollow }
+  );
+}
+
 module.exports = {
   checkSecureDirectories,
   checkSecureFilePathsWithoutDirectory,
   checkSecureDirectoriesInScript,
   checkSecureExportFilePath,
   writeExportFile,
+  writeExportFileStream,
+  copyExportFile,
   SecureExportWriteRefusedError,
 };

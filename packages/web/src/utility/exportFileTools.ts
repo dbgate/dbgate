@@ -264,7 +264,7 @@ export async function saveFileToDisk(
     if (reportExportWriteFailure(result)) return;
     electron.openExternal('file:///' + filePath);
   } else {
-    const resp = await apiCall('files/generate-uploads-file');
+    const resp = await apiCall('files/generate-uploads-file', { extension: formatExtension });
     const result = await filePathFunc(resp.filePath);
     if (reportExportWriteFailure(result)) return;
     await downloadFromApi(`uploads/get?file=${resp.fileName}`, options.defaultFileName ?? `file.${formatExtension}`);
