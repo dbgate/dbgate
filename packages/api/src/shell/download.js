@@ -27,7 +27,7 @@ async function download(url, options = {}) {
       // In safeRemoteFetch mode only managed archive references are accepted.
       // Extracting from an arbitrary local zip path would be a local file read.
       if (safeRemoteFetch && !isArchiveReference) {
-        throw new Error('DBGM-00339 Only http://, https:// and archive references are allowed');
+        throw new Error('DBGM-00000 Only http://, https:// and archive references are allowed');
       }
       const destFile = targetFile || path.join(uploadsdir(), crypto.randomUUID());
       let zipFile = zipMatch[1];
