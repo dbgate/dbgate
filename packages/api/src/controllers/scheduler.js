@@ -8,7 +8,10 @@ const { getLogger } = require('dbgate-tools');
 
 const logger = getLogger('scheduler');
 
-const scheduleRegex = /\s*\/\/\s*@schedule\s+([^\n]+)\n/;
+// Anchored to a true line start (zero-width multiline '^', not a consuming "(?:^|\n)"
+// alternation) and CRLF-tolerant, see requireRegex in runners.js for why. '\uFEFF?'
+// tolerates a leading BOM in hand-authored scripts.
+const scheduleRegex = /^\uFEFF?[ \t]*\/\/[ \t]*@schedule[ \t]+([^\r\n]+)\r?\n/m;
 
 module.exports = {
   tasks: [],
