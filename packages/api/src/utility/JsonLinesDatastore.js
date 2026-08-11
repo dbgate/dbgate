@@ -193,7 +193,7 @@ class JsonLinesDatastore {
         await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
         this.sortedFiles[stableStringify(sort)] = sortedFile;
       } catch (e) {
-        logger.error(extractErrorLogData(e), 'DBGM-00000 Failed to sort data file, returning unsorted results');
+        logger.error(extractErrorLogData(e), 'DBGM-00417 Failed to sort data file, returning unsorted results');
         // Remove any partial output file left by the failed sort so it does
         // not accumulate in jsldir() across repeated failures.
         try { fs.unlinkSync(sortedFile); } catch { /* best-effort */ }

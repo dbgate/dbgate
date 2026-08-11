@@ -4,8 +4,8 @@ SELECT       -- Index name, maps to pureName
     TRIM('index') AS "constraintType",                -- ConstraintType for IndexInfo
     TRIM(I.RDB$RELATION_NAME) AS "pureName",            -- Context: Table the index is on
     CASE COALESCE(I.RDB$UNIQUE_FLAG, 0)             -- isUnique: 1 for unique, 0 or NULL for non-unique [cite: 46, 838]
-        WHEN 1 THEN TRUE
-        ELSE FALSE
+        WHEN 1 THEN 1
+        ELSE 0
     END AS "isUnique",
     CASE
         WHEN I.RDB$EXPRESSION_SOURCE IS NOT NULL THEN TRIM('expression') -- indexType: if an expression index [cite: 46, 262]
@@ -18,8 +18,8 @@ SELECT       -- Index name, maps to pureName
     -- Column specific fields from RDB$INDEX_SEGMENTS
     TRIM(S.RDB$FIELD_NAME) AS "columnName",           -- columnName for ColumnReference [cite: 46, 837]
     CASE COALESCE(I.RDB$INDEX_TYPE, 0)              -- isDescending: 0 for ASC (default), 1 for DESC for the whole index [cite: 46, 838]
-        WHEN 1 THEN TRUE
-        ELSE FALSE
+        WHEN 1 THEN 1
+        ELSE 0
     END AS "isDescending",
     S.RDB$FIELD_POSITION AS "col_fieldPosition"     -- 0-based position of the column in the index [cite: 46, 837]
 FROM

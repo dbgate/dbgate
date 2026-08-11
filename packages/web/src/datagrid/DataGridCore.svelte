@@ -834,9 +834,12 @@
 
   export function setFixedValue(value) {
     grider.beginUpdate();
-    selectedCells.filter(isRegularCell).filter(cellEditable).forEach(cell => {
-      setCellValue(cell, value);
-    });
+    selectedCells
+      .filter(isRegularCell)
+      .filter(cellEditable)
+      .forEach(cell => {
+        setCellValue(cell, value);
+      });
     grider.endUpdate();
   }
 
@@ -1038,7 +1041,9 @@
   }
 
   export function editJsonEnabled() {
-    return grider.editable && display?.allowRowDocumentEdit !== false && _.uniq(selectedCells.map(x => x[0])).length == 1;
+    return (
+      grider.editable && display?.allowRowDocumentEdit !== false && _.uniq(selectedCells.map(x => x[0])).length == 1
+    );
   }
 
   export function editJsonDocument() {
@@ -1753,10 +1758,7 @@
       newIndex >= maxScrollColumn ? maxPosition - currentColumnPosition : currentColumnWidth - 1;
 
     firstVisibleColumnScrollIndex = newIndex;
-    columnPixelOffset = Math.min(
-      Math.max(0, newPosition - currentColumnPosition),
-      Math.max(0, maxColumnPixelOffset)
-    );
+    columnPixelOffset = Math.min(Math.max(0, newPosition - currentColumnPosition), Math.max(0, maxColumnPixelOffset));
 
     domHorizontalScroll.scroll(columnSizes.getPositionByScrollIndex(firstVisibleColumnScrollIndex) + columnPixelOffset);
     if (firstVisibleColumnScrollIndex !== prevIndex) {
@@ -2753,6 +2755,8 @@
   }
 
   .no-rows-info {
+    position: relative;
+    z-index: 6;
     margin-top: 60px;
   }
 </style>

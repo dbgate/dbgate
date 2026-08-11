@@ -806,6 +806,7 @@
   "datagrid.structure.notLoaded": "Nebyla načtena žádná struktura, pravděpodobně tabulka v aktuální databázi neexistuje",
   "datagrid.structure.waiting": "Čekání na strukturu",
   "datagrid.useMacro": "Použít makro",
+  "dataGrid.decode": "Dekódovat: ",
   "dbKeysTreeNode.deleteBranch": "Smazat větev",
   "dbKeysTreeNode.deleteBranchConfirm": "Opravdu smazat větev {branch} se všemi klíči?",
   "dbKeysTreeNode.deleteKey": "Smazat klíč",

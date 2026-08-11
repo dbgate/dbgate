@@ -246,12 +246,16 @@
       tabComponent: 'RestoreDatabaseTab',
       props: {
         conid: data._id,
+        database: data.defaultDatabase,
       },
     });
   };
 
   const getContextMenu = () => {
     const driver = $extensions.drivers.find(x => x.engine == data.engine);
+    const supportsRestore = isProApp()
+      ? driver?.supportsNativeRestore || driver?.supportsNodejsRestore
+      : driver?.supportsNodejsRestore;
     const config = getCurrentConfig();
     const handleRefresh = () => {
       apiCall('server-connections/refresh', { conid: data._id });
@@ -409,8 +413,8 @@
         ),
       ],
 
-      driver?.supportsDatabaseRestore &&
-        isProApp() &&
+      supportsRestore &&
+        data.defaultDatabase &&
         hasPermission(`dbops/sql-dump/import`) &&
         !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
     ];

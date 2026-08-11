@@ -44,18 +44,16 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: c91363218b14d2bbed3ba7fa99bc86882cde709e
+          ref: 5879d9466ab691eb2332869dbdccf1cbeab5d9e0
+      - name: Diflow install
+        run: npm install -g diflow
       - name: Merge dbgate/dbgate-pro
+        shell: bash
         run: |
           mkdir ../dbgate-pro
           mv dbgate-pro/* ../dbgate-pro/
-          cd ..
-          mkdir dbgate-merged
-          cd dbgate-pro
-          cd sync
-          yarn
-          node sync.js --nowatch
-          cd ..
+          rm -rf dbgate-pro
+          diflow fsmerge -b . -d ../dbgate-pro -m ../dbgate-merged
       - name: adjustPackageJson
         run: |
           cd ..

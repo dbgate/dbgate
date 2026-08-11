@@ -112,6 +112,7 @@ describe('Backup table', () => {
 
     cy.contains(connectionName).click();
     if (databaseName) cy.contains(databaseName).click();
+    cy.wait(2000);
     cy.contains('addresses').rightclick();
     cy.contains('Create table backup').click();
     cy.testid('ConfirmSqlModal_okButton').click();
@@ -163,8 +164,12 @@ describe('Backup table', () => {
     cy.realPress('F1');
     cy.realType('Close all');
     cy.realPress('Enter');
-    // cy.testid('CloseTabModal_buttonConfirm').click();
-    cy.wait(1000);
+    cy.get('body').then($body => {
+      const confirmButton = $body.find('[data-testid="CloseTabModal_buttonConfirm"]');
+      if (confirmButton.length) {
+        cy.wrap(confirmButton).click();
+      }
+    });
 
     cy.testid('app-object-group-items-tables').contains('addresses', { timeout: 10000 }).click();
 
@@ -173,6 +178,35 @@ describe('Backup table', () => {
     cy.contains('Ridgewood');
     cy.contains('Vermont');
   });
+});
+
+describe('Postgres database backup with dbgate-pg-dumper', () => {
+  if (localconfig.postgres) {
+    it('Backs up a single table using dbgate-pg-dumper', () => {
+      const otherTables = ['administrators', 'categories', 'customers', 'orders', 'order_items', 'products'];
+
+      cy.contains('Postgres-connection').click();
+      cy.contains('my_guitar_shop').rightclick();
+      cy.contains('Create database backup').click();
+
+      cy.testid('BackupDatabaseTab_chooseTables').contains('addresses', { timeout: 10000 });
+      cy.testid('BackupDatabaseTab_chooseTables').within(() => {
+        otherTables.forEach(table => {
+          cy.contains(table).click();
+        });
+      });
+
+      cy.testid('BackupDatabaseTab_backupTool').select('dbgate-pg-dumper');
+
+      cy.testid('BackupDatabaseTab_executeButton').click();
+      cy.testid('BackupDatabaseTab_status', { timeout: 30000 }).should('contain', 'Finished');
+
+      cy.themeshot('postgres-backup-dbgate-pg-dumper');
+      cy.testid('BackupDatabaseTab_openInTab').click();
+      cy.contains('CREATE TABLE');
+      cy.contains('addresses');
+    });
+  }
 });
 
 describe('Truncate table', () => {

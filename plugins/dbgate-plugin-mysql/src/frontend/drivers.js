@@ -188,8 +188,8 @@ const mysqlDriverBase = {
       : mysqlSplitterOptions,
 
   readOnlySessions: true,
-  supportsDatabaseBackup: true,
-  supportsDatabaseRestore: true,
+  supportsNativeBackup: true,
+  supportsNativeRestore: true,
   authTypeLabel: 'Connection mode',
   defaultAuthTypeName: 'hostPort',
   defaultSocketPath: '/var/run/mysqld/mysqld.sock',
@@ -390,8 +390,19 @@ const mysqlDriverBase = {
   },
 
   adaptDataType(dataType) {
-    if (dataType?.toLowerCase() == 'money') return 'decimal(15,2)';
-    return dataType;
+    switch (dataType?.toLowerCase()) {
+      case 'money':
+        return 'decimal(19,4)';
+      case 'smallmoney':
+        return 'decimal(10,4)';
+      case 'varbinary(max)':
+        return 'longblob';
+      case 'varchar(max)':
+      case 'nvarchar(max)':
+        return 'longtext';
+      default:
+        return dataType;
+    }
   },
 };
 

@@ -30,7 +30,7 @@ export function isValidJsIdentifier(name: string): boolean {
 
 export function assertValidJsIdentifier(name: string, label: string): void {
   if (!isValidJsIdentifier(name)) {
-    throw new Error(`DBGM-00000 Invalid ${label}: ${String(name).substring(0, 100)}`);
+    throw new Error(`DBGM-00431 Invalid ${label}: ${String(name).substring(0, 100)}`);
   }
 }
 
@@ -65,19 +65,19 @@ export function assertValidPluginPackageName(packageName): string {
  */
 export function assertValidShellApiFunctionName(functionName: string): void {
   if (typeof functionName !== 'string') {
-    throw new Error('DBGM-00000 functionName must be a string');
+    throw new Error('DBGM-00432 functionName must be a string');
   }
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)$/);
   if (nsMatch) {
     if (!isValidJsIdentifier(nsMatch[1])) {
-      throw new Error(`DBGM-00000 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
+      throw new Error(`DBGM-00433 Invalid function part in functionName: ${nsMatch[1].substring(0, 100)}`);
     }
     if (!isValidPluginPackageName(nsMatch[2])) {
       throw new Error(`DBGM-00000 Invalid plugin package in functionName: ${nsMatch[2].substring(0, 100)}`);
     }
   } else {
     if (!isValidJsIdentifier(functionName)) {
-      throw new Error(`DBGM-00000 Invalid functionName: ${functionName.substring(0, 100)}`);
+      throw new Error(`DBGM-00435 Invalid functionName: ${functionName.substring(0, 100)}`);
     }
   }
 }

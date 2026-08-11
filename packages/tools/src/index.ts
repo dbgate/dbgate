@@ -28,3 +28,4 @@ export * from './redisKeysLoader';
 export * from './rowProgressReporter';
 export * from './diagramTools';
 export * from './queryMetadataTools';
+export * from './codexModels';

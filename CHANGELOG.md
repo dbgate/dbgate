@@ -9,7 +9,27 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
-## 7.2.1 - not released
+## 7.2.4
+
+- ADDED: Built-in PostgreSQL backup and restore without requiring external PostgreSQL tools (Community)
+- ADDED: PostgreSQL backup and restore options, including target PostgreSQL version and table selection (Premium)
+- ADDED: Team folder permissions can be configured using environment variables (Team Premium)
+- CHANGED: Improved Firebird metadata loading for functions, parameters, constraints, data type subtypes, and legacy server versions #1516
+- FIXED: MySQL and MariaDB system views and system-versioned tables not being displayed #1519
+- FIXED: MongoDB filters not handling boolean values correctly #1513
+- CHANGED: Improved backup, restore, and export status and error reporting
+
+## 7.2.3
+
+- ADDED: Read-only MCP server support (Community, Docker)
+- ADDED: Advanced MCP server capabilities, including query execution, data modification, and granular access control (Team Premium)
+- FIXED: Filter action buttons not being accessible when no rows match the active filter
+- ADDED: Character encoding selection for decoding binary cell values
+- ADDED: Improved SQL Server to MySQL data type conversion
+- ADDED: Decimal as a PostgreSQL dialect data type option #1490
+- FIXED: MySQL autocomplete for queries containing PARTITION clauses #1500
+
+## 7.2.1
 
 - ADDED: Editable view (Premium)
 - ADDED: MySQL ON UPDATE expression support to column definitions #1170

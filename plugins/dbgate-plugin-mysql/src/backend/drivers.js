@@ -232,7 +232,7 @@ const drivers = driverBases.map(driverBase => ({
 
     query
       .on('error', err => {
-        logger.error(extractErrorLogData(err, this.getLogDbInfo(dbhan)), 'DBGM-00000 Query reader stream error');
+        logger.error(extractErrorLogData(err, this.getLogDbInfo(dbhan)), 'DBGM-00438 Query reader stream error');
         isClosed = true;
         resumeQuery();
         pass.destroy(err);

@@ -435,6 +435,12 @@ await dbgateApi.executeQuery(${JSON.stringify(
     };
 
     const driver = findEngineDriver(connection, getExtensions());
+    const supportsBackup = isProApp()
+      ? driver?.supportsNativeBackup || driver?.supportsNodejsBackup
+      : driver?.supportsNodejsBackup;
+    const supportsRestore = isProApp()
+      ? driver?.supportsNativeRestore || driver?.supportsNodejsRestore
+      : driver?.supportsNodejsRestore;
 
     const commands = _.flatten((apps || []).map(x => Object.values(x.files || {}).filter(x => x.type == 'command')));
 
@@ -491,15 +497,13 @@ await dbgateApi.executeQuery(${JSON.stringify(
           onClick: handleExport,
           text: _t('database.export', { defaultMessage: 'Export' }),
         },
-      driver?.supportsDatabaseRestore &&
-        isProApp() &&
+      supportsRestore &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && {
           onClick: handleRestoreDatabase,
           text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }),
         },
-      driver?.supportsDatabaseBackup &&
-        isProApp() &&
+      supportsBackup &&
         hasPermission(`dbops/sql-dump/export`) && {
           onClick: handleBackupDatabase,
           text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }),

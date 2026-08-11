@@ -210,6 +210,15 @@ function waitStructure() {
   });
 }
 
+async function handleGetStructure({ msgid }) {
+  await waitStructure();
+  process.send({
+    msgtype: 'response',
+    msgid,
+    structure: serializeJsTypesForJsonStringify(analysedStructure),
+  });
+}
+
 function resolveAnalysedPromises() {
   for (const [resolve] of afterAnalyseCallbacks) {
     resolve();
@@ -388,23 +397,23 @@ async function handleSaveTableData({ msgid, changeSet }) {
 
 function validateQueryResultChangeSet(driver, changeSet) {
   if (!driver.databaseEngineTypes?.includes('sql') || !driver.supportsEditableQueryResults) {
-    throw new Error('DBGM-00000 Editable query results are not supported by this driver');
+    throw new Error('DBGM-00395 Editable query results are not supported by this driver');
   }
   if (changeSet?.inserts?.length > 0 || changeSet?.deletes?.length > 0) {
-    throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+    throw new Error('DBGM-00396 Query result saving supports UPDATE operations only');
   }
   for (const update of changeSet?.updates || []) {
     if (!update.pureName) {
-      throw new Error('DBGM-00000 Query result update is missing target table');
+      throw new Error('DBGM-00397 Query result update is missing target table');
     }
     if (_.isEmpty(update.fields)) {
-      throw new Error('DBGM-00000 Query result update is missing changed fields');
+      throw new Error('DBGM-00398 Query result update is missing changed fields');
     }
     if (_.isEmpty(update.condition)) {
-      throw new Error('DBGM-00000 Query result update is missing row condition');
+      throw new Error('DBGM-00399 Query result update is missing row condition');
     }
     if (Object.values(update.condition).some(value => value === null || value === undefined)) {
-      throw new Error('DBGM-00000 Query result update has incomplete row condition');
+      throw new Error('DBGM-00400 Query result update has incomplete row condition');
     }
   }
 }
@@ -418,7 +427,7 @@ async function handleSaveQueryResultData({ msgid, changeSet, sql }) {
     if (!sql) {
       const script = changeSetToSql({ ...changeSet, inserts: [], deletes: [] }, null, driver.dialect);
       if (script.some(command => command.commandType != 'update')) {
-        throw new Error('DBGM-00000 Query result saving supports UPDATE operations only');
+        throw new Error('DBGM-00401 Query result saving supports UPDATE operations only');
       }
       sql = scriptToSql(driver, script);
     }
@@ -430,7 +439,7 @@ async function handleSaveQueryResultData({ msgid, changeSet, sql }) {
     process.send({
       msgtype: 'response',
       msgid,
-      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error saving query result data'),
+      errorMessage: extractErrorMessage(err, 'DBGM-00402 Error saving query result data'),
     });
   }
 }
@@ -646,10 +655,10 @@ async function handleEvalJsonScript({ script, runid }) {
 
     if (shouldReportScriptError || finalizerError) {
       if (shouldReportScriptError) {
-        logger.error(extractErrorLogData(scriptError), 'DBGM-00000 Error running JSON script on database connection');
+        logger.error(extractErrorLogData(scriptError), 'DBGM-00403 Error running JSON script on database connection');
       }
       if (finalizerError) {
-        logger.error(extractErrorLogData(finalizerError), 'DBGM-00000 Error running JSON script finalizers');
+        logger.error(extractErrorLogData(finalizerError), 'DBGM-00404 Error running JSON script finalizers');
       }
 
       process.send({
@@ -705,6 +714,7 @@ const messageHandlers = {
   sqlSelect: handleSqlSelect,
   exportKeys: handleExportKeys,
   schemaList: handleSchemaList,
+  getStructure: handleGetStructure,
   executeSessionQuery: handleExecuteSessionQuery,
   evalJsonScript: handleEvalJsonScript,
   multiCallMethod: handleMultiCallMethod,

@@ -21,7 +21,7 @@ function runStreamItem(dbhan, sql, options, rowCounter, engine) {
     }
   } else {
     const info = stmt.run();
-    rowCounter.count += info.changes;
+    rowCounter.count += Number(info.changes);
     if (!rowCounter.date) rowCounter.date = new Date().getTime();
     if (new Date().getTime() - rowCounter.date > 1000) {
       options.info({
@@ -47,8 +47,12 @@ async function waitForDrain(stream) {
 
 function modifyRow(row, columns) {
   columns.forEach((col) => {
-    if (row[col.name] instanceof Uint8Array || row[col.name] instanceof ArrayBuffer) {
-      row[col.name] = { $binary: { base64: Buffer.from(row[col.name]).toString('base64') } };
+    const value = row[col.name];
+    if (typeof value === 'bigint') {
+      const parsed = Number(value);
+      row[col.name] = Number.isSafeInteger(parsed) ? parsed : { $bigint: value.toString() };
+    } else if (value instanceof Uint8Array || value instanceof ArrayBuffer) {
+      row[col.name] = { $binary: { base64: Buffer.from(value).toString('base64') } };
     }
   });
   return row;
