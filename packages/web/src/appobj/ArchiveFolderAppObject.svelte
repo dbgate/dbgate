@@ -148,7 +148,7 @@ await dbgateApi.deployDb(${JSON.stringify(
         const zipped = await apiCall('archive/get-zipped-path', {
           folder: data.name,
         });
-        await apiCall('files/simple-copy', {
+        return await apiCall('files/simple-copy', {
           sourceFilePath: zipped.filePath,
           targetFilePath: filePath,
         });

@@ -50,6 +50,8 @@ const exportDbModelSql = require('../utility/exportDbModelSql');
 const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 const { decryptConnection } = require('../utility/crypting');
+const platformInfo = require('../utility/platformInfo');
+const { checkSecureExportFilePath, writeExportFile, SecureExportWriteRefusedError } = require('../utility/security');
 const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
@@ -936,13 +938,24 @@ module.exports = {
 
   generateDbDiffReport_meta: true,
   async generateDbDiffReport({ filePath, sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
+
     const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase });
 
     const diffJson = parse(unifiedDiff);
     // $: diffHtml = html(diffJson, { outputFormat: 'side-by-side', drawFileList: false });
     const diffHtml = html(diffJson, { outputFormat: 'side-by-side' });
 
-    await fs.writeFile(filePath, diff2htmlPage(diffHtml));
+    try {
+      await writeExportFile(filePath, diff2htmlPage(diffHtml), { noFollow: !platformInfo.isElectron });
+    } catch (err) {
+      if (!(err instanceof SecureExportWriteRefusedError)) throw err;
+      logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
+      return false;
+    }
 
     return true;
   },

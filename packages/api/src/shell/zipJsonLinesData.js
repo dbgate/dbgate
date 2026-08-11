@@ -7,19 +7,21 @@ const { archivedir } = require('../utility/directories');
 const logger = getLogger('compressDirectory');
 
 function zipDirectory(jsonDb, outputFile) {
-  if (outputFile.startsWith('archive:')) {
+  if (typeof outputFile == 'string' && outputFile.startsWith('archive:')) {
     outputFile = path.join(archivedir(), outputFile.substring('archive:'.length));
   }
 
   return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(outputFile);
+    const outputIsStream = typeof outputFile != 'string';
+    const output = outputIsStream ? outputFile : fs.createWriteStream(outputFile);
     const archive = archiver('zip', { zlib: { level: 9 } }); // level: 9 => best compression
 
     // Listen for all archive data to be written
-    output.on('close', () => {
+    output.on(outputIsStream ? 'finish' : 'close', () => {
       logger.info(`DBGM-00075 ZIP file created (${archive.pointer()} total bytes)`);
       resolve();
     });
+    output.on('error', reject);
 
     archive.on('warning', err => {
       logger.warn(extractErrorLogData(err), `DBGM-00076 Warning while creating ZIP: ${err.message}`);

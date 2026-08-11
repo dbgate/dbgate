@@ -106,7 +106,7 @@
         text: 'Export to HTML file',
         onClick: () => {
           saveFileToDisk(async filePath => {
-            await apiCall('files/export-map', {
+            return await apiCall('files/export-map', {
               geoJson,
               filePath,
             });
