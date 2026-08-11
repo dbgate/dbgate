@@ -6,7 +6,7 @@ const cleanDirectory = require('./cleanDirectory');
 const platformInfo = require('./platformInfo');
 const processArgs = require('./processArgs');
 const consoleObjectWriter = require('../shell/consoleObjectWriter');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, assertValidPluginPackageName } = require('dbgate-tools');
 
 let logsFilePath;
 
@@ -111,6 +111,10 @@ const packagedPluginList =
   packagedPluginsDir() != null ? fs.readdirSync(packagedPluginsDir()).filter(x => x.startsWith('dbgate-plugin-')) : [];
 
 function getPluginBackendPath(packageName) {
+  // Central guard: every plugin backend require() flows through here. Refusing anything
+  // that is not a canonical dbgate-plugin-* name prevents caller-supplied absolute paths
+  // or traversal sequences from being resolved and loaded as modules (GHSA-j65f-68v9-x5g9 ).
+  assertValidPluginPackageName(packageName);
   if (packagedPluginList.includes(packageName)) {
     if (platformInfo.isDevMode) {
       return path.join(packagedPluginsDir(), packageName, 'src', 'backend', 'index.js');

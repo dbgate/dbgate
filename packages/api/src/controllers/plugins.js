@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const axios = require('axios');
 const path = require('path');
-const { extractPackageName } = require('dbgate-tools');
+const { extractPackageName, assertValidPluginPackageName } = require('dbgate-tools');
 const { pluginsdir, packagedPluginsDir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const compareVersions = require('compare-versions');
@@ -14,6 +14,7 @@ const packagedPluginsContent = require('../packagedPluginsContent');
 module.exports = {
   script_meta: true,
   async script({ packageName }) {
+    assertValidPluginPackageName(packageName);
     const packagedContent = packagedPluginsContent();
 
     if (packagedContent && packagedContent[packageName]) {
@@ -120,6 +121,7 @@ module.exports = {
   async install({ packageName }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`plugins/install`, loadedPermissions)) return;
+    assertValidPluginPackageName(packageName);
     const dir = path.join(pluginsdir(), packageName);
     // @ts-ignore
     if (!(await fs.exists(dir))) {
@@ -135,6 +137,7 @@ module.exports = {
   async uninstall({ packageName }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`plugins/install`, loadedPermissions)) return;
+    assertValidPluginPackageName(packageName);
     const dir = path.join(pluginsdir(), packageName);
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
@@ -147,6 +150,7 @@ module.exports = {
   async upgrade({ packageName }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`plugins/install`, loadedPermissions)) return;
+    assertValidPluginPackageName(packageName);
     const dir = path.join(pluginsdir(), packageName);
     // @ts-ignore
     if (await fs.exists(dir)) {
@@ -159,9 +163,26 @@ module.exports = {
   },
 
   command_meta: true,
-  async command({ packageName, command, args }) {
+  async command({ packageName, command, args }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (!hasPermission(`plugins/command`, loadedPermissions)) {
+      throw new Error('DBGM-00000 Permission plugins/command not granted');
+    }
+
+    assertValidPluginPackageName(packageName);
     const content = requirePlugin(packageName);
-    return content.commands[command](args);
+
+    // Only dispatch to own, function-valued command handlers. This prevents reaching
+    // inherited/prototype members (eg. constructor, __proto__) via the command name.
+    const commands = (content && content.commands) || {};
+    if (
+      typeof command !== 'string' ||
+      !Object.prototype.hasOwnProperty.call(commands, command) ||
+      typeof commands[command] !== 'function'
+    ) {
+      throw new Error(`DBGM-00000 Unknown plugin command: ${String(command).substring(0, 100)}`);
+    }
+    return commands[command](args);
   },
 
   authTypes_meta: true,
