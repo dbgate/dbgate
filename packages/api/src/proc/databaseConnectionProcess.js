@@ -27,6 +27,7 @@ const { rundir } = require('../utility/directories');
 const fs = require('fs-extra');
 const { changeSetToSql } = require('dbgate-datalib');
 const _ = require('lodash');
+const { limitServerChatQueryResult } = require('../utility/serverChatQuery');
 
 const logger = getLogger('dbconnProcess');
 
@@ -265,7 +266,13 @@ async function handleQueryData({ msgid, sql, range, commandTimeout }, skipReadon
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     const res = await driver.query(dbhan, sql, { range, commandTimeout });
     if (res?.columns) {
-      res.columns = await enrichQueryResultColumns({ dbhan, driver, sql, columns: res.columns, dbinfo: analysedStructure });
+      res.columns = await enrichQueryResultColumns({
+        dbhan,
+        driver,
+        sql,
+        columns: res.columns,
+        dbinfo: analysedStructure,
+      });
     }
     process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(res) });
   } catch (err) {
@@ -273,6 +280,32 @@ async function handleQueryData({ msgid, sql, range, commandTimeout }, skipReadon
       msgtype: 'response',
       msgid,
       errorMessage: extractErrorMessage(err, 'Error executing SQL script'),
+    });
+  }
+}
+
+async function handleServerChatQueryData({ msgid, sql }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    ensureExecuteCustomScript(driver);
+    const res = await driver.query(dbhan, sql);
+    if (res?.columns) {
+      res.columns = await enrichQueryResultColumns({
+        dbhan,
+        driver,
+        sql,
+        columns: res.columns,
+        dbinfo: analysedStructure,
+      });
+    }
+    const limitedResult = limitServerChatQueryResult(res);
+    process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(limitedResult) });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error executing server chat database SQL'),
     });
   }
 }
@@ -458,7 +491,7 @@ async function handleMultiCallMethod({ msgid, callList }) {
     //     if (change.updates && Array.isArray(change.updates)) {
     //       for (const update of change.updates) {
     //         await driver.query(dbhan, `HSET "${change.key}" "${update.key}" "${update.value}"`);
-          
+
     //         if (update.ttl !== undefined && update.ttl !== null && update.ttl !== -1) {
     //           try {
     //             await dbhan.client.call('HEXPIRE', change.key, update.ttl, 'FIELDS', 1, update.key);
@@ -469,7 +502,7 @@ async function handleMultiCallMethod({ msgid, callList }) {
     //     if (change.inserts && Array.isArray(change.inserts)) {
     //       for (const insert of change.inserts) {
     //         await driver.query(dbhan, `HSET "${change.key}" "${insert.key}" "${insert.value}"`);
-            
+
     //         if (insert.ttl !== undefined && insert.ttl !== null && insert.ttl !== -1) {
     //           try {
     //             await dbhan.client.call('HEXPIRE', change.key, insert.ttl, 'FIELDS', 1, insert.key);
@@ -620,7 +653,17 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
     ...driver.getQuerySplitterOptions('stream'),
     returnRichInfo: true,
   })) {
-    await handleQueryStream(dbhan, driver, queryStreamInfoHolder, sqlItem, sesid, undefined, undefined, false, analysedStructure);
+    await handleQueryStream(
+      dbhan,
+      driver,
+      queryStreamInfoHolder,
+      sqlItem,
+      sesid,
+      undefined,
+      undefined,
+      false,
+      analysedStructure
+    );
     if (queryStreamInfoHolder.canceled) {
       break;
     }
@@ -695,6 +738,7 @@ function handlePing() {
 const messageHandlers = {
   connect: handleConnect,
   queryData: handleQueryData,
+  serverChatQueryData: handleServerChatQueryData,
   runScript: handleRunScript,
   runOperation: handleRunOperation,
   updateCollection: handleUpdateCollection,

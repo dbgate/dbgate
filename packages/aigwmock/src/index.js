@@ -50,6 +50,19 @@ app.post('/backend-api/codex/responses', (req, res) => {
 // POST /openrouter/v1/chat/completions
 app.post('/openrouter/v1/chat/completions', (req, res) => {
   const messages = req.body.messages || [];
+  const hasExecutionReviewTool = req.body.tools?.some(tool => tool?.function?.name === 'review_execution');
+  if (hasExecutionReviewTool) {
+    return streamToolCallResponse(res, [
+      {
+        name: 'review_execution',
+        arguments: {
+          decision: 'allow',
+          reason: 'The requested test-data update is narrowly scoped and matches the inspected values.',
+        },
+      },
+    ]);
+  }
+
 
   // Find the first user message (skip system messages)
   const userMessage = messages.find(m => m.role === 'user');

@@ -14,6 +14,8 @@ const dbgateApi = require('dbgate-api');
 dbgateApi.initializeApiEnvironment();
 const dbgatePluginMysql = require('dbgate-plugin-mysql');
 dbgateApi.registerPlugins(dbgatePluginMysql);
+const dbgatePluginMssql = require('dbgate-plugin-mssql');
+dbgateApi.registerPlugins(dbgatePluginMssql);
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -44,6 +46,66 @@ async function initMySqlDatabase(dbname, inputFile) {
     connection: { ...connection, database: dbname },
     inputFile,
   });
+}
+
+async function initMsSqlCustomerDatabases() {
+  const connection = {
+    server: process.env.SERVER_mssql,
+    user: process.env.USER_mssql,
+    password: process.env.PASSWORD_mssql,
+    port: process.env.PORT_mssql,
+    database: 'master',
+    engine: 'mssql@dbgate-plugin-mssql',
+  };
+
+  const customerDatabases = [
+    { name: 'AiCustomerNorth', orderCount: 7 },
+    { name: 'AiCustomerSouth', orderCount: 3 },
+    { name: 'AiCustomerWest', orderCount: 5 },
+  ];
+
+  for (const { name, orderCount } of customerDatabases) {
+    await dbgateApi.executeQuery({
+      connection,
+      sql: `
+        IF DB_ID(N'${name}') IS NOT NULL
+        BEGIN
+          ALTER DATABASE [${name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+          DROP DATABASE [${name}];
+        END;
+      `,
+    });
+    await dbgateApi.executeQuery({
+      connection,
+      sql: `CREATE DATABASE [${name}];`,
+    });
+
+    const values = Array.from({ length: orderCount }, (_, index) => `(${index + 1}, SYSDATETIME())`).join(', ');
+    await dbgateApi.executeQuery({
+      connection: { ...connection, database: name },
+      sql: `
+        CREATE TABLE [dbo].[OrderGroups]
+        (
+          [TenantId] int NOT NULL,
+          [OrderGroupId] int NOT NULL,
+          CONSTRAINT [PK_OrderGroups] PRIMARY KEY ([TenantId], [OrderGroupId])
+        );
+        INSERT INTO [dbo].[OrderGroups] ([TenantId], [OrderGroupId]) VALUES (1, 1);
+
+        CREATE TABLE [dbo].[Orders]
+        (
+          [OrderId] int NOT NULL PRIMARY KEY,
+          [CreatedAt] datetime2 NOT NULL,
+          [TenantId] int NOT NULL DEFAULT (1),
+          [OrderGroupId] int NOT NULL DEFAULT (1),
+          CONSTRAINT [FK_Orders_OrderGroups]
+            FOREIGN KEY ([TenantId], [OrderGroupId])
+            REFERENCES [dbo].[OrderGroups] ([TenantId], [OrderGroupId])
+        );
+        INSERT INTO [dbo].[Orders] ([OrderId], [CreatedAt]) VALUES ${values};
+      `,
+    });
+  }
 }
 
 // --- Process management helpers ---
@@ -144,6 +206,9 @@ async function run() {
   // 1. Set up MyChinook MySQL database
   console.log('[ai-chat init] Setting up MyChinook database...');
   await initMySqlDatabase('MyChinook', path.resolve(path.join(__dirname, '../data/chinook-mysql.sql')));
+
+  console.log('[ai-chat init] Setting up MSSQL customer databases...');
+  await initMsSqlCustomerDatabases();
 
   // 2. Start test-api (GraphQL/REST server on port 4444)
   console.log('[ai-chat init] Starting test-api on port 4444...');

@@ -139,6 +139,8 @@ const dialect = {
 const driver = {
   ...driverBase,
   supportsServerSummary: true,
+  supportsServerSqlChat: true,
+  supportsServerCrossDatabaseQuery: true,
   dumperClass: MsSqlDumper,
   dialect,
   readOnlySessions: false,

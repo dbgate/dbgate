@@ -410,6 +410,7 @@ const mysqlDriverBase = {
 const mysqlDriver = {
   ...mysqlDriverBase,
   supportsServerSummary: true,
+  supportsServerSqlChat: true,
   dialect: mysqlDialect,
   engine: 'mysql@dbgate-plugin-mysql',
   title: 'MySQL',
@@ -452,6 +453,7 @@ const mariaDbDialect = {
 const mariaDriver = {
   ...mysqlDriverBase,
   supportsServerSummary: true,
+  supportsServerSqlChat: true,
   dialect: mariaDbDialect,
   engine: 'mariadb@dbgate-plugin-mysql',
   title: 'MariaDB',

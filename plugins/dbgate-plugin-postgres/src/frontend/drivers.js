@@ -419,6 +419,7 @@ const postgresDriver = {
   supportsServerSummary: true,
   supportsNodejsBackup: true,
   supportsNodejsRestore: true,
+  supportsServerSqlChat: true,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'PostgreSQL',
   defaultPort: 5432,

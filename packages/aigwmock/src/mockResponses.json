@@ -1,6 +1,61 @@
 {
   "scenarios": [
     {
+      "match": "^review context no-op update$",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table_name": "Artist" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table_name": "Album" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table_name": "Track" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_table_schema", "arguments": { "table_name": "Genre" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_sql",
+              "arguments": {
+                "sql": "SELECT ArtistId, Name FROM Artist WHERE ArtistId = 1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_sql",
+              "arguments": {
+                "sql": "UPDATE Artist SET Name = Name WHERE ArtistId = 1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "The narrowly scoped Artist update is complete."
+        }
+      ]
+    },
+    {
       "match": "chart.*popular.*genre|popular.*genre.*chart|most popular genre",
       "steps": [
         {
@@ -171,6 +226,97 @@
         {
           "type": "text",
           "content": "Here are all the categories available in the system. Each category has a name, description, and active status indicating whether it is currently in use."
+        }
+      ]
+    },
+    {
+      "match": "top.*customer.*order|customer.*most.*order|most.*order.*today",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_databases", "arguments": { "filter": "AiCustomer" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_tables", "arguments": { "database_name": "AiCustomerNorth" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "get_table_schema",
+              "arguments": {
+                "database_name": "AiCustomerNorth",
+                "schema_name": "dbo",
+                "table_name": "Orders"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_server_sql",
+              "arguments": {
+                "sql": "SET NOCOUNT ON; DECLARE @sql nvarchar(max); SELECT @sql = STRING_AGG(CONVERT(nvarchar(max), N'SELECT ' + QUOTENAME(name, '''') + N' AS customer_database, COUNT(*) AS order_count FROM ' + QUOTENAME(name) + N'.[dbo].[Orders] WHERE [CreatedAt] >= CONVERT(date, SYSDATETIME()) AND [CreatedAt] < DATEADD(day, 1, CONVERT(date, SYSDATETIME()))'), N' UNION ALL ') FROM sys.databases WHERE state_desc = N'ONLINE' AND HAS_DBACCESS(name) = 1 AND name LIKE N'AiCustomer%'; SET @sql = N'SELECT TOP (5) customer_database, order_count FROM (' + @sql + N') AS customer_orders ORDER BY order_count DESC, customer_database;'; EXEC sys.sp_executesql @sql;"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "AiCustomerNorth has the most orders today with 7, followed by AiCustomerWest with 5 and AiCustomerSouth with 3."
+        }
+      ]
+    },
+    {
+      "match": "how many.*order.*AiCustomerNorth|order.*AiCustomerNorth.*today",
+      "steps": [
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_databases", "arguments": { "filter": "AiCustomerNorth" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            { "name": "get_tables", "arguments": { "database_name": "AiCustomerNorth" } }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "get_table_schema",
+              "arguments": {
+                "database_name": "AiCustomerNorth",
+                "schema_name": "dbo",
+                "table_name": "Orders"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tool_calls",
+          "tool_calls": [
+            {
+              "name": "execute_database_sql",
+              "arguments": {
+                "database_name": "AiCustomerNorth",
+                "sql": "SET NOCOUNT ON; SELECT COUNT(*) AS order_count FROM [dbo].[Orders] WHERE [CreatedAt] >= CONVERT(date, SYSDATETIME()) AND [CreatedAt] < DATEADD(day, 1, CONVERT(date, SYSDATETIME()));"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "content": "AiCustomerNorth has 7 orders today."
         }
       ]
     },

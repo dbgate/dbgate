@@ -310,6 +310,11 @@ module.exports = {
     return res;
   },
 
+  async queryServerChatData({ conid, database, sql }) {
+    const opened = await this.ensureOpened(conid, database);
+    return this.sendRequest(opened, { msgtype: 'serverChatQueryData', sql });
+  },
+
   sqlSelect_meta: true,
   async sqlSelect({ conid, database, select, commandTimeout, auditLogSessionGroup }, req) {
     await testConnectionPermission(conid, req);

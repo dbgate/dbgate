@@ -43,6 +43,7 @@ const versionQuery = `
 SELECT 
   @@VERSION AS version, 
   SERVERPROPERTY ('productversion') as productVersion,
+  CONVERT(INT, SERVERPROPERTY ('EngineEdition')) as engineEdition,
   CASE 
   WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '8%' THEN 'SQL Server 2000'
   WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '9%' THEN 'SQL Server 2005'
@@ -168,6 +169,8 @@ const driver = {
   },
   async getVersion(dbhan) {
     const res = (await this.query(dbhan, versionQuery)).rows[0];
+
+    res.engineEdition = parseInt(res.engineEdition, 10) || 0;
 
     if (res.productVersion) {
       const splitted = res.productVersion.split('.');

@@ -1,9 +1,21 @@
 const stableStringify = require('json-stable-stringify');
-const { extractBoolSettingsValue, extractIntSettingsValue, getLogger, extractErrorLogData } = require('dbgate-tools');
+const {
+  extractBoolSettingsValue,
+  extractIntSettingsValue,
+  getLogger,
+  extractErrorLogData,
+  extractErrorMessage,
+  serializeJsTypesForJsonStringify,
+} = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { connectUtility } = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
+const {
+  ensureServerChatQueryAllowed,
+  limitServerChatQueryResult,
+  resolveServerChatDatabaseName,
+} = require('../utility/serverChatQuery');
 const logger = getLogger('srvconnProcess');
 
 let dbhan;
@@ -12,6 +24,23 @@ let lastDatabases = null;
 let lastStatus = null;
 let lastPing = null;
 let afterConnectCallbacks = [];
+let serverVersion = null;
+let serverVersionPromise = null;
+
+const MSSQL_ENGINE = 'mssql@dbgate-plugin-mssql';
+const POSTGRES_ENGINE = 'postgres@dbgate-plugin-postgres';
+const MYSQL_ENGINE = 'mysql@dbgate-plugin-mysql';
+const MARIADB_ENGINE = 'mariadb@dbgate-plugin-mysql';
+const SERVER_CHAT_SUPPORTED_ENGINES = new Set([MSSQL_ENGINE, POSTGRES_ENGINE, MYSQL_ENGINE, MARIADB_ENGINE]);
+const SUPPORTED_MSSQL_ENGINE_EDITIONS = new Set([2, 3, 4, 8]);
+const SERVER_CHAT_DATABASE_LIMIT = 100;
+const CHAT_DATABASES_QUERY = `
+SELECT name
+FROM sys.databases
+WHERE state_desc = 'ONLINE'
+  AND HAS_DBACCESS(name) = 1
+ORDER BY name
+`;
 
 async function handleRefresh() {
   const driver = requireEngineDriver(storedConnection);
@@ -46,14 +75,13 @@ async function handleRefresh() {
 
 async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
-  let version;
   try {
-    version = await driver.getVersion(dbhan);
+    serverVersion = await driver.getVersion(dbhan);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00153 Error getting DB server version');
-    version = { version: 'Unknown' };
+    serverVersion = { version: 'Unknown' };
   }
-  process.send({ msgtype: 'version', version });
+  process.send({ msgtype: 'version', version: serverVersion });
 }
 
 function setStatus(status) {
@@ -77,7 +105,7 @@ async function handleConnect(connection) {
   const driver = requireEngineDriver(storedConnection);
   try {
     dbhan = await connectUtility(driver, storedConnection, 'app');
-    readVersion();
+    serverVersionPromise = readVersion();
     handleRefresh();
     if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
       setInterval(
@@ -109,6 +137,133 @@ function waitConnected() {
 
 function handlePing() {
   lastPing = new Date().getTime();
+}
+
+function ensureServerSqlChatSupported() {
+  if (!SERVER_CHAT_SUPPORTED_ENGINES.has(storedConnection?.engine)) {
+    throw new Error(
+      'DBGM-00000 Server SQL chat is only available for Microsoft SQL Server, PostgreSQL, MySQL and MariaDB connections'
+    );
+  }
+
+  if (storedConnection.engine === MSSQL_ENGINE) {
+    const engineEdition = Number(serverVersion?.engineEdition);
+    if (!SUPPORTED_MSSQL_ENGINE_EDITIONS.has(engineEdition)) {
+      throw new Error(
+        `DBGM-00000 SQL Server EngineEdition ${
+          Number.isFinite(engineEdition) ? engineEdition : 'unknown'
+        } does not support server SQL chat`
+      );
+    }
+  }
+}
+
+async function waitServerChatReady() {
+  await waitConnected();
+  if (serverVersionPromise) {
+    await serverVersionPromise;
+  }
+  ensureServerSqlChatSupported();
+}
+
+async function handleServerChatReady({ msgid }) {
+  try {
+    await waitServerChatReady();
+    process.send({
+      msgtype: 'response',
+      msgid,
+      result: { engineEdition: Number(serverVersion.engineEdition) },
+    });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Server SQL chat is not ready'),
+    });
+  }
+}
+
+async function loadChatDatabaseNames() {
+  const driver = requireEngineDriver(storedConnection);
+
+  if (storedConnection.engine === MSSQL_ENGINE) {
+    const { rows } = await driver.query(dbhan, CHAT_DATABASES_QUERY);
+    return rows
+      .map(row => row?.name)
+      .filter(name => typeof name == 'string')
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  }
+
+  const databases = await driver.listDatabases(dbhan);
+  return databases
+    .map(database => database?.name)
+    .filter(name => typeof name == 'string')
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+
+async function handleChatDatabases({ msgid, filter }) {
+  try {
+    await waitServerChatReady();
+    const normalizedFilter = typeof filter == 'string' ? filter.trim().toLowerCase() : '';
+    const matchingDatabases = (await loadChatDatabaseNames()).filter(name =>
+      name.toLowerCase().includes(normalizedFilter)
+    );
+    const databases = matchingDatabases.slice(0, SERVER_CHAT_DATABASE_LIMIT);
+
+    process.send({
+      msgtype: 'response',
+      msgid,
+      result: {
+        databases,
+        returnedCount: databases.length,
+        totalMatches: matchingDatabases.length,
+        truncated: matchingDatabases.length > databases.length,
+      },
+    });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error loading databases for server SQL chat'),
+    });
+  }
+}
+
+async function handleCanonicalizeChatDatabase({ msgid, database }) {
+  try {
+    await waitServerChatReady();
+    const requestedDatabase = typeof database == 'string' ? database.trim() : '';
+    const canonicalDatabase = resolveServerChatDatabaseName(await loadChatDatabaseNames(), requestedDatabase);
+    process.send({
+      msgtype: 'response',
+      msgid,
+      result: { database: canonicalDatabase ?? null },
+    });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error resolving database for server SQL chat'),
+    });
+  }
+}
+
+async function handleQueryData({ msgid, sql }) {
+  try {
+    await waitServerChatReady();
+    const driver = requireEngineDriver(storedConnection);
+    ensureServerChatQueryAllowed(storedConnection, driver);
+    const result = await driver.query(dbhan, sql);
+    const limitedResult = limitServerChatQueryResult(result);
+
+    process.send({ msgtype: 'response', msgid, ...serializeJsTypesForJsonStringify(limitedResult) });
+  } catch (err) {
+    process.send({
+      msgtype: 'response',
+      msgid,
+      errorMessage: extractErrorMessage(err, 'DBGM-00000 Error executing server SQL'),
+    });
+  }
 }
 
 async function handleDatabaseOp(op, { msgid, name }) {
@@ -181,6 +336,10 @@ const messageHandlers = {
   killDatabaseProcess: handleKillDatabaseProcess,
   listDatabaseProcesses: handleListDatabaseProcesses,
   summaryCommand: handleSummaryCommand,
+  serverChatReady: handleServerChatReady,
+  chatDatabases: handleChatDatabases,
+  canonicalizeChatDatabase: handleCanonicalizeChatDatabase,
+  queryData: handleQueryData,
   createDatabase: props => handleDatabaseOp('createDatabase', props),
   dropDatabase: props => handleDatabaseOp('dropDatabase', props),
 };

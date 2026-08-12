@@ -263,6 +263,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   implicitTransactions?: boolean; // transaction is started with first SQL command, no BEGIN TRANSACTION is needed
   premiumOnly?: boolean;
   supportExecuteQuery?: boolean;
+  supportsServerSqlChat?: boolean;
+  supportsServerCrossDatabaseQuery?: boolean;
   supportsEditableQueryResults?: boolean;
   enrichColumnMetadata?(
     dbhan: DatabaseHandle<TClient, TDataBase>,
