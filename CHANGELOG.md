@@ -9,6 +9,17 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.5
+
+- ADDED: Server Chat for AI-assisted querying across PostgreSQL, MySQL, MariaDB, and supported SQL Server editions (Premium)
+- ADDED: ChatGPT account connection for using Codex models in the desktop application (Premium)
+- FIXED: SQLite and LibSQL bigint values now preserve their precision #1531
+- FIXED: NPM installation failure caused by a dbgate-pg-dumper version mismatch #1533
+- FIXED: Restricted export file writes to managed directories and prevented symlink-based path escapes
+- FIXED: Prevented SSRF and local file reads in remote text and JSON Lines downloads
+- FIXED: Validated plugin package names and command dispatch to prevent unsafe plugin operations
+- FIXED: Sanitized generated script comments and directives to prevent code injection
+
 ## 7.2.4
 
 - ADDED: Built-in PostgreSQL backup and restore without requiring external PostgreSQL tools (Community)
