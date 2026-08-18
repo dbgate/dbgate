@@ -3,7 +3,7 @@
   "version": "7.0.0-alpha.1",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
-  "description": "Opensource database administration tool",
+  "description": "DbGate - Database administration tool",
   "dependencies": {
     "electron-log": "^4.4.1",
     "electron-updater": "^6.3.4",
