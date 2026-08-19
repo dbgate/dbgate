@@ -154,6 +154,10 @@ const driver = {
         runner.signal
       );
 
+      if (result.cancelled) {
+        throw new Error('DBGM-00000 SQL Server backup cancelled');
+      }
+
       output.end();
       await finished(output);
 
@@ -198,6 +202,9 @@ const driver = {
         signal: runner.signal,
         progress: createProgressReporter(runner, 'SQL Server restore'),
       });
+      if (result.cancelled) {
+        throw new Error('DBGM-00000 SQL Server restore cancelled');
+      }
       if (result.errors.length > 0) {
         const error = result.errors[0];
         throw new Error(
