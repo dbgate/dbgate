@@ -50,6 +50,7 @@
     <FormCheckboxField
       label={_tval(arg.label)}
       {name}
+      data-testid={arg.testId}
       defaultValue={arg.default}
       disabled={isReadOnly || (arg.disabledFn ? arg.disabledFn($values) : arg.disabled)}
     />

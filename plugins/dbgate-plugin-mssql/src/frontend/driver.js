@@ -208,12 +208,14 @@ const driver = {
           type: 'checkbox',
           label: __t('mssqlDriver.dataOnly', { defaultMessage: 'Dump only data (without structure)' }),
           name: 'dataOnly',
+          testId: 'BackupDatabaseTab_dataOnly',
           default: false,
         },
         {
           type: 'checkbox',
           label: __t('mssqlDriver.schemaOnly', { defaultMessage: 'Dump schema only (no data)' }),
           name: 'schemaOnly',
+          testId: 'BackupDatabaseTab_schemaOnly',
           default: false,
         },
         {
@@ -222,6 +224,7 @@ const driver = {
             defaultMessage: 'Include DROP statements before creating objects',
           }),
           name: 'includeDropStatements',
+          testId: 'BackupDatabaseTab_includeDropStatements',
           default: false,
         },
       ];
