@@ -1,5 +1,7 @@
 const _ = require('lodash');
+const fs = require('fs');
 const stream = require('stream');
+const { finished } = require('stream/promises');
 const driverBase = require('../frontend/driver');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
 const createTediousBulkInsertStream = require('./createTediousBulkInsertStream');
@@ -8,6 +10,8 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = require('./nativeDriver');
+const { dumpMssql, restoreSqlDump } = require('dbgate-mssql-dumper');
+const { fromTediousConnection } = require('dbgate-mssql-dumper/tedious');
 const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 const sql = require('./sql');
 
@@ -75,10 +79,140 @@ const windowsAuthTypes = [
   },
 ];
 
+function createMssqlDumperConnection(dbhan) {
+  if (dbhan.connectionType != 'tedious') {
+    throw new Error('DBGM-00000 dbgate-mssql-dumper requires the portable Node.js SQL Server driver');
+  }
+  return fromTediousConnection(dbhan.client);
+}
+
+function createProgressReporter(runner, prefix) {
+  let lastPhase = null;
+  let lastReport = 0;
+
+  return progress => {
+    const now = Date.now();
+    if (progress.phase == lastPhase && now - lastReport < 1000) return;
+
+    lastPhase = progress.phase;
+    lastReport = now;
+    const details = [];
+    if (progress.message) details.push(progress.message);
+    if (progress.batchIndex != null) details.push(`batch ${progress.batchIndex}`);
+    if (progress.objectsProcessed != null) details.push(`${progress.objectsProcessed} processed`);
+    if (progress.rowsRestored != null) details.push(`${progress.rowsRestored} rows`);
+    if (progress.bytesWritten != null) details.push(`${progress.bytesWritten} bytes`);
+    runner.info({
+      message: `${prefix}: ${progress.phase}${details.length > 0 ? ` (${details.join(', ')})` : ''}`,
+      severity: 'info',
+    });
+  };
+}
+
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: MsSqlAnalyser,
+
+  async backupDatabase(connection, settings, runner) {
+    if (!driverBase.supportsNodejsBackup) {
+      throw new Error('DBGM-00000 dbgate-mssql-dumper is available only for Microsoft SQL Server connections');
+    }
+    if (connection.authType == 'sspi') {
+      throw new Error('DBGM-00000 dbgate-mssql-dumper does not support Windows integrated authentication');
+    }
+
+    const { outputFile, database, selectedTables = [], skippedTables = [], options = {} } = settings;
+    if (options.dataOnly && options.schemaOnly) {
+      throw new Error('DBGM-00000 Data-only and schema-only backup options cannot be enabled together');
+    }
+
+    const dbhan = await this.connect({
+      ...connection,
+      database,
+      ...(connection.authType == 'sql' ? { authType: 'tedious' } : {}),
+    });
+    const output = fs.createWriteStream(outputFile);
+
+    try {
+      const result = await dumpMssql(
+        createMssqlDumperConnection(dbhan),
+        {
+          mode: options.dataOnly ? 'data-only' : options.schemaOnly ? 'schema-only' : 'full',
+          render: { includeDropStatements: !!options.includeDropStatements },
+          ...(skippedTables.length > 0
+            ? {
+                selection: {
+                  tables: selectedTables,
+                  excludeTables: skippedTables,
+                },
+              }
+            : {}),
+        },
+        output,
+        createProgressReporter(runner, 'SQL Server dump'),
+        runner.signal
+      );
+
+      output.end();
+      await finished(output);
+
+      for (const warning of result.warnings) {
+        runner.info({
+          message: warning.message,
+          severity: warning.severity == 'warning' ? 'warning' : 'info',
+        });
+      }
+      runner.info({
+        message: `Wrote ${result.renderedDumpIds.length} objects, ${result.rowsExported} rows and ${result.bytesWritten} bytes`,
+        severity: 'info',
+      });
+    } catch (error) {
+      output.destroy();
+      throw error;
+    } finally {
+      await this.close(dbhan);
+    }
+  },
+
+  async restoreDatabase(connection, settings, runner) {
+    if (!driverBase.supportsNodejsRestore) {
+      throw new Error('DBGM-00000 dbgate-mssql-dumper is available only for Microsoft SQL Server connections');
+    }
+    if (connection.authType == 'sspi') {
+      throw new Error('DBGM-00000 dbgate-mssql-dumper does not support Windows integrated authentication');
+    }
+
+    const { inputFile, database } = settings;
+    const dbhan = await this.connect({
+      ...connection,
+      database,
+      ...(connection.authType == 'sql' ? { authType: 'tedious' } : {}),
+    });
+    const input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
+
+    try {
+      const result = await restoreSqlDump({
+        source: input,
+        connection: createMssqlDumperConnection(dbhan),
+        signal: runner.signal,
+        progress: createProgressReporter(runner, 'SQL Server restore'),
+      });
+      if (result.errors.length > 0) {
+        const error = result.errors[0];
+        throw new Error(
+          `DBGM-00000 SQL Server restore failed in batch ${error.batchIndex}, lines ${error.location.startLine}-${error.location.endLine}: ${error.message} SQL: ${error.sqlPreview}`
+        );
+      }
+      runner.info({
+        message: `Restored ${result.batchesExecuted} batches and ${result.rowsRestored} rows`,
+        severity: 'info',
+      });
+    } finally {
+      input.destroy();
+      await this.close(dbhan);
+    }
+  },
 
   getAuthTypes() {
     const res = [];

@@ -100,7 +100,7 @@
     return {
       conid,
       database,
-      options: isPremium ? $valuesStore : { backupTool: 'dbgate-pg-dumper' },
+      options: isPremium ? $valuesStore : { backupTool: driver?.nodejsBackupTool },
       selectedTables,
       skippedTables,
     };
@@ -392,7 +392,7 @@
         >{_t('common.run', { defaultMessage: 'Run' })}</ToolStripButton
       >
     {/if}
-    {#if isPremium && $valuesStore.backupTool != 'dbgate-pg-dumper'}
+    {#if isPremium && (!driver?.nodejsBackupTool || $valuesStore.backupTool != driver.nodejsBackupTool)}
       <ToolStripButton icon="img shell" on:click={handleGenerateCommand} data-testid="BackupDatabaseTab_generateCommand"
         >{_t('backupDatabase.copyCommandLine', { defaultMessage: 'Copy command line' })}</ToolStripButton
       >
