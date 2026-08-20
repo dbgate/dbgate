@@ -5,8 +5,8 @@ const logger = getLogger('sshTunnelProxy');
 
 const dispatchedMessages = {};
 
-async function handleGetSshTunnelRequest({ msgid, connection }, subprocess) {
-  const response = await getSshTunnel(connection);
+async function handleGetSshTunnelRequest({ msgid, connection, options }, subprocess) {
+  const response = await getSshTunnel(connection, options);
   try {
     subprocess.send({ msgtype: 'getsshtunnel-response', msgid, response });
   } catch (err) {
@@ -20,10 +20,10 @@ function handleGetSshTunnelResponse({ msgid, response }, subprocess) {
   resolve(response);
 }
 
-async function getSshTunnelProxy(connection) {
-  if (!process.send) return getSshTunnel(connection);
+async function getSshTunnelProxy(connection, options) {
+  if (!process.send) return getSshTunnel(connection, options);
   const msgid = crypto.randomUUID();
-  process.send({ msgtype: 'getsshtunnel-request', msgid, connection });
+  process.send({ msgtype: 'getsshtunnel-request', msgid, connection, options });
   return new Promise((resolve, reject) => {
     dispatchedMessages[msgid] = { resolve, reject };
   });
