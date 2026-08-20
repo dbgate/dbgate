@@ -435,12 +435,15 @@ await dbgateApi.executeQuery(${JSON.stringify(
     };
 
     const driver = findEngineDriver(connection, getExtensions());
+    const supportsNodejsDumper = driver?.supportsNodejsDumperForConnection?.(connection) ?? true;
+    const supportsNodejsBackup = driver?.supportsNodejsBackup && supportsNodejsDumper;
+    const supportsNodejsRestore = driver?.supportsNodejsRestore && supportsNodejsDumper;
     const supportsBackup = isProApp()
-      ? driver?.supportsNativeBackup || driver?.supportsNodejsBackup
-      : driver?.supportsNodejsBackup;
+      ? driver?.supportsNativeBackup || supportsNodejsBackup
+      : supportsNodejsBackup;
     const supportsRestore = isProApp()
-      ? driver?.supportsNativeRestore || driver?.supportsNodejsRestore
-      : driver?.supportsNodejsRestore;
+      ? driver?.supportsNativeRestore || supportsNodejsRestore
+      : supportsNodejsRestore;
 
     const commands = _.flatten((apps || []).map(x => Object.values(x.files || {}).filter(x => x.type == 'command')));
 

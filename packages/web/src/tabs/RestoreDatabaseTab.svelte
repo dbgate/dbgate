@@ -64,7 +64,7 @@
   $: restoreToolArg = formArgs.find(arg => arg.name == 'restoreTool');
   let restoreTool = null;
   $: if (driver && !restoreTool) {
-    restoreTool = driver.supportsNodejsRestore ? 'dbgate-pg-dumper' : 'native';
+    restoreTool = driver.supportsNodejsRestore ? driver.nodejsRestoreTool : 'native';
   }
   $: isUploading = activeUploadCount > 0;
 
@@ -405,7 +405,7 @@
         >Run</ToolStripButton
       >
     {/if}
-    {#if isPremium && restoreTool != 'dbgate-pg-dumper'}
+    {#if isPremium && restoreTool != driver?.nodejsRestoreTool}
       <ToolStripButton
         icon="img shell"
         on:click={handleGenerateCommand}

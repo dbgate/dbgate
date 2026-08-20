@@ -250,6 +250,9 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   supportsNativeRestore?: boolean;
   supportsNodejsBackup?: boolean;
   supportsNodejsRestore?: boolean;
+  supportsNodejsDumperForConnection?: (connection: any) => boolean;
+  nodejsBackupTool?: string;
+  nodejsRestoreTool?: string;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   supportsIncrementalAnalysis?: boolean;

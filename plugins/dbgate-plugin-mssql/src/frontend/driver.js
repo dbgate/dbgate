@@ -187,7 +187,63 @@ const driver = {
   isolationLevels: ['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SNAPSHOT', 'SERIALIZABLE'],
   supportsIncrementalAnalysis: true,
   defaultIsolationLevel: 'READ COMMITTED',
+  supportsNodejsBackup: true,
+  supportsNodejsRestore: true,
+  supportsNodejsDumperForConnection: connection => connection?.authType != 'sspi',
+  nodejsBackupTool: 'dbgate-mssql-dumper',
+  nodejsRestoreTool: 'dbgate-mssql-dumper',
   // databaseUrlPlaceholder: 'e.g. server=localhost&authentication.type=default&authentication.type.user=myuser&authentication.type.password=pwd&options.database=mydb',
+
+  getNativeOperationFormArgs(operation) {
+    if (operation == 'backup') {
+      return [
+        {
+          type: 'select',
+          label: __t('mssqlDriver.backupTool', { defaultMessage: 'Backup tool' }),
+          name: 'backupTool',
+          default: 'dbgate-mssql-dumper',
+          testId: 'BackupDatabaseTab_backupTool',
+          options: [{ name: 'dbgate-mssql-dumper', value: 'dbgate-mssql-dumper' }],
+        },
+        {
+          type: 'checkbox',
+          label: __t('mssqlDriver.dataOnly', { defaultMessage: 'Dump only data (without structure)' }),
+          name: 'dataOnly',
+          testId: 'BackupDatabaseTab_dataOnly',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: __t('mssqlDriver.schemaOnly', { defaultMessage: 'Dump schema only (no data)' }),
+          name: 'schemaOnly',
+          testId: 'BackupDatabaseTab_schemaOnly',
+          default: false,
+        },
+        {
+          type: 'checkbox',
+          label: __t('mssqlDriver.includeDropStatements', {
+            defaultMessage: 'Include DROP statements before creating objects',
+          }),
+          name: 'includeDropStatements',
+          testId: 'BackupDatabaseTab_includeDropStatements',
+          default: false,
+        },
+      ];
+    }
+    if (operation == 'restore') {
+      return [
+        {
+          type: 'select',
+          label: __t('mssqlDriver.restoreTool', { defaultMessage: 'Restore tool' }),
+          name: 'restoreTool',
+          default: 'dbgate-mssql-dumper',
+          testId: 'RestoreDatabaseTab_restoreTool',
+          options: [{ name: 'dbgate-mssql-dumper', value: 'dbgate-mssql-dumper' }],
+        },
+      ];
+    }
+    return null;
+  },
 
   getNewObjectTemplates() {
     return [

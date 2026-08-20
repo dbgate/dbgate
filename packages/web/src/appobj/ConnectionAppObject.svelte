@@ -267,9 +267,11 @@
 
   const getContextMenu = () => {
     const driver = $extensions.drivers.find(x => x.engine == data.engine);
+    const supportsNodejsDumper = driver?.supportsNodejsDumperForConnection?.(data) ?? true;
+    const supportsNodejsRestore = driver?.supportsNodejsRestore && supportsNodejsDumper;
     const supportsRestore = isProApp()
-      ? driver?.supportsNativeRestore || driver?.supportsNodejsRestore
-      : driver?.supportsNodejsRestore;
+      ? driver?.supportsNativeRestore || supportsNodejsRestore
+      : supportsNodejsRestore;
     const config = getCurrentConfig();
     const handleRefresh = () => {
       apiCall('server-connections/refresh', { conid: data._id });

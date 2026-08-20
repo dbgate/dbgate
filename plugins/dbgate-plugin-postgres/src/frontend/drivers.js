@@ -419,6 +419,8 @@ const postgresDriver = {
   supportsServerSummary: true,
   supportsNodejsBackup: true,
   supportsNodejsRestore: true,
+  nodejsBackupTool: 'dbgate-pg-dumper',
+  nodejsRestoreTool: 'dbgate-pg-dumper',
   supportsServerSqlChat: true,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'PostgreSQL',
