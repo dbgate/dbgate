@@ -189,6 +189,7 @@ const driver = {
   defaultIsolationLevel: 'READ COMMITTED',
   supportsNodejsBackup: true,
   supportsNodejsRestore: true,
+  supportsNodejsDumperForConnection: connection => connection?.authType != 'sspi',
   nodejsBackupTool: 'dbgate-mssql-dumper',
   nodejsRestoreTool: 'dbgate-mssql-dumper',
   // databaseUrlPlaceholder: 'e.g. server=localhost&authentication.type=default&authentication.type.user=myuser&authentication.type.password=pwd&options.database=mydb',
