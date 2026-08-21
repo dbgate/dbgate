@@ -749,7 +749,7 @@ module.exports = {
       return trans ? trans(model) : model;
     }
 
-    const opened = await this.ensureOpened(conid, database);
+    const structure = await this.ensureStructureLoaded(conid, database);
 
     sendToAuditLog(req, {
       category: 'dbop',
@@ -793,18 +793,18 @@ module.exports = {
       }
 
       const res = {
-        ...opened.structure,
-        tables: applyTablePermissionRole(opened.structure.tables, 'tables'),
-        views: applyTablePermissionRole(opened.structure.views, 'views'),
-        procedures: applyTablePermissionRole(opened.structure.procedures, 'procedures'),
-        functions: applyTablePermissionRole(opened.structure.functions, 'functions'),
-        triggers: applyTablePermissionRole(opened.structure.triggers, 'triggers'),
-        collections: applyTablePermissionRole(opened.structure.collections, 'collections'),
+        ...structure,
+        tables: applyTablePermissionRole(structure.tables, 'tables'),
+        views: applyTablePermissionRole(structure.views, 'views'),
+        procedures: applyTablePermissionRole(structure.procedures, 'procedures'),
+        functions: applyTablePermissionRole(structure.functions, 'functions'),
+        triggers: applyTablePermissionRole(structure.triggers, 'triggers'),
+        collections: applyTablePermissionRole(structure.collections, 'collections'),
       };
       return res;
     }
 
-    return opened.structure;
+    return structure;
     // const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     // if (existing) return existing.status;
     // return {
