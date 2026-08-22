@@ -185,7 +185,7 @@ const mysqlDriverBase = {
       return ['awsRegion', 'secretAccessKey', 'accessKeyId', 'server', 'port'].includes(field);
     }
 
-    if (['password'].includes(field)) {
+    if (['password', 'enableCleartextPlugin'].includes(field)) {
       return true;
     }
 
