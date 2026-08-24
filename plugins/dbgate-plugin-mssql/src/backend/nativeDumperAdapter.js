@@ -1,11 +1,104 @@
 function prepareQuery(query) {
-  const parameters = new Map((query.parameters || []).map(parameter => [parameter.name, parameter.value]));
+  const parameters = new Map(
+    (query.parameters || []).map(parameter => [parameter.name.toLowerCase(), parameter.value])
+  );
   const values = [];
-  const sql = query.sql.replace(/@([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
-    if (!parameters.has(name)) return match;
-    values.push(parameters.get(name));
-    return '?';
-  });
+  let sql = '';
+  let state = 'normal';
+  let blockCommentDepth = 0;
+
+  for (let index = 0; index < query.sql.length; index += 1) {
+    const character = query.sql[index];
+    const nextCharacter = query.sql[index + 1];
+
+    if (state == 'singleQuote') {
+      sql += character;
+      if (character == "'") {
+        if (nextCharacter == "'") sql += query.sql[++index];
+        else state = 'normal';
+      }
+      continue;
+    }
+
+    if (state == 'doubleQuote') {
+      sql += character;
+      if (character == '"') {
+        if (nextCharacter == '"') sql += query.sql[++index];
+        else state = 'normal';
+      }
+      continue;
+    }
+
+    if (state == 'bracketIdentifier') {
+      sql += character;
+      if (character == ']') {
+        if (nextCharacter == ']') sql += query.sql[++index];
+        else state = 'normal';
+      }
+      continue;
+    }
+
+    if (state == 'lineComment') {
+      sql += character;
+      if (character == '\r' || character == '\n') state = 'normal';
+      continue;
+    }
+
+    if (state == 'blockComment') {
+      sql += character;
+      if (character == '/' && nextCharacter == '*') {
+        sql += query.sql[++index];
+        blockCommentDepth += 1;
+      } else if (character == '*' && nextCharacter == '/') {
+        sql += query.sql[++index];
+        blockCommentDepth -= 1;
+        if (blockCommentDepth == 0) state = 'normal';
+      }
+      continue;
+    }
+
+    if (character == "'") {
+      sql += character;
+      state = 'singleQuote';
+      continue;
+    }
+    if (character == '"') {
+      sql += character;
+      state = 'doubleQuote';
+      continue;
+    }
+    if (character == '[') {
+      sql += character;
+      state = 'bracketIdentifier';
+      continue;
+    }
+    if (character == '-' && nextCharacter == '-') {
+      sql += character + query.sql[++index];
+      state = 'lineComment';
+      continue;
+    }
+    if (character == '/' && nextCharacter == '*') {
+      sql += character + query.sql[++index];
+      state = 'blockComment';
+      blockCommentDepth = 1;
+      continue;
+    }
+
+    if (character == '@' && query.sql[index - 1] != '@' && /[A-Za-z_]/.test(nextCharacter || '')) {
+      let end = index + 2;
+      while (end < query.sql.length && /[A-Za-z0-9_]/.test(query.sql[end])) end += 1;
+      const name = query.sql.slice(index + 1, end);
+      const parameterName = name.toLowerCase();
+      if (parameters.has(parameterName)) {
+        sql += '?';
+        values.push(parameters.get(parameterName));
+        index = end - 1;
+        continue;
+      }
+    }
+
+    sql += character;
+  }
 
   return { sql, values };
 }
