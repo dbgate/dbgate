@@ -304,17 +304,19 @@ module.exports = {
     );
     const conn = await this.ensureOpened(conid, database);
     const initialStatusName = conn.status?.name ?? null;
+    const skipsStructureAnalysis = !!conn.connection?.useSeparateSchemas && !isCompositeDbName(database);
     logger.debug(
       {
         conid,
         database,
         initialStatusName,
         hasSubprocess: !!conn.subprocess,
+        skipsStructureAnalysis,
         ...getStructureLogInfo(conn.structure),
       },
       'DBGM-00000 Waiting for database structure'
     );
-    if (conn.isApiConnection || !conn.subprocess) {
+    if (conn.isApiConnection || !conn.subprocess || skipsStructureAnalysis) {
       const structure = conn.structure ?? {};
       logger.debug(
         {
@@ -323,7 +325,7 @@ module.exports = {
           initialStatusName,
           finalStatusName: conn.status?.name ?? null,
           durationMs: Date.now() - startedAt,
-          source: 'connection-cache',
+          source: skipsStructureAnalysis ? 'separate-schema-placeholder' : 'connection-cache',
           ...getStructureLogInfo(structure),
         },
         'DBGM-00000 Database structure ready'
