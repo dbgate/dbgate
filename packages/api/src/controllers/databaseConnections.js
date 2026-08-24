@@ -60,6 +60,14 @@ const { extractConnectionSslParams } = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
 
+function getStructureLogInfo(structure) {
+  return {
+    tables: structure?.tables?.length ?? 0,
+    views: structure?.views?.length ?? 0,
+    collections: structure?.collections?.length ?? 0,
+  };
+}
+
 function getRestoreUploadPath(inputFile, inputUploadName) {
   if (
     !inputFile ||
@@ -97,7 +105,11 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
-    socket.emitChanged('database-structure-changed', { conid, database });
+    const delivery = socket.emitChanged('database-structure-changed', { conid, database });
+    logger.debug(
+      { conid, database, ...getStructureLogInfo(structure), ...delivery },
+      'DBGM-00000 Database structure received from subprocess and cache change emitted'
+    );
   },
   handle_structureTime(conid, database, { analysedTime }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
@@ -137,7 +149,11 @@ module.exports = {
     if (!existing) return;
     if (existing.status && status && existing.status.counter > status.counter) return;
     existing.status = status;
-    socket.emitChanged(`database-status-changed`, { conid, database });
+    const delivery = socket.emitChanged(`database-status-changed`, { conid, database });
+    logger.debug(
+      { conid, database, statusName: status?.name, statusCounter: status?.counter, ...delivery },
+      'DBGM-00000 Database status received from subprocess and cache change emitted'
+    );
   },
 
   handle_ping() {},
@@ -274,12 +290,61 @@ module.exports = {
   },
 
   async ensureStructureLoaded(conid, database) {
+    const startedAt = Date.now();
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    logger.debug(
+      {
+        conid,
+        database,
+        connectionWasOpen: !!existing,
+        statusName: existing?.status?.name ?? null,
+        ...getStructureLogInfo(existing?.structure),
+      },
+      'DBGM-00000 Database structure load requested'
+    );
     const conn = await this.ensureOpened(conid, database);
+    const initialStatusName = conn.status?.name ?? null;
+    logger.debug(
+      {
+        conid,
+        database,
+        initialStatusName,
+        hasSubprocess: !!conn.subprocess,
+        ...getStructureLogInfo(conn.structure),
+      },
+      'DBGM-00000 Waiting for database structure'
+    );
     if (conn.isApiConnection || !conn.subprocess) {
-      return conn.structure ?? {};
+      const structure = conn.structure ?? {};
+      logger.debug(
+        {
+          conid,
+          database,
+          initialStatusName,
+          finalStatusName: conn.status?.name ?? null,
+          durationMs: Date.now() - startedAt,
+          source: 'connection-cache',
+          ...getStructureLogInfo(structure),
+        },
+        'DBGM-00000 Database structure ready'
+      );
+      return structure;
     }
     const response = await this.sendRequest(conn, { msgtype: 'getStructure' });
-    return response.structure ?? conn.structure ?? {};
+    const structure = response.structure ?? conn.structure ?? {};
+    logger.debug(
+      {
+        conid,
+        database,
+        initialStatusName,
+        finalStatusName: conn.status?.name ?? null,
+        durationMs: Date.now() - startedAt,
+        source: response.structure ? 'subprocess-response' : 'connection-cache',
+        ...getStructureLogInfo(structure),
+      },
+      'DBGM-00000 Database structure ready'
+    );
+    return structure;
   },
 
   /** @param {import('dbgate-types').OpenedDatabaseConnection} conn */
