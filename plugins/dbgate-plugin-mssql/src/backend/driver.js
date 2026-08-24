@@ -12,6 +12,7 @@ const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = re
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = require('./nativeDriver');
 const { dumpMssql, restoreSqlDump } = require('dbgate-mssql-dumper');
 const { fromTediousConnection } = require('dbgate-mssql-dumper/tedious');
+const { fromNativeConnection } = require('./nativeDumperAdapter');
 const { getLogger } = global.DBGATE_PACKAGES['dbgate-tools'];
 const sql = require('./sql');
 
@@ -80,10 +81,9 @@ const windowsAuthTypes = [
 ];
 
 function createMssqlDumperConnection(dbhan) {
-  if (dbhan.connectionType != 'tedious') {
-    throw new Error('DBGM-00000 dbgate-mssql-dumper requires the portable Node.js SQL Server driver');
-  }
-  return fromTediousConnection(dbhan.client);
+  if (dbhan.connectionType == 'tedious') return fromTediousConnection(dbhan.client);
+  if (dbhan.connectionType == 'msnodesqlv8') return fromNativeConnection(dbhan.client);
+  throw new Error('DBGM-00000 Unsupported SQL Server connection type for dbgate-mssql-dumper');
 }
 
 function createProgressReporter(runner, prefix) {
@@ -118,10 +118,6 @@ const driver = {
     if (!driverBase.supportsNodejsBackup) {
       throw new Error('DBGM-00000 dbgate-mssql-dumper is available only for Microsoft SQL Server connections');
     }
-    if (connection.authType == 'sspi') {
-      throw new Error('DBGM-00000 dbgate-mssql-dumper does not support Windows integrated authentication');
-    }
-
     const { outputFile, database, selectedTables = [], skippedTables = [], options = {} } = settings;
     if (options.dataOnly && options.schemaOnly) {
       throw new Error('DBGM-00000 Data-only and schema-only backup options cannot be enabled together');
@@ -183,10 +179,6 @@ const driver = {
     if (!driverBase.supportsNodejsRestore) {
       throw new Error('DBGM-00000 dbgate-mssql-dumper is available only for Microsoft SQL Server connections');
     }
-    if (connection.authType == 'sspi') {
-      throw new Error('DBGM-00000 dbgate-mssql-dumper does not support Windows integrated authentication');
-    }
-
     const { inputFile, database } = settings;
     const dbhan = await this.connect({
       ...connection,
