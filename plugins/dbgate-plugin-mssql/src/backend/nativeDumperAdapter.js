@@ -73,7 +73,7 @@ class NativeDumperConnectionAdapter {
       };
       const handleAbort = () => {
         cancelQuery(nativeQuery);
-        const error = new Error('SQL Server operation cancelled');
+        const error = new Error('DBGM-00000 SQL Server operation cancelled');
         error.name = 'AbortError';
         finish(() => reject(error));
       };
@@ -164,7 +164,7 @@ class NativeDumperConnectionAdapter {
     try {
       while (!completed || queue.length > 0) {
         if (cancelled) {
-          const error = new Error('SQL Server operation cancelled');
+          const error = new Error('DBGM-00000 SQL Server operation cancelled');
           error.name = 'AbortError';
           throw error;
         }
