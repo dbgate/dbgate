@@ -12,6 +12,7 @@
 
   export let runnerId;
   export let executeNumber;
+  export let compact = false;
 
   const electron = getElectron();
 
@@ -38,9 +39,31 @@
     const resp = await apiCall('runners/files', { runid: runnerId });
     files = resp;
   };
+
+  async function downloadFile(row) {
+    if (!electron) {
+      await downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
+      return;
+    }
+    const file = await electron.showSaveDialog({ defaultPath: row.name });
+    if (file) {
+      const fs = window.require('fs');
+      fs.copyFile(row.path, file, () => {});
+    }
+  }
 </script>
 
-{#if !files || files.length == 0}
+{#if compact}
+  {#if files?.length > 0}
+    <div class="compact-output-files">
+      {#each files as row (row.name)}
+        <Link onClick={() => downloadFile(row)} title={row.name}>
+          {_t('query.downloadPerformanceReport', { defaultMessage: 'Download performance report' })}
+        </Link>
+      {/each}
+    </div>
+  {/if}
+{:else if !files || files.length == 0}
   <ErrorInfo message={_t('query.NoOutputFiles', { defaultMessage: 'No output files' })} icon="img alert" />
 {:else}
   <div class="flex1 scroll">
@@ -103,3 +126,10 @@
     </TableControl>
   </div>
 {/if}
+
+<style>
+  .compact-output-files {
+    display: flex;
+    gap: 10px;
+  }
+</style>

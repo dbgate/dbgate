@@ -5,7 +5,7 @@
   import { apiCall, apiOff, apiOn } from '../utility/api';
 
   import { getActiveComponent } from '../utility/createActivator';
-  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useSettings } from '../utility/metadataLoaders';
 
   const getCurrentEditor = () => getActiveComponent('BackupDatabaseTab');
 </script>
@@ -42,6 +42,7 @@
   import { _t } from '../translations';
   import { isProApp } from '../utility/proTools';
   import { showSnackbarError } from '../utility/snackbar';
+  import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
 
   let busy = false;
   let isDownloading = false;
@@ -64,10 +65,12 @@
   const isPremium = isProApp();
 
   const connection = useConnectionInfo({ conid });
+  const settings = useSettings();
 
   $: driver = findEngineDriver($connection, $extensions);
 
   $: dbinfo = useDatabaseInfo({ conid, database });
+  $: diagnosticsEnabled = $settings?.['behaviour.useDiagnosticTools'] === true;
 
   const checkedObjectsStore = writable([]);
 
@@ -100,7 +103,9 @@
     return {
       conid,
       database,
-      options: isPremium ? $valuesStore : { backupTool: driver?.nodejsBackupTool },
+      options: isPremium
+        ? $valuesStore
+        : { backupTool: driver?.nodejsBackupTool },
       selectedTables,
       skippedTables,
     };
@@ -196,7 +201,11 @@
 
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver?.getNativeOperationFormArgs('backup') : null) ?? [];
   $: applyFormDefaults(formArgs);
-  $: backupToolFormArgs = formArgs.filter(arg => ['backupTool', 'targetPostgresVersion'].includes(arg.name));
+  $: backupToolFormArgs = formArgs.filter(
+    arg =>
+      arg.name == 'targetPostgresVersion' ||
+      (arg.name == 'backupTool' && driver?.engine == 'postgres@dbgate-plugin-postgres')
+  );
   $: otherFormArgs = formArgs.filter(arg => !['backupTool', 'targetPostgresVersion'].includes(arg.name));
 </script>
 
@@ -322,6 +331,11 @@
               </div>
               <div data-testid="BackupDatabaseTab_status">{operationStatus}</div>
             </div>
+            {#if diagnosticsEnabled && runnerId}
+              <div class="diagnostic-report-link">
+                <RunnerOutputFiles compact {runnerId} {executeNumber} />
+              </div>
+            {/if}
             {#if isPremium}
               <div class="backup-options">
                 <div class="heading">{_t('backupDatabase.backupOptions', { defaultMessage: 'Backup options' })}</div>
@@ -465,5 +479,9 @@
   .backup-cancelled {
     margin-top: 8px;
     color: var(--theme-generic-font-grayed);
+  }
+
+  .diagnostic-report-link {
+    margin: 0 20px 10px;
   }
 </style>

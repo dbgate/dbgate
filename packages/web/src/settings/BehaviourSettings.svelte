@@ -24,6 +24,13 @@
       disabled={values['behaviour.useTabPreviewMode'] === false}
     />
 
+    <FormCheckboxField
+      name="behaviour.useDiagnosticTools"
+      label={_t('settings.behaviour.useDiagnosticTools', { defaultMessage: 'Use diagnostic tools' })}
+      defaultValue={false}
+      data-testid="BehaviourSettings_useDiagnosticTools"
+    />
+
     <div class="heading">{_t('settings.tabPreviewMode', { defaultMessage: 'Tab Preview Mode' })}</div>
 
     <div class="tip">

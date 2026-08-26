@@ -315,6 +315,7 @@ module.exports = {
 
   promiseRunCore(runid, callback, onFinished, operation = 'operation') {
     const abortController = new AbortController();
+    const outputDirectory = path.join(rundir(), runid);
     const newOpened = {
       runid,
       cancel: () => abortController.abort(),
@@ -324,10 +325,18 @@ module.exports = {
     this.dispatchMessage(runid, `DBGM-00339 Started internal ${operation} process`);
 
     Promise.resolve()
+      .then(() => fs.ensureDir(outputDirectory))
       .then(() =>
         callback({
           signal: abortController.signal,
           info: message => this.dispatchMessage(runid, message),
+          writeFile: async (name, data) => {
+            const safeName = path.basename(name);
+            if (!safeName || safeName !== name) {
+              throw new Error('DBGM-00000 Invalid runner output file name');
+            }
+            await fs.writeFile(path.join(outputDirectory, safeName), data);
+          },
         })
       )
       .then(() => {
