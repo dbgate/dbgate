@@ -427,6 +427,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
     runner: {
       signal: AbortSignal;
       info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+      writeFile(name: string, data: string | Buffer): Promise<void>;
     }
   ): Promise<void>;
   restoreDatabaseCommand(
@@ -444,6 +445,7 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
     runner: {
       signal: AbortSignal;
       info(message: string | { message: string; severity?: 'info' | 'error' | 'debug' | 'warning' }): void;
+      writeFile(name: string, data: string | Buffer): Promise<void>;
     }
   ): Promise<void>;
   transformNativeCommandMessage(

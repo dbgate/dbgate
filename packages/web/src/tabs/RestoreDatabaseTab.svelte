@@ -5,7 +5,7 @@
   import { apiCall, apiOff, apiOn } from '../utility/api';
 
   import { getActiveComponent } from '../utility/createActivator';
-  import { useConnectionInfo, useDatabaseInfo, useFiles } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useFiles, useSettings } from '../utility/metadataLoaders';
 
   const getCurrentEditor = () => getActiveComponent('RestoreDatabaseTab');
 </script>
@@ -30,6 +30,7 @@
   import { extensions } from '../stores';
   import { isProApp } from '../utility/proTools';
   import { onDestroy } from 'svelte';
+  import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
 
   export let tabid;
   export let conid;
@@ -53,6 +54,8 @@
   let runningUploadName = null;
 
   const connection = useConnectionInfo({ conid });
+  const settings = useSettings();
+  $: diagnosticsEnabled = $settings?.['behaviour.useDiagnosticTools'] === true;
 
   const sqlFiles = useFiles({ folder: 'sql' });
 
@@ -61,7 +64,8 @@
 
   $: driver = findEngineDriver($connection, $extensions);
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver.getNativeOperationFormArgs('restore') : null) ?? [];
-  $: restoreToolArg = formArgs.find(arg => arg.name == 'restoreTool');
+  $: restoreToolArg =
+    driver?.engine == 'postgres@dbgate-plugin-postgres' ? formArgs.find(arg => arg.name == 'restoreTool') : null;
   let restoreTool = null;
   $: if (driver && !restoreTool) {
     restoreTool = driver.supportsNodejsRestore ? driver.nodejsRestoreTool : 'native';
@@ -374,6 +378,11 @@
             />
           </div>
         {/if}
+        {#if diagnosticsEnabled && runnerId}
+          <div class="diagnostic-report-link">
+            <RunnerOutputFiles compact {runnerId} {executeNumber} />
+          </div>
+        {/if}
       </div>
     </svelte:fragment>
 
@@ -475,5 +484,9 @@
   .selected-file {
     margin-top: 10px;
     overflow-wrap: anywhere;
+  }
+
+  .diagnostic-report-link {
+    margin: 0 20px 10px;
   }
 </style>

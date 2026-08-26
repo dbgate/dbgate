@@ -1071,7 +1071,7 @@ module.exports = {
       }
     }
 
-    return { connection, driver, externalTools };
+    return { connection, driver, externalTools, settings: settingsValue || {} };
   },
 
   commandArgsToCommandLine(commandArgs) {
@@ -1093,7 +1093,9 @@ module.exports = {
     if (context.driver.supportsNodejsBackup && effectiveOptions.backupTool == context.driver.nodejsBackupTool) {
       const { connection, driver } = context;
       if (!driver.supportsNodejsBackup || !driver.backupDatabase) {
-        throw new Error('DBGM-00000 The selected database driver does not support the requested JavaScript backup tool');
+        throw new Error(
+          'DBGM-00000 The selected database driver does not support the requested JavaScript backup tool'
+        );
       }
       return runners.promiseRunCore(
         runid,
@@ -1103,7 +1105,12 @@ module.exports = {
             {
               outputFile,
               database,
-              options: effectiveOptions,
+              options: {
+                ...effectiveOptions,
+                debug:
+                  driver.engine == 'mssql@dbgate-plugin-mssql' &&
+                  context.settings['behaviour.useDiagnosticTools'] === true,
+              },
               selectedTables: effectiveSelectedTables,
               skippedTables: effectiveSkippedTables,
             },
@@ -1141,7 +1148,9 @@ module.exports = {
   async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
     const { driver } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsBackup && options?.backupTool == driver.nodejsBackupTool) {
-      throw new Error('DBGM-00000 The selected JavaScript backup tool runs inside DbGate and has no command line to copy');
+      throw new Error(
+        'DBGM-00000 The selected JavaScript backup tool runs inside DbGate and has no command line to copy'
+      );
     }
 
     const commandArgs = await this.getNativeOpCommandArgs('backup', {
@@ -1176,11 +1185,27 @@ module.exports = {
       if (context.driver.supportsNodejsRestore && effectiveOptions.restoreTool == context.driver.nodejsRestoreTool) {
         const { connection, driver } = context;
         if (!driver.supportsNodejsRestore || !driver.restoreDatabase) {
-          throw new Error('DBGM-00000 The selected database driver does not support the requested JavaScript restore tool');
+          throw new Error(
+            'DBGM-00000 The selected database driver does not support the requested JavaScript restore tool'
+          );
         }
         return runners.promiseRunCore(
           runid,
-          runner => driver.restoreDatabase(connection, { inputFile, database, options: effectiveOptions }, runner),
+          runner =>
+            driver.restoreDatabase(
+              connection,
+              {
+                inputFile,
+                database,
+                options: {
+                  ...effectiveOptions,
+                  debug:
+                    driver.engine == 'mssql@dbgate-plugin-mssql' &&
+                    context.settings['behaviour.useDiagnosticTools'] === true,
+                },
+              },
+              runner
+            ),
           onFinished,
           'restore'
         );
@@ -1209,7 +1234,9 @@ module.exports = {
   async nativeRestoreCommand({ conid, database, inputFile, options }) {
     const { driver } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsRestore && options?.restoreTool == driver.nodejsRestoreTool) {
-      throw new Error('DBGM-00000 The selected JavaScript restore tool runs inside DbGate and has no command line to copy');
+      throw new Error(
+        'DBGM-00000 The selected JavaScript restore tool runs inside DbGate and has no command line to copy'
+      );
     }
 
     const commandArgs = await this.getNativeOpCommandArgs('restore', {
