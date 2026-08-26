@@ -89,7 +89,15 @@
 
     const value = selection.length == 1 ? selection[0].value : null;
     if (_.isString(value)) {
-      if (value.startsWith('[') || value.startsWith('{')) return 'json';
+      const trimmed = value.trim();
+      if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        try {
+          JSON.parse(trimmed);
+          return 'json';
+        } catch {
+          // not valid JSON, fall through to other detections
+        }
+      }
     }
     if (_.isPlainObject(value) || _.isArray(value)) {
       return 'json';
