@@ -116,6 +116,10 @@ function combineProgressReporter(reporter, performanceTracker) {
   };
 }
 
+function formatMssqlRestoreError(error) {
+  return `DBGM-00000 SQL Server restore failed in batch ${error.batchIndex}, lines ${error.location.startLine}-${error.location.endLine}: ${error.message} SQL: ${error.sqlPreview}`;
+}
+
 async function writePerformanceReport(runner, tracker, operation, metrics) {
   if (!tracker) return;
   try {
@@ -141,7 +145,7 @@ function formatDuration(milliseconds) {
   return `${minutes}m ${seconds}s`;
 }
 
-function createRestoreProgressReporter(runner) {
+function createRestoreProgressReporter(runner, reportedErrors) {
   let activeDataLoad = null;
 
   const operationLabel = mode => {
@@ -163,6 +167,12 @@ function createRestoreProgressReporter(runner) {
 
   return progress => {
     const now = Date.now();
+    if (progress.error) {
+      finishActiveDataLoad(now, true);
+      runner.info({ message: formatMssqlRestoreError(progress.error), severity: 'error' });
+      reportedErrors.add(progress.error);
+      return;
+    }
     if (progress.phase == 'finalizing') {
       finishActiveDataLoad(now);
       runner.info({ message: 'Restore finalization started', severity: 'info' });
@@ -315,6 +325,7 @@ const driver = {
     let dumperConnection = null;
     let result = null;
     let status = 'failed';
+    const reportedErrors = new Set();
 
     try {
       dbhan = await this.connect({
@@ -337,19 +348,22 @@ const driver = {
       result = await restoreSqlDump({
         source: input,
         connection: dumperConnection,
-        options: { bulkInsertMode: 'auto' },
+        options: { bulkInsertMode: 'auto', stopOnError: options.stopOnError ?? true },
         signal: runner.signal,
-        progress: combineProgressReporter(createRestoreProgressReporter(runner), performanceTracker),
+        progress: combineProgressReporter(createRestoreProgressReporter(runner, reportedErrors), performanceTracker),
       });
       if (result.cancelled) {
         status = 'cancelled';
         throw new Error('DBGM-00000 SQL Server restore cancelled');
       }
       if (result.errors.length > 0) {
-        const error = result.errors[0];
-        throw new Error(
-          `DBGM-00000 SQL Server restore failed in batch ${error.batchIndex}, lines ${error.location.startLine}-${error.location.endLine}: ${error.message} SQL: ${error.sqlPreview}`
-        );
+        for (const error of result.errors) {
+          if (!reportedErrors.has(error)) {
+            runner.info({ message: formatMssqlRestoreError(error), severity: 'error' });
+          }
+        }
+        const errorCount = result.errors.length;
+        throw new Error(`DBGM-00000 Restore completed with ${errorCount} error${errorCount == 1 ? '' : 's'}`);
       }
       runner.info({
         message: 'Restore completed',
