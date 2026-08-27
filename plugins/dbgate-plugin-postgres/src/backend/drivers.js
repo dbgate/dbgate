@@ -443,7 +443,7 @@ const drivers = driverBases.map(driverBase => ({
         }
         const errorCount = result.errors.length;
         throw new Error(
-          `DBGM-00441 PostgreSQL restore completed with ${errorCount} error${errorCount == 1 ? '' : 's'}`
+          `DBGM-00000 PostgreSQL restore completed with ${errorCount} error${errorCount == 1 ? '' : 's'}`
         );
       }
       runner.info({
@@ -454,7 +454,7 @@ const drivers = driverBases.map(driverBase => ({
       if (reportedErrors.has(error)) {
         const errorCount = reportedErrors.size;
         throw new Error(
-          `DBGM-00441 PostgreSQL restore stopped after ${errorCount} error${errorCount == 1 ? '' : 's'}`,
+          `DBGM-00000 PostgreSQL restore stopped after ${errorCount} error${errorCount == 1 ? '' : 's'}`,
           { cause: error }
         );
       }
