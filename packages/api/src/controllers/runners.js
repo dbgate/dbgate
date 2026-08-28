@@ -268,7 +268,8 @@ module.exports = {
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
 
-    subprocess.on('exit', code => {
+    // Wait for stdio to close so all process output is dispatched before the final status.
+    subprocess.on('close', code => {
       console.log('... EXITED', code);
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
       this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${code}`);

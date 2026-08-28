@@ -21,6 +21,7 @@
   import _ from 'lodash';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
   import FormStyledButtonLikeLabel from '../buttons/FormStyledButtonLikeLabel.svelte';
   import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
   import { showSnackbarError } from '../utility/snackbar';
@@ -67,6 +68,7 @@
   $: restoreToolArg =
     driver?.engine == 'postgres@dbgate-plugin-postgres' ? formArgs.find(arg => arg.name == 'restoreTool') : null;
   let restoreTool = null;
+  let stopOnError = true;
   $: if (driver && !restoreTool) {
     restoreTool = driver.supportsNodejsRestore ? driver.nodejsRestoreTool : 'native';
   }
@@ -119,7 +121,7 @@
       inputFile: usedFile,
       inputUploadName: sourceType == 'upload' ? inputUploadName : null,
       runid: runnerId,
-      options: { restoreTool },
+      options: { restoreTool, stopOnError },
     };
   }
 
@@ -378,6 +380,16 @@
             />
           </div>
         {/if}
+        {#if driver?.engine == 'mssql@dbgate-plugin-mssql' || driver?.engine == 'postgres@dbgate-plugin-postgres'}
+          <label class="checkbox-option">
+            <CheckboxField
+              checked={stopOnError}
+              data-testid="RestoreDatabaseTab_stopOnError"
+              on:change={event => (stopOnError = event.target.checked)}
+            />
+            <span>Stop on first error</span>
+          </label>
+        {/if}
         {#if diagnosticsEnabled && runnerId}
           <div class="diagnostic-report-link">
             <RunnerOutputFiles compact {runnerId} {executeNumber} />
@@ -470,6 +482,13 @@
   .option-label {
     color: var(--theme-generic-font-grayed);
     margin-bottom: 3px;
+  }
+
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 10px 10px;
   }
 
   .labelw {

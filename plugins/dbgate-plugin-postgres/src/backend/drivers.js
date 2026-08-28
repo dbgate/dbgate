@@ -55,8 +55,7 @@ function transformRow(row, columnsToTransform) {
     const { columnName, dataTypeName } = col;
     if (dataTypeName == 'geography') {
       row[columnName] = extractGeographyDate(row[columnName]);
-    }
-    else if (dataTypeName == 'bytea' && row[columnName]) {
+    } else if (dataTypeName == 'bytea' && row[columnName]) {
       row[columnName] = { $binary: { base64: Buffer.from(row[columnName]).toString('base64') } };
     }
   }
@@ -309,6 +308,7 @@ function getSqlRestoreProgressMessage(progress) {
         'en-US'
       )} rows in total`;
     case 'completed':
+      if (progress.operationsFailed > 0) return null;
       return `PostgreSQL SQL dump restore completed (${progress.operationsCompleted} operations)`;
     default:
       return null;
@@ -345,13 +345,7 @@ const drivers = driverBases.map(driverBase => ({
       throw new Error('DBGM-00442 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 
-    const {
-      outputFile,
-      database,
-      selectedTables = [],
-      skippedTables = [],
-      options = {},
-    } = settings;
+    const { outputFile, database, selectedTables = [], skippedTables = [], options = {} } = settings;
     if (options.dataOnly && options.schemaOnly) {
       throw new Error('DBGM-00443 Data-only and schema-only backup options cannot be enabled together');
     }
@@ -363,8 +357,7 @@ const drivers = driverBases.map(driverBase => ({
       let targetVersion;
       if (options.targetPostgresVersion && options.targetPostgresVersion != 'source') {
         const normalizedVersion = String(options.targetPostgresVersion);
-        const versionNumber =
-          normalizedVersion == '9.6' ? 90600 : Number.parseInt(normalizedVersion, 10) * 10000;
+        const versionNumber = normalizedVersion == '9.6' ? 90600 : Number.parseInt(normalizedVersion, 10) * 10000;
         targetVersion = new PostgresVersionService().parse(versionNumber, normalizedVersion);
       }
 
@@ -416,28 +409,55 @@ const drivers = driverBases.map(driverBase => ({
       throw new Error('DBGM-00444 dbgate-pg-dumper is available only for PostgreSQL connections');
     }
 
-    const { inputFile, database } = settings;
+    const { inputFile, database, options = {} } = settings;
     const dbhan = await this.connect({ ...connection, database });
     const input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
+    const reportedErrors = new Set();
 
     try {
       const result = await restoreSqlDump({
         source: input,
         connection: createPgDumperConnection(dbhan.client),
         signal: runner.signal,
-        options: { progressThrottleMilliseconds: 1000 },
+        options: {
+          progressThrottleMilliseconds: 1000,
+          stopOnError: options.stopOnError ?? true,
+        },
         progress: progress => {
+          if (progress.error) {
+            runner.info({ message: formatSqlRestoreError(progress.error), severity: 'error' });
+            reportedErrors.add(progress.error);
+            return;
+          }
           const message = getSqlRestoreProgressMessage(progress);
           if (message) {
             runner.info({ message, severity: 'info' });
           }
         },
       });
+      if (result.errors.length > 0) {
+        for (const error of result.errors) {
+          if (!reportedErrors.has(error)) {
+            runner.info({ message: formatSqlRestoreError(error), severity: 'error' });
+          }
+        }
+        const errorCount = result.errors.length;
+        throw new Error(
+          `DBGM-00000 PostgreSQL restore completed with ${errorCount} error${errorCount == 1 ? '' : 's'}`
+        );
+      }
       runner.info({
         message: `Restored ${result.statementsCompleted} SQL statements, ${result.copyBlocksCompleted} COPY blocks and ${result.rowsRestored} rows`,
         severity: 'info',
       });
     } catch (error) {
+      if (reportedErrors.has(error)) {
+        const errorCount = reportedErrors.size;
+        throw new Error(
+          `DBGM-00000 PostgreSQL restore stopped after ${errorCount} error${errorCount == 1 ? '' : 's'}`,
+          { cause: error }
+        );
+      }
       const formattedError = formatSqlRestoreError(error);
       if (formattedError) {
         throw new Error(formattedError, { cause: error });
@@ -515,7 +535,10 @@ const drivers = driverBases.map(driverBase => ({
       conid,
     };
 
-    const datatypes = await this.query(dbhan, `SELECT oid, typname FROM pg_type WHERE typname in ('geography', 'bytea')`);
+    const datatypes = await this.query(
+      dbhan,
+      `SELECT oid, typname FROM pg_type WHERE typname in ('geography', 'bytea')`
+    );
     const typeIdToName = _.fromPairs(datatypes.rows.map(cur => [cur.oid, cur.typname]));
     dbhan['typeIdToName'] = typeIdToName;
 
@@ -798,7 +821,9 @@ const drivers = driverBases.map(driverBase => ({
 
   async setTransactionIsolationLevel(dbhan, level) {
     if (this.isolationLevels && level && !this.isolationLevels.includes(level)) {
-      throw new Error(`Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`);
+      throw new Error(
+        `Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`
+      );
     }
     await this.query(dbhan, `SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL ${level}`);
   },
