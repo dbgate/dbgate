@@ -402,6 +402,7 @@ EXECUTE FUNCTION function_name();`,
       command,
       args,
       env: { PGPASSWORD: connection.password },
+      failOnReportedError: options.stopOnError === false,
     };
   },
   transformNativeCommandMessage(message) {
