@@ -392,17 +392,29 @@ EXECUTE FUNCTION function_name();`,
     };
   },
   restoreDatabaseCommand(connection, settings, externalTools) {
-    const { inputFile, database, options = {} } = settings;
+    const { inputFile, database, options = {}, argsFormat } = settings;
     const command = externalTools.psql || 'psql';
     const args = this.getCliConnectionArgs(connection, externalTools);
+    const stopOnError = options.stopOnError ?? true;
     args.push(`--dbname=${database}`);
-    args.push(`--set=ON_ERROR_STOP=${(options.stopOnError ?? true) ? 'on' : 'off'}`);
+    args.push(`--set=ON_ERROR_STOP=${stopOnError ? 'on' : 'off'}`);
     args.push(`--file=${inputFile}`);
+    if (!stopOnError) {
+      const formatCommandArg = value => (argsFormat == 'shell' ? `--command="${value}"` : `--command=${value}`);
+      // LAST_ERROR_SQLSTATE is language independent and remembers the latest
+      // failed query in the psql session. Turn ON_ERROR_STOP back on only after
+      // the dump, then make psql exit with code 3 if any statement failed.
+      args.push(formatCommandArg(`\\set ON_ERROR_STOP on`));
+      args.push(
+        formatCommandArg(
+          `SELECT 1 / CASE WHEN :'LAST_ERROR_SQLSTATE' = '00000' THEN 1 ELSE 0 END AS dbgate_restore_status;`
+        )
+      );
+    }
     return {
       command,
       args,
       env: { PGPASSWORD: connection.password },
-      failOnReportedError: options.stopOnError === false,
     };
   },
   transformNativeCommandMessage(message) {

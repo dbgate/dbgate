@@ -235,8 +235,7 @@ module.exports = {
   },
 
   nativeRunCore(runid, commandArgs) {
-    const { command, args, env, transformMessage, stdinFilePath, onFinished, failOnReportedError } = commandArgs;
-    let reportedError = false;
+    const { command, args, env, transformMessage, stdinFilePath, onFinished } = commandArgs;
     const pipeDispatcher = severity => data => {
       let messageObject = {
         message: data.toString().trim(),
@@ -247,7 +246,6 @@ module.exports = {
       }
 
       if (messageObject) {
-        if (messageObject.severity == 'error') reportedError = true;
         return this.dispatchMessage(runid, messageObject);
       }
     };
@@ -270,20 +268,12 @@ module.exports = {
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
 
-    // Wait for stdio to close so every transformed stderr line contributes to
-    // reportedError before the final status is resolved.
+    // Wait for stdio to close so all process output is dispatched before the final status.
     subprocess.on('close', code => {
       console.log('... EXITED', code);
-      const effectiveCode = code === 0 && failOnReportedError && reportedError ? 1 : code;
-      logger.info({ code, effectiveCode, reportedError, pid: subprocess.pid }, 'DBGM-00017 Exited process');
-      if (effectiveCode != code) {
-        this.dispatchMessage(runid, {
-          severity: 'error',
-          message: 'DBGM-00000 External process completed after reporting one or more errors',
-        });
-      }
-      this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${effectiveCode}`);
-      finish(effectiveCode);
+      logger.info({ code, pid: subprocess.pid }, 'DBGM-00017 Exited process');
+      this.dispatchMessage(runid, `DBGM-00282 Finished external process with code ${code}`);
+      finish(code);
     });
     subprocess.on('spawn', () => {
       this.dispatchMessage(runid, `DBGM-00283 Started external process ${command}`);
