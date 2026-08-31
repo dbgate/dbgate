@@ -9,6 +9,14 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.2.6
+
+- ADDED: Built-in SQL Server backup and restore without requiring external SQL Server tools (Community)
+- ADDED: Option to stop PostgreSQL and SQL Server database restore on the first error
+- ADDED: Optional diagnostic reports for backup and restore operations
+- ADDED: OAuth user role assignment (Team Premium)
+- FIXED: Invalid JSON-like strings are no longer automatically displayed as JSON in the cell viewer #1539
+
 ## 7.2.5
 
 - ADDED: Server Chat for AI-assisted querying across PostgreSQL, MySQL, MariaDB, and supported SQL Server editions (Premium)
