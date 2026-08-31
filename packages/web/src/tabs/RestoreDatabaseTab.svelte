@@ -68,7 +68,7 @@
   $: restoreToolArg =
     driver?.engine == 'postgres@dbgate-plugin-postgres' ? formArgs.find(arg => arg.name == 'restoreTool') : null;
   let restoreTool = null;
-  let stopOnError = true;
+  let stopOnError = false;
   $: if (driver && !restoreTool) {
     restoreTool = driver.supportsNodejsRestore ? driver.nodejsRestoreTool : 'native';
   }
