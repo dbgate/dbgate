@@ -2476,6 +2476,12 @@ module.exports = {
           "columnName": "role_id",
           "dataType": "int",
           "notNull": true
+        },
+        {
+          "pureName": "user_roles",
+          "columnName": "oauth_amoid",
+          "dataType": "varchar(250)",
+          "notNull": false
         }
       ],
       "foreignKeys": [
