@@ -527,6 +527,17 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('enableCleartextPlugin', $values, showConnectionFieldArgs)}
+  <FormCheckboxField
+    label={_t('connection.enableCleartextPlugin', {
+      defaultMessage: 'Enable cleartext password plugin (needed for PAM/LDAP auth)',
+    })}
+    name="enableCleartextPlugin"
+    disabled={isConnected || isFormReadOnly}
+    data-testid="ConnectionDriverFields_enableCleartextPlugin"
+  />
+{/if}
+
 {#if showMcpEnabled}
   <FormCheckboxField
     label={_t('connection.mcpEnabled', { defaultMessage: 'Available in MCP server' })}

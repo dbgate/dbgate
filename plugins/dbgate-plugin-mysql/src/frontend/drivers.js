@@ -162,7 +162,7 @@ const mysqlDialect = {
 const mysqlDriverBase = {
   ...driverBase,
   showConnectionField: (field, values) => {
-    if (['authType', 'user', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'allowedDatabases', 'allowedDatabasesRegex', 'defaultIsolationLevel'].includes(field)) {
+    if (['authType', 'user', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'allowedDatabases', 'allowedDatabasesRegex', 'defaultIsolationLevel', 'enableCleartextPlugin'].includes(field)) {
       return true;
     }
 
