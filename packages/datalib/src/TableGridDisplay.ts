@@ -259,7 +259,32 @@ export class TableGridDisplay extends GridDisplay {
   createSelect(options = {}) {
     if (!this.table) return null;
     const select = this.createSelectBase(this.table, this.table.columns, options);
+    this.applyStableOrder(select);
     return select;
+  }
+
+  applyStableOrder(select: Select) {
+    if (this.isGrouped || !this.table.primaryKey?.columns?.length) return;
+
+    select.orderBy ??= [];
+
+    for (const keyColumn of this.table.primaryKey.columns) {
+      const isAlreadyOrdered = select.orderBy.some(
+        expression =>
+          expression.exprType == 'column' &&
+          expression.columnName == keyColumn.columnName &&
+          (this.dialect.omitTableAliases || expression.source?.alias == 'basetbl')
+      );
+
+      if (!isAlreadyOrdered) {
+        select.orderBy.push({
+          exprType: 'column',
+          columnName: keyColumn.columnName,
+          ...(!this.dialect.omitTableAliases && { source: { alias: 'basetbl' } }),
+          direction: 'ASC',
+        });
+      }
+    }
   }
 
   getColumns(columnFilter) {
