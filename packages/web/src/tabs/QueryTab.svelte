@@ -227,6 +227,11 @@
   const timerLabel = useTimerLabel();
 
   let busy = false;
+  // Set when the SQL just sent for execution looks like it creates a table, so the
+  // object tree gets refreshed the same way it already does after a drop (see
+  // handleSessionDone below). Without this, a CREATE TABLE run from a query tab
+  // never shows up until the DB structure is refreshed manually.
+  let executedSqlMayCreateTable = false;
   let executeNumber = 0;
   let executeStartLine = 0;
   let visibleResultTabs = false;
@@ -429,6 +434,7 @@
     executeNumber++;
     visibleResultTabs = true;
     const frontMatter = getSqlFrontMatter($editorValue, yaml);
+    executedSqlMayCreateTable = /\bcreate\s+table\b/i.test(sql);
 
     busy = true;
     timerLabel.start();
@@ -621,6 +627,13 @@
       isInTransaction = false;
     }
     timerLabel.stop();
+    if (executedSqlMayCreateTable) {
+      executedSqlMayCreateTable = false;
+      // Same sync-model call saveScriptToDatabase already makes after a drop/alter,
+      // so a table created from a query tab shows up in the object tree without a
+      // manual "Refresh DB structure".
+      apiCall('database-connections/sync-model', { conid, database });
+    }
   };
 
   const handleSessionClosed = () => {
