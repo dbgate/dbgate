@@ -27,11 +27,20 @@ module.exports = {
     this.ensurePing();
   },
   emit(message, data) {
+    const delivery = {
+      electronSent: false,
+      sseStreamCount: Object.keys(sseResponses).length,
+      sseDeliveredCount: 0,
+      sseFilteredCount: 0,
+      sseUnavailableCount: 0,
+    };
     if (electronSender) {
       electronSender.send(message, data == null ? null : data);
+      delivery.electronSent = true;
     }
     for (const strmid in sseResponses) {
       if (data?.strmid && data?.strmid != strmid) {
+        delivery.sseFilteredCount += 1;
         continue;
       }
       let skipThisStream = false;
@@ -46,17 +55,24 @@ module.exports = {
         }
       }
       if (skipThisStream) {
+        delivery.sseFilteredCount += 1;
         continue;
       }
 
-      sseResponses[strmid].response?.write(
-        `event: ${message}\ndata: ${stableStringify(data == null ? null : _.omit(data, ['strmid']))}\n\n`
-      );
+      if (sseResponses[strmid].response) {
+        sseResponses[strmid].response.write(
+          `event: ${message}\ndata: ${stableStringify(data == null ? null : _.omit(data, ['strmid']))}\n\n`
+        );
+        delivery.sseDeliveredCount += 1;
+      } else {
+        delivery.sseUnavailableCount += 1;
+      }
     }
+    return delivery;
   },
   emitChanged(key, params = undefined) {
     // console.log('EMIT CHANGED', key);
-    this.emit('changed-cache', { key, ...params });
+    return this.emit('changed-cache', { key, ...params });
     // this.emit(key);
   },
   setStreamIdFilter(strmid, filter) {
