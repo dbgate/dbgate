@@ -101,9 +101,38 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
         // console.log(dmp.s);
         if (rows.length > 0) {
-          await driver.query(dbhan, dmp.s, { discardResult: true });
+          try {
+            await driver.query(dbhan, dmp.s, { discardResult: true });
+            writable.rowsReporter.add(rows.length);
+          } catch (batchErr) {
+            // Batch failed - retry row by row to identify the exact problematic row
+            logger.warn(
+              extractErrorLogData(batchErr),
+              `DBGM-00000 Batch insert of ${rows.length} rows failed, retrying row by row to find the cause`
+            );
+            for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+              const row = rows[rowIndex];
+              const rowDmp = driver.createDumper();
+              rowDmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
+              rowDmp.putCollection(',', writable.columnNames, col =>
+                rowDmp.putRaw(driver.dialect.quoteIdentifier(col as string))
+              );
+              rowDmp.putRaw(')\n VALUES\n(');
+              rowDmp.putCollection(',', writable.columnNames, col =>
+                rowDmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+              );
+              rowDmp.putRaw(');');
+              try {
+                await driver.query(dbhan, rowDmp.s, { discardResult: true });
+                writable.rowsReporter.add(1);
+              } catch (rowErr) {
+                rowErr.rowIndex = rowIndex;
+                rowErr.failedRow = row;
+                throw rowErr;
+              }
+            }
+          }
         }
-        writable.rowsReporter.add(rows.length);
       } else {
         for (const row of rows) {
           const dmp = driver.createDumper();
@@ -118,8 +147,12 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
             dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
           );
           dmp.putRaw(')');
-          // console.log(dmp.s);
-          await driver.query(dbhan, dmp.s, { discardResult: true });
+          try {
+            await driver.query(dbhan, dmp.s, { discardResult: true });
+          } catch (rowErr) {
+            rowErr.failedRow = row;
+            throw rowErr;
+          }
           writable.rowsReporter.add(1);
         }
       }
@@ -129,7 +162,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
         await driver.query(dbhan, dmp.s, { discardResult: true });
       }
     } catch (err) {
-      logger.error(extractErrorLogData(err), 'DBGM-00185 Error during base bulk insert, insert stopped');
+      const extraFields: Record<string, unknown> = {};
+      if (err.rowIndex != null) extraFields.rowIndex = err.rowIndex;
+      if (err.failedRow != null) extraFields.row = err.failedRow;
+      logger.error(extractErrorLogData(err, extraFields), 'DBGM-00185 Error during base bulk insert, insert stopped');
       writable.destroy(err);
     }
   };
