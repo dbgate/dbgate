@@ -109,4 +109,29 @@ const libsqlDriver = {
   // isElectronOnly: true,
 };
 
-module.exports = [driver, libsqlDriver];
+/** @type {import('dbgate-types').EngineDriver} */
+const cloudflareD1Driver = {
+  ...sqliteDriverBase,
+  engine: 'cloudflare-d1@dbgate-plugin-sqlite',
+  title: 'Cloudflare D1',
+  premiumOnly: true,
+  supportsTransactions: false,
+  showConnectionField: (field) =>
+    [
+      'cloudflareAccountId',
+      'cloudflareDatabaseId',
+      'cloudflareApiToken',
+      'cloudflareApiUrl',
+      'httpProxyUrl',
+      'httpProxyUser',
+      'httpProxyPassword',
+      'isReadOnly',
+    ].includes(field),
+  beforeConnectionSave: (connection) => ({
+    ...connection,
+    singleDatabase: true,
+    defaultDatabase: connection.cloudflareDatabaseId,
+  }),
+};
+
+module.exports = [driver, libsqlDriver, cloudflareD1Driver];

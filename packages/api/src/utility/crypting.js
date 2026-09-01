@@ -101,7 +101,14 @@ function decryptObjectPasswordField(obj, field, encryptor = null) {
   return obj;
 }
 
-const fieldsToEncrypt = ['password', 'sshPassword', 'sshKeyfilePassword', 'connectionDefinition', 'httpProxyPassword'];
+const fieldsToEncrypt = [
+  'password',
+  'sshPassword',
+  'sshKeyfilePassword',
+  'connectionDefinition',
+  'httpProxyPassword',
+  'cloudflareApiToken',
+];
 const additionalFieldsToMask = [
   'databaseUrl',
   'server',
@@ -121,6 +128,9 @@ const additionalFieldsToMask = [
   'accessKeyId',
   'endpoint',
   'endpointKey',
+  'cloudflareAccountId',
+  'cloudflareDatabaseId',
+  'cloudflareApiUrl',
 ];
 
 function encryptConnection(connection, encryptor = null) {
