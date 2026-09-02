@@ -115,6 +115,7 @@ const cloudflareD1Driver = {
   engine: 'cloudflare-d1@dbgate-plugin-sqlite',
   title: 'Cloudflare D1',
   premiumOnly: true,
+  readOnlySessions: false,
   supportsTransactions: false,
   showConnectionField: (field) =>
     [
