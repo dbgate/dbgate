@@ -17,15 +17,14 @@ const logger = getLogger('sqliteDriver');
  * -----------------------------
  * The D1 REST API is stateless: every call is an independent HTTPS request and there is no
  * session that could hold an open transaction between calls. Cloudflare therefore does not offer
- * interactive transactions - the documented transactional primitive is a *batch*: "Batched
- * statements are SQL transactions. If a statement in the sequence fails, then an error is
- * returned for that specific statement, and it aborts or rolls back the entire sequence."
+ * interactive transactions. The public REST endpoint is treated as accepting one statement per
+ * request, so a script is executed as an ordered sequence of independent HTTPS requests.
  *
  * Consequently this client:
  *   - is exposed by a driver with `supportsTransactions == false`, which removes
  *     Begin/Commit/Rollback from the UI,
- *   - implements `script({ useTransaction })` by sending every statement of the script in a
- *     single batch request, which is the closest safe equivalent of a transaction,
+ *   - executes split statements sequentially and stops at the first failure; earlier successful
+ *     statements remain committed,
  *   - rejects explicit BEGIN/COMMIT/ROLLBACK/SAVEPOINT with a clear message instead of letting
  *     them silently do nothing across separate HTTP requests.
  */
@@ -37,10 +36,13 @@ const TRANSACTION_STATEMENT_REGEX = /^\s*(begin|commit|rollback|savepoint|releas
  * The local file mode gets read-only enforcement for free, because better-sqlite3 opens the file
  * with `readonly: true`. The D1 REST API has no equivalent, so the flag would be a promise this
  * client cannot keep. The guard below fails safe: only plain reads pass, everything unrecognized
- * is rejected. `WITH` is deliberately excluded, because SQLite allows `WITH ... INSERT`, and a
- * PRAGMA assignment (`pragma foreign_keys = on`) is a write, unlike a PRAGMA query.
+ * is rejected. `WITH` is deliberately excluded, because SQLite allows `WITH ... INSERT`.
+ * PRAGMAs are restricted to the read-only schema introspection calls used by the analyser;
+ * assignment and parenthesized setter forms must not pass this client-side guard.
  */
-const READ_ONLY_STATEMENT_REGEX = /^\s*(select|explain)\b|^\s*pragma\b[^=]*$/i;
+const READ_ONLY_STATEMENT_REGEX = /^\s*(select|explain)\b/i;
+const READ_ONLY_PRAGMA_REGEX =
+  /^\s*pragma\s+(?:table_info|index_list|index_info|foreign_key_list)\s*\([^()]*\)\s*;?\s*$/i;
 
 /** Strips leading line and block comments so the guards see the actual statement keyword. */
 function stripLeadingComments(sql) {
@@ -163,8 +165,7 @@ class CloudflareD1Client {
    */
   async stream(sqlItems, options, engine) {
     try {
-      // One request for the whole script: D1 runs a batch as a single transaction, which
-      // reproduces the atomicity the native client gets from db.transaction().
+      // The REST calls are deliberately sequential to preserve statement order.
       const results = await this.executeStatements(sqlItems.map((sql) => ({ sql })));
 
       let rowsAffected = 0;
@@ -207,8 +208,7 @@ class CloudflareD1Client {
    * @param {string[]} sqlItems
    */
   async script(sqlItems) {
-    // Always sent as one batch - see the transaction note above. `useTransaction` is not honoured
-    // separately, because a batch is already atomic and D1 offers nothing weaker or stronger.
+    // D1 REST requests are independent, so `useTransaction` cannot be honoured here.
     await this.executeStatements(sqlItems.map((sql) => ({ sql })));
   }
 
@@ -257,7 +257,7 @@ class CloudflareD1Client {
 function assertNoExplicitTransaction(sql) {
   if (TRANSACTION_STATEMENT_REGEX.test(sql ?? '')) {
     throw new CloudflareD1Error(
-      'Cloudflare D1 does not support interactive transactions. Every REST API call is independent, so BEGIN/COMMIT/ROLLBACK cannot span requests. Statements executed together are already run as one atomic D1 batch.',
+      'Cloudflare D1 does not support interactive transactions through the REST API. Every statement is an independent request, so BEGIN/COMMIT/ROLLBACK cannot span statements.',
       { kind: D1_ERROR_KIND.unsupported }
     );
   }
@@ -265,9 +265,10 @@ function assertNoExplicitTransaction(sql) {
 
 /** @param {string} sql statement with leading comments already stripped */
 function assertReadOnlyStatement(sql) {
-  if (!READ_ONLY_STATEMENT_REGEX.test(sql ?? '')) {
+  const statement = sql ?? '';
+  if (!READ_ONLY_STATEMENT_REGEX.test(statement) && !READ_ONLY_PRAGMA_REGEX.test(statement)) {
     throw new CloudflareD1Error(
-      'This Cloudflare D1 connection is marked read only, so only SELECT, EXPLAIN and PRAGMA queries are allowed.',
+      'This Cloudflare D1 connection is marked read only, so only SELECT, EXPLAIN and supported read-only schema PRAGMAs are allowed.',
       { kind: D1_ERROR_KIND.unsupported }
     );
   }

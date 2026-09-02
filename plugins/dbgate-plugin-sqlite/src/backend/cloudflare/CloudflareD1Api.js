@@ -80,9 +80,8 @@ class CloudflareD1Api {
   /**
    * Executes one or more statements against the D1 `/raw` endpoint.
    *
-   * When more than one statement is passed, they are sent using the Cloudflare `batch` form.
-   * Cloudflare executes a batch as a single SQL transaction - if any statement fails, the whole
-   * sequence is rolled back. This is the only transactional primitive D1 offers.
+   * Each statement is posted separately using the broadly supported `{ sql, params }` request
+   * shape. Requests are awaited in order so later statements never overtake earlier ones.
    *
    * @param {{ sql: string, params?: any[] }[]} statements
    * @returns {Promise<import('./d1ResultAdapter').D1RawResultItem[]>}
@@ -92,13 +91,13 @@ class CloudflareD1Api {
       return [];
     }
 
-    const body =
-      statements.length == 1
-        ? buildStatementBody(statements[0])
-        : { batch: statements.map((statement) => buildStatementBody(statement)) };
+    const resultItems = [];
+    for (const statement of statements) {
+      const envelope = await this.postRaw(buildStatementBody(statement));
+      resultItems.push(...normalizeResultItems(envelope, [statement]));
+    }
 
-    const envelope = await this.postRaw(body);
-    return normalizeResultItems(envelope, statements);
+    return resultItems;
   }
 
   /**
@@ -251,7 +250,6 @@ function buildStatementBody(statement) {
 function extractFirstSql(body) {
   if (!body) return undefined;
   if (body.sql) return body.sql;
-  if (Array.isArray(body.batch) && body.batch.length > 0) return body.batch[0].sql;
   return undefined;
 }
 
