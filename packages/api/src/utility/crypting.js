@@ -147,9 +147,9 @@ function maskConnection(connection) {
   return _.omit(connection, [...fieldsToEncrypt, ...additionalFieldsToMask]);
 }
 
-function decryptConnection(connection) {
+function decryptConnection(connection, encryptor = null) {
   for (const field of fieldsToEncrypt) {
-    connection = decryptObjectPasswordField(connection, field);
+    connection = decryptObjectPasswordField(connection, field, encryptor);
   }
   return connection;
 }
