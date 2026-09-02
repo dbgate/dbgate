@@ -127,17 +127,20 @@ class CloudflareD1Client {
   }
 
   /**
-   * @param {{ sql: string, params?: any[] }[]} statements
-   */
+  * @param {{ sql: string, params?: any[] }[]} statements
+  */
   async executeStatements(statements) {
+    const executableStatements = [];
     for (const statement of statements) {
       const sql = stripLeadingComments(statement.sql);
+      if (!sql) continue;
       assertNoExplicitTransaction(sql);
       if (this.isReadOnly) {
         assertReadOnlyStatement(sql);
       }
+      executableStatements.push(statement);
     }
-    const items = await this.api.executeStatements(statements);
+    const items = await this.api.executeStatements(executableStatements);
     return items.map((item) => convertD1ResultItem(item));
   }
 
