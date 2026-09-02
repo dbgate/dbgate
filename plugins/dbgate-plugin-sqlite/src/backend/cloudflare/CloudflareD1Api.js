@@ -183,6 +183,17 @@ class CloudflareD1Api {
       );
     }
 
+    const databaseProbe = await this.probe(this.databaseUrl);
+    if (databaseProbe.status == 403) {
+      return new CloudflareD1Error(
+        'The API token does not have the D1 permission. Edit the token and grant "Account / D1 / Edit" (or "Read" for a read-only connection).',
+        { kind: D1_ERROR_KIND.forbidden, httpStatus: databaseProbe.status }
+      );
+    }
+
+    // Reading generic account details requires a permission which a normal Account/D1 token does
+    // not necessarily have. Use this probe only to distinguish a missing account from a missing
+    // database; its 403 response is inconclusive and must not replace the D1 routing error.
     const accountProbe = await this.probe(`${this.apiBaseUrl}/accounts/${encodeURIComponent(this.accountId)}`);
     if (accountProbe.status == 404 || accountProbe.status == 400) {
       return new CloudflareD1Error(
@@ -190,24 +201,10 @@ class CloudflareD1Api {
         { kind: D1_ERROR_KIND.accountNotFound, httpStatus: accountProbe.status }
       );
     }
-    if (accountProbe.status == 403) {
-      return new CloudflareD1Error(
-        `The API token has no access to Cloudflare account "${this.accountId}". Check that the token is scoped to this account.`,
-        { kind: D1_ERROR_KIND.forbidden, httpStatus: accountProbe.status }
-      );
-    }
-
-    const databaseProbe = await this.probe(this.databaseUrl);
     if (databaseProbe.status == 404) {
       return new CloudflareD1Error(
         `D1 database "${this.databaseId}" was not found in account "${this.accountId}". Check the Database ID (wrangler d1 list, or the D1 dashboard).`,
         { kind: D1_ERROR_KIND.databaseNotFound, httpStatus: databaseProbe.status }
-      );
-    }
-    if (databaseProbe.status == 403) {
-      return new CloudflareD1Error(
-        'The API token does not have the D1 permission. Edit the token and grant "Account / D1 / Edit" (or "Read" for a read-only connection).',
-        { kind: D1_ERROR_KIND.forbidden, httpStatus: databaseProbe.status }
       );
     }
 
