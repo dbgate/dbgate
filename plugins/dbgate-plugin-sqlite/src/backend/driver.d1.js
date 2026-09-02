@@ -1,6 +1,6 @@
 // @ts-check
 const stream = require('stream');
-const Analyser = require('./Analyser');
+const D1Analyser = require('./D1Analyser');
 const driverBases = require('../frontend/drivers');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { createBulkInsertStreamBase } = global.DBGATE_PACKAGES['dbgate-tools'];
@@ -71,7 +71,7 @@ async function loadD1IndexColumns(client) {
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBases[2],
-  analyserClass: Analyser,
+  analyserClass: D1Analyser,
 
   async connect(connection) {
     const client = new CloudflareD1Client(connection);
