@@ -117,6 +117,7 @@ const cloudflareD1Driver = {
   premiumOnly: true,
   readOnlySessions: true,
   supportsTransactions: false,
+  supportedCreateDatabase: false,
   showConnectionField: (field) =>
     [
       'cloudflareAccountId',
