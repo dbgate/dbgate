@@ -169,6 +169,43 @@
   {/if}
 {/if}
 
+{#if driver?.showConnectionField('cloudflareAccountId', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={_t('connection.cloudflareAccountId', { defaultMessage: 'Cloudflare Account ID' })}
+    name="cloudflareAccountId"
+    data-testid="ConnectionDriverFields_cloudflareAccountId"
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('cloudflareAccountId')}
+  />
+{/if}
+
+{#if driver?.showConnectionField('cloudflareDatabaseId', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={_t('connection.cloudflareDatabaseId', { defaultMessage: 'D1 Database ID' })}
+    name="cloudflareDatabaseId"
+    data-testid="ConnectionDriverFields_cloudflareDatabaseId"
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('cloudflareDatabaseId')}
+  />
+{/if}
+
+{#if driver?.showConnectionField('cloudflareApiToken', $values, showConnectionFieldArgs)}
+  <FormPasswordField
+    label={_t('connection.cloudflareApiToken', { defaultMessage: 'Cloudflare API Token' })}
+    name="cloudflareApiToken"
+    data-testid="ConnectionDriverFields_cloudflareApiToken"
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('cloudflareApiToken')}
+  />
+{/if}
+
+{#if driver?.showConnectionField('cloudflareApiUrl', $values, showConnectionFieldArgs)}
+  <FormTextField
+    label={_t('connection.cloudflareApiUrl', { defaultMessage: 'Cloudflare API URL (optional)' })}
+    name="cloudflareApiUrl"
+    data-testid="ConnectionDriverFields_cloudflareApiUrl"
+    placeholder="https://api.cloudflare.com/client/v4"
+    disabled={isConnected || isFormReadOnly || disabledFields.includes('cloudflareApiUrl')}
+  />
+{/if}
+
 {#if driver?.showConnectionField('useDatabaseUrl', $values, showConnectionFieldArgs)}
   <div class="radio">
     <FormRadioGroupField
