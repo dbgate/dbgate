@@ -120,7 +120,6 @@ const cloudflareD1Driver = {
   showConnectionField: (field) =>
     [
       'cloudflareAccountId',
-      'cloudflareDatabaseId',
       'cloudflareApiToken',
       'cloudflareApiUrl',
       'httpProxyUrl',
@@ -130,8 +129,9 @@ const cloudflareD1Driver = {
     ].includes(field),
   beforeConnectionSave: (connection) => ({
     ...connection,
-    singleDatabase: true,
-    defaultDatabase: connection.cloudflareDatabaseId,
+    cloudflareDatabaseId: undefined,
+    singleDatabase: false,
+    defaultDatabase: undefined,
   }),
 };
 

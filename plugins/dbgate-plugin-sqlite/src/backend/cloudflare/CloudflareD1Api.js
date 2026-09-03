@@ -20,7 +20,7 @@ class CloudflareD1Api {
   /**
    * @param {{
    *   accountId: string,
-   *   databaseId: string,
+   *   databaseId?: string,
    *   apiToken: string,
    *   apiBaseUrl?: string,
    *   transport: import('./httpTransport').HttpTransport,
@@ -39,11 +39,6 @@ class CloudflareD1Api {
         kind: D1_ERROR_KIND.accountNotFound,
       });
     }
-    if (!this.databaseId) {
-      throw new CloudflareD1Error('Cloudflare D1 Database ID is not configured', {
-        kind: D1_ERROR_KIND.databaseNotFound,
-      });
-    }
     if (!this.apiToken) {
       throw new CloudflareD1Error('Cloudflare API token is not configured', {
         kind: D1_ERROR_KIND.unauthorized,
@@ -51,11 +46,19 @@ class CloudflareD1Api {
     }
   }
 
+  /** Base URL of the account's D1 database collection. */
+  get databasesUrl() {
+    return `${this.apiBaseUrl}/accounts/${encodeURIComponent(this.accountId)}/d1/database`;
+  }
+
   /** Base URL of the D1 database resource. */
   get databaseUrl() {
-    return `${this.apiBaseUrl}/accounts/${encodeURIComponent(this.accountId)}/d1/database/${encodeURIComponent(
-      this.databaseId
-    )}`;
+    if (!this.databaseId) {
+      throw new CloudflareD1Error('No Cloudflare D1 database is selected', {
+        kind: D1_ERROR_KIND.databaseNotFound,
+      });
+    }
+    return `${this.databasesUrl}/${encodeURIComponent(this.databaseId)}`;
   }
 
   /** URL of the endpoint returning columns and rows separately. */
@@ -75,6 +78,50 @@ class CloudflareD1Api {
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };
+  }
+
+  /**
+   * Lists all D1 databases accessible to the token. Cloudflare paginates this endpoint, so the
+   * account connection must not assume that the first page is the complete database model.
+   *
+   * @returns {Promise<{ name: string, uuid: string }[]>}
+   */
+  async listDatabases() {
+    const databases = [];
+    const requestedPageSize = 100;
+    let page = 1;
+
+    for (;;) {
+      const response = await this.transport({
+        method: 'GET',
+        url: `${this.databasesUrl}?page=${page}&per_page=${requestedPageSize}`,
+        headers: this.buildHeaders(),
+      });
+      const envelope = this.unwrapEnvelope(response, undefined, true);
+
+      for (const database of envelope.result) {
+        if (!database || typeof database.name != 'string' || typeof database.uuid != 'string') {
+          throw new CloudflareD1Error('Cloudflare API returned a malformed D1 database list', {
+            kind: D1_ERROR_KIND.malformedResponse,
+            httpStatus: response?.status,
+          });
+        }
+        databases.push(database);
+      }
+
+      const resultInfo = envelope.result_info ?? {};
+      const pageSize = Number(resultInfo.per_page) || requestedPageSize;
+      const totalCount = resultInfo.total_count == null ? null : Number(resultInfo.total_count);
+      if (
+        envelope.result.length < pageSize ||
+        (totalCount != null && Number.isFinite(totalCount) && databases.length >= totalCount)
+      ) {
+        break;
+      }
+      page += 1;
+    }
+
+    return databases;
   }
 
   /**
@@ -128,8 +175,9 @@ class CloudflareD1Api {
    * Validates the Cloudflare response envelope and returns it, or throws a classified error.
    * @param {{ status: number, data: any }} response
    * @param {string} [sql]
+   * @param {boolean} [isDatabaseList]
    */
-  unwrapEnvelope(response, sql) {
+  unwrapEnvelope(response, sql, isDatabaseList = false) {
     const { status, data } = response ?? {};
 
     if (data == null || typeof data != 'object' || Array.isArray(data)) {
@@ -141,7 +189,7 @@ class CloudflareD1Api {
 
     const errors = Array.isArray(data.errors) ? data.errors : [];
     if (status >= 400 || data.success === false || errors.length > 0) {
-      throw buildApiError({ status, errors, sql });
+      throw buildApiError({ status, errors, sql, isDatabaseList });
     }
 
     if (!Array.isArray(data.result)) {
@@ -277,9 +325,9 @@ function normalizeResultItems(envelope, statements) {
 /**
  * Maps an HTTP status + Cloudflare error list onto a classified, user friendly error.
  * The API token is never part of the produced message.
- * @param {{ status: number, errors: any[], sql?: string }} param0
+ * @param {{ status: number, errors: any[], sql?: string, isDatabaseList?: boolean }} param0
  */
-function buildApiError({ status, errors, sql }) {
+function buildApiError({ status, errors, sql, isDatabaseList = false }) {
   const primary = errors[0] ?? {};
   const code = typeof primary.code == 'number' ? primary.code : undefined;
   const cloudflareMessage = errors
@@ -293,7 +341,9 @@ function buildApiError({ status, errors, sql }) {
   // permission, so it must be checked before the invalid-token case.
   if (status == 403 || code == 9109) {
     return new CloudflareD1Error(
-      `The Cloudflare API token is not authorized for this D1 database (HTTP ${status}). The token needs the "Account / D1" permission.${suffix(
+      `The Cloudflare API token is not authorized for ${
+        isDatabaseList ? 'the D1 databases in this account' : 'this D1 database'
+      } (HTTP ${status}). The token needs the "Account / D1" permission.${suffix(
         cloudflareMessage
       )}`,
       { ...detail, kind: D1_ERROR_KIND.forbidden }
@@ -313,10 +363,14 @@ function buildApiError({ status, errors, sql }) {
   // invalid" are what Cloudflare returns for a wrong Account ID or Database ID.
   if (status == 404 || code == 7000 || code == 7003) {
     return new CloudflareD1Error(
-      `Cloudflare could not resolve the D1 database (HTTP ${status}). Check the Account ID and the D1 Database ID.${suffix(
-        cloudflareMessage
-      )}`,
-      { ...detail, kind: D1_ERROR_KIND.databaseNotFound }
+      isDatabaseList
+        ? `Cloudflare could not list D1 databases for this account (HTTP ${status}). Check the Account ID and the token's account scope.${suffix(
+            cloudflareMessage
+          )}`
+        : `Cloudflare could not resolve the D1 database (HTTP ${status}). Check the Account ID and the D1 Database ID.${suffix(
+            cloudflareMessage
+          )}`,
+      { ...detail, kind: isDatabaseList ? D1_ERROR_KIND.accountNotFound : D1_ERROR_KIND.databaseNotFound }
     );
   }
 

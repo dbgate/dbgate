@@ -77,7 +77,7 @@ class CloudflareD1Client {
   /**
    * @param {{
    *   cloudflareAccountId: string,
-   *   cloudflareDatabaseId: string,
+   *   cloudflareDatabaseId?: string,
    *   cloudflareApiToken: string,
    *   cloudflareApiUrl?: string,
    *   isReadOnly?: boolean,
@@ -103,15 +103,17 @@ class CloudflareD1Client {
     return false;
   }
 
-  /**
-   * D1 does not expose its underlying SQLite version and rejects sqlite_version().
-   * Return a stable product label so connecting does not depend on an unsupported function.
-   */
+  /** D1 blocks sqlite_version(), so return a stable product label without another API request. */
   async getVersion() {
     return {
-      version: 'Unknown',
+      version: 'Cloudflare D1',
       versionText: 'Cloudflare D1',
     };
+  }
+
+  /** Lists the D1 databases available to this account/token pair. */
+  async listDatabases() {
+    return this.api.listDatabases();
   }
 
   /**
