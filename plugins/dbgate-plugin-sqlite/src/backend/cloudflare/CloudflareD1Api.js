@@ -127,8 +127,8 @@ class CloudflareD1Api {
   /**
    * Executes one or more statements against the D1 `/raw` endpoint.
    *
-   * Each statement is posted separately using the broadly supported `{ sql, params }` request
-   * shape. Requests are awaited in order so later statements never overtake earlier ones.
+   * A single statement uses `{ sql, params }`. Multiple statements use D1's `{ batch: [...] }`
+   * request shape, which avoids extra network round trips and lets D1 execute them as one batch.
    *
    * @param {{ sql: string, params?: any[] }[]} statements
    * @returns {Promise<import('./d1ResultAdapter').D1RawResultItem[]>}
@@ -138,13 +138,12 @@ class CloudflareD1Api {
       return [];
     }
 
-    const resultItems = [];
-    for (const statement of statements) {
-      const envelope = await this.postRaw(buildStatementBody(statement));
-      resultItems.push(...normalizeResultItems(envelope, [statement]));
-    }
-
-    return resultItems;
+    const body =
+      statements.length == 1
+        ? buildStatementBody(statements[0])
+        : { batch: statements.map((statement) => buildStatementBody(statement)) };
+    const envelope = await this.postRaw(body);
+    return normalizeResultItems(envelope, statements);
   }
 
   /**
@@ -295,6 +294,7 @@ function buildStatementBody(statement) {
 function extractFirstSql(body) {
   if (!body) return undefined;
   if (body.sql) return body.sql;
+  if (Array.isArray(body.batch)) return body.batch[0]?.sql;
   return undefined;
 }
 
@@ -306,6 +306,13 @@ function extractFirstSql(body) {
  * @returns {import('./d1ResultAdapter').D1RawResultItem[]}
  */
 function normalizeResultItems(envelope, statements) {
+  if (envelope.result.length != statements.length) {
+    throw new CloudflareD1Error(
+      `Cloudflare API returned ${envelope.result.length} results for ${statements.length} statements`,
+      { kind: D1_ERROR_KIND.malformedResponse }
+    );
+  }
+
   return envelope.result.map((item, index) => {
     if (item == null || typeof item != 'object') {
       throw new CloudflareD1Error('Cloudflare API returned a malformed D1 result item', {

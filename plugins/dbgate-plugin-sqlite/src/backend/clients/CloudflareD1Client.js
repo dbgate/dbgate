@@ -18,16 +18,15 @@ const logger = getLogger('sqliteDriver');
  * -----------------------------
  * The D1 REST API is stateless: every call is an independent HTTPS request and there is no
  * session that could hold an open transaction between calls. Cloudflare therefore does not offer
- * interactive transactions. The public REST endpoint is treated as accepting one statement per
- * request, so a script is executed as an ordered sequence of independent HTTPS requests.
+ * interactive transactions. The public REST endpoint does accept multiple prepared statements
+ * in one batch request, so a complete editor script can still be executed as a D1 batch.
  *
  * Consequently this client:
  *   - is exposed by a driver with `supportsTransactions == false`, which removes
  *     Begin/Commit/Rollback from the UI,
- *   - executes split statements sequentially and stops at the first failure; earlier successful
- *     statements remain committed,
+ *   - validates every split statement before sending the complete list as one batch request,
  *   - rejects explicit BEGIN/COMMIT/ROLLBACK/SAVEPOINT with a clear message instead of letting
- *     them silently do nothing across separate HTTP requests.
+ *     them conflict with the REST API's request-scoped batch execution.
  */
 const TRANSACTION_STATEMENT_REGEX = /^\s*(begin|commit|rollback|savepoint|release|end\s+transaction)\b/i;
 
@@ -226,7 +225,7 @@ class CloudflareD1Client {
    * @param {string[]} sqlItems
    */
   async script(sqlItems) {
-    // D1 REST requests are independent, so `useTransaction` cannot be honoured here.
+    // Interactive transaction controls are unsupported; D1 executes this as one request batch.
     await this.executeStatements(sqlItems.map((sql) => ({ sql })));
   }
 
