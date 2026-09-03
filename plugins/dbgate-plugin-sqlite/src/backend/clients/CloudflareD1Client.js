@@ -1,6 +1,7 @@
 // @ts-check
 
 const stream = require('stream');
+const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { getLogger, extractErrorLogData } = global.DBGATE_PACKAGES['dbgate-tools'];
 const { CloudflareD1Api } = require('../cloudflare/CloudflareD1Api');
 const { CloudflareD1Error, D1_ERROR_KIND } = require('../cloudflare/CloudflareD1Error');
@@ -132,13 +133,25 @@ class CloudflareD1Client {
   async executeStatements(statements) {
     const executableStatements = [];
     for (const statement of statements) {
-      const sql = stripLeadingComments(statement.sql);
-      if (!sql) continue;
-      assertNoExplicitTransaction(sql);
-      if (this.isReadOnly) {
-        assertReadOnlyStatement(sql);
+      const sqlItems = splitQuery(String(statement.sql ?? ''), sqliteSplitterOptions).filter(
+        (sql) => stripLeadingComments(sql) != ''
+      );
+      if (statement.params?.length > 0 && sqlItems.length > 1) {
+        throw new CloudflareD1Error('A parameterized Cloudflare D1 query must contain exactly one SQL statement.', {
+          kind: D1_ERROR_KIND.unsupported,
+        });
       }
-      executableStatements.push(statement);
+      for (const sqlItem of sqlItems) {
+        const sql = stripLeadingComments(sqlItem);
+        assertNoExplicitTransaction(sql);
+        if (this.isReadOnly) {
+          assertReadOnlyStatement(sql);
+        }
+        executableStatements.push({
+          sql: sqlItem,
+          ...(statement.params?.length > 0 ? { params: statement.params } : {}),
+        });
+      }
     }
     const items = await this.api.executeStatements(executableStatements);
     return items.map((item) => convertD1ResultItem(item));

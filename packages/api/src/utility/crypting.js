@@ -101,14 +101,15 @@ function decryptObjectPasswordField(obj, field, encryptor = null) {
   return obj;
 }
 
-const fieldsToEncrypt = [
+const passwordModeControlledFieldsToEncrypt = [
   'password',
   'sshPassword',
   'sshKeyfilePassword',
   'connectionDefinition',
   'httpProxyPassword',
-  'cloudflareApiToken',
 ];
+const fieldsToAlwaysEncrypt = ['cloudflareApiToken'];
+const fieldsToEncrypt = [...passwordModeControlledFieldsToEncrypt, ...fieldsToAlwaysEncrypt];
 const additionalFieldsToMask = [
   'databaseUrl',
   'server',
@@ -135,9 +136,12 @@ const additionalFieldsToMask = [
 
 function encryptConnection(connection, encryptor = null) {
   if (connection.passwordMode != 'saveRaw') {
-    for (const field of fieldsToEncrypt) {
+    for (const field of passwordModeControlledFieldsToEncrypt) {
       connection = encryptObjectPasswordField(connection, field, encryptor);
     }
+  }
+  for (const field of fieldsToAlwaysEncrypt) {
+    connection = encryptObjectPasswordField(connection, field, encryptor);
   }
   return connection;
 }
