@@ -40,6 +40,7 @@ function extractConnectionsFromEnv(env) {
     displayName: env[`LABEL_${id}`],
     mcpEnabled: isTrueValue(env[`MCP_ENABLED_${id}`]),
     isReadOnly: env[`READONLY_${id}`],
+    enableCleartextPlugin: isTrueValue(env[`ENABLE_CLEARTEXT_PLUGIN_${id}`]),
     databases: env[`DBCONFIG_${id}`] ? safeJsonParse(env[`DBCONFIG_${id}`]) : null,
     allowedDatabases: env[`ALLOWED_DATABASES_${id}`]?.replace(/\|/g, '\n'),
     allowedDatabasesRegex: env[`ALLOWED_DATABASES_REGEX_${id}`],

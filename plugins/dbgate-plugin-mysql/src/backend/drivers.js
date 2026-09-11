@@ -73,8 +73,20 @@ const drivers = driverBases.map(driverBase => ({
   analyserClass: Analyser,
 
   async connect(props) {
-    const { conid, server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType } =
-      props;
+    const {
+      conid,
+      server,
+      port,
+      user,
+      password,
+      database,
+      ssl,
+      isReadOnly,
+      forceRowsAsObjects,
+      socketPath,
+      authType,
+      enableCleartextPlugin,
+    } = props;
     let awsIamToken = null;
     if (authType == 'awsIam') {
       awsIamToken = await authProxy.getAwsIamToken(props);
@@ -93,6 +105,11 @@ const drivers = driverBases.map(driverBase => ({
       bigNumberStrings: true,
       dateStrings: true,
       infileStreamFactory: path => fs.createReadStream(path),
+      // enableCleartextPlugin: required for PAM/LDAP auth and for our own AWS IAM auth,
+      // which passes the IAM token as a cleartext password (already requires SSL above).
+      // mysql2 >= 3.22.0 disabled the mysql_clear_password plugin by default, so this
+      // needs to be explicitly opted into rather than assumed.
+      enableCleartextPlugin: authType == 'awsIam' ? true : !!enableCleartextPlugin,
       // TODO: test following options
       // multipleStatements: true,
     };
