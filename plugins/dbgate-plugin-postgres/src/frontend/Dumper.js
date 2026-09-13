@@ -97,10 +97,53 @@ class Dumper extends SqlDumper {
     }
   }
 
-  putValue(value) {
+  putValue(value, dataType) {
     if (value === true) this.putRaw('true');
     else if (value === false) this.putRaw('false');
-    else super.putValue(value);
+    else if (dataType && dataType.endsWith('[]') && this.tryPutArrayValue(value)) {
+      // handled as PostgreSQL array literal
+    } else super.putValue(value, dataType);
+  }
+
+  // Array columns are rendered to the user as JS/JSON arrays, so an edited cell can arrive either as a
+  // real array or as the text the user saw and retyped. Both must produce a PostgreSQL array literal.
+  // Anything else (e.g. native '{1,2}' syntax) falls through to normal string handling.
+  tryPutArrayValue(value) {
+    if (Array.isArray(value)) {
+      this.putArrayValue(value);
+      return true;
+    }
+    if (typeof value === 'string' && value.trim().startsWith('[')) {
+      let parsed;
+      try {
+        parsed = JSON.parse(value);
+      } catch (err) {
+        return false;
+      }
+      if (Array.isArray(parsed)) {
+        this.putArrayValue(parsed);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  putArrayValue(value) {
+    this.putStringValue(this.formatArrayLiteral(value));
+  }
+
+  formatArrayLiteral(value, depth = 0) {
+    // PostgreSQL arrays support at most 6 dimensions; bail out rather than recursing unbounded on malformed input
+    if (depth > 6) {
+      throw new Error('PostgreSQL arrays support at most 6 dimensions');
+    }
+    const formatElement = el => {
+      if (el === null || el === undefined) return 'NULL';
+      if (Array.isArray(el)) return this.formatArrayLiteral(el, depth + 1);
+      const str = typeof el === 'string' ? el : JSON.stringify(el);
+      return `"${str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    };
+    return `{${value.map(formatElement).join(',')}}`;
   }
 
   putByteArrayValue(value) {
