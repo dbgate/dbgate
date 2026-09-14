@@ -95,6 +95,8 @@ jobs:
           yarn fillPackagedPlugins
       - name: Publish Windows
         if: matrix.os == 'windows-2022'
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
         run: |
           cd ..
           cd dbgate-merged
@@ -109,6 +111,7 @@ jobs:
           yarn run build:app
         env:
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -123,6 +126,7 @@ jobs:
           yarn run build:app
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
       - name: Azure login (OIDC)
         uses: azure/login@v2
         if: matrix.os == 'windows-2022'
