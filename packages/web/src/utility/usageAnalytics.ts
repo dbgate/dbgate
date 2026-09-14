@@ -9,7 +9,7 @@ const ANALYTICS_ROUTE = 'usage-analytics/events';
 const ANALYTICS_STORAGE_KEY = 'dbgateUsageAnalytics';
 const ANALYTICS_CONSENT_STORAGE_KEY = 'dbgateUsageAnalyticsConsent';
 const ANALYTICS_BATCH_SIZE = 50;
-const ANALYTICS_FLUSH_INTERVAL_MS = 30 * 1000;
+const ANALYTICS_FLUSH_INTERVAL_MS = 30 * 60 * 1000;
 
 interface UsageAnalyticsState {
   installationId: string;
@@ -32,8 +32,9 @@ export interface UsageAnalyticsEvent {
 let memoryState: UsageAnalyticsState | null = null;
 let pendingEvents: Record<string, unknown>[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
-let flushListenersInstalled = false;
 let memoryConsent: boolean | null = null;
+let closeHandlerInstalled = false;
+const inFlightBatches = new Set<Promise<unknown>>();
 
 export function getUsageAnalyticsConsent(): boolean | null {
   try {
@@ -120,17 +121,15 @@ export function initializeUsageAnalytics(): UsageAnalyticsState {
   }
 
   writeState(state);
-  installFlushListeners();
+  if (!closeHandlerInstalled && typeof window !== 'undefined') {
+    closeHandlerInstalled = true;
+    window['dbgateFlushUsageAnalytics'] = async () => {
+      flushUsageAnalytics();
+      await Promise.allSettled([...inFlightBatches]);
+    };
+    window.addEventListener('pagehide', flushUsageAnalytics);
+  }
   return state;
-}
-
-function installFlushListeners(): void {
-  if (flushListenersInstalled || typeof window == 'undefined') return;
-  flushListenersInstalled = true;
-  window.addEventListener('pagehide', flushUsageAnalytics);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState == 'hidden') flushUsageAnalytics();
-  });
 }
 
 function daysBetween(firstDate: string, lastDate: string): number {
@@ -182,7 +181,9 @@ export function flushUsageAnalytics(): void {
   try {
     const electron = getElectron();
     if (electron) {
-      void electron.invoke('usage-analytics-events', { events }).catch(() => {});
+      const request = electron.invoke('usage-analytics-events', { events }).catch(() => {});
+      inFlightBatches.add(request);
+      void request.finally(() => inFlightBatches.delete(request));
       return;
     }
     void fetch(`${resolveApi()}/${ANALYTICS_ROUTE}`, {

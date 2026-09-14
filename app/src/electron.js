@@ -18,6 +18,7 @@ const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 const { isProApp } = require('./proTools');
 const updaterChannel = require('./updaterChannel');
+const flushAnalyticsOnClose = require('./flushAnalyticsOnClose');
 
 // require('@electron/remote/main').initialize();
 
@@ -399,6 +400,8 @@ function createWindow() {
       spellcheck: false,
     },
   });
+
+  flushAnalyticsOnClose(mainWindow, app);
 
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
     { urls: ['https://*.tile.openstreetmap.org/*'] },
