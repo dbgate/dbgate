@@ -20,6 +20,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import moment from 'moment';
   import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
@@ -172,6 +173,7 @@
   };
 
   const handleGenerateScript = async e => {
+    trackUsage({ feature: 'import_export', action: 'generate_script', tab: 'import_export' });
     const values = $formValues as any;
     const code = await createImpExpScript($extensions, values, 'script', false);
     openNewTab(
@@ -186,6 +188,7 @@
 
   const handleExecute = async e => {
     if (busy) return;
+    trackUsage({ feature: 'import_export', action: 'execute', tab: 'import_export' });
     progressHolder = {};
     const values = $formValues as any;
     busy = true;
@@ -221,6 +224,7 @@
   };
 
   const handleCancel = () => {
+    trackUsage({ feature: 'import_export', action: 'cancel', tab: 'import_export' });
     apiCall('runners/cancel', {
       runid: runnerId,
     });

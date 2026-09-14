@@ -29,11 +29,24 @@
   import { initializeAppUpdates } from './utility/appUpdate';
   import { _t, getCurrentTranslations, saveSelectedLanguageToCache } from './translations';
   import { installCloudListeners } from './utility/cloudListeners';
+  import { showModal } from './modals/modalTools';
+  import UsageAnalyticsConsentModal from './modals/UsageAnalyticsConsentModal.svelte';
+  import {
+    getUsageAnalyticsConsent,
+    setUsageAnalyticsConsent,
+    trackUsage,
+  } from './utility/usageAnalytics';
 
   export let isAdminPage = false;
 
   let loadedApi = false;
   let loadedPlugins = false;
+  let usageAnalyticsStartupHandled = false;
+
+  function handleUsageAnalyticsConsent(consent: boolean) {
+    setUsageAnalyticsConsent(consent);
+    if (consent) trackUsage({ feature: 'application', action: 'start' });
+  }
 
   async function loadApi() {
     // if (shouldWaitForElectronInitialize()) {
@@ -94,6 +107,16 @@
       setAppLoaded();
       loadedPlugins = true;
       getElectron()?.send('app-started');
+    }
+  }
+
+  $: if (loadedPlugins && !usageAnalyticsStartupHandled) {
+    usageAnalyticsStartupHandled = true;
+    const consent = getUsageAnalyticsConsent();
+    if (consent === null) {
+      showModal(UsageAnalyticsConsentModal, { onConsent: handleUsageAnalyticsConsent });
+    } else if (consent) {
+      trackUsage({ feature: 'application', action: 'start' });
     }
   }
 </script>

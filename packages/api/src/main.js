@@ -33,6 +33,7 @@ const cloud = require('./controllers/cloud');
 const teamFiles = require('./controllers/teamFiles');
 const mcpAdmin = require('./controllers/mcpAdmin');
 const codex = require('./controllers/codex');
+const usageAnalytics = require('./controllers/usageAnalytics');
 const mcp = require('./mcp');
 
 const onFinished = require('on-finished');
@@ -287,6 +288,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/rest-connections', restConnections);
   useController(app, electron, '/mcp-admin', mcpAdmin);
   useController(app, electron, '/codex', codex);
+  useController(app, electron, '/usage-analytics', usageAnalytics);
 }
 
 function setElectronSender(electronSender) {

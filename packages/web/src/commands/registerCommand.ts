@@ -1,3 +1,4 @@
+import { trackUsage, UsageAnalyticsEvent } from '../utility/usageAnalytics';
 import { commands } from '../stores';
 import { invalidateCommandDefinitions } from './invalidateCommands';
 import _ from 'lodash';
@@ -31,6 +32,43 @@ export interface GlobalCommand {
   disableHandleKeyText?: string;
   isRelatedToTab?: boolean;
   systemCommand?: boolean;
+  /** Custom event for this command, or false when the completed operation records its own result. */
+  usageAnalytics?: UsageAnalyticsEvent | ((...args: any[]) => UsageAnalyticsEvent | undefined) | false;
+}
+
+function normalizeAnalyticsName(value: string): string {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase();
+}
+
+function getDefaultCommandUsage(commandId: string): UsageAnalyticsEvent {
+  const [featurePart, ...actionParts] = commandId.split('.');
+  if (actionParts.length == 0) {
+    return { feature: 'application', action: normalizeAnalyticsName(featurePart) || 'unknown' };
+  }
+
+  const feature = normalizeAnalyticsName(featurePart);
+  return {
+    feature: feature == 'app' ? 'application' : feature || 'application',
+    action: normalizeAnalyticsName(actionParts.join('_')) || 'unknown',
+  };
+}
+
+function trackCommandUsage(command: GlobalCommand, args: any[]): void {
+  if (command.systemCommand || command.isGroupCommand || command.usageAnalytics === false) return;
+
+  try {
+    const event =
+      typeof command.usageAnalytics == 'function'
+        ? command.usageAnalytics(...args)
+        : command.usageAnalytics || getDefaultCommandUsage(command.id);
+    if (event) trackUsage(event);
+  } catch {
+    // Analytics metadata must never prevent the command from running.
+  }
 }
 
 export default function registerCommand(command: GlobalCommand) {
@@ -50,6 +88,24 @@ export default function registerCommand(command: GlobalCommand) {
               }
             : `${command.category}: ${command.name}`,
         ...command,
+        // Wrap at registration so toolbar, palette, menu and keyboard paths agree.
+        // Record invocation only: commands may open dialogs or start background work.
+        onClick:
+          command.onClick &&
+          function (...args) {
+            trackCommandUsage(command, args);
+            return command.onClick.apply(this, args);
+          },
+        getSubCommands:
+          command.getSubCommands &&
+          (() =>
+            command.getSubCommands().map(subCommand => ({
+              ...subCommand,
+              onClick: function (...args) {
+                trackCommandUsage(command, args);
+                return subCommand.onClick.apply(this, args);
+              },
+            }))),
         enabled: !testEnabled,
       },
     };

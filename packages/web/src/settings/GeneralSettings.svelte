@@ -13,9 +13,16 @@
   import hasPermission from '../utility/hasPermission';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { lockedDatabaseMode, tabGroupShowServerName, toolbarPosition } from '../stores';
+  import { getUsageAnalyticsConsent, setUsageAnalyticsConsent } from '../utility/usageAnalytics';
 
   const electron = getElectron();
   let restartWarning = false;
+  let usageAnalyticsConsent = getUsageAnalyticsConsent() === true;
+
+  function updateUsageAnalyticsConsent(consent: boolean) {
+    usageAnalyticsConsent = consent;
+    setUsageAnalyticsConsent(consent);
+  }
 </script>
 
 <div class="wrapper">
@@ -104,6 +111,25 @@
     />
   </FormFieldTemplateLarge>
 
+  <div class="heading">{_t('settings.privacy', { defaultMessage: 'Privacy' })}</div>
+  <FormFieldTemplateLarge
+    label={_t('settings.usageAnalytics', { defaultMessage: 'Send anonymous usage analytics' })}
+    type="checkbox"
+    labelProps={{ onClick: () => updateUsageAnalyticsConsent(!usageAnalyticsConsent) }}
+  >
+    <CheckboxField
+      checked={usageAnalyticsConsent}
+      on:change={e => updateUsageAnalyticsConsent(e.target['checked'])}
+      data-testid="GeneralSettings_usageAnalytics"
+    />
+  </FormFieldTemplateLarge>
+  <div class="analyticsDescription">
+    {_t('settings.usageAnalytics.description', {
+      defaultMessage:
+        'Share anonymous feature usage, application version, platform, language, edition, and country. SQL, connection details, and user-created names are never sent.',
+    })}
+  </div>
+
   <div class="heading">{_t('settings.appearance', { defaultMessage: 'Appearance' })}</div>
 
   {#if electron}
@@ -181,5 +207,12 @@
 
   .wrapper :global(select) {
     max-width: 400px;
+  }
+
+  .analyticsDescription {
+    color: var(--theme-generic-font-grayed);
+    margin: calc(-1 * var(--dim-large-form-margin) + 5px) var(--dim-large-form-margin)
+      var(--dim-large-form-margin);
+    max-width: 650px;
   }
 </style>

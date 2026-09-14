@@ -2,6 +2,12 @@
   import { __t } from '../translations';
   const HORIZONTAL_SCROLL_END_PADDING = 64;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
+  const getDataGridUsage = (action: string, value?: number) => ({
+    feature: 'data_grid',
+    action,
+    engine: getCurrentDataGrid()?.getDisplay()?.driver?.engine,
+    value,
+  });
 
   registerCommand({
     id: 'dataGrid.refresh',
@@ -11,6 +17,7 @@
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
+    usageAnalytics: () => getDataGridUsage('refresh'),
     testEnabled: () => getCurrentDataGrid()?.canRefresh(),
     onClick: () => getCurrentDataGrid().refresh(),
   });
@@ -23,6 +30,7 @@
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
+    usageAnalytics: () => getDataGridUsage('deep_refresh'),
     testEnabled: () => getCurrentDataGrid()?.canDeepRefresh(),
     onClick: () => getCurrentDataGrid().deepRefresh(),
   });
@@ -35,6 +43,7 @@
     icon: 'icon download',
     toolbar: true,
     isRelatedToTab: true,
+    usageAnalytics: () => getDataGridUsage('fetch_all'),
     testEnabled: () => getCurrentDataGrid()?.canFetchAll(),
     onClick: () => getCurrentDataGrid().fetchAll(),
   });
@@ -44,6 +53,7 @@
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.revertRowChanges', { defaultMessage: 'Revert row changes' }),
     keyText: 'CtrlOrCommand+U',
+    usageAnalytics: () => getDataGridUsage('revert_rows'),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertRowChanges(),
   });
@@ -54,6 +64,7 @@
     name: __t('command.datagrid.revertAllChanges', { defaultMessage: 'Revert all changes' }),
     toolbarName: __t('command.datagrid.revertAllChanges.toolbar', { defaultMessage: 'Revert all' }),
     icon: 'icon undo',
+    usageAnalytics: () => getDataGridUsage('revert_all'),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertAllChanges(),
   });
@@ -65,6 +76,7 @@
     toolbarName: __t('command.datagrid.deleteSelectedRows.toolbar', { defaultMessage: 'Delete row(s)' }),
     keyText: isMac() ? 'Command+Backspace' : 'CtrlOrCommand+Delete',
     icon: 'icon minus',
+    usageAnalytics: () => getDataGridUsage('delete_rows', getCurrentDataGrid()?.getSelectedRowCount()),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canDelete,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),
   });
@@ -76,6 +88,7 @@
     toolbarName: __t('command.datagrid.insertNewRow.toolbar', { defaultMessage: 'New row' }),
     icon: 'icon add',
     keyText: isMac() ? 'Command+I' : 'Insert',
+    usageAnalytics: () => getDataGridUsage('insert_row', 1),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().insertNewRow(),
   });
@@ -96,6 +109,7 @@
     name: __t('command.datagrid.cloneRows', { defaultMessage: 'Clone rows' }),
     toolbarName: __t('command.datagrid.cloneRows.toolbar', { defaultMessage: 'Clone row(s)' }),
     keyText: 'CtrlOrCommand+Shift+C',
+    usageAnalytics: () => getDataGridUsage('clone_rows', getCurrentDataGrid()?.getSelectedRowCount()),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canInsert,
     onClick: () => getCurrentDataGrid().cloneRows(),
   });
@@ -128,6 +142,7 @@
     icon: 'icon undo',
     toolbar: true,
     isRelatedToTab: true,
+    usageAnalytics: () => getDataGridUsage('undo'),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canUndo,
     onClick: () => getCurrentDataGrid().undo(),
   });
@@ -140,6 +155,7 @@
     icon: 'icon redo',
     toolbar: true,
     isRelatedToTab: true,
+    usageAnalytics: () => getDataGridUsage('redo'),
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canRedo,
     onClick: () => getCurrentDataGrid().redo(),
   });
@@ -158,6 +174,7 @@
     name: __t('command.datagrid.copyToClipboard', { defaultMessage: 'Copy to clipboard' }),
     keyText: 'CtrlOrCommand+C',
     disableHandleKeyText: 'CtrlOrCommand+C',
+    usageAnalytics: () => getDataGridUsage('copy'),
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
@@ -233,6 +250,7 @@
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.filterSelected', { defaultMessage: 'Filter selected value' }),
     keyText: 'CtrlOrCommand+Shift+F',
+    usageAnalytics: () => getDataGridUsage('filter_selected_value'),
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
   });
@@ -257,6 +275,7 @@
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.clearFilter', { defaultMessage: 'Clear filter' }),
     keyText: 'CtrlOrCommand+Shift+E',
+    usageAnalytics: () => getDataGridUsage('clear_filter'),
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
@@ -265,6 +284,7 @@
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.generateSql', { defaultMessage: 'Generate SQL' }),
     keyText: 'CtrlOrCommand+G',
+    usageAnalytics: () => getDataGridUsage('generate_sql'),
     testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
     onClick: () => getCurrentDataGrid().generateSqlFromData(),
   });
@@ -447,7 +467,7 @@
   import { showModal } from '../modals/modalTools';
   import FetchAllConfirmModal from '../modals/FetchAllConfirmModal.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
-  import { findCommand } from '../commands/runCommand';
+  import runCommand, { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import { apiCall } from '../utility/api';
@@ -466,6 +486,7 @@
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import hasPermission from '../utility/hasPermission';
   import macros from '../macro/macros';
+  import { trackUsage } from '../utility/usageAnalytics';
 
   export let onLoadNextData = undefined;
   export let onFetchAllRows = undefined;
@@ -547,6 +568,15 @@
   let selectionMenu = null;
 
   const tabid = getContext('tabid');
+
+  function trackGridAction(action, callback) {
+    trackGridUsage({ feature: 'data_grid', action });
+    return callback();
+  }
+
+  function trackGridUsage(event) {
+    trackUsage(event, tabid);
+  }
   const selectedMacro = getContext('selectedMacro') as Writable<MacroDefinition>;
 
   let unsubscribeDbRefresh;
@@ -723,11 +753,13 @@
   export function fetchAll() {
     if (!canFetchAll()) return;
 
+    const runFetchAll = () => onFetchAllRows();
+
     const settings = $settingsValue || {};
     if (settings['dataGrid.skipFetchAllConfirm']) {
-      onFetchAllRows();
+      runFetchAll();
     } else {
-      showModal(FetchAllConfirmModal, { onConfirm: () => onFetchAllRows() });
+      showModal(FetchAllConfirmModal, { onConfirm: runFetchAll });
     }
   }
 
@@ -763,9 +795,10 @@
 
   export function deleteSelectedRows() {
     if (!grider.canDelete) return;
+    const rowIndexes = _.sortBy(getSelectedRowIndexes(), x => -x).filter(_.isNumber);
     grider.beginUpdate();
-    for (const index of _.sortBy(getSelectedRowIndexes(), x => -x)) {
-      if (_.isNumber(index)) grider.deleteRow(index);
+    for (const index of rowIndexes) {
+      grider.deleteRow(index);
     }
     grider.endUpdate();
   }
@@ -804,20 +837,19 @@
   export async function cloneRows() {
     if (!grider.canInsert) return;
 
+    const rowIndexes = _.sortBy(getSelectedRowIndexes(), x => x).filter(_.isNumber);
     let rowIndex = null;
     grider.beginUpdate();
-    for (const index of _.sortBy(getSelectedRowIndexes(), x => x)) {
-      if (_.isNumber(index)) {
-        rowIndex = grider.insertRow();
+    for (const index of rowIndexes) {
+      rowIndex = grider.insertRow();
 
-        for (const column of display.columns) {
-          if (column.uniquePath.length > 1) continue;
-          if (column.autoIncrement) continue;
-          if (column.isClusterKey) continue;
-          if (column.hasAutoValue) continue;
+      for (const column of display.columns) {
+        if (column.uniquePath.length > 1) continue;
+        if (column.autoIncrement) continue;
+        if (column.isClusterKey) continue;
+        if (column.hasAutoValue) continue;
 
-          grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
-        }
+        grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
       }
     }
     grider.endUpdate();
@@ -1782,6 +1814,10 @@
     return _.uniq((selectedCells || []).map(x => x[0])).filter(x => _.isNumber(x));
   }
 
+  export function getSelectedRowCount() {
+    return getSelectedRowIndexes().filter(_.isNumber).length;
+  }
+
   function getSelectedColumnIndexes() {
     if (selectedCells.find(x => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
     return _.uniq((selectedCells || []).map(x => x[1])).filter(x => _.isNumber(x));
@@ -1986,6 +2022,7 @@
   }
 
   async function handlePaste(event) {
+    trackGridUsage({ feature: 'data_grid', action: 'paste' });
     var pastedText = undefined;
     // @ts-ignore
     if (window.clipboardData && window.clipboardData.getData) {
@@ -2290,7 +2327,7 @@
     <ErrorInfo message={errorMessage} alignTop />
     <FormStyledButton
       value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-      on:click={() => display.clearFilters()}
+      on:click={() => runCommand('dataGrid.clearFilter')}
     />
     <FormStyledButton
       value={_t('datagrid.resetView', { defaultMessage: 'Reset view' })}
@@ -2317,7 +2354,7 @@
     {#if display.filterCount > 0}
       <FormStyledButton
         value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-        on:click={() => display.clearFilters()}
+        on:click={() => runCommand('dataGrid.clearFilter')}
       />
     {/if}
     {#if grider.editable}
@@ -2405,17 +2442,17 @@
                   column={col}
                   {conid}
                   {database}
-                  setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
-                  addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
+                  setSort={display.sortable ? order => trackGridAction('sort', () => display.setSort(col.uniqueName, order)) : null}
+                  addToSort={display.sortable ? order => trackGridAction('add_sort', () => display.addToSort(col.uniqueName, order)) : null}
                   order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
                   orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
                   isSortDefined={display.sortable ? display.isSortDefined() : false}
-                  clearSort={display.sortable ? () => display.clearSort() : null}
+                  clearSort={display.sortable ? () => trackGridAction('clear_sort', () => display.clearSort()) : null}
                   on:resizeSplitter={e => {
                     // @ts-ignore
                     display.resizeColumn(col.uniqueName, col.width, e.detail);
                   }}
-                  setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                  setGrouping={display.groupable ? groupFunc => trackGridAction('set_grouping', () => display.setGrouping(col.uniqueName, groupFunc)) : null}
                   grouping={display.getGrouping(col.uniqueName)}
                   {allowDefineVirtualReferences}
                   seachInColumns={display.config?.searchInColumns}
@@ -2441,7 +2478,7 @@
               >
                 {#if display.filterCount > 0}
                   <InlineButton
-                    on:click={() => display.clearFilters()}
+                    on:click={() => runCommand('dataGrid.clearFilter')}
                     square
                     data-testid="DataGridCore_button_clearFilters"
                   >
@@ -2473,7 +2510,7 @@
                       col.filterBehaviour ??
                       detectSqlFilterBehaviour(col.dataType)}
                     filter={display.getFilter(col.uniqueName)}
-                    setFilter={value => display.setFilter(col.uniqueName, value)}
+                    setFilter={value => trackGridAction('set_filter', () => display.setFilter(col.uniqueName, value))}
                     showResizeSplitter
                     on:resizeSplitter={e => {
                       // @ts-ignore
@@ -2539,7 +2576,7 @@
         {#if display.filterCount > 0}
           <FormStyledButton
             value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-            on:click={() => display.clearFilters()}
+            on:click={() => runCommand('dataGrid.clearFilter')}
           />
         {/if}
         {#if grider.editable}

@@ -11,6 +11,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import FontIcon from '../icons/FontIcon.svelte';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -112,6 +113,7 @@
   }
 
   async function handleExecute() {
+    trackUsage({ feature: 'backup_database', action: 'execute', tab: 'backup_database' });
     busy = true;
     backupCancelled = false;
     operationStatus = 'Running';
@@ -151,11 +153,13 @@
   }
 
   async function handleCancel() {
+    trackUsage({ feature: 'backup_database', action: 'cancel', tab: 'backup_database' });
     await apiCall('runners/cancel', { runid: runnerId });
     backupCancelled = true;
   }
 
   async function handleGenerateCommand() {
+    trackUsage({ feature: 'backup_database', action: 'generate_command', tab: 'backup_database' });
     const resp = await apiCall('database-connections/native-backup-command', {
       ...getBackupParams(),
       outputFile: await generateOutputFilePath(),

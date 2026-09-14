@@ -11,6 +11,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import FontIcon from '../icons/FontIcon.svelte';
   import getElectron from '../utility/getElectron';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
@@ -126,6 +127,7 @@
   }
 
   async function handleExecute() {
+    trackUsage({ feature: 'restore_database', action: 'execute', tab: 'restore_database' });
     busy = true;
     operationStatus = 'Running';
 
@@ -149,10 +151,12 @@
   }
 
   async function handleCancel() {
+    trackUsage({ feature: 'restore_database', action: 'cancel', tab: 'restore_database' });
     await apiCall('runners/cancel', { runid: runnerId });
   }
 
   async function handleGenerateCommand() {
+    trackUsage({ feature: 'restore_database', action: 'generate_command', tab: 'restore_database' });
     try {
       const resp = await apiCall('database-connections/native-restore-command', await getRestoreParams());
       copyTextToClipboard(resp.commandLine);

@@ -8,6 +8,7 @@ import stableStringify from 'json-stable-stringify';
 import { saveAllPendingEditorData } from '../query/useEditorData';
 import { getConnectionInfo } from './metadataLoaders';
 import { getBoolSettingsValue } from '../settings/settingsTools';
+import { getUsageTabName, trackUsage } from './usageAnalytics';
 
 function findFreeNumber(numbers: number[]) {
   if (numbers.length == 0) return 1;
@@ -20,6 +21,7 @@ function findFreeNumber(numbers: number[]) {
 export default async function openNewTab(newTab, initialData: any = undefined, options: any = undefined) {
   const oldTabs = getOpenedTabs();
   const activeTab = getActiveTab();
+  const sourceTab = getUsageTabName(activeTab);
 
   let existing = null;
 
@@ -133,6 +135,20 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
       },
     ];
   });
+
+  if (newTab.tabComponent) {
+    void (async () => {
+      let engine: string | undefined;
+      if (newTab.props?.conid) {
+        try {
+          engine = (await getConnectionInfo({ conid: newTab.props.conid }))?.engine;
+        } catch {
+          // Opening the tab and analytics must not depend on metadata loading.
+        }
+      }
+      trackUsage({ feature: getUsageTabName(newTab), action: 'open', tab: sourceTab, engine });
+    })();
+  }
 
   // console.log('OPENING NEW TAB', newTab);
   // const tabid = uuidv1();

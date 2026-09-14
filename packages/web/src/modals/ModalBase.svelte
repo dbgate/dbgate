@@ -12,8 +12,10 @@
   export let simplefix = false;
   export let modalId;
   export let fixedHeight = false;
+  export let disableClose = false;
 
   function handleCloseModal() {
+    if (disableClose) return;
     if (modalId == getActiveModalId()) {
       closeModal(modalId);
     }
@@ -54,9 +56,11 @@
     {#if $$slots.header}
       <div class="header" class:fullScreen>
         <div><slot name="header" /></div>
-        <div class="close" on:click={handleCloseModal}>
-          <FontIcon icon="icon close" />
-        </div>
+        {#if !disableClose}
+          <div class="close" on:click={handleCloseModal}>
+            <FontIcon icon="icon close" />
+          </div>
+        {/if}
       </div>
     {/if}
 

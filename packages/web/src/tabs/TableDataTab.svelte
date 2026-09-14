@@ -37,6 +37,7 @@
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon save',
+    usageAnalytics: false,
     testEnabled: () => getCurrentEditor()?.canSave(),
     onClick: () => getCurrentEditor().save(),
   });
@@ -127,6 +128,7 @@
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getNumberIcon } from '../icons/FontIcon.svelte';
   import { _t } from '../translations';
+  import { trackUsage } from '../utility/usageAnalytics';
 
   export let tabid;
   export let conid;
@@ -171,8 +173,19 @@
   }
 
   async function handleConfirmSql(sql) {
+    const started = Date.now();
+    const changedCount = changeSetChangedCount($changeSetStore?.value);
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
+    trackUsage({
+      feature: 'data_grid',
+      action: 'save_changes',
+      tab: 'table_data',
+      engine: $connection?.engine,
+      result: errorMessage ? 'error' : 'success',
+      durationMs: Date.now() - started,
+      value: changedCount,
+    });
     if (errorMessage) {
       showModal(ErrorMessageModal, {
         title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),
@@ -190,12 +203,23 @@
     const tablePermissionRole = (await getTableInfo({ conid, database, schemaName, pureName }))?.tablePermissionRole;
 
     if (tablePermissionRole == 'create_update_delete' || tablePermissionRole == 'update_only') {
+      const started = Date.now();
+      const changedCount = changeSetChangedCount($changeSetStore?.value);
       const resp = await apiCall('database-connections/save-table-data', {
         conid,
         database,
         changeSet: $changeSetStore?.value,
       });
       const { errorMessage } = resp || {};
+      trackUsage({
+        feature: 'data_grid',
+        action: 'save_changes',
+        tab: 'table_data',
+        engine: $connection?.engine,
+        result: errorMessage ? 'error' : 'success',
+        durationMs: Date.now() - started,
+        value: changedCount,
+      });
       if (errorMessage) {
         showModal(ErrorMessageModal, {
           title: _t('tableData.errorWhenSaving', { defaultMessage: 'Error when saving' }),

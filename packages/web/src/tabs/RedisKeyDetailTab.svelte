@@ -17,6 +17,7 @@
 
   registerCommand({
     id: 'redisLikeData.save',
+    usageAnalytics: false,
     group: 'save',
     category: __t('command.redisLikeData', { defaultMessage: 'Redis like data' }),
     name: __t('command.redisLikeData.save', { defaultMessage: 'Save' }),
@@ -30,6 +31,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import { activeRedisKeysStore, extensions } from '../stores';
   import { apiCall } from '../utility/api';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
@@ -147,6 +149,7 @@
       onConfirm: async value => {
         const ttl = parseInt(value);
         if (_.isNumber(ttl)) {
+          trackUsage({ feature: 'redis', action: 'change_ttl', tab: 'redis_key_detail' });
           if (ttl < 0) {
             await apiCall('database-connections/call-method', {
               conid,
@@ -174,6 +177,7 @@
       label: 'New key name',
       header: `Rename key ${keyInfo.key}`,
       onConfirm: async value => {
+        trackUsage({ feature: 'redis', action: 'rename_key', tab: 'redis_key_detail' });
         const res = await apiCall('database-connections/call-method', {
           conid,
           database,
@@ -394,6 +398,7 @@
   }
 
   async function handleConfirmChange(callList) {
+    trackUsage({ feature: 'redis', action: 'save_changes', tab: 'redis_key_detail' });
     const resp = await apiCall('database-connections/multi-call-method', {
       conid,
       database,

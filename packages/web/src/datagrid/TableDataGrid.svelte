@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import {
     createGridCache,
     createGridConfig,
@@ -153,6 +154,7 @@
   };
 
   function handleRunMacro(macro, params, cells) {
+    trackUsage({ feature: 'data_grid', action: 'run_macro' });
     const newChangeSet = runMacroOnChangeSet(macro, params, cells, changeSetState?.value, display, false);
     if (newChangeSet) {
       dispatchChangeSet({ type: 'set', value: newChangeSet });

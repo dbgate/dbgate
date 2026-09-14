@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import { createGridCache, createGridConfig, JslGridDisplay, runMacro, runMacroOnChangeSet } from 'dbgate-datalib';
   import { generateTablePairingId, processJsonDataUpdateCommands } from 'dbgate-tools';
   import { writable } from 'svelte/store';
@@ -44,6 +45,7 @@
   }
 
   function handleRunMacro(macro, params, cells) {
+    trackUsage({ feature: 'data_grid', action: 'run_macro' });
     const newChangeSet = runMacroOnChangeSet(
       macro,
       params,

@@ -8,6 +8,7 @@
 
   registerCommand({
     id: 'tableStructure.save',
+    usageAnalytics: false,
     group: 'save',
     category: __t('command.tableEditor', { defaultMessage: 'Table editor' }),
     name: __t('command.tableEditor.save', { defaultMessage: 'Save' }),
@@ -20,6 +21,7 @@
 
   registerCommand({
     id: 'tableStructure.reset',
+    usageAnalytics: false,
     category: __t('command.tableEditor', { defaultMessage: 'Table editor' }),
     name: __t('command.tableEditor.reset', { defaultMessage: 'Reset changes' }),
     toolbar: true,
@@ -31,6 +33,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import {
     fillConstraintNames,
     extendTableInfo,
@@ -113,6 +116,7 @@
   }
 
   async function handleConfirmSql(sql) {
+    trackUsage({ feature: 'table_structure', action: 'save_changes', tab: 'table_structure' });
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
@@ -135,6 +139,7 @@
   }
 
   export async function reset() {
+    trackUsage({ feature: 'table_structure', action: 'reset_changes', tab: 'table_structure' });
     await apiCall('database-connections/sync-model', { conid, database });
     await clearEditorData();
     resetCounter++;

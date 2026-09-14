@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import FormButton from '../forms/FormButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import TabControl from '../elements/TabControl.svelte';
@@ -93,6 +94,7 @@
   }
 
   async function handleTestCore(connection, requestDbList = false) {
+    trackUsage({ feature: 'connection', action: 'test', tab: 'connection', engine: connection.engine });
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
@@ -189,6 +191,7 @@
   $: currentConnection = getCurrentConnectionCore($values, driver);
 
   async function handleSave() {
+    trackUsage({ feature: 'connection', action: 'save', tab: 'connection', engine: driver?.engine });
     if (saveOnCloud && !getCurrentConnection()?._id) {
       showModal(ChooseCloudFolderModal, {
         requiredRoleVariants: ['write', 'admin'],
@@ -252,6 +255,7 @@
   }
 
   async function handleConnect() {
+    trackUsage({ feature: 'connection', action: 'connect', tab: 'connection', engine: driver?.engine });
     let connection = getCurrentConnection();
 
     if (
@@ -283,6 +287,7 @@
   }
 
   async function handleDisconnect() {
+    trackUsage({ feature: 'connection', action: 'disconnect', tab: 'connection', engine: driver?.engine });
     if ($values.singleDatabase) {
       disconnectDatabaseConnection($values._id, $values.defaultDatabase);
     } else {

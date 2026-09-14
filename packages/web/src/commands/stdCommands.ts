@@ -10,7 +10,7 @@ import {
   visibleWidgetSideBar,
   selectedWidget,
 } from '../stores';
-import registerCommand from './registerCommand';
+import registerCommand, { GlobalCommand } from './registerCommand';
 import { get } from 'svelte/store';
 import AboutModal from '../modals/AboutModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
@@ -904,6 +904,8 @@ export function registerFileCommands({
   fileExtension,
   save = true,
   execute = false,
+  executeUsageAnalytics = undefined as GlobalCommand['usageAnalytics'],
+  killUsageAnalytics = undefined as GlobalCommand['usageAnalytics'],
   toggleComment = false,
   findReplace = false,
   undoRedo = false,
@@ -944,6 +946,7 @@ export function registerFileCommands({
   if (execute) {
     registerCommand({
       id: idPrefix + '.execute',
+      usageAnalytics: executeUsageAnalytics,
       category,
       name: __t('command.execute', { defaultMessage: 'Execute' }),
       icon: 'icon run',
@@ -958,6 +961,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.kill',
+      usageAnalytics: killUsageAnalytics,
       category,
       name: __t('command.kill', { defaultMessage: 'Kill' }),
       icon: 'icon close',

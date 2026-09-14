@@ -60,6 +60,7 @@
     fileExtension: 'sql',
 
     execute: true,
+    executeUsageAnalytics: false,
     toggleComment: true,
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection() && hasPermission('dbops/query'),
@@ -68,6 +69,7 @@
   });
   registerCommand({
     id: 'query.executeCurrent',
+    usageAnalytics: false,
     category: __t('command.query', { defaultMessage: 'Query' }),
     name: __t('command.query.executeCurrent', { defaultMessage: 'Execute current' }),
     keyText: 'CtrlOrCommand+Shift+Enter',
@@ -136,6 +138,7 @@
 </script>
 
 <script lang="ts">
+  import { trackUsage } from '../utility/usageAnalytics';
   import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
   import { writable, get } from 'svelte/store';
@@ -425,6 +428,7 @@
       return;
     }
 
+    trackUsage({ feature: 'query', action: 'execute', tab: 'query', engine: driver?.engine });
     executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
