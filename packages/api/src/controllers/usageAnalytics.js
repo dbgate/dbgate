@@ -51,9 +51,12 @@ function validateBatch(params) {
 module.exports = {
   events_meta: true,
   async events(params) {
-    // Runtime configuration only: never return the key or upstream errors to clients.
+    // Packaged builds include a default key; runtime configuration can override it.
+    // Never return the key or upstream errors to clients.
     const isDevMode = process.env.DEVMODE === '1';
-    const key = process.env.ANALYTICS_API_KEY;
+    const key =
+      process.env.ANALYTICS_API_KEY ||
+      (typeof __DBGATE_ANALYTICS_API_KEY__ !== 'undefined' ? __DBGATE_ANALYTICS_API_KEY__ : '');
     if (!isDevMode && (!key || /[\r\n]/.test(key))) return { accepted: false, reason: 'not_configured' };
     const body = validateBatch(params);
     if (!body) return { accepted: false, reason: 'invalid_batch' };

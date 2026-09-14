@@ -159,6 +159,8 @@ jobs:
 
       - name: Publish Windows
         if: matrix.os == 'windows-2022'
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
         run: |
           <<cd_merged>>
           yarn run build:app
@@ -173,6 +175,7 @@ jobs:
         env:
           # GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -187,6 +190,7 @@ jobs:
         env:
           # GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
 
       - name: generatePadFile
         _if: _community_stable

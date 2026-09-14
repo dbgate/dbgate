@@ -11,6 +11,11 @@ var config = {
     app: './index.js',
   },
   target: 'node',
+  plugins: [
+    new webpack.DefinePlugin({
+      __DBGATE_ANALYTICS_API_KEY__: JSON.stringify(process.env.ANALYTICS_API_KEY || ''),
+    }),
+  ],
   node: {
     __dirname: false,
   },
