@@ -25,6 +25,17 @@ const { sendToAuditLog, logJsonRunnerScript } = require('../utility/auditlog');
 const { testStandardPermission } = require('../utility/hasPermission');
 const logger = getLogger('runners');
 
+// Node.js prints process warnings (deprecations, experimental features, ...) to stderr as two lines,
+// eg. "(node:1234) [DEP0040] DeprecationWarning: ..." followed by
+// "(Use `node --trace-deprecation ...` to show where the warning was created)". The second line is
+// not a message about the running job, it is only a hint how to get a stack trace for the warning.
+// Captured stderr is reported line by line as an error, so without filtering it would be shown to
+// the user eg. in export job output. The warning itself is kept, only the hint line is dropped.
+// The executable name comes from process.argv0, so it can also be node.exe, electron or a packaged
+// DbGate build - therefore it is not matched exactly. Backticks around the command are optional.
+const NODE_WARNING_HINT_REGEX =
+  /^\(Use\s+.*--trace-(?:deprecation|warnings).*\s+to show where the warning was created\)$/;
+
 function extractPlugins(script) {
   // Anchored to a true line start so a directive can only ever come from a comment line the
   // generator itself emitted, not from user-controlled text that merely contains the substring
@@ -87,6 +98,9 @@ module.exports = {
 
   dispatchMessage(runid, message) {
     if (message) {
+      const messageText = _.isPlainObject(message) ? message.message || message.msg : message;
+      if (_.isString(messageText) && NODE_WARNING_HINT_REGEX.test(messageText.trim())) return;
+
       if (_.isPlainObject(message))
         logger.log({ ...message, msg: message.msg || message.message || '', message: undefined });
       else logger.info(message);
