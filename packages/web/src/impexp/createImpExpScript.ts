@@ -55,7 +55,8 @@ export function extractShellConnection(connection, database) {
   // connection.unsaved === true.  Falling through to allowShellConnection here
   // would embed plaintext credentials in the generated script — always use the
   // _id reference instead.
-  if (connection.unsaved) {
+  // Restored browser state also needs an ID reference because its credentials were stripped.
+  if (connection.unsaved || connection.credentialsOmitted) {
     return {
       _id: connection._id,
       engine: connection.engine,

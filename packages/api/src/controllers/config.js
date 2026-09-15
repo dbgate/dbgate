@@ -27,6 +27,8 @@ const {
   getInternalEncryptor,
   recryptUser,
   recryptObjectPasswordFieldInPlace,
+  encryptConnection,
+  maskConnection,
 } = require('../utility/crypting');
 
 const lock = new AsyncLock();
@@ -89,10 +91,15 @@ module.exports = {
       !adminConfig?.adminPasswordState
     );
 
+    const prepareConnection = connection =>
+      connection && (platformInfo.allowShellConnection ? encryptConnection(connection) : maskConnection(connection));
+
     const configResult = {
       runAsPortal: !!connections.portalConnections,
-      singleDbConnection: connections.singleDbConnection,
-      singleConnection: singleConnection,
+      singleDbConnection: connections.singleDbConnection
+        ? { ...connections.singleDbConnection, connection: prepareConnection(connections.singleDbConnection.connection) }
+        : connections.singleDbConnection,
+      singleConnection: prepareConnection(singleConnection),
       isUserLoggedIn,
       // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,

@@ -111,6 +111,10 @@ const passwordModeControlledFieldsToEncrypt = [
 const fieldsToAlwaysEncrypt = ['cloudflareApiToken'];
 const fieldsToEncrypt = [...passwordModeControlledFieldsToEncrypt, ...fieldsToAlwaysEncrypt];
 const additionalFieldsToMask = [
+  'accessToken',
+  'authToken',
+  'apiKeyValue',
+  'httpProxyUrl',
   'databaseUrl',
   'server',
   'port',
@@ -126,6 +130,7 @@ const additionalFieldsToMask = [
   'sslKeyFile',
   'sslRejectUnauthorized',
   'secretAccessKey',
+  'sessionToken',
   'accessKeyId',
   'endpoint',
   'endpointKey',

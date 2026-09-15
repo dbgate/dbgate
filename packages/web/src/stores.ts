@@ -27,14 +27,54 @@ export interface TabDefinition {
   focused?: boolean;
 }
 
-export function writableWithStorage<T>(defaultValue: T, storageName, removeCondition?: (value: T) => boolean) {
+// Connection objects are needed in memory, but credentials must not be persisted in browser state.
+const connectionSecretFields = [
+  'password',
+  'sshPassword',
+  'sshKeyfilePassword',
+  'sslCertFilePassword',
+  'httpProxyPassword',
+  'databaseUrl',
+  'httpProxyUrl',
+  'connectionDefinition',
+  'secretAccessKey',
+  'sessionToken',
+  'endpointKey',
+  'cloudflareApiToken',
+  'accessToken',
+  'authToken',
+  'apiKeyValue',
+];
+
+function stripConnectionSecrets(value) {
+  if (Array.isArray(value)) return value.map(stripConnectionSecrets);
+  if (!value?.connection) return value;
+  return {
+    ...value,
+    connection: {
+      ..._.omit(value.connection, connectionSecretFields),
+      // Restored entries must resolve credentials by ID when generating shell scripts.
+      credentialsOmitted: true,
+      // A stripped URL must not be used as the connection's display label after reload.
+      ...(value.connection.useDatabaseUrl ? { useDatabaseUrl: false } : {}),
+    },
+  };
+}
+
+export function writableWithStorage<T>(
+  defaultValue: T,
+  storageName,
+  removeCondition?: (value: T) => boolean,
+  prepareForStorage: (value: T) => T = value => value
+) {
   const init = localStorage.getItem(storageName);
-  const res = writable<T>(init ? safeJsonParse(init, defaultValue, true) : defaultValue);
+  // Sanitize legacy values too; the initial subscription immediately rewrites storage.
+  const res = writable<T>(prepareForStorage(init ? safeJsonParse(init, defaultValue, true) : defaultValue));
   res.subscribe(value => {
     if (removeCondition && removeCondition(value)) {
       localStorage.removeItem(storageName);
     } else {
-      localStorage.setItem(storageName, JSON.stringify(value));
+      localStorage.setItem(storageName, JSON.stringify(prepareForStorage(value)));
     }
   });
   return res;
@@ -129,7 +169,7 @@ export const openedConnections = writable([]);
 export const temporaryOpenedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
-export const currentDatabase = writableWithStorage(null, 'currentDatabase');
+export const currentDatabase = writableWithStorage(null, 'currentDatabase', undefined, stripConnectionSecrets);
 export const openedTabs = writableWithForage<TabDefinition[]>([], getOpenedTabsStorageName(), x => [...(x || [])]);
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
@@ -155,8 +195,8 @@ export const tabGroupShowServerName = writableSettingsOrLocalValue(false, 'tabGr
 export const toolbarPosition = writableSettingsOrLocalValue('top', 'settings.toolbarPosition');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
-export const recentDatabases = writableWithStorage([], 'recentDatabases');
-export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
+export const recentDatabases = writableWithStorage([], 'recentDatabases', undefined, stripConnectionSecrets);
+export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases', undefined, stripConnectionSecrets);
 export const pinnedTables = writableWithStorage([], 'pinnedTables');
 export const commandsSettings = writable({});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
