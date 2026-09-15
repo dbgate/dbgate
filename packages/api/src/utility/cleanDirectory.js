@@ -13,7 +13,7 @@ async function cleanDirectory(directory, age = undefined) {
     const expirationTime = mtime + (age || ageSeconds) * 1000;
     if (now > expirationTime) {
       if (stat.isDirectory()) {
-        await fs.rmdir(full, { recursive: true });
+        await fs.remove(full);
       } else {
         await fs.unlink(full);
       }
