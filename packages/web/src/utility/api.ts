@@ -1,4 +1,5 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
+import { getUsageAnalyticsConsent } from './usageAnalytics';
 import { writable } from 'svelte/store';
 // import { cacheClean } from './cache';
 import getElectron from './getElectron';
@@ -331,7 +332,10 @@ export function refreshPublicCloudFiles(force = false) {
     return;
   }
 
-  apiCall('cloud/refresh-public-files', { isRefresh: !!sessionStorage.getItem('publicCloudFilesLoaded') });
+  apiCall('cloud/refresh-public-files', {
+    isRefresh: !!sessionStorage.getItem('publicCloudFilesLoaded'),
+    usageAnalyticsConsent: getUsageAnalyticsConsent() === true,
+  });
   sessionStorage.setItem('publicCloudFilesLoaded', 'true');
 }
 

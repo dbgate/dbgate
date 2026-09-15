@@ -203,7 +203,7 @@ async function getCloudSigninHeaders(holder = null) {
   return null;
 }
 
-async function updateCloudFiles(isRefresh, language) {
+async function updateCloudFiles(isRefresh, language, usageAnalyticsConsent) {
   let lastCloudFilesTags;
   try {
     lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');
@@ -228,6 +228,9 @@ async function updateCloudFiles(isRefresh, language) {
         ...getLicenseHttpHeaders(),
         ...(await getCloudInstanceHeaders()),
         'x-app-version': currentVersion.version,
+        ...(typeof usageAnalyticsConsent === 'boolean'
+          ? { 'x-usage-analytics-consent': String(usageAnalyticsConsent) }
+          : {}),
         'x-app-language': language || 'en',
       },
       ...stageAxiosConfig,
@@ -315,7 +318,7 @@ async function updatePremiumPromoWidget(language) {
   socket.emitChanged(`promo-widget-changed`);
 }
 
-async function refreshPublicFiles(isRefresh, uiLanguage) {
+async function refreshPublicFiles(isRefresh, uiLanguage, usageAnalyticsConsent) {
   const language = platformInfo.isElectron
     ? (await config.getCachedSettings())?.['localization.language'] || 'en'
     : uiLanguage;
@@ -323,7 +326,7 @@ async function refreshPublicFiles(isRefresh, uiLanguage) {
     await loadCloudFiles();
   }
   try {
-    await updateCloudFiles(isRefresh, language);
+    await updateCloudFiles(isRefresh, language, usageAnalyticsConsent);
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00166 Error updating cloud files');
   }

@@ -37,8 +37,8 @@ module.exports = {
   },
 
   refreshPublicFiles_meta: true,
-  async refreshPublicFiles({ isRefresh }, req) {
-    await refreshPublicFiles(isRefresh, req?.headers?.['x-ui-language']);
+  async refreshPublicFiles({ isRefresh, usageAnalyticsConsent }, req) {
+    await refreshPublicFiles(isRefresh, req?.headers?.['x-ui-language'], usageAnalyticsConsent);
     return {
       status: 'ok',
     };

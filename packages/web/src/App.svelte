@@ -45,6 +45,7 @@
 
   function handleUsageAnalyticsConsent(consent: boolean) {
     setUsageAnalyticsConsent(consent);
+    refreshPublicCloudFiles();
     if (consent) trackUsage({ feature: 'application', action: 'start' });
   }
 
@@ -73,7 +74,6 @@
         installNewCloudTokenListener();
         initializeAppUpdates();
         installCloudListeners();
-        refreshPublicCloudFiles();
         saveSelectedLanguageToCache(config.preferrendLanguage);
 
         const electron = getElectron();
@@ -115,8 +115,9 @@
     const consent = getUsageAnalyticsConsent();
     if (consent === null) {
       showModal(UsageAnalyticsConsentModal, { onConsent: handleUsageAnalyticsConsent });
-    } else if (consent) {
-      trackUsage({ feature: 'application', action: 'start' });
+    } else {
+      refreshPublicCloudFiles();
+      if (consent) trackUsage({ feature: 'application', action: 'start' });
     }
   }
 </script>
