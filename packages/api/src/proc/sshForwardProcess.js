@@ -30,10 +30,14 @@ async function getSshConnection(connection, tunnelConfig) {
   return sshConn;
 }
 
-async function handleStart({ connection, tunnelConfig }) {
+async function handleStart({ connection, tunnelConfig, mode }) {
   try {
     const sshConn = await getSshConnection(connection, tunnelConfig);
-    await sshConn.forward(tunnelConfig);
+    if (mode === 'socks') {
+      await sshConn.socksForward(tunnelConfig);
+    } else {
+      await sshConn.forward(tunnelConfig);
+    }
 
     process.send({
       msgtype: 'connected',
