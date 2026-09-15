@@ -50,7 +50,7 @@ class JsonLinesDatastore {
   async notifyChanged(callback) {
     this.notifyChangedCallback = callback;
     await lock.acquire('reader', async () => {
-      this._closeReader();
+      await this._closeReader();
     });
     const call = this.notifyChangedCallback;
     this.notifyChangedCallback = null;
@@ -146,7 +146,7 @@ class JsonLinesDatastore {
       stableStringify(filter) != stableStringify(this.currentFilter) ||
       stableStringify(sort) != stableStringify(this.currentSort)
     ) {
-      this._closeReader();
+      await this._closeReader();
     }
     if (!this.reader) {
       const reader = await this._openReader(sort ? this.sortedFiles[stableStringify(sort)] : this.file);

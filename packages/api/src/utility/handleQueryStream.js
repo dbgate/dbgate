@@ -101,7 +101,8 @@ class QueryStreamTableWriter {
   }
 
   close(afterClose) {
-    return new Promise(resolve => {
+    if (this.closePromise) return this.closePromise;
+    this.closePromise = new Promise(resolve => {
       if (this.currentStream) {
         this.currentStream.end(() => {
           this.writeCurrentStats(true, true);
@@ -135,7 +136,11 @@ class QueryStreamTableWriter {
       } else {
         resolve();
       }
+    }).finally(() => {
+      this.currentStream = null;
+      this.chartProcessor = null;
     });
+    return this.closePromise;
   }
 }
 
@@ -151,7 +156,8 @@ class StreamHandler {
     supportsEditableQueryResults = false,
     dbhan = null,
     driver = null,
-    dbinfo = null
+    dbinfo = null,
+    reject = null
   ) {
     this.recordset = this.recordset.bind(this);
     this.startLine = startLine;
@@ -176,15 +182,20 @@ class StreamHandler {
     this.plannedStats = false;
     this.queryStreamInfoHolder = queryStreamInfoHolder;
     this.resolve = resolve;
+    this.reject = reject;
     this.currentRecordset = null;
     this.recordsetQueuePromise = Promise.resolve();
     // currentHandlers = [...currentHandlers, this];
   }
 
-  closeCurrentWriter() {
+  async closeCurrentWriter() {
     if (this.currentWriter) {
-      this.currentWriter.close();
-      this.currentWriter = null;
+      const writer = this.currentWriter;
+      try {
+        await writer.close();
+      } finally {
+        this.currentWriter = null;
+      }
     }
   }
 
@@ -196,7 +207,7 @@ class StreamHandler {
     if (this.rowsLimitOverflow) {
       return;
     }
-    this.closeCurrentWriter();
+    await this.closeCurrentWriter();
     const writer = new QueryStreamTableWriter(this.sesid);
     const structure = Array.isArray(columns) ? { columns } : columns;
     const enrichedColumns = await enrichQueryStreamColumns(
@@ -305,13 +316,33 @@ class StreamHandler {
   // error(error) {
   //   process.send({ msgtype: 'error', error });
   // }
-  done(result) {
-    const finish = () => {
-      this.closeCurrentWriter();
-      // currentHandlers = currentHandlers.filter((x) => x != this);
-      this.resolve();
-    };
-    this.recordsetQueuePromise.then(finish);
+  done(result, error = null) {
+    if (this.finishPromise) return this.finishPromise;
+    this.finishPromise = (async () => {
+      const resolve = this.resolve;
+      const reject = this.reject;
+      try {
+        await this.recordsetQueuePromise;
+        await this.closeCurrentWriter();
+      } catch (err) {
+        error = error || err;
+      } finally {
+        // Release metadata and the last result writer even if a driver retains its callbacks.
+        this.currentRecordset = null;
+        this.recordsetReadyPromise = null;
+        this.recordsetQueuePromise = null;
+        this.dbhan = null;
+        this.driver = null;
+        this.dbinfo = null;
+        this.sql = null;
+        this.frontMatter = null;
+        this.resolve = null;
+        this.reject = null;
+      }
+      if (error) reject(error);
+      else resolve();
+    })();
+    return this.finishPromise;
   }
   info(info) {
     if (info && info.line != null) {
@@ -364,10 +395,15 @@ function handleQueryStream(
       driver.databaseEngineTypes?.includes('sql') && driver.supportsEditableQueryResults,
       dbhan,
       driver,
-      dbinfo
+      dbinfo,
+      reject
     );
     handler.sql = sqlItem.text;
-    driver.stream(dbhan, sqlItem.text, handler);
+    try {
+      Promise.resolve(driver.stream(dbhan, sqlItem.text, handler)).catch(err => handler.done(null, err));
+    } catch (err) {
+      handler.done(null, err);
+    }
   });
 }
 

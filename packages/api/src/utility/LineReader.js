@@ -81,6 +81,8 @@ class LineReader {
 
   close() {
     this.isEnded = true;
+    this.rl.close();
+    this.queue = new Queue();
     return new Promise(resolve => this.input.close(resolve));
   }
 }

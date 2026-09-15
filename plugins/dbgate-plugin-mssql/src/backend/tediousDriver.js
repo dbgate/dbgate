@@ -217,15 +217,14 @@ async function tediousStream(dbhan, sql, options) {
     options.changedCurrentDatabase(database);
   };
 
-  dbhan.client.on('databaseChange', handleDatabaseChange);
-  dbhan.client.on('infoMessage', handleInfo);
-  dbhan.client.on('errorMessage', handleError);
-  const request = new tedious.Request(sql, (err, rowCount) => {
-    // if (err) reject(err);
-    // else resolve(result);
-    options.done();
+  const cleanup = () => {
+    dbhan.client.off('databaseChange', handleDatabaseChange);
     dbhan.client.off('infoMessage', handleInfo);
     dbhan.client.off('errorMessage', handleError);
+  };
+  const request = new tedious.Request(sql, (err, rowCount) => {
+    cleanup();
+    options.done();
 
     if (!skipAffectedMessage) {
       options.info({
@@ -251,7 +250,15 @@ async function tediousStream(dbhan, sql, options) {
     options.row(row);
     skipAffectedMessage = true;
   });
-  dbhan.client.execSqlBatch(request);
+  dbhan.client.on('databaseChange', handleDatabaseChange);
+  dbhan.client.on('infoMessage', handleInfo);
+  dbhan.client.on('errorMessage', handleError);
+  try {
+    dbhan.client.execSqlBatch(request);
+  } catch (err) {
+    cleanup();
+    throw err;
+  }
 }
 
 module.exports = {

@@ -6,7 +6,7 @@ const path = require('path');
 const lineReader = require('line-reader');
 const _ = require('lodash');
 const { __ } = require('lodash/fp');
-const DatastoreProxy = require('../utility/DatastoreProxy');
+const DatastoreCache = require('../utility/DatastoreCache');
 const getJslFileName = require('../utility/getJslFileName');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const requirePluginFunction = require('../utility/requirePluginFunction');
@@ -14,6 +14,11 @@ const socket = require('../utility/socket');
 const crypto = require('crypto');
 const dbgateApi = require('../shell');
 const { ChartProcessor } = require('dbgate-datalib');
+
+const datastoreCache = new DatastoreCache(
+  (jslid, formatterFunction) => new JsonLinesDatastore(getJslFileName(jslid), formatterFunction),
+  err => logger.error(extractErrorLogData(err), 'DBGM-00000 Error closing cached result reader')
+);
 
 function readFirstLine(file) {
   return new Promise((resolve, reject) => {
@@ -38,95 +43,8 @@ function readFirstLine(file) {
 }
 
 module.exports = {
-  datastores: {},
-
-  // closeReader(jslid) {
-  //   // console.log('CLOSING READER');
-  //   if (!this.openedReaders[jslid]) return Promise.resolve();
-  //   return new Promise((resolve, reject) => {
-  //     this.openedReaders[jslid].reader.close((err) => {
-  //       if (err) reject(err);
-  //       delete this.openedReaders[jslid];
-  //       resolve();
-  //     });
-  //   });
-  // },
-
-  // readLine(readerInfo) {
-  //   return new Promise((resolve, reject) => {
-  //     const { reader } = readerInfo;
-  //     if (!reader.hasNextLine()) {
-  //       resolve(null);
-  //       return;
-  //     }
-  //     reader.nextLine((err, line) => {
-  //       if (readerInfo.readedSchemaRow) readerInfo.readedDataRowCount += 1;
-  //       else readerInfo.readedSchemaRow = true;
-  //       if (err) reject(err);
-  //       resolve(line);
-  //     });
-  //   });
-  // },
-
-  // openReader(jslid) {
-  //   // console.log('OPENING READER');
-  //   // console.log(
-  //   //   'OPENING READER, LINES=',
-  //   //   fs.readFileSync(path.join(jsldir(), `${jslid}.jsonl`), 'utf-8').split('\n').length
-  //   // );
-  //   const file = getJslFileName(jslid);
-  //   return new Promise((resolve, reject) =>
-  //     lineReader.open(file, (err, reader) => {
-  //       if (err) reject(err);
-  //       const readerInfo = {
-  //         reader,
-  //         readedDataRowCount: 0,
-  //         readedSchemaRow: false,
-  //         isReading: true,
-  //       };
-  //       this.openedReaders[jslid] = readerInfo;
-  //       resolve(readerInfo);
-  //     })
-  //   );
-  // },
-
-  // async ensureReader(jslid, offset) {
-  //   if (this.openedReaders[jslid] && this.openedReaders[jslid].readedDataRowCount > offset) {
-  //     await this.closeReader(jslid);
-  //   }
-  //   let readerInfo = this.openedReaders[jslid];
-  //   if (!this.openedReaders[jslid]) {
-  //     readerInfo = await this.openReader(jslid);
-  //   }
-  //   readerInfo.isReading = true;
-  //   if (!readerInfo.readedSchemaRow) {
-  //     await this.readLine(readerInfo); // skip structure
-  //   }
-  //   while (readerInfo.readedDataRowCount < offset) {
-  //     await this.readLine(readerInfo);
-  //   }
-  //   return readerInfo;
-  // },
-
-  async ensureDatastore(jslid, formatterFunction) {
-    let datastore = this.datastores[jslid];
-    if (!datastore || datastore.formatterFunction != formatterFunction) {
-      if (datastore) {
-        datastore._closeReader();
-      }
-      datastore = new JsonLinesDatastore(getJslFileName(jslid), formatterFunction);
-      // datastore = new DatastoreProxy(getJslFileName(jslid));
-      this.datastores[jslid] = datastore;
-    }
-    return datastore;
-  },
-
   async closeDataStore(jslid) {
-    const datastore = this.datastores[jslid];
-    if (datastore) {
-      await datastore._closeReader();
-      delete this.datastores[jslid];
-    }
+    await datastoreCache.close(jslid);
   },
 
   getInfo_meta: true,
@@ -156,8 +74,9 @@ module.exports = {
     if (!fs.existsSync(fileName)) {
       return [];
     }
-    const datastore = await this.ensureDatastore(jslid, formatterFunction);
-    return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
+    return datastoreCache.use(jslid, formatterFunction, datastore =>
+      datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort)
+    );
   },
 
   exists_meta: true,
@@ -247,30 +166,21 @@ module.exports = {
 
   loadFieldValues_meta: true,
   async loadFieldValues({ jslid, field, search, formatterFunction }) {
-    const datastore = await this.ensureDatastore(jslid, formatterFunction);
     const res = new Set();
-    await datastore.enumRows(row => {
-      if (!filterName(search, row[field])) return true;
-      res.add(row[field]);
-      return res.size < 100;
-    });
+    await datastoreCache.use(jslid, formatterFunction, datastore =>
+      datastore.enumRows(row => {
+        if (!filterName(search, row[field])) return true;
+        res.add(row[field]);
+        return res.size < 100;
+      })
+    );
     // @ts-ignore
     return [...res].map(value => ({ value }));
   },
 
   async notifyChangedStats(stats) {
-    // console.log('SENDING STATS', JSON.stringify(stats));
-    const datastore = this.datastores[stats.jslid];
-    if (datastore) await datastore.notifyChanged();
+    await datastoreCache.use(stats.jslid, undefined, datastore => datastore.notifyChanged(), true);
     socket.emit(`jsldata-stats-${stats.jslid}`, stats);
-
-    // const readerInfo = this.openedReaders[stats.jslid];
-    // if (readerInfo && readerInfo.isReading) {
-    //   readerInfo.closeAfterReadAndSendStats = stats;
-    // } else {
-    //   await this.closeReader(stats.jslid);
-    //   socket.emit(`jsldata-stats-${stats.jslid}`, stats);
-    // }
   },
 
   saveText_meta: true,
