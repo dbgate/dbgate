@@ -64,7 +64,8 @@ describe('Add connection', () => {
     cy.testid('ConnectionTab_buttonSave').should('be.visible');
     cy.testid('ConnectionTab_buttonConnect').should('be.visible');
 
-    cy.testid('ConnectionTab_tabControlContent').themeshot('new-connection-d1', { padding: 50 });
+    cy.testid('ConnectionDriverFields_cloudflareApiToken').blur();
+    cy.themeshot('new-connection-d1');
   });
 
   it('SSH connection - user + password', () => {
