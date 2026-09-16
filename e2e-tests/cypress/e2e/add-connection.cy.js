@@ -35,6 +35,38 @@ describe('Add connection', () => {
     cy.contains('performance_schema');
   });
 
+  it('shows Cloudflare D1 connection settings', () => {
+    cy.testid('ConnectionList_buttonNewConnection').click();
+    cy.testid('ConnectionDriverFields_connectionType')
+      .select('Cloudflare D1')
+      .should('have.value', 'cloudflare-d1@dbgate-plugin-sqlite');
+    cy.testid('ConnectionDriverFields_displayName').clear().type('Cloudflare D1 demo');
+    cy.testid('ConnectionDriverFields_cloudflareAccountId')
+      .should('be.visible')
+      .clear()
+      .type('0123456789abcdef0123456789abcdef');
+    cy.testid('ConnectionDriverFields_cloudflareApiToken')
+      .should('be.visible')
+      .clear()
+      .type('example-cloudflare-api-token')
+      .should('have.attr', 'type', 'password');
+    cy.testid('ConnectionDriverFields_cloudflareApiUrl')
+      .should('be.visible')
+      .and('have.value', '')
+      .and('have.attr', 'placeholder', 'https://api.cloudflare.com/client/v4');
+
+    // D1 connects to an account; databases are selected after connecting.
+    cy.testid('ConnectionDriverFields_cloudflareDatabaseId').should('not.exist');
+    cy.testid('ConnectionDriverFields_user').should('not.exist');
+    cy.testid('ConnectionDriverFields_password').should('not.exist');
+    cy.testid('ConnectionDriverFields_port').should('not.exist');
+    cy.testid('ConnectionTab_buttonTest').should('be.visible');
+    cy.testid('ConnectionTab_buttonSave').should('be.visible');
+    cy.testid('ConnectionTab_buttonConnect').should('be.visible');
+
+    cy.testid('ConnectionTab_tabControlContent').themeshot('new-connection-d1', { padding: 50 });
+  });
+
   it('SSH connection - user + password', () => {
     cy.contains('Connections');
 

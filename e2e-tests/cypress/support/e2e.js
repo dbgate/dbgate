@@ -21,6 +21,11 @@ import './commands';
 
 import 'cypress-real-events';
 
+Cypress.on('window:before:load', win => {
+  // Decline analytics before startup so the consent dialog does not block E2E tests.
+  win.localStorage.setItem('dbgateUsageAnalyticsConsent', 'false');
+});
+
 beforeEach(() => {
   // Replace 'my-database-name' with the actual IndexedDB name
   cy.window().then(win => {
