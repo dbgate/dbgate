@@ -2327,7 +2327,7 @@
     <ErrorInfo message={errorMessage} alignTop />
     <FormStyledButton
       value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-      on:click={() => runCommand('dataGrid.clearFilter')}
+      on:click={clearFilter}
     />
     <FormStyledButton
       value={_t('datagrid.resetView', { defaultMessage: 'Reset view' })}
@@ -2354,7 +2354,7 @@
     {#if display.filterCount > 0}
       <FormStyledButton
         value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-        on:click={() => runCommand('dataGrid.clearFilter')}
+        on:click={clearFilter}
       />
     {/if}
     {#if grider.editable}
@@ -2478,7 +2478,7 @@
               >
                 {#if display.filterCount > 0}
                   <InlineButton
-                    on:click={() => runCommand('dataGrid.clearFilter')}
+                    on:click={clearFilter}
                     square
                     data-testid="DataGridCore_button_clearFilters"
                   >
@@ -2576,7 +2576,7 @@
         {#if display.filterCount > 0}
           <FormStyledButton
             value={_t('datagrid.resetFilter', { defaultMessage: 'Reset filter' })}
-            on:click={() => runCommand('dataGrid.clearFilter')}
+            on:click={clearFilter}
           />
         {/if}
         {#if grider.editable}

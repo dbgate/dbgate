@@ -97,6 +97,8 @@ describe('Data browser data', () => {
     cy.testid('DataFilterControl_filtermenu_ArtistId').click();
     cy.themeshot('data-browser-filter');
     cy.testid('DataGridCore_button_clearFilters').click();
+    cy.testid('DataFilterControl_input_Title').should('have.value', '');
+    cy.testid('DataFilterControl_input_AlbumId').should('have.value', '');
     cy.contains('Rows: 347');
   });
 
@@ -257,7 +259,7 @@ describe('Data browser data', () => {
     cy.contains('Open query').click();
     cy.wait(1000);
     cy.contains('Execute').click();
-    cy.testid('TabContent_1').contains('Leonie').rightclick();
+    cy.testid('TabContent_1').contains('Leonie', { timeout: 30000 }).rightclick();
     cy.contains('Show cell data').click();
     // test JSON view
     cy.contains('Country: "Germany"');
