@@ -9,6 +9,13 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.0
+
+- ADDED: Cloudflare D1 support, including database discovery, SQL execution, and schema browsing (Premium)
+- ADDED: Google sign-in with optional access restrictions and role synchronization based on Google groups (Team Premium)
+- ADDED: Optional anonymous usage analytics with a consent prompt and a toggle in Settings
+- FIXED: Improved protection of database connection credentials #1495
+
 ## 7.2.6
 
 - ADDED: Built-in SQL Server backup and restore without requiring external SQL Server tools (Community)
