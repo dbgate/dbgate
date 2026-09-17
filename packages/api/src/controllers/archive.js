@@ -241,7 +241,7 @@ module.exports = {
     if (folder.endsWith('.link') || folder.endsWith('.zip')) {
       await fs.unlink(path.join(archivedir(), folder));
     } else {
-      await fs.rmdir(path.join(archivedir(), folder), { recursive: true });
+      await fs.remove(path.join(archivedir(), folder));
     }
     socket.emitChanged(`archive-folders-changed`);
     return true;
