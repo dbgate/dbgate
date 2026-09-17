@@ -168,6 +168,7 @@ module.exports = {
         // ...process.argv.slice(3),
       ],
       {
+        env: { ...process.env, NODE_NO_WARNINGS: '1' },
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       }
     );
