@@ -204,80 +204,82 @@ module.exports = {
     const timestamp = requirePluginFunction(timestampFunction);
     const aggregate = requirePluginFunction(aggregateFunction);
     const datastore = new JsonLinesDatastore(getJslFileName(jslid));
-    let mints = null;
-    let maxts = null;
-    // pass 1 - counts stats, time range
-    await datastore.enumRows(row => {
-      const ts = timestamp(row);
-      if (!mints || ts < mints) mints = ts;
-      if (!maxts || ts > maxts) maxts = ts;
-      return true;
-    });
-    const minTime = new Date(mints).getTime();
-    const maxTime = new Date(maxts).getTime();
-    const duration = maxTime - minTime;
-    const STEPS = 100;
-    let stepCount = duration > 100 * 1000 ? STEPS : Math.round((maxTime - minTime) / 1000);
-    if (stepCount < 2) {
-      stepCount = 2;
-    }
-    const stepDuration = duration / stepCount;
-    const labels = _.range(stepCount).map(i => new Date(minTime + stepDuration / 2 + stepDuration * i));
-
-    // const datasets = measures.map(m => ({
-    //   label: m.label,
-    //   data: Array(stepCount).fill(0),
-    // }));
-
-    const mproc = measures.map(m => ({
-      ...m,
-    }));
-
-    const data = Array(stepCount)
-      .fill(0)
-      .map(() => ({}));
-
-    // pass 2 - count measures
-    await datastore.enumRows(row => {
-      const ts = timestamp(row);
-      let part = Math.round((new Date(ts).getTime() - minTime) / stepDuration);
-      if (part < 0) part = 0;
-      if (part >= stepCount) part - stepCount - 1;
-      if (data[part]) {
-        data[part] = aggregate(data[part], row, stepDuration);
+    try {
+      let mints = null;
+      let maxts = null;
+      // pass 1 - counts stats, time range
+      await datastore.enumRows(row => {
+        const ts = timestamp(row);
+        if (!mints || ts < mints) mints = ts;
+        if (!maxts || ts > maxts) maxts = ts;
+        return true;
+      });
+      const minTime = new Date(mints).getTime();
+      const maxTime = new Date(maxts).getTime();
+      const duration = maxTime - minTime;
+      const STEPS = 100;
+      let stepCount = duration > 100 * 1000 ? STEPS : Math.round((maxTime - minTime) / 1000);
+      if (stepCount < 2) {
+        stepCount = 2;
       }
-      return true;
-    });
+      const stepDuration = duration / stepCount;
+      const labels = _.range(stepCount).map(i => new Date(minTime + stepDuration / 2 + stepDuration * i));
 
-    datastore._closeReader();
+      // const datasets = measures.map(m => ({
+      //   label: m.label,
+      //   data: Array(stepCount).fill(0),
+      // }));
 
-    // const measureByField = _.fromPairs(measures.map((m, i) => [m.field, i]));
+      const mproc = measures.map(m => ({
+        ...m,
+      }));
 
-    // for (let mindex = 0; mindex < measures.length; mindex++) {
-    //   for (let stepIndex = 0; stepIndex < stepCount; stepIndex++) {
-    //     const measure = measures[mindex];
-    //     if (measure.perSecond) {
-    //       datasets[mindex].data[stepIndex] /= stepDuration / 1000;
-    //     }
-    //     if (measure.perField) {
-    //       datasets[mindex].data[stepIndex] /= datasets[measureByField[measure.perField]].data[stepIndex];
-    //     }
-    //   }
-    // }
+      const data = Array(stepCount)
+        .fill(0)
+        .map(() => ({}));
 
-    // for (let i = 0; i < measures.length; i++) {
-    //   if (measures[i].hidden) {
-    //     datasets[i] = null;
-    //   }
-    // }
+      // pass 2 - count measures
+      await datastore.enumRows(row => {
+        const ts = timestamp(row);
+        let part = Math.round((new Date(ts).getTime() - minTime) / stepDuration);
+        if (part < 0) part = 0;
+        if (part >= stepCount) part - stepCount - 1;
+        if (data[part]) {
+          data[part] = aggregate(data[part], row, stepDuration);
+        }
+        return true;
+      });
 
-    return {
-      labels,
-      datasets: mproc.map(m => ({
-        label: m.label,
-        data: data.map(d => d[m.field] || 0),
-      })),
-    };
+      // const measureByField = _.fromPairs(measures.map((m, i) => [m.field, i]));
+
+      // for (let mindex = 0; mindex < measures.length; mindex++) {
+      //   for (let stepIndex = 0; stepIndex < stepCount; stepIndex++) {
+      //     const measure = measures[mindex];
+      //     if (measure.perSecond) {
+      //       datasets[mindex].data[stepIndex] /= stepDuration / 1000;
+      //     }
+      //     if (measure.perField) {
+      //       datasets[mindex].data[stepIndex] /= datasets[measureByField[measure.perField]].data[stepIndex];
+      //     }
+      //   }
+      // }
+
+      // for (let i = 0; i < measures.length; i++) {
+      //   if (measures[i].hidden) {
+      //     datasets[i] = null;
+      //   }
+      // }
+
+      return {
+        labels,
+        datasets: mproc.map(m => ({
+          label: m.label,
+          data: data.map(d => d[m.field] || 0),
+        })),
+      };
+    } finally {
+      await datastore.dispose();
+    }
   },
 
   downloadJslData_meta: true,
@@ -291,10 +293,14 @@ module.exports = {
   async buildChart({ jslid, definition }) {
     const datastore = new JsonLinesDatastore(getJslFileName(jslid));
     const processor = new ChartProcessor(definition ? [definition] : undefined);
-    await datastore.enumRows(row => {
-      processor.addRow(row);
-      return true;
-    });
+    try {
+      await datastore.enumRows(row => {
+        processor.addRow(row);
+        return true;
+      });
+    } finally {
+      await datastore.dispose();
+    }
     processor.finalize();
     return {
       charts: processor.charts,

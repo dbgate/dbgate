@@ -47,6 +47,22 @@ class JsonLinesDatastore {
     await reader.close();
   }
 
+  // Releases everything the datastore owns. Sorted copies of the data file are generated on demand
+  // into jsldir() and are reachable only through this.sortedFiles, so dropping the datastore without
+  // deleting them would leave them on disk until the next API restart.
+  async dispose() {
+    await this._closeReader();
+    const sortedFiles = Object.values(this.sortedFiles);
+    this.sortedFiles = {};
+    for (const sortedFile of sortedFiles) {
+      try {
+        await fs.promises.unlink(sortedFile);
+      } catch (e) {
+        logger.warn(extractErrorLogData(e), 'DBGM-00000 Failed to delete temporary sorted data file');
+      }
+    }
+  }
+
   async notifyChanged(callback) {
     this.notifyChangedCallback = callback;
     await lock.acquire('reader', async () => {

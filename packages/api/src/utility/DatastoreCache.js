@@ -55,7 +55,8 @@ class DatastoreCache {
         });
       }
       try {
-        await entry.datastore._closeReader();
+        // dispose, not just _closeReader: the datastore also owns generated files on disk
+        await entry.datastore.dispose();
       } finally {
         // Drop the entry only once the reader is closed, so that callers waiting on entry.closing
         // (and callers of close itself) are guaranteed the file handle is released on return.
