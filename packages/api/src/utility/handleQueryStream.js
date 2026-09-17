@@ -4,7 +4,7 @@ const fs = require('fs');
 const _ = require('lodash');
 
 const { jsldir } = require('../utility/directories');
-const { serializeJsTypesReplacer, getLogger } = require('dbgate-tools');
+const { serializeJsTypesReplacer, getLogger, extractErrorMessage } = require('dbgate-tools');
 const { ChartProcessor } = require('dbgate-datalib');
 const { isProApp } = require('./checkLicense');
 const { enrichQueryResultColumns } = require('./queryResultMetadata');
@@ -49,6 +49,8 @@ class QueryStreamTableWriter {
 
   row(row) {
     // console.log('ACCEPT ROW', row);
+    // close() nulls currentStream; drivers can still deliver rows after that
+    if (!this.currentStream) return;
     this.currentStream.write(JSON.stringify(row, serializeJsTypesReplacer) + '\n');
     try {
       if (this.chartProcessor) {
@@ -156,8 +158,7 @@ class StreamHandler {
     supportsEditableQueryResults = false,
     dbhan = null,
     driver = null,
-    dbinfo = null,
-    reject = null
+    dbinfo = null
   ) {
     this.recordset = this.recordset.bind(this);
     this.startLine = startLine;
@@ -182,7 +183,7 @@ class StreamHandler {
     this.plannedStats = false;
     this.queryStreamInfoHolder = queryStreamInfoHolder;
     this.resolve = resolve;
-    this.reject = reject;
+    this.finished = false;
     this.currentRecordset = null;
     this.recordsetQueuePromise = Promise.resolve();
     // currentHandlers = [...currentHandlers, this];
@@ -245,6 +246,9 @@ class StreamHandler {
   }
 
   recordset(columns, options) {
+    if (this.finished) {
+      return;
+    }
     const recordsetContext = {
       pendingRows: [],
       resultIndex: this.queryStreamInfoHolder.resultIndex,
@@ -278,7 +282,7 @@ class StreamHandler {
   }
 
   row(row) {
-    if (this.rowsLimitOverflow) {
+    if (this.finished || this.rowsLimitOverflow) {
       return;
     }
 
@@ -318,9 +322,9 @@ class StreamHandler {
   // }
   done(result, error = null) {
     if (this.finishPromise) return this.finishPromise;
+    this.finished = true;
     this.finishPromise = (async () => {
       const resolve = this.resolve;
-      const reject = this.reject;
       try {
         await this.recordsetQueuePromise;
         await this.closeCurrentWriter();
@@ -330,17 +334,20 @@ class StreamHandler {
         // Release metadata and the last result writer even if a driver retains its callbacks.
         this.currentRecordset = null;
         this.recordsetReadyPromise = null;
-        this.recordsetQueuePromise = null;
+        this.recordsetQueuePromise = Promise.resolve();
         this.dbhan = null;
         this.driver = null;
         this.dbinfo = null;
         this.sql = null;
         this.frontMatter = null;
         this.resolve = null;
-        this.reject = null;
       }
-      if (error) reject(error);
-      else resolve();
+      if (error) {
+        // Report the error through the info channel (which also sets canceled), so that the caller
+        // still sends its 'done' message and the query does not stay in executing state forever.
+        this.info({ message: extractErrorMessage(error), severity: 'error' });
+      }
+      resolve();
     })();
     return this.finishPromise;
   }
@@ -382,7 +389,7 @@ function handleQueryStream(
   autoDetectCharts = false,
   dbinfo = null
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const start = sqlItem.trimStart || sqlItem.start;
     const handler = new StreamHandler(
       queryStreamInfoHolder,
@@ -395,8 +402,7 @@ function handleQueryStream(
       driver.databaseEngineTypes?.includes('sql') && driver.supportsEditableQueryResults,
       dbhan,
       driver,
-      dbinfo,
-      reject
+      dbinfo
     );
     handler.sql = sqlItem.text;
     try {
