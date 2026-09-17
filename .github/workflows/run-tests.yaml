@@ -29,7 +29,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: e854c4ad0eaa7c7c10eb579d5a914a3b7fc8ab0f
+          ref: 00bd8a31c576cd703321d5c771cfe3ad072bda1b
       - name: Diflow install
         run: npm install -g diflow
       - name: Merge dbgate/dbgate-pro
