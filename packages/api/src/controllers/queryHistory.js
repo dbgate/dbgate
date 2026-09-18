@@ -1,10 +1,10 @@
-const fsReverse = require('fs-reverse');
 const fs = require('fs-extra');
 const path = require('path');
 const { datadir } = require('../utility/directories');
 const _ = require('lodash');
 const { filterName } = require('dbgate-tools');
 const socket = require('../utility/socket');
+const readFileReverse = require('../utility/readFileReverse');
 
 function readCore(reader, skip, limit, filter) {
   return new Promise((resolve, reject) => {
@@ -29,6 +29,7 @@ function readCore(reader, skip, limit, filter) {
         reject(err);
       }
     });
+    reader.on('error', err => reject(err));
     reader.on('end', () => resolve(res));
   });
 }
@@ -38,7 +39,7 @@ function readJsonl({ skip, limit, filter }) {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     // @ts-ignore
     if (!(await fs.exists(fileName))) return resolve([]);
-    const reader = fsReverse(fileName);
+    const reader = readFileReverse(fileName);
     const res = await readCore(reader, skip, limit, filter);
     resolve(res);
   });
