@@ -4,7 +4,7 @@ const fs = require('fs');
 const _ = require('lodash');
 
 const { jsldir } = require('../utility/directories');
-const { serializeJsTypesReplacer, getLogger } = require('dbgate-tools');
+const { serializeJsTypesReplacer, getLogger, extractErrorMessage } = require('dbgate-tools');
 const { ChartProcessor } = require('dbgate-datalib');
 const { isProApp } = require('./checkLicense');
 const { enrichQueryResultColumns } = require('./queryResultMetadata');
@@ -49,6 +49,8 @@ class QueryStreamTableWriter {
 
   row(row) {
     // console.log('ACCEPT ROW', row);
+    // close() nulls currentStream; drivers can still deliver rows after that
+    if (!this.currentStream) return;
     this.currentStream.write(JSON.stringify(row, serializeJsTypesReplacer) + '\n');
     try {
       if (this.chartProcessor) {
@@ -101,7 +103,8 @@ class QueryStreamTableWriter {
   }
 
   close(afterClose) {
-    return new Promise(resolve => {
+    if (this.closePromise) return this.closePromise;
+    this.closePromise = new Promise(resolve => {
       if (this.currentStream) {
         this.currentStream.end(() => {
           this.writeCurrentStats(true, true);
@@ -135,7 +138,11 @@ class QueryStreamTableWriter {
       } else {
         resolve();
       }
+    }).finally(() => {
+      this.currentStream = null;
+      this.chartProcessor = null;
     });
+    return this.closePromise;
   }
 }
 
@@ -176,15 +183,20 @@ class StreamHandler {
     this.plannedStats = false;
     this.queryStreamInfoHolder = queryStreamInfoHolder;
     this.resolve = resolve;
+    this.finished = false;
     this.currentRecordset = null;
     this.recordsetQueuePromise = Promise.resolve();
     // currentHandlers = [...currentHandlers, this];
   }
 
-  closeCurrentWriter() {
+  async closeCurrentWriter() {
     if (this.currentWriter) {
-      this.currentWriter.close();
-      this.currentWriter = null;
+      const writer = this.currentWriter;
+      try {
+        await writer.close();
+      } finally {
+        this.currentWriter = null;
+      }
     }
   }
 
@@ -196,7 +208,7 @@ class StreamHandler {
     if (this.rowsLimitOverflow) {
       return;
     }
-    this.closeCurrentWriter();
+    await this.closeCurrentWriter();
     const writer = new QueryStreamTableWriter(this.sesid);
     const structure = Array.isArray(columns) ? { columns } : columns;
     const enrichedColumns = await enrichQueryStreamColumns(
@@ -234,6 +246,9 @@ class StreamHandler {
   }
 
   recordset(columns, options) {
+    if (this.finished) {
+      return;
+    }
     const recordsetContext = {
       pendingRows: [],
       resultIndex: this.queryStreamInfoHolder.resultIndex,
@@ -267,7 +282,7 @@ class StreamHandler {
   }
 
   row(row) {
-    if (this.rowsLimitOverflow) {
+    if (this.finished || this.rowsLimitOverflow) {
       return;
     }
 
@@ -305,13 +320,36 @@ class StreamHandler {
   // error(error) {
   //   process.send({ msgtype: 'error', error });
   // }
-  done(result) {
-    const finish = () => {
-      this.closeCurrentWriter();
-      // currentHandlers = currentHandlers.filter((x) => x != this);
-      this.resolve();
-    };
-    this.recordsetQueuePromise.then(finish);
+  done(result, error = null) {
+    if (this.finishPromise) return this.finishPromise;
+    this.finished = true;
+    this.finishPromise = (async () => {
+      const resolve = this.resolve;
+      try {
+        await this.recordsetQueuePromise;
+        await this.closeCurrentWriter();
+      } catch (err) {
+        error = error || err;
+      } finally {
+        // Release metadata and the last result writer even if a driver retains its callbacks.
+        this.currentRecordset = null;
+        this.recordsetReadyPromise = null;
+        this.recordsetQueuePromise = Promise.resolve();
+        this.dbhan = null;
+        this.driver = null;
+        this.dbinfo = null;
+        this.sql = null;
+        this.frontMatter = null;
+        this.resolve = null;
+      }
+      if (error) {
+        // Report the error through the info channel (which also sets canceled), so that the caller
+        // still sends its 'done' message and the query does not stay in executing state forever.
+        this.info({ message: extractErrorMessage(error), severity: 'error' });
+      }
+      resolve();
+    })();
+    return this.finishPromise;
   }
   info(info) {
     if (info && info.line != null) {
@@ -351,7 +389,7 @@ function handleQueryStream(
   autoDetectCharts = false,
   dbinfo = null
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const start = sqlItem.trimStart || sqlItem.start;
     const handler = new StreamHandler(
       queryStreamInfoHolder,
@@ -367,7 +405,11 @@ function handleQueryStream(
       dbinfo
     );
     handler.sql = sqlItem.text;
-    driver.stream(dbhan, sqlItem.text, handler);
+    try {
+      Promise.resolve(driver.stream(dbhan, sqlItem.text, handler)).catch(err => handler.done(null, err));
+    } catch (err) {
+      handler.done(null, err);
+    }
   });
 }
 

@@ -27,7 +27,12 @@ class JsonLinesDatastore {
       const requirePluginFunction = require('./requirePluginFunction');
       this.rowFormatter = requirePluginFunction(formatterFunction);
     }
+    // sort key -> finished sorted copy, reused by later requests for the same sort
     this.sortedFiles = {};
+    // sort key -> in-flight creation, so that concurrent requests share one generated file
+    this.sortPromises = {};
+    // every path this datastore has created in jsldir(), for cleanup in dispose()
+    this.generatedFiles = new Set();
   }
 
   static async sortFile(infile, outfile, sort) {
@@ -47,10 +52,29 @@ class JsonLinesDatastore {
     await reader.close();
   }
 
+  // Releases everything the datastore owns. Sorted copies of the data file are generated on demand
+  // into jsldir() and are reachable only through this datastore, so dropping it without deleting
+  // them would leave them on disk until the next API restart.
+  async dispose() {
+    await this._closeReader();
+    const generatedFiles = [...this.generatedFiles];
+    this.generatedFiles.clear();
+    this.sortedFiles = {};
+    for (const generatedFile of generatedFiles) {
+      try {
+        await fs.promises.unlink(generatedFile);
+      } catch (e) {
+        if (e.code != 'ENOENT') {
+          logger.warn(extractErrorLogData(e), 'DBGM-00000 Failed to delete temporary sorted data file');
+        }
+      }
+    }
+  }
+
   async notifyChanged(callback) {
     this.notifyChangedCallback = callback;
     await lock.acquire('reader', async () => {
-      this._closeReader();
+      await this._closeReader();
     });
     const call = this.notifyChangedCallback;
     this.notifyChangedCallback = null;
@@ -146,7 +170,7 @@ class JsonLinesDatastore {
       stableStringify(filter) != stableStringify(this.currentFilter) ||
       stableStringify(sort) != stableStringify(this.currentSort)
     ) {
-      this._closeReader();
+      await this._closeReader();
     }
     if (!this.reader) {
       const reader = await this._openReader(sort ? this.sortedFiles[stableStringify(sort)] : this.file);
@@ -184,21 +208,46 @@ class JsonLinesDatastore {
     });
   }
 
+  async _createSortedFile(sortKey, sort) {
+    const jslid = crypto.randomUUID();
+    const sortedFile = path.join(jsldir(), `${jslid}.jsonl`);
+    // Register the path before the sort starts, so that dispose() also removes a partial file.
+    this.generatedFiles.add(sortedFile);
+    try {
+      await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
+      this.sortedFiles[sortKey] = sortedFile;
+      return sortedFile;
+    } catch (e) {
+      logger.error(extractErrorLogData(e), 'DBGM-00417 Failed to sort data file, returning unsorted results');
+      // Remove any partial output file left by the failed sort so it does
+      // not accumulate in jsldir() across repeated failures.
+      this.generatedFiles.delete(sortedFile);
+      try { fs.unlinkSync(sortedFile); } catch { /* best-effort */ }
+      return null;
+    }
+  }
+
+  // Returns the sorted copy for the given sort, or null when sorting failed. Sorting happens
+  // outside of the reader lock, so concurrent callers must share one in-flight creation - otherwise
+  // each of them would generate its own file and all but the last would be orphaned in jsldir().
+  async _ensureSortedFile(sort) {
+    const sortKey = stableStringify(sort);
+    if (this.sortedFiles[sortKey]) {
+      return this.sortedFiles[sortKey];
+    }
+    if (!this.sortPromises[sortKey]) {
+      this.sortPromises[sortKey] = this._createSortedFile(sortKey, sort).finally(() => {
+        delete this.sortPromises[sortKey];
+      });
+    }
+    return this.sortPromises[sortKey];
+  }
+
   async getRows(offset, limit, filter, sort) {
     const res = [];
-    if (sort && !this.sortedFiles[stableStringify(sort)]) {
-      const jslid = crypto.randomUUID();
-      const sortedFile = path.join(jsldir(), `${jslid}.jsonl`);
-      try {
-        await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
-        this.sortedFiles[stableStringify(sort)] = sortedFile;
-      } catch (e) {
-        logger.error(extractErrorLogData(e), 'DBGM-00417 Failed to sort data file, returning unsorted results');
-        // Remove any partial output file left by the failed sort so it does
-        // not accumulate in jsldir() across repeated failures.
-        try { fs.unlinkSync(sortedFile); } catch { /* best-effort */ }
-        sort = null;
-      }
+    if (sort && !(await this._ensureSortedFile(sort))) {
+      // sorting failed, fall back to unsorted results
+      sort = null;
     }
     await lock.acquire('reader', async () => {
       await this._ensureReader(offset, filter, sort);

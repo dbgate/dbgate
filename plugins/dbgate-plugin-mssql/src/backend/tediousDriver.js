@@ -192,6 +192,7 @@ async function tediousReadQuery(dbhan, sql, structure) {
 async function tediousStream(dbhan, sql, options) {
   let currentColumns = [];
   let skipAffectedMessage = false;
+  let errorReported = false;
 
   const handleInfo = info => {
     const { message, lineNumber, procName } = info;
@@ -204,6 +205,7 @@ async function tediousStream(dbhan, sql, options) {
     });
   };
   const handleError = error => {
+    errorReported = true;
     const { message, lineNumber, procName } = error;
     options.info({
       message,
@@ -217,15 +219,22 @@ async function tediousStream(dbhan, sql, options) {
     options.changedCurrentDatabase(database);
   };
 
-  dbhan.client.on('databaseChange', handleDatabaseChange);
-  dbhan.client.on('infoMessage', handleInfo);
-  dbhan.client.on('errorMessage', handleError);
-  const request = new tedious.Request(sql, (err, rowCount) => {
-    // if (err) reject(err);
-    // else resolve(result);
-    options.done();
+  const cleanup = () => {
+    dbhan.client.off('databaseChange', handleDatabaseChange);
     dbhan.client.off('infoMessage', handleInfo);
     dbhan.client.off('errorMessage', handleError);
+  };
+  const request = new tedious.Request(sql, (err, rowCount) => {
+    cleanup();
+    // Errors coming from the server are already reported by the errorMessage handler. Forward only
+    // errors that nothing else reported (socket failures, aborted/cancelled requests), otherwise a
+    // failed request would look like successful completion.
+    options.done(null, err && !errorReported ? err : null);
+
+    if (err) {
+      // rowCount is meaningless for a failed request
+      return;
+    }
 
     if (!skipAffectedMessage) {
       options.info({
@@ -251,7 +260,15 @@ async function tediousStream(dbhan, sql, options) {
     options.row(row);
     skipAffectedMessage = true;
   });
-  dbhan.client.execSqlBatch(request);
+  dbhan.client.on('databaseChange', handleDatabaseChange);
+  dbhan.client.on('infoMessage', handleInfo);
+  dbhan.client.on('errorMessage', handleError);
+  try {
+    dbhan.client.execSqlBatch(request);
+  } catch (err) {
+    cleanup();
+    throw err;
+  }
 }
 
 module.exports = {
