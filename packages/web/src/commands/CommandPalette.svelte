@@ -77,6 +77,7 @@
   import _ from 'lodash';
   import { onMount } from 'svelte';
   import fuzzy from 'fuzzy';
+  import DOMPurify from 'dompurify';
   import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import {
@@ -140,7 +141,10 @@
     )
     .map(x => ({
       ...x.original,
-      text: x.string,
+      // fuzzy.filter inserts the pre/post markup into the raw, un-escaped source
+      // characters, so command/database names ending up here can carry HTML. Sanitize
+      // before this is rendered with {@html}, keeping only the <b> highlight tag.
+      text: DOMPurify.sanitize(x.string, { ALLOWED_TAGS: ['b'], ALLOWED_ATTR: [] }),
     }));
 
   function handleCommand(command) {
