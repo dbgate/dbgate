@@ -1,7 +1,7 @@
 const fs = require('fs');
 const _ = require('lodash');
 const stream = require('stream');
-const byline = require('byline');
+const { createLineStream } = require('../utility/lineStream');
 const { getLogger, processJsonDataUpdateCommands, removeTablePairingId } = require('dbgate-tools');
 const logger = getLogger('modifyJsonLinesReader');
 const stableStringify = require('json-stable-stringify');
@@ -139,7 +139,7 @@ async function modifyJsonLinesReader({
     // @ts-ignore
     encoding
   );
-  const liner = byline(fileStream);
+  const liner = createLineStream(fileStream);
   const parser = new ParseStream({ limitRows, changeSet, mergedRows, mergeKey, mergeMode });
   return [liner, parser];
   // liner.pipe(parser);

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const stream = require('stream');
-const byline = require('byline');
 const { getLogger } = require('dbgate-tools');
 const { parser } = require('stream-json');
 const { pick } = require('stream-json/filters/Pick');

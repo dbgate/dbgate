@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const _ = require('lodash');
 const path = require('path');
 const fs = require('fs-extra');
-const byline = require('byline');
+const { createLineStream } = require('../utility/lineStream');
 const socket = require('../utility/socket');
 const { fork, spawn } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
@@ -180,8 +180,8 @@ module.exports = {
       }
     };
 
-    byline(subprocess.stdout).on('data', pipeDispatcher('info'));
-    byline(subprocess.stderr).on('data', pipeDispatcher('error'));
+    createLineStream(subprocess.stdout).on('data', pipeDispatcher('info'));
+    createLineStream(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', code => {
       // console.log('... EXITED', code);
       this.rejectRequest(runid, { message: 'DBGM-00281 No data returned, maybe input data source is too big' });
@@ -265,8 +265,8 @@ module.exports = {
       this.opened = this.opened.filter(x => x.runid != runid);
     };
 
-    byline(subprocess.stdout).on('data', pipeDispatcher('info'));
-    byline(subprocess.stderr).on('data', pipeDispatcher('error'));
+    createLineStream(subprocess.stdout).on('data', pipeDispatcher('info'));
+    createLineStream(subprocess.stderr).on('data', pipeDispatcher('error'));
 
     // Wait for stdio to close so all process output is dispatched before the final status.
     subprocess.on('close', code => {
