@@ -4,6 +4,18 @@ const { Readable } = require('stream');
 const NEWLINE = 0x0a;
 const DEFAULT_BUFFER_SIZE = 64 * 1024;
 
+// FileHandle.read() is allowed to return less bytes than requested, so it must be called in cycle
+async function readFully(handle, buffer, length, position) {
+  let readed = 0;
+  while (readed < length) {
+    const { bytesRead } = await handle.read(buffer, readed, length - readed, position + readed);
+    if (bytesRead <= 0) {
+      throw new Error(`File was truncated during reading, could not read ${length} bytes at position ${position}`);
+    }
+    readed += bytesRead;
+  }
+}
+
 async function* generateLinesReverse(fileName, bufferSize) {
   const handle = await fs.open(fileName, 'r');
   try {
@@ -16,7 +28,7 @@ async function* generateLinesReverse(fileName, bufferSize) {
       const length = Math.min(bufferSize, position);
       position -= length;
       const buffer = Buffer.alloc(length);
-      await handle.read(buffer, 0, length, position);
+      await readFully(handle, buffer, length, position);
 
       // remainder is appended, so that multi-byte characters split by the chunk boundary are not broken
       const chunk = Buffer.concat([buffer, remainder]);
