@@ -9,6 +9,7 @@ const logger = getLogger('DatastoreProxy');
 class DatastoreProxy {
   constructor(file) {
     this.subprocess = null;
+    this.subprocessPromise = null;
     this.disconnected = false;
     this.file = file;
     this.requests = {};
@@ -31,9 +32,20 @@ class DatastoreProxy {
     delete this.requests[msgid];
   }
 
+  // Creating the subprocess is asynchronous, so concurrent callers must not each start their own.
+  // The pending creation is shared, so that only one subprocess is created and all callers use it.
   async ensureSubprocess() {
-    if (!this.subprocess) {
-      this.subprocess = fork(
+    if (this.subprocess) return this.subprocess;
+    if (!this.subprocessPromise) {
+      this.subprocessPromise = this.createSubprocess();
+    }
+    return await this.subprocessPromise;
+  }
+
+  async createSubprocess() {
+    try {
+      const settings = await require('../controllers/config').getSettings();
+      const subprocess = fork(
         global['API_PACKAGE'] || process.argv[1],
         [
           '--is-forked-api',
@@ -43,30 +55,38 @@ class DatastoreProxy {
           // ...process.argv.slice(3),
         ],
         {
+          env: {
+            ...process.env,
+            NODE_NO_WARNINGS: settings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+          },
           stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
         }
       );
-      pipeForkLogs(this.subprocess);
+      pipeForkLogs(subprocess);
 
-      this.subprocess.on('message', message => {
+      subprocess.on('message', message => {
         // @ts-ignore
         const { msgtype } = message;
-        if (handleProcessCommunication(message, this.subprocess)) return;
+        if (handleProcessCommunication(message, subprocess)) return;
 
         // if (this.disconnected) return;
         this[`handle_${msgtype}`](message);
       });
-      this.subprocess.on('exit', () => {
+      subprocess.on('exit', () => {
         // if (this.disconnected) return;
-        this.subprocess = null;
+        if (this.subprocess === subprocess) this.subprocess = null;
       });
-      this.subprocess.on('error', err => {
+      subprocess.on('error', err => {
         logger.error(extractErrorLogData(err), 'DBGM-00167 Error in data store subprocess');
-        this.subprocess = null;
+        if (this.subprocess === subprocess) this.subprocess = null;
       });
-      this.subprocess.send({ msgtype: 'open', file: this.file });
+      subprocess.send({ msgtype: 'open', file: this.file });
+
+      this.subprocess = subprocess;
+      return subprocess;
+    } finally {
+      this.subprocessPromise = null;
     }
-    return this.subprocess;
   }
 
   async getRows(offset, limit) {

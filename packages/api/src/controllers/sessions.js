@@ -158,6 +158,7 @@ module.exports = {
   async create({ conid, database }) {
     const sesid = crypto.randomUUID();
     const connection = await connections.getCore({ conid });
+    const globalSettings = await config.getSettings();
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
@@ -168,6 +169,10 @@ module.exports = {
         // ...process.argv.slice(3),
       ],
       {
+        env: {
+          ...process.env,
+          NODE_NO_WARNINGS: globalSettings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+        },
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       }
     );
@@ -199,7 +204,7 @@ module.exports = {
       msgtype: 'connect',
       ...connection,
       database,
-      globalSettings: await config.getSettings(),
+      globalSettings,
     });
     return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
