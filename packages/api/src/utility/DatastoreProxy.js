@@ -33,6 +33,7 @@ class DatastoreProxy {
 
   async ensureSubprocess() {
     if (!this.subprocess) {
+      const settings = await require('../controllers/config').getSettings();
       this.subprocess = fork(
         global['API_PACKAGE'] || process.argv[1],
         [
@@ -43,6 +44,10 @@ class DatastoreProxy {
           // ...process.argv.slice(3),
         ],
         {
+          env: {
+            ...process.env,
+            NODE_NO_WARNINGS: settings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+          },
           stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
         }
       );

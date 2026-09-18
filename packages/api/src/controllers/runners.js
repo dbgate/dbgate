@@ -20,6 +20,7 @@ const {
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
+const config = require('./config');
 const { checkSecureDirectories, checkSecureDirectoriesInScript } = require('../utility/security');
 const { sendToAuditLog, logJsonRunnerScript } = require('../utility/auditlog');
 const { testStandardPermission } = require('../utility/hasPermission');
@@ -138,7 +139,8 @@ module.exports = {
     }
   },
 
-  startCore(runid, scriptText) {
+  async startCore(runid, scriptText) {
+    const settings = await config.getSettings();
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
@@ -162,7 +164,7 @@ module.exports = {
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
         env: {
           ...process.env,
-          NODE_NO_WARNINGS: '1',
+          NODE_NO_WARNINGS: settings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
           DBGATE_API: global['API_PACKAGE'] || process.argv[1],
           ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
         },
@@ -459,7 +461,9 @@ module.exports = {
       assertValidShellApiFunctionName(functionName);
       const runid = crypto.randomUUID();
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
-      this.startCore(runid, loaderScriptTemplate(functionName, props, runid));
+      this.startCore(runid, loaderScriptTemplate(functionName, props, runid)).catch(error =>
+        this.rejectRequest(runid, error)
+      );
     });
     return promise;
   },
@@ -479,7 +483,7 @@ module.exports = {
         }
       });
       const js = await jsonScriptToJavascript(cloned);
-      this.startCore(runid, scriptTemplate(js, false));
+      this.startCore(runid, scriptTemplate(js, false)).catch(error => this.rejectRequest(runid, error));
     });
     return promise;
   },

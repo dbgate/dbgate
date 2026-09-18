@@ -213,6 +213,7 @@ module.exports = {
     if (connection.useRedirectDbLogin) {
       throw new MissingCredentialsError({ conid, redirectToDbLogin: true });
     }
+    const globalSettings = await config.getSettings();
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
@@ -223,6 +224,10 @@ module.exports = {
         // ...process.argv.slice(3),
       ],
       {
+        env: {
+          ...process.env,
+          NODE_NO_WARNINGS: globalSettings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+        },
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       }
     );
@@ -267,7 +272,7 @@ module.exports = {
       msgtype: 'connect',
       connection: { ...connection, database },
       structure: lastClosed ? lastClosed.structure : null,
-      globalSettings: await config.getSettings(),
+      globalSettings,
     });
     subprocess.send(connectMessage);
     return newOpened;
