@@ -101,6 +101,7 @@ function extractImportEntitiesFromEnv(env) {
     connectionEnvIdToDbId[conn.id_original] = conn.id;
   }
 
+  const roleNameRegex = /^ROLE_(.+)_NAME$/;
   const connectionsRegex = /^ROLE_(.+)_CONNECTIONS$/;
   const permissionsRegex = /^ROLE_(.+)_PERMISSIONS$/;
 
@@ -164,7 +165,25 @@ function extractImportEntitiesFromEnv(env) {
   const tablePermissions = {};
   const teamFolderPermissions = {};
 
-  const getOrCreateRole = roleName => {
+  // Role name can be defined indirectly, via ROLE_<roleKey>_NAME. Environment variable names are limited
+  // to letters, digits and underscores in many environments (Kubernetes, dotenv files, POSIX shells),
+  // so role names containing eg. dashes or dots (OIDC group names like team-a@company.com)
+  // cannot be used directly in the variable name. When ROLE_<roleKey>_NAME is not defined,
+  // roleKey itself is used as role name, as before.
+  // null prototype, so that role keys like constructor or __proto__ are not resolved to inherited members
+  const roleNamesByKey = Object.create(null);
+  for (const key in env) {
+    const match = key.match(roleNameRegex);
+    if (match) {
+      const roleName = env[key]?.trim();
+      if (roleName) {
+        roleNamesByKey[match[1]] = roleName;
+      }
+    }
+  }
+
+  const getOrCreateRole = roleKey => {
+    const roleName = roleNamesByKey[roleKey] ?? roleKey;
     let role = roles.find(r => r.name === roleName);
     if (!role) {
       role = {
@@ -195,6 +214,11 @@ function extractImportEntitiesFromEnv(env) {
     }
     return folder;
   };
+
+  // create roles declared by ROLE_<roleKey>_NAME, even if they have no permissions assigned
+  for (const roleKey in roleNamesByKey) {
+    getOrCreateRole(roleKey);
+  }
 
   // First pass: collect all database, table, and team folder permission data
   for (const key in env) {
