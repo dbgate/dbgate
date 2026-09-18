@@ -34,15 +34,12 @@ function readCore(reader, skip, limit, filter) {
   });
 }
 
-function readJsonl({ skip, limit, filter }) {
-  return new Promise(async (resolve, reject) => {
-    const fileName = path.join(datadir(), 'query-history.jsonl');
-    // @ts-ignore
-    if (!(await fs.exists(fileName))) return resolve([]);
-    const reader = readFileReverse(fileName);
-    const res = await readCore(reader, skip, limit, filter);
-    resolve(res);
-  });
+async function readJsonl({ skip, limit, filter }) {
+  const fileName = path.join(datadir(), 'query-history.jsonl');
+  // @ts-ignore
+  if (!(await fs.exists(fileName))) return [];
+  const reader = readFileReverse(fileName);
+  return readCore(reader, skip, limit, filter);
 }
 
 module.exports = {
