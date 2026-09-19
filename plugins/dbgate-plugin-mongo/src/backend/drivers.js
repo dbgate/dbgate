@@ -102,18 +102,25 @@ async function getScriptableDb(dbhan) {
 const drivers = driverBases.map((driverBase) => ({
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl, useSshTunnel }) {
+  getSSHTunnelMode() {
+    return 'socks';
+  },
+  async connect({
+    server,
+    port,
+    user,
+    password,
+    database,
+    useDatabaseUrl,
+    databaseUrl,
+    ssl,
+    sshSocksProxyHost,
+    sshSocksProxyPort,
+  }) {
     let mongoUrl;
 
     if (useDatabaseUrl) {
-      if (useSshTunnel) {
-        // change port to ssh tunnel port
-        const url = new URL(databaseUrl);
-        url.port = port;
-        mongoUrl = url.href;
-      } else {
-        mongoUrl = databaseUrl;
-      }
+      mongoUrl = databaseUrl;
     } else {
       mongoUrl = user
         ? `mongodb://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${server}:${port}`
@@ -123,6 +130,12 @@ const drivers = driverBases.map((driverBase) => ({
     const options = {
       // useUnifiedTopology: true, // this options has no longer effect
     };
+
+    if (sshSocksProxyHost) {
+      options.proxyHost = sshSocksProxyHost;
+      options.proxyPort = sshSocksProxyPort;
+    }
+
     if (ssl) {
       options.tls = true;
       options.tlsCAFile = ssl.sslCaFile;
