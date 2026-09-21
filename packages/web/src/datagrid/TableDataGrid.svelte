@@ -154,7 +154,7 @@
   };
 
   function handleRunMacro(macro, params, cells) {
-    trackUsage({ feature: 'data_grid', action: 'run_macro' });
+    trackUsage({ feature: 'data_grid', action: 'run_macro', engine: $connection?.engine });
     const newChangeSet = runMacroOnChangeSet(macro, params, cells, changeSetState?.value, display, false);
     if (newChangeSet) {
       dispatchChangeSet({ type: 'set', value: newChangeSet });

@@ -23,15 +23,15 @@
   $: isPackaged = $info?.isPackaged;
 
   const handleInstall = async () => {
-    trackUsage({ feature: 'plugins', action: 'install', tab: 'plugin' });
+    trackUsage({ feature: 'plugins', action: 'install', tab: 'plugin', param: packageName });
     apiCall('plugins/install', { packageName });
   };
   const handleUninstall = async () => {
-    trackUsage({ feature: 'plugins', action: 'uninstall', tab: 'plugin' });
+    trackUsage({ feature: 'plugins', action: 'uninstall', tab: 'plugin', param: packageName });
     apiCall('plugins/uninstall', { packageName });
   };
   const handleUpgrade = async () => {
-    trackUsage({ feature: 'plugins', action: 'upgrade', tab: 'plugin' });
+    trackUsage({ feature: 'plugins', action: 'upgrade', tab: 'plugin', param: packageName });
     apiCall('plugins/upgrade', { packageName });
   };
 

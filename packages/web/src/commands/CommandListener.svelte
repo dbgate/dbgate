@@ -2,6 +2,7 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
+  import { runWithCommandSource } from './commandSource';
   import { getKeyTextFromEvent, isMac, resolveKeyText } from '../utility/common';
 
   export function handleCommandKeyDown(e) {
@@ -51,7 +52,7 @@
 
     if (notGroup.length == 1) {
       const command = notGroup[0];
-      if (command.onClick) command.onClick();
+      if (command.onClick) runWithCommandSource('keyboard', command.onClick);
       else if (command.getSubCommands) visibleCommandPalette.set(command);
       return;
     }

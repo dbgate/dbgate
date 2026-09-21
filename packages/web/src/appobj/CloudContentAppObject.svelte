@@ -19,6 +19,7 @@
   import { filterNameCompoud } from 'dbgate-tools';
   import ConnectionAppObject, { openConnection } from './ConnectionAppObject.svelte';
   import { _t } from '../translations';
+  import { trackObjectTree } from './appObjectTools';
   import openNewTab from '../utility/openNewTab';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
@@ -57,6 +58,7 @@
   }
 
   function handleEditConnection() {
+    trackObjectTree('edit', 'cloud_connection');
     openNewTab({
       title: data.name,
       icon: 'img cloud-connection',
@@ -68,6 +70,7 @@
   }
 
   async function handleDeleteConnection() {
+    trackObjectTree('delete', 'cloud_connection');
     showModal(ConfirmModal, {
       message: `Really delete connection ${data.name}?`,
       onConfirm: () => {
@@ -77,10 +80,12 @@
   }
 
   async function handleDuplicateConnection() {
+    trackObjectTree('duplicate', 'cloud_connection');
     await apiCall('cloud/duplicate-connection', { conid: data.conid });
   }
 
   async function handleConnect() {
+    trackObjectTree('connect', 'cloud_connection');
     const conn = await apiCall('connections/get', { conid: data.conid });
     $cloudConnectionsStore = {
       ...$cloudConnectionsStore,

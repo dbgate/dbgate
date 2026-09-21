@@ -10,6 +10,8 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import { _t } from '../translations';
+  import { trackUsage } from '../utility/usageAnalytics';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
 
   let filter = '';
   let search = '';
@@ -24,6 +26,17 @@
   $: {
     search;
     reloadItems();
+  }
+
+  /** The executed SQL is never sent, only that a history item was opened. */
+  async function trackHistoryOpen(item) {
+    let engine;
+    try {
+      engine = (await getConnectionInfo({ conid: item.conid }))?.engine;
+    } catch {
+      // Analytics must not depend on metadata loading.
+    }
+    trackUsage({ feature: 'query_history', action: 'open', engine });
   }
 
   const setDebouncedFilter = _.debounce(value => (search = value), 500);
@@ -53,6 +66,7 @@
       class="wrapper"
       title={item.sql}
       on:click={() => {
+        trackHistoryOpen(item);
         openNewTab(
           {
             title: _t('database.queryDesigner', { defaultMessage: "Query #" }),

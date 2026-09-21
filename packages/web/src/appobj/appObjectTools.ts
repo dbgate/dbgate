@@ -1,4 +1,5 @@
 import { __t } from '../translations';
+import { trackUsage } from '../utility/usageAnalytics';
 export function matchDatabaseObjectAppObject(obj1, obj2) {
   return (
     obj1?.objectTypeField == obj2?.objectTypeField &&
@@ -110,3 +111,16 @@ export const defaultDatabaseObjectAppObjectActions = {
     },
   ],
 };
+
+/**
+ * Usage analytics event for a menu item of a left panel tree.
+ * action is the stable name of the item, kind the tree object it belongs to.
+ */
+export function objectTreeUsage(action: string, kind: string, engine?: string) {
+  return { feature: 'object_tree', action, param: kind, engine };
+}
+
+/** Records a left panel tree action directly, for handlers not wired through a menu item. */
+export function trackObjectTree(action: string, kind: string, engine?: string): void {
+  trackUsage(objectTreeUsage(action, kind, engine));
+}

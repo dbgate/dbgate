@@ -79,6 +79,7 @@
   import fuzzy from 'fuzzy';
   import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { runWithCommandSource } from './commandSource';
   import {
     commandsCustomized,
     currentDatabase,
@@ -151,7 +152,7 @@
       selectedIndex = 0;
     } else {
       $visibleCommandPalette = null;
-      command.onClick();
+      runWithCommandSource('palette', () => command.onClick());
     }
   }
 

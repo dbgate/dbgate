@@ -83,11 +83,13 @@
   import { openImportExportTab } from '../utility/importExportTools';
   import { isProApp } from '../utility/proTools';
   import { _t } from '../translations';
+  import { trackObjectTree } from './appObjectTools';
 
   export let data;
   $: isZipped = data.folderName?.endsWith('.zip');
 
   const handleRename = () => {
+    trackObjectTree('rename', 'archive_file');
     showModal(InputTextModal, {
       value: data.fileName,
       label: _t('archiveFile.newFileName', { defaultMessage: 'New file name' }),
@@ -104,6 +106,7 @@
   };
 
   const handleDelete = () => {
+    trackObjectTree('delete', 'archive_file');
     showModal(ConfirmModal, {
       message: _t('archiveFile.deleteFileConfirm', { defaultMessage: 'Really delete file {fileName}?', values: { fileName: data.fileName } }),
       onConfirm: () => {

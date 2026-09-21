@@ -8,6 +8,9 @@ import { isProApp } from './proTools';
 const ANALYTICS_ROUTE = 'usage-analytics/events';
 const ANALYTICS_STORAGE_KEY = 'dbgateUsageAnalytics';
 const ANALYTICS_CONSENT_STORAGE_KEY = 'dbgateUsageAnalyticsConsent';
+const ANALYTICS_TRACE_STORAGE_KEY = 'dbgateUsageAnalyticsTrace';
+const ANALYTICS_TRACE_PREFIX = '[usage-analytics]';
+const ANALYTICS_ENDPOINT_INFO = 'analytics.dbgate.cloud';
 const ANALYTICS_BATCH_SIZE = 50;
 const ANALYTICS_FLUSH_INTERVAL_MS = 30 * 60 * 1000;
 
@@ -22,9 +25,11 @@ export interface UsageAnalyticsEvent {
   feature: string;
   action: string;
   engine?: string;
-  /** Stable type of the tab where the action started, never its user-defined title. */
+  /** Stable type of the tab the action belongs to (never its user-defined title). */
   tab?: string;
   result?: string;
+  /** Main parameter of the action; its meaning is defined per feature/action pair. */
+  param?: string;
   durationMs?: number;
   value?: number;
 }
@@ -33,8 +38,55 @@ let memoryState: UsageAnalyticsState | null = null;
 let pendingEvents: Record<string, unknown>[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let memoryConsent: boolean | null = null;
+let memoryTrace = false;
 let closeHandlerInstalled = false;
+let traceApiInstalled = false;
 const inFlightBatches = new Set<Promise<unknown>>();
+
+/** Whether every analytics payload is logged to the browser console. */
+export function isAnalyticsTraceEnabled(): boolean {
+  try {
+    const value = localStorage.getItem(ANALYTICS_TRACE_STORAGE_KEY);
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+  } catch {
+    // Fall back to the in-memory flag when storage is unavailable.
+  }
+  return memoryTrace;
+}
+
+/** Turns console logging of analytics payloads on or off; also available as window.setAnalyticsTrace(). */
+export function setAnalyticsTrace(enabled = true): boolean {
+  memoryTrace = !!enabled;
+  try {
+    localStorage.setItem(ANALYTICS_TRACE_STORAGE_KEY, String(memoryTrace));
+  } catch {
+    // The choice still applies for the current session.
+  }
+  const status = `consent=${getUsageAnalyticsConsent()}, pending events=${pendingEvents.length}`;
+  console.log(`${ANALYTICS_TRACE_PREFIX} trace ${memoryTrace ? 'enabled' : 'disabled'} (${status})`);
+  return memoryTrace;
+}
+
+function trace(message: string, payload?: unknown): void {
+  try {
+    if (!isAnalyticsTraceEnabled()) return;
+    if (payload === undefined) console.log(`${ANALYTICS_TRACE_PREFIX} ${message}`);
+    else console.log(`${ANALYTICS_TRACE_PREFIX} ${message}`, payload);
+  } catch {
+    // Tracing must never affect the application.
+  }
+}
+
+/** Publishes window.setAnalyticsTrace(true|false) so tracing can be switched from the console. */
+export function installAnalyticsTraceApi(): void {
+  if (traceApiInstalled || typeof window === 'undefined') return;
+  traceApiInstalled = true;
+  window['setAnalyticsTrace'] = setAnalyticsTrace;
+  window['getAnalyticsTrace'] = isAnalyticsTraceEnabled;
+}
+
+installAnalyticsTraceApi();
 
 export function getUsageAnalyticsConsent(): boolean | null {
   try {
@@ -158,6 +210,17 @@ function normalizeEngine(engine: string | undefined): string | undefined {
   return engine?.split('@')[0]?.toLowerCase();
 }
 
+/** Keeps param within the character set accepted by the backend, so one call cannot drop a batch. */
+function normalizeParam(param: string | undefined): string | undefined {
+  if (param === undefined) return undefined;
+  const value = param
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_.:+@/-]/g, '')
+    .substring(0, 80);
+  return value || undefined;
+}
+
 function scheduleFlush(): void {
   if (flushTimer) return;
   flushTimer = setTimeout(flushUsageAnalytics, ANALYTICS_FLUSH_INTERVAL_MS);
@@ -166,6 +229,7 @@ function scheduleFlush(): void {
 /** Sends and removes one best-effort batch without awaiting the response. */
 export function flushUsageAnalytics(): void {
   if (getUsageAnalyticsConsent() !== true) {
+    if (pendingEvents.length > 0) trace(`dropping ${pendingEvents.length} pending event(s), consent not granted`);
     clearPendingEvents();
     return;
   }
@@ -181,18 +245,32 @@ export function flushUsageAnalytics(): void {
   try {
     const electron = getElectron();
     if (electron) {
-      const request = electron.invoke('usage-analytics-events', { events }).catch(() => {});
+      trace(`sending batch of ${events.length} event(s) through Electron to ${ANALYTICS_ENDPOINT_INFO}`, events);
+      const request = electron
+        .invoke('usage-analytics-events', { events })
+        .then(result => trace('batch result', result))
+        .catch(() => {});
       inFlightBatches.add(request);
       void request.finally(() => inFlightBatches.delete(request));
       return;
     }
-    void fetch(`${resolveApi()}/${ANALYTICS_ROUTE}`, {
+    const url = `${resolveApi()}/${ANALYTICS_ROUTE}`;
+    trace(`sending batch of ${events.length} event(s) to ${url}, forwarded to ${ANALYTICS_ENDPOINT_INFO}`, events);
+    const request = fetch(url, {
       method: 'POST',
       headers: { ...resolveApiHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ events }),
       credentials: 'same-origin',
       keepalive: true,
-    }).catch(() => {});
+    }).catch(() => null);
+    if (isAnalyticsTraceEnabled()) {
+      void request
+        .then(async response => {
+          if (!response) trace('batch request failed');
+          else trace('batch result', await response.json().catch(() => ({ status: response.status })));
+        })
+        .catch(() => {});
+    }
   } catch {
     // A failed analytics batch is deliberately dropped without a retry.
   }
@@ -216,13 +294,17 @@ export function getUsageTab(tabid?: string): string {
 /** Adds anonymous usage data to a short-lived, best-effort batch. */
 export function trackUsage(event: UsageAnalyticsEvent, tabid?: string): void {
   try {
-    if (getUsageAnalyticsConsent() !== true) return;
+    if (getUsageAnalyticsConsent() !== true) {
+      trace('event not tracked, consent not granted', event);
+      return;
+    }
     const state = initializeUsageAnalytics();
     const config = getCurrentConfig() || {};
-    pendingEvents.push({
+    const trackedEvent = {
       ...event,
       tab: event.tab ?? getUsageTab(tabid),
       engine: normalizeEngine(event.engine),
+      param: normalizeParam(event.param),
       appType: getAppType(config),
       version: config.version,
       platform: getPlatform(),
@@ -231,7 +313,9 @@ export function trackUsage(event: UsageAnalyticsEvent, tabid?: string): void {
       activeDaysTotal: state.activeDaysTotal,
       daysSinceInstall: daysBetween(state.firstUsedDate, state.lastActiveDate),
       installationId: state.installationId,
-    });
+    };
+    pendingEvents.push(trackedEvent);
+    trace(`event queued (${pendingEvents.length} pending)`, trackedEvent);
 
     if (pendingEvents.length >= ANALYTICS_BATCH_SIZE) flushUsageAnalytics();
     else scheduleFlush();

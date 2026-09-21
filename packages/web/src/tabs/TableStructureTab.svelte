@@ -116,7 +116,12 @@
   }
 
   async function handleConfirmSql(sql) {
-    trackUsage({ feature: 'table_structure', action: 'save_changes', tab: 'table_structure' });
+    trackUsage({
+      feature: 'table_structure',
+      action: 'save_changes',
+      tab: 'table_structure',
+      engine: $connection?.engine,
+    });
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
@@ -139,7 +144,12 @@
   }
 
   export async function reset() {
-    trackUsage({ feature: 'table_structure', action: 'reset_changes', tab: 'table_structure' });
+    trackUsage({
+      feature: 'table_structure',
+      action: 'reset_changes',
+      tab: 'table_structure',
+      engine: $connection?.engine,
+    });
     await apiCall('database-connections/sync-model', { conid, database });
     await clearEditorData();
     resetCounter++;

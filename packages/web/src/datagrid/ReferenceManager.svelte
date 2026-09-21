@@ -1,7 +1,7 @@
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, getContext } from 'svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
@@ -12,12 +12,20 @@
   import TokenizedFilteredText from '../widgets/TokenizedFilteredText.svelte';
 
   import { _t } from '../translations';
+  import { trackUsage } from '../utility/usageAnalytics';
 
   export let managerSize;
   export let display: GridDisplay;
   export let onReferenceClick = ref => {};
 
   const dispatch = createEventDispatcher();
+  const tabid = getContext('tabid');
+
+  /** kind is 'reference' for a referenced table, 'dependency' for a dependent one. */
+  function handleReferenceClick(kind, ref) {
+    trackUsage({ feature: 'data_grid', action: 'open_reference', param: kind }, tabid);
+    onReferenceClick(ref);
+  }
 
   let filter;
 
@@ -36,7 +44,7 @@
       <div
         class="link"
         on:click={() =>
-          onReferenceClick({
+          handleReferenceClick('reference', {
             schemaName: fk.refSchemaName,
             pureName: fk.refTableName,
             columns: fk.columns.map(col => ({
@@ -60,7 +68,7 @@
       <div
         class="link"
         on:click={() =>
-          onReferenceClick({
+          handleReferenceClick('dependency', {
             schemaName: fk.schemaName,
             pureName: fk.pureName,
             columns: fk.columns.map(col => ({

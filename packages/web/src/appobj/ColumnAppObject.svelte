@@ -25,6 +25,7 @@
   import { filterName, findEngineDriver } from 'dbgate-tools';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import { _t } from '../translations';
+  import { objectTreeUsage } from './appObjectTools';
 
   export let data;
 
@@ -52,12 +53,24 @@
     const menu = [];
 
     if (!driver.dialect.disableNonPrimaryKeyRename || isPrimaryKey) {
-      menu.push({ text: _t('column.renameColumn', { defaultMessage: 'Rename column' }), onClick: handleRenameColumn });
+      menu.push({
+        text: _t('column.renameColumn', { defaultMessage: 'Rename column' }),
+        onClick: handleRenameColumn,
+        usageAnalytics: objectTreeUsage('rename', 'column', driver?.engine),
+      });
     }
 
     menu.push(
-      { text: _t('column.dropColumn', { defaultMessage: 'Drop column' }), onClick: handleDropColumn },
-      { text: _t('column.copyName', { defaultMessage: 'Copy name' }), onClick: () => navigator.clipboard.writeText(data.columnName) }
+      {
+        text: _t('column.dropColumn', { defaultMessage: 'Drop column' }),
+        onClick: handleDropColumn,
+        usageAnalytics: objectTreeUsage('drop', 'column', driver?.engine),
+      },
+      {
+        text: _t('column.copyName', { defaultMessage: 'Copy name' }),
+        onClick: () => navigator.clipboard.writeText(data.columnName),
+        usageAnalytics: objectTreeUsage('copy_name', 'column', driver?.engine),
+      }
     );
 
     return menu;

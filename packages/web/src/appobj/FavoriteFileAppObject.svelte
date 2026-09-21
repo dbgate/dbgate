@@ -31,6 +31,7 @@
 
 <script lang="ts">
   import openNewTab from '../utility/openNewTab';
+  import { trackObjectTree } from './appObjectTools';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
@@ -43,10 +44,12 @@
   const electron = getElectron();
 
   const editFavorite = () => {
+    trackObjectTree('edit', 'favorite_file');
     showModal(FavoriteModal, { editingData: data });
   };
 
   const editFavoriteJson = async () => {
+    trackObjectTree('edit_json', 'favorite_file');
     const resp = await apiCall('files/load', {
       folder: 'favorites',
       file: data.file,
@@ -69,10 +72,12 @@
   };
 
   const copyLink = () => {
+    trackObjectTree('copy_link', 'favorite_file');
     copyTextToClipboard(`${document.location.origin}#favorite=${data.urlPath}`);
   };
 
   const handleDelete = () => {
+    trackObjectTree('delete', 'favorite_file');
     showModal(ConfirmModal, {
       message: `Really delete favorite ${data.title}?`,
       onConfirm: () => {

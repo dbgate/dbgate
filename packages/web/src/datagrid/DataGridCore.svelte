@@ -569,13 +569,13 @@
 
   const tabid = getContext('tabid');
 
-  function trackGridAction(action, callback) {
-    trackGridUsage({ feature: 'data_grid', action });
+  function trackGridAction(action, callback, param = undefined) {
+    trackGridUsage({ feature: 'data_grid', action, param });
     return callback();
   }
 
   function trackGridUsage(event) {
-    trackUsage(event, tabid);
+    trackUsage({ engine: display?.driver?.engine, ...event }, tabid);
   }
   const selectedMacro = getContext('selectedMacro') as Writable<MacroDefinition>;
 
@@ -1177,6 +1177,7 @@
         text: `${fk.refTableName} (${fk.columns.map(x => x.columnName).join(', ')})`,
         icon: 'img link',
         onClick: () => {
+          trackGridUsage({ feature: 'data_grid', action: 'open_reference', param: 'reference' });
           onReferenceClick({
             schemaName: fk.refSchemaName,
             pureName: fk.refTableName,
@@ -1194,6 +1195,7 @@
         text: `${fk.pureName} (${fk.columns.map(x => x.columnName).join(', ')})`,
         icon: 'img reference',
         onClick: () => {
+          trackGridUsage({ feature: 'data_grid', action: 'open_reference', param: 'dependency' });
           onReferenceClick({
             schemaName: fk.schemaName,
             pureName: fk.pureName,
@@ -2442,8 +2444,12 @@
                   column={col}
                   {conid}
                   {database}
-                  setSort={display.sortable ? order => trackGridAction('sort', () => display.setSort(col.uniqueName, order)) : null}
-                  addToSort={display.sortable ? order => trackGridAction('add_sort', () => display.addToSort(col.uniqueName, order)) : null}
+                  setSort={display.sortable
+                    ? order => trackGridAction('sort', () => display.setSort(col.uniqueName, order), order)
+                    : null}
+                  addToSort={display.sortable
+                    ? order => trackGridAction('add_sort', () => display.addToSort(col.uniqueName, order), order)
+                    : null}
                   order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
                   orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
                   isSortDefined={display.sortable ? display.isSortDefined() : false}
@@ -2452,7 +2458,10 @@
                     // @ts-ignore
                     display.resizeColumn(col.uniqueName, col.width, e.detail);
                   }}
-                  setGrouping={display.groupable ? groupFunc => trackGridAction('set_grouping', () => display.setGrouping(col.uniqueName, groupFunc)) : null}
+                  setGrouping={display.groupable
+                    ? groupFunc =>
+                        trackGridAction('set_grouping', () => display.setGrouping(col.uniqueName, groupFunc), groupFunc)
+                    : null}
                   grouping={display.getGrouping(col.uniqueName)}
                   {allowDefineVirtualReferences}
                   seachInColumns={display.config?.searchInColumns}

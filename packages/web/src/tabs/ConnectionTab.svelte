@@ -93,8 +93,19 @@
     });
   }
 
+  /** Where the connection is stored: cloud or local. */
+  function getConnectionStorageParam() {
+    return saveOnCloud || `${$values?._id ?? ''}`.startsWith('cloud://') ? 'cloud' : 'local';
+  }
+
   async function handleTestCore(connection, requestDbList = false) {
-    trackUsage({ feature: 'connection', action: 'test', tab: 'connection', engine: connection.engine });
+    trackUsage({
+      feature: 'connection',
+      action: 'test',
+      tab: 'connection',
+      engine: connection.engine,
+      param: getConnectionStorageParam(),
+    });
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
@@ -191,7 +202,13 @@
   $: currentConnection = getCurrentConnectionCore($values, driver);
 
   async function handleSave() {
-    trackUsage({ feature: 'connection', action: 'save', tab: 'connection', engine: driver?.engine });
+    trackUsage({
+      feature: 'connection',
+      action: 'save',
+      tab: 'connection',
+      engine: driver?.engine,
+      param: getConnectionStorageParam(),
+    });
     if (saveOnCloud && !getCurrentConnection()?._id) {
       showModal(ChooseCloudFolderModal, {
         requiredRoleVariants: ['write', 'admin'],
@@ -255,7 +272,13 @@
   }
 
   async function handleConnect() {
-    trackUsage({ feature: 'connection', action: 'connect', tab: 'connection', engine: driver?.engine });
+    trackUsage({
+      feature: 'connection',
+      action: 'connect',
+      tab: 'connection',
+      engine: driver?.engine,
+      param: getConnectionStorageParam(),
+    });
     let connection = getCurrentConnection();
 
     if (
@@ -287,7 +310,13 @@
   }
 
   async function handleDisconnect() {
-    trackUsage({ feature: 'connection', action: 'disconnect', tab: 'connection', engine: driver?.engine });
+    trackUsage({
+      feature: 'connection',
+      action: 'disconnect',
+      tab: 'connection',
+      engine: driver?.engine,
+      param: getConnectionStorageParam(),
+    });
     if ($values.singleDatabase) {
       disconnectDatabaseConnection($values._id, $values.defaultDatabase);
     } else {

@@ -149,7 +149,13 @@
       onConfirm: async value => {
         const ttl = parseInt(value);
         if (_.isNumber(ttl)) {
-          trackUsage({ feature: 'redis', action: 'change_ttl', tab: 'redis_key_detail' });
+          trackUsage({
+            feature: 'redis',
+            action: 'change_ttl',
+            tab: 'redis_key_detail',
+            engine: $connection?.engine,
+            param: keyInfo?.type,
+          });
           if (ttl < 0) {
             await apiCall('database-connections/call-method', {
               conid,
@@ -177,7 +183,13 @@
       label: 'New key name',
       header: `Rename key ${keyInfo.key}`,
       onConfirm: async value => {
-        trackUsage({ feature: 'redis', action: 'rename_key', tab: 'redis_key_detail' });
+        trackUsage({
+          feature: 'redis',
+          action: 'rename_key',
+          tab: 'redis_key_detail',
+          engine: $connection?.engine,
+          param: keyInfo?.type,
+        });
         const res = await apiCall('database-connections/call-method', {
           conid,
           database,
@@ -398,7 +410,13 @@
   }
 
   async function handleConfirmChange(callList) {
-    trackUsage({ feature: 'redis', action: 'save_changes', tab: 'redis_key_detail' });
+    trackUsage({
+      feature: 'redis',
+      action: 'save_changes',
+      tab: 'redis_key_detail',
+      engine: $connection?.engine,
+      param: changeSetRedis?.changes?.[0]?.type,
+    });
     const resp = await apiCall('database-connections/multi-call-method', {
       conid,
       database,

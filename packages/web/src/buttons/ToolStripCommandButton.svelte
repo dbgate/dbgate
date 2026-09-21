@@ -14,6 +14,7 @@
   import ToolStripButton from './ToolStripButton.svelte';
   import _ from 'lodash';
   import { _tval } from '../translations';
+  import { runWithCommandSource } from '../commands/commandSource';
 
   export let command;
   export let component = ToolStripButton;
@@ -29,7 +30,7 @@
     this={component}
     title={getCommandTitle(cmd)}
     icon={cmd.icon}
-    on:click={cmd.onClick}
+    on:click={e => runWithCommandSource('toolbar', () => cmd.onClick(e))}
     disabled={!cmd.enabled}
     {iconAfter}
     {...$$restProps}

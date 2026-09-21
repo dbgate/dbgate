@@ -132,6 +132,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
+  import { objectTreeUsage } from './appObjectTools';
   import getElectron from '../utility/getElectron';
   import { getDatabaseList, useAllApps, useServerVersion } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
@@ -351,11 +352,13 @@
         !$openedConnections.includes(data._id) && {
           text: _t('connection.connect', { defaultMessage: 'Connect' }),
           onClick: handleConnect,
+          usageAnalytics: objectTreeUsage('connect', 'connection', data.engine),
           isBold: true,
         },
         $openedConnections.includes(data._id) && {
           text: _t('connection.disconnect', { defaultMessage: 'Disconnect' }),
           onClick: handleDisconnect,
+          usageAnalytics: objectTreeUsage('disconnect', 'connection', data.engine),
         },
       ],
       { divider: true },
@@ -366,14 +369,17 @@
               ? _t('connection.viewDetails', { defaultMessage: 'View details' })
               : _t('connection.edit', { defaultMessage: 'Edit' }),
             onClick: handleOpenConnectionTab,
+            usageAnalytics: objectTreeUsage('edit', 'connection', data.engine),
           },
           !$openedConnections.includes(data._id) && {
             text: _t('connection.delete', { defaultMessage: 'Delete' }),
             onClick: handleDelete,
+            usageAnalytics: objectTreeUsage('delete', 'connection', data.engine),
           },
           {
             text: _t('connection.duplicate', { defaultMessage: 'Duplicate' }),
             onClick: handleDuplicate,
+            usageAnalytics: objectTreeUsage('duplicate', 'connection', data.engine),
           },
           $cloudSigninTokenHolder &&
             passProps?.cloudContentList?.length > 0 && {
@@ -385,6 +391,7 @@
                   onClick: () => {
                     apiCall('cloud/copy-connection-cloud', { conid: data._id, folid: fld.folid });
                   },
+                  usageAnalytics: objectTreeUsage('copy_to_cloud', 'connection', data.engine),
                 })),
             },
         ],
@@ -401,12 +408,14 @@
             },
           }),
         text: _t('connection.apiQuery', { defaultMessage: 'API Query' }),
+        usageAnalytics: objectTreeUsage('api_query', 'connection', data.engine),
       },
 
       !data.singleDatabase &&
         driver?.supportExecuteQuery && [
           hasPermission(`dbops/query`) && {
             onClick: handleNewQuery,
+            usageAnalytics: objectTreeUsage('new_query', 'connection', data.engine),
             text: _t('connection.newQuery', { defaultMessage: 'New Query (server)' }),
             isNewQuery: true,
           },
@@ -420,6 +429,7 @@
             (!config.storageDatabase ||
               (hasPermission('all-databases') && hasPermission('all-tables'))) && {
               onClick: handleServerChat,
+              usageAnalytics: objectTreeUsage('server_chat', 'connection', data.engine),
               text: _t('connection.serverChat', { defaultMessage: 'Server Chat' }),
               testid: 'ConnectionAppObject_serverChat',
             },
@@ -427,6 +437,7 @@
             data.status && {
               text: _t('connection.refresh', { defaultMessage: 'Refresh' }),
               onClick: handleRefresh,
+              usageAnalytics: objectTreeUsage('refresh', 'connection', data.engine),
             },
           hasPermission(`dbops/createdb`) &&
             $openedConnections.includes(data._id) &&
@@ -434,10 +445,12 @@
             !data.isReadOnly && {
               text: _t('connection.createDatabase', { defaultMessage: 'Create database' }),
               onClick: handleCreateDatabase,
+              usageAnalytics: objectTreeUsage('create_database', 'connection', data.engine),
             },
           driver?.supportsServerSummary && {
             text: _t('connection.serverSummary', { defaultMessage: 'Server summary' }),
             onClick: handleServerSummary,
+            usageAnalytics: objectTreeUsage('server_summary', 'connection', data.engine),
           },
         ],
       data.singleDatabase && [
@@ -456,7 +469,11 @@
       supportsRestore &&
         data.defaultDatabase &&
         hasPermission(`dbops/sql-dump/import`) &&
-        !data.isReadOnly && { onClick: handleRestoreDatabase, text: 'Restore database backup' },
+        !data.isReadOnly && {
+          onClick: handleRestoreDatabase,
+          text: 'Restore database backup',
+          usageAnalytics: objectTreeUsage('restore_database', 'connection', data.engine),
+        },
     ];
   };
 

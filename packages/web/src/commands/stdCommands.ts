@@ -912,10 +912,12 @@ export function registerFileCommands({
   executeAdditionalCondition = null,
   copyPaste = false,
   defaultTeamFolder = false,
+  usageFeature = undefined as string,
 }) {
   if (save) {
     registerCommand({
       id: idPrefix + '.save',
+      usageFeature,
       group: 'save',
       category,
       name: __t('command.save', { defaultMessage: 'Save' }),
@@ -928,6 +930,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.saveAs',
+      usageFeature,
       group: 'saveAs',
       category,
       name: __t('command.saveAs', { defaultMessage: 'Save As' }),
@@ -936,6 +939,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.saveToDisk',
+      usageFeature,
       category,
       name: __t('command.saveToDisk', { defaultMessage: 'Save to disk' }),
       testEnabled: () => getCurrentEditor() != null && getElectron() != null,
@@ -946,6 +950,7 @@ export function registerFileCommands({
   if (execute) {
     registerCommand({
       id: idPrefix + '.execute',
+      usageFeature,
       usageAnalytics: executeUsageAnalytics,
       category,
       name: __t('command.execute', { defaultMessage: 'Execute' }),
@@ -961,6 +966,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.kill',
+      usageFeature,
       usageAnalytics: killUsageAnalytics,
       category,
       name: __t('command.kill', { defaultMessage: 'Kill' }),
@@ -975,6 +981,7 @@ export function registerFileCommands({
   if (toggleComment) {
     registerCommand({
       id: idPrefix + '.toggleComment',
+      usageFeature,
       category,
       name: __t('command.toggleComment', { defaultMessage: 'Toggle comment' }),
       keyText: 'CtrlOrCommand+/',
@@ -987,6 +994,7 @@ export function registerFileCommands({
   if (copyPaste) {
     registerCommand({
       id: idPrefix + '.copy',
+      usageFeature,
       category,
       name: __t('command.copy', { defaultMessage: 'Copy' }),
       disableHandleKeyText: 'CtrlOrCommand+C',
@@ -995,6 +1003,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.paste',
+      usageFeature,
       category,
       name: __t('command.paste', { defaultMessage: 'Paste' }),
       disableHandleKeyText: 'CtrlOrCommand+V',
@@ -1006,6 +1015,7 @@ export function registerFileCommands({
   if (findReplace) {
     registerCommand({
       id: idPrefix + '.find',
+      usageFeature,
       category,
       name: __t('command.find', { defaultMessage: 'Find' }),
       keyText: 'CtrlOrCommand+F',
@@ -1014,6 +1024,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.replace',
+      usageFeature,
       category,
       keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
       name: __t('command.replace', { defaultMessage: 'Replace' }),
@@ -1024,6 +1035,7 @@ export function registerFileCommands({
   if (undoRedo) {
     registerCommand({
       id: idPrefix + '.undo',
+      usageFeature,
       category,
       name: __t('command.undo', { defaultMessage: 'Undo' }),
       group: 'undo',
@@ -1033,6 +1045,7 @@ export function registerFileCommands({
     });
     registerCommand({
       id: idPrefix + '.redo',
+      usageFeature,
       category,
       group: 'redo',
       name: __t('command.redo', { defaultMessage: 'Redo' }),

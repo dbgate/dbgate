@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import { _t } from '../translations';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import { objectTreeUsage } from './appObjectTools';
 
   export const extractKey = props => props.name;
 
@@ -455,6 +456,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.supportExecuteQuery &&
         isAllowedDatabaseRunScript(databasePermissionRole) && {
           onClick: handleNewQuery,
+          usageAnalytics: objectTreeUsage('new_query', 'database', connection?.engine),
           text: _t('database.newQuery', { defaultMessage: 'New query' }),
           isNewQuery: true,
         },
@@ -462,12 +464,14 @@ await dbgateApi.executeQuery(${JSON.stringify(
         !connection.isReadOnly &&
         driver?.databaseEngineTypes?.includes('sql') && {
           onClick: handleNewTable,
+          usageAnalytics: objectTreeUsage('new_table', 'database', connection?.engine),
           text: _t('database.newTable', { defaultMessage: 'New table' }),
         },
       !connection.isReadOnly &&
         hasPermission(`dbops/model/edit`) &&
         driver?.databaseEngineTypes?.includes('document') && {
           onClick: handleNewCollection,
+          usageAnalytics: objectTreeUsage('new_collection', 'database', connection?.engine),
           text: _t('database.newCollection', {
             defaultMessage: 'New collection/container',
           }),
@@ -476,15 +480,18 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('sql') &&
         isProApp() && {
           onClick: handleQueryDesigner,
+          usageAnalytics: objectTreeUsage('design_query', 'database', connection?.engine),
           text: _t('database.designQuery', { defaultMessage: 'Design query' }),
         },
       driver?.databaseEngineTypes?.includes('sql') &&
         isProApp() && {
           onClick: handleNewPerspective,
+          usageAnalytics: objectTreeUsage('design_perspective', 'database', connection?.engine),
           text: _t('database.designPerspectiveQuery', { defaultMessage: 'Design perspective query' }),
         },
       connection.useSeparateSchemas && {
         onClick: handleRefreshSchemas,
+        usageAnalytics: objectTreeUsage('refresh_schemas', 'database', connection?.engine),
         text: _t('database.refreshSchemas', { defaultMessage: 'Refresh schemas' }),
       },
 
@@ -493,22 +500,26 @@ await dbgateApi.executeQuery(${JSON.stringify(
         !connection.isReadOnly &&
         hasPermission(`dbops/import`) && {
           onClick: handleImport,
+          usageAnalytics: objectTreeUsage('import', 'database', connection?.engine),
           text: _t('database.import', { defaultMessage: 'Import' }),
         },
       isSqlOrDoc &&
         hasPermission(`dbops/export`) && {
           onClick: handleExport,
+          usageAnalytics: objectTreeUsage('export', 'database', connection?.engine),
           text: _t('database.export', { defaultMessage: 'Export' }),
         },
       supportsRestore &&
         hasPermission(`dbops/sql-dump/import`) &&
         !connection.isReadOnly && {
           onClick: handleRestoreDatabase,
+          usageAnalytics: objectTreeUsage('restore_database', 'database', connection?.engine),
           text: _t('database.restoreDatabaseBackup', { defaultMessage: 'Restore database backup' }),
         },
       supportsBackup &&
         hasPermission(`dbops/sql-dump/export`) && {
           onClick: handleBackupDatabase,
+          usageAnalytics: objectTreeUsage('backup_database', 'database', connection?.engine),
           text: _t('database.createDatabaseBackup', { defaultMessage: 'Create database backup' }),
         },
       isSqlOrDoc &&
@@ -517,26 +528,31 @@ await dbgateApi.executeQuery(${JSON.stringify(
         isSqlOrDoc &&
         hasPermission(`dbops/dropdb`) && {
           onClick: handleDropDatabase,
+          usageAnalytics: objectTreeUsage('drop_database', 'database', connection?.engine),
           text: _t('database.dropDatabase', { defaultMessage: 'Drop database' }),
         },
       { divider: true },
       driver?.databaseEngineTypes?.includes('sql') && {
         onClick: handleCopyName,
+        usageAnalytics: objectTreeUsage('copy_name', 'database', connection?.engine),
         text: _t('database.copyDatabaseName', { defaultMessage: 'Copy database name' }),
       },
       driver?.databaseEngineTypes?.includes('sql') && {
         onClick: handleShowDiagram,
+        usageAnalytics: objectTreeUsage('show_diagram', 'database', connection?.engine),
         text: _t('database.showDiagram', { defaultMessage: 'Show diagram' }),
       },
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/sql-generator`) && {
           onClick: handleSqlGenerator,
+          usageAnalytics: objectTreeUsage('sql_generator', 'database', connection?.engine),
           text: _t('database.sqlGenerator', { defaultMessage: 'SQL Generator' }),
         },
       driver?.supportsDatabaseProfiler &&
         isProApp() &&
         hasPermission(`dbops/profiler`) && {
           onClick: handleDatabaseProfiler,
+          usageAnalytics: objectTreeUsage('profiler', 'database', connection?.engine),
           text: _t('database.databaseProfiler', { defaultMessage: 'Database profiler' }),
         },
       // isSqlOrDoc &&
@@ -546,6 +562,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         isProApp() &&
         hasPermission(`dbops/model/view`) && {
           onClick: handleExportModel,
+          usageAnalytics: objectTreeUsage('export_model', 'database', connection?.engine),
           text: _t('database.exportDbModel', { defaultMessage: 'Export DB model' }),
         },
       isProApp() &&
@@ -553,6 +570,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission('dbops/chat') && {
           onClick: handleDatabaseChat,
+          usageAnalytics: objectTreeUsage('database_chat', 'database', connection?.engine),
           text: _t('database.databaseChat', { defaultMessage: 'Database chat' }),
         },
       isProApp() &&
@@ -560,6 +578,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         driver?.databaseEngineTypes?.includes('graphql') &&
         hasPermission('dbops/chat') && {
           onClick: handleGraphQlChat,
+          usageAnalytics: objectTreeUsage('graphql_chat', 'database', connection?.engine),
           text: _t('database.graphqlChat', { defaultMessage: 'GraphQL chat' }),
         },
       isSqlOrDoc &&
@@ -570,6 +589,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
           onClick: handleCompareWithCurrentDb,
+          usageAnalytics: objectTreeUsage('compare_models', 'database', connection?.engine),
           text: _t('database.compareWithCurrentDb', {
             defaultMessage: 'Compare with {name}',
             values: { name: _.get($currentDatabase, 'name') },
@@ -578,6 +598,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
 
       driver?.databaseEngineTypes?.includes('keyvalue') && {
         onClick: handleGenerateScript,
+        usageAnalytics: objectTreeUsage('generate_script', 'database', connection?.engine),
         text: _t('database.generateScript', { defaultMessage: 'Generate script' }),
       },
 
@@ -585,6 +606,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
         (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
           _.get($currentDatabase, 'name') == name)) && {
         onClick: handleDisconnect,
+        usageAnalytics: objectTreeUsage('disconnect', 'database', connection?.engine),
         text: _t('database.disconnect', { defaultMessage: 'Disconnect' }),
       },
 
@@ -594,23 +616,27 @@ await dbgateApi.executeQuery(${JSON.stringify(
         hasPermission(`run-shell-script`) &&
         hasPermission(`dbops/dropdb`) && {
           onClick: handleGenerateDropAllObjectsScript,
+          usageAnalytics: objectTreeUsage('shell_drop_all_objects', 'database', connection?.engine),
           text: _t('database.shellDropAllObjects', { defaultMessage: 'Shell: Drop all objects' }),
         },
 
       hasPermission(`run-shell-script`) && {
         onClick: handleGenerateRunScript,
+        usageAnalytics: objectTreeUsage('shell_run_script', 'database', connection?.engine),
         text: _t('database.shellRunScript', { defaultMessage: 'Shell: Run script' }),
       },
 
       driver?.databaseEngineTypes?.includes('sql') &&
         hasPermission(`dbops/import`) && {
           onClick: handleShowDataDeployer,
+          usageAnalytics: objectTreeUsage('data_deployer', 'database', connection?.engine),
           text: _t('database.dataDeployer', { defaultMessage: 'Data deployer' }),
         },
 
       isProApp() &&
         hasPermission(`files/apps/write`) && {
           onClick: handleCreateNewApp,
+          usageAnalytics: objectTreeUsage('create_application', 'database', connection?.engine),
           text: _t('database.createNewApplication', { defaultMessage: 'Create new application' }),
         },
 
@@ -620,6 +646,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
           submenu: apps.map((app: any) => ({
             text: app.applicationName,
             onClick: () => openApplicationEditor(app.appid),
+            usageAnalytics: objectTreeUsage('edit_application', 'database', connection?.engine),
           })),
         },
 
@@ -628,6 +655,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
       commands.length > 0 && [
         commands.map((cmd: any) => ({
           text: cmd.label,
+          usageAnalytics: objectTreeUsage('app_command', 'database', connection?.engine),
           onClick: () => {
             showModal(ConfirmSqlModal, {
               sql: cmd.sql,

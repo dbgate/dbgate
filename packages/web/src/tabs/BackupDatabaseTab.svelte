@@ -112,8 +112,19 @@
     };
   }
 
+  /** Backup tool used by the operation; 'native' when the driver offers no choice. */
+  function getBackupToolName() {
+    return (isPremium ? $valuesStore?.backupTool : driver?.nodejsBackupTool) || 'native';
+  }
+
   async function handleExecute() {
-    trackUsage({ feature: 'backup_database', action: 'execute', tab: 'backup_database' });
+    trackUsage({
+      feature: 'backup_database',
+      action: 'execute',
+      tab: 'backup_database',
+      engine: driver?.engine,
+      param: getBackupToolName(),
+    });
     busy = true;
     backupCancelled = false;
     operationStatus = 'Running';
@@ -153,13 +164,25 @@
   }
 
   async function handleCancel() {
-    trackUsage({ feature: 'backup_database', action: 'cancel', tab: 'backup_database' });
+    trackUsage({
+      feature: 'backup_database',
+      action: 'cancel',
+      tab: 'backup_database',
+      engine: driver?.engine,
+      param: getBackupToolName(),
+    });
     await apiCall('runners/cancel', { runid: runnerId });
     backupCancelled = true;
   }
 
   async function handleGenerateCommand() {
-    trackUsage({ feature: 'backup_database', action: 'generate_command', tab: 'backup_database' });
+    trackUsage({
+      feature: 'backup_database',
+      action: 'generate_command',
+      tab: 'backup_database',
+      engine: driver?.engine,
+      param: getBackupToolName(),
+    });
     const resp = await apiCall('database-connections/native-backup-command', {
       ...getBackupParams(),
       outputFile: await generateOutputFilePath(),

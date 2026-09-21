@@ -9,6 +9,7 @@ const STRING_FIELDS = {
   tab: 80,
   engine: 80,
   result: 40,
+  param: 80,
   appType: 20,
   version: 80,
   platform: 20,

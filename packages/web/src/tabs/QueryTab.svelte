@@ -397,7 +397,8 @@
     };
   }
 
-  async function executeCore(sql, startLine = 0) {
+  /** source says what was executed: all, selection, current, fragment or auto. */
+  async function executeCore(sql, startLine = 0, source = 'all') {
     if (busy) return;
 
     const parameters = extractQueryParameters(sql, getParameterSplitterOptions());
@@ -414,21 +415,21 @@
         onExecute: values => {
           localStorage.setItem(`tabdata_queryParams_${tabid}`, JSON.stringify(values));
           const newSql = replaceQueryParameters(sql, values, getParameterSplitterOptions());
-          executeCoreWithParams(newSql, startLine);
+          executeCoreWithParams(newSql, startLine, source);
         },
       });
     } else {
-      executeCoreWithParams(sql, startLine);
+      executeCoreWithParams(sql, startLine, source);
     }
   }
 
-  async function executeCoreWithParams(sql, startLine = 0) {
+  async function executeCoreWithParams(sql, startLine = 0, source = 'all') {
     if (!sql || !sql.trim()) {
       showSnackbarError('Skipped executing empty query');
       return;
     }
 
-    trackUsage({ feature: 'query', action: 'execute', tab: 'query', engine: driver?.engine });
+    trackUsage({ feature: 'query', action: 'execute', tab: 'query', engine: driver?.engine, param: source });
     executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
@@ -503,13 +504,13 @@
 
   export async function executeCurrent() {
     const cmd = domEditor.getCurrentCommandText();
-    await executeCore(cmd.text, cmd.line);
+    await executeCore(cmd.text, cmd.line, 'current');
   }
 
   export async function execute() {
     const selectedText = domEditor.getEditor().getSelectedText();
     const startLine = domEditor.getEditor().getSelectionRange().start.row;
-    await executeCore(selectedText || $editorValue, selectedText ? startLine : 0);
+    await executeCore(selectedText || $editorValue, selectedText ? startLine : 0, selectedText ? 'selection' : 'all');
   }
 
   export async function kill() {
@@ -654,7 +655,7 @@
     onInitialData: value => {
       const frontMatter = getSqlFrontMatter(value, yaml);
       if (frontMatter?.autoExecute && hasConnection() && !isBusy()) {
-        executeCore(value, 0);
+        executeCore(value, 0, 'auto');
       }
       if (frontMatter?.splitterInitialValue) {
         splitterInitialValue = frontMatter.splitterInitialValue;
@@ -793,7 +794,7 @@
                 }, 100);
               }}
               bind:this={domEditor}
-              onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
+              onExecuteFragment={(sql, startLine) => executeCore(sql, startLine, 'fragment')}
               {errorMessages}
             />
           {:else}

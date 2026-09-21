@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import { apiCall } from '../utility/api';
+  import { trackUsage } from '../utility/usageAnalytics';
   import newQuery from '../query/newQuery';
   import { filterName, getSqlFrontMatter, safeJsonParse, setSqlFrontMatter } from 'dbgate-tools';
   import { currentActiveCloudTags } from '../stores';
@@ -20,7 +21,13 @@
 
   export let data;
 
+  /** path is the public knowledge base item, e.g. queries/postgres/running-queries.sql */
+  function trackKnowledgeBase(action) {
+    trackUsage({ feature: 'knowledge_base', action, param: data.path });
+  }
+
   async function handleOpenSqlFile() {
+    trackKnowledgeBase('open');
     const fileData = await apiCall('cloud/public-file-data', { path: data.path });
     let queryText = fileData.text;
     if (!relatedToCurrentConnection) {
@@ -36,6 +43,7 @@
   }
 
   async function handleUseTheme() {
+    trackKnowledgeBase('use_theme');
     const fileData = await apiCall('cloud/public-file-data', { path: data.path });
     $currentThemeDefinition = safeJsonParse(fileData.text);
   }

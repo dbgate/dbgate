@@ -13,6 +13,7 @@ import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import type { QuickExportDefinition } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
+import { trackUsage } from './usageAnalytics';
 
 // export async function importSqlDump(inputFile, connection) {
 //   const script = getCurrentConfig().allowShellScripting ? new ScriptWriterJavaScript() : new ScriptWriterJson();
@@ -220,6 +221,7 @@ function generateQuickExportScript(
 }
 
 export async function exportQuickExportFile(dataName, reader, format: QuickExportDefinition, columnMap = null) {
+  trackUsage({ feature: 'import_export', action: 'quick_export', param: format?.extension });
   const progressName = reader.hostConnection ? { name: dataName, runid: { $runid: true } } : 'data';
 
   if (format.noFilenameDependency) {

@@ -45,6 +45,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import { trackObjectTree } from './appObjectTools';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
 
@@ -58,6 +59,7 @@
   export let data;
 
   const handleRename = () => {
+    trackObjectTree('rename', 'app_file');
     showModal(InputTextModal, {
       value: data.fileName,
       label: _t('appFile.newFileName', { defaultMessage: 'New file name' }),
@@ -74,6 +76,7 @@
   };
 
   const handleDelete = () => {
+    trackObjectTree('delete', 'app_file');
     showModal(ConfirmModal, {
       message: _t('appFile.deleteFileConfirm', { defaultMessage: 'Really delete file {fileName}?', values: { fileName: data.fileName } }),
       onConfirm: () => {

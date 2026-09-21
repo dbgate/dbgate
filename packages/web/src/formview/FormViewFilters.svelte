@@ -10,6 +10,8 @@
   import { stringFilterBehaviour } from 'dbgate-tools';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { _t } from '../translations';
+  import { getContext } from 'svelte';
+  import { trackUsage } from '../utility/usageAnalytics';
   // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
   export let managerSize;
@@ -33,6 +35,16 @@
   $: multiColumnFilter = display?.config?.multiColumnFilter;
 
   $: allFilterNames = isFormView ? _.union(_.keys(filters || {}), formFilterColumns || []) : _.keys(filters);
+
+  const tabid = getContext('tabid');
+
+  /** change is set, clear, enable or disable; the filter text itself is never sent. */
+  function trackMultiColumnFilter(change) {
+    trackUsage(
+      { feature: 'data_grid', action: 'set_multi_column_filter', engine: display?.driver?.engine, param: change },
+      tabid
+    );
+  }
 </script>
 
 {#if isFormView}
@@ -71,6 +83,7 @@
         <CheckboxField
           checked={!display.isMultiColumnFilterDisabled()}
           on:change={() => {
+            trackMultiColumnFilter(display.isMultiColumnFilterDisabled() ? 'enable' : 'disable');
             display.toggleMultiColumnFilterEnabled();
           }}
         />
@@ -78,6 +91,7 @@
           square
           narrow
           on:click={() => {
+            trackMultiColumnFilter('clear');
             display.setMutliColumnFilter(null);
           }}
         >
@@ -90,7 +104,10 @@
     <DataFilterControl
       filterBehaviour={stringFilterBehaviour}
       filter={multiColumnFilter}
-      setFilter={value => display.setMutliColumnFilter(value)}
+      setFilter={value => {
+        trackMultiColumnFilter(value ? 'set' : 'clear');
+        display.setMutliColumnFilter(value);
+      }}
       {driver}
       {conid}
       {database}

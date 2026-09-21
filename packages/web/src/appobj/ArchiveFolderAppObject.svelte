@@ -22,10 +22,12 @@
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { saveFileToDisk } from '../utility/exportFileTools';
   import { _t } from '../translations';
+  import { trackObjectTree } from './appObjectTools';
 
   export let data;
 
   const handleDelete = () => {
+    trackObjectTree('delete', 'archive_folder');
     showModal(ConfirmModal, {
       message: data.name.endsWith('.link')
         ? _t('archiveFolder.deleteLinkConfirm', { defaultMessage: 'Really delete link to folder {folderName}? Folder content remains untouched.', values: { folderName: data.name } })
@@ -37,6 +39,7 @@
   };
 
   const handleRename = () => {
+    trackObjectTree('rename', 'archive_folder');
     const isLink = data.name.endsWith('.link');
     const name = isLink ? data.name.slice(0, -5) : data.name;
     const suffix = isLink ? '.link' : '';
@@ -58,6 +61,7 @@
   };
 
   const handleGenerateDeployScript = () => {
+    trackObjectTree('shell_deploy_db', 'archive_folder');
     openNewTab(
       {
         title: 'Shell #',
@@ -80,6 +84,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleGenerateDeploySql = async () => {
+    trackObjectTree('generate_deploy_sql', 'archive_folder');
     const resp = await apiCall('database-connections/generate-deploy-sql', {
       conid: $currentDatabase.connection._id,
       database: $currentDatabase.name,
@@ -94,6 +99,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleCompareWithCurrentDb = () => {
+    trackObjectTree('compare_models', 'archive_folder');
     openNewTab(
       {
         title: _t('common.compare', { defaultMessage: 'Compare' }),
@@ -116,6 +122,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleOpenDataDeployTab = () => {
+    trackObjectTree('data_deployer', 'archive_folder');
     openNewTab(
       {
         title: data.name,
@@ -137,12 +144,14 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleZipUnzip = async method => {
+    trackObjectTree(method == 'archive/zip' ? 'pack_zip' : 'unpack_zip', 'archive_folder');
     await apiCall(method, {
       folder: data.name,
     });
   };
 
   const handleDownloadZip = async () => {
+    trackObjectTree('download_zip', 'archive_folder');
     saveFileToDisk(
       async filePath => {
         const zipped = await apiCall('archive/get-zipped-path', {

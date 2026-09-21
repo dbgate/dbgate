@@ -127,7 +127,13 @@
   }
 
   async function handleExecute() {
-    trackUsage({ feature: 'restore_database', action: 'execute', tab: 'restore_database' });
+    trackUsage({
+      feature: 'restore_database',
+      action: 'execute',
+      tab: 'restore_database',
+      engine: driver?.engine,
+      param: restoreTool || 'native',
+    });
     busy = true;
     operationStatus = 'Running';
 
@@ -151,12 +157,24 @@
   }
 
   async function handleCancel() {
-    trackUsage({ feature: 'restore_database', action: 'cancel', tab: 'restore_database' });
+    trackUsage({
+      feature: 'restore_database',
+      action: 'cancel',
+      tab: 'restore_database',
+      engine: driver?.engine,
+      param: restoreTool || 'native',
+    });
     await apiCall('runners/cancel', { runid: runnerId });
   }
 
   async function handleGenerateCommand() {
-    trackUsage({ feature: 'restore_database', action: 'generate_command', tab: 'restore_database' });
+    trackUsage({
+      feature: 'restore_database',
+      action: 'generate_command',
+      tab: 'restore_database',
+      engine: driver?.engine,
+      param: restoreTool || 'native',
+    });
     try {
       const resp = await apiCall('database-connections/native-restore-command', await getRestoreParams());
       copyTextToClipboard(resp.commandLine);

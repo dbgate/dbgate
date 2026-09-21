@@ -2,10 +2,23 @@
   import { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { __t } from '../translations';
+  import { getCommandSource } from '../commands/commandSource';
+  import { getUsageTab } from '../utility/usageAnalytics';
+
+  /** The designer canvas is shared, the event belongs to the tab which hosts it. */
+  function getDesignerUsageFeature(): string {
+    const tab = getUsageTab();
+    if (tab == 'diagram') return 'diagram';
+    if (tab == 'perspective') return 'perspective_designer';
+    return 'query_designer';
+  }
   const getCurrentEditor = () => getActiveComponent('Designer');
 
   registerCommand({
     id: 'designer.arrange',
+    // Auto arrange runs the same command programmatically; only explicit invocations are tracked.
+    usageAnalytics: () =>
+      getCommandSource() == 'command' ? undefined : { feature: getDesignerUsageFeature(), action: 'arrange' },
     category: __t('command.designer', { defaultMessage: 'Designer' }),
     icon: 'icon arrange',
     name: __t('command.designer.arrange', { defaultMessage: 'Arrange' }),

@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { getContext, setContext } from 'svelte';
 import invalidateCommands from '../commands/invalidateCommands';
 import { runGroupCommand } from '../commands/runCommand';
+import { runWithCommandSource } from '../commands/commandSource';
+import { trackUsage } from './usageAnalytics';
 import { currentDropDownMenu, visibleCommandPalette } from '../stores';
 import getAsArray from './getAsArray';
 import { _tval } from '../translations';
@@ -122,7 +124,7 @@ function mapItem(item, commands) {
             runGroupCommand(command.group);
           } else {
             if (command.getSubCommands) visibleCommandPalette.set(command);
-            else if (command.onClick) command.onClick();
+            else if (command.onClick) runWithCommandSource('menu', command.onClick);
           }
         },
         disabled: !command.enabled,
@@ -130,6 +132,16 @@ function mapItem(item, commands) {
       };
     }
     return null;
+  }
+  if (item.usageAnalytics && item.onClick) {
+    // Menu items which are not commands report themselves through this field.
+    return {
+      ...item,
+      onClick: (...args) => {
+        trackUsage(item.usageAnalytics);
+        return item.onClick(...args);
+      },
+    };
   }
   return item;
 }

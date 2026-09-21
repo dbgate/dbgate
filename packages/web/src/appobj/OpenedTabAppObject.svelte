@@ -16,11 +16,13 @@
   import uuidv1 from 'uuid/v1';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { trackObjectTree } from './appObjectTools';
   import { apiCall } from '../utility/api';
 
   export let data;
 
   const handleClose = () => {
+    trackObjectTree('close', 'opened_tab');
     openedTabs.update(tabs => tabs.map(x => (x.tabid == data.tabid ? { ...x, closedTime: new Date().getTime() } : x)));
   };
 
@@ -33,6 +35,7 @@
   };
 
   function handlePin() {
+    trackObjectTree('pin', 'opened_tab');
     apiCall('files/save', {
       folder: 'favorites',
       file: uuidv1(),

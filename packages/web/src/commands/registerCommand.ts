@@ -32,6 +32,8 @@ export interface GlobalCommand {
   disableHandleKeyText?: string;
   isRelatedToTab?: boolean;
   systemCommand?: boolean;
+  /** Feature name for the default event, when the command id does not name the specialization. */
+  usageFeature?: string;
   /** Custom event for this command, or false when the completed operation records its own result. */
   usageAnalytics?: UsageAnalyticsEvent | ((...args: any[]) => UsageAnalyticsEvent | undefined) | false;
 }
@@ -44,13 +46,13 @@ function normalizeAnalyticsName(value: string): string {
     .toLowerCase();
 }
 
-function getDefaultCommandUsage(commandId: string): UsageAnalyticsEvent {
+function getDefaultCommandUsage(commandId: string, usageFeature?: string): UsageAnalyticsEvent {
   const [featurePart, ...actionParts] = commandId.split('.');
   if (actionParts.length == 0) {
-    return { feature: 'application', action: normalizeAnalyticsName(featurePart) || 'unknown' };
+    return { feature: usageFeature || 'application', action: normalizeAnalyticsName(featurePart) || 'unknown' };
   }
 
-  const feature = normalizeAnalyticsName(featurePart);
+  const feature = usageFeature || normalizeAnalyticsName(featurePart);
   return {
     feature: feature == 'app' ? 'application' : feature || 'application',
     action: normalizeAnalyticsName(actionParts.join('_')) || 'unknown',
@@ -64,7 +66,7 @@ function trackCommandUsage(command: GlobalCommand, args: any[]): void {
     const event =
       typeof command.usageAnalytics == 'function'
         ? command.usageAnalytics(...args)
-        : command.usageAnalytics || getDefaultCommandUsage(command.id);
+        : command.usageAnalytics || getDefaultCommandUsage(command.id, command.usageFeature);
     if (event) trackUsage(event);
   } catch {
     // Analytics metadata must never prevent the command from running.

@@ -43,6 +43,8 @@
 
   registerCommand({
     id: 'dataGrid.toggleCellDataView',
+    // The editor reports the resulting state itself.
+    usageAnalytics: false,
     category: __t('command.datagrid', { defaultMessage: 'Data grid' }),
     name: __t('command.datagrid.toggleCellDataView', { defaultMessage: 'Toggle cell data view' }),
     toolbarName: __t('command.datagrid.toggleCellDataView.toolbar', { defaultMessage: 'Cell Data' }),
@@ -64,6 +66,8 @@
 
 <script lang="ts">
   import { getContext, setContext } from 'svelte';
+  import { trackUsage } from '../utility/usageAnalytics';
+  import { getCommandSource } from '../commands/commandSource';
   import { writable } from 'svelte/store';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
@@ -126,6 +130,7 @@
   const collapsedLeftColumnStore =
     getContext('collapsedLeftColumnStore') || writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
   const settings = useSettings();
+  const usageTabId = getContext('tabid');
 
   $: isFormView = !!config?.isFormView;
   $: isJsonView = !!config?.isJsonView;
@@ -166,8 +171,25 @@
     collapsedLeftColumnStore.update(x => !x);
   }
 
+  /** reason tells how the view was opened, e.g. toolbar, menu, keyboard or row_header. */
+  function showCellDataView(reason) {
+    // Reopening an already visible view is not a new event.
+    if (cellDataViewVisible) return;
+    cellDataViewVisible = true;
+    trackUsage(
+      {
+        feature: 'data_grid',
+        action: 'show_cell_data_view',
+        engine: display?.driver?.engine,
+        param: reason,
+      },
+      usageTabId
+    );
+  }
+
   export function toggleCellDataView() {
-    cellDataViewVisible = !cellDataViewVisible;
+    if (cellDataViewVisible) cellDataViewVisible = false;
+    else showCellDataView(getCommandSource());
   }
 
   registerMenu(
@@ -293,7 +315,7 @@
                     !isFormView &&
                     !$settings?.['dataGrid.disableCellDataViewAutoOpen']
                   ) {
-                    cellDataViewVisible = true;
+                    showCellDataView('row_header');
                   }
                 }}
                 onChangeSelectedColumns={cols => {

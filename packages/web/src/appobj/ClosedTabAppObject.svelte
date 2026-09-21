@@ -14,14 +14,17 @@
   import moment from 'moment';
 
   import AppObjectCore from './AppObjectCore.svelte';
+  import { trackObjectTree } from './appObjectTools';
   import { filterName } from 'dbgate-tools';
 
   export let data;
 
   const handleDelete = () => {
+    trackObjectTree('delete', 'closed_tab');
     openedTabs.update(tabs => tabs.filter(x => x.tabid != data.tabid));
   };
   const handleDeleteOlder = () => {
+    trackObjectTree('delete_older', 'closed_tab');
     openedTabs.update(tabs => tabs.filter(x => !x.closedTime || x.closedTime >= data.closedTime));
   };
 

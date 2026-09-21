@@ -149,7 +149,13 @@
   }
 
   async function saveDataCore(callList) {
-    trackUsage({ feature: 'redis', action: 'create_key', tab: 'new_redis_key' });
+    trackUsage({
+      feature: 'redis',
+      action: 'create_key',
+      tab: 'new_redis_key',
+      engine: $connection?.engine,
+      param: type,
+    });
     const resp = await apiCall('database-connections/multi-call-method', {
       conid,
       database,

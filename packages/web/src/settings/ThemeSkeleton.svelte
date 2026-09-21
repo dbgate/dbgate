@@ -3,6 +3,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { currentThemeDefinition, currentThemeType, getCompleteThemeVariables } from '../plugins/themes';
   import { apiCall } from '../utility/api';
+  import { trackUsage } from '../utility/usageAnalytics';
 
   export let theme: ThemeDefinition;
 
@@ -12,6 +13,7 @@
 
   async function handleApplyTheme() {
     if (theme.themePublicCloudPath) {
+      trackUsage({ feature: 'knowledge_base', action: 'use_theme', param: theme.themePublicCloudPath });
       const fileData = await apiCall('cloud/public-file-data', { path: theme.themePublicCloudPath });
       const themeJson = JSON.parse(fileData.text);
       $currentThemeDefinition = themeJson;

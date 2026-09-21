@@ -123,7 +123,12 @@
   // $: console.log('LOADED ROWS MONGO', loadedRows);
 
   async function handleConfirmChange(changeSet) {
-    trackUsage({ feature: 'data_grid', action: 'save_changes', tab: 'collection_data' });
+    trackUsage({
+      feature: 'data_grid',
+      action: 'save_changes',
+      tab: 'collection_data',
+      engine: $connection?.engine,
+    });
     const resp = await apiCall('database-connections/update-collection', {
       conid,
       database,
@@ -169,7 +174,7 @@
   }
 
   function handleRunMacro(macro, params, cells) {
-    trackUsage({ feature: 'data_grid', action: 'run_macro' });
+    trackUsage({ feature: 'data_grid', action: 'run_macro', engine: $connection?.engine });
     const newChangeSet = runMacroOnChangeSet(macro, params, cells, $changeSetStore?.value, display, false);
     if (newChangeSet) {
       dispatchChangeSet({ type: 'set', value: newChangeSet });

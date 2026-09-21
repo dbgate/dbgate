@@ -21,7 +21,6 @@ function findFreeNumber(numbers: number[]) {
 export default async function openNewTab(newTab, initialData: any = undefined, options: any = undefined) {
   const oldTabs = getOpenedTabs();
   const activeTab = getActiveTab();
-  const sourceTab = getUsageTabName(activeTab);
 
   let existing = null;
 
@@ -146,7 +145,9 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
           // Opening the tab and analytics must not depend on metadata loading.
         }
       }
-      trackUsage({ feature: getUsageTabName(newTab), action: 'open', tab: sourceTab, engine });
+      const openedTab = getUsageTabName(newTab);
+      // tab is the opened tab, so that events can be grouped by tab.
+      trackUsage({ feature: openedTab, action: 'open', tab: openedTab, engine });
     })();
   }
 
