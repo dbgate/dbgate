@@ -202,9 +202,7 @@
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver?.getNativeOperationFormArgs('backup') : null) ?? [];
   $: applyFormDefaults(formArgs);
   $: backupToolFormArgs = formArgs.filter(
-    arg =>
-      arg.name == 'targetPostgresVersion' ||
-      (arg.name == 'backupTool' && driver?.engine == 'postgres@dbgate-plugin-postgres')
+    arg => arg.name == 'targetPostgresVersion' || (arg.name == 'backupTool' && arg.options?.length > 1)
   );
   $: otherFormArgs = formArgs.filter(arg => !['backupTool', 'targetPostgresVersion'].includes(arg.name));
 </script>

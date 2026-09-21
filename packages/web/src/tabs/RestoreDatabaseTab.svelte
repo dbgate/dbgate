@@ -65,8 +65,9 @@
 
   $: driver = findEngineDriver($connection, $extensions);
   $: formArgs = (driver?.getNativeOperationFormArgs ? driver.getNativeOperationFormArgs('restore') : null) ?? [];
-  $: restoreToolArg =
-    driver?.engine == 'postgres@dbgate-plugin-postgres' ? formArgs.find(arg => arg.name == 'restoreTool') : null;
+  $: restoreToolArg = driver?.supportsNodejsRestore
+    ? formArgs.find(arg => arg.name == 'restoreTool' && arg.options?.length > 1)
+    : null;
   let restoreTool = null;
   let stopOnError = false;
   $: if (driver && !restoreTool) {
@@ -380,7 +381,7 @@
             />
           </div>
         {/if}
-        {#if driver?.engine == 'mssql@dbgate-plugin-mssql' || driver?.engine == 'postgres@dbgate-plugin-postgres'}
+        {#if driver?.supportsNodejsRestore && restoreTool == driver?.nodejsRestoreTool}
           <label class="checkbox-option">
             <CheckboxField
               checked={stopOnError}
