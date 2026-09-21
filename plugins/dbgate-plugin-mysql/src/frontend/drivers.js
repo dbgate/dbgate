@@ -242,7 +242,7 @@ const mysqlDriverBase = {
   },
   backupDatabaseCommand(connection, settings, externalTools) {
     const { outputFile, database, skippedTables, options } = settings;
-    const command = this.nativeBackupTool || externalTools.mysqldump || 'mysqldump';
+    const command = externalTools.mysqldump || this.nativeBackupTool || 'mysqldump';
     const args = this.getCliConnectionArgs(connection, externalTools);
     args.push(`--result-file=${outputFile}`);
     args.push('--verbose');
@@ -292,7 +292,7 @@ const mysqlDriverBase = {
   },
   restoreDatabaseCommand(connection, settings, externalTools) {
     const { inputFile, database } = settings;
-    const command = this.nativeRestoreTool || externalTools.mysql || 'mysql';
+    const command = externalTools.mysql || this.nativeRestoreTool || 'mysql';
     const args = this.getCliConnectionArgs(connection, externalTools);
     if (database) {
       args.push(database);
