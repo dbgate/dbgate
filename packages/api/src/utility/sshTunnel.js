@@ -23,11 +23,15 @@ const CONNECTION_FIELDS = [
 ];
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
-function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
+function callForwardProcess(connection, tunnelConfig, tunnelCacheKey, globalSettings) {
   let subprocess = fork(
     global['API_PACKAGE'] || process.argv[1],
     ['--is-forked-api', '--start-process', 'sshForwardProcess', ...processArgs.getPassArgs()],
     {
+      env: {
+        ...process.env,
+        NODE_NO_WARNINGS: globalSettings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+      },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     }
   );
@@ -100,7 +104,7 @@ async function getSshTunnel(connection) {
         `DBGM-00093 Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
-      const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey);
+      const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey, globalSettings);
 
       logger.info(
         `DBGM-00094 Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`

@@ -225,7 +225,9 @@ module.exports = {
   },
 
   test_meta: true,
-  test({ connection, requestDbList = false }) {
+  async test({ connection, requestDbList = false }) {
+    // required lazily, config requires this controller back
+    const settings = await require('./config').getSettings();
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],
       [
@@ -236,6 +238,10 @@ module.exports = {
         // ...process.argv.slice(3),
       ],
       {
+        env: {
+          ...process.env,
+          NODE_NO_WARNINGS: settings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+        },
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       }
     );
