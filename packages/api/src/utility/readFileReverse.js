@@ -10,7 +10,9 @@ async function readFully(handle, buffer, length, position) {
   while (readed < length) {
     const { bytesRead } = await handle.read(buffer, readed, length - readed, position + readed);
     if (bytesRead <= 0) {
-      throw new Error(`File was truncated during reading, could not read ${length} bytes at position ${position}`);
+      throw new Error(
+        `DBGM-00000 File was truncated during reading, could not read ${length} bytes at position ${position}`
+      );
     }
     readed += bytesRead;
   }
