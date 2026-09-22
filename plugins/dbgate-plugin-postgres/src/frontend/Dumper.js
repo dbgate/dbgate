@@ -38,8 +38,24 @@ class Dumper extends SqlDumper {
     this.putCmd('^alter ^table %f ^rename ^to %i', obj, newname);
   }
 
+  // domains are declared and dropped with DOMAIN keyword, other user defined types with TYPE keyword
+  getSqlObjectSqlNameForObject(obj) {
+    if (obj?.objectTypeField == 'userDefinedTypes' && obj?.typeKind == 'domain') {
+      return 'DOMAIN';
+    }
+    return this.getSqlObjectSqlName(obj?.objectTypeField);
+  }
+
   renameSqlObject(obj, newname) {
-    this.putCmd('^alter %k %f ^rename ^to %i', this.getSqlObjectSqlName(obj.objectTypeField), obj, newname);
+    this.putCmd('^alter %k %f ^rename ^to %i', this.getSqlObjectSqlNameForObject(obj), obj, newname);
+  }
+
+  dropSqlObject(obj) {
+    this.putCmd('^drop %k %f', this.getSqlObjectSqlNameForObject(obj), obj);
+  }
+
+  dropUserDefinedType(obj) {
+    this.dropSqlObject(obj);
   }
 
   renameColumn(column, newcol) {

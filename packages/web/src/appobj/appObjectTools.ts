@@ -102,6 +102,14 @@ export const defaultDatabaseObjectAppObjectActions = {
       icon: 'img sql-file',
     },
   ],
+  userDefinedTypes: [
+    {
+      label: __t('dbObject.showSql', { defaultMessage: 'Show SQL' }),
+      tab: 'SqlObjectTab',
+      defaultActionId: 'showSql',
+      icon: 'img sql-file',
+    },
+  ],
   queries: [
     {
       label: __t('dbObject.showQuery', { defaultMessage: 'Show query' }),

@@ -61,6 +61,37 @@ function getColumnInfo(
   };
 }
 
+function quoteIdentifier(name) {
+  return `"${(name || '').replace(/"/g, '""')}"`;
+}
+
+function quoteString(value) {
+  return `'${(value || '').replace(/'/g, "''")}'`;
+}
+
+function getUserDefinedTypeCreateSql(type) {
+  const fullName = `${quoteIdentifier(type.schemaName)}.${quoteIdentifier(type.pureName)}`;
+  switch (type.typeKind) {
+    case 'enum':
+      return `CREATE TYPE ${fullName} AS ENUM (\n  ${(type.enumValues || []).map(quoteString).join(',\n  ')}\n)`;
+    case 'composite':
+      return `CREATE TYPE ${fullName} AS (\n  ${(type.attributes || [])
+        .map(attr => `${quoteIdentifier(attr.columnName)} ${attr.dataType}`)
+        .join(',\n  ')}\n)`;
+    case 'domain': {
+      let res = `CREATE DOMAIN ${fullName} AS ${type.baseType}`;
+      if (type.defaultValue) res += `\n  DEFAULT ${type.defaultValue}`;
+      if (type.notNull) res += '\n  NOT NULL';
+      if (type.constraintSql) res += `\n  ${type.constraintSql}`;
+      return res;
+    }
+    case 'range':
+      return `CREATE TYPE ${fullName} AS RANGE (${type.rangeDefinition})`;
+    default:
+      return null;
+  }
+}
+
 function getParametersSqlString(parameters = []) {
   if (!parameters?.length) return '';
 
@@ -117,6 +148,8 @@ class Analyser extends DatabaseAnalyser {
       matviews,
       matviewColumns,
       triggers,
+      userDefinedTypes,
+      userDefinedTypeColumns,
     ] = await Promise.all([
       this.analyserQuery('tableList', ['tables']),
       this.analyserQuery('views', ['views']),
@@ -139,6 +172,12 @@ class Analyser extends DatabaseAnalyser {
         ? this.analyserQuery('matviewColumns', ['matviews'])
         : Promise.resolve(null),
       this.analyserQuery('triggers'),
+      this.driver.dialect.userDefinedTypes
+        ? this.analyserQuery('userDefinedTypes', ['userDefinedTypes'])
+        : Promise.resolve(null),
+      this.driver.dialect.userDefinedTypes
+        ? this.analyserQuery('userDefinedTypeColumns', ['userDefinedTypes'])
+        : Promise.resolve(null),
     ]);
 
     // Load geometry/geography columns if the views exist (these are rare, so run after views are loaded)
@@ -168,6 +207,12 @@ class Analyser extends DatabaseAnalyser {
     const indexesByTable = _.groupBy(indexes.rows, x => `${x.schema_name}.${x.table_name}`);
     const matviewColumnsByTable = matviewColumns
       ? _.groupBy(matviewColumns.rows, x => `${x.schema_name}.${x.pure_name}`)
+      : {};
+    const typeMembersByType = userDefinedTypeColumns
+      ? _.groupBy(
+          _.sortBy(userDefinedTypeColumns.rows, x => parseInt(x.position)),
+          x => `${x.schema_name}.${x.pure_name}`
+        )
       : {};
 
     const columnColumnsMapped = foreignKeys.rows.map(x => ({
@@ -323,6 +368,39 @@ class Analyser extends DatabaseAnalyser {
           parameters: functionNameToParameters[`${func.schema_name}.${func.pure_name}`],
           returnType: func.data_type,
         })),
+      userDefinedTypes: userDefinedTypes
+        ? userDefinedTypes.rows.map(row => {
+            const members = typeMembersByType[`${row.schema_name}.${row.pure_name}`] || [];
+            const type = {
+              objectId: `userDefinedTypes:${row.schema_name}.${row.pure_name}`,
+              pureName: row.pure_name,
+              schemaName: row.schema_name,
+              contentHash: row.hash_code,
+              objectComment: row.object_comment,
+              typeKind: row.type_kind,
+              enumValues:
+                row.type_kind == 'enum'
+                  ? members.filter(x => x.member_type == 'enum').map(x => x.enum_label)
+                  : undefined,
+              attributes:
+                row.type_kind == 'composite'
+                  ? members
+                      .filter(x => x.member_type == 'composite')
+                      .map(x => ({ columnName: x.column_name, dataType: x.data_type }))
+                  : undefined,
+              baseType:
+                row.type_kind == 'range' ? row.range_subtype : row.type_kind == 'domain' ? row.base_type : undefined,
+              notNull: row.not_null,
+              defaultValue: row.default_value,
+              constraintSql: row.constraint_sql,
+              rangeDefinition: row.range_definition,
+            };
+            return {
+              ..._.omit(type, ['notNull', 'defaultValue', 'constraintSql', 'rangeDefinition']),
+              createSql: getUserDefinedTypeCreateSql(type),
+            };
+          })
+        : undefined,
       triggers: triggers.rows.map(row => ({
         pureName: row.trigger_name,
         trigerName: row.trigger_name,
@@ -353,6 +431,7 @@ class Analyser extends DatabaseAnalyser {
         matviews: res.matviews?.length,
         procedures: res.procedures?.length,
         functions: res.functions?.length,
+        userDefinedTypes: res.userDefinedTypes?.length,
       },
       'DBGM-00141 Database structured finalized'
     );
@@ -370,6 +449,7 @@ class Analyser extends DatabaseAnalyser {
       viewModificationsQueryData,
       matviewModificationsQueryData,
       routineModificationsQueryData,
+      userDefinedTypeModificationsQueryData,
     ] = await Promise.all([
       this.analyserQuery('tableModifications'),
       this.analyserQuery('viewModifications'),
@@ -377,6 +457,9 @@ class Analyser extends DatabaseAnalyser {
         ? this.analyserQuery('matviewModifications')
         : Promise.resolve(null),
       this.analyserQuery(routineModificationsQueryName),
+      this.driver.dialect.userDefinedTypes
+        ? this.analyserQuery('userDefinedTypeModifications')
+        : Promise.resolve(null),
     ]);
 
     return {
@@ -416,6 +499,14 @@ class Analyser extends DatabaseAnalyser {
           schemaName: x.schema_name,
           contentHash: x.hash_code,
         })),
+      userDefinedTypes: userDefinedTypeModificationsQueryData
+        ? userDefinedTypeModificationsQueryData.rows.map(x => ({
+            objectId: `userDefinedTypes:${x.schema_name}.${x.pure_name}`,
+            pureName: x.pure_name,
+            schemaName: x.schema_name,
+            contentHash: x.hash_code,
+          }))
+        : undefined,
     };
   }
 

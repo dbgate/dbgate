@@ -214,6 +214,13 @@ const postgreSqlEngine = {
       drop1: 'DROP FUNCTION obj1',
       drop2: 'DROP FUNCTION obj2',
     },
+    {
+      type: 'userDefinedTypes',
+      create1: "CREATE TYPE obj1 AS ENUM ('a', 'b')",
+      create2: 'CREATE TYPE obj2 AS (x int, y varchar(20))',
+      drop1: 'DROP TYPE obj1',
+      drop2: 'DROP TYPE obj2',
+    },
   ],
   supportSchemas: true,
   supportRenameSqlObject: true,

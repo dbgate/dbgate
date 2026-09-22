@@ -23,6 +23,9 @@ const routinesInfoSchema = require('./routinesInfoSchema');
 const proceduresParametersInfoSchema = require('./proceduresParametersInfoSchema');
 const routineModificationsInfoSchema = require('./routineModificationsInfoSchema');
 const tableModifications = require('./tableModifications');
+const userDefinedTypes = require('./userDefinedTypes');
+const userDefinedTypeColumns = require('./userDefinedTypeColumns');
+const userDefinedTypeModifications = require('./userDefinedTypeModifications');
 
 module.exports = {
   columns,
@@ -50,4 +53,7 @@ module.exports = {
   proceduresParametersInfoSchema,
   routineModificationsInfoSchema,
   tableModifications,
+  userDefinedTypes,
+  userDefinedTypeColumns,
+  userDefinedTypeModifications,
 };
