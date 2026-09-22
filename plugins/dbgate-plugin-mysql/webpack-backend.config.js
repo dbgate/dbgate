@@ -4,6 +4,9 @@ var path = require('path');
 const packageJson = require('./package.json');
 const buildPluginExternals = require('../../common/buildPluginExternals');
 const externals = buildPluginExternals(packageJson);
+// dbgate-mysql-dumper is not in common/volatilePackages.js, so it is not installed next to the
+// packaged plugin - it must be bundled instead of required at runtime.
+delete externals['dbgate-mysql-dumper'];
 
 var config = {
   context: __dirname + '/src/backend',

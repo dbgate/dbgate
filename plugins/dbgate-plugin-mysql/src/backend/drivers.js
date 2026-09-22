@@ -4,6 +4,17 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const fs = require('fs');
+const crypto = require('crypto');
+const { finished } = require('stream/promises');
+const { dumpMysql, restoreSqlDump } = require('dbgate-mysql-dumper');
+const { fromMysql2Connection } = require('dbgate-mysql-dumper/mysql2');
+const {
+  createDumpProgressReporter,
+  createRestoreProgressReporter,
+  formatMysqlRestoreError,
+  formatRestoreStatementError,
+  getMysqlDumpOptions,
+} = require('./mysqlDumperSupport');
 const { getLogger, createBulkInsertStreamBase, makeUniqueColumnNames, extractErrorLogData } =
   global.DBGATE_PACKAGES['dbgate-tools'];
 
@@ -46,13 +57,12 @@ async function enrichColumnMetadata(columns, dbinfo) {
   return columns.map(column => ({
     ...column,
     isPrimaryKey:
-      column.isPrimaryKey ||
-      isPrimaryKeyColumn(dbinfo, column.tableSchema, column.tableName, column.sourceColumnName),
+      column.isPrimaryKey || isPrimaryKeyColumn(dbinfo, column.tableSchema, column.tableName, column.sourceColumnName),
   }));
 }
 
 function modifyRow(row, columns) {
-  columns.forEach((col) => {
+  columns.forEach(col => {
     if (Buffer.isBuffer(row[col.columnName])) {
       row[col.columnName] = { $binary: { base64: Buffer.from(row[col.columnName]).toString('base64') } };
     }
@@ -71,6 +81,120 @@ function zipDataRow(rowArray, columns) {
 const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
+
+  async backupDatabase(connection, settings, runner) {
+    if (!driverBase.supportsNodejsBackup) {
+      throw new Error('DBGM-00000 dbgate-mysql-dumper is not available for this connection');
+    }
+    const { outputFile, database, selectedTables = [], skippedTables = [], options = {} } = settings;
+    const dumpOptions = getMysqlDumpOptions(database, selectedTables, skippedTables, options);
+    // Dump into a sibling temporary file and publish it with a rename only once the dump finished.
+    // A failed or cancelled run therefore never leaves a truncated file behind, nor does it touch
+    // an existing backup stored under the requested name.
+    const tempFile = `${outputFile}.${crypto.randomBytes(6).toString('hex')}.part`;
+    let dbhan = null;
+    let output = null;
+    let dumperConnection = null;
+
+    try {
+      dbhan = await this.connect({ ...connection, database, forceRowsAsObjects: true });
+      dumperConnection = fromMysql2Connection(dbhan.client);
+      output = fs.createWriteStream(tempFile);
+      const result = await dumpMysql(
+        dumperConnection,
+        dumpOptions,
+        output,
+        createDumpProgressReporter(runner, driverBase.title),
+        runner.signal
+      );
+      if (result.cancelled) {
+        throw new Error(`DBGM-00000 ${driverBase.title} backup cancelled`);
+      }
+      output.end();
+      await finished(output);
+      await fs.promises.rename(tempFile, outputFile);
+      for (const warning of result.warnings) {
+        runner.info({ message: warning.message, severity: warning.severity });
+      }
+      runner.info({
+        message: `Wrote ${result.renderedDumpIds.length} objects, ${result.rowsExported.toLocaleString(
+          'en-US'
+        )} rows and ${result.bytesWritten.toLocaleString('en-US')} bytes`,
+        severity: 'info',
+      });
+    } catch (error) {
+      if (output) {
+        output.destroy();
+        // wait for the descriptor to be released, otherwise the cleanup below can fail on Windows
+        await finished(output).catch(() => {});
+      }
+      await fs.promises.rm(tempFile, { force: true }).catch(() => {});
+      throw error;
+    } finally {
+      if (dbhan && !dumperConnection?.isDestroyed) await this.close(dbhan);
+    }
+  },
+
+  async restoreDatabase(connection, settings, runner) {
+    if (!driverBase.supportsNodejsRestore) {
+      throw new Error('DBGM-00000 dbgate-mysql-dumper is not available for this connection');
+    }
+    const { inputFile, database, options = {} } = settings;
+    let dbhan = null;
+    let input = null;
+    let dumperConnection = null;
+
+    try {
+      dbhan = await this.connect({ ...connection, database, forceRowsAsObjects: true });
+      dumperConnection = fromMysql2Connection(dbhan.client);
+      input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
+      const stopOnError = options.stopOnError ?? true;
+      const progress = createRestoreProgressReporter(runner, driverBase.title);
+      const result = await restoreSqlDump({
+        connection: dumperConnection,
+        source: input,
+        signal: runner.signal,
+        options: {
+          databaseName: database,
+          stopOnError,
+        },
+        progress,
+      });
+      // Reported before the error branch below, because a failed restore is exactly when warnings
+      // like definer-rewritten or an unrestored session state matter most.
+      for (const warning of result.warnings) {
+        runner.info({ message: warning.message, severity: 'warning' });
+      }
+      if (result.cancelled) {
+        throw new Error(`DBGM-00000 ${driverBase.title} restore cancelled`);
+      }
+      if (result.errors.length > 0) {
+        for (const error of result.errors) {
+          if (progress.reportedStatementIndexes.has(error.statementIndex)) continue;
+          runner.info({ message: formatRestoreStatementError(error, driverBase.title), severity: 'error' });
+        }
+        const count = result.errors.length;
+        throw new Error(
+          `DBGM-00000 ${driverBase.title} restore ${stopOnError ? 'stopped at' : 'finished with'} ${count} error${
+            count == 1 ? '' : 's'
+          }: ${formatRestoreStatementError(result.errors[0], driverBase.title)}`
+        );
+      }
+      runner.info({
+        message: `Restored ${result.statementsExecuted} SQL statements and ${result.rowsRestored.toLocaleString(
+          'en-US'
+        )} rows (${result.bytesConsumed.toLocaleString('en-US')} bytes read)`,
+        severity: 'info',
+      });
+    } catch (error) {
+      const formatted = formatMysqlRestoreError(error);
+      if (formatted) throw new Error(formatted, { cause: error });
+      throw error;
+    } finally {
+      input?.destroy();
+      if (dbhan && !dumperConnection?.isDestroyed) await this.close(dbhan);
+    }
+  },
 
   async connect(props) {
     const { conid, server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType } =
@@ -113,6 +237,15 @@ const drivers = driverBases.map(driverBase => ({
   },
   close(dbhan) {
     return new Promise(resolve => {
+      // A connection that already died - a failed handshake sets _closing and _fatalError - never
+      // gets its end() callback invoked by mysql2, so awaiting end() there would hang forever.
+      // Backup and restore await close() in a finally block, which turns any connection-level
+      // failure into an operation that never finishes.
+      if (dbhan.client._closing || dbhan.client._fatalError) {
+        dbhan.client.destroy();
+        resolve();
+        return;
+      }
       dbhan.client.end(resolve);
     });
   },
@@ -151,8 +284,11 @@ const drivers = driverBases.map(driverBase => ({
           reject(error);
           return;
         }
-        const columns = extractColumns(fields);   
-        resolve({ rows: results && columns && results.map && results.map(row => modifyRow(zipDataRow(row, columns), columns)), columns });
+        const columns = extractColumns(fields);
+        resolve({
+          rows: results && columns && results.map && results.map(row => modifyRow(zipDataRow(row, columns), columns)),
+          columns,
+        });
       });
     });
   },
@@ -313,7 +449,9 @@ const drivers = driverBases.map(driverBase => ({
 
   async setTransactionIsolationLevel(dbhan, level) {
     if (this.isolationLevels && level && !this.isolationLevels.includes(level)) {
-      throw new Error(`Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`);
+      throw new Error(
+        `Isolation level "${level}" is not supported. Supported levels: ${this.isolationLevels.join(', ')}`
+      );
     }
     await this.query(dbhan, `SET SESSION TRANSACTION ISOLATION LEVEL ${level}`);
   },
