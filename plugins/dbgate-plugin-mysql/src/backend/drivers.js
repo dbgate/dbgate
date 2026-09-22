@@ -4,6 +4,7 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const fs = require('fs');
+const crypto = require('crypto');
 const { finished } = require('stream/promises');
 const { dumpMysql, restoreSqlDump } = require('dbgate-mysql-dumper');
 const { fromMysql2Connection } = require('dbgate-mysql-dumper/mysql2');
@@ -87,6 +88,10 @@ const drivers = driverBases.map(driverBase => ({
     }
     const { outputFile, database, selectedTables = [], skippedTables = [], options = {} } = settings;
     const dumpOptions = getMysqlDumpOptions(database, selectedTables, skippedTables, options);
+    // Dump into a sibling temporary file and publish it with a rename only once the dump finished.
+    // A failed or cancelled run therefore never leaves a truncated file behind, nor does it touch
+    // an existing backup stored under the requested name.
+    const tempFile = `${outputFile}.${crypto.randomBytes(6).toString('hex')}.part`;
     let dbhan = null;
     let output = null;
     let dumperConnection = null;
@@ -94,7 +99,7 @@ const drivers = driverBases.map(driverBase => ({
     try {
       dbhan = await this.connect({ ...connection, database, forceRowsAsObjects: true });
       dumperConnection = fromMysql2Connection(dbhan.client);
-      output = fs.createWriteStream(outputFile);
+      output = fs.createWriteStream(tempFile);
       const result = await dumpMysql(
         dumperConnection,
         dumpOptions,
@@ -107,6 +112,7 @@ const drivers = driverBases.map(driverBase => ({
       }
       output.end();
       await finished(output);
+      await fs.promises.rename(tempFile, outputFile);
       for (const warning of result.warnings) {
         runner.info({ message: warning.message, severity: warning.severity });
       }
@@ -117,10 +123,12 @@ const drivers = driverBases.map(driverBase => ({
         severity: 'info',
       });
     } catch (error) {
-      output?.destroy();
-      // A cancelled or failed dump leaves a truncated file behind, which would show up in the SQL
-      // folder looking like a complete backup.
-      await fs.promises.rm(outputFile, { force: true }).catch(() => {});
+      if (output) {
+        output.destroy();
+        // wait for the descriptor to be released, otherwise the cleanup below can fail on Windows
+        await finished(output).catch(() => {});
+      }
+      await fs.promises.rm(tempFile, { force: true }).catch(() => {});
       throw error;
     } finally {
       if (dbhan && !dumperConnection?.isDestroyed) await this.close(dbhan);
