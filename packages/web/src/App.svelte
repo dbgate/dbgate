@@ -20,7 +20,7 @@
     installNewVolatileConnectionListener,
     refreshPublicCloudFiles,
   } from './utility/api';
-  import { getAllApps, getConfig, getSettings } from './utility/metadataLoaders';
+  import { getAllApps, getConfig, getSettings, useConfig, useSettings } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
@@ -33,6 +33,7 @@
   import UsageAnalyticsConsentModal from './modals/UsageAnalyticsConsentModal.svelte';
   import {
     getUsageAnalyticsConsent,
+    flushUsageAnalytics,
     setUsageAnalyticsConsent,
     trackUsage,
   } from './utility/usageAnalytics';
@@ -42,6 +43,16 @@
   let loadedApi = false;
   let loadedPlugins = false;
   let usageAnalyticsStartupHandled = false;
+  const analyticsSettings = useSettings();
+  const analyticsConfig = useConfig();
+
+  $: if (
+    loadedApi &&
+    ($analyticsConfig?.usageAnalyticsConsentOverride === false ||
+      $analyticsSettings?.['storage.usageAnalytics'] === 'disabled')
+  ) {
+    if (getUsageAnalyticsConsent() === false) flushUsageAnalytics();
+  }
 
   function handleUsageAnalyticsConsent(consent: boolean) {
     setUsageAnalyticsConsent(consent);

@@ -20,6 +20,7 @@ const dbgateApi = require('../shell');
 const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authProxy');
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
+const { getUsageAnalyticsEnvironmentPolicy } = require('../utility/usageAnalyticsPolicy');
 const {
   generateTransportEncryptionKey,
   createTransportEncryptor,
@@ -127,6 +128,7 @@ module.exports = {
       skipAllAuth: !!process.env.SKIP_ALL_AUTH,
       adminPasswordState: adminConfig?.adminPasswordState,
       storageDatabase: process.env.STORAGE_DATABASE,
+      usageAnalyticsConsentOverride: getUsageAnalyticsEnvironmentPolicy(),
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(
         datadir(),
@@ -202,6 +204,7 @@ module.exports = {
     try {
       if (process.env.STORAGE_DATABASE) {
         const settings = await storage.readConfig({ group: 'settings' });
+        if (settings == null) throw new Error('DBGM-00000 Could not read Team settings');
         return this.fillMissingSettings(settings);
       } else {
         const settingsText = await fs.readFile(
@@ -215,7 +218,11 @@ module.exports = {
         };
       }
     } catch (err) {
-      return this.fillMissingSettings({});
+      return {
+        ...this.fillMissingSettings({}),
+        // An unavailable Team policy must not fall back to individual analytics consent.
+        ...(process.env.STORAGE_DATABASE ? { 'storage.usageAnalytics': 'disabled' } : {}),
+      };
     }
   },
 
@@ -301,6 +308,10 @@ module.exports = {
   async updateSettings(values, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     if (!hasPermission(`settings/change`, loadedPermissions)) return false;
+    if (Object.prototype.hasOwnProperty.call(values, 'storage.usageAnalytics')) {
+      if (!hasPermission('admin/settings', loadedPermissions)) return false;
+      if (!['user', 'enabled', 'disabled'].includes(values['storage.usageAnalytics'])) return false;
+    }
     cachedSettingsValue = null;
 
     const res = await lock.acquire('settings', async () => {
@@ -443,6 +454,15 @@ module.exports = {
 
     const recryptedDb = this.recryptDatabaseFromImport(db);
     if (process.env.STORAGE_DATABASE) {
+      // Match conservatively for storage databases with case-insensitive collations.
+      const importsUsageAnalytics = recryptedDb.config?.some(
+        row =>
+          String(row.group).trim().toLowerCase() === 'settings' &&
+          String(row.key).trim().toLowerCase() === 'storage.usageanalytics'
+      );
+      if (importsUsageAnalytics && !hasPermission('admin/settings', loadedPermissions)) {
+        throw new Error('DBGM-00000 Permission denied: admin/settings');
+      }
       await storage.replicateImportedDatabase(recryptedDb);
     } else {
       await connections.importFromArray(

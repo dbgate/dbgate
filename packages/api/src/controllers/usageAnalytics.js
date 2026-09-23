@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { getUsageAnalyticsPolicy } = require('../utility/usageAnalyticsPolicy');
 
 const ENDPOINT = 'https://analytics.dbgate.cloud/v1/events';
 const DEV_ENDPOINT = 'https://analytics.dbgate.cloud/dev/v1/events';
@@ -67,11 +68,12 @@ module.exports = {
       windowStarted = now;
       batchesInWindow = 0;
     }
-    // Bound both request volume and simultaneous upstream work per backend process.
+    // Reserve capacity before awaiting policy storage as well as upstream work.
     if (batchesInWindow >= 120 || inFlight >= 4) return { accepted: false, reason: 'rate_limited' };
     batchesInWindow++;
     inFlight++;
     try {
+      if ((await getUsageAnalyticsPolicy()) === false) return { accepted: false, reason: 'disabled_by_admin' };
       await axios.post(isDevMode ? DEV_ENDPOINT : ENDPOINT, body, {
         headers: {
           'Content-Type': 'application/json',

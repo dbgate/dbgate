@@ -14,6 +14,7 @@ const socket = require('./socket');
 const config = require('../controllers/config');
 const simpleEncryptor = require('simple-encryptor');
 const currentVersion = require('../currentVersion');
+const { getUsageAnalyticsPolicy } = require('./usageAnalyticsPolicy');
 
 const logger = getLogger('cloudIntf');
 
@@ -204,6 +205,7 @@ async function getCloudSigninHeaders(holder = null) {
 }
 
 async function updateCloudFiles(isRefresh, language, usageAnalyticsConsent) {
+  usageAnalyticsConsent = (await getUsageAnalyticsPolicy()) ?? usageAnalyticsConsent;
   let lastCloudFilesTags;
   try {
     lastCloudFilesTags = await fs.readFile(path.join(datadir(), 'cloud-files-tags.txt'), 'utf-8');

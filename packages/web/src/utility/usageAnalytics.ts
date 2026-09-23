@@ -1,7 +1,7 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import getElectron from './getElectron';
 import uuidv4 from 'uuid/v4';
-import { getActiveTab, getOpenedTabs, getCurrentConfig } from '../stores';
+import { getActiveTab, getOpenedTabs, getCurrentConfig, getCurrentSettings } from '../stores';
 import { getSelectedLanguage } from '../translations';
 import { isProApp } from './proTools';
 
@@ -89,6 +89,13 @@ export function installAnalyticsTraceApi(): void {
 installAnalyticsTraceApi();
 
 export function getUsageAnalyticsConsent(): boolean | null {
+  const environmentConsent = getCurrentConfig()?.usageAnalyticsConsentOverride;
+  if (typeof environmentConsent === 'boolean') return environmentConsent;
+  if (getCurrentConfig()?.storageDatabase) {
+    const policy = getCurrentSettings()['storage.usageAnalytics'];
+    if (policy === 'enabled') return true;
+    if (policy === 'disabled') return false;
+  }
   try {
     const value = localStorage.getItem(ANALYTICS_CONSENT_STORAGE_KEY);
     if (value === 'true') return true;

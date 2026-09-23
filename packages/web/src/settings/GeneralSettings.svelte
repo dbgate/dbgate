@@ -14,12 +14,26 @@
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { lockedDatabaseMode, tabGroupShowServerName, toolbarPosition } from '../stores';
   import { getUsageAnalyticsConsent, setUsageAnalyticsConsent } from '../utility/usageAnalytics';
+  import { useConfig, useSettings } from '../utility/metadataLoaders';
 
   const electron = getElectron();
   let restartWarning = false;
   let usageAnalyticsConsent = getUsageAnalyticsConsent() === true;
+  const config = useConfig();
+  const settings = useSettings();
+  $: analyticsEnvironmentManaged = typeof $config?.usageAnalyticsConsentOverride === 'boolean';
+  $: analyticsPolicy = analyticsEnvironmentManaged
+    ? $config.usageAnalyticsConsentOverride
+      ? 'enabled'
+      : 'disabled'
+    : $config?.storageDatabase
+    ? $settings?.['storage.usageAnalytics']
+    : null;
+  $: analyticsManaged = analyticsPolicy === 'enabled' || analyticsPolicy === 'disabled';
+  $: usageAnalyticsConsent = analyticsManaged ? analyticsPolicy === 'enabled' : getUsageAnalyticsConsent() === true;
 
   function updateUsageAnalyticsConsent(consent: boolean) {
+    if (analyticsManaged) return;
     usageAnalyticsConsent = consent;
     setUsageAnalyticsConsent(consent);
   }
@@ -119,10 +133,20 @@
   >
     <CheckboxField
       checked={usageAnalyticsConsent}
+      disabled={analyticsManaged}
       on:change={e => updateUsageAnalyticsConsent(e.target['checked'])}
       data-testid="GeneralSettings_usageAnalytics"
     />
   </FormFieldTemplateLarge>
+  {#if analyticsManaged}
+    <div class="analyticsDescription" data-testid="GeneralSettings_usageAnalyticsManaged">
+      {analyticsEnvironmentManaged
+        ? _t('settings.usageAnalytics.environmentManaged', {
+            defaultMessage: 'Managed by the USAGE_ANALYTICS environment variable.',
+          })
+        : _t('settings.usageAnalytics.managed', { defaultMessage: 'Managed by your team administrator.' })}
+    </div>
+  {/if}
   <div class="analyticsDescription">
     {_t('settings.usageAnalytics.description', {
       defaultMessage:
