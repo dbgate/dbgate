@@ -167,8 +167,11 @@ async function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, getTokenSecret());
-    if (decoded.tokenUse == 'mcp') {
-      throw new Error('MCP token cannot be used for the DbGate API');
+    // Session tokens never carry tokenUse. Anything that does was minted for a narrower
+    // purpose (the MCP server, an autoExecute team file, ...) and must not be accepted here
+    // as proof of an API session.
+    if (decoded.tokenUse) {
+      throw new Error(`Token issued for ${decoded.tokenUse} cannot be used for the DbGate API`);
     }
     req.user = decoded;
     markUserAsActive(decoded.licenseUid, token);

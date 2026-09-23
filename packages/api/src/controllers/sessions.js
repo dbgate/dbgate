@@ -8,13 +8,16 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
-const { getLogger, extractErrorLogData, removeSqlFrontMatter } = require('dbgate-tools');
+const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 const { sendToAuditLog } = require('../utility/auditlog');
-const { testStandardPermission, testDatabaseRolePermission } = require('../utility/hasPermission');
-const { getStaticTokenSecret } = require('../auth/authCommon');
-const jwt = require('jsonwebtoken');
+const {
+  testStandardPermission,
+  testDatabaseRolePermission,
+  testConnectionPermission,
+} = require('../utility/hasPermission');
+const { verifyTeamFileExecToken } = require('../utility/teamFileExecToken');
 
 const logger = getLogger('sessions');
 
@@ -155,7 +158,10 @@ module.exports = {
   },
 
   create_meta: true,
-  async create({ conid, database }) {
+  async create({ conid, database }, req) {
+    // connections.getCore performs no authorization of its own, and the session subprocess it
+    // feeds is opened with the connection's full credentials, so the check has to happen here.
+    await testConnectionPermission(conid, req);
     const sesid = crypto.randomUUID();
     const connection = await connections.getCore({ conid });
     const globalSettings = await config.getSettings();
@@ -211,21 +217,34 @@ module.exports = {
 
   executeQuery_meta: true,
   async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
-    let useTokenIsOk = false;
-    if (frontMatter?.useToken) {
-      const decoded = jwt.verify(frontMatter.useToken, getStaticTokenSecret());
-      if (decoded?.['contentHash'] == crypto.createHash('md5').update(removeSqlFrontMatter(sql)).digest('hex')) {
-        useTokenIsOk = true;
-      }
-    }
-    if (!useTokenIsOk) {
-      await testStandardPermission('dbops/query', req);
-    }
+    // The session is resolved first because a team-file execution grant is only good for the
+    // connection and database the file pins, so it cannot be checked without knowing which
+    // session the statement would run in.
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }
-    if (!useTokenIsOk) {
+
+    // A valid grant means this exact statement was handed to this exact caller by
+    // teamFiles.getContent, which already checked their "use" access to the file - that is what
+    // lets an autoExecute team file run for a user who may not read it. The grant carries the
+    // team file it came from as a claim, so execGrantStillStands reloads that file and derives
+    // the access again rather than trusting it.
+    const grant = verifyTeamFileExecToken(frontMatter?.useToken, sql, req, session);
+    const standing = grant && (await require('./teamFiles').execGrantStillStands(grant.teamFileId, sql, session, req));
+
+    if (!standing) {
+      await testStandardPermission('dbops/query', req);
+    }
+
+    // Only a file pinned to this connection and database stands in for the database role. A file
+    // that pins none says nothing about where it may run, so the role is still required and the
+    // caller cannot spend the grant on a database they do not already hold it for.
+    //
+    // The answer comes from execGrantStillStands, which reads the file as it stands now, and not
+    // from the token: a grant minted while the file was pinned carries that claim for its whole
+    // lifetime, and unpinning the file has to take the bypass away immediately.
+    if (!standing || !standing.isTargetBound) {
       await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
     }
 

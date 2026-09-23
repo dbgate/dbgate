@@ -1,13 +1,12 @@
 const { filterName, getLogger, extractErrorLogData } = require('dbgate-tools');
 const logger = getLogger('jsldata');
-const { jsldir, archivedir } = require('../utility/directories');
 const fs = require('fs');
-const path = require('path');
 const lineReader = require('line-reader');
 const _ = require('lodash');
 const { __ } = require('lodash/fp');
 const DatastoreCache = require('../utility/DatastoreCache');
 const getJslFileName = require('../utility/getJslFileName');
+const { openJslFileForWrite, openJslFileForRead } = getJslFileName;
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const requirePluginFunction = require('../utility/requirePluginFunction');
 const socket = require('../utility/socket');
@@ -89,51 +88,39 @@ module.exports = {
     method: 'get',
     raw: true,
   },
-  streamRows(req, res) {
+  async streamRows(req, res) {
     const { jslid } = req.query;
     if (!jslid) {
       res.status(400).json({ apiErrorMessage: 'Missing jslid' });
       return;
     }
 
-    // Reject file:// jslids — they resolve to arbitrary server-side paths
-    if (jslid.startsWith('file://')) {
-      res.status(403).json({ apiErrorMessage: 'Forbidden jslid scheme' });
-      return;
-    }
-
-    const fileName = getJslFileName(jslid);
-
-    if (!fs.existsSync(fileName)) {
-      res.status(404).json({ apiErrorMessage: 'File not found' });
-      return;
-    }
-
-    // Dereference symlinks and normalize case (Windows) before the allow-list check.
-    // realpathSync is safe here because existsSync confirmed the file is present.
-    // path.resolve() alone cannot dereference symlinks, so a symlink inside an allowed
-    // root could otherwise point to an arbitrary external path.
-    const normalize = p => (process.platform === 'win32' ? p.toLowerCase() : p);
-    const resolveRoot = r => { try { return fs.realpathSync(r); } catch { return path.resolve(r); } };
-
-    let realFile;
+    // getJslFileName confines the resolved path to the managed data directories for every
+    // jslid form, so this route no longer needs an allow-list check of its own - having one
+    // here and nowhere else is how the write routes below ended up unprotected.
+    //
+    // The stream is then built on the descriptor openJslFileForRead vouched for, not on the
+    // path. Handing the approved name back to createReadStream would read whatever that name
+    // resolves to by the time the stream opens it, which is not what was approved.
+    let handle;
     try {
-      realFile = fs.realpathSync(fileName);
-    } catch {
+      handle = await openJslFileForRead(jslid);
+    } catch (err) {
+      if (err?.code == 'ENOENT') {
+        res.status(404).json({ apiErrorMessage: 'File not found' });
+        return;
+      }
+      logger.warn({ jslid }, 'DBGM-00255 streamRows rejected path outside allowed roots');
       res.status(403).json({ apiErrorMessage: 'Forbidden path' });
       return;
     }
 
-    const allowedRoots = [jsldir(), archivedir()].map(r => normalize(resolveRoot(r)) + path.sep);
-    const isAllowed = allowedRoots.some(root => normalize(realFile).startsWith(root));
-    if (!isAllowed) {
-      logger.warn({ jslid, realFile }, 'DBGM-00255 streamRows rejected path outside allowed roots');
-      res.status(403).json({ apiErrorMessage: 'Forbidden path' });
-      return;
-    }
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Cache-Control', 'no-cache');
-    const stream = fs.createReadStream(realFile, 'utf-8');
+    const stream = fs.createReadStream(null, { fd: handle.fd, encoding: 'utf-8', autoClose: false });
+
+    const closeHandle = () => handle.close().catch(() => {});
+    stream.on('close', closeHandle);
 
     req.on('close', () => {
       stream.destroy();
@@ -185,17 +172,27 @@ module.exports = {
 
   saveText_meta: true,
   async saveText({ jslid, text }) {
-    await fs.promises.writeFile(getJslFileName(jslid), text);
+    // openJslFileForWrite rather than a plain writeFile: getJslFileName settles where the jslid
+    // points, the no-follow open settles what is actually written to
+    const handle = await openJslFileForWrite(jslid);
+    try {
+      await handle.writeFile(text);
+    } finally {
+      await handle.close();
+    }
     return true;
   },
 
   saveRows_meta: true,
   async saveRows({ jslid, rows }) {
-    const fileStream = fs.createWriteStream(getJslFileName(jslid));
-    for (const row of rows) {
-      await fileStream.write(JSON.stringify(row) + '\n');
+    const handle = await openJslFileForWrite(jslid);
+    try {
+      for (const row of rows) {
+        await handle.write(JSON.stringify(row) + '\n');
+      }
+    } finally {
+      await handle.close();
     }
-    await fileStream.close();
     return true;
   },
 

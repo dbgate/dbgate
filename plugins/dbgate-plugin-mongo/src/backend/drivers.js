@@ -67,6 +67,22 @@ function BinData(subType, base64) {
   return new Binary(Buffer.from(base64, 'base64'), numericSubType);
 }
 
+/**
+ * Collection names reach the driver straight from a request body. They are passed as values
+ * rather than built into script text, so this is not what stops injection - it is here so that
+ * a name which MongoDB itself would reject, or a non-string that would be coerced into
+ * something surprising, fails with a clear error instead.
+ *
+ * @param {any} name
+ * @returns {string} the validated name
+ */
+function assertValidCollectionName(name) {
+  if (typeof name != 'string' || name.length == 0 || name.includes('\0')) {
+    throw new Error(`DBGM-00000 Invalid collection name: ${String(name).substring(0, 100)}`);
+  }
+  return name;
+}
+
 async function getScriptableDb(dbhan) {
   const db = dbhan.getDatabase();
   db.getCollection = (name) => db.collection(name);
@@ -173,6 +189,12 @@ const drivers = driverBases.map((driverBase) => ({
 
     //   return printable;
     // }
+    // NOTE: this is a direct eval, so the evaluated text has this module's scope - including
+    // require - in reach. The MongoDB query language is JavaScript, so user text does have to
+    // be evaluated, but that means reaching this function is equivalent to running code on the
+    // DbGate server, not merely on the database server. Every route that gets here must
+    // therefore demand the run_script database role (databaseConnections.runScript and
+    // sessions.executeQuery do); operation() deliberately no longer builds script text.
     let func;
     func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
@@ -180,10 +202,19 @@ const drivers = driverBases.map((driverBase) => ({
     if (isPromise(res)) await res;
   },
   async operation(dbhan, operation, options) {
+    // These used to be executed by building MongoDB shell source with the collection names
+    // interpolated into it and handing that to script(), which evaluates JavaScript with the
+    // API process's own scope in reach. A name such as
+    //   x'); require('child_process').execSync('...'); ('
+    // therefore ran arbitrary code on the DbGate server - and unlike script(), this route is
+    // reached by database-connections/run-operation, which only checks connection permission.
+    // Calling the driver API with the names as values removes the injection entirely; there is
+    // no script text for a name to break out of.
     const { type } = operation;
+    const db = dbhan.getDatabase();
     switch (type) {
       case 'createCollection':
-        await this.script(dbhan, `db.createCollection('${operation.collection.name}')`);
+        await db.createCollection(assertValidCollectionName(operation.collection.name));
         break;
       // case 'dropCollection':
       //   await this.script(dbhan, `db.getCollection('${operation.collection}').drop()`);
@@ -202,22 +233,24 @@ const drivers = driverBases.map((driverBase) => ({
       //   break;
 
       case 'dropCollection':
-        await this.script(dbhan, `db.dropCollection('${operation.collection}')`);
+        await db.dropCollection(assertValidCollectionName(operation.collection));
         break;
       case 'renameCollection':
-        await this.script(dbhan, `db.renameCollection('${operation.collection}', '${operation.newName}')`);
+        await db.renameCollection(
+          assertValidCollectionName(operation.collection),
+          assertValidCollectionName(operation.newName)
+        );
         break;
       case 'cloneCollection':
-        await this.script(
-          dbhan,
-          `db.collection('${operation.collection}').aggregate([{$out: '${operation.newName}'}]).toArray()`
-        );
+        await db
+          .collection(assertValidCollectionName(operation.collection))
+          .aggregate([{ $out: assertValidCollectionName(operation.newName) }])
+          .toArray();
         break;
 
       default:
         throw new Error(`Operation type ${type} not supported`);
     }
-    // saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
   },
   async stream(dbhan, sql, options) {
     if (isProApp()) {
@@ -301,6 +334,12 @@ const drivers = driverBases.map((driverBase) => ({
 
       options.done();
     } else {
+      // NOTE: this is a direct eval, so the evaluated text has this module's scope - including
+      // require - in reach. The MongoDB query language is JavaScript, so user text does have to
+      // be evaluated, but that means reaching this function is equivalent to running code on the
+      // DbGate server, not merely on the database server. Every route that gets here must
+      // therefore demand the run_script database role (databaseConnections.runScript and
+      // sessions.executeQuery do); operation() deliberately no longer builds script text.
       let func;
       try {
         func = eval(`(db,ObjectId,BinData) => ${sql}`);
@@ -431,6 +470,12 @@ const drivers = driverBases.map((driverBase) => ({
     //   highWaterMark: 100,
     // });
 
+    // NOTE: this is a direct eval, so the evaluated text has this module's scope - including
+    // require - in reach. The MongoDB query language is JavaScript, so user text does have to
+    // be evaluated, but that means reaching this function is equivalent to running code on the
+    // DbGate server, not merely on the database server. Every route that gets here must
+    // therefore demand the run_script database role (databaseConnections.runScript and
+    // sessions.executeQuery do); operation() deliberately no longer builds script text.
     func = eval(`(db,ObjectId,BinData) => ${sql}`);
     const db = await getScriptableDb(dbhan);
     exprValue = func(db, ObjectId.createFromHexString, BinData);

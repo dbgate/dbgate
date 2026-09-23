@@ -28,10 +28,18 @@
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mongo",
     "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mongo",
     "plugout": "dbgate-plugout dbgate-plugin-mongo",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn build",
+    "test": "jest",
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults"
+  },
+  "jest": {
+    "testMatch": [
+      "**/*.test.js"
+    ]
   },
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.7",
+    "jest": "^30.4.2",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   },
