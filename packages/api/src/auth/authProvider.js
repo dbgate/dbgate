@@ -349,7 +349,10 @@ function getDefaultAuthProvider() {
 function getAuthProviderFromReq(req) {
   const authProviderId = req?.auth?.amoid || req?.user?.amoid;
   if (authProviderId == 'mcp') {
-    return require('../controllers/storage').getMcpAuthProvider();
+    // Team Premium provides a storage-backed MCP auth provider. Community
+    // stubs getMcpAuthProvider() as null, so fall back to the default provider
+    // so MCP tool calls can resolve permissions (DBGM-00355).
+    return require('../controllers/storage').getMcpAuthProvider() ?? getDefaultAuthProvider();
   }
   return getAuthProviderById(authProviderId) ?? getDefaultAuthProvider();
 }
