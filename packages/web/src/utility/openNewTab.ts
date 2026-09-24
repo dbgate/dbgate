@@ -57,7 +57,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
     );
   }
 
-  const { forceNewTab } = options || {};
+  const { forceNewTab, initialLocalStorage } = options || {};
 
   const component = tabs[newTab.tabComponent];
   if (!existing && !forceNewTab && component && component.matchingProps) {
@@ -88,6 +88,12 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   }
 
   const tabid = uuidv1();
+  if (initialLocalStorage) {
+    // raw values, copied verbatim (some are not JSON, eg. tabdata_limitRows_ = 'nolimit')
+    for (const key of _.keys(initialLocalStorage)) {
+      localStorage.setItem(`tabdata_${key}_${tabid}`, initialLocalStorage[key]);
+    }
+  }
   if (initialData) {
     for (const key of _.keys(initialData)) {
       if (key == 'editor' || key == 'rows') {
@@ -172,11 +178,12 @@ export async function duplicateTab(tab) {
 
   const keyRegex = /^tabdata_([^_]+)_([^_]+)$/;
   const initialData = {};
+  const initialLocalStorage = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     const m = key.match(keyRegex);
     if (m && m[2] == tab.tabid) {
-      initialData[m[1]] = JSON.parse(localStorage.getItem(key));
+      initialLocalStorage[m[1]] = localStorage.getItem(key);
     }
   }
   for (const key of await localforage.keys()) {
@@ -191,7 +198,7 @@ export async function duplicateTab(tab) {
       title,
     },
     initialData,
-    { forceNewTab: true }
+    { forceNewTab: true, initialLocalStorage }
   );
 }
 
