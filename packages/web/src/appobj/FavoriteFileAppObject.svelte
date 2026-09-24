@@ -1,22 +1,27 @@
 <script lang="ts" context="module">
   import AppObjectCore from './AppObjectCore.svelte';
+  import { getFavoriteKind, trackFavorite } from '../utility/favoriteUsage';
 
   export const extractKey = data => data.file;
 
-  export async function openFavorite(favorite) {
+  /** source says how the favorite was opened: list, startup, url_path, share_link or preview. */
+  export async function openFavorite(favorite, source = 'list') {
     const { icon, tabComponent, title, props, tabdata } = favorite;
     let tabdataNew = tabdata;
+    let loadFailed = false;
     if (props.savedFile) {
       const resp = await apiCall('files/load', {
         folder: props.savedFolder,
         file: props.savedFile,
         format: props.savedFormat,
       });
+      loadFailed = !!resp?.errorMessage;
       tabdataNew = {
         ...tabdata,
         editor: resp,
       };
     }
+    trackFavorite('open', favorite, { param: source, result: loadFailed ? 'error' : getFavoriteKind(favorite) });
     openNewTab(
       {
         title,
@@ -81,6 +86,7 @@
     showModal(ConfirmModal, {
       message: `Really delete favorite ${data.title}?`,
       onConfirm: () => {
+        trackFavorite('delete', data);
         apiCall('files/delete', { file: data.file, folder: 'favorites' });
       },
     });

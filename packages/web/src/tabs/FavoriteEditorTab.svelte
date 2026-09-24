@@ -76,7 +76,7 @@
   export function preview() {
     try {
       const data = JSON.parse(getData());
-      openFavorite(data);
+      openFavorite(data, 'preview');
     } catch (err) {
       showModal(ErrorMessageModal, { message: err.message, title: 'Error parsing JSON' });
     }

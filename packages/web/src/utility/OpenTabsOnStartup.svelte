@@ -9,6 +9,8 @@
   import { getConfig, getConnectionList, useFavorites } from './metadataLoaders';
   import openNewTab from './openNewTab';
   import { showSnackbarInfo } from './snackbar';
+  import { trackFavorite } from './favoriteUsage';
+  import { trackUsage } from './usageAnalytics';
 
   $: favorites = useFavorites();
   let opened = false;
@@ -24,6 +26,13 @@
     if (opened) return;
 
     opened = true;
+    trackUsage({ feature: 'favorites', action: 'count', param: 'all', value: list.length });
+    trackUsage({
+      feature: 'favorites',
+      action: 'count',
+      param: 'open_on_startup',
+      value: list.filter(x => x.openOnStartup).length,
+    });
 
     const { hash } = document.location;
     const openFavoriteName = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
@@ -32,20 +41,21 @@
     if (openFavoriteName) {
       const open = list.find(x => x.urlPath == openFavoriteName);
       if (open) {
-        openFavorite(open);
+        openFavorite(open, 'url_path');
         window.history.replaceState(null, null, ' ');
       }
     } else if (openTabdata) {
       try {
         const json = JSON.parse(decodeURIComponent(openTabdata));
-        openFavorite(json);
+        openFavorite(json, 'share_link');
         window.history.replaceState(null, null, ' ');
       } catch (err) {
+        trackFavorite('open', null, { param: 'share_link', result: 'error' });
         showModal(ErrorMessageModal, { message: err.message });
       }
     } else if (!$openedTabs.find(x => x.closedTime == null)) {
       for (const favorite of list.filter(x => x.openOnStartup)) {
-        openFavorite(favorite);
+        openFavorite(favorite, 'startup');
       }
     }
 

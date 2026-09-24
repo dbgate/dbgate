@@ -453,7 +453,7 @@
           { divider: true },
           {
             text: _t('tabsPanel.addToFavorites', { defaultMessage: 'Add to favorites' }),
-            onClick: () => showModal(FavoriteModal, { savingTab: tab }),
+            onClick: () => showModal(FavoriteModal, { savingTab: tab, source: 'tab_menu' }),
           },
         ],
       tabComponent &&
