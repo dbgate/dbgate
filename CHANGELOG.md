@@ -9,6 +9,18 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.1 - not released
+
+- ADDED: Built-in MySQL and MariaDB backup and restore without requiring external database tools
+- ADDED: MySQL and MariaDB backup options and table selection, with a choice of built-in or external backup and restore tools (Premium)
+- ADDED: Usage analytics control through the USAGE_ANALYTICS environment variable
+- ADDED: Centralized usage analytics settings for team administrators (Team Premium)
+- ADDED: Custom role names in environment configuration using ROLE\_<key>\_NAME, supporting names containing dashes, dots, and other special characters (Team Premium)
+- CHANGED: Improved memory usage and cleanup of query results, file handles, and temporary sorting files
+- CHANGED: Replaced the fs-reverse and byline dependencies with built-in file reading utilities to eliminate their deprecation warnings
+- FIXED: Tab duplication failing when saved tab settings contain non-JSON values
+- FIXED: Addressed multiple security issues to improve application security
+
 ## 7.3.0
 
 - ADDED: Cloudflare D1 support, including database discovery, SQL execution, and schema browsing (Premium)
