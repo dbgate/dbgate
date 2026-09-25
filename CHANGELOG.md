@@ -9,7 +9,7 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
-## 7.3.1 - not released
+## 7.3.1
 
 - ADDED: Built-in MySQL and MariaDB backup and restore without requiring external database tools
 - ADDED: MySQL and MariaDB backup options and table selection, with a choice of built-in or external backup and restore tools (Premium)
