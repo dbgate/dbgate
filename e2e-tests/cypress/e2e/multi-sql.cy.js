@@ -209,6 +209,35 @@ describe('Postgres database backup with dbgate-pg-dumper', () => {
   }
 });
 
+describe('MySQL database backup with dbgate-mysql-dumper', () => {
+  if (localconfig.mysql) {
+    it('Backs up a single table using dbgate-mysql-dumper', () => {
+      const otherTables = ['administrators', 'categories', 'customers', 'orders', 'order_items', 'products'];
+
+      cy.contains('MySql-connection').click();
+      cy.contains('my_guitar_shop').rightclick();
+      cy.contains('Create database backup').click();
+
+      cy.testid('BackupDatabaseTab_chooseTables').contains('addresses', { timeout: 10000 });
+      cy.testid('BackupDatabaseTab_chooseTables').within(() => {
+        otherTables.forEach(table => {
+          cy.contains(table).click();
+        });
+      });
+
+      cy.testid('BackupDatabaseTab_backupTool').select('dbgate-mysql-dumper');
+
+      cy.testid('BackupDatabaseTab_executeButton').click();
+      cy.testid('BackupDatabaseTab_status', { timeout: 30000 }).should('contain', 'Finished');
+
+      cy.themeshot('mysql-backup-dbgate-mysql-dumper');
+      cy.testid('BackupDatabaseTab_openInTab').click();
+      cy.contains('CREATE TABLE');
+      cy.contains('addresses');
+    });
+  }
+});
+
 describe('Truncate table', () => {
   multiTest({ skipMongo: true }, (connectionName, databaseName, engine, options = {}) => {
     cy.contains(connectionName).click();
