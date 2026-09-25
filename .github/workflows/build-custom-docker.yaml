@@ -1,0 +1,166 @@
+# --------------------------------------------------------------------------------------------
+# Automya internal build. NOT part of upstream dbgate.
+#
+# Builds the fork (master + packages/api/src/auth/authProvider.js) and pushes a REAL multi-arch
+# image to the shared-services ECR.
+#
+# Do NOT delete this file when cleaning the branch for an upstream PR: it was removed once
+# (865b71f7, 2026-04-13) and the manual rebuild that followed reintroduced the plugin-loading
+# bug it exists to prevent. Exclude it from the upstream PR instead.
+#
+# Two things here are load-bearing:
+#
+#   1. `node adjustPackageJson --community` MUST run before `yarn install`. It sets
+#      common/useBundleExternals.js to 'true' (the repo ships 'false') so plugin webpack
+#      bundles lodash/dbgate-tools into dist/backend.js, and it copies the volatile plugin
+#      deps (pg, wkx, ...) into packages/api/package.json, from where
+#      common/defineVolatileDependencies.js generates docker/package.json.
+#      Without it every connection fails with a misleading
+#      "Cannot find module '.../dbgate-plugin-postgres/dist/backend.js'".
+#
+#   2. Each architecture is built on its OWN native runner. docker/Dockerfile does not run
+#      `yarn install`; `yarn run prepare:docker` vendors node_modules from the host, native
+#      .node binaries included. Cross-building both platforms from a single runner silently
+#      ships one architecture's binaries inside the other's image.
+# --------------------------------------------------------------------------------------------
+name: Build Custom Docker Image
+
+on:
+  push:
+    branches:
+      - feat/oauth-userinfo
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  REGISTRY: 475538400403.dkr.ecr.eu-south-2.amazonaws.com
+  IMAGE_NAME: automya/dbgate
+  AWS_REGION: eu-south-2
+  # NOTE: the `oauth-userinfo` tag is what production currently runs. Never push to it here.
+  MOVING_TAG: oauth-userinfo-v2
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            arch: amd64
+            runner: ubuntu-24.04
+          - platform: linux/arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Adjust package.json for Docker build
+        run: node adjustPackageJson --community
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set current version
+        run: yarn setCurrentVersion
+
+      - name: Prepare docker build
+        run: yarn run prepare:docker
+
+      - name: Sanity check prepared build
+        run: |
+          set -eu
+          modules=$(find docker/node_modules -maxdepth 1 -mindepth 1 | wc -l)
+          backend=$(stat -c %s docker/plugins/dbgate-plugin-postgres/dist/backend.js)
+          echo "node_modules=$modules backend.js=$backend"
+          # A build without adjustPackageJson yields ~56 modules and a ~57KB backend.js.
+          [ "$modules" -gt 150 ] || { echo "::error::too few modules ($modules): did adjustPackageJson run?"; exit 1; }
+          [ "$backend" -gt 100000 ] || { echo "::error::backend.js too small ($backend bytes): plugin externals are wrong"; exit 1; }
+          for m in pg pg-copy-streams wkx; do
+            [ -d "docker/node_modules/$m" ] || { echo "::error::missing driver dependency $m"; exit 1; }
+          done
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::475538400403:role/github-actions-ecr-push
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          platforms: ${{ matrix.platform }}
+          provenance: false
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        run: |
+          set -eu
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.arch }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::475538400403:role/github-actions-ecr-push
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          set -eu
+          short_sha="${GITHUB_SHA::7}"
+          # Word splitting is intentional here: one @sha256:... ref per built platform.
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            -t "${REGISTRY}/${IMAGE_NAME}:${MOVING_TAG}" \
+            -t "${REGISTRY}/${IMAGE_NAME}:oauth-userinfo-${short_sha}" \
+            $(printf "${REGISTRY}/${IMAGE_NAME}@sha256:%s " *)
+
+      - name: Inspect published image
+        run: |
+          set -eu
+          docker buildx imagetools inspect "${REGISTRY}/${IMAGE_NAME}:${MOVING_TAG}"
