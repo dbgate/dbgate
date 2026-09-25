@@ -5,6 +5,19 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Redis = require('ioredis');
 const RedisDump = require('node-redis-dump2');
+const fs = require('fs');
+const crypto = require('crypto');
+const { finished } = require('stream/promises');
+const { dumpRedis, restoreRedisDump } = require('dbgate-redis-dumper');
+const { fromIoredis } = require('dbgate-redis-dumper/ioredis');
+const {
+  createDumpProgressReporter,
+  createRestoreProgressReporter,
+  formatRedisRestoreError,
+  formatRestoreCommandError,
+  getRedisDumpOptions,
+  parseDatabaseIndex,
+} = require('./redisDumperSupport');
 const { filterName } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 let isProApp;
@@ -120,10 +133,135 @@ async function buildNatMapFromSeeds(seeds, redisOptions) {
   return natMap;
 }
 
+/**
+ * Makes sure the client is on the requested logical database before the dumper takes it over.
+ *
+ * connect() selects the database through ioredis options, except for database URL connections,
+ * which always open the database named in the URL. ioredis records a select() it performed itself,
+ * so the dumper's adapter then knows which database to hand the connection back on.
+ */
+async function selectRequestedDatabase(dbhan, database) {
+  const index = parseDatabaseIndex(database);
+  if (index === undefined) return;
+  const current = dbhan.client.condition?.select ?? dbhan.client.options?.db ?? 0;
+  if (current !== index) {
+    await dbhan.client.select(index);
+  }
+}
+
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
+
+  async backupDatabase(connection, settings, runner) {
+    const { outputFile, database, options = {} } = settings;
+    const dumpOptions = getRedisDumpOptions(options);
+    // Dump into a sibling temporary file and publish it with a rename only once the dump finished.
+    // A failed or cancelled run therefore never leaves a truncated file behind, nor does it touch
+    // an existing backup stored under the requested name.
+    const tempFile = `${outputFile}.${crypto.randomBytes(6).toString('hex')}.part`;
+    let dbhan = null;
+    let output = null;
+    let dumperConnection = null;
+
+    try {
+      dbhan = await this.connect({ ...connection, database });
+      await selectRequestedDatabase(dbhan, database);
+      dumperConnection = fromIoredis(dbhan.client);
+      output = fs.createWriteStream(tempFile);
+      const result = await dumpRedis(
+        dumperConnection,
+        dumpOptions,
+        output,
+        createDumpProgressReporter(runner),
+        runner.signal
+      );
+      if (result.cancelled) {
+        throw new Error('DBGM-00000 Redis backup cancelled');
+      }
+      output.end();
+      await finished(output);
+      await fs.promises.rename(tempFile, outputFile);
+      for (const warning of result.warnings) {
+        runner.info({ message: warning.message, severity: warning.severity });
+      }
+      runner.info({
+        message: `Wrote ${result.keysExported.toLocaleString('en-US')} keys in ${result.commandsWritten.toLocaleString(
+          'en-US'
+        )} commands and ${result.bytesWritten.toLocaleString('en-US')} bytes`,
+        severity: 'info',
+      });
+    } catch (error) {
+      if (output) {
+        output.destroy();
+        // wait for the descriptor to be released, otherwise the cleanup below can fail on Windows
+        await finished(output).catch(() => {});
+      }
+      await fs.promises.rm(tempFile, { force: true }).catch(() => {});
+      throw error;
+    } finally {
+      dumperConnection?.detach();
+      if (dbhan) await this.close(dbhan).catch(() => {});
+    }
+  },
+
+  async restoreDatabase(connection, settings, runner) {
+    const { inputFile, database, options = {} } = settings;
+    let dbhan = null;
+    let input = null;
+    let dumperConnection = null;
+
+    try {
+      dbhan = await this.connect({ ...connection, database });
+      await selectRequestedDatabase(dbhan, database);
+      dumperConnection = fromIoredis(dbhan.client);
+      input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
+      const stopOnError = options.stopOnError ?? true;
+      const progress = createRestoreProgressReporter(runner);
+      const result = await restoreRedisDump({
+        connection: dumperConnection,
+        source: input,
+        signal: runner.signal,
+        options: { stopOnError },
+        progress,
+      });
+      // Reported before the error branch below, because a failed restore is exactly when warnings
+      // like a missing final newline (a truncated file) matter most.
+      for (const warning of result.warnings) {
+        runner.info({ message: warning.message, severity: 'warning' });
+      }
+      if (result.cancelled) {
+        throw new Error('DBGM-00000 Redis restore cancelled');
+      }
+      if (result.errors.length > 0) {
+        for (const error of result.errors) {
+          if (progress.reportedCommandIndexes.has(error.commandIndex)) continue;
+          runner.info({ message: formatRestoreCommandError(error), severity: 'error' });
+        }
+        const count = result.errors.length;
+        throw new Error(
+          `DBGM-00000 Redis restore ${stopOnError ? 'stopped at' : 'finished with'} ${count} error${
+            count == 1 ? '' : 's'
+          }: ${formatRestoreCommandError(result.errors[0])}`
+        );
+      }
+      runner.info({
+        message: `Restored ${result.commandsExecuted.toLocaleString(
+          'en-US'
+        )} Redis commands (${result.bytesConsumed.toLocaleString('en-US')} bytes read)`,
+        severity: 'info',
+      });
+    } catch (error) {
+      const formatted = formatRedisRestoreError(error);
+      if (formatted) throw new Error(formatted, { cause: error });
+      throw error;
+    } finally {
+      input?.destroy();
+      dumperConnection?.detach();
+      if (dbhan) await this.close(dbhan).catch(() => {});
+    }
+  },
   async connect({
     server,
     port,

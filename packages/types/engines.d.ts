@@ -253,6 +253,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   supportsNodejsDumperForConnection?: (connection: any) => boolean;
   nodejsBackupTool?: string;
   nodejsRestoreTool?: string;
+  /** Extension of the backup file for the given backup options, without the dot. Defaults to `sql`. */
+  getBackupFileExtension?: (options: any) => string;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   supportsIncrementalAnalysis?: boolean;

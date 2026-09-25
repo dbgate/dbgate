@@ -1,4 +1,4 @@
-const { driverBase } = global.DBGATE_PACKAGES['dbgate-tools'];
+const { driverBase, __t } = global.DBGATE_PACKAGES['dbgate-tools'];
 const { redisChangeSetToRedisCommands } = global.DBGATE_PACKAGES['dbgate-datalib'];
 const { redisSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const Dumper = require('./Dumper');
@@ -59,6 +59,108 @@ const driver = {
 
   getKeyValueMethodCallList(changeSet) {
     return redisChangeSetToRedisCommands(changeSet);
+  },
+
+  supportsNodejsBackup: true,
+  supportsNodejsRestore: true,
+  nodejsBackupTool: 'dbgate-redis-dumper',
+  nodejsRestoreTool: 'dbgate-redis-dumper',
+  // A cluster has no logical databases and spreads its keys over nodes; dbgate-redis-dumper refuses it.
+  supportsNodejsDumperForConnection: (connection) => connection?.authType != 'cluster',
+
+  // `text` dumps are redis-cli scripts (`redis-cli < file`), `resp` dumps are RESP streams for
+  // `redis-cli --pipe < file`; the extension says which, both for people and for the restore tab.
+  getBackupFileExtension(options) {
+    return options?.format == 'resp' ? 'resp' : 'redis';
+  },
+
+  getNativeOperationFormArgs(operation) {
+    if (operation == 'backup') {
+      return [
+        {
+          type: 'select',
+          label: __t('redisDriver.backupTool', { defaultMessage: 'Backup tool' }),
+          name: 'backupTool',
+          default: 'dbgate-redis-dumper',
+          testId: 'BackupDatabaseTab_backupTool',
+          options: [{ name: 'dbgate-redis-dumper', value: 'dbgate-redis-dumper' }],
+        },
+        {
+          type: 'select',
+          label: __t('redisDriver.format', { defaultMessage: 'Output format' }),
+          name: 'format',
+          default: 'text',
+          testId: 'BackupDatabaseTab_format',
+          options: [
+            { name: 'Redis commands (redis-cli < file)', value: 'text' },
+            { name: 'RESP protocol (redis-cli --pipe < file)', value: 'resp' },
+          ],
+        },
+        {
+          type: 'text',
+          label: __t('redisDriver.keyPattern', { defaultMessage: 'Key pattern (e.g. user:*)' }),
+          name: 'keyPattern',
+          testId: 'BackupDatabaseTab_keyPattern',
+          default: '',
+        },
+        {
+          type: 'select',
+          label: __t('redisDriver.expiration', { defaultMessage: 'Key expiration' }),
+          name: 'expiration',
+          default: 'absolute',
+          options: [
+            { name: 'Keep absolute expiry time', value: 'absolute' },
+            { name: 'Keep remaining time to live', value: 'relative' },
+            { name: 'Drop expiration (keys never expire)', value: 'none' },
+          ],
+        },
+        {
+          type: 'select',
+          label: __t('redisDriver.strategy', { defaultMessage: 'Value encoding' }),
+          name: 'strategy',
+          default: 'commands',
+          options: [
+            { name: 'Commands (portable across versions)', value: 'commands' },
+            { name: 'DUMP payloads (exact, same or newer server only)', value: 'payload' },
+          ],
+        },
+        {
+          type: 'checkbox',
+          label: __t('redisDriver.replace', { defaultMessage: 'Replace existing keys on restore' }),
+          name: 'replace',
+          default: true,
+        },
+        {
+          type: 'checkbox',
+          label: __t('redisDriver.streamGroups', {
+            defaultMessage: 'Include stream consumer groups and pending entries',
+          }),
+          name: 'streamGroups',
+          default: true,
+        },
+        {
+          type: 'checkbox',
+          label: __t('redisDriver.allDatabases', {
+            defaultMessage: 'All databases (restores each into its original database)',
+          }),
+          name: 'allDatabases',
+          default: false,
+        },
+      ];
+    }
+    if (operation == 'restore') {
+      return [
+        {
+          type: 'select',
+          label: __t('redisDriver.restoreTool', { defaultMessage: 'Restore tool' }),
+          name: 'restoreTool',
+          default: 'dbgate-redis-dumper',
+          testId: 'RestoreDatabaseTab_restoreTool',
+          options: [{ name: 'dbgate-redis-dumper', value: 'dbgate-redis-dumper' }],
+        },
+      ];
+    }
+    return null;
   },
 };
 

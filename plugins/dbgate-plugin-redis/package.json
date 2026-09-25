@@ -38,6 +38,7 @@
     "dbgate-tools": "^7.0.0-alpha.1",
     "lodash": "^4.17.21",
     "async": "^3.2.3",
+    "dbgate-redis-dumper": "^0.1.0",
     "ioredis": "^5.4.1",
     "node-redis-dump2": "^0.5.0"
   }

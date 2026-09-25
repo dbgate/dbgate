@@ -76,13 +76,16 @@
   const checkedObjectsStore = writable([]);
 
   $: objectList = $dbinfo?.tables ?? [];
+  // Key-value engines (Redis) have no tables to choose from; their key selection lives in the options.
+  $: showObjectList = isPremium && !driver?.databaseEngineTypes?.includes('keyvalue');
 
   $: if ($dbinfo?.tables?.length > 0) {
     checkedObjectsStore.update(x => (x?.length > 0 ? x : $dbinfo.tables));
   }
 
   function generateOutputFileName() {
-    return `${database}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.sql`;
+    const extension = driver?.getBackupFileExtension?.(getBackupParams().options) ?? 'sql';
+    return `${database}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.${extension}`;
   }
 
   async function generateOutputFilePath(file = null) {
@@ -238,10 +241,10 @@
   <VerticalSplitter initialValue={isPremium ? '~220px' : '200px'}>
     <svelte:fragment slot="1">
       <HorizontalSplitter
-        isSplitter={isPremium}
+        isSplitter={showObjectList}
         initialValue="65%"
         onChangeSize={(_leftSize, rightSize) => {
-          if (isPremium) objectsWidth = rightSize;
+          if (showObjectList) objectsWidth = rightSize;
         }}
       >
         <svelte:fragment slot="1">
@@ -312,31 +315,33 @@
                         : _t('common.download', { defaultMessage: 'Download' })}
                     />
                   {/if}
-                  <FormStyledButton
-                    on:click={async () => {
-                      const resp = await apiCall('files/load', { folder: 'sql', file: outputFile, format: 'text' });
+                  {#if !outputFile.endsWith('.resp')}
+                    <FormStyledButton
+                      on:click={async () => {
+                        const resp = await apiCall('files/load', { folder: 'sql', file: outputFile, format: 'text' });
 
-                      const connProps = {};
-                      let tooltip = undefined;
+                        const connProps = {};
+                        let tooltip = undefined;
 
-                      openNewTab(
-                        {
-                          title: outputFile,
-                          icon: 'img sql-file',
-                          tabComponent: 'QueryTab',
-                          props: {
-                            savedFile: outputFile,
-                            savedFolder: 'sql',
-                            savedFormat: 'text',
-                            ...connProps,
+                        openNewTab(
+                          {
+                            title: outputFile,
+                            icon: 'img sql-file',
+                            tabComponent: 'QueryTab',
+                            props: {
+                              savedFile: outputFile,
+                              savedFolder: 'sql',
+                              savedFormat: 'text',
+                              ...connProps,
+                            },
                           },
-                        },
-                        { editor: resp }
-                      );
-                    }}
-                    value={_t('backupDatabase.openInTab', { defaultMessage: 'Open in tab' })}
-                    data-testid="BackupDatabaseTab_openInTab"
-                  />
+                          { editor: resp }
+                        );
+                      }}
+                      value={_t('backupDatabase.openInTab', { defaultMessage: 'Open in tab' })}
+                      data-testid="BackupDatabaseTab_openInTab"
+                    />
+                  {/if}
                   {#if backupCancelled}
                     <div class="backup-cancelled">
                       {_t('backupDatabase.cancelled', { defaultMessage: 'Backup cancelled' })}
@@ -378,7 +383,7 @@
         </svelte:fragment>
 
         <svelte:fragment slot="2">
-          {#if isPremium}
+          {#if showObjectList}
             <div class="flexcol flex1">
               <WidgetTitle>{_t('backupDatabase.chooseTables', { defaultMessage: 'Choose tables' })}</WidgetTitle>
               <SearchBoxWrapper filter={objectsFilter}>
