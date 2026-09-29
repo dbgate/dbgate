@@ -65,6 +65,32 @@ const appdir = dirFunc('apps');
 const filesdir = processArgs.runE2eTests ? dirFunc('files-e2etests') : dirFunc('files');
 const logsdir = dirFunc('logs', 3600 * 24 * 7);
 
+const TEMP_CLEAN_INTERVAL_MS = 15 * 60 * 1000;
+
+function cleanTempDirectories() {
+  if (platformInfo.isForkedApi) {
+    return Promise.resolve();
+  }
+  return Promise.all([jsldir(), rundir(), uploadsdir()].map(dir => cleanDirectory(dir)));
+}
+
+function startTempDirectoryCleanup(intervalMs = TEMP_CLEAN_INTERVAL_MS) {
+  if (platformInfo.isForkedApi) {
+    return null;
+  }
+  const run = () => {
+    void cleanTempDirectories().catch(err => {
+      getLogger('directories').error({ err }, 'DBGM-00000 Error cleaning temp directories');
+    });
+  };
+  run();
+  const timer = setInterval(run, intervalMs);
+  if (typeof timer.unref === 'function') {
+    timer.unref();
+  }
+  return timer;
+}
+
 function packagedPluginsDir() {
   // console.log('CALL DIR FROM', new Error('xxx').stack);
   // console.log('__dirname', __dirname);
@@ -193,4 +219,6 @@ module.exports = {
   clearArchiveLinksCache,
   getLogsFilePath,
   setLogsFilePath,
+  cleanTempDirectories,
+  startTempDirectoryCleanup,
 };
