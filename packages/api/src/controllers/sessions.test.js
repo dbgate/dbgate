@@ -210,3 +210,55 @@ describe('sessions.executeQuery', () => {
     expect(testStandardPermission).toHaveBeenCalledWith('dbops/query', alice);
   });
 });
+
+// executeReader runs arbitrary SQL and used to call create without the request, so
+// testConnectionPermission allowed any connection and neither dbops/query nor the run_script
+// database role was checked.
+describe('sessions.executeReader', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessions.opened = [];
+    testStandardPermission.mockResolvedValue(undefined);
+    testDatabaseRolePermission.mockResolvedValue(undefined);
+    testConnectionPermission.mockResolvedValue(undefined);
+    fork.mockReturnValue({ send: jest.fn(), on: jest.fn(), kill: jest.fn(), stdout: null, stderr: null });
+  });
+
+  test('checks the connection with the request, dbops/query and the run_script role', async () => {
+    await sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL }, alice);
+
+    expect(testConnectionPermission).toHaveBeenCalledWith('conid1', alice);
+    expect(testStandardPermission).toHaveBeenCalledWith('dbops/query', alice);
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'run_script', alice);
+  });
+
+  test('does not open a session without the connection permission', async () => {
+    testConnectionPermission.mockRejectedValue(new Error('DBGM-00264 Connection permission not granted'));
+
+    await expect(
+      sessions.executeReader({ conid: 'someone-elses-conid', database: 'db1', sql: SQL }, bob)
+    ).rejects.toThrow('permission not granted');
+    expect(fork).not.toHaveBeenCalled();
+  });
+
+  test('does not open a session without the run_script role', async () => {
+    testDatabaseRolePermission.mockRejectedValue(new Error('DBGM-00266 Permission run_script not granted'));
+
+    await expect(sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL }, bob)).rejects.toThrow(
+      'run_script not granted'
+    );
+    expect(fork).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['../../etc', 'q'],
+    ['app', '../x'],
+    ['/abs', 'q'],
+    [['app'], 'q'],
+  ])('rejects app folder %j / query name %j', async (appFolder, queryName) => {
+    await expect(
+      sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL, appFolder, queryName }, alice)
+    ).rejects.toThrow('Invalid query name or app folder');
+    expect(fork).not.toHaveBeenCalled();
+  });
+});

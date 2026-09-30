@@ -18,6 +18,7 @@ const {
   testConnectionPermission,
 } = require('../utility/hasPermission');
 const { verifyTeamFileExecToken } = require('../utility/teamFileExecToken');
+const { checkSecureFilePathsWithoutDirectory } = require('../utility/security');
 
 const logger = getLogger('sessions');
 
@@ -330,8 +331,22 @@ module.exports = {
   },
 
   executeReader_meta: true,
-  async executeReader({ conid, database, sql, queryName, appFolder }) {
-    const { sesid } = await this.create({ conid, database });
+  async executeReader({ conid, database, sql, queryName, appFolder }, req) {
+    // Runs arbitrary SQL like executeQuery, so it needs the same permissions. It used to call
+    // create without the request, which made testConnectionPermission allow any connection.
+    await testStandardPermission('dbops/query', req);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+    if (queryName && appFolder) {
+      if (
+        typeof queryName !== 'string' ||
+        typeof appFolder !== 'string' ||
+        !checkSecureFilePathsWithoutDirectory(queryName, appFolder)
+      ) {
+        throw new Error('DBGM-00000 Invalid query name or app folder');
+      }
+    }
+
+    const { sesid } = await this.create({ conid, database }, req);
     const session = this.opened.find(x => x.sesid == sesid);
     session.killOnDone = true;
     const jslid = crypto.randomUUID();
