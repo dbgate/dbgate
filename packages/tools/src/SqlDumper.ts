@@ -29,6 +29,8 @@ import _keys from 'lodash/keys';
 import _cloneDeep from 'lodash/cloneDeep';
 import uuidv1 from 'uuid/v1';
 
+const NUMERIC_LITERAL_REGEX = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+
 export class SqlDumper implements AlterProcessor {
   s = '';
   driver: EngineDriver;
@@ -71,6 +73,13 @@ export class SqlDumper implements AlterProcessor {
   putByteArrayValue(value) {
     this.put('^null');
   }
+  // $bigint / $decimal wrappers can arrive from untrusted JSON (e.g. API request bodies), so only
+  // a well-formed number is written raw; anything else is written as an escaped string literal
+  putNumericLiteral(value) {
+    const text = String(value);
+    if (NUMERIC_LITERAL_REGEX.test(text)) this.putRaw(text);
+    else this.putStringValue(text);
+  }
   putValue(value, dataType = null) {
     if (value === null) this.put('^null');
     else if (value === true) this.putRaw('1');
@@ -87,8 +96,8 @@ export class SqlDumper implements AlterProcessor {
       }
       this.putByteArrayValue(bytes);
     }
-    else if (value?.$bigint) this.putRaw(value?.$bigint);
-    else if (value?.$decimal) this.putRaw(value?.$decimal);
+    else if (value?.$bigint) this.putNumericLiteral(value.$bigint);
+    else if (value?.$decimal) this.putNumericLiteral(value.$decimal);
     else if (_isPlainObject(value) || _isArray(value)) this.putStringValue(JSON.stringify(value));
     else this.put('^null');
   }
