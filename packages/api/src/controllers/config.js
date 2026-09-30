@@ -41,6 +41,22 @@ function coerceSettingsEnvValue(raw) {
   return raw; // leave everything else as a string (numeric settings are parsed on read)
 }
 
+// settings readable without a session (login, forgot-password and similar pages)
+const PUBLIC_SETTINGS_KEYS = [
+  'storage.allowForgottenPasswordReset',
+  'storage.usageAnalytics',
+  'currentThemeDefinition',
+];
+
+// An HTTP request that authMiddleware let through without a user (a route on its skip list).
+// Internal callers and Electron IPC pass no request; with SKIP_ALL_AUTH / BASIC_AUTH the
+// middleware does not identify users at all, so their requests count as authenticated.
+function isAnonymousHttpRequest(req) {
+  if (!req) return false;
+  if (process.env.SKIP_ALL_AUTH || process.env.BASIC_AUTH) return false;
+  return !req.user;
+}
+
 module.exports = {
   // settingsValue: {},
 
@@ -158,10 +174,16 @@ module.exports = {
   },
 
   getSettings_meta: true,
-  async getSettings() {
+  async getSettings(_args = undefined, req = undefined) {
     const res = await lock.acquire('settings', async () => {
       return await this.loadSettings();
     });
+    if (isAnonymousHttpRequest(req)) {
+      // the route stays reachable without a session because the login page loads settings, but
+      // settings hold secrets (AI provider API keys, cloud sign-in token), so only the few keys
+      // the pre-login pages read are returned
+      return _.pick(res, PUBLIC_SETTINGS_KEYS);
+    }
     return res;
   },
 
