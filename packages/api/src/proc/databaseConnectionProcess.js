@@ -212,7 +212,24 @@ function waitStructure() {
 }
 
 async function handleGetStructure({ msgid }) {
+  const startedAt = Date.now();
+  const waitedForStructure = !analysedStructure;
+  logger.debug(
+    { ...getLogInfo(), waitedForStructure, pendingStructureWaiters: afterAnalyseCallbacks.length },
+    'DBGM-00000 Database structure requested by API process'
+  );
   await waitStructure();
+  logger.debug(
+    {
+      ...getLogInfo(),
+      waitedForStructure,
+      durationMs: Date.now() - startedAt,
+      tables: analysedStructure?.tables?.length ?? 0,
+      views: analysedStructure?.views?.length ?? 0,
+      collections: analysedStructure?.collections?.length ?? 0,
+    },
+    'DBGM-00000 Returning database structure to API process'
+  );
   process.send({
     msgtype: 'response',
     msgid,
