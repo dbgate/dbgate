@@ -151,6 +151,12 @@ function start() {
 
   app.get(getExpressPath('/stream'), async function (req, res) {
     const strmid = req.query.strmid;
+    if (typeof strmid !== 'string' || !strmid) {
+      return res.status(400).send('DBGM-00000 Missing strmid');
+    }
+    if (socket.isSseResponseOwnedByOther(strmid, req.streamOwnerKey ?? null)) {
+      return res.status(403).send('DBGM-00000 Stream is owned by another user');
+    }
     res.set({
       'Cache-Control': 'no-cache',
       'Content-Type': 'text/event-stream',
@@ -161,9 +167,12 @@ function start() {
 
     // Tell the client to retry every 10 seconds if connectivity is lost
     res.write('retry: 10000\n\n');
-    socket.addSseResponse(res, strmid);
+    if (!socket.addSseResponse(res, strmid, req.streamOwnerKey ?? null)) {
+      res.end();
+      return;
+    }
     onFinished(req, () => {
-      socket.removeSseResponse(strmid);
+      socket.removeSseResponse(strmid, res);
     });
   });
 

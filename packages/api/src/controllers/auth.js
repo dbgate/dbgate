@@ -100,6 +100,31 @@ async function authenticateMcpRequest(req, res, next) {
   }
 }
 
+function getStreamOwnerKey(user) {
+  return JSON.stringify([user?.amoid ?? null, user?.login ?? null, user?.userId ?? null, user?.licenseUid ?? null]);
+}
+
+// EventSource cannot send an Authorization header, so /stream is authenticated with a token in
+// the query string. It is a dedicated token (tokenUse: 'stream') bound to one strmid, so a URL
+// leaked into proxy or access logs only allows listening on that stream, never calling the API.
+function authenticateStreamRequest(req, res, next) {
+  const { token, strmid } = req.query;
+  if (typeof token !== 'string' || !token || typeof strmid !== 'string' || !strmid) {
+    return unauthorizedResponse(req, res, 'missing stream token');
+  }
+  try {
+    const decoded = jwt.verify(token, getTokenSecret());
+    if (decoded.tokenUse != 'stream' || decoded.strmid !== strmid) {
+      throw new Error('Invalid stream token claims');
+    }
+    req.user = decoded.user;
+    req.streamOwnerKey = getStreamOwnerKey(decoded.user);
+    return next();
+  } catch (err) {
+    return unauthorizedResponse(req, res, 'invalid stream token');
+  }
+}
+
 async function authMiddleware(req, res, next) {
   if (req.path == getExpressPath('/mcp')) {
     try {
@@ -119,7 +144,7 @@ async function authMiddleware(req, res, next) {
     '/auth/login',
     '/auth/redirect',
     '/redirect',
-    '/stream',
+    '/auth/get-stream-token',
     '/storage/get-connections-for-login-page',
     '/storage/set-admin-password',
     '/storage/request-password-reset',
@@ -153,6 +178,10 @@ async function authMiddleware(req, res, next) {
   if (process.env.BASIC_AUTH) {
     // API is not authorized for basic auth
     return next();
+  }
+
+  if (req.path == getExpressPath('/stream')) {
+    return authenticateStreamRequest(req, res, next);
   }
 
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
@@ -195,6 +224,22 @@ module.exports = {
     const { amoid } = params;
     return getAuthProviderById(amoid).oauthToken(params, req);
   },
+  getStreamToken_meta: true,
+  async getStreamToken({ strmid }, req) {
+    // reachable without a session (so login and license pages get no 401), but only a logged-in
+    // user gets a token; with SKIP_ALL_AUTH / BASIC_AUTH the middleware never reaches this check
+    // and /stream is opened without a token
+    if (!req?.user || typeof strmid !== 'string' || !strmid) {
+      return {};
+    }
+    const { iat, exp, ...user } = req.user;
+    return {
+      streamToken: jwt.sign({ tokenUse: 'stream', strmid, user }, getTokenSecret(), {
+        expiresIn: getTokenLifetime(),
+      }),
+    };
+  },
+
   login_meta: true,
   async login(params, req) {
     const { amoid, login, password, isAdminPage } = params;

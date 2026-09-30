@@ -12,14 +12,30 @@ module.exports = {
       pingConfigured = true;
     }
   },
-  addSseResponse(value, strmid) {
+  // Returns false when the strmid is already connected by a different user, so a stream cannot be
+  // taken over (and its targeted events read) by someone who learns or guesses its id.
+  addSseResponse(value, strmid, ownerKey = null) {
+    const existing = sseResponses[strmid];
+    if (existing?.response && existing.ownerKey != ownerKey) {
+      return false;
+    }
     sseResponses[strmid] = {
-      ...sseResponses[strmid],
+      ...existing,
       response: value,
+      ownerKey,
     };
     this.ensurePing();
+    return true;
   },
-  removeSseResponse(strmid) {
+  isSseResponseOwnedByOther(strmid, ownerKey = null) {
+    const existing = sseResponses[strmid];
+    return !!existing?.response && existing.ownerKey != ownerKey;
+  },
+  removeSseResponse(strmid, response = undefined) {
+    if (response && sseResponses[strmid]?.response !== response) {
+      // a newer connection already took this strmid over; keep it
+      return;
+    }
     delete sseResponses[strmid];
   },
   setElectronSender(value) {

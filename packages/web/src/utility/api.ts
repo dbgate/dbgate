@@ -10,6 +10,7 @@ import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
+import uuidv4 from 'uuid/v4';
 import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';
@@ -18,7 +19,8 @@ import { serializeJsTypesReplacer } from 'dbgate-tools';
 import { cloudSigninTokenHolder, selectedWidget } from '../stores';
 import LicenseLimitMessageModal from '../modals/LicenseLimitMessageModal.svelte';
 
-export const strmid = uuidv1();
+// random (not time-based), so another user cannot predict it
+export const strmid = uuidv4();
 
 let eventSource;
 let apiLogging = false;
@@ -76,11 +78,53 @@ export function removeVolatileMapping(conid) {
   }
 }
 
+// Listeners are kept here as well, because the EventSource is opened asynchronously (it needs a
+// stream token first) and is re-created when the server closes it (e.g. the token expired).
+const eventSourceListeners: [string, any][] = [];
+let eventSourceOpening = false;
+
+async function openEventSource() {
+  if (eventSourceOpening) return;
+  eventSourceOpening = true;
+  try {
+    const page = window['dbgate_page'];
+    const isLoginPage = page == 'login' || page == 'admin-login' || page == 'not-logged';
+    const resp = isLoginPage ? null : await apiCall('auth/get-stream-token', { strmid });
+    const tokenParam = resp?.streamToken ? `&token=${encodeURIComponent(resp.streamToken)}` : '';
+    const source = new EventSource(`${resolveApi()}/stream?strmid=${encodeURIComponent(strmid)}${tokenParam}`);
+    for (const [event, handler] of eventSourceListeners) {
+      source.addEventListener(event, handler);
+    }
+    source.onerror = () => {
+      // EventSource reconnects by itself after network errors, but gives up (CLOSED) when the
+      // server rejects it, e.g. because the stream token expired; then fetch a new token
+      if (source.readyState == EventSource.CLOSED && eventSource === source && resp?.streamToken) {
+        eventSource = null;
+        setTimeout(() => wantEventSource(), 10000);
+      }
+    };
+    eventSource = source;
+  } finally {
+    eventSourceOpening = false;
+  }
+}
+
 function wantEventSource() {
   if (!eventSource) {
-    eventSource = new EventSource(`${resolveApi()}/stream?strmid=${strmid}`);
-    // eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
+    openEventSource();
   }
+}
+
+function addEventSourceListener(event, handler) {
+  if (eventSourceListeners.find(([e, h]) => e == event && h === handler)) return;
+  eventSourceListeners.push([event, handler]);
+  eventSource?.addEventListener(event, handler);
+}
+
+function removeEventSourceListener(event, handler) {
+  const index = eventSourceListeners.findIndex(([e, h]) => e == event && h === handler);
+  if (index >= 0) eventSourceListeners.splice(index, 1);
+  eventSource?.removeEventListener(event, handler);
 }
 
 async function processApiResponse(route, args, resp) {
@@ -259,7 +303,7 @@ export function apiOn(event: string, handler: Function) {
       apiHandlers.set(handler, handlerProxy);
     }
 
-    eventSource.addEventListener(event, apiHandlers.get(handler));
+    addEventSourceListener(event, apiHandlers.get(handler));
   }
 
   // if (!cacheCleanerRegistered) {
@@ -274,8 +318,7 @@ export function apiOff(event: string, handler: Function) {
     if (electron) {
       electron.removeEventListener(event, apiHandlers.get(handler));
     } else {
-      wantEventSource();
-      eventSource.removeEventListener(event, apiHandlers.get(handler));
+      removeEventSourceListener(event, apiHandlers.get(handler));
     }
   }
 }
