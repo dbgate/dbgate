@@ -23,7 +23,7 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
 const fs = require('fs-extra');
 const exportDbModel = require('../utility/exportDbModel');
-const { archivedir, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
+const { archivedir, resolveArchiveFolder, uploadsdir, filesdir } = require('../utility/directories');
 const path = require('path');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -41,6 +41,7 @@ const {
   getDatabasePermissionRole,
   getTablePermissionRoleLevelIndex,
   testDatabaseRolePermission,
+  testStandardPermission,
 } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
@@ -65,13 +66,53 @@ function getRestoreUploadPath(inputFile, inputUploadName) {
     !inputFile ||
     !inputUploadName ||
     path.basename(inputUploadName) != inputUploadName ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(inputUploadName)
+    !UUID_REGEX.test(inputUploadName)
   ) {
     return null;
   }
 
   const uploadPath = path.join(uploadsdir(), inputUploadName);
   return path.resolve(inputFile) == path.resolve(uploadPath) ? uploadPath : null;
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function realPathOrNull(target) {
+  try {
+    return fs.realpathSync(target);
+  } catch (err) {
+    return null;
+  }
+}
+
+// In web mode the native tools may only write the backup into, and restore from, the files the
+// Backup / Restore tabs pick: the sql files folder and (restore only) the uploads folder. The
+// Electron app works with files the local user chose in a dialog.
+function isAllowedNativeOpFile(filePath, allowedDirs) {
+  if (platformInfo.isElectron) return true;
+  if (typeof filePath != 'string' || !filePath) return false;
+  const realDirectory = realPathOrNull(path.dirname(path.resolve(filePath)));
+  return !!realDirectory && allowedDirs.map(realPathOrNull).includes(realDirectory);
+}
+
+// Native backup / restore open the connection with its full stored credentials and run external
+// tools against it, so they need the same authorization as the tabs that offer them.
+async function testNativeOpPermission(command, conid, database, req) {
+  await testConnectionPermission(conid, req);
+  if (command == 'backup') {
+    await testStandardPermission('dbops/sql-dump/export', req);
+    await testDatabaseRolePermission(conid, database, 'read_content', req);
+  } else {
+    await testStandardPermission('dbops/sql-dump/import', req);
+    // a restore runs whatever SQL the dump contains
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+  }
+}
+
+function assertValidRunid(runid) {
+  if (typeof runid != 'string' || !UUID_REGEX.test(runid)) {
+    throw new Error('DBGM-00000 Invalid runid');
+  }
 }
 
 function removeRestoreUpload(uploadPath) {
@@ -82,6 +123,8 @@ function removeRestoreUpload(uploadPath) {
     }
   });
 }
+
+const NATIVE_COMMAND_PASSWORD_PLACEHOLDER = '********';
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -1015,9 +1058,12 @@ module.exports = {
 
   async getNativeOpCommandArgs(
     command,
-    { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat }
+    { conid, database, outputFile, inputFile, options, selectedTables, skippedTables, argsFormat, hidePassword }
   ) {
     const { connection, driver, externalTools } = await this.getNativeOpContext(conid);
+    if (hidePassword && connection.password) {
+      connection.password = NATIVE_COMMAND_PASSWORD_PLACEHOLDER;
+    }
     const capability = command == 'backup' ? 'supportsNativeBackup' : 'supportsNativeRestore';
     if (!driver[capability]) {
       throw new Error(`DBGM-00250 The selected database driver does not support native ${command}`);
@@ -1079,6 +1125,15 @@ module.exports = {
     return { connection, driver, externalTools, settings: settingsValue || {} };
   },
 
+  // Only the command line is returned for copying: the arguments and environment are what the
+  // tool is spawned with and can carry the connection password (e.g. PGPASSWORD). In web mode the
+  // command line itself is built with a placeholder instead of the password.
+  nativeCommandLineResponse(commandArgs) {
+    return {
+      commandLine: this.commandArgsToCommandLine(commandArgs),
+    };
+  },
+
   commandArgsToCommandLine(commandArgs) {
     const { command, args, stdinFilePath } = commandArgs;
     let res = `${command} ${args.join(' ')}`;
@@ -1089,7 +1144,12 @@ module.exports = {
   },
 
   nativeBackup_meta: true,
-  async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }) {
+  async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }, req) {
+    await testNativeOpPermission('backup', conid, database, req);
+    assertValidRunid(runid);
+    if (!isAllowedNativeOpFile(outputFile, [path.join(filesdir(), 'sql')])) {
+      throw new Error('DBGM-00000 Backup output file must be in the SQL files folder');
+    }
     const effectiveOptions = options || {};
     const effectiveSelectedTables = selectedTables || [];
     const effectiveSkippedTables = skippedTables || [];
@@ -1150,7 +1210,8 @@ module.exports = {
   },
 
   nativeBackupCommand_meta: true,
-  async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
+  async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }, req) {
+    await testNativeOpPermission('backup', conid, database, req);
     const { driver } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsBackup && options?.backupTool == driver.nodejsBackupTool) {
       throw new Error(
@@ -1167,17 +1228,19 @@ module.exports = {
       selectedTables,
       skippedTables,
       argsFormat: 'shell',
+      hidePassword: !platformInfo.isElectron,
     });
 
-    return {
-      ...commandArgs,
-      transformMessage: null,
-      commandLine: this.commandArgsToCommandLine(commandArgs),
-    };
+    return this.nativeCommandLineResponse(commandArgs);
   },
 
   nativeRestore_meta: true,
-  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }) {
+  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }, req) {
+    await testNativeOpPermission('restore', conid, database, req);
+    assertValidRunid(runid);
+    if (!isAllowedNativeOpFile(inputFile, [path.join(filesdir(), 'sql'), uploadsdir()])) {
+      throw new Error('DBGM-00000 Restore input file must be an uploaded file or in the SQL files folder');
+    }
     const effectiveOptions = options || {};
     const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
     const onFinished = () => {
@@ -1187,6 +1250,9 @@ module.exports = {
 
     try {
       const context = await this.getNativeOpContext(conid);
+      if (context.connection.isReadOnly) {
+        throw new Error('DBGM-00000 Cannot restore into a read-only connection');
+      }
       if (context.driver.supportsNodejsRestore && effectiveOptions.restoreTool == context.driver.nodejsRestoreTool) {
         const { connection, driver } = context;
         if (!driver.supportsNodejsRestore || !driver.restoreDatabase) {
@@ -1236,7 +1302,8 @@ module.exports = {
   },
 
   nativeRestoreCommand_meta: true,
-  async nativeRestoreCommand({ conid, database, inputFile, options }) {
+  async nativeRestoreCommand({ conid, database, inputFile, options }, req) {
+    await testNativeOpPermission('restore', conid, database, req);
     const { driver } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsRestore && options?.restoreTool == driver.nodejsRestoreTool) {
       throw new Error(
@@ -1251,13 +1318,10 @@ module.exports = {
       outputFile: undefined,
       options,
       argsFormat: 'shell',
+      hidePassword: !platformInfo.isElectron,
     });
 
-    return {
-      ...commandArgs,
-      transformMessage: null,
-      commandLine: this.commandArgsToCommandLine(commandArgs),
-    };
+    return this.nativeCommandLineResponse(commandArgs);
   },
 
   executeSessionQuery_meta: true,
