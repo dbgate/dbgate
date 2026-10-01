@@ -255,6 +255,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
   nodejsRestoreTool?: string;
   /** Extension of the backup file for the given backup options, without the dot. Defaults to `sql`. */
   getBackupFileExtension?: (options: any) => string;
+  /** Supported restore file extensions, without dots. Defaults to `sql`. */
+  restoreFileExtensions?: string[];
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   supportsIncrementalAnalysis?: boolean;

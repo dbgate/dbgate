@@ -65,6 +65,7 @@ const driver = {
   supportsNodejsRestore: true,
   nodejsBackupTool: 'dbgate-redis-dumper',
   nodejsRestoreTool: 'dbgate-redis-dumper',
+  restoreFileExtensions: ['sql', 'redis', 'resp'],
   // A cluster has no logical databases and spreads its keys over nodes; dbgate-redis-dumper refuses it.
   supportsNodejsDumperForConnection: (connection) => connection?.authType != 'cluster',
 

@@ -279,12 +279,16 @@
   }
 
   async function handleBrowse() {
+    const restoreExtensions = driver?.restoreFileExtensions ?? ['sql'];
     const filePaths = await electron.showOpenDialog({
       filters: [
         {
           name: `All supported files`,
-          extensions: ['sql'],
+          extensions: restoreExtensions,
         },
+        ...restoreExtensions
+          .filter(extension => extension != 'sql')
+          .map(extension => ({ name: `${extension.toUpperCase()} files`, extensions: [extension] })),
         { name: `SQL files`, extensions: ['sql'] },
       ],
       properties: ['showHiddenFiles', 'openFile'],
