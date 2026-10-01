@@ -1089,8 +1089,14 @@ module.exports = {
   },
 
   nativeBackup_meta: true,
-  async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }) {
+  async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }, req) {
     const effectiveOptions = options || {};
+    if (process.env.STORAGE_DATABASE && effectiveOptions.allDatabases) {
+      const loadedPermissions = await loadPermissionsFromRequest(req);
+      if (!hasPermission('all-databases', loadedPermissions)) {
+        throw new Error('DBGM-00000 Permission all-databases not granted for backup of all databases');
+      }
+    }
     const effectiveSelectedTables = selectedTables || [];
     const effectiveSkippedTables = skippedTables || [];
     const context = await this.getNativeOpContext(conid);
