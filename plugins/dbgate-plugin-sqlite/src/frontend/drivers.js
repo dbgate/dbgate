@@ -64,11 +64,11 @@ const sqliteDriverBase = {
   icon: sqlLiteIcon,
 };
 
-/** @type {import('dbgate-types').EngineDriver} */
-const driver = {
-  ...sqliteDriverBase,
-  engine: 'sqlite@dbgate-plugin-sqlite',
-  title: 'SQLite',
+/**
+ * Built-in backup and restore through dbgate-sqlite-dumper, shared by the SQLite and libSQL drivers.
+ * @type {Partial<import('dbgate-types').EngineDriver>}
+ */
+const sqliteDumperSupport = {
   supportsNodejsBackup: true,
   supportsNodejsRestore: true,
   nodejsBackupTool: 'dbgate-sqlite-dumper',
@@ -144,6 +144,14 @@ const driver = {
     }
     return null;
   },
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
+const driver = {
+  ...sqliteDriverBase,
+  engine: 'sqlite@dbgate-plugin-sqlite',
+  title: 'SQLite',
+  ...sqliteDumperSupport,
   showConnectionField: (field, values) => field == 'databaseFile' || field == 'isReadOnly',
   beforeConnectionSave: (connection) => ({
     ...connection,
@@ -160,6 +168,9 @@ const libsqlDriver = {
   ...sqliteDriverBase,
   engine: 'libsql@dbgate-plugin-sqlite',
   title: 'LibSQL',
+  ...sqliteDumperSupport,
+  // A libSQL database reached over a URL is not supported by the built-in dumper yet.
+  supportsNodejsDumperForConnection: (connection) => connection?.authType == 'file' && !!connection?.databaseFile,
   authTypeLabel: 'Target type',
   authTypeFirst: true,
   premiumOnly: true,

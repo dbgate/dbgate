@@ -31,7 +31,7 @@ function getSqliteDumpOptions(selectedTables, skippedTables, options) {
   };
 }
 
-function formatDumpProgress(progress) {
+function formatDumpProgress(progress, product = 'SQLite') {
   if (progress.phase == 'exporting-data') {
     const table = progress.tableName || progress.objectName || 'table data';
     return `Exporting ${table}: ${(progress.rowsExported || 0).toLocaleString('en-US')} rows, ${(
@@ -46,24 +46,24 @@ function formatDumpProgress(progress) {
     }`;
   }
   const labels = {
-    connecting: 'Starting SQLite backup',
-    'starting-snapshot': 'Starting consistent SQLite snapshot',
-    introspecting: 'Reading SQLite database structure',
+    connecting: `Starting ${product} backup`,
+    'starting-snapshot': `Starting consistent ${product} snapshot`,
+    introspecting: `Reading ${product} database structure`,
     'detecting-version': `Detected SQLite ${progress.message || ''}`.trim(),
-    'planning-archive': `Planning SQLite dump (${progress.objectsTotal || 0} objects)`,
-    'rendering-schema': 'Writing SQLite database structure',
-    finalizing: `Finalizing SQLite dump (${(progress.bytesWritten || 0).toLocaleString('en-US')} bytes)`,
+    'planning-archive': `Planning ${product} dump (${progress.objectsTotal || 0} objects)`,
+    'rendering-schema': `Writing ${product} database structure`,
+    finalizing: `Finalizing ${product} dump (${(progress.bytesWritten || 0).toLocaleString('en-US')} bytes)`,
   };
   return labels[progress.phase] || null;
 }
 
-function createDumpProgressReporter(runner) {
+function createDumpProgressReporter(runner, product = 'SQLite') {
   let lastRowProgress = 0;
   return (progress) => {
     const now = Date.now();
     if (progress.phase == 'exporting-data' && progress.exportState == 'progress' && now - lastRowProgress < 750) return;
     if (progress.phase == 'exporting-data') lastRowProgress = now;
-    const message = formatDumpProgress(progress);
+    const message = formatDumpProgress(progress, product);
     if (message) runner.info({ message, severity: 'info' });
   };
 }
@@ -90,7 +90,7 @@ function formatRestoreStatementError(error) {
  * result errors again. The progress event carries no sqliteError, so the driver puts the richer
  * result copy of the first failure into the error it throws.
  */
-function createRestoreProgressReporter(runner) {
+function createRestoreProgressReporter(runner, product = 'SQLite') {
   const reportedStatementIndexes = new Set();
   let lastProgress = 0;
   let currentObject = null;
@@ -107,11 +107,11 @@ function createRestoreProgressReporter(runner) {
       return;
     }
     if (progress.phase == 'connecting') {
-      runner.info({ message: 'Starting SQLite restore', severity: 'info' });
+      runner.info({ message: `Starting ${product} restore`, severity: 'info' });
       return;
     }
     if (progress.phase == 'finalizing') {
-      runner.info({ message: 'Finalizing SQLite restore', severity: 'info' });
+      runner.info({ message: `Finalizing ${product} restore`, severity: 'info' });
       return;
     }
     if (progress.executionState == 'finished' && now - lastProgress >= 750) {
