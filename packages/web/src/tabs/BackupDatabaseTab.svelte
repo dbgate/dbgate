@@ -82,7 +82,8 @@
   }
 
   function generateOutputFileName() {
-    return `${database}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.sql`;
+    const databaseName = database.split(/[\\/]/).pop();
+    return `${databaseName}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.sql`;
   }
 
   async function generateOutputFilePath(file = null) {
