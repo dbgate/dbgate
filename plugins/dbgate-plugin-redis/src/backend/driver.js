@@ -6,6 +6,7 @@ const Analyser = require('./Analyser');
 const Redis = require('ioredis');
 const fs = require('fs');
 const crypto = require('crypto');
+const { URL } = require('url');
 const { finished } = require('stream/promises');
 const { BufferDumpWriter, dumpRedis, restoreRedisDump } = require('dbgate-redis-dumper');
 const { fromIoredis } = require('dbgate-redis-dumper/ioredis');
@@ -308,8 +309,13 @@ const driver = {
       throw new Error('DBGM-00000 Redis backup and restore do not support cluster connections');
     }
     if (useDatabaseUrl) {
-      // ioredis gives earlier arguments precedence over options in the URL query string.
-      client = new Redis(dumperOptions, databaseUrl);
+      if (forDumper) {
+        // URL query parameters take precedence in ioredis; keep dump safety options authoritative.
+        const url = new URL(databaseUrl);
+        for (const name of Object.keys(dumperOptions)) url.searchParams.delete(name);
+        databaseUrl = url.toString();
+      }
+      client = new Redis(databaseUrl, dumperOptions);
     } else if (authType === 'cluster' && isProApp && isProApp()) {
       const redisOptions = {
         user,
