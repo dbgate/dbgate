@@ -41,6 +41,7 @@ const {
   getDatabasePermissionRole,
   getTablePermissionRoleLevelIndex,
   testDatabaseRolePermission,
+  testStandardPermission,
 } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
@@ -1090,9 +1091,12 @@ module.exports = {
 
   nativeBackup_meta: true,
   async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    await testConnectionPermission(conid, req, loadedPermissions);
+    await testDatabaseRolePermission(conid, database, 'read_content', req);
+    await testStandardPermission('dbops/sql-dump/export', req, loadedPermissions);
     const effectiveOptions = options || {};
     if (process.env.STORAGE_DATABASE && effectiveOptions.allDatabases) {
-      const loadedPermissions = await loadPermissionsFromRequest(req);
       if (!hasPermission('all-databases', loadedPermissions)) {
         throw new Error('DBGM-00000 Permission all-databases not granted for backup of all databases');
       }
@@ -1184,6 +1188,10 @@ module.exports = {
 
   nativeRestore_meta: true,
   async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }, req) {
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    await testConnectionPermission(conid, req, loadedPermissions);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+    await testStandardPermission('dbops/sql-dump/import', req, loadedPermissions);
     const effectiveOptions = options || {};
     const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
     const onFinished = () => {
@@ -1193,7 +1201,7 @@ module.exports = {
 
     try {
       const restrictToDatabase = process.env.STORAGE_DATABASE
-        ? !hasPermission('all-databases', await loadPermissionsFromRequest(req))
+        ? !hasPermission('all-databases', loadedPermissions)
         : false;
       const context = await this.getNativeOpContext(conid);
       if (context.driver.supportsNodejsRestore && effectiveOptions.restoreTool == context.driver.nodejsRestoreTool) {
