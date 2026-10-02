@@ -13,7 +13,6 @@ const volatilePackages = [
   'pg-copy-streams',
   'pg',
   'ioredis',
-  'node-redis-dump2',
   'better-sqlite3',
   'libsql',
   '@azure/cosmos',

@@ -118,3 +118,19 @@ describe('Redis data', () => {
     cy.themeshot('redis-add-hash-key');
   });
 });
+
+describe('Redis database backup with dbgate-redis-dumper', () => {
+  it('Backs up a Redis database as redis-cli commands', () => {
+    cy.contains('Redis-connection').click();
+    cy.contains('db1').rightclick();
+    cy.contains('Create database backup').click();
+
+    cy.testid('BackupDatabaseTab_executeButton').click();
+    cy.testid('BackupDatabaseTab_status', { timeout: 30000 }).should('contain', 'Finished');
+
+    cy.themeshot('redis-backup-dbgate-redis-dumper');
+    cy.testid('BackupDatabaseTab_openInTab').click();
+    cy.contains('app:version');
+    cy.contains('SET');
+  });
+});
