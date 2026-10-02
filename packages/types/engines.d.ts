@@ -444,6 +444,8 @@ export interface EngineDriver<TClient = any, TDataBase = any> extends FilterBeha
     settings: {
       inputFile: string;
       database: string;
+      /** Server-derived authorization policy: restore only into the selected database. */
+      restrictToDatabase?: boolean;
       options?: { [key: string]: any };
     },
     runner: {

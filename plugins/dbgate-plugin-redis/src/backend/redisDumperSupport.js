@@ -27,6 +27,19 @@ function getRedisDumpOptions(options = {}) {
   };
 }
 
+function getRedisRestoreOptions(database, options = {}, restrictToDatabase = false) {
+  const restoreOptions = { stopOnError: options.stopOnError ?? true };
+  if (!restrictToDatabase) return restoreOptions;
+
+  const targetDatabase = parseDatabaseIndex(database);
+  if (!Number.isSafeInteger(targetDatabase) || targetDatabase < 0) {
+    throw new Error('DBGM-00000 A valid target database is required for restricted Redis restore');
+  }
+  // Preserve the library's data-command allow-list while preventing SELECT in either dump format
+  // from writing outside the database authorized for this request, even when continuing on errors.
+  return { ...restoreOptions, database: targetDatabase, databaseMapping: () => targetDatabase };
+}
+
 function formatDumpProgress(progress) {
   switch (progress.phase) {
     case 'connecting':
@@ -133,5 +146,6 @@ module.exports = {
   formatRedisRestoreError,
   formatRestoreCommandError,
   getRedisDumpOptions,
+  getRedisRestoreOptions,
   parseDatabaseIndex,
 };

@@ -16,6 +16,7 @@ const {
   formatRedisRestoreError,
   formatRestoreCommandError,
   getRedisDumpOptions,
+  getRedisRestoreOptions,
   parseDatabaseIndex,
 } = require('./redisDumperSupport');
 const { filterName } = global.DBGATE_PACKAGES['dbgate-tools'];
@@ -164,18 +165,28 @@ const driver = {
     let dbhan = null;
     let output = null;
     let dumperConnection = null;
+    let outputError = null;
+    const dumpAbortController = new AbortController();
+    const cancelDump = () => dumpAbortController.abort();
+    runner.signal?.addEventListener('abort', cancelDump, { once: true });
+    if (runner.signal?.aborted) cancelDump();
 
     try {
-      dbhan = await this.connect({ ...connection, database });
+      dbhan = await this.connect({ ...connection, database, forDumper: true });
       await selectRequestedDatabase(dbhan, database);
       dumperConnection = fromIoredis(dbhan.client);
       output = fs.createWriteStream(tempFile);
+      // File errors can arrive while the dumper is awaiting Redis, before its first write.
+      output.on('error', error => {
+        outputError = error;
+        cancelDump();
+      });
       const result = await dumpRedis(
         dumperConnection,
         dumpOptions,
         output,
         createDumpProgressReporter(runner),
-        runner.signal
+        dumpAbortController.signal
       );
       if (result.cancelled) {
         throw new Error('DBGM-00000 Redis backup cancelled');
@@ -199,8 +210,9 @@ const driver = {
         await finished(output).catch(() => {});
       }
       await fs.promises.rm(tempFile, { force: true }).catch(() => {});
-      throw error;
+      throw outputError || error;
     } finally {
+      runner.signal?.removeEventListener('abort', cancelDump);
       dumperConnection?.detach();
       if (dbhan) await this.close(dbhan).catch(() => {});
     }
@@ -208,12 +220,13 @@ const driver = {
 
   async restoreDatabase(connection, settings, runner) {
     const { inputFile, database, options = {} } = settings;
+    const restoreOptions = getRedisRestoreOptions(database, options, settings.restrictToDatabase);
     let dbhan = null;
     let input = null;
     let dumperConnection = null;
 
     try {
-      dbhan = await this.connect({ ...connection, database });
+      dbhan = await this.connect({ ...connection, database, forDumper: true });
       await selectRequestedDatabase(dbhan, database);
       dumperConnection = fromIoredis(dbhan.client);
       input = fs.createReadStream(inputFile, { highWaterMark: 64 * 1024 });
@@ -223,7 +236,7 @@ const driver = {
         connection: dumperConnection,
         source: input,
         signal: runner.signal,
-        options: { stopOnError },
+        options: restoreOptions,
         progress,
       });
       // Reported before the error branch below, because a failed restore is exactly when warnings
@@ -276,14 +289,27 @@ const driver = {
     authType,
     clusterNodes,
     autoDetectNatMap,
+    forDumper = false,
   }) {
     let db = 0;
     let client;
+    // A dump owns its connection. Replaying a partially executed batch could duplicate writes
+    // or send them to the database ioredis remembers instead of the dump's latest SELECT.
+    const dumperOptions = forDumper
+      ? {
+          lazyConnect: true,
+          enableOfflineQueue: false,
+          autoResendUnfulfilledCommands: false,
+          maxRetriesPerRequest: 0,
+          retryStrategy: () => null,
+        }
+      : {};
+    if (forDumper && !useDatabaseUrl && authType === 'cluster') {
+      throw new Error('DBGM-00000 Redis backup and restore do not support cluster connections');
+    }
     if (useDatabaseUrl) {
-      client = new Redis(databaseUrl);
-      if (!skipSetName) {
-        await client.client('SETNAME', 'dbgate');
-      }
+      // ioredis gives earlier arguments precedence over options in the URL query string.
+      client = new Redis(dumperOptions, databaseUrl);
     } else if (authType === 'cluster' && isProApp && isProApp()) {
       const redisOptions = {
         user,
@@ -320,11 +346,23 @@ const driver = {
         password,
         db,
         tls: ssl,
+        ...dumperOptions,
       };
       if (!skipSetName) {
         connectionOptions.connectionName = 'dbgate';
       }
       client = new Redis(connectionOptions);
+    }
+
+    try {
+      // With offline queuing disabled, wait until authentication and database selection finish.
+      if (forDumper) await client.connect();
+      if (useDatabaseUrl && !skipSetName) {
+        await client.client('SETNAME', 'dbgate');
+      }
+    } catch (error) {
+      client.disconnect();
+      throw error;
     }
 
     return {

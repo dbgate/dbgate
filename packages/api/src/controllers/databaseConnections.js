@@ -1183,7 +1183,7 @@ module.exports = {
   },
 
   nativeRestore_meta: true,
-  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }) {
+  async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }, req) {
     const effectiveOptions = options || {};
     const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
     const onFinished = () => {
@@ -1192,6 +1192,9 @@ module.exports = {
     };
 
     try {
+      const restrictToDatabase = process.env.STORAGE_DATABASE
+        ? !hasPermission('all-databases', await loadPermissionsFromRequest(req))
+        : false;
       const context = await this.getNativeOpContext(conid);
       if (context.driver.supportsNodejsRestore && effectiveOptions.restoreTool == context.driver.nodejsRestoreTool) {
         const { connection, driver } = context;
@@ -1208,6 +1211,8 @@ module.exports = {
               {
                 inputFile,
                 database,
+                // Server-derived policy; uploaded files and request options cannot override it.
+                restrictToDatabase,
                 options: {
                   ...effectiveOptions,
                   debug:
