@@ -84,8 +84,9 @@
   }
 
   function generateOutputFileName() {
+    const databaseName = database.split(/[\\/]/).pop();
     const extension = driver?.getBackupFileExtension?.(getBackupParams().options) ?? 'sql';
-    return `${database}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.${extension}`;
+    return `${databaseName}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.${extension}`;
   }
 
   async function generateOutputFilePath(file = null) {
