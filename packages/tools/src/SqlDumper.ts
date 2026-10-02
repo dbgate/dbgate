@@ -19,6 +19,7 @@ import type {
   SqlObjectInfo,
   CallableObjectInfo,
   SchedulerEventInfo,
+  UserDefinedTypeInfo,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
@@ -459,6 +460,14 @@ export class SqlDumper implements AlterProcessor {
   changeTriggerSchema(obj: TriggerInfo, newSchema: string) {}
   renameTrigger(obj: TriggerInfo, newSchema: string) {}
 
+  createUserDefinedType(obj: UserDefinedTypeInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropUserDefinedType(obj: UserDefinedTypeInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^type %f', obj);
+  }
+
   createSchedulerEvent(obj: SchedulerEventInfo) {
     this.putRaw(obj.createSql);
     this.endCommand();
@@ -816,6 +825,8 @@ export class SqlDumper implements AlterProcessor {
         return 'MATERIALIZED VIEW';
       case 'schedulerEvents':
         return 'EVENT';
+      case 'userDefinedTypes':
+        return 'TYPE';
     }
   }
 
