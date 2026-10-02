@@ -4,11 +4,10 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Redis = require('ioredis');
-const RedisDump = require('node-redis-dump2');
 const fs = require('fs');
 const crypto = require('crypto');
 const { finished } = require('stream/promises');
-const { dumpRedis, restoreRedisDump } = require('dbgate-redis-dumper');
+const { BufferDumpWriter, dumpRedis, restoreRedisDump } = require('dbgate-redis-dumper');
 const { fromIoredis } = require('dbgate-redis-dumper/ioredis');
 const {
   createDumpProgressReporter,
@@ -22,6 +21,15 @@ const {
 const { filterName } = global.DBGATE_PACKAGES['dbgate-tools'];
 
 let isProApp;
+
+// Dump connections must never queue or replay commands after losing their socket.
+const dumperConnectionOptions = {
+  lazyConnect: true,
+  enableOfflineQueue: false,
+  autoResendUnfulfilledCommands: false,
+  maxRetriesPerRequest: 0,
+  retryStrategy: () => null,
+};
 
 function splitCommandLine(str) {
   let results = [];
@@ -295,15 +303,7 @@ const driver = {
     let client;
     // A dump owns its connection. Replaying a partially executed batch could duplicate writes
     // or send them to the database ioredis remembers instead of the dump's latest SELECT.
-    const dumperOptions = forDumper
-      ? {
-          lazyConnect: true,
-          enableOfflineQueue: false,
-          autoResendUnfulfilledCommands: false,
-          maxRetriesPerRequest: 0,
-          retryStrategy: () => null,
-        }
-      : {};
+    const dumperOptions = forDumper ? dumperConnectionOptions : {};
     if (forDumper && !useDatabaseUrl && authType === 'cluster') {
       throw new Error('DBGM-00000 Redis backup and restore do not support cluster connections');
     }
@@ -480,18 +480,33 @@ const driver = {
     return resLimited;
   },
 
-  async exportKeys(dbhan, options) {
-    const dump = new RedisDump({ client: dbhan.client });
-    return new Promise((resolve, reject) => {
-      dump.export({
-        type: 'redis',
-        keyPrefix: options.keyPrefix,
-        callback: (err, data) => {
-          if (err) reject(err);
-          else resolve(data);
-        },
-      });
+  async exportKeys(dbhan, options = {}) {
+    if (dbhan.client instanceof Redis.Cluster) {
+      throw new Error('DBGM-00000 Redis script generation does not support cluster connections');
+    }
+    // Keep the interactive connection usable and export its currently selected database.
+    const client = dbhan.client.duplicate({
+      ...dumperConnectionOptions,
+      db: dbhan.client.condition?.select ?? dbhan.client.options.db ?? 0,
     });
+    let dumperConnection = null;
+    try {
+      await client.connect();
+      dumperConnection = fromIoredis(client);
+      const output = new BufferDumpWriter();
+      await dumpRedis(
+        dumperConnection,
+        {
+          ...getRedisDumpOptions(),
+          ...(options.keyPrefix ? { selection: { match: `${options.keyPrefix}*` } } : {}),
+        },
+        output
+      );
+      return output.toString();
+    } finally {
+      dumperConnection?.detach();
+      await client.quit().catch(() => client.disconnect());
+    }
   },
 
   async getKeys(dbhan, keyQuery = '*') {
