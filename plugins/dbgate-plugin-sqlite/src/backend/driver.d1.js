@@ -8,6 +8,8 @@ const CloudflareD1Client = require('./clients/CloudflareD1Client');
 const { CloudflareD1Error, D1_ERROR_KIND } = require('./cloudflare/CloudflareD1Error');
 const sqliteSql = require('./sql');
 const { filterD1InternalRows, loadD1IndexColumns } = require('./cloudflare/d1SchemaLoader');
+const createD1DumperConnection = require('./d1DumperConnection');
+const { backupWithSqliteDumper } = require('./sqliteDumperOperations');
 
 const engine = driverBases[2].engine;
 
@@ -67,6 +69,19 @@ const driver = {
 
   async close(dbhan) {
     await dbhan.client.close();
+  },
+
+  async backupDatabase(connection, settings, runner) {
+    if (!settings.database) {
+      throw new Error('DBGM-00000 Select the Cloudflare D1 database to back up');
+    }
+    // The backup reads the selected database; there is no D1 restore, see frontend/drivers.js.
+    return backupWithSqliteDumper(this, { ...connection, database: settings.database }, settings, runner, {
+      product: 'Cloudflare D1',
+      createDumperConnection: (client) => createD1DumperConnection(client.api),
+      reportVersion: false,
+      snapshot: false,
+    });
   },
 
   async listDatabases(dbhan) {

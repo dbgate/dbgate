@@ -104,6 +104,40 @@ async function decryptCloudConnection(connection) {
   return decryptConnection(connection, folderEncryptor);
 }
 
+/**
+ * The HTTP client for drivers that talk to an HTTP API (such as Cloudflare D1), honouring the
+ * connection's HTTP proxy settings.
+ */
+function createConnectionHttpClient(connection) {
+  const proxyUrl = String(connection.httpProxyUrl ?? '').trim();
+  const proxyUser = String(connection.httpProxyUser ?? '').trim();
+  const proxyPassword = String(connection.httpProxyPassword ?? '').trim();
+  if (!proxyUrl && (proxyUser || proxyPassword)) {
+    throw new Error('DBGM-00329 Proxy user or password is set but proxy URL is missing');
+  }
+  if (proxyUrl) {
+    let parsedProxy;
+    try {
+      const parsed = new URL(proxyUrl.includes('://') ? proxyUrl : `http://${proxyUrl}`);
+      parsedProxy = {
+        protocol: parsed.protocol.replace(':', ''),
+        host: parsed.hostname,
+        port: parsed.port ? parseInt(parsed.port, 10) : (parsed.protocol === 'https:' ? 443 : 80),
+      };
+      const username = connection.httpProxyUser ?? parsed.username;
+      const rawPassword = connection.httpProxyPassword ?? parsed.password;
+      const password = decryptPasswordString(rawPassword);
+      if (username) {
+        parsedProxy.auth = { username, password: password ?? '' };
+      }
+    } catch (err) {
+      throw new Error(`DBGM-00334 Invalid proxy URL "${proxyUrl}": ${err && err.message ? err.message : err}`);
+    }
+    return axios.default.create({ proxy: parsedProxy });
+  }
+  return axios.default;
+}
+
 async function connectUtility(driver, storedConnection, connectionMode, additionalOptions = null) {
   const connectionLoaded = await loadConnection(driver, storedConnection, connectionMode);
 
@@ -133,34 +167,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
 
   connection.ssl = await extractConnectionSslParams(connection);
 
-  const proxyUrl = String(connection.httpProxyUrl ?? '').trim();
-  const proxyUser = String(connection.httpProxyUser ?? '').trim();
-  const proxyPassword = String(connection.httpProxyPassword ?? '').trim();
-  if (!proxyUrl && (proxyUser || proxyPassword)) {
-    throw new Error('DBGM-00329 Proxy user or password is set but proxy URL is missing');
-  }
-  if (proxyUrl) {
-    let parsedProxy;
-    try {
-      const parsed = new URL(proxyUrl.includes('://') ? proxyUrl : `http://${proxyUrl}`);
-      parsedProxy = {
-        protocol: parsed.protocol.replace(':', ''),
-        host: parsed.hostname,
-        port: parsed.port ? parseInt(parsed.port, 10) : (parsed.protocol === 'https:' ? 443 : 80),
-      };
-      const username = connection.httpProxyUser ?? parsed.username;
-      const rawPassword = connection.httpProxyPassword ?? parsed.password;
-      const password = decryptPasswordString(rawPassword);
-      if (username) {
-        parsedProxy.auth = { username, password: password ?? '' };
-      }
-    } catch (err) {
-      throw new Error(`DBGM-00334 Invalid proxy URL "${proxyUrl}": ${err && err.message ? err.message : err}`);
-    }
-    connection.axios = axios.default.create({ proxy: parsedProxy });
-  } else {
-    connection.axios = axios.default;
-  }
+  connection.axios = createConnectionHttpClient(connection);
 
   const conn = await driver.connect({ conid: connectionLoaded?._id, ...connection, ...additionalOptions });
   return conn;
@@ -193,6 +200,7 @@ function getRestAuthFromConnection(connection) {
 
 module.exports = {
   extractConnectionSslParams,
+  createConnectionHttpClient,
   connectUtility,
   getRestAuthFromConnection,
 };

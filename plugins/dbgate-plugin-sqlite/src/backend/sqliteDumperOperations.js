@@ -14,9 +14,17 @@ const {
  * Backs up a SQLite-family database with dbgate-sqlite-dumper.
  *
  * Shared by the SQLite and libSQL drivers, which differ only in how a driver handle becomes a
- * dumper connection (`createDumperConnection`) and in the product name shown in messages.
+ * dumper connection (`createDumperConnection`) and in the product name shown in messages. Cloudflare D1
+ * shares the backup; `reportVersion: false` and `snapshot: false` leave out the progress messages about
+ * the SQLite version and the read snapshot, neither of which D1 has.
  */
-async function backupWithSqliteDumper(driver, connection, settings, runner, { product, createDumperConnection }) {
+async function backupWithSqliteDumper(
+  driver,
+  connection,
+  settings,
+  runner,
+  { product, createDumperConnection, reportVersion = true, snapshot = true }
+) {
   const { outputFile, selectedTables = [], skippedTables = [], options = {} } = settings;
   const dumpOptions = getSqliteDumpOptions(selectedTables, skippedTables, options);
   // Dump into a sibling temporary file and publish it with a rename only once the dump finished.
@@ -34,7 +42,7 @@ async function backupWithSqliteDumper(driver, connection, settings, runner, { pr
       createDumperConnection(dbhan.client),
       dumpOptions,
       output,
-      createDumpProgressReporter(runner, product),
+      createDumpProgressReporter(runner, product, { reportVersion, snapshot }),
       runner.signal
     );
     if (result.cancelled) {

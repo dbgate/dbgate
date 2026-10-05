@@ -56,7 +56,7 @@ const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
 const { sendToAuditLog } = require('../utility/auditlog');
-const { extractConnectionSslParams } = require('../utility/connectUtility');
+const { extractConnectionSslParams, createConnectionHttpClient } = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
 
@@ -1065,6 +1065,8 @@ module.exports = {
     }
 
     connection.ssl = await extractConnectionSslParams(connection);
+    // Drivers that back up through an HTTP API (Cloudflare D1) need the same client as when connecting.
+    connection.axios = createConnectionHttpClient(connection);
 
     const settingsValue = await config.getSettings();
 
