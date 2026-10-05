@@ -146,20 +146,6 @@ const sqliteDumperSupport = {
   },
 };
 
-/**
- * Backup only, for Cloudflare D1: D1 refuses the transaction and writable_schema statements a
- * dump script contains, so a dump cannot be restored into D1 from DbGate. It restores into a
- * SQLite database as usual.
- * @type {Partial<import('dbgate-types').EngineDriver>}
- */
-const d1DumperSupport = {
-  supportsNodejsBackup: true,
-  nodejsBackupTool: 'dbgate-sqlite-dumper',
-  getNativeOperationFormArgs(operation) {
-    return operation == 'backup' ? sqliteDumperSupport.getNativeOperationFormArgs(operation) : null;
-  },
-};
-
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...sqliteDriverBase,
@@ -219,7 +205,10 @@ const cloudflareD1Driver = {
   readOnlySessions: true,
   supportsTransactions: false,
   supportedCreateDatabase: false,
-  ...d1DumperSupport,
+  // Same backup and restore options as SQLite. The restore itself is D1's own (backend/d1Restore.js):
+  // D1 refuses a dump's transaction statements, so the dump is sent in batches, each of which D1
+  // runs as a transaction.
+  ...sqliteDumperSupport,
   showConnectionField: (field) =>
     [
       'cloudflareAccountId',
