@@ -121,6 +121,24 @@ function referenceLevels(tables) {
 }
 
 /**
+ * The tables whose rows may refer to rows of the same level - a table referring to itself, or
+ * tables on a reference cycle. Ordering by levels cannot put their rows in a valid order.
+ */
+function levelReferencingTables(tables, levels) {
+  const result = new Set();
+  for (const level of levels) {
+    for (const name of level) {
+      if ([...tables.get(name)].some((referenced) => level.has(referenced))) result.add(name);
+    }
+  }
+  return result;
+}
+
+function isForeignKeyError(error) {
+  return /FOREIGN KEY constraint failed/i.test(error?.message ?? '');
+}
+
+/**
  * Reads the whole dump before anything is sent to D1: a dump D1 cannot accept is refused without
  * leaving a half-restored database behind, and the foreign keys of its tables are collected.
  */
@@ -206,12 +224,45 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
     ]);
   };
 
-  /** Runs the statements `select` picks from one read of the dump, in batches, in dump order. */
+  const levels = referenceLevels(tables);
+  const ordered = new Set(levels.flatMap((level) => [...level]));
+  const levelReferencing = levelReferencingTables(tables, levels);
+
+  const reportProgress = () => {
+    const now = Date.now();
+    if (now - lastProgress >= 750) {
+      lastProgress = now;
+      info(`Restored ${executed} of ${totalStatements} statements`);
+    }
+  };
+
+  const reportFailure = (statements, error, hint = '') => {
+    const message = `Statements at ${lineRange(statements)} failed, none of them was applied: ${error.message}${hint}`;
+    errors.push(message);
+    info(message, 'error');
+    if (stopOnError) {
+      throw new Error(
+        `DBGM-00000 Cloudflare D1 restore stopped at ${lineRange(statements)}${
+          executed > 0 ? ` (the ${executed} statements before them were applied)` : ''
+        }: ${error.message}${hint}`,
+        { cause: error }
+      );
+    }
+  };
+
+  /**
+   * Runs the statements `select` picks from one read of the dump, in batches, in dump order.
+   *
+   * Rows of a table referring to itself (or of tables on a reference cycle) may refer to rows of a
+   * later batch. A batch of them refused for a foreign key is set aside - it left nothing behind -
+   * and retried once the rest of the pass is in, as long as the retries make progress.
+   */
   const runPass = async (select, label) => {
     if (label) info(label);
     let batch = [];
     let batchBytes = 0;
     let currentObject = null;
+    let postponed = [];
     const flush = async () => {
       if (batch.length == 0) return;
       const statements = batch;
@@ -222,23 +273,13 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
         executed += statements.length;
       } catch (error) {
         if (signal?.aborted) throw error;
-        const message = `Statements at ${lineRange(statements)} failed, none of them was applied: ${error.message}`;
-        errors.push(message);
-        info(message, 'error');
-        if (stopOnError) {
-          throw new Error(
-            `DBGM-00000 Cloudflare D1 restore stopped at ${lineRange(statements)}${
-              executed > 0 ? ` (the ${executed} statements before them were applied)` : ''
-            }: ${error.message}`,
-            { cause: error }
-          );
+        if (isForeignKeyError(error) && statements.some((statement) => levelReferencing.has(dataTable(statement)))) {
+          postponed.push({ statements, error });
+        } else {
+          reportFailure(statements, error);
         }
       }
-      const now = Date.now();
-      if (now - lastProgress >= 750) {
-        lastProgress = now;
-        info(`Restored ${executed} of ${totalStatements} statements`);
-      }
+      reportProgress();
     };
 
     for await (const statement of streamSqlStatements(fs.createReadStream(inputFile), {}, signal)) {
@@ -256,12 +297,36 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
       batchBytes += bytes;
     }
     await flush();
+
+    while (postponed.length > 0) {
+      const retried = postponed;
+      postponed = [];
+      for (const { statements } of retried) {
+        try {
+          await send(statements);
+          executed += statements.length;
+        } catch (error) {
+          if (signal?.aborted) throw error;
+          if (isForeignKeyError(error)) postponed.push({ statements, error });
+          else reportFailure(statements, error);
+        }
+        reportProgress();
+      }
+      if (postponed.length == retried.length) {
+        for (const { statements, error } of postponed) {
+          reportFailure(
+            statements,
+            error,
+            ' (rows of a table referring to itself, or of tables referring to each other, refer to rows that could not be restored before them)'
+          );
+        }
+        break;
+      }
+    }
   };
 
   // 1. Tables; 2. their data, parents before children; 3. everything else.
   await runPass((statement) => isTableDefinition(statement), 'Creating tables');
-  const levels = referenceLevels(tables);
-  const ordered = new Set(levels.flatMap((level) => [...level]));
   for (const level of levels) {
     await runPass((statement) => level.has(dataTable(statement)));
   }
