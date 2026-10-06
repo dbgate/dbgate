@@ -10,6 +10,23 @@ const BATCH_STATEMENTS = 250;
 const BATCH_BYTES = 1024 * 1024;
 
 /**
+ * D1's limit on the length of one SQL statement. A dump has one INSERT per row, so a row with a
+ * large text or BLOB value exceeds it; such a row cannot be restored through D1's SQL API at all.
+ */
+const MAX_STATEMENT_BYTES = 100000;
+
+function isOversized(statement) {
+  return Buffer.byteLength(statement.sql) > MAX_STATEMENT_BYTES;
+}
+
+function oversizedMessage(statement) {
+  const table = statement.info.objectName ? ` (table ${statement.info.objectName})` : '';
+  return `The statement at line ${statement.location.startLine}${table} has ${Buffer.byteLength(
+    statement.sql
+  )} bytes, more than the ${MAX_STATEMENT_BYTES} bytes Cloudflare D1 accepts in one statement`;
+}
+
+/**
  * D1 enforces foreign keys and has no `PRAGMA foreign_keys = OFF`. Deferring them to the end of
  * each batch is what Cloudflare's import guide recommends instead.
  */
@@ -141,9 +158,13 @@ function isForeignKeyError(error) {
 /**
  * Reads the whole dump before anything is sent to D1: a dump D1 cannot accept is refused without
  * leaving a half-restored database behind, and the foreign keys of its tables are collected.
+ * Statements too long for D1 are refused as well when the restore stops on errors; otherwise
+ * they are left out, each reported on its own.
  */
-async function preflightD1Restore(inputFile, signal) {
+async function preflightD1Restore(inputFile, stopOnError, signal) {
   let refused = null;
+  let oversized = null;
+  let oversizedCount = 0;
   let statements = 0;
   const tables = new Map();
   const filledTables = new Set();
@@ -152,6 +173,10 @@ async function preflightD1Restore(inputFile, signal) {
     const { action } = classifyStatement(statement);
     if (!refused && action == 'refuse') refused = statement;
     if (action != 'run') continue;
+    if (isOversized(statement)) {
+      if (!oversized) oversized = statement;
+      oversizedCount++;
+    }
     if (statement.info.verb == 'CREATE' && statement.info.objectKind == 'TABLE') {
       tables.set(String(statement.info.objectName).toLowerCase(), referencedTables(statement.sql));
     }
@@ -161,6 +186,13 @@ async function preflightD1Restore(inputFile, signal) {
   if (refused) {
     throw new Error(
       `DBGM-00000 The dump recreates virtual tables through PRAGMA writable_schema (line ${refused.location.startLine}), which Cloudflare D1 does not allow. Back up the database without its virtual tables, or restore it into SQLite.`
+    );
+  }
+  if (oversized && stopOnError) {
+    throw new Error(
+      `DBGM-00000 ${oversizedMessage(oversized)}${
+        oversizedCount > 1 ? ` (${oversizedCount} statements of the dump are too long)` : ''
+      }. Nothing was restored. Restore without stopping on errors to leave these rows out, or restore into SQLite.`
     );
   }
   const uncreatedTables = [...filledTables].filter((table) => !tables.has(table));
@@ -208,7 +240,7 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
   const throwIfAborted = () => {
     if (signal?.aborted) throw new Error('DBGM-00000 Cloudflare D1 restore cancelled');
   };
-  const { statements: totalStatements, tables, uncreatedTables } = await preflightD1Restore(inputFile, signal);
+  const { statements: totalStatements, tables, uncreatedTables } = await preflightD1Restore(inputFile, stopOnError, signal);
   throwIfAborted();
   await addTargetReferences(api, tables, uncreatedTables);
 
@@ -288,6 +320,13 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
       if (!label && statement.currentObject && statement.currentObject != currentObject) {
         currentObject = statement.currentObject;
         info(`Restoring ${currentObject}`);
+      }
+      // Only reached without stopOnError - the preflight refuses such a dump otherwise.
+      if (isOversized(statement)) {
+        const message = `${oversizedMessage(statement)}; it was left out`;
+        errors.push(message);
+        info(message, 'error');
+        continue;
       }
       const bytes = Buffer.byteLength(statement.sql);
       if (batch.length > 0 && (batch.length >= BATCH_STATEMENTS || batchBytes + bytes > BATCH_BYTES)) {
