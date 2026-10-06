@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { streamSqlStatements } = require('dbgate-sqlite-dumper');
+const { extractColumnNames, extractRowArrays } = require('./cloudflare/d1ResultAdapter');
 
 /**
  * Statements per D1 request, and their total size. A D1 batch runs as one transaction, so a
@@ -127,21 +128,44 @@ async function preflightD1Restore(inputFile, signal) {
   let refused = null;
   let statements = 0;
   const tables = new Map();
+  const filledTables = new Set();
   for await (const statement of streamSqlStatements(fs.createReadStream(inputFile), {}, signal)) {
     statements++;
     const { action } = classifyStatement(statement);
     if (!refused && action == 'refuse') refused = statement;
-    if (action == 'run' && statement.info.verb == 'CREATE' && statement.info.objectKind == 'TABLE') {
+    if (action != 'run') continue;
+    if (statement.info.verb == 'CREATE' && statement.info.objectKind == 'TABLE') {
       tables.set(String(statement.info.objectName).toLowerCase(), referencedTables(statement.sql));
     }
+    const table = dataTable(statement);
+    if (table != null) filledTables.add(table);
   }
   if (refused) {
     throw new Error(
       `DBGM-00000 The dump recreates virtual tables through PRAGMA writable_schema (line ${refused.location.startLine}), which Cloudflare D1 does not allow. Back up the database without its virtual tables, or restore it into SQLite.`
     );
   }
-  // Tables the dump fills but does not create (a data-only dump) have no known references.
-  return { statements, tables };
+  const uncreatedTables = [...filledTables].filter((table) => !tables.has(table));
+  return { statements, tables, uncreatedTables };
+}
+
+/**
+ * Adds the foreign keys of tables the dump fills but does not create (a data-only dump) to
+ * `tables`, read from their definitions in the target database, which must already have them.
+ */
+async function addTargetReferences(api, tables, uncreatedTables) {
+  if (uncreatedTables.length == 0) return;
+  const [item] = await api.executeStatements([{ sql: "SELECT name, sql FROM sqlite_master WHERE type = 'table'" }]);
+  const columns = extractColumnNames(item);
+  const nameIndex = columns.indexOf('name');
+  const sqlIndex = columns.indexOf('sql');
+  const definitions = new Map(
+    extractRowArrays(item).map((row) => [String(row[nameIndex]).toLowerCase(), row[sqlIndex]])
+  );
+  for (const table of uncreatedTables) {
+    const sql = definitions.get(table);
+    if (typeof sql == 'string') tables.set(table, referencedTables(sql));
+  }
 }
 
 /**
@@ -155,7 +179,8 @@ async function preflightD1Restore(inputFile, signal) {
  * - a batch must therefore be valid on its own, so the data is inserted table by table, every
  *   table after the tables it refers to - first the tables, then the data, then the indexes,
  *   views and triggers, which is the order of a dump anyway. The dump file is read once for each
- *   level of that order.
+ *   level of that order. The foreign keys of tables the dump does not create (a data-only dump)
+ *   are read from the target database.
  *
  * @param {import('./cloudflare/CloudflareD1Api').CloudflareD1Api} api
  * @param {{ inputFile: string, stopOnError?: boolean, signal?: AbortSignal,
@@ -165,7 +190,9 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
   const throwIfAborted = () => {
     if (signal?.aborted) throw new Error('DBGM-00000 Cloudflare D1 restore cancelled');
   };
-  const { statements: totalStatements, tables } = await preflightD1Restore(inputFile, signal);
+  const { statements: totalStatements, tables, uncreatedTables } = await preflightD1Restore(inputFile, signal);
+  throwIfAborted();
+  await addTargetReferences(api, tables, uncreatedTables);
 
   const errors = [];
   let executed = 0;
