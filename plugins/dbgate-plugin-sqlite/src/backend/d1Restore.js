@@ -269,7 +269,10 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
   };
 
   const reportFailure = (statements, error, hint = '') => {
-    const message = `Statements at ${lineRange(statements)} failed, none of them was applied: ${error.message}${hint}`;
+    const message =
+      statements.length == 1
+        ? `Statement at ${lineRange(statements)} failed: ${error.message}${hint}`
+        : `Statements at ${lineRange(statements)} failed, none of them was applied: ${error.message}${hint}`;
     errors.push(message);
     info(message, 'error');
     if (stopOnError) {
@@ -288,6 +291,10 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
    * Rows of a table referring to itself (or of tables on a reference cycle) may refer to rows of a
    * later batch. A batch of them refused for a foreign key is set aside - it left nothing behind -
    * and retried once the rest of the pass is in, as long as the retries make progress.
+   *
+   * Without stopOnError, any other failed batch is split in halves until the failing statements
+   * stand alone, so that one bad row (such as a key already in the database) does not cost the
+   * rest of its batch.
    */
   const runPass = async (select, label) => {
     if (label) info(label);
@@ -295,23 +302,50 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
     let batchBytes = 0;
     let currentObject = null;
     let postponed = [];
-    const flush = async () => {
-      if (batch.length == 0) return;
-      const statements = batch;
-      batch = [];
-      batchBytes = 0;
+
+    const trySend = async (statements, onFailure) => {
       try {
         await send(statements);
         executed += statements.length;
       } catch (error) {
         if (signal?.aborted) throw error;
-        if (isForeignKeyError(error) && statements.some((statement) => levelReferencing.has(dataTable(statement)))) {
-          postponed.push({ statements, error });
-        } else {
-          reportFailure(statements, error);
-        }
+        await onFailure(statements, error);
       }
       reportProgress();
+    };
+
+    const onFailure = async (statements, error) => {
+      if (isForeignKeyError(error) && statements.some((statement) => levelReferencing.has(dataTable(statement)))) {
+        postponed.push({ statements, error });
+      } else {
+        await split(statements, error);
+      }
+    };
+
+    /** With `final`, the statements are past retrying: nothing is set aside any more. */
+    const split = async (statements, error, final = false) => {
+      if (stopOnError || statements.length == 1) {
+        reportFailure(
+          statements,
+          error,
+          final
+            ? ' (rows of a table referring to itself, or of tables referring to each other, refer to rows that could not be restored before them)'
+            : ''
+        );
+        return;
+      }
+      const middle = Math.ceil(statements.length / 2);
+      for (const half of [statements.slice(0, middle), statements.slice(middle)]) {
+        await trySend(half, final ? (failed, failure) => split(failed, failure, true) : onFailure);
+      }
+    };
+
+    const flush = async () => {
+      if (batch.length == 0) return;
+      const statements = batch;
+      batch = [];
+      batchBytes = 0;
+      await trySend(statements, onFailure);
     };
 
     for await (const statement of streamSqlStatements(fs.createReadStream(inputFile), {}, signal)) {
@@ -339,27 +373,17 @@ async function restoreD1Dump(api, { inputFile, stopOnError = true, signal, info 
 
     while (postponed.length > 0) {
       const retried = postponed;
+      const executedBefore = executed;
       postponed = [];
       for (const { statements } of retried) {
-        try {
-          await send(statements);
-          executed += statements.length;
-        } catch (error) {
-          if (signal?.aborted) throw error;
-          if (isForeignKeyError(error)) postponed.push({ statements, error });
-          else reportFailure(statements, error);
-        }
-        reportProgress();
+        await trySend(statements, onFailure);
       }
-      if (postponed.length == retried.length) {
-        for (const { statements, error } of postponed) {
-          reportFailure(
-            statements,
-            error,
-            ' (rows of a table referring to itself, or of tables referring to each other, refer to rows that could not be restored before them)'
-          );
+      if (executed == executedBefore) {
+        const remaining = postponed;
+        postponed = [];
+        for (const { statements, error } of remaining) {
+          await split(statements, error, true);
         }
-        break;
       }
     }
   };
