@@ -31,7 +31,13 @@ function getSqliteDumpOptions(selectedTables, skippedTables, options) {
   };
 }
 
-function formatDumpProgress(progress, product = 'SQLite') {
+/**
+ * @param {object} progress
+ * @param {string} [product]
+ * @param {{ reportVersion?: boolean, snapshot?: boolean }} [options] - false for an engine (Cloudflare
+ *   D1) that does not report its SQLite version, or has no transactions to take a snapshot in
+ */
+function formatDumpProgress(progress, product = 'SQLite', { reportVersion = true, snapshot = true } = {}) {
   if (progress.phase == 'exporting-data') {
     const table = progress.tableName || progress.objectName || 'table data';
     return `Exporting ${table}: ${(progress.rowsExported || 0).toLocaleString('en-US')} rows, ${(
@@ -47,9 +53,9 @@ function formatDumpProgress(progress, product = 'SQLite') {
   }
   const labels = {
     connecting: `Starting ${product} backup`,
-    'starting-snapshot': `Starting consistent ${product} snapshot`,
+    'starting-snapshot': snapshot ? `Starting consistent ${product} snapshot` : null,
     introspecting: `Reading ${product} database structure`,
-    'detecting-version': `Detected SQLite ${progress.message || ''}`.trim(),
+    'detecting-version': reportVersion ? `Detected SQLite ${progress.message || ''}`.trim() : null,
     'planning-archive': `Planning ${product} dump (${progress.objectsTotal || 0} objects)`,
     'rendering-schema': `Writing ${product} database structure`,
     finalizing: `Finalizing ${product} dump (${(progress.bytesWritten || 0).toLocaleString('en-US')} bytes)`,
@@ -57,13 +63,13 @@ function formatDumpProgress(progress, product = 'SQLite') {
   return labels[progress.phase] || null;
 }
 
-function createDumpProgressReporter(runner, product = 'SQLite') {
+function createDumpProgressReporter(runner, product = 'SQLite', options = {}) {
   let lastRowProgress = 0;
   return (progress) => {
     const now = Date.now();
     if (progress.phase == 'exporting-data' && progress.exportState == 'progress' && now - lastRowProgress < 750) return;
     if (progress.phase == 'exporting-data') lastRowProgress = now;
-    const message = formatDumpProgress(progress, product);
+    const message = formatDumpProgress(progress, product, options);
     if (message) runner.info({ message, severity: 'info' });
   };
 }

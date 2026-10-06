@@ -205,6 +205,10 @@ const cloudflareD1Driver = {
   readOnlySessions: true,
   supportsTransactions: false,
   supportedCreateDatabase: false,
+  // Same backup and restore options as SQLite. The restore itself is D1's own (backend/d1Restore.js):
+  // D1 refuses a dump's transaction statements, so the dump is sent in batches, each of which D1
+  // runs as a transaction.
+  ...sqliteDumperSupport,
   showConnectionField: (field) =>
     [
       'cloudflareAccountId',

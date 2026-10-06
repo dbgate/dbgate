@@ -8,6 +8,9 @@ const CloudflareD1Client = require('./clients/CloudflareD1Client');
 const { CloudflareD1Error, D1_ERROR_KIND } = require('./cloudflare/CloudflareD1Error');
 const sqliteSql = require('./sql');
 const { filterD1InternalRows, loadD1IndexColumns } = require('./cloudflare/d1SchemaLoader');
+const createD1DumperConnection = require('./d1DumperConnection');
+const { backupWithSqliteDumper } = require('./sqliteDumperOperations');
+const { restoreD1Dump } = require('./d1Restore');
 
 const engine = driverBases[2].engine;
 
@@ -67,6 +70,57 @@ const driver = {
 
   async close(dbhan) {
     await dbhan.client.close();
+  },
+
+  async backupDatabase(connection, settings, runner) {
+    if (!settings.database) {
+      throw new Error('DBGM-00000 Select the Cloudflare D1 database to back up');
+    }
+    return backupWithSqliteDumper(this, { ...connection, database: settings.database }, settings, runner, {
+      product: 'Cloudflare D1',
+      createDumperConnection: (client) => createD1DumperConnection(client.api),
+      reportVersion: false,
+      snapshot: false,
+    });
+  },
+
+  async restoreDatabase(connection, settings, runner) {
+    const { inputFile, database, options = {} } = settings;
+    if (!database) {
+      throw new Error('DBGM-00000 Select the Cloudflare D1 database to restore into');
+    }
+    // The D1 client enforces read-only connections; the restore talks to the API directly.
+    if (connection.isReadOnly) {
+      throw new Error('DBGM-00000 Cannot restore into a read-only Cloudflare D1 connection');
+    }
+    const stopOnError = options.stopOnError ?? true;
+    const dbhan = await this.connect({ ...connection, database });
+    try {
+      runner.info({ message: `Starting Cloudflare D1 restore into ${dbhan.databaseName}`, severity: 'info' });
+      const result = await restoreD1Dump(dbhan.client.api, {
+        inputFile,
+        stopOnError,
+        signal: runner.signal,
+        info: (message, severity = 'info') => runner.info({ message, severity }),
+      });
+      if (result.errors.length > 0) {
+        const count = result.errors.length;
+        throw new Error(
+          `DBGM-00000 Cloudflare D1 restore finished with ${count} failed batch${count == 1 ? '' : 'es'}: ${result.errors[0]}`
+        );
+      }
+      runner.info({
+        message: `Restored ${result.statementsExecuted.toLocaleString('en-US')} SQL statements`,
+        severity: 'info',
+      });
+    } catch (error) {
+      if (runner.signal?.aborted) {
+        throw new Error('DBGM-00000 Cloudflare D1 restore cancelled', { cause: error });
+      }
+      throw error;
+    } finally {
+      await this.close(dbhan);
+    }
   },
 
   async listDatabases(dbhan) {
