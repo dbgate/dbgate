@@ -200,6 +200,7 @@ function getRestAuthFromConnection(connection) {
 
 module.exports = {
   extractConnectionSslParams,
+  decryptCloudConnection,
   createConnectionHttpClient,
   connectUtility,
   getRestAuthFromConnection,

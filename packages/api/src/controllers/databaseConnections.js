@@ -56,7 +56,11 @@ const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
 const { sendToAuditLog } = require('../utility/auditlog');
-const { extractConnectionSslParams, createConnectionHttpClient } = require('../utility/connectUtility');
+const {
+  extractConnectionSslParams,
+  decryptCloudConnection,
+  createConnectionHttpClient,
+} = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
 
@@ -1045,9 +1049,10 @@ module.exports = {
 
   async getNativeOpContext(conid) {
     const sourceConnection = await connections.getCore({ conid });
-    const connection = {
-      ...decryptConnection(sourceConnection),
-    };
+    // Connections stored in a cloud folder are encrypted with the folder key, not the local one.
+    const connection = sourceConnection?._id?.startsWith('cloud://')
+      ? { ...(await decryptCloudConnection(sourceConnection)) }
+      : { ...decryptConnection(sourceConnection) };
     const driver = requireEngineDriver(connection);
 
     if (!connection.port && driver.defaultPort) {
