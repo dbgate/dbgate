@@ -11,7 +11,8 @@ function changeDependencies(deps, version) {
       key != 'dbgate-pg-dumper' &&
       key != 'dbgate-mssql-dumper' &&
       key != 'dbgate-mysql-dumper' &&
-      key != 'dbgate-sqlite-dumper'
+      key != 'dbgate-sqlite-dumper' &&
+      key != 'dbgate-redis-dumper'
     ) {
       deps[key] = `${version}`;
     }
