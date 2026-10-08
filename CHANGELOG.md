@@ -9,6 +9,15 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.2
+
+- ADDED: Built-in Redis backup and restore with Redis command and RESP output formats, key filtering, expiration handling, and multi-database support
+- ADDED: Built-in SQLite backup and restore with options for exporting data, schema, database settings, and rowids
+- ADDED: Built-in backup and restore for local libSQL database files and Cloudflare D1 databases (Premium)
+- CHANGED: Added standard permission checks and database restrictions to built-in backup and restore operations
+- FIXED: Community MCP tool calls crashing while resolving permissions
+- FIXED: Backup file names not using the database file name and the correct format-specific extension
+
 ## 7.3.1
 
 - ADDED: Built-in MySQL and MariaDB backup and restore without requiring external database tools
