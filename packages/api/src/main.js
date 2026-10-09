@@ -39,7 +39,7 @@ const mcp = require('./mcp');
 const onFinished = require('on-finished');
 const processArgs = require('./utility/processArgs');
 
-const { rundir, filesdir, uploadsdir } = require('./utility/directories');
+const { rundir, filesdir, uploadsdir, startTempDirectoryCleanup } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
@@ -263,6 +263,7 @@ function start() {
   }
 
   startCloudFiles();
+  startTempDirectoryCleanup();
 }
 
 function useAllControllers(app, electron) {
