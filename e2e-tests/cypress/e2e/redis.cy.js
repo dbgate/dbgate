@@ -125,6 +125,8 @@ describe('Redis database backup with dbgate-redis-dumper', () => {
     cy.contains('db1').rightclick();
     cy.contains('Create database backup').click();
 
+    cy.testid('BackupDatabaseTab_format').should('have.value', 'text');
+    cy.themeshot('redis-backup-settings');
     cy.testid('BackupDatabaseTab_executeButton').click();
     cy.testid('BackupDatabaseTab_status', { timeout: 30000 }).should('contain', 'Finished');
 
