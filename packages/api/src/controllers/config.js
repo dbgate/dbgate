@@ -312,6 +312,10 @@ module.exports = {
       if (!hasPermission('admin/settings', loadedPermissions)) return false;
       if (!['user', 'enabled', 'disabled'].includes(values['storage.usageAnalytics'])) return false;
     }
+    // External tools are the executables that native backup and restore start on the server
+    if (Object.keys(values ?? {}).some(key => key.startsWith('externalTools.'))) {
+      if (!hasPermission('admin/settings', loadedPermissions)) return false;
+    }
     cachedSettingsValue = null;
 
     const res = await lock.acquire('settings', async () => {

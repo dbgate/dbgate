@@ -19,6 +19,12 @@
   $: {
     if (!listOpen && isFocused && isMulti) listOpen = true;
   }
+
+  // svelte-select inserts labels with {@html}, while labels here are plain text (often names of
+  // database objects, which can contain markup)
+  const getOptionLabel = (option, filterText) =>
+    _.escape(option.isCreator ? `Create "${filterText}"` : option.label);
+  const getSelectionLabel = option => (option ? _.escape(option.label) : null);
 </script>
 
 {#if isNative}
@@ -62,6 +68,8 @@
       showIndicator={!isMulti}
       isClearable={isMulti}
       {isMulti}
+      {getOptionLabel}
+      {getSelectionLabel}
       bind:listOpen
       bind:isFocused
       class={$$props['data-testid'] ? 'select-testid-' + $$props['data-testid'] : undefined}

@@ -24,7 +24,11 @@ const dialect = {
   allowMultipleValuesInsert: true,
   dropColumnDependencies: ['indexes', 'primaryKey', 'uniques'],
   quoteIdentifier(s) {
-    return `[${s}]`;
+    const name = String(s);
+    // SQLite has no escape for ] inside [...] - such names are quoted with backticks (doubled when
+    // contained in the name), which, unlike "...", are never taken for a string literal
+    if (name.includes(']')) return '`' + name.replace(/`/g, '``') + '`';
+    return `[${name}]`;
   },
   anonymousPrimaryKey: true,
   requireStandaloneSelectForScopeIdentity: true,

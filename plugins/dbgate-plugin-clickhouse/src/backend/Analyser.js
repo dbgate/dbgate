@@ -24,7 +24,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.dbhan.database);
+    res = this.replaceStringPlaceholder(res, '#DATABASE#', this.dbhan.database);
     return super.createQuery(res, typeFields, replacements);
   }
 
@@ -67,7 +67,9 @@ class Analyser extends DatabaseAnalyser {
             ...col,
             ...extractDataType(col.dataType),
           })),
-        createSql: view.viewDefinition ? `CREATE VIEW "${view.pureName}"\nAS\n${view.viewDefinition}` : '',
+        createSql: view.viewDefinition
+          ? `CREATE VIEW ${this.dialect.quoteIdentifier(view.pureName)}\nAS\n${view.viewDefinition}`
+          : '',
       })),
     };
     this.feedback({ analysingMessage: null });
@@ -87,7 +89,9 @@ class Analyser extends DatabaseAnalyser {
     const { pureName } = this.singleObjectFilter;
     const resId = await this.driver.query(
       this.dbhan,
-      `SELECT uuid as id FROM system.tables WHERE database = '${this.dbhan.database}' AND name='${pureName}'`
+      `SELECT uuid as id FROM system.tables WHERE database = ${this.quoteStringLiteral(
+        this.dbhan.database
+      )} AND name=${this.quoteStringLiteral(pureName)}`
     );
     this.singleObjectId = resId.rows[0]?.id;
   }

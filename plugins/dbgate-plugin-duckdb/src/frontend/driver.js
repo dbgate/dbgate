@@ -27,7 +27,7 @@ const dialect = {
   allowMultipleValuesInsert: true,
   dropColumnDependencies: ['indexes', 'primaryKey', 'uniques'],
   quoteIdentifier(s) {
-    return `"${s}"`;
+    return `"${String(s).replace(/"/g, '""')}"`;
   },
   anonymousPrimaryKey: true,
   requireStandaloneSelectForScopeIdentity: true,

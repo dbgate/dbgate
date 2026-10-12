@@ -29,7 +29,7 @@ const dialect = {
   anonymousPrimaryKey: false,
   dropIndexContainsTableSpec: true,
   quoteIdentifier(s) {
-    return `[${s}]`;
+    return `[${String(s).replace(/]/g, ']]')}]`;
   },
 
   createColumn: true,

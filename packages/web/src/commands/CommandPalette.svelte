@@ -98,6 +98,7 @@
   import { _tval, _t } from '../translations';
   import { getDriverIcon } from '../utility/driverIcons';
   import { currentThemeType } from '../plugins/themes';
+  import { HIGHLIGHT_END, HIGHLIGHT_START, splitHighlightedText } from '../utility/highlightSegments';
 
   let domInput;
   let filter = '';
@@ -135,13 +136,13 @@
       ).filter(x => !x.isGroupCommand),
       {
         extract: x => _tval(x.text),
-        pre: '<b>',
-        post: '</b>',
+        pre: HIGHLIGHT_START,
+        post: HIGHLIGHT_END,
       }
     )
     .map(x => ({
       ...x.original,
-      text: x.string,
+      textSegments: splitHighlightedText(x.string),
     }));
 
   function handleCommand(command) {
@@ -237,7 +238,8 @@
               {#if command.icon}
                 <span class="mr-1"><FontIcon icon={command.icon} /></span>
               {/if}
-              {@html command.text}
+              <!-- one line on purpose: whitespace between the segments would show up between the characters -->
+              {#each command.textSegments as seg}{#if seg.highlighted}<b>{seg.text}</b>{:else}{seg.text}{/if}{/each}
             </div>
             {#if command.keyText}
               <div class="shortcut">{formatKeyText(command.keyText)}</div>

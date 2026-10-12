@@ -19,7 +19,7 @@ const dialect = {
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['dependencies'],
   quoteIdentifier(s) {
-    return '"' + s + '"';
+    return '"' + String(s).replace(/"/g, '""') + '"';
   },
   userDatabaseNamePrefix: 'C##',
   upperCaseAllDbObjectNames: true,

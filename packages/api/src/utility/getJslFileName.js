@@ -45,7 +45,14 @@ class InvalidJslPathError extends Error {
 function resolveJslPathUnchecked(jslid) {
   const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
   if (archiveMatch) {
-    return path.join(resolveArchiveFolder(archiveMatch[1]), `${archiveMatch[2]}.jsonl`);
+    let folder;
+    try {
+      folder = resolveArchiveFolder(archiveMatch[1]);
+    } catch (err) {
+      // an archive link outside the desktop app
+      throw new InvalidJslPathError(jslid);
+    }
+    return path.join(folder, `${archiveMatch[2]}.jsonl`);
   }
   const fileMatch = jslid.match(/^file:\/\/(.*)$/);
   if (fileMatch) {

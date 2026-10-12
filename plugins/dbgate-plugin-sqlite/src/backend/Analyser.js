@@ -72,7 +72,7 @@ class Analyser extends DatabaseAnalyser {
       const tableObj = tableList.find((x) => x.pureName == tableName);
       if (!tableObj) continue;
 
-      const info = await this.driver.query(this.dbhan, `pragma table_info('${tableName}')`);
+      const info = await this.driver.query(this.dbhan, `pragma table_info(${this.quoteStringLiteral(tableName)})`);
       tableObj.columns = info.rows.map((col) => ({
         columnName: col.name,
         dataType: col.type,
@@ -116,7 +116,10 @@ class Analyser extends DatabaseAnalyser {
         };
       }
 
-      const fklist = await this.driver.query(this.dbhan, `pragma foreign_key_list('${tableName}')`);
+      const fklist = await this.driver.query(
+        this.dbhan,
+        `pragma foreign_key_list(${this.quoteStringLiteral(tableName)})`
+      );
       tableObj.foreignKeys = _.values(_.groupBy(fklist.rows, 'id')).map((fkcols) => {
         const fkcol = fkcols[0];
         const fk = {
@@ -142,7 +145,7 @@ class Analyser extends DatabaseAnalyser {
       const viewObj = viewList.find((x) => x.pureName == viewName);
       if (!viewObj) continue;
 
-      const info = await this.driver.query(this.dbhan, `pragma table_info('${viewName}')`);
+      const info = await this.driver.query(this.dbhan, `pragma table_info(${this.quoteStringLiteral(viewName)})`);
       viewObj.columns = info.rows.map((col) => ({
         columnName: col.name,
         dataType: col.type,

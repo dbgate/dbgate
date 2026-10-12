@@ -1,5 +1,21 @@
 import type { AxiosInstance } from 'axios';
 import { RestApiAuthorization, RestApiDefinition, RestApiParameter } from './restApiDef';
+import { createAuthRedirectGuard, isSameUrlOrigin } from './restAuthTools';
+
+// The server is one configured for the connection (restConnectionProcess checks it), and the path
+// comes from the API definition - an absolute URL there would replace the server. The request must
+// stay on that server, with or without credentials: otherwise the API definition could make the
+// DbGate server fetch internal addresses and return the response.
+function assertUrlOnServer(url: string, server: string) {
+  if (server && !isSameUrlOrigin(url, server)) {
+    throw new Error(`DBGM-00000 Request URL ${url} is not on the server of the connection`);
+  }
+}
+
+function authRedirectOptions(url: string, auth: RestApiAuthorization | null) {
+  const beforeRedirect = createAuthRedirectGuard(url, auth);
+  return beforeRedirect ? { beforeRedirect } : {};
+}
 
 function hasValue(value: any) {
   if (value === null || value === undefined) return false;
@@ -238,12 +254,14 @@ export async function executeRestApiEndpointOpenApi(
 
   url = appendQueryAndCookies(url, query, cookies, headers);
   addAuthHeaders(headers, auth);
+  assertUrlOnServer(url, server);
 
   const resp = await axios({
     method,
     url,
     headers,
     data: body,
+    ...authRedirectOptions(url, auth),
   });
 
   return resp;
@@ -317,12 +335,14 @@ export async function executeODataApiEndpoint(
 
   url = appendQueryAndCookies(url, query, cookies, headers);
   addAuthHeaders(headers, auth);
+  assertUrlOnServer(url, server);
 
   const resp = await axios({
     method,
     url,
     headers,
     data: body,
+    ...authRedirectOptions(url, auth),
   });
 
   return resp;

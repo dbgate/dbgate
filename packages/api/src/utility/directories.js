@@ -132,12 +132,36 @@ function getPluginBackendPath(packageName) {
 
 let archiveLinksCache = {};
 
+// A ".link" archive folder is a file holding the path of a folder anywhere on the disk, which is
+// then used as it is to read, write and delete files. Links are created in the desktop app, where
+// the user picks that folder in a dialog. A server must not follow them - whoever can use the
+// archive would get the whole filesystem of the server.
+function isArchiveLink(folder) {
+  return typeof folder == 'string' && folder.endsWith('.link');
+}
+
 function resolveArchiveFolder(folder) {
-  if (folder.endsWith('.link')) {
+  if (isArchiveLink(folder)) {
+    if (!platformInfo.isElectron) {
+      throw new Error('DBGM-00000 Archive folder links are supported only in the desktop app');
+    }
     if (!archiveLinksCache[folder]) {
       archiveLinksCache[folder] = fs.readFileSync(path.join(archivedir(), folder), 'utf-8');
     }
     return archiveLinksCache[folder];
+  }
+  // Archive folders are flat, so outside the desktop app the name must not leave the archive
+  // (e.g. "archive:../../somewhere" passed to model export or deploy).
+  if (
+    !platformInfo.isElectron &&
+    (typeof folder != 'string' ||
+      !folder ||
+      folder.includes('\0') ||
+      folder.includes('..') ||
+      folder.includes('/') ||
+      folder.includes('\\'))
+  ) {
+    throw new Error('DBGM-00000 Invalid archive folder name');
   }
   return path.join(archivedir(), folder);
 }
@@ -190,6 +214,7 @@ module.exports = {
   packagedPluginList,
   getPluginBackendPath,
   resolveArchiveFolder,
+  isArchiveLink,
   clearArchiveLinksCache,
   getLogsFilePath,
   setLogsFilePath,

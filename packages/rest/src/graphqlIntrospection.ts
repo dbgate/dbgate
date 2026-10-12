@@ -1,5 +1,6 @@
 import type { RestApiDefinition } from './restApiDef';
 import type { AxiosInstance } from 'axios';
+import { createHeaderRedirectGuard } from './restAuthTools';
 
 const DEFAULT_INTROSPECTION_DEPTH = 6;
 
@@ -171,7 +172,10 @@ export function scoreFieldName(name: string): number {
   return 100;
 }
 
-export function chooseUsefulNodeAttributes(nodeType: GraphQLType | undefined, typeMap: Map<string, GraphQLType>): string[] {
+export function chooseUsefulNodeAttributes(
+  nodeType: GraphQLType | undefined,
+  typeMap: Map<string, GraphQLType>
+): string[] {
   if (!nodeType?.fields?.length) return ['__typename'];
 
   const scalarFields = nodeType.fields.filter(field => isScalarLikeField(field, typeMap));
@@ -477,6 +481,8 @@ export async function fetchGraphQLSchema(
           'Content-Type': 'application/json',
           ...headers,
         },
+        // headers holds the connection's auth headers - they must not follow a redirect elsewhere
+        beforeRedirect: createHeaderRedirectGuard(url, Object.keys(headers ?? {})),
       }
     );
 

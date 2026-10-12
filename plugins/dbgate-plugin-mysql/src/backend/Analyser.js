@@ -10,7 +10,7 @@ function quoteDefaultValue(value) {
   // keep NULL as default value. Is this really necessary?
   if (_.isString(value) && value?.toUpperCase() == 'NULL') return 'NULL';
   if (_.isString(value)) {
-    return `'${value.replace("'", "\\'")}'`;
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
   }
   return value;
 }
@@ -91,7 +91,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.dbhan.database);
+    res = this.replaceStringPlaceholder(res, '#DATABASE#', this.dbhan.database);
     return super.createQuery(res, typeFields, replacements);
   }
 
@@ -109,7 +109,7 @@ class Analyser extends DatabaseAnalyser {
 
     const views = await this.analyserQuery('viewTexts', ['views']);
     for (const view of views.rows) {
-      res[view.pureName] = `CREATE VIEW \`${view.pureName}\` AS ${view.viewDefinition}`;
+      res[view.pureName] = `CREATE VIEW ${this.dialect.quoteIdentifier(view.pureName)} AS ${view.viewDefinition}`;
     }
 
     // for (const viewName of this.getRequestedViewNames(allViewNames)) {
@@ -230,9 +230,11 @@ class Analyser extends DatabaseAnalyser {
         .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
-          createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`(${getParametersSqlString(
-            procedureNameToParameters[x.pureName]
-          )})\n${x.routineDefinition}\n\nDELIMITER ;\n`,
+          createSql: `DELIMITER //\n\nCREATE PROCEDURE ${this.dialect.quoteIdentifier(
+            x.pureName
+          )}(${getParametersSqlString(procedureNameToParameters[x.pureName])})\n${
+            x.routineDefinition
+          }\n\nDELIMITER ;\n`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
           parameters: procedureNameToParameters[x.pureName],
@@ -242,7 +244,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => _.omit(x, ['objectType']))
         .map(x => ({
           ...x,
-          createSql: `CREATE FUNCTION \`${x.pureName}\`(${getParametersSqlString(
+          createSql: `CREATE FUNCTION ${this.dialect.quoteIdentifier(x.pureName)}(${getParametersSqlString(
             functionNameToParameters[x.pureName]?.filter(i => i.parameterMode !== 'RETURN')
           )})\nRETURNS ${x.returnDataType} ${x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'}\n${
             x.routineDefinition

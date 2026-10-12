@@ -34,7 +34,14 @@ class Analyser extends DatabaseAnalyser {
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
-    const query = super.createQuery(sql[resFileName], typeFields, replacements);
+    // $owner is used inside a string literal ('$owner') in the query files
+    const query = super.createQuery(
+      sql[resFileName],
+      typeFields,
+      replacements.$owner == null
+        ? replacements
+        : { ...replacements, $owner: this.escapeStringValue(replacements.$owner) }
+    );
     //if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
     return query;
   }
@@ -181,7 +188,7 @@ class Analyser extends DatabaseAnalyser {
         pureName: view.pure_name,
         // schemaName: view.schema_name,
         contentHash: view.hash_code,
-        createSql: `CREATE VIEW "${view.pure_name}"\nAS\n${view.create_sql}`,
+        createSql: `CREATE VIEW ${this.dialect.quoteIdentifier(view.pure_name)}\nAS\n${view.create_sql}`,
         columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
       })),
       matviews: matviews
@@ -190,7 +197,9 @@ class Analyser extends DatabaseAnalyser {
             pureName: matview.pure_name,
             // schemaName: matview.schema_name,
             contentHash: matview.hash_code,
-            createSql: `CREATE MATERIALIZED VIEW "${matview.pure_name}"\nAS\n${matview.definition}`,
+            createSql: `CREATE MATERIALIZED VIEW ${this.dialect.quoteIdentifier(matview.pure_name)}\nAS\n${
+              matview.definition
+            }`,
             columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
           }))
         : undefined,
@@ -216,9 +225,9 @@ class Analyser extends DatabaseAnalyser {
         })),
       triggers: triggers.rows.map(row => ({
         pureName: row.trigger_name,
-        createSql: `SET SQLTERMINATOR "/"\nCREATE TRIGGER "${row.trigger_name}" ${
+        createSql: `SET SQLTERMINATOR "/"\nCREATE TRIGGER ${this.dialect.quoteIdentifier(row.trigger_name)} ${
           row.trigger_timing.includes('BEFORE') ? 'BEFORE' : 'AFTER'
-        } ${row.event_type} ON "${row.table_name}" FOR EACH ROW ${row.definition} \n/\n`,
+        } ${row.event_type} ON ${this.dialect.quoteIdentifier(row.table_name)} FOR EACH ROW ${row.definition} \n/\n`,
         // createSql: `SET SQLTERMINATOR "/"\n${row.definition}\n/\n`,
         tableName: row.table_name,
         triggerLevel: row.trigger_level,

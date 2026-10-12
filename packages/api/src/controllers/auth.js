@@ -4,7 +4,7 @@ const getExpressPath = require('../utility/getExpressPath');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
-const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
+const { getTokenSecret, getTokenLifetime, isBasicAuthActive } = require('../auth/authCommon');
 const {
   getAuthProviderFromReq,
   getAuthProviders,
@@ -150,7 +150,7 @@ async function authMiddleware(req, res, next) {
     return next();
   }
 
-  if (process.env.BASIC_AUTH) {
+  if (isBasicAuthActive()) {
     // API is not authorized for basic auth
     return next();
   }
@@ -251,7 +251,11 @@ module.exports = {
       return { error: 'Login failed' };
     }
 
-    return getAuthProviderById(amoid).login(login, password, undefined, req);
+    const authProvider = getAuthProviderById(amoid);
+    if (!authProvider) {
+      return { error: 'Login failed' };
+    }
+    return authProvider.login(login, password, undefined, req);
   },
 
   getProviders_meta: true,
@@ -271,10 +275,14 @@ module.exports = {
   },
 
   createCloudLoginSession_meta: true,
-  async createCloudLoginSession({ client, redirectUri }) {
+  async createCloudLoginSession({ client, redirectUri }, req) {
+    // The token goes only to the browser tab that started the login - /stream is not
+    // authenticated, so a broadcast would hand it to anyone connected. Without a stream id
+    // (the desktop app) only the Electron window receives it.
+    const strmid = socket.getStrmidFromRequest(req) ?? (req ? '__no_stream__' : undefined);
     const res = await createDbGateIdentitySession(client, redirectUri);
     startCloudTokenChecking(res.sid, tokenHolder => {
-      socket.emit('got-cloud-token', tokenHolder);
+      socket.emit('got-cloud-token', strmid ? { ...tokenHolder, strmid } : tokenHolder);
       socket.emitChanged('cloud-content-changed');
       socket.emit('cloud-content-updated');
     });

@@ -2,7 +2,13 @@ const fs = require('fs-extra');
 const readline = require('readline');
 const crypto = require('crypto');
 const path = require('path');
-const { archivedir, clearArchiveLinksCache, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
+const {
+  archivedir,
+  clearArchiveLinksCache,
+  resolveArchiveFolder,
+  isArchiveLink,
+  uploadsdir,
+} = require('../utility/directories');
 const socket = require('../utility/socket');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
@@ -10,6 +16,8 @@ const { getLogger, extractErrorLogData, jsonLinesParse } = require('dbgate-tools
 const dbgateApi = require('../shell');
 const jsldata = require('./jsldata');
 const platformInfo = require('../utility/platformInfo');
+const { testStandardPermission } = require('../utility/hasPermission');
+const { checkUploadedFilePath, copyExportFile } = require('../utility/security');
 const { isProApp } = require('../utility/checkLicense');
 const listZipEntries = require('../utility/listZipEntries');
 const unzipJsonLinesFile = require('../shell/unzipJsonLinesFile');
@@ -50,6 +58,8 @@ module.exports = {
       },
       ...folders
         .filter(x => x != 'default')
+        // links are not followed outside the desktop app (resolveArchiveFolder)
+        .filter(x => platformInfo.isElectron || !isArchiveLink(x))
         .map(name => ({
           name,
           type: 'jsonl',
@@ -58,7 +68,8 @@ module.exports = {
   },
 
   createFolder_meta: true,
-  async createFolder({ folder }) {
+  async createFolder({ folder }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     await fs.mkdir(path.join(archivedir(), folder));
     socket.emitChanged('archive-folders-changed');
@@ -66,7 +77,12 @@ module.exports = {
   },
 
   createLink_meta: true,
-  async createLink({ linkedFolder }) {
+  async createLink({ linkedFolder }, req) {
+    await testStandardPermission('archive/write', req);
+    // see resolveArchiveFolder - a link gives access to any folder it names
+    if (!platformInfo.isElectron) {
+      throw new Error('DBGM-00000 Archive folder links are supported only in the desktop app');
+    }
     if ( typeof linkedFolder !== 'string' || linkedFolder.length === 0) {
       throw new Error(`DBGM-00244 Invalid linkedFolder: must be a non-empty string`);
     }
@@ -147,7 +163,8 @@ module.exports = {
   },
 
   createFile_meta: true,
-  async createFile({ folder, file, fileType, tableInfo }) {
+  async createFile({ folder, file, fileType, tableInfo }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     assertSafeArchiveName(fileType, 'fileType');
@@ -160,7 +177,8 @@ module.exports = {
   },
 
   deleteFile_meta: true,
-  async deleteFile({ folder, file, fileType }) {
+  async deleteFile({ folder, file, fileType }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     assertSafeArchiveName(fileType, 'fileType');
@@ -170,7 +188,8 @@ module.exports = {
   },
 
   renameFile_meta: true,
-  async renameFile({ folder, file, newFile, fileType }) {
+  async renameFile({ folder, file, newFile, fileType }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     assertSafeArchiveName(newFile, 'newFile');
@@ -184,7 +203,8 @@ module.exports = {
   },
 
   modifyFile_meta: true,
-  async modifyFile({ folder, file, changeSet, mergedRows, mergeKey, mergeMode }) {
+  async modifyFile({ folder, file, changeSet, mergedRows, mergeKey, mergeMode }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     await jsldata.closeDataStore(`archive://${folder}/${file}`);
@@ -225,7 +245,8 @@ module.exports = {
   },
 
   renameFolder_meta: true,
-  async renameFolder({ folder, newFolder }) {
+  async renameFolder({ folder, newFolder }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(newFolder, 'newFolder');
     const uniqueName = await this.getNewArchiveFolder({ database: newFolder });
@@ -235,7 +256,8 @@ module.exports = {
   },
 
   deleteFolder_meta: true,
-  async deleteFolder({ folder }) {
+  async deleteFolder({ folder }, req) {
+    await testStandardPermission('archive/write', req);
     if (!folder) throw new Error('Missing folder parameter');
     assertSafeArchiveName(folder, 'folder');
     if (folder.endsWith('.link') || folder.endsWith('.zip')) {
@@ -248,7 +270,8 @@ module.exports = {
   },
 
   saveText_meta: true,
-  async saveText({ folder, file, text }) {
+  async saveText({ folder, file, text }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     await fs.writeFile(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), text);
@@ -257,7 +280,8 @@ module.exports = {
   },
 
   saveJslData_meta: true,
-  async saveJslData({ folder, file, jslid, changeSet }) {
+  async saveJslData({ folder, file, jslid, changeSet }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     const source = getJslFileName(jslid);
@@ -277,7 +301,8 @@ module.exports = {
   },
 
   saveRows_meta: true,
-  async saveRows({ folder, file, rows }) {
+  async saveRows({ folder, file, rows }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     assertSafeArchiveName(file, 'file');
     const filePath = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
@@ -323,20 +348,25 @@ module.exports = {
   },
 
   saveUploadedZip_meta: true,
-  async saveUploadedZip({ filePath, fileName }) {
+  async saveUploadedZip({ filePath, fileName }, req) {
+    await testStandardPermission('archive/write', req);
     if (!fileName?.endsWith('.zip')) {
       throw new Error(`${fileName} is not a ZIP file`);
     }
     assertSafeArchiveName(fileName.slice(0, -4), 'fileName');
+    if (!platformInfo.isElectron && !checkUploadedFilePath(filePath)) {
+      throw new Error('DBGM-00000 Only an uploaded file can be saved to the archive');
+    }
     const folder = await this.getNewArchiveFolder({ database: fileName });
-    await fs.copyFile(filePath, path.join(archivedir(), folder));
+    await copyExportFile(filePath, path.join(archivedir(), folder), { noFollow: !platformInfo.isElectron });
     socket.emitChanged(`archive-folders-changed`);
 
     return null;
   },
 
   zip_meta: true,
-  async zip({ folder }) {
+  async zip({ folder }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     const newFolder = await this.getNewArchiveFolder({ database: folder + '.zip' });
     await zipDirectory(path.join(archivedir(), folder), path.join(archivedir(), newFolder));
@@ -346,7 +376,8 @@ module.exports = {
   },
 
   unzip_meta: true,
-  async unzip({ folder }) {
+  async unzip({ folder }, req) {
+    await testStandardPermission('archive/write', req);
     assertSafeArchiveName(folder, 'folder');
     const newFolder = await this.getNewArchiveFolder({ database: folder.slice(0, -4) });
     await unzipDirectory(path.join(archivedir(), folder), path.join(archivedir(), newFolder));

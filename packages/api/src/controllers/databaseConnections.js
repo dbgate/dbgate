@@ -52,7 +52,13 @@ const axios = require('axios');
 const { callTextToSqlApi, callCompleteOnCursorApi, callRefactorSqlQueryApi } = require('../utility/authProxy');
 const { decryptConnection } = require('../utility/crypting');
 const platformInfo = require('../utility/platformInfo');
-const { checkSecureExportFilePath, writeExportFile, SecureExportWriteRefusedError } = require('../utility/security');
+const {
+  checkSecureExportFilePath,
+  checkSecureSqlDumpFilePath,
+  checkSecureDirectoriesInScript,
+  writeExportFile,
+  SecureExportWriteRefusedError,
+} = require('../utility/security');
 const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
@@ -77,6 +83,18 @@ function getRestoreUploadPath(inputFile, inputUploadName) {
 
   const uploadPath = path.join(uploadsdir(), inputUploadName);
   return path.resolve(inputFile) == path.resolve(uploadPath) ? uploadPath : null;
+}
+
+// runid becomes a directory name under rundir() (handleEvalJsonScript), so it has to be a plain id
+function isValidRunId(runid) {
+  return typeof runid == 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(runid);
+}
+
+// The command line copied from the backup/restore tabs is shown to the user, who may be allowed to
+// use the connection without being allowed to see its password (eg. mysqldump --password=...)
+function maskPasswordInCommandLine(commandLine, password) {
+  if (platformInfo.isElectron || !password) return commandLine;
+  return commandLine.split(password).join('***');
 }
 
 function removeRestoreUpload(uploadPath) {
@@ -156,13 +174,13 @@ module.exports = {
 
   handle_done(conid, database, props) {
     const { sesid } = props;
-    socket.emit(`session-done-${sesid}`);
+    socket.emitOwned(socket.sessionOwnerKey(sesid), `session-done-${sesid}`);
     sessions.dispatchMessage(sesid, 'Query execution finished');
   },
 
   handle_recordset(conid, database, props) {
     const { jslid, resultIndex } = props;
-    socket.emit(`session-recordset-${props.sesid}`, { jslid, resultIndex });
+    socket.emitOwned(socket.sessionOwnerKey(props.sesid), `session-recordset-${props.sesid}`, { jslid, resultIndex });
   },
 
   handle_stats(conid, database, stats) {
@@ -170,20 +188,20 @@ module.exports = {
   },
 
   handle_initializeFile(conid, database, props) {
-    const { jslid } = props;
-    socket.emit(`session-initialize-file-${jslid}`);
+    const { jslid, sesid } = props;
+    socket.emitOwned(socket.sessionOwnerKey(sesid), `session-initialize-file-${jslid}`);
   },
 
   // eval event handler
   handle_runnerDone(conid, database, props) {
     const { runid } = props;
-    socket.emit(`runner-done-${runid}`);
+    socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`);
   },
 
   handle_progress(conid, database, progressData) {
     const { progressName } = progressData;
     const { name, runid } = progressName;
-    socket.emit(`runner-progress-${runid}`, { ...progressData, progressName: name });
+    socket.emitOwned(socket.runnerOwnerKey(runid), `runner-progress-${runid}`, { ...progressData, progressName: name });
   },
 
   handle_copyStreamError(conid, database, { copyStreamError }) {
@@ -192,12 +210,12 @@ module.exports = {
     logger.error({ conid, database, copyStreamError }, 'DBGM-00249 Error in database connection copy stream');
     if (!runid) return;
     if (copyStreamError.dbgateCopyStreamErrorReported) return;
-    socket.emit(`runner-progress-${runid}`, {
+    socket.emitOwned(socket.runnerOwnerKey(runid), `runner-progress-${runid}`, {
       progressName: progressName?.name,
       status: 'error',
       errorMessage: copyStreamError.message,
     });
-    socket.emit(`runner-done-${runid}`);
+    socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`);
   },
 
   async ensureOpened(conid, database) {
@@ -848,6 +866,11 @@ module.exports = {
   exportModel_meta: true,
   async exportModel({ conid, database, outputFolder, schema }, req) {
     await testConnectionPermission(conid, req);
+    // a folder anywhere on the disk can be chosen only in the desktop app; the web app exports
+    // into the archive
+    if (!platformInfo.isElectron && !outputFolder?.startsWith('archive:')) {
+      throw new Error('DBGM-00000 The model can be exported only to an archive folder');
+    }
 
     const realFolder = outputFolder.startsWith('archive:')
       ? resolveArchiveFolder(outputFolder.substring('archive:'.length))
@@ -866,6 +889,11 @@ module.exports = {
   exportModelSql_meta: true,
   async exportModelSql({ conid, database, outputFolder, outputFile, schema }, req) {
     await testConnectionPermission(conid, req);
+    // in the web app the SQL file is written to the uploads folder and downloaded from there;
+    // folders are chosen only in the desktop app
+    if (!platformInfo.isElectron && (outputFolder || !checkSecureExportFilePath(outputFile))) {
+      throw new Error('DBGM-00000 Refused export write outside managed data directories');
+    }
 
     const connection = await connections.getCore({ conid });
     const driver = requireEngineDriver(connection);
@@ -1048,6 +1076,32 @@ module.exports = {
     };
   },
 
+  // Backup dumps the whole database and restore runs the dump against it, both with the
+  // connection's stored credentials. These are the permissions the UI asks for before it offers
+  // either action, plus the database role the operation amounts to.
+  async testNativeOpPermission(command, conid, database, req) {
+    await testConnectionPermission(conid, req);
+    if (command == 'backup') {
+      await testStandardPermission('dbops/sql-dump/export', req);
+      await testDatabaseRolePermission(conid, database, 'read_content', req);
+    } else {
+      await testStandardPermission('dbops/sql-dump/import', req);
+      await testDatabaseRolePermission(conid, database, 'run_script', req);
+      const connection = await connections.getCore({ conid });
+      if (connection?.isReadOnly) {
+        throw new Error('DBGM-00000 Connection is read-only');
+      }
+    }
+  },
+
+  // In the web app the dump file must be in the SQL files folder, or be the upload being restored
+  testNativeOpFilePath(filePath, restoreUploadPath) {
+    if (platformInfo.isElectron || restoreUploadPath) return;
+    if (!checkSecureSqlDumpFilePath(filePath)) {
+      throw new Error('DBGM-00000 The backup file must be in the SQL files folder');
+    }
+  },
+
   async getNativeOpContext(conid) {
     const sourceConnection = await connections.getCore({ conid });
     // Connections stored in a cloud folder are encrypted with the folder key, not the local one.
@@ -1100,14 +1154,16 @@ module.exports = {
   async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     await testConnectionPermission(conid, req, loadedPermissions);
-    await testDatabaseRolePermission(conid, database, 'read_content', req);
     await testStandardPermission('dbops/sql-dump/export', req, loadedPermissions);
+    await testDatabaseRolePermission(conid, database, 'read_content', req);
+    this.testNativeOpFilePath(outputFile, null);
     const effectiveOptions = options || {};
     if (process.env.STORAGE_DATABASE && effectiveOptions.allDatabases) {
       if (!hasPermission('all-databases', loadedPermissions)) {
         throw new Error('DBGM-00000 Permission all-databases not granted for backup of all databases');
       }
     }
+    socket.claimOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
     const effectiveSelectedTables = selectedTables || [];
     const effectiveSkippedTables = skippedTables || [];
     const context = await this.getNativeOpContext(conid);
@@ -1167,8 +1223,10 @@ module.exports = {
   },
 
   nativeBackupCommand_meta: true,
-  async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }) {
-    const { driver } = await this.getNativeOpContext(conid);
+  async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }, req) {
+    await this.testNativeOpPermission('backup', conid, database, req);
+    this.testNativeOpFilePath(outputFile, null);
+    const { driver, connection } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsBackup && options?.backupTool == driver.nodejsBackupTool) {
       throw new Error(
         'DBGM-00000 The selected JavaScript backup tool runs inside DbGate and has no command line to copy'
@@ -1186,10 +1244,9 @@ module.exports = {
       argsFormat: 'shell',
     });
 
+    // only the command line is returned - commandArgs also hold the password (args, env)
     return {
-      ...commandArgs,
-      transformMessage: null,
-      commandLine: this.commandArgsToCommandLine(commandArgs),
+      commandLine: maskPasswordInCommandLine(this.commandArgsToCommandLine(commandArgs), connection.password),
     };
   },
 
@@ -1197,10 +1254,16 @@ module.exports = {
   async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     await testConnectionPermission(conid, req, loadedPermissions);
-    await testDatabaseRolePermission(conid, database, 'run_script', req);
     await testStandardPermission('dbops/sql-dump/import', req, loadedPermissions);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+    const storedConnection = await connections.getCore({ conid });
+    if (storedConnection?.isReadOnly) {
+      throw new Error('DBGM-00000 Connection is read-only');
+    }
     const effectiveOptions = options || {};
     const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
+    this.testNativeOpFilePath(inputFile, restoreUploadPath);
+    socket.claimOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
     const onFinished = () => {
       removeRestoreUpload(restoreUploadPath);
       this.syncModel({ conid, database, isFullRefresh: true });
@@ -1262,8 +1325,10 @@ module.exports = {
   },
 
   nativeRestoreCommand_meta: true,
-  async nativeRestoreCommand({ conid, database, inputFile, options }) {
-    const { driver } = await this.getNativeOpContext(conid);
+  async nativeRestoreCommand({ conid, database, inputFile, options }, req) {
+    await this.testNativeOpPermission('restore', conid, database, req);
+    this.testNativeOpFilePath(inputFile, null);
+    const { driver, connection } = await this.getNativeOpContext(conid);
     if (driver.supportsNodejsRestore && options?.restoreTool == driver.nodejsRestoreTool) {
       throw new Error(
         'DBGM-00000 The selected JavaScript restore tool runs inside DbGate and has no command line to copy'
@@ -1279,16 +1344,19 @@ module.exports = {
       argsFormat: 'shell',
     });
 
+    // only the command line is returned - commandArgs also hold the password (args, env)
     return {
-      ...commandArgs,
-      transformMessage: null,
-      commandLine: this.commandArgsToCommandLine(commandArgs),
+      commandLine: maskPasswordInCommandLine(this.commandArgsToCommandLine(commandArgs), connection.password),
     };
   },
 
   executeSessionQuery_meta: true,
   async executeSessionQuery({ sesid, conid, database, sql }, req) {
     await testConnectionPermission(conid, req);
+    // the query tab of single-connection drivers (DuckDB) - same checks as sessions.executeQuery
+    await testStandardPermission('dbops/query', req);
+    await testDatabaseRolePermission(conid, database, 'run_script', req);
+    socket.claimOwner(socket.sessionOwnerKey(sesid), socket.getStrmidFromRequest(req));
     logger.info({ sesid, sql }, 'DBGM-00010 Processing query');
     sessions.dispatchMessage(sesid, {
       message: 'Query execution started',
@@ -1304,6 +1372,16 @@ module.exports = {
   evalJsonScript_meta: true,
   async evalJsonScript({ conid, database, script, runid }, req) {
     await testConnectionPermission(conid, req);
+    // import/export through a single-connection driver (DuckDB); runners.start applies the same
+    // directory check to the scripts it runs
+    await testDatabaseRolePermission(conid, database, 'read_content', req);
+    if (!isValidRunId(runid)) {
+      throw new Error('DBGM-00000 Invalid runid');
+    }
+    if (!platformInfo.isElectron && !checkSecureDirectoriesInScript(script)) {
+      throw new Error('DBGM-00000 Unallowed directories in script');
+    }
+    socket.claimOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
     const opened = await this.ensureOpened(conid, database);
 
     opened.subprocess.send({ msgtype: 'evalJsonScript', script, runid });

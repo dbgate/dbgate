@@ -8,7 +8,7 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
-const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { getLogger, extractErrorLogData, removeSqlFrontMatter } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const config = require('./config');
 const { sendToAuditLog } = require('../utility/auditlog');
@@ -18,8 +18,29 @@ const {
   testConnectionPermission,
 } = require('../utility/hasPermission');
 const { verifyTeamFileExecToken } = require('../utility/teamFileExecToken');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 const logger = getLogger('sessions');
+
+// A team-file grant is checked against the statement with its front matter removed (see
+// hashTeamFileContent), but the front matter block is not required to hold only comments - so
+// the text that runs under a grant is the one that was checked. The block is blanked out rather
+// than cut, so that line numbers in messages still match the editor.
+function blankOutSqlFrontMatter(sql) {
+  if (typeof sql != 'string') return sql;
+  const body = removeSqlFrontMatter(sql) ?? '';
+  const frontMatterBlock = sql.substring(0, sql.length - body.length);
+  return frontMatterBlock.replace(/[^\n]/g, '') + body;
+}
+
+// events of a session go to the browser tab that opened it (socket.emitOwned)
+const sessionOwnerKey = sesid => socket.sessionOwnerKey(sesid);
+
+// a name of an app folder or of a query in it, which becomes part of a path under appdir();
+// "." is refused too, so an app query always lives in a real app folder, not in the appdir() root
+function isSafeAppFileName(name) {
+  return typeof name == 'string' && name.length > 0 && name != '.' && !/[\\/\0]|\.\./.test(name);
+}
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -41,14 +62,14 @@ module.exports = {
   // },
   dispatchMessage(sesid, message) {
     if (_.isString(message)) {
-      socket.emit(`session-info-${sesid}`, {
+      socket.emitOwned(sessionOwnerKey(sesid), `session-info-${sesid}`, {
         message,
         time: new Date(),
         severity: 'info',
       });
     }
     if (_.isPlainObject(message)) {
-      socket.emit(`session-info-${sesid}`, {
+      socket.emitOwned(sessionOwnerKey(sesid), `session-info-${sesid}`, {
         time: new Date(),
         severity: 'info',
         ...message,
@@ -62,7 +83,7 @@ module.exports = {
   },
 
   handle_done(sesid, props) {
-    socket.emit(`session-done-${sesid}`);
+    socket.emitOwned(sessionOwnerKey(sesid), `session-done-${sesid}`);
     if (!props.skipFinishedMessage) {
       if (props.controlCommand) {
         this.dispatchMessage(sesid, `${_.startCase(props.controlCommand)} finished`);
@@ -72,7 +93,7 @@ module.exports = {
     }
     const session = this.opened.find(x => x.sesid == sesid);
     if (session.loadingReader_jslid) {
-      socket.emit(`session-jslid-done-${session.loadingReader_jslid}`);
+      socket.emitOwned(sessionOwnerKey(sesid), `session-jslid-done-${session.loadingReader_jslid}`);
     }
     if (props.autoCommit) {
       this.executeControlCommand({ sesid, command: 'commitTransaction' });
@@ -84,7 +105,7 @@ module.exports = {
 
   handle_recordset(sesid, props) {
     const { jslid, resultIndex } = props;
-    socket.emit(`session-recordset-${sesid}`, { jslid, resultIndex });
+    socket.emitOwned(sessionOwnerKey(sesid), `session-recordset-${sesid}`, { jslid, resultIndex });
   },
 
   handle_endrecordset(sesid, props) {
@@ -103,18 +124,18 @@ module.exports = {
 
   handle_charts(sesid, props) {
     const { jslid, charts, resultIndex } = props;
-    socket.emit(`session-charts-${sesid}`, { jslid, resultIndex, charts });
+    socket.emitOwned(sessionOwnerKey(sesid), `session-charts-${sesid}`, { jslid, resultIndex, charts });
   },
 
   handle_initializeFile(sesid, props) {
     const { jslid } = props;
-    socket.emit(`session-initialize-file-${jslid}`);
+    socket.emitOwned(sessionOwnerKey(sesid), `session-initialize-file-${jslid}`);
   },
 
   handle_changedCurrentDatabase(sesid, props) {
     const { database } = props;
     this.dispatchMessage(sesid, `Current database changed to ${database}`);
-    socket.emit(`session-changedb-${sesid}`, { database });
+    socket.emitOwned(sessionOwnerKey(sesid), `session-changedb-${sesid}`, { database });
   },
 
   handle_ping() {},
@@ -191,6 +212,7 @@ module.exports = {
       sesid,
     };
     this.opened.push(newOpened);
+    socket.setOwner(sessionOwnerKey(sesid), socket.getStrmidFromRequest(req));
     subprocess.on('message', message => {
       // @ts-ignore
       const { msgtype } = message;
@@ -200,7 +222,8 @@ module.exports = {
     subprocess.on('exit', () => {
       this.opened = this.opened.filter(x => x.sesid != sesid);
       this.dispatchMessage(sesid, 'Query session closed');
-      socket.emit(`session-closed-${sesid}`);
+      socket.emitOwned(sessionOwnerKey(sesid), `session-closed-${sesid}`);
+      socket.removeOwner(sessionOwnerKey(sesid));
     });
     subprocess.on('error', () => {
       this.opened = this.opened.filter(x => x.sesid != sesid);
@@ -273,7 +296,7 @@ module.exports = {
     }
     session.subprocess.send({
       msgtype: 'executeQuery',
-      sql,
+      sql: standing ? blankOutSqlFrontMatter(sql) : sql,
       autoCommit,
       autoDetectCharts: autoDetectCharts || !!frontMatter?.['selected-chart'],
       limitRows,
@@ -330,8 +353,28 @@ module.exports = {
   },
 
   executeReader_meta: true,
-  async executeReader({ conid, database, sql, queryName, appFolder }) {
-    const { sesid } = await this.create({ conid, database });
+  async executeReader({ conid, database, sql, queryName, appFolder }, req) {
+    await testConnectionPermission(conid, req);
+    // The query is read from the app folder only when both are given (see fileName below). App
+    // queries from the object list send just queryName (the label) together with their sql.
+    const isAppQuery = !!(queryName && appFolder);
+    if (isAppQuery && (!isSafeAppFileName(queryName) || !isSafeAppFileName(appFolder))) {
+      throw new Error('DBGM-00000 Invalid query name');
+    }
+    // The data grid uses this to fetch all rows of what it shows, so reading the data is enough for
+    // SQL. Drivers of document databases (MongoDB, ...) evaluate the query text as JavaScript in
+    // DbGate itself, which is running a script, so they need what sessions.executeQuery needs.
+    // That holds for app queries as well - the app file is not trusted code (its text is
+    // evaluated the same way).
+    const driver = requireEngineDriver(await connections.getCore({ conid }));
+    if (driver?.databaseEngineTypes?.includes('document')) {
+      await testStandardPermission('dbops/query', req);
+      await testDatabaseRolePermission(conid, database, 'run_script', req);
+    } else {
+      await testDatabaseRolePermission(conid, database, 'read_content', req);
+    }
+
+    const { sesid } = await this.create({ conid, database }, req);
     const session = this.opened.find(x => x.sesid == sesid);
     session.killOnDone = true;
     const jslid = crypto.randomUUID();

@@ -8,6 +8,7 @@ const {
   loadPermissionsFromRequest,
   loadFilePermissionsFromRequest,
   getFilePermissionRole,
+  testStandardPermission,
 } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
@@ -22,6 +23,7 @@ const {
   checkSecureFilePathsWithoutDirectory,
   checkSecureDirectories,
   checkSecureExportFilePath,
+  checkUploadedFilePath,
   writeExportFile,
   writeExportFileStream,
   copyExportFile,
@@ -410,6 +412,10 @@ module.exports = {
 
   getJsonsFromZip_meta: true,
   async getJsonsFromZip({ filePath }) {
+    // the connections & settings import reads the ZIP the user uploaded
+    if (!platformInfo.isElectron && !checkUploadedFilePath(filePath)) {
+      throw new Error('DBGM-00000 Only an uploaded file can be imported');
+    }
     const res = await dbgateApi.unzipJsonLinesData(filePath);
     return res;
   },
@@ -425,12 +431,27 @@ module.exports = {
   },
 
   saveUploadedFile_meta: true,
-  async saveUploadedFile({ filePath, fileName }) {
+  async saveUploadedFile({ filePath, fileName }, req) {
+    if (!platformInfo.isElectron && !checkUploadedFilePath(filePath)) {
+      throw new Error('DBGM-00000 Only an uploaded file can be saved');
+    }
+    // the name becomes part of the target path
+    if (typeof fileName != 'string' || !checkSecureFilePathsWithoutDirectory(fileName) || fileName.includes('\0')) {
+      throw new Error('DBGM-00000 Invalid file name');
+    }
     const FOLDERS = ['sql', 'sqlite'];
     for (const folder of FOLDERS) {
       if (fileName.toLowerCase().endsWith('.' + folder)) {
+        const loadedPermissions = await loadPermissionsFromRequest(req);
+        if (!hasPermission(`files/${folder}/write`, loadedPermissions)) {
+          throw new Error(`DBGM-00000 Permission files/${folder}/write not granted`);
+        }
         logger.info(`DBGM-00012 Saving ${folder} file ${fileName}`);
-        await fs.copyFile(filePath, path.join(filesdir(), folder, fileName));
+        const targetDir = path.join(filesdir(), folder);
+        await copyExportFile(filePath, path.join(targetDir, fileName), {
+          noFollow: !platformInfo.isElectron,
+          extraAllowedDirs: [targetDir],
+        });
 
         socket.emitChanged(`files-changed`, { folder: folder });
         socket.emitChanged(`all-files-changed`);
@@ -483,8 +504,11 @@ module.exports = {
     return true;
   },
 
+  // The application log holds what every user did, including the SQL they ran - the same
+  // permission the UI asks for before it offers the log
   fillAppLogs_meta: true,
-  async fillAppLogs({ dateFrom = 0, dateTo = new Date().getTime(), prepareForExport = false }) {
+  async fillAppLogs({ dateFrom = 0, dateTo = new Date().getTime(), prepareForExport = false }, req) {
+    await testStandardPermission('application-log', req);
     const jslid = crypto.randomUUID();
     const outputFile = path.join(jsldir(), `${jslid}.jsonl`);
     await copyAppLogsIntoFile(dateFrom, dateTo, outputFile, prepareForExport);
@@ -493,13 +517,22 @@ module.exports = {
     };
   },
 
+  // Also subscribes the caller's stream to new log records (socket.emitToTopic in appLogStore)
   getRecentAppLog_meta: true,
-  getRecentAppLog({ limit }) {
+  async getRecentAppLog({ limit }, req) {
+    await testStandardPermission('application-log', req);
+    socket.subscribeTopic(socket.getStrmidFromRequest(req), 'applog');
     const res = getRecentAppLogRecords();
     if (limit) {
       return res.slice(-limit);
     }
     return res;
+  },
+
+  unsubscribeAppLog_meta: true,
+  async unsubscribeAppLog(_params, req) {
+    socket.unsubscribeTopic(socket.getStrmidFromRequest(req), 'applog');
+    return true;
   },
 
   getFileThemes_meta: true,

@@ -284,7 +284,9 @@ class Analyser extends DatabaseAnalyser {
         pureName: view.pure_name,
         schemaName: view.schema_name,
         contentHash: view.hash_code,
-        createSql: `CREATE VIEW "${view.schema_name}"."${view.pure_name}"\nAS\n${view.create_sql}`,
+        createSql: `CREATE VIEW ${this.dialect.quoteIdentifier(view.schema_name)}.${this.dialect.quoteIdentifier(
+          view.pure_name
+        )}\nAS\n${view.create_sql}`,
         columns: (columnsByTable[`${view.schema_name}.${view.pure_name}`] || []).map(col => getColumnInfo(col)),
       })),
       matviews: matviews

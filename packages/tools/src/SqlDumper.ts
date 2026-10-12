@@ -28,6 +28,7 @@ import _isPlainObject from 'lodash/isPlainObject';
 import _keys from 'lodash/keys';
 import _cloneDeep from 'lodash/cloneDeep';
 import uuidv1 from 'uuid/v1';
+import { escapeSqlString } from './stringTools';
 
 export class SqlDumper implements AlterProcessor {
   s = '';
@@ -52,16 +53,7 @@ export class SqlDumper implements AlterProcessor {
     this.s += text;
   }
   escapeString(value) {
-    const esc = this.dialect.stringEscapeChar;
-    let res = '';
-    for (let i = 0; i < value.length; i++) {
-      const c = value[i];
-      if (c == esc || c == "'") {
-        res += esc;
-      }
-      res += c;
-    }
-    return res;
+    return escapeSqlString(value, this.dialect.stringEscapeChar);
   }
   putStringValue(value) {
     this.putRaw("'");

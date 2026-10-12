@@ -57,7 +57,13 @@ function realPathOrNull(dir) {
 
 // server/web writes of a client-supplied, full file path must land inside a
 // managed data directory
-function checkSecureExportFilePath(filePath) {
+// The directories an export may be written to directly. extraAllowedDirs adds further directories
+// for a single write (e.g. a files/<folder> subdirectory) - they are compared by real path as well.
+function managedExportDirs(extraAllowedDirs = []) {
+  return [filesdir(), uploadsdir(), archivedir(), appdir(), ...extraAllowedDirs].map(realPathOrNull).filter(Boolean);
+}
+
+function checkSecureExportFilePath(filePath, { extraAllowedDirs = [] } = {}) {
   if (typeof filePath != 'string' || filePath.length == 0) {
     return false;
   }
@@ -70,7 +76,7 @@ function checkSecureExportFilePath(filePath) {
   if (!realDirectory) {
     return false;
   }
-  const allowedDirs = [filesdir(), uploadsdir(), archivedir(), appdir()].map(realPathOrNull).filter(Boolean);
+  const allowedDirs = managedExportDirs(extraAllowedDirs);
   if (!allowedDirs.includes(realDirectory)) {
     return false;
   }
@@ -84,6 +90,57 @@ function checkSecureExportFilePath(filePath) {
     }
   } catch (err) {
     // destination does not exist yet - nothing to follow
+  }
+  return true;
+}
+
+// Uploads are stored directly in uploadsdir() under a generated uuid name (uploads.upload), and
+// the client refers to them by the path it got back. Routes that take "the uploaded file" as a full
+// path must accept exactly that in the web app - any other path would let them copy or read an
+// arbitrary file of the server.
+function checkUploadedFilePath(filePath) {
+  if (typeof filePath != 'string' || filePath.length == 0) {
+    return false;
+  }
+  const resolvedPath = path.resolve(filePath);
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(path.basename(resolvedPath))) {
+    return false;
+  }
+  const realDirectory = realPathOrNull(path.dirname(resolvedPath));
+  const uploadsDirectory = realPathOrNull(uploadsdir());
+  if (!realDirectory || !uploadsDirectory || realDirectory != uploadsDirectory) {
+    return false;
+  }
+  try {
+    if (fs.lstatSync(resolvedPath).isSymbolicLink()) {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+  return true;
+}
+
+// Native backup writes, and native restore reads, a full file path sent by the client, and hands
+// it to an external tool or a JavaScript dumper. In the web app it must be a file directly in the
+// files/sql folder - the backup tab creates dumps there (files.getFileRealPath) and the restore
+// tab picks them from there. Uploaded dumps are checked separately, against their upload name.
+function checkSecureSqlDumpFilePath(filePath) {
+  if (typeof filePath != 'string' || filePath.length == 0) {
+    return false;
+  }
+  const resolvedPath = path.resolve(filePath);
+  const realDirectory = realPathOrNull(path.dirname(resolvedPath));
+  const sqlFilesDirectory = realPathOrNull(path.join(filesdir(), 'sql'));
+  if (!realDirectory || !sqlFilesDirectory || realDirectory != sqlFilesDirectory) {
+    return false;
+  }
+  try {
+    if (fs.lstatSync(resolvedPath).isSymbolicLink()) {
+      return false;
+    }
+  } catch (err) {
+    // the backup file does not exist yet
   }
   return true;
 }
@@ -181,10 +238,11 @@ async function plainExportOpen(filePath) {
  * @param {string} filePath
  * @param {boolean} noFollow
  * @param {(fileHandle: import('fs').promises.FileHandle) => Promise<any>} callback
+ * @param {string[]} [extraAllowedDirs]
  */
-async function withExportFileHandle(filePath, noFollow, callback) {
+async function withExportFileHandle(filePath, noFollow, callback, extraAllowedDirs = []) {
   if (!noFollow || !platformSupportsNoFollowOpen()) {
-    if (noFollow && !checkSecureExportFilePath(filePath)) {
+    if (noFollow && !checkSecureExportFilePath(filePath, { extraAllowedDirs })) {
       throw new SecureExportWriteRefusedError('Refused to write export file outside managed data directories');
     }
     const fileHandle = await plainExportOpen(filePath);
@@ -226,7 +284,7 @@ async function withExportFileHandle(filePath, noFollow, callback) {
     // given - and check it against the managed roots. This is the check that actually matters,
     // since it is made against the exact inode the write below will use.
     const dirRealPath = realPathOrNull(beneath);
-    const allowedDirs = [filesdir(), uploadsdir(), archivedir(), appdir()].map(realPathOrNull).filter(Boolean);
+    const allowedDirs = managedExportDirs(extraAllowedDirs);
     if (!dirRealPath || !allowedDirs.includes(dirRealPath)) {
       throw new SecureExportWriteRefusedError('Refused to write export file outside managed data directories');
     }
@@ -251,29 +309,34 @@ async function withExportFileHandle(filePath, noFollow, callback) {
   }
 }
 
-async function writeExportFile(filePath, data, { noFollow }) {
-  await withExportFileHandle(filePath, noFollow, fileHandle => fileHandle.writeFile(data));
+async function writeExportFile(filePath, data, { noFollow, extraAllowedDirs = [] }) {
+  await withExportFileHandle(filePath, noFollow, fileHandle => fileHandle.writeFile(data), extraAllowedDirs);
 }
 
 // Streaming variant for exports that should not be buffered entirely in memory. The verified
 // file and directory descriptors remain open until the producer has finished writing.
-async function writeExportFileStream(filePath, producer, { noFollow }) {
-  await withExportFileHandle(filePath, noFollow, async fileHandle => {
-    const output = fs.createWriteStream(filePath, { fd: fileHandle.fd, autoClose: false });
-    try {
-      await producer(output);
-    } catch (err) {
-      output.destroy();
-      throw err;
-    }
-  });
+async function writeExportFileStream(filePath, producer, { noFollow, extraAllowedDirs = [] }) {
+  await withExportFileHandle(
+    filePath,
+    noFollow,
+    async fileHandle => {
+      const output = fs.createWriteStream(filePath, { fd: fileHandle.fd, autoClose: false });
+      try {
+        await producer(output);
+      } catch (err) {
+        output.destroy();
+        throw err;
+      }
+    },
+    extraAllowedDirs
+  );
 }
 
-async function copyExportFile(sourceFilePath, targetFilePath, { noFollow }) {
+async function copyExportFile(sourceFilePath, targetFilePath, { noFollow, extraAllowedDirs = [] }) {
   await writeExportFileStream(
     targetFilePath,
     output => pipeline(fs.createReadStream(sourceFilePath), output),
-    { noFollow }
+    { noFollow, extraAllowedDirs }
   );
 }
 
@@ -282,6 +345,8 @@ module.exports = {
   checkSecureFilePathsWithoutDirectory,
   checkSecureDirectoriesInScript,
   checkSecureExportFilePath,
+  checkSecureSqlDumpFilePath,
+  checkUploadedFilePath,
   writeExportFile,
   writeExportFileStream,
   copyExportFile,

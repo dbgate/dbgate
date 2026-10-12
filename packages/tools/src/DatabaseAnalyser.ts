@@ -6,7 +6,7 @@ import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 import { type Logger } from 'pinomin';
 import { isCompositeDbName, splitCompositeDbName } from './schemaInfoTools';
-import { extractErrorLogData } from './stringTools';
+import { escapeSqlString, extractErrorLogData } from './stringTools';
 
 const logger = getLogger('dbAnalyser');
 
@@ -66,6 +66,24 @@ export class DatabaseAnalyser<TClient = any> {
   }
 
   async _computeSingleObjectId() {}
+
+  // Escapes a value (database or schema name, object id, ...) for use inside a string literal of the
+  // analysed database. Names come from the client or from the database itself, so they must never be
+  // put into a query unescaped.
+  escapeStringValue(value) {
+    const escapeChar = this.dialect?.stringEscapeChar ?? this.driver?.dialect?.stringEscapeChar ?? "'";
+    return escapeSqlString(String(value ?? ''), escapeChar);
+  }
+
+  quoteStringLiteral(value) {
+    return `'${this.escapeStringValue(value)}'`;
+  }
+
+  // Replaces a placeholder (e.g. #DATABASE#) which is already inside quotes in a query template.
+  // split/join is used instead of replace, so that "$&" and similar sequences are not interpreted.
+  replaceStringPlaceholder(template: string, placeholder: string, value) {
+    return template?.split(placeholder).join(this.escapeStringValue(value));
+  }
 
   addEngineField(db: DatabaseInfo) {
     if (!this.driver?.engine) return;
@@ -231,15 +249,15 @@ export class DatabaseAnalyser<TClient = any> {
 
     const dbname = this.dbhan.database;
     const schemaCondition = isCompositeDbName(dbname)
-      ? `= '${splitCompositeDbName(dbname).schema}' `
+      ? `= ${this.quoteStringLiteral(splitCompositeDbName(dbname).schema)} `
       : ` ${this.getDefaultSchemaNameCondition()} `;
 
-    return query?.replace(/=SCHEMA_NAME_CONDITION/g, schemaCondition);
+    return query?.replace(/=SCHEMA_NAME_CONDITION/g, () => schemaCondition);
   }
 
   processQueryReplacements(query, replacements) {
     for (const repl in replacements) {
-      query = query.replaceAll(repl, replacements[repl]);
+      query = query.replaceAll(repl, () => replacements[repl]);
     }
     return query;
   }
@@ -250,7 +268,7 @@ export class DatabaseAnalyser<TClient = any> {
       const { typeField } = this.singleObjectFilter;
       if (!this.singleObjectId) return null;
       if (!typeFields || !typeFields.includes(typeField)) return null;
-      return template.replace(/=OBJECT_ID_CONDITION/g, ` = '${this.singleObjectId}'`);
+      return template.replace(/=OBJECT_ID_CONDITION/g, () => ` = ${this.quoteStringLiteral(this.singleObjectId)}`);
     }
     if (!this.modifications || !typeFields || this.modifications.length == 0) {
       return template.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
@@ -265,7 +283,8 @@ export class DatabaseAnalyser<TClient = any> {
     if (filterIds.length == 0) {
       return null;
     }
-    return template.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.map(x => `'${x}'`).join(',')})`);
+    const filterCondition = ` in (${filterIds.map(x => this.quoteStringLiteral(x)).join(',')})`;
+    return template.replace(/=OBJECT_ID_CONDITION/g, () => filterCondition);
   }
 
   getDeletedObjectsForField(snapshot, objectTypeField) {

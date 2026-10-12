@@ -35,7 +35,7 @@ const dialect = {
   maxIdentifierLength: 31,
 
   quoteIdentifier(s) {
-    return `"${s}"`;
+    return `"${String(s).replace(/"/g, '""')}"`;
   },
 
   dbFileExtension: '.fdb',

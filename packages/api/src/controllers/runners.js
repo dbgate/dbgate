@@ -81,6 +81,9 @@ dbgateApi.runScript(run);
 `;
 };
 
+// a stream id no browser tab has - events of runs started only to return their result go nowhere
+const INTERNAL_RUN_STREAM = '__internal_run__';
+
 module.exports = {
   /** @type {import('dbgate-types').OpenedRunner[]} */
   opened: [],
@@ -107,7 +110,7 @@ module.exports = {
         toEmit.severity = 'error';
       }
 
-      socket.emit(`runner-info-${runid}`, toEmit);
+      socket.emitOwned(socket.runnerOwnerKey(runid), `runner-info-${runid}`, toEmit);
     }
   },
 
@@ -128,7 +131,7 @@ module.exports = {
   },
 
   handle_progress(runid, progressData) {
-    socket.emit(`runner-progress-${runid}`, progressData);
+    socket.emitOwned(socket.runnerOwnerKey(runid), `runner-progress-${runid}`, progressData);
   },
 
   rejectRequest(runid, error) {
@@ -189,7 +192,7 @@ module.exports = {
       // console.log('... EXITED', code);
       this.rejectRequest(runid, { message: 'DBGM-00281 No data returned, maybe input data source is too big' });
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00016 Exited process');
-      socket.emit(`runner-done-${runid}`, code);
+      socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`, code);
       this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('error', error => {
@@ -259,7 +262,7 @@ module.exports = {
     const finish = code => {
       if (finished) return;
       finished = true;
-      socket.emit(`runner-done-${runid}`, code);
+      socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`, code);
       if (onFinished) {
         Promise.resolve(onFinished()).catch(error => {
           logger.error(extractErrorLogData(error), 'DBGM-00338 Error finalizing external process');
@@ -345,7 +348,7 @@ module.exports = {
       )
       .then(() => {
         this.dispatchMessage(runid, `DBGM-00340 Finished internal ${operation} process`);
-        socket.emit(`runner-done-${runid}`, { status: 'finished', exitCode: 0 });
+        socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`, { status: 'finished', exitCode: 0 });
       })
       .catch(error => {
         const cancelled = abortController.signal.aborted;
@@ -353,7 +356,7 @@ module.exports = {
           severity: cancelled ? 'info' : 'error',
           message: extractErrorMessage(error),
         });
-        socket.emit(`runner-done-${runid}`, {
+        socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`, {
           status: cancelled ? 'cancelled' : 'failed',
           exitCode: cancelled ? null : 1,
         });
@@ -371,6 +374,8 @@ module.exports = {
   start_meta: true,
   async start({ script }, req) {
     const runid = crypto.randomUUID();
+    // script output and progress go to the browser tab that started it (socket.emitOwned)
+    socket.setOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
 
     if (script.type == 'json') {
       if (!platformInfo.isElectron) {
@@ -460,6 +465,8 @@ module.exports = {
     const promise = new Promise((resolve, reject) => {
       assertValidShellApiFunctionName(functionName);
       const runid = crypto.randomUUID();
+      // the result is returned by this call; nobody listens to the runner's events
+      socket.setOwner(socket.runnerOwnerKey(runid), INTERNAL_RUN_STREAM);
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
       this.startCore(runid, loaderScriptTemplate(functionName, props, runid)).catch(error =>
         this.rejectRequest(runid, error)
@@ -476,6 +483,8 @@ module.exports = {
 
     const promise = new Promise(async (resolve, reject) => {
       const runid = crypto.randomUUID();
+      // the result is returned by this call; nobody listens to the runner's events
+      socket.setOwner(socket.runnerOwnerKey(runid), INTERNAL_RUN_STREAM);
       this.requests[runid] = { resolve, reject, exitOnStreamError: true };
       const cloned = _.cloneDeepWith(script, node => {
         if (node?.$replace == 'runid') {

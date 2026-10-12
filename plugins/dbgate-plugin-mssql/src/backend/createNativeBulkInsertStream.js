@@ -19,7 +19,9 @@ function runBulkInsertBatch(dbhan, tableName, writable, rows) {
 function createNativeBulkInsertStream(driver, stream, dbhan, name, options) {
   const writable = createBulkInsertStreamBase(driver, stream, dbhan, name, options);
 
-  const fullName = name.schemaName ? `[${name.schemaName}].[${name.pureName}]` : name.pureName;
+  const fullName = name.schemaName
+    ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
+    : driver.dialect.quoteIdentifier(name.pureName);
 
   writable.send = async () => {
     const rows = writable.buffer;

@@ -101,7 +101,9 @@ function pushToRecentLogs(msg) {
   if (recentLogs) {
     recentLogs.push(finalMsg);
     adjustRecentLogs();
-    socket.emit('applog-event', finalMsg);
+    // log records contain every user's queries, so they go only to streams that subscribed
+    // through an authorized call (files.getRecentAppLog)
+    socket.emitToTopic('applog', 'applog-event', finalMsg);
   } else {
     beforeRecentLogs.push(finalMsg);
   }

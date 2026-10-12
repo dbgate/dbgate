@@ -37,6 +37,20 @@ const dateTimeStorageRegex =
 const dateTimeParseRegex =
   /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
+// Escapes a value for use inside a single-quoted SQL string literal. escapeChar is the dialect's
+// stringEscapeChar: "'" doubles quotes (standard SQL), '\\' escapes quotes and backslashes (MySQL).
+export function escapeSqlString(value: string, escapeChar: string = "'") {
+  let res = '';
+  for (let i = 0; i < value.length; i++) {
+    const c = value[i];
+    if (c == escapeChar || c == "'") {
+      res += escapeChar;
+    }
+    res += c;
+  }
+  return res;
+}
+
 export function arrayToHexString(byteArray) {
   return byteArray.reduce((output, elem) => output + ('0' + elem.toString(16)).slice(-2), '').toUpperCase();
 }
@@ -723,11 +737,46 @@ export function extractErrorStackTrace(err) {
   return stack;
 }
 
+// A URL may carry credentials in its user info ("https://user:secret@host/"), in the query string
+// and in the fragment (e.g. "#access_token=...") - only the scheme, host and path are logged.
+function urlForLog(url) {
+  if (!_isString(url)) return undefined;
+  try {
+    const parsed = new URL(url);
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.toString();
+  } catch {
+    // a relative URL (resolved by axios against its baseURL), possibly a protocol-relative one
+    return url.split(/[?#]/)[0].replace(/^((?:[a-z][a-z0-9+.-]*:)?\/\/)[^/]*@/i, '$1');
+  }
+}
+
+// An HTTP client (axios) error carries the whole request it failed on - with its headers
+// (Authorization, API keys) and body - and the whole response. Logged as it is, that ends up in
+// the log files and in the application log shown in the UI. Only what describes the failure is kept.
+function errorObjectForLog(err) {
+  if (err?.isAxiosError || (err?.config && (err?.request || err?.response))) {
+    return {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      status: err.response?.status,
+      statusText: err.response?.statusText,
+      method: err.config?.method,
+      url: urlForLog(err.config?.url),
+    };
+  }
+  return err;
+}
+
 export function extractErrorLogData(err, additionalFields = {}) {
   if (!err) return null;
   return {
     errorMessage: extractErrorMessage(err),
-    errorObject: err,
+    errorObject: errorObjectForLog(err),
     errorStack: extractErrorStackTrace(err),
     ...additionalFields,
   };

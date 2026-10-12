@@ -29,7 +29,7 @@ const dialect = {
   explicitDropConstraint: true,
   allowMultipleValuesInsert: true,
   quoteIdentifier(s) {
-    return '`' + s + '`';
+    return '`' + String(s).replace(/`/g, '``') + '`';
   },
 
   createColumn: true,

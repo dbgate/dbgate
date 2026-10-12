@@ -97,9 +97,13 @@
 
   function createColumnsTable(cells) {
     if (cells.length == 0) return '';
-    return `<table>${cells
-      .map(cell => `<tr><td>${cell.column}</td><td>${stringifyCellValue(cell.value, 'exportIntent').value}</td></tr>`)
-      .join('\n')}</table>`;
+    // Leaflet inserts popup and tooltip content as HTML, and both the column names and the
+    // values come from the database
+    const rows = cells.map(cell => {
+      const value = stringifyCellValue(cell.value, 'exportIntent').value;
+      return `<tr><td>${_.escape(cell.column)}</td><td>${_.escape(value)}</td></tr>`;
+    });
+    return `<table>${rows.join('\n')}</table>`;
   }
 
   export function createGeoJsonFromSelection(selection, latitudeFieldDef = null, longitudeFieldDef = null) {

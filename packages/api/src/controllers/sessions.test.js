@@ -11,7 +11,12 @@ jest.mock('./jsldata', () => ({}));
 jest.mock('./teamFiles', () => ({ execGrantStillStands: jest.fn(async () => ({ isTargetBound: true })) }));
 jest.mock('./config', () => ({ getSettings: jest.fn(async () => ({})) }));
 jest.mock('./databaseConnections', () => ({ ensureOpened: jest.fn(async () => ({ structure: null })) }));
-jest.mock('../utility/socket', () => ({ emit: jest.fn(), emitChanged: jest.fn() }));
+// the real owner bookkeeping, with the writes to event streams mocked
+jest.mock('../utility/socket', () => ({
+  ...jest.requireActual('../utility/socket'),
+  emit: jest.fn(),
+  emitChanged: jest.fn(),
+}));
 jest.mock('../utility/auditlog', () => ({ sendToAuditLog: jest.fn() }));
 jest.mock('../utility/pipeForkLogs', () => jest.fn());
 jest.mock('../utility/processComm', () => ({ handleProcessCommunication: jest.fn(() => false) }));
@@ -21,6 +26,7 @@ jest.mock('../utility/hasPermission', () => ({
   testConnectionPermission: jest.fn(),
 }));
 jest.mock('child_process', () => ({ fork: jest.fn() }));
+jest.mock('../utility/requireEngineDriver', () => jest.fn(() => ({})));
 
 const { fork } = require('child_process');
 const {
@@ -30,6 +36,7 @@ const {
 } = require('../utility/hasPermission');
 const { createTeamFileExecToken } = require('../utility/teamFileExecToken');
 const { execGrantStillStands } = require('./teamFiles');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 const sessions = require('./sessions');
 
 const SQL = 'select * from invoices';
@@ -208,5 +215,161 @@ describe('sessions.executeQuery', () => {
     ).resolves.toEqual({ state: 'ok' });
 
     expect(testStandardPermission).toHaveBeenCalledWith('dbops/query', alice);
+  });
+});
+
+// The grant is checked against the statement with its front matter removed, and the front matter
+// block may contain lines that are not comments. Whatever is put inside a "-- >>> ... -- <<<"
+// block in front of the file's content used to run under the grant as well.
+describe('sessions.executeQuery with SQL hidden in the front matter', () => {
+  let subprocess;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    subprocess = openFakeSession();
+    testStandardPermission.mockResolvedValue(undefined);
+    testDatabaseRolePermission.mockResolvedValue(undefined);
+    execGrantStillStands.mockResolvedValue({ isTargetBound: true });
+  });
+
+  function sentSql() {
+    return subprocess.send.mock.calls.find(([msg]) => msg.msgtype == 'executeQuery')[0].sql;
+  }
+
+  test('only the checked statement runs under a grant', async () => {
+    const useToken = createTeamFileExecToken(SQL, 42, alice, TARGET);
+    const smuggled = `-- >>>\ndelete from audit_log;\n-- <<<\n${SQL}`;
+
+    await sessions.executeQuery({ sesid: 'ses1', sql: smuggled, frontMatter: { useToken } }, alice);
+
+    expect(testDatabaseRolePermission).not.toHaveBeenCalled();
+    expect(sentSql()).not.toContain('delete from audit_log');
+    expect(sentSql().trim()).toBe(SQL);
+  });
+
+  test('a genuine file with front matter keeps its line numbers', async () => {
+    const fileContent = `-- >>>\n-- autoExecute: true\n-- useToken: abc\n-- <<<\n${SQL}`;
+    const useToken = createTeamFileExecToken(fileContent, 42, alice, TARGET);
+
+    await sessions.executeQuery({ sesid: 'ses1', sql: fileContent, frontMatter: { useToken } }, alice);
+
+    expect(sentSql()).toBe(`\n\n\n\n${SQL}`);
+    expect(sentSql().split('\n').length).toBe(fileContent.split('\n').length);
+  });
+
+  test('an ordinary query without a grant is sent unchanged', async () => {
+    const sql = `-- >>>\n-- selected-chart: 1\n-- <<<\n${SQL}`;
+
+    await sessions.executeQuery({ sesid: 'ses1', sql }, alice);
+
+    expect(sentSql()).toBe(sql);
+  });
+});
+
+// executeReader took no request at all, so the session it opened skipped the connection check,
+// and it ran any SQL - on MongoDB, JavaScript evaluated in DbGate itself - without a role check.
+describe('sessions.executeReader', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessions.opened = [];
+    testConnectionPermission.mockResolvedValue(undefined);
+    testStandardPermission.mockResolvedValue(undefined);
+    testDatabaseRolePermission.mockResolvedValue(undefined);
+    requireEngineDriver.mockReturnValue({});
+    jest.spyOn(sessions, 'create').mockImplementation(async () => {
+      openFakeSession('reader1');
+      return { sesid: 'reader1' };
+    });
+  });
+
+  afterEach(() => {
+    sessions.create.mockRestore();
+  });
+
+  test('checks the connection permission of the caller', async () => {
+    testConnectionPermission.mockRejectedValue(new Error('DBGM-00264 Connection permission not granted'));
+
+    await expect(sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL }, bob)).rejects.toThrow(
+      'permission not granted'
+    );
+    expect(testConnectionPermission).toHaveBeenCalledWith('conid1', bob);
+    expect(sessions.create).not.toHaveBeenCalled();
+  });
+
+  test('a SQL query needs the read_content role and opens the session as the caller', async () => {
+    await sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL }, alice);
+
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'read_content', alice);
+    expect(sessions.create).toHaveBeenCalledWith({ conid: 'conid1', database: 'db1' }, alice);
+  });
+
+  test('a query of a document database, evaluated as JavaScript, needs run_script', async () => {
+    requireEngineDriver.mockReturnValue({ databaseEngineTypes: ['document'] });
+    testDatabaseRolePermission.mockRejectedValue(new Error('DBGM-00266 Permission run_script not granted'));
+
+    await expect(
+      sessions.executeReader({ conid: 'conid1', database: 'db1', sql: 'db.c.find()' }, alice)
+    ).rejects.toThrow('not granted');
+    expect(testStandardPermission).toHaveBeenCalledWith('dbops/query', alice);
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'run_script', alice);
+    expect(sessions.create).not.toHaveBeenCalled();
+  });
+
+  test('an app query of a document database needs run_script as well', async () => {
+    requireEngineDriver.mockReturnValue({ databaseEngineTypes: ['document'] });
+    testDatabaseRolePermission.mockRejectedValue(new Error('DBGM-00266 Permission run_script not granted'));
+
+    await expect(
+      sessions.executeReader({ conid: 'conid1', database: 'db1', appFolder: 'app1', queryName: 'q1' }, alice)
+    ).rejects.toThrow('not granted');
+    expect(testStandardPermission).toHaveBeenCalledWith('dbops/query', alice);
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'run_script', alice);
+    expect(sessions.create).not.toHaveBeenCalled();
+  });
+
+  test('an app query of a SQL database needs only read_content', async () => {
+    await sessions.executeReader({ conid: 'conid1', database: 'db1', appFolder: 'app1', queryName: 'q1' }, alice);
+
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'read_content', alice);
+    expect(sessions.create).toHaveBeenCalled();
+  });
+
+  test.each([
+    ['../files/sql', 'evil'],
+    ['app1', '../../files/sql/evil'],
+    ['app1', 'a\\b'],
+    ['.', 'evil'],
+    ['app1', '.'],
+  ])('refuses an app query path that leaves the app folder (%s, %s)', async (appFolder, queryName) => {
+    await expect(
+      sessions.executeReader({ conid: 'conid1', database: 'db1', sql: SQL, appFolder, queryName }, alice)
+    ).rejects.toThrow('Invalid query name');
+    expect(sessions.create).not.toHaveBeenCalled();
+  });
+});
+
+// /stream is not authenticated and session messages (with the SQL being run) used to be written
+// to every connected stream
+describe('session events', () => {
+  const socket = require('../utility/socket');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessions.opened = [];
+    testConnectionPermission.mockResolvedValue(undefined);
+    fork.mockReturnValue({ on: jest.fn(), send: jest.fn(), kill: jest.fn() });
+  });
+
+  test('go only to the stream of the tab that opened the session', async () => {
+    const reqFromTab = { ...alice, headers: { 'x-dbgate-strmid': 'tab-a' } };
+    const { sesid } = await sessions.create({ conid: 'conid1', database: 'db1' }, reqFromTab);
+
+    sessions.dispatchMessage(sesid, { message: 'Query execution started', sql: SQL });
+
+    expect(socket.emit).toHaveBeenCalledWith(
+      `session-info-${sesid}`,
+      expect.objectContaining({ sql: SQL }),
+      'tab-a'
+    );
   });
 });

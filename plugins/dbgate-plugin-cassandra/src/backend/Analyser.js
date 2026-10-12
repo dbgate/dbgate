@@ -8,7 +8,7 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields, replacements = {}) {
     let res = sql[resFileName];
-    res = res.replace('#DATABASE#', this.dbhan.database);
+    res = this.replaceStringPlaceholder(res, '#DATABASE#', this.dbhan.database);
     return super.createQuery(res, typeFields, replacements);
   }
 

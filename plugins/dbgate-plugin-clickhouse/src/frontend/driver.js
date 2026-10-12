@@ -91,7 +91,8 @@ const clickhouseDataTypes = [
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
-  stringEscapeChar: "'",
+  // ClickHouse interprets backslash escapes in string literals, so backslashes must be escaped too
+  stringEscapeChar: '\\',
   fallbackDataType: 'String',
   dropColumnDependencies: ['primaryKey', 'sortingKey'],
   changeColumnDependencies: ['primaryKey', 'sortingKey'],
@@ -115,7 +116,8 @@ const dialect = {
   },
 
   quoteIdentifier(s) {
-    return `"${s}"`;
+    // backslash escapes apply in quoted identifiers as well
+    return `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   },
 
   getTableFormOptions(intent) {

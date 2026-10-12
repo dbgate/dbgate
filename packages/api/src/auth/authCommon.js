@@ -26,7 +26,18 @@ function getPurposeTokenSecret(purpose) {
   return crypto.createHmac('sha256', tokenSecret).update(`dbgate-token-purpose:${purpose}`).digest('hex');
 }
 
+/**
+ * Whether HTTP basic authentication protects the API. main.js installs the basic auth middleware
+ * only when storage is not used, and authMiddleware skips its own token check only when this is
+ * true - so setting BASIC_AUTH together with STORAGE_DATABASE (a configuration error) cannot leave
+ * the API without any authentication.
+ */
+function isBasicAuthActive() {
+  return !!process.env.BASIC_AUTH && !process.env.STORAGE_DATABASE;
+}
+
 module.exports = {
+  isBasicAuthActive,
   getTokenLifetime,
   getTokenSecret,
   getPurposeTokenSecret,

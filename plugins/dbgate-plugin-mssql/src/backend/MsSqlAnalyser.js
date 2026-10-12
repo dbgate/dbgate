@@ -125,8 +125,10 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _computeSingleObjectId() {
     const { schemaName, pureName, typeField } = this.singleObjectFilter;
-    const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
-    const resId = await this.driver.query(this.dbhan, `SELECT OBJECT_ID('${fullName}') AS id`);
+    const fullName = schemaName
+      ? `${this.dialect.quoteIdentifier(schemaName)}.${this.dialect.quoteIdentifier(pureName)}`
+      : this.dialect.quoteIdentifier(pureName);
+    const resId = await this.driver.query(this.dbhan, `SELECT OBJECT_ID(${this.quoteStringLiteral(fullName)}) AS id`);
     this.singleObjectId = resId.rows[0].id;
   }
 

@@ -76,9 +76,35 @@ export function removeVolatileMapping(conid) {
   }
 }
 
+// event name -> listeners registered on the event source, so that they can be attached again
+// when the event source has to be created again
+const eventSourceListeners = new Map<string, Set<EventListener>>();
+
+function createEventSource() {
+  const source = new EventSource(`${resolveApi()}/stream?strmid=${strmid}`);
+  for (const [event, listeners] of eventSourceListeners) {
+    for (const listener of listeners) {
+      source.addEventListener(event, listener);
+    }
+  }
+  // The browser reconnects by itself after a network error, but not after an error response. The
+  // server refuses a second connection with the id of a stream it still considers connected
+  // (409), which happens when the previous connection was lost without the server noticing yet.
+  source.onerror = () => {
+    if (source.readyState == EventSource.CLOSED && eventSource === source) {
+      setTimeout(() => {
+        if (eventSource === source) {
+          eventSource = createEventSource();
+        }
+      }, 10000);
+    }
+  };
+  return source;
+}
+
 function wantEventSource() {
   if (!eventSource) {
-    eventSource = new EventSource(`${resolveApi()}/stream?strmid=${strmid}`);
+    eventSource = createEventSource();
     // eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
   }
 }
@@ -188,6 +214,9 @@ export async function apiCall(
       headers: {
         'Content-Type': 'application/json',
         'x-api-session-id': getApiSessionId(),
+        // events caused by this call (query messages, script output, ...) are sent back to this
+        // tab's event stream only
+        'x-dbgate-strmid': strmid,
         'x-ui-language': localStorage.getItem('selectedLanguage') || 'en',
         ...resolveApiHeaders(),
       },
@@ -259,6 +288,10 @@ export function apiOn(event: string, handler: Function) {
       apiHandlers.set(handler, handlerProxy);
     }
 
+    if (!eventSourceListeners.has(event)) {
+      eventSourceListeners.set(event, new Set());
+    }
+    eventSourceListeners.get(event).add(apiHandlers.get(handler));
     eventSource.addEventListener(event, apiHandlers.get(handler));
   }
 
@@ -275,6 +308,7 @@ export function apiOff(event: string, handler: Function) {
       electron.removeEventListener(event, apiHandlers.get(handler));
     } else {
       wantEventSource();
+      eventSourceListeners.get(event)?.delete(apiHandlers.get(handler));
       eventSource.removeEventListener(event, apiHandlers.get(handler));
     }
   }

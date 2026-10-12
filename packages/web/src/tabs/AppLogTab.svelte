@@ -155,6 +155,8 @@
   });
   onDestroy(() => {
     apiOff('applog-event', handleLogMessage);
+    // files/get-recent-app-log subscribed this tab's event stream to new log records
+    apiCall('files/unsubscribe-app-log');
   });
 
   const quickExportHandler = fmt => async () => {

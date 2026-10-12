@@ -12,16 +12,15 @@ class AuthProviderBase {
   amoid = 'none';
   skipInList = false;
 
+  // The amoid of the provider whose login() runs is chosen by the client (auth/login,
+  // connections/dblogin-auth, ...), so a provider that does not check credentials itself must not
+  // hand out a session token here. Redirect-based providers (OAuth, Google, MS Entra) issue tokens
+  // from oauthToken(), the superadmin token is issued only after the admin password check in
+  // controllers/auth.js, and MCP tokens come from the MCP OAuth flow - none of them may be logged
+  // into with this method. Providers that verify credentials, or are deliberately anonymous,
+  // override it.
   async login(login, password, options = undefined, req = undefined) {
-    return {
-      accessToken: jwt.sign(
-        {
-          amoid: this.amoid,
-        },
-        getTokenSecret(),
-        { expiresIn: getTokenLifetime() }
-      ),
-    };
+    return { error: 'Login is not supported for this authentication method' };
   }
 
   oauthToken(params, req) {
@@ -83,6 +82,21 @@ class AuthProviderBase {
 
   async getLogoutUrl() {
     return null;
+  }
+}
+
+// Used when no authentication is configured - everybody is logged in anonymously.
+class AnonymousAuthProvider extends AuthProviderBase {
+  async login(login, password, options = undefined, req = undefined) {
+    return {
+      accessToken: jwt.sign(
+        {
+          amoid: this.amoid,
+        },
+        getTokenSecret(),
+        { expiresIn: getTokenLifetime() }
+      ),
+    };
   }
 }
 
@@ -326,8 +340,12 @@ function createEnvAuthProvider() {
       return new LoginsProvider();
     case 'denyall':
       return new DenyAllProvider();
+    case 'none':
+      return new AnonymousAuthProvider();
     default:
-      return new AuthProviderBase();
+      // An unknown AUTH_PROVIDER (e.g. a typo) must not silently turn authentication off.
+      logger.error(`DBGM-00000 Unknown AUTH_PROVIDER value "${authProvider}", all logins will be denied`);
+      return new DenyAllProvider();
   }
 }
 
@@ -364,6 +382,7 @@ function setAuthProviders(value, defaultProvider = null) {
 
 module.exports = {
   AuthProviderBase,
+  AnonymousAuthProvider,
   detectEnvAuthProvider,
   getAuthProviders,
   getDefaultAuthProvider,

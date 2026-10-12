@@ -1,12 +1,25 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { getSchemasUsedByStructure } = require('dbgate-tools');
+const objectFileName = require('./objectFileName');
+const { createUniqueFileNamer } = require('./objectFileName');
 
 async function exportDbModelSql(dbModel, driver, outputDir, outputFile) {
   const { tables, views, procedures, functions, triggers, matviews } = dbModel;
 
   const usedSchemas = getSchemasUsedByStructure(dbModel);
   const useSchemaDir = usedSchemas.length > 1;
+
+  const uniqueFileName = createUniqueFileNamer();
+  // schema name -> its folder, so that two schemas never share one folder
+  const schemaDirs = new Map();
+  function schemaDir(schemaName = null) {
+    schemaName = schemaName ?? null;
+    if (!schemaDirs.has(schemaName)) {
+      schemaDirs.set(schemaName, uniqueFileName(outputDir, objectFileName(schemaName ?? 'default')));
+    }
+    return path.join(outputDir, schemaDirs.get(schemaName));
+  }
 
   const createdDirs = new Set();
   async function ensureDir(dir) {
@@ -51,7 +64,7 @@ async function exportDbModelSql(dbModel, driver, outputDir, outputFile) {
   if (outputDir) {
     for (const table of tables || []) {
       const tablesDir = useSchemaDir
-        ? path.join(outputDir, table.schemaName ?? 'default', 'tables')
+        ? path.join(schemaDir(table.schemaName), 'tables')
         : path.join(outputDir, 'tables');
       await ensureDir(tablesDir);
       const dmp = driver.createDumper();
@@ -60,18 +73,19 @@ async function exportDbModelSql(dbModel, driver, outputDir, outputFile) {
         foreignKeys: [],
         dependencies: [],
       });
-      await fs.writeFile(path.join(tablesDir, `${table.pureName}.sql`), dmp.s);
+      await fs.writeFile(
+        path.join(tablesDir, uniqueFileName(tablesDir, objectFileName(table.pureName), '.sql')),
+        dmp.s
+      );
     }
 
     await writeLists(async (list, folder) => {
       for (const obj of list || []) {
-        const objdir = useSchemaDir
-          ? path.join(outputDir, obj.schemaName ?? 'default', folder)
-          : path.join(outputDir, folder);
+        const objdir = useSchemaDir ? path.join(schemaDir(obj.schemaName), folder) : path.join(outputDir, folder);
         await ensureDir(objdir);
         const dmp = driver.createDumper();
         dmp.createSqlObject(obj);
-        await fs.writeFile(path.join(objdir, `${obj.pureName}.sql`), dmp.s);
+        await fs.writeFile(path.join(objdir, uniqueFileName(objdir, objectFileName(obj.pureName), '.sql')), dmp.s);
       }
     });
   }

@@ -45,6 +45,7 @@ const getExpressPath = require('./utility/getExpressPath');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
 const { getDefaultAuthProvider } = require('./auth/authProvider');
+const { isBasicAuthActive } = require('./auth/authCommon');
 const startCloudUpgradeTimer = require('./utility/cloudUpgrade');
 const { isProApp } = require('./utility/checkLicense');
 const { getHealthStatus, getHealthStatusSprinx } = require('./utility/healthStatus');
@@ -102,7 +103,13 @@ function start() {
 
   const server = http.createServer(app);
 
-  if (process.env.BASIC_AUTH && !process.env.STORAGE_DATABASE) {
+  if (process.env.BASIC_AUTH && process.env.STORAGE_DATABASE) {
+    logger.error(
+      'DBGM-00000 BASIC_AUTH cannot be used together with STORAGE_DATABASE, basic authentication is not enabled'
+    );
+  }
+
+  if (isBasicAuthActive()) {
     async function authorizer(username, password, cb) {
       try {
         const resp = await getDefaultAuthProvider().login(username, password);
@@ -151,6 +158,16 @@ function start() {
 
   app.get(getExpressPath('/stream'), async function (req, res) {
     const strmid = req.query.strmid;
+    // ids starting with "__" are reserved for events that must reach no browser tab (socket.js)
+    if (typeof strmid != 'string' || strmid.length == 0 || strmid.length > 100 || strmid.startsWith('__')) {
+      res.status(400).end();
+      return;
+    }
+    // a second connection would take over the stream of the browser tab using this id
+    if (socket.hasLiveSseResponse(strmid)) {
+      res.status(409).end();
+      return;
+    }
     res.set({
       'Cache-Control': 'no-cache',
       'Content-Type': 'text/event-stream',
@@ -163,7 +180,7 @@ function start() {
     res.write('retry: 10000\n\n');
     socket.addSseResponse(res, strmid);
     onFinished(req, () => {
-      socket.removeSseResponse(strmid);
+      socket.removeSseResponse(strmid, res);
     });
   });
 

@@ -1,3 +1,9 @@
+// The GeoJSON is embedded in a <script> element and contains database values, so a "</script>"
+// inside a value must not end the element - "<" is written as its JSON unicode escape instead.
+function geoJsonToScriptLiteral(geoJson) {
+  return JSON.stringify(geoJson).replace(/</g, '\\u003c');
+}
+
 const getMapExport = (geoJson) => {
   return `<html>
   <meta charset='utf-8'>
@@ -25,7 +31,7 @@ const getMapExport = (geoJson) => {
 	  leaflet.control.scale().addTo(map);
 	  
       const geoJsonObj = leaflet
-      .geoJSON(${JSON.stringify(geoJson)}, {
+      .geoJSON(${geoJsonToScriptLiteral(geoJson)}, {
         style: function () {
           return {
             weight: 2,

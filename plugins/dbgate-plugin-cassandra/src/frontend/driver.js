@@ -73,7 +73,7 @@ const dialect = {
   },
 
   quoteIdentifier(s) {
-    return `"${s}"`;
+    return `"${String(s).replace(/"/g, '""')}"`;
   },
 };
 

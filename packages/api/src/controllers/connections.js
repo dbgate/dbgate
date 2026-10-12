@@ -629,7 +629,10 @@ module.exports = {
   },
 
   dbloginApp_meta: true,
-  async dbloginApp({ conid, state }) {
+  async dbloginApp({ conid, state }, req) {
+    // the volatile connection holds the user's database token, so its id goes only to the browser
+    // tab that started the login (or only to the desktop app, which has no stream)
+    const strmid = socket.getStrmidFromRequest(req) ?? (req ? '__no_stream__' : undefined);
     const connection = await this.getCore({ conid });
     const driver = requireEngineDriver(connection);
     const resp = await driver.getRedirectAuthUrl(connection, {
@@ -638,7 +641,7 @@ module.exports = {
     });
     startTokenChecking(resp.sid, async token => {
       const volatile = await this.saveVolatile({ conid, accessToken: token });
-      socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id });
+      socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id }, strmid);
     });
     return resp;
   },
@@ -651,7 +654,8 @@ module.exports = {
       const accessToken = await driver.getAuthTokenFromCode(connection, { sid, code, redirectUri });
       const volatile = await this.saveVolatile({ conid, accessToken });
       // console.log('******************************** WE HAVE ACCESS TOKEN', accessToken);
-      socket.emit('got-volatile-token', { strmid, savedConId: conid, volatileConId: volatile._id });
+      // without the tab's stream id, nobody but the desktop app receives the volatile connection
+      socket.emit('got-volatile-token', { savedConId: conid, volatileConId: volatile._id }, strmid || '__no_stream__');
       return { success: true };
     } catch (err) {
       logger.error(extractErrorLogData(err), 'DBGM-00100 Error getting DB token');

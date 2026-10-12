@@ -87,7 +87,10 @@ function getTriggerCreateSql(triggerResult) {
   const triggerTiming = getTriggerTiming(triggerResult.TRIGGERTYPE);
   const body = triggerResult.TRIGGER_BODY_SQL;
 
-  const createSql = `CREATE OR ALTER TRIGGER "${triggerResult.pureName}" ${triggerTiming} ${eventType} ON "${triggerResult.tableName}" ${body};`;
+  const quoteIdentifier = value => `"${String(value).replace(/"/g, '""')}"`;
+  const createSql = `CREATE OR ALTER TRIGGER ${quoteIdentifier(
+    triggerResult.pureName
+  )} ${triggerTiming} ${eventType} ON ${quoteIdentifier(triggerResult.tableName)} ${body};`;
   return createSql;
 }
 
