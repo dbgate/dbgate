@@ -30,6 +30,7 @@
     const conditions = [];
     for (const uniqueName in filters || {}) {
       if (!filters[uniqueName]) continue;
+      if (props.display.isFilterDisabled(uniqueName)) continue;
       try {
         const ast = parseFilter(filters[uniqueName], filterBehaviour);
         // console.log('AST', ast);
