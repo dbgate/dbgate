@@ -23,7 +23,10 @@ var config = {
   //     minimize: false,
   //   },
 
-  externals,
+  externals: {
+    ...externals,
+    kerberos: 'commonjs kerberos',
+  },
 };
 
 module.exports = config;
