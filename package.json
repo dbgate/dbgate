@@ -85,6 +85,9 @@
     "patch-package": "^6.2.1",
     "pino-pretty": "^9.1.1"
   },
+  "resolutions": {
+    "@types/minimatch": "5.1.2"
+  },
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "prettier": "^2.2.1",

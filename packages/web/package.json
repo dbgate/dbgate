@@ -67,7 +67,7 @@
     "@langchain/openai": "^1.2.11",
     "@messageformat/core": "^3.4.0",
     "chartjs-plugin-zoom": "^1.2.0",
-    "date-fns": "^4.1.0",
+    "date-fns": "4.1.0",
     "debug": "^4.3.4",
     "dom-to-image": "^2.6.0",
     "dompurify": "^3.3.2",

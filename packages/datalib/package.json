@@ -18,7 +18,7 @@
     "lib"
   ],
   "dependencies": {
-    "date-fns": "^4.1.0",
+    "date-fns": "4.1.0",
     "dbgate-filterparser": "^7.0.0-alpha.1",
     "dbgate-sqltree": "^7.0.0-alpha.1",
     "dbgate-tools": "^7.0.0-alpha.1",
