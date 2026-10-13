@@ -9791,10 +9791,10 @@ node-fetch@^3.3.2:
     fetch-blob "^3.1.4"
     formdata-polyfill "^4.0.10"
 
-node-firebird@^1.1.9:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/node-firebird/-/node-firebird-1.1.10.tgz#a5fd5c49ffbd99e6a564df7583c0eb5d7c5e7b16"
-  integrity sha512-/U2DmoqidETduvh7Y+fX7dlo5aWc0Vjd7wjSnDQWZ/L0UFVJiOKtR8fPRbvn+3HxQiYeexco8W2Px2hdrDT2Ew==
+node-firebird@1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/node-firebird/-/node-firebird-1.1.9.tgz#0e6815b4e209812a4c85b71227e40e268bedeb8b"
+  integrity sha512-6Ol+Koide1WbfUp4BJ1dSA4wm091jAgCwwSoihxO/RRdcfR+dMVDE9jd2Z2ixjk7q/vSNJUYORXv7jmRfvwdrw==
   dependencies:
     big-integer "^1.6.51"
     long "^5.2.3"
