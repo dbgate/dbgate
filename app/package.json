@@ -21,6 +21,7 @@
     "productName": "DbGate",
     "asarUnpack": "**/*.node",
     "mac": {
+      "x64ArchFiles": "**/@duckdb/node-bindings-darwin-*/duckdb.node",
       "category": "database",
       "icon": "icon512-mac.png",
       "hardenedRuntime": true,
