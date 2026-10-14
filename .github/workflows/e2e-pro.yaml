@@ -17,10 +17,10 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Use Node.js 22.x
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v1
         with:
-          node-version: 22.x
+          node-version: 24.x
       - uses: actions/checkout@v3
         with:
           fetch-depth: 1
@@ -30,7 +30,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: a43a8cd613fc3c946bde4d69bb7d33cfb5c0ec21
+          ref: 5844e534a1e684cc105915e45640b7ce963e8af7
       - name: Diflow install
         run: npm install -g diflow
       - name: Merge dbgate/dbgate-pro
