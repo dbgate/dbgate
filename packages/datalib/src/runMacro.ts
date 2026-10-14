@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import uuidv1 from 'uuid/v1';
-import uuidv4 from 'uuid/v4';
+import { v1 as uuidv1 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import { MacroDefinition, MacroSelectedCell } from './MacroDefinition';
 import { ChangeSet, setChangeSetValue, setChangeSetRowData } from './ChangeSet';

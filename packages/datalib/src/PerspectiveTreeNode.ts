@@ -45,7 +45,7 @@ import stableStringify from 'json-stable-stringify';
 import { parseFilter } from 'dbgate-filterparser';
 import { CompoudCondition, Condition, Expression, Select } from 'dbgate-sqltree';
 // import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { PerspectiveDataPatternColumn } from './PerspectiveDataPattern';
 import {
   getPerspectiveMostNestedChildColumnName,
@@ -694,7 +694,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       schemaName: this.foreignKey.refSchemaName,
       pureName: this.foreignKey.refTableName,
       bindingColumns: [this.foreignKey.columns[0].refColumnName],
-      bindingValues: _uniqBy(
+      bindingValues: _uniqBy<any[]>(
         parentRows.map(row => [row[this.foreignKey.columns[0].columnName]]),
         stableStringify
       ),
@@ -1277,7 +1277,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       bindingColumns: [this.foreignKey.columns[0].columnName],
-      bindingValues: _uniqBy(
+      bindingValues: _uniqBy<any[]>(
         parentRows.map(row => [row[this.foreignKey.columns[0].refColumnName]]),
         stableStringify
       ),
@@ -1445,7 +1445,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       bindingColumns: this.getParentMatchColumns(),
-      bindingValues: _uniqBy(bindingValues, x => JSON.stringify(x)),
+      bindingValues: _uniqBy<any[]>(bindingValues, x => JSON.stringify(x)),
       dataColumns: this.getDataLoadColumns(),
       allColumns: isDocDb,
       databaseConfig: this.databaseConfig,

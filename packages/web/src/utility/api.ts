@@ -9,7 +9,7 @@ import { handleAuthOnStartup, isOauthCallback, redirectToAdminLogin, redirectToL
 import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { callServerPing } from './connectionsPinger';
 import { batchDispatchCacheTriggers, dispatchCacheChange } from './cache';
 import { isAdminPage, isOneOfPage } from './pageDefs';

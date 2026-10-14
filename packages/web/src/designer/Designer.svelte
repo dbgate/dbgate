@@ -68,7 +68,7 @@
 <script lang="ts">
   import DesignerTable from './DesignerTable.svelte';
   import { isConnectedByReference } from './designerTools';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { getTableInfo, useAllApps, useDatabaseInfo } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';

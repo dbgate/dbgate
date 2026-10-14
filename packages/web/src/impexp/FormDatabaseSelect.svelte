@@ -4,7 +4,7 @@
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
   import { useDatabaseList } from '../utility/metadataLoaders';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { temporaryOpenedConnections } from '../stores';
   import useEffect from '../utility/useEffect';
 

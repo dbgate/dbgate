@@ -31,11 +31,11 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "dbgate-plugin-tools": "^1.0.7",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "dbgate-plugin-tools": "^1.0.8",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "dependencies": {
-    "node-xml-stream-parser": "^1.0.12"
+    "node-xml-stream-parser": "^1.0.13"
   }
 }

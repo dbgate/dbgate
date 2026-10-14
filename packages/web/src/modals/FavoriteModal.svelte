@@ -5,7 +5,7 @@
   import hasPermission from '../utility/hasPermission';
   import localforage from 'localforage';
   import ModalBase from './ModalBase.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { closeCurrentModal } from './modalTools';
   import { copyTextToClipboard } from '../utility/clipboard';
   import FormProvider from '../forms/FormProvider.svelte';

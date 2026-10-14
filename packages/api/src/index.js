@@ -152,8 +152,8 @@ global.DBGATE_PACKAGES = {
 
 if (processArgs.startProcess) {
   const proc = require('./proc');
-  const module = proc[processArgs.startProcess];
-  module.start();
+  const processModule = proc[processArgs.startProcess];
+  processModule.start();
 }
 
 if (processArgs.listenApi) {

@@ -26,7 +26,7 @@
   import FormStyledButtonLikeLabel from '../buttons/FormStyledButtonLikeLabel.svelte';
   import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
   import { showSnackbarError } from '../utility/snackbar';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { extensions } from '../stores';

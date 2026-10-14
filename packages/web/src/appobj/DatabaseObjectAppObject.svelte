@@ -1087,7 +1087,7 @@
   import fullDisplayName from '../utility/fullDisplayName';
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';

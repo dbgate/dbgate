@@ -1,10 +1,10 @@
 const fs = require('fs');
 const stream = require('stream');
 const { getLogger } = require('dbgate-tools');
-const { parser } = require('stream-json');
-const { pick } = require('stream-json/filters/Pick');
-const { streamArray } = require('stream-json/streamers/StreamArray');
-const { streamObject } = require('stream-json/streamers/StreamObject');
+const { parserStream } = require('stream-json');
+const { pick } = require('stream-json/filters/pick.js');
+const { streamArray } = require('stream-json/streamers/stream-array.js');
+const { streamObject } = require('stream-json/streamers/stream-object.js');
 const download = require('./download');
 
 const logger = getLogger('jsonReader');
@@ -71,7 +71,7 @@ async function jsonReader({
     encoding
   );
 
-  const parseJsonStream = parser();
+  const parseJsonStream = parserStream();
 
   const resultPipe = [fileStream, parseJsonStream];
 
@@ -79,10 +79,10 @@ async function jsonReader({
 
   const parseStream = new ParseStream({ limitRows, jsonStyle, keyField });
 
-  const tramsformer = jsonStyle === 'object' ? streamObject() : streamArray();
+  const tramsformer = jsonStyle === 'object' ? streamObject.asStream() : streamArray.asStream();
 
   if (rootField) {
-    const filterStream = pick({ filter: rootField });
+    const filterStream = pick.asStream({ filter: rootField });
     resultPipe.push(filterStream);
     // parseJsonStream.pipe(filterStream);
     // filterStream.pipe(tramsformer);

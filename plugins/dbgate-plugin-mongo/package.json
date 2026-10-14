@@ -29,8 +29,8 @@
     "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mongo",
     "plugout": "dbgate-plugout dbgate-plugin-mongo",
     "prepublishOnly": "yarn build",
-    "test": "jest",
-    "test:ci": "jest --json --outputFile=result.json --testLocationInResults"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --json --outputFile=result.json --testLocationInResults"
   },
   "jest": {
     "testMatch": [
@@ -38,23 +38,24 @@
     ]
   },
   "devDependencies": {
-    "dbgate-plugin-tools": "^1.0.7",
-    "jest": "^30.4.2",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "cross-env": "^10.1.0",
+    "dbgate-plugin-tools": "^1.0.8",
+    "jest": "^30.5.2",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "dependencies": {
-    "bson": "^6.8.0",
+    "bson": "^6.10.4",
     "dbgate-query-splitter": "^4.12.0",
     "dbgate-tools": "^7.0.0-alpha.1",
     "is-promise": "^4.0.0",
-    "lodash": "^4.17.21",
-    "mongodb": "^6.3.0",
+    "lodash": "^4.18.1",
+    "mongodb": "^6.21.0",
     "mongodb-old": "npm:mongodb@6.16.0",
-    "@mongosh/browser-runtime-electron": "^3.16.4",
-    "@mongosh/service-provider-node-driver": "^3.10.2"
+    "@mongosh/browser-runtime-electron": "^3.29.1",
+    "@mongosh/service-provider-node-driver": "^3.18.1"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.1.1"
+    "mongodb-client-encryption": "^6.5.0"
   }
 }

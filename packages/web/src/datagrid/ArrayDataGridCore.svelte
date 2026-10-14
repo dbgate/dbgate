@@ -2,7 +2,7 @@
   import { createGridCache, createGridConfig, FreeTableGridDisplay } from 'dbgate-datalib';
   import { evaluateCondition } from 'dbgate-sqltree';
   import { writable } from 'svelte/store';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   import DataGridCore from './DataGridCore.svelte';
   import RowsArrayGrider from './RowsArrayGrider';

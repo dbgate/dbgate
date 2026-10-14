@@ -15,7 +15,7 @@ import type {
   UniqueInfo,
   ViewInfo,
 } from 'dbgate-types';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { AlterPlan } from './alterPlan';
 import stableStringify from 'json-stable-stringify';
 import toposort from 'toposort';

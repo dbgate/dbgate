@@ -32,7 +32,7 @@
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { downloadFromApi } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import LoadingInfo from '../elements/LoadingInfo.svelte';

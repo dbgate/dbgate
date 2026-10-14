@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 global.API_PACKAGE = path.dirname(path.dirname(require.resolve('dbgate-api')));
 global.PLUGINS_DIR = path.dirname(global.API_PACKAGE);

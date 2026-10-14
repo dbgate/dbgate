@@ -38,17 +38,17 @@ function requirePlugin(packageName, requiredPlugin = null) {
         drivers: [openApiDriver, graphQlDriver, oDataDriver],
       };
     }
-    let module;
+    let pluginModule;
     const modulePath = getPluginBackendPath(packageName);
     logger.info(`DBGM-00062 Loading module ${packageName} from ${modulePath}`);
     try {
       // @ts-ignore
-      module = __non_webpack_require__(modulePath);
+      pluginModule = __non_webpack_require__(modulePath);
     } catch (err) {
       // console.log('Failed load webpacked module', err.message);
-      module = require(modulePath);
+      pluginModule = require(modulePath);
     }
-    requiredPlugin = module.__esModule ? module.default : module;
+    requiredPlugin = pluginModule.__esModule ? pluginModule.default : pluginModule;
   }
   loadedPlugins[packageName] = requiredPlugin;
   if (requiredPlugin.initialize) requiredPlugin.initialize(dbgateEnv);

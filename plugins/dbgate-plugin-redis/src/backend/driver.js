@@ -305,6 +305,8 @@ const driver = {
     // A dump owns its connection. Replaying a partially executed batch could duplicate writes
     // or send them to the database ioredis remembers instead of the dump's latest SELECT.
     const dumperOptions = forDumper ? dumperConnectionOptions : {};
+    // ioredis 6 defaults to RESP3, keep the RESP2 wire protocol used by previous versions
+    const protocolOptions = { protocol: 2 };
     if (forDumper && !useDatabaseUrl && authType === 'cluster') {
       throw new Error('DBGM-00000 Redis backup and restore do not support cluster connections');
     }
@@ -315,9 +317,10 @@ const driver = {
         for (const name of Object.keys(dumperOptions)) url.searchParams.delete(name);
         databaseUrl = url.toString();
       }
-      client = new Redis(databaseUrl, dumperOptions);
+      client = new Redis(databaseUrl, { ...protocolOptions, ...dumperOptions });
     } else if (authType === 'cluster' && isProApp && isProApp()) {
       const redisOptions = {
+        ...protocolOptions,
         user,
         password,
       };
@@ -352,6 +355,7 @@ const driver = {
         password,
         db,
         tls: ssl,
+        ...protocolOptions,
         ...dumperOptions,
       };
       if (!skipSetName) {

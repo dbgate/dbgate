@@ -7,6 +7,9 @@
     "plugins/*",
     "integration-tests"
   ],
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start:api": "yarn workspace dbgate-api start | pino-pretty",
     "start:api:watch": "nodemon --watch 'src/**' --ext 'ts,json,js' --exec yarn start:api",
@@ -81,13 +84,14 @@
     "errors": "node common/assign-dbgm-codes.mjs  ."
   },
   "dependencies": {
-    "concurrently": "^5.1.0",
-    "patch-package": "^6.2.1",
-    "pino-pretty": "^9.1.1"
+    "concurrently": "^10.0.6",
+    "patch-package": "^8.0.1",
+    "pino-pretty": "^13.2.0"
   },
   "devDependencies": {
-    "copyfiles": "^2.2.0",
-    "prettier": "^2.2.1",
-    "workspaces-run": "^1.0.1"
+    "copyfiles": "^2.4.1",
+    "node-gyp": "^13.1.0",
+    "prettier": "^3.9.10",
+    "workspaces-run": "^1.0.2"
   }
 }

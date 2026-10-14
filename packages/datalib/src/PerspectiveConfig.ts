@@ -1,5 +1,5 @@
 import type { DatabaseInfo, FilterBehaviour, ForeignKeyInfo, NamedObjectInfo, TableInfo } from 'dbgate-types';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 
 // export interface PerspectiveConfigColumns {
 //   expandedColumns: string[];

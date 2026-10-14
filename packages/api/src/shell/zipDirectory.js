@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const archiver = require('archiver');
+const { ZipArchive } = require('archiver');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const { archivedir } = require('../utility/directories');
 const logger = getLogger('compressDirectory');
@@ -12,7 +12,7 @@ function zipDirectory(inputDirectory, outputFile) {
 
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outputFile);
-    const archive = archiver('zip', { zlib: { level: 9 } }); // level: 9 => best compression
+    const archive = new ZipArchive({ zlib: { level: 9 } }); // level: 9 => best compression
 
     // Listen for all archive data to be written
     output.on('close', () => {

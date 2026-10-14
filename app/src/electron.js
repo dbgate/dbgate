@@ -346,12 +346,30 @@ ipcMain.on('window-action', async (event, arg) => {
   }
 });
 
+// Since Electron 43, dialogs default to the Downloads folder instead of the last used directory,
+// so the last used directory is tracked here to keep the previous behaviour
+let lastDialogDirectory = null;
+function withLastDialogDirectory(options) {
+  if (!lastDialogDirectory) return options;
+  if (!options?.defaultPath) return { ...options, defaultPath: lastDialogDirectory };
+  if (!path.isAbsolute(options.defaultPath)) {
+    return { ...options, defaultPath: path.join(lastDialogDirectory, options.defaultPath) };
+  }
+  return options;
+}
+
 ipcMain.handle('showOpenDialog', async (event, options) => {
-  const res = electron.dialog.showOpenDialogSync(mainWindow, options);
+  const res = electron.dialog.showOpenDialogSync(mainWindow, withLastDialogDirectory(options));
+  if (res && res.length > 0) {
+    lastDialogDirectory = options?.properties?.includes('openDirectory') ? res[0] : path.dirname(res[0]);
+  }
   return res;
 });
 ipcMain.handle('showSaveDialog', async (event, options) => {
-  const res = electron.dialog.showSaveDialogSync(mainWindow, options);
+  const res = electron.dialog.showSaveDialogSync(mainWindow, withLastDialogDirectory(options));
+  if (res) {
+    lastDialogDirectory = path.dirname(res);
+  }
   return res;
 });
 ipcMain.handle('showItemInFolder', async (event, path) => {

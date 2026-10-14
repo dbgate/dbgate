@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { getActiveTab, getOpenedTabs, openedTabs } from '../stores';
 import tabs from '../tabs';
 import { setSelectedTabFunc, switchCurrentDatabase } from './common';

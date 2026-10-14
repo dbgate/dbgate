@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext, onDestroy, onMount } from 'svelte';
 
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { updateStatuBarInfoItem } from '../utility/statusBarStore';
 
   export let text;

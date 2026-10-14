@@ -12,7 +12,7 @@ import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import type { QuickExportDefinition } from 'dbgate-types';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { trackUsage } from './usageAnalytics';
 
 // export async function importSqlDump(inputFile, connection) {

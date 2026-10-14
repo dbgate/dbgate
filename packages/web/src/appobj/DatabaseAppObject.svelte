@@ -670,7 +670,7 @@ await dbgateApi.executeQuery(${JSON.stringify(
 </script>
 
 <script lang="ts">
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   import _, { find } from 'lodash';
   import { showModal } from '../modals/modalTools';

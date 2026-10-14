@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 global.API_PACKAGE = path.dirname(path.dirname(require.resolve('dbgate-api')));
 global.PLUGINS_DIR = process.env.DEVMODE
@@ -10,7 +10,7 @@ global.PLUGINS_DIR = process.env.DEVMODE
 global.IS_NPM_DIST = true;
 global.IS_DB_MODEL = true;
 
-const program = require('commander');
+const { program } = require('commander');
 const dbgateApi = require('dbgate-api');
 const { createLogger } = require('pinomin');
 const { extractErrorLogData } = require('dbgate-tools');

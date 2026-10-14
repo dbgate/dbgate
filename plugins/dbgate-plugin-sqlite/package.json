@@ -30,18 +30,18 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "dbgate-plugin-tools": "^1.0.4",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "dbgate-plugin-tools": "^1.0.8",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "dependencies": {
     "dbgate-tools": "^7.0.0-alpha.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "dbgate-query-splitter": "^4.12.0",
     "dbgate-sqlite-dumper": "^0.1.1"
   },
   "optionalDependencies": {
-    "libsql": "0.5.0-pre.6",
-    "better-sqlite3": "11.8.1"
+    "libsql": "0.5.29",
+    "better-sqlite3": "13.0.3"
   }
 }

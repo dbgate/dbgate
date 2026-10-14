@@ -59,7 +59,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext } from 'svelte';  import uuidv1 from 'uuid/v1';
+  import { getContext } from 'svelte';  import { v1 as uuidv1 } from 'uuid';
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';

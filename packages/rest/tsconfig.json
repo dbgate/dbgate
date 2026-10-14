@@ -5,6 +5,9 @@
     "declaration": true,
     "skipLibCheck": true,
     "outDir": "lib",
+    "rootDir": "src",
+    "strict": false,
+    "types": ["*"],
     "preserveWatchOutput": true,
     "esModuleInterop": true
   },

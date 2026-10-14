@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getFormContext } from './FormProviderCore.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   export let options = [];
   export let name;

@@ -175,7 +175,7 @@
   import QueryParametersModal from '../modals/QueryParametersModal.svelte';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import ToolStripButton from '../buttons/ToolStripButton.svelte';
   import { getIntSettingsValue, isAiDisabled } from '../settings/settingsTools';
   import RowsLimitModal from '../modals/RowsLimitModal.svelte';

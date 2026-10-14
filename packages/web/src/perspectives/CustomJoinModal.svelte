@@ -18,7 +18,7 @@
   import { onMount, tick } from 'svelte';
   import { createPerspectiveNodeConfig, PerspectiveTreeNode } from 'dbgate-datalib';
   import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveCustomJoinConfig } from 'dbgate-datalib';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import TextField from '../forms/TextField.svelte';
   import { _t } from '../translations';
 

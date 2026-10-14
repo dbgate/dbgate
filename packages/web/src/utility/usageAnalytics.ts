@@ -1,6 +1,6 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import getElectron from './getElectron';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { getActiveTab, getOpenedTabs, getCurrentConfig, getCurrentSettings } from '../stores';
 import { getSelectedLanguage } from '../translations';
 import { isProApp } from './proTools';

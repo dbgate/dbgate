@@ -27,7 +27,7 @@ import _isArray from 'lodash/isArray';
 import _isPlainObject from 'lodash/isPlainObject';
 import _keys from 'lodash/keys';
 import _cloneDeep from 'lodash/cloneDeep';
-import uuidv1 from 'uuid/v1';
+import { v1 as uuidv1 } from 'uuid';
 import { escapeSqlString } from './stringTools';
 
 export class SqlDumper implements AlterProcessor {

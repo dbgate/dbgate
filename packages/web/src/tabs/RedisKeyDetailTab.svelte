@@ -70,7 +70,7 @@
   import { showSnackbarError } from '../utility/snackbar';  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import RedisValueListLikeEdit from '../redis/RedisValueListLikeEdit.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   export let tabid;

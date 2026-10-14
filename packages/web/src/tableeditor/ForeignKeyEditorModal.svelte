@@ -1,6 +1,6 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';

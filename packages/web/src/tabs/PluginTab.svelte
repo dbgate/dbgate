@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { trackUsage } from '../utility/usageAnalytics';
-  import compareVersions from 'compare-versions';
+  import { compareVersions } from 'compare-versions';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';

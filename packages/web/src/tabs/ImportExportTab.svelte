@@ -56,7 +56,7 @@
   import _ from 'lodash';
   import createActivator from '../utility/createActivator';  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import { tick } from 'svelte';
   import { showSnackbarError } from '../utility/snackbar';
   import { _t } from '../translations';  let busy = false;

@@ -3,7 +3,7 @@
   import { writable } from 'svelte/store';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
 

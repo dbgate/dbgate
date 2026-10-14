@@ -5,8 +5,61 @@ import livereload from 'rollup-plugin-livereload';
 import copy from 'rollup-plugin-copy';
 import sveltePreprocess from 'svelte-preprocess';
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
 
 const production = process.env.NODE_ENV === 'production';
+
+// Rolldown 1.0 stable removed its experimental CSS bundling. This plugin keeps the previous behaviour:
+// CSS modules (Svelte component styles and imported .css files, with @import statements inlined)
+// are concatenated in module order and emitted as a single CSS asset.
+function cssBundle({ fileName }) {
+  const cssModules = new Map();
+
+  function inlineImports(code, fromFile, seen) {
+    return code.replace(/@import\s+(?:url\()?\s*['"]([^'"]+)['"]\s*\)?[^;]*;/g, (statement, specifier) => {
+      let resolved;
+      try {
+        resolved = createRequire(fromFile).resolve(specifier.startsWith('.') ? path.resolve(path.dirname(fromFile), specifier) : specifier);
+      } catch {
+        return statement;
+      }
+      if (seen.has(resolved)) return '';
+      seen.add(resolved);
+      return inlineImports(fs.readFileSync(resolved, 'utf8'), resolved, seen);
+    });
+  }
+
+  return {
+    name: 'css-bundle',
+    transform: {
+      filter: { id: /\.css$/ },
+      handler(code, id) {
+        const file = id.split('?')[0];
+        cssModules.set(id, fs.existsSync(file) ? inlineImports(code, file, new Set([file])) : code);
+        return { code: 'export {};', map: null, moduleType: 'js', moduleSideEffects: true };
+      },
+    },
+    generateBundle(options, bundle) {
+      // module execution order - depth-first walk of static imports from entry modules
+      const ordered = [];
+      const visited = new Set();
+      const visit = id => {
+        if (visited.has(id)) return;
+        visited.add(id);
+        const info = this.getModuleInfo(id);
+        if (!info) return;
+        for (const imported of info.importedIds) visit(imported);
+        if (cssModules.has(id)) ordered.push(cssModules.get(id));
+      };
+      for (const chunk of Object.values(bundle)) {
+        if (chunk.type === 'chunk' && chunk.facadeModuleId) visit(chunk.facadeModuleId);
+      }
+      this.emitFile({ type: 'asset', fileName, source: ordered.join('\n') });
+    },
+  };
+}
 
 function serve() {
   let server;
@@ -51,7 +104,6 @@ export default defineConfig([
       name: 'app',
       dir: 'public/build',
       entryFileNames: 'bundle.js',
-      cssEntryFileNames: 'bundle.css',
       minify: production,
     },
     // dbgate-types is a TypeScript-only package (no runtime code).
@@ -150,9 +202,11 @@ export default defineConfig([
           if (ignoreWarnings.includes(warning.code)) return;
           handler(warning);
         },
-        // Let rolldown handle CSS bundling natively
+        // CSS is collected by the css-bundle plugin below
         emitCss: true,
       }),
+
+      cssBundle({ fileName: 'bundle.css' }),
 
       // In dev mode, call `npm run start` once
       // the bundle has been generated

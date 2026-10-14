@@ -13,7 +13,7 @@
   import { openedTabs } from '../stores';
   import { setSelectedTabFunc } from '../utility/common';
   import tabs from '../tabs';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   import AppObjectCore from './AppObjectCore.svelte';
   import { trackObjectTree } from './appObjectTools';

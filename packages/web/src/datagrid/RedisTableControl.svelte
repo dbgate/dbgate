@@ -6,7 +6,7 @@
   import createRef from '../utility/createRef';
   import FontIcon from '../icons/FontIcon.svelte';
   import { supportedRedisKeyTypes } from 'dbgate-tools';
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
   import _ from 'lodash';
 
   export let conid;

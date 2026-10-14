@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const http = require('http');
 const cors = require('cors');
-const getPort = require('get-port');
+const getPort = require('get-port').default;
 const path = require('path');
 const fs = require('fs/promises');
 
@@ -54,7 +54,7 @@ const { startCloudFiles } = require('./utility/cloudIntf');
 const logger = getLogger('main');
 
 function registerExpressStatic(app, publicDir) {
-  app.get([getExpressPath('/'), getExpressPath('/*.html')], async (req, res, next) => {
+  app.get([getExpressPath('/'), getExpressPath('/*file.html')], async (req, res, next) => {
     try {
       const relPath = req.path === getExpressPath('/') ? '/index.html' : req.path;
       const filePath = path.join(publicDir, relPath);
@@ -100,6 +100,8 @@ function start() {
 
   const app = express();
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+  // keep Express 4 behaviour - parse nested query strings (Express 5 defaults to 'simple')
+  app.set('query parser', 'extended');
 
   const server = http.createServer(app);
 

@@ -5,11 +5,11 @@
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "DbGate - Database administration tool",
   "dependencies": {
-    "electron-log": "^4.4.1",
-    "electron-updater": "^6.3.4",
-    "jsonwebtoken": "^9.0.2",
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
+    "jsonwebtoken": "^9.0.3",
     "lodash.clonedeepwith": "^4.5.0",
-    "patch-package": "^6.4.7"
+    "patch-package": "^8.0.1"
   },
   "repository": {
     "type": "git",
@@ -126,9 +126,9 @@
   },
   "main": "src/electron.js",
   "devDependencies": {
-    "copyfiles": "^2.2.0",
-    "cross-env": "^6.0.3",
-    "electron": "38.6.0",
-    "electron-builder": "25.1.8"
+    "copyfiles": "^2.4.1",
+    "cross-env": "^10.1.0",
+    "electron": "44.7.2",
+    "electron-builder": "26.15.3"
   }
 }

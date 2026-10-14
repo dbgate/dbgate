@@ -7,7 +7,7 @@
   import resolveApi, { resolveApiHeaders } from '../utility/resolveApi';
   import { _t } from '../translations';
 
-  import uuidv1 from 'uuid/v1';
+  import { v1 as uuidv1 } from 'uuid';
 
   export let filters;
   export let onProcessFile;
