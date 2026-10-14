@@ -24,6 +24,7 @@ const volatilePackages = [
   '@duckdb/node-api',
   '@mongosh/browser-runtime-electron',
   '@mongosh/service-provider-node-driver',
+  'kerberos', // optional native dependency of cassandra-driver, loads its .node binary with a static require
 ];
 
 module.exports = volatilePackages;
