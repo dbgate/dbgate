@@ -7,7 +7,7 @@ checkout-and-merge-pro:
       repository: dbgate/dbgate-pro
       token: ${{ secrets.GH_TOKEN }}
       path: dbgate-pro
-      ref: a43a8cd613fc3c946bde4d69bb7d33cfb5c0ec21
+      ref: 5844e534a1e684cc105915e45640b7ce963e8af7
   - name: Diflow install
     run: npm install -g diflow
   - name: Merge dbgate/dbgate-pro
