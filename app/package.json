@@ -41,7 +41,8 @@
           "arm64"
         ]
       },
-      "notarize": true
+      "notarize": true,
+      "x64ArchFiles": "Contents/Resources/app.asar.unpacked/node_modules/**"
     },
     "linux": {
       "target": [
@@ -121,6 +122,7 @@
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
+    "prerebuild": "node -e \"require('fs').rmSync('node_modules/cpu-features', { recursive: true, force: true })\"",
     "rebuild": "electron-builder install-app-deps",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
   },
