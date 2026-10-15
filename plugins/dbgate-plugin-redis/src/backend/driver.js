@@ -623,14 +623,19 @@ const driver = {
       switch (item.type) {
         case 'list':
           cardinalityPipeline.llen(item.key);
+          break;
         case 'set':
           cardinalityPipeline.scard(item.key);
+          break;
         case 'zset':
           cardinalityPipeline.zcard(item.key);
+          break;
         case 'stream':
           cardinalityPipeline.xlen(item.key);
+          break;
         case 'hash':
           cardinalityPipeline.hlen(item.key);
+          break;
       }
     }
     const resultCardinality = await cardinalityPipeline.exec();
@@ -645,8 +650,8 @@ const driver = {
       ) {
         if (resultCardinality[resIndex][0] == null) {
           item.count = resultCardinality[resIndex][1];
-          resIndex++;
         }
+        resIndex++;
       }
     }
   },
@@ -754,8 +759,14 @@ const driver = {
         let newCursor = 0;
         if (res.length > 0) {
           const id = res[res.length - 1][0];
-          const idParts = id.split('-');
-          newCursor = `${idParts[0]}-${parseInt(idParts[1] + 1)}`;
+          const [timestamp, sequence] = id.split('-').map(BigInt);
+          const maxIdPart = 18446744073709551615n;
+          // Keep inclusive XRANGE cursors compatible with Redis versions before 6.2.
+          if (sequence < maxIdPart) {
+            newCursor = `${timestamp}-${sequence + 1n}`;
+          } else if (timestamp < maxIdPart) {
+            newCursor = `${timestamp + 1n}-0`;
+          }
         }
         return {
           cursor: newCursor,
