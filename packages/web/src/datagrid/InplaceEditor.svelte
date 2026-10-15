@@ -11,10 +11,13 @@
   export let canSelectMultipleOptions;
   export let driver;
   export let dataEditorTypesBehaviourOverride = null;
+  export let rowHeight = null;
+
+  $: fixedHeightStyle = rowHeight > 0 ? `height:${rowHeight}px; line-height:${rowHeight}px;` : undefined;
 </script>
 
-<td class="editor">
-  <div class="inplaceeditor-container">
+<td class="editor" class:fixedHeight={rowHeight > 0} style={fixedHeightStyle}>
+  <div class="inplaceeditor-container" class:fixedHeightContent={rowHeight > 0} style={fixedHeightStyle}>
     {#if options}
       <InplaceSelect
         {inplaceEditorState}
@@ -43,5 +46,18 @@
 <style>
   td.editor {
     position: relative;
+  }
+
+  td.editor.fixedHeight {
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .inplaceeditor-container.fixedHeightContent {
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
   }
 </style>
