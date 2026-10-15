@@ -121,7 +121,7 @@ jobs:
             _premium: ../dbgate-merged/docker
           tags: ${{ steps.meta.outputs.tags }}
           platforms: 
-            _community: linux/amd64,linux/arm64,linux/arm/v7
+            _community: linux/amd64,linux/arm64
             _premium: linux/amd64,linux/arm64
 
 
@@ -133,4 +133,4 @@ jobs:
           context: ./docker
           file: ./docker/Dockerfile-alpine
           tags: ${{ steps.alpmeta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
