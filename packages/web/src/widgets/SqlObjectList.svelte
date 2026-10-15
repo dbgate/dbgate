@@ -96,7 +96,17 @@
           ];
 
   $: objectList = _.flatten([
-    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(
+    ...[
+      'tables',
+      'collections',
+      'views',
+      'matviews',
+      'procedures',
+      'functions',
+      'triggers',
+      'schedulerEvents',
+      'userDefinedTypes',
+    ].map(
       objectTypeField =>
         _.orderBy(
           (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),

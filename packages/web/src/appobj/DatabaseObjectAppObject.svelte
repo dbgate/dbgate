@@ -57,6 +57,7 @@
     queries: 'img query-data',
     triggers: 'icon trigger',
     schedulerEvents: 'icon scheduler-event',
+    userDefinedTypes: 'icon user-defined-type',
   };
 
   // const defaultTabs = {
@@ -361,6 +362,35 @@
         ];
       case 'functions':
         return [...defaultDatabaseObjectAppObjectActions['functions']];
+      case 'userDefinedTypes':
+        return [
+          ...defaultDatabaseObjectAppObjectActions['userDefinedTypes'],
+          hasPermission('dbops/model/edit') && {
+            label: _t('dbObject.dropType', { defaultMessage: 'Drop type' }),
+            isDrop: true,
+            requiresWriteAccess: true,
+          },
+          {
+            divider: true,
+          },
+          {
+            label: _t('dbObject.sqlGenerator', { defaultMessage: 'SQL generator' }),
+            submenu: [
+              {
+                label: 'CREATE TYPE',
+                sqlGeneratorProps: {
+                  createUserDefinedTypes: true,
+                },
+              },
+              {
+                label: 'DROP TYPE',
+                sqlGeneratorProps: {
+                  dropUserDefinedTypes: true,
+                },
+              },
+            ],
+          },
+        ];
       case 'triggers':
         return [
           ...defaultDatabaseObjectAppObjectActions['triggers'],
@@ -1119,6 +1149,18 @@
     const res = [];
     if (data.objectTypeField === 'triggers') {
       res.push(`${data.tableName}, ${data.triggerTiming?.toLowerCase() ?? ''} ${data.eventType?.toLowerCase() ?? ''}`);
+    }
+
+    if (data.objectTypeField === 'userDefinedTypes') {
+      if (data.typeKind == 'enum') {
+        res.push(`${data.typeKind}: ${(data.enumValues || []).join(', ')}`);
+      } else if (data.typeKind == 'composite') {
+        res.push(`${data.typeKind}: ${(data.attributes || []).map(x => x.columnName).join(', ')}`);
+      } else if (data.baseType) {
+        res.push(`${data.typeKind}: ${data.baseType}`);
+      } else if (data.typeKind) {
+        res.push(data.typeKind);
+      }
     }
 
     if (data.objectTypeField == 'schedulerEvents') {

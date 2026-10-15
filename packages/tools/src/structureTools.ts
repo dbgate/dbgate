@@ -117,6 +117,10 @@ function fillDatabaseExtendedInfo(db: DatabaseInfo): DatabaseInfo {
       ...obj,
       objectTypeField: 'triggers',
     })),
+    userDefinedTypes: (db.userDefinedTypes || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'userDefinedTypes',
+    })),
   };
 }
 
@@ -178,6 +182,7 @@ export function filterStructureBySchema(db: DatabaseInfo, schema: string) {
     procedures: (db.procedures || []).filter(x => x.schemaName == schema),
     functions: (db.functions || []).filter(x => x.schemaName == schema),
     triggers: (db.triggers || []).filter(x => x.schemaName == schema),
+    userDefinedTypes: (db.userDefinedTypes || []).filter(x => x.schemaName == schema),
   };
 }
 
@@ -194,6 +199,7 @@ export function getSchemasUsedByStructure(db: DatabaseInfo) {
     ...(db.procedures || []).map(x => x.schemaName),
     ...(db.functions || []).map(x => x.schemaName),
     ...(db.triggers || []).map(x => x.schemaName),
+    ...(db.userDefinedTypes || []).map(x => x.schemaName),
   ]);
 }
 
@@ -221,6 +227,7 @@ export function replaceSchemaInStructure(db: DatabaseInfo, schema: string) {
     procedures: (db.procedures || []).map(x => ({ ...x, schemaName: schema })),
     functions: (db.functions || []).map(x => ({ ...x, schemaName: schema })),
     triggers: (db.triggers || []).map(x => ({ ...x, schemaName: schema })),
+    userDefinedTypes: (db.userDefinedTypes || []).map(x => ({ ...x, schemaName: schema })),
   };
 }
 
@@ -238,6 +245,7 @@ export function skipNamesInStructureByRegex(db: DatabaseInfo, regex: RegExp) {
     procedures: (db.procedures || []).filter(x => !regex.test(x.pureName)),
     functions: (db.functions || []).filter(x => !regex.test(x.pureName)),
     triggers: (db.triggers || []).filter(x => !regex.test(x.pureName)),
+    userDefinedTypes: (db.userDefinedTypes || []).filter(x => !regex.test(x.pureName)),
   };
 }
 

@@ -77,6 +77,7 @@
     'icon parameter': 'mdi mdi-at',
     'icon trigger': 'mdi mdi-lightning-bolt',
     'icon scheduler-event': 'mdi mdi-calendar-blank',
+    'icon user-defined-type': 'mdi mdi-shape',
     'icon arrow-link': 'mdi mdi-arrow-top-right-thick',
     'icon reset': 'mdi mdi-cancel',
     'icon send': 'mdi mdi-send',
