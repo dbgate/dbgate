@@ -84,7 +84,7 @@ jobs:
           push: true
           context: ./docker
           tags: ${{ steps.meta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
       - name: Build and push alpine
         uses: docker/build-push-action@v3
         with:
@@ -92,4 +92,4 @@ jobs:
           context: ./docker
           file: ./docker/Dockerfile-alpine
           tags: ${{ steps.alpmeta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
