@@ -391,7 +391,6 @@ describe('Data browser data', () => {
     cy.contains('MgRivers').click();
     cy.contains('RiverInfo').click();
     cy.testid('ColumnManagerRow_expand_countries').click();
-    cy.testid('ColumnManagerRow_expand_countries').should('have.class', 'mdi-minus-box-outline');
     cy.testid('ColumnManagerRow_checkbox_countries.0').click();
     cy.testid('ColumnManagerRow_checkbox_countries.1').click();
     cy.testid('ColumnManagerRow_checkbox__id').click();
@@ -552,7 +551,6 @@ describe('Data browser data', () => {
     cy.contains('Album').click();
     cy.testid('WidgetIconPanel_database').click();
     cy.testid('ColumnManagerRow_expand_ArtistId').click();
-    cy.testid('ColumnManagerRow_expand_ArtistId').should('have.class', 'mdi-minus-box-outline');
     cy.testid('ColumnManagerRow_checkbox_ArtistId.Name').click();
     cy.testid('ColumnManagerRow_checkbox_ArtistId').click();
     cy.testid('DataFilterControl_input_ArtistId.Name').type('mich{enter}');

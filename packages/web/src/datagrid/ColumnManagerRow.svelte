@@ -61,14 +61,7 @@
 >
   <div>
     {#if isProApp()}
-      <!-- Keep expansion from focusing the off-screen selection input on mousedown. -->
-      <span
-        class="expandColumnIcon"
-        style={`margin-right: ${5 + (column.uniquePath.length - 1) * 10}px`}
-        on:mousedown|stopPropagation
-        on:mouseup|stopPropagation
-        on:click|stopPropagation
-      >
+      <span class="expandColumnIcon" style={`margin-right: ${5 + (column.uniquePath.length - 1) * 10}px`}>
         <FontIcon
           icon={column.isExpandable
             ? plusExpandIcon(display.isExpandedColumn(column.uniqueName))
