@@ -126,7 +126,8 @@ jobs:
         ports:
           - 3050:3050
       mongodb:
-        image: mongo:4.0.12
+        image: mongo:4.4.29
+        options: '--health-cmd "mongo --quiet --eval ''db.adminCommand({ ping: 1 })''" --health-interval 5s --health-timeout 5s --health-retries 12'
         ports:
           - 27017:27017
         volumes:
