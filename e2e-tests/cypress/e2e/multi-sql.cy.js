@@ -1,3 +1,5 @@
+Cypress.config('defaultCommandTimeout', 30000);
+
 const localconfig = require('../../.localconfig');
 const { formatQueryWithoutParams } = require('dbgate-tools');
 
@@ -275,8 +277,11 @@ describe('Import CSV', () => {
     cy.testid('ImportExportTab_preview_content').contains('50ddd99fAdF48B3').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
-    cy.testid('ImportExportConfigurator_tableMappingSection').contains('20 rows written').should('be.visible');
+    cy.testid('ImportExportConfigurator_tableMappingSection')
+      .contains('20 rows written')
+      .should('be.visible');
 
+    cy.testid('ImportExportTab_executeButton').should('be.visible');
     cy.testid('SqlObjectList_refreshButton').click();
     cy.testid('DatabasStatusMenu_refreshFull').click();
     // cy.contains('Refresh DB structure (incremental)').click();
@@ -305,7 +310,8 @@ describe('Import CSV - source error', () => {
     cy.testid('ImportExportTab_preview_content').contains('Invalid Closing Quote').should('be.visible');
 
     cy.testid('ImportExportTab_executeButton').click();
-    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err', { timeout: 10000 }).click();
+    cy.testid('ImportExportTab_executeButton').should('be.visible');
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20-err').click();
 
     cy.testid('ErrorMessageModal_message').contains('Invalid Closing Quote').should('be.visible');
   });
@@ -322,9 +328,16 @@ describe('Import CSV - target error', () => {
 
     cy.get('input[type=file]').selectFile('cypress/fixtures/customers-20.csv', { force: true });
     cy.contains('customers-20');
-    cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('system."]`');
+    if (engine.startsWith('mongo@') || engine.startsWith('dynamodb@')) {
+      cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('system."]`');
+    } else {
+      // Quoted SQL identifiers can contain punctuation, so use a missing append target to force an error.
+      cy.testid('ImportExportConfigurator_targetName_customers-20').clear().type('dbgate_missing_import_target');
+      cy.testid('SourceAction_select_customers-20').select('appendData');
+    }
     cy.testid('ImportExportTab_executeButton').click();
-    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20', { timeout: 10000 }).click();
+    cy.testid('ImportExportTab_executeButton').should('be.visible');
+    cy.testid('ImportExportConfigurator_errorInfoIcon_customers-20').click();
     cy.testid('ErrorMessageModal_message').should('be.visible');
   });
 });

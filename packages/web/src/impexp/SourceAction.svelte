@@ -15,6 +15,7 @@
 <SelectField
   {options}
   isNative
+  data-testid={`SourceAction_select_${name}`}
   value={$values[`actionType_${name}`] || options[0].value}
   on:change={e => setFieldValue(`actionType_${name}`, e.detail)}
 />

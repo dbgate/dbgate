@@ -14,9 +14,8 @@ async function createDb(connection, dropDbSql, createDbSql, database = 'my_guita
   if (dropDbSql) {
     try {
       await dbgateApi.executeQuery({
-        connection,
+        connection: dropDatabaseName ? { ...connection, database: dropDatabaseName } : connection,
         sql: dropDbSql,
-        database: dropDatabaseName,
       });
     } catch (err) {
       console.error('Failed to drop database', err);

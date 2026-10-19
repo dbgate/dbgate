@@ -701,6 +701,9 @@
         data.columns.map(x => x.columnName),
         data
       );
+      if (driver.implicitTransactions) {
+        dmp.commitTransaction();
+      }
 
       showModal(ConfirmSqlModal, {
         sql: dmp.s,
