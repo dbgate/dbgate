@@ -75,7 +75,13 @@ describe('Identifier quoting', () => {
       const structure = await driver.analyseFull(conn);
       const table = structure.tables.find(x => x.pureName == tableName(engine));
       expect(table).toBeTruthy();
-      expect(table.columns.map(x => x.columnName)).toEqual(['id', columnName(engine)]);
+      const actualColumns = table.columns.map(x => x.columnName);
+      const expectedColumns = ['id', columnName(engine)];
+      if (engine.forceSortStructureColumns) {
+        actualColumns.sort();
+        expectedColumns.sort();
+      }
+      expect(actualColumns).toEqual(expectedColumns);
     })
   );
 });
