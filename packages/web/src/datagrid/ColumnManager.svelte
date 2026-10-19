@@ -246,7 +246,7 @@
       isSelected={selectedColumns.includes(column.uniqueName) || currentColumnUniqueName == column.uniqueName}
       filter={currentFilter}
       on:click={() => {
-        if (domFocusField) domFocusField.focus();
+        if (domFocusField) domFocusField.focus({ preventScroll: true });
         selectedColumns = [column.uniqueName];
         currentColumnUniqueName = column.uniqueName;
       }}
@@ -268,14 +268,14 @@
       on:mousedown={e => {
         dragStartColumnIndex = _.findIndex(items, x => x.uniqueName == column.uniqueName);
         selectedColumns = [column.uniqueName];
-        if (domFocusField) domFocusField.focus();
+        if (domFocusField) domFocusField.focus({ preventScroll: true });
         currentColumnUniqueName = column.uniqueName;
         if (!isJsonView) {
           display.focusColumns(selectedColumns);
         }
       }}
       on:mouseup={e => {
-        if (domFocusField) domFocusField.focus();
+        if (domFocusField) domFocusField.focus({ preventScroll: true });
       }}
       on:setvisibility={e => {
         if (selectedColumns.includes(column.uniqueName)) {
