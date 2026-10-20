@@ -49,6 +49,8 @@ export interface SqlDialect {
   dropCheck?: boolean;
   renameSqlObject?: boolean;
   multipleSchema?: boolean;
+  materializedViews?: boolean;
+  userDefinedTypes?: boolean;
   filteredIndexes?: boolean;
   namedDefaultConstraint?: boolean;
   indexTypes?: {
