@@ -23,9 +23,10 @@
 
 <style>
   .wrapper {
-    padding: 5px;
-    font-weight: bold;
-    font-size: 9pt;
+    padding: 6px 8px;
+    font-weight: 600;
+    font-size: 8.5pt;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     background-color: var(--theme-sidebar-section-background);
     border: var(--theme-sidebar-section-border);

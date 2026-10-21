@@ -41,7 +41,7 @@
   .text-input {
     padding: 10px 12px;
     border: var(--theme-input-border);
-    border-radius: 4px;
+    border-radius: var(--dim-radius-md);
     background-color: var(--theme-input-background);
     color: var(--theme-input-foreground);
     font-size: 13px;

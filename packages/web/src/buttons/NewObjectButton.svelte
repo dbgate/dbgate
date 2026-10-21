@@ -42,7 +42,11 @@
 
   background-color: var(--theme-new-object-button-background);
   border: var(--theme-inlinebutton-bordered-border);
-  border-radius: 6px;
+  border-radius: var(--dim-radius-lg);
+  transition:
+    background-color var(--dim-transition-fast),
+    border-color var(--dim-transition-fast),
+    transform var(--dim-transition-fast);
 
   display: flex;
   flex-direction: column;
@@ -56,6 +60,11 @@
 
 .new-object-button.enabled:hover {
   background-color: var(--theme-new-object-button-background-hover);
+  border: var(--theme-inlinebutton-bordered-hover-border);
+}
+
+.new-object-button.enabled:active {
+  transform: translateY(1px);
 }
 
 .icon {

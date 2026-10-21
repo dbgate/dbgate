@@ -241,6 +241,7 @@
 
   .clickable {
     cursor: pointer;
+    transition: background-color var(--dim-transition-fast);
   }
   .clickable:hover {
     background-color: var(--theme-statusbar-background-hover);

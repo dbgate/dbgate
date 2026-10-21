@@ -866,6 +866,14 @@
     align-items: center;
     cursor: pointer;
     user-select: none;
+    transition:
+      background-color var(--dim-transition-fast),
+      color var(--dim-transition-fast);
+  }
+  .file-tab-item:not(.selected):hover,
+  .db-name:not(.selected):hover {
+    background-color: var(--theme-tabs-panel-item-background-hover);
+    color: var(--theme-tabs-panel-active-foreground);
   }
   .file-tab-item.selected {
     background-color: var(--theme-tabs-panel-active-background);

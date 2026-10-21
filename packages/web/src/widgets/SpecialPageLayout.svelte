@@ -96,7 +96,8 @@
     /* max-width: 600px;
         width: 40vw; */
     border: var(--theme-card-border);
-    border-radius: 4px;
+    border-radius: var(--dim-radius-lg);
+    box-shadow: var(--theme-popup-shadow);
     background-color: var(--theme-content-background);
     position: relative;
   }
@@ -115,6 +116,16 @@
     display: flex;
     flex-wrap: wrap;
     width: 600px;
+    max-width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .box {
+      max-width: calc(100vw - 24px);
+    }
+    .text {
+      display: none;
+    }
   }
 
   .titlebar {

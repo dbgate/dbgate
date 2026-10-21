@@ -39,11 +39,21 @@
 <style>
   input {
     border: var(--theme-formbutton-border);
-    padding: 5px;
+    padding: 6px 14px;
     margin: 2px;
     color: var(--theme-formbutton-foreground);
-    border-radius: 3px;
+    border-radius: var(--dim-radius-md);
     cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    white-space: nowrap;
+    transition:
+      background-color var(--dim-transition-fast),
+      border-color var(--dim-transition-fast),
+      color var(--dim-transition-fast),
+      box-shadow var(--dim-transition-fast);
   }
 
   .setBackgroundColor {
@@ -51,7 +61,7 @@
   }
 
   input:not(.skipWidth) {
-    width: 100px;
+    min-width: 100px;
   }
 
   input.setBackgroundColor:hover:not(.disabled):not(.outline) {
@@ -66,6 +76,7 @@
     background: var(--theme-formbutton-background-disabled);
     color: var(--theme-formbutton-foreground-disabled);
     border: var(--theme-formbutton-border-disabled);
+    cursor: not-allowed;
   }
 
   input.outline {

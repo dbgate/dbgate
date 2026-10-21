@@ -80,7 +80,7 @@
 <style>
   .select {
     --border: var(--theme-input-border);
-    --borderRadius: 4px;
+    --borderRadius: var(--dim-radius-md);
     --placeholderColor: var(--theme-input-placeholder);
     --background: var(--theme-input-background);
     --borderHoverColor: var(--theme-input-border-hover-color);

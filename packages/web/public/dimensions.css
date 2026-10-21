@@ -31,4 +31,11 @@
   );
 
   --dim-large-form-margin: 20px;
+
+  --dim-radius-sm: 4px;
+  --dim-radius-md: 6px;
+  --dim-radius-lg: 10px;
+
+  --dim-transition-fast: 120ms ease;
+  --dim-transition-base: 180ms ease;
 }

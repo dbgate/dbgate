@@ -60,22 +60,37 @@
 <style>
   .wrapper {
     width: 400px;
+    max-width: calc(100vw - 20px);
+    box-sizing: border-box;
     border: var(--theme-card-border);
+    border-radius: var(--dim-radius-lg);
+    box-shadow: var(--theme-popup-shadow);
     background-color: var(--theme-card-background);
     margin: 10px;
     position: relative;
-    padding: 3px;
+    padding: 4px;
+    animation: snackbar-slide-in var(--dim-transition-base);
+  }
+
+  @keyframes snackbar-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
   }
 
   .message {
     margin: 10px;
+    margin-right: 28px;
   }
 
   .close {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: 8px;
+    top: 8px;
     cursor: pointer;
+    color: var(--theme-generic-font-grayed);
+    transition: color var(--dim-transition-fast);
   }
 
   .close:hover {

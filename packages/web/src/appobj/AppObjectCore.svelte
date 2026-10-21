@@ -211,6 +211,7 @@
     white-space: nowrap;
     font-weight: normal;
     position: relative;
+    transition: background-color 80ms ease;
   }
   .main:hover:not(.disableHover) {
     background-color: var(--theme-sidebar-background-hover);

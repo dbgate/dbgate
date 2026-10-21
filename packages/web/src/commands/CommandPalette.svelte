@@ -279,9 +279,10 @@
     position: relative;
     z-index: 2;
     width: 600px;
+    max-width: calc(100vw - 24px);
     background: var(--theme-modal-background);
     border: var(--theme-modal-border);
-    border-radius: 6px;
+    border-radius: var(--dim-radius-lg);
     box-shadow: var(--theme-modal-shadow);
     overflow: hidden;
   }

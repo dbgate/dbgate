@@ -38,6 +38,9 @@
     margin: 0;
     text-decoration: none;
     display: flex;
+    transition:
+      color var(--dim-transition-fast),
+      background-color var(--dim-transition-fast);
   }
 
   .outer:not(.useBorder) {

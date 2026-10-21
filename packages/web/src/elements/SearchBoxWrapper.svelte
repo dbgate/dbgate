@@ -13,6 +13,9 @@
     border-bottom: var(--theme-searchbox-border);
     background-color: var(--theme-searchbox-background);
     border: var(--theme-searchbox-border);
+    transition:
+      border-color var(--dim-transition-fast),
+      box-shadow var(--dim-transition-fast);
   }
 
   div.altsearchbox {
@@ -20,9 +23,18 @@
     border: var(--theme-altsearchbox-border);
   }
 
+  div:focus-within {
+    border-color: var(--theme-input-border-focus-color);
+  }
+
   div.useMargin {
-    border-radius: 4px;
-    margin: 3px 5px;
+    border-radius: var(--dim-radius-md);
+    margin: 4px 6px;
+    overflow: hidden;
+  }
+
+  div.useMargin:focus-within {
+    box-shadow: var(--theme-input-focus-ring);
   }
   div.hasFilter {
     background-color: var(--theme-searchbox-background-filtered);
