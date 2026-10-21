@@ -14,7 +14,7 @@ But there are also many advanced features like schema compare, visual query desi
 
 DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 
-* Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
+* Try it online - [demo.dbgate.cloud](https://demo.dbgate.cloud) - online demo application
 * **Download** application for Windows, Linux or Mac from [dbgate.io](https://www.dbgate.io/download/)
 * Looking for DbGate Community? **Download** from [dbgate.io](https://www.dbgate.io/download-community/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate-serve) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
