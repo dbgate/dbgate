@@ -86,11 +86,13 @@ module.exports = {
     raw: true,
   },
   get(req, res) {
-    if (req.query.file.includes('..') || req.query.file.includes('/') || req.query.file.includes('\\')) {
+    const { file } = req.query;
+    if (typeof file != 'string' || !file || file.includes('..') || file.includes('/') || file.includes('\\')) {
       res.status(400).send('Invalid file path');
       return;
     }
-    res.sendFile(path.join(uploadsdir(), req.query.file));
+    // Keep the hidden workspace directory outside sendFile's dotfile check.
+    res.sendFile(file, { root: uploadsdir() });
   },
 
 //   uploadErrorToGist_meta: true,
