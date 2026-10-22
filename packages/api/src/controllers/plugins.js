@@ -139,7 +139,7 @@ module.exports = {
     if (!hasPermission(`plugins/install`, loadedPermissions)) return;
     assertValidPluginPackageName(packageName);
     const dir = path.join(pluginsdir(), packageName);
-    await fs.rmdir(dir, { recursive: true });
+    await fs.remove(dir);
     socket.emitChanged(`installed-plugins-changed`);
     // this.removedPlugins.push(packageName);
     // await this.saveRemovePlugins();
@@ -154,7 +154,7 @@ module.exports = {
     const dir = path.join(pluginsdir(), packageName);
     // @ts-ignore
     if (await fs.exists(dir)) {
-      await fs.rmdir(dir, { recursive: true });
+      await fs.remove(dir);
       await downloadPackage(packageName, dir);
     }
 
