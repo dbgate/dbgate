@@ -85,6 +85,13 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
 
+## One-Click Deploy
+
+<a href="https://repocloud.io/details/DbGate/"><img src="https://d16t0pc4846x52.cloudfront.net/deploylobe.svg" alt="Deploy on RepoCloud" height="42"></a>
+<a href="https://railway.com/deploy/dbgate"><img src="https://railway.com/button.svg" alt="Deploy on Railway" height="42"></a>
+<a href="https://elest.io/open-source/dbgate"><img src="https://elest.io/images/logos/deploy-to-elestio-btn.png" alt="Deploy on Elestio" height="42"></a>
+<a href="https://template.sealos.io/deploy?templateName=dbgate"><img src="https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg" alt="Deploy on Sealos" height="42"></a>
+
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
 
