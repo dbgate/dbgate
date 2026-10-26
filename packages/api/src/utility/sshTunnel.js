@@ -10,6 +10,11 @@ const pipeForkLogs = require('./pipeForkLogs');
 const logger = getLogger('sshTunnel');
 
 const sshTunnelCache = {};
+// failed tunnel attempts, used to back off retries - a connection that keeps failing would otherwise
+// start a new forward process every few seconds
+const sshTunnelErrorCache = {};
+const ERROR_BACKOFF_INITIAL_MS = 2000;
+const ERROR_BACKOFF_MAX_MS = 60000;
 
 const CONNECTION_FIELDS = [
   'sshHost',
@@ -46,6 +51,12 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey, globalSett
   } catch (err) {
     logger.error(extractErrorLogData(err), 'DBGM-00174 Error connecting SSH');
   }
+  // a failed (killed) forward process must not remove a newer tunnel for the same key from the cache
+  const removeFromCache = () => {
+    if (sshTunnelCache[tunnelCacheKey]?.subprocess === subprocess) {
+      delete sshTunnelCache[tunnelCacheKey];
+    }
+  };
   return new Promise((resolve, reject) => {
     let promiseHandled = false;
     subprocess.on('message', resp => {
@@ -58,11 +69,13 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey, globalSett
       if (msgtype == 'error') {
         reject(new Error(errorMessage));
         promiseHandled = true;
+        // the forward process stays alive until it is killed, it would leak on every failed attempt
+        killForwardProcess(subprocess);
       }
     });
     subprocess.on('exit', code => {
       logger.info(`DBGM-00090 SSH forward process exited with code ${code}`);
-      delete sshTunnelCache[tunnelCacheKey];
+      removeFromCache();
       if (!promiseHandled) {
         reject(
           new Error(
@@ -73,12 +86,22 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey, globalSett
     });
     subprocess.on('error', error => {
       logger.error(extractErrorLogData(error), 'DBGM-00092 SSH forward process error');
-      delete sshTunnelCache[tunnelCacheKey];
+      removeFromCache();
       if (!promiseHandled) {
         reject(error);
+        promiseHandled = true;
+        killForwardProcess(subprocess);
       }
     });
   });
+}
+
+function killForwardProcess(subprocess) {
+  try {
+    subprocess.kill();
+  } catch (err) {
+    logger.error(extractErrorLogData(err), 'DBGM-00000 Error killing SSH forward process');
+  }
 }
 
 async function getSshTunnel(connection) {
@@ -89,6 +112,13 @@ async function getSshTunnel(connection) {
 
   return await lock.acquire(tunnelCacheKey, async () => {
     if (sshTunnelCache[tunnelCacheKey]) return sshTunnelCache[tunnelCacheKey];
+    const lastError = sshTunnelErrorCache[tunnelCacheKey];
+    if (lastError && Date.now() < lastError.retryAt) {
+      return {
+        state: 'error',
+        message: lastError.message,
+      };
+    }
     const localPort = await portfinder.getPortPromise({ port: 10000, stopPort: 60000 });
     const localHost = globalSettings?.['connection.sshBindHost'] || '127.0.0.1';
     // workaround for `getPortPromise` not releasing the port quickly enough
@@ -110,6 +140,7 @@ async function getSshTunnel(connection) {
         `DBGM-00094 Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
+      delete sshTunnelErrorCache[tunnelCacheKey];
       sshTunnelCache[tunnelCacheKey] = {
         state: 'ok',
         localPort,
@@ -119,7 +150,13 @@ async function getSshTunnel(connection) {
       return sshTunnelCache[tunnelCacheKey];
     } catch (err) {
       logger.error(extractErrorLogData(err), 'DBGM-00095 Error creating SSH tunnel:');
-      // error is not cached
+      // error is cached only for the backoff interval, which doubles with each consecutive failure
+      const failures = (lastError?.failures || 0) + 1;
+      sshTunnelErrorCache[tunnelCacheKey] = {
+        message: err.message,
+        failures,
+        retryAt: Date.now() + Math.min(ERROR_BACKOFF_INITIAL_MS * 2 ** (failures - 1), ERROR_BACKOFF_MAX_MS),
+      };
       return {
         state: 'error',
         message: err.message,
