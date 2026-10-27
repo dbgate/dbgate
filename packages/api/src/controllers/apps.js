@@ -9,9 +9,27 @@ const {
   loadFilePermissionsFromRequest,
   hasPermission,
   getFilePermissionRole,
+  testStandardPermission,
 } = require('../utility/hasPermission');
+const { checkSecureFilePathsWithoutDirectory } = require('../utility/security');
+
+// Saving app definitions needs files/apps/write, like saving app files in the UI, and the app
+// file itself must not be denied to the caller (see getAllApps)
+async function testAppWritePermission(appid, req) {
+  if (!req) return;
+  await testStandardPermission('files/apps/write', req);
+  if (appid == null) return;
+  const loadedPermissions = await loadPermissionsFromRequest(req);
+  if (!hasPermission('all-disk-files', loadedPermissions)) {
+    const filePermissions = await loadFilePermissionsFromRequest(req);
+    if (getFilePermissionRole('apps', appid, filePermissions) == 'deny') {
+      throw new Error('DBGM-00000 Permission for the application not granted');
+    }
+  }
+}
 
 module.exports = {
+  getAllApps_access: 'self',
   getAllApps_meta: true,
   async getAllApps({}, req) {
     const dir = path.join(filesdir(), 'apps');
@@ -58,8 +76,11 @@ module.exports = {
     return res;
   },
 
+  createAppFromDb_access: 'self',
+
   createAppFromDb_meta: true,
   async createAppFromDb({ appName, server, database }, req) {
+    await testAppWritePermission(null, req);
     const appdir = path.join(filesdir(), 'apps');
     if (!fs.existsSync(appdir)) {
       await fs.mkdir(appdir);
@@ -89,8 +110,11 @@ module.exports = {
     return finalAppId;
   },
 
+  saveVirtualReference_access: 'self',
+
   saveVirtualReference_meta: true,
-  async saveVirtualReference({ appid, schemaName, pureName, refSchemaName, refTableName, columns }) {
+  async saveVirtualReference({ appid, schemaName, pureName, refSchemaName, refTableName, columns }, req) {
+    await testAppWritePermission(appid, req);
     await this.saveConfigItem(
       appid,
       'virtualReferences',
@@ -117,8 +141,11 @@ module.exports = {
     return true;
   },
 
+  saveDictionaryDescription_access: 'self',
+
   saveDictionaryDescription_meta: true,
-  async saveDictionaryDescription({ appid, pureName, schemaName, expression, columns, delimiter }) {
+  async saveDictionaryDescription({ appid, pureName, schemaName, expression, columns, delimiter }, req) {
+    await testAppWritePermission(appid, req);
     await this.saveConfigItem(
       appid,
       'dictionaryDescriptions',
@@ -138,6 +165,10 @@ module.exports = {
   },
 
   async saveConfigItem(appid, fieldName, filterFunc, newItem) {
+    // appid is the file name of the app in files/apps - '../..' would rewrite any JSON file
+    if (typeof appid != 'string' || !appid || !checkSecureFilePathsWithoutDirectory(appid)) {
+      throw new Error('DBGM-00000 Invalid application');
+    }
     const file = path.join(filesdir(), 'apps', appid);
 
     const appJson = JSON.parse(await fs.readFile(file, { encoding: 'utf-8' }));

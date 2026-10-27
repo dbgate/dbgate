@@ -9,9 +9,12 @@ const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
 const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
 const _ = require('lodash');
+const platformInfo = require('../utility/platformInfo');
+const { checkSecureDirectories } = require('../utility/security');
 const packagedPluginsContent = require('../packagedPluginsContent');
 
 module.exports = {
+  script_access: 'user',
   script_meta: true,
   async script({ packageName }) {
     assertValidPluginPackageName(packageName);
@@ -31,6 +34,8 @@ module.exports = {
     return data;
   },
 
+  search_access: 'user',
+
   search_meta: true,
   async search({ filter }) {
     // DOCS: https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search
@@ -41,8 +46,12 @@ module.exports = {
     return (objects || []).map(x => x.package);
   },
 
+  info_access: 'user',
+
   info_meta: true,
   async info({ packageName }) {
+    // goes into a local path and the npm registry URL
+    assertValidPluginPackageName(packageName);
     // @ts-ignore
     const isPackaged = await fs.exists(path.join(packagedPluginsDir(), packageName));
 
@@ -65,6 +74,8 @@ module.exports = {
       };
     }
   },
+
+  installed_access: 'user',
 
   installed_meta: true,
   async installed() {
@@ -117,6 +128,8 @@ module.exports = {
   //   await fs.writeFile(path.join(datadir(), 'removed-plugins'), this.removedPlugins.join('\n'));
   // },
 
+  install_access: 'self',
+
   install_meta: true,
   async install({ packageName }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -133,6 +146,8 @@ module.exports = {
     return true;
   },
 
+  uninstall_access: 'self',
+
   uninstall_meta: true,
   async uninstall({ packageName }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -145,6 +160,8 @@ module.exports = {
     // await this.saveRemovePlugins();
     return true;
   },
+
+  upgrade_access: 'self',
 
   upgrade_meta: true,
   async upgrade({ packageName }, req) {
@@ -162,6 +179,8 @@ module.exports = {
     return true;
   },
 
+  command_access: 'self',
+
   command_meta: true,
   async command({ packageName, command, args }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -170,6 +189,13 @@ module.exports = {
     }
 
     assertValidPluginPackageName(packageName);
+    // commands open files (e.g. the excel plugin's analyse downloads fileName) - in the web app
+    // only files in the data directories, as for JSON script readers (no URLs or server paths)
+    if (!platformInfo.isElectron && args?.fileName != null) {
+      if (typeof args.fileName != 'string' || !checkSecureDirectories(args.fileName)) {
+        throw new Error('DBGM-00289 Unallowed file');
+      }
+    }
     const content = requirePlugin(packageName);
 
     // Only dispatch to own, function-valued command handlers. This prevents reaching
@@ -184,6 +210,8 @@ module.exports = {
     }
     return commands[command](args);
   },
+
+  authTypes_access: 'user',
 
   authTypes_meta: true,
   async authTypes({ engine }) {

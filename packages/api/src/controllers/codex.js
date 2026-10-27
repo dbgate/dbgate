@@ -8,10 +8,13 @@ function requireEnabled() {
 }
 
 module.exports = {
+  getStatus_access: 'user',
   getStatus_meta: true,
   async getStatus() {
     return oauth.getStatus();
   },
+
+  startLogin_access: 'self',
 
   startLogin_meta: true,
   async startLogin(params) {
@@ -19,11 +22,15 @@ module.exports = {
     return oauth.startLogin(params);
   },
 
+  cancelLogin_access: 'self',
+
   cancelLogin_meta: true,
   async cancelLogin(params) {
     requireEnabled();
     return oauth.cancelLogin(params);
   },
+
+  disconnect_access: 'self',
 
   disconnect_meta: true,
   async disconnect(params) {
@@ -32,11 +39,15 @@ module.exports = {
     return oauth.disconnect(params);
   },
 
+  startResponse_access: 'self',
+
   startResponse_meta: true,
   async startResponse(params) {
     requireEnabled();
     return responses.startResponse(params);
   },
+
+  cancelResponse_access: 'self',
 
   cancelResponse_meta: true,
   async cancelResponse(params) {

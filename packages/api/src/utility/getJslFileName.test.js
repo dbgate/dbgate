@@ -79,6 +79,15 @@ describe('getJslFileName', () => {
       expect(() => getJslFileName(jslid)).toThrow(/Invalid jslid/);
     });
 
+    // '../archive/...' stays inside the managed directories, but would reach the archive without
+    // the archive/write check that archive:// ids get in jsldata
+    test.each([['../archive/default/orders'], ['..\\archive\\default\\orders'], ['sub/result'], ['a..b']])(
+      'a plain jslid with path components is refused: %s',
+      jslid => {
+        expect(() => getJslFileName(jslid)).toThrow(/Invalid jslid/);
+      }
+    );
+
     test('a symlinked directory planted inside a managed directory cannot redirect the write', () => {
       if (!canSymlink) return;
       const linkDir = path.join(mockDirs.jsl, 'linked');

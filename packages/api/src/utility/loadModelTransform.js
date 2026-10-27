@@ -4,16 +4,27 @@ const fs = require('fs-extra');
 const _ = require('lodash');
 const dbgateApi = require('../shell');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
+const { checkSecureFilePathsWithoutDirectory } = require('./security');
 const logger = getLogger('loadModelTransform');
 
+// a model transform file names shell API functions that are called with its arguments - only
+// the model transforms (dataTypeMapperTransform, ...), never other functions such as runScript
+function isModelTransformName(name) {
+  return typeof name == 'string' && /Transform$/.test(name) && typeof dbgateApi[name] == 'function';
+}
+
 function modelTransformFromJson(json) {
-  if (!dbgateApi[json.transform]) return null;
+  if (!isModelTransformName(json?.transform)) return null;
   const creator = dbgateApi[json.transform];
   return creator(...json.arguments);
 }
 
 async function loadModelTransform(file) {
   if (!file) return null;
+  if (typeof file != 'string' || !checkSecureFilePathsWithoutDirectory(file)) {
+    logger.warn('DBGM-00000 Refused model transform outside the modtrans folder');
+    return null;
+  }
   try {
     const dir = filesdir();
     const fullPath = path.join(dir, 'modtrans', file);

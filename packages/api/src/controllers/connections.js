@@ -15,6 +15,7 @@ const processArgs = require('../utility/processArgs');
 const { safeJsonParse, getLogger, extractErrorLogData } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const {
+  hasPermission,
   connectionHasPermission,
   testConnectionPermission,
   loadPermissionsFromRequest,
@@ -30,6 +31,10 @@ const logger = getLogger('connections');
 
 let volatileConnections = {};
 let pendingTestSubprocesses = {}; // Map of conid -> subprocess for MS Entra auth flows
+
+// fields of an existing connection that any user allowed to use it may change - they do not
+// change where or how the server connects (see testConnectionDefinitionPermission)
+const SAFE_CONNECTION_FIELDS = ['displayName', 'parent', 'connectionColor', 'unsaved'];
 
 function getNamedArgs() {
   const res = {};
@@ -195,6 +200,8 @@ module.exports = {
     }
   },
 
+  list_access: 'self',
+
   list_meta: true,
   async list(_params, req) {
     const storage = require('./storage');
@@ -224,8 +231,71 @@ module.exports = {
     return _.uniq((await this.datastore.find()).map(x => x.engine));
   },
 
+  // Checks that the caller may test or save the given connection definition, and returns the
+  // definition to use. The definition comes from the client, so it can point anywhere the server
+  // can reach (any host and port, server-local files). Defining a new connection needs
+  // admin/connections or all-connections; an existing connection can be tested and saved by those
+  // who have permission to use it, but only with its stored target - from the client, only the
+  // fields in SAFE_CONNECTION_FIELDS are taken. Internal calls (no req) and the desktop app are
+  // not restricted.
+  async testConnectionDefinitionPermission(connection, req, { forSave = false } = {}) {
+    if (!req) return connection;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (hasPermission('admin/connections', loadedPermissions) || hasPermission('all-connections', loadedPermissions)) {
+      return connection;
+    }
+    const conid = connection?._id;
+    // save writes the local connection list, so only a connection stored there can be saved
+    const existing = conid ? (forSave ? await this.datastore.get(conid) : await this.getCore({ conid })) : null;
+    if (!existing) {
+      throw new Error('DBGM-00000 Permission to define connections not granted');
+    }
+    await testConnectionPermission(conid, req, loadedPermissions);
+    return { ...existing, ..._.pick(connection, SAFE_CONNECTION_FIELDS), _id: conid };
+  },
+
+  // Throws when the caller may not change these fields of an existing connection (see above)
+  async testConnectionUpdatePermission(values, req) {
+    if (!req) return;
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    if (hasPermission('admin/connections', loadedPermissions) || hasPermission('all-connections', loadedPermissions)) {
+      return;
+    }
+    if (!_.isPlainObject(values) || Object.keys(values).some(key => !SAFE_CONNECTION_FIELDS.includes(key))) {
+      throw new Error('DBGM-00000 Permission to change the connection definition not granted');
+    }
+  },
+
+  // volatile connections (credentials entered by the user) get a new random id, which no
+  // permission names; creating one needs permission for the connection it is based on
+  isVolatileConnection(conid) {
+    return !!volatileConnections[conid];
+  },
+
+  // Returns the connection ids from the list the caller may use (for pings, which take a list)
+  async filterPermittedConnections(conidArray, req) {
+    const res = [];
+    for (const conid of _.uniq(_.isArray(conidArray) ? conidArray : [])) {
+      if (conid == null || conid === '') continue;
+      if (this.isVolatileConnection(conid)) {
+        res.push(conid);
+        continue;
+      }
+      try {
+        await testConnectionPermission(conid, req);
+        res.push(conid);
+      } catch (err) {
+        // not permitted - skipped
+      }
+    }
+    return res;
+  },
+
+  test_access: 'self',
+
   test_meta: true,
-  async test({ connection, requestDbList = false }) {
+  async test({ connection, requestDbList = false }, req) {
+    connection = await this.testConnectionDefinitionPermission(connection, req);
     // required lazily, config requires this controller back
     const settings = await require('./config').getSettings();
     const subprocess = fork(
@@ -305,8 +375,11 @@ module.exports = {
     });
   },
 
+  saveVolatile_access: 'self',
+
   saveVolatile_meta: true,
-  async saveVolatile({ conid, user = undefined, password = undefined, accessToken = undefined, test = false }) {
+  async saveVolatile({ conid, user = undefined, password = undefined, accessToken = undefined, test = false }, req) {
+    await testConnectionPermission(conid, req);
     const old = await this.getCore({ conid });
     const res = {
       ...old,
@@ -369,9 +442,12 @@ module.exports = {
     }
   },
 
+  save_access: 'self',
+
   save_meta: true,
-  async save(connection) {
+  async save(connection, req) {
     if (portalConnections) return;
+    connection = await this.testConnectionDefinitionPermission(connection, req, { forSave: true });
     let res;
     const encrypted = encryptConnection(connection);
     if (connection._id) {
@@ -428,22 +504,33 @@ module.exports = {
     });
   },
 
+  update_access: 'self',
+
   update_meta: true,
   async update({ _id, values }, req) {
     if (portalConnections) return;
     await testConnectionPermission(_id, req);
+    await this.testConnectionUpdatePermission(values, req);
     const res = await this.datastore.patch(_id, values);
     socket.emitChanged('connection-list-changed');
     return res;
   },
 
+  batchChangeFolder_access: 'self',
+
   batchChangeFolder_meta: true,
   async batchChangeFolder({ folder, newFolder }, req) {
     // const updated = await this.datastore.find(x => x.parent == folder);
-    const res = await this.datastore.updateAll(x => (x.parent == folder ? { ...x, parent: newFolder } : x));
+    // only connections the caller can see (as in list) are moved
+    const loadedPermissions = await loadPermissionsFromRequest(req);
+    const res = await this.datastore.updateAll(x =>
+      x.parent == folder && connectionHasPermission(x, loadedPermissions) ? { ...x, parent: newFolder } : x
+    );
     socket.emitChanged('connection-list-changed');
     return res;
   },
+
+  updateDatabase_access: 'self',
 
   updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }, req) {
@@ -462,6 +549,8 @@ module.exports = {
     // socket.emitChanged(`db-apps-changed-${conid}-${database}`);
     return res;
   },
+
+  delete_access: 'self',
 
   delete_meta: true,
   async delete(connection, req) {
@@ -562,6 +651,8 @@ module.exports = {
     return null;
   },
 
+  get_access: 'self',
+
   get_meta: true,
   async get({ conid }, req) {
     if (conid == '__model') {
@@ -576,8 +667,11 @@ module.exports = {
     return this.getCore({ conid, mask: true });
   },
 
+  newSqliteDatabase_access: 'self',
+
   newSqliteDatabase_meta: true,
-  async newSqliteDatabase({ file }) {
+  async newSqliteDatabase({ file }, req) {
+    await this.testConnectionDefinitionPermission(null, req);
     const sqliteDir = path.join(filesdir(), 'sqlite');
     if (!(await fs.exists(sqliteDir))) {
       await fs.mkdir(sqliteDir);
@@ -592,8 +686,11 @@ module.exports = {
     return res;
   },
 
+  newDuckdbDatabase_access: 'self',
+
   newDuckdbDatabase_meta: true,
-  async newDuckdbDatabase({ file }) {
+  async newDuckdbDatabase({ file }, req) {
+    await this.testConnectionDefinitionPermission(null, req);
     const duckdbDir = path.join(filesdir(), 'duckdb');
     if (!(await fs.exists(duckdbDir))) {
       await fs.mkdir(duckdbDir);
@@ -607,6 +704,8 @@ module.exports = {
     });
     return res;
   },
+
+  dbloginWeb_access: 'public',
 
   dbloginWeb_meta: {
     raw: true,
@@ -628,6 +727,8 @@ module.exports = {
     res.json({ error: 'No URL returned from auth provider' });
   },
 
+  dbloginApp_access: 'electron',
+
   dbloginApp_meta: true,
   async dbloginApp({ conid, state }, req) {
     // the volatile connection holds the user's database token, so its id goes only to the browser
@@ -646,6 +747,8 @@ module.exports = {
     return resp;
   },
 
+  dbloginToken_access: { connection: 'conid' },
+
   dbloginToken_meta: true,
   async dbloginToken({ code, conid, strmid, redirectUri, sid }) {
     try {
@@ -663,6 +766,8 @@ module.exports = {
     }
   },
 
+  dbloginAuthToken_access: 'public',
+
   dbloginAuthToken_meta: true,
   async dbloginAuthToken({ amoid, code, conid, redirectUri, sid }, req) {
     try {
@@ -679,21 +784,40 @@ module.exports = {
     }
   },
 
+  dbloginAuth_access: 'public',
+
   dbloginAuth_meta: true,
   async dbloginAuth({ amoid, conid, user, password }, req) {
+    // Database login: the connection chosen on the login page is the identity. It must be a
+    // database login method, and a connection that this method offers on the login page.
+    const provider = getAuthProviderById(amoid);
+    if (!provider || provider.toJson()?.workflowType != 'database') {
+      return { error: 'Login failed' };
+    }
+    const offered = ((await provider.getLoginPageConnections?.()) ?? []).find(x => x.conid == conid);
+    if (!offered) {
+      return { error: 'Login failed' };
+    }
+
     if (user || password) {
       const saveResp = await this.saveVolatile({ conid, user, password, test: true });
       if (saveResp.msgtype == 'connected') {
-        const loginResp = await getAuthProviderById(amoid).login(user, password, { conid: saveResp._id }, req);
+        const loginResp = await provider.login(user, password, { conid: saveResp._id }, req);
         return loginResp;
       }
       return saveResp;
     }
 
-    // user and password is stored in connection, volatile connection is not needed
-    const loginResp = await getAuthProviderById(amoid).login(null, null, { conid }, req);
+    // user and password is stored in connection, volatile connection is not needed - only for
+    // connections that do not ask for credentials (or use their own login page)
+    if (offered.useRedirectDbLogin || ['askUser', 'askPassword'].includes(offered.passwordMode)) {
+      return { error: 'Login failed' };
+    }
+    const loginResp = await provider.login(null, null, { conid }, req);
     return loginResp;
   },
+
+  volatileDbloginFromAuth_access: { connection: 'conid' },
 
   volatileDbloginFromAuth_meta: true,
   async volatileDbloginFromAuth({ conid }, req) {
@@ -706,6 +830,8 @@ module.exports = {
     }
     return null;
   },
+
+  reloadConnectionList_access: 'user',
 
   reloadConnectionList_meta: true,
   async reloadConnectionList() {

@@ -21,7 +21,8 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
 const config = require('./config');
-const { checkSecureDirectories, checkSecureDirectoriesInScript } = require('../utility/security');
+const { checkSecureDirectories, isValidRunId } = require('../utility/security');
+const { checkJsonScriptAccess, checkShellFunctionCall } = require('../utility/jsonScriptAccess');
 const { sendToAuditLog, logJsonRunnerScript } = require('../utility/auditlog');
 const { testStandardPermission } = require('../utility/hasPermission');
 const logger = getLogger('runners');
@@ -371,6 +372,8 @@ module.exports = {
     return _.pick(newOpened, ['runid']);
   },
 
+  start_access: 'self',
+
   start_meta: true,
   async start({ script }, req) {
     const runid = crypto.randomUUID();
@@ -379,9 +382,8 @@ module.exports = {
 
     if (script.type == 'json') {
       if (!platformInfo.isElectron) {
-        if (!checkSecureDirectoriesInScript(script)) {
-          return { errorMessage: 'DBGM-00284 Unallowed directories in script' };
-        }
+        // allowed functions, directories and the permissions for every connection it uses
+        await checkJsonScriptAccess(script, req);
       }
 
       logJsonRunnerScript(req, script);
@@ -419,10 +421,14 @@ module.exports = {
     return this.startCore(runid, scriptTemplate(script, false));
   },
 
+  getNodeScript_access: 'user',
+
   getNodeScript_meta: true,
   async getNodeScript({ script }) {
     return scriptTemplate(script, true);
   },
+
+  cancel_access: 'user',
 
   cancel_meta: true,
   async cancel({ runid }) {
@@ -438,8 +444,14 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  files_access: 'self',
+
   files_meta: true,
   async files({ runid }) {
+    // runid is a directory name under rundir() - '../..' would list any directory
+    if (!isValidRunId(runid)) {
+      throw new Error('DBGM-00000 Invalid runid');
+    }
     const directory = path.join(rundir(), runid);
     const files = await fs.readdir(directory);
     const res = [];
@@ -454,12 +466,15 @@ module.exports = {
     return res;
   },
 
+  loadReader_access: 'self',
+
   loadReader_meta: true,
-  async loadReader({ functionName, props }) {
+  async loadReader({ functionName, props }, req) {
     if (!platformInfo.isElectron) {
       if (props?.fileName && !checkSecureDirectories(props.fileName)) {
         return { errorMessage: 'DBGM-00289 Unallowed file' };
       }
+      await checkShellFunctionCall(functionName, props, req);
     }
 
     const promise = new Promise((resolve, reject) => {
@@ -475,10 +490,15 @@ module.exports = {
     return promise;
   },
 
+  scriptResult_access: 'self',
+
   scriptResult_meta: true,
-  async scriptResult({ script }) {
+  async scriptResult({ script }, req) {
     if (script.type != 'json') {
       return { errorMessage: 'DBGM-00290 Only JSON scripts are allowed' };
+    }
+    if (!platformInfo.isElectron) {
+      await checkJsonScriptAccess(script, req);
     }
 
     const promise = new Promise(async (resolve, reject) => {

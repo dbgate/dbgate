@@ -43,6 +43,7 @@ async function readJsonl({ skip, limit, filter }) {
 }
 
 module.exports = {
+  read_access: { permission: 'widgets/history' },
   read_meta: true,
   async read({ skip, limit, filter }, req) {
     const storage = require('./storage');
@@ -50,6 +51,8 @@ module.exports = {
     if (storageResult) return storageResult;
     return readJsonl({ skip, limit, filter });
   },
+
+  write_access: 'user',
 
   write_meta: true,
   async write({ data }, req) {

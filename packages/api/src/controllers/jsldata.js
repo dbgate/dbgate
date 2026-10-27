@@ -10,6 +10,7 @@ const { openJslFileForWrite, openJslFileForRead } = getJslFileName;
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const requirePluginFunction = require('../utility/requirePluginFunction');
 const socket = require('../utility/socket');
+const { testStandardPermission } = require('../utility/hasPermission');
 const crypto = require('crypto');
 const dbgateApi = require('../shell');
 const { ChartProcessor } = require('dbgate-datalib');
@@ -46,6 +47,8 @@ module.exports = {
     await datastoreCache.close(jslid);
   },
 
+  getInfo_access: 'user',
+
   getInfo_meta: true,
   async getInfo({ jslid }) {
     const file = getJslFileName(jslid);
@@ -67,6 +70,8 @@ module.exports = {
     }
   },
 
+  getRows_access: 'user',
+
   getRows_meta: true,
   async getRows({ jslid, offset, limit, filters, sort, formatterFunction }) {
     const fileName = getJslFileName(jslid);
@@ -78,11 +83,15 @@ module.exports = {
     );
   },
 
+  exists_access: 'user',
+
   exists_meta: true,
   async exists({ jslid }) {
     const fileName = getJslFileName(jslid);
     return fs.existsSync(fileName);
   },
+
+  streamRows_access: 'user',
 
   streamRows_meta: {
     method: 'get',
@@ -138,6 +147,8 @@ module.exports = {
     stream.pipe(res);
   },
 
+  getStats_access: 'user',
+
   getStats_meta: true,
   getStats({ jslid }) {
     const file = `${getJslFileName(jslid)}.stats`;
@@ -150,6 +161,8 @@ module.exports = {
     }
     return {};
   },
+
+  loadFieldValues_access: 'user',
 
   loadFieldValues_meta: true,
   async loadFieldValues({ jslid, field, search, formatterFunction }) {
@@ -170,8 +183,20 @@ module.exports = {
     socket.emit(`jsldata-stats-${stats.jslid}`, stats);
   },
 
+  // Writing an archive file (archive://...) needs archive/write, as the archive routes do; a
+  // file://... id can point into the archive too. Plain ids are the caller's own result sets.
+  async testJslWritePermission(jslid, req) {
+    if (!req) return;
+    if (typeof jslid == 'string' && (jslid.startsWith('archive://') || jslid.startsWith('file://'))) {
+      await testStandardPermission('archive/write', req);
+    }
+  },
+
+  saveText_access: 'self',
+
   saveText_meta: true,
-  async saveText({ jslid, text }) {
+  async saveText({ jslid, text }, req) {
+    await this.testJslWritePermission(jslid, req);
     // openJslFileForWrite rather than a plain writeFile: getJslFileName settles where the jslid
     // points, the no-follow open settles what is actually written to
     const handle = await openJslFileForWrite(jslid);
@@ -183,8 +208,11 @@ module.exports = {
     return true;
   },
 
+  saveRows_access: 'self',
+
   saveRows_meta: true,
-  async saveRows({ jslid, rows }) {
+  async saveRows({ jslid, rows }, req) {
+    await this.testJslWritePermission(jslid, req);
     const handle = await openJslFileForWrite(jslid);
     try {
       for (const row of rows) {
@@ -195,6 +223,8 @@ module.exports = {
     }
     return true;
   },
+
+  extractTimelineChart_access: 'user',
 
   extractTimelineChart_meta: true,
   async extractTimelineChart({ jslid, timestampFunction, aggregateFunction, measures }) {
@@ -279,12 +309,16 @@ module.exports = {
     }
   },
 
+  downloadJslData_access: 'user',
+
   downloadJslData_meta: true,
   async downloadJslData({ uri }) {
     const jslid = crypto.randomUUID();
     await dbgateApi.download(uri, { targetFile: getJslFileName(jslid), safeRemoteFetch: true });
     return { jslid };
   },
+
+  buildChart_access: 'user',
 
   buildChart_meta: true,
   async buildChart({ jslid, definition }) {

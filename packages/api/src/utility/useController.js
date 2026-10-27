@@ -2,9 +2,14 @@ const _ = require('lodash');
 const express = require('express');
 const getExpressPath = require('./getExpressPath');
 const { MissingCredentialsError } = require('./exceptions');
+const { validateRouteAccess, checkRouteAccess } = require('./routeAccess');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
 
 const logger = getLogger('useController');
+
+function sendAccessError(res, err) {
+  res.status(403).json({ apiErrorMessage: err.message });
+}
 /**
  * @param {string} route
  */
@@ -55,6 +60,13 @@ module.exports = function useController(app, electron, route, controller) {
       continue;
     }
 
+    // see routeAccess.js - a route without a valid declaration is refused
+    // (fail closed - a route without a declaration cannot be exposed by mistake)
+    const access = controller[`${key}_access`];
+    if (!validateRouteAccess(access)) {
+      logger.error(`DBGM-00000 Route ${route}/${key} has no valid access policy, it will be refused`);
+    }
+
     let method = 'post';
     let raw = false;
 
@@ -67,13 +79,29 @@ module.exports = function useController(app, electron, route, controller) {
     }
 
     if (raw) {
-      router[method](routeAction, (req, res) => controller[key](req, res));
+      router[method](routeAction, async (req, res) => {
+        try {
+          await checkRouteAccess(access, { ...req.body, ...req.query }, req);
+        } catch (err) {
+          logger.warn(`DBGM-00000 Access to route ${route}/${key} refused: ${err.message}`);
+          sendAccessError(res, err);
+          return;
+        }
+        return controller[key](req, res);
+      });
     } else {
       router[method](routeAction, async (req, res) => {
         // if (controller._init && !controller._init_called) {
         //   await controller._init();
         //   controller._init_called = true;
         // }
+        try {
+          await checkRouteAccess(access, { ...req.body, ...req.query }, req);
+        } catch (err) {
+          logger.warn(`DBGM-00000 Access to route ${route}/${key} refused: ${err.message}`);
+          sendAccessError(res, err);
+          return;
+        }
         try {
           const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);

@@ -27,6 +27,8 @@ const auth = require('./controllers/auth');
 const uploads = require('./controllers/uploads');
 const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
+const { hasPermission, loadPermissionsFromRequest } = require('./utility/hasPermission');
+const { checkSecureFilePathsWithoutDirectory } = require('./utility/security');
 const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
 const cloud = require('./controllers/cloud');
@@ -226,6 +228,31 @@ function start() {
   // }
 
   app.use(getExpressPath('/runners/data'), express.static(rundir()));
+  // saved files (e.g. a backup download); the same read permission as files/load
+  app.use(getExpressPath('/files/data'), async (req, res, next) => {
+    try {
+      // only <folder>/<file> - express.static normalizes the path, so with '..', '.' or '\' in it
+      // a different file than the checked one would be served
+      const parts = decodeURIComponent(req.path).split('/').filter(Boolean);
+      const [folder, file] = parts;
+      const isSafePart = x => x != '.' && checkSecureFilePathsWithoutDirectory(x);
+      if (parts.length != 2 || !isSafePart(folder) || !isSafePart(file)) {
+        res.status(403).end();
+        return;
+      }
+      const loadedPermissions = await loadPermissionsFromRequest(req);
+      if (
+        !hasPermission(`files/${folder}/read`, loadedPermissions) ||
+        (await files.isDiskFileDenied(folder, file, req, loadedPermissions))
+      ) {
+        res.status(403).end();
+        return;
+      }
+      next();
+    } catch (err) {
+      res.status(400).end();
+    }
+  });
   app.use(getExpressPath('/files/data'), express.static(filesdir()));
 
   if (platformInfo.isDocker) {

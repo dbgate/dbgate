@@ -17,6 +17,7 @@ function getUploadPath(uploadName) {
 }
 
 module.exports = {
+  upload_access: 'user',
   upload_meta: {
     method: 'post',
     raw: true,
@@ -66,6 +67,8 @@ module.exports = {
     }
   },
 
+  remove_access: 'user',
+
   remove_meta: true,
   async remove({ uploadName }) {
     const uploadPath = getUploadPath(uploadName);
@@ -80,6 +83,8 @@ module.exports = {
       throw error;
     }
   },
+
+  get_access: 'user',
 
   get_meta: {
     method: 'get',

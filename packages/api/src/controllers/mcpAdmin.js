@@ -67,11 +67,14 @@ async function writeStoredConfig(config) {
 }
 
 module.exports = {
+  getConfig_access: 'self',
   getConfig_meta: true,
   async getConfig(_params, req) {
     await requireMcpAdmin(req);
     return publicConfig(await readStoredConfig(), req);
   },
+
+  updateConfig_access: 'self',
 
   updateConfig_meta: true,
   async updateConfig({ enabled, authMode }, req) {
@@ -94,6 +97,8 @@ module.exports = {
     });
     return publicConfig(updated, req);
   },
+
+  generateToken_access: 'self',
 
   generateToken_meta: true,
   async generateToken(_params, req) {
@@ -120,6 +125,8 @@ module.exports = {
     });
     return { token, tokenSuffix, tokenGeneratedAt };
   },
+
+  generateOauthClient_access: 'self',
 
   generateOauthClient_meta: true,
   async generateOauthClient(_params, req) {

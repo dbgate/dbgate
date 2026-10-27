@@ -2,8 +2,8 @@ const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 const axios = require('axios');
-const { datadir, getLogsFilePath } = require('../utility/directories');
-const { hasPermission, loadPermissionsFromRequest } = require('../utility/hasPermission');
+const { datadir, archivedir, getLogsFilePath } = require('../utility/directories');
+const { hasPermission, loadPermissionsFromRequest, testStandardPermission } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
@@ -21,6 +21,8 @@ const { getAuthProxyUrl, tryToGetRefreshedLicense } = require('../utility/authPr
 const { getPublicHardwareFingerprint } = require('../utility/hardwareFingerprint');
 const { extractErrorMessage } = require('dbgate-tools');
 const { getUsageAnalyticsEnvironmentPolicy } = require('../utility/usageAnalyticsPolicy');
+const { isBasicAuthActive } = require('../auth/authCommon');
+const { checkSecureExportFilePath } = require('../utility/security');
 const {
   generateTransportEncryptionKey,
   createTransportEncryptor,
@@ -41,6 +43,15 @@ function coerceSettingsEnvValue(raw) {
   return raw; // leave everything else as a string (numeric settings are parsed on read)
 }
 
+// settings returned by config/get-settings to callers that are not logged in
+const SETTINGS_AVAILABLE_WITHOUT_LOGIN = ['storage.allowForgottenPasswordReset'];
+
+function isRequestLoggedIn(req) {
+  // req.user is set by authMiddleware for a valid session token; with basic auth or
+  // SKIP_ALL_AUTH the middleware does not issue tokens and every request is let in
+  return !!req.user || isBasicAuthActive() || !!process.env.SKIP_ALL_AUTH;
+}
+
 module.exports = {
   // settingsValue: {},
 
@@ -51,6 +62,8 @@ module.exports = {
   //     this.settingsValue = {};
   //   }
   // },
+
+  get_access: 'public',
 
   get_meta: true,
   async get(_params, req) {
@@ -144,6 +157,8 @@ module.exports = {
     return configResult;
   },
 
+  logout_access: 'public',
+
   logout_meta: {
     method: 'get',
     raw: true,
@@ -152,16 +167,25 @@ module.exports = {
     res.status(401).send('Logged out<br><a href="../..">Back to DbGate</a>');
   },
 
+  platformInfo_access: 'user',
+
   platformInfo_meta: true,
   async platformInfo() {
     return platformInfo;
   },
 
+  getSettings_access: 'public',
+
   getSettings_meta: true,
-  async getSettings() {
+  async getSettings(_params, req) {
     const res = await lock.acquire('settings', async () => {
       return await this.loadSettings();
     });
+    // The route is reachable without login (the login page needs some settings), but the
+    // settings hold secrets such as the shared DbGate Cloud sign-in token and AI provider keys
+    if (req && !isRequestLoggedIn(req)) {
+      return _.pick(res, SETTINGS_AVAILABLE_WITHOUT_LOGIN);
+    }
     return res;
   },
 
@@ -171,6 +195,8 @@ module.exports = {
     }
     return cachedSettingsValue;
   },
+
+  deleteSettings_access: { permission: 'settings/change' },
 
   deleteSettings_meta: true,
   async deleteSettings() {
@@ -235,8 +261,12 @@ module.exports = {
     }
   },
 
+  saveLicenseKey_access: 'self',
+
   saveLicenseKey_meta: true,
-  async saveLicenseKey({ licenseKey, forceSave = false, tryToRenew = false }) {
+  async saveLicenseKey({ licenseKey, forceSave = false, tryToRenew = false }, req) {
+    // internal calls (startTrial, the desktop app) have no request
+    if (req) await testStandardPermission('admin/license', req);
     if (!forceSave) {
       const decoded = jwt.decode(licenseKey?.trim());
       if (!decoded) {
@@ -283,8 +313,11 @@ module.exports = {
     }
   },
 
+  startTrial_access: 'self',
+
   startTrial_meta: true,
-  async startTrial() {
+  async startTrial(_params, req) {
+    if (req) await testStandardPermission('admin/license', req);
     try {
       const fingerprint = await getPublicHardwareFingerprint();
 
@@ -304,6 +337,8 @@ module.exports = {
     }
   },
 
+  updateSettings_access: 'self',
+
   updateSettings_meta: true,
   async updateSettings(values, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -311,6 +346,10 @@ module.exports = {
     if (Object.prototype.hasOwnProperty.call(values, 'storage.usageAnalytics')) {
       if (!hasPermission('admin/settings', loadedPermissions)) return false;
       if (!['user', 'enabled', 'disabled'].includes(values['storage.usageAnalytics'])) return false;
+    }
+    // without storage, the licence key is saved through the settings
+    if (Object.prototype.hasOwnProperty.call(values, 'other.licenseKey')) {
+      if (!hasPermission('admin/license', loadedPermissions)) return false;
     }
     // External tools are the executables that native backup and restore start on the server
     if (Object.keys(values ?? {}).some(key => key.startsWith('externalTools.'))) {
@@ -356,6 +395,8 @@ module.exports = {
     return res;
   },
 
+  changelog_access: 'user',
+
   changelog_meta: true,
   async changelog() {
     try {
@@ -366,11 +407,15 @@ module.exports = {
     }
   },
 
+  checkLicense_access: 'user',
+
   checkLicense_meta: true,
   async checkLicense({ licenseKey }) {
     const resp = await checkLicenseKey(licenseKey);
     return resp;
   },
+
+  getNewLicense_access: 'user',
 
   getNewLicense_meta: true,
   async getNewLicense({ oldLicenseKey }) {
@@ -420,6 +465,8 @@ module.exports = {
     };
   },
 
+  exportConnectionsAndSettings_access: 'self',
+
   exportConnectionsAndSettings_meta: true,
   async exportConnectionsAndSettings(_params, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -444,6 +491,8 @@ module.exports = {
       })),
     });
   },
+
+  importConnectionsAndSettings_access: 'self',
 
   importConnectionsAndSettings_meta: true,
   async importConnectionsAndSettings({ db }, req) {
@@ -480,6 +529,8 @@ module.exports = {
     return true;
   },
 
+  createConnectionsAndSettingsZip_access: 'self',
+
   createConnectionsAndSettingsZip_meta: true,
   async createConnectionsAndSettingsZip({ db, filePath }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -489,6 +540,13 @@ module.exports = {
 
     if (connections.portalConnections) {
       throw new Error('Not allowed');
+    }
+    // "archive:<name>" (Save to archive) is a file in the archive directory, as in zipJsonLinesData
+    if (_.isString(filePath) && filePath.startsWith('archive:')) {
+      filePath = path.join(archivedir(), filePath.substring('archive:'.length));
+    }
+    if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
+      throw new Error('DBGM-00000 Refused export write outside managed data directories');
     }
 
     const exportDb = process.env.STORAGE_DATABASE ? await storage.fillTeamFileContentForExport(db) : db;

@@ -48,6 +48,7 @@ function assertSafeArchiveName(name, label) {
 }
 
 module.exports = {
+  folders_access: 'user',
   folders_meta: true,
   async folders() {
     const folders = await fs.readdir(archivedir());
@@ -67,6 +68,8 @@ module.exports = {
     ];
   },
 
+  createFolder_access: 'self',
+
   createFolder_meta: true,
   async createFolder({ folder }, req) {
     await testStandardPermission('archive/write', req);
@@ -75,6 +78,8 @@ module.exports = {
     socket.emitChanged('archive-folders-changed');
     return true;
   },
+
+  createLink_access: 'electron',
 
   createLink_meta: true,
   async createLink({ linkedFolder }, req) {
@@ -109,6 +114,8 @@ module.exports = {
     });
     return files;
   },
+
+  files_access: 'user',
 
   files_meta: true,
   async files({ folder }) {
@@ -150,17 +157,23 @@ module.exports = {
     }
   },
 
+  refreshFiles_access: 'user',
+
   refreshFiles_meta: true,
   async refreshFiles({ folder }) {
     socket.emitChanged('archive-files-changed', { folder });
     return true;
   },
 
+  refreshFolders_access: 'user',
+
   refreshFolders_meta: true,
   async refreshFolders() {
     socket.emitChanged(`archive-folders-changed`);
     return true;
   },
+
+  createFile_access: 'self',
 
   createFile_meta: true,
   async createFile({ folder, file, fileType, tableInfo }, req) {
@@ -176,6 +189,8 @@ module.exports = {
     return true;
   },
 
+  deleteFile_access: 'self',
+
   deleteFile_meta: true,
   async deleteFile({ folder, file, fileType }, req) {
     await testStandardPermission('archive/write', req);
@@ -186,6 +201,8 @@ module.exports = {
     socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
+
+  renameFile_access: 'self',
 
   renameFile_meta: true,
   async renameFile({ folder, file, newFile, fileType }, req) {
@@ -201,6 +218,8 @@ module.exports = {
     socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
+
+  modifyFile_access: 'self',
 
   modifyFile_meta: true,
   async modifyFile({ folder, file, changeSet, mergedRows, mergeKey, mergeMode }, req) {
@@ -244,6 +263,8 @@ module.exports = {
     return true;
   },
 
+  renameFolder_access: 'self',
+
   renameFolder_meta: true,
   async renameFolder({ folder, newFolder }, req) {
     await testStandardPermission('archive/write', req);
@@ -254,6 +275,8 @@ module.exports = {
     socket.emitChanged(`archive-folders-changed`);
     return true;
   },
+
+  deleteFolder_access: 'self',
 
   deleteFolder_meta: true,
   async deleteFolder({ folder }, req) {
@@ -269,6 +292,8 @@ module.exports = {
     return true;
   },
 
+  saveText_access: 'self',
+
   saveText_meta: true,
   async saveText({ folder, file, text }, req) {
     await testStandardPermission('archive/write', req);
@@ -278,6 +303,8 @@ module.exports = {
     socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
+
+  saveJslData_access: 'self',
 
   saveJslData_meta: true,
   async saveJslData({ folder, file, jslid, changeSet }, req) {
@@ -299,6 +326,8 @@ module.exports = {
     }
     return true;
   },
+
+  saveRows_access: 'self',
 
   saveRows_meta: true,
   async saveRows({ folder, file, rows }, req) {
@@ -334,6 +363,8 @@ module.exports = {
     return `${name}${index}${suffix}`;
   },
 
+  getArchiveData_access: 'user',
+
   getArchiveData_meta: true,
   async getArchiveData({ folder, file }) {
     assertSafeArchiveName(folder, 'folder');
@@ -346,6 +377,8 @@ module.exports = {
     }
     return rows.filter(x => !x.__isStreamHeader);
   },
+
+  saveUploadedZip_access: 'self',
 
   saveUploadedZip_meta: true,
   async saveUploadedZip({ filePath, fileName }, req) {
@@ -364,6 +397,8 @@ module.exports = {
     return null;
   },
 
+  zip_access: 'self',
+
   zip_meta: true,
   async zip({ folder }, req) {
     await testStandardPermission('archive/write', req);
@@ -375,6 +410,8 @@ module.exports = {
     return null;
   },
 
+  unzip_access: 'self',
+
   unzip_meta: true,
   async unzip({ folder }, req) {
     await testStandardPermission('archive/write', req);
@@ -385,6 +422,8 @@ module.exports = {
 
     return null;
   },
+
+  getZippedPath_access: 'user',
 
   getZippedPath_meta: true,
   async getZippedPath({ folder }) {

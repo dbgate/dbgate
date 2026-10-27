@@ -12,6 +12,11 @@ function checkSecureFilePathsWithoutDirectory(...filePaths) {
   return true;
 }
 
+// runid becomes a directory name under rundir(), so it has to be a plain id
+function isValidRunId(runid) {
+  return typeof runid == 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(runid);
+}
+
 function checkSecureDirectories(...filePaths) {
   for (const filePath of filePaths) {
     if (!filePath.includes('/') && !filePath.includes('\\')) {
@@ -351,4 +356,5 @@ module.exports = {
   writeExportFileStream,
   copyExportFile,
   SecureExportWriteRefusedError,
+  isValidRunId,
 };

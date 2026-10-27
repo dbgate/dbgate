@@ -42,6 +42,8 @@ jest.mock('../utility/crypting', () => ({
   decryptPasswordString: jest.fn(x => x),
 }));
 jest.mock('../shell/dataReplicator', () => jest.fn());
+const mockSettings = { value: {} };
+jest.mock('./config', () => ({ getSettings: jest.fn(async () => mockSettings.value) }));
 jest.mock('dbgate-tools', () => ({
   ...jest.requireActual('dbgate-tools'),
   runQueryFmt: jest.fn(),
@@ -90,7 +92,6 @@ const ADMIN_ROUTES = {
 // Routes that are deliberately reachable without an administration permission.
 // Anything not listed here and not in ADMIN_ROUTES is a new, ungated endpoint.
 const NON_ADMIN_ROUTES = [
-  'connections', // normal user connection list, filtered by per-connection permissions
   'getConnectionsForLoginPage', // rendered on the login page, before authentication
   'setAdminPassword', // guarded separately (first-run bootstrap / superadmin)
   'sendAuditLog', // the client recording its own audit events
@@ -109,6 +110,17 @@ describe('storage controller administration endpoints', () => {
     hasPermission.mockReturnValue(true);
     getStorageConnection.mockResolvedValue([null, null]);
     storageReadConfig.mockResolvedValue({});
+  });
+
+  // connections(req) takes the request as its first argument. Exposed over HTTP, it received the
+  // request body instead, so {"user":{"amoid":"superadmin"}} gave superadmin permissions and the
+  // internal storage connection with its password.
+  test('the connection list is not an HTTP route', () => {
+    expect(storage.connections_meta).toBeUndefined();
+    // they take any table name: write-permissions could delete the admin password
+    expect(storage.readPermissions_meta).toBeUndefined();
+    expect(storage.writePermissions_meta).toBeUndefined();
+    expect(typeof storage.connections).toBe('function');
   });
 
   test('every exposed route is either permission-gated or explicitly exempted', () => {
@@ -350,5 +362,40 @@ describe('storage controller administration endpoints', () => {
 
       expect(res.encryptionKey).toEqual('SECRET-KEY-BLOB');
     });
+  });
+});
+
+// storage/request-password-reset (no login) mailed a reset link built from the request's Origin
+// header, which the caller chooses - the token would go to their host. It also ignored the
+// administrator's setting that enables password reset.
+describe('password reset request', () => {
+  const { storageSelectFmt, storageSqlCommandFmt } = require('./storageDb');
+  const { sendEmailViaApi } = require('../utility/authProxy');
+  const resetRequest = {
+    protocol: 'https',
+    headers: { host: 'dbgate.example.com', origin: 'https://attacker.example' },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    storageSelectFmt.mockResolvedValue([{ id: 7, email: 'user@example.com' }]);
+  });
+  afterEach(() => {
+    storageSelectFmt.mockResolvedValue([]);
+  });
+
+  test('does nothing when password reset is not allowed', async () => {
+    mockSettings.value = {};
+    expect(await storage.requestPasswordReset({ email: 'user@example.com' }, resetRequest)).toEqual({ success: true });
+    expect(storageSqlCommandFmt).not.toHaveBeenCalled();
+    expect(sendEmailViaApi).not.toHaveBeenCalled();
+  });
+
+  test('the link points to the server, not to the Origin header', async () => {
+    mockSettings.value = { 'storage.allowForgottenPasswordReset': true };
+    await storage.requestPasswordReset({ email: 'user@example.com' }, resetRequest);
+    const { body } = sendEmailViaApi.mock.calls[0][0];
+    expect(body).toContain('https://dbgate.example.com/reset-password.html?token=');
+    expect(body).not.toContain('attacker.example');
   });
 });

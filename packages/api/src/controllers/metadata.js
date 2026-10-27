@@ -14,7 +14,7 @@ module.exports = {
   //   return res;
   // },
 
-  listObjects_meta: true,
+  // Not an API route: the web client no longer calls it, and it checked no permission
   async listObjects({ conid, database }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const types = ['tables', 'collections', 'views', 'procedures', 'functions', 'triggers'];
@@ -27,7 +27,7 @@ module.exports = {
     );
   },
 
-  tableInfo_meta: true,
+  // Not an API route: the web client no longer calls it, and it checked no permission
   async tableInfo({ conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const table = opened.structure.tables.find(x => x.pureName == pureName && x.schemaName == schemaName);
@@ -38,7 +38,7 @@ module.exports = {
     };
   },
 
-  sqlObjectInfo_meta: true,
+  // Not an API route: the web client no longer calls it, and it checked no permission
   async sqlObjectInfo({ objectTypeField, conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const res = opened.structure[objectTypeField].find(x => x.pureName == pureName && x.schemaName == schemaName);

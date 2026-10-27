@@ -310,3 +310,89 @@ describe('model export destinations', () => {
     expect(exportDbModelSql).toHaveBeenCalledWith(expect.anything(), expect.anything(), undefined, outputFile);
   });
 });
+
+// the diff report loaded both structures without the request, so it contained the tables (and
+// databases) the caller may not see
+describe('db diff report', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
+  });
+  afterEach(() => testDatabaseRolePermission.mockReset());
+
+  test('loads the database structures as the caller, and the model without permissions', async () => {
+    const structure = jest.spyOn(databaseConnections, 'structure').mockResolvedValue({ tables: [] });
+    await databaseConnections.getUnifiedDiff(
+      { sourceConid: '__model', sourceDatabase: 'archive:model', targetConid: 'conid1', targetDatabase: 'db1' },
+      req
+    );
+    expect(structure).toHaveBeenCalledWith({ conid: '__model', database: 'archive:model' }, undefined);
+    expect(structure).toHaveBeenCalledWith({ conid: 'conid1', database: 'db1' }, req);
+  });
+
+  test('needs the view role on both databases', async () => {
+    jest.spyOn(databaseConnections, 'getUnifiedDiff').mockResolvedValue('');
+    testDatabaseRolePermission.mockImplementation(denied);
+    await expect(
+      databaseConnections.generateDbDiffReport(
+        {
+          filePath: path.join(uploadsDir, 'diff.html'),
+          sourceConid: 'conid1',
+          sourceDatabase: 'db1',
+          targetConid: 'conid2',
+          targetDatabase: 'db2',
+        },
+        req
+      )
+    ).rejects.toThrow('not granted');
+    expect(testDatabaseRolePermission).toHaveBeenCalledWith('conid1', 'db1', 'view', req);
+    expect(databaseConnections.getUnifiedDiff).not.toHaveBeenCalled();
+  });
+});
+
+// structure with conid '__model' loaded the model from path.resolve(database), so any server
+// folder's *.sql and *.table.yaml files were returned
+describe('model structure', () => {
+  // an earlier test replaces structure with a mock
+  beforeEach(() => jest.restoreAllMocks());
+
+  test('only archive folders are loaded as a model in the web app', async () => {
+    const importDbModel = require('../utility/importDbModel');
+    await expect(databaseConnections.structure({ conid: '__model', database: '/etc' }, req)).rejects.toThrow(
+      'archive folder'
+    );
+    await expect(databaseConnections.structure({ conid: '__model', database: '/etc' })).rejects.toThrow(
+      'archive folder'
+    );
+    expect(importDbModel).not.toHaveBeenCalled();
+    await databaseConnections.structure({ conid: '__model', database: 'archive:model' }, req);
+    expect(importDbModel).toHaveBeenCalledWith('archive:model');
+  });
+});
+
+describe('runid of native backup and restore', () => {
+  test('must be an id, as it becomes a directory name', async () => {
+    await expect(
+      databaseConnections.nativeBackup(
+        { conid: 'conid1', database: 'db1', outputFile: path.join(sqlFilesDir, 'a.sql'), runid: '../../x' },
+        req
+      )
+    ).rejects.toThrow('Invalid runid');
+    await expect(
+      databaseConnections.nativeRestore(
+        { conid: 'conid1', database: 'db1', inputFile: path.join(sqlFilesDir, 'a.sql'), runid: '../../x' },
+        req
+      )
+    ).rejects.toThrow('Invalid runid');
+    expect(runners.nativeRunCore).not.toHaveBeenCalled();
+  });
+});
+
+// routes nothing calls, which checked no permission
+test('the AI helper and metadata routes are not exposed', () => {
+  for (const name of ['textToSql', 'completeOnCursor', 'refactorSqlQuery']) {
+    expect(databaseConnections[`${name}_meta`]).toBeUndefined();
+  }
+  const metadata = require('./metadata');
+  expect(Object.keys(metadata).filter(x => x.endsWith('_meta'))).toEqual([]);
+});

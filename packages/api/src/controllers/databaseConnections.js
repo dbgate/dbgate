@@ -55,10 +55,11 @@ const platformInfo = require('../utility/platformInfo');
 const {
   checkSecureExportFilePath,
   checkSecureSqlDumpFilePath,
-  checkSecureDirectoriesInScript,
   writeExportFile,
   SecureExportWriteRefusedError,
+  isValidRunId,
 } = require('../utility/security');
+const { checkJsonScriptAccess } = require('../utility/jsonScriptAccess');
 const { getSshTunnel } = require('../utility/sshTunnel');
 const sessions = require('./sessions');
 const jsldata = require('./jsldata');
@@ -83,11 +84,6 @@ function getRestoreUploadPath(inputFile, inputUploadName) {
 
   const uploadPath = path.join(uploadsdir(), inputUploadName);
   return path.resolve(inputFile) == path.resolve(uploadPath) ? uploadPath : null;
-}
-
-// runid becomes a directory name under rundir() (handleEvalJsonScript), so it has to be a plain id
-function isValidRunId(runid) {
-  return typeof runid == 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(runid);
 }
 
 // The command line copied from the backup/restore tabs is shown to the user, who may be allowed to
@@ -326,6 +322,14 @@ module.exports = {
     return promise;
   },
 
+  // runs any SQL from the client (the AI agent's SQL tool), like sessions/execute-query
+  queryData_access: {
+    permission: 'dbops/query',
+    connection: 'conid',
+    database: 'database',
+    databaseRole: 'run_script',
+  },
+
   queryData_meta: true,
   async queryData({ conid, database, sql }, req) {
     await testConnectionPermission(conid, req);
@@ -342,6 +346,8 @@ module.exports = {
     const opened = await this.ensureOpened(conid, database);
     return this.sendRequest(opened, { msgtype: 'serverChatQueryData', sql });
   },
+
+  sqlSelect_access: 'self',
 
   sqlSelect_meta: true,
   async sqlSelect({ conid, database, select, commandTimeout, auditLogSessionGroup }, req) {
@@ -378,6 +384,8 @@ module.exports = {
     return res;
   },
 
+  runScript_access: 'self',
+
   runScript_meta: true,
   async runScript({ conid, database, sql, useTransaction, logMessage }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -401,6 +409,8 @@ module.exports = {
     return res;
   },
 
+  runOperation_access: { connection: 'conid', database: 'database', databaseRole: 'run_script' },
+
   runOperation_meta: true,
   async runOperation({ conid, database, operation, useTransaction }, req) {
     await testConnectionPermission(conid, req);
@@ -422,6 +432,8 @@ module.exports = {
     const res = await this.sendRequest(opened, { msgtype: 'runOperation', operation, useTransaction });
     return res;
   },
+
+  collectionData_access: 'self',
 
   collectionData_meta: true,
   async collectionData({ conid, database, options, commandTimeout, auditLogSessionGroup }, req) {
@@ -472,11 +484,15 @@ module.exports = {
     return res.result || null;
   },
 
+  schemaList_access: { connection: 'conid', database: 'database', databaseRole: 'view' },
+
   schemaList_meta: true,
   async schemaList({ conid, database }, req) {
     await testConnectionPermission(conid, req);
     return this.loadDataCore('schemaList', { conid, database });
   },
+
+  dispatchDatabaseChangedEvent_access: { connection: 'conid' },
 
   dispatchDatabaseChangedEvent_meta: true,
   dispatchDatabaseChangedEvent({ event, conid, database }) {
@@ -484,11 +500,15 @@ module.exports = {
     return null;
   },
 
+  dispatchRedisKeysChanged_access: { connection: 'conid' },
+
   dispatchRedisKeysChanged_meta: true,
   dispatchRedisKeysChanged({ conid, database }) {
     socket.emit(`redis-keys-changed-${conid}-${database}`);
     return null;
   },
+
+  loadKeys_access: { connection: 'conid', database: 'database', databaseRole: 'view' },
 
   loadKeys_meta: true,
   async loadKeys({ conid, database, root, filter, limit }, req) {
@@ -496,11 +516,15 @@ module.exports = {
     return this.loadDataCore('loadKeys', { conid, database, root, filter, limit });
   },
 
+  scanKeys_access: { connection: 'conid', database: 'database', databaseRole: 'view' },
+
   scanKeys_meta: true,
   async scanKeys({ conid, database, root, pattern, cursor, count }, req) {
     await testConnectionPermission(conid, req);
     return this.loadDataCore('scanKeys', { conid, database, root, pattern, cursor, count });
   },
+
+  exportKeys_access: { connection: 'conid', database: 'database', databaseRole: 'read_content' },
 
   exportKeys_meta: true,
   async exportKeys({ conid, database, options }, req) {
@@ -508,11 +532,15 @@ module.exports = {
     return this.loadDataCore('exportKeys', { conid, database, options });
   },
 
+  loadKeyInfo_access: { connection: 'conid', database: 'database', databaseRole: 'read_content' },
+
   loadKeyInfo_meta: true,
   async loadKeyInfo({ conid, database, key }, req) {
     await testConnectionPermission(conid, req);
     return this.loadDataCore('loadKeyInfo', { conid, database, key });
   },
+
+  loadKeyTableRange_access: { connection: 'conid', database: 'database', databaseRole: 'read_content' },
 
   loadKeyTableRange_meta: true,
   async loadKeyTableRange({ conid, database, key, cursor, count }, req) {
@@ -520,11 +548,15 @@ module.exports = {
     return this.loadDataCore('loadKeyTableRange', { conid, database, key, cursor, count });
   },
 
+  loadFieldValues_access: 'self',
+
   loadFieldValues_meta: true,
   async loadFieldValues({ conid, database, schemaName, pureName, field, search, dataType }, req) {
     await testConnectionPermission(conid, req);
     return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search, dataType });
   },
+
+  callMethod_access: { connection: 'conid', database: 'database', databaseRole: 'write_data' },
 
   callMethod_meta: true,
   async callMethod({ conid, database, method, args }, req) {
@@ -539,6 +571,8 @@ module.exports = {
     // return res.result || null;
   },
 
+  updateCollection_access: 'self',
+
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }, req) {
     await testConnectionPermission(conid, req);
@@ -552,6 +586,8 @@ module.exports = {
     }
     return res.result || null;
   },
+
+  saveTableData_access: 'self',
 
   saveTableData_meta: true,
   async saveTableData({ conid, database, changeSet }, req) {
@@ -592,6 +628,8 @@ module.exports = {
     return res.result || null;
   },
 
+  saveQueryResultData_access: 'self',
+
   saveQueryResultData_meta: true,
   async saveQueryResultData({ conid, database, changeSet, sql }, req) {
     await testConnectionPermission(conid, req);
@@ -607,6 +645,8 @@ module.exports = {
     return res.result || { state: 'ok' };
   },
 
+  multiCallMethod_access: { connection: 'conid', database: 'database', databaseRole: 'write_data' },
+
   multiCallMethod_meta: true,
   async multiCallMethod({ conid, database, callList }, req) {
     await testConnectionPermission(conid, req);
@@ -620,6 +660,8 @@ module.exports = {
     }
     return res.result || null;
   },
+
+  status_access: 'self',
 
   status_meta: true,
   async status({ conid, database }, req) {
@@ -650,6 +692,8 @@ module.exports = {
     };
   },
 
+  ping_access: 'self',
+
   ping_meta: true,
   async ping({ conid, database }, req) {
     await testConnectionPermission(conid, req);
@@ -678,6 +722,8 @@ module.exports = {
     };
   },
 
+  pingDatabases_access: 'user',
+
   pingDatabases_meta: true,
   async pingDatabases({ databases }, req) {
     if (!databases || !Array.isArray(databases)) return { status: 'ok' };
@@ -696,6 +742,8 @@ module.exports = {
     return { status: 'ok' };
   },
 
+  refresh_access: 'self',
+
   refresh_meta: true,
   async refresh({ conid, database, keepOpen }, req) {
     await testConnectionPermission(conid, req);
@@ -704,6 +752,8 @@ module.exports = {
     await this.ensureOpened(conid, database);
     return { status: 'ok' };
   },
+
+  syncModel_access: 'self',
 
   syncModel_meta: true,
   async syncModel({ conid, database, isFullRefresh }, req) {
@@ -756,12 +806,16 @@ module.exports = {
     }
   },
 
+  disconnect_access: 'self',
+
   disconnect_meta: true,
   async disconnect({ conid, database }, req) {
     await testConnectionPermission(conid, req);
     await this.close(conid, database, true);
     return { status: 'ok' };
   },
+
+  structure_access: 'self',
 
   structure_meta: true,
   async structure({ conid, database, modelTransFile = null }, req) {
@@ -772,6 +826,11 @@ module.exports = {
 
     await testConnectionPermission(conid, req, loadedPermissions);
     if (conid == '__model') {
+      // the model is a folder of YAML/SQL files; in the web app only archive folders, not any
+      // server path (this is also reached from the diff report, without a request)
+      if (!platformInfo.isElectron && !(typeof database == 'string' && database.startsWith('archive:'))) {
+        throw new Error('DBGM-00000 Model must be an archive folder');
+      }
       const model = await importDbModel(database);
       const trans = await loadModelTransform(modelTransFile);
       return trans ? trans(model) : model;
@@ -841,6 +900,8 @@ module.exports = {
     // };
   },
 
+  serverVersion_access: 'self',
+
   serverVersion_meta: true,
   async serverVersion({ conid, database }, req) {
     if (!conid) {
@@ -852,6 +913,13 @@ module.exports = {
     return opened.serverVersion || null;
   },
 
+  sqlPreview_access: {
+    permission: 'dbops/sql-generator',
+    connection: 'conid',
+    database: 'database',
+    databaseRole: 'view',
+  },
+
   sqlPreview_meta: true,
   async sqlPreview({ conid, database, objects, options }, req) {
     await testConnectionPermission(conid, req);
@@ -861,6 +929,13 @@ module.exports = {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'sqlPreview', objects, options });
     return res;
+  },
+
+  exportModel_access: {
+    permission: ['dbops/model/view', 'archive/write'],
+    connection: 'conid',
+    database: 'database',
+    databaseRole: 'view',
   },
 
   exportModel_meta: true,
@@ -886,6 +961,13 @@ module.exports = {
     return { status: 'ok' };
   },
 
+  exportModelSql_access: {
+    permission: 'dbops/model/view',
+    connection: 'conid',
+    database: 'database',
+    databaseRole: 'view',
+  },
+
   exportModelSql_meta: true,
   async exportModelSql({ conid, database, outputFolder, outputFile, schema }, req) {
     await testConnectionPermission(conid, req);
@@ -904,6 +986,8 @@ module.exports = {
 
     return { status: 'ok' };
   },
+
+  generateDeploySql_access: { connection: 'conid', database: 'database', databaseRole: 'view' },
 
   generateDeploySql_meta: true,
   async generateDeploySql({ conid, database, archiveFolder }, req) {
@@ -944,15 +1028,14 @@ module.exports = {
   //   return res;
   // },
 
-  async getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+  async getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase }, req) {
     const dbDiffOptions = sourceConid == '__model' ? modelCompareDbDiffOptions : {};
 
-    const sourceDb = generateDbPairingId(
-      extendDatabaseInfo(await this.structure({ conid: sourceConid, database: sourceDatabase }))
-    );
-    const targetDb = generateDbPairingId(
-      extendDatabaseInfo(await this.structure({ conid: targetConid, database: targetDatabase }))
-    );
+    // with the request, structure leaves out the tables the caller may not see (Team Premium);
+    // a model is an archive folder, not a database with permissions
+    const loadStructure = (conid, database) => this.structure({ conid, database }, conid == '__model' ? undefined : req);
+    const sourceDb = generateDbPairingId(extendDatabaseInfo(await loadStructure(sourceConid, sourceDatabase)));
+    const targetDb = generateDbPairingId(extendDatabaseInfo(await loadStructure(targetConid, targetDatabase)));
     // const sourceConnection = await connections.getCore({conid:sourceConid})
     const connection = await connections.getCore({ conid: targetConid });
     const driver = requireEngineDriver(connection);
@@ -979,14 +1062,26 @@ module.exports = {
     return res;
   },
 
+  generateDbDiffReport_access: 'self',
+
   generateDbDiffReport_meta: true,
-  async generateDbDiffReport({ filePath, sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+  async generateDbDiffReport({ filePath, sourceConid, sourceDatabase, targetConid, targetDatabase }, req) {
+    // the report contains the structure of both databases
+    await testStandardPermission('dbops/model/compare', req);
+    for (const [conid, database] of [
+      [sourceConid, sourceDatabase],
+      [targetConid, targetDatabase],
+    ]) {
+      if (conid == '__model') continue;
+      await testConnectionPermission(conid, req);
+      await testDatabaseRolePermission(conid, database, 'view', req);
+    }
     if (!platformInfo.isElectron && !checkSecureExportFilePath(filePath)) {
       logger.warn({ filePath }, 'DBGM-00000 Refused export write outside managed data directories');
       return false;
     }
 
-    const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase });
+    const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase }, req);
 
     const diffJson = parse(unifiedDiff);
     // $: diffHtml = html(diffJson, { outputFormat: 'side-by-side', drawFileList: false });
@@ -1003,7 +1098,8 @@ module.exports = {
     return true;
   },
 
-  textToSql_meta: true,
+  // Not an API route: nothing calls it, and it checked no permission (it sends the structure of any
+  // opened database to the AI service)
   async textToSql({ conid, database, text, dialect }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     const { structure } = existing || {};
@@ -1018,7 +1114,8 @@ module.exports = {
     return res;
   },
 
-  completeOnCursor_meta: true,
+  // Not an API route: nothing calls it, and it checked no permission (it sends the structure of any
+  // opened database to the AI service)
   async completeOnCursor({ conid, database, text, dialect, line }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     const { structure } = existing || {};
@@ -1032,7 +1129,8 @@ module.exports = {
     return res;
   },
 
-  refactorSqlQuery_meta: true,
+  // Not an API route: nothing calls it, and it checked no permission (it sends the structure of any
+  // opened database to the AI service)
   async refactorSqlQuery({ conid, database, query, task, dialect }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     const { structure } = existing || {};
@@ -1150,12 +1248,17 @@ module.exports = {
     return res;
   },
 
+  nativeBackup_access: 'self',
+
   nativeBackup_meta: true,
   async nativeBackup({ conid, database, outputFile, runid, options, selectedTables, skippedTables }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
     await testConnectionPermission(conid, req, loadedPermissions);
     await testStandardPermission('dbops/sql-dump/export', req, loadedPermissions);
     await testDatabaseRolePermission(conid, database, 'read_content', req);
+    if (!isValidRunId(runid)) {
+      throw new Error('DBGM-00000 Invalid runid');
+    }
     this.testNativeOpFilePath(outputFile, null);
     const effectiveOptions = options || {};
     if (process.env.STORAGE_DATABASE && effectiveOptions.allDatabases) {
@@ -1222,6 +1325,8 @@ module.exports = {
     });
   },
 
+  nativeBackupCommand_access: 'self',
+
   nativeBackupCommand_meta: true,
   async nativeBackupCommand({ conid, database, outputFile, options, selectedTables, skippedTables }, req) {
     await this.testNativeOpPermission('backup', conid, database, req);
@@ -1250,6 +1355,8 @@ module.exports = {
     };
   },
 
+  nativeRestore_access: 'self',
+
   nativeRestore_meta: true,
   async nativeRestore({ conid, database, inputFile, inputUploadName, runid, options }, req) {
     const loadedPermissions = await loadPermissionsFromRequest(req);
@@ -1261,6 +1368,9 @@ module.exports = {
       throw new Error('DBGM-00000 Connection is read-only');
     }
     const effectiveOptions = options || {};
+    if (!isValidRunId(runid)) {
+      throw new Error('DBGM-00000 Invalid runid');
+    }
     const restoreUploadPath = getRestoreUploadPath(inputFile, inputUploadName);
     this.testNativeOpFilePath(inputFile, restoreUploadPath);
     socket.claimOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
@@ -1324,6 +1434,8 @@ module.exports = {
     }
   },
 
+  nativeRestoreCommand_access: 'self',
+
   nativeRestoreCommand_meta: true,
   async nativeRestoreCommand({ conid, database, inputFile, options }, req) {
     await this.testNativeOpPermission('restore', conid, database, req);
@@ -1350,6 +1462,8 @@ module.exports = {
     };
   },
 
+  executeSessionQuery_access: 'self',
+
   executeSessionQuery_meta: true,
   async executeSessionQuery({ sesid, conid, database, sql }, req) {
     await testConnectionPermission(conid, req);
@@ -1369,6 +1483,8 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  evalJsonScript_access: 'self',
+
   evalJsonScript_meta: true,
   async evalJsonScript({ conid, database, script, runid }, req) {
     await testConnectionPermission(conid, req);
@@ -1378,8 +1494,8 @@ module.exports = {
     if (!isValidRunId(runid)) {
       throw new Error('DBGM-00000 Invalid runid');
     }
-    if (!platformInfo.isElectron && !checkSecureDirectoriesInScript(script)) {
-      throw new Error('DBGM-00000 Unallowed directories in script');
+    if (!platformInfo.isElectron) {
+      await checkJsonScriptAccess(script, req, { hostConnection: { conid, database } });
     }
     socket.claimOwner(socket.runnerOwnerKey(runid), socket.getStrmidFromRequest(req));
     const opened = await this.ensureOpened(conid, database);

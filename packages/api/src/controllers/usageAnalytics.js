@@ -51,6 +51,7 @@ function validateBatch(params) {
 }
 
 module.exports = {
+  events_access: 'user',
   events_meta: true,
   async events(params) {
     // Packaged builds include a default key; runtime configuration can override it.

@@ -226,10 +226,11 @@
     initialValues.sourceStorageType = 'query';
     initialValues.sourceConnectionId = conid;
     initialValues.sourceDatabaseName = database;
-    initialValues.sourceQuery = coninfo.isReadOnly
-      ? JSON.stringify(getExportQueryJson(), undefined, 2)
-      : getExportQuery();
-    initialValues.sourceQueryType = coninfo.isReadOnly ? 'json' : 'native';
+    // the structured query whenever the driver has one - a native query is script text, which the
+    // server runs only for users allowed to run scripts
+    const queryJson = getExportQueryJson();
+    initialValues.sourceQuery = queryJson ? JSON.stringify(queryJson, undefined, 2) : getExportQuery();
+    initialValues.sourceQueryType = queryJson ? 'json' : 'native';
     initialValues.sourceList = [pureName];
     initialValues[`columns_${pureName}`] = display.getExportColumnMap();
     openImportExportTab(initialValues);
@@ -262,8 +263,8 @@
         functionName: 'queryReader',
         props: {
           ...extractShellConnectionHostable(coninfo, database),
-          queryType: coninfo.isReadOnly ? 'json' : 'native',
-          query: coninfo.isReadOnly ? getExportQueryJson() : getExportQuery(),
+          queryType: getExportQueryJson() ? 'json' : 'native',
+          query: getExportQueryJson() ?? getExportQuery(),
         },
         hostConnection: extractShellHostConnection(coninfo, database),
       },

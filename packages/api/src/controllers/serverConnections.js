@@ -161,12 +161,16 @@ module.exports = {
     }
   },
 
+  disconnect_access: 'self',
+
   disconnect_meta: true,
   async disconnect({ conid }, req) {
     await testConnectionPermission(conid, req);
     await this.close(conid, true);
     return { status: 'ok' };
   },
+
+  listDatabases_access: 'self',
 
   listDatabases_meta: true,
   async listDatabases({ conid }, req) {
@@ -206,6 +210,8 @@ module.exports = {
 
     return opened?.databases ?? [];
   },
+
+  version_access: 'self',
 
   version_meta: true,
   async version({ conid }, req) {
@@ -285,6 +291,8 @@ module.exports = {
     return canonicalDatabase;
   },
 
+  chatDatabases_access: 'self',
+
   chatDatabases_meta: true,
   async chatDatabases({ conid, filter = '' }, req) {
     if (typeof filter != 'string') {
@@ -306,6 +314,8 @@ module.exports = {
     return this.loadChatDatabases(opened, filter);
   },
 
+  databaseStructure_access: 'self',
+
   databaseStructure_meta: true,
   async databaseStructure({ conid, database }, req) {
     const { opened } = await this.requireServerChat(conid, req);
@@ -325,6 +335,8 @@ module.exports = {
     await databaseConnections.ensureStructureLoaded(conid, canonicalDatabase);
     return databaseConnections.structure({ conid, database: canonicalDatabase }, req);
   },
+
+  queryDatabaseData_access: 'self',
 
   queryDatabaseData_meta: true,
   async queryDatabaseData({ conid, database, sql }, req) {
@@ -349,6 +361,8 @@ module.exports = {
     return databaseConnections.queryServerChatData({ conid, database: canonicalDatabase, sql });
   },
 
+  queryData_access: 'self',
+
   queryData_meta: true,
   async queryData({ conid, sql }, req) {
     if (typeof sql != 'string' || !sql.trim()) {
@@ -371,16 +385,25 @@ module.exports = {
     return this.sendRequest(opened, { msgtype: 'queryData', sql });
   },
 
+  serverStatus_access: 'self',
+
   serverStatus_meta: true,
-  async serverStatus() {
-    return {
+  async serverStatus(_params, req) {
+    const res = {
       ...this.closed,
       ..._.mapValues(_.keyBy(this.opened, 'conid'), 'status'),
     };
+    if (!req) return res;
+    // only the connections the caller may use
+    return _.pick(res, await connections.filterPermittedConnections(Object.keys(res), req));
   },
 
+  ping_access: 'self',
+
   ping_meta: true,
-  async ping({ conidArray, strmid }) {
+  async ping({ conidArray, strmid }, req) {
+    // only connections the caller may use are opened
+    conidArray = req ? await connections.filterPermittedConnections(conidArray, req) : conidArray;
     await Promise.all(
       _.uniq(conidArray).map(async conid => {
         const last = this.lastPinged[conid];
@@ -400,9 +423,14 @@ module.exports = {
         }
       })
     );
-    socket.setStreamIdFilter(strmid, { conid: [...(conidArray ?? []), '__model'] });
+    // the filter applies to the caller's own stream (the strmid header), not to any stream id
+    // from the body - that would let one user change the events another user's tab receives
+    const ownStrmid = req ? socket.getStrmidFromRequest(req) : strmid;
+    if (ownStrmid) socket.setStreamIdFilter(ownStrmid, { conid: [...(conidArray ?? []), '__model'] });
     return { status: 'ok' };
   },
+
+  refresh_access: 'self',
 
   refresh_meta: true,
   async refresh({ conid, keepOpen }, req) {
@@ -431,9 +459,18 @@ module.exports = {
     return res.result || null;
   },
 
+  createDatabase_access: { permission: 'dbops/createdb', connection: 'conid' },
+
   createDatabase_meta: true,
   async createDatabase({ conid, name }, req) {
     return this.sendDatabaseOp({ conid, msgtype: 'createDatabase', name }, req);
+  },
+
+  dropDatabase_access: {
+    permission: 'dbops/dropdb',
+    connection: 'conid',
+    database: 'name',
+    databaseRole: 'run_script',
   },
 
   dropDatabase_meta: true,
@@ -474,6 +511,8 @@ module.exports = {
     return res.result || null;
   },
 
+  serverSummary_access: 'self',
+
   serverSummary_meta: true,
   async serverSummary({ conid }, req) {
     await testConnectionPermission(conid, req);
@@ -481,11 +520,13 @@ module.exports = {
     return this.loadDataCore('serverSummary', { conid });
   },
 
+  listDatabaseProcesses_access: 'self',
+
   listDatabaseProcesses_meta: true,
   async listDatabaseProcesses(ctx, req) {
     const { conid } = ctx;
     // logger.info({ conid }, 'DBGM-00261 Listing processes of database server');
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
 
     const opened = await this.ensureOpened(conid);
     if (!opened) {
@@ -496,10 +537,12 @@ module.exports = {
     return this.sendRequest(opened, { msgtype: 'listDatabaseProcesses' });
   },
 
+  killDatabaseProcess_access: 'self',
+
   killDatabaseProcess_meta: true,
   async killDatabaseProcess(ctx, req) {
     const { conid, pid } = ctx;
-    testConnectionPermission(conid, req);
+    await testConnectionPermission(conid, req);
 
     const opened = await this.ensureOpened(conid);
     if (!opened) {
@@ -509,6 +552,8 @@ module.exports = {
 
     return this.sendRequest(opened, { msgtype: 'killDatabaseProcess', pid });
   },
+
+  summaryCommand_access: 'self',
 
   summaryCommand_meta: true,
   async summaryCommand({ conid, command, row }, req) {

@@ -58,6 +58,11 @@ function resolveJslPathUnchecked(jslid) {
   if (fileMatch) {
     return fileMatch[1];
   }
+  // a plain jslid is a result set in jsldir - with path components, '../archive/...' would reach
+  // the archive without the checks archive:// ids get
+  if (jslid.includes('/') || jslid.includes('\\') || jslid.includes('..')) {
+    throw new InvalidJslPathError(jslid);
+  }
   return path.join(jsldir(), `${jslid}.jsonl`);
 }
 

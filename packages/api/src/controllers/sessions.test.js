@@ -77,6 +77,7 @@ describe('sessions.executeQuery', () => {
     subprocess = openFakeSession();
     testStandardPermission.mockResolvedValue(undefined);
     testDatabaseRolePermission.mockResolvedValue(undefined);
+    testConnectionPermission.mockResolvedValue(undefined);
     execGrantStillStands.mockResolvedValue({ isTargetBound: true });
   });
 
@@ -229,6 +230,7 @@ describe('sessions.executeQuery with SQL hidden in the front matter', () => {
     subprocess = openFakeSession();
     testStandardPermission.mockResolvedValue(undefined);
     testDatabaseRolePermission.mockResolvedValue(undefined);
+    testConnectionPermission.mockResolvedValue(undefined);
     execGrantStillStands.mockResolvedValue({ isTargetBound: true });
   });
 
@@ -275,6 +277,7 @@ describe('sessions.executeReader', () => {
     testConnectionPermission.mockResolvedValue(undefined);
     testStandardPermission.mockResolvedValue(undefined);
     testDatabaseRolePermission.mockResolvedValue(undefined);
+    testConnectionPermission.mockResolvedValue(undefined);
     requireEngineDriver.mockReturnValue({});
     jest.spyOn(sessions, 'create').mockImplementation(async () => {
       openFakeSession('reader1');
@@ -371,5 +374,55 @@ describe('session events', () => {
       expect.objectContaining({ sql: SQL }),
       'tab-a'
     );
+  });
+});
+
+// A session id is only a handle. The routes keyed by it did not check the session's connection,
+// nor whether the caller created the session.
+describe('routes keyed by a session id', () => {
+  const fakeSubprocess = () =>
+    Object.assign(new (require('events').EventEmitter)(), { send: jest.fn(), kill: jest.fn() });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    sessions.opened = [];
+    testConnectionPermission.mockResolvedValue(undefined);
+    testStandardPermission.mockResolvedValue(undefined);
+    fork.mockImplementation(fakeSubprocess);
+  });
+
+  test('a session created by one user cannot be used by another', async () => {
+    const { sesid } = await sessions.create({ conid: 'conid1', database: 'db1' }, alice);
+
+    await expect(sessions.executeQuery({ sesid, sql: 'select 1' }, bob)).rejects.toThrow('another user');
+    await expect(sessions.kill({ sesid }, bob)).rejects.toThrow('another user');
+    await expect(sessions.startProfiler({ sesid }, bob)).rejects.toThrow('another user');
+    expect(await sessions.ping({ sesid }, bob)).toEqual({ state: 'missing' });
+    await expect(sessions.executeControlCommand({ sesid, command: 'commitTransaction' }, alice)).resolves.toEqual({
+      state: 'ok',
+    });
+  });
+
+  test('users sharing a userId or logged in with basic auth are told apart', async () => {
+    const adCarol = { user: { amoid: 'ad', login: 'carol', licenseUid: 'ad:carol', userId: -1 } };
+    const adDave = { user: { amoid: 'ad', login: 'dave', licenseUid: 'ad:dave', userId: -1 } };
+    const { sesid } = await sessions.create({ conid: 'conid1', database: 'db1' }, adCarol);
+    await expect(sessions.kill({ sesid }, adDave)).rejects.toThrow('another user');
+
+    const basicErin = { auth: { user: 'erin' } };
+    const basicFrank = { auth: { user: 'frank' } };
+    const { sesid: basicSesid } = await sessions.create({ conid: 'conid1', database: 'db1' }, basicErin);
+    await expect(sessions.kill({ sesid: basicSesid }, basicFrank)).rejects.toThrow('another user');
+  });
+
+  test('the connection permission is checked for the session connection', async () => {
+    const { sesid } = await sessions.create({ conid: 'conid1', database: 'db1' }, alice);
+    testConnectionPermission.mockRejectedValue(new Error('DBGM-00264 Connection permission not granted'));
+    await expect(sessions.setIsolationLevel({ sesid, level: 'serializable' }, alice)).rejects.toThrow('not granted');
+  });
+
+  test('the profiler needs dbops/profiler', async () => {
+    testStandardPermission.mockRejectedValue(new Error('DBGM-00265 Permission dbops/profiler not granted'));
+    await expect(sessions.startProfiler({ sesid: 'x' }, alice)).rejects.toThrow('dbops/profiler');
   });
 });

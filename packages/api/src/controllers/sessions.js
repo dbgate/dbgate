@@ -42,7 +42,38 @@ function isSafeAppFileName(name) {
   return typeof name == 'string' && name.length > 0 && name != '.' && !/[\\/\0]|\.\./.test(name);
 }
 
+// Identifies the logged-in user of a request, to tie a session to the user who created it.
+// licenseUid names the login (ad:<login>, local:<login>, ...), while userId can be shared - AD
+// logins without a storage row all get -1. A database login is a login to one connection.
+// Basic auth sets req.auth, not req.user.
+function getRequestUserKey(req) {
+  if (!req?.user) {
+    return req?.auth?.user != null ? JSON.stringify(['basic-auth', req.auth.user]) : null;
+  }
+  return JSON.stringify([
+    req.user.amoid ?? null,
+    req.user.licenseUid ?? req.user.login ?? req.user.userId ?? null,
+    req.user.conid ?? null,
+  ]);
+}
+
 module.exports = {
+  // A session id is only a handle: the caller must still be allowed to use the session's connection,
+  // and a session created by a logged-in user is not usable by another user
+  async getSessionForRequest(sesid, req) {
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    if (req) {
+      if (session.ownerKey && session.ownerKey != getRequestUserKey(req)) {
+        throw new Error('DBGM-00000 Session belongs to another user');
+      }
+      await testConnectionPermission(session.conid, req);
+    }
+    return session;
+  },
+
   /** @type {import('dbgate-types').OpenedSession[]} */
   opened: [],
   requests: {},
@@ -178,6 +209,8 @@ module.exports = {
     });
   },
 
+  create_access: 'self',
+
   create_meta: true,
   async create({ conid, database }, req) {
     // connections.getCore performs no authorization of its own, and the session subprocess it
@@ -210,6 +243,7 @@ module.exports = {
       subprocess,
       connection,
       sesid,
+      ownerKey: getRequestUserKey(req),
     };
     this.opened.push(newOpened);
     socket.setOwner(sessionOwnerKey(sesid), socket.getStrmidFromRequest(req));
@@ -238,15 +272,14 @@ module.exports = {
     return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
 
+  executeQuery_access: 'self',
+
   executeQuery_meta: true,
   async executeQuery({ sesid, sql, autoCommit, autoDetectCharts, limitRows, frontMatter }, req) {
     // The session is resolved first because a team-file execution grant is only good for the
     // connection and database the file pins, so it cannot be checked without knowing which
     // session the statement would run in.
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+    const session = await this.getSessionForRequest(sesid, req);
 
     // A valid grant means this exact statement was handed to this exact caller by
     // teamFiles.getContent, which already checked their "use" access to the file - that is what
@@ -307,12 +340,11 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  executeControlCommand_access: 'self',
+
   executeControlCommand_meta: true,
-  async executeControlCommand({ sesid, command }) {
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+  async executeControlCommand({ sesid, command }, req) {
+    const session = await this.getSessionForRequest(sesid, req);
 
     logger.info({ sesid, command }, 'DBGM-00020 Processing control command');
     this.dispatchMessage(sesid, `${_.startCase(command)} started`);
@@ -321,13 +353,12 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  saveQueryResultData_access: 'self',
+
   saveQueryResultData_meta: true,
   async saveQueryResultData({ sesid, changeSet, sql, autoCommit }, req) {
     await testStandardPermission('dbops/query', req);
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+    const session = await this.getSessionForRequest(sesid, req);
     await testDatabaseRolePermission(session.conid, session.database, 'run_script', req);
 
     const res = await this.sendRequest(session, { msgtype: 'saveQueryResultData', changeSet, sql, autoCommit });
@@ -339,18 +370,19 @@ module.exports = {
     return res.result || { state: 'ok' };
   },
 
+  setIsolationLevel_access: 'self',
+
   setIsolationLevel_meta: true,
-  async setIsolationLevel({ sesid, level }) {
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+  async setIsolationLevel({ sesid, level }, req) {
+    const session = await this.getSessionForRequest(sesid, req);
 
     logger.info({ sesid, level }, 'DBGM-00315 Setting transaction isolation level');
     session.subprocess.send({ msgtype: 'setIsolationLevel', level });
 
     return { state: 'ok' };
   },
+
+  executeReader_access: 'self',
 
   executeReader_meta: true,
   async executeReader({ conid, database, sql, queryName, appFolder }, req) {
@@ -386,22 +418,25 @@ module.exports = {
     return { jslid };
   },
 
+  stopLoadingReader_access: 'self',
+
   stopLoadingReader_meta: true,
-  async stopLoadingReader({ jslid }) {
+  async stopLoadingReader({ jslid }, req) {
     const session = this.opened.find(x => x.loadingReader_jslid == jslid);
-    if (session) {
+    if (session && (!req || !session.ownerKey || session.ownerKey == getRequestUserKey(req))) {
       this.kill({ sesid: session.sesid });
     }
     return true;
   },
 
+  startProfiler_access: 'self',
+
   startProfiler_meta: true,
-  async startProfiler({ sesid }) {
+  async startProfiler({ sesid }, req) {
+    // the profiler shows every statement the database server runs
+    await testStandardPermission('dbops/profiler', req);
     const jslid = crypto.randomUUID();
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+    const session = await this.getSessionForRequest(sesid, req);
 
     logger.info({ sesid }, 'DBGM-00021 Starting profiler');
     session.loadingReader_jslid = jslid;
@@ -410,12 +445,11 @@ module.exports = {
     return { state: 'ok', jslid };
   },
 
+  stopProfiler_access: 'self',
+
   stopProfiler_meta: true,
-  async stopProfiler({ sesid }) {
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+  async stopProfiler({ sesid }, req) {
+    const session = await this.getSessionForRequest(sesid, req);
     session.subprocess.send({ msgtype: 'stopProfiler' });
     return { state: 'ok' };
   },
@@ -430,21 +464,22 @@ module.exports = {
   //   return { state: 'ok' };
   // },
 
+  kill_access: 'self',
+
   kill_meta: true,
-  async kill({ sesid }) {
-    const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
+  async kill({ sesid }, req) {
+    const session = await this.getSessionForRequest(sesid, req);
     session.subprocess.kill();
     this.dispatchMessage(sesid, 'Connection closed');
     return { state: 'ok' };
   },
 
+  ping_access: 'self',
+
   ping_meta: true,
-  async ping({ sesid }) {
+  async ping({ sesid }, req) {
     const session = this.opened.find(x => x.sesid == sesid);
-    if (!session) {
+    if (!session || (req && session.ownerKey && session.ownerKey != getRequestUserKey(req))) {
       return { state: 'missing' };
     }
     try {

@@ -526,12 +526,16 @@
     options={[
       { value: 'saveEncrypted', label: _t('connection.saveEncrypted', { defaultMessage: 'Save and encrypt' }) },
       { value: 'saveRaw', label: _t('connection.saveRaw', { defaultMessage: 'Save raw (UNSAFE!!)' }) },
-      { value: 'askPassword', label: _t('connection.askPassword', { defaultMessage: "Don't save, ask for password" }) },
-      {
+      // Team Premium shares connections through roles, so the password is always saved there
+      !$config?.storageDatabase && {
+        value: 'askPassword',
+        label: _t('connection.askPassword', { defaultMessage: "Don't save, ask for password" }),
+      },
+      !$config?.storageDatabase && {
         value: 'askUser',
         label: _t('connection.askUser', { defaultMessage: "Don't save, ask for login and password" }),
       },
-    ]}
+    ].filter(Boolean)}
     data-testid="ConnectionDriverFields_passwordMode"
   />
 {/if}

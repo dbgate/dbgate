@@ -24,17 +24,31 @@ const platformInfo = require('../utility/platformInfo');
 const { checkSecureExportFilePath, writeExportFile, SecureExportWriteRefusedError } = require('../utility/security');
 
 module.exports = {
+  publicFiles_access: 'user',
   publicFiles_meta: true,
   async publicFiles() {
     const res = await getPublicCloudFiles();
     return res;
   },
 
+  publicFileData_access: 'user',
+
   publicFileData_meta: true,
   async publicFileData({ path }) {
-    const res = getPublicFileData(path);
+    // the path is appended to the cloud API URL (sent with the licence headers). Every segment is
+    // encoded, so '%2e%2e' (which the URL parser treats as '..') cannot leave /public either
+    if (typeof path != 'string' || /[?#\\]/.test(path)) {
+      throw new Error('DBGM-00000 Invalid public file path');
+    }
+    const segments = path.split('/');
+    if (segments.some(segment => segment == '' || segment == '.' || segment == '..')) {
+      throw new Error('DBGM-00000 Invalid public file path');
+    }
+    const res = getPublicFileData(segments.map(segment => encodeURIComponent(segment)).join('/'));
     return res;
   },
+
+  refreshPublicFiles_access: 'user',
 
   refreshPublicFiles_meta: true,
   async refreshPublicFiles({ isRefresh, usageAnalyticsConsent }, req) {
@@ -43,6 +57,8 @@ module.exports = {
       status: 'ok',
     };
   },
+
+  contentList_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   contentList_meta: true,
   async contentList() {
@@ -56,11 +72,15 @@ module.exports = {
     }
   },
 
+  getContent_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   getContent_meta: true,
   async getContent({ folid, cntid }) {
     const resp = await getCloudContent(folid, cntid);
     return resp;
   },
+
+  putContent_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   putContent_meta: true,
   async putContent({ folid, cntid, content, name, type }) {
@@ -70,6 +90,8 @@ module.exports = {
     return resp;
   },
 
+  createFolder_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   createFolder_meta: true,
   async createFolder({ name }) {
     const resp = await callCloudApiPost(`folders/create`, { name });
@@ -77,6 +99,8 @@ module.exports = {
     socket.emit('cloud-content-updated');
     return resp;
   },
+
+  grantFolder_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   grantFolder_meta: true,
   async grantFolder({ inviteLink }) {
@@ -93,6 +117,8 @@ module.exports = {
     return resp;
   },
 
+  renameFolder_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   renameFolder_meta: true,
   async renameFolder({ folid, name }) {
     const resp = await callCloudApiPost(`folders/rename`, { folid, name });
@@ -100,6 +126,8 @@ module.exports = {
     socket.emit('cloud-content-updated');
     return resp;
   },
+
+  deleteFolder_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   deleteFolder_meta: true,
   async deleteFolder({ folid }) {
@@ -109,11 +137,15 @@ module.exports = {
     return resp;
   },
 
+  getInviteToken_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   getInviteToken_meta: true,
   async getInviteToken({ folid, role }) {
     const resp = await callCloudApiGet(`invite-token/${folid}/${role}`);
     return resp;
   },
+
+  refreshContent_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   refreshContent_meta: true,
   async refreshContent() {
@@ -123,6 +155,8 @@ module.exports = {
       status: 'ok',
     };
   },
+
+  copyConnectionCloud_access: { permission: 'widgets/cloud-private', privateCloud: true, connection: 'conid' },
 
   copyConnectionCloud_meta: true,
   async copyConnectionCloud({ conid, folid }) {
@@ -143,6 +177,8 @@ module.exports = {
     );
     return resp;
   },
+
+  saveConnection_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   saveConnection_meta: true,
   async saveConnection({ folid, connection }) {
@@ -188,6 +224,8 @@ module.exports = {
     };
   },
 
+  duplicateConnection_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   duplicateConnection_meta: true,
   async duplicateConnection({ conid }) {
     const m = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
@@ -209,6 +247,8 @@ module.exports = {
     return respPut;
   },
 
+  deleteConnection_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   deleteConnection_meta: true,
   async deleteConnection({ conid }) {
     const m = conid.match(/^cloud\:\/\/(.+)\/(.+)$/);
@@ -223,6 +263,8 @@ module.exports = {
     return resp;
   },
 
+  deleteContent_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   deleteContent_meta: true,
   async deleteContent({ folid, cntid }) {
     const resp = await callCloudApiPost(`content/delete/${folid}/${cntid}`);
@@ -230,6 +272,8 @@ module.exports = {
     socket.emit('cloud-content-updated');
     return resp;
   },
+
+  renameContent_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   renameContent_meta: true,
   async renameContent({ folid, cntid, name }) {
@@ -239,6 +283,8 @@ module.exports = {
     return resp;
   },
 
+  saveFile_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   saveFile_meta: true,
   async saveFile({ folid, cntid, fileName, data, contentFolder, format }) {
     const resp = await putCloudContent(folid, cntid, data, fileName, 'file', { contentFolder, contentType: format });
@@ -247,6 +293,8 @@ module.exports = {
     return resp;
   },
 
+  copyFile_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   copyFile_meta: true,
   async copyFile({ folid, cntid, name }) {
     const resp = await callCloudApiPost(`content/duplicate/${folid}/${cntid}`, { name });
@@ -254,6 +302,8 @@ module.exports = {
     socket.emit('cloud-content-updated');
     return resp;
   },
+
+  exportFile_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   exportFile_meta: true,
   async exportFile({ folid, cntid, filePath }, req) {
@@ -275,11 +325,15 @@ module.exports = {
     return true;
   },
 
+  folderUsers_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   folderUsers_meta: true,
   async folderUsers({ folid }) {
     const resp = await callCloudApiGet(`content-folders/users/${folid}`);
     return resp;
   },
+
+  setFolderUserRole_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   setFolderUserRole_meta: true,
   async setFolderUserRole({ folid, email, role }) {
@@ -287,16 +341,22 @@ module.exports = {
     return resp;
   },
 
+  removeFolderUser_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   removeFolderUser_meta: true,
   async removeFolderUser({ folid, email }) {
     const resp = await callCloudApiPost(`content-folders/remove-user/${folid}`, { email });
     return resp;
   },
 
+  getAiGateway_access: { permission: 'dbops/chat' },
+
   getAiGateway_meta: true,
   async getAiGateway() {
     return getAiGatewayServer();
   },
+
+  premiumPromoWidget_access: 'user',
 
   premiumPromoWidget_meta: true,
   async premiumPromoWidget() {
@@ -310,10 +370,14 @@ module.exports = {
     return data;
   },
 
+  promoWidgetList_access: 'user',
+
   promoWidgetList_meta: true,
   async promoWidgetList() {
     return getPromoWidgetList();
   },
+
+  promoWidgetPreview_access: 'user',
 
   promoWidgetPreview_meta: true,
   async promoWidgetPreview({ campaign, variant }) {

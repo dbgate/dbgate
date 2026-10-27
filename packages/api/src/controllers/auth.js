@@ -114,7 +114,6 @@ async function authMiddleware(req, res, next) {
     '/config/get',
     '/config/logout',
     '/config/get-settings',
-    '/config/save-license-key',
     '/auth/oauth-token',
     '/auth/login',
     '/auth/redirect',
@@ -134,7 +133,6 @@ async function authMiddleware(req, res, next) {
     '/mcp/oauth/authorize',
     '/mcp/oauth/token',
     '/connections/dblogin-web',
-    '/connections/dblogin-app',
     '/connections/dblogin-auth',
     '/connections/dblogin-auth-token',
     '/health',
@@ -190,11 +188,13 @@ async function authMiddleware(req, res, next) {
 }
 
 module.exports = {
+  oauthToken_access: 'public',
   oauthToken_meta: true,
   async oauthToken(params, req) {
     const { amoid } = params;
     return getAuthProviderById(amoid).oauthToken(params, req);
   },
+  login_access: 'public',
   login_meta: true,
   async login(params, req) {
     const { amoid, login, password, isAdminPage } = params;
@@ -258,6 +258,8 @@ module.exports = {
     return authProvider.login(login, password, undefined, req);
   },
 
+  getProviders_access: 'public',
+
   getProviders_meta: true,
   getProviders() {
     return {
@@ -268,11 +270,15 @@ module.exports = {
     };
   },
 
+  redirect_access: 'public',
+
   redirect_meta: true,
   async redirect(params) {
     const { amoid } = params;
     return getAuthProviderById(amoid).redirect(params);
   },
+
+  createCloudLoginSession_access: { permission: 'widgets/cloud-private', privateCloud: true },
 
   createCloudLoginSession_meta: true,
   async createCloudLoginSession({ client, redirectUri }, req) {
@@ -289,23 +295,39 @@ module.exports = {
     return res;
   },
 
+  cloudLoginRedirected_access: { permission: 'widgets/cloud-private', privateCloud: true },
+
   cloudLoginRedirected_meta: true,
   async cloudLoginRedirected({ sid }) {
     const tokenHolder = await readCloudTokenHolder(sid);
     return tokenHolder;
   },
 
+  cloudTestLogin_access: 'self',
+
   cloudTestLogin_meta: true,
   async cloudTestLogin({ email }) {
+    // signs the server into DbGate Cloud as a test account - only for the e2e tests and development
+    if (!require('../utility/processArgs').runE2eTests && !process.env.DEVMODE) {
+      throw new Error('DBGM-00000 Cloud test login is available only in tests');
+    }
     const tokenHolder = await readCloudTestTokenHolder(email);
     return tokenHolder;
   },
 
+  logoutAdmin_access: 'self',
+
   logoutAdmin_meta: true,
-  async logoutAdmin() {
+  async logoutAdmin(_params, req) {
+    // frees the licensed administrator login - only the administrator's own session may do that
+    if (req && req.user?.amoid != 'superadmin' && req.user?.licenseUid != 'superadmin') {
+      return true;
+    }
     await markLoginAsLoggedOut('superadmin');
     return true;
   },
+
+  logoutUser_access: 'user',
 
   logoutUser_meta: true,
   async logoutUser({}, req) {

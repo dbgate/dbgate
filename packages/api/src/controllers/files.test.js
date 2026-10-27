@@ -81,6 +81,29 @@ describe('archive links through files.load / files.save', () => {
   });
 });
 
+// getFileRealPath checked the names only for files in filesdir, not for archive: and app: folders
+describe('files.getFileRealPath', () => {
+  test('returns the path of a file in a folder, the archive or an app', async () => {
+    expect(await files.getFileRealPath({ folder: 'sql', file: 'backup.sql' }, req)).toBe(
+      path.join(filesdir(), 'sql', 'backup.sql')
+    );
+    expect(await files.getFileRealPath({ folder: 'archive:default', file: 'x.jsonl' }, req)).toBe(
+      path.join(archivedir(), 'default', 'x.jsonl')
+    );
+  });
+
+  test.each([
+    ['sql', '../../etc/passwd'],
+    ['archive:default', '../../etc/passwd'],
+    ['archive:default', '..\\..\\etc\\passwd'],
+    ['app:../..', 'passwd'],
+    ['app:myapp', '../../passwd'],
+    [undefined, 'x.sql'],
+  ])('refuses folder %p, file %p', async (folder, file) => {
+    expect(await files.getFileRealPath({ folder, file }, req)).toBe(false);
+  });
+});
+
 describe('files.saveUploadedFile', () => {
   beforeAll(() => {
     fsNode.mkdirSync(path.join(filesdir(), 'sql'), { recursive: true });
@@ -171,5 +194,88 @@ describe('application log', () => {
   test('exporting the log requires the application-log permission', async () => {
     testStandardPermission.mockRejectedValueOnce(new Error('DBGM-00265 Permission application-log not granted'));
     await expect(files.fillAppLogs({}, req)).rejects.toThrow('not granted');
+  });
+});
+
+// files.export-file copied path.join(filesdir, folder, file) without checking file, so
+// file='../../..' copied any server file into the uploads directory, ready for uploads/get
+describe('files.exportFile', () => {
+  test('copies a saved file to the uploads directory', async () => {
+    fsNode.mkdirSync(path.join(filesdir(), 'sql'), { recursive: true });
+    fsNode.writeFileSync(path.join(filesdir(), 'sql', 'query.sql'), 'select 1');
+    const target = path.join(uploadsdir(), 'export-ok.sql');
+
+    expect(await files.exportFile({ folder: 'sql', file: 'query.sql', filePath: target }, req)).toBeTruthy();
+    expect(fsNode.readFileSync(target, 'utf-8')).toBe('select 1');
+  });
+
+  test('refuses a source outside the folder', async () => {
+    const target = path.join(uploadsdir(), 'export-secret.sql');
+    const file = path.relative(path.join(filesdir(), 'sql'), secretFile);
+
+    expect(await files.exportFile({ folder: 'sql', file, filePath: target }, req)).toBe(false);
+    expect(await files.exportFile({ folder: '..', file: 'x', filePath: target }, req)).toBe(false);
+    expect(fsNode.existsSync(target)).toBe(false);
+  });
+});
+
+describe('folder and file names', () => {
+  test('files/list does not list a directory outside the files directory', async () => {
+    expect(await files.list({ folder: '../..' }, req)).toEqual([]);
+    expect(await files.list({ folder: '..' }, req)).toEqual([]);
+  });
+
+  test('files/generate-uploads-file accepts only a plain extension', async () => {
+    await expect(files.generateUploadsFile({ extension: '../../x' })).rejects.toThrow('Invalid file extension');
+    expect((await files.generateUploadsFile({ extension: 'xlsx' })).fileName).toMatch(/\.xlsx$/);
+  });
+});
+
+// Team Premium file permissions denied single files, but only apps.getAllApps applied them
+describe('disk file permissions (Team Premium)', () => {
+  const { loadFilePermissionsFromRequest, getFilePermissionRole } = require('../utility/hasPermission');
+  const savedStorage = process.env.STORAGE_DATABASE;
+  beforeEach(() => {
+    process.env.STORAGE_DATABASE = 'storage';
+    hasPermission.mockImplementation(permission => permission != 'all-disk-files');
+    getFilePermissionRole.mockImplementation((folder, file) => (file == 'secret.sql' ? 'deny' : 'allow'));
+    fsNode.mkdirSync(path.join(filesdir(), 'sql'), { recursive: true });
+    fsNode.writeFileSync(path.join(filesdir(), 'sql', 'secret.sql'), 'secret');
+    fsNode.writeFileSync(path.join(filesdir(), 'sql', 'public.sql'), 'public');
+  });
+  afterEach(() => {
+    if (savedStorage == null) delete process.env.STORAGE_DATABASE;
+    else process.env.STORAGE_DATABASE = savedStorage;
+    hasPermission.mockImplementation(() => true);
+    getFilePermissionRole.mockReset();
+  });
+
+  test('a denied file is not listed, loaded, saved or deleted', async () => {
+    const listed = (await files.list({ folder: 'sql' }, req)).map(x => x.file);
+    expect(listed).toContain('public.sql');
+    expect(listed).not.toContain('secret.sql');
+    expect(await files.load({ folder: 'sql', file: 'secret.sql', format: 'text' }, req)).toBeNull();
+    expect(await files.save({ folder: 'sql', file: 'secret.sql', data: 'x', format: 'text' }, req)).toBe(false);
+    expect(await files.delete({ folder: 'sql', file: 'secret.sql' }, req)).toBe(false);
+    expect(fsNode.readFileSync(path.join(filesdir(), 'sql', 'secret.sql'), 'utf-8')).toBe('secret');
+    expect(await files.load({ folder: 'sql', file: 'public.sql', format: 'text' }, req)).toBe('public');
+  });
+
+  test('a denied file cannot be overwritten by an upload', async () => {
+    fsNode.writeFileSync(path.join(uploadsdir(), UPLOAD), 'overwritten');
+    await expect(
+      files.saveUploadedFile({ filePath: path.join(uploadsdir(), UPLOAD), fileName: 'secret.sql' }, req)
+    ).rejects.toThrow('not granted');
+    expect(fsNode.readFileSync(path.join(filesdir(), 'sql', 'secret.sql'), 'utf-8')).toBe('secret');
+    await files.saveUploadedFile({ filePath: path.join(uploadsdir(), UPLOAD), fileName: 'public.sql' }, req);
+    expect(fsNode.readFileSync(path.join(filesdir(), 'sql', 'public.sql'), 'utf-8')).toBe('overwritten');
+  });
+
+  test('all-disk-files and setups without storage are not restricted', async () => {
+    hasPermission.mockImplementation(() => true);
+    expect(await files.load({ folder: 'sql', file: 'secret.sql', format: 'text' }, req)).toBe('secret');
+    delete process.env.STORAGE_DATABASE;
+    hasPermission.mockImplementation(permission => permission != 'all-disk-files');
+    expect(await files.load({ folder: 'sql', file: 'secret.sql', format: 'text' }, req)).toBe('secret');
   });
 });
