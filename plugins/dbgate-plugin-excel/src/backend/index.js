@@ -1,4 +1,7 @@
 const xlsx = require('xlsx');
+// when xlsx is bundled (release builds), webpack picks its ESM build, which has no filesystem access
+// (readFile/writeFile fail with "cannot save file") unless fs is set explicitly
+if (xlsx.set_fs) xlsx.set_fs(require('fs'));
 const reader = require('./reader');
 const writer = require('./writer');
 
