@@ -9,6 +9,17 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.3 - not released
+
+- ADDED: One-click deployment links for RepoCloud, Railway, Elestio, and Sealos in the README
+- CHANGED: Refreshed light and dark themes, buttons, menus, dialogs, and notifications, with improved dialog layout on smaller screens
+- CHANGED: Updated application dependencies and the Electron runtime, and upgraded the Alpine Docker image to Node.js 24
+- FIXED: Redis key counts and stream pagination, including handling of large stream entry IDs
+- FIXED: Disabled MongoDB column filters still being applied
+- FIXED: Export downloads failing when the workspace is stored in a hidden directory
+- FIXED: Failed SSH tunnel connections leaving background processes running and causing excessive memory usage #1605
+- FIXED: Addressed multiple security issues, including access control, file path validation, and HTML sanitization
+
 ## 7.3.2
 
 - ADDED: Built-in Redis backup and restore with Redis command and RESP output formats, key filtering, expiration handling, and multi-database support
