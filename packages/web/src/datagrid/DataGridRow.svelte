@@ -78,6 +78,7 @@
 <tr style={`height: ${rowHeight}px`} class={`coloring-mode-${gridColoringMode} row-color-${rowIndex % 6}`}>
   <RowHeaderCell
     {rowIndex}
+    {rowHeight}
     onShowForm={onSetFormView && !overlayDefinition ? () => onSetFormView(rowData, null) : null}
     extraIcon={overlayDefinition ? OVERLAY_STATUS_ICONS[rowStatus.status] : null}
     extraIconTooltip={overlayDefinition ? OVERLAY_STATUS_TOOLTIPS[rowStatus.status] : null}
@@ -87,6 +88,7 @@
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] && isCellEditable(col)}
       <InplaceEditor
         width={col.width}
+        {rowHeight}
         {inplaceEditorState}
         {dispatchInsplaceEditor}
         cellValue={rowData[col.uniqueName]}
@@ -99,6 +101,7 @@
     {:else}
       <DataGridCell
         {rowIndex}
+        {rowHeight}
         {rowData}
         {col}
         {conid}
