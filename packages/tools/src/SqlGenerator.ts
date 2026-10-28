@@ -6,6 +6,7 @@ import type {
   SchedulerEventInfo,
   TableInfo,
   TriggerInfo,
+  UserDefinedTypeInfo,
   ViewInfo,
 } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
@@ -55,12 +56,23 @@ interface SqlGeneratorOptions {
   dropSchedulerEvents: boolean;
   checkIfSchedulerEventExists: boolean;
   createSchedulerEvents: boolean;
+
+  dropUserDefinedTypes: boolean;
+  checkIfUserDefinedTypeExists: boolean;
+  createUserDefinedTypes: boolean;
 }
 
 interface SqlGeneratorObject {
   schemaName: string;
   pureName: string;
-  objectTypeField: 'tables' | 'views' | 'procedures' | 'functions' | 'triggers' | 'schedulerEvents';
+  objectTypeField:
+    | 'tables'
+    | 'views'
+    | 'procedures'
+    | 'functions'
+    | 'triggers'
+    | 'schedulerEvents'
+    | 'userDefinedTypes';
 }
 
 export class SqlGenerator {
@@ -71,6 +83,7 @@ export class SqlGenerator {
   private functions: FunctionInfo[];
   private triggers: TriggerInfo[];
   private schedulerEvents: SchedulerEventInfo[];
+  private userDefinedTypes: UserDefinedTypeInfo[];
   public dbinfo: DatabaseInfo;
   public isTruncated = false;
   public isUnhandledException = false;
@@ -91,6 +104,7 @@ export class SqlGenerator {
     this.functions = this.extract('functions');
     this.triggers = this.extract('triggers');
     this.schedulerEvents = this.extract('schedulerEvents');
+    this.userDefinedTypes = this.extract('userDefinedTypes');
   }
 
   private handleException = error => {
@@ -116,6 +130,12 @@ export class SqlGenerator {
       if (this.checkDumper()) return;
 
       this.dropTables();
+      if (this.checkDumper()) return;
+
+      this.dropObjects(this.userDefinedTypes, 'UserDefinedType');
+      if (this.checkDumper()) return;
+
+      this.createObjects(this.userDefinedTypes, 'UserDefinedType');
       if (this.checkDumper()) return;
 
       this.createTables();

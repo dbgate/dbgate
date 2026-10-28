@@ -67,6 +67,7 @@ export function getObjectTypeFieldLabel(objectTypeField, driver?) {
   if (objectTypeField == 'triggers') return _t('dbObject.triggers', { defaultMessage: 'Triggers' });
   if (objectTypeField == 'schedulerEvents')
     return _t('dbObject.schedulerEvents', { defaultMessage: 'Scheduler Events' });
+  if (objectTypeField == 'userDefinedTypes') return _t('dbObject.userDefinedTypes', { defaultMessage: 'Types' });
   if (objectTypeField == 'matviews') return _t('dbObject.matviews', { defaultMessage: 'Materialized Views' });
   if (objectTypeField == 'collections') return _t('dbObject.collections', { defaultMessage: 'Collections/Containers' });
   return _.startCase(objectTypeField);

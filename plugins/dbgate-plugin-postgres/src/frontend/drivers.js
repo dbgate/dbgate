@@ -457,12 +457,14 @@ const postgresDriver = {
   dialect: {
     ...dialect,
     materializedViews: true,
+    userDefinedTypes: true,
   },
   icon: postgresIcon,
   dialectByVersion(version) {
     if (version) {
       return {
         ...dialect,
+        userDefinedTypes: true,
         materializedViews:
           version &&
           version.versionMajor != null &&
