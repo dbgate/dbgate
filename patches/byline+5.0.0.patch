@@ -1,0 +1,20 @@
+diff --git a/node_modules/byline/lib/byline.js b/node_modules/byline/lib/byline.js
+index 21843cb..d945e3c 100644
+--- a/node_modules/byline/lib/byline.js
++++ b/node_modules/byline/lib/byline.js
+@@ -143,13 +143,13 @@ LineStream.prototype._flush = function(done) {
+ // see Readable::push
+ LineStream.prototype._reencode = function(line, chunkEncoding) {
+   if (this.encoding && this.encoding != chunkEncoding) {
+-    return new Buffer(line, chunkEncoding).toString(this.encoding);
++    return Buffer.from(line, chunkEncoding).toString(this.encoding);
+   }
+   else if (this.encoding) {
+     // this should be the most common case, i.e. we're using an encoded source stream
+     return line;
+   }
+   else {
+-    return new Buffer(line, chunkEncoding);
++    return Buffer.from(line, chunkEncoding);
+   }
+ };
