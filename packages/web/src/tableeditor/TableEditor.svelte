@@ -69,6 +69,7 @@
   import ConstraintLabel from '../elements/ConstraintLabel.svelte';
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
   import Link from '../elements/Link.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { showModal } from '../modals/modalTools';
@@ -151,6 +152,19 @@
       setTableInfo,
       tableInfo,
       dbInfo,
+    });
+  }
+
+  $: canChangeColumnOrder = isWritable && (isCreateTable || !!driver?.dialect?.changeColumnPosition);
+
+  function moveColumn(row, delta) {
+    setTableInfo(tbl => {
+      const index = tbl.columns.findIndex(x => x.columnName == row.columnName);
+      const newIndex = index + delta;
+      if (index < 0 || newIndex < 0 || newIndex >= tbl.columns.length) return tbl;
+      const newColumns = [...tbl.columns];
+      [newColumns[index], newColumns[newIndex]] = [newColumns[newIndex], newColumns[index]];
+      return { ...tbl, columns: newColumns };
     });
   }
 
@@ -288,6 +302,14 @@
         sortable: true,
         filterable: true,
       },
+      canChangeColumnOrder
+        ? {
+            fieldName: 'order',
+            header: _t('tableEditor.order', { defaultMessage: 'Order' }),
+            filterable: false,
+            slot: 6,
+          }
+        : null,
       isWritable
         ? {
             fieldName: 'actions',
@@ -329,6 +351,25 @@
       >{row?.isZerofill
         ? _t('tableEditor.yes', { defaultMessage: 'YES' })
         : _t('tableEditor.no', { defaultMessage: 'NO' })}</svelte:fragment
+    >
+    <svelte:fragment slot="6" let:row
+      ><span class="order-buttons"
+        ><Link
+          title={_t('tableEditor.moveUp', { defaultMessage: 'Move up' })}
+          data-testid="TableEditor_moveColumnUp"
+          onClick={e => {
+            e.stopPropagation();
+            moveColumn(row, -1);
+          }}><FontIcon icon="icon arrow-up" /></Link
+        ><Link
+          title={_t('tableEditor.moveDown', { defaultMessage: 'Move down' })}
+          data-testid="TableEditor_moveColumnDown"
+          onClick={e => {
+            e.stopPropagation();
+            moveColumn(row, 1);
+          }}><FontIcon icon="icon arrow-down" /></Link
+        ></span
+      ></svelte:fragment
     >
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
@@ -454,6 +495,11 @@
 </div>
 
 <style>
+  .order-buttons {
+    display: inline-flex;
+    gap: 8px;
+  }
+
   .wrapper {
     position: absolute;
     left: 0;

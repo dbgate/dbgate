@@ -62,6 +62,13 @@ interface AlterOperation_RenameColumn {
   newName: string;
 }
 
+interface AlterOperation_ChangeColumnPosition {
+  operationType: 'changeColumnPosition';
+  column: ColumnInfo;
+  // null = move column to first position
+  afterColumnName: string | null;
+}
+
 interface AlterOperation_DropColumn {
   operationType: 'dropColumn';
   oldObject: ColumnInfo;
@@ -114,6 +121,7 @@ interface AlterOperation_SetTableOption {
 export type AlterOperation =
   | AlterOperation_CreateColumn
   | AlterOperation_ChangeColumn
+  | AlterOperation_ChangeColumnPosition
   | AlterOperation_DropColumn
   | AlterOperation_CreateConstraint
   | AlterOperation_ChangeConstraint
@@ -185,6 +193,14 @@ export class AlterPlan {
       operationType: 'changeColumn',
       oldObject: oldColumn,
       newObject: newColumn,
+    });
+  }
+
+  changeColumnPosition(column: ColumnInfo, afterColumnName: string | null) {
+    this.operations.push({
+      operationType: 'changeColumnPosition',
+      column,
+      afterColumnName,
     });
   }
 
@@ -556,6 +572,15 @@ export class AlterPlan {
             }
           }
           break;
+        case 'changeColumnPosition':
+          {
+            const key = `${op.column.schemaName}||${op.column.pureName}`;
+            if (recreates.has(key)) {
+              // skip column move inside recreated table
+              continue;
+            }
+          }
+          break;
         case 'renameColumn':
           {
             const key = `${op.object.schemaName}||${op.object.pureName}`;
@@ -710,6 +735,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'dropColumn':
       processor.dropColumn(op.oldObject);
+      break;
+    case 'changeColumnPosition':
+      processor.changeColumnPosition?.(op.column, op.afterColumnName);
       break;
     case 'dropTable':
       processor.dropTable(op.oldObject);

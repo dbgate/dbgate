@@ -6,6 +6,8 @@ export interface AlterProcessor {
   createColumn(column: ColumnInfo, constraints: ConstraintInfo[]);
   changeColumn(oldColumn: ColumnInfo, newColumn: ColumnInfo, constraints?: ConstraintInfo[]);
   dropColumn(column: ColumnInfo);
+  // afterColumnName == null means move column to first position
+  changeColumnPosition?(column: ColumnInfo, afterColumnName: string | null);
   createConstraint(constraint: ConstraintInfo);
   changeConstraint(oldConstraint: ConstraintInfo, newConstraint: ConstraintInfo);
   dropConstraint(constraint: ConstraintInfo);

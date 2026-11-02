@@ -99,7 +99,7 @@
     const { sql, recreates } = getAlterTableScript(
       $editorValue.base,
       extendTableInfo(fillConstraintNames($editorValue.current, driver.dialect)),
-      {},
+      { checkColumnOrder: true },
       $dbInfo,
       $dbInfo,
       driver

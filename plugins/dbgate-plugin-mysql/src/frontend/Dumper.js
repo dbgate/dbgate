@@ -44,6 +44,17 @@ class Dumper extends SqlDumper {
     this.endCommand();
   }
 
+  changeColumnPosition(column, afterColumnName) {
+    this.put('^alter ^table %f ^modify ^column %i ', column, column.columnName);
+    this.columnDefinition(column);
+    if (afterColumnName) {
+      this.put(' ^after %i', afterColumnName);
+    } else {
+      this.put(' ^first');
+    }
+    this.endCommand();
+  }
+
   autoIncrement() {}
 
   specialColumnOptions(column) {

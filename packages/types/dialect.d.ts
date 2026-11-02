@@ -36,6 +36,8 @@ export interface SqlDialect {
   createColumn?: boolean;
   dropColumn?: boolean;
   changeColumn?: boolean;
+  // supports changing column position in table (eg. MySQL ALTER TABLE ... MODIFY COLUMN ... AFTER/FIRST)
+  changeColumnPosition?: boolean;
   changeAutoIncrement?: boolean;
   createIndex?: boolean;
   dropIndex?: boolean;
