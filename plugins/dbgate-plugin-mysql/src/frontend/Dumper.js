@@ -39,20 +39,54 @@ class Dumper extends SqlDumper {
       });
     }
     this.put('^alter ^table %f ^change ^column %i %i ', oldcol, oldcol.columnName, newcol.columnName);
-    this.columnDefinition(newcol);
+    this.alterColumnDefinition(newcol);
     this.inlineConstraints(constraints);
     this.endCommand();
   }
 
   changeColumnPosition(column, afterColumnName) {
     this.put('^alter ^table %f ^modify ^column %i ', column, column.columnName);
-    this.columnDefinition(column);
+    this.alterColumnDefinition(column);
     if (afterColumnName) {
       this.put(' ^after %i', afterColumnName);
     } else {
       this.put(' ^first');
     }
     this.endCommand();
+  }
+
+  /**
+   * Full column definition for CHANGE/MODIFY COLUMN - MySQL replaces whole column definition, so properties,
+   * which are not used in CREATE TABLE (charset, collation, generated column, invisible) must be repeated
+   */
+  alterColumnDefinition(col) {
+    if (col.generationExpression) {
+      this.columnType(col.dataType);
+      this.put(' ');
+      this.specialColumnOptions(col);
+      this.columnCharset(col);
+      this.put('^as (%s)', col.generationExpression);
+      this.put(col.isStoredGenerated ? ' ^stored' : ' ^virtual');
+      // MariaDB doesn't allow NULL/NOT NULL for generated columns, MySQL default is NULL
+      if (col.notNull) this.put(' ^not ^null');
+      if (col.columnComment) this.put(' ^comment %v', col.columnComment);
+      if (col.isInvisible) this.put(' ^invisible');
+      return;
+    }
+
+    this.isAlterColumnDefinition = true;
+    try {
+      this.columnDefinition(col);
+    } finally {
+      this.isAlterColumnDefinition = false;
+    }
+    if (col.isInvisible) this.put(' ^invisible');
+  }
+
+  columnCharset(col) {
+    if (!/^(var)?char\b|^(tiny|medium|long)?text$|^(enum|set)\s*\(/i.test(col.dataType || '')) return;
+    if (col.characterSet && /^\w+$/.test(col.characterSet)) this.put('^character ^set %s ', col.characterSet);
+    if (col.collation && /^\w+$/.test(col.collation)) this.put('^collate %s ', col.collation);
   }
 
   autoIncrement() {}
@@ -66,6 +100,9 @@ class Dumper extends SqlDumper {
     }
     if (column.autoIncrement) {
       this.put('^auto_increment ');
+    }
+    if (this.isAlterColumnDefinition) {
+      this.columnCharset(column);
     }
   }
 

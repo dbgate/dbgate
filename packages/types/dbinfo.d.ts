@@ -64,6 +64,12 @@ export interface ColumnInfo extends NamedObjectInfo {
   columnComment?: string;
   isUnsigned?: boolean;
   isZerofill?: boolean;
+  // MySQL/MariaDB specific, used only in ALTER TABLE to keep column definition unchanged
+  characterSet?: string;
+  collation?: string;
+  generationExpression?: string;
+  isStoredGenerated?: boolean;
+  isInvisible?: boolean;
   options?: [];
   canSelectMultipleOptions?: boolean;
   undropColumnName?: string;

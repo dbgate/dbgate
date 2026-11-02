@@ -26,6 +26,36 @@ function extractOnUpdateExpression(extra) {
   return match ? match[1].trim() : undefined;
 }
 
+// types, where DATA_TYPE + length/precision is not enough to reproduce column type (eg. datetime(6), decimal(12,0), bit(8))
+const TYPES_WITH_FULL_COLUMN_TYPE = ['decimal', 'numeric', 'bit', 'datetime', 'timestamp', 'time'];
+
+function getFullColumnType(columnType) {
+  // unsigned and zerofill are stored in separate properties
+  return columnType
+    .split(' ')
+    .filter(x => x && !['unsigned', 'zerofill'].includes(x.toLowerCase()))
+    .join(' ');
+}
+
+function normalizeGenerationExpression(expression) {
+  if (!_.isString(expression) || !expression.trim()) return undefined;
+  // MySQL 8 returns quotes in GENERATION_EXPRESSION escaped (eg. concat(`a`,_utf8mb4\'x\'))
+  if (expression.includes("\\'") && !/(^|[^\\])'/.test(expression)) {
+    return expression.replace(/\\(['\\])/g, '$1');
+  }
+  return expression;
+}
+
+function getGeneratedColumnInfo(extra, generationExpression) {
+  const match = _.isString(extra) && extra.match(/(?:^|\s)(virtual|stored|persistent) generated(?:\s|$)/i);
+  const expression = normalizeGenerationExpression(generationExpression);
+  if (!match || !expression) return {};
+  return {
+    generationExpression: expression,
+    isStoredGenerated: match[1].toLowerCase() != 'virtual',
+  };
+}
+
 function getColumnInfo(
   {
     isNullable,
@@ -38,15 +68,21 @@ function getColumnInfo(
     defaultValue,
     columnComment,
     columnType,
+    characterSet,
+    collation,
+    generationExpression,
   },
-  driver
+  driver,
+  tableCollation = null
 ) {
   const { quoteDefaultValues } = driver.__analyserInternals;
   let optionsInfo = {};
 
   const columnTypeTokens = _.isString(columnType) ? columnType.split(' ').map(x => x.trim().toLowerCase()) : [];
   let fullDataType = dataType;
-  if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
+  if (_.isString(columnType) && TYPES_WITH_FULL_COLUMN_TYPE.includes(dataType?.toLowerCase()))
+    fullDataType = getFullColumnType(columnType);
+  else if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
   else if (numericPrecision && numericScale && isTypeNumeric(dataType))
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
   else {
@@ -68,6 +104,11 @@ function getColumnInfo(
     onUpdateExpression: extractOnUpdateExpression(extra),
     isUnsigned: columnTypeTokens.includes('unsigned'),
     isZerofill: columnTypeTokens.includes('zerofill'),
+    // following properties are used only in ALTER TABLE (CHANGE/MODIFY COLUMN), to keep column definition unchanged
+    // only when different from table default (MySQL 8 would mark column charset as explicit)
+    ...(collation && collation != tableCollation ? { characterSet: characterSet || undefined, collation } : {}),
+    ...getGeneratedColumnInfo(extra, generationExpression),
+    isInvisible: /(^|\s)invisible(\s|$)/i.test(extra || '') || undefined,
     ...optionsInfo,
   };
 }
@@ -128,7 +169,11 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00218 Loading tables' });
     const tables = await this.analyserQuery('tables', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00219 Loading columns' });
-    const columns = await this.analyserQuery('columns', ['tables', 'views']);
+    let columns = await this.analyserQuery('columns', ['tables', 'views']);
+    if (columns.isError) {
+      // older servers without GENERATION_EXPRESSION column
+      columns = await this.analyserQuery('columnsLegacy', ['tables', 'views']);
+    }
     this.feedback({ analysingMessage: 'DBGM-00220 Loading primary keys' });
     const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'DBGM-00221 Loading foreign keys' });
@@ -178,12 +223,14 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'DBGM-00229 Finalizing DB structure' });
 
     const res = {
-      tables: tables.rows.map(table => ({
+      tables: tables.rows.map(({ tableCollation, ...table }) => ({
         ...table,
         objectId: table.pureName,
         objectComment: _.isString(table.objectComment) ? table.objectComment : undefined,
         contentHash: _.isDate(table.modifyDate) ? table.modifyDate.toISOString() : table.modifyDate,
-        columns: columns.rows.filter(col => col.pureName == table.pureName).map(x => getColumnInfo(x, this.driver)),
+        columns: columns.rows
+          .filter(col => col.pureName == table.pureName)
+          .map(x => getColumnInfo(x, this.driver, tableCollation)),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
         tableRowCount: table.tableRowCount,
