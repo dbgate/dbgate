@@ -88,7 +88,13 @@ describe('column order in alter table plan', () => {
   function applyPlan(plan) {
     const db = { tables: [JSON.parse(JSON.stringify(oldTable))] };
     const processor = new DatabaseInfoAlterProcessor(db);
-    for (const op of plan.operations) runAlterOperation(op, processor);
+    for (const op of plan.operations) {
+      runAlterOperation(op, processor);
+      if (op.operationType == 'changeColumnPosition') {
+        // absolute position (used by Firebird) must match real position after move
+        expect(db.tables[0].columns.findIndex(x => x.columnName == op.column.columnName) + 1).toBe(op.position);
+      }
+    }
     return db.tables[0].columns.map(x => x.columnName);
   }
 
@@ -96,7 +102,9 @@ describe('column order in alter table plan', () => {
 
   test('moved column generates changeColumnPosition', () => {
     const plan = getPlan([id, c, a, b]);
-    expect(plan.operations).toEqual([{ operationType: 'changeColumnPosition', column: c, afterColumnName: 'id' }]);
+    expect(plan.operations).toEqual([
+      { operationType: 'changeColumnPosition', column: c, afterColumnName: 'id', position: 2 },
+    ]);
     expect(applyPlan(plan)).toEqual(['id', 'c', 'a', 'b']);
   });
 
@@ -116,6 +124,26 @@ describe('column order in alter table plan', () => {
   test('dropped column does not cause moves', () => {
     const plan = getPlan([id, b, c]);
     expect(plan.operations.map(x => x.operationType)).toEqual(['dropColumn']);
+  });
+
+  test('positions respect columns kept with deleted prefix', () => {
+    const plan = getPlan([id, c, b], true, { checkColumnOrder: true, deletedColumnPrefix: '_deleted_' });
+    expect(plan.operations.map(x => x.operationType)).toEqual(['renameColumn', 'changeColumnPosition']);
+    const columns = applyPlan(plan);
+    expect(columns).toContain('_deleted_a');
+    expect(columns.filter(x => x != '_deleted_a')).toEqual(['id', 'c', 'b']);
+  });
+
+  test('positions respect columns kept with noDropColumn', () => {
+    const plan = getPlan([c, id, b], true, { checkColumnOrder: true, noDropColumn: true });
+    expect(plan.operations.map(x => x.operationType)).toEqual(['changeColumnPosition']);
+    expect(applyPlan(plan)).toEqual(['c', 'id', 'a', 'b']);
+  });
+
+  test('positions of multiple moves', () => {
+    const d = column('d', { pairingId: 'new-d' });
+    const plan = getPlan([c, d, b, a, id]);
+    expect(applyPlan(plan)).toEqual(['c', 'd', 'b', 'a', 'id']);
   });
 
   test('no moves when dialect does not support it', () => {

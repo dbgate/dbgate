@@ -67,6 +67,8 @@ interface AlterOperation_ChangeColumnPosition {
   column: ColumnInfo;
   // null = move column to first position
   afterColumnName: string | null;
+  // 1-based position of column after move
+  position: number;
 }
 
 interface AlterOperation_DropColumn {
@@ -196,11 +198,12 @@ export class AlterPlan {
     });
   }
 
-  changeColumnPosition(column: ColumnInfo, afterColumnName: string | null) {
+  changeColumnPosition(column: ColumnInfo, afterColumnName: string | null, position: number) {
     this.operations.push({
       operationType: 'changeColumnPosition',
       column,
       afterColumnName,
+      position,
     });
   }
 
@@ -737,7 +740,7 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       processor.dropColumn(op.oldObject);
       break;
     case 'changeColumnPosition':
-      processor.changeColumnPosition?.(op.column, op.afterColumnName);
+      processor.changeColumnPosition?.(op.column, op.afterColumnName, op.position);
       break;
     case 'dropTable':
       processor.dropTable(op.oldObject);

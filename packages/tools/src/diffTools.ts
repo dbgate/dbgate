@@ -24,6 +24,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
+import _remove from 'lodash/remove';
 import _isString from 'lodash/isString';
 import { detectChangesInPreloadedRows } from './structureTools';
 
@@ -575,17 +576,40 @@ export function getColumnMoves(
   return res;
 }
 
-function planColumnOrder(plan: AlterPlan, columnPairs: [ColumnInfo, ColumnInfo][], newTable: TableInfo) {
-  // order after alter operations - existing columns keep their order, created columns are added to the end
-  const currentOrder = [
-    ...columnPairs.filter(x => x[0] && x[1]).map(x => x[1].columnName),
-    ...columnPairs.filter(x => !x[0] && x[1]).map(x => x[1].columnName),
-  ];
+function planColumnOrder(
+  plan: AlterPlan,
+  columnPairs: [ColumnInfo, ColumnInfo][],
+  newTable: TableInfo,
+  opts: DbDiffOptions
+) {
+  // real column order after alter operations - existing columns keep their order, created columns are added to the end,
+  // deleted columns are kept in table when they are only renamed (deletedColumnPrefix) or noDropColumn is set
+  const tableOrder: string[] = [];
+  for (const [oldColumn, newColumn] of columnPairs) {
+    if (oldColumn && newColumn) {
+      tableOrder.push(newColumn.columnName);
+    } else if (oldColumn && opts.deletedColumnPrefix) {
+      tableOrder.push(
+        hasDeletedPrefix(oldColumn.columnName, opts, opts.deletedColumnPrefix)
+          ? oldColumn.columnName
+          : opts.deletedColumnPrefix + oldColumn.columnName
+      );
+    } else if (oldColumn && opts.noDropColumn) {
+      tableOrder.push(oldColumn.columnName);
+    }
+  }
+  tableOrder.push(...columnPairs.filter(x => !x[0] && x[1]).map(x => x[1].columnName));
+
   const targetOrder = newTable.columns.map(x => x.columnName);
-  for (const move of getColumnMoves(currentOrder, targetOrder)) {
+  for (const move of getColumnMoves(tableOrder, targetOrder)) {
+    // simulate move to compute absolute position (needed eg. by Firebird)
+    _remove(tableOrder, x => x == move.columnName);
+    const index = move.afterColumnName == null ? 0 : tableOrder.indexOf(move.afterColumnName) + 1;
+    tableOrder.splice(index, 0, move.columnName);
     plan.changeColumnPosition(
       newTable.columns.find(x => x.columnName == move.columnName),
-      move.afterColumnName
+      move.afterColumnName,
+      index + 1
     );
   }
 }
@@ -658,7 +682,7 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     });
 
   if (opts.checkColumnOrder && plan.dialect?.changeColumnPosition) {
-    planColumnOrder(plan, columnPairs, newTable);
+    planColumnOrder(plan, columnPairs, newTable, opts);
   }
 
   constraintPairs
