@@ -6,6 +6,10 @@ const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
 const currentVersion = require('./currentVersion');
 const _ = require('lodash');
+const { resolveEnvFileSecrets } = require('./utility/envFileSecrets');
+
+// must run before any code reads process.env; child processes inherit the resolved values
+const envFileSecrets = resolveEnvFileSecrets(process.env);
 
 const logger = getLogger('apiIndex');
 
@@ -133,6 +137,19 @@ function configureLogger() {
 if (processArgs.listenApi) {
   configureLogger();
   logger.info(`DBGM-00026 Starting API process version ${currentVersion.version}`);
+
+  if (envFileSecrets.loaded.length > 0) {
+    logger.info({ variables: envFileSecrets.loaded }, 'DBGM-00000 Loaded environment variables from *_FILE files');
+  }
+  if (envFileSecrets.skipped.length > 0) {
+    logger.warn(
+      { variables: envFileSecrets.skipped },
+      'DBGM-00000 Environment variables set both directly and via *_FILE, using the direct value'
+    );
+  }
+  for (const { name, error } of envFileSecrets.errors) {
+    logger.error({ variable: name, error }, 'DBGM-00000 Error reading file referenced by environment variable');
+  }
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
     logger.info('DBGM-00027 Debug print environment variables:');
