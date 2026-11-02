@@ -158,6 +158,7 @@ jobs:
         with:
           files: artifacts/**
           prerelease: true
+          body_path: ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Print content of notarization-error.log
