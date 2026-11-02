@@ -9,6 +9,10 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.4
+
+- FIXED: Excel export and import failing with "cannot save file" #1610
+
 ## 7.3.3
 
 - ADDED: One-click deployment links for RepoCloud, Railway, Elestio, and Sealos in the README
