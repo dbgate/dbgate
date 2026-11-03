@@ -113,7 +113,7 @@
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
 
-  $: folderOrder = ($settings?.connectionFolderOrder as string[]) || [];
+  $: folderOrder = (($settings?.connectionFolderOrder as string[]) || []).map(normalizeFolderPath);
   $: folderDragEnabled = !$config?.runAsPortal;
   // folder order is saved in settings (evaluated on drag, permissions are compiled from config asynchronously)
   const canReorderFolders = () => folderDragEnabled && hasPermission('settings/change');
@@ -174,7 +174,7 @@
     }
     const addFolders = nodes => {
       for (const node of nodes) {
-        if (collapsed.includes(node.path)) continue;
+        if (collapsed.some(x => normalizeFolderPath(x) == node.path)) continue;
         addFolders(node.children);
         res.push(...(connectionsByFolder[node.path] || []));
       }
@@ -246,7 +246,7 @@
   function moveFolderSubtree(folder, newFolder, removeFolderItself = false) {
     const rewrite = list =>
       replaceFolderPathPrefixInList(
-        removeFolderItself ? list.filter(x => x != folder) : list,
+        removeFolderItself ? list.filter(x => normalizeFolderPath(x) != folder) : list,
         folder,
         newFolder
       );
@@ -323,8 +323,10 @@
         onConfirm: async name => {
           const newFolder = normalizeFolderPath(`${folder}/${name}`);
           if (newFolder == folder) return;
-          emptyConnectionGroupNames.update(names => (names.includes(newFolder) ? names : [...names, newFolder]));
-          collapsedConnectionGroupNames.update(names => names.filter(x => x != folder));
+          emptyConnectionGroupNames.update(names =>
+            names.some(x => normalizeFolderPath(x) == newFolder) ? names : [...names, newFolder]
+          );
+          collapsedConnectionGroupNames.update(names => names.filter(x => normalizeFolderPath(x) != folder));
         },
       });
     };

@@ -1,9 +1,13 @@
 <script lang="ts" context="module">
   export const FOLDER_DRAG_DATA_TYPE = 'connection_folder_drag_data';
+
+  // path of the folder being dragged (dataTransfer data cannot be read during dragover)
+  let draggedFolderPath = null;
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
+  import { canMoveFolder, getParentFolderPath, isFolderSameOrDescendant, normalizeFolderPath } from 'dbgate-tools';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import contextMenu from '../utility/contextMenu';
@@ -38,7 +42,7 @@
   let domHeader;
   let dropPosition = null;
 
-  $: isExpanded = !$collapsedGroupNames.includes(node.path);
+  $: isExpanded = !$collapsedGroupNames.some(x => normalizeFolderPath(x) == node.path);
   $: items = itemsByFolder.get(node.path) || [];
   $: counts = countsByFolder.get(node.path) || { matched: 0, total: 0 };
   $: countText = counts.matched < counts.total ? `${counts.matched}/${counts.total}` : `${counts.total}`;
@@ -47,14 +51,28 @@
     return Array.prototype.includes.call(e.dataTransfer?.types || [], type);
   }
 
+  function getFolderDropPosition(e) {
+    if (!canReorderFolders()) return 'into';
+    const rect = domHeader.getBoundingClientRect();
+    const ratio = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0.5;
+    if (ratio < 0.25) return 'before';
+    if (ratio > 0.75) return 'after';
+    return 'into';
+  }
+
+  // false, when handleDropFolder would ignore the drop
+  function isFolderDropAllowed(source, position) {
+    if (!source) return true;
+    if (position == 'into') return canMoveFolder(source, node.path);
+    if (isFolderSameOrDescendant(node.path, source)) return false;
+    const targetParent = getParentFolderPath(node.path);
+    return getParentFolderPath(source) == targetParent || canMoveFolder(source, targetParent);
+  }
+
   function getDropPosition(e) {
     if (hasDragType(e, FOLDER_DRAG_DATA_TYPE)) {
-      if (!canReorderFolders()) return 'into';
-      const rect = domHeader.getBoundingClientRect();
-      const ratio = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0.5;
-      if (ratio < 0.25) return 'before';
-      if (ratio > 0.75) return 'after';
-      return 'into';
+      const position = getFolderDropPosition(e);
+      return isFolderDropAllowed(draggedFolderPath, position) ? position : null;
     }
     if (hasDragType(e, 'app_object_drag_data')) {
       return 'into';
@@ -74,9 +92,12 @@
   function handleDrop(e, position) {
     dropPosition = null;
     const folderData = e.dataTransfer.getData(FOLDER_DRAG_DATA_TYPE);
+    if (folderData) {
+      draggedFolderPath = null;
+    }
     if (folderData && onDropFolder) {
       e.stopPropagation();
-      onDropFolder(folderData, node.path, position);
+      if (position) onDropFolder(folderData, node.path, position);
       return;
     }
     const data = e.dataTransfer.getData('app_object_drag_data');
@@ -97,16 +118,20 @@
   draggable={folderDragEnabled}
   on:dragstart={e => {
     e.dataTransfer.setData(FOLDER_DRAG_DATA_TYPE, node.path);
+    draggedFolderPath = node.path;
   }}
   on:dragover={handleHeaderDragOver}
   on:dragleave={handleHeaderDragLeave}
   on:dragend={() => {
     dropPosition = null;
+    draggedFolderPath = null;
   }}
-  on:drop={e => handleDrop(e, getDropPosition(e) || 'into')}
+  on:drop={e => handleDrop(e, getDropPosition(e))}
   on:click={() =>
     collapsedGroupNames.update(names => {
-      if (names.includes(node.path)) return names.filter(x => x != node.path);
+      if (names.some(x => normalizeFolderPath(x) == node.path)) {
+        return names.filter(x => normalizeFolderPath(x) != node.path);
+      }
       return [...names, node.path];
     })}
   use:contextMenu={groupContextMenu ? () => groupContextMenu(node.path) : null}

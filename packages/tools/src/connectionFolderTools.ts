@@ -39,7 +39,7 @@ export function replaceFolderPathPrefix(path: string, folder: string, newFolder:
 export function replaceFolderPathPrefixInList(list: string[], folder: string, newFolder: string): string[] {
   const res = [];
   for (const item of list || []) {
-    const replaced = replaceFolderPathPrefix(item, folder, newFolder);
+    const replaced = replaceFolderPathPrefix(normalizeFolderPath(item), folder, newFolder);
     if (replaced && !res.includes(replaced)) res.push(replaced);
   }
   return res;

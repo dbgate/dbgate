@@ -156,7 +156,7 @@ registerCommand({
         const folder = normalizeFolderPath(folderName);
         emptyConnectionGroupNames.update(names => {
           if (!folder) return names;
-          if (names.includes(folder)) return names;
+          if (names.some(x => normalizeFolderPath(x) == folder)) return names;
           return [...names, folder];
         });
       },
