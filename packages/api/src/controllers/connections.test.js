@@ -212,6 +212,55 @@ describe('connections/batch-change-folder', () => {
     await connections.batchChangeFolder({ folder: 'team', newFolder: 'mine' }, admin);
     expect(rows.map(x => x.parent)).toEqual(['mine', 'mine']);
   });
+
+  // subfolders (dbgate/dbgate#1608) - a folder is moved with its whole subtree
+  function setFolderRows(parents) {
+    rows = Object.entries(parents).map(([_id, parent]) => ({
+      _id,
+      engine: 'postgres@dbgate-plugin-postgres',
+      server: _id,
+      parent,
+    }));
+  }
+  function parentsOf() {
+    return Object.fromEntries(rows.map(x => [x._id, x.parent]));
+  }
+
+  test('moves the folder with its subfolders, keeping the relative subpath', async () => {
+    setFolderRows({ a: 'A', ab: 'A/B', abc: 'A/B/C', prefixed: 'AB', other: 'C', nested: 'C/A', root: undefined });
+    await connections.batchChangeFolder({ folder: 'A', newFolder: 'X/A' }, admin);
+    expect(parentsOf()).toEqual({
+      a: 'X/A',
+      ab: 'X/A/B',
+      abc: 'X/A/B/C',
+      prefixed: 'AB',
+      other: 'C',
+      nested: 'C/A',
+      root: undefined,
+    });
+  });
+
+  test('moves a subfolder only', async () => {
+    setFolderRows({ a: 'A', ab: 'A/B', abc: 'A/B/C', abx: 'A/BX' });
+    await connections.batchChangeFolder({ folder: 'A/B', newFolder: 'D' }, admin);
+    expect(parentsOf()).toEqual({ a: 'A', ab: 'D', abc: 'D/C', abx: 'A/BX' });
+  });
+
+  test('moves the folder to root when newFolder is empty', async () => {
+    setFolderRows({ a: 'A', ab: 'A/B', abc: 'A/B/C', prefixed: 'AB' });
+    await connections.batchChangeFolder({ folder: 'A', newFolder: '' }, admin);
+    const parents = parentsOf();
+    expect(parents.a || '').toBe('');
+    expect(parents.ab).toBe('B');
+    expect(parents.abc).toBe('B/C');
+    expect(parents.prefixed).toBe('AB');
+  });
+
+  test('a restricted login moves only permitted connections of the subtree', async () => {
+    setFolderRows({ allowed: 'A/B', secret: 'A/B' });
+    await connections.batchChangeFolder({ folder: 'A', newFolder: 'X/A' }, restricted);
+    expect(parentsOf()).toEqual({ allowed: 'X/A/B', secret: 'A/B' });
+  });
 });
 
 // connections/dblogin-auth without user and password issued a session token for any conid and
