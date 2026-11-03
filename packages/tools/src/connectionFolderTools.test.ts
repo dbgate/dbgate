@@ -102,6 +102,11 @@ describe('replaceFolderPathPrefixInList', () => {
     expect(replaceFolderPathPrefixInList(['A', 'A/B', 'X/A', 'C'], 'A', 'X/A')).toEqual(['X/A', 'X/A/B', 'C']);
     expect(replaceFolderPathPrefixInList(['A', 'B'], 'A', 'B')).toEqual(['B']);
   });
+
+  test('normalizes unnormalized stored entries before matching', () => {
+    expect(replaceFolderPathPrefixInList([' A ', 'A//B', 'C'], 'A', 'X')).toEqual(['X', 'X/B', 'C']);
+    expect(replaceFolderPathPrefixInList(['/Team', 'Other'], 'Team', '')).toEqual(['Other']);
+  });
 });
 
 describe('sortFolderPaths', () => {
