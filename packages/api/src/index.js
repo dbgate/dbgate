@@ -13,6 +13,15 @@ const envFileSecrets = resolveEnvFileSecrets(process.env);
 
 const logger = getLogger('apiIndex');
 
+// Fail closed: continuing without a secret could eg. silently disable authentication (missing PASSWORD).
+// Checked here, not only with --listen-api, because dbgate-serve starts the API without that flag.
+if (envFileSecrets.errors.length > 0) {
+  for (const { name, error } of envFileSecrets.errors) {
+    logger.fatal({ variable: name, error }, 'DBGM-00000 Error reading file referenced by environment variable');
+  }
+  process.exit(1);
+}
+
 process.on('uncaughtException', err => {
   logger.fatal(extractErrorLogData(err), 'DBGM-00259 Uncaught exception, exiting process');
   process.exit(1);
@@ -146,9 +155,6 @@ if (processArgs.listenApi) {
       { variables: envFileSecrets.skipped },
       'DBGM-00000 Environment variables set both directly and via *_FILE, using the direct value'
     );
-  }
-  for (const { name, error } of envFileSecrets.errors) {
-    logger.error({ variable: name, error }, 'DBGM-00000 Error reading file referenced by environment variable');
   }
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
