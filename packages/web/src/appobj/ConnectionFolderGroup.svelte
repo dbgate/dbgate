@@ -28,6 +28,8 @@
   export let collapsedGroupNames;
   export let groupContextMenu = null;
   export let folderDragEnabled = false;
+  // before/after drops (changing folder order)
+  export let canReorderFolders = () => false;
   // (connectionDragData, folderPath)
   export let onDropConnection = undefined;
   // (sourceFolderPath, targetFolderPath, position: 'into' | 'before' | 'after')
@@ -47,6 +49,7 @@
 
   function getDropPosition(e) {
     if (hasDragType(e, FOLDER_DRAG_DATA_TYPE)) {
+      if (!canReorderFolders()) return 'into';
       const rect = domHeader.getBoundingClientRect();
       const ratio = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0.5;
       if (ratio < 0.25) return 'before';
@@ -140,6 +143,7 @@
         {collapsedGroupNames}
         {groupContextMenu}
         {folderDragEnabled}
+        {canReorderFolders}
         {onDropConnection}
         {onDropFolder}
       />
@@ -173,8 +177,6 @@
     cursor: pointer;
     white-space: nowrap;
     font-weight: bold;
-    border-top: 2px solid transparent;
-    border-bottom: 2px solid transparent;
   }
 
   .group:hover {
@@ -182,11 +184,11 @@
   }
 
   .group.dropBefore {
-    border-top-color: var(--theme-link-foreground);
+    box-shadow: inset 0 2px 0 var(--theme-link-foreground);
   }
 
   .group.dropAfter {
-    border-bottom-color: var(--theme-link-foreground);
+    box-shadow: inset 0 -2px 0 var(--theme-link-foreground);
   }
 
   .group.dropInto {

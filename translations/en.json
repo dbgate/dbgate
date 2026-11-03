@@ -583,7 +583,7 @@
   "connection.defaultIsolationLevel": "Default isolation level",
   "connection.delete": "Delete",
   "connection.deleteConfirm": "Really delete connection {name}?",
-  "connection.deleteFolderConfirm": "Really delete folder {folder}? Connections in folder will be moved into root folder.",
+  "connection.deleteFolderConfirm": "Really delete folder {folder}? Connections and subfolders in folder will be moved into root folder.",
   "connection.deleteSubfolderConfirm": "Really delete folder {folder}? Connections and subfolders in folder will be moved into folder {parentFolder}.",
   "connection.disconnect": "Disconnect",
   "connection.displayName": "Display name",

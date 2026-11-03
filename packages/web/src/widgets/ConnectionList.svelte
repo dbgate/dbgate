@@ -31,7 +31,7 @@
     normalizeFolderPath,
     getParentFolderPath,
     getFolderName,
-    isFolderSameOrDescendant,
+    canMoveFolder,
     replaceFolderPathPrefixInList,
     buildFolderTree,
     computeFolderMove,
@@ -60,6 +60,7 @@
   } from '../settings/settingsTools';
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import { _t } from '../translations';
+  import hasPermission from '../utility/hasPermission';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -114,6 +115,8 @@
 
   $: folderOrder = ($settings?.connectionFolderOrder as string[]) || [];
   $: folderDragEnabled = !$config?.runAsPortal;
+  // folder order is saved in settings (evaluated on drag, permissions are compiled from config asynchronously)
+  const canReorderFolders = () => folderDragEnabled && hasPermission('settings/change');
   $: recentConnections = connectionsWithParent.filter(x => !normalizeFolderPath(x.parent));
   $: connectionsByFolder = _.groupBy(
     connectionsWithParent.filter(x => normalizeFolderPath(x.parent)),
@@ -247,7 +250,13 @@
         folder,
         newFolder
       );
-    emptyConnectionGroupNames.update(rewrite);
+    const oldParent = getParentFolderPath(folder);
+    // keep the old parent folder, when it exists only as an ancestor of the moved folder
+    const keepOldParent = !removeFolderItself && oldParent && oldParent != getParentFolderPath(newFolder);
+    emptyConnectionGroupNames.update(names => {
+      const res = rewrite(names);
+      return keepOldParent && !res.includes(oldParent) ? [...res, oldParent] : res;
+    });
     collapsedConnectionGroupNames.update(rewrite);
     apiCall('connections/batch-change-folder', { folder, newFolder });
     return rewrite(folderOrder);
@@ -258,19 +267,24 @@
     source = normalizeFolderPath(source);
     target = normalizeFolderPath(target);
     if (!source || source == target) return;
-    const targetParent = position == 'into' ? target : getParentFolderPath(target);
-    if (isFolderSameOrDescendant(targetParent, source)) return;
 
-    let newPath = source;
-    let order = folderOrder;
-    if (getParentFolderPath(source) != targetParent) {
-      newPath = computeFolderMove(source, targetParent);
-      order = moveFolderSubtree(source, newPath);
-    } else if (position == 'into') {
+    if (position == 'into') {
+      if (!canMoveFolder(source, target)) return;
+      saveFolderOrder(moveFolderSubtree(source, computeFolderMove(source, target)));
       return;
     }
 
-    if (position != 'into' && newPath != target) {
+    if (!canReorderFolders()) return;
+    const targetParent = getParentFolderPath(target);
+    let newPath = source;
+    let order = folderOrder;
+    if (getParentFolderPath(source) != targetParent) {
+      if (!canMoveFolder(source, targetParent)) return;
+      newPath = computeFolderMove(source, targetParent);
+      order = moveFolderSubtree(source, newPath);
+    }
+
+    if (newPath != target) {
       const siblings = _.uniq([
         ...(findFolderChildren(folderTree, targetParent) || []).map(x => x.path).filter(x => x != source),
         newPath,
@@ -337,7 +351,8 @@
               values: { folder, parentFolder },
             })
           : _t('connection.deleteFolderConfirm', {
-              defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.',
+              defaultMessage:
+                'Really delete folder {folder}? Connections and subfolders in folder will be moved into root folder.',
               values: { folder },
             }),
         onConfirm: () => {
@@ -487,28 +502,31 @@
       expandedConnections.update(old => (value ? [...old, item.conid] : old.filter(x => x != item.conid)));
     }}
   >
-    <AppObjectList
-      list={recentConnections}
-      module={connectionAppObject}
-      subItemsComponent={() => SubDatabaseList}
-      expandOnClick
-      isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
-      {filter}
-      passProps={{
-        ...passProps,
-        connectionColorFactory: $connectionColorFactory,
-        showPinnedInsteadOfUnpin: true,
-        searchSettings: $connectionAppObjectSearchSettings,
-      }}
-      getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-      setIsExpanded={(data, value) => {
-        expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
-      }}
-      groupIconFunc={chevronExpandIcon}
-      groupFunc={() => RECENT_AND_UNSAVED_LABEL}
-      expandIconFunc={plusExpandIcon}
-      collapsedGroupNames={collapsedConnectionGroupNames}
-    />
+    <!-- dropping on Recent & unsaved does nothing -->
+    <div on:drop={e => e.stopPropagation()}>
+      <AppObjectList
+        list={recentConnections}
+        module={connectionAppObject}
+        subItemsComponent={() => SubDatabaseList}
+        expandOnClick
+        isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+        {filter}
+        passProps={{
+          ...passProps,
+          connectionColorFactory: $connectionColorFactory,
+          showPinnedInsteadOfUnpin: true,
+          searchSettings: $connectionAppObjectSearchSettings,
+        }}
+        getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+        setIsExpanded={(data, value) => {
+          expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+        }}
+        groupIconFunc={chevronExpandIcon}
+        groupFunc={() => RECENT_AND_UNSAVED_LABEL}
+        expandIconFunc={plusExpandIcon}
+        collapsedGroupNames={collapsedConnectionGroupNames}
+      />
+    </div>
     {#each folderTree as node (node.path)}
       <ConnectionFolderGroup
         {node}
@@ -533,6 +551,7 @@
         collapsedGroupNames={collapsedConnectionGroupNames}
         groupContextMenu={createGroupContextMenu}
         {folderDragEnabled}
+        {canReorderFolders}
         onDropConnection={handleDropOnGroup}
         onDropFolder={handleDropFolder}
       />
