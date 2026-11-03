@@ -251,8 +251,8 @@
         newFolder
       );
     const oldParent = getParentFolderPath(folder);
-    // keep the old parent folder, when it exists only as an ancestor of the moved folder
-    const keepOldParent = !removeFolderItself && oldParent && oldParent != getParentFolderPath(newFolder);
+    // keep the old parent folder, when it exists only as an ancestor of the moved/deleted folder
+    const keepOldParent = oldParent && (removeFolderItself || oldParent != getParentFolderPath(newFolder));
     emptyConnectionGroupNames.update(names => {
       const res = rewrite(names);
       return keepOldParent && !res.includes(oldParent) ? [...res, oldParent] : res;
