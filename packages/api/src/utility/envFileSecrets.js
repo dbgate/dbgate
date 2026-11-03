@@ -27,6 +27,9 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
     if (FILE_PATH_VARIABLES.has(fileVarName)) continue;
 
     const filePath = env[fileVarName];
+    // The reference variable must not stay in env: code matching env names by prefix would treat it as a value,
+    // eg. LOGIN_PASSWORD_admin_FILE=/run/secrets/x would allow login "admin_FILE" with the (guessable) path as password.
+    delete env[fileVarName];
     if (!filePath) continue;
 
     const name = fileVarName.slice(0, -FILE_SUFFIX.length);

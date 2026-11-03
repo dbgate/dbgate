@@ -31,6 +31,17 @@ describe('resolveEnvFileSecrets', () => {
     expect(res.loaded.sort()).toEqual(['LOGIN_PASSWORD_admin', 'STORAGE_PASSWORD']);
   });
 
+  test('removes consumed reference variables', () => {
+    const env = {
+      LOGIN_PASSWORD_admin_FILE: writeSecret('admin', 'adminpwd'),
+      PASSWORD: 'direct',
+      PASSWORD_FILE: writeSecret('pwd', 'fromfile'),
+      SECRET_FILE: path.join(tmpDir, 'missing'),
+    };
+    resolveEnvFileSecrets(env);
+    expect(Object.keys(env).sort()).toEqual(['LOGIN_PASSWORD_admin', 'PASSWORD']);
+  });
+
   test('keeps inner whitespace and only strips one trailing newline', () => {
     const env = { PASSWORD_FILE: writeSecret('pwd', ' a b \n\n') };
     resolveEnvFileSecrets(env);
@@ -57,7 +68,9 @@ describe('resolveEnvFileSecrets', () => {
       STORAGE_SSL_KEY_FILE: writeSecret('key', 'KEY'),
       CLOUD_UPGRADE_FILE: '/nonexistent',
     };
+    const before = { ...env };
     const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual(before);
     expect(env.STORAGE_SSL_CA).toBeUndefined();
     expect(env.STORAGE_SSL_CERT).toBeUndefined();
     expect(env.STORAGE_SSL_KEY).toBeUndefined();
@@ -83,6 +96,6 @@ describe('resolveEnvFileSecrets', () => {
     const env = { _FILE: '/x', PASSWORD_FILE: '' };
     const res = resolveEnvFileSecrets(env);
     expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
-    expect(env.PASSWORD).toBeUndefined();
+    expect(env).toEqual({ _FILE: '/x' });
   });
 });
