@@ -12,7 +12,14 @@ const { pickSafeConnectionInfo } = require('../utility/crypting');
 const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
-const { safeJsonParse, getLogger, extractErrorLogData } = require('dbgate-tools');
+const {
+  safeJsonParse,
+  getLogger,
+  extractErrorLogData,
+  isFolderSameOrDescendant,
+  normalizeFolderPath,
+  replaceFolderPathPrefix,
+} = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const {
   hasPermission,
@@ -520,12 +527,21 @@ module.exports = {
 
   batchChangeFolder_meta: true,
   async batchChangeFolder({ folder, newFolder }, req) {
+    folder = normalizeFolderPath(folder);
+    newFolder = normalizeFolderPath(newFolder);
     // const updated = await this.datastore.find(x => x.parent == folder);
     // only connections the caller can see (as in list) are moved
+    // the folder is moved with its whole subtree (subfolders are separated with "/")
     const loadedPermissions = await loadPermissionsFromRequest(req);
-    const res = await this.datastore.updateAll(x =>
-      x.parent == folder && connectionHasPermission(x, loadedPermissions) ? { ...x, parent: newFolder } : x
-    );
+    const res = await this.datastore.updateAll(x => {
+      const parent = normalizeFolderPath(x.parent);
+      return folder &&
+        parent &&
+        isFolderSameOrDescendant(parent, folder) &&
+        connectionHasPermission(x, loadedPermissions)
+        ? { ...x, parent: replaceFolderPathPrefix(parent, folder, newFolder) }
+        : x;
+    });
     socket.emitChanged('connection-list-changed');
     return res;
   },

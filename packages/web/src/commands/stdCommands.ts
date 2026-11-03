@@ -26,7 +26,7 @@ import './recentDatabaseSwitch';
 import './changeDatabaseStatusCommand';
 import hasPermission from '../utility/hasPermission';
 import _ from 'lodash';
-import { findEngineDriver } from 'dbgate-tools';
+import { findEngineDriver, normalizeFolderPath } from 'dbgate-tools';
 import { openArchiveFolder } from '../utility/openArchiveFolder';
 import InputTextModal from '../modals/InputTextModal.svelte';
 import { removeLocalStorage } from '../utility/storageCache';
@@ -151,7 +151,9 @@ registerCommand({
       value: '',
       label: _t('connection.createNewFolderName', { defaultMessage: 'New connection folder name' }),
       header: _t('connection.createNewFolder', { defaultMessage: 'Create connection folder' }),
-      onConfirm: async folder => {
+      onConfirm: async folderName => {
+        // folder path can contain subfolders separated with "/"
+        const folder = normalizeFolderPath(folderName);
         emptyConnectionGroupNames.update(names => {
           if (!folder) return names;
           if (names.includes(folder)) return names;

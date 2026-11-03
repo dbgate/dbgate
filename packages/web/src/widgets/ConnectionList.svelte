@@ -3,10 +3,11 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConfig, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
+  import { useConfig, useConnectionList, useServerStatus, useSettings } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
+  import ConnectionFolderGroup, { FOLDER_DRAG_DATA_TYPE } from '../appobj/ConnectionFolderGroup.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import {
     commandsCustomized,
@@ -24,7 +25,18 @@
     getConnectionAppObjectSearchSettings,
   } from '../stores';
   import runCommand from '../commands/runCommand';
-  import { filterName, getConnectionLabel } from 'dbgate-tools';
+  import {
+    filterName,
+    getConnectionLabel,
+    normalizeFolderPath,
+    getParentFolderPath,
+    getFolderName,
+    isFolderSameOrDescendant,
+    replaceFolderPathPrefixInList,
+    buildFolderTree,
+    computeFolderMove,
+    reorderFolderList,
+  } from 'dbgate-tools';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -51,6 +63,8 @@
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
+  const settings = useSettings();
+  const config = useConfig();
 
   export let passProps: any = {};
 
@@ -62,8 +76,9 @@
   const RECENT_AND_UNSAVED_LABEL = _t('connection.recentUnsaved', { defaultMessage: 'Recent & unsaved' });
 
   function extractConnectionParent(data, openedConnections, openedSingleDatabaseConnections) {
-    if (data.parent) {
-      return data.parent;
+    const parent = normalizeFolderPath(data.parent);
+    if (parent) {
+      return parent;
     }
     if (data.unsaved && !openedConnections.includes(data._id) && !openedSingleDatabaseConnections.includes(data._id)) {
       return RECENT_AND_UNSAVED_LABEL;
@@ -97,13 +112,82 @@
     connection => (getConnectionLabel(connection) || '').toUpperCase()
   );
 
+  $: folderOrder = ($settings?.connectionFolderOrder as string[]) || [];
+  $: folderDragEnabled = !$config?.runAsPortal;
+  $: recentConnections = connectionsWithParent.filter(x => !normalizeFolderPath(x.parent));
+  $: connectionsByFolder = _.groupBy(
+    connectionsWithParent.filter(x => normalizeFolderPath(x.parent)),
+    x => normalizeFolderPath(x.parent)
+  );
+  $: folderTree = buildFolderTree([..._.keys(connectionsByFolder), ...$emptyConnectionGroupNames], folderOrder);
+  $: connectionMatcher = connectionAppObject.createMatcher(filter, $connectionAppObjectSearchSettings);
+
+  // same match logic as AppObjectList
+  function labelConnection(data, matcher) {
+    const matchResult = matcher ? matcher(data) : true;
+    let isMatched = true;
+    let isMainMatched = true;
+    let isChildMatched = true;
+    if (matchResult == false || matchResult == 'none') {
+      isMatched = false;
+      isChildMatched = false;
+      isMainMatched = false;
+    } else if (matchResult == 'child') {
+      isMainMatched = false;
+    } else if (matchResult == 'main') {
+      isChildMatched = false;
+    }
+    return { data, isMatched, isChildMatched, isMainMatched };
+  }
+
+  $: folderItems = new Map(
+    _.keys(connectionsByFolder).map(folder => [
+      folder,
+      connectionsByFolder[folder].map(data => labelConnection(data, connectionMatcher)),
+    ])
+  );
+
+  function computeFolderCounts(nodes, items, res = new Map()) {
+    for (const node of nodes) {
+      computeFolderCounts(node.children, items, res);
+      const own = items.get(node.path) || [];
+      const counts = { matched: own.filter(x => x.isMatched).length, total: own.length };
+      for (const child of node.children) {
+        counts.matched += res.get(child.path).matched;
+        counts.total += res.get(child.path).total;
+      }
+      res.set(node.path, counts);
+    }
+    return res;
+  }
+
+  $: folderCounts = computeFolderCounts(folderTree, folderItems);
+
+  function getConnectionsInVisualOrder() {
+    const res = [];
+    const collapsed = $collapsedConnectionGroupNames;
+    if (!collapsed.includes(RECENT_AND_UNSAVED_LABEL)) {
+      res.push(...recentConnections);
+    }
+    const addFolders = nodes => {
+      for (const node of nodes) {
+        if (collapsed.includes(node.path)) continue;
+        addFolders(node.children);
+        res.push(...(connectionsByFolder[node.path] || []));
+      }
+    };
+    addFolders(folderTree);
+    res.push(...connectionsWithoutParent);
+    return res;
+  }
+
   function getFocusFlatList() {
     const expanded = $expandedConnections;
     const opened = $openedConnections;
     const status = $serverStatus;
 
     const res = [];
-    for (const con of [...connectionsWithParent, ...connectionsWithoutParent]) {
+    for (const con of getConnectionsInVisualOrder()) {
       const databases = getLocalStorage(`database_list_${con._id}`) || [];
       if (!filterName(filter, con.displayName, con.server, ...databases.map(x => x.name))) {
         continue;
@@ -139,6 +223,63 @@
     }
   };
 
+  function findFolderChildren(nodes, parent) {
+    if (!parent) return nodes;
+    for (const node of nodes) {
+      if (node.path == parent) return node.children;
+      const res = findFolderChildren(node.children, parent);
+      if (res) return res;
+    }
+    return null;
+  }
+
+  function saveFolderOrder(order) {
+    if (!_.isEqual(order, folderOrder)) {
+      apiCall('config/update-settings', { connectionFolderOrder: order });
+    }
+  }
+
+  // moves folder with its whole subtree (connections, empty subfolders, collapsed state)
+  function moveFolderSubtree(folder, newFolder, removeFolderItself = false) {
+    const rewrite = list =>
+      replaceFolderPathPrefixInList(
+        removeFolderItself ? list.filter(x => x != folder) : list,
+        folder,
+        newFolder
+      );
+    emptyConnectionGroupNames.update(rewrite);
+    collapsedConnectionGroupNames.update(rewrite);
+    apiCall('connections/batch-change-folder', { folder, newFolder });
+    return rewrite(folderOrder);
+  }
+
+  const handleDropFolder = (source, target, position) => {
+    if (!folderDragEnabled) return;
+    source = normalizeFolderPath(source);
+    target = normalizeFolderPath(target);
+    if (!source || source == target) return;
+    const targetParent = position == 'into' ? target : getParentFolderPath(target);
+    if (isFolderSameOrDescendant(targetParent, source)) return;
+
+    let newPath = source;
+    let order = folderOrder;
+    if (getParentFolderPath(source) != targetParent) {
+      newPath = computeFolderMove(source, targetParent);
+      order = moveFolderSubtree(source, newPath);
+    } else if (position == 'into') {
+      return;
+    }
+
+    if (position != 'into' && newPath != target) {
+      const siblings = _.uniq([
+        ...(findFolderChildren(folderTree, targetParent) || []).map(x => x.path).filter(x => x != source),
+        newPath,
+      ]);
+      order = reorderFolderList(order, siblings, newPath, target, position);
+    }
+    saveFolderOrder(order);
+  };
+
   const handleDropOnGroup = (data, group) => {
     if (group == RECENT_AND_UNSAVED_LABEL) {
       return;
@@ -158,38 +299,55 @@
   const connectionColorFactory = useConnectionColorFactory();
 
   function createGroupContextMenu(folder) {
+    const parentFolder = getParentFolderPath(folder);
+
+    const handleNewSubfolder = () => {
+      showModal(InputTextModal, {
+        value: '',
+        label: _t('connection.createNewFolderName', { defaultMessage: 'New connection folder name' }),
+        header: _t('connection.createNewSubfolder', { defaultMessage: 'Create subfolder' }),
+        onConfirm: async name => {
+          const newFolder = normalizeFolderPath(`${folder}/${name}`);
+          if (newFolder == folder) return;
+          emptyConnectionGroupNames.update(names => (names.includes(newFolder) ? names : [...names, newFolder]));
+          collapsedConnectionGroupNames.update(names => names.filter(x => x != folder));
+        },
+      });
+    };
+
     const handleRename = () => {
       showModal(InputTextModal, {
-        value: folder,
+        value: getFolderName(folder),
         label: _t('connection.newFolderName', { defaultMessage: 'New folder name' }),
         header: _t('connection.renameFolder', { defaultMessage: 'Rename folder' }),
-        onConfirm: async newFolder => {
-          emptyConnectionGroupNames.update(folders => _.uniq(folders.map(fld => (fld == folder ? newFolder : fld))));
-          apiCall('connections/batch-change-folder', {
-            folder,
-            newFolder,
-          });
+        onConfirm: async newName => {
+          const newFolder = normalizeFolderPath(parentFolder ? `${parentFolder}/${newName}` : newName);
+          if (!newFolder || newFolder == folder || newFolder == parentFolder) return;
+          saveFolderOrder(moveFolderSubtree(folder, newFolder));
         },
       });
     };
 
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: _t('connection.deleteFolderConfirm', {
-          defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.',
-          values: { folder },
-        }),
+        message: parentFolder
+          ? _t('connection.deleteSubfolderConfirm', {
+              defaultMessage:
+                'Really delete folder {folder}? Connections and subfolders in folder will be moved into folder {parentFolder}.',
+              values: { folder, parentFolder },
+            })
+          : _t('connection.deleteFolderConfirm', {
+              defaultMessage: 'Really delete folder {folder}? Connections in folder will be moved into root folder.',
+              values: { folder },
+            }),
         onConfirm: () => {
-          emptyConnectionGroupNames.update(folders => folders.filter(fld => fld != folder));
-          apiCall('connections/batch-change-folder', {
-            folder,
-            newFolder: '',
-          });
+          saveFolderOrder(moveFolderSubtree(folder, parentFolder, true));
         },
       });
     };
 
     return [
+      { text: _t('connection.newSubfolder', { defaultMessage: 'New subfolder' }), onClick: handleNewSubfolder },
       { text: _t('common.rename', { defaultMessage: 'Rename' }), onClick: handleRename },
       { text: _t('common.delete', { defaultMessage: 'Delete' }), onClick: handleDelete },
     ];
@@ -253,6 +411,11 @@
 <WidgetsInnerContainer
   bind:this={domContainer}
   on:drop={e => {
+    var folderData = e.dataTransfer.getData(FOLDER_DRAG_DATA_TYPE);
+    if (folderData) {
+      handleDropFolder(folderData, '', 'into');
+      return;
+    }
     var data = e.dataTransfer.getData('app_object_drag_data');
     if (data) {
       handleDropOnGroup(data, '');
@@ -325,7 +488,7 @@
     }}
   >
     <AppObjectList
-      list={connectionsWithParent}
+      list={recentConnections}
       module={connectionAppObject}
       subItemsComponent={() => SubDatabaseList}
       expandOnClick
@@ -342,15 +505,39 @@
         expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
       }}
       groupIconFunc={chevronExpandIcon}
-      groupFunc={data => extractConnectionParent(data, $openedConnections, $openedSingleDatabaseConnections)}
+      groupFunc={() => RECENT_AND_UNSAVED_LABEL}
       expandIconFunc={plusExpandIcon}
-      onDropOnGroup={handleDropOnGroup}
-      emptyGroupNames={$emptyConnectionGroupNames}
-      sortGroups
-      groupContextMenu={createGroupContextMenu}
       collapsedGroupNames={collapsedConnectionGroupNames}
     />
-    {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
+    {#each folderTree as node (node.path)}
+      <ConnectionFolderGroup
+        {node}
+        itemsByFolder={folderItems}
+        countsByFolder={folderCounts}
+        module={connectionAppObject}
+        subItemsComponent={() => SubDatabaseList}
+        expandOnClick
+        isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+        {filter}
+        passProps={{
+          ...passProps,
+          connectionColorFactory: $connectionColorFactory,
+          showPinnedInsteadOfUnpin: true,
+          searchSettings: $connectionAppObjectSearchSettings,
+        }}
+        getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+        setIsExpanded={(data, value) => {
+          expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+        }}
+        expandIconFunc={plusExpandIcon}
+        collapsedGroupNames={collapsedConnectionGroupNames}
+        groupContextMenu={createGroupContextMenu}
+        {folderDragEnabled}
+        onDropConnection={handleDropOnGroup}
+        onDropFolder={handleDropFolder}
+      />
+    {/each}
+    {#if (recentConnections.length > 0 || folderTree.length > 0) && connectionsWithoutParent?.length > 0}
       <div class="br" />
     {/if}
     <AppObjectList
