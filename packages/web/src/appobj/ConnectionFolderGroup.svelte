@@ -89,6 +89,7 @@
     dropPosition = null;
   }
 
+  // position null - folder drop is swallowed (folders are dropped only on headers, with an indicator)
   function handleDrop(e, position) {
     dropPosition = null;
     const folderData = e.dataTransfer.getData(FOLDER_DRAG_DATA_TYPE);
@@ -147,7 +148,7 @@
 
 {#if isExpanded}
   <div
-    on:drop={e => handleDrop(e, 'into')}
+    on:drop={e => handleDrop(e, null)}
     data-testid={`app-object-group-items-${_.kebabCase(node.path)}`}
   >
     {#each node.children as child (child.path)}
