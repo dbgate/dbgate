@@ -1,3 +1,8 @@
+// Must run before any other require: some modules (eg. utility/platformInfo) read process.env at load time.
+// Child processes inherit the resolved values.
+const { resolveEnvFileSecrets } = require('./utility/envFileSecrets');
+const envFileSecrets = resolveEnvFileSecrets(process.env);
+
 const { setLogConfig, getLogger, setLoggerName, extractErrorLogData } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const fs = require('fs');
@@ -6,10 +11,6 @@ const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
 const currentVersion = require('./currentVersion');
 const _ = require('lodash');
-const { resolveEnvFileSecrets } = require('./utility/envFileSecrets');
-
-// must run before any code reads process.env; child processes inherit the resolved values
-const envFileSecrets = resolveEnvFileSecrets(process.env);
 
 const logger = getLogger('apiIndex');
 
