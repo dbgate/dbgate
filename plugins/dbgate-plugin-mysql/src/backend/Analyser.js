@@ -3,8 +3,10 @@ const sql = require('./sql');
 
 const { DatabaseAnalyser, isTypeString, isTypeNumeric } = global.DBGATE_PACKAGES['dbgate-tools'];
 
-function quoteDefaultValue(value) {
+function quoteDefaultValue(value, extra) {
   if (value == null) return value;
+  // MySQL reports expression defaults as SQL rather than string literals.
+  if (/(^|\s)DEFAULT_GENERATED(\s|$)/i.test(extra || '')) return `(${value})`;
   if (!isNaN(value) && !isNaN(parseFloat(value))) return value;
   if (_.isString(value) && value.startsWith('CURRENT_')) return value;
   // keep NULL as default value. Is this really necessary?
@@ -27,7 +29,7 @@ function extractOnUpdateExpression(extra) {
 }
 
 // types, where DATA_TYPE + length/precision is not enough to reproduce column type (eg. datetime(6), decimal(12,0), bit(8))
-const TYPES_WITH_FULL_COLUMN_TYPE = ['decimal', 'numeric', 'bit', 'datetime', 'timestamp', 'time'];
+const TYPES_WITH_FULL_COLUMN_TYPE = ['decimal', 'numeric', 'float', 'double', 'real', 'bit', 'datetime', 'timestamp', 'time'];
 
 function getFullColumnType(columnType) {
   // unsigned and zerofill are stored in separate properties
@@ -100,7 +102,7 @@ function getColumnInfo(
     columnName,
     columnComment,
     dataType: fullDataType,
-    defaultValue: quoteDefaultValues ? quoteDefaultValue(defaultValue) : defaultValue,
+    defaultValue: quoteDefaultValues ? quoteDefaultValue(defaultValue, extra) : defaultValue,
     onUpdateExpression: extractOnUpdateExpression(extra),
     isUnsigned: columnTypeTokens.includes('unsigned'),
     isZerofill: columnTypeTokens.includes('zerofill'),
