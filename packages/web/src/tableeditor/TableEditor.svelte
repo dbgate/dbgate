@@ -96,6 +96,8 @@
   export let isCreateTable;
   export let schemaList;
 
+  let columnsSortedByField = null;
+
   $: isWritable = !!setTableInfo;
 
   export function getIsWritable() {
@@ -158,6 +160,7 @@
   $: canChangeColumnOrder = isWritable && (isCreateTable || !!driver?.dialect?.changeColumnPosition);
 
   function moveColumn(row, delta) {
+    columnsSortedByField = null;
     setTableInfo(tbl => {
       const index = tbl.columns.findIndex(x => x.columnName == row.columnName);
       const newIndex = index + delta;
@@ -209,6 +212,7 @@
   {/if}
 
   <ObjectListControl
+    bind:sortedByField={columnsSortedByField}
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title={_t('tableEditor.columnsCount', {
       defaultMessage: 'Columns ({columnCount})',

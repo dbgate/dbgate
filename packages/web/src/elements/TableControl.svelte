@@ -158,7 +158,7 @@
   //   }
   // }
 
-  let sortedByField = null;
+  export let sortedByField = null;
   let sortOrderIsDesc = false;
   let collapsedGroupIndexes = [];
   let domRows = {};
