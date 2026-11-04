@@ -44,6 +44,7 @@ const dialect = {
   createColumn: true,
   dropColumn: true,
   changeColumn: true,
+  changeColumnPosition: true,
   createIndex: true,
   dropIndex: true,
   createForeignKey: true,

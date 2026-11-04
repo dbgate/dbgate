@@ -4,6 +4,7 @@ select
 	TABLE_ROWS as tableRowCount,
 	ENGINE as tableEngine,
 	TABLE_COMMENT as objectComment,
+	TABLE_COLLATION as tableCollation,
 	DATA_LENGTH + INDEX_LENGTH as sizeBytes,
 	case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate 
 from information_schema.tables 

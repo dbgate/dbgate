@@ -40,6 +40,10 @@ class Dumper extends SqlDumper {
     }
   }
 
+  changeColumnPosition(column, afterColumnName, position) {
+    this.putCmd('^alter ^table %f ^alter ^column %i ^position %s', column, column.columnName, position);
+  }
+
   beginTransaction() {
     this.putCmd('^set ^transaction');
   }

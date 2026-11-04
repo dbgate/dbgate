@@ -617,6 +617,8 @@ export class SqlDumper implements AlterProcessor {
 
   changeColumn(oldcol: ColumnInfo, newcol: ColumnInfo, constraints: ConstraintInfo[]) {}
 
+  changeColumnPosition(column: ColumnInfo, afterColumnName: string | null, position: number) {}
+
   dropTable(obj: TableInfo, { testIfExists = false } = {}) {
     this.putCmd('^drop ^table %f', obj);
   }
