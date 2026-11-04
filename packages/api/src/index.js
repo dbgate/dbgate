@@ -1,3 +1,8 @@
+// Must run before any other require: some modules (eg. utility/platformInfo) read process.env at load time.
+// Child processes inherit the resolved values.
+const { resolveEnvFileSecrets } = require('./utility/envFileSecrets');
+const envFileSecrets = resolveEnvFileSecrets(process.env);
+
 const { setLogConfig, getLogger, setLoggerName, extractErrorLogData } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const fs = require('fs');
@@ -8,6 +13,15 @@ const currentVersion = require('./currentVersion');
 const _ = require('lodash');
 
 const logger = getLogger('apiIndex');
+
+// Fail closed: continuing without a secret could eg. silently disable authentication (missing PASSWORD).
+// Checked here, not only with --listen-api, because dbgate-serve starts the API without that flag.
+if (envFileSecrets.errors.length > 0) {
+  for (const { name, error } of envFileSecrets.errors) {
+    logger.fatal({ variable: name, error }, 'DBGM-00000 Error reading file referenced by environment variable');
+  }
+  process.exit(1);
+}
 
 process.on('uncaughtException', err => {
   logger.fatal(extractErrorLogData(err), 'DBGM-00259 Uncaught exception, exiting process');
@@ -133,6 +147,16 @@ function configureLogger() {
 if (processArgs.listenApi) {
   configureLogger();
   logger.info(`DBGM-00026 Starting API process version ${currentVersion.version}`);
+
+  if (envFileSecrets.loaded.length > 0) {
+    logger.info({ variables: envFileSecrets.loaded }, 'DBGM-00000 Loaded environment variables from *_FILE files');
+  }
+  if (envFileSecrets.skipped.length > 0) {
+    logger.warn(
+      { variables: envFileSecrets.skipped },
+      'DBGM-00000 Environment variables set both directly and via *_FILE, using the direct value'
+    );
+  }
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
     logger.info('DBGM-00027 Debug print environment variables:');
