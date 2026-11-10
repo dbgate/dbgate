@@ -9,8 +9,8 @@ global.DBGATE_PACKAGES = previousPackages;
 const mysql = drivers.find(x => x.engine == 'mysql@dbgate-plugin-mysql');
 const maria = drivers.find(x => x.engine == 'mariadb@dbgate-plugin-mysql');
 
-async function analyseColumn(row, driver = mysql) {
-  const analyser = new Analyser({ database: 'test' }, driver);
+async function analyseColumn(row, driver = mysql, { srid, version } = {}) {
+  const analyser = new Analyser({ database: 'test' }, driver, version);
   analyser.feedback = jest.fn();
   analyser.analyserQuery = jest.fn(async name => ({
     rows:
@@ -18,7 +18,9 @@ async function analyseColumn(row, driver = mysql) {
         ? [{ pureName: 't' }]
         : name == 'columns'
           ? [{ pureName: 't', columnName: 'value', isNullable: 'YES', ...row }]
-          : [],
+          : name == 'columnSrids' && srid != null
+            ? [{ pureName: 't', columnName: 'value', srid }]
+            : [],
   }));
   const db = tools.extendDatabaseInfo(await analyser._runAnalysis());
   return db.tables[0].columns[0];
@@ -86,6 +88,25 @@ describe.each(['move', 'change'])('MySQL column definition during %s', operation
     });
     expect(column.dataType).toBe(`${dataType}(10,2)`);
     expect(dump(column)).toContain(`${dataType.toUpperCase()}(10,2) UNSIGNED ZEROFILL`);
+  });
+
+  test('keeps spatial SRID', async () => {
+    const column = await analyseColumn(
+      { dataType: 'point', columnType: 'point', isNullable: 'NO' },
+      mysql,
+      { srid: 4326, version: { versionText: 'MySQL 8.0.36' } }
+    );
+    expect(column.srid).toBe(4326);
+    expect(dump(column)).toContain('POINT SRID 4326 NOT NULL');
+  });
+
+  test.each(['MariaDB 11.4.2', 'MySQL 5.7.44'])('does not load SRID on %s', async versionText => {
+    const column = await analyseColumn({ dataType: 'point', columnType: 'point' }, mysql, {
+      srid: 4326,
+      version: { versionText },
+    });
+    expect(column.srid).toBeUndefined();
+    expect(dump(column)).not.toContain('SRID');
   });
 
   test('preserves already formatted MariaDB defaults', async () => {

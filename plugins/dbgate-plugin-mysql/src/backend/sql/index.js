@@ -1,5 +1,6 @@
 const columns = require('./columns');
 const columnsLegacy = require('./columnsLegacy');
+const columnSrids = require('./columnSrids');
 const tables = require('./tables');
 const primaryKeys = require('./primaryKeys');
 const foreignKeys = require('./foreignKeys');
@@ -20,6 +21,7 @@ const schedulerEventsModifications = require('./schedulerEventsModifications.js'
 module.exports = {
   columns,
   columnsLegacy,
+  columnSrids,
   tables,
   primaryKeys,
   foreignKeys,

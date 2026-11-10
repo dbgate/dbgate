@@ -70,6 +70,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   generationExpression?: string;
   isStoredGenerated?: boolean;
   isInvisible?: boolean;
+  srid?: number;
   options?: [];
   canSelectMultipleOptions?: boolean;
   undropColumnName?: string;

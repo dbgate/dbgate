@@ -58,6 +58,13 @@ function getGeneratedColumnInfo(extra, generationExpression) {
   };
 }
 
+// SRS_ID column exists since MySQL 8.0.3, it is not in MariaDB
+function supportsSrid(version) {
+  if (!version?.versionText) return true;
+  const match = version.versionText.match(/^MySQL (\d+)/);
+  return !!match && parseInt(match[1]) >= 8;
+}
+
 function getColumnInfo(
   {
     isNullable,
@@ -73,6 +80,7 @@ function getColumnInfo(
     characterSet,
     collation,
     generationExpression,
+    srid,
   },
   driver,
   tableCollation = null
@@ -111,6 +119,7 @@ function getColumnInfo(
     ...(collation && collation != tableCollation ? { characterSet: characterSet || undefined, collation } : {}),
     ...getGeneratedColumnInfo(extra, generationExpression),
     isInvisible: /(^|\s)invisible(\s|$)/i.test(extra || '') || undefined,
+    srid: srid ?? undefined,
     ...optionsInfo,
   };
 }
@@ -130,6 +139,7 @@ function getParametersSqlString(parameters = []) {
 class Analyser extends DatabaseAnalyser {
   constructor(dbhan, driver, version) {
     super(dbhan, driver, version);
+    this.version = version;
   }
 
   createQuery(resFileName, typeFields, replacements = {}) {
@@ -175,6 +185,13 @@ class Analyser extends DatabaseAnalyser {
     if (columns.isError) {
       // older servers without GENERATION_EXPRESSION column
       columns = await this.analyserQuery('columnsLegacy', ['tables', 'views']);
+    }
+    if (supportsSrid(this.version)) {
+      const srids = await this.analyserQuery('columnSrids', ['tables']);
+      for (const { pureName, columnName, srid } of srids.rows) {
+        const column = columns.rows.find(x => x.pureName == pureName && x.columnName == columnName);
+        if (column) column.srid = srid;
+      }
     }
     this.feedback({ analysingMessage: 'DBGM-00220 Loading primary keys' });
     const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);

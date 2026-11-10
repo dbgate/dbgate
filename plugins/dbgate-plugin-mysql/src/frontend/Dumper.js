@@ -65,6 +65,7 @@ class Dumper extends SqlDumper {
       this.put(' ');
       this.specialColumnOptions(col);
       this.columnCharset(col);
+      this.columnSrid(col);
       this.put('^as (%s)', col.generationExpression);
       this.put(col.isStoredGenerated ? ' ^stored' : ' ^virtual');
       // MariaDB doesn't allow NULL/NOT NULL for generated columns, MySQL default is NULL
@@ -89,6 +90,10 @@ class Dumper extends SqlDumper {
     if (col.collation && /^\w+$/.test(col.collation)) this.put('^collate %s ', col.collation);
   }
 
+  columnSrid(col) {
+    if (col.srid != null && /^\d+$/.test(String(col.srid))) this.put('^srid %s ', String(col.srid));
+  }
+
   autoIncrement() {}
 
   specialColumnOptions(column) {
@@ -103,6 +108,7 @@ class Dumper extends SqlDumper {
     }
     if (this.isAlterColumnDefinition) {
       this.columnCharset(column);
+      this.columnSrid(column);
     }
   }
 
