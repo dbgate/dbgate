@@ -198,6 +198,13 @@ export function getSupportedScriptTemplates(objectTypeField: string): { label: s
           scriptTemplate: 'CREATE OBJECT',
         },
       ];
+    case 'userDefinedTypes':
+      return [
+        {
+          label: 'CREATE TYPE',
+          scriptTemplate: 'CREATE OBJECT',
+        },
+      ];
   }
 
   return [];

@@ -158,6 +158,7 @@ export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
     triggers: db.triggers?.map(generateObjectPairingId),
     schedulerEvents: db.schedulerEvents?.map(generateObjectPairingId),
     matviews: db.matviews?.map(generateObjectPairingId),
+    userDefinedTypes: db.userDefinedTypes?.map(generateObjectPairingId),
   };
 }
 
@@ -734,6 +735,7 @@ export function createAlterDatabasePlan(
     'functions',
     'triggers',
     'schedulerEvents',
+    'userDefinedTypes',
   ]) {
     for (const oldobj of oldDb[objectTypeField] || []) {
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);

@@ -19,6 +19,7 @@ const STRUCTURE_FIELDS = [
   'procedures',
   'triggers',
   'schedulerEvents',
+  'userDefinedTypes',
 ];
 
 const fp_pick = arg => array => _pick(array, arg);
@@ -311,6 +312,7 @@ export class DatabaseAnalyser<TClient = any> {
       ...this.getDeletedObjectsForField(snapshot, 'functions'),
       ...this.getDeletedObjectsForField(snapshot, 'triggers'),
       ...this.getDeletedObjectsForField(snapshot, 'schedulerEvents'),
+      ...this.getDeletedObjectsForField(snapshot, 'userDefinedTypes'),
     ];
   }
 
@@ -419,6 +421,7 @@ export class DatabaseAnalyser<TClient = any> {
       procedures: [],
       triggers: [],
       schedulerEvents: [],
+      userDefinedTypes: [],
     };
   }
 
