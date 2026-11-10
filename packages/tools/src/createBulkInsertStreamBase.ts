@@ -8,6 +8,15 @@ import { extractErrorLogData } from './stringTools';
 
 const logger = getLogger('bulkStreamBase');
 
+function isTextDataType(dataType: string): boolean {
+  return /char|text|clob|string|ascii/i.test(dataType);
+}
+
+export function normalizeImportValue(value: any, dataType?: string): any {
+  if (value !== '' || !dataType || isTextDataType(dataType)) return value;
+  return null;
+}
+
 export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, name, options: WriteTableOptions): any {
   const fullNameQuoted = name.schemaName
     ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
@@ -92,7 +101,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
           if (wasRow) dmp.putRaw(',\n');
           dmp.putRaw('(');
           dmp.putCollection(',', writable.columnNames, col =>
-            dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+            dmp.putValue(
+              normalizeImportValue(row[col as string], writable.columnDataTypes?.[col as string]),
+              writable.columnDataTypes?.[col as string]
+            )
           );
           dmp.putRaw(')');
           wasRow = true;
@@ -115,7 +127,10 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, dbhan, 
 
           dmp.putRaw('(');
           dmp.putCollection(',', writable.columnNames, col =>
-            dmp.putValue(row[col as string], writable.columnDataTypes?.[col as string])
+            dmp.putValue(
+              normalizeImportValue(row[col as string], writable.columnDataTypes?.[col as string]),
+              writable.columnDataTypes?.[col as string]
+            )
           );
           dmp.putRaw(')');
           // console.log(dmp.s);
