@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from './appStorage';
   import localforage from 'localforage';
   import _ from 'lodash';
   import type { TabDefinition } from '../stores';
@@ -38,7 +39,7 @@
     window.setTimeout(async () => {
       if (counterCopy <= oldCounter) {
         console.log('CRASH DETECTED!!!');
-        const lastDbGateCrashJson = localStorage.getItem('lastDbGateCrash');
+        const lastDbGateCrashJson = appLocalStorage.getItem('lastDbGateCrash');
         const lastDbGateCrash = lastDbGateCrashJson ? JSON.parse(lastDbGateCrashJson) : null;
         // let detail = e?.reason?.stack || '';
         // if (detail) detail = '\n\n' + detail;
@@ -60,7 +61,7 @@
                 .map(tab => (tab.closedTime ? tab : { ...tab, closedTime: new Date().getTime() }))
                 .map(tab => ({ ...tab, selected: false }));
               await localforage.setItem(getOpenedTabsStorageName(), openedTabs);
-              await localStorage.setItem('selectedWidget', 'history');
+              await appLocalStorage.setItem('selectedWidget', 'history');
             } catch (err) {
               localforage.removeItem(getOpenedTabsStorageName());
             }
@@ -79,7 +80,7 @@
               'Sorry, DbGate has crashed.\nPress OK for reload application\nPress Cancel and inspect Console in Developer tools for error details'
             )
           ) {
-            localStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
+            appLocalStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
             window.location.reload();
           } else {
             getElectron()?.send('open-dev-tools');

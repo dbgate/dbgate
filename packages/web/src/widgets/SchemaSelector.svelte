@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from '../utility/appStorage';
   import InlineButton from '../buttons/InlineButton.svelte';
   import SelectField from '../forms/SelectField.svelte';
 
@@ -100,7 +101,7 @@
     selectedSchema =
       extractSchemaNameFromComposite($currentDatabase?.name) ?? findDefaultSchema(schemaList, driver?.dialect);
   } else {
-    selectedSchema = localStorage.getItem(valueStorageKey ?? '');
+    selectedSchema = appLocalStorage.getItem(valueStorageKey ?? '');
   }
 </script>
 
@@ -131,7 +132,7 @@
         } else {
           selectedSchema = e.detail;
         }
-        localStorage.setItem(valueStorageKey, e.detail);
+        appLocalStorage.setItem(valueStorageKey, e.detail);
       }}
       selectClass="schema-select"
     />
@@ -141,7 +142,7 @@
         <InlineButton
           on:click={() => {
             selectedSchema = null;
-            localStorage.removeItem(valueStorageKey);
+            appLocalStorage.removeItem(valueStorageKey);
           }}
           title={_t('schema.resetToDefault', { defaultMessage: 'Reset to default' })}
         >

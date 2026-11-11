@@ -1,3 +1,5 @@
+// must be the first import - configures browser storage before anything else uses it
+import './utility/appStorage';
 import './tailwind.css';
 import App from './App.svelte';
 import './utility/connectionsPinger';

@@ -1,3 +1,4 @@
+import { appLocalStorage } from './utility/appStorage';
 import cs from '../../../translations/cs.json';
 import sk from '../../../translations/sk.json';
 import de from '../../../translations/de.json';
@@ -44,7 +45,7 @@ export function getSelectedLanguage(preferrendLanguage?: string): string {
 
   const selectedLanguage = getElectron()
     ? getStringSettingsValue('localization.language', preferrendLanguage)
-    : localStorage.getItem('selectedLanguage') ?? preferrendLanguage;
+    : appLocalStorage.getItem('selectedLanguage') ?? preferrendLanguage;
 
   if (!selectedLanguage || !supportedLanguages.includes(selectedLanguage)) return defaultLanguage;
   return selectedLanguage;
@@ -54,7 +55,7 @@ export async function setSelectedLanguage(language: string) {
   if (getElectron()) {
     await apiCall('config/update-settings', { 'localization.language': language });
   } else {
-    localStorage.setItem('selectedLanguage', language);
+    appLocalStorage.setItem('selectedLanguage', language);
   }
 }
 

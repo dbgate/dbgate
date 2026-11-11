@@ -58,10 +58,19 @@ const logger = getLogger('main');
 function registerExpressStatic(app, publicDir) {
   app.get([getExpressPath('/'), getExpressPath('/*file.html')], async (req, res, next) => {
     try {
-      const relPath = req.path === getExpressPath('/') ? '/index.html' : req.path;
+      // '' or eg. '/dbgate'
+      const webRoot = getExpressPath('/').replace(/\/$/, '');
+      const relPath = req.path === getExpressPath('/') ? '/index.html' : req.path.substring(webRoot.length);
       const filePath = path.join(publicDir, relPath);
+      if (!filePath.startsWith(path.join(publicDir, '/'))) return next();
 
       let html = await fs.readFile(filePath, 'utf8');
+
+      // the frontend prefixes browser storage keys with WEB_ROOT, so that more instances can share one origin
+      html = html.replace(
+        /<!--WEB_ROOT_SCRIPT-->/g,
+        webRoot ? `<script>window.dbgate_webRoot = ${JSON.stringify(webRoot).replace(/</g, '\\u003c')};</script>` : ''
+      );
 
       if (process.env.DBGATE_GTM_ID) {
         html = html.replace(

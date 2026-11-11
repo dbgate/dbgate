@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import getElectron from './getElectron';
 import { isAdminPage, isOneOfPage } from './pageDefs';
 
@@ -17,7 +18,9 @@ export function resolveApiHeaders() {
   const electron = getElectron();
 
   const res = {};
-  const accessToken = localStorage.getItem(isOneOfPage('admin', 'admin-license') ? 'adminAccessToken' : 'accessToken');
+  const accessToken = appLocalStorage.getItem(
+    isOneOfPage('admin', 'admin-license') ? 'adminAccessToken' : 'accessToken'
+  );
   if (accessToken) {
     res['Authorization'] = `Bearer ${accessToken}`;
   }

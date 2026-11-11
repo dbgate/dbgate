@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import _ from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
 import { getActiveTab, getOpenedTabs, openedTabs } from '../stores';
@@ -91,7 +92,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   if (initialLocalStorage) {
     // raw values, copied verbatim (some are not JSON, eg. tabdata_limitRows_ = 'nolimit')
     for (const key of _.keys(initialLocalStorage)) {
-      localStorage.setItem(`tabdata_${key}_${tabid}`, initialLocalStorage[key]);
+      appLocalStorage.setItem(`tabdata_${key}_${tabid}`, initialLocalStorage[key]);
     }
   }
   if (initialData) {
@@ -99,7 +100,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
       if (key == 'editor' || key == 'rows') {
         await localforage.setItem(`tabdata_${key}_${tabid}`, initialData[key]);
       } else {
-        localStorage.setItem(`tabdata_${key}_${tabid}`, JSON.stringify(initialData[key]));
+        appLocalStorage.setItem(`tabdata_${key}_${tabid}`, JSON.stringify(initialData[key]));
       }
     }
   }
@@ -179,11 +180,10 @@ export async function duplicateTab(tab) {
   const keyRegex = /^tabdata_([^_]+)_([^_]+)$/;
   const initialData = {};
   const initialLocalStorage = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
+  for (const key of appLocalStorage.keys()) {
     const m = key.match(keyRegex);
     if (m && m[2] == tab.tabid) {
-      initialLocalStorage[m[1]] = localStorage.getItem(key);
+      initialLocalStorage[m[1]] = appLocalStorage.getItem(key);
     }
   }
   for (const key of await localforage.keys()) {

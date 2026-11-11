@@ -1,8 +1,12 @@
+import { appLocalStorage } from './appStorage';
 import moment from 'moment';
 import localforage from 'localforage';
 import { getOpenedTabsStorageName } from './pageDefs';
+import { openedTabs as openedTabsStore } from '../stores';
 
 export default async function localStorageGarbageCollector() {
+  // opened tabs could still be moved from localStorage to localforage by writableWithForage
+  await openedTabsStore.loaded;
   const openedTabsJson = await localforage.getItem(getOpenedTabsStorageName());
   let openedTabs = openedTabsJson ?? [];
 
@@ -12,14 +16,14 @@ export default async function localStorageGarbageCollector() {
   await localforage.setItem(getOpenedTabsStorageName(), openedTabs);
 
   const toRemove = [];
-  for (const key in localStorage) {
+  for (const key of appLocalStorage.keys()) {
     if (!key.startsWith('tabdata_')) continue;
     if (openedTabs.find(x => key.endsWith('_' + x.tabid))) continue;
     toRemove.push(key);
   }
 
   for (const key of toRemove) {
-    localStorage.removeItem(key);
+    appLocalStorage.removeItem(key);
   }
 
   const keysForage = await localforage.keys();

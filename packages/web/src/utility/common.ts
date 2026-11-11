@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import { findDefaultSchema, findEngineDriver, isCompositeDbName } from 'dbgate-tools';
 import { currentDatabase, getExtensions, getOpenedTabs, loadingSchemaLists, openedTabs } from '../stores';
 import _ from 'lodash';
@@ -134,7 +135,7 @@ export async function switchCurrentDatabase(data) {
     const conid = data.connection._id;
     const database = data.name;
     const storageKey = `selected-schema-${conid}-${database}`;
-    const schemaInStorage = localStorage.getItem(storageKey);
+    const schemaInStorage = appLocalStorage.getItem(storageKey);
     const schemas = await loadSchemaList(conid, database);
     if (request != switchCurrentDatabaseRequest) return;
     if (!schemas) return;

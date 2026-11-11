@@ -1,3 +1,4 @@
+import { appLocalStorage, appStorageReady } from '../utility/appStorage';
 import _ from 'lodash';
 import { writable, derived } from 'svelte/store';
 import { onMount, onDestroy } from 'svelte';
@@ -5,7 +6,7 @@ import localforage from 'localforage';
 import { changeTab } from '../utility/common';
 
 function getParsedLocalStorage(key) {
-  const value = localStorage.getItem(key);
+  const value = appLocalStorage.getItem(key);
   if (value != null) {
     try {
       const res = JSON.parse(value);
@@ -13,7 +14,7 @@ function getParsedLocalStorage(key) {
     } catch (e) {
       // console.log('FAILED LOAD FROM STORAGE', e);
       // console.log('VALUE', value);
-      localStorage.removeItem(key);
+      appLocalStorage.removeItem(key);
     }
   }
   return null;
@@ -74,8 +75,9 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
         value = initFallback;
         // move to local forage
         await localforage.setItem(localStorageKey, initFallback);
-        localStorage.removeItem(localStorageKey);
+        appLocalStorage.removeItem(localStorageKey);
       } else {
+        await appStorageReady;
         const init = await localforage.getItem(localStorageKey);
         if (init) {
           editorState.update(x => ({
@@ -102,7 +104,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     if (value == null) return;
     try {
       await localforage.setItem(localStorageKey, value);
-      localStorage.removeItem(localStorageKey);
+      appLocalStorage.removeItem(localStorageKey);
       savedCounter = changeCounter;
     } catch (err) {
       console.error(err);
@@ -113,7 +115,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     if (value == null) return;
     if (savedCounter == changeCounter) return; // all saved
     // on window unload must be synchronous actions, save to local storage instead
-    localStorage.setItem(localStorageKey, JSON.stringify(value));
+    appLocalStorage.setItem(localStorageKey, JSON.stringify(value));
   };
 
   const saveToStorageDebounced = _.debounce(saveToStorage, 5000);
@@ -135,7 +137,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
 
   const clearEditorData = async () => {
     await localforage.removeItem(localStorageKey);
-    localStorage.removeItem(localStorageKey);
+    appLocalStorage.removeItem(localStorageKey);
     value = null;
     editorState.update(x => ({
       ...x,

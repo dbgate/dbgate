@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from './utility/appStorage';
   import { onMount } from 'svelte';
   import { internalRedirectTo } from './clientAuth';
   import FormPasswordField from './forms/FormPasswordField.svelte';
@@ -114,7 +115,7 @@
     }
     const { accessToken } = resp;
     if (accessToken) {
-      localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
+      appLocalStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
       if (isAdminPage) {
         internalRedirectTo('/admin.html');
       } else {
@@ -259,7 +260,7 @@
               if (testIdRef.get() != testid) return;
               isTesting = false;
               if (resp.accessToken) {
-                localStorage.setItem('accessToken', resp.accessToken);
+                appLocalStorage.setItem('accessToken', resp.accessToken);
                 internalRedirectTo('/');
               } else {
                 sqlConnectResult = resp;
@@ -270,7 +271,7 @@
                 amoid: $values.amoid,
                 conid: selectedConnection.conid,
               });
-              localStorage.setItem('accessToken', resp.accessToken);
+              appLocalStorage.setItem('accessToken', resp.accessToken);
               internalRedirectTo('/');
             }
           }}

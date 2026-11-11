@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import getElectron from './getElectron';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,7 +47,7 @@ const inFlightBatches = new Set<Promise<unknown>>();
 /** Whether every analytics payload is logged to the browser console. */
 export function isAnalyticsTraceEnabled(): boolean {
   try {
-    const value = localStorage.getItem(ANALYTICS_TRACE_STORAGE_KEY);
+    const value = appLocalStorage.getItem(ANALYTICS_TRACE_STORAGE_KEY);
     if (value === 'true') return true;
     if (value === 'false') return false;
   } catch {
@@ -59,7 +60,7 @@ export function isAnalyticsTraceEnabled(): boolean {
 export function setAnalyticsTrace(enabled = true): boolean {
   memoryTrace = !!enabled;
   try {
-    localStorage.setItem(ANALYTICS_TRACE_STORAGE_KEY, String(memoryTrace));
+    appLocalStorage.setItem(ANALYTICS_TRACE_STORAGE_KEY, String(memoryTrace));
   } catch {
     // The choice still applies for the current session.
   }
@@ -97,7 +98,7 @@ export function getUsageAnalyticsConsent(): boolean | null {
     if (policy === 'disabled') return false;
   }
   try {
-    const value = localStorage.getItem(ANALYTICS_CONSENT_STORAGE_KEY);
+    const value = appLocalStorage.getItem(ANALYTICS_CONSENT_STORAGE_KEY);
     if (value === 'true') return true;
     if (value === 'false') return false;
   } catch {
@@ -109,7 +110,7 @@ export function getUsageAnalyticsConsent(): boolean | null {
 export function setUsageAnalyticsConsent(consent: boolean): void {
   memoryConsent = consent;
   try {
-    localStorage.setItem(ANALYTICS_CONSENT_STORAGE_KEY, String(consent));
+    appLocalStorage.setItem(ANALYTICS_CONSENT_STORAGE_KEY, String(consent));
   } catch {
     // The choice still applies for the current session.
   }
@@ -146,7 +147,7 @@ function isValidState(value: unknown): value is UsageAnalyticsState {
 
 function readState(): UsageAnalyticsState | null {
   try {
-    const value = localStorage.getItem(ANALYTICS_STORAGE_KEY);
+    const value = appLocalStorage.getItem(ANALYTICS_STORAGE_KEY);
     if (!value) return null;
     const parsed = JSON.parse(value);
     return isValidState(parsed) ? parsed : null;
@@ -158,7 +159,7 @@ function readState(): UsageAnalyticsState | null {
 function writeState(state: UsageAnalyticsState): void {
   memoryState = state;
   try {
-    localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(state));
+    appLocalStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(state));
   } catch {
     // Analytics must never interfere with DbGate when storage is unavailable.
   }

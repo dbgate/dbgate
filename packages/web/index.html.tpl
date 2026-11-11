@@ -25,10 +25,15 @@
     <link rel="stylesheet" href="build/fonts/materialdesignicons.css" />
     <link rel="stylesheet" href="build/diff2html.min.css" />
 
+    <!--WEB_ROOT_SCRIPT-->
     <script lang="javascript">
       window.dbgate_page = '{{page}}';
 
-      if (localStorage.getItem('currentThemeType') == 'dark') {
+      // keep in sync with storagePrefix in src/utility/appStorage.ts
+      var dbgateStorageRoot = (window.dbgate_webRoot || '').replace(/^\/*/, '').replace(/\/*$/, '');
+      var dbgateStoragePrefix = dbgateStorageRoot ? '/' + encodeURIComponent(dbgateStorageRoot) + '/' : '';
+
+      if (localStorage.getItem(dbgateStoragePrefix + 'currentThemeType') == 'dark') {
         document.documentElement.style.setProperty('--theme-background', '#111');
         document.documentElement.style.setProperty('--theme-foreground', '#e3e3e3');
       } else {

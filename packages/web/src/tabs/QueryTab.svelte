@@ -138,6 +138,7 @@
 </script>
 
 <script lang="ts">
+  import { appLocalStorage } from '../utility/appStorage';
   import { trackUsage } from '../utility/usageAnalytics';
   import { getContext, onDestroy, onMount, setContext, tick } from 'svelte';
   import sqlFormatter from 'sql-formatter';
@@ -248,7 +249,7 @@
 
   const queryRowsLimitLocalStorageKey = `tabdata_limitRows_${tabid}`;
   function getInitialRowsLimit() {
-    const storageValue = localStorage.getItem(queryRowsLimitLocalStorageKey);
+    const storageValue = appLocalStorage.getItem(queryRowsLimitLocalStorageKey);
     if (storageValue == 'nolimit') {
       return null;
     }
@@ -262,9 +263,9 @@
   const dbinfo = useDatabaseInfo({ conid, database });
 
   let queryRowsLimit = getInitialRowsLimit();
-  $: localStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
+  $: appLocalStorage.setItem(queryRowsLimitLocalStorageKey, queryRowsLimit ? queryRowsLimit.toString() : 'nolimit');
 
-  let isAiAssistantVisible = isProApp() && localStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
+  let isAiAssistantVisible = isProApp() && appLocalStorage.getItem(`tabdata_isAiAssistantVisible_${tabid}`) == 'true';
   let domAiAssistant;
 
   $: if ($settingsValue?.['storage.disableAiFeatures']) {
@@ -406,14 +407,14 @@
     if (parameters.length > 0) {
       const defaultValues = {
         ...parameters.reduce((acc, x) => ({ ...acc, [x]: '' }), {}),
-        ...safeJsonParse(localStorage.getItem(`tabdata_queryParams_${tabid}`)),
+        ...safeJsonParse(appLocalStorage.getItem(`tabdata_queryParams_${tabid}`)),
       };
 
       showModal(QueryParametersModal, {
         parameterNames: parameters,
         parameterValues: defaultValues,
         onExecute: values => {
-          localStorage.setItem(`tabdata_queryParams_${tabid}`, JSON.stringify(values));
+          appLocalStorage.setItem(`tabdata_queryParams_${tabid}`, JSON.stringify(values));
           const newSql = replaceQueryParameters(sql, values, getParameterSplitterOptions());
           executeCoreWithParams(newSql, startLine, source);
         },
@@ -755,11 +756,11 @@
 
   let isInitialized = false;
   let queryParameterStyle =
-    localStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
+    appLocalStorage.getItem(`tabdata_queryParamStyle_${tabid}`) ??
     initialArgs?.queryParameterStyle ??
     (initialArgs?.scriptTemplate == 'CALL OBJECT' ? ':' : '');
 
-  $: localStorage.setItem(`tabdata_isAiAssistantVisible_${tabid}`, isAiAssistantVisible ? 'true' : 'false');
+  $: appLocalStorage.setItem(`tabdata_isAiAssistantVisible_${tabid}`, isAiAssistantVisible ? 'true' : 'false');
 </script>
 
 <ToolStripContainer bind:this={domToolStrip} hideToolStrip={hideEditor}>
@@ -937,7 +938,7 @@
           label: param.text,
           onClick: () => {
             queryParameterStyle = param.value;
-            localStorage.setItem(`tabdata_queryParamStyle_${tabid}`, queryParameterStyle);
+            appLocalStorage.setItem(`tabdata_queryParamStyle_${tabid}`, queryParameterStyle);
           },
         }))}
       label={QUERY_PARAMETER_STYLES.find(x => x.value == queryParameterStyle)?.text}

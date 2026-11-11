@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { getUsageAnalyticsConsent } from './usageAnalytics';
 import { writable } from 'svelte/store';
@@ -127,7 +128,7 @@ async function processApiResponse(route, args, resp) {
       }
 
       const state = `dbg-dblogin:${strmid}:${resp.detail.conid}`;
-      localStorage.setItem('dbloginState', state);
+      appLocalStorage.setItem('dbloginState', state);
       if (getElectron()) {
         const dbloginApp = await apiCall('connections/dblogin-app', {
           conid: resp.detail.conid,
@@ -217,7 +218,7 @@ export async function apiCall(
         // events caused by this call (query messages, script output, ...) are sent back to this
         // tab's event stream only
         'x-dbgate-strmid': strmid,
-        'x-ui-language': localStorage.getItem('selectedLanguage') || 'en',
+        'x-ui-language': appLocalStorage.getItem('selectedLanguage') || 'en',
         ...resolveApiHeaders(),
       },
       body: JSON.stringify(args, serializeJsTypesReplacer),

@@ -1,3 +1,4 @@
+import { appLocalStorage } from '../utility/appStorage';
 import {
   cloudSigninTokenHolder,
   currentDatabase,
@@ -568,7 +569,7 @@ registerCommand({
       }),
       onConfirm: async () => {
         await apiCall('config/delete-settings');
-        localStorage.clear();
+        appLocalStorage.clear();
         await localforage.clear();
         if (getElectron()) {
           getElectron().send('reset-settings');

@@ -1,3 +1,4 @@
+import { appLocalStorage } from './utility/appStorage';
 import { apiCall, enableApi, getAuthCategory } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 import { isAdminPage } from './utility/pageDefs';
@@ -21,7 +22,10 @@ export function isDbLoginCallback() {
   const sentState = params.get('state');
 
   return (
-    sentCode && sentState && sentState.startsWith('dbg-dblogin:') && sentState == localStorage.getItem('dbloginState')
+    sentCode &&
+    sentState &&
+    sentState.startsWith('dbg-dblogin:') &&
+    sentState == appLocalStorage.getItem('dbloginState')
   );
 }
 
@@ -57,7 +61,7 @@ export function handleOauthCallback() {
 
       if (accessToken) {
         console.log('Settings access token from OAUTH');
-        localStorage.setItem('accessToken', accessToken);
+        appLocalStorage.setItem('accessToken', accessToken);
         internalRedirectTo('/');
       } else {
         console.log('Error when processing OAUTH callback', error || errorMessage);
@@ -69,8 +73,8 @@ export function handleOauthCallback() {
   }
 
   if (isDbLoginCallback()) {
-    const [_prefix, strmid, conid] = localStorage.getItem('dbloginState').split(':');
-    localStorage.removeItem('dbloginState');
+    const [_prefix, strmid, conid] = appLocalStorage.getItem('dbloginState').split(':');
+    appLocalStorage.removeItem('dbloginState');
 
     apiCall('connections/dblogin-token', {
       code: sentCode,
@@ -103,7 +107,7 @@ export function handleOauthCallback() {
       sid,
     }).then(authResp => {
       if (authResp.accessToken) {
-        localStorage.setItem('accessToken', authResp.accessToken);
+        appLocalStorage.setItem('accessToken', authResp.accessToken);
         internalRedirectTo('/');
       } else if (authResp.error) {
         internalRedirectTo(`/error.html?error=${encodeURIComponent(authResp.error)}`);
@@ -169,7 +173,7 @@ export async function handleAuthOnStartup(config) {
 
   function checkLoggedUser() {
     if (getAuthCategory(config) == 'admin') {
-      if (!config.isInvalidToken && localStorage.getItem('adminAccessToken')) {
+      if (!config.isInvalidToken && appLocalStorage.getItem('adminAccessToken')) {
         return false;
       }
 
@@ -178,7 +182,7 @@ export async function handleAuthOnStartup(config) {
     }
 
     if (getAuthCategory(config) == 'token') {
-      if (!config.isInvalidToken && localStorage.getItem('accessToken')) {
+      if (!config.isInvalidToken && appLocalStorage.getItem('accessToken')) {
         return false;
       }
 
@@ -250,7 +254,7 @@ export async function handleAuthOnStartup(config) {
   // }
 
   // if (getAuthCategory(config) == 'admin') {
-  //   if (localStorage.getItem('adminAccessToken')) {
+  //   if (appLocalStorage.getItem('adminAccessToken')) {
   //     return;
   //   }
 
@@ -262,7 +266,7 @@ export async function handleAuthOnStartup(config) {
   // //   console.log('OAUTH callback URL:', location.origin + location.pathname);
   // // }
   // if (getAuthCategory(config) == 'token') {
-  //   if (localStorage.getItem('accessToken')) {
+  //   if (appLocalStorage.getItem('accessToken')) {
   //     return;
   //   }
 
@@ -325,11 +329,11 @@ export async function doLogout() {
 
   if (category == 'admin') {
     await apiCall('auth/logout-admin');
-    localStorage.removeItem('adminAccessToken');
+    appLocalStorage.removeItem('adminAccessToken');
     internalRedirectTo('/admin-login.html?is-admin=true');
   } else if (category == 'token') {
     await apiCall('auth/logout-user');
-    localStorage.removeItem('accessToken');
+    appLocalStorage.removeItem('accessToken');
     if (config.logoutUrl) {
       window.location.href = config.logoutUrl;
     } else {
@@ -340,17 +344,17 @@ export async function doLogout() {
   }
 
   // if (config.oauth) {
-  //   localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+  //   appLocalStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
   //   if (config.oauthLogout) {
   //     window.location.href = config.oauthLogout;
   //   } else {
   //     internalRedirectTo('/?page=not-logged');
   //   }
   // } else if (config.isLoginForm) {
-  //   localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+  //   appLocalStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
   //   internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
   // } else if (config.isAdminLoginForm && isAdminPage()) {
-  //   localStorage.removeItem('adminAccessToken');
+  //   appLocalStorage.removeItem('adminAccessToken');
   //   internalRedirectTo('/?page=admin-login&is-admin=true');
   // } else {
   //   window.location.href = 'config/logout';

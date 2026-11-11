@@ -1,3 +1,4 @@
+import { appLocalStorage } from '../utility/appStorage';
 import type { ThemeDefinition } from 'dbgate-types';
 import { derived, writable } from 'svelte/store';
 import { themeDarkColors } from './themeDarkColors';
@@ -117,9 +118,9 @@ currentThemeDefinition.subscribe(value => {
   applyTheme(value);
 
   if (currentThemeDefinitionValue) {
-    localStorage.setItem('currentThemeType', currentThemeDefinitionValue.themeType);
+    appLocalStorage.setItem('currentThemeType', currentThemeDefinitionValue.themeType);
   } else {
-    localStorage.removeItem('currentThemeType');
+    appLocalStorage.removeItem('currentThemeType');
   }
 });
 export const getCurrentThemeDefinition = () => currentThemeDefinitionValue;

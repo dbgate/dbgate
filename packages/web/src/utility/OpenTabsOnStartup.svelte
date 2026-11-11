@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from './appStorage';
   import { onMount } from 'svelte';
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
   import runCommand from '../commands/runCommand';
@@ -26,6 +27,9 @@
     if (opened) return;
 
     opened = true;
+    // stored tabs must be loaded, otherwise startup tabs would be opened and then replaced by them
+    await openedTabs.loaded;
+
     trackUsage({ feature: 'favorites', action: 'count', param: 'all', value: list.length });
     trackUsage({
       feature: 'favorites',
@@ -72,11 +76,11 @@
     }
 
     const config = await getConfig();
-    const appVersion = localStorage.getItem('appVersion');
+    const appVersion = appLocalStorage.getItem('appVersion');
     if (appVersion && appVersion != config.version) {
       runCommand('tabs.changelog');
       showSnackbarInfo(`DbGate upgraded from version ${appVersion} to version ${config.version}`);
     }
-    localStorage.setItem('appVersion', config.version);
+    appLocalStorage.setItem('appVersion', config.version);
   }
 </script>

@@ -1,3 +1,4 @@
+import { appLocalStorage } from './appStorage';
 import { createGridConfig } from 'dbgate-datalib';
 import { writable } from 'svelte/store';
 import { onDestroy } from 'svelte';
@@ -6,7 +7,7 @@ import _ from 'lodash';
 
 function doLoadGridConfigFunc(tabid) {
   try {
-    const existing = localStorage.getItem(`tabdata_grid_${tabid}`);
+    const existing = appLocalStorage.getItem(`tabdata_grid_${tabid}`);
     if (existing) {
       return {
         ...createGridConfig(),
@@ -31,7 +32,7 @@ function containsNotEmptyObject(obj) {
 export default function useGridConfig(tabid) {
   const config = writable(doLoadGridConfigFunc(tabid));
   const unsubscribe = config.subscribe(value => {
-    localStorage.setItem(`tabdata_grid_${tabid}`, JSON.stringify(value));
+    appLocalStorage.setItem(`tabdata_grid_${tabid}`, JSON.stringify(value));
 
     if (containsNotEmptyObject(value)) {
       if (getOpenedTabs().find(x => x.tabid == tabid)?.tabPreviewMode) {

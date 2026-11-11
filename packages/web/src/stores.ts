@@ -1,4 +1,4 @@
-import { writable, derived, readable } from 'svelte/store';
+import { writable, derived, readable, get } from 'svelte/store';
 import localforage from 'localforage';
 import type { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
@@ -10,6 +10,7 @@ import { apiCall } from './utility/api';
 import { getOpenedTabsStorageName, isAdminPage } from './utility/pageDefs';
 import { switchCurrentDatabase } from './utility/common';
 import { tick } from 'svelte';
+import { appLocalStorage, appStorageReady } from './utility/appStorage';
 
 export interface TabDefinition {
   title: string;
@@ -67,14 +68,14 @@ export function writableWithStorage<T>(
   removeCondition?: (value: T) => boolean,
   prepareForStorage: (value: T) => T = value => value
 ) {
-  const init = localStorage.getItem(storageName);
+  const init = appLocalStorage.getItem(storageName);
   // Sanitize legacy values too; the initial subscription immediately rewrites storage.
   const res = writable<T>(prepareForStorage(init ? safeJsonParse(init, defaultValue, true) : defaultValue));
   res.subscribe(value => {
     if (removeCondition && removeCondition(value)) {
-      localStorage.removeItem(storageName);
+      appLocalStorage.removeItem(storageName);
     } else {
-      localStorage.setItem(storageName, JSON.stringify(prepareForStorage(value)));
+      appLocalStorage.setItem(storageName, JSON.stringify(prepareForStorage(value)));
     }
   });
   return res;
@@ -82,23 +83,35 @@ export function writableWithStorage<T>(
 
 export function writableWithForage<T>(defaultValue: T, storageName, safeConvertor?) {
   const res = writable<T>(defaultValue);
+  // don't overwrite the stored value with the default before it is loaded;
+  // until `loaded` resolves, the store holds only the default value
+  let loaded = false;
   res.subscribe(value => {
-    localforage.setItem(storageName, value);
+    if (loaded) localforage.setItem(storageName, value);
   });
-  localforage.getItem(storageName).then(value => {
-    if (value == null) {
-      const migrated = localStorage.getItem(storageName);
-      if (migrated) {
-        localStorage.removeItem(storageName);
-        const parsed = safeJsonParse(migrated, defaultValue, true);
-        localforage.setItem(storageName, parsed);
-        res.set(parsed as T);
+  const loadedPromise: Promise<void> = appStorageReady
+    .then(() => localforage.getItem(storageName))
+    .then(value => {
+      if (value == null) {
+        const migrated = appLocalStorage.getItem(storageName);
+        if (migrated) {
+          appLocalStorage.removeItem(storageName);
+          const parsed = safeJsonParse(migrated, defaultValue, true);
+          localforage.setItem(storageName, parsed);
+          res.set(parsed as T);
+        } else {
+          // persist changes made before loading finished (if any)
+          localforage.setItem(storageName, get(res));
+        }
+      } else {
+        res.set(safeConvertor ? safeConvertor(value) : (value as T));
       }
-    } else {
-      res.set(safeConvertor ? safeConvertor(value) : (value as T));
-    }
-  });
-  return res;
+    })
+    .catch(err => console.error('DBGM-00000 Error loading browser storage', storageName, err))
+    .finally(() => {
+      loaded = true;
+    });
+  return { ...res, loaded: loadedPromise };
 }
 
 export function writableSettingsValue<T>(defaultValue: T, storageName) {
@@ -125,7 +138,7 @@ export function writableSettingsOrLocalValue<T>(defaultValue: T, storageName) {
   if (getElectron()) {
     return writableSettingsValue(defaultValue, storageName);
   }
-  const localInit = localStorage.getItem(storageName);
+  const localInit = appLocalStorage.getItem(storageName);
   const localOverride = writable<T | undefined>(
     localInit != null ? safeJsonParse(localInit, undefined, true) : undefined
   );
@@ -134,7 +147,7 @@ export function writableSettingsOrLocalValue<T>(defaultValue: T, storageName) {
     return (($settings || {})[storageName] as T) ?? defaultValue;
   });
   const setLocal = (value: T) => {
-    localStorage.setItem(storageName, JSON.stringify(value));
+    appLocalStorage.setItem(storageName, JSON.stringify(value));
     localOverride.set(value);
   };
   return {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from '../utility/appStorage';
   import { onMount } from 'svelte';
   import { getConfig } from '../utility/metadataLoaders';
   import { handleAuthOnStartup } from '../clientAuth';
@@ -25,8 +26,8 @@
   });
 
   const isDark =
-    localStorage.getItem('currentThemeType') === 'dark' ||
-    (!localStorage.getItem('currentThemeType') &&
+    appLocalStorage.getItem('currentThemeType') === 'dark' ||
+    (!appLocalStorage.getItem('currentThemeType') &&
       window.matchMedia &&
       window.matchMedia('(prefers-color-scheme: dark)').matches);
 </script>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appLocalStorage } from '../utility/appStorage';
   import _ from 'lodash';
 
   import getElectron from '../utility/getElectron';
@@ -51,11 +52,11 @@
       if (skipEditor && match[1] == 'editor') continue;
       tabdata[match[1]] = await localforage.getItem(key);
     }
-    for (const key in localStorage) {
+    for (const key of appLocalStorage.keys()) {
       const match = key.match(re);
       if (!match) continue;
       if (skipEditor && match[1] == 'editor') continue;
-      tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
+      tabdata[match[1]] = JSON.parse(appLocalStorage.getItem(key));
     }
     console.log('tabdata', tabdata, skipEditor, savingTab.tabid);
 
