@@ -19,6 +19,7 @@ const {
   serializeJsTypesForJsonStringify,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
+const AsyncLock = require('async-lock');
 const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
 const fs = require('fs-extra');
@@ -71,6 +72,8 @@ const {
 } = require('../utility/connectUtility');
 
 const logger = getLogger('databaseConnections');
+
+const lock = new AsyncLock();
 
 function getRestoreUploadPath(inputFile, inputUploadName) {
   if (
@@ -215,86 +218,88 @@ module.exports = {
   },
 
   async ensureOpened(conid, database) {
-    const existing = this.opened.find(x => x.conid == conid && x.database == database);
-    if (existing) return existing;
-    const connection = await connections.getCore({ conid });
-    if (!connection) {
-      throw new Error(`databaseConnections: Connection with conid="${conid}" not found`);
-    }
-
-    if (connection.engine?.endsWith('@rest')) {
-      return { isApiConnection: true };
-    }
-
-    if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
-      throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
-    }
-    if (connection.useRedirectDbLogin) {
-      throw new MissingCredentialsError({ conid, redirectToDbLogin: true });
-    }
-    const globalSettings = await config.getSettings();
-    const subprocess = fork(
-      global['API_PACKAGE'] || process.argv[1],
-      [
-        '--is-forked-api',
-        '--start-process',
-        'databaseConnectionProcess',
-        ...processArgs.getPassArgs(),
-        // ...process.argv.slice(3),
-      ],
-      {
-        env: {
-          ...process.env,
-          NODE_NO_WARNINGS: globalSettings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
-        },
-        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-      }
-    );
-    pipeForkLogs(subprocess);
-    const lastClosed = this.closed[`${conid}/${database}`];
-    const initialStatusName =
-      !lastClosed && !(connection.useSeparateSchemas && !isCompositeDbName(database)) ? 'loadStructure' : 'pending';
-    const newOpened = {
-      conid,
-      database,
-      subprocess,
-      structure: lastClosed ? lastClosed.structure : DatabaseAnalyser.createEmptyStructure(),
-      serverVersion: lastClosed ? lastClosed.serverVersion : null,
-      connection,
-      status: { name: initialStatusName },
-    };
-    this.opened.push(newOpened);
-    subprocess.on('message', message => {
-      // @ts-ignore
-      const { msgtype } = message;
-      if (handleProcessCommunication(message, subprocess)) return;
-      if (newOpened.disconnected) return;
-      const funcName = `handle_${msgtype}`;
-      if (!this[funcName]) {
-        logger.error(`DBGM-00104 Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
-        return;
+    return lock.acquire(`${conid}/${database}`, async () => {
+      const existing = this.opened.find(x => x.conid == conid && x.database == database);
+      if (existing) return existing;
+      const connection = await connections.getCore({ conid });
+      if (!connection) {
+        throw new Error(`databaseConnections: Connection with conid="${conid}" not found`);
       }
 
-      this[funcName](conid, database, message);
-    });
-    subprocess.on('exit', () => {
-      if (newOpened.disconnected) return;
-      this.close(conid, database, false);
-    });
-    subprocess.on('error', err => {
-      logger.error(extractErrorLogData(err), 'DBGM-00114 Error in database connection subprocess');
-      if (newOpened.disconnected) return;
-      this.close(conid, database, false);
-    });
+      if (connection.engine?.endsWith('@rest')) {
+        return { isApiConnection: true };
+      }
 
-    const connectMessage = serializeJsTypesForJsonStringify({
-      msgtype: 'connect',
-      connection: { ...connection, database },
-      structure: lastClosed ? lastClosed.structure : null,
-      globalSettings,
+      if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
+        throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
+      }
+      if (connection.useRedirectDbLogin) {
+        throw new MissingCredentialsError({ conid, redirectToDbLogin: true });
+      }
+      const globalSettings = await config.getSettings();
+      const subprocess = fork(
+        global['API_PACKAGE'] || process.argv[1],
+        [
+          '--is-forked-api',
+          '--start-process',
+          'databaseConnectionProcess',
+          ...processArgs.getPassArgs(),
+          // ...process.argv.slice(3),
+        ],
+        {
+          env: {
+            ...process.env,
+            NODE_NO_WARNINGS: globalSettings?.['behaviour.useDiagnosticTools'] === true ? '0' : '1',
+          },
+          stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+        }
+      );
+      pipeForkLogs(subprocess);
+      const lastClosed = this.closed[`${conid}/${database}`];
+      const initialStatusName =
+        !lastClosed && !(connection.useSeparateSchemas && !isCompositeDbName(database)) ? 'loadStructure' : 'pending';
+      const newOpened = {
+        conid,
+        database,
+        subprocess,
+        structure: lastClosed ? lastClosed.structure : DatabaseAnalyser.createEmptyStructure(),
+        serverVersion: lastClosed ? lastClosed.serverVersion : null,
+        connection,
+        status: { name: initialStatusName },
+      };
+      this.opened.push(newOpened);
+      subprocess.on('message', message => {
+        // @ts-ignore
+        const { msgtype } = message;
+        if (handleProcessCommunication(message, subprocess)) return;
+        if (newOpened.disconnected) return;
+        const funcName = `handle_${msgtype}`;
+        if (!this[funcName]) {
+          logger.error(`DBGM-00104 Unknown message type ${msgtype} from subprocess databaseConnectionProcess`);
+          return;
+        }
+
+        this[funcName](conid, database, message);
+      });
+      subprocess.on('exit', () => {
+        if (newOpened.disconnected) return;
+        this.close(conid, database, false, newOpened);
+      });
+      subprocess.on('error', err => {
+        logger.error(extractErrorLogData(err), 'DBGM-00114 Error in database connection subprocess');
+        if (newOpened.disconnected) return;
+        this.close(conid, database, false, newOpened);
+      });
+
+      const connectMessage = serializeJsTypesForJsonStringify({
+        msgtype: 'connect',
+        connection: { ...connection, database },
+        structure: lastClosed ? lastClosed.structure : null,
+        globalSettings,
+      });
+      subprocess.send(connectMessage);
+      return newOpened;
     });
-    subprocess.send(connectMessage);
-    return newOpened;
   },
 
   async ensureStructureLoaded(conid, database) {
@@ -768,8 +773,13 @@ module.exports = {
     return { status: 'ok' };
   },
 
-  close(conid, database, kill = true) {
+  close(conid, database, kill = true, onlyOpened = undefined) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    if (onlyOpened && existing != onlyOpened) {
+      // subprocess of an entry which is no longer current exited - keep the current connection untouched
+      onlyOpened.disconnected = true;
+      return;
+    }
     if (existing) {
       existing.disconnected = true;
       if (kill) {
