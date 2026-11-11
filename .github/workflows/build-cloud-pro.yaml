@@ -39,7 +39,7 @@ jobs:
           repository: dbgate/dbgate-pro
           token: ${{ secrets.GH_TOKEN }}
           path: dbgate-pro
-          ref: 18af3d8f2ebeb9e8f6db44fbff9bfdce01888107
+          ref: 82841455782b984e25b473e115ace5f8bee99944
       - name: Diflow install
         run: npm install -g diflow
       - name: Merge dbgate/dbgate-pro
@@ -88,6 +88,10 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate packer provisioning scripts
+        run: |
+          cd ../dbgate-merged/packer
+          node build-with-user.js
       - name: Run `packer init` for AWS
         run: |
           cd ../dbgate-merged/packer
