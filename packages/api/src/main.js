@@ -52,6 +52,7 @@ const startCloudUpgradeTimer = require('./utility/cloudUpgrade');
 const { isProApp } = require('./utility/checkLicense');
 const { getHealthStatus, getHealthStatusSprinx } = require('./utility/healthStatus');
 const { startCloudFiles } = require('./utility/cloudIntf');
+const { checkNodeVersion } = require('./utility/checkNodeVersion');
 
 const logger = getLogger('main');
 
@@ -107,6 +108,8 @@ function registerExpressStatic(app, publicDir) {
 }
 
 function start() {
+  checkNodeVersion(logger);
+
   // console.log('process.argv', process.argv);
 
   const app = express();
