@@ -97,6 +97,11 @@ jobs:
       #     cd ../dbgate-merged/packer
       #     packer build ./azure-ubuntu.pkr.hcl
 
+      - name: Generate packer provisioning scripts
+        run: |
+          cd ../dbgate-merged/packer
+          node build-with-user.js
+
       - name: Run `packer init` for AWS
         run: |
           cd ../dbgate-merged/packer
