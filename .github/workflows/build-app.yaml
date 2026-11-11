@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-14
+          - macos-15
           - windows-2022
           - ubuntu-22.04
     steps:
@@ -26,7 +26,7 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip setuptools
       - name: Install python 3.11 (MacOS)
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-15'
         run: |
           brew install python@3.11
           echo "PYTHON=/opt/homebrew/bin/python3.11" >> $GITHUB_ENV
@@ -72,7 +72,7 @@ jobs:
 
           yarn run build:app
       - name: Publish MacOS
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-15'
         run: |
 
           yarn run build:app
@@ -176,7 +176,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Print content of notarization-error.log
-        if: failure() && matrix.os == 'macos-14'
+        if: failure() && matrix.os == 'macos-15'
         run: |
 
           find . -type f -name "notarization-error.log" -exec echo "=== Start of {} ===" \; -exec cat {} \; -exec echo "=== End of {} ===" \;
