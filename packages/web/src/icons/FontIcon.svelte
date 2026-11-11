@@ -142,6 +142,7 @@
     'icon delete': 'mdi mdi-delete',
     'icon arrow-up': 'mdi mdi-arrow-up',
     'icon arrow-down': 'mdi mdi-arrow-down',
+    'icon drag-handle': 'mdi mdi-drag-vertical',
     'icon arrow-left': 'mdi mdi-arrow-left',
     'icon arrow-begin': 'mdi mdi-arrow-collapse-left',
     'icon arrow-end': 'mdi mdi-arrow-collapse-right',

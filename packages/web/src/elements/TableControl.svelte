@@ -27,7 +27,7 @@
   import { evaluateCondition } from 'dbgate-sqltree';
   import { compileCompoudEvalCondition } from 'dbgate-filterparser';
   import { chevronExpandIcon } from '../icons/expandIcons';
-  import { _tval } from '../translations';
+  import { _t, _tval } from '../translations';
 
   export let columns: (TableControlColumn | false)[];
   export let rows = null;
@@ -55,10 +55,57 @@
 
   export let selectionMode: 'index' | 'key' = 'index';
 
+  // (sourceRow, targetRow, placeAfter: boolean) => void; when set, rows can be reordered by drag&drop via handle
+  export let onReorderRow = null;
+
   const dispatch = createEventDispatcher();
 
   let dragStartIndex = null;
   let dragCurrentIndex = null;
+
+  let reorderSourceIndex = null;
+  let reorderTargetIndex = null;
+  let reorderPlaceAfter = false;
+
+  function resetReorder() {
+    reorderSourceIndex = null;
+    reorderTargetIndex = null;
+    reorderPlaceAfter = false;
+  }
+
+  function handleReorderDragStart(e, index) {
+    reorderSourceIndex = index;
+    dragStartIndex = null;
+    dragCurrentIndex = null;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+    const tr = domRows[index];
+    if (tr) e.dataTransfer.setDragImage(tr, 10, tr.offsetHeight / 2);
+  }
+
+  function handleReorderDragOver(e, index) {
+    if (reorderSourceIndex == null) return;
+    e.preventDefault();
+    // prevent global file-drop handler (dragDropFileTarget) from overriding dropEffect to 'copy'
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    const rect = e.currentTarget.getBoundingClientRect();
+    reorderTargetIndex = index;
+    reorderPlaceAfter = e.clientY > rect.top + rect.height / 2;
+  }
+
+  function handleReorderDrop(e, index) {
+    if (reorderSourceIndex == null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const sourceRow = flatRowsShown[reorderSourceIndex];
+    const targetRow = flatRowsShown[index];
+    const placeAfter = reorderPlaceAfter;
+    resetReorder();
+    if (sourceRow && targetRow && sourceRow !== targetRow) {
+      onReorderRow(sourceRow, targetRow, placeAfter);
+    }
+  }
 
   $: columnList = _.compact(_.flatten(columns));
 
@@ -178,6 +225,7 @@
   // $: console.log('sortedRows', sortedRows);
 
   $: flatRowsShown = sortedRows.map(gitem => gitem.rows).flat();
+  $: showReorderHandle = !!onReorderRow && !sortedByField;
   $: checkableFlatRowsShown = flatRowsShown.filter(x => itemSupportsCheckbox(x));
 
   // $: groupedRows = computeGroupedRows(sortedRows);
@@ -204,6 +252,9 @@
 >
   <thead class:stickyHeader>
     <tr>
+      {#if showReorderHandle}
+        <th class="reorder-handle-header"></th>
+      {/if}
       {#if checkedKeys}
         <th>
           <input
@@ -245,6 +296,9 @@
     </tr>
     {#if filters}
       <tr>
+        {#if showReorderHandle}
+          <td class="filter-cell empty-cell"></td>
+        {/if}
         {#if checkedKeys}
           <td class="empty-cell"></td>
         {/if}
@@ -269,7 +323,7 @@
       {#if gitem.group}
         <tr class="group-row">
           <td
-            colspan={columnList.length + (checkedKeys ? 1 : 0)}
+            colspan={columnList.length + (checkedKeys ? 1 : 0) + (showReorderHandle ? 1 : 0)}
             class="groupcell"
             on:click={() => {
               if (collapsedGroupIndexes.includes(groupIndex)) {
@@ -330,8 +384,35 @@
               dragCurrentIndex = null;
               dragStartIndex = null;
             }}
+            class:reorder-dragging={reorderSourceIndex == index}
+            class:reorder-drop-before={reorderSourceIndex != null &&
+              reorderTargetIndex == index &&
+              reorderSourceIndex != index &&
+              !reorderPlaceAfter}
+            class:reorder-drop-after={reorderSourceIndex != null &&
+              reorderTargetIndex == index &&
+              reorderSourceIndex != index &&
+              reorderPlaceAfter}
+            on:dragover={e => handleReorderDragOver(e, index)}
+            on:drop={e => handleReorderDrop(e, index)}
             data-testid={`TableControl_row_${index}`}
           >
+            {#if showReorderHandle}
+              <td class="reorder-handle-cell">
+                <span
+                  class="reorder-handle"
+                  draggable={true}
+                  title={_t('common.dragToReorder', { defaultMessage: 'Drag to reorder' })}
+                  data-testid={`TableControl_row_${index}_dragHandle`}
+                  on:mousedown|stopPropagation
+                  on:click|stopPropagation
+                  on:dragstart={e => handleReorderDragStart(e, index)}
+                  on:dragend={resetReorder}
+                >
+                  <FontIcon icon="icon drag-handle" />
+                </span>
+              </td>
+            {/if}
             {#if checkedKeys}
               <td>
                 {#if itemSupportsCheckbox(row)}
@@ -380,7 +461,7 @@
     {/each}
     {#if emptyMessage && sortedRows.length == 0}
       <tr>
-        <td colspan={columnList.length}>{emptyMessage}</td>
+        <td colspan={columnList.length + (showReorderHandle ? 1 : 0)}>{emptyMessage}</td>
       </tr>
     {/if}
   </tbody>
@@ -474,5 +555,42 @@
   .groupcell {
     background-color: var(--theme-table-header-background);
     cursor: pointer;
+  }
+
+  .reorder-handle-header {
+    width: 1px;
+  }
+
+  tbody td.reorder-handle-cell {
+    width: 1px;
+    padding: 0 2px;
+    text-align: center;
+  }
+
+  .reorder-handle {
+    cursor: grab;
+    opacity: 0.6;
+    display: inline-block;
+    padding: 2px;
+  }
+
+  .reorder-handle:hover {
+    opacity: 1;
+  }
+
+  .reorder-handle:active {
+    cursor: grabbing;
+  }
+
+  tbody tr.reorder-dragging {
+    opacity: 0.5;
+  }
+
+  tbody tr.reorder-drop-before td {
+    box-shadow: inset 0 2px 0 0 var(--theme-generic-font-hover);
+  }
+
+  tbody tr.reorder-drop-after td {
+    box-shadow: inset 0 -2px 0 0 var(--theme-generic-font-hover);
   }
 </style>

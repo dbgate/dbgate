@@ -17,6 +17,7 @@
   export let displayNameFieldName = null;
   export let multipleItemsActions = null;
   export let sortedByField = null;
+  export let onReorderRow = null;
 
   export let filters = writable({});
 
@@ -77,6 +78,7 @@
           ])}
           {clickable}
           {filters}
+          {onReorderRow}
           on:clickrow
           onChangeMultipleSelection={handleChangeMultipleSelection}
         >
