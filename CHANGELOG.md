@@ -9,6 +9,16 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.5
+
+- ADDED: Table editor can change the column order with drag and drop (MySQL, MariaDB, ClickHouse, Firebird)
+- ADDED: Support for `*_FILE` environment variables (Docker secrets). API startup stops if a secret file can't be read
+- ADDED: MySQL support for spatial column SRID in column definitions and schema analysis
+- CHANGED: Browser storage is kept separate for each WEB_ROOT, so several DbGate instances can share one domain
+- FIXED: MySQL changing a column (CHANGE/MODIFY COLUMN) dropped parts of the column definition and quoted expression defaults wrongly
+- FIXED: Duplicate database connection processes could close the live connection #1621
+- FIXED: AWS image built with patched OS packages and Node.js 24 (Premium)
+
 ## 7.3.4
 
 - FIXED: Excel export and import failing with "cannot save file" #1610
