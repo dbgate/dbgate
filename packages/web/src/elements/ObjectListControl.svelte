@@ -16,6 +16,8 @@
   export let onAddNew = null;
   export let displayNameFieldName = null;
   export let multipleItemsActions = null;
+  export let sortedByField = null;
+  export let onReorderRow = null;
 
   export let filters = writable({});
 
@@ -61,6 +63,7 @@
     {#if !collapsed && (collection?.length > 0 || showIfEmpty)}
       <div class="body">
         <TableControl
+          bind:sortedByField
           rows={collection || []}
           allowMultiSelect={!!multipleItemsActions}
           columns={_.compact([
@@ -75,6 +78,7 @@
           ])}
           {clickable}
           {filters}
+          {onReorderRow}
           on:clickrow
           onChangeMultipleSelection={handleChangeMultipleSelection}
         >

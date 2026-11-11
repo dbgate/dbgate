@@ -19,6 +19,18 @@ class Dumper extends SqlDumper {
     this.endCommand();
   }
 
+  changeColumnPosition(column, afterColumnName) {
+    // ClickHouse requires data type in MODIFY COLUMN, other column properties (default, comment, codec) are kept
+    this.put('^alter ^table %f ^modify ^column %i ', column, column.columnName);
+    this.columnType(column.dataType);
+    if (afterColumnName) {
+      this.put(' ^after %i', afterColumnName);
+    } else {
+      this.put(' ^first');
+    }
+    this.endCommand();
+  }
+
   columnType(dataType) {
     this.putRaw(dataType || this.dialect.fallbackDataType);
   }

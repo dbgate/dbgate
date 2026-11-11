@@ -95,6 +95,8 @@
   export let isCreateTable;
   export let schemaList;
 
+  let columnsSortedByField = null;
+
   $: isWritable = !!setTableInfo;
 
   export function getIsWritable() {
@@ -154,6 +156,21 @@
     });
   }
 
+  $: canChangeColumnOrder = isWritable && (isCreateTable || !!driver?.dialect?.changeColumnPosition);
+
+  function reorderColumn(sourceRow, targetRow, placeAfter) {
+    columnsSortedByField = null;
+    setTableInfo(tbl => {
+      const source = tbl.columns.find(x => x.columnName == sourceRow.columnName);
+      if (!source) return tbl;
+      const newColumns = tbl.columns.filter(x => x !== source);
+      const targetIndex = newColumns.findIndex(x => x.columnName == targetRow.columnName);
+      if (targetIndex < 0) return tbl;
+      newColumns.splice(placeAfter ? targetIndex + 1 : targetIndex, 0, source);
+      return { ...tbl, columns: newColumns };
+    });
+  }
+
   function getIndexTypeLabel(row) {
     const indexType = row?.indexType?.toString()?.toUpperCase();
     if (indexType === 'FULLTEXT') return 'FULLTEXT';
@@ -195,6 +212,7 @@
   {/if}
 
   <ObjectListControl
+    bind:sortedByField={columnsSortedByField}
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title={_t('tableEditor.columnsCount', {
       defaultMessage: 'Columns ({columnCount})',
@@ -204,6 +222,7 @@
     clickable
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={isWritable ? addColumn : null}
+    onReorderRow={canChangeColumnOrder ? reorderColumn : null}
     displayNameFieldName="columnName"
     multipleItemsActions={[
       {

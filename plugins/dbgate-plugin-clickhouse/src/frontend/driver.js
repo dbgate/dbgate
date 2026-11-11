@@ -100,6 +100,7 @@ const dialect = {
   createColumn: true,
   dropColumn: true,
   changeColumn: true,
+  changeColumnPosition: true,
   changeAutoIncrement: true,
   createIndex: true,
   dropIndex: true,

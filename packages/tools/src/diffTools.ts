@@ -24,6 +24,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
+import _remove from 'lodash/remove';
 import _isString from 'lodash/isString';
 import { detectChangesInPreloadedRows } from './structureTools';
 
@@ -60,6 +61,9 @@ export interface DbDiffOptions {
   ignoreForeignKeyActions?: boolean;
   ignoreDataTypes?: boolean;
   ignoreComments?: boolean;
+
+  // generate column moves, when column order differs (only for dialects with changeColumnPosition)
+  checkColumnOrder?: boolean;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -531,6 +535,85 @@ function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableI
   }
 }
 
+/**
+ * Computes column moves, which transform currentOrder into targetOrder.
+ * Columns from longest increasing subsequence stay on their place, other columns are moved
+ * (in target order) after their predecessor in targetOrder (or to first position).
+ * Columns not present in targetOrder are ignored.
+ */
+export function getColumnMoves(
+  currentOrder: string[],
+  targetOrder: string[]
+): { columnName: string; afterColumnName: string | null }[] {
+  const targetIndexes = currentOrder.map(name => targetOrder.indexOf(name)).filter(index => index >= 0);
+
+  // longest increasing subsequence of targetIndexes - O(n^2), column count is small
+  const lengths = targetIndexes.map(() => 1);
+  const prev = targetIndexes.map(() => -1);
+  for (let i = 0; i < targetIndexes.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (targetIndexes[j] < targetIndexes[i] && lengths[j] + 1 > lengths[i]) {
+        lengths[i] = lengths[j] + 1;
+        prev[i] = j;
+      }
+    }
+  }
+  const stationary = new Set<number>();
+  let best = -1;
+  for (let i = 0; i < lengths.length; i++) {
+    if (best < 0 || lengths[i] > lengths[best]) best = i;
+  }
+  for (let i = best; i >= 0; i = prev[i]) {
+    stationary.add(targetIndexes[i]);
+  }
+
+  const res = [];
+  for (let i = 0; i < targetOrder.length; i++) {
+    if (!stationary.has(i)) {
+      res.push({ columnName: targetOrder[i], afterColumnName: i > 0 ? targetOrder[i - 1] : null });
+    }
+  }
+  return res;
+}
+
+function planColumnOrder(
+  plan: AlterPlan,
+  columnPairs: [ColumnInfo, ColumnInfo][],
+  newTable: TableInfo,
+  opts: DbDiffOptions
+) {
+  // real column order after alter operations - existing columns keep their order, created columns are added to the end,
+  // deleted columns are kept in table when they are only renamed (deletedColumnPrefix) or noDropColumn is set
+  const tableOrder: string[] = [];
+  for (const [oldColumn, newColumn] of columnPairs) {
+    if (oldColumn && newColumn) {
+      tableOrder.push(newColumn.columnName);
+    } else if (oldColumn && opts.deletedColumnPrefix) {
+      tableOrder.push(
+        hasDeletedPrefix(oldColumn.columnName, opts, opts.deletedColumnPrefix)
+          ? oldColumn.columnName
+          : opts.deletedColumnPrefix + oldColumn.columnName
+      );
+    } else if (oldColumn && opts.noDropColumn) {
+      tableOrder.push(oldColumn.columnName);
+    }
+  }
+  tableOrder.push(...columnPairs.filter(x => !x[0] && x[1]).map(x => x[1].columnName));
+
+  const targetOrder = newTable.columns.map(x => x.columnName);
+  for (const move of getColumnMoves(tableOrder, targetOrder)) {
+    // simulate move to compute absolute position (needed eg. by Firebird)
+    _remove(tableOrder, x => x == move.columnName);
+    const index = move.afterColumnName == null ? 0 : tableOrder.indexOf(move.afterColumnName) + 1;
+    tableOrder.splice(index, 0, move.columnName);
+    plan.changeColumnPosition(
+      newTable.columns.find(x => x.columnName == move.columnName),
+      move.afterColumnName,
+      index + 1
+    );
+  }
+}
+
 function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo, opts: DbDiffOptions) {
   // if (oldTable.primaryKey)
 
@@ -597,6 +680,10 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
         }
       }
     });
+
+  if (opts.checkColumnOrder && plan.dialect?.changeColumnPosition) {
+    planColumnOrder(plan, columnPairs, newTable, opts);
+  }
 
   constraintPairs
     .filter(x => x[0] && x[1])
