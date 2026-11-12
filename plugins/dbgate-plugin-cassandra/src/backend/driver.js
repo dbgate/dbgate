@@ -43,7 +43,7 @@ const driver = {
   ...driverBase,
   analyserClass: Analyser,
   // creating connection
-  async connect({ server, user, password, database, localDataCenter, useDatabaseUrl, databaseUrl }) {
+  async connect({ server, user, password, database, localDataCenter, useDatabaseUrl, databaseUrl, ssl }) {
     let credentials;
     
     if (user && password) {
@@ -58,6 +58,7 @@ const driver = {
       contactPoints: server.split(','),
       localDataCenter: localDataCenter ?? this.defaultLocalDataCenter,
       keyspace: database,
+      sslOptions: ssl,
     });
 
     client.connect();
