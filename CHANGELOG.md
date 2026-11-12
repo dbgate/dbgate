@@ -9,6 +9,10 @@ Builds:
 - linux - application for linux
 - win - application for Windows
 
+## 7.3.6
+
+- CHANGED: macOS application is now built on macOS 15
+
 ## 7.3.5
 
 - ADDED: Table editor can change the column order with drag and drop (MySQL, MariaDB, ClickHouse, Firebird)
