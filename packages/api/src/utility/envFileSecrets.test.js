@@ -78,6 +78,20 @@ describe('resolveEnvFileSecrets', () => {
     expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
   });
 
+  test('ignores standard path variables set by the OS or platform', () => {
+    // a CA bundle is larger than the 128 KiB a single environment variable may hold
+    const env = {
+      SSL_CERT_FILE: writeSecret('ca-bundle', 'CERT\n'.repeat(40000)),
+      AZURE_FEDERATED_TOKEN_FILE: writeSecret('azure-token', 'TOKEN'),
+      AWS_WEB_IDENTITY_TOKEN_FILE: writeSecret('aws-token', 'TOKEN'),
+      AWS_SHARED_CREDENTIALS_FILE: '/nonexistent',
+    };
+    const before = { ...env };
+    const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual(before);
+    expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
+  });
+
   test('path variables can still be provided via file with double suffix', () => {
     const env = { STORAGE_SSL_CA_FILE_FILE: writeSecret('capath', '/etc/ssl/ca.pem\n') };
     resolveEnvFileSecrets(env);
