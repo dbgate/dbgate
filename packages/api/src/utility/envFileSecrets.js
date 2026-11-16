@@ -21,6 +21,7 @@ const FILE_PATH_VARIABLES = new Set([
 
 // Larger files are not loaded: they are not secrets (eg. CA bundles) and would exceed the OS limit
 // for a single environment variable (128 KiB on Linux), making child process spawn fail with E2BIG.
+// Fails closed like an unreadable file: the reference is removed and the variable is reported as an error.
 const MAX_SECRET_FILE_SIZE = 64 * 1024;
 
 const FILE_SUFFIX = '_FILE';
@@ -29,15 +30,10 @@ const FILE_SUFFIX = '_FILE';
  * Resolves NAME_FILE environment variables into NAME.
  * @param {Record<string, string | undefined>} env - environment object, modified in place
  * @param {(path: string) => string} [readFile]
- * @returns {{
- *   loaded: string[],
- *   skipped: string[],
- *   errors: { name: string, error: string }[],
- *   tooLarge: { name: string, size: number }[],
- * }}
+ * @returns {{ loaded: string[], skipped: string[], errors: { name: string, error: string }[] }}
  */
 function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(filePath, { encoding: 'utf-8' })) {
-  const result = { loaded: [], skipped: [], errors: [], tooLarge: [] };
+  const result = { loaded: [], skipped: [], errors: [] };
 
   for (const fileVarName of Object.keys(env)) {
     if (!fileVarName.endsWith(FILE_SUFFIX) || fileVarName.length <= FILE_SUFFIX.length) continue;
@@ -66,9 +62,10 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
 
     const size = Buffer.byteLength(content, 'utf-8');
     if (size > MAX_SECRET_FILE_SIZE) {
-      // not a secret, leave env unchanged
-      env[fileVarName] = filePath;
-      result.tooLarge.push({ name: fileVarName, size });
+      result.errors.push({
+        name: fileVarName,
+        error: `File is too large (${size} bytes, max ${MAX_SECRET_FILE_SIZE} bytes)`,
+      });
       continue;
     }
 

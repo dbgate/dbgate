@@ -157,12 +157,6 @@ if (processArgs.listenApi) {
       'DBGM-00000 Environment variables set both directly and via *_FILE, using the direct value'
     );
   }
-  if (envFileSecrets.tooLarge.length > 0) {
-    logger.warn(
-      { variables: envFileSecrets.tooLarge.map(x => x.name) },
-      'DBGM-00000 Files referenced by *_FILE environment variables are too large to be secrets, variables left unchanged'
-    );
-  }
 
   if (process.env.DEBUG_PRINT_ENV_VARIABLES) {
     logger.info('DBGM-00027 Debug print environment variables:');
