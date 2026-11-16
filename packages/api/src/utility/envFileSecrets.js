@@ -27,12 +27,33 @@ const MAX_SECRET_FILE_SIZE = 64 * 1024;
 const FILE_SUFFIX = '_FILE';
 
 /**
+ * Reads at most MAX_SECRET_FILE_SIZE + 1 bytes, so a huge file or a device like /dev/zero cannot exhaust memory.
+ * @param {string} filePath
+ * @returns {Buffer}
+ */
+function readFileBounded(filePath) {
+  const buffer = Buffer.alloc(MAX_SECRET_FILE_SIZE + 1);
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    let total = 0;
+    while (total < buffer.length) {
+      const bytesRead = fs.readSync(fd, buffer, total, buffer.length - total, null);
+      if (bytesRead === 0) break;
+      total += bytesRead;
+    }
+    return buffer.subarray(0, total);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+/**
  * Resolves NAME_FILE environment variables into NAME.
  * @param {Record<string, string | undefined>} env - environment object, modified in place
- * @param {(path: string) => string} [readFile]
+ * @param {(path: string) => string | Buffer} [readFile] - returned content is measured before decoding as UTF-8
  * @returns {{ loaded: string[], skipped: string[], errors: { name: string, error: string }[] }}
  */
-function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(filePath, { encoding: 'utf-8' })) {
+function resolveEnvFileSecrets(env, readFile = readFileBounded) {
   const result = { loaded: [], skipped: [], errors: [] };
 
   for (const fileVarName of Object.keys(env)) {
@@ -60,17 +81,14 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
       continue;
     }
 
-    const size = Buffer.byteLength(content, 'utf-8');
+    const size = Buffer.isBuffer(content) ? content.length : Buffer.byteLength(content, 'utf-8');
     if (size > MAX_SECRET_FILE_SIZE) {
-      result.errors.push({
-        name: fileVarName,
-        error: `File is too large (${size} bytes, max ${MAX_SECRET_FILE_SIZE} bytes)`,
-      });
+      result.errors.push({ name: fileVarName, error: `File is too large (more than ${MAX_SECRET_FILE_SIZE} bytes)` });
       continue;
     }
 
     // strip a single trailing newline, usually added by editors and `echo`
-    env[name] = content.replace(/\r?\n$/, '');
+    env[name] = (Buffer.isBuffer(content) ? content.toString('utf-8') : content).replace(/\r?\n$/, '');
     result.loaded.push(name);
   }
 
