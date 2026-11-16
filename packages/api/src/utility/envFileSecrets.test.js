@@ -21,6 +21,7 @@ describe('resolveEnvFileSecrets', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
@@ -200,5 +201,29 @@ describe('resolveEnvFileSecrets', () => {
     const res = resolveEnvFileSecrets(env);
     expect(env).toEqual({ PASSWORD: '' });
     expectTooLargeError(res, 'PASSWORD_FILE');
+  });
+
+  (process.platform === 'win32' ? test.skip : test)(
+    'bounded read: /dev/zero is reported as too large',
+    () => {
+      const env = { FOO_FILE: '/dev/zero' };
+      const res = resolveEnvFileSecrets(env);
+      expect(env).toEqual({});
+      expectTooLargeError(res, 'FOO_FILE');
+    },
+    5000
+  );
+
+  test('bounded read: reads at most MAX_SECRET_FILE_SIZE + 1 bytes of a 5 MiB file', () => {
+    const filePath = writeSecret('big', Buffer.alloc(5 * 1024 * 1024, 'a'));
+    const readSpy = jest.spyOn(fs, 'readSync');
+    const env = { FOO_FILE: filePath };
+    const res = resolveEnvFileSecrets(env);
+    const totalRead = readSpy.mock.results.reduce((sum, r) => sum + (r.type === 'return' ? r.value : 0), 0);
+    expect(readSpy).toHaveBeenCalled();
+    expect(totalRead).toBeGreaterThan(65536);
+    expect(totalRead).toBeLessThanOrEqual(65536 + 1);
+    expect(env).toEqual({});
+    expectTooLargeError(res, 'FOO_FILE');
   });
 });
