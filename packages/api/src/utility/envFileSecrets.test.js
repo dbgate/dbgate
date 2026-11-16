@@ -85,7 +85,7 @@ describe('resolveEnvFileSecrets', () => {
     expect(env.STORAGE_SSL_CERT).toBeUndefined();
     expect(env.STORAGE_SSL_KEY).toBeUndefined();
     expect(env.CLOUD_UPGRADE).toBeUndefined();
-    expect(res).toEqual({ loaded: [], skipped: [], errors: [], tooLarge: [] });
+    expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
   });
 
   test('path variables can still be provided via file with double suffix', () => {
@@ -105,15 +105,14 @@ describe('resolveEnvFileSecrets', () => {
   test('ignores bare _FILE and empty values', () => {
     const env = { _FILE: '/x', PASSWORD_FILE: '' };
     const res = resolveEnvFileSecrets(env);
-    expect(res).toEqual({ loaded: [], skipped: [], errors: [], tooLarge: [] });
+    expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
     expect(env).toEqual({ _FILE: '/x' });
   });
 
-  test('result always contains empty tooLarge when nothing is too large', () => {
+  test('result has exactly loaded, skipped and errors keys', () => {
     const env = { PASSWORD_FILE: writeSecret('pwd', 'x'), SECRET_FILE: path.join(tmpDir, 'missing') };
-    const res = resolveEnvFileSecrets(env);
-    expect(res.tooLarge).toEqual([]);
-    expect(resolveEnvFileSecrets({}).tooLarge).toEqual([]);
+    expect(Object.keys(resolveEnvFileSecrets(env)).sort()).toEqual(['errors', 'loaded', 'skipped']);
+    expect(resolveEnvFileSecrets({})).toEqual({ loaded: [], skipped: [], errors: [] });
   });
 
   test.each(STANDARD_PATH_VARIABLES)('leaves standard path variable %s untouched', varName => {
@@ -122,7 +121,7 @@ describe('resolveEnvFileSecrets', () => {
     const res = resolveEnvFileSecrets(env);
     expect(env).toEqual(before);
     expect(env[varName.slice(0, -'_FILE'.length)]).toBeUndefined();
-    expect(res).toEqual({ loaded: [], skipped: [], errors: [], tooLarge: [] });
+    expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
   });
 
   test('leaves standard path variables untouched when file is missing or larger than 128 KiB', () => {
@@ -135,7 +134,7 @@ describe('resolveEnvFileSecrets', () => {
     const res = resolveEnvFileSecrets(env);
     expect(env).toEqual(before);
     expect(env.SSL_CERT).toBeUndefined();
-    expect(res).toEqual({ loaded: [], skipped: [], errors: [], tooLarge: [] });
+    expect(res).toEqual({ loaded: [], skipped: [], errors: [] });
   });
 
   test('MAX_SECRET_FILE_SIZE is exported and equals 64 KiB', () => {
@@ -149,20 +148,57 @@ describe('resolveEnvFileSecrets', () => {
     expect(env.FOO).toHaveLength(65536);
     expect(env.FOO).toBe(content);
     expect(env.FOO_FILE).toBeUndefined();
-    expect(res).toEqual({ loaded: ['FOO'], skipped: [], errors: [], tooLarge: [] });
+    expect(res).toEqual({ loaded: ['FOO'], skipped: [], errors: [] });
   });
+
+  function writeOversized(name, extra = 1) {
+    return writeSecret(name, 'a'.repeat(65536 + extra));
+  }
+
+  function expectTooLargeError(res, name) {
+    expect(res.loaded).toEqual([]);
+    expect(res.errors).toHaveLength(1);
+    expect(res.errors[0].name).toBe(name);
+    expect(res.errors[0].error).toMatch(/too large/i);
+  }
 
   test.each([
     ['one byte over the limit', 1],
     ['far over the limit', 200 * 1024],
-  ])('leaves env unchanged for file %s', (_label, extra) => {
-    const filePath = writeSecret('foo', 'a'.repeat(65536 + extra));
-    const env = { FOO_FILE: filePath };
+  ])('fails closed for file %s', (_label, extra) => {
+    const env = { FOO_FILE: writeOversized('foo', extra) };
     const res = resolveEnvFileSecrets(env);
-    expect(env).toEqual({ FOO_FILE: filePath });
-    expect(res.loaded).toEqual([]);
-    expect(res.errors).toEqual([]);
-    expect(res.tooLarge).toHaveLength(1);
-    expect(res.tooLarge[0].name).toBe('FOO_FILE');
+    expect(env).toEqual({});
+    expectTooLargeError(res, 'FOO_FILE');
+  });
+
+  test('oversized PASSWORD_FILE is removed and reported', () => {
+    const env = { LOGIN: 'admin', PASSWORD_FILE: writeOversized('pwd') };
+    const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual({ LOGIN: 'admin' });
+    expectTooLargeError(res, 'PASSWORD_FILE');
+  });
+
+  test('oversized LOGIN_PASSWORD_admin_FILE leaves neither reference nor value in env', () => {
+    const env = { LOGIN_PASSWORD_admin_FILE: writeOversized('admin') };
+    const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual({});
+    expect('LOGIN_PASSWORD_admin_FILE' in env).toBe(false);
+    expect('LOGIN_PASSWORD_admin' in env).toBe(false);
+    expectTooLargeError(res, 'LOGIN_PASSWORD_admin_FILE');
+  });
+
+  test('oversized file with non-empty direct value is skipped without error', () => {
+    const env = { PASSWORD: 'direct', PASSWORD_FILE: writeOversized('pwd') };
+    const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual({ PASSWORD: 'direct' });
+    expect(res).toEqual({ loaded: [], skipped: ['PASSWORD'], errors: [] });
+  });
+
+  test('oversized file with empty direct value keeps empty value and reports error', () => {
+    const env = { PASSWORD: '', PASSWORD_FILE: writeOversized('pwd') };
+    const res = resolveEnvFileSecrets(env);
+    expect(env).toEqual({ PASSWORD: '' });
+    expectTooLargeError(res, 'PASSWORD_FILE');
   });
 });
