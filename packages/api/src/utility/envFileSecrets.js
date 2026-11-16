@@ -9,7 +9,19 @@ const FILE_PATH_VARIABLES = new Set([
   'STORAGE_SSL_CA_FILE',
   'STORAGE_SSL_CERT_FILE',
   'STORAGE_SSL_KEY_FILE',
+  // standard OS/platform/SDK variables holding a file path, not a secret
+  'SSL_CERT_FILE',
+  'NIX_SSL_CERT_FILE',
+  'AWS_CONFIG_FILE',
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_WEB_IDENTITY_TOKEN_FILE',
+  'AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE',
+  'AZURE_FEDERATED_TOKEN_FILE',
 ]);
+
+// Larger files are not loaded: they are not secrets (eg. CA bundles) and would exceed the OS limit
+// for a single environment variable (128 KiB on Linux), making child process spawn fail with E2BIG.
+const MAX_SECRET_FILE_SIZE = 64 * 1024;
 
 const FILE_SUFFIX = '_FILE';
 
@@ -17,10 +29,15 @@ const FILE_SUFFIX = '_FILE';
  * Resolves NAME_FILE environment variables into NAME.
  * @param {Record<string, string | undefined>} env - environment object, modified in place
  * @param {(path: string) => string} [readFile]
- * @returns {{ loaded: string[], skipped: string[], errors: { name: string, error: string }[] }}
+ * @returns {{
+ *   loaded: string[],
+ *   skipped: string[],
+ *   errors: { name: string, error: string }[],
+ *   tooLarge: { name: string, size: number }[],
+ * }}
  */
 function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(filePath, { encoding: 'utf-8' })) {
-  const result = { loaded: [], skipped: [], errors: [] };
+  const result = { loaded: [], skipped: [], errors: [], tooLarge: [] };
 
   for (const fileVarName of Object.keys(env)) {
     if (!fileVarName.endsWith(FILE_SUFFIX) || fileVarName.length <= FILE_SUFFIX.length) continue;
@@ -39,13 +56,25 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
       continue;
     }
 
+    let content;
     try {
-      // strip a single trailing newline, usually added by editors and `echo`
-      env[name] = readFile(filePath).replace(/\r?\n$/, '');
-      result.loaded.push(name);
+      content = readFile(filePath);
     } catch (err) {
       result.errors.push({ name: fileVarName, error: err.message });
+      continue;
     }
+
+    const size = Buffer.byteLength(content, 'utf-8');
+    if (size > MAX_SECRET_FILE_SIZE) {
+      // not a secret, leave env unchanged
+      env[fileVarName] = filePath;
+      result.tooLarge.push({ name: fileVarName, size });
+      continue;
+    }
+
+    // strip a single trailing newline, usually added by editors and `echo`
+    env[name] = content.replace(/\r?\n$/, '');
+    result.loaded.push(name);
   }
 
   return result;
@@ -54,4 +83,5 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
 module.exports = {
   resolveEnvFileSecrets,
   FILE_PATH_VARIABLES,
+  MAX_SECRET_FILE_SIZE,
 };
