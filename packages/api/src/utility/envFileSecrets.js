@@ -9,6 +9,14 @@ const FILE_PATH_VARIABLES = new Set([
   'STORAGE_SSL_CA_FILE',
   'STORAGE_SSL_CERT_FILE',
   'STORAGE_SSL_KEY_FILE',
+  // Standard variables set by the OS, container platform or cloud SDKs: they hold a path, not a secret
+  'SSL_CERT_FILE',
+  'NIX_SSL_CERT_FILE',
+  'AWS_CONFIG_FILE',
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_WEB_IDENTITY_TOKEN_FILE',
+  'AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE',
+  'AZURE_FEDERATED_TOKEN_FILE',
 ]);
 
 const FILE_SUFFIX = '_FILE';
