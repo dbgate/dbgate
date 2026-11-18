@@ -9,17 +9,51 @@ const FILE_PATH_VARIABLES = new Set([
   'STORAGE_SSL_CA_FILE',
   'STORAGE_SSL_CERT_FILE',
   'STORAGE_SSL_KEY_FILE',
+  // standard OS/platform/SDK variables holding a file path, not a secret
+  'SSL_CERT_FILE',
+  'NIX_SSL_CERT_FILE',
+  'AWS_CONFIG_FILE',
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_WEB_IDENTITY_TOKEN_FILE',
+  'AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE',
+  'AZURE_FEDERATED_TOKEN_FILE',
 ]);
+
+// Larger files are not loaded: they are not secrets (eg. CA bundles) and would exceed the OS limit
+// for a single environment variable (128 KiB on Linux), making child process spawn fail with E2BIG.
+// Fails closed like an unreadable file: the reference is removed and the variable is reported as an error.
+const MAX_SECRET_FILE_SIZE = 64 * 1024;
 
 const FILE_SUFFIX = '_FILE';
 
 /**
+ * Reads at most MAX_SECRET_FILE_SIZE + 1 bytes, so a huge file or a device like /dev/zero cannot exhaust memory.
+ * @param {string} filePath
+ * @returns {Buffer}
+ */
+function readFileBounded(filePath) {
+  const buffer = Buffer.alloc(MAX_SECRET_FILE_SIZE + 1);
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    let total = 0;
+    while (total < buffer.length) {
+      const bytesRead = fs.readSync(fd, buffer, total, buffer.length - total, null);
+      if (bytesRead === 0) break;
+      total += bytesRead;
+    }
+    return buffer.subarray(0, total);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+/**
  * Resolves NAME_FILE environment variables into NAME.
  * @param {Record<string, string | undefined>} env - environment object, modified in place
- * @param {(path: string) => string} [readFile]
+ * @param {(path: string) => string | Buffer} [readFile] - returned content is measured before decoding as UTF-8
  * @returns {{ loaded: string[], skipped: string[], errors: { name: string, error: string }[] }}
  */
-function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(filePath, { encoding: 'utf-8' })) {
+function resolveEnvFileSecrets(env, readFile = readFileBounded) {
   const result = { loaded: [], skipped: [], errors: [] };
 
   for (const fileVarName of Object.keys(env)) {
@@ -39,13 +73,23 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
       continue;
     }
 
+    let content;
     try {
-      // strip a single trailing newline, usually added by editors and `echo`
-      env[name] = readFile(filePath).replace(/\r?\n$/, '');
-      result.loaded.push(name);
+      content = readFile(filePath);
     } catch (err) {
       result.errors.push({ name: fileVarName, error: err.message });
+      continue;
     }
+
+    const size = Buffer.isBuffer(content) ? content.length : Buffer.byteLength(content, 'utf-8');
+    if (size > MAX_SECRET_FILE_SIZE) {
+      result.errors.push({ name: fileVarName, error: `File is too large (more than ${MAX_SECRET_FILE_SIZE} bytes)` });
+      continue;
+    }
+
+    // strip a single trailing newline, usually added by editors and `echo`
+    env[name] = (Buffer.isBuffer(content) ? content.toString('utf-8') : content).replace(/\r?\n$/, '');
+    result.loaded.push(name);
   }
 
   return result;
@@ -54,4 +98,5 @@ function resolveEnvFileSecrets(env, readFile = filePath => fs.readFileSync(fileP
 module.exports = {
   resolveEnvFileSecrets,
   FILE_PATH_VARIABLES,
+  MAX_SECRET_FILE_SIZE,
 };
