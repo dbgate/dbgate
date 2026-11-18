@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const { createLineStream } = require('../utility/lineStream');
 const socket = require('../utility/socket');
+const { keepInUse } = require('../utility/cleanDirectory');
 const { fork, spawn } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const {
@@ -174,6 +175,7 @@ module.exports = {
         },
       }
     );
+    const stopKeepInUse = keepInUse([directory, scriptFile]);
     const pipeDispatcher = severity => data => {
       const json = safeJsonParse(data, null);
 
@@ -192,11 +194,13 @@ module.exports = {
     subprocess.on('exit', code => {
       // console.log('... EXITED', code);
       this.rejectRequest(runid, { message: 'DBGM-00281 No data returned, maybe input data source is too big' });
+      stopKeepInUse();
       logger.info({ code, pid: subprocess.pid }, 'DBGM-00016 Exited process');
       socket.emitOwned(socket.runnerOwnerKey(runid), `runner-done-${runid}`, code);
       this.opened = this.opened.filter(x => x.runid != runid);
     });
     subprocess.on('error', error => {
+      stopKeepInUse();
       // console.log('... ERROR subprocess', error);
       this.rejectRequest(runid, { message: error && (error.message || error.toString()) });
       console.error('... ERROR subprocess', error);
