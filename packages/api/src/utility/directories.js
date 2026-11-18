@@ -11,11 +11,22 @@ const { getLogger, assertValidPluginPackageName } = require('dbgate-tools');
 let logsFilePath;
 
 const createDirectories = {};
+const CLEAN_INTERVAL_MS = 10 * 60 * 1000;
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
     if (clean && fs.existsSync(dir) && !platformInfo.isForkedApi) {
       getLogger('directories').info(`DBGM-00170 Cleaning directory ${dir}`);
       cleanDirectory(dir, _.isNumber(clean) ? clean : null);
+    }
+    if (clean && !platformInfo.isForkedApi) {
+      // the web server can run for weeks, so the directory is swept regularly, not only at startup
+      const timer = setInterval(() => {
+        if (!fs.existsSync(dir)) return;
+        cleanDirectory(dir, _.isNumber(clean) ? clean : null).catch(err => {
+          getLogger('directories').error({ err }, `DBGM-00000 Error cleaning directory ${dir}`);
+        });
+      }, CLEAN_INTERVAL_MS);
+      timer.unref();
     }
     if (!fs.existsSync(dir)) {
       getLogger('directories').info(`DBGM-00171 Creating directory ${dir}`);
