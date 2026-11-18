@@ -75,11 +75,12 @@
   $: generatePreview($valuesStore, $checkedObjectsStore);
 
   $: objectList = _.flatten(
-    ['tables', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents'].map(objectTypeField =>
-      _.sortBy(
-        (($dbinfo || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
-        ['schemaName', 'pureName']
-      )
+    ['tables', 'views', 'matviews', 'procedures', 'functions', 'triggers', 'schedulerEvents', 'userDefinedTypes'].map(
+      objectTypeField =>
+        _.sortBy(
+          (($dbinfo || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
+          ['schemaName', 'pureName']
+        )
     )
   );
 

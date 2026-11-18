@@ -181,6 +181,26 @@ export interface SchedulerEventInfo extends SqlObjectInfo {
   executeAt: string;
 }
 
+export type UserDefinedTypeKind = 'enum' | 'composite' | 'domain' | 'range';
+
+export interface UserDefinedTypeAttributeInfo {
+  columnName: string;
+  dataType: string;
+}
+
+export interface UserDefinedTypeInfo extends SqlObjectInfo {
+  typeKind?: UserDefinedTypeKind;
+
+  // for enum types
+  enumValues?: string[];
+
+  // for composite types
+  attributes?: UserDefinedTypeAttributeInfo[];
+
+  // for domain and range types
+  baseType?: string;
+}
+
 export interface SchemaInfo {
   objectId?: string;
   schemaName: string;
@@ -196,6 +216,7 @@ export interface DatabaseInfoObjects {
   functions: FunctionInfo[];
   triggers: TriggerInfo[];
   schedulerEvents: SchedulerEventInfo[];
+  userDefinedTypes: UserDefinedTypeInfo[];
 }
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
