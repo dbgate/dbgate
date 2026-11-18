@@ -101,6 +101,7 @@ DbGate is licensed under GPL-3.0 license and is free to use for any purpose.
 <a href="https://railway.com/deploy/dbgate"><img src="https://railway.com/button.svg" alt="Deploy on Railway" height="42"></a>
 <a href="https://elest.io/open-source/dbgate"><img src="https://elest.io/images/logos/deploy-to-elestio-btn.png" alt="Deploy on Elestio" height="42"></a>
 <a href="https://template.sealos.io/deploy?templateName=dbgate"><img src="https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg" alt="Deploy on Sealos" height="42"></a>
+<a href="https://zop.dev/zopday/app/deploy?image=dbgate/dbgate&port=3000&name=dbgate&utm_source=github&utm_medium=one_click&utm_content=dbgate"><img src="https://zop.dev/deploytozopday-inkhard.svg" alt="Deploy to ZopDay" height="42"></a>
 
 ## How to contribute
 
