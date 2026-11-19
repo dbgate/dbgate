@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.8",
+    "jest": "^30.5.2",
     "webpack": "^5.111.1",
     "webpack-cli": "^7.2.3"
   },
