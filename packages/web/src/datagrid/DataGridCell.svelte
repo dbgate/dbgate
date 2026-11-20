@@ -14,6 +14,7 @@
   export let allowHintField = false;
   export let maxWidth = null;
   export let minWidth = null;
+  export let rowHeight = null;
 
   export let isSelected = false;
   export let isFrameSelected = false;
@@ -58,6 +59,7 @@
   }
 
   $: style = computeStyle(maxWidth, col);
+  $: fixedHeightContentStyle = rowHeight > 0 ? `height:${rowHeight}px; line-height:${rowHeight}px;` : undefined;
 
   $: isJson =
     _.isPlainObject(value) &&
@@ -90,83 +92,90 @@
   class:isMissingOverlayField
   class:isStickyLeft={col.stickyLeft != null}
   class:alignRight={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && !isModifiedCell}
+  class:fixedHeight={rowHeight > 0}
   {style}
 >
-  {#if hasOverlayValue}
-    <div class="flex1 flex">
-      <div class="replacedValue overlayCell overlayCell1">
-        <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
+  <div
+    class="cellContent"
+    class:fixedHeightContent={rowHeight > 0}
+    style={fixedHeightContentStyle}
+  >
+    {#if hasOverlayValue}
+      <div class="flex1 flex">
+        <div class="replacedValue overlayCell overlayCell1">
+          <CellValue {rowData} {value} {jsonParsedValue} {editorTypes} />
+        </div>
+        <div class="overlayCell overlayCell2">
+          <CellValue {rowData} value={overlayValue} {editorTypes} />
+        </div>
       </div>
-      <div class="overlayCell overlayCell2">
-        <CellValue {rowData} value={overlayValue} {editorTypes} />
-      </div>
-    </div>
-  {:else}
-    <CellValue
-      {rowData}
-      {value}
-      {jsonParsedValue}
-      {editorTypes}
-      rightMargin={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
-    />
-    {#if showHint}
-      <span class="hint"
-        >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
-      >
-    {/if}
+    {:else}
+      <CellValue
+        {rowData}
+        {value}
+        {jsonParsedValue}
+        {editorTypes}
+        rightMargin={(_.isNumber(value) || isTypeNumber(col.dataType)) && !showHint && (editorTypes?.explicitDataType || col.foreignKey)}
+      />
+      {#if showHint}
+        <span class="hint"
+          >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
+        >
+      {/if}
 
-    {#if editorTypes?.explicitDataType}
-      {#if value !== undefined}
-        <ShowFormDropDownButton
-          icon={detectTypeIcon(value)}
-          menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
-        />
-      {/if}
-      {#if _.isPlainObject(value)}
-        <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
-      {/if}
-      {#if _.isArray(value)}
+      {#if editorTypes?.explicitDataType}
+        {#if value !== undefined}
+          <ShowFormDropDownButton
+            icon={detectTypeIcon(value)}
+            menu={() => getConvertValueMenu(value, onSetValue, editorTypes)}
+          />
+        {/if}
+        {#if _.isPlainObject(value)}
+          <ShowFormButton secondary icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+        {/if}
+        {#if _.isArray(value)}
+          <ShowFormButton
+            secondary
+            icon="icon open-in-new"
+            on:click={() => {
+              if (_.every(value, x => _.isPlainObject(x))) {
+                openJsonLinesData(value);
+              } else {
+                openJsonDocument(value, undefined, true);
+              }
+            }}
+          />
+        {/if}
+      {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
+        <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
+      {:else if col.foreignKey && isCurrentCell && onDictionaryLookup && !isReadonly}
+        <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
+      {:else if isJson}
+        <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
+      {:else if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
+        <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
+      {:else if _.isArray(jsonParsedValue || value)}
         <ShowFormButton
-          secondary
           icon="icon open-in-new"
           on:click={() => {
-            if (_.every(value, x => _.isPlainObject(x))) {
-              openJsonLinesData(value);
+            if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
+              openJsonLinesData(jsonParsedValue || value);
             } else {
-              openJsonDocument(value, undefined, true);
+              openJsonDocument(jsonParsedValue || value, undefined, true);
             }
           }}
         />
       {/if}
-    {:else if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
-      <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
-    {:else if col.foreignKey && isCurrentCell && onDictionaryLookup && !isReadonly}
-      <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
-    {:else if isJson}
-      <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
-    {:else if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
-      <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
-    {:else if _.isArray(jsonParsedValue || value)}
-      <ShowFormButton
-        icon="icon open-in-new"
-        on:click={() => {
-          if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
-            openJsonLinesData(jsonParsedValue || value);
-          } else {
-            openJsonDocument(jsonParsedValue || value, undefined, true);
-          }
-        }}
-      />
-    {/if}
 
-    {#if isAutoFillMarker}
-      <div class="autoFillMarker autofillHandleMarker" />
-    {/if}
+      {#if isAutoFillMarker}
+        <div class="autoFillMarker autofillHandleMarker" />
+      {/if}
 
-    {#if showSlot}
-      <slot />
+      {#if showSlot}
+        <slot />
+      {/if}
     {/if}
-  {/if}
+  </div>
 </td>
 
 <!-- {#if _.isArray(value.data)}
@@ -189,6 +198,20 @@
     white-space: nowrap;
     position: relative;
     overflow: hidden;
+  }
+  td.fixedHeight {
+    padding: 0;
+  }
+  .cellContent {
+    display: contents;
+  }
+  .cellContent.fixedHeightContent {
+    box-sizing: border-box;
+    display: block;
+    overflow: hidden;
+    padding: 0 2px;
+    position: relative;
+    white-space: nowrap;
   }
   td.isStickyLeft {
     background: var(--theme-datagrid-headercell-background);

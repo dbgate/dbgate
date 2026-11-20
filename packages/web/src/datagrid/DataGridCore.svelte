@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import { __t } from '../translations';
   const HORIZONTAL_SCROLL_END_PADDING = 64;
+  const HORIZONTAL_SCROLLBAR_HEIGHT = 16;
   const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
   const getDataGridUsage = (action: string, value?: number) => ({
     feature: 'data_grid',
@@ -1349,7 +1350,7 @@
 
   $: headerColWidth = 40;
 
-  $: gridScrollAreaHeight = containerHeight - 2 * rowHeight;
+  $: gridScrollAreaHeight = containerHeight - (display?.filterable ? 2 : 1) * rowHeight - HORIZONTAL_SCROLLBAR_HEIGHT;
   $: gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
   $: visibleRowCountUpperBound =
@@ -2722,7 +2723,7 @@
     left: 0;
     top: 0;
     right: 0;
-    bottom: 20px;
+    bottom: 16px;
     overflow-x: scroll;
     overflow-y: hidden;
     scrollbar-width: none;
