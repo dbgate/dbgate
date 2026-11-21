@@ -20,6 +20,7 @@
   let optionsData;
   let isOptionsHidden = inplaceEditorState.isOptionsHidden ?? false;
   let valueEl;
+  let optionsEl;
   let dropdownStyle = '';
 
   onMount(() => {
@@ -41,6 +42,8 @@
     });
 
     tick().then(() => {
+      // top layer: a scrolled grid has transform on <tbody>, making it the containing block of position:fixed
+      optionsEl?.showPopover?.();
       if (!isOptionsHidden) {
         positionDropdown();
         addPositionListeners();
@@ -139,7 +142,7 @@
     </div>
   {/if}
 
-  <div class="options" class:hidden={isOptionsHidden} style={dropdownStyle}>
+  <div class="options" class:hidden={isOptionsHidden} style={dropdownStyle} popover="manual" bind:this={optionsEl}>
     {#each optionsData ?? [] as option}
       <label>
         <input
@@ -157,6 +160,10 @@
 <style>
   .options {
     position: fixed;
+    /* reset browser defaults of [popover] */
+    inset: auto;
+    border: none;
+    color: inherit;
     z-index: 1000;
     list-style: none;
     margin: 0;
