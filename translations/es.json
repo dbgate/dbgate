@@ -61,6 +61,7 @@
   "clipboard.copyCSV": "Copiar como CSV",
   "clipboard.copyJSON": "Copiar como JSON",
   "clipboard.copyJSONLines": "Copiar como líneas JSON/NDJSON",
+  "clipboard.copyMarkdown": "Copiar como tabla Markdown",
   "clipboard.copyMongoInsert": "Copiar como Mongo INSERTs",
   "clipboard.copyOnlyHeadres": "Copiar solo encabezados",
   "clipboard.copySQLInsert": "Copiar como SQL INSERTs",

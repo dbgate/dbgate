@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { arrayToHexString, stringifyCellValue } from 'dbgate-tools';
+import { arrayToHexString, formatMarkdownTable, stringifyCellValue } from 'dbgate-tools';
 import yaml from 'js-yaml';
 import type { DataEditorTypesBehaviour } from 'dbgate-types';
 import { __t, _t } from '../translations'
@@ -108,6 +108,10 @@ const clipboardYamlFormatter = () => (columns, rows) => {
   return yaml.dump(rows.map(row => _.omitBy(_.pick(row, columns), _.isUndefined)));
 };
 
+const clipboardMarkdownFormatter = () => (columns, rows, options) => {
+  return formatMarkdownTable(columns, rows, (row, col) => extractRowCopiedValue(row, col, options?.editorTypes));
+};
+
 const clipboardJsonLinesFormatter = () => (columns, rows) => {
   return rows.map(row => JSON.stringify(_.omitBy(_.pick(row, columns), _.isUndefined))).join('\r\n');
 };
@@ -195,6 +199,11 @@ export const copyRowsFormatDefs = {
     label: __t('clipboard.copyYAML', { defaultMessage : 'Copy as YAML'}),
     name: 'YAML',
     formatter: clipboardYamlFormatter(),
+  },
+  markdown: {
+    label: __t('clipboard.copyMarkdown', { defaultMessage : 'Copy as Markdown table'}),
+    name: 'Markdown',
+    formatter: clipboardMarkdownFormatter(),
   },
   inserts: {
     label: __t('clipboard.copySQLInsert', { defaultMessage : 'Copy as SQL INSERTs'}),

@@ -61,6 +61,7 @@
   "clipboard.copyCSV": "CSV로 복사",
   "clipboard.copyJSON": "JSON으로 복사",
   "clipboard.copyJSONLines": "JSON Lines/NDJSON으로 복사",
+  "clipboard.copyMarkdown": "Markdown 표로 복사",
   "clipboard.copyMongoInsert": "Mongo INSERT로 복사",
   "clipboard.copyOnlyHeadres": "헤더만 복사",
   "clipboard.copySQLInsert": "SQL INSERT로 복사",
