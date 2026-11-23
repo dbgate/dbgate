@@ -77,6 +77,16 @@ describe('lineStream', () => {
       ]);
     });
 
+    test('lone \\r at end of chunk followed by chunk not starting with \\n splits lines', async () => {
+      expect(await collectLines(['a\r', 'b'])).toEqual(['a', 'b']);
+      expect(await collectLines([Buffer.from('a\r'), Buffer.from('b')])).toEqual(['a', 'b']);
+    });
+
+    test('lone \\r at end of chunk followed by chunk not starting with \\n splits lines (keepEmptyLines)', async () => {
+      expect(await collectLines(['a\r', 'b'], { keepEmptyLines: true })).toEqual(['a', 'b']);
+      expect(await collectLines([Buffer.from('a\r'), Buffer.from('b')], { keepEmptyLines: true })).toEqual(['a', 'b']);
+    });
+
     test('line split across chunks is joined', async () => {
       expect(await collectLines(['ab', 'c\nd', 'e'])).toEqual(['abc', 'de']);
     });
