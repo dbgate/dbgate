@@ -3,6 +3,9 @@ export function escapeMarkdownTableCell(value: string): string {
   return String(value)
     .replace(/\\/g, '\\\\')
     .replace(/\|/g, '\\|')
+    // prevent literal HTML tags and entities from being rendered as markup
+    .replace(/</g, '\\<')
+    .replace(/&(?=#?\w+;)/g, '\\&')
     .replace(/\r\n|\n|\r/g, '<br>');
 }
 

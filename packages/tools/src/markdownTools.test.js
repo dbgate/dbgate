@@ -46,7 +46,22 @@ describe('escapeMarkdownTableCell', () => {
   test('AC4: plain text is unchanged', () => {
     expect(escapeMarkdownTableCell('hello world')).toBe('hello world');
     expect(escapeMarkdownTableCell('')).toBe('');
-    expect(escapeMarkdownTableCell('<b>&amp;</b>')).toBe('<b>&amp;</b>');
+  });
+
+  test('AC4: HTML tags and entities are escaped so they are not rendered', () => {
+    expect(escapeMarkdownTableCell('<b>&amp;</b>')).toBe(String.raw`\<b>\&amp;\</b>`);
+    expect(escapeMarkdownTableCell('a<br>b')).toBe(String.raw`a\<br>b`);
+    expect(escapeMarkdownTableCell('&#123; &#x41; &nbsp;')).toBe(String.raw`\&#123; \&#x41; \&nbsp;`);
+  });
+
+  test('AC4: literal <br> differs from a real newline', () => {
+    expect(escapeMarkdownTableCell('a<br>b')).not.toBe(escapeMarkdownTableCell('a\nb'));
+  });
+
+  test('AC4: & not forming an entity and > are left unchanged', () => {
+    expect(escapeMarkdownTableCell('?a=1&b=2')).toBe('?a=1&b=2');
+    expect(escapeMarkdownTableCell('a & b')).toBe('a & b');
+    expect(escapeMarkdownTableCell('a > b')).toBe('a > b');
   });
 });
 
@@ -103,7 +118,7 @@ describe('formatMarkdownTable', () => {
       { n: 2.5, s: 'y' },
     ];
     const result = formatMarkdownTable(['n', 's'], rows, getCellText);
-    expect(result).toBe(['| n | s |', '| --- | --- |', '| 1.00 | <x> |', '| 2.50 | <y> |'].join('\r\n'));
+    expect(result).toBe(['| n | s |', '| --- | --- |', String.raw`| 1.00 | \<x> |`, String.raw`| 2.50 | \<y> |`].join('\r\n'));
     expect(calls).toEqual([
       [rows[0], 'n'],
       [rows[0], 's'],
