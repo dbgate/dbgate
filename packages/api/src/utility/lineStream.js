@@ -4,8 +4,10 @@ const { StringDecoder } = require('string_decoder');
 // Replacement for the deprecated 'byline' package (https://github.com/jahewson/node-byline),
 // originally (C) 2011-2015 John Hewson, MIT licensed.
 
-// see: http://www.unicode.org/reports/tr18/#Line_Boundaries
-const LINE_BOUNDARY_REGEX = new RegExp('\\r\\n|[\\n\\v\\f\\r\\x85\\u2028\\u2029]');
+// split only on \r\n, \n and \r (same as Node readline). Other Unicode line terminators
+// (\v, \f, U+0085, U+2028, U+2029) stay inside the line - JSON.stringify writes U+0085, U+2028
+// and U+2029 unescaped, so splitting on them would break JSONL rows
+const LINE_BOUNDARY_REGEX = /\r\n|[\n\r]/;
 
 class LineStream extends stream.Transform {
   constructor(options = {}) {
