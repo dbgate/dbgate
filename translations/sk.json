@@ -61,6 +61,7 @@
   "clipboard.copyCSV": "Kopírovať ako CSV",
   "clipboard.copyJSON": "Kopírovať ako JSON",
   "clipboard.copyJSONLines": "Kopírovať ako JSON riadky/NDJSON",
+  "clipboard.copyMarkdown": "Kopírovať ako Markdown tabuľku",
   "clipboard.copyMongoInsert": "Kopírovať ako Mongo INSERT príkazy",
   "clipboard.copyOnlyHeadres": "Kopírovať iba hlavičky",
   "clipboard.copySQLInsert": "Kopírovať ako SQL INSERT príkazy",

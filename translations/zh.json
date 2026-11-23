@@ -61,6 +61,7 @@
   "clipboard.copyCSV": "复制为 CSV",
   "clipboard.copyJSON": "复制为 JSON",
   "clipboard.copyJSONLines": "复制为 JSON 行/NDJSON",
+  "clipboard.copyMarkdown": "复制为 Markdown 表格",
   "clipboard.copyMongoInsert": "复制为 Mongo INSERT 语句",
   "clipboard.copyOnlyHeadres": "仅复制标题",
   "clipboard.copySQLInsert": "复制为 SQL INSERT 语句",

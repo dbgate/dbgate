@@ -61,6 +61,7 @@
   "clipboard.copyCSV": "CSVとしてコピー",
   "clipboard.copyJSON": "JSONとしてコピー",
   "clipboard.copyJSONLines": "JSON lines/NDJSONとしてコピー",
+  "clipboard.copyMarkdown": "Markdownテーブルとしてコピー",
   "clipboard.copyMongoInsert": "Mongo INSERT文としてコピー",
   "clipboard.copyOnlyHeadres": "ヘッダーのみコピー",
   "clipboard.copySQLInsert": "SQL INSERT文としてコピー",
