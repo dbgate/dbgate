@@ -571,7 +571,7 @@
 {#if driver?.showConnectionField('enableCleartextPlugin', $values, showConnectionFieldArgs)}
   <FormCheckboxField
     label={_t('connection.enableCleartextPlugin', {
-      defaultMessage: 'Enable cleartext password plugin (needed for PAM/LDAP auth)',
+      defaultMessage: 'Enable cleartext password plugin (needed for PAM/LDAP auth, use only with SSL)',
     })}
     name="enableCleartextPlugin"
     disabled={isConnected || isFormReadOnly}

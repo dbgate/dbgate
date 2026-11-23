@@ -585,6 +585,7 @@
   "connection.dockerWarning": "Docker 환경에서는 localhost와 127.0.0.1이 동작하지 않습니다. 대신 dockerhost를 사용하세요",
   "connection.duplicate": "복제",
   "connection.edit": "편집",
+  "connection.enableCleartextPlugin": "평문 비밀번호 플러그인 사용 (PAM/LDAP 인증에 필요, SSL에서만 사용)",
   "connection.endpointKey": "키",
   "connection.engine": "데이터베이스 엔진",
   "connection.engineDriverNotFound": "엔진 드라이버 {engine}을(를) 찾을 수 없습니다. 설치된 플러그인을 확인하고 연결 편집 대화상자에서 엔진을 변경하세요",

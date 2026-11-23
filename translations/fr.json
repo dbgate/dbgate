@@ -585,6 +585,7 @@
   "connection.dockerWarning": "Sous docker, localhost et 127.0.0.1 ne fonctionneront pas, utilisez dockerhost à la place",
   "connection.duplicate": "Dupliquer",
   "connection.edit": "Modifier",
+  "connection.enableCleartextPlugin": "Activer le plugin de mot de passe en clair (nécessaire pour l'authentification PAM/LDAP, à utiliser uniquement avec SSL)",
   "connection.endpointKey": "Clé",
   "connection.engine": "Moteur de base de données",
   "connection.engineDriverNotFound": "Pilote du moteur {engine} introuvable, vérifiez les plugins installés et modifiez le moteur dans la boîte de dialogue de modification de connexion",

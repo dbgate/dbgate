@@ -590,6 +590,7 @@
   "connection.dockerWarning": "Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead",
   "connection.duplicate": "Duplicate",
   "connection.edit": "Edit",
+  "connection.enableCleartextPlugin": "Enable cleartext password plugin (needed for PAM/LDAP auth, use only with SSL)",
   "connection.endpointKey": "Key",
   "connection.engine": "Database engine",
   "connection.engineDriverNotFound": "Engine driver {engine} not found, review installed plugins and change engine in edit connection dialog",

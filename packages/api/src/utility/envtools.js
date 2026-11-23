@@ -95,6 +95,7 @@ function extractImportEntitiesFromEnv(env) {
     useSshTunnel: conn.useSshTunnel ? 1 : 0,
     useSsl: conn.useSsl ? 1 : 0,
     sslRejectUnauthorized: conn.sslRejectUnauthorized ? 1 : 0,
+    enableCleartextPlugin: conn.enableCleartextPlugin ? 1 : 0,
   }));
 
   const connectionEnvIdToDbId = {};

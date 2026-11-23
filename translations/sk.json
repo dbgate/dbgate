@@ -585,6 +585,7 @@
   "connection.dockerWarning": "V Dockeri localhost a 127.0.0.1 nefungujú, použite namiesto toho dockerhost",
   "connection.duplicate": "Duplikovať",
   "connection.edit": "Upraviť",
+  "connection.enableCleartextPlugin": "Povoliť plugin pre nešifrované heslo (potrebné pre PAM/LDAP prihlásenie, používajte iba s SSL)",
   "connection.endpointKey": "Kľúč",
   "connection.engine": "Typ databázy",
   "connection.engineDriverNotFound": "Driver databázy {engine} nebol nájdený, skontrolujte nainštalované pluginy a zmeňte typ databázy v dialógu úpravy pripojenia",

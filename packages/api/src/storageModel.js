@@ -722,6 +722,12 @@ module.exports = {
           "columnName": "defaultIsolationLevel",
           "dataType": "varchar(250)",
           "notNull": false
+        },
+        {
+          "pureName": "connections",
+          "columnName": "enableCleartextPlugin",
+          "dataType": "int",
+          "notNull": false
         }
       ],
       "foreignKeys": [

@@ -585,6 +585,7 @@
   "connection.dockerWarning": "Unter Docker funktionieren localhost und 127.0.0.1 nicht, verwenden Sie stattdessen dockerhost",
   "connection.duplicate": "Duplizieren",
   "connection.edit": "Bearbeiten",
+  "connection.enableCleartextPlugin": "Klartext-Passwort-Plugin aktivieren (erforderlich für PAM/LDAP-Authentifizierung, nur mit SSL verwenden)",
   "connection.endpointKey": "Schlüssel",
   "connection.engine": "Datenbank-Engine",
   "connection.engineDriverNotFound": "Engine-Treiber {engine} nicht gefunden, überprüfen Sie installierte Plugins und ändern Sie die Engine im Verbindungsbearbeitungsdialog",

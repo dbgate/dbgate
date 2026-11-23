@@ -585,6 +585,7 @@
   "connection.dockerWarning": "Docker内ではlocalhostと1270.0.1は機能しません。代わりにdockerhostを使用してください",
   "connection.duplicate": "複製",
   "connection.edit": "編集",
+  "connection.enableCleartextPlugin": "クリアテキストパスワードプラグインを有効にする（PAM/LDAP認証に必要、SSLでのみ使用）",
   "connection.endpointKey": "キー",
   "connection.engine": "データベースエンジン",
   "connection.engineDriverNotFound": "エンジンドライバー {engine} が見つかりません。インストールされたプラグインを確認し、接続編集ダイアログでエンジンを変更してください",
