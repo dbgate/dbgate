@@ -42,7 +42,7 @@ class LineReader {
       this.lineStream.pause();
       const line = lineBuffer.toString();
       if (this.resolve) {
-        const resolve = this.resolve;
+        const { resolve } = this.resolve;
         this.resolve = null;
         resolve(line);
         return;
@@ -54,7 +54,7 @@ class LineReader {
       if (this.endEmitted) return;
       this.endEmitted = true;
       if (this.resolve) {
-        const resolve = this.resolve;
+        const { resolve } = this.resolve;
         this.resolve = null;
         this.isEnded = true;
         resolve(null);
@@ -62,12 +62,31 @@ class LineReader {
       }
       this.queue.enqueue(null);
     };
+
+    // read failure must not look like EOF - callers would silently return partial data
+    const onError = err => {
+      if (this.error) return;
+      this.error = err;
+      this.endEmitted = true;
+      this.lineStream.destroy();
+      if (this.resolve) {
+        const { reject } = this.resolve;
+        this.resolve = null;
+        reject(err);
+      }
+    };
     this.lineStream.on('end', onEnd);
-    this.lineStream.on('close', onEnd);
-    input.on('error', onEnd);
+    this.lineStream.on('close', () => {
+      if (!this.error) onEnd();
+    });
+    this.lineStream.on('error', onError);
+    input.on('error', onError);
   }
 
   readLine() {
+    if (this.error) {
+      return Promise.reject(this.error);
+    }
     if (this.isEnded) {
       return Promise.resolve(null);
     }
@@ -80,8 +99,8 @@ class LineReader {
 
     this.lineStream.resume();
 
-    return new Promise(resolve => {
-      this.resolve = resolve;
+    return new Promise((resolve, reject) => {
+      this.resolve = { resolve, reject };
     });
   }
 
