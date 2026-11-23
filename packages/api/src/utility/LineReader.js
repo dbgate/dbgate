@@ -1,4 +1,4 @@
-const readline = require('readline');
+const { createLineStream } = require('./lineStream');
 
 class Queue {
   constructor() {
@@ -33,13 +33,14 @@ class LineReader {
     this.queue = new Queue();
     this.resolve = null;
     this.isEnded = false;
-    this.rl = readline.createInterface({
-      input,
-    });
-    this.input.pause();
+    // don't use Node readline - it splits lines also on U+2028/U+2029, which JSON.stringify
+    // writes unescaped, so JSONL rows containing them would be broken
+    this.lineStream = createLineStream(input);
+    this.lineStream.pause();
 
-    this.rl.on('line', line => {
-      this.input.pause();
+    this.lineStream.on('data', lineBuffer => {
+      this.lineStream.pause();
+      const line = lineBuffer.toString();
       if (this.resolve) {
         const resolve = this.resolve;
         this.resolve = null;
@@ -49,7 +50,9 @@ class LineReader {
       this.queue.enqueue(line);
     });
 
-    this.rl.on('close', () => {
+    const onEnd = () => {
+      if (this.endEmitted) return;
+      this.endEmitted = true;
       if (this.resolve) {
         const resolve = this.resolve;
         this.resolve = null;
@@ -58,7 +61,10 @@ class LineReader {
         return;
       }
       this.queue.enqueue(null);
-    });
+    };
+    this.lineStream.on('end', onEnd);
+    this.lineStream.on('close', onEnd);
+    input.on('error', onEnd);
   }
 
   readLine() {
@@ -72,7 +78,7 @@ class LineReader {
       return Promise.resolve(res);
     }
 
-    this.input.resume();
+    this.lineStream.resume();
 
     return new Promise(resolve => {
       this.resolve = resolve;
@@ -81,7 +87,8 @@ class LineReader {
 
   close() {
     this.isEnded = true;
-    this.rl.close();
+    this.input.unpipe(this.lineStream);
+    this.lineStream.destroy();
     this.queue = new Queue();
     return new Promise(resolve => this.input.close(resolve));
   }
