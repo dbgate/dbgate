@@ -28,17 +28,10 @@
     "prepublishOnly": "yarn build",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mssql",
     "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mssql",
-    "plugout": "dbgate-plugout dbgate-plugin-mssql",
-    "test": "jest"
-  },
-  "jest": {
-    "testMatch": [
-      "**/*.test.js"
-    ]
+    "plugout": "dbgate-plugout dbgate-plugin-mssql"
   },
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.8",
-    "jest": "^30.5.2",
     "webpack": "^5.111.1",
     "webpack-cli": "^7.2.3"
   },
