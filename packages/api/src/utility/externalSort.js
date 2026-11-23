@@ -23,6 +23,8 @@ async function* readChunkLines(file) {
   const stream = fs.createReadStream(file);
   // lineStream instead of readline - readline splits also on U+2028/U+2029 inside JSON strings
   const lines = createLineStream(stream);
+  // pipe() doesn't forward source errors - without this, the iterator would never see read failures
+  stream.on('error', err => lines.destroy(err));
   try {
     for await (const lineBuffer of lines) {
       const line = lineBuffer.toString();
