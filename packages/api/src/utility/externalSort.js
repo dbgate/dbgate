@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const { pipeline } = require('stream');
 const os = require('os');
-const readline = require('readline');
+const { createLineStream } = require('./lineStream');
 const path = require('path');
 const { getLogger, extractErrorLogData } = require('dbgate-tools');
 
@@ -21,14 +21,18 @@ const MAX_MERGE_FAN_IN = 16;
 // always written by this module, so a parse error indicates corruption.
 async function* readChunkLines(file) {
   const stream = fs.createReadStream(file);
-  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+  // lineStream instead of readline - readline splits also on U+2028/U+2029 inside JSON strings
+  const lines = createLineStream(stream);
+  // pipe() doesn't forward source errors - without this, the iterator would never see read failures
+  stream.on('error', err => lines.destroy(err));
   try {
-    for await (const line of rl) {
+    for await (const lineBuffer of lines) {
+      const line = lineBuffer.toString();
       if (!line.trim()) continue;
       yield JSON.parse(line); // intentionally throws on bad JSON
     }
   } finally {
-    rl.close();
+    lines.destroy();
     stream.destroy();
   }
 }
@@ -244,7 +248,8 @@ async function sortFile(infile, outfile, sort) {
 
     await new Promise((resolve, reject) => {
       const inputStream = fs.createReadStream(infile);
-      const rl = readline.createInterface({ input: inputStream, crlfDelay: Infinity });
+      // lineStream instead of readline - readline splits also on U+2028/U+2029 inside JSON strings
+      const rl = createLineStream(inputStream);
       let pendingFlush = Promise.resolve();
       let settled = false;
 
@@ -253,7 +258,7 @@ async function sortFile(infile, outfile, sort) {
         settled = true;
         // Destroy both the readline interface and the underlying stream so
         // no file descriptors are leaked when we reject while paused.
-        rl.close();
+        rl.destroy();
         inputStream.destroy();
         reject(err);
       };
@@ -263,7 +268,8 @@ async function sortFile(infile, outfile, sort) {
       inputStream.on('error', fail);
       rl.on('error', fail);
 
-      rl.on('line', line => {
+      rl.on('data', lineBuffer => {
+        const line = lineBuffer.toString();
         if (!line.trim()) return;
         let parsed;
         try {
@@ -290,7 +296,7 @@ async function sortFile(infile, outfile, sort) {
         }
       });
 
-      rl.on('close', () => {
+      rl.on('end', () => {
         if (settled) return;
         pendingFlush
           .then(() => flushChunk())
