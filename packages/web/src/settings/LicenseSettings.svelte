@@ -18,7 +18,45 @@
     let licenseKeyCheckResult = null;
 
     $: licenseKey = $settingsValues['other.licenseKey'];
-    
+
+    // incremented on every check; results of older (stale) requests are ignored
+    let checkSequence = 0;
+
+    async function checkForNewLicense(oldLicenseKey, sequence) {
+        const res = await apiCall('config/get-new-license', { oldLicenseKey });
+        if (sequence != checkSequence) {
+            return null;
+        }
+        if (res?.licenseKey) {
+            apiCall('config/update-settings', { 'other.licenseKey': res.licenseKey });
+        }
+        return res;
+    }
+
+    async function handleLicenseKeyChange(value) {
+        const sequence = ++checkSequence;
+        const checkResult = await apiCall('config/check-license', { licenseKey: value });
+        if (sequence != checkSequence) {
+            return;
+        }
+        licenseKeyCheckResult = checkResult;
+        if (checkResult?.isExpired) {
+            // automatically try to get refreshed license key; keep original result (with the button) if it fails
+            const newLicenseResult = await checkForNewLicense(value, sequence);
+            if (newLicenseResult?.status == 'ok') {
+                licenseKeyCheckResult = newLicenseResult;
+            }
+        }
+    }
+
+    async function handleCheckForNewLicenseClick() {
+        const sequence = ++checkSequence;
+        const res = await checkForNewLicense(licenseKey, sequence);
+        if (res) {
+            licenseKeyCheckResult = res;
+        }
+    }
+
 </script>
 
 <div class="heading">{_t('settings.other.license', { defaultMessage: 'License' })}</div>
@@ -26,9 +64,7 @@
 name="other.licenseKey"
 label={_t('settings.other.licenseKey', { defaultMessage: 'License key' })}
 rows={7}
-onChange={async value => {
-    licenseKeyCheckResult = await apiCall('config/check-license', { licenseKey: value });
-}}
+onChange={handleLicenseKeyChange}
 />
 {#if licenseKeyCheckResult}
 <div class="m-3 ml-5">
@@ -68,12 +104,7 @@ onChange={async value => {
             defaultMessage: 'Check for new license key',
             })}
             skipWidth
-            on:click={async () => {
-            licenseKeyCheckResult = await apiCall('config/get-new-license', { oldLicenseKey: licenseKey });
-            if (licenseKeyCheckResult.licenseKey) {
-                apiCall('config/update-settings', { 'other.licenseKey': licenseKeyCheckResult.licenseKey });
-            }
-            }}
+            on:click={handleCheckForNewLicenseClick}
         />
         </div>
     {/if}
