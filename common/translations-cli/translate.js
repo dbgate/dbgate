@@ -18,7 +18,8 @@ const languageNames = {
     'ko.json': 'Korean',
     'pt.json': 'Portuguese',
     'sk.json': 'Slovak',
-    'zh.json': 'Chinese'
+    'zh.json': 'Chinese',
+    'zh-TW.json': 'Traditional Chinese (Taiwan)'
 };
 
 // Read source (english)
