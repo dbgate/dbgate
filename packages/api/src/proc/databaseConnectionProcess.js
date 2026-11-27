@@ -24,6 +24,7 @@ const dbgateApi = require('../shell');
 const requirePlugin = require('../shell/requirePlugin');
 const path = require('path');
 const { rundir } = require('../utility/directories');
+const { keepInUse } = require('../utility/cleanDirectory');
 const fs = require('fs-extra');
 const { changeSetToSql } = require('dbgate-datalib');
 const _ = require('lodash');
@@ -674,6 +675,7 @@ async function handleExecuteSessionQuery({ sesid, sql }) {
 async function handleEvalJsonScript({ script, runid }) {
   const directory = path.join(rundir(), runid);
   fs.mkdirSync(directory);
+  const stopKeepInUse = keepInUse([directory]);
   const originalCwd = process.cwd();
   let scriptError = null;
   let finalizerError = null;
@@ -720,6 +722,7 @@ async function handleEvalJsonScript({ script, runid }) {
       process.send({ msgtype: 'runnerDone', runid });
     }
   } finally {
+    stopKeepInUse();
     process.chdir(originalCwd);
   }
 }

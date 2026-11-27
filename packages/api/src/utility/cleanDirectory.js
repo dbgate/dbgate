@@ -21,4 +21,26 @@ async function cleanDirectory(directory, age = undefined) {
   }
 }
 
+// cleanDirectory removes entries by mtime, so anything still in use (a running script's directory,
+// a data file being read) must have its mtime refreshed to survive the periodic sweep.
+function touchInUse(...paths) {
+  const now = new Date();
+  for (const file of paths) {
+    try {
+      fs.utimesSync(file, now, now);
+    } catch (err) {
+      // already removed or not created yet, nothing to protect
+    }
+  }
+}
+
+// Refreshes the given paths repeatedly until the returned function is called.
+function keepInUse(paths, intervalMs = 5 * 60 * 1000) {
+  const timer = setInterval(() => touchInUse(...paths), intervalMs);
+  timer.unref();
+  return () => clearInterval(timer);
+}
+
 module.exports = cleanDirectory;
+module.exports.touchInUse = touchInUse;
+module.exports.keepInUse = keepInUse;

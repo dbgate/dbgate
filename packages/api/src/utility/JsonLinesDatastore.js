@@ -9,6 +9,7 @@ const { getLogger, extractErrorLogData } = require('dbgate-tools');
 const { jsldir } = require('./directories');
 const LineReader = require('./LineReader');
 const { sortFile } = require('./externalSort');
+const { touchInUse } = require('./cleanDirectory');
 
 const logger = getLogger('JsonLinesDatastore');
 
@@ -82,6 +83,8 @@ class JsonLinesDatastore {
   }
 
   async _openReader(fileName) {
+    // jsldir() is swept by mtime; reading keeps the file (and its sorted copies) alive
+    touchInUse(this.file, ...Object.values(this.sortedFiles));
     // console.log('OPENING READER', fileName);
     // console.log(fs.readFileSync(fileName, 'utf-8'));
 
