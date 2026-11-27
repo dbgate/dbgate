@@ -20,6 +20,7 @@ const { isProApp } = require('./proTools');
 const updaterChannel = require('./updaterChannel');
 const flushAnalyticsOnClose = require('./flushAnalyticsOnClose');
 const { getErrorCategory } = require('./errorCategory');
+const { safeOpenExternal, registerSavedDialogFile } = require('./safeOpenExternal');
 
 // require('@electron/remote/main').initialize();
 
@@ -258,7 +259,7 @@ ipcMain.on('set-title', async (event, arg) => {
   mainWindow.setTitle(arg);
 });
 ipcMain.on('open-link', async (event, arg) => {
-  electron.shell.openExternal(arg);
+  safeOpenExternal(electron.shell, arg);
 });
 ipcMain.on('open-dev-tools', () => {
   mainWindow.webContents.openDevTools();
@@ -369,6 +370,7 @@ ipcMain.handle('showSaveDialog', async (event, options) => {
   const res = electron.dialog.showSaveDialogSync(mainWindow, withLastDialogDirectory(options));
   if (res) {
     lastDialogDirectory = path.dirname(res);
+    registerSavedDialogFile(res);
   }
   return res;
 });
@@ -376,7 +378,7 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
   electron.shell.showItemInFolder(path);
 });
 ipcMain.handle('openExternal', async (event, url) => {
-  electron.shell.openExternal(url);
+  await safeOpenExternal(electron.shell, url);
 });
 ipcMain.on('downloadUpdate', async (event, url) => {
   autoUpdater.downloadUpdate();
