@@ -200,6 +200,11 @@ export async function handleAuthOnStartup(config) {
 
   async function checkDbGateCloudLogin() {
     const sid = sessionStorage.getItem('dbgate-cloud-sid');
+    if (sid && !config.allowPrivateCloud) {
+      // the server refuses private cloud routes, the sid can't be used
+      sessionStorage.removeItem('dbgate-cloud-sid');
+      return;
+    }
     if (sid) {
       const tokenHolder = await apiCall('auth/cloud-login-redirected', { sid });
       if (tokenHolder) {

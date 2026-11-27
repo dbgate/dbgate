@@ -213,12 +213,20 @@ const publicCloudFilesLoader = () => ({
   errorValue: [],
   onError: err => publicCloudErrorStore.set(!!err),
 });
+// private cloud routes are refused by the server unless the private cloud is enabled (ALLOW_DBGATE_PRIVATE_CLOUD or Electron)
+async function isPrivateCloudDisabled() {
+  const config = await getConfig();
+  return !config?.allowPrivateCloud;
+}
+
 const cloudContentListLoader = () => ({
   url: 'cloud/content-list',
   params: {},
   reloadTrigger: { key: `cloud-content-changed` },
   errorValue: [],
   onError: err => cloudContentErrorStore.set(!!err),
+  isDisabled: isPrivateCloudDisabled,
+  disabledValue: [],
 });
 const teamFilesLoader = () => ({
   url: 'team-files/list',
@@ -244,10 +252,17 @@ const fileThemesLoader = () => ({
 });
 
 async function getCore(loader, args) {
-  const { url, params, reloadTrigger, transform, onLoaded, onError, errorValue } = loader(args);
+  const { url, params, reloadTrigger, transform, onLoaded, onError, errorValue, isDisabled, disabledValue } =
+    loader(args);
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
+    if (isDisabled && (await isDisabled())) {
+      // feature is not available on this server - don't call the API at all
+      if (onError) onError(null);
+      if (onLoaded) onLoaded(disabledValue);
+      return disabledValue;
+    }
     const resp = await apiCall(url, params);
     if (resp?.errorMessage && errorValue !== undefined) {
       if (onError) onError(resp.errorMessage);
